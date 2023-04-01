@@ -7,9 +7,10 @@
       :pkey="pkey"
       :tableName="tableName"
       :tableMetaData="tableMetaData"
-      :graphqlURL="graphqlURL"
+      :schemaMetaData="schemaMetaData"
       :visibleColumns="columnsSplitByHeadings[page - 1]"
       :clone="clone"
+      :locale="locale"
       @update:modelValue="$emit('update:modelValue', $event)"
     />
   </div>
@@ -54,9 +55,13 @@ export default {
       type: Array,
       required: false,
     },
-    graphqlURL: {
-      default: "graphql",
+    schemaMetaData: {
+      type: Object,
+      required: false,
+    },
+    locale: {
       type: String,
+      default: () => "en",
     },
   },
   mounted() {

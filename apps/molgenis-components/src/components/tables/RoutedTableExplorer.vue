@@ -2,7 +2,7 @@
   <div>
     <TableExplorer
       :tableName="tableName"
-      :graphqlURL="graphqlURL"
+      :schemaName="schemaName"
       :canEdit="canEdit"
       :canManage="canManage"
       @updateConditions="updateConditions"
@@ -20,12 +20,15 @@
       :showLimit="getLimit()"
       :showOrderBy="getOrderBy()"
       :showOrder="getOrder()"
+      :locale="locale"
+      @rowClick="$emit('rowClick', $event)"
     />
   </div>
 </template>
 
 <script>
 import TableExplorer from "./TableExplorer.vue";
+import { deepClone } from "../utils";
 
 export default {
   name: "RoutedTableExplorer",
@@ -42,9 +45,9 @@ export default {
       type: String,
       required: true,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
-      default: () => "graphql",
+      required: false,
     },
     canEdit: {
       type: Boolean,
@@ -53,6 +56,18 @@ export default {
     canManage: {
       type: Boolean,
       default: () => false,
+    },
+    locale: {
+      type: String,
+      default: () => "en",
+    },
+    showFilters: {
+      type: Array,
+      default: () => [],
+    },
+    showColumns: {
+      type: Array,
+      default: () => [],
     },
   },
   methods: {
@@ -78,7 +93,7 @@ export default {
           return this.$route.query._col.split(",");
         }
       } else {
-        return [];
+        return deepClone(this.showColumns);
       }
     },
     getFilters() {
@@ -89,7 +104,7 @@ export default {
           return this.$route.query._filter.split(",");
         }
       } else {
-        return [];
+        return deepClone(this.showFilters);
       }
     },
     getPage() {
@@ -186,10 +201,8 @@ export default {
             case "INT":
             case "LONG":
             case "DECIMAL":
-              const result = conditions
-                .map((v) => v.join(".."))
-                .join(",");
-              if(result !== "..") {
+              const result = conditions.map((v) => v.join("..")).join(",");
+              if (result !== "..") {
                 query[column.name] = result;
               } else {
                 delete query[column.name];
@@ -210,6 +223,7 @@ export default {
       }
     },
   },
+  emits: ["rowClick"],
 };
 </script>
 
@@ -221,7 +235,7 @@ export default {
       <routed-table-explorer
         id="my-table-explorer"
         tableName="Pet"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
       />
     </div>
   </div>

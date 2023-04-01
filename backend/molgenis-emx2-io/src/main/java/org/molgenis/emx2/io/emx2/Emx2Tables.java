@@ -13,7 +13,15 @@ public class Emx2Tables {
     // hidden
   }
 
+  public static void outputTableWithSystemColumns(TableStore store, Table table) {
+    Emx2Tables.outputTable(store, table, true);
+  }
+
   public static void outputTable(TableStore store, Table table) {
+    Emx2Tables.outputTable(store, table, false);
+  }
+
+  private static void outputTable(TableStore store, Table table, boolean includeSystemColumns) {
     TableMetadata metadata = table.getMetadata();
     List<String> downloadColumnNames =
         table.getMetadata().getDownloadColumnNames().stream()
@@ -28,8 +36,7 @@ public class Emx2Tables {
                         || !metadata.getColumn(c.getName()).isFile()
                         || store instanceof TableAndFileStore)
             .map(Column::getName)
-            // we skip mg_ columns
-            .filter(n -> !n.startsWith("mg_"))
+            .filter(n -> !n.startsWith("mg_") || includeSystemColumns)
             .toList();
     SelectColumn[] select =
         downloadColumnNames.stream().map(SelectColumn::s).toArray(SelectColumn[]::new);
@@ -52,8 +59,8 @@ public class Emx2Tables {
     }
 
     // in case of zip file we include the attached files
-    if (store instanceof TableAndFileStore) {
-      Emx2Files.outputFiles((TableAndFileStore) store, table);
+    if (store instanceof TableAndFileStore tableAndFileStore) {
+      Emx2Files.outputFiles(tableAndFileStore, table);
     }
   }
 }

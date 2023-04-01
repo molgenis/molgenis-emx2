@@ -2,15 +2,16 @@
   <span>
     <RowButton type="edit" @edit="isModalShown = true" />
     <EditModal
+      v-if="isModalShown"
       :id="id + 'edit-modal'"
       :tableName="tableName"
       :pkey="pkey"
       :isModalShown="isModalShown"
-      :graphqlURL="graphqlURL"
+      :schemaName="schemaName"
       @close="handleClose"
     />
   </span>
-</template> 
+</template>
 
 <script>
 import RowButton from "./RowButton.vue";
@@ -26,10 +27,9 @@ export default {
       type: String,
       required: true,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
       required: false,
-      default: () => "graphql",
     },
     pkey: {
       type: Object,
@@ -58,7 +58,7 @@ export default {
           id="row-edit-btn-sample" 
           tableName="Pet"
           :pkey="{name: 'pooky'}"
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
         />
       </div>
     </div>

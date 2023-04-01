@@ -70,12 +70,16 @@
             :key="idx + col.name + isSelected(row)"
             style="cursor: pointer"
             :style="col.showColumn ? '' : 'display: none'"
-            @click="onRowClick(row)"
+            @click="
+              {
+                onRowClick(row);
+                onCellClick(row, col);
+              }
+            "
+            :class="{ refType: isRefType(col.columnType) }"
           >
-            <data-display-cell
-              :data="row[col.id]"
-              :metaData="col"
-            ></data-display-cell>
+            <data-display-cell :data="row[col.id]" :metaData="col">
+            </data-display-cell>
           </td>
         </tr>
       </tbody>
@@ -95,6 +99,14 @@ th {
 .column-drag-header:hover .column-remove {
   visibility: visible;
 }
+
+.table .refType {
+  color: var(--primary);
+}
+.table .refType:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  text-decoration: underline;
+}
 </style>
 
 <script>
@@ -103,7 +115,7 @@ th {
  * Can be used without backend to configure a table. Note, columns can be dragged.
  */
 import DataDisplayCell from "./DataDisplayCell.vue";
-import { getPrimaryKey } from "../utils";
+import { getPrimaryKey, deepClone, isRefType } from "../utils";
 
 export default {
   components: { DataDisplayCell },
@@ -159,6 +171,7 @@ export default {
       }
       return found;
     },
+    isRefType,
     /** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
     deepEqual(object1, object2) {
       const keys1 = Object.keys(object1);
@@ -185,6 +198,16 @@ export default {
     onColumnClick(column) {
       this.$emit("column-click", column);
     },
+    onCellClick(row, column) {
+      const key = this.getPrimaryKey(row);
+      const value = row[column.id];
+      if (value) {
+        this.$emit("cellClick", {
+          cellValue: deepClone(value),
+          column: deepClone(column),
+        });
+      }
+    },
     onRowClick(row) {
       const key = this.getPrimaryKey(row);
       if (this.showSelect) {
@@ -205,7 +228,7 @@ export default {
         }
         this.$emit("update:selection", update);
       } else {
-        this.$emit("click", key);
+        this.$emit("rowClick", key);
       }
     },
   },
@@ -263,7 +286,7 @@ export default {
 </template>
 
 <script>
-import Client from "../../../src/client/client.js";
+import Client from "../../../src/client/client.ts";
 
 export default {
   data() {
@@ -312,8 +335,8 @@ export default {
     },
   },
   async mounted() {
-    const client = Client.newClient("/pet store/graphql", this.$axios);
-    const remoteMetaData = await client.fetchMetaData();
+    const client = Client.newClient("pet store", this.$axios);
+    const remoteMetaData = await client.fetchSchemaMetaData();
     const petColumns = remoteMetaData.tables.find(
       (t) => t.name === "Pet"
     ).columns;

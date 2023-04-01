@@ -33,7 +33,7 @@ public class TestGraphqSchemaFields {
 
   private static GraphQL grapql;
   private static Database database;
-  private static final String schemaName = "TestGraphqlSchemaFields";
+  private static final String schemaName = TestGraphqSchemaFields.class.getSimpleName();
   private static TaskService taskService;
   private static Schema schema;
 
@@ -66,7 +66,7 @@ public class TestGraphqSchemaFields {
     // add value
     execute("mutation{change(settings:{key:\"test\",value:\"testval\"}){message}}");
 
-    assertEquals("testval", execute("{_settings{key,value}}").at("/_settings/0/value").textValue());
+    assertEquals("testval", execute("{_settings{key,value}}").at("/_settings/1/value").textValue());
 
     // remove value
     execute("mutation{drop(settings:{key:\"test\"}){message}}");
@@ -85,7 +85,7 @@ public class TestGraphqSchemaFields {
         execute("{_settings(keys: [\"setB\"]){key,value}}").at("/_settings/0/value").textValue());
 
     // return all without key
-    assertEquals(3, execute("{_settings{key,value}}").at("/_settings").size());
+    assertEquals(4, execute("{_settings{key,value}}").at("/_settings").size());
 
     // remove value
     execute("mutation{drop(settings:{key:\"setA\"}){message}}");
@@ -241,6 +241,13 @@ public class TestGraphqSchemaFields {
     TestCase.assertEquals(
         "tweety", execute("{Pet(orderby:{name:DESC}){name}}").at("/Pet/0/name").textValue());
 
+    // order by on non-root column
+    TestCase.assertEquals(
+        "delivered",
+        execute("{Pet {orders(orderby: {orderId: ASC}) {status}}}")
+            .at("/Pet/0/orders/0/status")
+            .textValue());
+
     // filter nested
     TestCase.assertEquals(
         "red",
@@ -285,6 +292,22 @@ public class TestGraphqSchemaFields {
             .at("/User/0/pets_agg/max/weight")
             .doubleValue(),
         0.0f);
+
+    // subfilters
+    result =
+        execute(
+            "{Pet(filter:{name:{equals:\"spike\"}}){name,tags(filter:{name:{equals:\"green\"}}){name}}}");
+    assertEquals("spike", result.at("/Pet/0/name").textValue());
+    assertEquals("green", result.at("/Pet/0/tags/0/name").textValue());
+    assertEquals(1, result.at("/Pet/0/tags").size());
+
+    // nested orderby should give reasonable error
+    try {
+      execute("{Pet(filter:{name:{equals:\"spike\"}}){name,tags(orderby:{blaat:ASC}){name}}}");
+      fail("should fail");
+    } catch (MolgenisException e) {
+      assertTrue(e.getMessage().contains("Validation error of type WrongType: argument 'orderby'"));
+    }
   }
 
   @Test
@@ -325,6 +348,78 @@ public class TestGraphqSchemaFields {
   }
 
   @Test
+  public void testGroupByWithSpaces() throws IOException {
+    // rename column 'category' to 'category_test' and 'tag' to 'tag test' and 'name' to 'name test'
+    Column newCategory = schema.getTable("Pet").getMetadata().getColumn("category");
+    newCategory.setName("category test");
+    Column newTags = schema.getTable("Pet").getMetadata().getColumn("tags");
+    newTags.setName("tags test");
+    Column newCategoryName = schema.getTable("Category").getMetadata().getColumn("name");
+    newCategoryName.setName("name test");
+    Column newTagName = schema.getTable("Tag").getMetadata().getColumn("name");
+    newTagName.setName("name test");
+    schema.getTable("Pet").getMetadata().alterColumn("category", newCategory);
+    schema.getTable("Pet").getMetadata().alterColumn("tags", newTags);
+    schema.getTable("Category").getMetadata().alterColumn("name", newCategoryName);
+    schema.getTable("Tag").getMetadata().alterColumn("name", newTagName);
+
+    // refresh graphql
+    grapql =
+        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
+
+    // refs
+    JsonNode result = execute("{Pet_groupBy{count,tagsTest{nameTest}}}");
+    // 1 red
+    TestCase.assertEquals(null, result.at("/Pet_groupBy/0/tagsTest/nameTest").textValue());
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
+    // 1 green
+    TestCase.assertEquals("blue", result.at("/Pet_groupBy/1/tagsTest/nameTest").asText());
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
+    // 1 with no tags
+    TestCase.assertEquals("green", result.at("/Pet_groupBy/2/tagsTest/nameTest").textValue());
+    TestCase.assertEquals(3, result.at("/Pet_groupBy/2/count").intValue());
+
+    result = execute("{Pet_groupBy{count,categoryTest{nameTest}}}");
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
+    TestCase.assertEquals("ant", result.at("/Pet_groupBy/0/categoryTest/nameTest").textValue());
+    TestCase.assertEquals("bird", result.at("/Pet_groupBy/1/categoryTest/nameTest").textValue());
+
+    // currently doensn't contain cat because somehow 'null' are not included
+    result = execute("{Pet_groupBy{count,tagsTest{nameTest},categoryTest{nameTest}}}");
+    // 1 <untagged> cat
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
+    TestCase.assertEquals("cat", result.at("/Pet_groupBy/0/categoryTest/nameTest").textValue());
+    TestCase.assertEquals(null, result.at("/Pet_groupBy/0/tagsTest/nameTest").textValue());
+    // 1 blue mouse
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
+    TestCase.assertEquals("mouse", result.at("/Pet_groupBy/1/categoryTest/nameTest").textValue());
+    TestCase.assertEquals("blue", result.at("/Pet_groupBy/1/tagsTest/nameTest").textValue());
+    // 1 green ant
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/2/count").intValue());
+    TestCase.assertEquals("ant", result.at("/Pet_groupBy/2/categoryTest/nameTest").textValue());
+    TestCase.assertEquals("green", result.at("/Pet_groupBy/2/tagsTest/nameTest").textValue());
+
+    // N.B. in case arrays are involved total might more than count!!!
+
+    // undo rename column with spaces for any other test
+    newCategory = schema.getTable("Pet").getMetadata().getColumn("category test");
+    newCategory.setName("category");
+    newTags = schema.getTable("Pet").getMetadata().getColumn("tags test");
+    newTags.setName("tags");
+    newCategoryName = schema.getTable("Category").getMetadata().getColumn("name test");
+    newCategoryName.setName("name");
+    newTagName = schema.getTable("Tag").getMetadata().getColumn("name test");
+    newTagName.setName("name");
+    schema.getTable("Pet").getMetadata().alterColumn("category test", newCategory);
+    schema.getTable("Pet").getMetadata().alterColumn("tags test", newTags);
+    schema.getTable("Category").getMetadata().alterColumn("name test", newCategoryName);
+    schema.getTable("Tag").getMetadata().alterColumn("name test", newTagName);
+    // refresh graphql
+    grapql =
+        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
+  }
+
+  @Test
   public void testSchemaQueries() throws IOException {
     TestCase.assertEquals(schemaName, execute("{_schema{name}}").at("/_schema/name").textValue());
   }
@@ -353,19 +448,32 @@ public class TestGraphqSchemaFields {
 
     // add table
     execute(
-        "mutation{change(tables:[{name:\"blaat\",columns:[{name:\"col1\", key:1}]}]){message}}");
+        "mutation{change(tables:[{name:\"table1\",labels:[{locale:\"en\", value: \"table1\"}],descriptions:[{locale:\"en\", value: \"desc1\"}],columns:[{name:\"col1\", key:1, labels:[{locale:\"en\", value:\"column1\"}], descriptions:[{locale:\"en\", value:\"desc11\"}]}]}]){message}}");
 
-    JsonNode node = execute("{_schema{tables{name,columns{name,key}}}}");
+    JsonNode node =
+        execute(
+            "{_schema{tables{name,labels{locale,value},descriptions{locale,value},columns{name,key,labels{locale,value},descriptions{locale,value}}}}}");
+    TestCase.assertEquals(1, node.at("/_schema/tables/0/columns/0/key").intValue());
+
+    TestCase.assertEquals("en", node.at("/_schema/tables/5/labels/0/locale").asText());
+    TestCase.assertEquals("table1", node.at("/_schema/tables/5/labels/0/value").asText());
+
+    TestCase.assertEquals("en", node.at("/_schema/tables/5/descriptions/0/locale").asText());
+    TestCase.assertEquals("desc1", node.at("/_schema/tables/5/descriptions/0/value").asText());
+
+    TestCase.assertEquals("en", node.at("/_schema/tables/5/columns/0/labels/0/locale").asText());
+    TestCase.assertEquals(
+        "column1", node.at("/_schema/tables/5/columns/0/labels/0/value").asText());
 
     TestCase.assertEquals(
-        1,
-        execute("{_schema{tables{name,columns{name,key}}}}")
-            .at("/_schema/tables/0/columns/0/key")
-            .intValue());
+        "en", node.at("/_schema/tables/5/columns/0/descriptions/0/locale").asText());
+    TestCase.assertEquals(
+        "desc11", node.at("/_schema/tables/5/columns/0/descriptions/0/value").asText());
+
     TestCase.assertEquals(6, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
 
     // drop
-    execute("mutation{drop(tables:\"blaat\"){message}}");
+    execute("mutation{drop(tables:\"table1\"){message}}");
     TestCase.assertEquals(5, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
   }
 
@@ -427,6 +535,19 @@ public class TestGraphqSchemaFields {
             .getColumn("test2")
             .getVisible());
     execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
+
+    execute(
+        "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", computed:\"blaat2\"}){message}}");
+    database.clearCache(); // cannot know here, server clears caches
+    assertEquals(
+        "blaat2",
+        database
+            .getSchema(schemaName)
+            .getTable("Pet")
+            .getMetadata()
+            .getColumn("test2")
+            .getComputed());
+    execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
   }
 
   @Test
@@ -446,7 +567,11 @@ public class TestGraphqSchemaFields {
       System.out.println(convertToCamelCase("Person details"));
 
       myschema.create(
-          table("Person details", column("First name").setPkey(), column("Last_name").setPkey()),
+          table(
+              "Person details",
+              column("First name").setPkey(),
+              column("Last_name").setPkey(),
+              column("some number").setType(ColumnType.INT)),
           table(
               "Some",
               column("id").setPkey(),
@@ -455,7 +580,7 @@ public class TestGraphqSchemaFields {
 
       grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
       execute(
-          "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\"}){message}}");
+          "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\",someNumber: 6}){message}}");
 
       int count = execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue();
 
@@ -491,6 +616,15 @@ public class TestGraphqSchemaFields {
           execute("{PersonDetails(orderby:{last_name:DESC}){last_name}}")
               .at("/PersonDetails/0/last_name")
               .asText());
+
+      // aggregates should be working with spaces too
+      JsonNode agg =
+          execute(
+              "{PersonDetails_agg{sum{someNumber}avg{someNumber}min{someNumber}max{someNumber}}}");
+      TestCase.assertEquals(6, agg.at("/PersonDetails_agg/sum/someNumber").asInt());
+      TestCase.assertEquals(6, agg.at("/PersonDetails_agg/avg/someNumber").asInt());
+      TestCase.assertEquals(6, agg.at("/PersonDetails_agg/min/someNumber").asInt());
+      TestCase.assertEquals(6, agg.at("/PersonDetails_agg/max/someNumber").asInt());
 
       // delete
       execute(
@@ -595,5 +729,15 @@ public class TestGraphqSchemaFields {
     // restore
     schema = database.dropCreateSchema(schemaName);
     new PetStoreLoader().load(schema, true);
+  }
+
+  @Test
+  public void testReport() throws IOException {
+    schema = database.dropCreateSchema(schemaName);
+    new PetStoreLoader().load(schema, true);
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
+    JsonNode result = execute("{_reports(id:0){data,count}}");
+    assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
+    assertEquals(8, result.at("/_reports/count").intValue());
   }
 }

@@ -28,7 +28,15 @@ public class TestImportTableTask {
     ImportDirectoryTask t = new ImportDirectoryTask(path, schema, false);
     t.run();
 
-    assertTrue(t.toString().contains("colerror"));
+    assertTrue(
+        t.getSubTasks()
+            .get(1)
+            .getSubTasks()
+            .get(0)
+            .getSubTasks()
+            .get(0)
+            .getDescription()
+            .contains("colerror"));
 
     try {
       t = new ImportDirectoryTask(path, schema, true);

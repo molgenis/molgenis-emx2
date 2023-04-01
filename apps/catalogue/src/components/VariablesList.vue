@@ -36,11 +36,7 @@ dd {
 
 <script>
 import { request } from "graphql-request";
-import {
-  InputSearch,
-  MessageError,
-  Pagination,
-} from "molgenis-components";
+import { InputSearch, MessageError, Pagination } from "molgenis-components";
 import VariableCard from "./VariableCard.vue";
 
 export default {

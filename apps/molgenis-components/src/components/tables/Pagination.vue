@@ -22,9 +22,9 @@
         </a>
       </li>
       <li class="page-item disabled">
-        <a class="page-link text-nowrap" href="#">{{
-          rowRange(modelValue, limit, count)
-        }}</a>
+        <a class="page-link text-nowrap" href="#">
+          {{ rowRange(modelValue, limit, count) }}
+        </a>
       </li>
       <li class="page-item" :class="{ disabled: isLastPage }">
         <a
@@ -58,20 +58,25 @@
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
   props: {
+    /** current page */
     modelValue: { type: Number, default: 1 },
-    count: Number,
+    /** total records, i.e. sql count */
+    count: { type: Number, required: true },
+    /** number of records per page, i.e. sql limit */
     limit: { type: Number, default: 10 },
   },
   methods: {
-    emitValue(page, isDisabled) {
+    emitValue(page: number, isDisabled: boolean) {
       if (!isDisabled) {
         this.$emit("update:modelValue", page);
       }
     },
-    rowRange(value, limit, count) {
+    rowRange(value: number, limit: number, count: number) {
       if (count === 0) {
         return "-";
       } else {
@@ -100,7 +105,7 @@ export default {
     },
     count() {
       //reset page to within range in case count changes
-      if (this.page > this.totalPages) {
+      if (this.modelValue > this.totalPages) {
         this.$emit("update:modelValue", 1);
       }
     },
@@ -110,7 +115,7 @@ export default {
       this.$emit("update:modelValue", 1);
     }
   },
-};
+});
 </script>
 
 <docs>
@@ -141,4 +146,3 @@ export default {
   }
 </script>
 </docs>
-

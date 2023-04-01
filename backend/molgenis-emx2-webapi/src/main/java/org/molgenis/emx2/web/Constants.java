@@ -21,4 +21,9 @@ public class Constants {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
   public static final String DETAIL = "detail";
+
+  /*
+  Optional api request param key to add system columns ( mg_..) to the result
+  */
+  public static final String INCLUDE_SYSTEM_COLUMNS = "includeSystemColumns";
 }

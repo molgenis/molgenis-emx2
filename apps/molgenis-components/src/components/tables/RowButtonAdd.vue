@@ -6,11 +6,12 @@
       :id="id + 'add-modal'"
       :tableName="tableName"
       :isModalShown="isModalShown"
-      :graphqlURL="graphqlURL"
+      :schemaName="schemaName"
+      :defaultValue="defaultValue"
       @close="handleClose"
     />
   </span>
-</template> 
+</template>
 
 <script>
 import RowButton from "./RowButton.vue";
@@ -27,10 +28,13 @@ export default {
       type: String,
       required: true,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
       required: false,
-      default: () => "graphql",
+    },
+    defaultValue: {
+      type: Object,
+      required: false,
     },
   },
   data() {
@@ -55,7 +59,7 @@ export default {
         <RowButtonAdd 
           id="row-add-btn-sample" 
           tableName="Pet"
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
         />
       </div>
     </div>

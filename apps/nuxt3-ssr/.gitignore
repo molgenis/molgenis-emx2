@@ -6,3 +6,5 @@ node_modules
 .output
 .env
 dist
+public/_nuxt-styles/css/styles*
+utils/fingerprint.js

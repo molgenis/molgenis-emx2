@@ -103,6 +103,7 @@ public class MolgenisWebservice {
     GraphqlApi.createGraphQLservice(sessionManager);
     LinkedDataFragmentsApi.create(sessionManager);
     RDFApi.create(sessionManager);
+    GraphGenomeApi.create(sessionManager);
     BeaconApi.create(sessionManager);
     FAIRDataPointApi.create(sessionManager);
     BootstrapThemeService.create();
@@ -220,7 +221,9 @@ public class MolgenisWebservice {
     if (schema == null) {
       throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
     }
-    return schema.getTable(sanitize(request.params(TABLE)));
+    Table table = schema.getTable(sanitize(request.params(TABLE)));
+    if (table == null) throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
+    return table;
   }
 
   /** alternative version for getTable */

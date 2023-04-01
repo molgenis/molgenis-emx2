@@ -17,10 +17,15 @@
       class="form-control"
       @change="$emit('update:modelValue', $event.target.value)"
     >
-      <option v-if="!required" :selected="modelValue === undefined" />
+      <option
+        v-if="!required"
+        :selected="modelValue === undefined || modelValue === null"
+      >
+        {{ placeholder }}
+      </option>
       <option
         v-for="(option, index) in options"
-        :key="index"
+        :key="index + option"
         :value="option"
         :selected="modelValue == option"
       >
@@ -50,7 +55,12 @@ export default {
     MessageError,
   },
   props: {
-    options: Array,
+    options: { type: Array, required: true },
+  },
+  created() {
+    if (this.required && this.options.length === 1) {
+      this.$emit("update:modelValue", this.options[0]);
+    }
   },
 };
 </script>
@@ -107,7 +117,7 @@ export default {
       check: null,
       requiredCheck: null,
       empty: null,
-      readonlyModel: 'lion' 
+      readonlyModel: 'lion'
     };
   },
 };

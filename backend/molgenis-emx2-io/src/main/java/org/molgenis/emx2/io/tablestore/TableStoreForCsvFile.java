@@ -25,7 +25,7 @@ public class TableStoreForCsvFile implements TableStore {
     try {
       Writer writer = Files.newBufferedWriter(csvFile);
       if (rows.iterator().hasNext()) {
-        CsvTableWriter.write(rows, writer, ',');
+        CsvTableWriter.write(rows, columnNames, writer, ',');
       } else {
         // only header in case no rows provided
         writer.write(columnNames.stream().collect(Collectors.joining(",")));

@@ -14,7 +14,7 @@
     >
       <div
         class="border-0 text-left form-control"
-        style="height: auto;"
+        style="height: auto"
         @click="toggleFocus"
       >
         <span
@@ -28,7 +28,7 @@
         </span>
         <i
           class="p-2 fa fa-times"
-          style="vertical-align: middle;"
+          style="vertical-align: middle"
           @click.stop="clearSelection"
           v-if="showExpanded && selectionWithoutChildren.length > 0"
         />
@@ -57,13 +57,13 @@
         <span class="d-inline-block float-right">
           <i
             class="p-2 fa fa-times"
-            style="vertical-align: middle;"
+            style="vertical-align: middle"
             @click.stop="clearSelection"
             v-if="!showExpanded && selectionWithoutChildren.length > 0"
           />
           <i
             class="p-2 fa fa-caret-down"
-            style="vertical-align: middle;"
+            style="vertical-align: middle"
             v-if="!showExpanded"
           />
         </span>
@@ -85,7 +85,7 @@
         <InputOntologySubtree
           :key="key"
           v-if="rootTerms.length > 0"
-          style="max-height: 100vh;"
+          style="max-height: 100vh"
           class="pt-2 pl-0 dropdown-item"
           :terms="rootTerms"
           :isMultiSelect="isMultiSelect"
@@ -106,13 +106,13 @@ input:focus {
 </style>
 
 <script>
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "click-outside-vue3";
-import {convertToPascalCase} from "../utils";
+import { convertToPascalCase } from "../utils.ts";
 
 /**
  * Expects a table that has as structure {name, parent{name} and optionally code, definition, ontologyURI}
@@ -154,9 +154,9 @@ export default {
       type: String,
       required: false,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
-      default: "graphql",
+      required: false,
     },
   },
   data() {
@@ -336,7 +336,7 @@ export default {
     },
     emitValue() {
       let selectedTerms = Object.values(this.terms)
-        .filter((term) => term.selected === "complete" && !term.children)
+        .filter((term) => term.selected === "complete")
         .map((term) => {
           return { name: term.name };
         });
@@ -400,12 +400,21 @@ export default {
         //split and sanitize search terms
         let searchTerms = this.search
           .trim()
-          .split(" ")
+          .split(/[\s,:]+/)
           .filter((s) => s.trim().length > 0)
           .map((s) => s.toLowerCase());
         //check every term if it matches all search terms
         Object.values(this.terms).forEach((term) => {
-          if (searchTerms.every((s) => term.name.toLowerCase().includes(s))) {
+          if (
+            searchTerms.every(
+              (s) =>
+                term.name.toLowerCase().includes(s) ||
+                term.label?.toLowerCase().includes(s) ||
+                term.definition?.toLowerCase().includes(s) ||
+                term.code?.toLowerCase().includes(s) ||
+                term.codesystem?.toLowerCase().includes(s)
+            )
+          ) {
             term.visible = true;
             this.searchResultCount++;
 
@@ -459,6 +468,8 @@ export default {
             //then copy properties, currently only definition and label
             terms[e.name].definition = e.definition;
             terms[e.name].label = e.label;
+            terms[e.name].code = e.code;
+            terms[e.name].codesystem = e.codesystem;
           } else {
             //else simply add the record
             terms[e.name] = {
@@ -466,7 +477,9 @@ export default {
               visible: true,
               selected: false,
               definition: e.definition,
-              label: e.label
+              code: e.code,
+              codesystem: e.codesystem,
+              label: e.label,
             };
           }
           if (e.parent) {
@@ -496,7 +509,7 @@ export default {
   },
   async mounted() {
     if (this.tableName) {
-      const client = Client.newClient(this.graphqlURL);
+      const client = Client.newClient(this.schemaName);
       this.data = (
         await client.fetchTableData(this.tableName, { limit: this.limit || 20 })
       )[this.tableId];
@@ -521,7 +534,7 @@ export default {
     <demo-item>
       <InputOntology
           id="input-ontology-1"
-          v-model="value"
+          v-model="value1"
           label="My ontology select"
           description="please choose your options in tree below"
           :options="[
@@ -533,14 +546,14 @@ export default {
         ]"
           :isMultiSelect="true"
       />
-      <div>You selected: {{ value }}</div>
+      <div>You selected: {{ value1 }}</div>
     </demo-item>
 
     <label>ontology array expanded</label>
     <demo-item>
       <InputOntology
           id="input-ontology-2"
-          v-model="value"
+          v-model="value2"
           label="My ontology select expanded"
           :showExpanded="true"
           description="please choose your options in tree below"
@@ -553,7 +566,7 @@ export default {
         ]"
           :isMultiSelect="true"
       />
-      <div>You selected: {{ value }}</div>
+      <div>You selected: {{ value2 }}</div>
     </demo-item>
 
     <label>ontology (single) with backend data</label>
@@ -562,11 +575,11 @@ export default {
           id="input-ontology-3"
           label="Ontology select with backend data"
           description="please choose your options in tree below"
-          v-model="value"
-          :isMultiSelect="false"
+          v-model="value3"
           tableName="Tag"
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
       />
+      <div>You selected: {{ value3 }}</div>
     </demo-item>
 
     <label>ontology array with backend data</label>
@@ -575,11 +588,32 @@ export default {
           id="input-ontology-4"
           label="Ontology select with backend data"
           description="please choose your options in tree below"
-          v-model="value"
+          v-model="value4"
           :isMultiSelect="true"
           tableName="Tag"
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
       />
+      <div>You selected: {{ value4 }}</div>
+    </demo-item>
+
+    <label>ontology  expanded</label>
+    <demo-item>
+      <InputOntology
+          id="input-ontology-5"
+          v-model="value5"
+          label="My ontology select expanded"
+          :showExpanded="true"
+          description="please choose your options in tree below"
+          :options="[
+          { name: 'pet' },
+          { name: 'cat', parent: { name: 'pet' } },
+          { name: 'dog', parent: { name: 'pet' } },
+          { name: 'cattle' },
+          { name: 'cow', parent: { name: 'cattle' } },
+        ]"
+          :isMultiSelect="false"
+      />
+      <div>You selected: {{ value5 }}</div>
     </demo-item>
   </div>
 </template>
@@ -587,7 +621,11 @@ export default {
   export default {
     data: function () {
       return {
-        value: null,
+        value1: null,
+        value2: null,
+        value3: null,
+        value4: null,
+        value5: null
       };
     },
   };

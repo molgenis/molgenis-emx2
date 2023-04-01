@@ -29,7 +29,7 @@
             network: network,
           },
           query: {
-            model: variable.resource.id
+            model: variable.resource.id,
           },
         }"
         >view details
@@ -43,7 +43,7 @@
             name: variable.name,
           },
           query: {
-            model: variable.resource.id
+            model: variable.resource.id,
           },
         }"
         >view details

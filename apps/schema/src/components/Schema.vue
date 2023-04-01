@@ -48,6 +48,7 @@
           :schemaNames="schemaNames"
           @update:modelValue="handleInput"
           :isManager="isManager"
+          :locales="session?.settings?.locales"
         />
       </div>
     </div>
@@ -58,10 +59,19 @@
 table {
   table-layout: fixed;
 }
+
+/*
+  Work around for bootstrap 4 interaction effect with dropdown ( from Breadcrumb )
+  Use the available space between z layers to move the sticky app header below the menu dropdown and modals
+  1000 - 2 = 998
+*/
+.sticky-top {
+  z-index: 998;
+}
 </style>
 
 <script>
-import { request } from "graphql-request";
+import { request, gql } from "graphql-request";
 import SchemaView from "./SchemaView.vue";
 import SchemaToc from "./SchemaToc.vue";
 import NomnomDiagram from "./NomnomDiagram.vue";
@@ -73,7 +83,7 @@ import {
   Spinner,
   deepClone,
 } from "molgenis-components";
-import VueScrollTo from 'vue-scrollto';
+import VueScrollTo from "vue-scrollto";
 
 export default {
   components: {
@@ -85,6 +95,11 @@ export default {
     SchemaToc,
     Spinner,
     NomnomDiagram,
+  },
+  props: {
+    session: {
+      type: Object,
+    },
   },
   data() {
     return {
@@ -147,6 +162,7 @@ export default {
         }
       });
       tables.forEach((table) => {
+        delete table.externalSchema;
         table.columns = table.columns
           ? table.columns.filter((column) => column.table === table.name)
           : [];
@@ -156,7 +172,13 @@ export default {
       tables.push(...schema.ontologies);
       request(
         "graphql",
-        `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message} }`,
+        gql`
+          mutation change($tables: [MolgenisTableInput]) {
+            change(tables: $tables) {
+              message
+            }
+          }
+        `,
         {
           tables: tables,
         }
@@ -182,10 +204,61 @@ export default {
     loadSchema() {
       this.error = null;
       this.loading = true;
-      request(
-        "graphql",
-        "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,readonly,description,semantics,validation,visible} } } }"
-      )
+      const query = gql`
+        {
+          _session {
+            schemas
+            roles
+          }
+          _schema {
+            name
+            tables {
+              name
+              tableType
+              inherit
+              externalSchema
+              labels {
+                locale
+                value
+              }
+              descriptions {
+                locale
+                value
+              }
+              semantics
+              columns {
+                id
+                name
+                labels {
+                  locale
+                  value
+                }
+                table
+                position
+                columnType
+                inherited
+                key
+                refSchema
+                refTable
+                refLink
+                refBack
+                refLabel
+                required
+                readonly
+                descriptions {
+                  locale
+                  value
+                }
+                semantics
+                validation
+                visible
+                computed
+              }
+            }
+          }
+        }
+      `;
+      request("graphql", query)
         .then((data) => {
           this.rawSchema = this.addOldNamesAndRemoveMeta(data._schema);
           this.schema = this.convertToSubclassTables(this.rawSchema);
@@ -214,7 +287,7 @@ export default {
           : schema.tables.filter(
               (table) =>
                 table.tableType !== "ONTOLOGIES" &&
-                table.externalSchema === undefined
+                table.externalSchema === schema.name
             );
         tables.forEach((t) => {
           t.oldName = t.name;
@@ -235,7 +308,7 @@ export default {
           : schema.tables.filter(
               (table) =>
                 table.tableType === "ONTOLOGIES" &&
-                table.externalSchema === undefined
+                table.externalSchema === schema.name
             );
         //set old name so we can delete them properly
         schema.ontologies.forEach((o) => {

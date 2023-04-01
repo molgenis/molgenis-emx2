@@ -2,14 +2,14 @@
   <div>
     <div v-if="isMultiConditionFilter">
       <component
-          :is="filterType"
-          :id="id"
-          :condition="conditions"
-          @updateCondition="updateCondition(index - 1, $event)"
-          :tableName="tableName"
-          :graphqlURL="graphqlURL"
+        :is="filterType"
+        :id="id"
+        :condition="conditions"
+        @updateCondition="updateCondition(index - 1, $event)"
+        :tableName="tableName"
+        :schemaName="schemaName"
       ></component>
-   </div>
+    </div>
     <div v-else v-for="index in fieldCount" :key="index">
       <component
         :is="filterType"
@@ -20,7 +20,7 @@
         @addCondition="fieldCount++"
         :showAddButton="index === conditions.length"
         :tableName="tableName"
-        :graphqlURL="graphqlURL"
+        :schemaName="schemaName"
       ></component>
     </div>
   </div>
@@ -37,7 +37,7 @@ import RefFilter from "./RefFilter.vue";
 import RefListFilter from "./RefListFilter.vue";
 import OntologyFilter from "./OntologyFilter.vue";
 import LongFilter from "./LongFilter.vue";
-import { deepClone } from "../utils.js";
+import { deepClone } from "../utils.ts";
 
 const filterTypeMap = {
   STRING: StringFilter,
@@ -102,7 +102,7 @@ export default {
       type: String,
       required: false,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
       required: false,
     },
@@ -239,7 +239,7 @@ export default {
             id="filter-input-ontology"
             columnType="ONTOLOGY"
             tableName="Tag"
-            graphqlURL="/pet store/graphql"
+            schemaName="pet store"
             :conditions="conditions6"
             @updateConditions="conditions6 = $event"
         />
@@ -253,7 +253,7 @@ export default {
             id="filter-input-ref"
             columnType="REF"
             tableName="Tag"
-            graphqlURL="/pet store/graphql"
+            schemaName="pet store"
             :conditions="conditions7"
             @updateConditions="conditions7 = $event"
         />
@@ -267,7 +267,7 @@ export default {
             id="filter-input-reflist"
             columnType="REF_ARRAY"
             tableName="Tag"
-            graphqlURL="/pet store/graphql"
+            schemaName="pet store"
             :conditions="conditions8"
             @updateConditions="conditions8 = $event"
         />

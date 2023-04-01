@@ -2,32 +2,41 @@
   <div>
     <FormInput
       v-for="column in columnsWithoutMeta.filter(showColumn)"
-      :key="column.name"
+      :key="JSON.stringify(column)"
       :id="`${id}-${column.name}`"
       v-model="internalValues[column.id]"
       :columnType="column.columnType"
-      :description="column.description"
+      :description="getColumnDescription(column)"
       :errorMessage="errorPerColumn[column.id]"
-      :graphqlURL="graphqlURL"
-      :label="column.name"
+      :label="getColumnLabel(column)"
+      :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
       :pkey="getPrimaryKey(internalValues, tableMetaData)"
-      :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
+      :readonly="
+        column.readonly ||
+        (pkey && column.key === 1 && !clone) ||
+        (column.computed !== undefined && column.computed.trim() != '')
+      "
       :refBack="column.refBack"
       :refTablePrimaryKeyObject="getPrimaryKey(internalValues, tableMetaData)"
-      :refLabel="column.refLabel"
+      :refLabel="column.refLabel ? column.refLabel : column.refLabelDefault"
       :required="column.required"
       :tableName="column.refTable"
       :canEdit="canEdit"
+      :filter="refLinkFilter(column)"
     />
   </div>
 </template>
 
 <script>
 import FormInput from "./FormInput.vue";
-import constants from "../constants";
-import {getPrimaryKey, deepClone, convertToCamelCase} from "../utils";
-import Expressions from "@molgenis/expressions";
-
+import constants from "../constants.js";
+import {
+  getPrimaryKey,
+  deepClone,
+  convertToCamelCase,
+  getLocalizedLabel,
+  getLocalizedDescription,
+} from "../utils";
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
 
 export default {
@@ -75,15 +84,19 @@ export default {
       type: Object,
       required: false,
     },
-    // graphqlURL: url to graphql endpoint
-    graphqlURL: {
-      default: "graphql",
-      type: String,
+    // object with the whole schema, needed to create refLink filter
+    schemaMetaData: {
+      type: Object,
+      required: true,
     },
     canEdit: {
       type: Boolean,
       required: false,
       default: () => true,
+    },
+    locale: {
+      type: String,
+      default: () => "en",
     },
   },
   emits: ["update:modelValue"],
@@ -94,7 +107,7 @@ export default {
     columnsWithoutMeta() {
       return this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
-            (column) => !column.name.startsWith("mg_")
+            (column) => !column.name?.startsWith("mg_")
           )
         : [];
     },
@@ -113,25 +126,39 @@ export default {
   },
   methods: {
     getPrimaryKey,
+    getColumnLabel(column) {
+      return getLocalizedLabel(column, this.locale);
+    },
+    getColumnDescription(column) {
+      return getLocalizedDescription(column, this.locale);
+    },
     showColumn(column) {
-      const isColumnVisible = Array.isArray(this.visibleColumns)
-        ? this.visibleColumns.map((column) => column.name).includes(column.name)
-        : true;
-
-      return (
-        (isColumnVisible &&
+      if (column.reflink) {
+        return this.internalValues[convertToCamelCase(column.refLink)];
+      } else {
+        const isColumnVisible = Array.isArray(this.visibleColumns)
+          ? this.visibleColumns.find((col) => col.name === column.name)
+          : true;
+        return (
+          isColumnVisible &&
           this.visible(column.visible, column.id) &&
-          column.name !== "mg_tableclass" &&
-          !column.refLink) ||
-        this.internalValues[column.refLink]
-      );
+          column.name !== "mg_tableclass"
+        );
+      }
     },
     visible(expression, columnId) {
       if (expression) {
         try {
-          return Expressions.evaluate(expression, this.internalValues);
+          return executeExpression(
+            expression,
+            this.internalValues,
+            this.tableMetaData
+          );
         } catch (error) {
-          this.errorPerColumn[columnId] = `Invalid visibility expression`;
+          this.errorPerColumn[
+            columnId
+          ] = `Invalid visibility expression, reason: ${error}`;
+          return true;
         }
       } else {
         return true;
@@ -156,18 +183,67 @@ export default {
           );
         });
     },
+    applyComputed() {
+      //apply computed
+      this.tableMetaData.columns.forEach((c) => {
+        if (c.computed) {
+          try {
+            this.internalValues[c.id] = executeExpression(
+              c.computed,
+              this.internalValues,
+              this.tableMetaData
+            );
+          } catch (error) {
+            this.errorPerColumn[c.id] = "Computation failed: " + error;
+          }
+        }
+      });
+    },
+    //create a filter in case inputs are linked by overlapping refs
+    refLinkFilter(c) {
+      //need to figure out what refs overlap
+      if (
+        c.refLink &&
+        this.showColumn(c) &&
+        this.internalValues[convertToCamelCase(c.refLink)]
+      ) {
+        let filter = {};
+        this.tableMetaData.columns.forEach((c2) => {
+          if (c2.name === c.refLink) {
+            this.schemaMetaData.tables.forEach((t) => {
+              //check how the reftable overlaps with columns in our column
+              if (t.name === c.refTable) {
+                t.columns.forEach((c3) => {
+                  if (c3.key === 1 && c3.refTable === c2.refTable) {
+                    filter[c3.name] = {
+                      equals:
+                        this.internalValues[convertToCamelCase(c.refLink)],
+                    };
+                  }
+                });
+              }
+            });
+          }
+        });
+        return filter;
+      }
+    },
   },
   watch: {
     internalValues: {
-      handler(newValue) {
+      handler() {
+        //clean up errors
+        this.errorPerColumn = {};
         this.validateTable();
-        this.$emit("update:modelValue", newValue);
+        this.applyComputed();
+        this.$emit("update:modelValue", this.internalValues);
       },
       deep: true,
     },
     tableMetaData: {
       handler() {
         this.validateTable();
+        this.applyComputed();
       },
       deep: true,
     },
@@ -177,6 +253,7 @@ export default {
       this.internalValues = deepClone(this.defaultValue);
     }
     this.validateTable();
+    this.applyComputed();
   },
 };
 
@@ -205,7 +282,7 @@ function getColumnError(column, values, tableMetaData) {
     return "Invalid hyperlink";
   }
   if (column.validation) {
-    return evaluateValidationExpression(column, values);
+    return getColumnValidationError(column, values, tableMetaData);
   }
   if (isRefLinkWithoutOverlap(column, tableMetaData, values)) {
     return `value should match your selection in column '${column.refLink}' `;
@@ -214,16 +291,36 @@ function getColumnError(column, values, tableMetaData) {
   return undefined;
 }
 
-function evaluateValidationExpression(column, values) {
+function getColumnValidationError(column, values, tableMetaData) {
   try {
-    if (!Expressions.evaluate(column.validation, values)) {
+    //use the keys as variables
+    const result = executeExpression(column.validation, values, tableMetaData);
+    if (result === false) {
       return `Applying validation rule returned error: ${column.validation}`;
-    } else {
+    } else if (result === true || result === undefined) {
       return undefined;
+    } else {
+      return `Applying validation rule returned error: ${result}`;
     }
   } catch (error) {
-    return "Invalid validation expression, reason: " + error.ha;
+    return `Invalid validation expression '${column.validation}', reason: ${error}`;
   }
+}
+
+function executeExpression(expression, values, tableMetaData) {
+  //make sure all columns have keys to prevent reference errors
+  const copy = deepClone(values);
+  tableMetaData.columns.forEach((c) => {
+    if (!copy.hasOwnProperty(c.id)) {
+      copy[c.id] = null;
+    }
+  });
+
+  const func = new Function(
+    Object.keys(copy),
+    `return eval('${expression.replaceAll("'", '"')}');`
+  );
+  return func(...Object.values(copy));
 }
 
 function isRefLinkWithoutOverlap(column, tableMetaData, values) {
@@ -276,7 +373,8 @@ function containsInvalidEmail(emails) {
             v-model="rowData"
             :tableName="tableName"
             :tableMetaData="tableMetaData"
-            :graphqlURL="graphqlURL"
+            :locale="locale"
+            :schemaMetaData="schemaMetaData"
         />
       </div>
       <div class="col-6 border-left">
@@ -291,7 +389,7 @@ function containsInvalidEmail(emails) {
               <option>User</option>
             </select>
           </dd>
-
+          <InputString v-model="locale" label="locale" id="locale"/>
           <dt>Row data</dt>
           <dd>{{ rowData }}</dd>
 
@@ -307,16 +405,24 @@ function containsInvalidEmail(emails) {
     data: function() {
       return {
         showRowEdit: true,
+        locale: 'en',
         tableName: 'Pet',
         tableMetaData: {
           columns: [],
         },
+        schemaMetaData: {},
         rowData: {},
-        graphqlURL: '/pet store/graphql',
+        schemaName: 'pet store',
       };
     },
     watch: {
       async tableName(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.rowData = {};
+          await this.reload();
+        }
+      },
+      async locale(newValue, oldValue) {
         if (newValue !== oldValue) {
           this.rowData = {};
           await this.reload();
@@ -327,10 +433,9 @@ function containsInvalidEmail(emails) {
       async reload() {
         // force complete component reload to have a clean demo component and hit all lifecycle events
         this.showRowEdit = false;
-        const client = this.$Client.newClient(this.graphqlURL);
-        this.tableMetaData = (await client.fetchMetaData()).tables.find(
-            (table) => table.id === this.tableName,
-        );
+        const client = this.$Client.newClient(this.schemaName);
+        this.schemaMetaData = await client.fetchSchemaMetaData();
+        this.tableMetaData = await client.fetchTableMetaData(this.tableName);
         // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
         this.showRowEdit = true;
       },

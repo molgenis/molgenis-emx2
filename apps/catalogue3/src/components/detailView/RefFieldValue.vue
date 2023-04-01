@@ -1,7 +1,7 @@
 <template>
   <RouterLink
     :to="{
-      name: metaData.refTable + '-details',
+      name: convertToPascalCase(metaData.refTable) + '-details',
       params: data,
     }"
     ><ObjectDisplay :data="data" :metaData="metaData" />
@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { ObjectDisplay } from "molgenis-components";
+import { ObjectDisplay, convertToPascalCase } from "molgenis-components";
 
 export default {
   name: "RefFieldValue",
@@ -23,6 +23,9 @@ export default {
       type: Object,
       required: true,
     },
+  },
+  methods: {
+    convertToPascalCase,
   },
 };
 </script>

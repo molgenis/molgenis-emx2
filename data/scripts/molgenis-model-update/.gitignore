@@ -1,0 +1,11 @@
+*__pycache__*
+*.pyc
+*_data.zip
+*_upload.zip
+*data
+datamodels
+.idea
+venv
+.env
+*catalogue_data_model*
+External identifiers.csv

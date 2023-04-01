@@ -6,12 +6,14 @@
   </div>
 </template>
 
-<script>
-import { request } from "../../client/client.js";
+<script lang="ts">
+import { defineComponent } from "vue";
+import ITask from "./ITask";
+import { request } from "../../client/client";
 import SubTask from "./SubTask.vue";
 import Spinner from "../layout/Spinner.vue";
 
-export default {
+export default defineComponent({
   name: "Task",
   components: {
     SubTask,
@@ -25,7 +27,7 @@ export default {
   },
   data() {
     return {
-      task: null,
+      task: null as ITask | null,
       loading: true,
       error: false,
     };
@@ -54,13 +56,13 @@ export default {
         request("graphql", query)
           .then((data) => {
             this.task = data._tasks[0];
-            this.loading = false;
             this.$emit("taskUpdated", this.task);
+            this.loading = false;
           })
           .catch((error) => {
             console.log(JSON.stringify(error));
+            this.error = error;
             this.loading = false;
-            this.error = true;
           });
         await sleep(500);
       }
@@ -69,9 +71,9 @@ export default {
   created() {
     this.startMonitorTask();
   },
-};
+});
 
-function sleep(ms) {
+function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 </script>

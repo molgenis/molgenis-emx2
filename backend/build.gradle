@@ -1,7 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
-    id "com.diffplug.spotless" version "6.12.0" apply false
+    id "com.diffplug.spotless" version "6.16.0" apply false
 }
 
 repositories {
@@ -21,9 +21,6 @@ subprojects {
         maven {
             url = 'https://repo.maven.apache.org/maven2'
         }
-        maven {
-            url = "https://registry.molgenis.org/repository/maven-public"
-        }
     }
 
     spotless {
@@ -35,27 +32,27 @@ subprojects {
 
     /* default dependencies for all projects*/
     dependencies {
-        implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
-        implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.19.0'
-        implementation 'org.jooq:jooq:3.17.6'
+        implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
+        implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.20.0'
+        implementation 'org.jooq:jooq:3.18.0'
         implementation 'com.zaxxer:HikariCP:5.0.1'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.1'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.14.1'
-        implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.1'
-        implementation 'com.fasterxml.jackson.core:jackson-core:2.14.1'
-        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.14.1'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.14.2'
+        implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
+        implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
+        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.14.2'
         implementation 'com.graphql-java:graphql-java:16.2'
         implementation 'com.sparkjava:spark-core:2.9.4'
         implementation 'org.pac4j:pac4j-core:5.4.5'
         implementation 'org.pac4j:pac4j-oidc:5.4.5'
         implementation 'org.pac4j:pac4j-http:5.4.5'
         implementation 'org.pac4j:spark-pac4j:5.0.0'
-        implementation 'org.javers:javers-core:6.8.0'
-        implementation 'com.nimbusds:nimbus-jose-jwt:9.25.6'
+        implementation 'org.javers:javers-core:6.11.0'
+        implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
 
         //also used outside test
         implementation 'junit:junit:4.13.2'
-        testImplementation 'org.mockito:mockito-core:4.9.0'
+        testImplementation 'org.mockito:mockito-core:5.1.1'
     }
 
     jacocoTestReport {

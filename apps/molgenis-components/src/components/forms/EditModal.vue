@@ -9,11 +9,12 @@
           :pkey="pkey"
           :tableName="tableName"
           :tableMetaData="tableMetaData"
-          :graphqlURL="graphqlURL"
+          :schemaMetaData="schemaMetaData"
           :visibleColumns="visibleColumns"
           :clone="clone"
           :page="currentPage"
           @setPageCount="pageCount = $event"
+          :locale="locale"
           class="flex-grow-1"
         />
         <RowEdit
@@ -23,9 +24,10 @@
           :pkey="pkey"
           :tableName="tableName"
           :tableMetaData="tableMetaData"
-          :graphqlURL="graphqlURL"
+          :schemaMetaData="schemaMetaData"
           :visibleColumns="visibleColumns"
           :clone="clone"
+          :locale="locale"
           class="flex-grow-1"
         />
         <div v-if="pageCount > 1" class="border-left chapter-menu">
@@ -78,13 +80,13 @@
 </template>
 
 <script>
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import EditModalWizard from "./EditModalWizard.vue";
 import RowEdit from "./RowEdit.vue";
 import ButtonAction from "./ButtonAction.vue";
-import { filterObject, deepClone } from "../utils.js";
+import { filterObject, deepClone, getLocalizedLabel } from "../utils.ts";
 import constants from "../constants";
 
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
@@ -102,6 +104,7 @@ export default {
     return {
       rowData: {},
       tableMetaData: null,
+      schemaMetaData: null,
       client: null,
       errorMessage: null,
       loaded: true,
@@ -123,10 +126,9 @@ export default {
       type: Boolean,
       required: true,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
       required: false,
-      default: () => "graphql",
     },
     pkey: {
       type: Object,
@@ -148,10 +150,19 @@ export default {
       required: false,
       default: () => null,
     },
+    locale: {
+      type: String,
+      default: () => "en",
+    },
   },
   computed: {
     title() {
-      return `${this.titlePrefix} ${this.tableName}`;
+      return `${this.titlePrefix} into table: ${this.label} (${this.tableName})`;
+    },
+    label() {
+      if (this.tableMetaData) {
+        return getLocalizedLabel(this.tableMetaData);
+      }
     },
     pageHeadings() {
       const headings = this.tableMetaData.columns
@@ -187,7 +198,7 @@ export default {
       const result = await this.client[action](
         formData,
         this.tableName,
-        this.graphqlURL
+        this.schemaName
       ).catch(this.handleSaveError);
       if (result) {
         this.handleClose();
@@ -204,7 +215,7 @@ export default {
       }
     },
     async fetchRowData() {
-      const result = this.client.fetchRowData(this.tableName, this.pkey);
+      const result = await this.client.fetchRowData(this.tableName, this.pkey);
       if (!result) {
         this.errorMessage = `Error, unable to fetch data for this row (${this.pkey})`;
       } else {
@@ -218,8 +229,9 @@ export default {
   },
   async mounted() {
     this.loaded = false;
-    this.client = Client.newClient(this.graphqlURL);
-    const settings = await this.client.fetchSettings(this.graphqlURL);
+    this.client = Client.newClient(this.schemaName);
+    this.schemaMetaData = await this.client.fetchSchemaMetaData();
+    const settings = await this.client.fetchSettings();
 
     this.useChapters =
       settings.find((item) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME)
@@ -311,7 +323,7 @@ export default {
       :pkey="demoKey"
       :clone="demoMode === 'clone'"
       :isModalShown="isModalShown"
-      :graphqlURL="graphqlURL"
+      :schemaName="schemaName"
       @close="isModalShown = false"
     />
   </DemoItem>
@@ -321,21 +333,21 @@ export default {
 export default {
   data: function () {
     return {
+      schemaName: "pet store",
       tableName: "Pet",
       demoMode: "insert", // one of [insert, update, clone]
       demoKey: null, // empty in case of insert
       isModalShown: false,
-      graphqlURL: "/pet store/graphql",
       useChapters: true
     };
   },
   methods: {
     async reload() {
-      const client = this.$Client.newClient(this.graphqlURL);
+      const client = this.$Client.newClient(this.schemaName);
       const tableMetaData = await client.fetchTableMetaData(this.tableName);
       const rowData = await client.fetchTableDataValues(this.tableName);
       this.demoKey = this.$utils.getPrimaryKey(rowData[0], tableMetaData);
-      const settings = await client.fetchSettings(this.graphqlURL);
+      const settings = await client.fetchSettings();
       this.useChapters =
         settings.find((item) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME)?.value !==
         "false";

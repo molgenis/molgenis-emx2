@@ -32,7 +32,7 @@
           <TableSearch
             :lookupTableName="tableName"
             :filter="filter"
-            :graphqlURL="graphqlURL"
+            :schemaName="schemaName"
             :canEdit="canEdit"
             @select="select($event)"
             @deselect="deselect(selectIdx)"
@@ -80,9 +80,9 @@ export default {
   },
   props: {
     tableName: String,
-    graphqlURL: {
-      default: "graphql",
+    schemaName: {
       type: String,
+      required: false,
     },
     filter: Object,
     refLabel: String,
@@ -116,10 +116,9 @@ export default {
       }
       const names = Object.keys(object);
       const vals = Object.values(object);
+      const refLabel = this.refLabel ? this.refLabel : this.refLabelDefault;
       try {
-        return new Function(...names, "return `" + this.refLabel + "`;")(
-          ...vals
-        );
+        return new Function(...names, "return `" + refLabel + "`;")(...vals);
       } catch (err) {
         return (
           err.message +
@@ -128,7 +127,7 @@ export default {
           " vals:" +
           JSON.stringify(vals) +
           " and template: " +
-          this.refLabel
+          refLabel
         );
       }
     },
@@ -146,8 +145,8 @@ export default {
       id="input-ref-select-1" 
       v-model="value1" 
       tableName="Pet" 
-      graphqlURL="/pet store/graphql
-    "/>
+      schemaName="pet store"
+    />
     Selection: {{ value1 }}
   </div>
 
@@ -157,7 +156,7 @@ export default {
         id="input-ref-select-2"
         v-model="value2"
         tableName="Pet"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
     />
     Selection: {{ value2 }}
   </div>
@@ -169,7 +168,7 @@ export default {
         v-model="value3"
         tableName="Pet"
         :filter="{category:{name: {equals:'dog'}}}"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
     />
     Selection: {{ value3 }}
   </div>

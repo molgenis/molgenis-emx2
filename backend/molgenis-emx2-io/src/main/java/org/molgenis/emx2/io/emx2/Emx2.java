@@ -15,6 +15,7 @@ public class Emx2 {
   public static final String DESCRIPTION = "description";
   public static final String TABLE_EXTENDS = "tableExtends";
   public static final String COLUMN_TYPE = "columnType";
+  public static final String LABEL = "label";
   public static final String KEY = "key";
   public static final String REF_SCHEMA = "refSchema";
   public static final String REF_TABLE = "refTable";
@@ -23,6 +24,8 @@ public class Emx2 {
   public static final String REF_BACK = "refBack";
   public static final String REQUIRED = "required";
   private static final String VALIDATION = "validation";
+  private static final String VISIBLE = "visible";
+  private static final String COMPUTED = "computed";
   private static final String SEMANTICS = "semantics";
   private static final String COLUMN_POSITION = "position";
   private static final String TABLE_TYPE = "tableType";
@@ -52,7 +55,6 @@ public class Emx2 {
 
       // load table metadata, this is when columnName is empty
       if (r.getString(COLUMN_NAME) == null) {
-        schema.getTableMetadata(tableName).setDescription(r.getString(DESCRIPTION, false));
         schema.getTableMetadata(tableName).setInherit(r.getString(TABLE_EXTENDS));
         schema.getTableMetadata(tableName).setImportSchema(r.getString(REF_SCHEMA));
         schema.getTableMetadata(tableName).setSemantics(r.getStringArray(SEMANTICS, false));
@@ -61,6 +63,27 @@ public class Emx2 {
               .getTableMetadata(tableName)
               .setTableType(TableType.valueOf(r.getString(TABLE_TYPE)));
         }
+        if (r.containsName(LABEL)) schema.getTableMetadata(tableName).setLabel(r.getString(LABEL));
+        // labels i18n
+        r.getColumnNames().stream()
+            .filter(name -> name.startsWith(LABEL + ":"))
+            .forEach(
+                value -> {
+                  schema
+                      .getTableMetadata(tableName)
+                      .setLabel(r.getString(value, false), (value.split(":")[1]));
+                });
+        if (r.containsName(DESCRIPTION))
+          schema.getTableMetadata(tableName).setDescription(r.getString(DESCRIPTION, false));
+        // description i18n
+        r.getColumnNames().stream()
+            .filter(name -> name.startsWith(DESCRIPTION + ":"))
+            .forEach(
+                value -> {
+                  schema
+                      .getTableMetadata(tableName)
+                      .setDescription(r.getString(value, false), (value.split(":")[1]));
+                });
       }
 
       // load column metadata
@@ -84,7 +107,16 @@ public class Emx2 {
           if (r.notNull(REF_BACK)) column.setRefBack(r.getString(REF_BACK));
           if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
           if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
+          // description i18n
+          r.getColumnNames().stream()
+              .filter(name -> name.startsWith(DESCRIPTION + ":"))
+              .forEach(
+                  value -> {
+                    column.setDescription(r.getString(value), (value.split(":")[1]));
+                  });
           if (r.notNull(VALIDATION)) column.setValidation(r.getString(VALIDATION));
+          if (r.notNull(VISIBLE)) column.setVisible(r.getString(VISIBLE));
+          if (r.notNull(COMPUTED)) column.setComputed(r.getString(COMPUTED));
           if (r.notNull(SEMANTICS)) column.setSemantics(r.getStringArray(SEMANTICS));
           if (r.notNull(REF_JS_TEMPLATE)) column.setRefLabel(r.getString(REF_JS_TEMPLATE));
           if (r.notNull(COLUMN_POSITION)) column.setPosition(r.getInteger(COLUMN_POSITION));
@@ -93,6 +125,15 @@ public class Emx2 {
                 columnPosition++); // this ensures positions accross table hiearchy matches those in
           // imported
           // file
+          // get labels
+          if (r.notNull(LABEL)) column.setLabel(r.getString(LABEL));
+          // labels i18n
+          r.getColumnNames().stream()
+              .filter(name -> name.startsWith(LABEL + ":"))
+              .forEach(
+                  value -> {
+                    column.setLabel(r.getString(value), (value.split(":")[1]));
+                  });
 
           schema.getTableMetadata(tableName).add(column);
         } catch (Exception e) {
@@ -109,8 +150,14 @@ public class Emx2 {
   }
 
   public static void outputMetadata(TableStore store, SchemaMetadata schema) {
-    store.writeTable(
-        "molgenis",
+    // headers
+    List<String> headers = getHeaders(schema);
+    store.writeTable("molgenis", headers, toRowList(schema));
+  }
+
+  public static List getHeaders(SchemaMetadata schema) {
+    List headers = new ArrayList();
+    headers.addAll(
         List.of(
             TABLE_NAME,
             TABLE_EXTENDS,
@@ -123,10 +170,20 @@ public class Emx2 {
             REF_TABLE,
             REF_LINK,
             REF_BACK,
+            REF_JS_TEMPLATE,
             VALIDATION,
-            SEMANTICS,
-            DESCRIPTION),
-        toRowList(schema));
+            VISIBLE,
+            COMPUTED,
+            SEMANTICS));
+    // add label locales that are used
+    schema
+        .getLocales()
+        .forEach(locale -> headers.add("en".equals(locale) ? LABEL : LABEL + ":" + locale));
+    schema
+        .getLocales()
+        .forEach(
+            locale -> headers.add("en".equals(locale) ? DESCRIPTION : DESCRIPTION + ":" + locale));
+    return headers;
   }
 
   /** Outputs tables + columns. */
@@ -141,7 +198,8 @@ public class Emx2 {
         tables.stream()
             .map(t -> t.getNonInheritedColumns())
             .flatMap(List::stream)
-            .sorted()
+            .sorted(
+                Comparator.comparing(Column::getRootTableName).thenComparing(Column::getPosition))
             .toList(); // NOSONAR cannot use toList because immutable
 
     List<Row> result = new ArrayList<>();
@@ -161,8 +219,24 @@ public class Emx2 {
       row.setString(REF_LINK, null);
       row.setString(REF_BACK, null);
       row.setString(VALIDATION, null);
+      row.setString(VISIBLE, null);
+      row.setString(COMPUTED, null);
       if (t.getSemantics() != null) row.setStringArray(SEMANTICS, t.getSemantics());
-      if (t.getDescription() != null) row.setString(DESCRIPTION, t.getDescription());
+      for (Map.Entry<String, String> entry : t.getLabels().entrySet()) {
+        if (entry.getKey().equals("en")) {
+          row.set(LABEL, entry.getValue());
+        } else {
+          row.set(LABEL + ":" + entry.getKey(), entry.getValue());
+        }
+      }
+      for (Map.Entry<String, String> entry : t.getDescriptions().entrySet()) {
+        if (entry.getKey().equals("en")) {
+          row.set(DESCRIPTION, entry.getValue());
+        } else {
+          row.set(DESCRIPTION + ":" + entry.getKey(), entry.getValue());
+        }
+      }
+
       result.add(row);
     }
 
@@ -181,9 +255,25 @@ public class Emx2 {
         if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
         if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
         if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
-        if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
+        if (c.getRefLabel() != null) row.setString(REF_JS_TEMPLATE, c.getRefLabel());
+        for (Map.Entry<String, String> label : c.getDescriptions().entrySet()) {
+          if (label.getKey().equals("en")) {
+            row.set(DESCRIPTION, label.getValue());
+          } else {
+            row.set(DESCRIPTION + ":" + label.getKey(), label.getValue());
+          }
+        }
         if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
+        if (c.getComputed() != null) row.set(COMPUTED, c.getComputed());
+        if (c.getVisible() != null) row.set(VISIBLE, c.getVisible());
         if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
+        for (Map.Entry<String, String> label : c.getLabels().entrySet()) {
+          if (label.getKey().equals("en")) {
+            row.set(LABEL, label.getValue());
+          } else {
+            row.set(LABEL + ":" + label.getKey(), label.getValue());
+          }
+        }
         result.add(row);
       }
     }

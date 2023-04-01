@@ -55,7 +55,7 @@ public class TableStoreForXlsxFile implements TableStore {
         wb = new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), ROW_ACCESS_WINDOW_SIZE);
       }
       if (rows.iterator().hasNext()) {
-        writeRowsToSheet(name, rows, wb);
+        writeRowsToSheet(name, columnNames, rows, wb);
       } else {
         writeHeaderOnlyToSheet(name, columnNames, wb);
       }
@@ -80,14 +80,9 @@ public class TableStoreForXlsxFile implements TableStore {
     }
   }
 
-  private void writeRowsToSheet(String name, Iterable<Row> rows, SXSSFWorkbook wb)
+  private void writeRowsToSheet(
+      String name, List<String> columnNames, Iterable<Row> rows, SXSSFWorkbook wb)
       throws IOException {
-
-    // get the row columns
-    Set<String> columnNames = new LinkedHashSet<>();
-    for (Row row : rows) {
-      columnNames.addAll(row.getColumnNames());
-    }
 
     // create the sheet
     SXSSFSheet sheet = wb.createSheet(name);
