@@ -229,11 +229,6 @@ public class TableStoreForXlsxFile implements TableStore {
       case BOOLEAN:
         row.setBool(colName, cell.getBooleanCellValue());
         break;
-      case FORMULA:
-        throw new UnsupportedOperationException(
-            String.format(
-                "Found formula in Excel file on column %s row %s; should not happen in this function",
-                colName, rowNum));
       default:
         throw new UnsupportedOperationException(
             String.format(
