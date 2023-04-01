@@ -55,11 +55,6 @@ public class WebApiSmokeTests {
     // will be created by the RunMolgenisEmx2.main
     db.dropSchemaIfExists("pet store");
 
-    // grant a user permission
-    schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
-    schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
-    db.grantCreateSchema(PET_SHOP_OWNER);
-
     // start web service for testing, including env variables
     RunMolgenisEmx2.main(
         new String[] {
@@ -89,6 +84,10 @@ public class WebApiSmokeTests {
 
     // should be created
     schema = db.getSchema("pet store");
+    // grant a user permission
+    schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
+    schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
+    db.grantCreateSchema(PET_SHOP_OWNER);
   }
 
   @AfterClass
