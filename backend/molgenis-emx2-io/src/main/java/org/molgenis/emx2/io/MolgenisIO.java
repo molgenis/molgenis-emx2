@@ -1,7 +1,5 @@
 package org.molgenis.emx2.io;
 
-import static org.molgenis.emx2.io.ImportSchemaEmx1Task.getEmx1Attributes;
-import static org.molgenis.emx2.io.ImportSchemaEmx1Task.getEmx1Entities;
 import static org.molgenis.emx2.io.emx2.Emx2.outputMetadata;
 import static org.molgenis.emx2.io.emx2.Emx2Members.outputRoles;
 import static org.molgenis.emx2.io.emx2.Emx2Settings.outputSettings;
@@ -9,7 +7,6 @@ import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTable;
 import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTableWithSystemColumns;
 
 import java.nio.file.Path;
-import java.util.List;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.tablestore.*;
@@ -40,20 +37,6 @@ public class MolgenisIO {
 
   public static void toExcelFile(Path excelFile, Schema schema, boolean includeSystemColumns) {
     outputAll(new TableStoreForXlsxFile(excelFile), schema, includeSystemColumns);
-  }
-
-  public static void toEmx1ExcelFile(Path excelFile, Schema schema) {
-    executeEmx1Export(new TableStoreForXlsxFile(excelFile), schema);
-  }
-
-  private static void executeEmx1Export(TableStore store, Schema schema) {
-    // write metadata
-    store.writeTable("entities", List.of("UNSUPPORTED"), getEmx1Entities(schema.getMetadata()));
-    store.writeTable("attributes", List.of("UNSUPPORTED"), getEmx1Attributes(schema.getMetadata()));
-    // write data
-    for (String tableName : schema.getTableNames()) {
-      outputTable(store, schema.getTable(tableName));
-    }
   }
 
   public static void toZipFile(Path zipFile, Table table, boolean includeSystemColumns) {

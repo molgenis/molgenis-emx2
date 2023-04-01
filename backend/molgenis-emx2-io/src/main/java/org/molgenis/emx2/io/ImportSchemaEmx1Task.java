@@ -258,24 +258,4 @@ public class ImportSchemaEmx1Task extends Task {
         return STRING; // string, enum, others will default to string
     }
   }
-
-  public static List<Row> getEmx1Entities(SchemaMetadata schema) {
-    List<Row> result = new ArrayList<>();
-    for (TableMetadata table : schema.getTables()) {
-      Emx1Entity e = new Emx1Entity(table);
-      result.add(e.toRow());
-    }
-    return result;
-  }
-
-  public static List<Row> getEmx1Attributes(SchemaMetadata schema) {
-    List<Row> rows = new ArrayList<>();
-    for (TableMetadata table : schema.getTables()) {
-      for (Column c : table.getLocalColumns()) {
-        Emx1Attribute a = new Emx1Attribute(c);
-        rows.add(a.toRow());
-      }
-    }
-    return rows;
-  }
 }

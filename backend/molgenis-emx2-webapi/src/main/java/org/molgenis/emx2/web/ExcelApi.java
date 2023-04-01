@@ -72,11 +72,7 @@ public class ExcelApi {
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Path excelFile = tempDir.resolve("download.xlsx");
-      if (request.queryParams("emx1") != null) {
-        MolgenisIO.toEmx1ExcelFile(excelFile, schema);
-      } else {
-        MolgenisIO.toExcelFile(excelFile, schema, includeSystemColumns);
-      }
+      MolgenisIO.toExcelFile(excelFile, schema, includeSystemColumns);
 
       response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       response.header(
