@@ -53,6 +53,8 @@ subprojects {
         //also used outside test
         implementation 'junit:junit:4.13.2'
         testImplementation 'org.mockito:mockito-core:5.1.1'
+        //allows to set environment variables in test
+        testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
     }
 
     jacocoTestReport {
@@ -83,6 +85,11 @@ subprojects {
     } else {
         //don't cache database init
         test.outputs.upToDateWhen { false }
+    }
+
+    //enable environment variables to be set by test
+    tasks.test {
+        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
     }
     test {
         maxParallelForks = Runtime.runtime.availableProcessors() / 2

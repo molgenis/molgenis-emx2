@@ -7,7 +7,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
+public class PetStoreLoader extends AbstractDataLoader {
 
   public static final String CATEGORY = "Category";
   public static final String TAG = "Tag";
@@ -80,7 +80,7 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
   }
 
   @Override
-  public void load(Schema schema, boolean includeDemoData) {
+  void loadInternalImplementation(Schema schema, boolean includeDemoData) {
     schema.migrate(getSchemaMetadata());
     if (includeDemoData) {
       loadExampleData(schema);
