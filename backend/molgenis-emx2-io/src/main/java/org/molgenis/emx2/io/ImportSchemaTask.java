@@ -6,7 +6,7 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
 
 public class ImportSchemaTask extends Task {
-  private TableStore store;
+  private TableStore tableStore;
   private Schema schema;
 
   public enum Filter {
@@ -19,7 +19,7 @@ public class ImportSchemaTask extends Task {
     super(description, strict);
     Objects.requireNonNull(store, "tableStore cannot be null");
     Objects.requireNonNull(schema, "schema cannot be null");
-    this.store = store;
+    this.tableStore = store;
     this.schema = schema;
   }
 
@@ -38,12 +38,12 @@ public class ImportSchemaTask extends Task {
             Schema schema = db.getSchema(this.schema.getName());
 
             // attempt emx1
-            if (store.containsTable("attributes")) {
-              Task subTask = new ImportSchemaEmx1Task(store, schema);
+            if (tableStore.containsTable("attributes")) {
+              Task subTask = new ImportSchemaEmx1Task(tableStore, schema);
               this.addSubTask(subTask);
               subTask.run();
             } else {
-              Task subTask = new ImportSchemaEmx2Task(store, schema, isStrict());
+              Task subTask = new ImportSchemaEmx2Task(tableStore, schema, isStrict());
               this.addSubTask(subTask);
               subTask.run();
             }

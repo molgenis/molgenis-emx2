@@ -164,10 +164,10 @@ public class ImportSchemaEmx1Task extends Task {
         Column column =
             column(attribute.getName())
                 .setOldName(attribute.getName())
+                .setLabel(attribute.getLabel())
                 .setType(type)
                 .setRequired(!attribute.getNillable())
                 .setReadonly(attribute.getReadonly())
-                // get label as description, and if also description concat that too
                 .setDescription(attribute.getDescription())
                 .setVisible(attribute.getVisible())
                 .setValidation(attribute.getVisible())
