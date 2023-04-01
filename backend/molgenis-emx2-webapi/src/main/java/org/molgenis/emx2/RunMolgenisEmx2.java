@@ -15,7 +15,7 @@ public class RunMolgenisEmx2 {
 
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
 
-  private static final boolean INCLUDE_CATALOGUE_DEMO =
+  public static final boolean INCLUDE_CATALOGUE_DEMO =
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_CATALOGUE_DEMO, false, BOOL);
 

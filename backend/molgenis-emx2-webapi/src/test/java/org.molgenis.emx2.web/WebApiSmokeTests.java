@@ -31,7 +31,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
@@ -52,8 +51,9 @@ public class WebApiSmokeTests {
 
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
-    schema = db.dropCreateSchema("pet store");
-    new PetStoreLoader().load(schema, true);
+
+    // will be created by the RunMolgenisEmx2.main
+    db.dropSchemaIfExists("pet store");
 
     // grant a user permission
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
@@ -86,6 +86,9 @@ public class WebApiSmokeTests {
             .when()
             .post("api/graphql")
             .sessionId();
+
+    // should be created
+    schema = db.getSchema("pet store");
   }
 
   @AfterClass
