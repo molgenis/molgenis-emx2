@@ -2,8 +2,8 @@ package org.molgenis.emx2.io;
 
 import java.io.IOException;
 import java.util.List;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.datamodels.test.ArrayTypeTestExample;
@@ -18,7 +18,7 @@ public class TestImportExportAllExamples {
 
   static Database db;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
   }

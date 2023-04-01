@@ -51,7 +51,8 @@ subprojects {
         implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
 
         //also used outside test
-        implementation 'junit:junit:4.13.2'
+        implementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
         testImplementation 'org.mockito:mockito-core:5.1.1'
     }
 
@@ -85,6 +86,7 @@ subprojects {
         test.outputs.upToDateWhen { false }
     }
     test {
+        useJUnitPlatform()
         maxParallelForks = Runtime.runtime.availableProcessors() / 2
         failFast true
         testLogging {
