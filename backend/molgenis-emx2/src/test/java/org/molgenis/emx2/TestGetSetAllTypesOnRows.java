@@ -149,7 +149,7 @@ public class TestGetSetAllTypesOnRows {
     // cast int from some object
     r.setString("test", "blaat");
     try {
-      assertEquals(9, r.getIntegerArray("test"));
+      assertEquals(new Integer[] {9}, r.getIntegerArray("test"));
       fail("cannot convert, should fail");
     } catch (Exception e) {
     }
