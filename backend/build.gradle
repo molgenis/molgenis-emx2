@@ -56,6 +56,10 @@ subprojects {
         testImplementation 'org.mockito:mockito-core:5.1.1'
     }
 
+    jacoco {
+        toolVersion = "0.8.8"
+        applyTo junitPlatformTest
+    }
     jacocoTestReport {
         reports {
             xml.enabled true
@@ -87,18 +91,7 @@ subprojects {
     }
     test {
         useJUnitPlatform()
-        maxParallelForks = Runtime.runtime.availableProcessors() / 2
-        failFast true
-        testLogging {
-            events "passed", "skipped", "failed" //, "standardOut", "standardError"
-
-            showExceptions true
-            exceptionFormat "full"
-            showCauses true
-            showStackTraces true
-
-            showStandardStreams = false
-        }
+        finalizedBy jacocoTestReport
     }
 }
 
