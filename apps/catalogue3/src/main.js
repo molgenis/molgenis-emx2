@@ -28,8 +28,8 @@ import HomeView from "./views/HomeView.vue";
 import "molgenis-components/dist/style.css";
 
 const scrollBehavior = (to, from, savedPosition) => {
-  return savedPosition || { top: 0, left: 0 }
-}
+  return savedPosition || { top: 0, left: 0 };
+};
 const router = createRouter({
   history: createWebHashHistory(),
   scrollBehavior: scrollBehavior,

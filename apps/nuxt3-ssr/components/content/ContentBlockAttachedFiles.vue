@@ -1,37 +1,43 @@
-<script setup>
-defineProps({
-  title: {
-    type: String,
-  },
-  description: {
-    type: String,
-  },
-});
+<script setup lang="ts">
+const { documents } = defineProps<{
+  title: string;
+  description?: string;
+  documents: IDocumentation[];
+}>();
+
+function looksLikeImage(document: IDocumentation) {
+  return (
+    document?.file?.extension &&
+    ["jpg", "jpeg", "jfif", "pjpeg", "pjp", "png", "svg", "webp"].includes(
+      document.file.extension
+    )
+  );
+}
+
+const images = documents.filter(looksLikeImage);
+const otherDocuments = documents.filter((d) => !looksLikeImage(d));
 </script>
 
 <template>
   <ContentBlock :title="title" :description="description">
     <div class="grid gap-2.5">
-      <FileList title="Images" :columnCount="3">
+      <FileList v-if="images?.length" title="Images" :columnCount="3">
         <FileImageCard
-          title="Vragenlijst en huisbezoeken infographic.png"
-          url="https://via.placeholder.com/174x96"
-        />
-        <FileImageCard
-          title="Random afbeelding.jpg"
-          url="https://via.placeholder.com/1500x1100"
-        />
-        <FileImageCard
-          title="UMCG logo.png"
-          url="https://via.placeholder.com/150x600"
+          v-for="image in images"
+          :title="image?.name"
+          :url="image.url ? image.url : image?.file?.url"
         />
       </FileList>
-      <FileList title="Documents" :columnCount="2">
+      <FileList
+        v-if="otherDocuments?.length"
+        title="Documents"
+        :columnCount="2"
+      >
         <FileDocumentCard
-          title="The public documentation of Lifelines NEXT Cohort.pdf"
-          url="#"
+          v-for="document in otherDocuments"
+          :title="document?.name"
+          :url="document.url ? document.url : document?.file?.url"
         />
-        <FileDocumentCard title="Variables.xls" url="#" />
       </FileList>
     </div>
   </ContentBlock>

@@ -4,6 +4,7 @@ import { Ref } from "vue";
 import subcohortsQuery from "~~/gql/subcohorts";
 import collectionEventsQuery from "~~/gql/collectionEvents";
 import ontologyFragment from "~~/gql/fragments/ontology";
+import fileFragment from "~~/gql/fragments/file";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -27,12 +28,13 @@ const query = gql`
       collectionType {
         name
       }
-      populationAgeGroups ${loadGql(ontologyFragment)}
+      populationAgeGroups {
+        name order code parent { code }
+      }
       startYear
       endYear
       countries {
-        name
-        order
+        name order
       }
       regions {
         name
@@ -41,6 +43,7 @@ const query = gql`
       numberOfParticipants
       numberOfParticipantsWithSamples
       designDescription
+      designSchematic ${loadGql(fileFragment)}
       design {
         definition
         name
@@ -57,9 +60,7 @@ const query = gql`
           name
           website
           description
-          logo {
-            url
-          }
+          logo ${loadGql(fileFragment)}
         }
       }
       networks {
@@ -67,12 +68,7 @@ const query = gql`
         name
         description
         website
-        logo {
-          id
-          url
-          size
-          extension
-        }
+        logo ${loadGql(fileFragment)}
       }
       collectionEvents {
         name
@@ -126,15 +122,14 @@ const query = gql`
       }
       dataAccessFee
       releaseDescription
-      documentation {
-        name
-        file {
-          url
-        }
-        url
-      }
       fundingStatement
       acknowledgements
+      documentation { 
+        name
+        description
+        url
+        file ${loadGql(fileFragment)}
+      }
     }
   }
 `;
@@ -213,27 +208,39 @@ function onSubcohortsLoaded(rows: any) {
 }
 
 let tocItems = computed(() => {
-  let items = [
+  let tableOffContents = [
     { label: "Description", id: "Description" },
     { label: "General design", id: "GeneralDesign" },
   ];
+  if (cohort?.documentation) {
+    tableOffContents.push({ label: "Attached files", id: "Files" });
+  }
   if (cohort?.contributors) {
-    items.push({ label: "Contact & contributors", id: "Contributors" });
+    tableOffContents.push({
+      label: "Contact & contributors",
+      id: "Contributors",
+    });
   }
   if (cohort?.collectionEvents) {
-    items.push({ label: "Available data & samples", id: "AvailableData" });
+    tableOffContents.push({
+      label: "Available data & samples",
+      id: "AvailableData",
+    });
   }
   // { label: 'Variables & topics', id: 'Variables' },
   if (subcohorts?.value?.length) {
-    items.push({ label: "Subpopulations", id: "Subpopulations" });
+    tableOffContents.push({ label: "Subpopulations", id: "Subpopulations" });
   }
   if (collectionEvents?.value?.length)
-    items.push({ label: "Collection events", id: "CollectionEvents" });
+    tableOffContents.push({
+      label: "Collection events",
+      id: "CollectionEvents",
+    });
   if (cohort?.networks) {
-    items.push({ label: "Networks", id: "Networks" });
+    tableOffContents.push({ label: "Networks", id: "Networks" });
   }
   if (cohort?.partners) {
-    items.push({ label: "Partners", id: "Partners" });
+    tableOffContents.push({ label: "Partners", id: "Partners" });
   }
 
   if (
@@ -241,17 +248,20 @@ let tocItems = computed(() => {
     cohort?.dataAccessConditionsDescription ||
     cohort?.releaseDescription
   ) {
-    items.push({ label: "Access Conditions", id: "access-conditions" });
+    tableOffContents.push({
+      label: "Access Conditions",
+      id: "access-conditions",
+    });
   }
 
   if (cohort?.fundingStatement || cohort?.acknowledgements) {
-    items.push({
+    tableOffContents.push({
       label: "Funding & Citation requirements ",
       id: "funding-and-acknowledgement",
     });
   }
 
-  return items;
+  return tableOffContents;
 });
 
 let accessConditionsItems = computed(() => {
@@ -289,6 +299,8 @@ let fundingAndAcknowledgementItems = computed(() => {
 
   return items;
 });
+
+useHead({ title: cohort?.acronym || cohort?.name });
 </script>
 <template>
   <LayoutsDetailPage>
@@ -300,8 +312,8 @@ let fundingAndAcknowledgementItems = computed(() => {
         <template #prefix>
           <BreadCrumbs
             :crumbs="{
-              // Home: `/${route.params.schema}/ssr-catalogue`,
-              Cohorts: `/${route.params.schema}/ssr-catalogue`,
+              Home: `/${route.params.schema}/ssr-catalogue`,
+              Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
             }"
           />
         </template>
@@ -322,7 +334,7 @@ let fundingAndAcknowledgementItems = computed(() => {
         <ContentBlockIntro
           :image="cohort?.logo?.url"
           :link="cohort?.website"
-          :contact="`mailto:${cohort?.contactEmail}`"
+          :contact="cohort?.contactEmail"
         />
         <ContentBlockDescription
           id="Description"
@@ -336,10 +348,12 @@ let fundingAndAcknowledgementItems = computed(() => {
           :description="cohort?.designDescription"
           :cohort="cohort"
         />
-        <!-- <ContentBlockAttachedFiles
+        <ContentBlockAttachedFiles
+          v-if="cohort?.documentation?.length"
           id="Files"
-          title="Attached Files Generic Example"
-        /> -->
+          title="Attached Files"
+          :documents="cohort.documentation"
+        />
 
         <ContentBlockContact
           v-if="cohort?.contributors"

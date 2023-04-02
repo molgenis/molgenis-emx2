@@ -351,6 +351,8 @@ public class Row {
         return (T) getUuid(name);
       case "UUID[]":
         return (T) getUuidArray(name);
+      case "byte[]":
+        return (T) getBinary(name);
       default:
         throw new MolgenisException(
             "Unknown type: Cannot cast column to java columnType. "

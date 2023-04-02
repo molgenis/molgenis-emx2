@@ -13,12 +13,14 @@ public class Constants {
   public static final String REF_TABLE_NAME = "refTable";
   public static final String REF_LINK = "refLink";
   public static final String REF_LABEL = "refLabel";
+  public static final String REF_LABEL_DEFAULT = "refLabelDefault";
   public static final String REF_BACK = "refBack";
   public static final String CASCADE_DELETE = "cascadeDelete";
   public static final String TABLE = "table";
   public static final String COLUMN = "column";
   public static final String FORM = "form";
   public static final String READONLY = "readonly";
+  public static final String COMPUTED = "computed";
   public static final String VISIBLE_EXPRESSION = "visible";
   public static final String DESCRIPTION = "description";
   public static final String IS_CHANGELOG_ENABLED = "isChangelogEnabled";
@@ -55,6 +57,7 @@ public class Constants {
   public static final String MOLGENIS_OIDC_CLIENT_NAME = "MOLGENIS_OIDC_CLIENT_NAME";
   public static final String MOLGENIS_OIDC_DISCOVERY_URI = "MOLGENIS_OIDC_DISCOVERY_URI";
   public static final String MOLGENIS_OIDC_CALLBACK_URL = "MOLGENIS_OIDC_CALLBACK_URL";
+  public static final String MOLGENIS_INCLUDE_CATALOGUE_DEMO = "MOLGENIS_INCLUDE_CATALOGUE_DEMO";
 
   public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
 

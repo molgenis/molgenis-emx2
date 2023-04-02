@@ -6,34 +6,26 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { request } from "graphql-request";
+import { ref } from "vue";
 
-export default {
-  data() {
-    return {
-      rows: Array,
-      loading: false,
-      graphqlError: null,
-    };
-  },
-  created() {
-    let query = "{Pet{name}}";
-    this.loading = true;
-    //do query
-    request("graphql", query)
-      .then((data) => {
-        this.rows = data["Pet"];
-        this.loading = false;
-      })
-      .catch((error) => {
-        if (Array.isArray(error.response.errors)) {
-          this.graphqlError = error.response.errors[0].message;
-        } else {
-          this.graphqlError = error;
-        }
-        this.loading = false;
-      });
-  },
-};
+const rows = ref(Array);
+const loading = ref(true);
+const graphqlError = ref(null);
+
+const query = "{Pet{name}}";
+request("graphql", query)
+  .then((data) => {
+    rows.value = data["Pet"];
+    loading.value = false;
+  })
+  .catch((error) => {
+    if (Array.isArray(error.response.errors)) {
+      graphqlError.value = error.response.errors[0].message;
+    } else {
+      graphqlError.value = error;
+    }
+    loading.value = false;
+  });
 </script>

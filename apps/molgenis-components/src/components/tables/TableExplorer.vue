@@ -34,18 +34,64 @@
             <h6>download</h6>
             <div>
               <div>
-                <ButtonAlt :href="'../api/zip/' + tableId">zip</ButtonAlt>
+                <span class="fixed-width">zip</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableId"
+                  >all rows</ButtonAlt
+                >
               </div>
               <div>
-                <ButtonAlt :href="'../api/excel/' + tableId">excel</ButtonAlt>
+                <span class="fixed-width">csv</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableId"
+                  >all rows</ButtonAlt
+                >
+                <span v-if="Object.keys(graphqlFilter).length > 0">
+                  |
+                  <ButtonAlt
+                    :href="
+                      '/' +
+                      schemaName +
+                      '/api/csv/' +
+                      tableId +
+                      '?filter=' +
+                      JSON.stringify(graphqlFilter)
+                    "
+                  >
+                    filtered rows
+                  </ButtonAlt>
+                </span>
               </div>
               <div>
-                <ButtonAlt :href="'../api/jsonld/' + tableId">
-                  jsonld
+                <span class="fixed-width">excel</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableId"
+                  >all rows</ButtonAlt
+                >
+                <span v-if="Object.keys(graphqlFilter).length > 0">
+                  |
+                  <ButtonAlt
+                    :href="
+                      '/' +
+                      schemaName +
+                      '/api/excel/' +
+                      tableId +
+                      '?filter=' +
+                      JSON.stringify(graphqlFilter)
+                    "
+                  >
+                    filtered rows
+                  </ButtonAlt></span
+                >
+              </div>
+              <div>
+                <span class="fixed-width">jsonld</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/jsonld/' + tableId">
+                  all rows
                 </ButtonAlt>
               </div>
               <div>
-                <ButtonAlt :href="'../api/ttl/' + tableId">ttl</ButtonAlt>
+                <span class="fixed-width">ttl</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/ttl/' + tableId"
+                  >all rows</ButtonAlt
+                >
               </div>
             </div>
           </form>
@@ -131,7 +177,6 @@
         :class="countFilters > 0 ? 'col-9' : 'col-12'"
       >
         <FilterWells
-          v-if="view !== View.AGGREGATE"
           :filters="columns"
           @updateFilters="emitConditions"
           class="border-top pt-3 pb-3"
@@ -140,30 +185,14 @@
           <Spinner />
         </div>
         <div v-if="!loading">
-          <div v-if="view === View.AGGREGATE">
-            <div v-if="aggregateColumns?.length > 0">
-              <AggregateOptions
-                :columns="columns"
-                @setAggregateColumns="aggregateColumns = $event"
-                v-model:selectedColumn="aggregateSelectedColumn"
-                v-model:selectedRow="aggregateSelectedRow"
-              />
-              <AggregateTable
-                :tableName="tableName"
-                :schemaName="schemaName"
-                :minimumValue="1"
-                :columnProperties="aggregateColumns"
-                :rowProperties="aggregateColumns"
-                :selectedColumnProperty="aggregateSelectedColumn"
-                columnNameProperty="name"
-                :selectedRowProperty="aggregateSelectedRow"
-                rowNameProperty="name"
-              />
-            </div>
-            <div v-else class="alert">
-              Not enough input to create an aggregate table
-            </div>
-          </div>
+          <AggregateTable
+            v-if="view === View.AGGREGATE"
+            :allColumns="columns"
+            :tableName="tableName"
+            :schemaName="schemaName"
+            :minimumValue="1"
+            :graphqlFilter="graphqlFilter"
+          />
           <RecordCards
             v-if="view === View.CARDS"
             class="card-columns"
@@ -210,6 +239,7 @@
             :showSelect="showSelect"
             @column-click="onColumnClick"
             @rowClick="$emit('rowClick', $event)"
+            @cellClick="handleCellClick"
           >
             <template v-slot:header>
               <label>{{ count }} records found</label>
@@ -308,39 +338,57 @@
         }}'?
       </p>
     </ConfirmModal>
+    <RefSideModal
+      v-if="refSideModalProps"
+      :table-id="refSideModalProps.table"
+      :label="refSideModalProps.label"
+      :rows="refSideModalProps.rows"
+      :schema="this.schemaName"
+      :refSchema="refSideModalProps.schema"
+      @onClose="refSideModalProps = undefined"
+      :showDataOwner="canManage"
+    />
   </div>
 </template>
 
+<style scoped>
+.fixed-width {
+  width: 3em;
+  display: inline-block;
+}
+</style>
+
 <script>
 import Client from "../../client/client.ts";
-import {
-  deepClone,
-  getPrimaryKey,
-  convertToPascalCase,
-  getLocalizedDescription,
-  getLocalizedLabel,
-} from "../utils";
-import ShowHide from "./ShowHide.vue";
-import Pagination from "./Pagination.vue";
+import FilterSidebar from "../filters/FilterSidebar.vue";
+import FilterWells from "../filters/FilterWells.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
+import ConfirmModal from "../forms/ConfirmModal.vue";
+import EditModal from "../forms/EditModal.vue";
 import IconAction from "../forms/IconAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputSearch from "../forms/InputSearch.vue";
 import InputSelect from "../forms/InputSelect.vue";
-import SelectionBox from "./SelectionBox.vue";
-import Spinner from "../layout/Spinner.vue";
-import TableMolgenis from "./TableMolgenis.vue";
-import FilterSidebar from "../filters/FilterSidebar.vue";
-import FilterWells from "../filters/FilterWells.vue";
-import RecordCards from "./RecordCards.vue";
-import TableSettings from "./TableSettings.vue";
-import EditModal from "../forms/EditModal.vue";
-import ConfirmModal from "../forms/ConfirmModal.vue";
-import RowButton from "../tables/RowButton.vue";
 import MessageError from "../forms/MessageError.vue";
+import Spinner from "../layout/Spinner.vue";
+import RowButton from "../tables/RowButton.vue";
+import {
+  convertToPascalCase,
+  deepClone,
+  getLocalizedDescription,
+  getLocalizedLabel,
+  getPrimaryKey,
+  isRefType,
+} from "../utils";
 import AggregateTable from "./AggregateTable.vue";
-import AggregateOptions from "./AggregateOptions.vue";
+import Pagination from "./Pagination.vue";
+import RecordCards from "./RecordCards.vue";
+import RefSideModal from "./RefSideModal.vue";
+import SelectionBox from "./SelectionBox.vue";
+import ShowHide from "./ShowHide.vue";
+import TableMolgenis from "./TableMolgenis.vue";
+import TableSettings from "./TableSettings.vue";
 
 const View = {
   TABLE: "table",
@@ -388,7 +436,7 @@ export default {
     EditModal,
     ConfirmModal,
     AggregateTable,
-    AggregateOptions,
+    RefSideModal,
   },
   data() {
     return {
@@ -413,9 +461,7 @@ export default {
       selectedItems: [],
       tableMetadata: null,
       view: this.showView,
-      aggregateColumns: [],
-      aggregateSelectedColumn: "",
-      aggregateSelectedRow: "",
+      refSideModalProps: undefined,
     };
   },
   props: {
@@ -549,6 +595,18 @@ export default {
         .catch(this.handleError);
       if (resp) {
         this.reload();
+      }
+    },
+    handleCellClick(event) {
+      const { column, cellValue } = event;
+      const rows = [cellValue].flat();
+      if (isRefType(column?.columnType)) {
+        this.refSideModalProps = {
+          label: column.name,
+          table: column.refTable,
+          schema: column.refSchema,
+          rows,
+        };
       }
     },
     setView(button) {
@@ -823,7 +881,7 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
   export default {
     data() {
       return {
-        showColumns: ['name'],
+        showColumns: [],
         showFilters: ['name'],
         urlConditions: {"name": "pooky,spike"},
         page: 1,

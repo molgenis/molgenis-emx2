@@ -13,14 +13,11 @@ public class HasLabelsDescriptionsAndSettings<T> extends HasSettings<T> {
 
   public T setLabels(Map<String, String> newLabels) {
     Objects.requireNonNull(newLabels);
-    this.labels = new TreeMap<>();
     // strip empty strings
     newLabels.entrySet().stream()
         .forEach(
             entry -> {
-              if (entry.getValue() != null && !"".equals(entry.getValue().trim())) {
-                this.labels.put(entry.getKey(), entry.getValue());
-              }
+              this.setLabel(entry.getValue(), entry.getKey());
             });
     return (T) this;
   }
@@ -32,11 +29,7 @@ public class HasLabelsDescriptionsAndSettings<T> extends HasSettings<T> {
 
   public T setLabel(String label, String locale) {
     Objects.requireNonNull(locale);
-    if (label == null || label.trim().equals("")) {
-      this.labels.remove(locale);
-    } else {
-      this.labels.put(locale, label);
-    }
+    this.labels.put(locale, label);
     return (T) this;
   }
 
@@ -53,7 +46,7 @@ public class HasLabelsDescriptionsAndSettings<T> extends HasSettings<T> {
     newDescriptions.entrySet().stream()
         .forEach(
             entry -> {
-              this.descriptions.put(entry.getKey(), entry.getValue());
+              this.setDescription(entry.getValue(), entry.getKey());
             });
     return (T) this;
   }

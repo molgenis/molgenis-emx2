@@ -190,7 +190,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   public List<Column> getDownloadColumnNames() {
     return getExpandedColumns(
         getColumns().stream()
-            .filter(c -> !c.isRefback())
+            .filter(c -> !c.isRefback() && !c.isHeading())
             .map(c2 -> c2.isFile() ? column(c2.getName()) : c2)
             .collect(Collectors.toList()));
   }
@@ -219,7 +219,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       if (c.isReference()) {
         for (Reference ref : c.getReferences()) {
           if (!ref.isOverlapping()) { // only add overlapping once
-            result.put(ref.getName(), ref.toPrimitiveColumn());
+            // use old name to find original column
+            result.put(ref.getName(), ref.toPrimitiveColumn().setOldName(c.getName()));
           }
         }
       } else {

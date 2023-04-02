@@ -27,15 +27,10 @@ export default gql`
       numberOfParticipants
       ageGroups {
         name
-        code
         order
-        definition
-        ontologyTermURI
+        code
         parent {
-          name
-        }
-        children {
-          name
+          code
         }
       }
       dataCategories {
@@ -64,6 +59,20 @@ export default gql`
           name
         }
       }
+      standardizedTools {
+        name
+        code
+        order
+        definition
+        ontologyTermURI
+        parent {
+          name
+        }
+        children {
+          name
+        }
+      }
+      standardizedToolsOther
       areasOfInformation {
         name
         code
