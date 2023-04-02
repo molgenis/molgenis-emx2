@@ -265,9 +265,9 @@ class SqlTable implements Table {
               columnsProvided.put(subclassName, new LinkedHashSet<>(row.getColumnNames()));
             }
 
-            // execute batch if 1000 rows, or columns provided changes
+            // execute batch; or columns provided changes
             if (columnsProvidedAreDifferent(columnsProvided.get(subclassName), row)
-                || subclassRows.get(subclassName).size() >= 1000) {
+                || subclassRows.get(subclassName).size() >= 100) {
               executeBatch(
                   (SqlSchema) db2.getSchema(subclassName.split("\\.")[0]),
                   transactionType,
@@ -507,7 +507,7 @@ class SqlTable implements Table {
             SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
 
             // delete in batches
-            int batchSize = 100000;
+            int batchSize = 1000;
             List<Row> batch = new ArrayList<>();
             for (Row row : rows) {
               batch.add(row);
