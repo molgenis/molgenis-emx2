@@ -100,13 +100,13 @@ public class GraphGenome {
 
       // sanity checks
       if (firstStart == Long.MAX_VALUE || lastEnd == Long.MIN_VALUE || firstStart >= lastEnd) {
-        throw new Exception(
+        throw new MolgenisException(
             "Cannot determine start/end range because of missing starting positions or variant reference bases");
       }
 
       // todo instead of exception, could compensate, but does it ever occur?
       if (firstStart <= DNA_PADDING) {
-        throw new Exception("Start position must be greater than " + DNA_PADDING);
+        throw new MolgenisException("Start position must be greater than " + DNA_PADDING);
       }
 
       // get reference genome sequence from UCSC API
