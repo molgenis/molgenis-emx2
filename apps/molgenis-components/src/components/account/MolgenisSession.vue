@@ -26,7 +26,7 @@
           :error="error"
           @close="closeSignupForm"
         />
-        <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
+        <ButtonOutline v-if="isOidcEnabled" :href="oidcLoginUrl" :light="true">
           Sign in</ButtonOutline
         >
         <ButtonOutline v-else @click="showSigninForm = true" :light="true">
@@ -110,6 +110,12 @@ export default defineComponent({
   computed: {
     isOidcEnabled() {
       return this.session?.settings?.isOidcEnabled === "true";
+    },
+    oidcLoginUrl() {
+      const redirectParam = window?.location?.href
+        ? `?redirect=${window.location.href}`
+        : "";
+      return "/_login" + redirectParam;
     },
     locales() {
       if (this.session?.settings?.locales) {

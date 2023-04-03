@@ -1,10 +1,10 @@
 package org.molgenis.emx2.io;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Member;
 import org.molgenis.emx2.Schema;
@@ -16,7 +16,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 public class TestEmx2Roles {
   private static Schema schema;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     Database database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(TestEmx2Roles.class.getSimpleName());

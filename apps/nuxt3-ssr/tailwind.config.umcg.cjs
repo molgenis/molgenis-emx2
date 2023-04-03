@@ -34,7 +34,7 @@ module.exports = {
       },
       backgroundColor: ({ theme }) => ({
         "button-primary": "#FF7D00",
-        "button-primary-hover": "#FF7D00",
+        "button-primary-hover": "#ffffff",
         "button-secondary": "#FF7D00",
         "button-secondary-hover": "#ff6a00",
         "button-tertiary": "#003183",
@@ -55,6 +55,7 @@ module.exports = {
         pagination: "transparent",
         "pagination-hover": "#003183",
         footer: theme("colors.white"),
+        "modal-footer": "#E3EFF8",
       }),
       backgroundImage: {
         "sidebar-gradient":
@@ -63,7 +64,7 @@ module.exports = {
       },
       textColor: ({ theme }) => ({
         "button-primary": "#FFFFFF",
-        "button-primary-hover": "#FFFFFF",
+        "button-primary-hover": "#FF7D00",
         "button-secondary": "#FFFFFF",
         "button-secondary-hover": "#FFFFFF",
         "button-tertiary": "#FFFFFF",

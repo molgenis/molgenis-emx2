@@ -1,11 +1,11 @@
 package org.molgenis.emx2.semantics.fairdatapoint;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.FAIRDataHubLoader;
@@ -21,7 +21,7 @@ public class FAIRDataPointTest {
   static Database database;
   static Schema[] fairDataHubSchemas;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     Schema fairDataHub_nr1 = database.dropCreateSchema("fairDataHub_nr1");

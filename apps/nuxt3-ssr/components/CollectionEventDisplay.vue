@@ -24,7 +24,7 @@ const { data: collectionEventData } = await useFetch(
     body: {
       query: queryValue,
       variables: {
-        pid: route.params.cohort,
+        id: route.params.cohort,
         name: collectionEventName,
       },
     },
@@ -75,7 +75,7 @@ if (collectionEvent?.numberOfParticipants) {
 
 if (collectionEvent?.startYear || collectionEvent?.endYear) {
   items.push({
-    label: "Start/end year: ",
+    label: "Start/end year",
     content: filters.startEndYear(
       collectionEvent.startYear && collectionEvent.startYear.name
         ? collectionEvent.startYear.name
@@ -90,35 +90,41 @@ if (collectionEvent?.startYear || collectionEvent?.endYear) {
 if (collectionEvent?.ageGroups?.length) {
   items.push({
     label: "Age categories",
-    content: renderList(collectionEvent?.ageGroups, toName),
+    content: renderList(
+      removeChildIfParentSelected(collectionEvent.ageGroups),
+      toName
+    ),
   });
 }
 
 if (collectionEvent?.areasOfInformation?.length) {
   items.push({
     label: "Areas of information",
-    content: renderList(collectionEvent?.areasOfInformation, toName),
+    type: "ONTOLOGY",
+    content: buildOntologyTree(collectionEvent.areasOfInformation),
   });
 }
 
 if (collectionEvent?.dataCategories?.length) {
   items.push({
     label: "Data Categories",
-    content: renderList(collectionEvent?.dataCategories, toName),
+    type: "ONTOLOGY",
+    content: buildOntologyTree(collectionEvent.dataCategories),
   });
 }
 
 if (collectionEvent?.sampleCategories?.length) {
   items.push({
     label: "Sample categories",
-    content: renderList(collectionEvent?.sampleCategories, toName),
+    type: "ONTOLOGY",
+    content: buildOntologyTree(collectionEvent.sampleCategories),
   });
 }
 
 if (collectionEvent?.coreVariables?.length) {
   items.push({
     label: "Core variables",
-    content: renderList(collectionEvent?.coreVariables, toName),
+    content: collectionEvent?.coreVariables,
   });
 }
 </script>

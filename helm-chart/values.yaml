@@ -40,4 +40,16 @@ postgres:
   password: postgres
   database: postgres
 
+catalogue:
+  includeCatalogueDemo: false
 
+ssrCatalogue:
+  image:
+    repository: molgenis/ssr-catalogue-snapshot
+    tag: latest
+    pullPolicy: IfNotPresent
+  environment:
+    apiBase: ""
+    theme: ""
+    logo: ""
+    siteTitle: "Data catalogue"
