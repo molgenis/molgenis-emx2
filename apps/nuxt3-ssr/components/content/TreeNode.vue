@@ -28,7 +28,12 @@ const toggleCollapse = () => {
       >
         <BaseIcon name="caret-up" :width="20" />
       </span>
-      <span v-else class="relative" style="top: -0.35rem">
+      <span
+        v-else
+        class="relative"
+        style="top: -0.35rem"
+        :class="{ 'mr-2': isRootNode }"
+      >
         <BaseIcon
           name="collapsible-list-item"
           :width="20"

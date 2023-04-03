@@ -1,7 +1,7 @@
 package org.molgenis.emx2.sql;
 
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
@@ -13,14 +13,14 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.time.LocalDate;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestInherits {
   private static Database db;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
   }

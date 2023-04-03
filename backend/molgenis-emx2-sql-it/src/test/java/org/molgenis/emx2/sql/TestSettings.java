@@ -1,19 +1,19 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.Map;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestSettings {
   private static Database database;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
   }
@@ -119,12 +119,16 @@ public class TestSettings {
         });
   }
 
-  @Test(expected = MolgenisException.class)
+  @Test
   public void testDatabaseSettingCanNotBeSetByNonAdmin() {
-    database.tx(
-        db -> {
-          db.setActiveUser("testsettingsmanager");
-          db.setSetting("it-db-setting-key", "it-db-setting-value");
+    assertThrows(
+        MolgenisException.class,
+        () -> {
+          database.tx(
+              db -> {
+                db.setActiveUser("testsettingsmanager");
+                db.setSetting("it-db-setting-key", "it-db-setting-value");
+              });
         });
   }
 
@@ -152,12 +156,16 @@ public class TestSettings {
     assertNull(database.getSetting("delete-me"));
   }
 
-  @Test(expected = MolgenisException.class)
+  @Test
   public void testDeleteDatabaseSettingCanNotBeSetByNonAdmin() {
-    database.tx(
-        db -> {
-          db.setActiveUser("testsettingsmanager");
-          db.removeSetting("delete-me");
+    assertThrows(
+        MolgenisException.class,
+        () -> {
+          database.tx(
+              db -> {
+                db.setActiveUser("testsettingsmanager");
+                db.removeSetting("delete-me");
+              });
         });
   }
 

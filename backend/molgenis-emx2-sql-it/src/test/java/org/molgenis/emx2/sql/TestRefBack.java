@@ -1,6 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
@@ -9,15 +9,15 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestRefBack {
 
   private static Schema schema;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     Database database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(TestRefBack.class.getSimpleName());
@@ -93,13 +93,13 @@ public class TestRefBack {
 
     // so now bigphone.parts = [] or null
     assertNull(
-        "bigscreen",
         products
             .query()
             .where(f("productname", EQUALS, "bigphone"))
             .retrieveRows()
             .get(0)
-            .getStringArray("parts"));
+            .getStringArray("parts"),
+        "bigscreen");
 
     // now multiple
     parts.update(

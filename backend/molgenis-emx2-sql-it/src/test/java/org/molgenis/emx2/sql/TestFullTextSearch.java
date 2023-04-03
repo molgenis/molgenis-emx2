@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.TEXT;
@@ -9,16 +10,15 @@ import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 
 public class TestFullTextSearch {
   private static Database db;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
   }
@@ -81,7 +81,7 @@ public class TestFullTextSearch {
 
     List<Row> result =
         schema.query("Order").where(f(Operator.TEXT_SEARCH, "Delivered")).retrieveRows();
-    Assert.assertEquals(result.size(), 1);
+    assertEquals(result.size(), 1);
 
     // nesting example 3
     result =
@@ -92,19 +92,19 @@ public class TestFullTextSearch {
                     f(Operator.TRIGRAM_SEARCH, "approved"),
                     f("pet", f(Operator.TRIGRAM_SEARCH, "cat"))))
             .retrieveRows();
-    Assert.assertEquals(2, result.size());
+    assertEquals(2, result.size());
 
     result = schema.query("Order").where(f(Operator.TEXT_SEARCH, "cat")).retrieveRows();
-    Assert.assertEquals(0, result.size());
+    assertEquals(0, result.size());
 
     // nesting example 1
     result = schema.query("Order").where(f("pet", f(Operator.TEXT_SEARCH, "cat"))).retrieveRows();
-    Assert.assertEquals(1, result.size());
+    assertEquals(1, result.size());
 
     String json =
         schema.query("Order").where(f("pet", f(Operator.TEXT_SEARCH, "cat"))).retrieveJSON();
     // would exclude approved order
-    Assert.assertTrue(!json.contains("approved"));
+    assertTrue(!json.contains("approved"));
 
     // nesting example 2
     json =
@@ -114,6 +114,6 @@ public class TestFullTextSearch {
                 or(f(Operator.TEXT_SEARCH, "approved"), f("pet", f(Operator.TEXT_SEARCH, "cat"))))
             .retrieveJSON();
     // would include approved
-    Assert.assertTrue(json.contains("approved"));
+    assertTrue(json.contains("approved"));
   }
 }

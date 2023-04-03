@@ -1,14 +1,14 @@
 package org.molgenis.emx2.sql;
 
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -18,12 +18,12 @@ public class TestSchemaCreateDestroy {
   private static Database db;
   private static final String name = TestSchemaCreateDestroy.class.getName() + "Desc";
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     db.dropSchema(name);
   }

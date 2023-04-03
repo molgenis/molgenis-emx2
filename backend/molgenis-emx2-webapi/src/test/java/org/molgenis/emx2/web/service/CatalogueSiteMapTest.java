@@ -1,11 +1,11 @@
 package org.molgenis.emx2.web.service;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Collections;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;

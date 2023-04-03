@@ -1,11 +1,11 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Schema;
@@ -27,7 +27,7 @@ public class TestCrossSchemaForeignKeysAndInheritance {
   static Schema schema2;
   static Database db;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
     db.dropSchemaIfExists(schemaName2);
