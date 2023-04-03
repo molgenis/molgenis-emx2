@@ -65,7 +65,7 @@ const query = computed(() => {
   return `
   query Cohorts($filter:CohortsFilter, $orderby:Cohortsorderby){
     Cohorts(limit: ${pageSize} offset: ${offset.value} search:"${search.value}" filter:$filter  orderby:$orderby) {
-      pid
+      id
       name
       acronym
       description
@@ -79,7 +79,7 @@ const query = computed(() => {
       design {
           name
       }
-      institution {
+      leadOrganisation {
           name
           acronym
       }
