@@ -4,7 +4,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
 import static org.molgenis.emx2.RunMolgenisEmx2.INCLUDE_CATALOGUE_DEMO;
@@ -25,17 +25,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
@@ -46,7 +42,7 @@ public class WebApiSmokeTests {
   final String CSV_TEST_SCHEMA = "pet store csv";
   static final int PORT = 8080;
 
-  @BeforeClass
+  @BeforeAll
   public static void before() throws IOException {
 
     // setup test schema
@@ -90,7 +86,7 @@ public class WebApiSmokeTests {
     db.grantCreateSchema(PET_SHOP_OWNER);
   }
 
-  @AfterClass
+  @AfterAll
   public static void after() {
     MolgenisWebservice.stop();
   }
