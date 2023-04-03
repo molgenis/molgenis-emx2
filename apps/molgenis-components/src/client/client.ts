@@ -1,16 +1,16 @@
 import axios, { Axios, AxiosError, AxiosResponse } from "axios";
-import { deepClone, convertToPascalCase } from "../components/utils";
+import { deepClone, convertToPascalCase, isRefType } from "../components/utils";
 import { IRow } from "../Interfaces/IRow";
 import { ISchemaMetaData } from "../Interfaces/IMetaData";
-import { IColumn } from "../Interfaces/IColumn";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { ISetting } from "../Interfaces/ISetting";
+import { IClient, INewClient } from "./IClient";
+import { columnNames } from "./queryBuilder";
 
 export { request };
-
-export default {
-  newClient: (schemaName?: string, externalAxios?: Axios) => {
+const client: IClient = {
+  newClient: (schemaName?: string, externalAxios?: Axios): INewClient => {
     const myAxios = externalAxios || axios;
     // use closure to have metaData cache private to client
     let schemaMetaData: ISchemaMetaData | null | void = null;
@@ -32,7 +32,9 @@ export default {
         }
         return deepClone(schemaMetaData);
       },
-      fetchTableMetaData: async (tableName: string) => {
+      fetchTableMetaData: async (
+        tableName: string
+      ): Promise<ITableMetaData> => {
         if (schemaMetaData === null) {
           schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
           if (schemaMetaData && !schemaNameCache) {
@@ -82,7 +84,8 @@ export default {
           properties,
           schemaMetaData,
           myAxios,
-          schemaNameCache
+          schemaNameCache,
+          1
         );
         return dataResp[tableId];
       },
@@ -116,7 +119,8 @@ export default {
             },
             schemaMetaData,
             myAxios,
-            schemaNameCache
+            schemaNameCache,
+            1
           )
         )[tableId];
 
@@ -165,7 +169,7 @@ export default {
           return JSON.parse(setting.value);
         }
       },
-      async saveSetting(key: string, value: any) {
+      saveSetting: async (key: string, value: any) => {
         const createMutation = `mutation change($settings: [MolgenisSettingsInput]) {
             change(settings: $settings) {
               message
@@ -190,6 +194,7 @@ export default {
     };
   },
 };
+export default client;
 
 const metaDataQuery = `{
 _schema {
@@ -221,6 +226,7 @@ _schema {
       refSchema,
       refLink,
       refLabel,
+      refLabelDefault,
       refBack,
       required,
       readonly,
@@ -230,6 +236,7 @@ _schema {
         value
       },
       position,
+      computed,
       visible,
       validation
     }
@@ -281,7 +288,10 @@ const deleteAllTableData = (tableName: string, schemaName: string) => {
   return axios.post(graphqlURL(schemaName), { query });
 };
 
-const fetchSchemaMetaData = async (axios: Axios, schemaName: string) => {
+const fetchSchemaMetaData = async (
+  axios: Axios,
+  schemaName: string
+): Promise<ISchemaMetaData> => {
   return await axios
     .post(graphqlURL(schemaName), { query: metaDataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
@@ -298,7 +308,8 @@ const fetchTableData = async (
   properties: IQueryMetaData,
   metaData: ISchemaMetaData,
   axios: Axios,
-  schemaName: string
+  schemaName: string,
+  expandLevel: number = 2
 ) => {
   const tableId = convertToPascalCase(tableName);
   const limit =
@@ -318,7 +329,7 @@ const fetchTableData = async (
       ? ',search:"' + properties.searchTerms?.trim() + '"'
       : "";
 
-  const cNames = columnNames(schemaName, tableId, metaData);
+  const cNames = columnNames(schemaName, tableId, metaData, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
           filter:$filter,
@@ -369,80 +380,14 @@ const request = async (url: string, graphql: string, variables?: any) => {
     .then((result: AxiosResponse) => {
       return result?.data?.data;
     })
-    .catch((error: AxiosError): string => {
-      throw error.message;
+    .catch((error: AxiosError<any>): string => {
+      const detailedErrorMessage = error.response?.data?.errors
+        ?.map((error: { message: string }) => {
+          return error.message;
+        })
+        .join(". ");
+      throw detailedErrorMessage || error.message;
     });
-};
-
-/**
- *
- * @param {String} tableName
- * @param {Object} metaData - object that contains all schema meta data
- * @returns String of fields for use in gql query
- */
-const columnNames = (
-  schemaName: string,
-  tableName: string,
-  metaData: ISchemaMetaData
-) => {
-  let result = "";
-  getTable(schemaName, tableName, metaData.tables)?.columns?.forEach((col) => {
-    if (
-      ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-        col.columnType
-      )
-    ) {
-      result =
-        result +
-        " " +
-        col.id +
-        "{" +
-        refGraphql(schemaName, col, metaData) +
-        "}";
-    } else if (col.columnType === "FILE") {
-      result = result + " " + col.id + "{id,size,extension,url}";
-    } else if (col.columnType !== "HEADING") {
-      result = result + " " + col.id;
-    }
-  });
-
-  return result;
-};
-
-const refGraphql = (
-  schemaName: string,
-  column: IColumn,
-  metaData: ISchemaMetaData
-) => {
-  let graphqlString = "";
-  schemaName = column.refSchema ? column.refSchema : schemaName;
-  const refTable = getTable(schemaName, column.refTable, metaData.tables);
-  refTable?.columns?.forEach((c) => {
-    if (c.key == 1) {
-      graphqlString += c.id + " ";
-      if (
-        ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-          c.columnType
-        )
-      ) {
-        graphqlString += "{" + refGraphql(schemaName, c, metaData) + "}";
-      }
-    }
-  });
-  return graphqlString;
-};
-
-const getTable = (
-  schemaName: string,
-  tableName: string,
-  tableStore: ITableMetaData[]
-) => {
-  const result = tableStore.find(
-    (table) =>
-      table.id === convertToPascalCase(tableName) &&
-      table.externalSchema === schemaName
-  );
-  return result;
 };
 
 const isFileValue = (value: File) => {

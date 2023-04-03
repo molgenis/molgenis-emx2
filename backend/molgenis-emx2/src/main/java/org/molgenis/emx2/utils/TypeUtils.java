@@ -25,7 +25,7 @@ import org.molgenis.emx2.MolgenisException;
 
 public class TypeUtils {
   private static final String LOOSE_PARSER_FORMAT =
-      "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
+      "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSSSS][.SSSSSSS][.SSSSSS][.SSSSS][.SSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
 
   protected TypeUtils() {
     // hide public constructor
@@ -203,9 +203,13 @@ public class TypeUtils {
       value = value.replace(" ", "T");
       TemporalAccessor temporalAccessor =
           DateTimeFormatter.ofPattern(LOOSE_PARSER_FORMAT)
-              .parseBest(value, ZonedDateTime::from, LocalDate::from);
+              .parseBest(value, ZonedDateTime::from, LocalDateTime::from, LocalDate::from);
       if (temporalAccessor instanceof ZonedDateTime) {
         return ((ZonedDateTime) temporalAccessor).toLocalDateTime();
+      } else if (temporalAccessor instanceof LocalDateTime) {
+        return (LocalDateTime) temporalAccessor;
+      } else if (temporalAccessor instanceof LocalDate) {
+        return ((LocalDate) temporalAccessor).atStartOfDay();
       }
       return LocalDateTime.parse(value);
     } else {

@@ -1,10 +1,11 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.molgenis.emx2.Row.row;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import java.io.IOException;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
@@ -15,21 +16,21 @@ public class TestValidation {
   static Database db;
   static Schema schema;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestValidation.class.getSimpleName());
   }
 
   @Test
-  public void testValidation() {
+  public void testValidation() throws IOException {
     new PetStoreLoader().load(schema, true);
 
     // system level validation using email data type (will also test hyperlink indirectly)
     Table users = schema.getTable("User");
     try {
       users.insert(row("username", "john", "email", "wrong"));
-      fail("email should validate");
+      fail("email should fail on validation");
     } catch (Exception e) {
       // correct
     }

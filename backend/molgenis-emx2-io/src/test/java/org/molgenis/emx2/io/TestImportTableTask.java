@@ -1,12 +1,12 @@
 package org.molgenis.emx2.io;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.nio.file.Path;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -15,7 +15,7 @@ public class TestImportTableTask {
 
   private static Schema schema;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     Database database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(TestImportTableTask.class.getSimpleName());

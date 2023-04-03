@@ -1,6 +1,6 @@
 package org.molgenis.emx2;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import org.jooq.JSONB;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.utils.TypeUtils;
 
 public class TestTypeUtils {
@@ -31,8 +31,8 @@ public class TestTypeUtils {
       // not applicable to file
       if (type.isAtomicType()) {
         assertNull(
-            "Empty string should result in null for columnType=" + type,
-            TypeUtils.getTypedValue("", type));
+            TypeUtils.getTypedValue("", type),
+            "Empty string should result in null for columnType=" + type);
       }
     }
 
@@ -62,5 +62,12 @@ public class TestTypeUtils {
     String[] result = TypeUtils.toStringArray(test);
     assertEquals("value with, comma", result[0]);
     assertEquals("and, another", result[1]);
+  }
+
+  @Test
+  public void testDataTimeStringToDateTimeObject() {
+    assertEquals(
+        TypeUtils.toDateTime("2023-02-24T12:08:23.46378"),
+        LocalDateTime.of(2023, 02, 24, 12, 8, 23, 463780000));
   }
 }

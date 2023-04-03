@@ -1,11 +1,8 @@
 import gql from "graphql-tag";
 export default gql`
-  query Subcohort($pid: String, $name: String) {
+  query Subcohort($id: String, $name: String) {
     Subcohorts(
-      filter: {
-        resource: { pid: { equals: [$pid] } }
-        name: { equals: [$name] }
-      }
+      filter: { resource: { id: { equals: [$id] } }, name: { equals: [$name] } }
     ) {
       resource {
         name
@@ -16,16 +13,11 @@ export default gql`
       inclusionStart
       inclusionEnd
       ageGroups {
+        order
         name
         code
-        order
-        definition
-        ontologyTermURI
         parent {
-          name
-        }
-        children {
-          name
+          code
         }
       }
       mainMedicalCondition {
@@ -43,9 +35,11 @@ export default gql`
       }
       countries {
         name
+        order
       }
       regions {
         name
+        order
       }
       inclusionCriteria
       supplementaryInformation

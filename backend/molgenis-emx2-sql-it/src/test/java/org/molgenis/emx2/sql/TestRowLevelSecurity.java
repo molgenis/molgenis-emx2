@@ -1,14 +1,14 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.sql.SQLException;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
@@ -20,12 +20,12 @@ public class TestRowLevelSecurity {
   public static final String TEST_RLS = "TestRLS";
   private static Database database;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws SQLException {
     database = TestDatabaseFactory.getTestDatabase();
   }
 
-  @Ignore("because it tests unimplemented features")
+  @Disabled("because it tests unimplemented features")
   @Test
   public void testRls() {
     try {

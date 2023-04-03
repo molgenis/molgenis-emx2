@@ -1,4 +1,5 @@
 interface ICohort {
+  id: string;
   name: string;
   acronym?: string;
   description?: string;
@@ -10,7 +11,7 @@ interface ICohort {
   };
   type: INameObject[];
   collectionType: INameObject[];
-  populationAgeGroups: INameObject[];
+  populationAgeGroups?: IOntologyNode[];
   startYear: number;
   endYear: number;
   countries: {
@@ -35,14 +36,15 @@ interface ICohort {
   }[];
   inclusionCriteria?: string;
   collectionEvents: ICollectionEvent[];
-  partners: IPartner[];
-  contributors: IContributor[];
+  additionalOrganisations: IPartner[];
+  contacts: IContributor[];
   networks: INetwork[];
   releaseDescription?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
   fundingStatement?: string;
   acknowledgements?: string;
+  documentation?: IDocumentation[];
 }
 
 interface IFile {
@@ -52,30 +54,30 @@ interface IFile {
   url?: string;
 }
 
+interface IDocumentation {
+  name: string;
+  description: string;
+  url: string;
+  file: IFile;
+}
+
 interface IPartner {
-  institution: {
-    pid: string;
-    acronym: string;
-    website: string;
-    name: string;
-    description: string;
-    logo: IUrlObject;
-  };
+  id: string;
+  acronym: string;
+  website: string;
+  name: string;
+  description: string;
+  logo: IUrlObject;
 }
 
 interface IContributor {
-  contributionDescription: string;
-  contact: IContact;
-}
-
-interface IContact {
+  roleDescription: string;
   firstName: string;
-  surname: string;
+  lastName: string;
   initials: string;
-  department: string;
   email: string;
   title: INameObject;
-  institution: INameObject;
+  organisation: INameObject;
 }
 
 interface INameObject {
@@ -97,8 +99,10 @@ interface ICollectionEvent {
   dataCategories: ICollectionEventCategory[];
   sampleCategories: ICollectionEventCategory[];
   areasOfInformation: ICollectionEventCategory[];
+  standardizedTools: ICollectionEventCategory[];
+  standardizedToolsOther: string;
   subcohorts: INameObject[];
-  coreVariables: INameObject[];
+  coreVariables: string[];
 }
 
 interface ICollectionEventCategory {
@@ -117,6 +121,7 @@ interface INetwork {
   name: string;
   description?: string;
   logo?: IUrlObject;
+  website?: string;
 }
 
 interface ITreeNode {
@@ -129,4 +134,9 @@ interface IOntologyNode extends ITreeNode {
   code?: string;
   definition?: string;
   ontologyTermURI?: string;
+}
+
+interface ISetting {
+  key: string;
+  value: string;
 }

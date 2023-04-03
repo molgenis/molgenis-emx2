@@ -1,8 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
@@ -16,8 +14,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.utils.StopWatch;
@@ -27,7 +25,7 @@ public class TestQueryJsonGraph {
   static Database db;
   static Schema schema;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
 
