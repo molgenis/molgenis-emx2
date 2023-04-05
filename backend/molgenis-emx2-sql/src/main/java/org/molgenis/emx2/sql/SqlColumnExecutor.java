@@ -246,7 +246,7 @@ public class SqlColumnExecutor {
                 + e.getMessage()
                 + ". You might want to set nullable=TRUE or add a default value to update existing rows.");
       } else {
-        throw new MolgenisException(
+        throw new SqlMolgenisException(
             "Create column '" + column.getTableName() + "." + current + "' failed", e);
       }
     }

@@ -299,7 +299,7 @@ public class MetadataUtils {
           .set(SETTINGS, schema.getSettings())
           .execute();
     } catch (Exception e) {
-      throw new MolgenisException("save of schema metadata failed", e);
+      throw new SqlMolgenisException("save of schema metadata failed", e);
     }
   }
 
@@ -369,7 +369,7 @@ public class MetadataUtils {
           .set(SETTINGS, table.getSettings())
           .execute();
     } catch (Exception e) {
-      throw new MolgenisException("save of table metadata failed", e);
+      throw new SqlMolgenisException("save of table metadata failed", e);
     }
   }
 
@@ -395,7 +395,7 @@ public class MetadataUtils {
       }
       return users;
     } catch (Exception e) {
-      throw new MolgenisException("loadUsers failed", e);
+      throw new SqlMolgenisException("loadUsers failed", e);
     }
   }
 
@@ -428,7 +428,7 @@ public class MetadataUtils {
       }
       return result.values();
     } catch (Exception e) {
-      throw new MolgenisException("load of table metadata failed", e);
+      throw new SqlMolgenisException("load of table metadata failed", e);
     }
   }
 
