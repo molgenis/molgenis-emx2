@@ -43,7 +43,7 @@ Result:
 
 ### Alter data
 
-Let's change pet weight from (supposedly) kilogram to grams by multiplying by one thousand and make a logarithmic plot to check. The new data should be converted back to CSV to prepare for upload.
+Let's change pet weight from (supposedly) kilogram to grams by multiplying by one thousand. The new data should be converted back to CSV to prepare for upload.
 
 ```
 petsdf$weight = petsdf$weight * 1000
