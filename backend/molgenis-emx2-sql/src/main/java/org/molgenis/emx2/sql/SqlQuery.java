@@ -9,13 +9,11 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.*;
 import org.jooq.Table;
 import org.jooq.conf.ParamType;
-import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Operator;
@@ -133,8 +131,8 @@ public class SqlQuery extends QueryBean {
         result.add(new SqlRow(r));
       }
       return result;
-    } catch (DataAccessException | SQLException e) {
-      throw new MolgenisException(QUERY_FAILED, e);
+    } catch (Exception e) {
+      throw new SqlMolgenisException(QUERY_FAILED, e);
     }
   }
 

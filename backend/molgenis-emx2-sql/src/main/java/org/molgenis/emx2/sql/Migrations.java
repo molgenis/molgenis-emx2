@@ -13,7 +13,6 @@ import org.jooq.*;
 import org.jooq.Record;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.slf4j.Logger;
@@ -145,7 +144,7 @@ public class Migrations {
       ((SqlDatabase) db).getJooq().execute(sql);
       logger.debug(message + "(file = " + sqlFile);
     } catch (IOException e) {
-      throw new MolgenisException(e.getMessage());
+      throw new MolgenisException("Execute migration failed", e);
     }
   }
 

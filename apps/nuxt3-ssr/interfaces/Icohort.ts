@@ -74,6 +74,7 @@ interface IContributor {
   roleDescription: string;
   firstName: string;
   lastName: string;
+  prefix?: string;
   initials: string;
   email: string;
   title: INameObject;
