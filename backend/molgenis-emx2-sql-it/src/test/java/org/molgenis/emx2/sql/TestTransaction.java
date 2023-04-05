@@ -1,18 +1,18 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.sql.SQLException;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 
 public class TestTransaction {
   private static Database db;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws SQLException {
     db = TestDatabaseFactory.getTestDatabase();
   }

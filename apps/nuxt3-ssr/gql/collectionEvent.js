@@ -1,11 +1,8 @@
 import gql from "graphql-tag";
 export default gql`
-  query CollectionEvent($pid: String, $name: String) {
+  query CollectionEvent($id: String, $name: String) {
     CollectionEvents(
-      filter: {
-        resource: { pid: { equals: [$pid] } }
-        name: { equals: [$name] }
-      }
+      filter: { resource: { id: { equals: [$id] } }, name: { equals: [$name] } }
     ) {
       resource {
         name
@@ -89,9 +86,7 @@ export default gql`
       subcohorts {
         name
       }
-      coreVariables {
-        name
-      }
+      coreVariables
     }
   }
 `;

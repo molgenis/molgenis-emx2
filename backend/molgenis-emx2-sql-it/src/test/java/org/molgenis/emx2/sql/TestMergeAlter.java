@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static junit.framework.TestCase.*;
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Row.row;
@@ -10,8 +9,8 @@ import static org.molgenis.emx2.TableMetadata.table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.jooq.DSLContext;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestMergeAlter {
@@ -26,7 +25,7 @@ public class TestMergeAlter {
   static Database db;
   static Schema schema;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestMergeAlter.class.getSimpleName());

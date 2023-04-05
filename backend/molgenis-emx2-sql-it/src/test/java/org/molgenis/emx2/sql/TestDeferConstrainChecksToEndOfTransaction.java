@@ -1,13 +1,14 @@
 package org.molgenis.emx2.sql;
 
-import static junit.framework.TestCase.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.UUID;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.StopWatch;
 
@@ -16,9 +17,9 @@ public class TestDeferConstrainChecksToEndOfTransaction {
 
   public TestDeferConstrainChecksToEndOfTransaction() {}
 
-  @Test(expected = MolgenisException.class)
+  @Test
   public void DependencyOrderOutsideTransactionFails() {
-    runTestCase(database);
+    assertThrows(MolgenisException.class, () -> runTestCase(database));
   }
 
   public void runTestCase(Database db) {

@@ -18,7 +18,7 @@ const { data: collectionEventData } = await useFetch(
     body: {
       query: queryValue,
       variables: {
-        pid: route.params.cohort,
+        id: route.params.cohort,
         name: route.params.collectionevent,
       },
     },
@@ -117,7 +117,7 @@ if (collectionEvent.standardizedTools) {
 if (collectionEvent?.coreVariables?.length) {
   items.push({
     label: "Core variables",
-    content: renderList(collectionEvent?.coreVariables, toName),
+    content: collectionEvent?.coreVariables,
   });
 }
 

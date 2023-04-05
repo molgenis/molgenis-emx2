@@ -1,8 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.REF;
@@ -11,15 +9,15 @@ import static org.molgenis.emx2.TableMetadata.table;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.StopWatch;
 
 public class TestBatchRequestsForSpeed {
   private static Database db;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws SQLException {
     // jdbc:postgresql://mswertz-test-psql1.postgres.database.azure.com:5432/{your_database}?user=molgenis@mswertz-test-psql1&password={your_password}&sslmode=require
     db = TestDatabaseFactory.getTestDatabase();
@@ -159,6 +157,6 @@ public class TestBatchRequestsForSpeed {
 
     // make sure nothing was left behind in backend
     db.clearCache();
-    assertNull(null, db.getSchema("testCreate").getTable(personTable.getName()));
+    assertNull(db.getSchema("testCreate").getTable(personTable.getName()));
   }
 }

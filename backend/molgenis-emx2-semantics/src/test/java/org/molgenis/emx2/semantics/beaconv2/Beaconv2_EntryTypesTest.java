@@ -1,11 +1,11 @@
 package org.molgenis.emx2.semantics.beaconv2;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.EntryTypes;
 import org.molgenis.emx2.json.JsonUtil;
 import spark.Request;
@@ -23,19 +23,19 @@ public class Beaconv2_EntryTypesTest {
     assertTrue(
         json.contains(
             """
-                        "meta" : {
-                          "beaconId" : "org.molgenis.beaconv2",
-                          "apiVersion" : "v2.0.0-draft.4",
-                          "$schema" : "../beaconInfoResponse.json","""
+                                "meta" : {
+                                  "beaconId" : "org.molgenis.beaconv2",
+                                  "apiVersion" : "v2.0.0-draft.4",
+                                  "$schema" : "../beaconInfoResponse.json","""
                 .indent(2)));
 
     // returned schema in response
     assertTrue(
         json.contains(
             """
-                        "returnedSchemas" : [
-                          {
-                            "entityType" : "entry","""
+                                "returnedSchemas" : [
+                                  {
+                                    "entityType" : "entry","""
                 .indent(4)));
     assertTrue(
         json.contains(
@@ -46,51 +46,51 @@ public class Beaconv2_EntryTypesTest {
     assertTrue(
         json.contains(
             """
-                        "analysis" : {
-                          "id" : "analysis",
-                          "name" : "Bioinformatics analysis","""
+                                "analysis" : {
+                                  "id" : "analysis",
+                                  "name" : "Bioinformatics analysis","""
                 .indent(6)));
     assertTrue(
         json.contains(
             """
-                        "biosample" : {
-                          "id" : "biosample",
-                          "name" : "Biological Sample","""
+                                "biosample" : {
+                                  "id" : "biosample",
+                                  "name" : "Biological Sample","""
                 .indent(6)));
     assertTrue(
         json.contains(
             """
-                        "cohort" : {
-                          "id" : "cohort",
-                          "name" : "Cohort","""
+                                "cohort" : {
+                                  "id" : "cohort",
+                                  "name" : "Cohort","""
                 .indent(6)));
     assertTrue(
         json.contains(
             """
-                        "dataset" : {
-                          "id" : "dataset",
-                          "name" : "Dataset","""
+                                "dataset" : {
+                                  "id" : "dataset",
+                                  "name" : "Dataset","""
                 .indent(6)));
     assertTrue(
         json.contains(
             """
-                        "genomicVariant" : {
-                          "id" : "genomicVariant",
-                          "name" : "Genomic Variants","""
+                                "genomicVariant" : {
+                                  "id" : "genomicVariant",
+                                  "name" : "Genomic Variants","""
                 .indent(6)));
     assertTrue(
         json.contains(
             """
-                        "individual" : {
-                          "id" : "individual",
-                          "name" : "Individual","""
+                                "individual" : {
+                                  "id" : "individual",
+                                  "name" : "Individual","""
                 .indent(6)));
     assertTrue(
         json.contains(
             """
-                        "run" : {
-                          "id" : "run",
-                          "name" : "Sequencing run","""
+                                "run" : {
+                                  "id" : "run",
+                                  "name" : "Sequencing run","""
                 .indent(6)));
 
     // ontologies

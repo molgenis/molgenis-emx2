@@ -17,6 +17,7 @@ import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.util.FindBest;
+import org.pac4j.core.util.Pac4jConstants;
 import org.pac4j.jee.context.session.JEESessionStore;
 import org.pac4j.sparkjava.SparkHttpActionAdapter;
 import org.pac4j.sparkjava.SparkWebContext;
@@ -41,6 +42,7 @@ public class OIDCController {
 
   public Object handleLoginRequest(Request request, Response response) {
     final SparkWebContext context = new SparkWebContext(request, response);
+    sessionStore.set(context, Pac4jConstants.REQUESTED_URL, request.queryParams("redirect"));
     final var client =
         securityConfig
             .getClients()
@@ -102,7 +104,6 @@ public class OIDCController {
     logger.info("OIDC sign in for user: {}", user);
 
     response.status(302);
-    response.redirect("/");
     return response;
   }
 }
