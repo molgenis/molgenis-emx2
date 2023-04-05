@@ -1,7 +1,5 @@
 package org.molgenis.emx2.datamodels;
 
-import java.io.IOException;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 
 public enum AvailableDataModels {
@@ -15,25 +13,13 @@ public enum AvailableDataModels {
 
   FAIR_DATA_HUB(new FAIRDataHubLoader());
 
-  private DataModelLoader installer;
+  private AbstractDataLoader installer;
 
-  AvailableDataModels(DataModelLoader installer) {
+  AvailableDataModels(AbstractDataLoader installer) {
     this.installer = installer;
   }
 
-  public void install(Schema schema, boolean includeExampleData) {
-    schema.tx(
-        db -> {
-          try {
-            // make sure not to use schema but db because in a transaction!
-            installer.load(db.getSchema(schema.getName()), includeExampleData);
-          } catch (Exception e) {
-            throw new MolgenisException(e.getMessage());
-          }
-        });
-  }
-
-  public interface DataModelLoader {
-    void load(Schema schema, boolean includeExampleData) throws IOException;
+  public void install(Schema schema, boolean loadExampleData) {
+    this.installer.load(schema, loadExampleData);
   }
 }

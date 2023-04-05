@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -7,7 +8,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
-import static org.molgenis.emx2.RunMolgenisEmx2.INCLUDE_CATALOGUE_DEMO;
+import static org.molgenis.emx2.Constants.MOLGENIS_INCLUDE_CATALOGUE_DEMO;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -40,25 +41,25 @@ public class WebApiSmokeTests {
   private static Database db;
   private static Schema schema;
   final String CSV_TEST_SCHEMA = "pet store csv";
-  static final int PORT = 8080;
+  static final int PORT = 8081; // other then default so we can see effect
 
   @BeforeAll
-  public static void before() throws IOException {
+  public static void before() throws Exception {
 
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
 
-    // will be created by the RunMolgenisEmx2.main
+    // will be (re)created by the RunMolgenisEmx2.main
     db.dropSchemaIfExists("pet store");
+    db.dropSchemaIfExists("catalogue");
 
     // start web service for testing, including env variables
-    RunMolgenisEmx2.main(
-        new String[] {
-          "-D" + MOLGENIS_HTTP_PORT + "=" + PORT, "-D" + INCLUDE_CATALOGUE_DEMO + "=TRUE"
-        });
+    withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
+        .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
+        .execute(() -> RunMolgenisEmx2.main(new String[] {}));
 
     // set default rest assured settings
-    RestAssured.port = Integer.valueOf(PORT);
+    RestAssured.port = PORT;
     RestAssured.baseURI = "http://localhost";
 
     // create an admin session to work with
