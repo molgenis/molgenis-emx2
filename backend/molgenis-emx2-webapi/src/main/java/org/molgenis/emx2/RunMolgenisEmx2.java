@@ -3,7 +3,7 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.INT;
 
-import org.molgenis.emx2.datamodels.AvailableDataModels;
+import org.molgenis.emx2.datamodels.DataCatalogueLoader3;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
@@ -44,8 +44,8 @@ public class RunMolgenisEmx2 {
       }
 
       if (INCLUDE_CATALOGUE_DEMO && db.getSchema("catalogue") == null) {
-        Schema schema = db.createSchema("catalogue");
-        AvailableDataModels.DATA_CATALOGUE.install(schema, true);
+        Schema schema = db.createSchema("catalogue", "from DataCatalogueLoader3 loader");
+        new DataCatalogueLoader3().load(schema, true);
       }
 
     } finally {

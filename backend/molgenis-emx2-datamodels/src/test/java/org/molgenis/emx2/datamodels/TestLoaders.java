@@ -1,16 +1,16 @@
 package org.molgenis.emx2.datamodels;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.OrderWith;
-import org.junit.runner.manipulation.Alphanumeric;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-@OrderWith(Alphanumeric.class)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class TestLoaders {
   public static final String DATA_CATALOGUE3 = "data-catalogue";
   public static final String COHORT_STAGING_3 = "CohortStaging3";
@@ -18,7 +18,7 @@ public class TestLoaders {
   public static final String FAIR_DATA_HUB_TEST = "FAIRDataHubTest";
   static Database database;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     // prevend previous dangling test results
