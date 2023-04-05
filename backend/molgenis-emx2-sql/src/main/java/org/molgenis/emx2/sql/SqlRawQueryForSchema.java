@@ -8,7 +8,6 @@ import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,7 @@ public class SqlRawQueryForSchema {
             }
             logger.info(schema.getDatabase().getActiveUser() + " executed query " + sql);
           } catch (SQLException sqle) {
-            throw new MolgenisException("query failed", sqle);
+            throw new SqlMolgenisException("query failed", sqle);
           }
         });
     return result;
