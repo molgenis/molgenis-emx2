@@ -12,12 +12,12 @@ public class DataCatalogueCohortStagingLoader3 extends AbstractDataLoader {
   @Override
   void loadInternalImplementation(Schema schema, boolean includeDemoData) {
     // create shared schemas
-    createSharedStaging(schema.getDatabase());
+    createSharedStaging3(schema.getDatabase());
     // create the schema
     createSchema(schema, "datacatalogue3/stagingCohorts/molgenis.csv");
   }
 
-  static void createSharedStaging(Database db) {
+  static void createSharedStaging3(Database db) {
     // create DataCatalogue and CatalogueOntologies
     Schema dataCatalogueSchema = db.getSchema(DATA_CATALOGUE);
     if (dataCatalogueSchema == null) {
