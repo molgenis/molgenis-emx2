@@ -65,14 +65,16 @@ export default {
         if (baseVariable) {
           statusList.push(baseVariable.match.name);
         }
-
+        // If all repeats have a mapping and there are no 'NAs', variable is 'complete'
         if (!statusList.includes("na")) {
           return "complete";
+        // If some repeats have a mapping but there are 'NAs', variable is 'partial'
         } else if (
           statusList.includes("partial") ||
           statusList.includes("complete")
         ) {
           return "partial";
+        // Unmapped when no repeats have a mapping (only NAs)
         } else {
           return "unmapped";
         }
