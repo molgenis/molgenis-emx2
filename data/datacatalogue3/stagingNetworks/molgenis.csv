@@ -60,7 +60,7 @@ Documentation,,description,text,,,,,,,,,Description of the document
 Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation
 Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation
 Networks,,models,ref_array,,,,Models,,,,,The common data model(s) used by this network
-Networks,,studies,ref_array,,,DataCatalogue,Studies,,networks,,,
+Networks,,studies,ref_array,,,catalogue,Studies,,networks,,,
 Collection events,,,,,,,,,,,,Definition of a data collection event for a resource
 Collection events,,resource,ref,1,TRUE,,Extended resources,,,,,Resource this collection event is part of
 Collection events,,name,,1,TRUE,,,,,,,Name of the collection event

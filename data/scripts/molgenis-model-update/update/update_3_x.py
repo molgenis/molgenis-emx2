@@ -118,7 +118,6 @@ class TransformDataCatalogue(Transform):
         df_partners = pd.read_csv(self.path + 'Partners.csv')
         df_partners.rename(columns={'institution': 'additional organisations'}, inplace=True)
         grouped_partners = df_partners.groupby('resource')['additional organisations'].agg(','.join)
-        grouped_partners.to_csv('Partners.csv', index=False)
         df_cohorts['resource'] = df_cohorts['pid']
         df_cohorts_merged = pd.merge(df_cohorts, grouped_partners, on='resource', how='outer')
         df_cohorts_merged['website'] = df_cohorts_merged['website'].apply(get_hyperlink)
@@ -326,7 +325,6 @@ class TransformDataStaging(Transform):
         list_partners = df_partners['institution'].unique().tolist()
         string_partners = ','.join(list_partners)
         df_cohorts['additional organisations'] = string_partners
-        df_partners.to_csv('Partners.csv', index=False, mode='a')
         df_cohorts.rename(columns={'pid': 'id',
                                    'institution': 'lead organisation'}, inplace=True)
         df_cohorts['website'] = df_cohorts['website'].apply(get_hyperlink)
