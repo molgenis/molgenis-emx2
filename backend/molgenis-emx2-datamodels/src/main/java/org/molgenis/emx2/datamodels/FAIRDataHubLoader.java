@@ -15,6 +15,7 @@ public class FAIRDataHubLoader implements AvailableDataModels.DataModelLoader {
     // create Beacon v2 + FAIR Data Point schema (which will create tables in ontology schema)
     createSchema(schema, "fairdatahub/beaconv2/molgenis.csv");
     createSchema(schema, "fairdatahub/fairdatapoint/molgenis.csv");
+    createSchema(schema, "fairdatahub/addons/molgenis.csv");
 
     // load ontologies
     MolgenisIO.fromClasspathDirectory("fairdatahub/ontologies", schema, false);
@@ -26,6 +27,7 @@ public class FAIRDataHubLoader implements AvailableDataModels.DataModelLoader {
     if (includeDemoData) {
       MolgenisIO.fromClasspathDirectory("fairdatahub/beaconv2/demodata", schema, false);
       MolgenisIO.fromClasspathDirectory("fairdatahub/fairdatapoint/demodata", schema, false);
+      MolgenisIO.fromClasspathDirectory("fairdatahub/addons/demodata", schema, false);
     }
   }
 
