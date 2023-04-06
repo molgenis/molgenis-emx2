@@ -174,7 +174,7 @@ that has to be repeated when filling out repeated variables. This sheet is optio
 We use the [*Mappings* template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings.xlsx) to
 describe the harmonisations. The 
 [*Mappings* template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings.xlsx) consists of two
-sheets (DatasetMappings and VariableMappings). It is used to define the mappings from source variables to target
+sheets (Dataset mappings and Variable mappings). It is used to define the mappings from source variables to target
 variables, or the Extraction, Transformation and Load (ETL) process from a data source to a common data model (CDM).
 You can download this
 [*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings_testCohort.xlsx)
@@ -189,8 +189,8 @@ is in a cohort or in a data bank.
 | --- | --- | --- |
 | source \* | Databank or cohort id |  |
 | source dataset \* | Source dataset name | Datasets must be predefined in the _Datasets_ sheet in the SourceDictionary template |
-| target \* | Name of the target common data model  | e.g. LifeCycle_CDM, LongITools_CDM |
-| target dataset \* | Target dataset name | Map to a table that is defined in a common data model |
+| target \* | Name of the target common data model  | e.g. LifeCycle_CDM, LongITools_CDM, see [variable explorer](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) |
+| target dataset \* | Target dataset name | Map to a [dataset](https://data-catalogue.molgeniscloud.org/catalogue/tables/#/Datasets) that is defined in a common data model |
 | description | Description of the harmonisation | |
 | syntax | Syntax used for this harmonisation | |
 
@@ -207,9 +207,9 @@ Harmonisation procedures at the variable level are defined in the *Variable mapp
 | source variables | Source variable name(s) | Variables must be predefined in the _Variables_ sheet in the SourceDictionary template; When multiple variables are mapped together use a comma-separated list, e.g. v1,v2,v3 |
 | source variables other datasets.dataset | Other source tables | When using variables from multiple other datasets, use a comma-separated list, e.g. dataset1,dataset2,dataset3<sup>1</sup> |
 | source variables other datasets.name | Source variable(s) from other datasets than filled out under source dataset | When using variables from multiple other datasets, use a comma-separated list, the order corresponding to the order of the datasets they are derived from specified under source variables from other datasets.dataset<sup>1</sup> |
-| target \* | Name of the target common data model  | e.g. LifeCycle_CDM, LongITools_CDM |
-| target dataset \* | Target dataset name. | Map to a dataset that is defined in a common data model |
-| target variable \* | Target variable name | Map to a variable that is defined in a common data model |
+| target \* | Name of the target common data model  | e.g. LifeCycle_CDM, LongITools_CDM, see [variable explorer](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) |
+| target dataset \* | Target dataset name. | Map to a [dataset](https://data-catalogue.molgeniscloud.org/catalogue/tables/#/Datasets) that is defined in a common data model |
+| target variable \* | Target variable name | Map to a [variable](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) that is defined in a common data model |
 | match \* | Whether the harmonisation is partial, complete or NA (non-existent) | Find list to choose from in CatalogueOntologies [StatusDetails] |
 | description | Description of the harmonisation | |
 | syntax | Syntax used for this harmonisation | |
