@@ -7,7 +7,7 @@ import org.molgenis.emx2.Schema;
 
 public class DataCatalogueCohortStagingLoader3 extends AbstractDataLoader {
 
-  static String DATA_CATALOGUE = "DataCatalogue";
+  static String DATA_CATALOGUE = "catalogue";
 
   @Override
   void loadInternalImplementation(Schema schema, boolean includeDemoData) {
