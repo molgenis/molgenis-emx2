@@ -102,7 +102,7 @@ async function signout() {
 <template>
   <div>
     <MolgenisSession class="bg-primary" />
-    <pre>session = {{ JSON.stringify(session, null, 2) }}</pre>
+    <pre>session = {{ stringSession }}</pre>
   </div>
 </template>
 
@@ -113,6 +113,11 @@ export default {
     data() {
       return {
         session: storeToRefs(this.$sessionStore)
+      }
+    },
+    computed: {
+      stringSession(){
+        return JSON.stringify(this.session, null, 2)
       }
     }
   }
