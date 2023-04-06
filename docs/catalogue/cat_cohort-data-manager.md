@@ -99,6 +99,8 @@ asterisk (\*) after their name are mandatory.
 | unit of observation | Defines what each record in this dataset describes | |
 | number of rows | Count of the number of records in this dataset | |
 | keywords<sup>1</sup> | Enables grouping of datasets into topics and helps to display variables in a tree | Find list to choose from in CatalogueOntologies [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords) |
+| since version | Version of the data model when this dataset was introduced | e.g. 1.0.0 or 2.1 |
+| until version | Version of the data model when this dataset was deleted | e.g. 2.0.0 or 2.1 |
 
 <sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory; 1 = contact [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to add Keywords</sup>
 
