@@ -80,13 +80,13 @@ The network's variables are defined in the *Variables* sheet.
 | dataset \* | Dataset that contains the variable | Datasets must be predefined in the _Datasets_ sheet |
 | name \* | Variable name, unique within a dataset | |
 | label | Human readable variable label | |
-| format | The data type of the variable | Find list to choose from in CatalogueOntologies |
-| unit<sup>1</sup> | Unit in case of a continuous or integer format | Find list to choose from in CatalogueOntologies |
+| format | The data type of the variable | Find list to choose from in CatalogueOntologies [Formats](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Formats) |
+| unit<sup>1</sup> | Unit in case of a continuous or integer format | Find list to choose from in CatalogueOntologies [Units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Units) |
 | description | Description of the variable | |
-| keywords<sup>1</sup> | Enables grouping of variables into topics and displaying in a tree | Find list to choose from in CatalogueOntologies  |
+| keywords<sup>1</sup> | Enables grouping of variables into topics and displaying in a tree | Find list to choose from in CatalogueOntologies [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords)  |
 | example values | Examples of values in a comma separated list | Makes your data more insightful; e.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
 | mandatory | Whether this variable is required within this collection | |
-| vocabularies<sup>1</sup> | Refer to ontologies being used | Find list to choose from in CatalogueOntologies e.g. ICD10 |
+| vocabularies<sup>1</sup> | Refer to ontologies being used | Find list to choose from in CatalogueOntologies [Vocabularies](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Vocabularies) |
 | collection event.resource | Refer to the resource that contains the collection event | e.g. LifeCycle |
 | collection event.name | Refer to a collection event | e.g. y1 or y2 |
 | since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |

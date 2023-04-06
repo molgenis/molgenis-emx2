@@ -23,7 +23,7 @@ source studies [Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
 
 Each organisation with access to data (which may be a cohort, or a data source composed of one or more data banks)
 harmonises their data according to the consortium’s protocols into a common data model (CDM) format which has been
-centrally agreed upon. In some projects, data may be made available via DataSHIELD. In these cases each resource stores
+centrally agreed upon. In some projects, data may be made available via [DataSHIELD](https://www.datashield.org/). In these cases each resource stores
 the data locally in a [MOLGENIS Armadillo](/#/armadillo/) DataSHIELD server.
 
 ### Staging areas for uploads
@@ -98,7 +98,7 @@ asterisk (\*) after their name are mandatory.
 | description | Dataset description | |
 | unit of observation | Defines what each record in this dataset describes | |
 | number of rows | Count of the number of records in this dataset | |
-| keywords<sup>1</sup> | Enables grouping of datasets into topics and helps to display variables in a tree | Find list to choose from in [*CatalogueOntologies*](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords) |
+| keywords<sup>1</sup> | Enables grouping of datasets into topics and helps to display variables in a tree | Find list to choose from in CatalogueOntologies [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords) |
 
 <sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory; 1 = contact [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to add Keywords</sup>
 
@@ -113,14 +113,14 @@ The variables of the datasets specified in the *Datasets* sheet are defined in t
 | dataset \* | Dataset that contains the variable. | Datasets must be predefined in the _Datasets_ sheet |
 | name \* | Variable name, unique within a dataset | |
 | label | Human readable variable label | |
-| format | The data type of the variable | Find list to choose from in CatalogueOntologies |
-| unit<sup>1</sup> | Unit in case of a continuous or integer format | Find list to choose from in CatalogueOntologies Units |
+| format | The data type of the variable | Find list to choose from in CatalogueOntologies [Formats](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Formats) |
+| unit<sup>1</sup> | Unit in case of a continuous or integer format | Find list to choose from in CatalogueOntologies [Units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Units) |
 | description | Description of the variable | |
 | exampleValues | Examples of values in a comma separated list | Makes your data more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
-| vocabularies<sup>1</sup> | Refer to ontologies being used | Find list to choose from in CatalogueOntologies Vocabularies |
+| vocabularies<sup>1</sup> | Refer to ontologies being used | Find list to choose from in CatalogueOntologies [Vocabularies](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Vocabularies) |
 | collection event.resource | Your cohort id | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
 | collection event.name | Refer to the name of a collection event | The collection event needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
-| keywords<sup>1</sup> | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue |
+| keywords<sup>1</sup> | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords)|
 | since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this variable was deleted | e.g. 2.0.0 or 2.1 |
 
@@ -210,7 +210,7 @@ Harmonisation procedures at the variable level are defined in the *Variable mapp
 | target \* | Name of the target common data model  | e.g. LifeCycle_CDM, LongITools_CDM |
 | target dataset \* | Target dataset name. | Map to a dataset that is defined in a common data model |
 | target variable \* | Target variable name | Map to a variable that is defined in a common data model |
-| match \* | Whether the harmonisation is partial, complete or NA (non-existent) | Find list to choose from in CatalogueOntologies (StatusDetails) |
+| match \* | Whether the harmonisation is partial, complete or NA (non-existent) | Find list to choose from in CatalogueOntologies [StatusDetails] |
 | description | Description of the harmonisation | |
 | syntax | Syntax used for this harmonisation | |
 
