@@ -88,8 +88,8 @@ All variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table"
 All variables,,label,,,,,,,,,,"Human friendly longer name, if applicable"
 All variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment in time this 
 variable is collected on
-AllVariables,,since version,,,,,,,,,,When this variable was introduced
-AllVariables,,until version,,,,,,,,,,When this variable was removed if applicable
+All variables,,since version,,,,,,,,,,When this variable was introduced
+All variables,,until version,,,,,,,,,,When this variable was removed if applicable
 Variables,All variables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
 Variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"Data type, e.g. string,int,decimal,date,datetime etc"
 Variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,
