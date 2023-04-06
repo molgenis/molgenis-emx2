@@ -33,7 +33,7 @@ correspond to columns in the table concerned. This document describes how to fil
 columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to
 accept a data upload. You can download this
 [*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary_testCDM.xlsx)
-as a reference for filling out the template. Note that there is no sheet for *AllVariables*. This table is a generic listing of all
+as a reference for filling out the template. Note that there is no sheet for *All variables*. This table is a generic listing of all
 variables entered for the cohort; it shows *Variables* and *Repeated variables* in one table.
 
 It is good practice to try adding a few variables to the template first and see whether your upload succeeds. To

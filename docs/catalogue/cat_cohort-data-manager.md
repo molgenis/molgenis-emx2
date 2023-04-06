@@ -34,7 +34,7 @@ metadata are entered in the live catalogue.
 
 You will need credentials to log in and upload metadata. 
 
-Cohorts in projects such as ATHLETE, IPEC and LongITools use [*data-catalogue-staging*](https://data-catalogue-staging.molgeniscloud.org).  
+Cohorts in projects such as ATHLETE, IPEC and LongITools use [*data-catalogue-staging*](https://data-catalogue.molgeniscloud.org/apps/central/#/).  
 ConcePTION uses [*conception-acc*](https://conception-acc.molgeniscloud.org).
 
 When you log in, you will be able to see at least the following databases:
@@ -43,7 +43,9 @@ When you log in, you will be able to see at least the following databases:
 - <b>CatalogueOntologies</b>: This database contains the look-up list that you need for filling out some columns in the
   templates, e.g. format or unit. If you need to add anything to these look-up lists, contact us
   at [molgenis-support](mailto:molgenis-support@umcg.nl).
-- <b>Your own database </b>: (here: testCohort) Use this to fill out cohort rich metadata and to upload the templates once you have filled them out.
+- <b>SharedStaging</b>: A communal staging area in which Organisations are added and edited.
+- <b>Your own database</b>: use this to upload the templates once you have filled them out.
+- <b>Your own database </b>: (here: testCohort and testNetwork) Use this to fill out rich metadata and to upload the templates once you have filled them out.
 
 ![MOLGENIS databases](../img/cat_databases.png)
 
@@ -209,7 +211,7 @@ Harmonisation procedures at the variable level are defined in the *Variable mapp
 | source variables | Source variable name(s) | Variables must be predefined in the _Variables_ sheet in the SourceDictionary template; When multiple variables are mapped together use a comma-separated list, e.g. v1,v2,v3 |
 | source variables other datasets.dataset | Other source tables | When using variables from multiple other datasets, use a comma-separated list, e.g. dataset1,dataset2,dataset3<sup>1</sup> |
 | source variables other datasets.name | Source variable(s) from other datasets than filled out under source dataset | When using variables from multiple other datasets, use a comma-separated list, the order corresponding to the order of the datasets they are derived from specified under source variables from other datasets.dataset<sup>1</sup> |
-| target \* | Name of the target common data model  | e.g. LifeCycle_CDM, LongITools_CDM, see [variable explorer](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) |
+| target \* | Name of the target common data model  | e.g. LifeCycle_CDM, LongITools_CDM, see [variable explorer](https://data-ca`talogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) |
 | target dataset \* | Target dataset name. | Map to a [dataset](https://data-catalogue.molgeniscloud.org/catalogue/tables/#/Datasets) that is defined in a common data model |
 | target variable \* | Target variable name | Map to a [variable](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer) that is defined in a common data model |
 | match \* | Whether the harmonisation is partial, complete or NA (non-existent) | Find list to choose from in CatalogueOntologies [StatusDetails] |
