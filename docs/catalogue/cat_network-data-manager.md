@@ -133,7 +133,8 @@ optional.
 | resource \* | Id of the <b>model</b> that contains this variable | e.g LifeCycle_CDM or ATHLETE_CDM |
 | dataset \* | Dataset name | e.g. core |
 | name \* | Variable name | e.g. height\_1 |
-| is repeat of.table \* | Dataset that contains the variable that is repeated | Datasets must be predefined in the _Datasets_ sheet; e.g. core |
+| label | Human readable variable label | |
+| is repeat of.dataset \* | Dataset that contains the variable that is repeated | Datasets must be predefined in the _Datasets_ sheet; e.g. core |
 | is repeat of.name \* | Name of the variable that is repeated | Variables must be predefined in the _Variables_ sheet; e.g. height\_0 |
 | collection event.resource | Refer to the network that contains the collection event | e.g. LifeCycle |
 | collection event.name | Refer to the name of a collection event | The collection event needs to be predefined via online forms, as described above; e.g. y1 or y2 |
