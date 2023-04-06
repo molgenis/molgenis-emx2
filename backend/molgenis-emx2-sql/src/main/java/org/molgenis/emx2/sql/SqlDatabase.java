@@ -11,6 +11,7 @@ import java.util.*;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
+import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
@@ -26,6 +27,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final String ANONYMOUS = "anonymous";
   public static final String USER = "user";
   public static final String WITH = "with {} = {} ";
+  public static final int TEN_SECONDS = 10;
 
   // shared between all instances
   private static DataSource source;
@@ -86,7 +88,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public SqlDatabase(boolean init) {
     initDataSource();
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
-    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
+    final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
+    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, settings);
     if (init) {
       try {
         // elevate privileges for init (prevent reload)
@@ -523,8 +526,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         if (db.getListener().isDirty()) {
           this.getListener().afterCommit();
         }
-      } catch (DataAccessException e) {
-        throw new SqlMolgenisException("Transaction failed", e);
       } catch (Exception e) {
         throw new SqlMolgenisException("Transaction failed", e);
       }
