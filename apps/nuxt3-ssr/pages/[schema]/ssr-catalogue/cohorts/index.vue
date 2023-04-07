@@ -19,12 +19,11 @@ let filters = reactive([
     title: "Search in cohorts",
     columnType: "_SEARCH",
     search: "",
-    searchTables: ["collectionEvents", "subcohorts"],
     initialCollapsed: false,
   },
   {
     title: "Areas of information",
-    refTable: "AreasOfInformation",
+    refTable: "AreasOfInformationCohorts",
     columnName: "areasOfInformation",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
@@ -64,7 +63,7 @@ let search = computed(() => {
 const query = computed(() => {
   return `
   query Cohorts($filter:CohortsFilter, $orderby:Cohortsorderby){
-    Cohorts(limit: ${pageSize} offset: ${offset.value} search:"${search.value}" filter:$filter  orderby:$orderby) {
+    Cohorts(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
       name
       acronym
@@ -84,7 +83,7 @@ const query = computed(() => {
           acronym
       }
     }
-    Cohorts_agg (filter:$filter, search:"${search.value}"){
+    Cohorts_agg (filter:$filter){
         count
     }
   }
@@ -113,27 +112,26 @@ function buildFilterVariables() {
 }
 
 const filter = computed(() => {
+  //overall filter
+  const result = [];
+
   // build the active filters
   const filterVariables = buildFilterVariables();
-
-  // append search to the sub tables if set
-  const searchTables = filters.find(
-    (f) => f.columnType === "_SEARCH"
-  )?.searchTables;
-
-  if (searchTables) {
-    searchTables.forEach((searchTable) => {
-      if (search.value) {
-        if (Object.keys(filterVariables).includes(searchTable)) {
-          filterVariables[searchTable]["_search"] = search.value;
-        } else {
-          filterVariables[searchTable] = { _search: search.value };
-        }
-      }
-    });
+  if (Object.keys(filterVariables).length > 0) {
+    result.push(filterVariables);
   }
 
-  return filterVariables;
+  //add search terms
+  if (search.value) {
+    result.push({
+      _or: [
+        { _search: search.value },
+        { collectionEvents: { _search: search.value } },
+        { subcohorts: { _search: search.value } },
+      ],
+    });
+  }
+  return { _and: result };
 });
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
