@@ -949,7 +949,7 @@ public class SqlQuery extends QueryBean {
                   .map(f -> whereConditionsFilter(table, tableAlias, f))
                   .toList()));
     }
-    if (TRIGRAM_SEARCH.equals(filters.getOperator())) {
+    else if (TRIGRAM_SEARCH.equals(filters.getOperator())) {
       conditions.add(whereConditionSearch(table, tableAlias, (String[]) filters.getValues()));
     } else {
       Column column = isValidColumn(table, filters.getColumn());
