@@ -948,9 +948,6 @@ public class SqlQuery extends QueryBean {
               filters.getSubfilters().stream()
                   .map(f -> whereConditionsFilter(table, tableAlias, f))
                   .toList()));
-    }
-    else if (TRIGRAM_SEARCH.equals(filters.getOperator())) {
-      conditions.add(whereConditionSearch(table, tableAlias, (String[]) filters.getValues()));
     } else {
       Column column = isValidColumn(table, filters.getColumn());
       if (!filters.getSubfilters().isEmpty()) {
