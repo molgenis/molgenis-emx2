@@ -3,20 +3,36 @@ package org.molgenis.emx2.tasks;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
+import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.io.File;
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.SqlDatabase;
 
-public class TaskServiceDatabaseBacked extends TaskServiceInMemory {
+public class TaskServiceInDatabase extends TaskServiceInMemory {
   private Schema systemSchema;
 
-  public TaskServiceDatabaseBacked(Schema systemSchema) {
+  public TaskServiceInDatabase(Schema systemSchema) {
+    // for testing make parameterizable
     this.systemSchema = systemSchema;
+    this.init();
+  }
+
+  public TaskServiceInDatabase() {
+    // default uses ADMIN schema and dedicated database instance
+    Database database = new SqlDatabase(false);
+    database.becomeAdmin();
+    if (!database.hasSchema("ADMIN")) {
+      // assumes database is never changed by humans
+      database.createSchema("ADMIN");
+    }
+    this.systemSchema = database.getSchema("ADMIN");
     this.init();
   }
 
@@ -26,27 +42,79 @@ public class TaskServiceDatabaseBacked extends TaskServiceInMemory {
     save(task);
 
     // and we add a change handler to write task status changes to database
-    task.setChangedHandler(changedTask -> save(changedTask));
+    task.setChangedHandler(
+        new TaskChangedHandler() {
+          @Override
+          public void handleChange(Task changedTask) {
+            save(changedTask);
+          }
+
+          @Override
+          public void handleOutputFile(Task changedTask, File outFile) {
+            saveWithOutput(changedTask, outFile);
+          }
+        });
     return super.submit(task);
   }
 
+  @Override
+  public Task getTask(String id) {
+    return super.getTask(id);
+    // todo: try get from database if not in cache
+  }
+
+  @Override
+  public String submitTaskFromName(String name, String userName) {
+    // retrieve the script from database
+    Row scriptMetadata =
+        systemSchema.getTable("Scripts").where(f("name", EQUALS, name)).retrieveRows().get(0);
+    if (scriptMetadata != null) {
+      // submit the script
+      return this.submit(
+          new ScriptTask()
+              .name(name)
+              .script(scriptMetadata.getString("script"))
+              .parameters(scriptMetadata.getText("parameters"))
+              .submitUser(userName));
+    } else {
+      throw new MolgenisException("Script execution failed: " + name + " not found");
+    }
+  }
+
   private void save(Task task) {
+    this.saveWithOutput(task, null);
+  }
+
+  private void saveWithOutput(Task task, File outputFile) {
     Row jobRow =
         row(
             "id",
             task.getId(),
             "status",
             task.getStatus(),
+            "type",
+            task.getClass().getSimpleName(),
             "description",
             task.getDescription(),
-            "submission",
+            "submitDate",
             new Date(task.getSubmitTimeMilliseconds()),
-            "start",
+            "submitUser",
+            task.getSubmitUser(),
+            "startDate",
             new Date(task.getStartTimeMilliseconds()),
             "duration",
             task.getDuration(),
             "log",
             task.toString());
+
+    // in case of script we have some more info to store
+    if (task instanceof ScriptTask) {
+      ScriptTask scriptTask = (ScriptTask) task;
+      jobRow.set("script", scriptTask.getName());
+      if (outputFile != null) {
+        jobRow.set("outputFile", new BinaryFileWrapper(outputFile));
+      }
+    }
 
     systemSchema.getTable("Jobs").save(jobRow);
   }
@@ -66,6 +134,7 @@ public class TaskServiceDatabaseBacked extends TaskServiceInMemory {
                         column("type").setType(ColumnType.ONTOLOGY).setRefTable("ScriptTypes"),
                         column("script").setType(ColumnType.TEXT),
                         column("parameters").setType(ColumnType.TEXT),
+                        column("ouputFileExtension"),
                         column("active")
                             .setType(ColumnType.BOOL)
                             .setDescription("Set to false to disable the script"),
@@ -77,22 +146,27 @@ public class TaskServiceDatabaseBacked extends TaskServiceInMemory {
                     table(
                         "Jobs",
                         column("id").setPkey(),
-                        column("description").setType(ColumnType.TEXT),
+                        column("status").setType(ColumnType.ONTOLOGY).setRefTable("JobStatus"),
+                        column("type").setDescription("Type of the task, typically its class"),
                         column("script")
                             .setType(ColumnType.REF)
                             .setRefTable("Scripts")
-                            .setDescription("Optional, only for script jobs"),
-                        column("submission").setType(ColumnType.DATETIME),
-                        column("start").setType(ColumnType.DATETIME),
-                        column("status").setType(ColumnType.ONTOLOGY).setRefTable("JobStatus"),
+                            .setDescription("Optional, only for script ScriptTasks"),
+                        column("description").setType(ColumnType.TEXT),
+                        column("submitUser").setDescription("User that submitted the job"),
+                        column("submitDate").setType(ColumnType.DATETIME),
+                        column("startDate").setType(ColumnType.DATETIME),
                         column("duration")
                             .setType(ColumnType.INT)
                             .setDescription("Duration in milliseconds"),
                         column("log")
                             .setType(ColumnType.TEXT)
-                            .setDescription("Log in JSON task serialization format")));
+                            .setDescription("Log of task execution in JSON format"),
+                        column("output")
+                            .setType(ColumnType.FILE)
+                            .setDescription("output of the script, if output extension != null")));
             // import the codes
-            scripTypes.insert(row("name", "Python"));
+            scripTypes.insert(row("name", "python")); // lowercase by convention
             jobStatus.insert(
                 Arrays.stream(TaskStatus.values()).map(value -> row("name", value)).toList());
           });

@@ -22,7 +22,16 @@
       :showOrder="getOrder()"
       :locale="locale"
       @rowClick="$emit('rowClick', $event)"
-    />
+    >
+      <template v-slot:rowheader="slotProps">
+        <slot
+          name="rowheader"
+          :row="slotProps.row"
+          :metadata="slotProps.metadata"
+          :rowkey="slotProps.rowkey"
+        />
+      </template>
+    </TableExplorer>
   </div>
 </template>
 
@@ -233,9 +242,9 @@ export default {
     <div class="border p-1 my-1">
       <label>Read only example</label>
       <routed-table-explorer
-        id="my-table-explorer"
-        tableName="Pet"
-        schemaName="pet store"
+          id="my-table-explorer"
+          tableName="Pet"
+          schemaName="pet store"
       />
     </div>
   </div>

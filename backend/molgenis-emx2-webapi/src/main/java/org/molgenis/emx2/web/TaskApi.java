@@ -1,8 +1,8 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static spark.Spark.delete;
-import static spark.Spark.get;
+import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
+import static spark.Spark.*;
 
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.tasks.*;
@@ -14,7 +14,7 @@ import spark.Response;
 public class TaskApi {
 
   // todo, make jobs private to the user?
-  public static TaskService taskService = new TaskServiceInMemory();
+  public static TaskService taskService = new TaskServiceInDatabase();
 
   public static void create() {
     get("/api/tasks", TaskApi::listTasks);
@@ -23,6 +23,7 @@ public class TaskApi {
 
     // convenient delete
     delete("/api/task/:id", TaskApi::deleteTask);
+    post("/api/task", TaskApi::submitTask);
     get("/api/task/:id/delete", TaskApi::deleteTask);
 
     // also works in context schema
@@ -43,6 +44,13 @@ public class TaskApi {
     // convenient delete
     delete("/:schema/:app/api/task/:id", TaskApi::deleteTask);
     get("/:schema/:app/api/task/:id/delete", TaskApi::deleteTask);
+  }
+
+  private static Object submitTask(Request request, Response response) {
+    MolgenisSession session = sessionManager.getSession(request);
+    String name = request.queryParams("name");
+    String id = taskService.submitTaskFromName(name, session.getSessionUser());
+    return new TaskReference(id).toString();
   }
 
   private static String clearTasks(Request request, Response response) {

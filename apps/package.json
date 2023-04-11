@@ -13,7 +13,8 @@
     "nuxt3-ssr",
     "molgenis-components",
     "helloworld",
-    "reports"
-   ]
+    "reports",
+    "tasks"
+  ]
 }
 

@@ -32,6 +32,8 @@ public class Task implements Runnable, Iterable<Task> {
   private Integer total;
   // position in the total size, if available, used for progress monitoring
   private Integer progress;
+  // user who submitted
+  private String submitUser;
   // start time to measure run time
   private long submitTimeMilliseconds = System.currentTimeMillis();
   // start time to measure run time
@@ -92,7 +94,6 @@ public class Task implements Runnable, Iterable<Task> {
 
   public Task setProgress(int progress) {
     this.progress = progress;
-    this.handleChange();
     return this;
   }
 
@@ -126,7 +127,6 @@ public class Task implements Runnable, Iterable<Task> {
   public Task setDescription(String description) {
     Objects.requireNonNull(description, "description cannot be null");
     this.description = description;
-    this.handleChange();
     return this;
   }
 
@@ -143,7 +143,6 @@ public class Task implements Runnable, Iterable<Task> {
 
   public Task setTotal(int total) {
     this.total = total;
-    this.handleChange();
     return this;
   }
 
@@ -261,6 +260,15 @@ public class Task implements Runnable, Iterable<Task> {
     return startTimeMilliseconds;
   }
 
+  public String getSubmitUser() {
+    return submitUser;
+  }
+
+  public Task submitUser(String submitUser) {
+    this.submitUser = submitUser;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -294,6 +302,7 @@ public class Task implements Runnable, Iterable<Task> {
   }
 
   public void handleChange() {
+    // currently we only log at setStatus changes to not overload database
     if (this.parentTask != null) {
       this.parentTask.handleChange();
     } else if (this.changedHandler != null) {

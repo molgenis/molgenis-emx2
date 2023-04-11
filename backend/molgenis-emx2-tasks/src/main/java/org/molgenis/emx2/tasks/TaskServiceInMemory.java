@@ -11,7 +11,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TaskServiceInMemory implements TaskService {
+public abstract class TaskServiceInMemory implements TaskService {
   Logger logger = LoggerFactory.getLogger(TaskServiceInMemory.class.getSimpleName());
   private ExecutorService executorService;
   private Map<String, Task> tasks = new LinkedHashMap<>();
@@ -26,6 +26,11 @@ public class TaskServiceInMemory implements TaskService {
     tasks.put(task.getId(), task);
     executorService.submit(task);
     return task.getId();
+  }
+
+  @Override
+  public String submitTaskFromName(String name, String userName) {
+    throw new UnsupportedOperationException("Not supported when using in memory task service");
   }
 
   @Override

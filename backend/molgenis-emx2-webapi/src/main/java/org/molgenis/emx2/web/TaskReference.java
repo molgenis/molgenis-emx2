@@ -13,8 +13,12 @@ public class TaskReference {
   private String id;
   private String schemaName;
 
-  public TaskReference(String id, Schema schema) {
+  public TaskReference(String id) {
     this.id = id;
+  }
+
+  public TaskReference(String id, Schema schema) {
+    this(id);
     this.schemaName = schema.getName();
   }
 
@@ -23,7 +27,11 @@ public class TaskReference {
   }
 
   public String getUrl() {
-    return "/" + schemaName + "/api/task/" + id;
+    if (schemaName != null) {
+      return "/" + schemaName + "/api/task/" + id;
+    } else {
+      return "/api/task/" + id;
+    }
   }
 
   public String toString() {

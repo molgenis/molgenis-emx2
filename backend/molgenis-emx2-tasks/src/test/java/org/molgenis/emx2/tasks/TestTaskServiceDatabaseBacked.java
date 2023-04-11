@@ -18,7 +18,7 @@ public class TestTaskServiceDatabaseBacked {
   public void testTaskServiceDatabaseBacked() throws InterruptedException {
     Schema testSchema =
         database.dropCreateSchema(TestTaskServiceDatabaseBacked.class.getSimpleName());
-    TaskService taskService = new TaskServiceDatabaseBacked(testSchema);
+    TaskService taskService = new TaskServiceInDatabase(testSchema);
     DummyTask dummyTask = new DummyTask();
     taskService.submit(dummyTask);
 
