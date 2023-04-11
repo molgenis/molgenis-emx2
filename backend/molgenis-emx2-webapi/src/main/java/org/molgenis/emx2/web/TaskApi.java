@@ -4,6 +4,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 import static spark.Spark.*;
 
+import org.molgenis.emx2.JWTgenerator;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.tasks.*;
 import spark.Request;
@@ -48,8 +49,11 @@ public class TaskApi {
 
   private static Object submitTask(Request request, Response response) {
     MolgenisSession session = sessionManager.getSession(request);
+    String user = session.getSessionUser();
     String name = request.queryParams("name");
-    String id = taskService.submitTaskFromName(name, session.getSessionUser());
+    String id =
+        taskService.submitTaskFromName(
+            name, user, JWTgenerator.createTemporaryToken(session.getDatabase(), user));
     return new TaskReference(id).toString();
   }
 

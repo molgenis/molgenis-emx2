@@ -5,6 +5,7 @@ import static org.molgenis.emx2.tasks.TaskStatus.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
 import java.util.*;
 import java.util.function.Consumer;
 import org.molgenis.emx2.MolgenisException;
@@ -308,5 +309,9 @@ public class Task implements Runnable, Iterable<Task> {
     } else if (this.changedHandler != null) {
       this.changedHandler.handleChange(this);
     }
+  }
+
+  public void handleOutput(File outputFile) {
+    this.changedHandler.handleOutputFile(this, outputFile);
   }
 }

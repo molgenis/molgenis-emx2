@@ -3,7 +3,6 @@ package org.molgenis.emx2.tasks;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.*;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -15,10 +14,9 @@ public class ScriptTask extends Task {
   private static Logger logger = LoggerFactory.getLogger(ScriptTask.class);
   private String name;
   private String script;
-  private String outputExtension;
+  private String outputFileExtension;
   private String parameters;
   private String token;
-  private byte[] output;
 
   public ScriptTask() {
     super("Starting script");
@@ -38,14 +36,16 @@ public class ScriptTask extends Task {
     try {
       // paste the script to a file
       tempScriptFile = Files.createTempFile("python", ".py");
-      tempOutputFile = Files.createTempFile("output", outputExtension);
+      tempOutputFile = Files.createTempFile("output", "." + outputFileExtension);
       String inputJson = parameters != null ? parameters : "{}";
       Files.write(tempScriptFile, this.script.getBytes(UTF_8), StandardOpenOption.WRITE);
       String tempScriptFilePath = tempScriptFile.toAbsolutePath().toString();
 
       // start the script, optionally with parameters
       ProcessBuilder builder = new ProcessBuilder("python3", "-u", tempScriptFilePath, inputJson);
-      builder.environment().put("MOLGENIS_TOKEN", token); // token for security use
+      if (token != null) {
+        builder.environment().put("MOLGENIS_TOKEN", token); // token for security use
+      }
       builder
           .environment()
           .put(
@@ -71,8 +71,7 @@ public class ScriptTask extends Task {
       } else {
         // get any output file if exists
         if (Files.exists(tempOutputFile)) {
-          // might be optimized to read directly to database
-          this.output = Files.readAllBytes(tempOutputFile);
+          this.handleOutput(tempOutputFile.toFile());
         }
         this.complete();
       }
@@ -126,19 +125,8 @@ public class ScriptTask extends Task {
     return this;
   }
 
-  public byte[] getOutput() {
-    return this.output;
-  }
-
-  public String getOutputMimeType() {
-    return URLConnection.guessContentTypeFromName("blaat." + this.outputExtension);
-  }
-
-  public String getOutputExtension() {
-    return outputExtension;
-  }
-
-  public void setOutputExtension(String outputExtension) {
-    this.outputExtension = outputExtension;
+  public ScriptTask outputFileExtension(String outputFileExtension) {
+    this.outputFileExtension = outputFileExtension;
+    return this;
   }
 }

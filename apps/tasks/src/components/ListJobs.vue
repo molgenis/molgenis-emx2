@@ -1,3 +1,25 @@
 <template>
-  <div>Manage scripts</div>
+  <div>View jobs</div>
+  <RoutedTableExplorer
+    tableName="Jobs"
+    schemaName="ADMIN"
+    :canEdit="false"
+    :canManage="false"
+  >
+    <template v-slot:rowheader="slotProps">
+      <TaskViewButton :taskId="slotProps.row.id" />
+    </template>
+  </RoutedTableExplorer>
 </template>
+
+<script>
+import { RoutedTableExplorer } from "molgenis-components";
+import TaskViewButton from "./TaskViewButton.vue";
+
+export default {
+  components: {
+    RoutedTableExplorer,
+    TaskViewButton,
+  },
+};
+</script>

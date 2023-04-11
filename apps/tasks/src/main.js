@@ -10,14 +10,16 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     {
-      path: "/",
+      path: "/scripts",
       component: ListScripts,
       props: true,
+      name: "scripts",
     },
     {
       path: "/jobs",
       component: ListJobs,
       props: true,
+      name: "jobs",
     },
     {
       path: "/jobs/:id",

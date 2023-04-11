@@ -8,7 +8,9 @@ import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.File;
-import java.sql.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,7 +66,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   @Override
-  public String submitTaskFromName(String name, String userName) {
+  public String submitTaskFromName(String name, String userName, String token) {
     // retrieve the script from database
     Row scriptMetadata =
         systemSchema.getTable("Scripts").where(f("name", EQUALS, name)).retrieveRows().get(0);
@@ -75,6 +77,8 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
               .name(name)
               .script(scriptMetadata.getString("script"))
               .parameters(scriptMetadata.getText("parameters"))
+              .outputFileExtension(scriptMetadata.getString("outputFileExtension"))
+              .token(token)
               .submitUser(userName));
     } else {
       throw new MolgenisException("Script execution failed: " + name + " not found");
@@ -97,11 +101,11 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
             "description",
             task.getDescription(),
             "submitDate",
-            new Date(task.getSubmitTimeMilliseconds()),
+            toDateTime(task.getSubmitTimeMilliseconds()),
             "submitUser",
             task.getSubmitUser(),
             "startDate",
-            new Date(task.getStartTimeMilliseconds()),
+            toDateTime(task.getStartTimeMilliseconds()),
             "duration",
             task.getDuration(),
             "log",
@@ -112,7 +116,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
       ScriptTask scriptTask = (ScriptTask) task;
       jobRow.set("script", scriptTask.getName());
       if (outputFile != null) {
-        jobRow.set("outputFile", new BinaryFileWrapper(outputFile));
+        jobRow.set("output", new BinaryFileWrapper(outputFile));
       }
     }
 
@@ -131,10 +135,13 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                     table(
                         "Scripts",
                         column("name").setPkey(),
-                        column("type").setType(ColumnType.ONTOLOGY).setRefTable("ScriptTypes"),
+                        column("type")
+                            .setType(ColumnType.ONTOLOGY)
+                            .setRefTable("ScriptTypes")
+                            .setDefaultValue("python"),
                         column("script").setType(ColumnType.TEXT),
                         column("parameters").setType(ColumnType.TEXT),
-                        column("ouputFileExtension"),
+                        column("outputFileExtension"),
                         column("active")
                             .setType(ColumnType.BOOL)
                             .setDescription("Set to false to disable the script"),
@@ -165,7 +172,28 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                         column("output")
                             .setType(ColumnType.FILE)
                             .setDescription("output of the script, if output extension != null")));
-            // import the codes
+            // import defaults
+            String demoScript =
+                """
+import os;
+print("hello world")
+print("MOLGENIS_TOKEN="+os.environ['MOLGENIS_TOKEN']);
+OUTPUT_FILE=os.environ['OUTPUT_FILE'];
+print("OUTPUT_FILE="+os.environ['OUTPUT_FILE']);
+f = open(OUTPUT_FILE, "a")
+f.write("Readme")
+f.close()
+""";
+            scripts.insert(
+                row(
+                    "name",
+                    "hello world",
+                    "script",
+                    demoScript,
+                    "type",
+                    "python",
+                    "outputFileExtension",
+                    "txt"));
             scripTypes.insert(row("name", "python")); // lowercase by convention
             jobStatus.insert(
                 Arrays.stream(TaskStatus.values()).map(value -> row("name", value)).toList());
@@ -198,5 +226,13 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
     jobsTable.save(faultyJobRows);
 
     // todo reload the scheduled jobs to be managed
+  }
+
+  private LocalDateTime toDateTime(long milliseconds) {
+    if (milliseconds > 0) {
+      return LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.systemDefault());
+    } else {
+      return null;
+    }
   }
 }
