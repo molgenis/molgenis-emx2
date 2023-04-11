@@ -76,6 +76,9 @@ public class ScriptTask extends Task {
         this.complete();
       }
       logger.debug("Completed script " + tempScriptFilePath);
+    } catch (InterruptedException ie) {
+      // should not happen
+      Thread.currentThread().interrupt();
     } catch (Exception e) {
       this.setError("Script failed: " + e.getMessage());
       throw new MolgenisException("Script execution failed", e);
