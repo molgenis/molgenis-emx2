@@ -3,7 +3,6 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
 import ListScripts from "./components/ListScripts.vue";
 import ListJobs from "./components/ListJobs.vue";
-import ViewJob from "./components/ViewJob.vue";
 import "molgenis-components/dist/style.css";
 
 const router = createRouter({
@@ -20,11 +19,6 @@ const router = createRouter({
       component: ListJobs,
       props: true,
       name: "jobs",
-    },
-    {
-      path: "/jobs/:id",
-      component: ViewJob,
-      props: true,
     },
   ],
 });
