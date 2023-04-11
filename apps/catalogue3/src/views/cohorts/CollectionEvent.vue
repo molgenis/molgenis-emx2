@@ -105,14 +105,14 @@ export default {
   },
   mounted: async function () {
     fetchById("cohortDetails", "Cohorts", {
-      pid: this.$route.params.cohort,
+      id: this.$route.params.cohort,
     }).then((data) => (this.cohortData = data));
 
     this.collectionEvent = await fetchById(
       "collectionEvent",
       "CollectionEvents",
       {
-        pid: this.$route.params.cohort,
+        id: this.$route.params.cohort,
         name: this.name,
       }
     );
