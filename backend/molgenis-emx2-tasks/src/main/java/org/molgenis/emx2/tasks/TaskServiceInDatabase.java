@@ -225,6 +225,14 @@ f.close()
             .collect(Collectors.toList());
     jobsTable.save(faultyJobRows);
 
+    systemSchema
+        .getMetadata()
+        .setSetting(
+            "menu",
+            """
+[{"label":"Tasks","href":"tasks","key":"t1yefr","submenu":[],"role":"Manager"},{"label":"Up/Download","href":"updownload","role":"Editor","key":"eq0fcp","submenu":[]},{"label":"Graphql","href":"graphql-playground","role":"Viewer","key":"bifta5","submenu":[]},{"label":"Settings","href":"settings","role":"Manager","key":"7rh3b8","submenu":[]},{"label":"Help","href":"docs","role":"Viewer","key":"gq6ixb","submenu":[]}]
+""");
+
     // todo reload the scheduled jobs to be managed
   }
 
