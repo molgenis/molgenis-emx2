@@ -70,7 +70,7 @@ public class ScriptTask extends Task {
         this.setError("Script failed. Exit value: " + process.exitValue());
       } else {
         // get any output file if exists
-        if (Files.exists(tempOutputFile)) {
+        if (Files.exists(tempOutputFile) && Files.size(tempOutputFile) > 0) {
           this.handleOutput(tempOutputFile.toFile());
         }
         this.complete();

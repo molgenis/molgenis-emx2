@@ -312,6 +312,8 @@ public class Task implements Runnable, Iterable<Task> {
   }
 
   public void handleOutput(File outputFile) {
-    this.changedHandler.handleOutputFile(this, outputFile);
+    if (this.changedHandler != null) {
+      this.changedHandler.handleOutputFile(this, outputFile);
+    }
   }
 }
