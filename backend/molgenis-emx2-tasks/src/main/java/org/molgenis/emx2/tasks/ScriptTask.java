@@ -87,7 +87,7 @@ public class ScriptTask extends Task {
         Files.deleteIfExists(tempScriptFile);
         Files.deleteIfExists(tempOutputFile);
       } catch (IOException e) {
-        e.printStackTrace();
+        throw new MolgenisException("Delete temp files failed", e);
       }
     }
   }
