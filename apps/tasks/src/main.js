@@ -9,6 +9,10 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     {
+      path: "/",
+      redirect: { path: "/scripts" },
+    },
+    {
       path: "/scripts",
       component: ListScripts,
       props: true,

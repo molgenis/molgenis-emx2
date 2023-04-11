@@ -1,6 +1,7 @@
 <template>
   <div>Manage scripts</div>
   <RoutedTableExplorer
+    v-if="session"
     tableName="Scripts"
     schemaName="ADMIN"
     :canEdit="true"
@@ -20,6 +21,9 @@ export default {
   components: {
     RoutedTableExplorer,
     SubmitButton,
+  },
+  props: {
+    session: Object,
   },
 };
 </script>

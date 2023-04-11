@@ -11,6 +11,7 @@
     - [Up/download](use_updownload.md)
     - [Permissions](use_permissions.md)
     - [Settings](use_database_settings.md)
+    - [Scripts/Jobs](use_scripts_jobs.md)
     - [Linked data](semantics.md)
     - [Using APIs](use_usingapis.md)
     - [Admin](use_global_settings.md)

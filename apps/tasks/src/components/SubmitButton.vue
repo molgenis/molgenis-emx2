@@ -8,12 +8,14 @@
       @close="close"
     >
       <template #body>
-        todo {{ taskId }}
+        todo: parameters dialogue.
+        <MessageError v-if="error">{{ error }}</MessageError>
         <Task v-if="taskId" :taskId="taskId" />
+        <router-link to="jobs">View all jobs</router-link>
       </template>
       <template #footer>
-        <ButtonAction @click="submitScript">Submit</ButtonAction>
-        <ButtonAlt @click="close">Cancel</ButtonAlt>
+        <ButtonAction v-if="!taskId" @click="submitScript">Submit</ButtonAction>
+        <ButtonAlt @click="close">Close</ButtonAlt>
       </template>
     </LayoutModal>
   </div>
@@ -24,6 +26,7 @@ import {
   ButtonAlt,
   IconAction,
   LayoutModal,
+  MessageError,
   Task,
 } from "molgenis-components";
 
@@ -34,6 +37,7 @@ export default {
     ButtonAction,
     ButtonAlt,
     Task,
+    MessageError,
   },
   props: {
     script: {

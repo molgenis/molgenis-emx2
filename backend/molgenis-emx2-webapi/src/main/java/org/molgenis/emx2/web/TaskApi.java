@@ -50,6 +50,9 @@ public class TaskApi {
   private static Object submitTask(Request request, Response response) {
     MolgenisSession session = sessionManager.getSession(request);
     String user = session.getSessionUser();
+    if (!"admin".equals(user)) {
+      throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
+    }
     String name = request.queryParams("name");
     String id =
         taskService.submitTaskFromName(
