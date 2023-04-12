@@ -3,14 +3,14 @@ import { defineNuxtConfig } from 'nuxt/config'
 
 const devProxy = {
   options: {
-    target: process.env.PROXY_TARGET || 'https://data-catalogue.molgeniscloud.org/', // 'http://localhost:8080/',
-    pathFilter: [
-      '**/*/graphql',
-      '**/api/file/**'
-    ],
-    changeOrigin: true, secure: false, logLevel: "debug"
-  }
-}
+    target:
+      process.env.PROXY_TARGET || "https://catalogue-acc.molgeniscloud.org/", // 'http://localhost:8080/',
+    pathFilter: ["**/*/graphql", "**/api/file/**"],
+    changeOrigin: true,
+    secure: false,
+    logLevel: "debug",
+  },
+};
 
 const config = {
   modules: ['nuxt-proxy', '@nuxt/image-edge'],

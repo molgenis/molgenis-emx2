@@ -46,62 +46,72 @@ const isShowingMobileMoreText = computed(() => {
 
 <template>
   <article :class="articleClasses">
-    <header :class="headerClasses" class="flex">
-      <div :class="titleContainerClasses" class="grow">
-        <h2 class="min-w-[160px] mr-4 md:inline-block block">
-          <NuxtLink
-            :to="`/${schema}/ssr-catalogue/networks/${network.pid}`"
-            class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
-          >
-            {{ network?.acronym || network?.name }}
+    <div class="grid grid-cols-12 gap-6">
+      <div class="col-span-3">
+        <div class="items-center flex h-full w-full justify-center">
+          <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${network.id}`">
+            <img :src="network?.logo?.url" />
           </NuxtLink>
-        </h2>
-
-        <span :class="subtitleClasses" class="mr-4 text-body-base">
-          {{ network?.acronym ? network?.name : "" }}
-        </span>
+        </div>
       </div>
-      <div class="flex">
-        <!--
+      <div class="col-span-9">
+        <header :class="headerClasses" class="flex">
+          <div :class="titleContainerClasses" class="grow">
+            <h2 class="min-w-[160px] mr-4 md:inline-block block">
+              <NuxtLink
+                :to="`/${schema}/ssr-catalogue/networks/${network.id}`"
+                class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
+              >
+                {{ network?.acronym || network?.name }}
+              </NuxtLink>
+            </h2>
+
+            <span :class="subtitleClasses" class="mr-4 text-body-base">
+              {{ network?.acronym ? network?.name : "" }}
+            </span>
+          </div>
+          <div class="flex">
+            <!--
         <IconButton
           icon="star"
           :class="iconStarClasses"
           class="text-blue-500 xl:justify-end"
         />
         -->
-        <NuxtLink :to="`/${schema}/ssr-catalogue/networks/${network.pid}`">
-          <IconButton
-            icon="arrow-right"
-            class="text-blue-500 hidden xl:flex xl:justify-end"
-          />
-        </NuxtLink>
+            <NuxtLink :to="`/${schema}/ssr-catalogue/networks/${network.pid}`">
+              <IconButton
+                icon="arrow-right"
+                class="text-blue-500 hidden xl:flex xl:justify-end"
+              />
+            </NuxtLink>
+          </div>
+        </header>
+
+        <div v-if="!compact">
+          <p class="text-body-base my-5 xl:block hidden">
+            {{ network?.description }}
+          </p>
+
+          <p class="text-body-base mt-5 block xl:hidden">
+            {{
+              isShowingMobileMoreText
+                ? network?.description
+                : `${network?.description?.substring(
+                    0,
+                    mobileShowMoreTextLength
+                  )}...`
+            }}
+          </p>
+
+          <button
+            v-if="!isShowingMobileMoreText"
+            class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
+            @click="mobileShowMoreText = true"
+          >
+            Read more
+          </button>
+        </div>
       </div>
-    </header>
-
-    <div v-if="!compact">
-      <p class="text-body-base my-5 xl:block hidden">
-        {{ network?.description }}
-      </p>
-
-      <p class="text-body-base mt-5 block xl:hidden">
-        {{
-          isShowingMobileMoreText
-            ? network?.description
-            : `${network?.description?.substring(
-                0,
-                mobileShowMoreTextLength
-              )}...`
-        }}
-      </p>
-
-      <button
-        v-if="!isShowingMobileMoreText"
-        class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
-        @click="mobileShowMoreText = true"
-      >
-        Read more
-      </button>
-
     </div>
   </article>
 </template>

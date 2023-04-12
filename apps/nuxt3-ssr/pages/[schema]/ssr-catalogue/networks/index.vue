@@ -54,7 +54,7 @@ const query = computed(() => {
   return `
   query Networks($filter:NetworksFilter, $orderby:Networksorderby){
     Networks(limit: ${pageSize} offset: ${offset.value} search:"${search.value}" filter:$filter  orderby:$orderby) {
-      pid
+      id
       name
       acronym
       description
@@ -138,7 +138,6 @@ watch(filters, () => {
 });
 
 let activeName = ref("detailed");
-
 </script>
 
 <template>
@@ -156,7 +155,6 @@ let activeName = ref("detailed");
             icon="image-diagram"
           >
             <template #suffix>
-
               <SearchResultsViewTabs
                 class="hidden xl:flex"
                 buttonLeftLabel="Detailed"

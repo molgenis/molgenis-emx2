@@ -119,7 +119,9 @@ interface ICollectionEventCategorySet {
 }
 
 interface INetwork {
+  id: string;
   name: string;
+  acronym?: string;
   description?: string;
   logo?: IUrlObject;
   website?: string;
