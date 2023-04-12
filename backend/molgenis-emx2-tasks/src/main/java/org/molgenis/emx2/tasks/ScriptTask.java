@@ -1,17 +1,14 @@
 package org.molgenis.emx2.tasks;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ScriptTask extends Task {
-  private static Logger logger = LoggerFactory.getLogger(ScriptTask.class);
+  private static final Logger logger = LoggerFactory.getLogger(ScriptTask.class);
   private String name;
   private String script;
   private String outputFileExtension;
@@ -34,61 +31,59 @@ public class ScriptTask extends Task {
     Path tempScriptFile = null;
     Path tempOutputFile = null;
     try {
-      // paste the script to a file
-      tempScriptFile = Files.createTempFile("python", ".py");
-      tempOutputFile = Files.createTempFile("output", "." + outputFileExtension);
-      String inputJson = parameters != null ? parameters : "{}";
-      Files.write(tempScriptFile, this.script.getBytes(UTF_8), StandardOpenOption.WRITE);
-      String tempScriptFilePath = tempScriptFile.toAbsolutePath().toString();
+      try {
+        // paste the script to a file
+        tempScriptFile = Files.createTempFile("python", ".py");
+        tempOutputFile = Files.createTempFile("output", "." + outputFileExtension);
+        String inputJson = parameters != null ? parameters : "{}";
+        Files.writeString(tempScriptFile, this.script);
+        String tempScriptFilePath = tempScriptFile.toAbsolutePath().toString();
 
-      // start the script, optionally with parameters
-      ProcessBuilder builder = new ProcessBuilder("python3", "-u", tempScriptFilePath, inputJson);
-      if (token != null) {
-        builder.environment().put("MOLGENIS_TOKEN", token); // token for security use
-      }
-      builder
-          .environment()
-          .put(
-              "OUTPUT_FILE",
-              tempOutputFile.toAbsolutePath().toString()); // in case of an output file
-      Process process = builder.start();
-      logger.debug("Starting script " + tempScriptFilePath);
-      this.addSubTask("Script started").complete();
-
-      // catch the output
-      try (BufferedReader bfr =
-          new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-        String line;
-        while ((line = bfr.readLine()) != null) {
-          this.addSubTask(line).complete();
+        // start the script, optionally with parameters
+        ProcessBuilder builder = new ProcessBuilder("python3", "-u", tempScriptFilePath, inputJson);
+        if (token != null) {
+          builder.environment().put("MOLGENIS_TOKEN", token); // token for security use
         }
-      }
+        builder
+            .environment()
+            .put(
+                "OUTPUT_FILE",
+                tempOutputFile.toAbsolutePath().toString()); // in case of an output file
+        Process process = builder.start();
+        logger.debug("Starting script {}", tempScriptFilePath);
+        this.addSubTask("Script started").complete();
 
-      process.waitFor();
-      // Check for errors
-      if (process.exitValue() > 0) {
-        this.setError("Script failed. Exit value: " + process.exitValue());
-      } else {
-        // get any output file if exists
-        if (Files.exists(tempOutputFile) && Files.size(tempOutputFile) > 0) {
-          this.handleOutput(tempOutputFile.toFile());
+        // catch the output
+        try (BufferedReader bfr =
+            new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+          String line;
+          while ((line = bfr.readLine()) != null) {
+            this.addSubTask(line).complete();
+          }
         }
-        this.complete();
+
+        process.waitFor();
+        // Check for errors
+        if (process.exitValue() > 0) {
+          this.setError("Script failed. Exit value: " + process.exitValue());
+        } else {
+          // get any output file if exists
+          if (Files.exists(tempOutputFile) && Files.size(tempOutputFile) > 0) {
+            this.handleOutput(tempOutputFile.toFile());
+          }
+          this.complete();
+        }
+        logger.debug("Completed script {}", tempScriptFilePath);
+      } finally {
+        if (tempScriptFile != null) Files.deleteIfExists(tempScriptFile);
+        if (tempOutputFile != null) Files.deleteIfExists(tempOutputFile);
       }
-      logger.debug("Completed script " + tempScriptFilePath);
     } catch (InterruptedException ie) {
       // should not happen
       Thread.currentThread().interrupt();
     } catch (Exception e) {
       this.setError("Script failed: " + e.getMessage());
       throw new MolgenisException("Script execution failed", e);
-    } finally {
-      try {
-        Files.deleteIfExists(tempScriptFile);
-        Files.deleteIfExists(tempOutputFile);
-      } catch (IOException e) {
-        throw new MolgenisException("Delete temp files failed", e);
-      }
     }
   }
 
