@@ -78,8 +78,7 @@
             "
             :class="{ refType: isRefType(col.columnType) }"
           >
-            <data-display-cell :data="row[col.id]" :metaData="col">
-            </data-display-cell>
+            <data-display-cell :data="row[col.id]" :metaData="col" />
           </td>
         </tr>
       </tbody>
@@ -94,10 +93,6 @@ th {
 
 .column-drag-header:hover {
   cursor: grab;
-}
-
-.column-drag-header:hover .column-remove {
-  visibility: visible;
 }
 
 .table .refType {
@@ -199,7 +194,6 @@ export default {
       this.$emit("column-click", column);
     },
     onCellClick(row, column) {
-      const key = this.getPrimaryKey(row);
       const value = row[column.id];
       if (value) {
         this.$emit("cellClick", {

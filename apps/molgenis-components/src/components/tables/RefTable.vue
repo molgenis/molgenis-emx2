@@ -20,7 +20,15 @@
         <table class="table table-sm mb-2">
           <tr v-for="(value, key) in filteredResults">
             <td class="key border-right">{{ key }}</td>
-            <td class="value">
+            <td
+              @click="
+                {
+                  onCellClick(value, key);
+                }
+              "
+              class="value"
+              :class="{ refType: isRefType(metadataOfRow(key).columnType) }"
+            >
               <DataDisplayCell :data="value" :meta-data="metadataOfRow(key)" />
             </td>
           </tr>
@@ -74,22 +82,45 @@ table .key {
 .collapsed-table .table {
   margin-bottom: 0 !important;
 }
+.table .refType {
+  color: var(--primary);
+}
+.table .refType:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  text-decoration: underline;
+}
 </style>
 
 <script lang="ts" setup>
-import { computed, ref, toRefs } from "vue";
+import { computed, ref, toRefs, defineEmits } from "vue";
 import { IRefModalData } from "../../Interfaces/IRefModalData";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
-import { getPrimaryKey } from "../utils";
+import { getPrimaryKey, isRefType } from "../utils";
 import ObjectDisplay from "./cellTypes/ObjectDisplay.vue";
 import DataDisplayCell from "./DataDisplayCell.vue";
+import { IColumn } from "../../Interfaces/IColumn";
+import { IRow } from "../../Interfaces/IRow";
+import { table } from "console";
 
+interface IFilteredRefModalData {
+  [property: string]: string;
+}
 const props = defineProps<{
   reference: IRefModalData;
   showDataOwner?: boolean;
   startsCollapsed?: boolean;
 }>();
 const { reference, startsCollapsed } = toRefs(props);
+
+const emit = defineEmits<{
+  (
+    e: "refCellClicked",
+    data: {
+      refColumn: IColumn;
+      rows: IRow[];
+    }
+  ): void;
+}>();
 
 let filteredResults = computed(() => getFilteredResults(reference.value));
 let canCollapse = computed(() => Object.keys(filteredResults.value).length > 5);
@@ -99,7 +130,9 @@ let primaryKey = computed(() =>
 
 let collapsed = ref(startsCollapsed.value && canCollapse.value);
 
-function getFilteredResults(reference: IRefModalData): Record<string, any> {
+function getFilteredResults(
+  reference: IRefModalData
+): Record<string, IFilteredRefModalData> {
   const filtered: Record<string, any> = { ...reference };
   delete filtered.mg_insertedBy;
   delete filtered.mg_insertedOn;
@@ -113,7 +146,9 @@ function getFilteredResults(reference: IRefModalData): Record<string, any> {
 function metadataOfRow(key: string | number) {
   const metadata = reference.value.metadata;
   if (isMetaData(metadata) && metadata.columns) {
-    return metadata.columns.find((column) => column.id === key) || {};
+    return (
+      metadata.columns.find((column) => column.id === key) || ({} as IColumn)
+    );
   } else {
     throw "Error: Metadata for RefTable not found";
   }
@@ -123,5 +158,22 @@ function isMetaData(
   metadata: ITableMetaData | string
 ): metadata is ITableMetaData {
   return (<ITableMetaData>metadata).name !== undefined;
+}
+
+function onCellClick(
+  columnRows: IFilteredRefModalData,
+  referenceTable: string
+): void {
+  const rows: IRow[] = [columnRows].flat(); //[{name:spike}]
+  const refColumn = reference.value.metadata.columns?.find((column) => {
+    return column.name === referenceTable;
+  });
+
+  if (refColumn) {
+    emit("refCellClicked", {
+      refColumn,
+      rows,
+    });
+  }
 }
 </script>

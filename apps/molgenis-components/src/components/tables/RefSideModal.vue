@@ -1,5 +1,5 @@
 <template>
-  <SideModal :label="label" :isVisible="true" @onClose="emit('onClose')">
+  <SideModal :label="localColumn" :isVisible="true" @onClose="emit('onClose')">
     <div v-if="loading">
       <Spinner />
     </div>
@@ -10,6 +10,7 @@
           :reference="queryResult"
           :showDataOwner="showDataOwner"
           :startsCollapsed="queryResults.length > 1"
+          @ref-cell-clicked="handleRefCellClicked"
         />
       </div>
     </div>
@@ -20,10 +21,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, toRefs, watch } from "vue";
-import Client from "../../client/client";
+import { Ref, ref, toRefs, watch } from "vue";
+import { IColumn } from "../../Interfaces/IColumn";
 import { IRefModalData } from "../../Interfaces/IRefModalData";
 import { IRow } from "../../Interfaces/IRow";
+import { default as Client, default as client } from "../../client/client";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
@@ -31,55 +33,62 @@ import { getPrimaryKey } from "../utils";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
 
-const props = withDefaults(
+const properties = withDefaults(
   defineProps<{
     schema?: string;
     tableId: string;
-    label: string;
+    column: string;
     showDataOwner?: boolean;
     refSchema?: string;
-    rows?: IRow[];
+    rows: IRow[];
   }>(),
   {
     showDataOwner: false,
     rows: () => [] as IRow[],
   }
 );
-const { label, rows, tableId } = toRefs(props);
+const { column, rows, tableId } = toRefs(properties);
 
 const emit = defineEmits(["onClose"]);
 
+let localTableId = ref(tableId.value);
+let localColumn = ref(column.value);
+let localRows = ref(rows.value);
 let loading = ref(true);
-let queryResults = ref([] as IRefModalData[]);
+let queryResults: Ref<IRefModalData[]> = ref([]);
 let errorMessage = ref("");
 
 updateData();
 
-watch([tableId, label, rows], () => {
+watch([tableId, column, rows], () => {
+  localColumn.value = column.value;
+  localTableId.value = tableId.value;
+  localRows.value = rows.value;
+});
+
+watch([localColumn, localTableId, localRows], () => {
   updateData();
 });
 
 async function updateData() {
   errorMessage.value = "";
   loading.value = true;
-  queryResults.value = await getRowData();
+  queryResults.value = await getRowData(localTableId.value);
   loading.value = false;
 }
 
-async function getRowData(): Promise<IRefModalData[]> {
+async function getRowData(tableId: string): Promise<IRefModalData[]> {
   let newQueryResults: IRefModalData[] = [];
-  const activeSchema = props.refSchema || props.schema;
+  const activeSchema = properties.refSchema || properties.schema;
   const externalSchemaClient = Client.newClient(activeSchema);
-  if (tableId.value !== "") {
-    for (const row of rows.value) {
-      const metadata = await externalSchemaClient.fetchTableMetaData(
-        tableId.value
-      );
+  if (tableId !== "") {
+    for (const row of localRows.value) {
+      const metadata = await externalSchemaClient.fetchTableMetaData(tableId);
       const primaryKey = getPrimaryKey(row, metadata);
 
       if (primaryKey) {
         const queryResult = await externalSchemaClient
-          .fetchRowData(tableId.value, primaryKey)
+          .fetchRowData(tableId, primaryKey)
           .catch(() => {
             errorMessage.value = "Failed to load reference data";
           });
@@ -90,12 +99,28 @@ async function getRowData(): Promise<IRefModalData[]> {
   }
   return newQueryResults;
 }
+
+function handleRefCellClicked(event: {
+  refColumn: IColumn;
+  rows: any[];
+}): void {
+  const table = event.refColumn.refTable || "";
+  const Client = client.newClient("pet store");
+  Client.fetchTableData(table, {}).then((tableData) => {
+    localColumn.value = event.refColumn.name;
+    localTableId.value = table;
+    const filteredRows = tableData[localTableId.value].filter((row: IRow) => {
+      return event.rows.find((eventRow) => eventRow.name === row.name);
+    });
+    localRows.value = filteredRows;
+  });
+}
 </script>
 
 <docs>
 <template>
   <RefSideModal
-    label="Label"
+    column="Label"
     tableId="Pet"
     :row="{}"
     :isVisible="showModal"
@@ -104,13 +129,8 @@ async function getRowData(): Promise<IRefModalData[]> {
   <br />
   <button @click="showModal = !showModal">Toggle modal</button>
 </template>
-<script>
-export default {
-  data: function () {
-    return {
-      showModal: false,
-    };
-  },
-};
+<script setup lang="ts">
+import { ref } from "vue";
+let showModal = ref(false);
 </script>
 </docs>

@@ -341,7 +341,7 @@
     <RefSideModal
       v-if="refSideModalProps"
       :table-id="refSideModalProps.table"
-      :label="refSideModalProps.label"
+      :column="refSideModalProps.label"
       :rows="refSideModalProps.rows"
       :schema="this.schemaName"
       :refSchema="refSideModalProps.schema"
