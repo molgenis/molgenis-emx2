@@ -53,43 +53,51 @@ public class TaskApi {
   }
 
   private static Object submitTask(Request request, Response response) {
-    MolgenisSession session = sessionManager.getSession(request);
-    String user = session.getSessionUser();
-    if (!"admin".equals(user)) {
-      throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
+    if (request.params("schema") == null || getSchema(request) != null) {
+
+      MolgenisSession session = sessionManager.getSession(request);
+      String user = session.getSessionUser();
+      if (!"admin".equals(user)) {
+        throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
+      }
+      String name = request.queryParams("name");
+      String id =
+          taskService.submitTaskFromName(
+              name, user, JWTgenerator.createTemporaryToken(session.getDatabase(), user));
+      return new TaskReference(id).toString();
     }
-    String name = request.queryParams("name");
-    String id =
-        taskService.submitTaskFromName(
-            name, user, JWTgenerator.createTemporaryToken(session.getDatabase(), user));
-    return new TaskReference(id).toString();
+    throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
   private static Object getTaskOutput(Request request, Response response) throws IOException {
-    MolgenisSession session = sessionManager.getSession(request);
-    Schema adminSchema = session.getDatabase().getSchema("ADMIN");
-    String jobId = request.params("id");
-    Row jobMetadata =
-        adminSchema
-            .getTable("Jobs")
-            .query()
-            // make sure we include all file metadata
-            .select(s("output", s("contents"), s("mimetype"), s("extension")))
-            .where(f("id", Operator.EQUALS, jobId))
-            .retrieveRows()
-            .get(0);
+    if (request.params("schema") == null || getSchema(request) != null) {
 
-    if (jobMetadata == null) {
-      throw new MolgenisException(
-          "Get output for task failed: couldn't find task with id " + jobId);
+      MolgenisSession session = sessionManager.getSession(request);
+      Schema adminSchema = session.getDatabase().getSchema("ADMIN");
+      String jobId = request.params("id");
+      Row jobMetadata =
+          adminSchema
+              .getTable("Jobs")
+              .query()
+              // make sure we include all file metadata
+              .select(s("output", s("contents"), s("mimetype"), s("extension")))
+              .where(f("id", Operator.EQUALS, jobId))
+              .retrieveRows()
+              .get(0);
+
+      if (jobMetadata == null) {
+        throw new MolgenisException(
+            "Get output for task failed: couldn't find task with id " + jobId);
+      }
+      // reuse implementation from FileApi
+      addFileColumnToResponse(response, "output", jobMetadata);
+      return "";
     }
-    // reuse implementation from FileApi
-    addFileColumnToResponse(response, "output", jobMetadata);
-    return "";
+    throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
   private static String clearTasks(Request request, Response response) {
-    if (getSchema(request) != null) {
+    if (request.params("schema") == null || getSchema(request) != null) {
       taskService.clear();
       return "{status: 'SUCCESS'}";
     }
@@ -97,7 +105,7 @@ public class TaskApi {
   }
 
   private static String deleteTask(Request request, Response response) {
-    if (getSchema(request) != null) {
+    if (request.params("schema") == null || getSchema(request) != null) {
       taskService.removeTask(request.params("id"));
       return "{status: 'SUCCESS'}";
     }
@@ -126,7 +134,7 @@ public class TaskApi {
   }
 
   private static String getTask(Request request, Response response) {
-    if (getSchema(request) != null) {
+    if (request.params("schema") == null || getSchema(request) != null) {
       Task step = taskService.getTask(request.params("id"));
       if (step == null) {
         step = new Task("Task unknown").setStatus(TaskStatus.UNKNOWN);

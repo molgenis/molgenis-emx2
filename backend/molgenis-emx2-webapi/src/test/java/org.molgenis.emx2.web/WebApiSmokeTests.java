@@ -895,16 +895,20 @@ public class WebApiSmokeTests {
     // poll until completed
     String taskUrl = "/api/task/" + taskId;
     // poll task until complete
-    Response poll = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl);
+    result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+    String status = new ObjectMapper().readTree(result).at("/status").textValue();
     int count = 0;
     // poll while running
     // (previously we checked on 'complete' but then it also fired if subtask was complete)
-    while (poll.body().asString().contains("UNKNOWN")
-        || poll.body().asString().contains("RUNNING")) {
+    while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+      if (result.contains("ERROR")) {
+        System.out.println("testScriptExcution failed:" + result);
+      }
       if (count++ > 100) {
         throw new MolgenisException("failed: polling took too long");
       }
-      poll = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl);
+      status = new ObjectMapper().readTree(result).at("/status").textValue();
       Thread.sleep(500);
     }
 
