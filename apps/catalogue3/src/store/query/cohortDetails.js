@@ -1,38 +1,39 @@
 import gql from "graphql-tag";
+
 export default gql`
-  query Cohorts($pid: String) {
-    Cohorts(filter: { pid: { equals: [$pid] } }) {
-      pid
+  query Cohorts($id: String) {
+    Cohorts(filter: { id: { equals: [$id] } }) {
+      id
       name
-      contact_email
+      contactEmail
       keywords
       acknowledgements
-      funding_statement
-      design_paper {
+      fundingStatement
+      designPaper {
         doi
         title
       }
-      design_description
-      design_schematic {
+      designDescription
+      designSchematic {
         id
         size
         extension
         url
       }
-      external_identifiers {
-        external_identifier_type {
+      externalIdentifiers {
+        externalIdentifierType {
           name
         }
         identifier
       }
       description
       website
-      start_year
-      end_year
-      linkage_options
-      number_of_participants
-      data_access_conditions_description
-      release_description
+      startYear
+      endYear
+      linkageOptions
+      numberOfParticipants
+      dataAccessConditionsDescription
+      releaseDescription
       countries {
         name
         order
@@ -50,55 +51,35 @@ export default gql`
       type {
         name
         definition
-        ontology_term_URI
+        ontologyTermURI
       }
-      collection_type {
+      collectionType {
         name
       }
-      contributors {
-        contact {
-          first_mame
-          last_name
-          prefix
-          initials
-          department
-          email
-          orcid
-          homepage
-          title {
-            name
-          }
-          institution {
-            name
-          }
-          photo {
-            id
-            url
-            size
-            extension
-          }
-          expertise
-        }
-        contribution_type {
+      contacts {
+        firstName
+        lastName
+        prefix
+        initials
+        email
+        orcid
+        homepage
+        title {
           name
-          order
         }
-        contribution_description
+        organisation {
+          name
+        }
+        photo {
+          id
+          url
+          size
+          extension
+        }
+        expertise
       }
-      partners {
-        institution {
-          name
-          pid
-          logo {
-            id
-            url
-            size
-            extension
-          }
-        }
-        role {
-          name
-        }
+      additionalOrganisations {
+        institution
       }
       dataAccessConditions {
         name
@@ -113,10 +94,6 @@ export default gql`
         definition
       }
       dataAccessFee
-      institution {
-        pid
-        name
-      }
       documentation {
         name
         file {
@@ -125,7 +102,7 @@ export default gql`
         url
       }
       networks {
-        pid
+        id
         name
         description
         website
@@ -161,9 +138,7 @@ export default gql`
         subcohorts {
           name
         }
-        coreVariables {
-          name
-        }
+        coreVariables
       }
       subcohorts {
         name
