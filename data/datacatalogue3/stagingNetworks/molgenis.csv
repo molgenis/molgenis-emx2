@@ -59,6 +59,9 @@ Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of do
 Documentation,,description,text,,,,,,,,,Description of the document
 Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation
 Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation
+Networks,,cohorts,ref_array,,,catalogue,Cohorts,,,,,
+Networks,,data sources,ref_array,,,catalogue,Data sources,,,,,
+Networks,,databanks,ref_array,,,catalogue,Databanks,,,,,
 Networks,,models,ref_array,,,,Models,,,,,The common data model(s) used by this network
 Networks,,studies,ref_array,,,catalogue,Studies,,networks,,,
 Collection events,,,,,,,,,,,,Definition of a data collection event for a resource
