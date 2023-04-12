@@ -19,6 +19,7 @@ let filters = reactive([
     title: "Search in cohorts",
     columnType: "_SEARCH",
     search: "",
+    searchTables: ["collectionEvents", "subcohorts"],
     initialCollapsed: false,
   },
   {
@@ -112,26 +113,25 @@ function buildFilterVariables() {
 }
 
 const filter = computed(() => {
-  //overall filter
-  const result = [];
-
-  // build the active filters
-  const filterVariables = buildFilterVariables();
-  if (Object.keys(filterVariables).length > 0) {
-    result.push(filterVariables);
-  }
-
-  //add search terms
+  // build the active (non search) filters
+  let filterBuilder = buildFilterVariables();
   if (search.value) {
-    result.push({
-      _or: [
-        { _search: search.value },
-        { collectionEvents: { _search: search.value } },
-        { subcohorts: { _search: search.value } },
-      ],
-    });
+    // add the search to the filters
+    // @ts-ignore (dynamic object)
+    filterBuilder = {
+      ...filterBuilder,
+      ...{ _or: [{ _search: search.value }] },
+    };
+    // expand the search to the subtabels
+    // @ts-ignore (dynamic object)
+    filters
+      .find((f) => f.columnType === "_SEARCH")
+      ?.searchTables.forEach((sub) => {
+        filterBuilder["_or"].push({ [sub]: { _search: search.value } });
+      });
   }
-  return { _and: result };
+
+  return { _and: filterBuilder };
 });
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
