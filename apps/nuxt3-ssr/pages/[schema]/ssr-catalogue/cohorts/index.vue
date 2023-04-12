@@ -24,7 +24,7 @@ let filters = reactive([
   },
   {
     title: "Areas of information",
-    refTable: "AreasOfInformation",
+    refTable: "AreasOfInformationCohorts",
     columnName: "areasOfInformation",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
