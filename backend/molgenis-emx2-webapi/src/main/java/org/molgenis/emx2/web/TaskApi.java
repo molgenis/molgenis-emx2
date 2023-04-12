@@ -1,11 +1,14 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.web.FileApi.addFileColumnToResponse;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 import static spark.Spark.*;
 
-import org.molgenis.emx2.JWTgenerator;
-import org.molgenis.emx2.MolgenisException;
+import java.io.IOException;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.tasks.*;
 import spark.Request;
 import spark.Response;
@@ -20,11 +23,13 @@ public class TaskApi {
   public static void create() {
     get("/api/tasks", TaskApi::listTasks);
     get("/api/tasks/clear", TaskApi::clearTasks);
+    post("/api/task", TaskApi::submitTask); // is convention plurar or singular?
+    post("/api/tasks", TaskApi::submitTask);
     get("/api/task/:id", TaskApi::getTask);
+    get("/api/task/:id/output", TaskApi::getTaskOutput);
 
     // convenient delete
     delete("/api/task/:id", TaskApi::deleteTask);
-    post("/api/task", TaskApi::submitTask);
     get("/api/task/:id/delete", TaskApi::deleteTask);
 
     // also works in context schema
@@ -58,6 +63,29 @@ public class TaskApi {
         taskService.submitTaskFromName(
             name, user, JWTgenerator.createTemporaryToken(session.getDatabase(), user));
     return new TaskReference(id).toString();
+  }
+
+  private static Object getTaskOutput(Request request, Response response) throws IOException {
+    MolgenisSession session = sessionManager.getSession(request);
+    Schema adminSchema = session.getDatabase().getSchema("ADMIN");
+    String jobId = request.params("id");
+    Row jobMetadata =
+        adminSchema
+            .getTable("Jobs")
+            .query()
+            // make sure we include all file metadata
+            .select(s("output", s("contents"), s("mimetype"), s("extension")))
+            .where(f("id", Operator.EQUALS, jobId))
+            .retrieveRows()
+            .get(0);
+
+    if (jobMetadata == null) {
+      throw new MolgenisException(
+          "Get output for task failed: couldn't find task with id " + jobId);
+    }
+    // reuse implementation from FileApi
+    addFileColumnToResponse(response, "output", jobMetadata);
+    return "";
   }
 
   private static String clearTasks(Request request, Response response) {
