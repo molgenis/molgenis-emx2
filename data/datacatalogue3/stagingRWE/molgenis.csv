@@ -52,7 +52,7 @@ RWE resources,,care setting other,text,,,,,,,,,"If 'other,' description of the s
 Databanks,,data dictionary available,bool,,,,,,,,,Are a data dictionary and a data model available?,,,
 RWE resources,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on",EMA,,
 RWE resources,,disease details other,text,,,,,,,,,Specify disease details if not present in MedDRA,,,
-RWE resources,,biospecimen collected,ontology_array,,,CatalogueOntologies,Informed consents,,,,,"If the data bank contains biospecimens, what types of specimen",,,
+RWE resources,,biospecimen collected,ontology_array,,,CatalogueOntologies,Biospecimens,,,,,"If the data bank contains biospecimens, what types of specimen",,,
 RWE resources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",EMA,,
 RWE resources,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",EMA,,
 Databanks,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?",,,
