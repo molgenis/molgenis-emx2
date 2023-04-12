@@ -910,6 +910,9 @@ public class WebApiSmokeTests {
 
     String outputURL = "/api/task/" + taskId + "/output";
     result = given().header(MOLGENIS_TOKEN[0], token).when().get(outputURL).getBody().asString();
+    if (result.equals("Readme")) {
+      System.out.println("testScriptExcution error: " + result);
+    }
     assertEquals("Readme", result);
 
     // todo: test that parameters are working

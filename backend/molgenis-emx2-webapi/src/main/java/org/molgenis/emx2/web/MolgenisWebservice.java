@@ -247,6 +247,9 @@ public class MolgenisWebservice {
   }
 
   public static Schema getSchema(Request request) {
+    if (request.params(SCHEMA) == null) {
+      return null;
+    }
     return sessionManager
         .getSession(request)
         .getDatabase()
