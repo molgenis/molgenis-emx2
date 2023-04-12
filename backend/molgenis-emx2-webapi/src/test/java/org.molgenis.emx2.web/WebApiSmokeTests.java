@@ -531,53 +531,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testScriptExcution() throws JsonProcessingException, InterruptedException {
-    // get token for admin
-    String result =
-        given()
-            .body(
-                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
-            .when()
-            .post("/api/graphql")
-            .getBody()
-            .asString();
-    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
-
-    // submit simple
-    result =
-        given()
-            .header(MOLGENIS_TOKEN[0], token)
-            .param("name", "hello world")
-            .when()
-            .post("/api/tasks")
-            .getBody()
-            .asString();
-    String taskId = new ObjectMapper().readTree(result).at("/id").textValue();
-
-    // poll until completed
-    String taskUrl = "/api/task/" + taskId;
-    // poll task until complete
-    Response poll = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl);
-    int count = 0;
-    // poll while running
-    // (previously we checked on 'complete' but then it also fired if subtask was complete)
-    while (poll.body().asString().contains("UNKNOWN")
-        || poll.body().asString().contains("RUNNING")) {
-      if (count++ > 100) {
-        throw new MolgenisException("failed: polling took too long");
-      }
-      poll = given().sessionId(SESSION_ID).when().get(taskUrl);
-      Thread.sleep(500);
-    }
-
-    String outputURL = "/api/task/" + taskId + "/output";
-    result = given().header(MOLGENIS_TOKEN[0], token).when().get(outputURL).getBody().asString();
-    assertEquals("Readme", result);
-
-    // todo: test that parameters are working
-  }
-
-  @Test
   public void testBootstrapThemeService() {
     // should success
     String css = given().when().get("/pet store/tables/theme.css?primaryColor=123123").asString();
@@ -913,5 +866,52 @@ public class WebApiSmokeTests {
         .statusCode(200)
         .when()
         .get(requestString);
+  }
+
+  @Test
+  public void testScriptExcution() throws JsonProcessingException, InterruptedException {
+    // get token for admin
+    String result =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+
+    // submit simple
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .param("name", "hello world")
+            .when()
+            .post("/api/tasks")
+            .getBody()
+            .asString();
+    String taskId = new ObjectMapper().readTree(result).at("/id").textValue();
+
+    // poll until completed
+    String taskUrl = "/api/task/" + taskId;
+    // poll task until complete
+    Response poll = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl);
+    int count = 0;
+    // poll while running
+    // (previously we checked on 'complete' but then it also fired if subtask was complete)
+    while (poll.body().asString().contains("UNKNOWN")
+        || poll.body().asString().contains("RUNNING")) {
+      if (count++ > 100) {
+        throw new MolgenisException("failed: polling took too long");
+      }
+      poll = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl);
+      Thread.sleep(500);
+    }
+
+    String outputURL = "/api/task/" + taskId + "/output";
+    result = given().header(MOLGENIS_TOKEN[0], token).when().get(outputURL).getBody().asString();
+    assertEquals("Readme", result);
+
+    // todo: test that parameters are working
   }
 }
