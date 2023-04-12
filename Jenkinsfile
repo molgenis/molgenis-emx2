@@ -48,7 +48,7 @@ pipeline {
                     sh 'git config url.https://.insteadOf git://'
                     sh "mkdir -p ${DOCKER_CONFIG}"
                     sh "echo '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
-                    sh "apt-get update && apt-get install postgresql-client -y"
+                    sh "apt-get update && apt-get install postgresql-client python3 -y"
                     sh "psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql"
                 }
                 dir("${JENKINS_AGENT_WORKDIR}/.m2") {
