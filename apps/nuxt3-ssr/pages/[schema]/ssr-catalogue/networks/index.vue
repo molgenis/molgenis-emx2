@@ -142,7 +142,7 @@ let activeName = ref("detailed");
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <SearchFilter title="Filters" :filters="filters" />
+      <FilterSidebar title="Filters" :filters="filters" />
     </template>
     <template #main>
       <SearchResults>
@@ -168,7 +168,7 @@ let activeName = ref("detailed");
                 class="flex xl:hidden"
                 v-model:activeName="activeName"
               >
-                <SearchFilter title="Filters" :filters="filters" />
+                <FilterSidebar title="Filters" :filters="filters" />
               </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>

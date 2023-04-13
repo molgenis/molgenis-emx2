@@ -38,7 +38,7 @@ watch(props.filters, (filters) => {
           v-if="filter.columnType === '_SEARCH'"
           v-model="filter.search"
         />
-        <SearchFilterGroup
+        <FilterOntology
           v-else
           :title="filter.title"
           :table-name="filter.refTable"

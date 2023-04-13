@@ -269,7 +269,7 @@ function updateSelection(newConditions) {
         :class="{ hidden: !terms[item.name].expanded }"
         v-if="item.children"
       >
-        <SearchFilterGroupChild
+        <FilterOntologyChild
           :items="item.children"
           @select="select"
           @deselect="deselect"

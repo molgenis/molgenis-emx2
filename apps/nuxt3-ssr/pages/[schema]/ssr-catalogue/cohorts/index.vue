@@ -175,7 +175,7 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <SearchFilter title="Filters" :filters="filters" />
+      <FilterSidebar title="Filters" :filters="filters" />
     </template>
     <template #main>
       <SearchResults>
@@ -213,7 +213,7 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
                 class="flex xl:hidden"
                 v-model:activeName="activeName"
               >
-                <SearchFilter title="Filters" :filters="filters" />
+                <FilterSidebar title="Filters" :filters="filters" />
               </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>
