@@ -152,7 +152,6 @@ RWE resources,,quality validation results,,,,,,,,,,"If available, provide a link
 RWE resources,,standards,heading,,,,,,,,,Use of standard data models and ontologies,,,
 RWE resources,,cdms,refback,,,,Mappings,,source,,,Common data models used or ETL-ed to by this data source,EMA,,
 RWE resources,,cdms other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source",EMA,,
-RWE resources,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months",,,
 Databanks,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",,Databanks,ETLstandardVocabularies
 Databanks,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",,Databanks,ETLstandardVocabulariesOther
 Data resources,,information,heading,,,,,,,,,Other information,,,
@@ -373,6 +372,8 @@ Mappings,,source version,string,,TRUE,,,,,,,version of the datasource that is be
 Mappings,,target,ref,1,TRUE,,Models,,,,,model being mapped to,EMA,,
 Mappings,,target version,string,,TRUE,,,,,,,version of the model being mapped to,EMA,,
 Mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,"Mapping from collected datasets to standard/harmonized datasets, optionally including ETL syntaxes",EMA,,
+Mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months",,,
+Mappings,,ETL documentation,file,,,,,,,,,"If available, documentation describing the mapping of the data source to the CDM (including codes and scripts to transform original data to CDM)",,,
 Dataset mappings,,source,ref,1,TRUE,,Extended resources,,,,,datasource being mapped from,,TableMappings,fromDataDictionary
 Dataset mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,name of the table being mapped from,,TableMappings,fromTable
 Dataset mappings,,target,ref,1,TRUE,,Extended resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",,TableMappings,toDataDictionary
