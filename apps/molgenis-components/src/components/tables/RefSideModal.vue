@@ -90,7 +90,6 @@ async function getRowData(): Promise<IRefModalData[]> {
     );
     for (const row of localRows.value) {
       const primaryKey = getPrimaryKey(row, metadata);
-      console.log(primaryKey);
       if (primaryKey) {
         const queryResult = await externalSchemaClient
           .fetchRowData(localTableId.value, primaryKey)
