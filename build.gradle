@@ -93,6 +93,7 @@ docker {
     files shadowJar.archiveFile.get()
     buildArgs(['JAR_FILE': shadowJar.archiveName])
 }
+tasks.dockerPrepare.dependsOn(shadowJar)
 
 //ssr build moved to apps/build.gradle
 

@@ -154,6 +154,7 @@ subprojects {
                 }
             }
         }
+        tasks.dockerPrepare.dependsOn(build)
     }
 
     task copyDistFiles(type: Copy) {
