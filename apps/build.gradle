@@ -32,7 +32,7 @@ subprojects {
 
     task format(type: YarnTask, dependsOn: parent.yarn_install) {
         args = ['run', 'format']
-        if(project.name == 'nuxt3-ssr') {
+        if (project.name == 'nuxt3-ssr') {
             outputs.dir('components')
             outputs.dir('composables')
             outputs.dir('gql')
@@ -118,6 +118,41 @@ subprojects {
         }
         task test(type: YarnTask, dependsOn: parent.yarn_install) {
             args = ['run', 'test-ci']
+        }
+    }
+
+    if (project.name == 'nuxt3-ssr') {
+        apply plugin: "com.palantir.docker"
+        pluginManager.withPlugin('com.palantir.docker') {
+            dockerPrepare {
+                // Workaround for https://github.com/palantir/gradle-docker/issues/518
+                duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            }
+        }
+
+        def ssrImageName = 'docker.io/molgenis/ssr-catalogue'
+        def ssrTagName = project.version.toString()
+        if (version.toString().endsWith('-SNAPSHOT')) {
+            ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
+            ssrImageName = "docker.io/molgenis/ssr-catalogue-snapshot"
+            ssrTagName = "${project.version.toString()}-${ext.hash}"
+        }
+
+        docker {
+            dependsOn build
+            name ssrImageName
+            tags 'latest', ssrTagName
+            copySpec.with {
+                //https://github.com/palantir/gradle-docker/issues/168
+                from('.') {
+                    include '.output'
+                    into '.output'
+                }
+                from('.') {
+                    include '.nuxt'
+                    into '.nuxt'
+                }
+            }
         }
     }
 
