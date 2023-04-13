@@ -21,10 +21,9 @@ let filters = reactive([
   },
   {
     title: "Counties",
-    refTable: "AreasOfInformation",
-    columnName: "areasOfInformation",
+    refTable: "Countries",
+    columnName: "countries",
     columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
     conditions: [],
   },
   {
