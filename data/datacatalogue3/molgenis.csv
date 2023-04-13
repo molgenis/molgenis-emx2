@@ -86,6 +86,12 @@ RWE resources,,cause of death code other,text,,,,,,,,,"If 'other,' what cause of
 RWE resources,,indication vocabulary other,text,,,,,,,,,"If 'other,' what indication for use vocabulary is used?",EMA,,
 RWE resources,,genetic data vocabulary other,text,,,,,,,,,"If 'other,' what genetic data vocabulary is used?",EMA,,
 RWE resources,,care setting other,text,,,,,,,,,"If 'other,' description of the setting of care",EMA,Databanks,careSettingOther
+RWE resources,,medicinal product vocabulary other,text,,,,,,,,,"If 'other,' description of the medicinal product vocabulary",EMA,,
+RWE resources,,prescriptions vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?",EMA,,
+RWE resources,,dispensings vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?",EMA,,
+RWE resources,,procedures vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?",EMA,,
+RWE resources,,biomarker data vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?",EMA,,
+RWE resources,,diagnosis medical event vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?",EMA,,
 Databanks,,data dictionary available,bool,,,,,,,,,Are a data dictionary and a data model available?,,,
 RWE resources,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on",EMA,,
 RWE resources,,disease details other,text,,,,,,,,,Specify disease details if not present in MedDRA,EMA,,
@@ -372,8 +378,8 @@ Mappings,,source version,string,,TRUE,,,,,,,version of the datasource that is be
 Mappings,,target,ref,1,TRUE,,Models,,,,,model being mapped to,EMA,,
 Mappings,,target version,string,,TRUE,,,,,,,version of the model being mapped to,EMA,,
 Mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,"Mapping from collected datasets to standard/harmonized datasets, optionally including ETL syntaxes",EMA,,
-Mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months",,,
-Mappings,,ETL documentation,file,,,,,,,,,"If available, documentation describing the mapping of the data source to the CDM (including codes and scripts to transform original data to CDM)",,,
+Mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months",EMA,,
+Mappings,,ETL documentation,file,,,,,,,,,"If available, documentation describing the mapping of the data source to the CDM (including codes and scripts to transform original data to CDM)",EMA,,
 Dataset mappings,,source,ref,1,TRUE,,Extended resources,,,,,datasource being mapped from,,TableMappings,fromDataDictionary
 Dataset mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,name of the table being mapped from,,TableMappings,fromTable
 Dataset mappings,,target,ref,1,TRUE,,Extended resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",,TableMappings,toDataDictionary
