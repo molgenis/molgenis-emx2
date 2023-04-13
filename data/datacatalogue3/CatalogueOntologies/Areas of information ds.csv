@@ -3,7 +3,7 @@ Unique identifier,,Is there a unique identifier for a person in the data source?
 Geographic regions,,Are data on geographic region available?,
 Family linkage,,Is any linkage available in the data bank between any of the following persons?,
 Family linkage routinely,,Is familial linkage created routinely?,
-Family linkage permanently,,Is familial linkage created permannently?,
+Family linkage permanently,,Is familial linkage created permanently?,
 Family linkage ad-hoc,,Can familial linkage can linkage be performed on an ad-hoc basis?,
 Household linkage,,,Family linkage ad-hoc
 Mother-child linkage,,,Family linkage ad-hoc
