@@ -133,7 +133,7 @@ Databanks,,refresh,int,,,,,,,,,Average number of days between refresh of data ba
 Databanks,,lag time,int,,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)",,,
 RWE resources,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?,EMA,,
 RWE resources,,preservation duration,int,,,,,,,,,"If no to the above, for how long (in years) are records preserved in the data bank?",EMA,,
-RWE resources,,refresh period,ontology_array,,,CatalogueOntologies,Months,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:",EMA,,
+RWE resources,,refresh period,ontology_array,,,CatalogueOntologies,Refresh periods,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:",EMA,,
 RWE resources,,date last refresh,date,,,,,,,,,Date of last update/refresh,EMA,,
 RWE resources,,quality,heading,,,,,,,,,List of relevant studies conducted using the data bank,,,
 RWE resources,,qualification,bool,,,,,,,,,"Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?",EMA,,
