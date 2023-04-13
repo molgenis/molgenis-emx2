@@ -4,6 +4,8 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 10;
 
+useHead({ title: "Networks" });
+
 const currentPage = ref(1);
 if (route.query?.page) {
   const queryPageNumber = Number(route.query?.page);
@@ -12,7 +14,7 @@ if (route.query?.page) {
 }
 let offset = computed(() => (currentPage.value - 1) * pageSize);
 
-let filters = reactive([
+let filters: IFilter[] = reactive([
   {
     title: "Search in networks",
     columnType: "_SEARCH",
@@ -20,18 +22,22 @@ let filters = reactive([
     initialCollapsed: false,
   },
   {
-    title: "Counties",
+    title: "Countries",
     refTable: "Countries",
     columnName: "countries",
     columnType: "ONTOLOGY",
     conditions: [],
   },
   {
-    title: "Institutions",
-    refTable: "DataCategories",
+    title: "Organisations",
     columnName: "dataCategories",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
+    columnType: "REF_ARRAY",
+    refTable: "Organisations",
+    refFields: {
+      key: "id",
+      name: "id",
+      description: "name",
+    },
     conditions: [],
   },
   {
@@ -52,7 +58,7 @@ let search = computed(() => {
 const query = computed(() => {
   return `
   query Networks($filter:NetworksFilter, $orderby:Networksorderby){
-    Networks(limit: ${pageSize} offset: ${offset.value} search:"${search.value}" filter:$filter  orderby:$orderby) {
+    Networks(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
       name
       acronym
@@ -64,7 +70,7 @@ const query = computed(() => {
         url
       }
     }
-    Networks_agg (filter:$filter, search:"${search.value}"){
+    Networks_agg (filter:$filter){
       count
     }
   }
@@ -73,17 +79,21 @@ const query = computed(() => {
 
 const orderby = { acronym: "ASC" };
 
-function buildFilterVariables() {
+function buildFilterVariables(filters: IFilter[]) {
   const filtersVariables = filters.reduce<
     Record<string, Record<string, object | string>>
   >((accum, filter) => {
-    if (filter.filterTable && filter?.conditions?.length) {
-      if (!accum[filter.filterTable]) {
-        accum[filter.filterTable] = {};
+    if (filter.columnName && filter?.conditions?.length) {
+      if (filter.filterTable) {
+        if (!accum[filter.filterTable]) {
+          accum[filter.filterTable] = {};
+        }
+        accum[filter.filterTable][filter.columnName] = {
+          equals: filter.conditions,
+        };
+      } else {
+        accum[filter.columnName] = { equals: filter.conditions };
       }
-      accum[filter.filterTable][filter.columnName] = {
-        equals: filter.conditions,
-      };
     }
 
     return accum;
@@ -93,27 +103,25 @@ function buildFilterVariables() {
 }
 
 const filter = computed(() => {
-  // build the active filters
-  const filterVariables = buildFilterVariables();
-
-  // append search to the sub tables if set
-  const searchTables = filters.find(
-    (f) => f.columnType === "_SEARCH"
-  )?.searchTables;
-
-  if (searchTables) {
-    searchTables.forEach((searchTable) => {
-      if (search.value) {
-        if (Object.keys(filterVariables).includes(searchTable)) {
-          filterVariables[searchTable]["_search"] = search.value;
-        } else {
-          filterVariables[searchTable] = { _search: search.value };
-        }
-      }
-    });
+  // build the active (non search) filters
+  let filterBuilder = buildFilterVariables(filters);
+  if (search.value) {
+    // add the search to the filters
+    // @ts-ignore (dynamic object)
+    filterBuilder = {
+      ...filterBuilder,
+      ...{ _or: [{ _search: search.value }] },
+    };
+    // expand the search to the subtabels
+    // @ts-ignore (dynamic object)
+    filters
+      .find((f) => f.columnType === "_SEARCH")
+      ?.searchTables?.forEach((sub) => {
+        filterBuilder["_or"].push({ [sub]: { _search: search.value } });
+      });
   }
-
-  return filterVariables;
+  console.log("filterBuilder", filterBuilder);
+  return { _and: filterBuilder };
 });
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);

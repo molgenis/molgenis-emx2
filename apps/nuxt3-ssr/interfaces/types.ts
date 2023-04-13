@@ -143,3 +143,23 @@ interface ISetting {
   key: string;
   value: string;
 }
+
+interface IBaseFilter {
+  title: string;
+  initialCollapsed?: boolean;
+}
+
+interface ISearchFilter extends IBaseFilter {
+  columnType: "_SEARCH";
+  search?: string;
+}
+
+interface IFilter extends IBaseFilter {
+  columnType: "_SEARCH" | "ONTOLOGY" | "REF_ARRAY";
+  refTable?: string;
+  columnName?: string;
+  filterTable?: string;
+  conditions?: [];
+  searchTables?: string[];
+  search?: string;
+}

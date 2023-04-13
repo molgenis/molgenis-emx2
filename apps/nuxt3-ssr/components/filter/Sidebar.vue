@@ -39,9 +39,16 @@ watch(props.filters, (filters) => {
           v-model="filter.search"
         />
         <FilterOntology
-          v-else
-          :title="filter.title"
+          v-else-if="filter.columnType === 'ONTOLOGY'"
           :table-name="filter.refTable"
+          v-model="filter.conditions"
+        />
+        <FilterList
+          v-else-if="filter.columnType === 'REF_ARRAY'"
+          :table-name="filter.refTable"
+          :key-field="filter.refFields.key"
+          :name-field="filter.refFields.name"
+          :descriptionField="filter.refFields.description"
           v-model="filter.conditions"
         />
       </FilterContainer>
