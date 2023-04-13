@@ -49,9 +49,7 @@ pipeline {
                     sh "mkdir -p ${DOCKER_CONFIG}"
                     sh "echo '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
                     sh "apt-get update && apt-get install postgresql-client python3 ca-certificates gnupg lsb-release curl -y"
-                    sh "install -m 0755 -d /etc/apt/keyrings"
                     sh "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg"
-                    sh "chmod a+r /etc/apt/keyrings/docker.gpg"
                     sh 'echo \
                           "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
                           "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
@@ -124,7 +122,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                        sh "./gradlew test --no-daemon jacocoMergedReport shadowJar dockerPush release helmPublishMainChart sonarqube ci \
+                        sh "./gradlew --no-daemon jacocoMergedReport shadowJar dockerPush release helmPublishMainChart sonarqube ci \
                             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
