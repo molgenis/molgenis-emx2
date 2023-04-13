@@ -5,10 +5,10 @@ metadata:
 spec:
   containers:
     - name: java
-      image: gradle:jdk17
+      image: eclipse-temurin:17-jdk-jammy
       imagePullPolicy: IfNotPresent
       command:
-      - cat
+        - cat
       tty: true
       resources:
         requests:
@@ -20,7 +20,7 @@ spec:
     - name: postgres
       image: postgres:14-alpine
       imagePullPolicy: IfNotPresent
-      args: ["-c", "shared_buffers=256MB", "-c", "max_locks_per_transaction=1024"]
+      args: [ "-c", "shared_buffers=256MB", "-c", "max_locks_per_transaction=1024" ]
       tty: true
       resources:
         requests:
@@ -52,5 +52,5 @@ spec:
           value: "/home/jenkins/agent/.kube/config"
   volumes:
     - name: postgres-initdb
-      emptyDir: {}
+      emptyDir: { }
   restartPolicy: Never
