@@ -3,13 +3,13 @@ import { ISetting } from "./ISetting";
 import { ILocale } from "./ILocales";
 
 export interface ITableMetaData {
-  columns?: IColumn[];
+  id: string;
   name: string;
   tableType: string;
-  id: string;
-  descriptions: ILocale[];
-  labels: ILocale[];
+  columns?: IColumn[];
+  descriptions?: ILocale[];
   externalSchema: string;
-  semantics: string;
-  settings: ISetting[];
+  labels?: ILocale[];
+  semantics?: string[];
+  settings?: ISetting[];
 }

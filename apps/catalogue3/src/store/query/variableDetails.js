@@ -1,4 +1,5 @@
 import gql from "graphql-tag";
+
 export default gql`
   query Variables($filter: VariablesFilter) {
     Variables(limit: 1, filter: $filter) {
@@ -52,7 +53,7 @@ export default gql`
             name
           }
           source {
-            pid
+            id
           }
           sourceVariables {
             name

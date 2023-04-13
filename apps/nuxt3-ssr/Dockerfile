@@ -3,7 +3,7 @@
 ###
 
 ## Base image to have a node runtime
-FROM node:18.15.0-alpine
+FROM node:19.8.1-alpine
 
 # Used to build theme
 # ENV EMX2_THEME=$EMX2_THEME
