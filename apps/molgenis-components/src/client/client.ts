@@ -1,11 +1,11 @@
 import axios, { Axios, AxiosError, AxiosResponse } from "axios";
-import { deepClone, convertToPascalCase, isRefType } from "../components/utils";
-import { IRow } from "../Interfaces/IRow";
 import { ISchemaMetaData } from "../Interfaces/IMetaData";
-import { ITableMetaData } from "../Interfaces/ITableMetaData";
-import { IQueryMetaData } from "./IQueryMetaData";
+import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
+import { ITableMetaData } from "../Interfaces/ITableMetaData";
+import { convertToPascalCase, deepClone } from "../components/utils";
 import { IClient, INewClient } from "./IClient";
+import { IQueryMetaData } from "./IQueryMetaData";
 import { columnNames } from "./queryBuilder";
 
 export { request };

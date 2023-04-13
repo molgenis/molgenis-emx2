@@ -92,15 +92,15 @@ table .key {
 </style>
 
 <script lang="ts" setup>
-import { computed, ref, toRefs, defineEmits } from "vue";
+import { table } from "console";
+import { computed, defineEmits, ref, toRefs } from "vue";
+import { IColumn } from "../../Interfaces/IColumn";
 import { IRefModalData } from "../../Interfaces/IRefModalData";
+import { IRow } from "../../Interfaces/IRow";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { getPrimaryKey, isRefType } from "../utils";
-import ObjectDisplay from "./cellTypes/ObjectDisplay.vue";
 import DataDisplayCell from "./DataDisplayCell.vue";
-import { IColumn } from "../../Interfaces/IColumn";
-import { IRow } from "../../Interfaces/IRow";
-import { table } from "console";
+import ObjectDisplay from "./cellTypes/ObjectDisplay.vue";
 
 interface IFilteredRefModalData {
   [property: string]: string;
@@ -164,7 +164,7 @@ function onCellClick(
   columnRows: IFilteredRefModalData,
   referenceTable: string
 ): void {
-  const rows: IRow[] = [columnRows].flat(); //[{name:spike}]
+  const rows: IRow[] = [columnRows].flat();
   const refColumn = reference.value.metadata.columns?.find((column) => {
     return column.name === referenceTable;
   });

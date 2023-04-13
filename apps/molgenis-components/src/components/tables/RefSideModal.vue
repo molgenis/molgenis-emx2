@@ -105,7 +105,7 @@ async function getRowData(): Promise<IRefModalData[]> {
 
 function handleRefCellClicked(event: {
   refColumn: IColumn;
-  rows: any[];
+  rows: IRow[];
 }): void {
   const table = event.refColumn.refTable;
   if (table) {
