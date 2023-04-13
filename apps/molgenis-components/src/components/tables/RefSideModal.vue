@@ -34,7 +34,7 @@ import { default as Client, default as client } from "../../client/client";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
-import { getPrimaryKey } from "../utils";
+import { deepEqual, getPrimaryKey } from "../utils";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
 
@@ -67,9 +67,6 @@ watch([column, rows], () => {
   localColumnName.value = column.value.name;
   localTableId.value = column.value.refTable;
   localRows.value = rows.value;
-});
-
-watch([localColumnName, localTableId, localRows], () => {
   updateData();
 });
 
@@ -81,6 +78,7 @@ async function updateData() {
 }
 
 async function getRowData(): Promise<IRefModalData[]> {
+  console.log("getting row data ", localRows.value);
   let newQueryResults: IRefModalData[] = [];
   const activeSchema = column.value.refSchema || props.schema;
   const externalSchemaClient = Client.newClient(activeSchema);
@@ -102,25 +100,36 @@ async function getRowData(): Promise<IRefModalData[]> {
   return newQueryResults;
 }
 
-function handleRefCellClicked(event: {
+async function handleRefCellClicked(event: {
   refColumn: IColumn;
   rows: IRow[];
-}): void {
-  const table = event.refColumn.refTable;
-  if (table) {
+}): Promise<void> {
+  console.log("Ref cell click: ", event.refColumn, event.rows);
+  const refTableId = event.refColumn.refTable;
+  if (refTableId) {
     const Client = client.newClient(
       event.refColumn.refSchema || column.value.refSchema || props.schema
     );
-    Client.fetchTableData(table, {})
+    const metadata = await Client.fetchTableMetaData(refTableId);
+
+    Client.fetchTableData(refTableId, {})
       .then((tableData) => {
         localColumnName.value = event.refColumn.name;
-        localTableId.value = table;
+        localTableId.value = refTableId;
         const filteredRows = tableData[localTableId.value].filter(
-          (row: IRow) => {
-            return event.rows.find((eventRow) => eventRow.name === row.name);
+          (row: IRefModalData) => {
+            return event.rows.find((eventRow: IRow) => {
+              const eventKey = getPrimaryKey(eventRow, metadata);
+              const rowKey = getPrimaryKey(row, metadata);
+              console.log("event key:", eventRow);
+              console.log("row key:", row);
+              return eventKey && rowKey && deepEqual(eventKey, rowKey);
+            });
           }
         );
+        console.log("filtered rows: ", filteredRows);
         localRows.value = filteredRows;
+        updateData();
       })
       .catch(errorHandler);
   } else {

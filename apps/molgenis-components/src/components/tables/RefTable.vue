@@ -23,7 +23,7 @@
             <td
               @click="
                 {
-                  onCellClick(value, key);
+                  onCellClick(key);
                 }
               "
               class="value"
@@ -160,11 +160,8 @@ function isMetaData(
   return (<ITableMetaData>metadata).name !== undefined;
 }
 
-function onCellClick(
-  columnRows: IFilteredRefModalData,
-  referenceTable: string
-): void {
-  const rows: IRow[] = [columnRows].flat();
+function onCellClick(referenceTable: string): void {
+  const rows: IRow[] = [reference.value].flat();
   const refColumn = reference.value.metadata.columns?.find((column) => {
     return column.name === referenceTable;
   });
