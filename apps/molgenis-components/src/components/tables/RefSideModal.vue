@@ -25,6 +25,7 @@
 </template>
 
 <script lang="ts" setup>
+import { AxiosError } from "axios";
 import { Ref, ref, toRefs, watch } from "vue";
 import { IColumn } from "../../Interfaces/IColumn";
 import { IRefModalData } from "../../Interfaces/IRefModalData";
@@ -93,9 +94,7 @@ async function getRowData(): Promise<IRefModalData[]> {
       if (primaryKey) {
         const queryResult = await externalSchemaClient
           .fetchRowData(localTableId.value, primaryKey)
-          .catch(() => {
-            errorMessage.value = "Failed to load reference data";
-          });
+          .catch(errorHandler);
         queryResult.metadata = metadata;
         newQueryResults.push(queryResult);
       }
@@ -108,18 +107,30 @@ function handleRefCellClicked(event: {
   refColumn: IColumn;
   rows: any[];
 }): void {
-  const table = event.refColumn.refTable || "";
-  const Client = client.newClient(
-    event.refColumn.refSchema || column.value.refSchema || props.schema
-  );
-  Client.fetchTableData(table, {}).then((tableData) => {
-    localColumnName.value = event.refColumn.name;
-    localTableId.value = table;
-    const filteredRows = tableData[localTableId.value].filter((row: IRow) => {
-      return event.rows.find((eventRow) => eventRow.name === row.name);
-    });
-    localRows.value = filteredRows;
-  });
+  const table = event.refColumn.refTable;
+  if (table) {
+    const Client = client.newClient(
+      event.refColumn.refSchema || column.value.refSchema || props.schema
+    );
+    Client.fetchTableData(table, {})
+      .then((tableData) => {
+        localColumnName.value = event.refColumn.name;
+        localTableId.value = table;
+        const filteredRows = tableData[localTableId.value].filter(
+          (row: IRow) => {
+            return event.rows.find((eventRow) => eventRow.name === row.name);
+          }
+        );
+        localRows.value = filteredRows;
+      })
+      .catch(errorHandler);
+  } else {
+    errorMessage.value = "Failed to load reference data";
+  }
+}
+
+function errorHandler(error: AxiosError) {
+  errorMessage.value = `Failed to load reference data, because: ${error.message}`;
 }
 </script>
 
@@ -137,6 +148,6 @@ function handleRefCellClicked(event: {
 <script setup lang="ts">
 import { ref } from "vue";
 let showModal = ref(false);
-const column = {refTable: "Pet", name: "orders", refSchema: 'pet store'}
+const column = { refTable: "Pet", name: "orders", refSchema: "pet store" };
 </script>
 </docs>
