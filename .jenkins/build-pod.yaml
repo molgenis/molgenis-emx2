@@ -54,7 +54,9 @@ spec:
         - name: "KUBECONFIG"
           value: "/home/jenkins/agent/.kube/config"
     - name: docker-daemon
-      image: docker:19.03.1-dind
+      image: docker:23.0.3-dind
+      #docker in docker so we can access it via docker socket
+      #https://github.com/jenkinsci/kubernetes-plugin/blob/master/examples/dind.groovy
       securityContext:
         privileged: true
       volumeMounts:
