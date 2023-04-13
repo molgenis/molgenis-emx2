@@ -340,11 +340,9 @@
     </ConfirmModal>
     <RefSideModal
       v-if="refSideModalProps"
-      :table-id="refSideModalProps.table"
-      :column="refSideModalProps.label"
+      :column="refSideModalProps.column"
       :rows="refSideModalProps.rows"
       :schema="this.schemaName"
-      :refSchema="refSideModalProps.schema"
       @onClose="refSideModalProps = undefined"
       :showDataOwner="canManage"
     />
@@ -602,9 +600,7 @@ export default {
       const rows = [cellValue].flat();
       if (isRefType(column?.columnType)) {
         this.refSideModalProps = {
-          label: column.name,
-          table: column.refTable,
-          schema: column.refSchema,
+          column,
           rows,
         };
       }

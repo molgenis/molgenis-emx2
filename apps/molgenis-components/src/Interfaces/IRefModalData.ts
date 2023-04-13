@@ -1,6 +1,7 @@
+import { IRow } from "./IRow";
 import { ITableMetaData } from "./ITableMetaData";
 
-export interface IRefModalData {
+export interface IRefModalData extends IRow {
   metadata: ITableMetaData;
-  [property: string]: string | ITableMetaData;
+  [primaryKey: string]: string | ITableMetaData;
 }

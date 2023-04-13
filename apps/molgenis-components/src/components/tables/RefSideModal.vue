@@ -1,5 +1,9 @@
 <template>
-  <SideModal :label="localColumn" :isVisible="true" @onClose="emit('onClose')">
+  <SideModal
+    :label="localColumnName"
+    :isVisible="true"
+    @onClose="emit('onClose')"
+  >
     <div v-if="loading">
       <Spinner />
     </div>
@@ -33,26 +37,24 @@ import { getPrimaryKey } from "../utils";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
 
-const properties = withDefaults(
+const props = withDefaults(
   defineProps<{
-    schema?: string;
-    tableId: string;
-    column: string;
-    showDataOwner?: boolean;
-    refSchema?: string;
+    column: IColumn;
     rows: IRow[];
+    schema?: string;
+    showDataOwner?: boolean;
   }>(),
   {
     showDataOwner: false,
     rows: () => [] as IRow[],
   }
 );
-const { column, rows, tableId } = toRefs(properties);
+const { column, rows } = toRefs(props);
 
 const emit = defineEmits(["onClose"]);
 
-let localTableId = ref(tableId.value);
-let localColumn = ref(column.value);
+let localTableId = ref(column.value.refTable);
+let localColumnName = ref(column.value.name);
 let localRows = ref(rows.value);
 let loading = ref(true);
 let queryResults: Ref<IRefModalData[]> = ref([]);
@@ -60,35 +62,37 @@ let errorMessage = ref("");
 
 updateData();
 
-watch([tableId, column, rows], () => {
-  localColumn.value = column.value;
-  localTableId.value = tableId.value;
+watch([column, rows], () => {
+  localColumnName.value = column.value.name;
+  localTableId.value = column.value.refTable;
   localRows.value = rows.value;
 });
 
-watch([localColumn, localTableId, localRows], () => {
+watch([localColumnName, localTableId, localRows], () => {
   updateData();
 });
 
 async function updateData() {
   errorMessage.value = "";
   loading.value = true;
-  queryResults.value = await getRowData(localTableId.value);
+  queryResults.value = await getRowData();
   loading.value = false;
 }
 
-async function getRowData(tableId: string): Promise<IRefModalData[]> {
+async function getRowData(): Promise<IRefModalData[]> {
   let newQueryResults: IRefModalData[] = [];
-  const activeSchema = properties.refSchema || properties.schema;
+  const activeSchema = column.value.refSchema || props.schema;
   const externalSchemaClient = Client.newClient(activeSchema);
-  if (tableId !== "") {
+  if (localTableId.value) {
+    const metadata = await externalSchemaClient.fetchTableMetaData(
+      localTableId.value
+    );
     for (const row of localRows.value) {
-      const metadata = await externalSchemaClient.fetchTableMetaData(tableId);
       const primaryKey = getPrimaryKey(row, metadata);
-
+      console.log(primaryKey);
       if (primaryKey) {
         const queryResult = await externalSchemaClient
-          .fetchRowData(tableId, primaryKey)
+          .fetchRowData(localTableId.value, primaryKey)
           .catch(() => {
             errorMessage.value = "Failed to load reference data";
           });
@@ -105,9 +109,11 @@ function handleRefCellClicked(event: {
   rows: any[];
 }): void {
   const table = event.refColumn.refTable || "";
-  const Client = client.newClient("pet store");
+  const Client = client.newClient(
+    event.refColumn.refSchema || column.value.refSchema || props.schema
+  );
   Client.fetchTableData(table, {}).then((tableData) => {
-    localColumn.value = event.refColumn.name;
+    localColumnName.value = event.refColumn.name;
     localTableId.value = table;
     const filteredRows = tableData[localTableId.value].filter((row: IRow) => {
       return event.rows.find((eventRow) => eventRow.name === row.name);
@@ -120,9 +126,8 @@ function handleRefCellClicked(event: {
 <docs>
 <template>
   <RefSideModal
-    column="Label"
-    tableId="Pet"
-    :row="{}"
+    :column="column"
+    :rows="[]"
     :isVisible="showModal"
     @onClose="showModal = false"
   />
@@ -132,5 +137,6 @@ function handleRefCellClicked(event: {
 <script setup lang="ts">
 import { ref } from "vue";
 let showModal = ref(false);
+const column = {refTable: "Pet", name: "orders", refSchema: 'pet store'}
 </script>
 </docs>
