@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
     - name: java
-      image: eclipse-temurin:17-jdk-jammy
+      image: gradle:7.6.1-jdk17-jammy
       imagePullPolicy: IfNotPresent
       command:
         - cat
