@@ -87,7 +87,6 @@ task ci(type: WriteProperties) {
 }
 
 docker {
-    dependsOn shadowJar
     name imageName
     tags tagName, 'latest'
     files shadowJar.archiveFile.get()

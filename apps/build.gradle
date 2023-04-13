@@ -139,7 +139,6 @@ subprojects {
         }
 
         docker {
-            dependsOn build
             name ssrImageName
             tags 'latest', ssrTagName
             copySpec.with {
