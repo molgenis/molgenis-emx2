@@ -141,17 +141,7 @@ subprojects {
         docker {
             name ssrImageName
             tags 'latest', ssrTagName
-            copySpec.with {
-                //https://github.com/palantir/gradle-docker/issues/168
-                from('.') {
-                    include '.output'
-                    into '.output'
-                }
-                from('.') {
-                    include '.nuxt'
-                    into '.nuxt'
-                }
-            }
+            files "."
         }
         tasks.dockerPrepare.dependsOn(build)
     }
