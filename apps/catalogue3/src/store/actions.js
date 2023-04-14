@@ -262,7 +262,7 @@ export default {
       }
     `;
     const keyWordResp = await request(
-      "CatalogueOntologies/graphql",
+      "/CatalogueOntologies/graphql",
       keywordQuery
     ).catch((e) => console.error(e));
     commit("setKeywords", keyWordResp.Keywords);
