@@ -125,11 +125,6 @@ export default {
       default: null,
     },
   },
-  data() {
-    return {
-      selectedK: [],
-    };
-  },
   computed: {
     ...mapState(["filters"]),
     ...mapGetters([
