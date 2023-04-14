@@ -34,7 +34,7 @@ import { default as Client, default as client } from "../../client/client";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
-import { deepEqual, getPrimaryKey } from "../utils";
+import { convertToPascalCase, deepEqual, getPrimaryKey } from "../utils";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
 
@@ -78,7 +78,6 @@ async function updateData() {
 }
 
 async function getRowData(): Promise<IRefModalData[]> {
-  console.log("getting row data ", localRows.value);
   let newQueryResults: IRefModalData[] = [];
   const activeSchema = column.value.refSchema || props.schema;
   const externalSchemaClient = Client.newClient(activeSchema);
@@ -100,34 +99,37 @@ async function getRowData(): Promise<IRefModalData[]> {
   return newQueryResults;
 }
 
-async function handleRefCellClicked(event: {
+async function handleRefCellClicked({
+  refColumn,
+  refTableRow,
+}: {
   refColumn: IColumn;
-  rows: IRow[];
+  refTableRow: IRow;
 }): Promise<void> {
-  console.log("Ref cell click: ", event.refColumn, event.rows);
-  const refTableId = event.refColumn.refTable;
+  const refTableId = refColumn.refTable;
   if (refTableId) {
     const Client = client.newClient(
-      event.refColumn.refSchema || column.value.refSchema || props.schema
+      refColumn.refSchema || column.value.refSchema || props.schema
     );
-    const metadata = await Client.fetchTableMetaData(refTableId);
+    const refTableMetadata = await Client.fetchTableMetaData(refTableId);
 
     Client.fetchTableData(refTableId, {})
       .then((tableData) => {
-        localColumnName.value = event.refColumn.name;
+        localColumnName.value = refColumn.name;
         localTableId.value = refTableId;
-        const filteredRows = tableData[localTableId.value].filter(
-          (row: IRefModalData) => {
-            return event.rows.find((eventRow: IRow) => {
-              const eventKey = getPrimaryKey(eventRow, metadata);
-              const rowKey = getPrimaryKey(row, metadata);
-              console.log("event key:", eventRow);
-              console.log("row key:", row);
-              return eventKey && rowKey && deepEqual(eventKey, rowKey);
+        const filteredRows = tableData[
+          convertToPascalCase(localTableId.value)
+        ].filter((row: IRefModalData) => {
+          const eventKey = refTableRow[refColumn.id];
+          const rowKey = getPrimaryKey(row, refTableMetadata);
+          if (refColumn.columnType.includes("_ARRAY")) {
+            return eventKey.find((k: any) => {
+              return rowKey && deepEqual(k, rowKey);
             });
+          } else {
+            return eventKey && rowKey && deepEqual(eventKey, rowKey);
           }
-        );
-        console.log("filtered rows: ", filteredRows);
+        });
         localRows.value = filteredRows;
         updateData();
       })

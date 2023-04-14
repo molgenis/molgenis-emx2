@@ -1,1 +1,1 @@
-export const hash = 'lgf1xbl7';
+export const hash = "lgf1xbl7";

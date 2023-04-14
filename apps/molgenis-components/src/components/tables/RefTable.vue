@@ -117,7 +117,7 @@ const emit = defineEmits<{
     e: "refCellClicked",
     data: {
       refColumn: IColumn;
-      rows: IRow[];
+      refTableRow: IRow;
     }
   ): void;
 }>();
@@ -161,7 +161,7 @@ function isMetaData(
 }
 
 function onCellClick(referenceTable: string): void {
-  const rows: IRow[] = [reference.value].flat();
+  const refTableRow: IRow = reference.value;
   const refColumn = reference.value.metadata.columns?.find((column) => {
     return column.name === referenceTable;
   });
@@ -169,7 +169,7 @@ function onCellClick(referenceTable: string): void {
   if (refColumn) {
     emit("refCellClicked", {
       refColumn,
-      rows,
+      refTableRow,
     });
   }
 }

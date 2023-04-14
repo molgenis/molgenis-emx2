@@ -597,11 +597,11 @@ export default {
     },
     handleCellClick(event) {
       const { column, cellValue } = event;
-      const rows = [cellValue].flat();
+      const rowsInRefTable = [cellValue].flat();
       if (isRefType(column?.columnType)) {
         this.refSideModalProps = {
           column,
-          rows,
+          rows: rowsInRefTable,
         };
       }
     },
