@@ -159,7 +159,7 @@ interface IFilter extends IBaseFilter {
   refTable?: string;
   columnName?: string;
   filterTable?: string;
-  conditions?: [];
+  conditions?: [] | { [key: string]: string }[];
   searchTables?: string[];
   search?: string;
 }
