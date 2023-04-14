@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
     - name: java
-      image: gradle:7.6.1-jdk17-jammy
+      image: gradle:jdk17
       imagePullPolicy: IfNotPresent
       command:
         - cat
