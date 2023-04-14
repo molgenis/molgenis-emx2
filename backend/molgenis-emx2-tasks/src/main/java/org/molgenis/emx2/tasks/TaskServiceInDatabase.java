@@ -146,7 +146,8 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                         column("script").setType(ColumnType.TEXT),
                         column("dependencies")
                             .setType(ColumnType.TEXT)
-                            .setDescription("For python, in 'requirments.txt' format"),
+                            .setDescription(
+                                "For python, this should match requirements format for 'pip install -r dependencies.txt'"),
                         column("outputFileExtension"),
                         column("disabled")
                             .setType(ColumnType.BOOL)
