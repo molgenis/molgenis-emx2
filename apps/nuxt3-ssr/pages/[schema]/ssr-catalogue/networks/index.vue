@@ -79,26 +79,7 @@ const query = computed(() => {
 
 const orderby = { acronym: "ASC" };
 
-const filter = computed(() => {
-  // build the active (non search) filters
-  let filterBuilder = buildFilterVariables(filters);
-  if (search.value) {
-    // add the search to the filters
-    // @ts-ignore (dynamic object)
-    filterBuilder = {
-      ...filterBuilder,
-      ...{ _or: [{ _search: search.value }] },
-    };
-    // expand the search to the subtabels
-    // @ts-ignore (dynamic object)
-    filters
-      .find((f) => f.columnType === "_SEARCH")
-      ?.searchTables?.forEach((sub) => {
-        filterBuilder["_or"].push({ [sub]: { _search: search.value } });
-      });
-  }
-  return { _and: filterBuilder };
-});
+const filter = computed(() => buildQueryFilter(filters, search.value));
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
