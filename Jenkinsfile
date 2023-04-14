@@ -48,7 +48,7 @@ pipeline {
                     sh 'git config url.https://.insteadOf git://'
                     sh "mkdir -p ${DOCKER_CONFIG}"
                     sh "echo '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
-                    sh "apt-get update && apt-get install postgresql-client python3 ca-certificates gnupg lsb-release curl -y"
+                    sh "apt-get update && apt-get install postgresql-client python3 python3-venv ca-certificates gnupg lsb-release curl -y"
                     sh "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg"
                     sh 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null'
                     sh "apt-get update && apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y"

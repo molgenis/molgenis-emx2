@@ -81,6 +81,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
               .script(scriptMetadata.getString("script"))
               .parameters(scriptMetadata.getText("parameters"))
               .outputFileExtension(scriptMetadata.getString("outputFileExtension"))
+              .dependencies(scriptMetadata.getString("dependencies"))
               .token(token)
               .submitUser(userName));
     } else {
@@ -143,6 +144,9 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                             .setRefTable("ScriptTypes")
                             .setDefaultValue("python"),
                         column("script").setType(ColumnType.TEXT),
+                        column("dependencies")
+                            .setType(ColumnType.TEXT)
+                            .setDescription("For python, in 'requirments.txt' format"),
                         column("outputFileExtension"),
                         column("disabled")
                             .setType(ColumnType.BOOL)
@@ -186,7 +190,9 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
             String demoScript =
                 """
 import os;
-print("hello world")
+import numpy as np
+print('Hello, world!')
+a = np.array([1, 2, 3, 4, 5, 6])
 print("MOLGENIS_TOKEN="+os.environ['MOLGENIS_TOKEN']);
 OUTPUT_FILE=os.environ['OUTPUT_FILE'];
 print("OUTPUT_FILE="+os.environ['OUTPUT_FILE']);
@@ -200,6 +206,8 @@ f.close()
                     "hello world",
                     "script",
                     demoScript,
+                    "dependencies",
+                    "numpy==1.23.4", // it has a dependency :-)
                     "type",
                     "python",
                     "outputFileExtension",
