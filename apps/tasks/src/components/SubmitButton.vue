@@ -8,11 +8,14 @@
       @close="close"
     >
       <template #body>
-        todo: parameters dialogue.
-        <MessageError v-if="error">{{ error }}</MessageError>
-        <Task v-if="taskId" :taskId="taskId" />
-        <router-link to="jobs">View all jobs</router-link>
-      </template>
+        <p v-if="!taskId">
+          todo: parameters dialogue.
+          <MessageError v-if="error">{{ error }}</MessageError>
+          <Task v-if="taskId" :taskId="taskId" />
+          <router-link v-if="!taskId" to="jobs">View all jobs</router-link>
+        </p></template
+      >
+
       <template #footer>
         <ButtonAction v-if="!taskId" @click="submitScript">Submit</ButtonAction>
         <ButtonAlt @click="close">Close</ButtonAlt>
