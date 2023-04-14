@@ -79,6 +79,11 @@ export default {
           role: "Viewer",
         },
         {
+          label: "Jobs & Scripts",
+          href: "tasks",
+          role: "Manager",
+        },
+        {
           label: "Graphql",
           href: "graphql-playground",
           role: "Viewer",
