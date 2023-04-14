@@ -49,7 +49,7 @@ const isShowingMobileMoreText = computed(() => {
     <div class="grid grid-cols-12 gap-6">
       <div class="col-span-3">
         <div class="items-center flex h-full w-full justify-center">
-          <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${network.id}`">
+          <NuxtLink :to="`/${schema}/ssr-catalogue/networks/${network.id}`">
             <img :src="network?.logo?.url" />
           </NuxtLink>
         </div>
@@ -78,7 +78,7 @@ const isShowingMobileMoreText = computed(() => {
           class="text-blue-500 xl:justify-end"
         />
         -->
-            <NuxtLink :to="`/${schema}/ssr-catalogue/networks/${network.pid}`">
+            <NuxtLink :to="`/${schema}/ssr-catalogue/networks/${network.id}`">
               <IconButton
                 icon="arrow-right"
                 class="text-blue-500 hidden xl:flex xl:justify-end"
