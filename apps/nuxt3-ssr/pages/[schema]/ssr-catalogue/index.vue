@@ -16,6 +16,9 @@ const { data, pending, error, refresh } = await useFetch(
             numberOfParticipantsWithSamples 
           }
         }
+        Networks_agg { 
+          count
+        }
         Cohorts_groupBy {
           count 
           design {
@@ -53,7 +56,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 <template>
   <LayoutsLandingPage class="w-10/12 pt-8">
     <PageHeader
-      class="mx-auto lg:w-7/12"
+      class="mx-auto lg:w-7/12 text-center"
       :title="
         getSettingValue('CATALOGUE_LANDING_TITLE', data.data._settings) ||
         'European Networks Health Data & Cohort Catalogue.'
@@ -65,13 +68,21 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     ></PageHeader>
 
     <div
-      class="bg-white shadow-primary justify-around flex flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0"
+      class="bg-white justify-around flex flex-col md:flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0 rounded-t-3px rounded-b-50px shadow-primary"
     >
       <LandingCardPrimary
+        image="image-link"
         title="Cohorts"
-        description="A complete overview of all cohorts and biobanks within the UMCG."
+        description="A complete overview of all cohorts and biobanks."
         :count="data.data.Cohorts_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
+      />
+      <LandingCardPrimary
+        image="image-diagram"
+        title="Networks"
+        description="Collaborations of multiple institutions and/or cohorts with a common objective."
+        :count="data.data.Networks_agg.count"
+        :link="`/${route.params.schema}/ssr-catalogue/networks/`"
       />
     </div>
 
