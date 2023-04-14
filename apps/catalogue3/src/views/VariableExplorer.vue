@@ -19,6 +19,7 @@
             :isMultiSelect="true"
             tableName="Keywords"
             :show-expanded="true"
+            schemaName="CatalogueOntologies"
           />
         </div>
         <div class="bg-white px-1">
@@ -123,6 +124,11 @@ export default {
       type: String,
       default: null,
     },
+  },
+  data() {
+    return {
+      selectedK: [],
+    };
   },
   computed: {
     ...mapState(["filters"]),
