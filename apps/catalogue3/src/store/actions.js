@@ -81,8 +81,7 @@ export default {
       queryVariables.filter.resource = {
         equals: networkModels.map((model) => {
           return {
-            // version: "1.0.0",
-            model,
+            id: model.id,
           };
         }),
       };
