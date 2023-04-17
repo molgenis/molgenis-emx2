@@ -8,13 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ScriptTask extends Task {
-  private static final Logger logger = LoggerFactory.getLogger(ScriptTask.class);
   private String name;
   private String script;
   private String outputFileExtension;
@@ -64,7 +62,7 @@ public class ScriptTask extends Task {
         String installRequirementsCommand =
             "pip3 install --disable-pip-version-check -r requirements.txt"; // don't check upgrade
         String runScriptCommand = "python3 -u script.py";
-        String parameters = this.parameters != null ? " " + escapeXSI(this.parameters) : "";
+        String escapedParameters = this.parameters != null ? " " + escapeXSI(this.parameters) : "";
 
         // define outputFile and inputJson
         Path tempOutputFile = Files.createTempFile(tempDir, "output", "." + outputFileExtension);
@@ -80,7 +78,7 @@ public class ScriptTask extends Task {
                         + installRequirementsCommand
                         + " && "
                         + runScriptCommand
-                        + parameters)
+                        + escapedParameters)
                 .directory(tempDir.toFile());
         if (token != null) {
           builder.environment().put("MOLGENIS_TOKEN", token); // token for security use
@@ -91,7 +89,7 @@ public class ScriptTask extends Task {
                 "OUTPUT_FILE",
                 tempOutputFile.toAbsolutePath().toString()); // in case of an output file
         process = builder.start();
-        this.addSubTask("Script started: " + process.info().commandLine().get()).complete();
+        this.addSubTask("Script started: " + process.info().commandLine().orElse("")).complete();
 
         // catch the output
         try (BufferedReader bfr =
@@ -109,7 +107,7 @@ public class ScriptTask extends Task {
                 new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
           error = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
         }
-        if (error != null & error.trim().length() > 0) {
+        if (error != null && error.trim().length() > 0) {
           this.addSubTask("Script complete with error").setError(error);
         }
         process.waitFor();
@@ -125,17 +123,12 @@ public class ScriptTask extends Task {
         }
       } finally {
         if (tempDir != null) {
-          Files.walk(tempDir)
-              .sorted(Comparator.reverseOrder())
-              .map(Path::toFile)
-              .forEach(File::delete);
-          if (Files.exists(tempDir)) {
-            throw new MolgenisException("temp dir still exists");
+          try (Stream<Path> stream = Files.walk(tempDir)) {
+            stream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
           }
         }
       }
-    } catch (InterruptedException ie) {
-      // should not happen
+    } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     } catch (Exception e) {
       this.setError("Script failed: " + e.getMessage());
