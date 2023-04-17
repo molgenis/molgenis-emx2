@@ -5,7 +5,7 @@ export const fetchSetting = (settingKey: string) => {
 
   const route = useRoute();
   const config = useRuntimeConfig();
-  return $fetch(`/${route.params.schema}/catalogue/graphql`, {
+  return $fetch(`/${route.params.schema}/catalogue3/graphql`, {
     method: "POST",
     baseURL: config.public.apiBase,
     body,

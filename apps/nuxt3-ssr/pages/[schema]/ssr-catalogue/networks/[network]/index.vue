@@ -53,7 +53,7 @@ const {
   pending,
   error,
   refresh,
-} = await useFetch(`/${route.params.schema}/catalogue/graphql`, {
+} = await useFetch(`/${route.params.schema}/catalogue3/graphql`, {
   baseURL: config.public.apiBase,
   method: "POST",
   body: { query, variables },
