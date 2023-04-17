@@ -10,7 +10,7 @@ import org.eclipse.jetty.util.thread.ThreadPool;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.tasks.ScriptTaskTableListener;
+import org.molgenis.emx2.tasks.ScriptTableListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.ExceptionMapper;
@@ -147,7 +147,7 @@ public class MolgenisSessionManager {
         // create private database wrapper to session
         SqlDatabase database = new SqlDatabase(false);
         database.setActiveUser("anonymous"); // set default use to "anonymous"
-        database.addTableListener(new ScriptTaskTableListener(TaskApi.taskSchedulerService));
+        database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
 
         // create session and add to sessions lists so we can also access all active
         // sessions

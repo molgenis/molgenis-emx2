@@ -40,8 +40,10 @@ public class TaskServiceScheduler {
     String cronExpression = task.getCronExpression();
 
     // Validate cron expression
-    if (!CronExpression.isValidExpression(cronExpression)) {
-      throw new MolgenisException("Invalid cronexpression '" + cronExpression + "'");
+    try {
+      CronExpression.validateExpression(cronExpression);
+    } catch (Exception e) {
+      throw new MolgenisException("Invalid cronexpression '" + cronExpression + "'", e);
     }
 
     try {

@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -36,6 +37,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
+@Isolated
 public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
@@ -53,8 +55,8 @@ public class WebApiSmokeTests {
     db = TestDatabaseFactory.getTestDatabase();
 
     // will be (re)created by the RunMolgenisEmx2.main
-    // db.dropSchemaIfExists("pet store");
-    // db.dropSchemaIfExists("catalogue");
+    db.dropSchemaIfExists("pet store");
+    db.dropSchemaIfExists("catalogue");
 
     // start web service for testing, including env variables
     withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)

@@ -1,7 +1,6 @@
 package org.molgenis.emx2;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /** we collect change handlers from 'afterSave' and 'afterDelete' and execute those on commit */
@@ -15,11 +14,11 @@ public abstract class TableListener {
     this.tablenName = tableName;
   }
 
-  public final void preparePostSave(Collection<Row> saved) {
+  public final void preparePostSave(Iterable<Row> saved) {
     saved.forEach(save -> postCommitActions.add(afterSave(save)));
   }
 
-  public final void preparePostDelete(Collection<Row> deleted) {
+  public final void preparePostDelete(Iterable<Row> deleted) {
     deleted.forEach(delete -> postCommitActions.add(afterDelete(delete)));
   }
 
@@ -28,8 +27,11 @@ public abstract class TableListener {
   protected abstract Runnable afterDelete(Row deleted);
 
   public void executePostCommit() {
-    postCommitActions.forEach(Runnable::run);
-    postCommitActions.clear();
+    try {
+      postCommitActions.forEach(Runnable::run);
+    } finally {
+      postCommitActions.clear();
+    }
   }
 
   public String getSchemaName() {

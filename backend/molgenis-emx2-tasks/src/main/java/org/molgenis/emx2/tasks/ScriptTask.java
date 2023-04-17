@@ -186,7 +186,7 @@ public class ScriptTask extends Task {
 
   @Override
   public void stop() {
-    if (this.process.isAlive()) {
+    if (this.process != null && this.process.isAlive()) {
       this.process.destroy();
     }
     this.setError("process has been stopped");

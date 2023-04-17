@@ -3,10 +3,10 @@ package org.molgenis.emx2.tasks;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.TableListener;
 
-public class ScriptTaskTableListener extends TableListener {
+public class ScriptTableListener extends TableListener {
   private TaskServiceScheduler scheduleService;
 
-  public ScriptTaskTableListener(TaskServiceScheduler scheduleService) {
+  public ScriptTableListener(TaskServiceScheduler scheduleService) {
     super("ADMIN", "Scripts");
     this.scheduleService = scheduleService;
   }

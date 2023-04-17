@@ -298,6 +298,10 @@ class SqlTable implements Table {
                   columnsProvided.get(batch.getKey()));
             }
           }
+          // listeners
+          if (table.getTableListener() != null) {
+            table.getTableListener().preparePostSave(rows);
+          }
         });
 
     log(
@@ -351,10 +355,6 @@ class SqlTable implements Table {
           "Internal error in executeBatch: transaction type "
               + transactionType
               + " not allowed here");
-    }
-    // listeners
-    if (table.getTableListener() != null) {
-      table.getTableListener().preparePostSave(subclassRows.get(subclassName));
     }
     // clear the list
     subclassRows.get(subclassName).clear();
@@ -535,6 +535,11 @@ class SqlTable implements Table {
             if (table.getMetadata().getInherit() != null) {
               table.getInheritedTable().delete(rows);
             }
+
+            // notify handlers
+            if (table.getTableListener() != null) {
+              table.getTableListener().preparePostDelete(rows);
+            }
           });
     } catch (Exception e) {
       throw new SqlMolgenisException("Delete into table " + getName() + " failed", e);
@@ -588,9 +593,6 @@ class SqlTable implements Table {
       }
       Condition whereCondition = table.getWhereConditionForBatchDelete(rows);
       table.getJooq().deleteFrom(table.getJooqTable()).where(whereCondition).execute();
-      if (table.getTableListener() != null) {
-        table.getTableListener().preparePostDelete(rows);
-      }
     }
   }
 
