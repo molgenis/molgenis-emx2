@@ -105,12 +105,7 @@
           <dt class="col-2">mapped by</dt>
           <dd class="col-10">
             <span v-if="variable.variableDetails.mappings">
-              <span
-                v-for="mapping in variable.variableDetails.mappings"
-                :key="mapping.sourceDataset.resource.id"
-              >
-                {{ mapping.sourceDataset.resource.id }}
-              </span>
+              {{ mappedByString }}
             </span>
             <span v-else>none</span>
           </dd>
@@ -144,6 +139,11 @@ export default {
       return this.variable.variableDetails.permittedValues
         .map((pv) => pv) // clone to avoid prop mutation
         .sort((a, b) => a.order <= b.order);
+    },
+    mappedByString() {
+      return Object.values(this.variable.variableDetails.mappings)
+        .map((mapping) => mapping.sourceDataset.resource.id)
+        .join(", ");
     },
   },
   methods: {
