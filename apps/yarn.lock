@@ -1693,9 +1693,9 @@
   integrity sha512-BHGyyGN3Q97EZx0taMQ+OLNuZcW3d37ZEVmEAyeoA9ERdGvm9Irc/0Fua8SNyOtV1w6BS4q25wbMzJujO9HIfQ==
 
 "@vueup/vue-quill@^1.0.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@vueup/vue-quill/-/vue-quill-1.1.0.tgz#05e847361da4178cecc2346bc325d0195160af33"
-  integrity sha512-xr1mx2y+JZClPs/lz+qjvGOWgLqh9SWfm1V+ofsJtuvBnN/h9O/QqJBuVWmdAcB6JGFhIeQcjuA2JgzqX2STjg==
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@vueup/vue-quill/-/vue-quill-1.1.1.tgz#d79606b4bf8e771c006c1c1da40db5676f0cea84"
+  integrity sha512-1INx+pr+AK/5SrfFwJIojO+VhYrv6ZHwaYCxO5Irp+vjpm/z4v8zLpUIA86ideX7cNA8Tai+nkrGlWKnAeM0RQ==
   dependencies:
     quill "^1.3.7"
     quill-delta "^4.2.2"
