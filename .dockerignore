@@ -1,5 +1,5 @@
 apps/**/node_modules
-apps/catalogue
+apps/catalogue3
 apps/graphql-playground
 apps/pages
 apps/schema
