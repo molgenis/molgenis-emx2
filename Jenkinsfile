@@ -80,9 +80,9 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                    sh "./gradlew --no-daemon jacocoMergedReport shadowJar dockerPush release helmPublishMainChart ci \
+                    sh "./gradlew test --no-daemon jacocoMergedReport shadowJar dockerPush release helmPublishMainChart ci \
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
-                        -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password --info"
+                        -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
                         env.TAG_NAME = props.tagName
                         sh "./gradlew --no-daemon helmLintMainChart --info"
@@ -120,7 +120,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                        sh "./gradlew --no-daemon jacocoMergedReport shadowJar dockerPush release helmPublishMainChart sonarqube ci \
+                        sh "./gradlew test --no-daemon jacocoMergedReport shadowJar dockerPush release helmPublishMainChart sonarqube ci \
                             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'

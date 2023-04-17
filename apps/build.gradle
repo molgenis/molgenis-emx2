@@ -32,7 +32,7 @@ subprojects {
 
     task format(type: YarnTask, dependsOn: parent.yarn_install) {
         args = ['run', 'format']
-        if (project.name == 'nuxt3-ssr') {
+        if(project.name == 'nuxt3-ssr') {
             outputs.dir('components')
             outputs.dir('composables')
             outputs.dir('gql')
@@ -121,6 +121,8 @@ subprojects {
         }
     }
 
+    //moved docker here because can't have two palantir in /build.gradle
+    //also means we don't need the dockerignore anymore
     if (project.name == 'nuxt3-ssr') {
         apply plugin: "com.palantir.docker"
         pluginManager.withPlugin('com.palantir.docker') {
