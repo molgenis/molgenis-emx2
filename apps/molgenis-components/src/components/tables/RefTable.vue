@@ -95,18 +95,14 @@ table .key {
 import { table } from "console";
 import { computed, defineEmits, ref, toRefs } from "vue";
 import { IColumn } from "../../Interfaces/IColumn";
-import { IRefModalData } from "../../Interfaces/IRefModalData";
 import { IRow } from "../../Interfaces/IRow";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { getPrimaryKey, isRefType } from "../utils";
 import DataDisplayCell from "./DataDisplayCell.vue";
 import ObjectDisplay from "./cellTypes/ObjectDisplay.vue";
 
-interface IFilteredRefModalData {
-  [property: string]: string;
-}
 const props = defineProps<{
-  reference: IRefModalData;
+  reference: IRow;
   showDataOwner?: boolean;
   startsCollapsed?: boolean;
 }>();
@@ -130,9 +126,7 @@ let primaryKey = computed(() =>
 
 let collapsed = ref(startsCollapsed.value && canCollapse.value);
 
-function getFilteredResults(
-  reference: IRefModalData
-): Record<string, IFilteredRefModalData> {
+function getFilteredResults(reference: IRow): Record<string, IRow> {
   const filtered: Record<string, any> = { ...reference };
   delete filtered.mg_insertedBy;
   delete filtered.mg_insertedOn;
@@ -162,7 +156,7 @@ function isMetaData(
 
 function onCellClick(referenceTable: string): void {
   const refTableRow: IRow = reference.value;
-  const refColumn = reference.value.metadata.columns?.find((column) => {
+  const refColumn = refTableRow.metadata.columns?.find((column: IColumn) => {
     return column.name === referenceTable;
   });
 

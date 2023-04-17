@@ -28,7 +28,6 @@
 import { AxiosError } from "axios";
 import { Ref, ref, toRefs, watch } from "vue";
 import { IColumn } from "../../Interfaces/IColumn";
-import { IRefModalData } from "../../Interfaces/IRefModalData";
 import { IRow } from "../../Interfaces/IRow";
 import { default as Client, default as client } from "../../client/client";
 import ButtonAction from "../forms/ButtonAction.vue";
@@ -37,6 +36,7 @@ import Spinner from "../layout/Spinner.vue";
 import { convertToPascalCase, deepEqual, getPrimaryKey } from "../utils";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
+import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 
 const props = withDefaults(
   defineProps<{
@@ -58,7 +58,7 @@ let localTableId = ref(column.value.refTable);
 let localColumnName = ref(column.value.name);
 let localRows = ref(rows.value);
 let loading = ref(true);
-let queryResults: Ref<IRefModalData[]> = ref([]);
+let queryResults: Ref<IRow[]> = ref([]);
 let errorMessage = ref("");
 
 updateData();
@@ -77,8 +77,8 @@ async function updateData() {
   loading.value = false;
 }
 
-async function getRowData(): Promise<IRefModalData[]> {
-  let newQueryResults: IRefModalData[] = [];
+async function getRowData(): Promise<IRow[]> {
+  let newQueryResults: IRow[] = [];
   const activeSchema = column.value.refSchema || props.schema;
   const externalSchemaClient = Client.newClient(activeSchema);
   if (localTableId.value) {
@@ -114,18 +114,12 @@ async function handleRefCellClicked({
     const refTableMetadata = await Client.fetchTableMetaData(refTableId);
 
     Client.fetchTableData(refTableId, {})
-      .then((tableData) => {
+      .then((tableData: any) => {
         localColumnName.value = refColumn.name;
         localTableId.value = refTableId;
         const eventKey = [refTableRow[refColumn.id]].flat();
-        const filteredRows = tableData[
-          convertToPascalCase(localTableId.value)
-        ].filter((row: IRefModalData) => {
-          const rowKey = getPrimaryKey(row, refTableMetadata);
-          return eventKey.find((key: any) => {
-            return rowKey && deepEqual(key, rowKey);
-          });
-        });
+        const rows: IRow[] = tableData[convertToPascalCase(localTableId.value)];
+        const filteredRows = filterRows(rows, refTableMetadata, eventKey);
         localRows.value = filteredRows;
         updateData();
       })
@@ -133,6 +127,19 @@ async function handleRefCellClicked({
   } else {
     errorMessage.value = "Failed to load reference data";
   }
+}
+
+function filterRows(
+  rows: IRow[],
+  refTableMetadata: ITableMetaData,
+  eventKey: IRow
+) {
+  return rows.filter((row: IRow) => {
+    const rowKey = getPrimaryKey(row, refTableMetadata);
+    return eventKey.find((key: any) => {
+      return rowKey && deepEqual(key, rowKey);
+    });
+  });
 }
 
 function errorHandler(error: AxiosError) {
