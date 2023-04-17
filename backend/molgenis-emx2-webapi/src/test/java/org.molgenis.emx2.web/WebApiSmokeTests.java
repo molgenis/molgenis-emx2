@@ -8,6 +8,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
 import static org.molgenis.emx2.Constants.MOLGENIS_INCLUDE_CATALOGUE_DEMO;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -27,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.Order;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
@@ -49,8 +53,8 @@ public class WebApiSmokeTests {
     db = TestDatabaseFactory.getTestDatabase();
 
     // will be (re)created by the RunMolgenisEmx2.main
-    db.dropSchemaIfExists("pet store");
-    db.dropSchemaIfExists("catalogue");
+    // db.dropSchemaIfExists("pet store");
+    // db.dropSchemaIfExists("catalogue");
 
     // start web service for testing, including env variables
     withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
@@ -869,7 +873,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testScriptExcution() throws JsonProcessingException, InterruptedException {
+  public void testScriptExecution() throws JsonProcessingException, InterruptedException {
     // get token for admin
     String result =
         given()
@@ -887,7 +891,7 @@ public class WebApiSmokeTests {
             .header(MOLGENIS_TOKEN[0], token)
             .param("name", "hello world")
             .when()
-            .post("/api/tasks")
+            .post("/api/task")
             .getBody()
             .asString();
     String taskId = new ObjectMapper().readTree(result).at("/id").textValue();
@@ -903,13 +907,16 @@ public class WebApiSmokeTests {
     while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
       result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
       if (result.contains("ERROR")) {
-        System.out.println("testScriptExcution failed:" + result);
+        fail("testScriptExcution failed:" + result);
       }
       if (count++ > 100) {
         throw new MolgenisException("failed: polling took too long");
       }
       status = new ObjectMapper().readTree(result).at("/status").textValue();
       Thread.sleep(500);
+    }
+    if (result.contains("ERROR")) {
+      fail(result);
     }
 
     String outputURL = "/api/task/" + taskId + "/output";
@@ -919,6 +926,134 @@ public class WebApiSmokeTests {
     }
     assertEquals("Readme", result);
 
-    // todo: test that parameters are working
+    // now with parameters
+
+    // submit simple
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .param("name", "hello world")
+            .param("parameters", "blaat")
+            .when()
+            .post("/api/task")
+            .getBody()
+            .asString();
+    taskId = new ObjectMapper().readTree(result).at("/id").textValue();
+
+    // poll until completed
+    taskUrl = "/api/task/" + taskId;
+    // poll task until complete
+    result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+    status = new ObjectMapper().readTree(result).at("/status").textValue();
+    count = 0;
+    // poll while running
+    // (previously we checked on 'complete' but then it also fired if subtask was complete)
+    while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+      if (result.contains("ERROR")) {
+        fail("testScriptExcution failed:" + result);
+      }
+      if (count++ > 100) {
+        throw new MolgenisException("failed: polling took too long");
+      }
+      status = new ObjectMapper().readTree(result).at("/status").textValue();
+      Thread.sleep(500);
+    }
+    if (result.contains("ERROR")) {
+      fail(result);
+    }
+
+    assertTrue(result.contains("sys.argv[1]=blaat")); // the expected output
+  }
+
+  @Test
+  public void testScriptScheduling() throws JsonProcessingException, InterruptedException {
+    // make sure the 'test' script is not there already from a previous test
+    db.getSchema("ADMIN").getTable("Jobs").truncate();
+    db.getSchema("ADMIN").getTable("Scripts").delete(row("name", "test"));
+
+    // get token for admin
+    String result =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+
+    // save a scheduled script that fires every second
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body(
+                "{\"query\":\"mutation{insert(Scripts:{name:\\\"test\\\",cron:\\\"0/5 * * * * ?\\\",script:\\\"print('test123')\\\"}){message}}\"}")
+            .post("/ADMIN/api/graphql")
+            .getBody()
+            .asString();
+
+    // see that it is listed
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get("/api/tasks/scheduled")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("test")); // should contain our script
+
+    // check jobs are running
+    Table jobs = db.getSchema("ADMIN").getTable("Jobs");
+    Filter f = f("script", f("name", EQUALS, "test"));
+    int count = 0;
+    Row firstJob = null;
+    // should run every 5 secs, lets give it some time to complete at least 1 job
+    while ((firstJob == null || !"COMPLETED".equals(firstJob.getString("status"))) && count < 60) {
+      List<Row> jobList = jobs.where(f).orderBy("submitDate", Order.ASC).retrieveRows();
+      if (jobList.size() > 0) {
+        firstJob = jobList.get(0);
+      }
+      count++; // timing could make this test flakey
+      Thread.sleep(1000);
+    }
+
+    // delete the scripts
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("{\"query\":\"mutation{delete(Scripts:{name:\\\"test\\\"}){message}}\"}")
+            .post("/ADMIN/api/graphql")
+            .getBody()
+            .asString();
+
+    assertTrue(result.contains("delete 1 records from Scripts"));
+
+    // script should be deleted
+    assertTrue(
+        db.getSchema("ADMIN")
+                .getTable("Scripts")
+                .where(f("name", EQUALS, "test"))
+                .retrieveRows()
+                .size()
+            == 0,
+        "script should be deleted");
+
+    // check if the jobs that ran were okay
+    assertNotNull(firstJob, "should have at least a job");
+    System.out.println(firstJob);
+    assertEquals("COMPLETED", firstJob.getString("status"));
+
+    // script should be unscheduled
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get("/api/tasks/scheduled")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("[]"), "script should be unscheduled");
   }
 }

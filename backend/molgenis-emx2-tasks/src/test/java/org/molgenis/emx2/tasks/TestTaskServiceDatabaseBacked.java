@@ -1,5 +1,7 @@
 package org.molgenis.emx2.tasks;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -18,14 +20,18 @@ public class TestTaskServiceDatabaseBacked {
   public void testTaskServiceDatabaseBacked() throws InterruptedException {
     Schema testSchema =
         database.dropCreateSchema(TestTaskServiceDatabaseBacked.class.getSimpleName());
-    TaskService taskService = new TaskServiceInDatabase(testSchema);
+    TaskServiceInDatabase taskService = new TaskServiceInDatabase(testSchema);
     DummyTask dummyTask = new DummyTask();
-    taskService.submit(dummyTask);
+    String id = taskService.submit(dummyTask);
 
     // wait until done, or too long
     int count = 0;
     while (!dummyTask.getStatus().equals(TaskStatus.COMPLETED) && count < 100) {
       Thread.sleep(50);
     }
+
+    // check if we can retreive it from database
+    Task task = taskService.getTaskFromDatabase(id);
+    assertNotNull(task);
   }
 }

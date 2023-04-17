@@ -27,8 +27,20 @@ Lists the previous jobs. You can see the progress on each of them. Also you can 
 
 ## API
 
-Using the MOLGENIS_TOKEN you can also use API to submit jobs:
+Using the MOLGENIS_TOKEN you can also use API to submit jobs (change server URL to your server):
 
-`https:/`
+`
+curl -X POST https://localhost:8080/api/tasks/ -v
+`
 
+or with parameters
+`
+curl -X POST https://localhost/api/tasks -v -d 'my parameters, as text or json or whever you like'  
+`
 
+You will receive a taskID, you can use that to inspect status of the running task
+
+E.g. to retrieve task 123123:
+`
+curl GET https://server/api/tasks/123123
+`

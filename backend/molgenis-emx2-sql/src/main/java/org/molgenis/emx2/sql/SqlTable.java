@@ -25,11 +25,13 @@ import org.slf4j.LoggerFactory;
 class SqlTable implements Table {
   private SqlDatabase db;
   private SqlTableMetadata metadata;
+  private TableListener tableListener;
   private static Logger logger = LoggerFactory.getLogger(SqlTable.class);
 
-  SqlTable(SqlDatabase db, SqlTableMetadata metadata) {
+  SqlTable(SqlDatabase db, SqlTableMetadata metadata, TableListener tableListener) {
     this.db = db;
     this.metadata = metadata;
+    this.tableListener = tableListener;
   }
 
   @Override
@@ -350,8 +352,16 @@ class SqlTable implements Table {
               + transactionType
               + " not allowed here");
     }
+    // listeners
+    if (table.getTableListener() != null) {
+      table.getTableListener().preparePostSave(subclassRows.get(subclassName));
+    }
     // clear the list
     subclassRows.get(subclassName).clear();
+  }
+
+  private TableListener getTableListener() {
+    return this.tableListener;
   }
 
   private static int insertBatch(
@@ -578,6 +588,9 @@ class SqlTable implements Table {
       }
       Condition whereCondition = table.getWhereConditionForBatchDelete(rows);
       table.getJooq().deleteFrom(table.getJooqTable()).where(whereCondition).execute();
+      if (table.getTableListener() != null) {
+        table.getTableListener().preparePostDelete(rows);
+      }
     }
   }
 

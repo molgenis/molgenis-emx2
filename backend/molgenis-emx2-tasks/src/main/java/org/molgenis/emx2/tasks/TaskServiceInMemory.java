@@ -29,8 +29,12 @@ public class TaskServiceInMemory implements TaskService {
   }
 
   @Override
-  public String submitTaskFromName(String name, String userName, String token) {
+  public String submitTaskFromName(String name, String userName, String parameters) {
     throw new UnsupportedOperationException("Not supported when using in memory task service");
+  }
+
+  public String submitTaskFromName(String name) {
+    return this.submitTaskFromName(name, null, null);
   }
 
   @Override
@@ -55,8 +59,8 @@ public class TaskServiceInMemory implements TaskService {
     List<String> toBeDeleted = new ArrayList<>(); // to prevent ConcurrentModificationException
     tasks.forEach(
         (key, task) -> {
-          if (task.endTimeMilliseconds != 0
-              && task.endTimeMilliseconds <= System.currentTimeMillis() - milliseconds) {
+          if (task.getEndTimeMilliseconds() != 0
+              && task.getEndTimeMilliseconds() <= System.currentTimeMillis() - milliseconds) {
             toBeDeleted.add(key);
           }
         });

@@ -7,6 +7,7 @@ import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -15,13 +16,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class TaskServiceInDatabase extends TaskServiceInMemory {
   private Schema systemSchema;
 
   public TaskServiceInDatabase(Schema systemSchema) {
-    // for testing make parameterizable
     this.systemSchema = systemSchema;
     this.init();
   }
@@ -61,28 +62,52 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
 
   @Override
   public Task getTask(String id) {
-    return super.getTask(id);
-    // todo: try get from database if not in cache
+    Task task = super.getTask(id);
+    if (task == null) {
+      return getTaskFromDatabase(id);
+    }
+    return task;
+  }
+
+  public Task getTaskFromDatabase(String id) {
+    List<Row> rows = systemSchema.getTable("Jobs").where(f("id", EQUALS, id)).retrieveRows();
+    if (rows.size() > 0) {
+      Row jobRow = rows.get(0);
+      String json = jobRow.getString("log");
+      try {
+        return new ObjectMapper().readValue(json, Task.class);
+      } catch (Exception e) {
+        throw new MolgenisException("getTask(" + id + ") failed", e);
+      }
+    }
+    return null;
   }
 
   @Override
-  public String submitTaskFromName(String name, String userName, String token) {
+  public String submitTaskFromName(String name, String userName, String parameters) {
     // retrieve the script from database
-    Row scriptMetadata =
-        systemSchema.getTable("Scripts").where(f("name", EQUALS, name)).retrieveRows().get(0);
+    List<Row> rows = systemSchema.getTable("Scripts").where(f("name", EQUALS, name)).retrieveRows();
+    if (rows.size() != 1) {
+      throw new MolgenisException("Script " + name + " not found");
+    }
+    Row scriptMetadata = rows.get(0);
+    if (userName == null) {
+      userName = scriptMetadata.getString("cronUser");
+      if (userName == null) {
+        userName = systemSchema.getDatabase().getActiveUser();
+      }
+    }
     if (scriptMetadata != null) {
       if (scriptMetadata.getBoolean("disable") != null && scriptMetadata.getBoolean("disable")) {
         throw new MolgenisException("Script " + name + " is disabled");
       }
       // submit the script
       return this.submit(
-          new ScriptTask()
-              .name(name)
-              .script(scriptMetadata.getString("script"))
-              .parameters(scriptMetadata.getText("parameters"))
-              .outputFileExtension(scriptMetadata.getString("outputFileExtension"))
-              .dependencies(scriptMetadata.getString("dependencies"))
-              .token(token)
+          new ScriptTask(scriptMetadata)
+              .parameters(parameters)
+              .token(
+                  JWTgenerator.createTemporaryToken(
+                      systemSchema.getDatabase(), systemSchema.getDatabase().getActiveUser()))
               .submitUser(userName));
     } else {
       throw new MolgenisException("Script execution failed: " + name + " not found");
@@ -116,12 +141,12 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
             task.toString());
 
     // in case of script we have some more info to store
-    if (task instanceof ScriptTask) {
-      ScriptTask scriptTask = (ScriptTask) task;
+    if (task instanceof ScriptTask scriptTask) {
       jobRow.set("script", scriptTask.getName());
       if (outputFile != null) {
         jobRow.set("output", new BinaryFileWrapper(outputFile));
       }
+      jobRow.set("parameters", scriptTask.getParameters());
     }
 
     systemSchema.getTable("Jobs").save(jobRow);
@@ -147,11 +172,13 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                         column("dependencies")
                             .setType(ColumnType.TEXT)
                             .setDescription(
-                                "For python, this should match requirements format for 'pip install -r dependencies.txt'"),
-                        column("outputFileExtension"),
+                                "For python, this should match requirements format for 'pip install -r requirements.txt'"),
+                        column("outputFileExtension")
+                            .setDescription("Extension, without the '.'. E.g. 'txt' or 'json'"),
                         column("disabled")
                             .setType(ColumnType.BOOL)
-                            .setDescription("Set true to disable the script"),
+                            .setDescription(
+                                "Set true to disable the script, it will then not be executable"),
                         column("cron")
                             .setDescription(
                                 "If you want to run this script regularly you can add a cron expression. Cron expression. A cron expression is a string comprised of 6 or 7 fields separated by white space. These fields are: Seconds, Minutes, Hours, Day of month, Month, Day of week, and optionally Year. An example input is 0 0 12 * * ? for a job that fires at noon every day. See http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/tutorial-lesson-06.html")));
@@ -168,10 +195,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                         column("parameters")
                             .setType(ColumnType.TEXT)
                             .setDescription("As provided by user who started the script"),
-                        column("script")
-                            .setType(ColumnType.REF)
-                            .setRefTable("Scripts")
-                            .setDescription("Optional, only for script ScriptTasks"),
+                        column("script").setDescription("Contents of the script that was run"),
                         column("submitUser").setDescription("User that submitted the job"),
                         column("submitDate").setType(ColumnType.DATETIME),
                         column("startDate")
@@ -192,9 +216,13 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                 """
 import os;
 import numpy as np
+import sys
+# you can get parameters via sys.argv[1]
 print('Hello, world!')
 a = np.array([1, 2, 3, 4, 5, 6])
 print("MOLGENIS_TOKEN="+os.environ['MOLGENIS_TOKEN']);
+if len(sys.argv) >= 2:
+    print("sys.argv[1]="+sys.argv[1]);
 OUTPUT_FILE=os.environ['OUTPUT_FILE'];
 print("OUTPUT_FILE="+os.environ['OUTPUT_FILE']);
 f = open(OUTPUT_FILE, "a")

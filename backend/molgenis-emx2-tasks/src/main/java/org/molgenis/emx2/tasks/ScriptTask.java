@@ -1,5 +1,7 @@
 package org.molgenis.emx2.tasks;
 
+import static org.apache.commons.text.StringEscapeUtils.escapeXSI;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -7,6 +9,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +21,19 @@ public class ScriptTask extends Task {
   private String parameters;
   private String token;
   private String dependencies;
+  private Process process;
 
-  public ScriptTask() {
-    super("Starting script");
+  public ScriptTask(String name) {
+    super("Executing script '" + name + "'");
+    this.name = name;
+  }
+
+  public ScriptTask(Row scriptMetadata) {
+    this(scriptMetadata.getString("name"));
+    this.script(scriptMetadata.getString("script"))
+        .outputFileExtension(scriptMetadata.getString("outputFileExtension"))
+        .dependencies(scriptMetadata.getString("dependencies"))
+        .cronExpression(scriptMetadata.getString("cron"));
   }
 
   @Override
@@ -48,13 +61,13 @@ public class ScriptTask extends Task {
         // define commands (given tempDir as working directory)
         String createVenvCommand = "python3 -m venv venv";
         String activateCommand = "source venv/bin/activate";
-        String installRequirementsCommand = "pip3 install -r requirements.txt";
+        String installRequirementsCommand =
+            "pip3 install --disable-pip-version-check -r requirements.txt"; // don't check upgrade
         String runScriptCommand = "python3 -u script.py";
+        String parameters = this.parameters != null ? " " + escapeXSI(this.parameters) : "";
 
         // define outputFile and inputJson
         Path tempOutputFile = Files.createTempFile(tempDir, "output", "." + outputFileExtension);
-        String inputJson = parameters != null ? parameters : "{}";
-
         // start the script
         ProcessBuilder builder =
             new ProcessBuilder(
@@ -66,7 +79,8 @@ public class ScriptTask extends Task {
                         + " && "
                         + installRequirementsCommand
                         + " && "
-                        + runScriptCommand)
+                        + runScriptCommand
+                        + parameters)
                 .directory(tempDir.toFile());
         if (token != null) {
           builder.environment().put("MOLGENIS_TOKEN", token); // token for security use
@@ -76,8 +90,8 @@ public class ScriptTask extends Task {
             .put(
                 "OUTPUT_FILE",
                 tempOutputFile.toAbsolutePath().toString()); // in case of an output file
-        Process process = builder.start();
-        this.addSubTask("Script started").complete();
+        process = builder.start();
+        this.addSubTask("Script started: " + process.info().commandLine().get()).complete();
 
         // catch the output
         try (BufferedReader bfr =
@@ -95,8 +109,8 @@ public class ScriptTask extends Task {
                 new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
           error = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
         }
-        if (error != null) {
-          this.addSubTask("Script complete").setError(error);
+        if (error != null & error.trim().length() > 0) {
+          this.addSubTask("Script complete with error").setError(error);
         }
         process.waitFor();
         // Check for errors
@@ -131,11 +145,6 @@ public class ScriptTask extends Task {
 
   public String getName() {
     return name;
-  }
-
-  public ScriptTask name(String name) {
-    this.name = name;
-    return this;
   }
 
   public String getScript() {
@@ -173,5 +182,13 @@ public class ScriptTask extends Task {
   public ScriptTask dependencies(String dependencies) {
     this.dependencies = dependencies;
     return this;
+  }
+
+  @Override
+  public void stop() {
+    if (this.process.isAlive()) {
+      this.process.destroy();
+    }
+    this.setError("process has been stopped");
   }
 }

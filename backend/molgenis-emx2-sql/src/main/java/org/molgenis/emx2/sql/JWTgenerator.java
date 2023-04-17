@@ -1,4 +1,4 @@
-package org.molgenis.emx2;
+package org.molgenis.emx2.sql;
 
 import static java.util.Objects.requireNonNull;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
@@ -13,6 +13,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.User;
 
 public class JWTgenerator {
   private static byte[] sharedSecret;

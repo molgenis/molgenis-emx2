@@ -7,6 +7,8 @@ import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 import static spark.Spark.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.tasks.*;
@@ -19,10 +21,14 @@ public class TaskApi {
 
   // todo, make jobs private to the user?
   public static TaskService taskService = new TaskServiceInDatabase();
+  // to schedule jobs, see MolgenisSessionManager how we keep this in sync with Database using a
+  // TableListener
+  public static TaskServiceScheduler taskSchedulerService = new TaskServiceScheduler(taskService);
 
   public static void create() {
     get("/api/tasks", TaskApi::listTasks);
     get("/api/tasks/clear", TaskApi::clearTasks);
+    get("/api/tasks/scheduled", TaskApi::viewScheduledTasks);
     post("/api/task", TaskApi::submitTask); // is convention plurar or singular?
     post("/api/tasks", TaskApi::submitTask);
     get("/api/task/:id", TaskApi::getTask);
@@ -52,18 +58,22 @@ public class TaskApi {
     get("/:schema/:app/api/task/:id/delete", TaskApi::deleteTask);
   }
 
+  private static Object viewScheduledTasks(Request request, Response response)
+      throws JsonProcessingException {
+    // mainly for testing/verification purposes
+    return new ObjectMapper().writeValueAsString(taskSchedulerService.scheduledTaskNames());
+  }
+
   private static Object submitTask(Request request, Response response) {
     if (request.params("schema") == null || getSchema(request) != null) {
-
       MolgenisSession session = sessionManager.getSession(request);
       String user = session.getSessionUser();
       if (!"admin".equals(user)) {
         throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
       }
       String name = request.queryParams("name");
-      String id =
-          taskService.submitTaskFromName(
-              name, user, JWTgenerator.createTemporaryToken(session.getDatabase(), user));
+      String parameters = request.queryParams("parameters");
+      String id = taskService.submitTaskFromName(name, user, parameters);
       return new TaskReference(id).toString();
     }
     throw new MolgenisException("Schema doesn't exist or permission denied");

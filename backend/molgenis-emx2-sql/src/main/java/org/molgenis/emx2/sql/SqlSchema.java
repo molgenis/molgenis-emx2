@@ -22,8 +22,9 @@ public class SqlSchema implements Schema {
   public SqlTable getTable(String name) {
     SqlTableMetadata tableMetadata = getMetadata().getTableMetadata(name);
     if (tableMetadata == null) return null;
-    if (tableMetadata.exists()) return new SqlTable(db, tableMetadata);
-    else return null;
+    if (tableMetadata.exists()) {
+      return new SqlTable(db, tableMetadata, db.getTableListener(getName(), name));
+    } else return null;
   }
 
   @Override
@@ -32,7 +33,9 @@ public class SqlSchema implements Schema {
     sortTableByDependency(tableMetadata);
     List<Table> result = new ArrayList<>();
     for (TableMetadata tm : tableMetadata) {
-      result.add(new SqlTable(db, (SqlTableMetadata) tm));
+      result.add(
+          new SqlTable(
+              db, (SqlTableMetadata) tm, db.getTableListener(getName(), tm.getTableName())));
     }
     return result;
   }

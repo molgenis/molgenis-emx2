@@ -40,7 +40,7 @@ public class Task implements Runnable, Iterable<Task> {
   // start time to measure run time
   private long startTimeMilliseconds;
   // end time to calculate run time
-  long endTimeMilliseconds;
+  private long endTimeMilliseconds;
   // subtasks/steps in this task
   private List<Task> subTasks = new ArrayList<>();
   // parent task
@@ -50,6 +50,10 @@ public class Task implements Runnable, Iterable<Task> {
   @JsonIgnore private boolean strict = false;
   // this handler is used to notify that relevant things happened
   @JsonIgnore private TaskChangedHandler changedHandler;
+  private String cronExpression;
+  private boolean disabled = false;
+
+  public Task() {}
 
   public Task(String description) {
     Objects.requireNonNull(description, "description cannot be null");
@@ -172,6 +176,7 @@ public class Task implements Runnable, Iterable<Task> {
     throw new MolgenisException(message);
   }
 
+  @JsonIgnore
   public long getDuration() {
     if (startTimeMilliseconds == 0) {
       return 0;
@@ -270,6 +275,24 @@ public class Task implements Runnable, Iterable<Task> {
     return this;
   }
 
+  public Task cronExpression(String cronExpression) {
+    this.cronExpression = cronExpression;
+    return this;
+  }
+
+  public String getCronExpression() {
+    return this.cronExpression;
+  }
+
+  public Task disabled(boolean disabled) {
+    this.disabled = disabled;
+    return this;
+  }
+
+  public boolean isDisabled() {
+    return this.disabled;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -315,5 +338,13 @@ public class Task implements Runnable, Iterable<Task> {
     if (this.changedHandler != null) {
       this.changedHandler.handleOutputFile(this, outputFile);
     }
+  }
+
+  public void stop() {
+    // will stop if implemented
+  }
+
+  public long getEndTimeMilliseconds() {
+    return this.endTimeMilliseconds;
   }
 }
