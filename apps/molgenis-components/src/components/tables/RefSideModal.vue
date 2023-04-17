@@ -117,18 +117,14 @@ async function handleRefCellClicked({
       .then((tableData) => {
         localColumnName.value = refColumn.name;
         localTableId.value = refTableId;
+        const eventKey = [refTableRow[refColumn.id]].flat();
         const filteredRows = tableData[
           convertToPascalCase(localTableId.value)
         ].filter((row: IRefModalData) => {
-          const eventKey = refTableRow[refColumn.id];
           const rowKey = getPrimaryKey(row, refTableMetadata);
-          if (refColumn.columnType.includes("_ARRAY")) {
-            return eventKey.find((k: any) => {
-              return rowKey && deepEqual(k, rowKey);
-            });
-          } else {
-            return eventKey && rowKey && deepEqual(eventKey, rowKey);
-          }
+          return eventKey.find((key: any) => {
+            return rowKey && deepEqual(key, rowKey);
+          });
         });
         localRows.value = filteredRows;
         updateData();
