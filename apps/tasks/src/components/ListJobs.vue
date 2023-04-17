@@ -3,7 +3,7 @@
   <RoutedTableExplorer
     tableName="Jobs"
     schemaName="ADMIN"
-    :canEdit="false"
+    :canEdit="true"
     :canManage="false"
   >
     <template v-slot:rowheader="slotProps">
