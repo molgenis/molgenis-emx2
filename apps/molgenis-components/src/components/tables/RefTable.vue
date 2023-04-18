@@ -4,7 +4,7 @@
       <ObjectDisplay
         v-if="primaryKey"
         :data="primaryKey"
-        :meta-data="metadataOfRow(Object.keys(primaryKey)[0])"
+        :meta-data="reference.metadata"
         class="mr-1"
       />
       <button
@@ -47,13 +47,13 @@
       <div v-if="reference.mg_insertedBy">
         Inserted by '{{ reference.mg_insertedBy }}'
         <span v-if="reference.mg_insertedOn">
-          On {{ new Date(reference.mg_insertedOn as string).toLocaleString() }}
+          On {{ new Date(reference.mg_insertedOn).toLocaleString() }}
         </span>
       </div>
       <div v-if="reference.mg_updatedBy">
         Updated by '{{ reference.mg_updatedBy }}'
         <span v-if="reference.mg_updatedOn">
-          On {{ new Date(reference.mg_updatedOn as string).toLocaleString() }}
+          On {{ new Date(reference.mg_updatedOn).toLocaleString() }}
         </span>
       </div>
     </small>
@@ -137,7 +137,7 @@ function getFilteredResults(reference: IRow): Record<string, IRow> {
   return filtered;
 }
 
-function metadataOfRow(key: string | number) {
+function metadataOfRow(key: string | number): IColumn {
   const metadata = reference.value.metadata;
   if (isMetaData(metadata) && metadata.columns) {
     return (
