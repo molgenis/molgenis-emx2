@@ -4,7 +4,7 @@
     tableName="Jobs"
     schemaName="ADMIN"
     :canEdit="true"
-    :canManage="false"
+    :canManage="true"
   >
     <template v-slot:rowheader="slotProps">
       <TaskViewButton :taskId="slotProps.row.id" />

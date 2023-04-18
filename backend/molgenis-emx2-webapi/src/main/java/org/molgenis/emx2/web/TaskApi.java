@@ -10,6 +10,9 @@ import static spark.Spark.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.tasks.*;
 import spark.Request;
@@ -29,33 +32,42 @@ public class TaskApi {
     get("/api/tasks", TaskApi::listTasks);
     get("/api/tasks/clear", TaskApi::clearTasks);
     get("/api/tasks/scheduled", TaskApi::viewScheduledTasks);
-    post("/api/task", TaskApi::submitTask); // is convention plurar or singular?
-    post("/api/tasks", TaskApi::submitTask);
-    get("/api/task/:id", TaskApi::getTask);
-    get("/api/task/:id/output", TaskApi::getTaskOutput);
+    get("/api/scripts/:name", TaskApi::getScript); // run synchronously, with parameters on url
+    post(
+        "/api/scripts/:name",
+        TaskApi::postScript); // run async, using parameters as body and returning task status
+    get("/api/tasks/:id", TaskApi::getTask);
+    get("/api/tasks/:id/output", TaskApi::getTaskOutput);
 
     // convenient delete
-    delete("/api/task/:id", TaskApi::deleteTask);
-    get("/api/task/:id/delete", TaskApi::deleteTask);
+    delete("/api/tasks/:id", TaskApi::deleteTask);
+    get("/api/tasks/:id/delete", TaskApi::deleteTask);
 
     // also works in context schema
     // todo: make tasks scoped?
     get("/:schema/api/tasks", TaskApi::listTasks);
     get("/:schema/api/tasks/clear", TaskApi::clearTasks);
-    get("/:schema/api/task/:id", TaskApi::getTask);
+    get("/:schema/api/tasks/:id", TaskApi::getTask);
+    get(
+        "/:schema/api/scripts/:name",
+        TaskApi::getScript); // run synchronously, with parameters on url
+    post(
+        "/:schema/api/scripts/:name",
+        TaskApi::postScript); // run async, using parameters as body and returning task status
+    get("/:schema/api/tasks/:id/output", TaskApi::getTaskOutput);
 
     // convenient delete
-    delete("/:schema/:app/api/task/:id", TaskApi::deleteTask);
-    get("/:schema/:app/api/task/:id/delete", TaskApi::deleteTask);
+    delete("/:schema/:app/api/tasks/:id", TaskApi::deleteTask);
+    get("/:schema/:app/api/tasks/:id/delete", TaskApi::deleteTask);
 
     // also in app
     get("/:schema/:app/api/tasks", TaskApi::listTasks);
     get("/:schema/:app/api/tasks/clear", TaskApi::clearTasks);
-    get("/:schema/:app/api/task/:id", TaskApi::getTask);
+    get("/:schema/:app/api/tasks/:id", TaskApi::getTask);
 
     // convenient delete
-    delete("/:schema/:app/api/task/:id", TaskApi::deleteTask);
-    get("/:schema/:app/api/task/:id/delete", TaskApi::deleteTask);
+    delete("/:schema/:app/api/tasks/:id", TaskApi::deleteTask);
+    get("/:schema/:app/api/tasks/:id/delete", TaskApi::deleteTask);
   }
 
   private static Object viewScheduledTasks(Request request, Response response)
@@ -64,17 +76,47 @@ public class TaskApi {
     return new ObjectMapper().writeValueAsString(taskSchedulerService.scheduledTaskNames());
   }
 
-  private static Object submitTask(Request request, Response response) {
+  private static Object postScript(Request request, Response response) {
     if (request.params("schema") == null || getSchema(request) != null) {
       MolgenisSession session = sessionManager.getSession(request);
       String user = session.getSessionUser();
       if (!"admin".equals(user)) {
         throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
       }
-      String name = request.queryParams("name");
-      String parameters = request.queryParams("parameters");
+      String name = URLDecoder.decode(request.params("name"), StandardCharsets.UTF_8);
+      String parameters = request.body();
       String id = taskService.submitTaskFromName(name, user, parameters);
       return new TaskReference(id).toString();
+    }
+    throw new MolgenisException("Schema doesn't exist or permission denied");
+  }
+
+  private static Object getScript(Request request, Response response)
+      throws InterruptedException, UnsupportedEncodingException {
+    if (request.params("schema") == null || getSchema(request) != null) {
+      MolgenisSession session = sessionManager.getSession(request);
+      String user = session.getSessionUser();
+      if (!"admin".equals(user)) {
+        throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
+      }
+      String name = URLDecoder.decode(request.params("name"), StandardCharsets.UTF_8.toString());
+      String parameters =
+          request.queryParams("parameters") != null
+              ? URLDecoder.decode(
+                  request.queryParams("parameters"), StandardCharsets.UTF_8.toString())
+              : null;
+      String id = taskService.submitTaskFromName(name, user, parameters);
+      // wait until done or timeout
+      int timeout = 0;
+      Task task = taskService.getTask(id);
+      // timeout a minute for these I would say?
+      while (task.isRunning() && timeout < 120) {
+        task = taskService.getTask(id);
+        timeout++;
+        Thread.sleep(500);
+      }
+      // get the output as bytes
+      return ((ScriptTask) task).getOutput();
     }
     throw new MolgenisException("Schema doesn't exist or permission denied");
   }

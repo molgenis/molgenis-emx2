@@ -54,10 +54,6 @@ public class WebApiSmokeTests {
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
 
-    // will be (re)created by the RunMolgenisEmx2.main
-    db.dropSchemaIfExists("pet store");
-    db.dropSchemaIfExists("catalogue");
-
     // start web service for testing, including env variables
     withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
         .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
@@ -891,15 +887,14 @@ public class WebApiSmokeTests {
     result =
         given()
             .header(MOLGENIS_TOKEN[0], token)
-            .param("name", "hello world")
             .when()
-            .post("/api/task")
+            .post("/api/scripts/hello+world")
             .getBody()
             .asString();
     String taskId = new ObjectMapper().readTree(result).at("/id").textValue();
 
     // poll until completed
-    String taskUrl = "/api/task/" + taskId;
+    String taskUrl = "/api/tasks/" + taskId;
     // poll task until complete
     result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
     String status = new ObjectMapper().readTree(result).at("/status").textValue();
@@ -921,7 +916,7 @@ public class WebApiSmokeTests {
       fail(result);
     }
 
-    String outputURL = "/api/task/" + taskId + "/output";
+    String outputURL = "/api/tasks/" + taskId + "/output";
     result = given().header(MOLGENIS_TOKEN[0], token).when().get(outputURL).getBody().asString();
     if (result.equals("Readme")) {
       System.out.println("testScriptExcution error: " + result);
@@ -937,13 +932,13 @@ public class WebApiSmokeTests {
             .param("name", "hello world")
             .param("parameters", "blaat")
             .when()
-            .post("/api/task")
+            .post("/api/tasks")
             .getBody()
             .asString();
     taskId = new ObjectMapper().readTree(result).at("/id").textValue();
 
     // poll until completed
-    taskUrl = "/api/task/" + taskId;
+    taskUrl = "/api/tasks/" + taskId;
     // poll task until complete
     result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
     status = new ObjectMapper().readTree(result).at("/status").textValue();
@@ -985,6 +980,59 @@ public class WebApiSmokeTests {
             .asString();
     String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
 
+    // simply retrieve the results using get
+    // todo: also allow anonymous
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get("/ADMIN/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    assertEquals("Readme", result);
+
+    // simply retrieve the results using get, outside schema
+    // todo: also allow anonymous
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get("/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    assertEquals("Readme", result);
+
+    // or async using post and then we get a task id
+    // simply retrieve the results using get
+    // todo: also allow anonymous
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("blaat")
+            .post("/ADMIN/api/scripts/hello+world")
+            .asString();
+
+    Row jobMetadata = waitForScriptToComplete("hello world");
+    // retrieve the file
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("blaat")
+            .post("/ADMIN/api/tasks/" + jobMetadata.getString("id") + "/output")
+            .asString();
+    assertEquals("Readme", result);
+    // also works outside schema
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("blaat")
+            .post("/api/tasks/" + jobMetadata.getString("id") + "/output")
+            .asString();
+    assertEquals("Readme", result);
+
     // save a scheduled script that fires every second
     result =
         given()
@@ -1005,21 +1053,6 @@ public class WebApiSmokeTests {
             .getBody()
             .asString();
     assertTrue(result.contains("test")); // should contain our script
-
-    // check jobs are running
-    Table jobs = db.getSchema("ADMIN").getTable("Jobs");
-    Filter f = f("script", f("name", EQUALS, "test"));
-    int count = 0;
-    Row firstJob = null;
-    // should run every 5 secs, lets give it some time to complete at least 1 job
-    while ((firstJob == null || !"COMPLETED".equals(firstJob.getString("status"))) && count < 60) {
-      List<Row> jobList = jobs.where(f).orderBy("submitDate", Order.ASC).retrieveRows();
-      if (jobList.size() > 0) {
-        firstJob = jobList.get(0);
-      }
-      count++; // timing could make this test flakey
-      Thread.sleep(1000);
-    }
 
     // delete the scripts
     result =
@@ -1044,9 +1077,9 @@ public class WebApiSmokeTests {
         "script should be deleted");
 
     // check if the jobs that ran were okay
-    assertNotNull(firstJob, "should have at least a job");
-    System.out.println(firstJob);
-    assertEquals("COMPLETED", firstJob.getString("status"));
+    assertNotNull(jobMetadata, "should have at least a job");
+    System.out.println(jobMetadata);
+    assertEquals("COMPLETED", jobMetadata.getString("status"));
 
     // script should be unscheduled
     result =
@@ -1057,5 +1090,22 @@ public class WebApiSmokeTests {
             .getBody()
             .asString();
     assertTrue(result.contains("[]"), "script should be unscheduled");
+  }
+
+  private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
+    Table jobs = db.getSchema("ADMIN").getTable("Jobs");
+    Filter f = f("script", f("name", EQUALS, scriptName));
+    int count = 0;
+    Row firstJob = null;
+    // should run every 5 secs, lets give it some time to complete at least 1 job
+    while ((firstJob == null || !"COMPLETED".equals(firstJob.getString("status"))) && count < 60) {
+      List<Row> jobList = jobs.where(f).orderBy("submitDate", Order.ASC).retrieveRows();
+      if (jobList.size() > 0) {
+        firstJob = jobList.get(0);
+      }
+      count++; // timing could make this test flakey
+      Thread.sleep(1000);
+    }
+    return firstJob;
   }
 }

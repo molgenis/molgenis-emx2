@@ -347,4 +347,9 @@ public class Task implements Runnable, Iterable<Task> {
   public long getEndTimeMilliseconds() {
     return this.endTimeMilliseconds;
   }
+
+  @JsonIgnore
+  public boolean isRunning() {
+    return !status.equals(ERROR) && !status.equals(COMPLETED);
+  }
 }

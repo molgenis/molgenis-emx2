@@ -18,6 +18,7 @@ public class TestTaskServiceDatabaseBacked {
 
   @Test
   public void testTaskServiceDatabaseBacked() throws InterruptedException {
+    // we don't use 'ADMIN' schema
     Schema testSchema =
         database.dropCreateSchema(TestTaskServiceDatabaseBacked.class.getSimpleName());
     TaskServiceInDatabase taskService = new TaskServiceInDatabase(testSchema);

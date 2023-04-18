@@ -9,10 +9,10 @@
     >
       <template #body>
         <p v-if="!taskId">
-          todo: parameters dialogue.
+          <InputText v-model="parameters" label="Parameters (optional)" />
           <MessageError v-if="error">{{ error }}</MessageError>
           <Task v-if="taskId" :taskId="taskId" />
-          <router-link v-if="!taskId" to="jobs">View all jobs</router-link>
+          <router-link v-if="taskId" to="jobs">View all jobs</router-link>
         </p></template
       >
 
@@ -31,6 +31,7 @@ import {
   LayoutModal,
   MessageError,
   Task,
+  InputText,
 } from "molgenis-components";
 
 export default {
@@ -41,6 +42,7 @@ export default {
     ButtonAlt,
     Task,
     MessageError,
+    InputText,
   },
   props: {
     script: {
@@ -55,6 +57,7 @@ export default {
       success: null,
       loading: false,
       isModalShown: false,
+      parameters: null,
     };
   },
   methods: {
@@ -66,9 +69,13 @@ export default {
       this.isModalShown = false;
     },
     submitScript() {
-      let url = "/api/task?async=true&name=" + this.script.name;
+      let url = "/api/tasks";
+      let formData = new FormData();
+      formData.append("name", this.script.name);
+      formData.append("parameters", this.parameters);
       fetch(url, {
         method: "POST",
+        body: formData,
       })
         .then((response) => {
           if (response.ok) {

@@ -2,6 +2,7 @@ package org.molgenis.emx2.tasks;
 
 import static org.apache.commons.text.StringEscapeUtils.escapeXSI;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -20,6 +21,7 @@ public class ScriptTask extends Task {
   private String token;
   private String dependencies;
   private Process process;
+  private byte[] output;
 
   public ScriptTask(String name) {
     super("Executing script '" + name + "'");
@@ -60,7 +62,7 @@ public class ScriptTask extends Task {
         String createVenvCommand = "python3 -m venv venv";
         String activateCommand = "source venv/bin/activate";
         String installRequirementsCommand =
-            "pip3 install --disable-pip-version-check -r requirements.txt"; // don't check upgrade
+            "pip3 install --no-index -r requirements.txt"; // don't check upgrade
         String runScriptCommand = "python3 -u script.py";
         String escapedParameters = this.parameters != null ? " " + escapeXSI(this.parameters) : "";
 
@@ -118,6 +120,7 @@ public class ScriptTask extends Task {
           // get any output file if exists
           if (Files.exists(tempOutputFile) && Files.size(tempOutputFile) > 0) {
             this.handleOutput(tempOutputFile.toFile());
+            this.output = Files.readAllBytes(tempOutputFile);
           }
           this.complete();
         }
@@ -158,6 +161,7 @@ public class ScriptTask extends Task {
     return this;
   }
 
+  @JsonIgnore
   public String getToken() {
     return token;
   }
@@ -183,5 +187,10 @@ public class ScriptTask extends Task {
       this.process.destroy();
     }
     this.setError("process has been stopped");
+  }
+
+  @JsonIgnore
+  public byte[] getOutput() {
+    return this.output;
   }
 }
