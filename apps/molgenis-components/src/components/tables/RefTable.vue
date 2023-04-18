@@ -18,18 +18,18 @@
     <div>
       <div :class="{ 'collapsed-table': collapsed }">
         <table class="table table-sm mb-2">
-          <tr v-for="(value, key) in filteredResults">
-            <td class="key border-right">{{ key }}</td>
+          <tr v-for="(cellValue, cellName) in filteredRow">
+            <td class="key border-right">{{ cellName }}</td>
             <td
-              @click="
-                {
-                  onCellClick(key);
-                }
-              "
-              class="value"
-              :class="{ refType: isRefType(metadataOfRow(key).columnType) }"
+              @click="onCellClick(cellName)"
+              :class="{
+                refType: isRefType(metadataOfCell(cellName).columnType),
+              }"
             >
-              <DataDisplayCell :data="value" :meta-data="metadataOfRow(key)" />
+              <DataDisplayCell
+                :data="cellValue"
+                :meta-data="metadataOfCell(cellName)"
+              />
             </td>
           </tr>
         </table>
@@ -118,15 +118,15 @@ const emit = defineEmits<{
   ): void;
 }>();
 
-let filteredResults = computed(() => getFilteredResults(reference.value));
-let canCollapse = computed(() => Object.keys(filteredResults.value).length > 5);
+let filteredRow = computed(() => getFilteredRow(reference.value));
+let canCollapse = computed(() => Object.keys(filteredRow.value).length > 5);
 let primaryKey = computed(() =>
   getPrimaryKey(reference.value, reference.value.metadata)
 );
 
 let collapsed = ref(startsCollapsed.value && canCollapse.value);
 
-function getFilteredResults(reference: IRow): Record<string, IRow> {
+function getFilteredRow(reference: IRow): IRow {
   const filtered: Record<string, any> = { ...reference };
   delete filtered.mg_insertedBy;
   delete filtered.mg_insertedOn;
@@ -137,7 +137,7 @@ function getFilteredResults(reference: IRow): Record<string, IRow> {
   return filtered;
 }
 
-function metadataOfRow(key: string | number): IColumn {
+function metadataOfCell(key: string | number): IColumn {
   const metadata = reference.value.metadata;
   if (isMetaData(metadata) && metadata.columns) {
     return (
