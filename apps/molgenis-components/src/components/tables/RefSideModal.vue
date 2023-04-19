@@ -9,6 +9,9 @@
     </div>
     <div v-else>
       <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
+      <div v-if="!queryResults.length">
+        The selected reference was not found in the database
+      </div>
       <div v-for="queryResult in queryResults">
         <RefTable
           :reference="queryResult"
