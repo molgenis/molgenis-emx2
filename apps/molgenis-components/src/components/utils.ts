@@ -177,7 +177,7 @@ export function getLocalizedDescription(
 export function deepEqual(
   object1: Record<string, any>,
   object2: Record<string, any>
-) {
+): boolean {
   const keys1 = Object.keys(object1);
   const keys2 = Object.keys(object2);
   if (keys1.length !== keys2.length) {
@@ -197,6 +197,6 @@ export function deepEqual(
   return true;
 }
 
-function isObject(object: Record<string, any>) {
+function isObject(object: Record<string, any>): object is Object {
   return object !== null && typeof object === "object";
 }
