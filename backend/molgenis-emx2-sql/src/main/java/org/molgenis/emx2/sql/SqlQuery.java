@@ -385,6 +385,8 @@ public class SqlQuery extends QueryBean {
         } else if (Operator.AND.equals(f.getOperator())) {
           conditions.add(
               and(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
+        } else if (TRIGRAM_SEARCH.equals(f.getOperator())) {
+          conditions.add(jsonSearchConditions(table, TypeUtils.toStringArray(f.getValues())));
         } else {
           Column c = isValidColumn(table, f.getColumn());
           if (c.isReference()) {

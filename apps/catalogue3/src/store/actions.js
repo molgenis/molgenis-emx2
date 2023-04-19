@@ -81,8 +81,7 @@ export default {
       queryVariables.filter.resource = {
         equals: networkModels.map((model) => {
           return {
-            // version: "1.0.0",
-            model,
+            id: model.id,
           };
         }),
       };
@@ -262,9 +261,10 @@ export default {
         }
       }
     `;
-    const keyWordResp = await request("graphql", keywordQuery).catch((e) =>
-      console.error(e)
-    );
+    const keyWordResp = await request(
+      "/CatalogueOntologies/graphql",
+      keywordQuery
+    ).catch((e) => console.error(e));
     commit("setKeywords", keyWordResp.Keywords);
     return state.keywords;
   },

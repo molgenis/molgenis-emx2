@@ -19,6 +19,7 @@
             :isMultiSelect="true"
             tableName="Keywords"
             :show-expanded="true"
+            schemaName="CatalogueOntologies"
           />
         </div>
         <div class="bg-white px-1">
