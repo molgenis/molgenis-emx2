@@ -52,6 +52,8 @@ const typeToInputMap = {
   DATETIME: InputDateTime,
   ONTOLOGY: InputOntology,
   STRING_ARRAY: ArrayInput,
+  EMAIL_ARRAY: ArrayInput,
+  HYPERLINK_ARRAY: ArrayInput,
   TEXT_ARRAY: ArrayInput,
   INT_ARRAY: ArrayInput,
   LONG_ARRAY: ArrayInput,
@@ -201,6 +203,80 @@ export default {
       </div>
       <div>You typed: {{ JSON.stringify(stringValueArray, null, 2) }}</div>
     </DemoItem>
+    <DemoItem>
+      <div>
+        <FormInput
+          id="email-example"
+          columnType="EMAIL"
+          label="Example email input"
+          v-model="emailValue"
+        />
+      </div>
+      <div>You typed: {{ emailValue }}</div>
+    </DemoItem>
+    <DemoItem>
+      <div><b>In place email example</b></div>
+      <div>
+        This is inside this
+        <FormInput
+          id="email-inplace-example"
+          columnType="EMAIL"
+          label="Example email input inplace"
+          v-model="emailValueInplace"
+          inplace
+        />
+        sentence
+      </div>
+    </DemoItem>
+    <DemoItem>
+      <div>
+        <FormInput
+          id="email-array-example"
+          columnType="EMAIL_ARRAY"
+          label="Example email array input"
+          v-model="emailValueArray"
+        />
+      </div>
+      <div>You typed: {{ JSON.stringify(emailValueArray, null, 2) }}</div>
+    </DemoItem>
+
+    <DemoItem>
+      <div>
+        <FormInput
+          id="hyperlink-example"
+          columnType="HYPERLINK"
+          label="Example hyperlink input"
+          v-model="hyperlinkValue"
+        />
+      </div>
+      <div>You typed: {{ hyperlinkValue }}</div>
+    </DemoItem>
+    <DemoItem>
+      <div><b>In place hyperlink example</b></div>
+      <div>
+        This is inside this
+        <FormInput
+          id="hyperlink-inplace-example"
+          columnType="HYPERLINK"
+          label="Example hyperlink input inplace"
+          v-model="hyperlinkValueInplace"
+          inplace
+        />
+        sentence
+      </div>
+    </DemoItem>
+    <DemoItem>
+      <div>
+        <FormInput
+          id="hyperlink-array-example"
+          columnType="HYPERLINK_ARRAY"
+          label="Example hyperlink array input"
+          v-model="hyperlinkValueArray"
+        />
+      </div>
+      <div>You typed: {{ JSON.stringify(hyperlinkValueArray, null, 2) }}</div>
+    </DemoItem>
+
     <DemoItem>
       <div>
         <FormInput
@@ -443,6 +519,12 @@ export default {
       stringValue: "test",
       stringValueInplace: "inplace",
       stringValueArray: ["value1", "value2"],
+      emailValue: "bla@molgenis.org",
+      emailValueInplace: "bla@molgenis.org",
+      emailValueArray: ["bla@molgenis.org", "asd@molgenis.org"],
+      hyperlinkValue: "www.molgenis.org",
+      hyperlinkValueInplace: "www.molgenis.org",
+      hyperlinkValueArray: ["www.molgenis.org", "molgenis.org"],
       ontologyValue: null,
       ontologyArrayValue: [],
       dateValue: null,
