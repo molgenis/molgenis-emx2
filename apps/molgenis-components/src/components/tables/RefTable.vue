@@ -92,7 +92,6 @@ table .key {
 </style>
 
 <script lang="ts" setup>
-import { table } from "console";
 import { computed, defineEmits, ref, toRefs } from "vue";
 import { IColumn } from "../../Interfaces/IColumn";
 import { IRow } from "../../Interfaces/IRow";
