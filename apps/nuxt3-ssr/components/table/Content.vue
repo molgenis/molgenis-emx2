@@ -14,7 +14,7 @@ const props = defineProps<{
 }>();
 
 const pageSize = 10;
-let pageNumber = ref(1);
+let pageNumber: Ref = ref(1);
 let offset = computed(() => (pageNumber.value - 1) * pageSize);
 let orderByColumn = ref(props.headers[0].id);
 let orderby = {
@@ -44,6 +44,11 @@ watch(orderByColumn, () => {
   };
   fetchRows();
 });
+
+function setCurrentPage(newPageNumber: number) {
+  pageNumber.value = newPageNumber;
+  fetchRows();
+}
 
 let activeSideModal = ref("");
 function setActiveSideModal(value: string) {
@@ -147,6 +152,7 @@ function setActiveSideModal(value: string) {
       v-if="count > pageSize"
       :currentPage="pageNumber"
       :totalPages="Math.ceil(count / pageSize)"
+      @update="setCurrentPage($event)"
     />
   </ContentBlock>
 </template>
