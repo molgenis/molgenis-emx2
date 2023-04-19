@@ -174,6 +174,7 @@ export function getLocalizedDescription(
   }
 }
 
+/** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
 export function deepEqual(
   object1: Record<string, any>,
   object2: Record<string, any>

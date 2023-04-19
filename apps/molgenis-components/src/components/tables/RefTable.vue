@@ -139,7 +139,7 @@ function getFilteredRow(reference: IRow): IRow {
 
 function metadataOfCell(key: string | number): IColumn {
   const metadata = reference.value.metadata;
-  if (isMetaData(metadata) && metadata.columns) {
+  if (isMetadata(metadata) && metadata.columns) {
     return (
       metadata.columns.find((column) => column.id === key) || ({} as IColumn)
     );
@@ -148,7 +148,7 @@ function metadataOfCell(key: string | number): IColumn {
   }
 }
 
-function isMetaData(
+function isMetadata(
   metadata: ITableMetaData | string
 ): metadata is ITableMetaData {
   return (<ITableMetaData>metadata).name !== undefined;

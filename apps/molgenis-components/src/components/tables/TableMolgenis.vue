@@ -167,7 +167,6 @@ export default {
       return found;
     },
     isRefType,
-    /** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
     deepEqual,
     onColumnClick(column) {
       this.$emit("column-click", column);
@@ -185,7 +184,7 @@ export default {
       const key = this.getPrimaryKey(row);
       if (this.showSelect) {
         //deep copy
-        let update = JSON.parse(JSON.stringify(this.selection));
+        let update = deepClone(this.selection);
         if (this.isSelected(row)) {
           /** when a row is deselected */
           update = update.filter(
