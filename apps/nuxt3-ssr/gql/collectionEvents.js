@@ -1,10 +1,16 @@
 import gql from "graphql-tag";
 export default gql`
-  query CollectionEvents($id: String, $limit: Int, $offset: Int) {
+  query CollectionEvents(
+    $id: String
+    $limit: Int
+    $offset: Int
+    $orderby: CollectionEventsorderby
+  ) {
     CollectionEvents(
       limit: $limit
       offset: $offset
       filter: { resource: { id: { equals: [$id] } } }
+      orderby: $orderby
     ) {
       resource {
         id

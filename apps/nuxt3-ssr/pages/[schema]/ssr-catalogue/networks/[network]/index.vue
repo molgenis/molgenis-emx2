@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
-import { Ref } from "vue";
-import subcohortsQuery from "~~/gql/subcohorts";
-import collectionEventsQuery from "~~/gql/collectionEvents";
-import ontologyFragment from "~~/gql/fragments/ontology";
+import cohortsQuery from "~~/gql/cohorts";
 import fileFragment from "~~/gql/fragments/file";
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -42,6 +39,9 @@ const query = gql`
         name        
       }  
     }
+    Cohorts_agg(filter: { networks: { id: { equals: [$id] } } }) {
+      count
+    }
   }
 `;
 const variables = { id: route.params.network };
@@ -68,56 +68,6 @@ function setData(data: any) {
   network = data?.data?.Networks[0];
 }
 
-fetchGql(collectionEventsQuery, { id: route.params.cohort })
-  .then((resp) => onCollectionEventsLoaded(resp.data.CollectionEvents))
-  .catch((e) => console.log(e));
-
-let collectionEvents: Ref = ref([]);
-function onCollectionEventsLoaded(rows: any) {
-  if (!rows?.length) {
-    return;
-  }
-  collectionEvents.value = rows.map((item: any) => {
-    return {
-      name: item.name,
-      description: item.description,
-      startAndEndYear: (() => {
-        const startYear =
-          item.startYear && item.startYear.name ? item.startYear.name : null;
-        const endYear =
-          item.endYear && item.endYear.name ? item.endYear.name : null;
-        return filters.startEndYear(startYear, endYear);
-      })(),
-      numberOfParticipants: item.numberOfParticipants,
-      _renderComponent: "CollectionEventDisplay",
-      _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/collection-events/${item.name}`,
-    };
-  });
-}
-
-fetchGql(subcohortsQuery, { id: route.params.cohort })
-  .then((resp) => onSubcohortsLoaded(resp.data.Subcohorts))
-  .catch((e) => console.log(e));
-
-let subcohorts: Ref = ref([]);
-function onSubcohortsLoaded(rows: any) {
-  if (!rows?.length) {
-    return;
-  }
-
-  const mapped = rows.map((subcohort: any) => {
-    return {
-      name: subcohort.name,
-      description: subcohort.description,
-      numberOfParticipants: subcohort.numberOfParticipants,
-      _renderComponent: "SubCohortDisplay",
-      _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/subcohorts/${subcohort.name}`,
-    };
-  });
-
-  subcohorts.value = mapped;
-}
-
 let tocItems = computed(() => {
   let tableOffContents = [
     { label: "Description", id: "Description" },
@@ -139,17 +89,6 @@ let tocItems = computed(() => {
     });
   }
   // { label: 'Variables & topics', id: 'Variables' },
-  if (subcohorts?.value?.length) {
-    tableOffContents.push({ label: "Subpopulations", id: "Subpopulations" });
-  }
-  if (collectionEvents?.value?.length)
-    tableOffContents.push({
-      label: "Collection events",
-      id: "CollectionEvents",
-    });
-  if (network?.networks) {
-    tableOffContents.push({ label: "Networks", id: "Networks" });
-  }
   if (network?.additionalOrganisations) {
     tableOffContents.push({ label: "Partners", id: "Partners" });
   }
@@ -170,6 +109,10 @@ let tocItems = computed(() => {
       label: "Funding & Citation requirements ",
       id: "funding-and-acknowledgement",
     });
+  }
+
+  if (networkData.value.data.Cohorts_agg.count > 0) {
+    tableOffContents.push({ label: "Cohorts", id: "cohorts" });
   }
 
   return tableOffContents;
@@ -210,6 +153,22 @@ let fundingAndAcknowledgementItems = computed(() => {
 
   return items;
 });
+
+function cohortMapper(cohort: {
+  id: string;
+  acronym: string;
+  name: string;
+  design: { name: string };
+  numberOfParticipants: number;
+}) {
+  return {
+    name: cohort.name,
+    design: cohort.design?.name,
+    numberOfParticipants: cohort.numberOfParticipants,
+    _renderComponent: "CohortDisplay",
+    _path: `/${route.params.schema}/ssr-catalogue/cohorts/${cohort.id}`,
+  };
+}
 
 useHead({ title: network?.acronym || network?.name });
 </script>
@@ -285,47 +244,12 @@ useHead({ title: network?.acronym || network?.name });
           :collectionEvents="network?.collectionEvents"
         />
 
-        <TableContent
-          v-if="subcohorts?.length"
-          id="Subpopulations"
-          title="Subpopulations"
-          description="List of subcohorts or subpopulations for this resource"
-          :headers="[
-            { id: 'name', label: 'Name' },
-            { id: 'description', label: 'Description', singleLine: true },
-            { id: 'numberOfParticipants', label: 'Number of participants' },
-          ]"
-          :rows="subcohorts"
-        />
-
-        <TableContent
-          v-if="collectionEvents?.length"
-          id="CollectionEvents"
-          title="Collection events"
-          description="List of collection events defined for this resource"
-          :headers="[
-            { id: 'name', label: 'Name' },
-            { id: 'description', label: 'Description', singleLine: true },
-            { id: 'numberOfParticipants', label: 'Participants' },
-            { id: 'startAndEndYear', label: 'Start end year' },
-          ]"
-          :rows="collectionEvents"
-        />
-
         <ContentBlockPartners
           v-if="network?.additionalOrganisations"
           id="Partners"
           title="Partners"
           description=""
           :partners="network?.additionalOrganisations"
-        />
-
-        <ContentBlockNetwork
-          v-if="network?.networks"
-          id="Networks"
-          title="Networks"
-          description="Networks Explanation about networks from this cohort and the functionality seen here."
-          :networks="network?.networks"
         />
 
         <ContentBlock
@@ -348,6 +272,22 @@ useHead({ title: network?.acronym || network?.name });
         >
           <DefinitionList :items="fundingAndAcknowledgementItems" />
         </ContentBlock>
+
+        <TableContent
+          v-if="networkData.data.Cohorts_agg.count > 0"
+          id="cohorts"
+          title="Cohorts"
+          description="A list of cohorts you can explore."
+          :headers="[
+            { id: 'name', label: 'Name' },
+            { id: 'design', label: 'Design', singleLine: true },
+            { id: 'numberOfParticipants', label: 'Number of participants' },
+          ]"
+          type="Cohorts"
+          :query="cohortsQuery"
+          :filter="{ id: route.params.network }"
+          :rowMapper="cohortMapper"
+        />
       </ContentBlocks> </template
     >f
   </LayoutsDetailPage>
