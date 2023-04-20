@@ -158,6 +158,7 @@ function setData(data: any) {
 
 function collectionEventMapper(item: any) {
   return {
+    id: item.name,
     name: item.name,
     description: item.description,
     startAndEndYear: (() => {
@@ -175,6 +176,7 @@ function collectionEventMapper(item: any) {
 
 function subcohortMapper(subcohort: any) {
   return {
+    id: subcohort.name,
     name: subcohort.name,
     description: subcohort.description,
     numberOfParticipants: subcohort.numberOfParticipants,
@@ -365,7 +367,10 @@ useHead({ title: cohort?.acronym || cohort?.name });
           :query="subcohortsQuery"
           :filter="{ id: route.params.cohort }"
           :rowMapper="subcohortMapper"
-        />
+          v-slot="slotProps"
+        >
+          <SubCohortDisplay :id="slotProps.id" />
+        </TableContent>
 
         <TableContent
           v-if="cohortData.data.CollectionEvents_agg.count > 0"
@@ -382,7 +387,10 @@ useHead({ title: cohort?.acronym || cohort?.name });
           :query="collectionEventsQuery"
           :filter="{ id: route.params.cohort }"
           :rowMapper="collectionEventMapper"
-        />
+          v-slot="slotProps"
+        >
+          <CollectionEventDisplay :id="slotProps.id" />
+        </TableContent>
 
         <ContentBlockPartners
           v-if="cohort?.additionalOrganisations"

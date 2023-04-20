@@ -133,11 +133,8 @@ function setActiveSideModal(value: string) {
             @close="setActiveSideModal('')"
             buttonAlignment="right"
           >
-            <CollectionEventDisplay
-              v-if="row._renderComponent === 'CollectionEventDisplay'"
-              :id="row[headers[0].id]"
-            />
-            <SubCohortDisplay v-else :id="row[headers[0].id]" />
+            <!-- pass row id to allow slot implementer to fetch data and render side modal body data -->
+            <slot :id="row.id"></slot>
 
             <template #footer>
               <NuxtLink :to="row._path">

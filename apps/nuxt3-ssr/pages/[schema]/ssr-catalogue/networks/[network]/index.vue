@@ -162,6 +162,7 @@ function cohortMapper(cohort: {
   numberOfParticipants: number;
 }) {
   return {
+    id: cohort.id,
     name: cohort.name,
     design: cohort.design?.name,
     numberOfParticipants: cohort.numberOfParticipants,
@@ -287,7 +288,10 @@ useHead({ title: network?.acronym || network?.name });
           :query="cohortsQuery"
           :filter="{ id: route.params.network }"
           :rowMapper="cohortMapper"
-        />
+          v-slot="slotProps"
+        >
+          <CohortDisplay :id="slotProps.id" />
+        </TableContent>
       </ContentBlocks> </template
     >f
   </LayoutsDetailPage>
