@@ -9,30 +9,30 @@
       :is="typeToInput"
       :isMultiSelect="columnType === 'ONTOLOGY_ARRAY'"
       v-bind="$props"
-      @update:modelValue="$emit('update:modelValue', $event)"
+      @update:modelValue="handleUpdate"
     />
     <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
   </component>
 </template>
 
 <script>
-import BaseInput from "../forms/baseInputs/BaseInput.vue";
-import InlineInput from "../forms/InlineInput.vue";
 import ArrayInput from "../forms/ArrayInput.vue";
-import InputString from "../forms/InputString.vue";
-import InputInt from "../forms/InputInt.vue";
-import InputLong from "../forms/InputLong.vue";
-import InputDecimal from "../forms/InputDecimal.vue";
+import InlineInput from "../forms/InlineInput.vue";
 import InputBoolean from "../forms/InputBoolean.vue";
 import InputDate from "../forms/InputDate.vue";
 import InputDateTime from "../forms/InputDateTime.vue";
+import InputDecimal from "../forms/InputDecimal.vue";
 import InputFile from "../forms/InputFile.vue";
-import InputText from "../forms/InputText.vue";
 import InputHeading from "../forms/InputHeading.vue";
+import InputInt from "../forms/InputInt.vue";
+import InputLong from "../forms/InputLong.vue";
 import InputOntology from "../forms/InputOntology.vue";
 import InputRef from "../forms/InputRef.vue";
 import InputRefBack from "../forms/InputRefBack.vue";
 import InputRefSelect from "../forms/InputRefSelect.vue";
+import InputString from "../forms/InputString.vue";
+import InputText from "../forms/InputText.vue";
+import BaseInput from "../forms/baseInputs/BaseInput.vue";
 import InputRefList from "./InputRefList.vue";
 
 const typeToInputMap = {
@@ -51,18 +51,18 @@ const typeToInputMap = {
   FILE: InputFile,
   DATETIME: InputDateTime,
   ONTOLOGY: InputOntology,
-  STRING_ARRAY: ArrayInput,
   EMAIL_ARRAY: ArrayInput,
-  HYPERLINK_ARRAY: ArrayInput,
-  TEXT_ARRAY: ArrayInput,
-  INT_ARRAY: ArrayInput,
-  LONG_ARRAY: ArrayInput,
-  DECIMAL_ARRAY: ArrayInput,
   BOOL_ARRAY: ArrayInput,
   DATE_ARRAY: ArrayInput,
   DATETIME_ARRAY: ArrayInput,
+  DECIMAL_ARRAY: ArrayInput,
+  HYPERLINK_ARRAY: ArrayInput,
+  INT_ARRAY: ArrayInput,
+  LONG_ARRAY: ArrayInput,
   ONTOLOGY_ARRAY: InputOntology,
   REF_ARRAY: InputRefList,
+  STRING_ARRAY: ArrayInput,
+  TEXT_ARRAY: ArrayInput,
 };
 
 export default {
@@ -151,6 +151,11 @@ export default {
   computed: {
     typeToInput() {
       return typeToInputMap[this.columnType];
+    },
+  },
+  methods: {
+    handleUpdate(event) {
+      this.$emit("update:modelValue", event);
     },
   },
 };
