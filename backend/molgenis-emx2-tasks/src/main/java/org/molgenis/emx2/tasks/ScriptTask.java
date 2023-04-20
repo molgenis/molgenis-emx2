@@ -61,6 +61,7 @@ public class ScriptTask extends Task {
         // define commands (given tempDir as working directory)
         String createVenvCommand = "python3 -m venv venv";
         String activateCommand = "source venv/bin/activate";
+        String pipUpgradeCommand = "pip3 install --upgrade pip";
         String installRequirementsCommand =
             "pip3 install -r requirements.txt"; // don't check upgrade
         String runScriptCommand = "python3 -u script.py";
@@ -76,6 +77,8 @@ public class ScriptTask extends Task {
                     createVenvCommand
                         + " && "
                         + activateCommand
+                        + " && "
+                        + pipUpgradeCommand
                         + " && "
                         + installRequirementsCommand
                         + " && "

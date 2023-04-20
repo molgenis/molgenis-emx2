@@ -11,10 +11,12 @@
         <p v-if="!taskId">
           <InputText v-model="parameters" label="Parameters (optional)" />
           <MessageError v-if="error">{{ error }}</MessageError>
+        </p>
+        <p v-else>
           <Task v-if="taskId" :taskId="taskId" />
           <router-link v-if="taskId" to="jobs">View all jobs</router-link>
-        </p></template
-      >
+        </p>
+      </template>
 
       <template #footer>
         <ButtonAction v-if="!taskId" @click="submitScript">Submit</ButtonAction>
@@ -69,13 +71,10 @@ export default {
       this.isModalShown = false;
     },
     submitScript() {
-      let url = "/api/tasks";
-      let formData = new FormData();
-      formData.append("name", this.script.name);
-      formData.append("parameters", this.parameters);
+      let url = "/api/scripts/" + this.script.name;
       fetch(url, {
         method: "POST",
-        body: formData,
+        body: this.parameters,
       })
         .then((response) => {
           if (response.ok) {
