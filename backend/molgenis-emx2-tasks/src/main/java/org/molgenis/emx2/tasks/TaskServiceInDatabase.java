@@ -20,22 +20,17 @@ import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class TaskServiceInDatabase extends TaskServiceInMemory {
-  private Schema systemSchema;
+  private Database database;
+  private String systemSchemaName = "ADMIN";
 
-  public TaskServiceInDatabase(Schema systemSchema) {
-    this.systemSchema = systemSchema;
+  public TaskServiceInDatabase(String systemSchemaName) {
+    this.database = new SqlDatabase(false);
+    this.systemSchemaName = systemSchemaName;
     this.init();
   }
 
   public TaskServiceInDatabase() {
-    // default uses ADMIN schema and dedicated database instance
-    Database database = new SqlDatabase(false);
-    database.becomeAdmin();
-    if (!database.hasSchema("ADMIN")) {
-      // assumes database is never changed by humans
-      database.createSchema("ADMIN");
-    }
-    this.systemSchema = database.getSchema("ADMIN");
+    this.database = new SqlDatabase(false);
     this.init();
   }
 
@@ -70,48 +65,70 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   public Task getTaskFromDatabase(String id) {
-    List<Row> rows = systemSchema.getTable("Jobs").where(f("id", EQUALS, id)).retrieveRows();
-    if (rows.size() > 0) {
-      Row jobRow = rows.get(0);
-      String json = jobRow.getString("log");
-      try {
-        return new ObjectMapper().readValue(json, Task.class);
-      } catch (Exception e) {
-        throw new MolgenisException("getTask(" + id + ") failed", e);
-      }
+    final StringBuilder json = new StringBuilder();
+    database.tx(
+        db -> {
+          db.becomeAdmin();
+          List<Row> rows =
+              db.getSchema(systemSchemaName)
+                  .getTable("Jobs")
+                  .where(f("id", EQUALS, id))
+                  .retrieveRows();
+          if (rows.size() > 0) {
+            Row jobRow = rows.get(0);
+            json.append(jobRow.getString("log"));
+          }
+        });
+    try {
+      return (new ObjectMapper().readValue(json.toString(), Task.class));
+    } catch (Exception e) {
+      throw new MolgenisException("getTask(" + id + ") failed", e);
     }
-    return null;
   }
 
   @Override
-  public String submitTaskFromName(String name, String userName, String parameters) {
-    // retrieve the script from database
-    List<Row> rows = systemSchema.getTable("Scripts").where(f("name", EQUALS, name)).retrieveRows();
-    if (rows.size() != 1) {
-      throw new MolgenisException("Script " + name + " not found");
-    }
-    Row scriptMetadata = rows.get(0);
-    if (userName == null) {
-      userName = scriptMetadata.getString("cronUser");
-      if (userName == null) {
-        userName = systemSchema.getDatabase().getActiveUser();
-      }
-    }
-    if (scriptMetadata != null) {
-      if (scriptMetadata.getBoolean("disable") != null && scriptMetadata.getBoolean("disable")) {
-        throw new MolgenisException("Script " + name + " is disabled");
-      }
-      // submit the script
-      return this.submit(
-          new ScriptTask(scriptMetadata)
-              .parameters(parameters)
-              .token(
-                  JWTgenerator.createTemporaryToken(
-                      systemSchema.getDatabase(), systemSchema.getDatabase().getActiveUser()))
-              .submitUser(userName));
-    } else {
-      throw new MolgenisException("Script execution failed: " + name + " not found");
-    }
+  public String submitTaskFromName(
+      String scriptName, final String userName, final String parameters) {
+    StringBuilder result = new StringBuilder();
+    database.tx(
+        db -> {
+          db.becomeAdmin();
+          Schema systemSchema = db.getSchema(this.systemSchemaName);
+          // retrieve the script from database
+          List<Row> rows =
+              systemSchema.getTable("Scripts").where(f("name", EQUALS, scriptName)).retrieveRows();
+          if (rows.size() != 1) {
+            throw new MolgenisException("Script " + scriptName + " not found");
+          }
+          Row scriptMetadata = rows.get(0);
+          String user = userName;
+          if (user == null) {
+            user = scriptMetadata.getString("cronUser");
+            if (user == null) {
+              user = systemSchema.getDatabase().getActiveUser();
+            }
+          }
+          db.setActiveUser(user);
+          if (scriptMetadata != null) {
+            if (scriptMetadata.getBoolean("disable") != null
+                && scriptMetadata.getBoolean("disable")) {
+              throw new MolgenisException("Script " + scriptName + " is disabled");
+            }
+            // submit the script
+            result.append(
+                this.submit(
+                    new ScriptTask(scriptMetadata)
+                        .parameters(parameters)
+                        .token(
+                            JWTgenerator.createTemporaryToken(
+                                systemSchema.getDatabase(),
+                                systemSchema.getDatabase().getActiveUser()))
+                        .submitUser(user)));
+          } else {
+            throw new MolgenisException("Script execution failed: " + scriptName + " not found");
+          }
+        });
+    return result.toString();
   }
 
   private void save(Task task) {
@@ -149,18 +166,32 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
       jobRow.set("parameters", scriptTask.getParameters());
     }
 
-    systemSchema.getTable("Jobs").save(jobRow);
+    database.tx(
+        db -> {
+          db.becomeAdmin();
+          db.getSchema(systemSchemaName).getTable("Jobs").save(jobRow);
+        });
   }
 
   private void init() {
-    if (!systemSchema.getTableNames().contains("Scripts")) {
-      systemSchema.tx(
-          db -> {
-            Schema s = db.getSchema(systemSchema.getName());
-            Table scripTypes = s.create(table("ScriptTypes").setTableType(TableType.ONTOLOGIES));
-            Table jobStatus = s.create(table("JobStatus").setTableType(TableType.ONTOLOGIES));
+    this.database.tx(
+        db -> {
+          db.becomeAdmin();
+
+          Schema schema = null;
+          if (!db.hasSchema(this.systemSchemaName)) {
+            schema = db.createSchema(this.systemSchemaName);
+          } else {
+            schema = db.getSchema(this.systemSchemaName);
+          }
+
+          if (!schema.getTableNames().contains("Scripts")) {
+
+            Table scripTypes =
+                schema.create(table("ScriptTypes").setTableType(TableType.ONTOLOGIES));
+            Table jobStatus = schema.create(table("JobStatus").setTableType(TableType.ONTOLOGIES));
             Table scripts =
-                s.create(
+                schema.create(
                     table(
                         "Scripts",
                         column("name").setPkey(),
@@ -183,7 +214,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                             .setDescription(
                                 "If you want to run this script regularly you can add a cron expression. Cron expression. A cron expression is a string comprised of 6 or 7 fields separated by white space. These fields are: Seconds, Minutes, Hours, Day of month, Month, Day of week, and optionally Year. Use * for any and ? for ignore.Note you cannot set 'day of week' and 'day of month' at same time (use ? for one of them). An example input is 0 0 12 * * ? for a job that fires at noon every day. See http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/tutorial-lesson-06.html")));
             Table jobs =
-                s.create(
+                schema.create(
                     table(
                         "Jobs",
                         column("id").setPkey(),
@@ -244,43 +275,43 @@ f.close()
             scripTypes.insert(row("name", "python")); // lowercase by convention
             jobStatus.insert(
                 Arrays.stream(TaskStatus.values()).map(value -> row("name", value)).toList());
-          });
-    } // else, migrations in the future
+          } // else, migrations in the future
 
-    // check that there are no 'waiting' or 'running' tasks from before server restarted
-    Table jobsTable = systemSchema.getTable("Jobs");
-    List<Row> faultyJobRows =
-        jobsTable
-            .where(
-                f(
-                    "status",
-                    or(
-                        f("name", Operator.EQUALS, TaskStatus.WAITING),
-                        f("name", Operator.EQUALS, TaskStatus.RUNNING))))
-            .retrieveRows()
-            .stream()
-            .map(
-                row -> {
-                  row.set("status", TaskStatus.ERROR);
-                  row.set(
-                      "result",
-                      String.format(
-                          "{'description':'%s failed because of restart'}",
-                          row.getString("description")));
-                  return row;
-                })
-            .collect(Collectors.toList());
-    jobsTable.save(faultyJobRows);
+          // check that there are no 'waiting' or 'running' tasks from before server restarted
+          Table jobsTable = schema.getTable("Jobs");
+          List<Row> faultyJobRows =
+              jobsTable
+                  .where(
+                      f(
+                          "status",
+                          or(
+                              f("name", Operator.EQUALS, TaskStatus.WAITING),
+                              f("name", Operator.EQUALS, TaskStatus.RUNNING))))
+                  .retrieveRows()
+                  .stream()
+                  .map(
+                      row -> {
+                        row.set("status", TaskStatus.ERROR);
+                        row.set(
+                            "result",
+                            String.format(
+                                "{'description':'%s failed because of restart'}",
+                                row.getString("description")));
+                        return row;
+                      })
+                  .collect(Collectors.toList());
+          jobsTable.save(faultyJobRows);
 
-    systemSchema
-        .getMetadata()
-        .setSetting(
-            "menu",
-            """
+          schema
+              .getMetadata()
+              .setSetting(
+                  "menu",
+                  """
 [{"label":"Tasks","href":"tasks","key":"t1yefr","submenu":[],"role":"Manager"},{"label":"Up/Download","href":"updownload","role":"Editor","key":"eq0fcp","submenu":[]},{"label":"Graphql","href":"graphql-playground","role":"Viewer","key":"bifta5","submenu":[]},{"label":"Settings","href":"settings","role":"Manager","key":"7rh3b8","submenu":[]},{"label":"Help","href":"docs","role":"Viewer","key":"gq6ixb","submenu":[]}]
 """);
 
-    // todo reload the scheduled jobs to be managed
+          // todo reload the scheduled jobs to be managed
+        });
   }
 
   private LocalDateTime toDateTime(long milliseconds) {

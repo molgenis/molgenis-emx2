@@ -1,6 +1,7 @@
 package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader3.SHARED_STAGING;
 import static org.molgenis.emx2.datamodels.DataCatalogueLoader3.CATALOGUE_ONTOLOGIES;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -26,8 +27,9 @@ public class TestLoaders {
     database.dropSchemaIfExists(COHORT_STAGING_3);
     database.dropSchemaIfExists(NETWORK_STAGING_3);
     database.dropSchemaIfExists(DATA_CATALOGUE3);
-    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
+    database.dropSchemaIfExists(SHARED_STAGING);
+    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
 
   @Test

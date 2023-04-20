@@ -62,7 +62,7 @@ public class ScriptTask extends Task {
         String createVenvCommand = "python3 -m venv venv";
         String activateCommand = "source venv/bin/activate";
         String installRequirementsCommand =
-            "pip3 install --no-index -r requirements.txt"; // don't check upgrade
+            "pip3 install -r requirements.txt"; // don't check upgrade
         String runScriptCommand = "python3 -u script.py";
         String escapedParameters = this.parameters != null ? " " + escapeXSI(this.parameters) : "";
 

@@ -28,9 +28,9 @@ public class TaskReference {
 
   public String getUrl() {
     if (schemaName != null) {
-      return "/" + schemaName + "/api/task/" + id;
+      return "/" + schemaName + "/api/tasks/" + id;
     } else {
-      return "/api/task/" + id;
+      return "/api/tasks/" + id;
     }
   }
 

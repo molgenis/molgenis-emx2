@@ -172,7 +172,7 @@ public class TaskApi {
 
       for (String id : taskService.getJobIds()) {
         Task task = taskService.getTask(id);
-        String getUrl = "/" + request.params("schema") + "/api/task/" + id;
+        String getUrl = "/" + request.params("schema") + "/api/tasks/" + id;
         String deleteUrl = getUrl + "/delete";
         result +=
             String.format(
