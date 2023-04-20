@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
 import cohortsQuery from "~~/gql/cohorts";
+import variablesQuery from "~~/gql/variables";
 import fileFragment from "~~/gql/fragments/file";
 const config = useRuntimeConfig();
 const route = useRoute();
 
+const networkVariablesCount = ref(0);
+const networkVariablesFilter = ref({});
 const query = gql`
   query Networks($id: String) {
     Networks(filter: { id: { equals: [$id] } }) {
@@ -38,6 +41,9 @@ const query = gql`
       additionalOrganisations {          
         name        
       }  
+      models {
+        id
+      }
     }
     Cohorts_agg(filter: { networks: { id: { equals: [$id] } } }) {
       count
@@ -66,6 +72,33 @@ watch(networkData, setData, {
 
 function setData(data: any) {
   network = data?.data?.Networks[0];
+  if (network?.models?.length > 0) {
+    fetchVariableCount(network.models);
+  }
+}
+
+async function fetchVariableCount(models: { id: string }[]) {
+  const modelFilters = models.map((model) => ({
+    dataset: { resource: { id: { equals: model.id } } },
+  }));
+  networkVariablesFilter.value = { filter: { _and: { _or: modelFilters } } };
+  const query = gql`
+    query Variables_agg($filter: VariablesFilter) {
+      Variables_agg(filter: $filter) {
+        count
+      }
+    }
+  `;
+  const { data } = await useFetch(
+    `/${route.params.schema}/catalogue3/graphql`,
+    {
+      baseURL: config.public.apiBase,
+      method: "POST",
+      body: { query, variables: networkVariablesFilter.value },
+    }
+  );
+
+  networkVariablesCount.value = data.value.data.Variables_agg.count;
 }
 
 let tocItems = computed(() => {
@@ -113,6 +146,10 @@ let tocItems = computed(() => {
 
   if (networkData.value.data.Cohorts_agg.count > 0) {
     tableOffContents.push({ label: "Cohorts", id: "cohorts" });
+  }
+
+  if (networkVariablesCount.value > 0) {
+    tableOffContents.push({ label: "Variables", id: "variables" });
   }
 
   return tableOffContents;
@@ -168,6 +205,23 @@ function cohortMapper(cohort: {
     numberOfParticipants: cohort.numberOfParticipants,
     _renderComponent: "CohortDisplay",
     _path: `/${route.params.schema}/ssr-catalogue/cohorts/${cohort.id}`,
+  };
+}
+
+function variableMapper(variable: {
+  name: string;
+  label: string;
+  resource: {
+    id: string;
+  };
+}) {
+  return {
+    id: variable.name,
+    name: variable.name,
+    label: variable.label,
+    model: variable.resource.id,
+    _renderComponent: "VariableDisplay",
+    _path: `/${route.params.schema}/ssr-catalogue/variables/${variable.resource.id}`,
   };
 }
 
@@ -280,8 +334,8 @@ useHead({ title: network?.acronym || network?.name });
           title="Cohorts"
           description="A list of cohorts you can explore."
           :headers="[
-            { id: 'name', label: 'Name' },
-            { id: 'design', label: 'Design', singleLine: true },
+            { id: 'name', label: 'Name', singleLine: true },
+            { id: 'design', label: 'Design' },
             { id: 'numberOfParticipants', label: 'Number of participants' },
           ]"
           type="Cohorts"
@@ -291,6 +345,27 @@ useHead({ title: network?.acronym || network?.name });
           v-slot="slotProps"
         >
           <CohortDisplay :id="slotProps.id" />
+        </TableContent>
+
+        <TableContent
+          v-if="networkVariablesCount > 0"
+          id="variables"
+          title="Variables"
+          description="Variables in this network."
+          :headers="[
+            { id: 'name', label: 'Name' },
+            { id: 'label', label: 'Label' },
+            { id: 'model', label: 'Model' },
+          ]"
+          type="Variables"
+          :query="variablesQuery"
+          :filter="networkVariablesFilter"
+          :rowMapper="variableMapper"
+        >
+          <ContentBlock
+            title="Variables"
+            description="Under construction"
+          ></ContentBlock>
         </TableContent>
       </ContentBlocks> </template
     >f

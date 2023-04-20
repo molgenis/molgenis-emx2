@@ -150,6 +150,7 @@ function setActiveSideModal(value: string) {
       :currentPage="pageNumber"
       :totalPages="Math.ceil(count / pageSize)"
       @update="setCurrentPage($event)"
+      :prevent-default="true"
     />
   </ContentBlock>
 </template>
