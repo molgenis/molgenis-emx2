@@ -2,9 +2,9 @@ name,label,definition,parent
 Unique identifier,,Is there a unique identifier for a person in the data source?,
 Geographic regions,,Are data on geographic region available?,
 Family linkage,,Is any linkage available in the data bank between any of the following persons?,
-Family linkage routinely,,Is familial linkage created routinely?,
-Family linkage permanently,,Is familial linkage created permanently?,
-Family linkage ad-hoc,,Can familial linkage can linkage be performed on an ad-hoc basis?,
+Family linkage routinely,,Is familial linkage created routinely?,Family linkage
+Family linkage permanently,,Is familial linkage created permanently?,Family linkage
+Family linkage ad-hoc,,Can familial linkage can linkage be performed on an ad-hoc basis?,Family linkage
 Sibling linkage,,,Family linkage ad-hoc
 Household linkage,,,Family linkage ad-hoc
 Mother-child linkage,,,Family linkage ad-hoc
@@ -32,22 +32,23 @@ Diet,,,Lifestyle
 Lifestyle: Other,Other,,Lifestyle
 Population pregnancy and neonates,,Does the data source collect information on pregnant women and/or neonatal subpopulation?,
 Clinical data,,,
-Disease data,,,Clinical data
+Disease data,,Does the data source collect information on a specific disease?,Clinical data
 Diagnoses codes included,,"Is information on diagnostic codes or medical events included, select all vocabulary items that apply",Clinical data
-Diagnoses codes included: Not captured,Not captured,,Diagnoses codes included
-Diagnoses codes included: ICPC,ICPC,,Diagnoses codes included
-Diagnoses codes included: ICD9,ICD9,,Diagnoses codes included
-Diagnoses codes included: ICD10,ICD10,,Diagnoses codes included
-Diagnoses codes included: ICD1,ICD1,,Diagnoses codes included
-Diagnoses codes included: Read,Read,,Diagnoses codes included
-Diagnoses codes included: SNOMED,SNOMED,,Diagnoses codes included
-Diagnoses codes included: SNOMED CT,SNOMED CT,,Diagnoses codes included
-Diagnoses codes included: MedDRA,MedDRA,,Diagnoses codes included
-Diagnoses codes included: OPCS,OPCS,,Diagnoses codes included
-Diagnoses codes included: CCS,CCS,,Diagnoses codes included
-Diagnoses codes included: EDC,EDC,,Diagnoses codes included
-Diagnoses codes included: Not coded (Free text),Not coded (Free text),,Diagnoses codes included
-Diagnoses codes included: Other,Other,,Diagnoses codes included
+Diagnosis codes vocabulary,,,
+Diagnosis codes vocabulary: Not captured,Not captured,,Diagnosis codes vocabulary
+Diagnosis codes vocabulary: ICPC,ICPC,,Diagnosis codes vocabulary
+Diagnosis codes vocabulary: ICD9,ICD9,,Diagnosis codes vocabulary
+Diagnosis codes vocabulary: ICD10,ICD10,,Diagnosis codes vocabulary
+Diagnosis codes vocabulary: ICD1,ICD1,,Diagnosis codes vocabulary
+Diagnosis codes vocabulary: Read,Read,,Diagnosis codes vocabulary
+Diagnosis codes vocabulary: SNOMED,SNOMED,,Diagnosis codes vocabulary
+Diagnosis codes vocabulary: SNOMED CT,SNOMED CT,,Diagnosis codes vocabulary
+Diagnosis codes vocabulary: MedDRA,MedDRA,,Diagnosis codes vocabulary
+Diagnosis codes vocabulary: OPCS,OPCS,,Diagnosis codes vocabulary
+Diagnosis codes vocabulary: CCS,CCS,,Diagnosis codes vocabulary
+Diagnosis codes vocabulary: EDC,EDC,,Diagnosis codes vocabulary
+Diagnosis codes vocabulary: Not coded (Free text),Not coded (Free text),,Diagnosis codes vocabulary
+Diagnosis codes vocabulary: Other,Other,,Diagnosis codes vocabulary
 Hospital admission discharge,,Is information on hospital admission and/or discharge available?,Clinical data
 ICU admission,,Is information on intensive care unit admission available?,Clinical data
 Cause of death,,Is cause of death available?,Clinical data
@@ -115,22 +116,24 @@ Product information vocabulary: Not coded (Free text),Not coded (Free text),,Pro
 Product information vocabulary: Other,Other,,Product information vocabulary
 ATMP,,Is information on advanced therapy medicinal products included?,Clinical data
 Contraception,,Is information on contraceptives included?,
-Indication for use,,"If medicines information is captured, is the indication for use recorded? Select all items vocabularies that apply",Clinical data
-Indication for use: Not captured,Not captured,,Indication for use
-Indication for use: ICPC,ICPC,,Indication for use 
-Indication for use: ICD9,ICD9,,Indication for use
-Indication for use: ICD10,ICD10,,Indication for use
-Indication for use: ICD1,ICD1,,Indication for use
-Indication for use: Read,Read,,Indication for use
-Indication for use: SNOMED,SNOMED,,Indication for use
-Indication for use: SNOMED CT,SNOMED CT,,Indication for use
-Indication for use: MedDRA,MedDRA,,Indication for use
-Indication for use: OPCS,OPCS,,Indication for use
-Indication for use: CCS,CCS,,Indication for use
-Indication for use: EDC,EDC,,Indication for use
-Indication for use: Not coded (Free text),Not coded (Free text),,Indication for use
-Indication for use: Other,Other,,Indication for use
+Indication for use,,"If medicines information is captured, is the indication for use recorded? ",Clinical data
+Indication vocabulary,,Select all items vocabularies that apply,
+Indication vocabulary: Not captured,Not captured,,Indication vocabulary
+Indication vocabulary: ICPC,ICPC,,Indication vocabulary 
+Indication vocabulary: ICD9,ICD9,,Indication vocabulary
+Indication vocabulary: ICD10,ICD10,,Indication vocabulary
+Indication vocabulary: ICD1,ICD1,,Indication vocabulary
+Indication vocabulary: Read,Read,,Indication vocabulary
+Indication vocabulary: SNOMED,SNOMED,,Indication vocabulary
+Indication vocabulary: SNOMED CT,SNOMED CT,,Indication vocabulary
+Indication vocabulary: MedDRA,MedDRA,,Indication vocabulary
+Indication vocabulary: OPCS,OPCS,,Indication vocabulary
+Indication vocabulary: CCS,CCS,,Indication vocabulary
+Indication vocabulary: EDC,EDC,,Indication vocabulary
+Indication vocabulary: Not coded (Free text),Not coded (Free text),,Indication vocabulary
+Indication vocabulary: Other,Other,,Indication vocabulary
 Administration vaccines,,Administration vaccines included,
+Administration other injectable medicines,,,
 Medical devices,,Is information on medical devices included?,Clinical data
 Procedures,,"Is information on procedures (e.g., diagnostic tests, therapeutic, surgical) included?",Clinical data
 Procedures vocabulary,,"If information on medical procedures is captured, select all vocabularies that apply",Clinical data
@@ -151,7 +154,7 @@ Procedures vocabulary: Other,Other,,Procedures vocabulary
 Clinical measures,,"Is information on clinical measures included (e.g., BMI, blood pressure)?",Clinical data
 Healthcare centre,,"Is information on the healthcare centre (e.g., pharmacy, general practice, hospital) available?",
 Healthcare provider,,"Is information on the person providing healthcare (e.g., physician, pharmacist, specialist) available?",
-Genetic data,,"If genotyping information is available, select all vocabularies that apply",
+Genetic data,,Is genotyping information available? Select all vocabularies that apply,
 OGG,,,Genetic data
 FG,,,Genetic data
 GO,,,Genetic data
