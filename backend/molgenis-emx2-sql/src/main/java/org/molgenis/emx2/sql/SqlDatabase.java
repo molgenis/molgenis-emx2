@@ -27,7 +27,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final String ANONYMOUS = "anonymous";
   public static final String USER = "user";
   public static final String WITH = "with {} = {} ";
-  public static final int TEN_SECONDS = 100;
+  public static final int TEN_SECONDS = 10;
 
   // shared between all instances
   private static DataSource source;
