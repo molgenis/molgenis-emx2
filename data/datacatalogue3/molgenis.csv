@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,tableName_old,columnName_old
-Version,,,,,,,,,,,,3.4,EMA,,
+Version,,,,,,,,,,,,3.5,EMA,,
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",EMA,,
 Organisations,Resources,,,,,,,,,,,Research departments and research groups,EMA,,
 Extended resources,Resources,,,,,,,,,,,,EMA,,
@@ -383,7 +383,7 @@ Mappings,,target,ref,1,TRUE,,Models,,,,,model being mapped to,EMA,,
 Mappings,,target version,string,,TRUE,,,,,,,version of the model being mapped to,EMA,,
 Mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,"Mapping from collected datasets to standard/harmonized datasets, optionally including ETL syntaxes",EMA,,
 Mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months",EMA,,
-Mappings,,ETL documentation,file,,,,,,,,,"If available, documentation describing the mapping of the data source to the CDM (including codes and scripts to transform original data to CDM)",EMA,,
+Mappings,,ETL documentation,ontology_array,,,CatalogueOntologies,Documentation,,,,,"If available, documentation describing the mapping of the data source to the CDM (including codes and scripts to transform original data to CDM)",EMA,,
 Dataset mappings,,source,ref,1,TRUE,,Extended resources,,,,,datasource being mapped from,,TableMappings,fromDataDictionary
 Dataset mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,name of the table being mapped from,,TableMappings,fromTable
 Dataset mappings,,target,ref,1,TRUE,,Extended resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",,TableMappings,toDataDictionary
