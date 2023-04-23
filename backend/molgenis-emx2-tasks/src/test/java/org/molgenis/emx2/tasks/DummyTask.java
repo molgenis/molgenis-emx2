@@ -2,7 +2,7 @@ package org.molgenis.emx2.tasks;
 
 import org.molgenis.emx2.MolgenisException;
 
-public class DummyTask extends Task {
+public class DummyTask extends Task<DummyTask> {
   private final int noItems = 100;
   private final int noTasks = 5;
 

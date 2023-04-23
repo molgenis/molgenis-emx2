@@ -321,4 +321,12 @@ f.close()
       return null;
     }
   }
+
+  public Table getScriptTable() {
+    return database.getSchema(systemSchemaName).getTable("Scripts");
+  }
+
+  public Table getJobTable() {
+    return database.getSchema(systemSchemaName).getTable("Jobs");
+  }
 }

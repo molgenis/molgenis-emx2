@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * For documenting processes that consist of multiple steps and elements. For example. batch
  * insert/upload tasks.
  */
-public class Task implements Runnable, Iterable<Task> {
+public class Task<T extends Task> implements Runnable, Iterable<Task> {
   // some unique id
   private final String id = UUID.randomUUID().toString();
   // for the toString method
@@ -97,9 +97,9 @@ public class Task implements Runnable, Iterable<Task> {
     return null;
   }
 
-  public Task setProgress(int progress) {
+  public T setProgress(int progress) {
     this.progress = progress;
-    return this;
+    return (T) this;
   }
 
   public String getDescription() {
@@ -129,10 +129,10 @@ public class Task implements Runnable, Iterable<Task> {
     }
   }
 
-  public Task setDescription(String description) {
+  public T setDescription(String description) {
     Objects.requireNonNull(description, "description cannot be null");
     this.description = description;
-    return this;
+    return (T) this;
   }
 
   public TaskStatus getStatus() {
@@ -146,27 +146,27 @@ public class Task implements Runnable, Iterable<Task> {
     return total;
   }
 
-  public Task setTotal(int total) {
+  public T setTotal(int total) {
     this.total = total;
-    return this;
+    return (T) this;
   }
 
-  public Task start() {
+  public T start() {
     this.setStatus(RUNNING);
     this.logger.info(getDescription() + ": started");
-    return this;
+    return (T) this;
   }
 
-  public Task complete() {
+  public T complete() {
     this.setStatus(COMPLETED);
     this.logger.info(getDescription());
-    return this;
+    return (T) this;
   }
 
-  public Task complete(String description) {
+  public T complete(String description) {
     this.description = description;
     setStatus(COMPLETED);
-    return this;
+    return (T) this;
   }
 
   public void completeWithError(String message) {
@@ -187,7 +187,7 @@ public class Task implements Runnable, Iterable<Task> {
     }
   }
 
-  public Task setStatus(TaskStatus status) {
+  public T setStatus(TaskStatus status) {
     Objects.requireNonNull(status, "status can not be null");
     if (RUNNING.equals(status)) {
       this.startTimeMilliseconds = System.currentTimeMillis();
@@ -199,7 +199,7 @@ public class Task implements Runnable, Iterable<Task> {
     }
     this.status = status;
     this.handleChange();
-    return this;
+    return (T) this;
   }
 
   public void setSkipped(String description) {
@@ -270,23 +270,23 @@ public class Task implements Runnable, Iterable<Task> {
     return submitUser;
   }
 
-  public Task submitUser(String submitUser) {
+  public T submitUser(String submitUser) {
     this.submitUser = submitUser;
-    return this;
+    return (T) this;
   }
 
-  public Task cronExpression(String cronExpression) {
+  public T cronExpression(String cronExpression) {
     this.cronExpression = cronExpression;
-    return this;
+    return (T) this;
   }
 
   public String getCronExpression() {
     return this.cronExpression;
   }
 
-  public Task disabled(boolean disabled) {
+  public T disabled(boolean disabled) {
     this.disabled = disabled;
-    return this;
+    return (T) this;
   }
 
   public boolean isDisabled() {

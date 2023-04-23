@@ -12,8 +12,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ScriptTask extends Task {
+public class ScriptTask extends Task<ScriptTask> {
+  private static Logger logger = LoggerFactory.getLogger(ScriptTask.class);
   private String name;
   private String script;
   private String outputFileExtension;
@@ -38,6 +41,10 @@ public class ScriptTask extends Task {
 
   @Override
   public void run() {
+    if (getStatus().equals(TaskStatus.ERROR)) {
+      // when already errored before start, e.g. on unschedule
+      return;
+    }
     if (script == null) {
       this.setError("Script is required");
       return;
@@ -188,6 +195,7 @@ public class ScriptTask extends Task {
   public void stop() {
     if (this.process != null && this.process.isAlive()) {
       this.process.destroy();
+      this.logger.warn("stopping script " + name);
     }
     this.setError("process has been stopped");
   }
