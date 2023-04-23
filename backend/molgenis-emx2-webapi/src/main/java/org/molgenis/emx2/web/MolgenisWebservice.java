@@ -205,11 +205,11 @@ public class MolgenisWebservice {
   }
 
   private static String openApiYaml(Request request, Response response) throws IOException {
-    SchemaMetadata schema = getSchema(request).getMetadata();
+    Schema schema = getSchema(request);
     if (schema == null) {
       throw new MolgenisException("Schema is null");
     }
-    OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema);
+    OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema.getMetadata());
     response.status(200);
     return Yaml.mapper()
         .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
