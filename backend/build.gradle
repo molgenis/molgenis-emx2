@@ -98,7 +98,9 @@ subprojects {
     test {
         useJUnitPlatform()
         //this should enable coverage between the modules
-        includeNoLocationClasses = true
+        jacoco {
+            includeNoLocationClasses = true
+        }
     }
 }
 
