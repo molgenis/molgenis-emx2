@@ -853,6 +853,7 @@ public class WebApiSmokeTests {
         .get(requestString);
   }
 
+  @Test
   public void testScriptExecution() throws JsonProcessingException, InterruptedException {
     // get token for admin
     String result =
@@ -911,10 +912,9 @@ public class WebApiSmokeTests {
     result =
         given()
             .header(MOLGENIS_TOKEN[0], token)
-            .param("name", "hello world")
-            .param("parameters", "blaat")
+            .body("blaat")
             .when()
-            .post("/api/tasks")
+            .post("/api/scripts/hello+world")
             .getBody()
             .asString();
     taskId = new ObjectMapper().readTree(result).at("/id").textValue();
@@ -945,6 +945,7 @@ public class WebApiSmokeTests {
     assertTrue(result.contains("sys.argv[1]=blaat")); // the expected output
   }
 
+  @Test
   public void testScriptScheduling() throws JsonProcessingException, InterruptedException {
     // make sure the 'test' script is not there already from a previous test
     db.getSchema("ADMIN").getTable("Jobs").truncate();
@@ -1001,7 +1002,7 @@ public class WebApiSmokeTests {
             .header(MOLGENIS_TOKEN[0], token)
             .when()
             .body("blaat")
-            .post("/ADMIN/api/tasks/" + jobMetadata.getString("id") + "/output")
+            .get("/ADMIN/api/tasks/" + jobMetadata.getString("id") + "/output")
             .asString();
     assertEquals("Readme", result);
     // also works outside schema
@@ -1010,7 +1011,7 @@ public class WebApiSmokeTests {
             .header(MOLGENIS_TOKEN[0], token)
             .when()
             .body("blaat")
-            .post("/api/tasks/" + jobMetadata.getString("id") + "/output")
+            .get("/api/tasks/" + jobMetadata.getString("id") + "/output")
             .asString();
     assertEquals("Readme", result);
 
