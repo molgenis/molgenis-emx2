@@ -42,7 +42,7 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
   // end time to calculate run time
   private long endTimeMilliseconds;
   // subtasks/steps in this task
-  private List<Task> subTasks = new ArrayList<>();
+  private List<Task<?>> subTasks = new ArrayList<>();
   // parent task
   @JsonIgnore private Task parentTask;
   // this parameter is used to indicate if steps should fail on unexpected state or should simply
@@ -88,7 +88,7 @@ public class Task<T extends Task> implements Runnable, Iterable<Task> {
     this.parentTask = parentTask;
   }
 
-  public List<Task> getSubTasks() {
+  public List<Task<?>> getSubTasks() {
     return Collections.unmodifiableList(subTasks);
   }
 

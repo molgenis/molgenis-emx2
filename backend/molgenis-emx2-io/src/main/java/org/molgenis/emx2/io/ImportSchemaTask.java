@@ -5,7 +5,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
 
-public class ImportSchemaTask extends Task {
+public class ImportSchemaTask<T extends ImportSchemaTask> extends Task<T> {
   private TableStore tableStore;
   private Schema schema;
   private Filter filter = Filter.ALL;

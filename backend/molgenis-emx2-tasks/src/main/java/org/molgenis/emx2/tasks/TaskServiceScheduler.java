@@ -5,7 +5,6 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
@@ -14,11 +13,11 @@ import org.quartz.utils.Key;
 
 public class TaskServiceScheduler {
   private final Scheduler quartzScheduler;
-  public static TaskService taskService;
+  private static TaskService taskService;
 
-  public TaskServiceScheduler(TaskService taskService) {
+  public TaskServiceScheduler(TaskService newTaskService) {
     try {
-      this.taskService = taskService;
+      taskService = newTaskService;
       this.quartzScheduler = new StdSchedulerFactory().getScheduler();
       this.quartzScheduler.start();
     } catch (Exception e) {
@@ -29,8 +28,8 @@ public class TaskServiceScheduler {
   public List<String> scheduledTaskNames() {
     try {
       return quartzScheduler.getJobKeys(GroupMatcher.anyGroup()).stream()
-          .map(jobKey -> jobKey.getName())
-          .collect(Collectors.toList());
+          .map(Key::getName)
+          .toList();
     } catch (Exception e) {
       throw new MolgenisException("Listing of scheduled jobs failed", e);
     }
@@ -87,7 +86,7 @@ public class TaskServiceScheduler {
                 }
               });
     } catch (Exception e) {
-      throw new MolgenisException(String.format("Error deleting ScheduledJob '{0}'", name), e);
+      throw new MolgenisException(String.format("Error deleting ScheduledJob %s", name), e);
     }
   }
 
@@ -107,7 +106,7 @@ public class TaskServiceScheduler {
     TaskStatus status;
 
     public SubmitJob() {
-      System.out.println("instantiated");
+      // no arg constructor
     }
 
     @Override
@@ -132,7 +131,7 @@ public class TaskServiceScheduler {
     public void stop() {
       status = TaskStatus.ERROR;
       if (molgenisTaskId != null) {
-        Task task = taskService.getTask(molgenisTaskId);
+        Task<?> task = taskService.getTask(molgenisTaskId);
         task.stop();
         task.setError("Job interupted, probably being unscheduled");
       }
