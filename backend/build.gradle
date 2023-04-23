@@ -97,9 +97,16 @@ subprojects {
     }
     test {
         useJUnitPlatform()
-        //this should enable coverage between the modules
-        jacoco {
-            includeNoLocationClasses = true
+        failFast true
+        testLogging {
+            events "passed", "skipped", "failed" //, "standardOut", "standardError"
+
+            showExceptions true
+            exceptionFormat "full"
+            showCauses true
+            showStackTraces true
+
+            showStandardStreams = false
         }
     }
 }
