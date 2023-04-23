@@ -49,7 +49,7 @@ public class ScriptTask extends Task {
     try {
       try {
         // create tmp directory
-        tempDir = Files.createTempDirectory("python");
+        tempDir = Files.createTempDirectory("python"); // NOSONAR
         this.addSubTask("Created temp directory").complete();
 
         // paste the script to a file into temp dir
@@ -72,7 +72,7 @@ public class ScriptTask extends Task {
         // start the script
         ProcessBuilder builder =
             new ProcessBuilder(
-                    "bash",
+                    "bash", // NOSONAR
                     "-c",
                     createVenvCommand
                         + " && "

@@ -111,7 +111,7 @@ public class TaskServiceScheduler {
     }
 
     @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
+    public void execute(JobExecutionContext context) {
       String name = context.getJobDetail().getKey().getName();
       try {
         // id of submitted task
@@ -124,9 +124,8 @@ public class TaskServiceScheduler {
           status = taskService.getTask(molgenisTaskId).getStatus();
           Thread.sleep(1000);
         }
-      } catch (Exception e) {
-        this.status = TaskStatus.ERROR;
-        throw new MolgenisException("Execution of script " + name, e);
+      } catch (InterruptedException ie) {
+        Thread.currentThread().interrupt();
       }
     }
 
