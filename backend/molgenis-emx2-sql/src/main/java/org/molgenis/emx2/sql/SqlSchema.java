@@ -378,9 +378,6 @@ public class SqlSchema implements Schema {
         targetSchema.getTable(mergeTable.getOldName()).getMetadata().drop();
       }
     }
-
-    // finally update settings
-    targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
   }
 
   public String getName() {
