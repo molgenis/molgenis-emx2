@@ -36,7 +36,7 @@ import { default as Client, default as client } from "../../client/client";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
-import { convertToPascalCase, deepEqual, getPrimaryKey } from "../utils";
+import { convertToPascalCase, getPrimaryKey } from "../utils";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
@@ -83,13 +83,15 @@ async function updateData() {
 async function getRowData(): Promise<IRow[]> {
   let newQueryResults: IRow[] = [];
   const activeSchema = column.value.refSchema || props.schema;
-  const externalSchemaClient = Client.newClient(activeSchema);
+  const client = Client.newClient(activeSchema);
+  const schemaMetadata = await client.fetchSchemaMetaData();
   if (localTableId.value) {
-    const metadata = await externalSchemaClient.fetchTableMetaData(
-      localTableId.value
-    );
+    const metadata = schemaMetadata.tables.find((metadata: ITableMetaData) => {
+      return metadata.name == localTableId.value;
+    });
     for (const row of localRows.value) {
-      const primaryKey = getPrimaryKey(row, metadata);
+      const externalSchemaClient = Client.newClient(metadata.externalSchema);
+      const primaryKey = getPrimaryKey(row, metadata, schemaMetadata);
       if (primaryKey) {
         const queryResult = await externalSchemaClient
           .fetchRowData(localTableId.value, primaryKey)
@@ -114,35 +116,26 @@ async function handleRefCellClicked({
     const Client = client.newClient(
       refColumn.refSchema || column.value.refSchema || props.schema
     );
-    const refTableMetadata = await Client.fetchTableMetaData(refTableId);
-
-    Client.fetchTableData(refTableId, {})
+    const clickedCellPrimaryKey = [refTableRow[refColumn.id]].flat();
+    var filter: any = {};
+    // TODO: fix for clickedCellPrimaryKey always being a [0]
+    Object.entries(clickedCellPrimaryKey[0]).forEach(([key, value]) => {
+      filter[key] = { equals: value };
+    });
+    Client.fetchTableData(refTableId, {
+      filter,
+    })
       .then((tableData: any) => {
         localColumnName.value = refColumn.name;
         localTableId.value = refTableId;
-        const eventKey = [refTableRow[refColumn.id]].flat();
         const rows: IRow[] = tableData[convertToPascalCase(localTableId.value)];
-        const filteredRows = filterRows(rows, refTableMetadata, eventKey);
-        localRows.value = filteredRows;
+        localRows.value = rows;
         updateData();
       })
       .catch(errorHandler);
   } else {
     errorMessage.value = "Failed to load reference data";
   }
-}
-
-function filterRows(
-  rows: IRow[],
-  refTableMetadata: ITableMetaData,
-  eventKey: IRow
-) {
-  return rows.filter((row: IRow) => {
-    const rowKey = getPrimaryKey(row, refTableMetadata);
-    return eventKey.find((key: any) => {
-      return rowKey && deepEqual(key, rowKey);
-    });
-  });
 }
 
 function errorHandler(error: AxiosError) {

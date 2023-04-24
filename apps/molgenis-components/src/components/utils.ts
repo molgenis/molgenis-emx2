@@ -39,18 +39,35 @@ export function flattenObject(object: Record<string, any>): string {
   }
 }
 
+// REFACTOR: we may want to pass: schemas and tableName and row.
+// schemas and tableMetadata is overlapping in data
 export function getPrimaryKey(
   row: IRow,
-  tableMetaData: ITableMetaData
+  tableMetadata: ITableMetaData,
+  schemas?: any
 ): Record<string, any> | null {
   //we only have pkey when the record has been saved
-  if (!row["mg_insertedOn"] || !tableMetaData?.columns) {
+  if (!row["mg_insertedOn"] || !tableMetadata?.columns) {
     return null;
   } else {
-    return tableMetaData.columns.reduce(
+    return tableMetadata.columns.reduce(
       (accum: Record<string, any>, column: IColumn) => {
-        if (column.key === 1 && row[column.id]) {
-          accum[column.id] = row[column.id];
+        const cellValue = row[column.id];
+        if (column.key === 1 && cellValue) {
+          if (typeof cellValue === "string") {
+            accum[column.id] = cellValue;
+          } else {
+            if (schemas) {
+              const temprefKeys = getPrimaryKey(
+                cellValue,
+                schemas.tables.find((metadata: ITableMetaData) => {
+                  return metadata.id == column.refTable;
+                }),
+                schemas
+              );
+              accum[column.id] = temprefKeys;
+            }
+          }
         }
         return accum;
       },
