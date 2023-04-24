@@ -1,0 +1,26 @@
+name,label,definition,parent
+Data characterisation conducted,,Was a data characterisation or quality check process completed?,
+Data characterisation conducted: No,No,,Data characterisation conducted
+Data characterisation conducted: Yes,Yes,,Data characterisation conducted
+Data characterisation conducted: Not applicable,Not applicable,,Data characterisation conducted
+Don't know,Don't know,,Data characterisation conducted
+Data characterisation moment,,At what stages of the study were data characterisation steps or quality checks implemented? Select all that apply.,
+After data extraction,,,Data characterisation moment
+after extract-transform-load to a common data model,,,Data characterisation moment
+after creation of study variables,,,Data characterisation moment
+Check conformance,,"Was a check of the conformance of data (i.e., data are in the correct format/syntax) completed?",
+Check conformance: No,No,,Check conformance
+Check conformance: Yes,Yes,,Check conformance
+Check conformance: Don't know,Don't know,,Check conformance
+Check completeness,,Was a check of the completeness of data completed?,
+Check completeness: No,No,,Check completeness
+Check completeness: Yes,Yes,,Check completeness
+Check completeness: Don't know,Don't know,,Check completeness
+Check stability,,"Was a check of the stability of data (e.g., codes) over time completed?",
+Check stability: No,No,,Check stability
+Check stability: Yes,Yes,,Check stability
+Check stability: Don't know,Don't know,,Check stability
+Check logical consistency,,Was a check of the logical consistency of data completed?,
+Check logical consistency: No,No,,Check logical consistency
+Check logical consistency: Yes,Yes,,Check logical consistency
+Check logical consistency: Don't know,Don't know,,Check logical consistency

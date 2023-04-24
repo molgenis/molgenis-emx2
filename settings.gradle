@@ -4,7 +4,7 @@
 rootProject.name = 'emx2'
 include(':apps')
 include(':apps:central')
-include(':apps:catalogue3')
+include(':apps:catalogue')
 include(':apps:settings')
 include(':apps:schema')
 include(':apps:updownload')
