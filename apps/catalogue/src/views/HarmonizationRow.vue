@@ -3,10 +3,9 @@
     <th class="table-label text-nowrap" scope="row">
       {{ variable.name }}
     </th>
-
     <harmonization-cell
       v-for="resource in resources"
-      :key="resource.pid"
+      :key="resource.id"
       class="colored-grid-cell"
       :status="getCellClass(resource)"
     />
@@ -47,8 +46,8 @@ export default {
         const statusList = this.variable.repeats.map((repeatedVariable) => {
           const resourceMapping = this.resourceMappings.find((mapping) => {
             return (
-              mapping.toVariable.name === repeatedVariable.name &&
-              mapping.fromTable.dataDictionary.resource.pid === resource.pid
+              mapping.targetVariable.name === repeatedVariable.name &&
+              mapping.sourceDataset.resource.id === resource.id
             );
           });
 
@@ -71,7 +70,7 @@ export default {
         }
       } else {
         const resourceMapping = this.resourceMappings.find((mapping) => {
-          return mapping.fromTable.dataDictionary.resource.pid === resource.pid;
+          return mapping.sourceDataset.resource.id === resource.id;
         });
 
         if (!resourceMapping) {
