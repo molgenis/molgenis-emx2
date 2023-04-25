@@ -57,33 +57,39 @@ const { column, rows } = toRefs(props);
 
 const emit = defineEmits(["onClose"]);
 
-let localTableId = ref(column.value.refTable);
 let localColumnName = ref(column.value.name);
-let localRows = ref(rows.value);
 let loading = ref(true);
 let queryResults: Ref<IRow[]> = ref([]);
 let errorMessage = ref("");
 
 const activeSchema = column.value.refSchema || props.schema;
-if (activeSchema && localTableId.value) {
-  updateData(activeSchema, localRows.value, localTableId.value);
+if (activeSchema && column.value.refTable) {
+  updateData(activeSchema, rows.value, column.value.refTable);
 }
 
 watch([column, rows], () => {
   localColumnName.value = column.value.name;
-  localTableId.value = column.value.refTable;
-  localRows.value = rows.value;
   const activeSchema = column.value.refSchema || props.schema;
-  if (activeSchema && localTableId.value) {
-    updateData(activeSchema, localRows.value, localTableId.value);
+  if (activeSchema && column.value.refTable) {
+    updateData(activeSchema, rows.value, column.value.refTable);
   }
 });
 
-async function updateData(activeSchema: string, rows: IRow[], tableId: string) {
+async function updateData(
+  activeSchema: string,
+  rows: IRow[],
+  tableId: string,
+  alreadyAreKeys?: boolean
+) {
   errorMessage.value = "";
   loading.value = true;
-  if (activeSchema && localTableId.value) {
-    queryResults.value = await getRowData(activeSchema, rows, tableId);
+  if (activeSchema && tableId) {
+    queryResults.value = await getRowData(
+      activeSchema,
+      rows,
+      tableId,
+      alreadyAreKeys
+    );
   }
   loading.value = false;
 }
@@ -91,26 +97,34 @@ async function updateData(activeSchema: string, rows: IRow[], tableId: string) {
 async function getRowData(
   activeSchema: string,
   rows: IRow[],
-  tableId: string
+  tableId: string,
+  alreadyAreKeys?: boolean
 ): Promise<IRow[]> {
   let newQueryResults: IRow[] = [];
   const client = Client.newClient(activeSchema);
-  const schemaMetadata = await client.fetchSchemaMetaData();
-  const metadata = schemaMetadata.tables.find((metadata: ITableMetaData) => {
-    return metadata.name === tableId;
-  });
-  for (const row of rows) {
+  const metadata = await client.fetchTableMetaData(tableId);
+  let keys: any[] = rows;
+  if (!alreadyAreKeys) {
+    keys = getPrimaryKeys(rows, metadata);
+  }
+  for (const row of keys) {
     const externalSchemaClient = Client.newClient(metadata.externalSchema);
-    const primaryKey = getPrimaryKey(row, metadata, schemaMetadata);
-    if (primaryKey) {
-      const queryResult = await externalSchemaClient
-        .fetchRowData(tableId, primaryKey)
-        .catch(errorHandler);
-      queryResult.metadata = metadata;
-      newQueryResults.push(queryResult);
-    }
+    const queryResult = await externalSchemaClient
+      .fetchRowData(tableId, row)
+      .catch(errorHandler);
+    queryResult.metadata = metadata;
+    newQueryResults.push(queryResult);
   }
   return newQueryResults;
+}
+
+function getPrimaryKeys(
+  rows: IRow[],
+  metadata: ITableMetaData
+): (IRow | null)[] {
+  return rows.map((row) => {
+    return getPrimaryKey(row, metadata);
+  });
 }
 
 async function handleRefCellClicked({
@@ -124,25 +138,9 @@ async function handleRefCellClicked({
   const activeSchema =
     refColumn.refSchema || column.value.refSchema || props.schema;
   if (refTableId && activeSchema) {
-    const client = Client.newClient(activeSchema);
-    const clickedCellPrimaryKey = [refTableRow[refColumn.id]].flat();
-    let filter: any = {};
-    // TODO: fix for clickedCellPrimaryKey always being a [0]
-    Object.entries(clickedCellPrimaryKey[0]).forEach(([key, value]) => {
-      filter[key] = { equals: value };
-    });
-    client
-      .fetchTableData(refTableId, {
-        filter,
-      })
-      .then((tableData: any) => {
-        localColumnName.value = refColumn.name;
-        localTableId.value = refTableId;
-        const rows: IRow[] = tableData[convertToPascalCase(localTableId.value)];
-        localRows.value = rows;
-        updateData(activeSchema, rows, refTableId);
-      })
-      .catch(errorHandler);
+    const clickedCellPrimaryKeys = [refTableRow[refColumn.id]].flat();
+    localColumnName.value = refColumn.name;
+    updateData(activeSchema, clickedCellPrimaryKeys, refTableId, true);
   } else {
     errorMessage.value = "Failed to load reference data";
   }
