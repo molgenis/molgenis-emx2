@@ -32,7 +32,7 @@ import { AxiosError } from "axios";
 import { Ref, ref, toRefs, watch } from "vue";
 import { IColumn } from "../../Interfaces/IColumn";
 import { IRow } from "../../Interfaces/IRow";
-import { default as Client, default as client } from "../../client/client";
+import Client from "../../client/client";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
@@ -64,41 +64,50 @@ let loading = ref(true);
 let queryResults: Ref<IRow[]> = ref([]);
 let errorMessage = ref("");
 
-updateData();
+const activeSchema = column.value.refSchema || props.schema;
+if (activeSchema && localTableId.value) {
+  updateData(activeSchema, localRows.value, localTableId.value);
+}
 
 watch([column, rows], () => {
   localColumnName.value = column.value.name;
   localTableId.value = column.value.refTable;
   localRows.value = rows.value;
-  updateData();
+  const activeSchema = column.value.refSchema || props.schema;
+  if (activeSchema && localTableId.value) {
+    updateData(activeSchema, localRows.value, localTableId.value);
+  }
 });
 
-async function updateData() {
+async function updateData(activeSchema: string, rows: IRow[], tableId: string) {
   errorMessage.value = "";
   loading.value = true;
-  queryResults.value = await getRowData();
+  if (activeSchema && localTableId.value) {
+    queryResults.value = await getRowData(activeSchema, rows, tableId);
+  }
   loading.value = false;
 }
 
-async function getRowData(): Promise<IRow[]> {
+async function getRowData(
+  activeSchema: string,
+  rows: IRow[],
+  tableId: string
+): Promise<IRow[]> {
   let newQueryResults: IRow[] = [];
-  const activeSchema = column.value.refSchema || props.schema;
   const client = Client.newClient(activeSchema);
   const schemaMetadata = await client.fetchSchemaMetaData();
-  if (localTableId.value) {
-    const metadata = schemaMetadata.tables.find((metadata: ITableMetaData) => {
-      return metadata.name == localTableId.value;
-    });
-    for (const row of localRows.value) {
-      const externalSchemaClient = Client.newClient(metadata.externalSchema);
-      const primaryKey = getPrimaryKey(row, metadata, schemaMetadata);
-      if (primaryKey) {
-        const queryResult = await externalSchemaClient
-          .fetchRowData(localTableId.value, primaryKey)
-          .catch(errorHandler);
-        queryResult.metadata = metadata;
-        newQueryResults.push(queryResult);
-      }
+  const metadata = schemaMetadata.tables.find((metadata: ITableMetaData) => {
+    return metadata.name === tableId;
+  });
+  for (const row of rows) {
+    const externalSchemaClient = Client.newClient(metadata.externalSchema);
+    const primaryKey = getPrimaryKey(row, metadata, schemaMetadata);
+    if (primaryKey) {
+      const queryResult = await externalSchemaClient
+        .fetchRowData(tableId, primaryKey)
+        .catch(errorHandler);
+      queryResult.metadata = metadata;
+      newQueryResults.push(queryResult);
     }
   }
   return newQueryResults;
@@ -112,25 +121,26 @@ async function handleRefCellClicked({
   refTableRow: IRow;
 }): Promise<void> {
   const refTableId = refColumn.refTable;
-  if (refTableId) {
-    const Client = client.newClient(
-      refColumn.refSchema || column.value.refSchema || props.schema
-    );
+  const activeSchema =
+    refColumn.refSchema || column.value.refSchema || props.schema;
+  if (refTableId && activeSchema) {
+    const client = Client.newClient(activeSchema);
     const clickedCellPrimaryKey = [refTableRow[refColumn.id]].flat();
-    var filter: any = {};
+    let filter: any = {};
     // TODO: fix for clickedCellPrimaryKey always being a [0]
     Object.entries(clickedCellPrimaryKey[0]).forEach(([key, value]) => {
       filter[key] = { equals: value };
     });
-    Client.fetchTableData(refTableId, {
-      filter,
-    })
+    client
+      .fetchTableData(refTableId, {
+        filter,
+      })
       .then((tableData: any) => {
         localColumnName.value = refColumn.name;
         localTableId.value = refTableId;
         const rows: IRow[] = tableData[convertToPascalCase(localTableId.value)];
         localRows.value = rows;
-        updateData();
+        updateData(activeSchema, rows, refTableId);
       })
       .catch(errorHandler);
   } else {

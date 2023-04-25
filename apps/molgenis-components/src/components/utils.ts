@@ -56,17 +56,17 @@ export function getPrimaryKey(
         if (column.key === 1 && cellValue) {
           if (typeof cellValue === "string") {
             accum[column.id] = cellValue;
-          } else {
-            if (schemas) {
-              const temprefKeys = getPrimaryKey(
-                cellValue,
-                schemas.tables.find((metadata: ITableMetaData) => {
-                  return metadata.id == column.refTable;
-                }),
-                schemas
-              );
-              accum[column.id] = temprefKeys;
-            }
+          } else if (schemas) {
+            const refTableMetadata = schemas.tables.find(
+              (tableMetadata: ITableMetaData) => {
+                return tableMetadata.id === column.refTable;
+              }
+            );
+            accum[column.id] = getPrimaryKey(
+              cellValue,
+              refTableMetadata,
+              schemas
+            );
           }
         }
         return accum;
