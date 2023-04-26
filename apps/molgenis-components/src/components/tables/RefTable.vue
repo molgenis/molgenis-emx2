@@ -128,7 +128,7 @@ function isMetadata(
 function onCellClick(cellName: string): void {
   const refTableRow: IRow = reference.value;
   const refColumn = refTableRow.metadata.columns?.find((column: IColumn) => {
-    return column.name === cellName;
+    return column.id === cellName;
   });
 
   if (refColumn && isRefType(refColumn.columnType)) {
