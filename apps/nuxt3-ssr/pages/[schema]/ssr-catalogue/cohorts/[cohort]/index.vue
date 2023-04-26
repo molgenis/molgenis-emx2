@@ -136,16 +136,14 @@ const variables = { id: route.params.cohort };
 
 let cohort: ICohort;
 
-const {
-  data: cohortData,
-  pending,
-  error,
-  refresh,
-} = await useFetch(`/${route.params.schema}/catalogue3/graphql`, {
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: { query, variables },
-});
+const { data: cohortData, pending, error, refresh } = await useFetch(
+  `/${route.params.schema}/catalogue3/graphql`,
+  {
+    baseURL: config.public.apiBase,
+    method: "POST",
+    body: { query, variables },
+  }
+);
 
 watch(cohortData, setData, {
   deep: true,
