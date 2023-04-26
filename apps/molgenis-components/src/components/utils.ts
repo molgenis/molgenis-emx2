@@ -39,12 +39,9 @@ export function flattenObject(object: Record<string, any>): string {
   }
 }
 
-// REFACTOR: we may want to pass: schemas and tableName and row.
-// schemas and tableMetadata is overlapping in data
 export function getPrimaryKey(
   row: IRow,
-  tableMetadata: ITableMetaData,
-  schemas?: any
+  tableMetadata: ITableMetaData
 ): Record<string, any> | null {
   //we only have pkey when the record has been saved
   if (!row["mg_insertedOn"] || !tableMetadata?.columns) {
@@ -54,20 +51,7 @@ export function getPrimaryKey(
       (accum: Record<string, any>, column: IColumn) => {
         const cellValue = row[column.id];
         if (column.key === 1 && cellValue) {
-          if (schemas && typeof cellValue === "object") {
-            const refTableMetadata = schemas.tables.find(
-              (tableMetadata: ITableMetaData) => {
-                return tableMetadata.id === column.refTable;
-              }
-            );
-            accum[column.id] = getPrimaryKey(
-              cellValue,
-              refTableMetadata,
-              schemas
-            );
-          } else {
-            accum[column.id] = cellValue;
-          }
+          accum[column.id] = cellValue;
         }
         return accum;
       },
@@ -77,11 +61,6 @@ export function getPrimaryKey(
 }
 
 export function deepClone(original: any): any {
-  // node js may not have structuredClone function, then fallback to deep clone via JSON
-  // return typeof structuredClone === "function"
-  //   ? structuredClone(original)
-  //   :
-  //structuredClone doesn't work in vue 3
   return JSON.parse(JSON.stringify(original));
 }
 
