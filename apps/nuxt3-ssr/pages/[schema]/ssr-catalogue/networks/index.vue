@@ -81,7 +81,7 @@ const orderby = { acronym: "ASC" };
 
 const filter = computed(() => buildQueryFilter(filters, search.value));
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue3/graphql`);
+let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   key: `networks-${offset.value}`,
   baseURL: config.public.apiBase,
