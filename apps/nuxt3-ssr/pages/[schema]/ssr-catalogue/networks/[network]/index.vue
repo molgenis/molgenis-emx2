@@ -87,14 +87,11 @@ async function fetchVariableCount(models: { id: string }[]) {
       }
     }
   `;
-  const { data } = await useFetch(
-    `/${route.params.schema}/catalogue/graphql`,
-    {
-      baseURL: config.public.apiBase,
-      method: "POST",
-      body: { query, variables: networkVariablesFilter.value },
-    }
-  );
+  const { data } = await useFetch(`/${route.params.schema}/catalogue/graphql`, {
+    baseURL: config.public.apiBase,
+    method: "POST",
+    body: { query, variables: networkVariablesFilter.value },
+  });
 
   networkVariablesCount.value = data.value.data.Variables_agg.count;
 }

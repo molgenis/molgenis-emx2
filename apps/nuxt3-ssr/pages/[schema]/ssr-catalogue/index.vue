@@ -3,12 +3,15 @@ const route = useRoute();
 const config = useRuntimeConfig();
 
 const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue3/graphql`,
+  `/${route.params.schema}/catalogue/graphql`,
   {
     baseURL: config.public.apiBase,
     method: "POST",
     body: {
       query: `{
+        Variables_agg {
+          count
+        }
         Cohorts_agg { 
           count
           sum {
@@ -70,6 +73,14 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     <div
       class="bg-white relative justify-around flex flex-col md:flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0 rounded-t-3px rounded-b-50px shadow-primary"
     >
+      <LandingCardPrimary
+        v-if="!config.public.cohortOnly"
+        image="image-diagram-2"
+        title="Variables"
+        description="A complete overview of available variables."
+        :count="data.data.Variables_agg.count"
+        :link="`/${route.params.schema}/ssr-catalogue/variables/`"
+      />
       <LandingCardPrimary
         image="image-link"
         title="Cohorts"

@@ -47,6 +47,11 @@ interface ICohort {
   documentation?: IDocumentation[];
 }
 
+interface IVariable {
+  name: string;
+  label: string;
+}
+
 interface IFile {
   id?: string;
   size?: number;
