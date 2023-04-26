@@ -66,5 +66,8 @@ Icons are transformed using the ```yarn parse-icons``` command ( during developm
 The parse-icons command uses the sgvo module to clean the icons and the runs a custom node script to transform the icons to vue components
 Icon components are the stored in the /global/icons folder.
 
+##### feature flags
 
+The following feature flag(s) are used to toggle certain app features via the runtime config
 
+- ```cohortOnly```  boolean when set to true the networks part is hidden ( see docker file for passing flag via container)

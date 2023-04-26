@@ -1,4 +1,5 @@
 <script setup>
+const config = useRuntimeConfig();
 let schema;
 if (useRoute) {
   schema = useRoute().params.schema;
@@ -10,9 +11,11 @@ const menu = [
   // { label: "Tables", link: "#" },
   // { label: "Manuals", link: "#" },
   { label: "Cohorts", link: `/${schema}/ssr-catalogue/cohorts` },
-  { label: "Networks", link: `/${schema}/ssr-catalogue/networks` },
+  config.public.cohortOnly
+    ? undefined
+    : { label: "Networks", link: `/${schema}/ssr-catalogue/networks` },
   { label: "About", link: `/${schema}/ssr-catalogue/about` },
-];
+].filter((item) => item !== undefined);
 </script>
 
 <template>

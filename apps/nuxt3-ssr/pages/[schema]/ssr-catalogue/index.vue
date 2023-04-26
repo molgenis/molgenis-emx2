@@ -78,6 +78,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
       />
       <LandingCardPrimary
+        v-if="!config.public.cohortOnly"
         image="image-diagram"
         title="Networks"
         description="Collaborations of multiple institutions and/or cohorts with a common objective."
