@@ -44,15 +44,15 @@ class Transform:
         """
         # get molgenis.csv location
         if self.database_type in ['catalogue_staging', 'catalogue']:
-            data_model = os.path.abspath('../../../data/datacatalogue3/molgenis.csv')
+            data_model = os.path.abspath('../../../data/datacatalogue/molgenis.csv')
         elif self.database_type == 'network':
-            data_model = os.path.abspath('../../../data/datacatalogue3/stagingNetworks/molgenis.csv')
+            data_model = os.path.abspath('../../../data/datacatalogue/stagingNetworks/molgenis.csv')
         elif self.database_type == 'cohort':
-            data_model = os.path.abspath('../../../data/datacatalogue3/stagingCohorts/molgenis.csv')
+            data_model = os.path.abspath('../../../data/datacatalogue/stagingCohorts/molgenis.csv')
         elif self.database_type == 'cohort_UMCG':
-            data_model = os.path.abspath('../../../data/datacatalogue3/stagingCohortsUMCG/molgenis.csv')
+            data_model = os.path.abspath('../../../data/datacatalogue/stagingCohortsUMCG/molgenis.csv')
         elif self.database_type == 'shared':
-            data_model = os.path.abspath('../../../data/datacatalogue3/stagingShared/molgenis.csv')
+            data_model = os.path.abspath('../../../data/datacatalogue/stagingShared/molgenis.csv')
 
         # copy molgenis.csv to appropriate folder
         if self.database_type in ['catalogue_staging', 'catalogue']:
