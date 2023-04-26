@@ -55,7 +55,7 @@ const variables = { id: route.params.network };
 let network: INetwork;
 
 const { data: networkData, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue3/graphql`,
+  `/${route.params.schema}/catalogue/graphql`,
   {
     baseURL: config.public.apiBase,
     method: "POST",
@@ -88,7 +88,7 @@ async function fetchVariableCount(models: { id: string }[]) {
     }
   `;
   const { data } = await useFetch(
-    `/${route.params.schema}/catalogue3/graphql`,
+    `/${route.params.schema}/catalogue/graphql`,
     {
       baseURL: config.public.apiBase,
       method: "POST",

@@ -17,7 +17,7 @@ const queryValue = query.loc?.source.body;
 let collectionEvent: Ref<ICollectionEvent | undefined> = ref();
 
 const { data: collectionEventData } = await useFetch(
-  `/${route.params.schema}/catalogue3/graphql`,
+  `/${route.params.schema}/catalogue/graphql`,
   {
     baseURL: config.public.apiBase,
     method: "POST",

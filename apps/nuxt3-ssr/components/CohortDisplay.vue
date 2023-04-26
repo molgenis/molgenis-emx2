@@ -16,7 +16,7 @@ const queryValue = query.loc?.source.body;
 let cohort: ICohort = ref();
 
 const { data: cohortData } = await useFetch(
-  `/${route.params.schema}/catalogue3/graphql`,
+  `/${route.params.schema}/catalogue/graphql`,
   {
     baseURL: config.public.apiBase,
     method: "POST",
