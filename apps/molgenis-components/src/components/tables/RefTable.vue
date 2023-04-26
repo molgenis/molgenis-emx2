@@ -63,34 +63,6 @@
   </div>
 </template>
 
-<style scoped>
-table .key {
-  width: 0;
-}
-.collapsed-table {
-  max-height: 6.5rem;
-  overflow: hidden;
-}
-.collapsed-tag {
-  text-align: center;
-  color: var(--primary);
-  cursor: pointer;
-}
-.collapsed-tag:hover {
-  text-decoration: underline;
-}
-.collapsed-table .table {
-  margin-bottom: 0 !important;
-}
-.table .refType {
-  color: var(--primary);
-}
-.table .refType:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  text-decoration: underline;
-}
-</style>
-
 <script lang="ts" setup>
 import { computed, defineEmits, ref, toRefs } from "vue";
 import { IColumn } from "../../Interfaces/IColumn";
@@ -153,13 +125,13 @@ function isMetadata(
   return (<ITableMetaData>metadata).name !== undefined;
 }
 
-function onCellClick(referenceTable: string): void {
+function onCellClick(cellName: string): void {
   const refTableRow: IRow = reference.value;
   const refColumn = refTableRow.metadata.columns?.find((column: IColumn) => {
-    return column.name === referenceTable;
+    return column.name === cellName;
   });
 
-  if (refColumn) {
+  if (isRefType(refColumn.columnType)) {
     emit("refCellClicked", {
       refColumn,
       refTableRow,
@@ -167,3 +139,31 @@ function onCellClick(referenceTable: string): void {
   }
 }
 </script>
+
+<style scoped>
+table .key {
+  width: 0;
+}
+.collapsed-table {
+  max-height: 6.5rem;
+  overflow: hidden;
+}
+.collapsed-tag {
+  text-align: center;
+  color: var(--primary);
+  cursor: pointer;
+}
+.collapsed-tag:hover {
+  text-decoration: underline;
+}
+.collapsed-table .table {
+  margin-bottom: 0 !important;
+}
+.table .refType {
+  color: var(--primary);
+}
+.table .refType:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  text-decoration: underline;
+}
+</style>

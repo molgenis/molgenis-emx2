@@ -32,14 +32,14 @@ import { AxiosError } from "axios";
 import { Ref, ref, toRefs, watch } from "vue";
 import { IColumn } from "../../Interfaces/IColumn";
 import { IRow } from "../../Interfaces/IRow";
+import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import Client from "../../client/client";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
-import { convertToPascalCase, getPrimaryKey } from "../utils";
+import { getPrimaryKey } from "../utils";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
-import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 
 const props = withDefaults(
   defineProps<{

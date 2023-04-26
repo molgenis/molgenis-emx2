@@ -54,9 +54,7 @@ export function getPrimaryKey(
       (accum: Record<string, any>, column: IColumn) => {
         const cellValue = row[column.id];
         if (column.key === 1 && cellValue) {
-          if (typeof cellValue === "string") {
-            accum[column.id] = cellValue;
-          } else if (schemas) {
+          if (schemas && typeof cellValue === "object") {
             const refTableMetadata = schemas.tables.find(
               (tableMetadata: ITableMetaData) => {
                 return tableMetadata.id === column.refTable;
@@ -67,6 +65,8 @@ export function getPrimaryKey(
               refTableMetadata,
               schemas
             );
+          } else {
+            accum[column.id] = cellValue;
           }
         }
         return accum;
