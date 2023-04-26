@@ -83,14 +83,12 @@ async function updateData(
 ) {
   errorMessage.value = "";
   loading.value = true;
-  if (activeSchema && tableId) {
-    queryResults.value = await getRowData(
-      activeSchema,
-      rows,
-      tableId,
-      alreadyAreKeys
-    );
-  }
+  queryResults.value = await getRowData(
+    activeSchema,
+    rows,
+    tableId,
+    alreadyAreKeys
+  );
   loading.value = false;
 }
 
