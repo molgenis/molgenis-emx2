@@ -131,7 +131,7 @@ function onCellClick(cellName: string): void {
     return column.name === cellName;
   });
 
-  if (isRefType(refColumn.columnType)) {
+  if (refColumn && isRefType(refColumn.columnType)) {
     emit("refCellClicked", {
       refColumn,
       refTableRow,
