@@ -13,20 +13,21 @@ const devProxy = {
 };
 
 const config = {
-  modules: ['nuxt-proxy', '@nuxt/image-edge'],
+  modules: ["nuxt-proxy", "@nuxt/image-edge"],
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side
     public: {
-      apiBase: 'http://localhost:3000/', //'https://emx2.molgeniscloud.org/',
-      emx2Theme: '',
-      emx2Logo: '',
-      siteTitle: 'Data Catalogue',
-    }
+      apiBase: "http://localhost:3000/", //'https://emx2.molgeniscloud.org/',
+      emx2Theme: "",
+      emx2Logo: "",
+      siteTitle: "Data Catalogue",
+      cohortOnly: false,
+    },
   },
   nitro: {
     compressPublicAssets: { brotli: true },
   },
-}
+};
 
 if (process.env.NODE_ENV === 'development') {
   config.proxy = devProxy
