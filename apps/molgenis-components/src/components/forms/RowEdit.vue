@@ -349,7 +349,7 @@ function isValidHyperlink(value) {
 }
 
 function containsInvalidHyperlink(hyperlinks) {
-  return hyperlinks.find((hyperlink) => !this.isValidHyperlink(hyperlink));
+  return hyperlinks.find((hyperlink) => !isValidHyperlink(hyperlink));
 }
 
 function isValidEmail(value) {
@@ -357,7 +357,7 @@ function isValidEmail(value) {
 }
 
 function containsInvalidEmail(emails) {
-  return emails.find((email) => !this.isValidEmail(email));
+  return emails.find((email) => !isValidEmail(email));
 }
 </script>
 
