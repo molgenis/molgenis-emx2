@@ -1,41 +1,41 @@
-name,parent,definition
-ENCePP network,,Do you want to become an ENCePP partner?
-Primary therapeutic area,,Please specify the primary therapeutic/disease area of your Network. Multiple values can be selected.
-Anaesthesia,Primary therapeutic area,
-Cardiovascular diseases ,Primary therapeutic area,
-Congenital malformations,Primary therapeutic area,
-Devices,Primary therapeutic area,
-Disorders of the central nervous system,Primary therapeutic area,
-"Ear, nose and oropharynx disorders",Primary therapeutic area,
-Endocrine disorders,Primary therapeutic area,
-Eye disorders ,Primary therapeutic area,
-Gastrointestinal tract,Primary therapeutic area,
-Geriatrics,Primary therapeutic area,
-Gynaecology,Primary therapeutic area,
-Immunological products and vaccines,Primary therapeutic area,
-Immunosuppression Infectious diseases,Primary therapeutic area,
-Liver disease,Primary therapeutic area,
-Malignant disease,Primary therapeutic area,
-Musculoskeletal and joint diseases,Primary therapeutic area,
-Neonates,Primary therapeutic area,
-Nutrition and blood,Primary therapeutic area,
-Osteoporosis,Primary therapeutic area,
-Paediatrics,Primary therapeutic area,
-Poisoning/Overdose,Primary therapeutic area,
-Pregnancy,Primary therapeutic area,
-Psychiatry,Primary therapeutic area,
-Renal impairment,Primary therapeutic area,
-Respiratory diseases,Primary therapeutic area,
-Skin disorders,Primary therapeutic area,
-Urinary tract disorders,Primary therapeutic area,
-Other,Primary therapeutic area,
-Funding,,Please specify the type of funding for the Network. Multiple values can be selected.
-EU institutional research programme,Funding,
-non-EU institutional research programme,Funding,
-EMA,Funding,
-national competent authority (NCAs),Funding,
-other public funding (e.g. hospital, university),Funding,
-non for-profit organisation (e.g. charity),Funding,
-pharmaceutical company and other private sector,Funding,
-no external funding,Funding,
-other,Funding,
+order,name,label,parent,definition,
+1,Anaesthesia,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030381
+2,Cardiovascular diseases,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030382
+3,Congenital Malformations,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030383
+4,Devices,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030384
+5,Disorders of the central nervous system,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030385
+6,Ear nose and oropharynx disorders,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030386
+7,Endocrine disorders,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030387
+8,Eye disorders,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030388
+9,Gastrointestinal tract,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030389
+10,Geriatrics,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030390
+11,Gynaecology,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030391
+12,Immunological products and vaccines,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030392
+13,Immunosuppression,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030393
+14,Infectious diseases,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030394
+15,Liver disease,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030395
+16,Malignant disease,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030396
+17,Musculoskeletal and joint diseases,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030397
+18,Neonates,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030398
+19,Nutrition and blood,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030399
+20,Osteoporosis,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030400
+21,Paediatrics,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030401
+22,Pregnancy,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030402
+23,Psychiatry,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030403
+24,Renal impairment,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030404
+25,Respiratory diseases,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030405
+26,Skin disorders,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030406
+27,Urinary tract disorders,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030407
+28,Poisoning/Overdose,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030409
+29,Other,Primary therapeutic area:Other,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000031062
+30,Primary therapeutic area: Other,Other,Primary therapeutic area,,
+31,Funding,,,Please specify the type of funding for the Network. Multiple values can be selected.,
+32,EU institutional research programme,,,Funding,https://spor.ema.europa.eu/rmswi/#/lists/200000030126/terms/200000030128
+33,Non-EU institutional research programme,,,Funding,https://spor.ema.europa.eu/rmswi/#/lists/200000030126/terms/200000030130
+34,EMA,,,Funding,https://spor.ema.europa.eu/rmswi/#/lists/200000030126/terms/200000030131
+35,National competent authority (NCAs),,,Funding,https://spor.ema.europa.eu/rmswi/#/lists/200000030126/terms/200000030132
+36,Other public funding (e.g. hospital or university),,,Funding,https://spor.ema.europa.eu/rmswi/#/lists/200000030126/terms/200000030133
+37,Non for-profit organisation (e.g. charity),,,Funding,https://spor.ema.europa.eu/rmswi/#/lists/200000030126/terms/200000030135
+38,Pharmaceutical company and other private sector,,,Funding,https://spor.ema.europa.eu/rmswi/#/lists/200000030126/terms/200000030136
+39,No external fundingÂ,,,Funding,https://spor.ema.europa.eu/rmswi/#/lists/200000030126/terms/200000030137
+40,Funding: Other,Other,,Funding,https://spor.ema.europa.eu/rmswi/#/lists/200000030126/terms/200000031045
