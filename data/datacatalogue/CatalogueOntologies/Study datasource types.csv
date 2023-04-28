@@ -1,20 +1,20 @@
-name
-clinical trial
-non-interventional study
-electronic healthcare records (EHR)
-administrative data (e.g. claims)
-drug utilisation data
-drug dispensing/prescription data
-disease registry
-drug registry
-population registry
-pregnancy registry
-spontaneous reporting system
-laboratory data
--omics
-social media
-patient surveys
-data from digital health wearables
-expanded access program / compassionate use
-published literature
-other
+order,name,code,parent,ontologyTermURI,definition
+1,Clinical trial,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030979,
+2,Non-interventional study,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030980,
+3,Electronic healthcare records (EHR),,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030981,
+4,Administrative data (e.g. claims),,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030982,
+5,Drug utilisation data,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030983,
+6,Drug dispensing/prescription data,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030984,
+7,Disease registry,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030985,
+8,Drug registry,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030986,
+9,Population registry,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030987,
+10,Pregnancy registry,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030988,
+11,Spontaneous reporting system,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030989,
+12,Laboratory data,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030990,
+13,Omics,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030991,
+14,Social media,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030992,
+15,Patient surveys,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030993,
+16,Data from digital health wearables,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030994,
+17,Expanded access program (compassionate use),,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030995,
+18,Published literature,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000030996,
+19,Other,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030960/terms/200000031051,
