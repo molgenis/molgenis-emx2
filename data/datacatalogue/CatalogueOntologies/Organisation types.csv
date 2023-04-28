@@ -1,13 +1,16 @@
-name
-Academic institution
-Civic authority
-Government agency
-Healthcare payer
-Network of primary care practices
-Non-profit organisation
-Pharmaceutical industry
-Private organisation
-Public health authority
-Research centre
-Statistical authority
-"SME,small or medium enterprise"
+order,name,code,parent,ontologyTermURI
+1,Educational Institution,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000075
+2,Patient organisation/association,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000077
+3,Hospital/Clinic/Other health care facility,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000078
+4,Laboratory/Research/Testing facility,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000079
+5,Pharmaceutical company,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000081
+6,Non-Pharmaceutical company,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000082
+7,Pharmaceutical association/federation,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000083
+8,Regulatory Authority,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000084
+9,EU Institution/Body/Agency,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000086
+10,Non EU Institution/Body/Agency,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000087
+11,EEA National Competent authority,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000088
+12,Non-EEA National Competent authority,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000089
+13,Not-for-profit,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000091
+14,Healthcare payer,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000031041
+15,Other,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000031058
