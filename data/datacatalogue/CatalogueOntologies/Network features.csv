@@ -1,4 +1,4 @@
-order,name,label,parent,definition,
+order,name,label,code,parent,ontologyTermURI
 1,Anaesthesia,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030381
 2,Cardiovascular diseases,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030382
 3,Congenital Malformations,,,Primary therapeutic area,https://spor.ema.europa.eu/rmswi/#/lists/200000030260/terms/200000030383
