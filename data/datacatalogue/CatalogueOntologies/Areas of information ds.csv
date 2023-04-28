@@ -173,14 +173,14 @@
 172,EGO,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030153
 173,SOPHARM,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030154
 174,PHARE,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030155
-175,Other,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000031070
+175,Genetic data: Other,Other,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000031070
 176,HGNC,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000031072
 177,Biomarker data,,"Is biomarker information available, select all vocabularies that apply",,
 178,BMO,,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000029933
 179,SMASH,,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000029934
 180,FOBI,,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000029935
 181,HPO,,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000029936
-182,Other,,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000031074
+182,Biomarker data: Other,Other,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000031074
 183,Patient-generated data,,"Is patient-generated information (e.g.,from wearable devices) available?",,
 184,Patient-reported data,,Are patient-reported outcomes (e.g quality of life) available?,,
 185,Quality of life,,Are quality of life measures available? Select all that apply,,
