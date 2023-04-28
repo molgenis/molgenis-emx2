@@ -1,4 +1,4 @@
-order,name,label,definition,parent,ontologyTermURI
+﻿order,name,label,definition,parent,ontologyTermURI
 1,Unique identifier,,Is there a unique identifier for a person in the data source?,,
 2,Geographic regions,,Are data on geographic region available?,,
 3,Family linkage,,Is any linkage available in the data bank between any of the following persons?,,
@@ -201,9 +201,9 @@ order,name,label,definition,parent,ontologyTermURI
 200,Health care costs,,Is information on costs of healthcare available?,,
 201,Free text,,Is free text information available?,,
 202,Care setting,,,,
-203,"Primary care – GP, community pharmacist lev",,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029982
-204,Primary care – specialist level (e.g. paediatrician,,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029983
-205,Secondary care – specialist level (ambulator,,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029984
+203,"Primary care - GP, community pharmacist level",,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029982
+204,Primary care - specialist level (e.g. paediatricians),,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029983
+205,Secondary care - specialist level (ambulatory),,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029984
 206,Hospital inpatient care,,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029985
 207,Hospital outpatient care,,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029986
 208,Care setting: Other,Other,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000031055
