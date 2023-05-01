@@ -268,4 +268,3 @@ DAPs,,reason access other,text,,,,,,,,,"If reasonAccess is 'other', reason for b
 DAPs,,access permission,ontology,,,CatalogueOntologies,DAPs access permissions,,,,,"Is permission required for your institute to access data source (e.g., from a data controller)?",
 DAPs,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",
 DAPs,,fees,bool,,,,,,,,,Are there fees for data access?,
->>>>>>> master:data/datacatalogue/stagingRWE/molgenis.csv,,,,,,,,,,,,,
