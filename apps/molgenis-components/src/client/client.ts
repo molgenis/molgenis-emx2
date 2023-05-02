@@ -312,20 +312,12 @@ const fetchTableData = async (
   expandLevel: number = 2
 ) => {
   const tableId = convertToPascalCase(tableName);
-  const limit = Object.prototype.hasOwnProperty.call(properties, "limit")
-    ? properties.limit
-    : 20;
-  const offset = Object.prototype.hasOwnProperty.call(properties, "offset")
-    ? properties.offset
-    : 0;
+  const limit = properties.limit ? properties.limit : 20;
+  const offset = properties.offset ? properties.offset : 0;
 
-  const search =
-    properties &&
-    Object.prototype.hasOwnProperty.call(properties, "searchTerms") &&
-    properties.searchTerms !== null &&
-    properties.searchTerms !== ""
-      ? ',search:"' + properties.searchTerms?.trim() + '"'
-      : "";
+  const search = properties.searchTerms
+    ? ',search:"' + properties.searchTerms.trim() + '"'
+    : "";
 
   const cNames = columnNames(schemaName, tableId, metaData, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
@@ -343,12 +335,8 @@ const fetchTableData = async (
           }
         }`;
 
-  const filter = Object.prototype.hasOwnProperty.call(properties, "filter")
-    ? properties.filter
-    : {};
-  const orderby = Object.prototype.hasOwnProperty.call(properties, "orderby")
-    ? properties.orderby
-    : {};
+  const filter = properties.filter ? properties.filter : {};
+  const orderby = properties.orderby ? properties.orderby : {};
   const resp = await axios
     .post(graphqlURL(schemaName), {
       query: tableDataQuery,
