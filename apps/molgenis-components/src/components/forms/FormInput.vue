@@ -9,30 +9,30 @@
       :is="typeToInput"
       :isMultiSelect="columnType === 'ONTOLOGY_ARRAY'"
       v-bind="$props"
-      @update:modelValue="$emit('update:modelValue', $event)"
+      @update:modelValue="handleUpdate"
     />
     <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
   </component>
 </template>
 
 <script>
-import BaseInput from "../forms/baseInputs/BaseInput.vue";
-import InlineInput from "../forms/InlineInput.vue";
 import ArrayInput from "../forms/ArrayInput.vue";
-import InputString from "../forms/InputString.vue";
-import InputInt from "../forms/InputInt.vue";
-import InputLong from "../forms/InputLong.vue";
-import InputDecimal from "../forms/InputDecimal.vue";
+import InlineInput from "../forms/InlineInput.vue";
 import InputBoolean from "../forms/InputBoolean.vue";
 import InputDate from "../forms/InputDate.vue";
 import InputDateTime from "../forms/InputDateTime.vue";
+import InputDecimal from "../forms/InputDecimal.vue";
 import InputFile from "../forms/InputFile.vue";
-import InputText from "../forms/InputText.vue";
 import InputHeading from "../forms/InputHeading.vue";
+import InputInt from "../forms/InputInt.vue";
+import InputLong from "../forms/InputLong.vue";
 import InputOntology from "../forms/InputOntology.vue";
 import InputRef from "../forms/InputRef.vue";
 import InputRefBack from "../forms/InputRefBack.vue";
 import InputRefSelect from "../forms/InputRefSelect.vue";
+import InputString from "../forms/InputString.vue";
+import InputText from "../forms/InputText.vue";
+import BaseInput from "../forms/baseInputs/BaseInput.vue";
 import InputRefList from "./InputRefList.vue";
 
 const typeToInputMap = {
@@ -51,16 +51,18 @@ const typeToInputMap = {
   FILE: InputFile,
   DATETIME: InputDateTime,
   ONTOLOGY: InputOntology,
-  STRING_ARRAY: ArrayInput,
-  TEXT_ARRAY: ArrayInput,
-  INT_ARRAY: ArrayInput,
-  LONG_ARRAY: ArrayInput,
-  DECIMAL_ARRAY: ArrayInput,
+  EMAIL_ARRAY: ArrayInput,
   BOOL_ARRAY: ArrayInput,
   DATE_ARRAY: ArrayInput,
   DATETIME_ARRAY: ArrayInput,
+  DECIMAL_ARRAY: ArrayInput,
+  HYPERLINK_ARRAY: ArrayInput,
+  INT_ARRAY: ArrayInput,
+  LONG_ARRAY: ArrayInput,
   ONTOLOGY_ARRAY: InputOntology,
   REF_ARRAY: InputRefList,
+  STRING_ARRAY: ArrayInput,
+  TEXT_ARRAY: ArrayInput,
 };
 
 export default {
@@ -151,6 +153,11 @@ export default {
       return typeToInputMap[this.columnType];
     },
   },
+  methods: {
+    handleUpdate(event) {
+      this.$emit("update:modelValue", event);
+    },
+  },
 };
 </script>
 
@@ -201,6 +208,80 @@ export default {
       </div>
       <div>You typed: {{ JSON.stringify(stringValueArray, null, 2) }}</div>
     </DemoItem>
+    <DemoItem>
+      <div>
+        <FormInput
+          id="email-example"
+          columnType="EMAIL"
+          label="Example email input"
+          v-model="emailValue"
+        />
+      </div>
+      <div>You typed: {{ emailValue }}</div>
+    </DemoItem>
+    <DemoItem>
+      <div><b>In place email example</b></div>
+      <div>
+        This is inside this
+        <FormInput
+          id="email-inplace-example"
+          columnType="EMAIL"
+          label="Example email input inplace"
+          v-model="emailValueInplace"
+          inplace
+        />
+        sentence
+      </div>
+    </DemoItem>
+    <DemoItem>
+      <div>
+        <FormInput
+          id="email-array-example"
+          columnType="EMAIL_ARRAY"
+          label="Example email array input"
+          v-model="emailValueArray"
+        />
+      </div>
+      <div>You typed: {{ JSON.stringify(emailValueArray, null, 2) }}</div>
+    </DemoItem>
+
+    <DemoItem>
+      <div>
+        <FormInput
+          id="hyperlink-example"
+          columnType="HYPERLINK"
+          label="Example hyperlink input"
+          v-model="hyperlinkValue"
+        />
+      </div>
+      <div>You typed: {{ hyperlinkValue }}</div>
+    </DemoItem>
+    <DemoItem>
+      <div><b>In place hyperlink example</b></div>
+      <div>
+        This is inside this
+        <FormInput
+          id="hyperlink-inplace-example"
+          columnType="HYPERLINK"
+          label="Example hyperlink input inplace"
+          v-model="hyperlinkValueInplace"
+          inplace
+        />
+        sentence
+      </div>
+    </DemoItem>
+    <DemoItem>
+      <div>
+        <FormInput
+          id="hyperlink-array-example"
+          columnType="HYPERLINK_ARRAY"
+          label="Example hyperlink array input"
+          v-model="hyperlinkValueArray"
+        />
+      </div>
+      <div>You typed: {{ JSON.stringify(hyperlinkValueArray, null, 2) }}</div>
+    </DemoItem>
+
     <DemoItem>
       <div>
         <FormInput
@@ -443,6 +524,12 @@ export default {
       stringValue: "test",
       stringValueInplace: "inplace",
       stringValueArray: ["value1", "value2"],
+      emailValue: "bla@molgenis.org",
+      emailValueInplace: "bla@molgenis.org",
+      emailValueArray: ["bla@molgenis.org", "asd@molgenis.org"],
+      hyperlinkValue: "www.molgenis.org",
+      hyperlinkValueInplace: "www.molgenis.org",
+      hyperlinkValueArray: ["www.molgenis.org", "molgenis.org"],
       ontologyValue: null,
       ontologyArrayValue: [],
       dateValue: null,
