@@ -213,7 +213,11 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
                 class="flex xl:hidden"
                 v-model:activeName="activeName"
               >
-                <SearchFilter title="Filters" :filters="filters" />
+                <SearchFilter
+                  title="Filters"
+                  :filters="filters"
+                  :mobileDisplay="true"
+                />
               </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>
