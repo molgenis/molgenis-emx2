@@ -1,11 +1,11 @@
 import axios, { Axios, AxiosError, AxiosResponse } from "axios";
-import { deepClone, convertToPascalCase, isRefType } from "../components/utils";
-import { IRow } from "../Interfaces/IRow";
 import { ISchemaMetaData } from "../Interfaces/IMetaData";
-import { ITableMetaData } from "../Interfaces/ITableMetaData";
-import { IQueryMetaData } from "./IQueryMetaData";
+import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
+import { ITableMetaData } from "../Interfaces/ITableMetaData";
+import { convertToPascalCase, deepClone } from "../components/utils";
 import { IClient, INewClient } from "./IClient";
+import { IQueryMetaData } from "./IQueryMetaData";
 import { columnNames } from "./queryBuilder";
 
 export { request };
@@ -312,22 +312,12 @@ const fetchTableData = async (
   expandLevel: number = 2
 ) => {
   const tableId = convertToPascalCase(tableName);
-  const limit =
-    properties && Object.prototype.hasOwnProperty.call(properties, "limit")
-      ? properties.limit
-      : 20;
-  const offset =
-    properties && Object.prototype.hasOwnProperty.call(properties, "offset")
-      ? properties.offset
-      : 0;
+  const limit = properties.limit ? properties.limit : 20;
+  const offset = properties.offset ? properties.offset : 0;
 
-  const search =
-    properties &&
-    Object.prototype.hasOwnProperty.call(properties, "searchTerms") &&
-    properties.searchTerms !== null &&
-    properties.searchTerms !== ""
-      ? ',search:"' + properties.searchTerms?.trim() + '"'
-      : "";
+  const search = properties.searchTerms
+    ? ',search:"' + properties.searchTerms.trim() + '"'
+    : "";
 
   const cNames = columnNames(schemaName, tableId, metaData, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
@@ -345,14 +335,8 @@ const fetchTableData = async (
           }
         }`;
 
-  const filter =
-    properties && Object.prototype.hasOwnProperty.call(properties, "filter")
-      ? properties.filter
-      : {};
-  const orderby =
-    properties && Object.prototype.hasOwnProperty.call(properties, "orderby")
-      ? properties.orderby
-      : {};
+  const filter = properties.filter ? properties.filter : {};
+  const orderby = properties.orderby ? properties.orderby : {};
   const resp = await axios
     .post(graphqlURL(schemaName), {
       query: tableDataQuery,
