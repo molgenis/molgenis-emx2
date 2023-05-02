@@ -31,7 +31,7 @@ public class TestLoaders {
   public void test1FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.dropCreateSchema(FAIR_DATA_HUB_TEST);
     AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
-    assertEquals(34, fairDataHubSchema.getTableNames().size());
+    assertEquals(36, fairDataHubSchema.getTableNames().size());
   }
 
   @Test
