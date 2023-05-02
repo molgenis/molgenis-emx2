@@ -298,7 +298,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testJsonYamlApi() {
     String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
 
