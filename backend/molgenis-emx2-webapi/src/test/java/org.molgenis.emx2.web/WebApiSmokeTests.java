@@ -49,10 +49,6 @@ public class WebApiSmokeTests {
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
 
-    // will be (re)created by the RunMolgenisEmx2.main
-    db.dropSchemaIfExists("pet store");
-    db.dropSchemaIfExists("catalogue");
-
     // start web service for testing, including env variables
     withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
         .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
@@ -90,6 +86,7 @@ public class WebApiSmokeTests {
   @AfterAll
   public static void after() {
     MolgenisWebservice.stop();
+    db.dropCreateSchema("catalogue");
   }
 
   @Test
@@ -379,6 +376,8 @@ public class WebApiSmokeTests {
       poll = given().sessionId(SESSION_ID).when().get(url);
       Thread.sleep(500);
     }
+
+    assertFalse(poll.body().asString().contains("FAILED"));
 
     // check if id in tasks list
     assertTrue(
@@ -724,70 +723,55 @@ public class WebApiSmokeTests {
   public void testRdfApi() {
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
+    given().sessionId(SESSION_ID).expect().statusCode(200).when().get("/pet store/api/rdf");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf");
+        .get("/pet store/api/rdf/Category");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category");
+        .get("/pet store/api/rdf/Category/column/name");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/column/name");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/cat");
+        .get("/pet store/api/rdf/Category/cat");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(400)
         .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
+        .get("/pet store/api/rdf/doesnotexist");
   }
 
   @Test
   public void testLinkedDataApi() {
+    given().sessionId(SESSION_ID).expect().statusCode(200).when().get("/pet store/api/jsonld");
+    given().sessionId(SESSION_ID).expect().statusCode(200).when().get("/pet store/api/ttl");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/pet store/api/jsonld");
+        .get("/pet store/api/jsonld/Category");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/pet store/api/ttl");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/jsonld/Category");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/ttl/Category");
+        .get("/pet store/api/ttl/Category");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(400)
         .when()
-        .get("http://localhost:" + PORT + "/pet store/api/ttl/doesnotexist");
+        .get("/pet store/api/ttl/doesnotexist");
   }
 
   @Test
@@ -797,17 +781,12 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(400)
         .when()
-        .get("http://localhost:" + PORT + "/api/fdp/distribution/pet store/Category/ttl");
+        .get("/api/fdp/distribution/pet store/Category/ttl");
   }
 
   @Test
   public void testGraphGenome400() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(400)
-        .when()
-        .get("http://localhost:" + PORT + "/api/graphgenome");
+    given().sessionId(SESSION_ID).expect().statusCode(400).when().get("/api/graphgenome");
   }
 
   @Test
