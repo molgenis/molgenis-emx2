@@ -2,9 +2,11 @@
   <div v-if="networkDetails" class="container">
     <grid-block>
       <page-header
-        :title="networkDetails.pid"
+        :title="networkDetails.id"
         :subTitle="
-          networkDetails.institution ? networkDetails.institution[0].name : null
+          networkDetails.leadOrganisation
+            ? networkDetails.leadOrganisation.name
+            : null
         "
         :logoUrl="networkDetails.logo ? networkDetails.logo.url : null"
       />
@@ -80,18 +82,19 @@ export default {
       if (this.network) {
         const result = await request(
           "graphql",
-          `{Networks(filter: { pid: { equals: "${this.network}" } }){
+          `{Networks(filter: { id: { equals: "${this.network}" } }){
+            id
             pid
             name
-            localName
             acronym
             website
             description
-            contributors {
-               contact { firstName, surname}
-               contributionType{name}
+            contacts {
+               firstName,
+               lastName,
+               role{name}
             }
-            institution{
+            leadOrganisation{
               name
             }
             logo {
@@ -101,11 +104,8 @@ export default {
             endYear
             fundingStatement
             acknowledgements
-            partners {
-              institution {
+            additionalOrganisations {
                 name
-              }
-            department
             }
           }}`
         ).catch((error) => console.log(error));

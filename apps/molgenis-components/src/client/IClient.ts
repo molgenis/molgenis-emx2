@@ -1,4 +1,4 @@
-import { Axios, AxiosResponse } from "axios";
+import { Axios } from "axios";
 import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";

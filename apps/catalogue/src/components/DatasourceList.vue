@@ -1,12 +1,12 @@
 <template>
   <ul v-if="datasources">
-    <li v-for="d in datasources" :key="d.pid">
+    <li v-for="d in datasources" :key="d.id">
       <RouterLink
         :to="{
-          name: 'datasource',
-          params: { pid: d.pid },
+          name: 'Datasources-details',
+          params: { id: d.id },
         }"
-        >{{ d.pid }} - {{ d.name }}
+        >{{ d.id }} - {{ d.name }}
         <OntologyTerms
           :terms="d.type"
           :inline="true"

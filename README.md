@@ -8,7 +8,7 @@
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/molgenis/molgenis-emx2/badge)](https://api.securityscorecards.dev/projects/github.com/molgenis/molgenis-emx2)
 
 
-# MOLGENIS EMX2 FAIR scientific data platform 
+# MOLGENIS EMX2 FAIR scientific data platform
 
 The world's most customizable platform for (scientific) data and FAIR principles (findability, accessibility,
 interoperability and reusability). 
