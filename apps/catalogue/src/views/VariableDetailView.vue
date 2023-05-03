@@ -37,7 +37,6 @@
     </template>
     <template v-else-if="$route.query.fromName">
       <from-variable-details
-        :version="version"
         :sourceCohort="$route.query.sourceCohort"
         :fromName="$route.query.fromName"
         :toName="variable.label"
@@ -65,7 +64,6 @@ export default {
   props: {
     name: String,
     model: String,
-    version: String,
   },
   data() {
     return {
@@ -73,7 +71,7 @@ export default {
     };
   },
   async created() {
-    this.variable = await fetchDetails(this.name, this.model, this.version);
+    this.variable = await fetchDetails(this.name, this.model);
   },
 };
 </script>

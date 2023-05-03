@@ -54,10 +54,12 @@ subprojects {
         implementation 'org.junit.jupiter:junit-jupiter:5.9.2'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
         testImplementation 'org.mockito:mockito-core:5.1.1'
+        //allows to set environment variables in test
+        testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
     }
 
     jacoco {
-        toolVersion = "0.8.8"
+        toolVersion = "0.8.10"
     }
     jacocoTestReport {
         reports {
@@ -87,6 +89,11 @@ subprojects {
     } else {
         //don't cache database init
         test.outputs.upToDateWhen { false }
+    }
+
+    //enable environment variables to be set by test
+    tasks.test {
+        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
     }
     test {
         useJUnitPlatform()

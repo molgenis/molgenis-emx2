@@ -28,6 +28,7 @@ defineProps<{
         <span v-else-if="contact?.firstName">
           {{ contact?.firstName }}&nbsp;</span
         >
+        <span v-if="contact?.prefix"> {{ contact?.prefix }}&nbsp;</span>
         <span v-if="contact?.lastName"> {{ contact?.lastName }} </span>
       </span>
       <a

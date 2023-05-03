@@ -89,7 +89,7 @@ export default {
     mappedByCohorts() {
       //order alphabetically
       return this.variableDetails.mappings
-        .map((mapping) => mapping.fromTable.dataDictionary.resource.pid)
+        .map((mapping) => mapping.sourceDataset.resource.id)
         .sort();
     },
   },

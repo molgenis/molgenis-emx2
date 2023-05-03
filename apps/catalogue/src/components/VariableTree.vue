@@ -13,7 +13,7 @@
       </div>
       <VariablesList
         class="col-9"
-        :resource-pid="resourcePid"
+        :resource-id="resourceId"
         :topic="selectedTopic"
       />
     </div>
@@ -32,7 +32,7 @@ export default {
     VariablesList,
   },
   props: {
-    resourcePid: String,
+    resourceId: String,
   },
   data: function () {
     return {

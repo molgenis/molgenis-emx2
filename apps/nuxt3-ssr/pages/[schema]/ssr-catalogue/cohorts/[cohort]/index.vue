@@ -91,6 +91,7 @@ const query = gql`
         roleDescription
         firstName
         lastName
+        prefix
         initials
         email
         title {

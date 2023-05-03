@@ -10,8 +10,9 @@
       <component
         :is="inputType"
         :id="id + '-' + index"
-        v-model="values[index]"
+        :modelValue="values[index]"
         :showAddButton="index === values.length"
+        @update:modelValue="handleUpdate($event, index)"
       >
         <template v-slot:append>
           <button
@@ -36,7 +37,8 @@
 </template>
 
 <script>
-import BaseInput from "./baseInputs/BaseInput.vue";
+import FormGroup from "./FormGroup.vue";
+import InputBoolean from "./InputBoolean.vue";
 import InputDate from "./InputDate.vue";
 import InputDateTime from "./InputDateTime.vue";
 import InputDecimal from "./InputDecimal.vue";
@@ -44,7 +46,7 @@ import InputInt from "./InputInt.vue";
 import InputLong from "./InputLong.vue";
 import InputString from "./InputString.vue";
 import InputText from "./InputText.vue";
-import FormGroup from "./FormGroup.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 
 export default {
   name: "ArrayInput",
@@ -62,6 +64,7 @@ export default {
   computed: {
     inputType() {
       return {
+        BOOL_ARRAY: InputBoolean,
         DATE_ARRAY: InputDate,
         DATETIME_ARRAY: InputDateTime,
         DECIMAL_ARRAY: InputDecimal,
@@ -86,7 +89,12 @@ export default {
       }
       this.$emit("update:modelValue", this.values);
     },
+    handleUpdate(event, index) {
+      this.values[index] = event;
+      this.$emit("update:modelValue", this.values);
+    },
   },
+  emits: ["update:modelValue"],
 };
 </script>
 
