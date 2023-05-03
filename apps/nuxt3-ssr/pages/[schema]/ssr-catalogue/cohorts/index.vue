@@ -24,7 +24,7 @@ let filters = reactive([
   },
   {
     title: "Areas of information",
-    refTable: "AreasOfInformation",
+    refTable: "AreasOfInformationCohorts",
     columnName: "areasOfInformation",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
@@ -64,7 +64,7 @@ let search = computed(() => {
 const query = computed(() => {
   return `
   query Cohorts($filter:CohortsFilter, $orderby:Cohortsorderby){
-    Cohorts(limit: ${pageSize} offset: ${offset.value} search:"${search.value}" filter:$filter  orderby:$orderby) {
+    Cohorts(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
       name
       acronym
@@ -84,7 +84,7 @@ const query = computed(() => {
           acronym
       }
     }
-    Cohorts_agg (filter:$filter, search:"${search.value}"){
+    Cohorts_agg (filter:$filter){
         count
     }
   }
@@ -113,27 +113,25 @@ function buildFilterVariables() {
 }
 
 const filter = computed(() => {
-  // build the active filters
-  const filterVariables = buildFilterVariables();
-
-  // append search to the sub tables if set
-  const searchTables = filters.find(
-    (f) => f.columnType === "_SEARCH"
-  )?.searchTables;
-
-  if (searchTables) {
-    searchTables.forEach((searchTable) => {
-      if (search.value) {
-        if (Object.keys(filterVariables).includes(searchTable)) {
-          filterVariables[searchTable]["_search"] = search.value;
-        } else {
-          filterVariables[searchTable] = { _search: search.value };
-        }
-      }
-    });
+  // build the active (non search) filters
+  let filterBuilder = buildFilterVariables();
+  if (search.value) {
+    // add the search to the filters
+    // @ts-ignore (dynamic object)
+    filterBuilder = {
+      ...filterBuilder,
+      ...{ _or: [{ _search: search.value }] },
+    };
+    // expand the search to the subtabels
+    // @ts-ignore (dynamic object)
+    filters
+      .find((f) => f.columnType === "_SEARCH")
+      ?.searchTables.forEach((sub) => {
+        filterBuilder["_or"].push({ [sub]: { _search: search.value } });
+      });
   }
 
-  return filterVariables;
+  return { _and: filterBuilder };
 });
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);

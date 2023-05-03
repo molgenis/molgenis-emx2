@@ -11,18 +11,18 @@
         <thead>
           <tr>
             <th scope="col">variable</th>
-            <th scope="col" v-for="t in tables">{{ t }}</th>
+            <th scope="col" v-for="t in datasets">{{ t }}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="v in variables">
             <th scope="row">{{ v }}</th>
-            <td v-for="t in tables">
+            <td v-for="t in datasets">
               <HarmonisationDetails
                 :compact="true"
                 :target-variable="v"
-                :target-table="tableName"
-                :target-resource="resourcePid"
+                :target-table="datasetName"
+                :target-resource="resourceId"
                 :source-resource="t.split(':')[0]"
                 :source-table="t.split(':')[1]"
                 :match="matrix[v][t]"
@@ -60,7 +60,7 @@ export default {
     MessageError,
   },
   props: {
-    resourcePid: String,
+    resourceId: String,
     tableName: String,
   },
   data() {
@@ -77,8 +77,7 @@ export default {
       return [
         ...new Set(
           this.harmonisations.map(
-            (h) =>
-              h.sourceDataDictionary.resource.pid + ":" + h.sourceTable.name
+            (h) => h.source.id + ":" + h.sourceDataset.name
           )
         ),
       ].sort();
@@ -98,7 +97,7 @@ export default {
       this.harmonisations.forEach((h) => {
         if (h.match) {
           result[h.targetVariable.name][
-            h.sourceTable.resource.pid + ":" + h.sourceTable.name
+            h.sourceDataset.resource.id + ":" + h.sourceDataset.name
           ] = h.match.name;
         }
       });
@@ -109,19 +108,17 @@ export default {
     reload() {
       let filter = {};
       //filter:{targetVariable:{table:{name:{equals:"table1"},resource:{pid:{equals:"LifeCycle"}}}}}
-      if (this.resourcePid) {
-        filter.targetDataDictionary = {
-          resource: { pid: { equals: this.resourcePid } },
-        };
+      if (this.sourceId) {
+        filter.target = { id: { equals: this.resourceId } };
       }
-      if (this.tableName !== undefined) {
-        filter.targetVariable.table.name = { equals: this.tableName };
+      if (this.datasetName !== undefined) {
+        filter.targetVariable.dataset.name = { equals: this.datasetName };
       }
       request(
         "graphql",
-        `query VariableHarmonisations($filter:VariableHarmonisationsFilter,$offset:Int,$limit:Int){VariableHarmonisations(offset:$offset,limit:$limit,filter:$filter)
-          {targetVariable{name,table{harmonisations{sourceTable{name}description}}}sourceTable{dataDictionary{resource{pid}}name}match{name}}
-        ,VariableHarmonisations_agg(filter:$filter){count}}`,
+        `query VariableMappings($filter:VariableMappingsFilter,$offset:Int,$limit:Int){VariableMappings(offset:$offset,limit:$limit,filter:$filter)
+          {targetVariable{name,dataset{mappings{sourceDataset{name}description}}}sourceDataset{resource{id}name}match{name}}
+        ,VariableMappings_agg(filter:$filter){count}}`,
         {
           filter: filter,
           offset: (this.page - 1) * this.limit,
@@ -141,7 +138,7 @@ export default {
     },
   },
   watch: {
-    resourcePid() {
+    resourceId() {
       this.reload();
     },
     tableName() {

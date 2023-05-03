@@ -123,9 +123,6 @@ export default {
         "DATA_CATALOGUE",
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",
-        "DATA_CATALOGUE3",
-        "DATA_CATALOGUE_COHORT_STAGING3",
-        "DATA_CATALOGUE_NETWORK_STAGING3",
       ],
       includeDemoData: false,
     };

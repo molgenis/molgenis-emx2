@@ -19,10 +19,10 @@
               class="rotated-text text-nowrap"
               scope="col"
               v-for="resource in resourcesWithoutModels"
-              :key="resource.pid"
+              :key="resource.id"
             >
               <div>
-                <span class="table-label">{{ resource.pid }}</span>
+                <span class="table-label">{{ resource.id }}</span>
               </div>
             </th>
           </tr>
@@ -79,7 +79,8 @@ export default {
       return this.resources.filter(
         (r) =>
           !r.mg_tableclass.endsWith("Models") &&
-          !r.mg_tableclass.endsWith("Networks")
+          !r.mg_tableclass.endsWith("Networks") &&
+          !r.mg_tableclass.endsWith("Organisations")
       );
     },
   },

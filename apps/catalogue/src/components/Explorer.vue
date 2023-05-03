@@ -49,7 +49,7 @@
                 :class="{ active: selected == 'Tables' }"
                 to="tables"
               >
-                Tables ({{ tableCount }})
+                Dataset ({{ datasetCount }})
               </router-link>
             </li>
             <li>
@@ -103,7 +103,7 @@ export default {
       topics: [],
       databanksCount: 0,
       variableCount: 0,
-      tableCount: 0,
+      datasetCount: 0,
       limit: 20,
       page: 1,
       search: "",
@@ -210,8 +210,8 @@ export default {
       }
       request(
         "graphql",
-        `query countQuery($cFilter:CollectionsFilter,$vFilter:VariablesFilter,$tFilter:TablesFilter){Collections_agg(${search}filter:$cFilter){count}
-        ,Variables_agg(${search}filter:$vFilter){count},Tables_agg(${search}filter:$tFilter){count}}`,
+        `query countQuery($cFilter:CollectionsFilter,$vFilter:VariablesFilter,$tFilter:DatasetsFilter){Collections_agg(${search}filter:$cFilter){count}
+        ,Variables_agg(${search}filter:$vFilter){count},Datasets_agg(${search}filter:$tFilter){count}}`,
         {
           cFilter: filter,
           vFilter: filter,
@@ -223,7 +223,7 @@ export default {
         .then((data) => {
           this.variableCount = data.Variables_agg.count;
           this.resourceCount = data.Collections_agg.count;
-          this.tableCount = data.Tables_agg.count;
+          this.DatasetCount = data.Datasets_agg.count;
         })
         .catch((error) => {
           this.graphqlError = error.response.errors[0].message;

@@ -1,6 +1,12 @@
 import { describe, assert, test } from "vitest";
 import constants from "./constants";
-import { deepClone, flattenObject, isNumericKey, isRefType } from "./utils";
+import {
+  deepClone,
+  deepEqual,
+  flattenObject,
+  isNumericKey,
+  isRefType,
+} from "./utils";
 
 const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_MINUS, CODE_DELETE } = constants;
 
@@ -72,14 +78,51 @@ describe("flattenObject", () => {
     assert.deepEqual(expectedResult, result);
   });
 });
+describe("deepClone", () => {
+  test("it should make a clone of the input", () => {
+    const input = {
+      foo: "hello",
+      bar: "world",
+    };
 
-test("deepClone", () => {
-  const input = {
-    foo: "hello",
-    bar: "world",
-  };
+    const output = deepClone(input);
 
-  const output = deepClone(input);
+    assert.deepEqual(output, input, "matches original");
+  });
+});
 
-  assert.deepEqual(output, input, "matches original");
+describe("deepEqual", () => {
+  test("it should return true if 2 objects are equal", () => {
+    const object1 = { id: "someId", some: "property" };
+    const object2 = { id: "someId", some: "property" };
+    assert.isTrue(deepEqual(object1, object2));
+  });
+
+  test("it should return true if 2 complex objects are equal", () => {
+    const object1 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop" },
+    };
+    const object2 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop" },
+    };
+    assert.isTrue(deepEqual(object1, object2));
+  });
+
+  test("it should return false if 2 complex objects are not  equal", () => {
+    const object1 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop" },
+    };
+    const object2 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop", additional: "but it has more" },
+    };
+    assert.isFalse(deepEqual(object1, object2));
+  });
 });

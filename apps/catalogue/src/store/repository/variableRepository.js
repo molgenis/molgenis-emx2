@@ -2,17 +2,14 @@ import { request } from "graphql-request";
 import variableDetails from "../query/variableDetails.js";
 import fromVariableDetails from "../query/fromVariableDetails.js";
 
-const fetchDetails = async (name, model, version) => {
+const fetchDetails = async (name, model) => {
   const params = {
     filter: {
       name: { equals: name },
-      dataDictionary: {
+      resource: {
         equals: [
           {
-            resource: {
-              pid: model,
-            },
-            version: version,
+            id: model,
           },
         ],
       },
@@ -23,15 +20,15 @@ const fetchDetails = async (name, model, version) => {
     await request("graphql", variableDetails, params).catch((e) =>
       console.error("fetch variableDetails details failed: " + e)
     )
-  ).TargetVariables[0];
+  ).Variables[0];
 };
 
-const fetchFromVariableDetails = async (names, network, version) => {
+const fetchFromVariableDetails = async (names, network) => {
   const params = {
     filter: {
       name: { equals: names },
-      dataDictionary: {
-        equals: [{ resource: { pid: network }, version: version }],
+      resource: {
+        equals: { id: network },
       },
     },
   };
@@ -40,7 +37,7 @@ const fetchFromVariableDetails = async (names, network, version) => {
     await request("graphql", fromVariableDetails, params).catch((e) =>
       console.error("fetch fromVariableDetails details failed: " + e)
     )
-  ).SourceVariables[0];
+  ).Variables[0];
 };
 
 export { fetchDetails, fetchFromVariableDetails };

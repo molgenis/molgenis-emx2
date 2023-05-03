@@ -23,7 +23,6 @@ export default {
   props: {
     name: String,
     network: String,
-    version: String,
     sourceCohort: String,
     variable: Object,
   },
@@ -37,9 +36,7 @@ export default {
       const cohortMapping = !this.variable.mappings
         ? undefined
         : this.variable.mappings.find(
-            (mapping) =>
-              mapping.fromTable.dataDictionary.resource.pid ===
-              this.sourceCohort
+            (mapping) => mapping.sourceDataset.resource.id === this.sourceCohort
           );
       let repeats = [
         {
@@ -53,8 +50,7 @@ export default {
             if (repeat.mappings) {
               repeat.cohortMapping = repeat.mappings.find(
                 (mapping) =>
-                  mapping.fromTable.dataDictionary.resource.pid ===
-                  this.sourceCohort
+                  mapping.sourceDataset.resource.id === this.sourceCohort
               );
             }
             return repeat;

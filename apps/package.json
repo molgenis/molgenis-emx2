@@ -2,7 +2,6 @@
   "private": true,
   "workspaces": [
     "catalogue",
-    "catalogue3",
     "settings",
     "central",
     "schema",
