@@ -1,13 +1,12 @@
 package org.molgenis.emx2.datamodels;
 
-import static org.molgenis.emx2.datamodels.DataCatalogueNetworkStagingLoader.SHARED_STAGING;
-
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 
 public class DataCatalogueCohortStagingLoader extends AbstractDataLoader {
 
   static String DATA_CATALOGUE = "catalogue";
+  static final String SHARED_STAGING = "SharedStaging";
 
   @Override
   void loadInternalImplementation(Schema schema, boolean includeDemoData) {
