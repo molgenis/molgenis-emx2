@@ -45,6 +45,7 @@ watch(props.filters, (filters) => {
       >
         <FilterSearch
           v-if="filter.columnType === '_SEARCH'"
+          :mobileDisplay="mobileDisplay"
           v-model="filter.search"
         />
         <SearchFilterGroup

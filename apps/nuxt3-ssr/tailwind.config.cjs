@@ -208,6 +208,7 @@ module.exports = {
         "menu-active": theme("colors.blue.500"),
         "search-button": theme("colors.white"),
         "search-input": theme("colors.white"),
+        "search-input-mobile": theme("colors.gray.100"),
 
         pagination: "transparent",
       }),
