@@ -27,7 +27,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final String ANONYMOUS = "anonymous";
   public static final String USER = "user";
   public static final String WITH = "with {} = {} ";
-  public static final int TEN_SECONDS = 10;
+  public static final int HUNDRED_SECONDS = 100;
 
   // shared between all instances
   private static DataSource source;
@@ -88,7 +88,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public SqlDatabase(boolean init) {
     initDataSource();
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
-    final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
+    final Settings settings = new Settings().withQueryTimeout(HUNDRED_SECONDS);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, settings);
     if (init) {
       try {
