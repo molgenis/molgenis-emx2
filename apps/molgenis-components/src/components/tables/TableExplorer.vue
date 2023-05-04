@@ -846,8 +846,8 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
       <label>Read only example</label>
       <table-explorer
         id="my-table-explorer"
-        tableName="Pet"
-        schemaName="pet store"
+        tableName="Contacts"
+        schemaName="Catalogue"
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"
@@ -878,12 +878,12 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
     data() {
       return {
         showColumns: [],
-        showFilters: ['name'],
-        urlConditions: {"name": "pooky,spike"},
+        showFilters: [],
+        urlConditions: {},
         page: 1,
         limit: 10,
         showOrder: 'DESC',
-        showOrderBy: 'name',
+        showOrderBy: '',
         canEdit: false,
         canManage: false,
         locale: 'en'

@@ -37,7 +37,7 @@ import Client from "../../client/client";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
-import { getPrimaryKey } from "../utils";
+import { requestPrimaryKey } from "../utils";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
 
@@ -101,14 +101,18 @@ async function getRowData(
   let newQueryResults: IRow[] = [];
   const client = Client.newClient(activeSchema);
   const metadata = await client.fetchTableMetaData(tableId);
-  let keys: any[] = rows;
+  let keys: (IRow | null)[] = rows;
   if (!alreadyAreKeys) {
-    keys = getPrimaryKeys(rows, metadata);
+    keys = getPrimaryKeys(rows, tableId, activeSchema);
   }
+  console.log("keys", keys);
   for (const row of keys) {
+    if (row == null) continue;
+    console.log("row before request", row);
     const externalSchemaClient = Client.newClient(metadata.externalSchema);
+    console.log(tableId);
     const queryResult = await externalSchemaClient
-      .fetchRowData(tableId, row)
+      .fetchRowData(tableId, await row)
       .catch(errorHandler);
     queryResult.metadata = metadata;
     newQueryResults.push(queryResult);
@@ -118,11 +122,15 @@ async function getRowData(
 
 function getPrimaryKeys(
   rows: IRow[],
-  metadata: ITableMetaData
-): (IRow | null)[] {
-  return rows.map((row) => {
-    return getPrimaryKey(row, metadata);
+  tableName: string,
+  schemaName: string
+): Promise<IRow | null>[] {
+  const keys = rows.map(async (row) => {
+    return await requestPrimaryKey(row, tableName, schemaName);
   });
+  console.log("getPrimaryKeys", keys);
+
+  return keys;
 }
 
 async function handleRefCellClicked({

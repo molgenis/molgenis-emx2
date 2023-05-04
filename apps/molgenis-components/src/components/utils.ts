@@ -1,3 +1,4 @@
+import Client from "../client/client";
 import { IColumn } from "../Interfaces/IColumn";
 import { IRow } from "../Interfaces/IRow";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
@@ -39,10 +40,51 @@ export function flattenObject(object: Record<string, any>): string {
   }
 }
 
+export async function requestPrimaryKey(
+  row: IRow,
+  tableName: string,
+  schemaName: string
+): Promise<Record<string, any> | null> {
+  const client = Client.newClient(schemaName);
+  const tableMetadata = await client.fetchTableMetaData(tableName);
+
+  console.log("requestPrimaryKey");
+  console.log("row", row);
+  console.log("tableMetadata", tableMetadata);
+
+  if (!row["mg_insertedOn"] || !tableMetadata?.columns) {
+    return null;
+  } else {
+    return await tableMetadata.columns.reduce(
+      async (accumPromise: Promise<Record<string, any>>, column: IColumn) => {
+        let accum: Record<string, any> = await accumPromise;
+        const cellValue = row[column.id];
+        if (column.key === 1 && cellValue) {
+          console.log("cellValue", cellValue);
+          if (typeof cellValue === "string") {
+            accum[column.id] = cellValue;
+          } else {
+            console.log("Special key situation trigger!");
+            const keySchema = column.refSchema || schemaName;
+            accum[column.id] = await requestPrimaryKey(
+              cellValue,
+              column.id,
+              keySchema
+            );
+          }
+        }
+        return accum;
+      },
+      Promise.resolve({})
+    );
+  }
+}
+
 export function getPrimaryKey(
   row: IRow,
   tableMetadata: ITableMetaData
 ): Record<string, any> | null {
+  // console.log("row", row);
   //we only have pkey when the record has been saved
   if (!row["mg_insertedOn"] || !tableMetadata?.columns) {
     return null;
@@ -52,6 +94,7 @@ export function getPrimaryKey(
         const cellValue = row[column.id];
         if (column.key === 1 && cellValue) {
           accum[column.id] = cellValue;
+          // console.log("cellValue", cellValue);
         }
         return accum;
       },
