@@ -343,10 +343,8 @@ export default {
   },
   methods: {
     async reload() {
-      const client = this.$Client.newClient(this.schemaName);
-      const tableMetaData = await client.fetchTableMetaData(this.tableName);
       const rowData = await client.fetchTableDataValues(this.tableName);
-      this.demoKey = this.$utils.getPrimaryKey(rowData[0], tableMetaData);
+      this.demoKey = await this.$utils.requestPrimaryKey(rowData[0], this.tableName, this.schemaName);
       const settings = await client.fetchSettings();
       this.useChapters =
         settings.find((item) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME)?.value !==

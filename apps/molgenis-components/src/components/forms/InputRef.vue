@@ -29,22 +29,17 @@
           :key="index"
         >
           <input
-            :id="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
+            :id="`${id}-${row.flattened}`"
             :name="id"
             type="radio"
-            :value="getPrimaryKey(row, tableMetaData)"
-            :checked="isSelected(row)"
-            @change="
-              $emit('update:modelValue', getPrimaryKey(row, tableMetaData))
-            "
+            :value="row.key"
+            :checked="isSelected(row.key)"
+            @change="$emit('update:modelValue', row.key)"
             class="form-check-input"
             :class="{ 'is-invalid': errorMessage }"
           />
-          <label
-            class="form-check-label"
-            :for="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
-          >
-            {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
+          <label class="form-check-label" :for="`${id}-${row.flattened}`">
+            {{ row.flattened }}
           </label>
         </div>
         <ButtonAlt
@@ -81,12 +76,12 @@
 
 <script>
 import Client from "../../client/client.ts";
-import BaseInput from "./baseInputs/BaseInput.vue";
-import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
-import FormGroup from "./FormGroup.vue";
+import TableSearch from "../tables/TableSearch.vue";
+import { convertToPascalCase, flattenObject, getPrimaryKeys } from "../utils";
 import ButtonAlt from "./ButtonAlt.vue";
-import { flattenObject, getPrimaryKey, convertToPascalCase } from "../utils";
+import FormGroup from "./FormGroup.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 
 export default {
   name: "InputRef",
@@ -140,7 +135,6 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey,
     clearValue() {
       this.$emit("update:modelValue", null);
     },
@@ -154,13 +148,10 @@ export default {
       this.loadOptions();
       this.showSelect = false;
     },
-    isSelected(row) {
-      return (
-        this.getPrimaryKey(row, this.tableMetaData)?.name ===
-        (this.modelValue ? this.modelValue.name : "")
-      );
+    isSelected(rowKey) {
+      //FIXME: .name is not guaranteed to be the primary key, also breaks composite keys
+      return rowKey?.name === (this.modelValue ? this.modelValue.name : "");
     },
-    flattenObject,
     async loadOptions() {
       const options = {
         limit: this.maxNum,
@@ -169,7 +160,22 @@ export default {
         options.filter = this.filter;
       }
       const response = await this.client.fetchTableData(this.tableId, options);
-      this.data = response[this.tableId];
+      this.data = await getPrimaryKeys(
+        response[this.tableId],
+        this.tableName,
+        this.schemaName
+      );
+      console.log("step 1", this.data);
+      this.data = this.data.map(async (result) => {
+        const bla = await result;
+        return { flattened: flattenObject(bla), key: bla };
+      });
+      console.log("step 2: ", this.data);
+
+      // for (const dat in this.data) {
+      //   const newDat = { flattened: flattenObject(dat), key: dat };
+      //   dat = newDat;
+      // }
       this.count = response[this.tableId + "_agg"].count;
     },
   },
@@ -181,7 +187,7 @@ export default {
   async mounted() {
     this.client = Client.newClient(this.schemaName);
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
-    this.loadOptions();
+    await this.loadOptions();
   },
 };
 </script>

@@ -31,7 +31,7 @@ export interface INewClient {
     tableName: string,
     properties: IQueryMetaData
   ) => Promise<any>;
-  fetchRowData: (tableName: string, rowId: IRow) => Promise<any>;
+  fetchRowData: (tableName: string, rowId: IRow) => Promise<IRow>;
   fetchAggregateData: (
     tableName: string,
     selectedColumn: { name: string; column: string },

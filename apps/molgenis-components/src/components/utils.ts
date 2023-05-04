@@ -22,6 +22,7 @@ export function isNumericKey(event: KeyboardEvent): boolean {
 }
 
 export function flattenObject(object: Record<string, any>): string {
+  console.log(object);
   if (typeof object === "object") {
     let result = "";
     Object.keys(object).forEach((key) => {
@@ -40,38 +41,39 @@ export function flattenObject(object: Record<string, any>): string {
   }
 }
 
+export async function getPrimaryKeys(
+  rows: IRow[],
+  tableName: string,
+  schemaName: string
+): Promise<(IRow | null)[]> {
+  let results: (IRow | null)[] = [];
+  rows.forEach(async (row) => {
+    results.push(await requestPrimaryKey(row, tableName, schemaName));
+  });
+  return results;
+}
+
 export async function requestPrimaryKey(
   row: IRow,
   tableName: string,
   schemaName: string
-): Promise<Record<string, any> | null> {
+): Promise<IRow | null> {
   const client = Client.newClient(schemaName);
   const tableMetadata = await client.fetchTableMetaData(tableName);
-
-  console.log("requestPrimaryKey");
-  console.log("row", row);
-  console.log("tableMetadata", tableMetadata);
 
   if (!row["mg_insertedOn"] || !tableMetadata?.columns) {
     return null;
   } else {
     return await tableMetadata.columns.reduce(
-      async (accumPromise: Promise<Record<string, any>>, column: IColumn) => {
-        let accum: Record<string, any> = await accumPromise;
+      async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
+        let accum: IRow = await accumPromise;
         const cellValue = row[column.id];
         if (column.key === 1 && cellValue) {
-          console.log("cellValue", cellValue);
-          if (typeof cellValue === "string") {
-            accum[column.id] = cellValue;
-          } else {
-            console.log("Special key situation trigger!");
-            const keySchema = column.refSchema || schemaName;
-            accum[column.id] = await requestPrimaryKey(
-              cellValue,
-              column.id,
-              keySchema
-            );
-          }
+          accum[column.id] = await getKeyValue(
+            cellValue,
+            column,
+            column.refSchema || schemaName
+          );
         }
         return accum;
       },
@@ -80,11 +82,22 @@ export async function requestPrimaryKey(
   }
 }
 
+async function getKeyValue(
+  cellValue: any,
+  column: IColumn,
+  schemaName: string
+) {
+  if (typeof cellValue === "string") {
+    return cellValue;
+  } else {
+    return await requestPrimaryKey(cellValue, column.id, schemaName);
+  }
+}
+
 export function getPrimaryKey(
   row: IRow,
   tableMetadata: ITableMetaData
 ): Record<string, any> | null {
-  // console.log("row", row);
   //we only have pkey when the record has been saved
   if (!row["mg_insertedOn"] || !tableMetadata?.columns) {
     return null;
@@ -94,7 +107,6 @@ export function getPrimaryKey(
         const cellValue = row[column.id];
         if (column.key === 1 && cellValue) {
           accum[column.id] = cellValue;
-          // console.log("cellValue", cellValue);
         }
         return accum;
       },

@@ -89,7 +89,7 @@ const client: IClient = {
         );
         return dataResp[tableId];
       },
-      fetchRowData: async (tableName: string, rowId: IRow) => {
+      fetchRowData: async (tableName: string, rowId: IRow): Promise<IRow> => {
         const tableId = convertToPascalCase(tableName);
         if (schemaMetaData === null) {
           schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
@@ -111,6 +111,7 @@ const client: IClient = {
             return accum;
           }, {});
 
+        const expandLevel = 1;
         const resultArray = (
           await fetchTableData(
             tableName,
@@ -120,12 +121,12 @@ const client: IClient = {
             schemaMetaData,
             myAxios,
             schemaNameCache,
-            1
+            expandLevel
           )
         )[tableId];
 
         if (!resultArray.length || resultArray.length !== 1) {
-          return undefined;
+          throw `Could not fetch data for row ${rowId} in table ${tableId}`;
         } else {
           return resultArray[0];
         }
@@ -306,7 +307,7 @@ const fetchSchemaMetaData = async (
 const fetchTableData = async (
   tableName: string,
   properties: IQueryMetaData,
-  metaData: ISchemaMetaData,
+  metadata: ISchemaMetaData,
   axios: Axios,
   schemaName: string,
   expandLevel: number = 2
@@ -319,7 +320,7 @@ const fetchTableData = async (
     ? ',search:"' + properties.searchTerms.trim() + '"'
     : "";
 
-  const cNames = columnNames(schemaName, tableId, metaData, expandLevel);
+  const cNames = columnNames(schemaName, tableId, metadata, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
           filter:$filter,

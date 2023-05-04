@@ -32,12 +32,11 @@ import { AxiosError } from "axios";
 import { Ref, ref, toRefs, watch } from "vue";
 import { IColumn } from "../../Interfaces/IColumn";
 import { IRow } from "../../Interfaces/IRow";
-import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import Client from "../../client/client";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
-import { requestPrimaryKey } from "../utils";
+import { getPrimaryKeys } from "../utils";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
 
@@ -98,39 +97,27 @@ async function getRowData(
   tableId: string,
   alreadyAreKeys?: boolean
 ): Promise<IRow[]> {
-  let newQueryResults: IRow[] = [];
+  let newRowData: IRow[] = [];
   const client = Client.newClient(activeSchema);
   const metadata = await client.fetchTableMetaData(tableId);
   let keys: (IRow | null)[] = rows;
   if (!alreadyAreKeys) {
     keys = getPrimaryKeys(rows, tableId, activeSchema);
   }
-  console.log("keys", keys);
-  for (const row of keys) {
-    if (row == null) continue;
-    console.log("row before request", row);
-    const externalSchemaClient = Client.newClient(metadata.externalSchema);
-    console.log(tableId);
-    const queryResult = await externalSchemaClient
-      .fetchRowData(tableId, await row)
-      .catch(errorHandler);
-    queryResult.metadata = metadata;
-    newQueryResults.push(queryResult);
+  for (const keyOrPromise of keys) {
+    const primaryKey = await keyOrPromise;
+    if (primaryKey !== null) {
+      const externalSchemaClient = Client.newClient(metadata.externalSchema);
+      const rowData = await externalSchemaClient
+        .fetchRowData(tableId, primaryKey)
+        .catch(errorHandler);
+      if (rowData) {
+        rowData.metadata = metadata;
+        newRowData.push(rowData);
+      }
+    }
   }
-  return newQueryResults;
-}
-
-function getPrimaryKeys(
-  rows: IRow[],
-  tableName: string,
-  schemaName: string
-): Promise<IRow | null>[] {
-  const keys = rows.map(async (row) => {
-    return await requestPrimaryKey(row, tableName, schemaName);
-  });
-  console.log("getPrimaryKeys", keys);
-
-  return keys;
+  return newRowData;
 }
 
 async function handleRefCellClicked({
