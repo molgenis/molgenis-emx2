@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/molgenis/molgenis-emx2.svg?style=shield)](https://circleci.com/gh/molgenis/molgenis-emx2) 
+[![CircleCI](https://circleci.com/gh/molgenis/molgenis-emx2.svg?style=shield)](https://circleci.com/gh/molgenis/molgenis-emx2)
 [![Build Status](https://dev.azure.com/molgenis/molgenis-emx2/_apis/build/status/molgenis.molgenis-emx2?branchName=master)](https://dev.azure.com/molgenis/molgenis-emx2/_build/latest?definitionId=1&branchName=master)[![Quality Status](https://sonarcloud.io/api/project_badges/measure?project=molgenis_molgenis-emx2&metric=alert_status)](https://sonarcloud.io/dashboard?id=molgenis_molgenis-emx2)
 [![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=molgenis_molgenis-emx2&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=molgenis_molgenis-emx2)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
