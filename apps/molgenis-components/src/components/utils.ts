@@ -59,7 +59,6 @@ export async function requestPrimaryKey(
 ): Promise<IRow | null> {
   const client = Client.newClient(schemaName);
   const tableMetadata = await client.fetchTableMetaData(tableName);
-
   if (!row["mg_insertedOn"] || !tableMetadata?.columns) {
     return null;
   } else {
@@ -89,7 +88,9 @@ async function getKeyValue(
   if (typeof cellValue === "string") {
     return cellValue;
   } else {
-    return await requestPrimaryKey(cellValue, column.id, schemaName);
+    if (column.refTable) {
+      return await requestPrimaryKey(cellValue, column.refTable, schemaName);
+    }
   }
 }
 

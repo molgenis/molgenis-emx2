@@ -204,12 +204,8 @@
             :template="cardTemplate"
             @click="$emit('rowClick', $event)"
             @reload="reload"
-            @edit="
-              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
-            "
-            @delete="
-              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
-            "
+            @edit="handleRowAction('edit', $event)"
+            @delete="handleDeleteRowRequest($event)"
           />
           <RecordCards
             v-if="view === View.RECORD"
@@ -221,12 +217,8 @@
             :template="recordTemplate"
             @click="$emit('rowClick', $event)"
             @reload="reload"
-            @edit="
-              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
-            "
-            @delete="
-              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
-            "
+            @edit="handleRowAction('edit', $event)"
+            @delete="handleDeleteRowRequest($event)"
           />
           <TableMolgenis
             v-if="view == View.TABLE"
@@ -265,31 +257,17 @@
               <RowButton
                 v-if="canEdit"
                 type="edit"
-                @edit="
-                  handleRowAction(
-                    'edit',
-                    getPrimaryKey(slotProps.row, tableMetadata)
-                  )
-                "
+                @edit="handleRowAction('edit', slotProps.row)"
               />
               <RowButton
                 v-if="canEdit"
                 type="clone"
-                @clone="
-                  handleRowAction(
-                    'clone',
-                    getPrimaryKey(slotProps.row, tableMetadata)
-                  )
-                "
+                @clone="handleRowAction('clone', slotProps.row)"
               />
               <RowButton
                 v-if="canEdit"
                 type="delete"
-                @delete="
-                  handleDeleteRowRequest(
-                    getPrimaryKey(slotProps.row, tableMetadata)
-                  )
-                "
+                @delete="handleDeleteRowRequest(slotProps.row)"
               />
             </template>
           </TableMolgenis>
@@ -376,7 +354,7 @@ import {
   deepClone,
   getLocalizedDescription,
   getLocalizedLabel,
-  getPrimaryKey,
+  getPrimaryKeys,
   isRefType,
 } from "../utils";
 import AggregateTable from "./AggregateTable.vue";
@@ -443,6 +421,7 @@ export default {
       columns: [],
       count: 0,
       dataRows: [],
+      dataRowsWithKeys: [],
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
       graphqlError: null,
@@ -558,23 +537,22 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey,
     setSearchTerms(newSearchValue) {
       this.searchTerms = newSearchValue;
       this.$emit("searchTerms", newSearchValue);
       this.reload();
     },
-    handleRowAction(type, key) {
+    handleRowAction(type, row) {
       this.editMode = type;
-      this.editRowPrimaryKey = key;
+      this.editRowPrimaryKey = row.mg_primarykey;
       this.isEditModalShown = true;
     },
     handleModalClose() {
       this.isEditModalShown = false;
       this.reload();
     },
-    handleDeleteRowRequest(key) {
-      this.editRowPrimaryKey = key;
+    handleDeleteRowRequest(row) {
+      this.editRowPrimaryKey = row.mg_primarykey;
       this.isDeleteModalShown = true;
     },
     async handleExecuteDelete() {
@@ -724,6 +702,18 @@ export default {
         .catch(this.handleError);
       this.dataRows = dataResponse[this.tableId];
       this.count = dataResponse[this.tableId + "_agg"]["count"];
+
+      const keys = await getPrimaryKeys(
+        this.dataRows,
+        this.tableId,
+        this.schemaName
+      );
+
+      this.dataRows = this.dataRows.map((row, index) => ({
+        ...row,
+        mg_primarykey: keys[index],
+      }));
+
       this.loading = false;
     },
   },
