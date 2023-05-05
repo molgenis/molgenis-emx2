@@ -34,7 +34,7 @@ subprojects {
     dependencies {
         implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
         implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.20.0'
-        implementation 'org.jooq:jooq:3.18.0'
+        implementation 'org.jooq:jooq:3.17.8'
         implementation 'com.zaxxer:HikariCP:5.0.1'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.14.2'
