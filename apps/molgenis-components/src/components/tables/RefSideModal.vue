@@ -102,7 +102,7 @@ async function getRowData(
   const metadata = await client.fetchTableMetaData(tableId);
   let keys: (IRow | null)[] = rows;
   if (!alreadyAreKeys) {
-    keys = getPrimaryKeys(rows, tableId, activeSchema);
+    keys = await getPrimaryKeys(rows, tableId, activeSchema);
   }
   for (const keyOrPromise of keys) {
     const primaryKey = await keyOrPromise;

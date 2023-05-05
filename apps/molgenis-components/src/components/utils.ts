@@ -22,7 +22,6 @@ export function isNumericKey(event: KeyboardEvent): boolean {
 }
 
 export function flattenObject(object: Record<string, any>): string {
-  console.log(object);
   if (typeof object === "object") {
     let result = "";
     Object.keys(object).forEach((key) => {
@@ -46,11 +45,11 @@ export async function getPrimaryKeys(
   tableName: string,
   schemaName: string
 ): Promise<(IRow | null)[]> {
-  let results: (IRow | null)[] = [];
-  rows.forEach(async (row) => {
-    results.push(await requestPrimaryKey(row, tableName, schemaName));
-  });
-  return results;
+  return await Promise.all(
+    rows.map(async (row: IRow) => {
+      return await requestPrimaryKey(row, tableName, schemaName);
+    })
+  );
 }
 
 export async function requestPrimaryKey(

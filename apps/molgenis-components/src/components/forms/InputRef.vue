@@ -165,17 +165,11 @@ export default {
         this.tableName,
         this.schemaName
       );
-      console.log("step 1", this.data);
-      this.data = this.data.map(async (result) => {
-        const bla = await result;
-        return { flattened: flattenObject(bla), key: bla };
-      });
-      console.log("step 2: ", this.data);
 
-      // for (const dat in this.data) {
-      //   const newDat = { flattened: flattenObject(dat), key: dat };
-      //   dat = newDat;
-      // }
+      this.data = this.data.map((result) => {
+        return { flattened: flattenObject(result), key: result };
+      });
+
       this.count = response[this.tableId + "_agg"].count;
     },
   },
