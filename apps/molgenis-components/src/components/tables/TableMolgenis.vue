@@ -59,7 +59,7 @@
                 name="rowheader"
                 :row="row"
                 :metadata="tableMetadata"
-                :rowkey="getPrimaryKey(row, tableMetadata)"
+                :rowkey="row.mg_primarykey"
               />
             </div>
             <i v-if="row.mg_draft" class="fas fa-user-edit">draft</i>
@@ -109,7 +109,7 @@ th {
  * Table that uses MOLGENIS metadata format to configure itself. Provide 'metadata' and 'data' and your table is ready.
  * Can be used without backend to configure a table. Note, columns can be dragged.
  */
-import { deepClone, deepEqual, getPrimaryKey, isRefType } from "../utils";
+import { deepClone, deepEqual, isRefType } from "../utils";
 import DataDisplayCell from "./DataDisplayCell.vue";
 
 export default {
@@ -151,11 +151,8 @@ export default {
         }
       }
     },
-    getPrimaryKey(row) {
-      return getPrimaryKey(row, this.tableMetadata);
-    },
     isSelected(row) {
-      let key = this.getPrimaryKey(row);
+      let key = row.mg_primarykey;
       let found = false;
       if (Array.isArray(this.selection)) {
         this.selection.forEach((s) => {
@@ -181,7 +178,7 @@ export default {
       }
     },
     onRowClick(row) {
-      const key = this.getPrimaryKey(row);
+      const key = row.mg_primarykey;
       if (this.showSelect) {
         //deep copy
         let update = deepClone(this.selection);
