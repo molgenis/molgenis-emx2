@@ -50,6 +50,10 @@ interface ICohort {
 interface IVariable {
   name: string;
   label: string;
+  description?: string;
+  unit?: IOntologyNode;
+  format?: IOntologyNode;
+  nRepeats?: number;
 }
 
 interface IFile {
