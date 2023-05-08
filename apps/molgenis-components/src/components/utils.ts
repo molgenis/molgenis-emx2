@@ -41,16 +41,17 @@ export function flattenObject(object: Record<string, any>): string {
 
 export function getPrimaryKey(
   row: IRow,
-  tableMetaData: ITableMetaData
+  tableMetadata: ITableMetaData
 ): Record<string, any> | null {
   //we only have pkey when the record has been saved
-  if (!row["mg_insertedOn"] || !tableMetaData?.columns) {
+  if (!row["mg_insertedOn"] || !tableMetadata?.columns) {
     return null;
   } else {
-    return tableMetaData.columns.reduce(
+    return tableMetadata.columns.reduce(
       (accum: Record<string, any>, column: IColumn) => {
-        if (column.key === 1 && row[column.id]) {
-          accum[column.id] = row[column.id];
+        const cellValue = row[column.id];
+        if (column.key === 1 && cellValue) {
+          accum[column.id] = cellValue;
         }
         return accum;
       },
@@ -60,11 +61,6 @@ export function getPrimaryKey(
 }
 
 export function deepClone(original: any): any {
-  // node js may not have structuredClone function, then fallback to deep clone via JSON
-  // return typeof structuredClone === "function"
-  //   ? structuredClone(original)
-  //   :
-  //structuredClone doesn't work in vue 3
   return JSON.parse(JSON.stringify(original));
 }
 
@@ -172,4 +168,32 @@ export function getLocalizedDescription(
     return tableOrColumnMetadata.descriptions.find((el) => el.locale === locale)
       ?.value;
   }
+}
+
+/** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
+export function deepEqual(
+  object1: Record<string, any>,
+  object2: Record<string, any>
+): boolean {
+  const keys1 = Object.keys(object1);
+  const keys2 = Object.keys(object2);
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+  for (const key of keys1) {
+    const val1 = object1[key];
+    const val2 = object2[key];
+    const areObjects = isObject(val1) && isObject(val2);
+    if (
+      (areObjects && !deepEqual(val1, val2)) ||
+      (!areObjects && val1 !== val2)
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function isObject(object: Record<string, any>): object is Object {
+  return object !== null && typeof object === "object";
 }

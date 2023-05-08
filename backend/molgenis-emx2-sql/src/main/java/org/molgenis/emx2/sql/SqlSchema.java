@@ -379,8 +379,10 @@ public class SqlSchema implements Schema {
       }
     }
 
-    // finally update settings
-    targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
+    // finally, update settings if changes are provided
+    if (!mergeSchema.getSettings().isEmpty()) {
+      targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
+    }
   }
 
   public String getName() {

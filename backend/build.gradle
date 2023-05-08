@@ -34,7 +34,7 @@ subprojects {
     dependencies {
         implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
         implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.20.0'
-        implementation 'org.jooq:jooq:3.18.0'
+        implementation 'org.jooq:jooq:3.17.8'
         implementation 'com.zaxxer:HikariCP:5.0.1'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.14.2'
@@ -51,15 +51,15 @@ subprojects {
         implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
 
         //also used outside test
-        implementation 'org.junit.jupiter:junit-jupiter:5.9.2'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+        implementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
         testImplementation 'org.mockito:mockito-core:5.1.1'
         //allows to set environment variables in test
         testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
     }
 
     jacoco {
-        toolVersion = "0.8.8"
+        toolVersion = "0.8.10"
     }
     jacocoTestReport {
         reports {

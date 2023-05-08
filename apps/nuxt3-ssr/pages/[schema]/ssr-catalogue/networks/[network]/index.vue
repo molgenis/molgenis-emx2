@@ -54,14 +54,16 @@ const variables = { id: route.params.network };
 
 let network: INetwork;
 
-const { data: networkData, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
-  {
-    baseURL: config.public.apiBase,
-    method: "POST",
-    body: { query, variables },
-  }
-);
+const {
+  data: networkData,
+  pending,
+  error,
+  refresh,
+} = await useFetch(`/${route.params.schema}/catalogue/graphql`, {
+  baseURL: config.public.apiBase,
+  method: "POST",
+  body: { query, variables },
+});
 
 watch(networkData, setData, {
   deep: true,
