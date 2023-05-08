@@ -17,7 +17,7 @@ Resources,,pid,,2,,,,,,,,Persistent identifier,EMA,,
 Resources,,acronym,,,,,,,,,,Acronym if applicable,EMA,,
 Resources,,name,text,3,TRUE,,,,,,,Name used in European projects,EMA,,
 Data resources,,local name,,,,,,,,,,"If different from above, name in the national language",,Resources,localName
-Organisations,,type,ontology,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?,EMA,,
+Organisations,,type,ontology_array,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?,EMA,,
 Organisations,,type other,text,,,,,,,,,"If type is 'other', a description of type of organisation",,,
 Organisations,,institution,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of",EMA,,
 Organisations,,institution acronym,string,,,,,,,,,Short name of the organisation,EMA,,
