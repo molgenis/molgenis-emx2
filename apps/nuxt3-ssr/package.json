@@ -8,7 +8,6 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
     "format": "prettier components composables gql interfaces pages plugins utils  --write --config ../.prettierrc.js",
     "tailwind": "node gen-themes.js",
     "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./assets/icons -o ./assets/minified-icons --config ./svgo.config.js && node ./scripts/create_vue_components_from_icons.js"

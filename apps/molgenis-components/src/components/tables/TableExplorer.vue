@@ -354,7 +354,6 @@ import {
   deepClone,
   getLocalizedDescription,
   getLocalizedLabel,
-  getPrimaryKeys,
   isRefType,
 } from "../utils";
 import AggregateTable from "./AggregateTable.vue";
@@ -693,6 +692,7 @@ export default {
         : {};
       const dataResponse = await this.client
         .fetchTableData(this.tableName, {
+          //TODO tableName of tableId?
           limit: this.limit,
           offset: offset,
           filter: this.graphqlFilter,
@@ -703,16 +703,16 @@ export default {
       this.dataRows = dataResponse[this.tableId];
       this.count = dataResponse[this.tableId + "_agg"]["count"];
 
-      const keys = await getPrimaryKeys(
-        this.dataRows,
-        this.tableId,
-        this.schemaName
-      );
+      // const keys = await getPrimaryKeys(
+      //   tableData,
+      //   this.tableId,
+      //   this.schemaName
+      // );
 
-      this.dataRows = this.dataRows.map((row, index) => ({
-        ...row,
-        mg_primarykey: keys[index],
-      }));
+      // this.dataRows = tableData.map((row, index) => ({
+      //   ...row,
+      //   mg_primarykey: keys[index],
+      // }));
 
       this.loading = false;
     },

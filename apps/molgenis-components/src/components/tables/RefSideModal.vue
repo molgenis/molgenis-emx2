@@ -36,9 +36,9 @@ import Client from "../../client/client";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
-import { getPrimaryKeys } from "../utils";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
+import { getPrimaryKeys } from "../utils";
 
 const props = withDefaults(
   defineProps<{

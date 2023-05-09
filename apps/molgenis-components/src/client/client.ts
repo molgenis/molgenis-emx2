@@ -3,7 +3,11 @@ import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
-import { convertToPascalCase, deepClone } from "../components/utils";
+import {
+  convertToPascalCase,
+  deepClone,
+  getPrimaryKeys,
+} from "../components/utils";
 import { IClient, INewClient } from "./IClient";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { columnNames } from "./queryBuilder";
@@ -12,7 +16,7 @@ export { request };
 const client: IClient = {
   newClient: (schemaName?: string, externalAxios?: Axios): INewClient => {
     const myAxios = externalAxios || axios;
-    // use closure to have metaData cache private to client
+    // use closure to have metadata cache private to client
     let schemaMetaData: ISchemaMetaData | null | void = null;
     let schemaNameCache: string = schemaName || "";
 
@@ -79,13 +83,14 @@ const client: IClient = {
         if (!schemaMetaData) {
           throw "Schema meta data not found for schema: " + schemaNameCache;
         }
+        const expandLevel = 1;
         const dataResp = await fetchTableData(
           tableId,
           properties,
           schemaMetaData,
           myAxios,
           schemaNameCache,
-          1
+          expandLevel
         );
         return dataResp[tableId];
       },
@@ -347,8 +352,22 @@ const fetchTableData = async (
       console.log(error);
       throw error;
     });
-  return resp?.data.data;
+  const data = resp?.data.data;
+  const rowsWithKeys = await addPrimaryKeysToRows(data, tableId, schemaName);
+  return { ...data, [tableId]: rowsWithKeys };
 };
+
+async function addPrimaryKeysToRows(
+  data: any,
+  tableId: string,
+  schemaName: string
+) {
+  const keys = await getPrimaryKeys(data[tableId], tableId, schemaName);
+  return data[tableId].map((row: IRow, index: number) => ({
+    ...row,
+    mg_primaryKey: keys[index],
+  }));
+}
 
 const fetchSettings = async (schemaName: string) => {
   return (await request(graphqlURL(schemaName), "{_settings{key, value}}"))

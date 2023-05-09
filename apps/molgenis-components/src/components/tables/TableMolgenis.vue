@@ -180,7 +180,6 @@ export default {
     onRowClick(row) {
       const key = row.mg_primarykey;
       if (this.showSelect) {
-        //deep copy
         let update = deepClone(this.selection);
         if (this.isSelected(row)) {
           /** when a row is deselected */
@@ -310,7 +309,7 @@ export default {
       (t) => t.name === "Pet"
     ).columns;
     this.remoteColumns = petColumns.filter((c) => !c.name.startsWith("mg_"));
-    this.remoteTableData = (await client.fetchTableData("Pet")).Pet;
+    this.remoteTableData = (await client.fetchTableData("Pet", {})).Pet;
   },
 };
 </script>

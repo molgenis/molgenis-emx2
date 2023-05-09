@@ -101,6 +101,7 @@ function getFilteredRow(reference: IRow): IRow {
   const filtered: Record<string, any> = { ...reference };
   delete filtered.mg_insertedBy;
   delete filtered.mg_insertedOn;
+  delete filtered.mg_primaryKey;
   delete filtered.mg_updatedBy;
   delete filtered.mg_updatedOn;
   delete filtered.mg_draft;
