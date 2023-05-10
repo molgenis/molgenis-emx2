@@ -1,14 +1,15 @@
 package org.molgenis.emx2.graphql;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.GraphQL;
 import java.io.IOException;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -24,7 +25,7 @@ public class TestGraphqlCrossSchemaRefs {
   private static Schema schema1;
   private static Schema schema2;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     Database database = TestDatabaseFactory.getTestDatabase();
     database.dropSchemaIfExists(schemaName2);
@@ -38,14 +39,14 @@ public class TestGraphqlCrossSchemaRefs {
 
   @Test
   public void test() throws IOException {
-    Assert.assertEquals(
+    assertEquals(
         "parent1", execute("{Child{name,parent{name}}}").at("/Child/0/parent/name").asText());
 
-    Assert.assertEquals(
+    assertEquals(
         "dog", execute("{PetLover{name,pets{species}}}").at("/PetLover/0/pets/1/species").asText());
 
     // checks for a reported bug that ChildInput were not created
-    Assert.assertTrue(
+    assertTrue(
         execute("mutation{save(Child:{name:\"test\"}){message}}")
             .at("/save/message")
             .asText()
@@ -56,7 +57,7 @@ public class TestGraphqlCrossSchemaRefs {
     String result = convertExecutionResultToJson(graphql.execute(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
-      throw new MolgenisException(node.get("errors").get(0).get("message").asText(), "");
+      throw new MolgenisException(node.get("errors").get(0).get("message").asText());
     }
     return new ObjectMapper().readTree(result).get("data");
   }

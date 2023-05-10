@@ -1,20 +1,36 @@
 apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "emx2.fullname" . }}
-  labels:
-    app: {{ template "emx2.name" . }}
-    chart: {{ template "emx2.chart" . }}
-    release: {{ .Release.Name | quote }}
-    heritage: {{ .Release.Service | quote }}
-spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - port: {{ .Values.service.port }}
-      targetPort: 8080
-      protocol: TCP
-  selector:
-    {{- include "emx2.selectorLabels" . | nindent 4}}
-status:
-  loadBalancer: {}
-
+kind: List  
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: {{ include "emx2.fullname" . }}
+      labels:
+        app: {{ template "emx2.name" . }}
+        chart: {{ template "emx2.chart" . }}
+        release: {{ .Release.Name | quote }}
+        heritage: {{ .Release.Service | quote }}
+    spec:
+      type: {{ .Values.service.type }}
+      ports:
+        - port: {{ .Values.service.port }}
+          targetPort: 8080
+          protocol: TCP
+      selector:
+        {{- include "emx2.selectorLabels" . | nindent 8}}
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: ssr-catalogue
+    spec:
+      type: {{ .Values.service.type }}
+      ports:
+        - port: 3000
+          targetPort: 3000
+          protocol: TCP
+      selector:
+        {{- include "emx2.selectorLabels" . | nindent 8}}
+    status:
+      loadBalancer: {}

@@ -1,7 +1,5 @@
 package org.molgenis.emx2.datamodels.util;
 
-import static junit.framework.TestCase.fail;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -113,5 +111,9 @@ public class CompareTools {
         fail("Roundtrip test failed: changes, " + diff.toString());
       }
     }
+  }
+
+  private static void fail(String message) {
+    throw new MolgenisException(message);
   }
 }

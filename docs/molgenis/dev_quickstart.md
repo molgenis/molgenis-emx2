@@ -150,3 +150,9 @@ Build test ('gradle test') will create database schemas, users, roles and passwo
 If you don't like that than please consider to use a different database instance for 'test'.
 You can use environment variables MOLGENIS_POSTGRES_** for this.
 See [Installation guide](run).
+
+### VS code
+
+Some of us also develop using VS code:
+* It automatically will discover the gradle tasks
+* To enable autoformatting of java using spottless, install [spottles plugin](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-spotless-gradle)

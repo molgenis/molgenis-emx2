@@ -61,7 +61,7 @@ class SqlTable implements Table {
                 cm.copyOut(
                     "COPY (" + selectQuery + " ) TO STDOUT WITH (FORMAT CSV,HEADER )", writer);
               } catch (Exception e) {
-                throw new MolgenisException("copyOut failed: ", e);
+                throw new SqlMolgenisException("copyOut failed: ", e);
               }
             });
   }
@@ -105,7 +105,7 @@ class SqlTable implements Table {
                 String sql = "COPY " + tableName + columnNames + " FROM STDIN (FORMAT CSV,HEADER )";
                 cm.copyIn(sql, new StringReader(tmp.toString()));
               } catch (Exception e) {
-                throw new MolgenisException("copyOut failed: ", e);
+                throw new SqlMolgenisException("copyOut failed: ", e);
               }
             });
   }
@@ -148,7 +148,7 @@ class SqlTable implements Table {
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
     } catch (Exception e) {
-      throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed.", e);
+      throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed", e);
     }
   }
 
@@ -265,9 +265,9 @@ class SqlTable implements Table {
               columnsProvided.put(subclassName, new LinkedHashSet<>(row.getColumnNames()));
             }
 
-            // execute batch if 1000 rows, or columns provided changes
+            // execute batch; or columns provided changes
             if (columnsProvidedAreDifferent(columnsProvided.get(subclassName), row)
-                || subclassRows.get(subclassName).size() >= 1000) {
+                || subclassRows.get(subclassName).size() >= 100) {
               executeBatch(
                   (SqlSchema) db2.getSchema(subclassName.split("\\.")[0]),
                   transactionType,
@@ -507,7 +507,7 @@ class SqlTable implements Table {
             SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
 
             // delete in batches
-            int batchSize = 100000;
+            int batchSize = 1000;
             List<Row> batch = new ArrayList<>();
             for (Row row : rows) {
               batch.add(row);
@@ -527,7 +527,7 @@ class SqlTable implements Table {
             }
           });
     } catch (Exception e) {
-      throw new SqlMolgenisException("Delete into table " + getName() + " failed.   ", e);
+      throw new SqlMolgenisException("Delete into table " + getName() + " failed", e);
     }
 
     log(db.getActiveUser(), getName(), start, count, "deleted");

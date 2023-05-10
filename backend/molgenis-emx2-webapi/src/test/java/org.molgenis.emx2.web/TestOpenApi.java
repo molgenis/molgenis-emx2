@@ -1,11 +1,12 @@
 package org.molgenis.emx2.web;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
 import java.io.StringWriter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.SchemaMetadata;
@@ -34,9 +35,9 @@ public class TestOpenApi {
                 .add(Column.column("Last_Name")));
 
     OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema);
-    Assert.assertEquals(1, api.getComponents().getSchemas().size()); // useless test
+    assertEquals(1, api.getComponents().getSchemas().size()); // useless test
 
-    Assert.assertEquals(1, api.getComponents().getSchemas().size()); // useless test
+    assertEquals(1, api.getComponents().getSchemas().size()); // useless test
 
     StringWriter writer = new StringWriter();
     Yaml.pretty().writeValue(writer, api);

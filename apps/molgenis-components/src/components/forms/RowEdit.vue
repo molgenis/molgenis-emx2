@@ -4,7 +4,7 @@
       v-for="column in columnsWithoutMeta.filter(showColumn)"
       :key="JSON.stringify(column)"
       :id="`${id}-${column.name}`"
-      v-model="internalValues[column.id]"
+      :modelValue="internalValues[column.id]"
       :columnType="column.columnType"
       :description="getColumnDescription(column)"
       :errorMessage="errorPerColumn[column.id]"
@@ -23,6 +23,7 @@
       :tableName="column.refTable"
       :canEdit="canEdit"
       :filter="refLinkFilter(column)"
+      @update:modelValue="handleModelValueUpdate($event, column.id)"
     />
   </div>
 </template>
@@ -193,6 +194,7 @@ export default {
               this.internalValues,
               this.tableMetaData
             );
+            this.onValuesUpdate();
           } catch (error) {
             this.errorPerColumn[c.id] = "Computation failed: " + error;
           }
@@ -228,22 +230,21 @@ export default {
         return filter;
       }
     },
+    handleModelValueUpdate(event, columnId) {
+      this.internalValues[columnId] = event;
+      this.onValuesUpdate();
+    },
+    onValuesUpdate() {
+      this.errorPerColumn = {};
+      this.validateTable();
+      this.applyComputed();
+      this.$emit("update:modelValue", this.internalValues);
+    },
   },
   watch: {
-    internalValues: {
-      handler() {
-        //clean up errors
-        this.errorPerColumn = {};
-        this.validateTable();
-        this.applyComputed();
-        this.$emit("update:modelValue", this.internalValues);
-      },
-      deep: true,
-    },
     tableMetaData: {
       handler() {
-        this.validateTable();
-        this.applyComputed();
+        this.onValuesUpdate();
       },
       deep: true,
     },
@@ -252,8 +253,7 @@ export default {
     if (this.defaultValue) {
       this.internalValues = deepClone(this.defaultValue);
     }
-    this.validateTable();
-    this.applyComputed();
+    this.onValuesUpdate();
   },
 };
 
@@ -349,7 +349,7 @@ function isValidHyperlink(value) {
 }
 
 function containsInvalidHyperlink(hyperlinks) {
-  return hyperlinks.find((hyperlink) => !this.isValidHyperlink(hyperlink));
+  return hyperlinks.find((hyperlink) => !isValidHyperlink(hyperlink));
 }
 
 function isValidEmail(value) {
@@ -357,7 +357,7 @@ function isValidEmail(value) {
 }
 
 function containsInvalidEmail(emails) {
-  return emails.find((email) => !this.isValidEmail(email));
+  return emails.find((email) => !isValidEmail(email));
 }
 </script>
 

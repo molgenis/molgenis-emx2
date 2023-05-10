@@ -1,4 +1,5 @@
 interface ICohort {
+  id: string;
   name: string;
   acronym?: string;
   description?: string;
@@ -10,7 +11,7 @@ interface ICohort {
   };
   type: INameObject[];
   collectionType: INameObject[];
-  populationAgeGroups: INameObject[];
+  populationAgeGroups?: IOntologyNode[];
   startYear: number;
   endYear: number;
   countries: {
@@ -35,8 +36,8 @@ interface ICohort {
   }[];
   inclusionCriteria?: string;
   collectionEvents: ICollectionEvent[];
-  partners: IPartner[];
-  contributors: IContributor[];
+  additionalOrganisations: IPartner[];
+  contacts: IContributor[];
   networks: INetwork[];
   releaseDescription?: string;
   dataAccessConditionsDescription?: string;
@@ -61,29 +62,23 @@ interface IDocumentation {
 }
 
 interface IPartner {
-  institution: {
-    pid: string;
-    acronym: string;
-    website: string;
-    name: string;
-    description: string;
-    logo: IUrlObject;
-  };
+  id: string;
+  acronym: string;
+  website: string;
+  name: string;
+  description: string;
+  logo: IUrlObject;
 }
 
 interface IContributor {
-  contributionDescription: string;
-  contact: IContact;
-}
-
-interface IContact {
+  roleDescription: string;
   firstName: string;
-  surname: string;
+  lastName: string;
+  prefix?: string;
   initials: string;
-  department: string;
   email: string;
   title: INameObject;
-  institution: INameObject;
+  organisation: INameObject;
 }
 
 interface INameObject {
@@ -108,7 +103,7 @@ interface ICollectionEvent {
   standardizedTools: ICollectionEventCategory[];
   standardizedToolsOther: string;
   subcohorts: INameObject[];
-  coreVariables: INameObject[];
+  coreVariables: string[];
 }
 
 interface ICollectionEventCategory {

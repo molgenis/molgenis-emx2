@@ -18,17 +18,17 @@
       <div
         class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
         v-for="cohort in cohorts"
-        :key="cohort.pid"
+        :key="cohort.id"
       >
         <div class="card col-12 p-0">
           <div class="card-header bg-white">
             <h5 class="card-title mb-0" style="min-height: 4em">
-              {{ cohort.pid }}: {{ cohort.name }}
+              {{ cohort.id }}: {{ cohort.name }}
             </h5>
             <RouterLink
               :to="{
                 name: 'NetworkCohortDetailView',
-                params: { network: network, pid: cohort.pid },
+                params: { network: network, id: cohort.id },
               }"
               class="btn btn-outline-primary float-right"
             >
@@ -86,7 +86,7 @@
                   <td>Institution:</td>
                   <td>
                     <div v-if="cohort.institution">
-                      {{ cohort.institution.map((i) => i.pid).join(", ") }}
+                      {{ cohort.organisations.map((o) => o.id).join(", ") }}
                     </div>
                     <span v-else>N/A</span>
                   </td>
@@ -133,7 +133,7 @@ export default {
     graphqlFilter() {
       let filter = this.filter ? this.filter : {};
       if (this.network) {
-        filter.networks = { pid: { equals: this.network } };
+        filter.networks = { id: { equals: this.network } };
       }
       return filter;
     },

@@ -1,9 +1,9 @@
 import gql from "graphql-tag";
 export default gql`
-  query CollectionEvents($pid: String) {
-    CollectionEvents(filter: { resource: { pid: { equals: [$pid] } } }) {
+  query CollectionEvents($id: String) {
+    CollectionEvents(filter: { resource: { id: { equals: [$id] } } }) {
       resource {
-        pid
+        id
       }
       name
       description

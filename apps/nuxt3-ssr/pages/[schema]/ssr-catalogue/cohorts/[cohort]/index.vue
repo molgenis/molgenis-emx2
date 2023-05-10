@@ -9,8 +9,8 @@ const config = useRuntimeConfig();
 const route = useRoute();
 
 const query = gql`
-  query Cohorts($pid: String) {
-    Cohorts(filter: { pid: { equals: [$pid] } }) {
+  query Cohorts($id: String) {
+    Cohorts(filter: { id: { equals: [$id] } }) {
       acronym
       name
       description
@@ -19,7 +19,7 @@ const query = gql`
         url
       }
       contactEmail
-      institution {
+      leadOrganisation {
         acronym
       }
       type {
@@ -28,12 +28,13 @@ const query = gql`
       collectionType {
         name
       }
-      populationAgeGroups ${loadGql(ontologyFragment)}
+      populationAgeGroups {
+        name order code parent { code }
+      }
       startYear
       endYear
       countries {
-        name
-        order
+        name order
       }
       regions {
         name
@@ -52,18 +53,16 @@ const query = gql`
         doi
       }
       inclusionCriteria
-      partners {
-        institution {
-          pid
-          acronym
-          name
-          website
-          description
-          logo ${loadGql(fileFragment)}
-        }
+      additionalOrganisations {
+        id
+        acronym
+        name
+        website
+        description
+        logo ${loadGql(fileFragment)}
       }
       networks {
-        pid
+        id
         name
         description
         website
@@ -86,24 +85,20 @@ const query = gql`
         subcohorts {
           name
         }
-        coreVariables {
+        coreVariables
+      }
+      contacts {
+        roleDescription
+        firstName
+        lastName
+        prefix
+        initials
+        email
+        title {
           name
         }
-      }
-      contributors {
-        contributionDescription
-        contact {
-          firstName
-          surname
-          initials
-          department
-          email
-          title {
-            name
-          }
-          institution {
-            name
-          }
+        organisation {
+          name
         }
       }
       dataAccessConditions {
@@ -132,7 +127,7 @@ const query = gql`
     }
   }
 `;
-const variables = { pid: route.params.cohort };
+const variables = { id: route.params.cohort };
 
 let cohort: ICohort;
 
@@ -156,7 +151,7 @@ function setData(data: any) {
   cohort = data?.data?.Cohorts[0];
 }
 
-fetchGql(collectionEventsQuery, { pid: route.params.cohort })
+fetchGql(collectionEventsQuery, { id: route.params.cohort })
   .then((resp) => onCollectionEventsLoaded(resp.data.CollectionEvents))
   .catch((e) => console.log(e));
 
@@ -183,7 +178,7 @@ function onCollectionEventsLoaded(rows: any) {
   });
 }
 
-fetchGql(subcohortsQuery, { pid: route.params.cohort })
+fetchGql(subcohortsQuery, { id: route.params.cohort })
   .then((resp) => onSubcohortsLoaded(resp.data.Subcohorts))
   .catch((e) => console.log(e));
 
@@ -214,7 +209,7 @@ let tocItems = computed(() => {
   if (cohort?.documentation) {
     tableOffContents.push({ label: "Attached files", id: "Files" });
   }
-  if (cohort?.contributors) {
+  if (cohort?.contacts) {
     tableOffContents.push({
       label: "Contact & contributors",
       id: "Contributors",
@@ -238,7 +233,7 @@ let tocItems = computed(() => {
   if (cohort?.networks) {
     tableOffContents.push({ label: "Networks", id: "Networks" });
   }
-  if (cohort?.partners) {
+  if (cohort?.additionalOrganisations) {
     tableOffContents.push({ label: "Partners", id: "Partners" });
   }
 
@@ -298,6 +293,8 @@ let fundingAndAcknowledgementItems = computed(() => {
 
   return items;
 });
+
+useHead({ title: cohort?.acronym || cohort?.name });
 </script>
 <template>
   <LayoutsDetailPage>
@@ -331,7 +328,7 @@ let fundingAndAcknowledgementItems = computed(() => {
         <ContentBlockIntro
           :image="cohort?.logo?.url"
           :link="cohort?.website"
-          :contact="`mailto:${cohort?.contactEmail}`"
+          :contact="cohort?.contactEmail"
         />
         <ContentBlockDescription
           id="Description"
@@ -353,10 +350,10 @@ let fundingAndAcknowledgementItems = computed(() => {
         />
 
         <ContentBlockContact
-          v-if="cohort?.contributors"
+          v-if="cohort?.contacts"
           id="Contributors"
           title="Contact and Contributors"
-          :contributors="cohort?.contributors"
+          :contributors="cohort?.contacts"
         />
 
         <!-- <ContentBlockVariables
@@ -399,11 +396,11 @@ let fundingAndAcknowledgementItems = computed(() => {
         />
 
         <ContentBlockPartners
-          v-if="cohort?.partners"
+          v-if="cohort?.additionalOrganisations"
           id="Partners"
           title="Partners"
           description=""
-          :partners="cohort?.partners"
+          :partners="cohort?.additionalOrganisations"
         />
 
         <ContentBlockNetwork

@@ -2,18 +2,6 @@
   <div>
     <div v-if="variable">
       <h5>
-        <router-link
-          :to="{
-            name: 'VariableDetailView',
-            query: {
-              ...$route.query,
-              fromName: '',
-            },
-          }"
-        >
-          {{ toName }}
-        </router-link>
-        >
         {{ variable.label }}
       </h5>
       <div class="row">
@@ -35,10 +23,8 @@ export default {
   name: "FromVariableDetails",
   components: { VariableDetails },
   props: {
-    version: String,
     sourceCohort: String,
     fromName: String,
-    toName: String,
   },
   data() {
     return {
@@ -48,8 +34,7 @@ export default {
   async created() {
     this.variable = await fetchFromVariableDetails(
       this.fromName,
-      this.sourceCohort,
-      this.version
+      this.sourceCohort
     );
   },
 };

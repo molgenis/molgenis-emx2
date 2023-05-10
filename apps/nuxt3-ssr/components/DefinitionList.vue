@@ -63,7 +63,7 @@ function showAsFile(item: DefinitionListItem) {
         <ContentOntology
           v-if="item?.type === 'ONTOLOGY'"
           :tree="item.content"
-          :collapse-all="false"
+          :collapse-all="true"
         ></ContentOntology>
 
         <a v-else-if="showAsFile(item)" class="flex" :href="item.content.url">

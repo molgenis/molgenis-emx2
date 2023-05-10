@@ -36,6 +36,20 @@ spec:
           value: postgres
         - name: POSTGRES_DB
           value: postgres
+    - name: helm
+      image: alpine/k8s:1.25.7
+      imagePullPolicy: IfNotPresent
+      tty: true
+      resources:
+        requests:
+          cpu: 1
+          memory: 1Gi
+        limits:
+          cpu: 1
+          memory: 1Gi
+      env:
+        - name: "KUBECONFIG"
+          value: "/home/jenkins/agent/.kube/config"
   volumes:
     - name: postgres-initdb
       emptyDir: {}

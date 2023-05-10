@@ -49,3 +49,4 @@ coverage
 apps/nuxt3-ssr/assets/css/*.css
 !apps/nuxt3-ssr/assets/css/main.css
 
+apps/nuxt3-ssr/utils/fingerprint.js

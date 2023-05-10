@@ -1,7 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  contact: IContact;
-  contributionDescription?: string;
+  contact: IContributor;
 }>();
 </script>
 
@@ -29,7 +28,8 @@ defineProps<{
         <span v-else-if="contact?.firstName">
           {{ contact?.firstName }}&nbsp;</span
         >
-        <span v-if="contact?.surname"> {{ contact?.surname }} </span>
+        <span v-if="contact?.prefix"> {{ contact?.prefix }}&nbsp;</span>
+        <span v-if="contact?.lastName"> {{ contact?.lastName }} </span>
       </span>
       <a
         class="text-blue-500 block hover:underline"
@@ -38,11 +38,8 @@ defineProps<{
       >
         {{ contact?.email }}
       </a>
-      <div v-if="contributionDescription" class="mt-3">
-        <p>{{ contributionDescription }}</p>
-      </div>
-      <div v-if="contact?.department" class="mt-3">
-        <p>{{ contact?.department }}</p>
+      <div v-if="contact.roleDescription" class="mt-3">
+        <p>{{ contact.roleDescription }}</p>
       </div>
     </div>
   </li>

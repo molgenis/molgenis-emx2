@@ -1,9 +1,15 @@
 <template>
-  <div v-if="hasTemplate">{{ asTemplate }}</div>
-  <div v-else>{{ asDotSeparatedString }}</div>
+  <span v-if="hasTemplate">
+    {{ asTemplate }}
+  </span>
+  <span v-else>
+    {{ asDotSeparatedString }}
+  </span>
 </template>
 
 <script>
+import { flattenObject } from "../../utils";
+
 export default {
   name: "ObjectDisplay",
   props: {
@@ -40,7 +46,7 @@ export default {
         if (this.data[key] === null) {
           //nothing
         } else if (typeof this.data[key] === "object") {
-          result += this.flattenObject(this.data[key]);
+          result += flattenObject(this.data[key]);
         } else {
           result += "." + this.data[key];
         }
