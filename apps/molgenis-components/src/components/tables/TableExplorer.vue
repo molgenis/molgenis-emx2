@@ -589,7 +589,7 @@ export default {
     async handelExecuteDeleteAll() {
       this.isDeleteAllModalShown = false;
       const resp = await this.client
-        .deleteAllTableData(this.tableId)
+        .deleteAllTableData(this.tableName)
         .catch(this.handleError);
       if (resp) {
         this.reload();
