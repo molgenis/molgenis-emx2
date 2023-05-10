@@ -36,14 +36,14 @@
               <div>
                 <span class="fixed-width">zip</span>
                 <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                  >all rows
+                </ButtonAlt>
               </div>
               <div>
                 <span class="fixed-width">csv</span>
                 <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                  >all rows
+                </ButtonAlt>
                 <span v-if="Object.keys(graphqlFilter).length > 0">
                   |
                   <ButtonAlt
@@ -63,8 +63,8 @@
               <div>
                 <span class="fixed-width">excel</span>
                 <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                  >all rows
+                </ButtonAlt>
                 <span v-if="Object.keys(graphqlFilter).length > 0">
                   |
                   <ButtonAlt
@@ -90,8 +90,8 @@
               <div>
                 <span class="fixed-width">ttl</span>
                 <ButtonAlt :href="'/' + schemaName + '/api/ttl/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                  >all rows
+                </ButtonAlt>
               </div>
             </div>
           </form>
@@ -829,11 +829,13 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
   border-bottom-left-radius: 0;
   border-left: 0;
 }
+
 .btn-group >>> span:not(:last-child) .btn {
   margin-left: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
+
 .inline-form-group {
   margin-bottom: 0;
 }
@@ -845,19 +847,16 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
     <div class="border p-1 my-1">
       <label>Read only example</label>
       <table-explorer
-        id="my-table-explorer"
-        tableName="Pet"
-        schemaName="pet store"
-        :showColumns="showColumns"
-        :showFilters="showFilters"
-        :urlConditions="urlConditions"
-        :showPage="page"
-        :showLimit="limit"
-        :showOrderBy="showOrderBy"
-        :showOrder="showOrder"
-        :canEdit="canEdit"
-        :canManage="canManage"
-        :locale="locale"
+          id="my-table-explorer"
+          tableName="VariableMappings"
+          schemaName="VAC4EU"
+          :showPage="page"
+          :showLimit="limit"
+          :showOrderBy="showOrderBy"
+          :showOrder="showOrder"
+          :canEdit="canEdit"
+          :canManage="canManage"
+          :locale="locale"
       />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
@@ -878,15 +877,11 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
     data() {
       return {
         showColumns: [],
-        showFilters: ['name'],
-        urlConditions: {"name": "pooky,spike"},
+        showFilters: [],
         page: 1,
         limit: 10,
-        showOrder: 'DESC',
-        showOrderBy: 'name',
         canEdit: false,
         canManage: false,
-        locale: 'en'
       }
     },
   }
