@@ -38,7 +38,6 @@ import {
   getLocalizedLabel,
   getLocalizedDescription,
 } from "../utils";
-
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
 
 export default {
