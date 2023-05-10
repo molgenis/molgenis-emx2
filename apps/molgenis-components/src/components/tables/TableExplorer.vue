@@ -580,7 +580,7 @@ export default {
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
       const resp = await this.client
-        .deleteRow(this.editRowPrimaryKey, this.tableId)
+        .deleteRow(this.editRowPrimaryKey, this.tableName)
         .catch(this.handleError);
       if (resp) {
         this.reload();

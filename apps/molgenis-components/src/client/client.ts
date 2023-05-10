@@ -3,7 +3,11 @@ import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
-import { convertToPascalCase, deepClone } from "../components/utils";
+import {
+  convertToCamelCase,
+  convertToPascalCase,
+  deepClone,
+} from "../components/utils";
 import { IClient, INewClient } from "./IClient";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { columnNames } from "./queryBuilder";
@@ -281,8 +285,7 @@ const deleteRow = (key: IRow, tableName: string, schemaName: string) => {
 };
 
 const deleteAllTableData = (tableName: string, schemaName: string) => {
-  const tableId = convertToPascalCase(tableName);
-  const query = `mutation {truncate(tables:"${tableId}"){message}}`;
+  const query = `mutation {truncate(tables:"${tableName}"){message}}`;
   return axios.post(graphqlURL(schemaName), { query });
 };
 
