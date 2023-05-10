@@ -54,7 +54,7 @@
             id="row-button-edit-dataset"
             tableName="DatasetMappings"
             :pkey="pkeyDataset(datasetmappings)"
-            :visibleColumns="[{ name: 'description' }]"
+            :visibleColumns="['description']"
             @close="handleModalClose"
           />
           <br />
@@ -79,10 +79,10 @@
               tableName="VariableMappings"
               :pkey="pkey(m)"
               :visibleColumns="[
-                { name: 'description' },
-                { name: 'syntax' },
-                { name: 'comments' },
-                { name: 'source variables' },
+                'description',
+                'syntax',
+                'comments',
+                'source variables',
               ]"
               @close="handleModalClose"
             />

@@ -1,59 +1,59 @@
 <template>
   <FormGroup
-      :id="id"
-      :label="label"
-      :required="required"
-      :description="description"
-      :errorMessage="errorMessage"
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
   >
     <div>
       <div>
         <div v-if="count > maxNum">
           <FilterWell
-              v-for="(item, key) in selection"
-              :key="JSON.stringify(item)"
-              :label="flattenObject(item)"
-              @click="deselect(key)"
+            v-for="(item, key) in selection"
+            :key="JSON.stringify(item)"
+            :label="flattenObject(item)"
+            @click="deselect(key)"
           />
         </div>
         <ButtonAlt
-            v-if="modelValue && modelValue.length"
-            class="pl-1"
-            @click="clearValue"
+          v-if="modelValue && modelValue.length"
+          class="pl-1"
+          @click="clearValue"
         >
           clear selection
         </ButtonAlt>
       </div>
       <div
-          :class="
+        :class="
           showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
         "
       >
         <div
-            class="form-check custom-control custom-checkbox"
-            :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-            v-for="(row, index) in data"
-            :key="index"
+          class="form-check custom-control custom-checkbox"
+          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
+          v-for="(row, index) in data"
+          :key="index"
         >
           <input
-              :id="`${id}-${row.name}`"
-              :name="id"
-              type="checkbox"
-              :value="getPrimaryKey(row, tableMetaData)"
-              v-model="selection"
-              @change="emitSelection"
-              class="form-check-input"
-              :class="{ 'is-invalid': errorMessage }"
+            :id="`${id}-${row.name}`"
+            :name="id"
+            type="checkbox"
+            :value="getPrimaryKey(row, tableMetaData)"
+            v-model="selection"
+            @change="emitSelection"
+            class="form-check-input"
+            :class="{ 'is-invalid': errorMessage }"
           />
           <label class="form-check-label" :for="`${id}-${row.name}`">
             {{ applyJsTemplate(row, refLabel) }}
           </label>
         </div>
         <ButtonAlt
-            class="pl-0"
-            :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-            icon="fa fa-search"
-            @click="openSelect"
+          class="pl-0"
+          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
+          icon="fa fa-search"
+          @click="openSelect"
         >
           {{ count > maxNum ? `view all ${count} options.` : "view as table" }}
         </ButtonAlt>
@@ -61,16 +61,16 @@
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
           <TableSearch
-              v-model:selection="selection"
-              @update:selection="$emit('update:modelValue', $event)"
-              :lookupTableName="tableName"
-              :filter="filter"
-              @select="emitSelection"
-              @deselect="deselect"
-              :schemaName="schemaName"
-              :showSelect="true"
-              :limit="10"
-              :canEdit="canEdit"
+            v-model:selection="selection"
+            @update:selection="$emit('update:modelValue', $event)"
+            :lookupTableName="tableName"
+            :filter="filter"
+            @select="emitSelection"
+            @deselect="deselect"
+            :schemaName="schemaName"
+            :showSelect="true"
+            :limit="10"
+            :canEdit="canEdit"
           />
         </template>
         <template v-slot:footer>
@@ -122,7 +122,7 @@ export default {
     },
     filter: Object,
     multipleColumns: Boolean,
-    maxNum: {type: Number, default: 11},
+    maxNum: { type: Number, default: 11 },
     tableName: {
       type: String,
       required: true,

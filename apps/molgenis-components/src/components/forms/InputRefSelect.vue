@@ -1,18 +1,18 @@
 <template>
   <FormGroup
-      :id="id"
-      :label="label"
-      :required="required"
-      :description="description"
-      :errorMessage="errorMessage"
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
   >
     <InputGroup>
       <input
-          class="form-control"
-          :class="{ 'is-invalid': errorMessage }"
-          @click="showSelect = true"
-          @focus="showSelect = true"
-          :value="
+        class="form-control"
+        :class="{ 'is-invalid': errorMessage }"
+        @click="showSelect = true"
+        @focus="showSelect = true"
+        :value="
           refLabel
             ? applyJsTemplate(modelValue, refLabel)
             : flattenObject(modelValue)
@@ -20,10 +20,10 @@
       />
       <template v-slot:append>
         <button
-            v-if="modelValue"
-            @click="$emit('update:modelValue', null)"
-            class="btn btn-outline-primary"
-            type="button"
+          v-if="modelValue"
+          @click="$emit('update:modelValue', null)"
+          class="btn btn-outline-primary"
+          type="button"
         >
           <i class="fas fa-fw fa-times"></i>
         </button>
@@ -32,12 +32,12 @@
       <LayoutModal v-if="showSelect" :title="title" @close="showSelect = false">
         <template v-slot:body>
           <TableSearch
-              :lookupTableName="tableName"
-              :filter="filter"
-              :schemaName="schemaName"
-              :canEdit="canEdit"
-              @select="select($event)"
-              @deselect="deselect(selectIdx)"
+            :lookupTableName="tableName"
+            :filter="filter"
+            :schemaName="schemaName"
+            :canEdit="canEdit"
+            @select="select($event)"
+            @deselect="deselect(selectIdx)"
           >
             <template v-slot:rowheader="slotProps">
               <ButtonAction @click="select(slotProps.rowkey)">
@@ -62,7 +62,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import ButtonAction from "./ButtonAction.vue";
-import {flattenObject, applyJsTemplate} from "../utils";
+import { flattenObject, applyJsTemplate } from "../utils";
 
 export default {
   name: "InputRefSelect",
@@ -106,8 +106,8 @@ export default {
     applyJsTemplate,
     flattenObject(objectToFlatten) {
       return objectToFlatten === undefined || objectToFlatten === null
-          ? ""
-          : flattenObject(objectToFlatten);
+        ? ""
+        : flattenObject(objectToFlatten);
     },
     select(event) {
       this.showSelect = false;

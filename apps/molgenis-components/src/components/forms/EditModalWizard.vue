@@ -65,31 +65,31 @@ export default {
     },
   },
   mounted() {
-    this.columnsSplitByHeadings = splitColumnsByHeadings(
-      this.tableMetaData.columns,
-      this.visibleColumns
+    this.columnsSplitByHeadings = splitColumnNamesByHeadings(
+      filterVisibleColumns(this.tableMetaData.columns, this.visibleColumns)
     );
     this.$emit("setPageCount", this.columnsSplitByHeadings.length);
   },
   emits: ["setPageCount", "update:modelValue"],
 };
 
-function splitColumnsByHeadings(columns, visibleColumns) {
+function filterVisibleColumns(columns, visibleColumns) {
+  if (!visibleColumns) {
+    return columns;
+  } else {
+    return columns.filter((column) => visibleColumns.includes(column.name));
+  }
+}
+
+function splitColumnNamesByHeadings(columns) {
   return columns.reduce((accum, column) => {
     if (column.columnType === "HEADING") {
-      accum.push([{ name: column.name }]);
+      accum.push([column.name]);
     } else {
       if (accum.length === 0) {
         accum.push([]);
       }
-      if (
-        !visibleColumns ||
-        visibleColumns.find(
-          (visibleColumn) => column.name === visibleColumn.name
-        )
-      ) {
-        accum[accum.length - 1].push({ name: column.name });
-      }
+      accum[accum.length - 1].push(column.name);
     }
     return accum;
   }, []);

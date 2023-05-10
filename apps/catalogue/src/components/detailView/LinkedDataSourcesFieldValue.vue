@@ -12,11 +12,11 @@
       </thead>
       <tr v-for="row in rows" :key="row.id" @click="handleRowClick(row)">
         <td>
-          <a href="" @click.prevent
-            >{{ row.linkedDatasource?.name }}
+          <a href="" @click.prevent>
+            {{ row.linkedDatasource?.name }}
             <span v-if="row.linkedDatasource?.name !== row.linkedDatasource?.id"
-              >({{ row.linkedDatasource?.id }})</span
-            ></a
+              >({{ row.linkedDatasource?.id }})
+            </span></a
           >
         </td>
         <td>{{ row.linkedDatasource?.type?.map((t) => t.name).join(",") }}</td>
