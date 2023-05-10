@@ -848,8 +848,11 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
       <label>Read only example</label>
       <table-explorer
           id="my-table-explorer"
-          tableName="VariableMappings"
-          schemaName="VAC4EU"
+          tableName="Pet"
+          schemaName="pet store"
+          :showColumns="showColumns"
+          :showFilters="showFilters"
+          :urlConditions="urlConditions"
           :showPage="page"
           :showLimit="limit"
           :showOrderBy="showOrderBy"
@@ -877,11 +880,15 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
     data() {
       return {
         showColumns: [],
-        showFilters: [],
+        showFilters: ['name'],
+        urlConditions: {"name": "pooky,spike"},
         page: 1,
         limit: 10,
+        showOrder: 'DESC',
+        showOrderBy: 'name',
         canEdit: false,
         canManage: false,
+        locale: 'en'
       }
     },
   }
