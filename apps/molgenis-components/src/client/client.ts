@@ -321,8 +321,7 @@ const fetchTableData = async (
     ? ',search:"' + properties.searchTerms.trim() + '"'
     : "";
 
-  co  expandLevel: number = 2
-emaName, tableId, metaData, expandLevel);
+  const cNames = columnNames(schemaName, tableId, metaData, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
           filter:$filter,
