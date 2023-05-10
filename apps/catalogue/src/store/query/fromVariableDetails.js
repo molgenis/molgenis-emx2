@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 export default gql`
-  query SourceVariables($filter: SourceVariablesFilter) {
-    SourceVariables(limit: 1, filter: $filter) {
+  query Variables($filter: VariablesFilter) {
+    Variables(limit: 1, filter: $filter) {
       name
       label
       description
@@ -11,12 +11,12 @@ export default gql`
       unit {
         name
       }
-      dataDictionary {
+      dataset {
         resource {
           mg_tableclass
-          pid
+          id
         }
-        version
+        name
       }
     }
   }

@@ -1,1 +1,3 @@
-name,code,order,definition,comments,parent,ontologyTermURI
+order,name,code,parent,ontologyTermURI,definition
+,draft,,,,
+,final,,,,

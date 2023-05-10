@@ -9,14 +9,14 @@
     <div class="row">
       <div class="col">
         <h6>Contributions:</h6>
-        <div v-for="c in contact.contributedTo" :key="c.pid">
+        <div v-for="c in contact.contributedTo" :key="c.id">
           <RouterLink
             :to="{
               name: routename(c.resource.mg_tableclass),
-              params: { pid: c.resource.pid },
+              params: { id: c.resource.id },
             }"
           >
-            {{ c.resource.pid }}
+            {{ c.resource.id }}
             <OntologyTerms :terms="c.contributionType" />
           </RouterLink>
           <p>{{ c.contributionDescription }}</p>

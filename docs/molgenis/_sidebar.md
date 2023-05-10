@@ -12,6 +12,7 @@
     - [Permissions](use_permissions.md)
     - [Settings](use_database_settings.md)
     - [Linked data](semantics.md)
+    - [Using APIs](use_usingapis.md)
     - [Admin](use_global_settings.md)
 - **Installation guide**
     - [Run as java service](run_java.md)

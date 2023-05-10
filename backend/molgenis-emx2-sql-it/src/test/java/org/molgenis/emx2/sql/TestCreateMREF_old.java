@@ -1,7 +1,7 @@
 // package org.molgenis.emx2.sql;
 //
-// import org.junit.BeforeClass;
-// import org.junit.Test;
+// import org.junit.jupiter.api.BeforeAll;
+// import org.junit.jupiter.api.Test;
 // import org.molgenis.emx2.*;
 // import org.molgenis.emx2.ColumnType;
 // import org.molgenis.emx2.utils.StopWatch;
@@ -12,7 +12,7 @@
 // import java.util.Arrays;
 // import java.util.List;
 //
-// import static org.junit.Assert.assertTrue;
+// import static org.junit.jupiter.api.Assertions.assertTrue;
 // import static org.molgenis.emx2.Column.column;
 // import static org.molgenis.emx2.ColumnType.*;
 // import static org.molgenis.emx2.Operator.EQUALS;
@@ -22,7 +22,7 @@
 //
 //  static Database db;
 //
-//  @BeforeClass
+//  @BeforeAll
 //  public static void setup() {
 //    db = TestDatabaseFactory.getTestDatabase();
 //  }

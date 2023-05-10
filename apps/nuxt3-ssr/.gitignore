@@ -7,3 +7,4 @@ node_modules
 .env
 dist
 public/_nuxt-styles/css/styles*
+utils/fingerprint.js

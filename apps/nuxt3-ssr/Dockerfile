@@ -3,7 +3,7 @@
 ###
 
 ## Base image to have a node runtime
-FROM node:18.14.2-alpine
+FROM node:19.8.1-alpine
 
 # Used to build theme
 # ENV EMX2_THEME=$EMX2_THEME
@@ -32,6 +32,9 @@ ENV NUXT_PUBLIC_EMX2_THEME=$NUXT_PUBLIC_EMX2_THEME
 
 # Set the logo name 
 ENV NUXT_PUBLIC_EMX2_LOGO=$NUXT_PUBLIC_EMX2_LOGO
+
+# Set the site title
+ENV NUXT_PUBLIC_SITE_TITLE=$NUXT_PUBLIC_SITE_TITLE
 
 ## Start the server
 CMD node .output/server/index.mjs

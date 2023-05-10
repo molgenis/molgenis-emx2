@@ -266,7 +266,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   public Column setCascadeDelete(Boolean cascadeDelete) {
     if (cascadeDelete && !isRef()) {
       throw new MolgenisException(
-          "Set casecadeDelete=true failed", "Columnn " + getName() + " must be of type REF");
+          "Set casecadeDelete=true failed: columnn " + getName() + " must be of type REF");
     }
     this.cascadeDelete = cascadeDelete;
     return this;
@@ -294,7 +294,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public Column setType(ColumnType type) {
     if (type == null) {
-      throw new MolgenisException("Add column failed", "Type was null for column " + getName());
+      throw new MolgenisException("Add column failed: type was null for column " + getName());
     }
     this.columnType = type;
     return this;

@@ -1,16 +1,16 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 
 public class TestSchemaUpdate {
   private static Database db;
   private static final String desc = "describe me";
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
     db.dropCreateSchema(TestSchemaUpdate.class.getName(), desc);

@@ -1,11 +1,14 @@
 package org.molgenis.emx2.web;
 
+import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
+import static org.molgenis.emx2.Constants.MOLGENIS_INCLUDE_CATALOGUE_DEMO;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -23,21 +26,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.junit.jupiter.api.*;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
@@ -46,25 +41,25 @@ public class WebApiSmokeTests {
   private static Database db;
   private static Schema schema;
   final String CSV_TEST_SCHEMA = "pet store csv";
+  static final int PORT = 8081; // other then default so we can see effect
 
-  @BeforeClass
-  public static void before() throws IOException {
+  @BeforeAll
+  public static void before() throws Exception {
 
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
-    schema = db.dropCreateSchema("pet store");
-    new PetStoreLoader().load(schema, true);
 
-    // grant a user permission
-    schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
-    schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
-    db.grantCreateSchema(PET_SHOP_OWNER);
+    // will be (re)created by the RunMolgenisEmx2.main
+    db.dropSchemaIfExists("pet store");
+    db.dropSchemaIfExists("catalogue");
 
-    // start web service for testing
-    MolgenisWebservice.start(8080);
+    // start web service for testing, including env variables
+    withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
+        .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
+        .execute(() -> RunMolgenisEmx2.main(new String[] {}));
 
     // set default rest assured settings
-    RestAssured.port = Integer.valueOf(8080);
+    RestAssured.port = PORT;
     RestAssured.baseURI = "http://localhost";
 
     // create an admin session to work with
@@ -83,9 +78,16 @@ public class WebApiSmokeTests {
             .when()
             .post("api/graphql")
             .sessionId();
+
+    // should be created
+    schema = db.getSchema("pet store");
+    // grant a user permission
+    schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
+    schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
+    db.grantCreateSchema(PET_SHOP_OWNER);
   }
 
-  @AfterClass
+  @AfterAll
   public static void after() {
     MolgenisWebservice.stop();
   }
@@ -458,7 +460,7 @@ public class WebApiSmokeTests {
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains("Error"));
+    assertTrue(result.contains("errors"));
 
     // read admin password from environment if necessary
     String adminPass =
@@ -526,7 +528,7 @@ public class WebApiSmokeTests {
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains("Error"));
+    assertTrue(result.contains("errors"));
   }
 
   @Test
@@ -548,7 +550,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:8080/pet store/"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/"))
         .when()
         .get("/pet store");
 
@@ -558,7 +560,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:8080/pet store/tables/"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/tables/"))
         .when()
         .get("/pet store/tables");
   }
@@ -570,7 +572,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:8080/pet store/tables"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/tables"))
         .when()
         .get("/pet store/");
 
@@ -595,7 +597,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:8080/pet store/blaat2"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/blaat2"))
         .when()
         .get("/pet store/");
 
@@ -614,7 +616,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:8080/pet store/blaat"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/blaat"))
         .when()
         .get("/pet store/");
 
@@ -721,37 +723,37 @@ public class WebApiSmokeTests {
   @Test
   public void testRdfApi() {
     // skip 'all schemas' test because data is way to big (i.e.
-    // get("http://localhost:8080/api/rdf");)
+    // get("http://localhost:PORT/api/rdf");)
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/rdf");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/rdf/Category");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/rdf/Category/column/name");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/column/name");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/rdf/Category/cat");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/cat");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(400)
         .when()
-        .get("http://localhost:8080/pet store/api/rdf/doesnotexist");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
   }
 
   @Test
@@ -761,31 +763,31 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/jsonld");
+        .get("http://localhost:" + PORT + "/pet store/api/jsonld");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/ttl");
+        .get("http://localhost:" + PORT + "/pet store/api/ttl");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/jsonld/Category");
+        .get("http://localhost:" + PORT + "/pet store/api/jsonld/Category");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/ttl/Category");
+        .get("http://localhost:" + PORT + "/pet store/api/ttl/Category");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(400)
         .when()
-        .get("http://localhost:8080/pet store/api/ttl/doesnotexist");
+        .get("http://localhost:" + PORT + "/pet store/api/ttl/doesnotexist");
   }
 
   @Test
@@ -795,7 +797,7 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(400)
         .when()
-        .get("http://localhost:8080/api/fdp/distribution/pet store/Category/ttl");
+        .get("http://localhost:" + PORT + "/api/fdp/distribution/pet store/Category/ttl");
   }
 
   @Test
@@ -805,7 +807,7 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(400)
         .when()
-        .get("http://localhost:8080/api/graphgenome");
+        .get("http://localhost:" + PORT + "/api/graphgenome");
   }
 
   @Test

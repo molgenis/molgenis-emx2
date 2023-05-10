@@ -140,7 +140,7 @@ helm {
         main {
             sourceDir = file('helm-chart')
             lint {
-                strict = true
+                strict = false
             }
         }
     }

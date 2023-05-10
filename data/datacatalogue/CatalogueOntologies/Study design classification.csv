@@ -1,0 +1,29 @@
+name,definition,parent
+Clinical Trial Randomisation,,
+Randomised clinical trial,,Clinical Trial Randomisation
+Non-randomised clinical trial,,Clinical Trial Randomisation
+Clinical Trial Types,,
+Low-interventional clinical trial,,Clinical Trial Types
+Single-arm trial,,Clinical Trial Types
+Large simple trial,,Clinical Trial Types
+Pragmatic clinical trial,,Clinical Trial Types
+Cluster randomised trial,,Clinical Trial Types
+Non-interventional design,,
+Cohort,,Non-interventional design
+Case-control,,Non-interventional design
+Case-only,,Non-interventional design
+Cross-sectional,,Non-interventional design
+Ecological,,Non-interventional design
+Cluster design,,Non-interventional design
+Systematic review and meta-analysis,,Non-interventional design
+Other,,Non-interventional design
+Clinical trial phase,,
+phase 1,,Clinical trial phase
+phase 2,,Clinical trial phase
+phase 3,,Clinical trial phase
+phase 4,,Clinical trial phase
+Data collection methods,,
+Primary data collection,,Data collection methods
+Secondary data collection,,Data collection methods
+Combined primary and secondary data collection,,Data collection methods
+No individual level data collected for the purpose of the study,,Data collection methods

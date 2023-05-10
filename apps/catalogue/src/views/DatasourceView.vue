@@ -72,7 +72,6 @@ export default {
         }
       )
         .then((data) => {
-          console.log(data);
           this.datasource = data.Datasources[0];
           if (this.datasource.releases) {
             this.version =
