@@ -21,7 +21,7 @@ public class DataCatalogueLoader extends AbstractDataLoader {
     }
 
     // create catalogue schema (which will create tables in ontology schema)
-    this.createSchema(schema, "datacatalogue/molgenis.csv");
+    createSchema(schema, "datacatalogue/molgenis.csv");
     schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
 
     // load data into ontology schema

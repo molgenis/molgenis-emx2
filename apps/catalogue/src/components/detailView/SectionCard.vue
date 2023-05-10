@@ -1,6 +1,13 @@
 <template>
   <div class="mt-0">
-    <a v-if="showCardHeader" href="#_top" class="float-right text-white">
+    <a
+      v-if="showCardHeader"
+      href="#"
+      v-scroll-to="{
+        el: '#_top',
+      }"
+      class="float-right text-white"
+    >
       back to top
     </a>
     <h3

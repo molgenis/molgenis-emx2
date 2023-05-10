@@ -7,7 +7,7 @@
         :logoUrl="cohort.logo.url"
         :subTitleLink="
           cohort.institution
-            ? { to: '/institutions/' + cohort.institution[0].pid }
+            ? { to: '/institutions/' + cohort.institution[0].id }
             : null
         "
       ></page-header>
@@ -54,12 +54,12 @@
           v-for="(partner, index) in partners"
           :key="index"
           :title="partner.institution.name"
-          :linkUrl="`/institutions/${partner.institution.pid}`"
+          :linkUrl="`/institutions/${partner.institution.id}`"
         >
           <template #image>
             <image-display
               :url="partner.institution.logo.url"
-              :alt="partner.institution.pid"
+              :alt="partner.institution.id"
             ></image-display>
           </template>
         </image-card>
@@ -81,7 +81,7 @@
             <p class="card-text">
               <small class="text-muted">
                 <router-link
-                  :to="`/networks/${network.pid}`"
+                  :to="`/networks/${network.id}`"
                   class="stretched-link"
                   >LEARN MORE
                 </router-link>
@@ -385,7 +385,7 @@ export default {
   },
   methods: {
     async fetchData() {
-      this.cohort = await fetchById(this.$route.params.pid);
+      this.cohort = await fetchById(this.$route.params.id);
     },
     eventDetailSummary(detail) {
       return Array.from(

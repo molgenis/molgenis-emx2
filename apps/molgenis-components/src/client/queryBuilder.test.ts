@@ -1,5 +1,6 @@
 import { describe, assert, test } from "vitest";
 import { columnNames } from "./queryBuilder";
+import { ISchemaMetaData } from "../Interfaces/IMetaData";
 
 describe("columnNames", () => {
   const EXPAND_ONE = 1;
@@ -46,7 +47,7 @@ describe("columnNames", () => {
 });
 
 // test meta data with mg_columns removed
-const metaData = {
+const metaData: ISchemaMetaData = {
   name: "pet store",
   tables: [
     {

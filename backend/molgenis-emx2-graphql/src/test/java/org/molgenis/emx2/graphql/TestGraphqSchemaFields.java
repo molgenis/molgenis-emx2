@@ -224,6 +224,13 @@ public class TestGraphqSchemaFields {
             .at("/Pet/0/name")
             .textValue());
 
+    // or you can also search via filter
+    assertEquals(
+        "pooky",
+        execute("{Pet(filter:{_search:\"pooky\"}){name,category{name},tags{name}}}")
+            .at("/Pet/0/name")
+            .textValue());
+
     // offset
     assertEquals(
         "jerry", execute("{Pet(offset:1,orderby:{name:ASC}){name}}").at("/Pet/0/name").textValue());
