@@ -16,7 +16,6 @@
 
 <script>
 import RowButton from "./RowButton.vue";
-
 export default {
   name: "RowButtonEdit",
   components: { RowButton },
