@@ -3,11 +3,7 @@ import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
-import {
-  convertToCamelCase,
-  convertToPascalCase,
-  deepClone,
-} from "../components/utils";
+import { convertToPascalCase, deepClone } from "../components/utils";
 import { IClient, INewClient } from "./IClient";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { columnNames } from "./queryBuilder";
@@ -83,12 +79,14 @@ const client: IClient = {
         if (!schemaMetaData) {
           throw "Schema meta data not found for schema: " + schemaNameCache;
         }
+        const expandLevel = 0;
         const dataResp = await fetchTableData(
           tableId,
           properties,
           schemaMetaData,
           myAxios,
-          schemaNameCache
+          schemaNameCache,
+          expandLevel
         );
         return dataResp[tableId];
       },
@@ -114,6 +112,7 @@ const client: IClient = {
             return accum;
           }, {});
 
+        const expandLevel = 0;
         const resultArray = (
           await fetchTableData(
             tableName,
@@ -122,7 +121,8 @@ const client: IClient = {
             },
             schemaMetaData,
             myAxios,
-            schemaNameCache
+            schemaNameCache,
+            expandLevel
           )
         )[tableId];
 
@@ -285,7 +285,8 @@ const deleteRow = (key: IRow, tableName: string, schemaName: string) => {
 };
 
 const deleteAllTableData = (tableName: string, schemaName: string) => {
-  const query = `mutation {truncate(tables:"${tableName}"){message}}`;
+  const tableId = convertToPascalCase(tableName);
+  const query = `mutation {truncate(tables:"${tableId}"){message}}`;
   return axios.post(graphqlURL(schemaName), { query });
 };
 
@@ -320,7 +321,8 @@ const fetchTableData = async (
     ? ',search:"' + properties.searchTerms.trim() + '"'
     : "";
 
-  const cNames = columnNames(schemaName, tableId, metaData, expandLevel);
+  co  expandLevel: number = 2
+emaName, tableId, metaData, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
           filter:$filter,

@@ -580,7 +580,7 @@ export default {
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
       const resp = await this.client
-        .deleteRow(this.editRowPrimaryKey, this.tableName)
+        .deleteRow(this.editRowPrimaryKey, this.tableId)
         .catch(this.handleError);
       if (resp) {
         this.reload();
@@ -589,7 +589,7 @@ export default {
     async handelExecuteDeleteAll() {
       this.isDeleteAllModalShown = false;
       const resp = await this.client
-        .deleteAllTableData(this.tableName)
+        .deleteAllTableData(this.tableId)
         .catch(this.handleError);
       if (resp) {
         this.reload();
