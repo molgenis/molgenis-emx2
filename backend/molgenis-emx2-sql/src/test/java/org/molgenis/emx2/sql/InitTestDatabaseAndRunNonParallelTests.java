@@ -2,8 +2,8 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.Migrations.executeMigrationFile;
@@ -12,14 +12,14 @@ import static org.molgenis.emx2.sql.Migrations.migration5addMgTableclassUpdateTr
 import java.util.Collections;
 import java.util.List;
 import org.jooq.DSLContext;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 
 public class InitTestDatabaseAndRunNonParallelTests {
 
-  @BeforeClass
+  @BeforeAll
   public static void createDatabase() {
     // we want this run only once and NOT parallel for total test suite
     // AND we want run all other tests in parallel

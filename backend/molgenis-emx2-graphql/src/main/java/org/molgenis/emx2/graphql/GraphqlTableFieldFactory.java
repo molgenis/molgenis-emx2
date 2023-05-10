@@ -581,7 +581,9 @@ public class GraphqlTableFieldFactory {
               sc.setOffset((int) args.get(GraphqlConstants.OFFSET));
             }
             if (args.containsKey(GraphqlConstants.ORDERBY)) {
-              sc.setOrderBy(convertOrderByIdsToNames(aTable, args));
+              TableMetadata orderByTable =
+                  column.get().isReference() ? column.get().getRefTable() : column.get().getTable();
+              sc.setOrderBy(convertOrderByIdsToNames(orderByTable, args));
             }
             result.add(sc);
           } else if (agg_fields.contains(s.getName())) {

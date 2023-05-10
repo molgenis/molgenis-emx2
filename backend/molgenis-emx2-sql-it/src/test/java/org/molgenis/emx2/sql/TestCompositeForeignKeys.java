@@ -1,7 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static graphql.Assert.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.*;
@@ -10,8 +10,8 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -20,7 +20,7 @@ import org.molgenis.emx2.Table;
 public class TestCompositeForeignKeys {
   private Database database;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
 

@@ -28,10 +28,10 @@
                 class="rotated-text text-nowrap"
                 scope="col"
                 v-for="resource in resources"
-                :key="resource.pid"
+                :key="resource.id"
               >
                 <div>
-                  <span class="table-label">{{ resource.pid }}</span>
+                  <span class="table-label">{{ resource.id }}</span>
                 </div>
               </th>
             </tr>
@@ -43,8 +43,8 @@
               </th>
               <harmonization-cell
                 v-for="resource in resources"
-                :key="resource.pid"
-                :status="getMatchStatus(variable, resource.pid)"
+                :key="resource.id"
+                :status="getMatchStatus(variable, resource.id)"
               />
             </tr>
             <tr
@@ -57,8 +57,8 @@
 
               <harmonization-cell
                 v-for="resource in resources"
-                :key="resource.pid"
-                :status="getMatchStatus(repeatedVariable, resource.pid)"
+                :key="resource.id"
+                :status="getMatchStatus(repeatedVariable, resource.id)"
               />
             </tr>
           </tbody>
@@ -93,7 +93,7 @@ export default {
         return "unmapped"; // not mapped
       }
       const resourceMapping = variable.mappings.find((mapping) => {
-        return mapping.fromDataDictionary.resource.pid === resourceName;
+        return mapping.source.id === resourceName;
       });
       if (!resourceMapping) {
         return "unmapped"; // not mapped

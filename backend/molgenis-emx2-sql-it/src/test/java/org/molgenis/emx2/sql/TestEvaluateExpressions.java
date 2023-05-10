@@ -1,6 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -9,8 +9,8 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.validateAndGetVisibleValuesAsMa
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestEvaluateExpressions {
@@ -18,7 +18,7 @@ public class TestEvaluateExpressions {
   private static Database db;
   private static Schema schema;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestEvaluateExpressions.class.getSimpleName());

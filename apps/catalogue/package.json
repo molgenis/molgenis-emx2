@@ -16,6 +16,7 @@
     "vue": "3.2.47",
     "vue-router": "4.1.6",
     "vue-tabler-icons": "2.20.0",
+    "vue-scrollto": "2.20.0",
     "vuex": "4.1.0"
   },
   "browserslist": [
@@ -23,9 +24,9 @@
     "last 2 versions"
   ],
   "devDependencies": {
-    "@vitejs/plugin-vue": "3.2.0",
+    "@vitejs/plugin-vue": "4.2.1",
     "graphql-tag": "2.12.6",
-    "prettier": "2.8.4",
-    "vite": "4.1.4"
+    "vite": "4.1.4",
+    "prettier": "2.8.8"
   }
 }

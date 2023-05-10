@@ -1,8 +1,9 @@
 import gql from "graphql-tag";
+
 export default gql`
-  query Cohorts($pid: String) {
-    Cohorts(filter: { pid: { equals: [$pid] } }) {
-      pid
+  query Cohorts($id: String) {
+    Cohorts(filter: { id: { equals: [$id] } }) {
+      id
       name
       contactEmail
       keywords
@@ -19,7 +20,12 @@ export default gql`
         extension
         url
       }
-      externalIdentifiers
+      externalIdentifiers {
+        externalIdentifierType {
+          name
+        }
+        identifier
+      }
       description
       website
       startYear
@@ -36,9 +42,6 @@ export default gql`
         name
         order
       }
-      populationAgeGroups {
-        name
-      }
       logo {
         url
       }
@@ -53,50 +56,30 @@ export default gql`
       collectionType {
         name
       }
-      contributors {
-        contact {
-          firstName
-          surname
-          prefix
-          initials
-          department
-          email
-          orcid
-          homepage
-          title {
-            name
-          }
-          institution {
-            name
-          }
-          photo {
-            id
-            url
-            size
-            extension
-          }
-          expertise
-        }
-        contributionType {
+      contacts {
+        firstName
+        lastName
+        prefix
+        initials
+        email
+        orcid
+        homepage
+        title {
           name
-          order
         }
-        contributionDescription
+        organisation {
+          name
+        }
+        photo {
+          id
+          url
+          size
+          extension
+        }
+        expertise
       }
-      partners {
-        institution {
-          name
-          pid
-          logo {
-            id
-            url
-            size
-            extension
-          }
-        }
-        role {
-          name
-        }
+      additionalOrganisations {
+        institution
       }
       dataAccessConditions {
         name
@@ -111,10 +94,6 @@ export default gql`
         definition
       }
       dataAccessFee
-      institution {
-        pid
-        name
-      }
       documentation {
         name
         file {
@@ -123,7 +102,7 @@ export default gql`
         url
       }
       networks {
-        pid
+        id
         name
         description
         website
@@ -159,9 +138,7 @@ export default gql`
         subcohorts {
           name
         }
-        coreVariables {
-          name
-        }
+        coreVariables
       }
       subcohorts {
         name

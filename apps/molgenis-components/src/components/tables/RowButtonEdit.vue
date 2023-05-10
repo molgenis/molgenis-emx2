@@ -8,7 +8,6 @@
       :pkey="pkey"
       :isModalShown="isModalShown"
       :schemaName="schemaName"
-      :visibleColumns="visibleColumns"
       @close="handleClose"
     />
   </span>
@@ -16,7 +15,6 @@
 
 <script>
 import RowButton from "./RowButton.vue";
-
 export default {
   name: "RowButtonEdit",
   components: { RowButton },
@@ -36,11 +34,6 @@ export default {
     pkey: {
       type: Object,
     },
-    visibleColumns: {
-      type: Array,
-      required: false,
-      default: () => null,
-    },
   },
   data() {
     return {
@@ -57,17 +50,17 @@ export default {
 </script>
 
 <docs>
-<template>
-  <div>
-    <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
+  <template>
     <div>
-      <RowButtonEdit
-          id="row-edit-btn-sample"
+      <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
+      <div>
+        <RowButtonEdit 
+          id="row-edit-btn-sample" 
           tableName="Pet"
           :pkey="{name: 'pooky'}"
           schemaName="pet store"
-      />
+        />
+      </div>
     </div>
-  </div>
-</template>
+  </template>
 </docs>

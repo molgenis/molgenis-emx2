@@ -1,2 +1,2 @@
-"email","firstName","surname","statementOfConsentPersonalData","orcid","institution","department","statementOfConsentEmail"
-"andres.metspalu@ut.ee","Andres","Metspalu","true","https://orcid.org/0000-0002-3718-796X","egcut","Institute of Genomics","true"
+resource,email,first name,last name,orcid,organisation,department
+ecr,andres.metspalu@ut.ee,Andres,Metspalu,https://orcid.org/0000-0002-3718-796X,egcut,Institute of Genomics

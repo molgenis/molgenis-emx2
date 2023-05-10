@@ -246,7 +246,7 @@ public class SqlColumnExecutor {
                 + e.getMessage()
                 + ". You might want to set nullable=TRUE or add a default value to update existing rows.");
       } else {
-        throw new MolgenisException(
+        throw new SqlMolgenisException(
             "Create column '" + column.getTableName() + "." + current + "' failed", e);
       }
     }
@@ -348,8 +348,8 @@ public class SqlColumnExecutor {
     if (c.isReference() && !c.isOntology() && c.getRefTable() == null) {
       throw new MolgenisException(
           String.format(
-              "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK",
-              c.getTableName(), c.getName()));
+              "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK (tried to find: %s:%s)",
+              c.getTableName(), c.getName(), c.getRefSchema(), c.getRefTableName()));
     }
     if (c.getRefLink() != null) {
       if (c.getTable().getColumn(c.getRefLink()) == null) {

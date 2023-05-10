@@ -461,11 +461,8 @@ export default {
     async loadRefSchema() {
       this.error = undefined;
       this.loading = true;
-      if (this.column.refSchema !== undefined) {
-        this.client = Client.newClient(
-          "/" + this.column.refSchema + "/graphql",
-          this.$axios
-        );
+      if (this.column.refSchema) {
+        this.client = Client.newClient(this.column.refSchema, this.$axios);
         const schema = await this.client.fetchSchemaMetaData((error) => {
           this.error = error;
         });

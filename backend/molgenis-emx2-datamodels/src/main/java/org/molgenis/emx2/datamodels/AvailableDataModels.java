@@ -1,39 +1,22 @@
 package org.molgenis.emx2.datamodels;
 
-import java.io.IOException;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 
 public enum AvailableDataModels {
-  DATA_CATALOGUE(new DataCatalogueLoader()),
   DATA_CATALOGUE_COHORT_STAGING(new DataCatalogueCohortStagingLoader()),
   DATA_CATALOGUE_NETWORK_STAGING(new DataCatalogueNetworkStagingLoader()),
-  DATA_CATALOGUE3(new DataCatalogueLoader3()),
-  DATA_CATALOGUE_COHORT_STAGING3(new DataCatalogueCohortStagingLoader3()),
-  DATA_CATALOGUE_NETWORK_STAGING3(new DataCatalogueNetworkStagingLoader3()),
+  DATA_CATALOGUE(new DataCatalogueLoader()),
   PET_STORE(new PetStoreLoader()),
 
   FAIR_DATA_HUB(new FAIRDataHubLoader());
 
-  private DataModelLoader installer;
+  private AbstractDataLoader installer;
 
-  AvailableDataModels(DataModelLoader installer) {
+  AvailableDataModels(AbstractDataLoader installer) {
     this.installer = installer;
   }
 
-  public void install(Schema schema, boolean includeExampleData) {
-    schema.tx(
-        db -> {
-          try {
-            // make sure not to use schema but db because in a transaction!
-            installer.load(db.getSchema(schema.getName()), includeExampleData);
-          } catch (Exception e) {
-            throw new MolgenisException(e.getMessage());
-          }
-        });
-  }
-
-  public interface DataModelLoader {
-    void load(Schema schema, boolean includeExampleData) throws IOException;
+  public void install(Schema schema, boolean loadExampleData) {
+    this.installer.load(schema, loadExampleData);
   }
 }
