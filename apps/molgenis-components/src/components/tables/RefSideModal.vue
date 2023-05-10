@@ -30,14 +30,12 @@
 <script lang="ts" setup>
 import { AxiosError } from "axios";
 import { Ref, ref, toRefs, watch } from "vue";
+import Client from "../../client/client";
 import { IColumn } from "../../Interfaces/IColumn";
 import { IRow } from "../../Interfaces/IRow";
-import { ITableMetaData } from "../../Interfaces/ITableMetaData";
-import Client from "../../client/client";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
-import { getPrimaryKey } from "../utils";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
 
@@ -54,7 +52,6 @@ const props = withDefaults(
   }
 );
 const { column, rows } = toRefs(props);
-
 const emit = defineEmits(["onClose"]);
 
 let localColumnName = ref(column.value.name);
@@ -75,37 +72,22 @@ watch([column, rows], () => {
   }
 });
 
-async function updateData(
-  activeSchema: string,
-  rows: IRow[],
-  tableId: string,
-  alreadyAreKeys?: boolean
-) {
+async function updateData(activeSchema: string, rows: IRow[], tableId: string) {
   errorMessage.value = "";
   loading.value = true;
-  queryResults.value = await getRowData(
-    activeSchema,
-    rows,
-    tableId,
-    alreadyAreKeys
-  );
+  queryResults.value = await getRowData(activeSchema, rows, tableId);
   loading.value = false;
 }
 
 async function getRowData(
   activeSchema: string,
-  rows: IRow[],
-  tableId: string,
-  alreadyAreKeys?: boolean
+  rowKeys: IRow[],
+  tableId: string
 ): Promise<IRow[]> {
   let newQueryResults: IRow[] = [];
   const client = Client.newClient(activeSchema);
   const metadata = await client.fetchTableMetaData(tableId);
-  let keys: any[] = rows;
-  if (!alreadyAreKeys) {
-    keys = getPrimaryKeys(rows, metadata);
-  }
-  for (const row of keys) {
+  for (const row of rowKeys) {
     const externalSchemaClient = Client.newClient(metadata.externalSchema);
     const queryResult = await externalSchemaClient
       .fetchRowData(tableId, row)
@@ -114,15 +96,6 @@ async function getRowData(
     newQueryResults.push(queryResult);
   }
   return newQueryResults;
-}
-
-function getPrimaryKeys(
-  rows: IRow[],
-  metadata: ITableMetaData
-): (IRow | null)[] {
-  return rows.map((row) => {
-    return getPrimaryKey(row, metadata);
-  });
 }
 
 async function handleRefCellClicked({
@@ -138,7 +111,7 @@ async function handleRefCellClicked({
   if (refTableId && activeSchema) {
     const clickedCellPrimaryKeys = [refTableRow[refColumn.id]].flat();
     localColumnName.value = refColumn.name;
-    updateData(activeSchema, clickedCellPrimaryKeys, refTableId, true);
+    updateData(activeSchema, clickedCellPrimaryKeys, refTableId);
   } else {
     errorMessage.value = "Failed to load reference data";
   }
