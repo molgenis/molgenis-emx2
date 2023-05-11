@@ -179,7 +179,6 @@ export default {
     },
   },
   async created() {
-    //should be created, not mounted, so we are before the watchers
     this.client = Client.newClient(this.schemaName);
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
     await this.loadOptions();
@@ -191,64 +190,64 @@ export default {
 <template>
   <div>
     You have to be have server running and be signed in for this to work
-    <div class="border-bottom mb-3 p-2">
-      <h5>synced demo props: </h5>
-      <div>
-        <label for="canEdit" class="pr-1">can edit: </label>
-        <input type="checkbox" id="canEdit" v-model="canEdit">
-      </div>
-      <p class="font-italic">view in table mode to see edit action buttons</p>
+     <div class="border-bottom mb-3 p-2">
+       <h5>synced demo props: </h5>
+         <div>
+           <label for="canEdit" class="pr-1">can edit: </label>
+           <input type="checkbox" id="canEdit" v-model="canEdit">
+         </div>
+         <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
       <!-- normally you don't need schemaName, usually scope is all you need -->
       <InputRef
-          id="input-ref"
-          label="Standard ref input"
-          v-model="value"
-          tableName="Pet"
-          description="Standard input"
-          schemaName="pet store"
-          :canEdit="canEdit"
+        id="input-ref"
+        label="Standard ref input"
+        v-model="value"
+        tableName="Pet"
+        description="Standard input"
+        schemaName="pet store"
+        :canEdit="canEdit"
       />
       Selection: {{ value }}
     </DemoItem>
     <DemoItem>
       <InputRef
-          id="input-ref-default"
-          label="Ref with default value"
-          v-model="defaultValue"
-          tableName="Pet"
-          description="This is a default value"
-          :defaultValue="defaultValue"
-          schemaName="pet store"
-          :canEdit="canEdit"
+        id="input-ref-default"
+        label="Ref with default value"
+        v-model="defaultValue"
+        tableName="Pet"
+        description="This is a default value"
+        :defaultValue="defaultValue"
+        schemaName="pet store"
+        :canEdit="canEdit"
       />
       Selection: {{ defaultValue }}
     </DemoItem>
     <DemoItem>
       <InputRef
-          id="input-ref-filter"
-          label="Ref input with pre set filter"
-          v-model="filterValue"
-          tableName="Pet"
-          description="Filter by name"
-          :filter="{ category: { name: { equals: 'cat' } } }"
-          schemaName="pet store"
-          :canEdit="canEdit"
+        id="input-ref-filter"
+        label="Ref input with pre set filter"
+        v-model="filterValue"
+        tableName="Pet"
+        description="Filter by name"
+        :filter="{ category: { name: { equals: 'cat' } } }"
+        schemaName="pet store"
+        :canEdit="canEdit"
       />
       Selection: {{ filterValue }}
     </DemoItem>
     <DemoItem>
       <InputRef
-          id="input-ref"
-          label="Ref input with multiple columns"
-          v-model="multiColumnValue"
-          tableName="Pet"
-          description="This is a multi column input"
-          schemaName="pet store"
-          multipleColumns
-          :itemsPerColumn="3"
-          :canEdit="canEdit"
+        id="input-ref"
+        label="Ref input with multiple columns"
+        v-model="multiColumnValue"
+        tableName="Pet"
+        description="This is a multi column input"
+        schemaName="pet store"
+        multipleColumns
+        :itemsPerColumn="3"
+        :canEdit="canEdit"
       />
       Selection: {{ value }}
     </DemoItem>
@@ -256,16 +255,16 @@ export default {
 </template>
 
 <script>
-  export default {
-    data: function () {
-      return {
-        value: null,
-        defaultValue: {name: "spike"},
-        filterValue: {name: "spike"},
-        multiColumnValue: null,
-        canEdit: false
-      };
-    },
-  };
+export default {
+  data: function () {
+    return {
+      value: null,
+      defaultValue: { name: "spike" },
+      filterValue: { name: "spike" },
+      multiColumnValue: null,
+      canEdit: false
+    };
+  },
+};
 </script>
 </docs>
