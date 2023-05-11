@@ -79,13 +79,14 @@ const client: IClient = {
         if (!schemaMetaData) {
           throw "Schema meta data not found for schema: " + schemaNameCache;
         }
+        const expandLevel = 0;
         const dataResp = await fetchTableData(
           tableId,
           properties,
           schemaMetaData,
           myAxios,
           schemaNameCache,
-          1
+          expandLevel
         );
         return dataResp[tableId];
       },
@@ -111,6 +112,7 @@ const client: IClient = {
             return accum;
           }, {});
 
+        const expandLevel = 0;
         const resultArray = (
           await fetchTableData(
             tableName,
@@ -120,7 +122,7 @@ const client: IClient = {
             schemaMetaData,
             myAxios,
             schemaNameCache,
-            1
+            expandLevel
           )
         )[tableId];
 
@@ -309,7 +311,7 @@ const fetchTableData = async (
   metaData: ISchemaMetaData,
   axios: Axios,
   schemaName: string,
-  expandLevel: number = 2
+  expandLevel: number = 1
 ) => {
   const tableId = convertToPascalCase(tableName);
   const limit = properties.limit ? properties.limit : 20;
