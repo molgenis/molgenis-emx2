@@ -333,13 +333,6 @@ function isRefLinkWithoutOverlap(column, tableMetaData, values) {
   const value = values[column.id];
   const refValue = values[refLinkId];
 
-  console.log(
-    "value: " +
-      JSON.stringify(value) +
-      " and refValue: " +
-      JSON.stringify(refValue)
-  );
-
   if (typeof value === "string" && typeof refValue === "string") {
     return value && refValue && value !== refValue;
   } else {
