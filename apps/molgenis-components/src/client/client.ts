@@ -281,8 +281,7 @@ const deleteRow = (key: IRow, tableName: string, schemaName: string) => {
 };
 
 const deleteAllTableData = (tableName: string, schemaName: string) => {
-  const tableId = convertToPascalCase(tableName);
-  const query = `mutation {truncate(tables:"${tableId}"){message}}`;
+  const query = `mutation {truncate(tables:"${tableName}"){message}}`;
   return axios.post(graphqlURL(schemaName), { query });
 };
 
