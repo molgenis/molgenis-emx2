@@ -52,7 +52,7 @@ class Session:
     def download_zip(self, database_name):
         """Download molgenis zip for given Database."""
         response = requests.get(
-            self.url + database_name + '/api/zip',  # ?includeSystemColumns=true',
+            self.url + database_name + '/api/zip',
             auth=(self.email, self.password),
             allow_redirects=True,
             cookies=self.cookies
