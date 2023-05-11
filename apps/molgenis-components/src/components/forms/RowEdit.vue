@@ -38,6 +38,7 @@ import {
   getLocalizedLabel,
   getLocalizedDescription,
 } from "../utils";
+
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
 
 export default {
@@ -335,6 +336,10 @@ function isRefLinkWithoutOverlap(column, tableMetaData, values) {
   if (typeof value === "string" && typeof refValue === "string") {
     return value && refValue && value !== refValue;
   } else {
+    //empty ref_array => should give 'required' error instead if applicable
+    if (Array.isArray(value) && value.length === 0) {
+      return false;
+    }
     return (
       value &&
       refValue &&

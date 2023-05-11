@@ -188,7 +188,8 @@ export default {
       this.loadOptions();
     },
   },
-  async mounted() {
+  async created() {
+    //should be created, not mounted, so we are before the watchers
     this.client = Client.newClient(this.schemaName);
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
     await this.loadOptions();
