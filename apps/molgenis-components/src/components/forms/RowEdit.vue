@@ -76,6 +76,7 @@ export default {
       required: false,
     },
     // visibleColumns:  visible columns, useful if you only want to allow partial edit (column of object)
+    // examples ['name','description']
     visibleColumns: {
       type: Array,
       required: false,
@@ -137,8 +138,8 @@ export default {
       if (column.reflink) {
         return this.internalValues[convertToCamelCase(column.refLink)];
       } else {
-        const isColumnVisible = Array.isArray(this.visibleColumns)
-          ? this.visibleColumns.find((col) => col.name === column.name)
+        const isColumnVisible = this.visibleColumns
+          ? this.visibleColumns.includes(column.name)
           : true;
         return (
           isColumnVisible &&
@@ -169,9 +170,7 @@ export default {
       this.tableMetaData?.columns
         ?.filter((column) => {
           if (this.visibleColumns) {
-            return this.visibleColumns.find(
-              (visibleColumn) => column.name === visibleColumn.name
-            );
+            return this.visibleColumns.includes(column.name);
           } else {
             return true;
           }
@@ -402,7 +401,7 @@ function containsInvalidEmail(emails) {
 </template>
 <script>
   export default {
-    data: function() {
+    data: function () {
       return {
         showRowEdit: true,
         locale: 'en',
