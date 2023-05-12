@@ -1209,9 +1209,9 @@
   integrity sha512-YBI/6o2EBz02tdEJRBK8xkt3zvOFOWlLBf7WKYGBsSYSRtjjgrqPe2skp6VLLmKx5WbHHDNcW+6oACaurxGzeA==
 
 "@nuxt/image-edge@^1.0.0-27809804.194d2d6":
-  version "1.0.0-28050764.aaee7ac"
-  resolved "https://registry.yarnpkg.com/@nuxt/image-edge/-/image-edge-1.0.0-28050764.aaee7ac.tgz#74082f2354db9ec6135946f80cba53f4a5490261"
-  integrity sha512-b8HlGepXbCLh2gm3HLMm4P0TjqxGyZB+ryHciSemGGrglg4lUpL7oldNCG5m2c3qtoV6h/NCfNarQH96fc5unQ==
+  version "1.0.0-28059208.2abef1b"
+  resolved "https://registry.yarnpkg.com/@nuxt/image-edge/-/image-edge-1.0.0-28059208.2abef1b.tgz#a4c26e031848d993eb2a2f03d67edc710c150921"
+  integrity sha512-pW0C+RdA6d0kRsITMuRXLsXZ6fbzgXqIELkpS3z5ZwR5pWkmRmTbgED4MCajblG0P4nuySQl2r0RU4Ktf1LMAA==
   dependencies:
     "@nuxt/kit" "^3.4.0"
     consola "^3.0.1"
