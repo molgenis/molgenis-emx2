@@ -8,7 +8,8 @@ public enum AvailableDataModels {
   DATA_CATALOGUE(new DataCatalogueLoader()),
   PET_STORE(new PetStoreLoader()),
 
-  FAIR_DATA_HUB(new FAIRDataHubLoader());
+  FAIR_DATA_HUB(new FAIRDataHubLoader()),
+  RD3(new Rd3Loader()),
 
   private AbstractDataLoader installer;
 
