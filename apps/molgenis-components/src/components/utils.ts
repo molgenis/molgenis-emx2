@@ -11,6 +11,7 @@ export function isRefType(columnType: string): boolean {
     columnType
   );
 }
+
 export function isNumericKey(event: KeyboardEvent): boolean {
   const keyCode = event.which ?? event.keyCode;
   return (
@@ -167,6 +168,31 @@ export function getLocalizedDescription(
   if (tableOrColumnMetadata.descriptions) {
     return tableOrColumnMetadata.descriptions.find((el) => el.locale === locale)
       ?.value;
+  }
+}
+
+export function applyJsTemplate(
+  object: object,
+  labelTemplate: string
+): string | undefined {
+  if (object === undefined || object === null) {
+    return "";
+  }
+  const names = Object.keys(object);
+  const vals = Object.values(object);
+  try {
+    // @ts-ignore
+    return new Function(...names, "return `" + labelTemplate + "`;")(...vals);
+  } catch (err: any) {
+    return (
+      err.message +
+      " we got keys:" +
+      JSON.stringify(names) +
+      " vals:" +
+      JSON.stringify(vals) +
+      " and template: " +
+      labelTemplate
+    );
   }
 }
 

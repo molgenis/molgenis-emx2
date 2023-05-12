@@ -40,6 +40,7 @@ interface ICohort {
   contacts: IContributor[];
   networks: INetwork[];
   releaseDescription?: string;
+  linkageOptions?: string;
   dataAccessConditionsDescription?: string;
   dataAccessConditions?: { name: string }[];
   fundingStatement?: string;

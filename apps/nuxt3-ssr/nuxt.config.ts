@@ -1,5 +1,5 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
-import { defineNuxtConfig } from 'nuxt/config'
+import { defineNuxtConfig } from "nuxt/config";
 
 const devProxy = {
   options: {
@@ -29,9 +29,8 @@ const config = {
   },
 };
 
-if (process.env.NODE_ENV === 'development') {
-  config.proxy = devProxy
+if (process.env.NODE_ENV === "development") {
+  config.proxy = devProxy;
 }
 
-export default defineNuxtConfig(config)
-
+export default defineNuxtConfig(config);

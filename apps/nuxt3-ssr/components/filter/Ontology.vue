@@ -14,6 +14,10 @@ const props = defineProps({
   options: {
     type: Array,
   },
+  mobileDisplay: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -212,14 +216,21 @@ function updateSelection(newConditions) {
         <span
           v-if="item.children"
           @click="toggleExpand(item)"
-          :class="{ 'rotate-180': !terms[item.name].expanded }"
-          class="flex items-center justify-center w-6 h-6 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle hover:cursor-pointer"
+          class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-search-filter-group-toggle hover:cursor-pointer"
+          :class="{
+            'rotate-180': !terms[item.name].expanded,
+            'text-search-filter-group-toggle-mobile': mobileDisplay,
+            'text-search-filter-group-toggle': !mobileDisplay,
+          }"
         >
           <BaseIcon name="caret-up" :width="20" />
         </span>
         <span
           v-else
-          class="flex items-center justify-center w-6 h-6 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle hover:cursor-pointer"
+          class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-search-filter-group-toggle hover:cursor-pointer"
+          :class="`text-search-filter-group-toggle${
+            mobileDisplay ? '-mobile' : ''
+          }`"
         >
         </span>
         <div class="flex items-center">
