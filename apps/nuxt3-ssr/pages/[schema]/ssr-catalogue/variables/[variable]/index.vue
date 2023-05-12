@@ -130,14 +130,14 @@ let tocItems = reactive([
           description="Overview of the harmonization status per Cohort"
         >
           <div class="grid grid-cols-3 gap-4">
-            <div v-for="mapping in variable?.mappings"  class="inline-flex gap-1 group text-icon text-breadcrumb-arrow">
-              <BaseIcon name="completed" :width="24" class="text-green-500"/>
+            <div
+              v-for="mapping in variable?.mappings"
+              class="inline-flex gap-1 group text-icon text-breadcrumb-arrow"
+            >
+              <BaseIcon name="completed" :width="24" class="text-green-500" />
               <NuxtLink
                 :to="`/${route.params.schema}/ssr-catalogue/cohorts/${mapping.source.id}`"
-               
               >
-                
-
                 <span class="text-body-base text-blue-500 hover:underline">{{
                   mapping.source.id
                 }}</span>
