@@ -178,10 +178,10 @@ export default {
       this.loadOptions();
     },
   },
-  async mounted() {
+  async created() {
     this.client = Client.newClient(this.schemaName);
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
-    this.loadOptions();
+    await this.loadOptions();
   },
 };
 </script>

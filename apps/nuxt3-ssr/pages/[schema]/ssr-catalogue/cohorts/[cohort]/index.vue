@@ -116,6 +116,7 @@ const query = gql`
       }
       dataAccessFee
       releaseDescription
+      linkageOptions
       fundingStatement
       acknowledgements
       documentation { 
@@ -240,7 +241,8 @@ let tocItems = computed(() => {
   if (
     cohort?.dataAccessConditions?.length ||
     cohort?.dataAccessConditionsDescription ||
-    cohort?.releaseDescription
+    cohort?.releaseDescription ||
+    cohort?.linkageOptions
   ) {
     tableOffContents.push({
       label: "Access Conditions",
@@ -270,6 +272,12 @@ let accessConditionsItems = computed(() => {
     items.push({
       label: "Release",
       content: cohort.releaseDescription,
+    });
+  }
+  if (cohort?.linkageOptions) {
+    items.push({
+      label: "Linkage options",
+      content: cohort.linkageOptions,
     });
   }
 
