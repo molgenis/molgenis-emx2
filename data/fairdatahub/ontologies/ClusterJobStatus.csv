@@ -1,0 +1,6 @@
+name,definition,codesystem,code,ontologyTermURI
+Pending,"Not yet decided or settled; awaiting conclusion or confirmation.",NCIT,C53470,http://purl.obolibrary.org/obo/NCIT_C53470
+Running,"A running state is a state during which a device or service performs its specified function in normal operation.",AFP,0003665,http://purl.allotrope.org/ontologies/process#AFP_0003665
+Success,"An event that accomplishes its intended purpose.",NCIT,C25362,http://purl.obolibrary.org/obo/NCIT_C25362
+Failed,"Having undergone failure; did not accomplish the intended purpose.",NCIT,C44281,http://purl.obolibrary.org/obo/NCIT_C44281
+Canceled,"Postpone indefinitely or annul something that was scheduled.",NCIT,C63471,http://purl.obolibrary.org/obo/NCIT_C63471

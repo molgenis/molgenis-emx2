@@ -10,3 +10,14 @@ Files,,biosamples,ref_array,,,,Biosamples,,,,http://purl.obolibrary.org/obo/NCIT
 Files,,cohorts,ref_array,,,,Cohorts,,,,http://purl.obolibrary.org/obo/NCIT_C61512,Beacon v2 Cohorts
 Files,,individuals,ref_array,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C90492,Beacon v2 Individuals
 Files,,runs,ref_array,,,,Runs,,,,http://edamontology.org/topic_3168,Beacon v2 Runs
+ClusterJobs,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82964,"A unit of work done by a computer consisting of a single complete task."
+ClusterJobs,,identifier,string,1,TRUE,,,,,,http://edamontology.org/data_2098,"An identifier of a submitted job."
+ClusterJobs,,inputFileName,string,,TRUE,,,,,,http://edamontology.org/data_1050,The name (or part of a name) of a file (of any type).
+ClusterJobs,,includedFromInputFile,file,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C74521,"Add as part of something else; put in as part of a set, group, or category."
+ClusterJobs,,excludedFromInputFile,file,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82931,"The deliberate act of omission."
+ClusterJobs,,outputFile,file,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C47906,"Anything coming out of a system."
+ClusterJobs,,log,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C45279,"A written record of events."
+ClusterJobs,,submittedAt,datetime,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25695,"The act of referring for judgment or consideration by others; the act of handing over something."
+ClusterJobs,,startedAt,datetime,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C68616,"The calendar date on which something is to start or did start."
+ClusterJobs,,finishedAt,datetime,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164472,"The date on which the activity or entity is finished."
+ClusterJobs,,status,ontology,,,,ClusterJobStatus,,,,http://purl.obolibrary.org/obo/NCIT_C25688,"A condition or state at a particular time."
