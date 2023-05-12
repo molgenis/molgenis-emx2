@@ -6,6 +6,10 @@ const props = defineProps({
   filters: {
     type: Array,
   },
+  mobileDisplay: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 watch(props.filters, (filters) => {
@@ -19,9 +23,13 @@ watch(props.filters, (filters) => {
 </script>
 
 <template>
-  <div class="bg-sidebar-gradient mt-7.5 rounded-t-3px rounded-b-50px">
+  <div
+    class="mt-7.5 rounded-t-3px rounded-b-50px"
+    :class="{ 'bg-sidebar-gradient': !mobileDisplay }"
+  >
     <h2
-      class="p-5 uppercase text-search-filter-title font-display text-heading-3xl"
+      class="p-5 uppercase font-display text-heading-3xl"
+      :class="`text-search-filter-title${mobileDisplay ? '-mobile' : ''}`"
     >
       {{ title }}
     </h2>
@@ -32,16 +40,19 @@ watch(props.filters, (filters) => {
         :title="filter.title"
         v-model:conditions="filter.conditions"
         v-model:search="filter.search"
+        :mobileDisplay="mobileDisplay"
         :initialCollapsed="filter.initialCollapsed"
       >
         <FilterSearch
           v-if="filter.columnType === '_SEARCH'"
+          :mobileDisplay="mobileDisplay"
           v-model="filter.search"
         />
         <SearchFilterGroup
           v-else
           :title="filter.title"
           :table-name="filter.refTable"
+          :mobileDisplay="mobileDisplay"
           v-model="filter.conditions"
         />
       </FilterContainer>
