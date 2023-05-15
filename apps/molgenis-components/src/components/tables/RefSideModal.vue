@@ -1,15 +1,23 @@
 <template>
-  <SideModal :label="label" :isVisible="true" @onClose="emit('onClose')">
+  <SideModal
+    :label="localColumnName"
+    :isVisible="true"
+    @onClose="emit('onClose')"
+  >
     <div v-if="loading">
       <Spinner />
     </div>
     <div v-else>
       <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
+      <div v-if="!queryResults.length">
+        The selected reference was not found in the database
+      </div>
       <div v-for="queryResult in queryResults">
         <RefTable
           :reference="queryResult"
           :showDataOwner="showDataOwner"
           :startsCollapsed="queryResults.length > 1"
+          @ref-cell-clicked="handleRefCellClicked"
         />
       </div>
     </div>
@@ -20,97 +28,114 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, toRefs, watch } from "vue";
+import { AxiosError } from "axios";
+import { Ref, ref, toRefs, watch } from "vue";
 import Client from "../../client/client";
-import { IRefModalData } from "../../Interfaces/IRefModalData";
+import { IColumn } from "../../Interfaces/IColumn";
 import { IRow } from "../../Interfaces/IRow";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
-import { getPrimaryKey } from "../utils";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
 
 const props = withDefaults(
   defineProps<{
+    column: IColumn;
+    rows: IRow[];
     schema?: string;
-    tableId: string;
-    label: string;
     showDataOwner?: boolean;
-    refSchema?: string;
-    rows?: IRow[];
   }>(),
   {
     showDataOwner: false,
     rows: () => [] as IRow[],
   }
 );
-const { label, rows, tableId } = toRefs(props);
-
+const { column, rows } = toRefs(props);
 const emit = defineEmits(["onClose"]);
 
+let localColumnName = ref(column.value.name);
 let loading = ref(true);
-let queryResults = ref([] as IRefModalData[]);
+let queryResults: Ref<IRow[]> = ref([]);
 let errorMessage = ref("");
 
-updateData();
+const activeSchema = column.value.refSchema || props.schema;
+if (activeSchema && column.value.refTable) {
+  updateData(activeSchema, rows.value, column.value.refTable);
+}
 
-watch([tableId, label, rows], () => {
-  updateData();
+watch([column, rows], () => {
+  localColumnName.value = column.value.name;
+  const activeSchema = column.value.refSchema || props.schema;
+  if (activeSchema && column.value.refTable) {
+    updateData(activeSchema, rows.value, column.value.refTable);
+  }
 });
 
-async function updateData() {
+async function updateData(activeSchema: string, rows: IRow[], tableId: string) {
   errorMessage.value = "";
   loading.value = true;
-  queryResults.value = await getRowData();
+  queryResults.value = await getRowData(activeSchema, rows, tableId);
   loading.value = false;
 }
 
-async function getRowData(): Promise<IRefModalData[]> {
-  let newQueryResults: IRefModalData[] = [];
-  const activeSchema = props.refSchema || props.schema;
-  const externalSchemaClient = Client.newClient(activeSchema);
-  if (tableId.value !== "") {
-    for (const row of rows.value) {
-      const metadata = await externalSchemaClient.fetchTableMetaData(
-        tableId.value
-      );
-      const primaryKey = getPrimaryKey(row, metadata);
-
-      if (primaryKey) {
-        const queryResult = await externalSchemaClient
-          .fetchRowData(tableId.value, primaryKey)
-          .catch(() => {
-            errorMessage.value = "Failed to load reference data";
-          });
-        queryResult.metadata = metadata;
-        newQueryResults.push(queryResult);
-      }
-    }
+async function getRowData(
+  activeSchema: string,
+  rowKeys: IRow[],
+  tableId: string
+): Promise<IRow[]> {
+  let newQueryResults: IRow[] = [];
+  const client = Client.newClient(activeSchema);
+  const metadata = await client.fetchTableMetaData(tableId);
+  for (const row of rowKeys) {
+    const externalSchemaClient = Client.newClient(metadata.externalSchema);
+    const queryResult = await externalSchemaClient
+      .fetchRowData(tableId, row)
+      .catch(errorHandler);
+    queryResult.metadata = metadata;
+    newQueryResults.push(queryResult);
   }
   return newQueryResults;
+}
+
+async function handleRefCellClicked({
+  refColumn,
+  refTableRow,
+}: {
+  refColumn: IColumn;
+  refTableRow: IRow;
+}): Promise<void> {
+  const refTableId = refColumn.refTable;
+  const activeSchema =
+    refColumn.refSchema || column.value.refSchema || props.schema;
+  if (refTableId && activeSchema) {
+    const clickedCellPrimaryKeys = [refTableRow[refColumn.id]].flat();
+    localColumnName.value = refColumn.name;
+    updateData(activeSchema, clickedCellPrimaryKeys, refTableId);
+  } else {
+    errorMessage.value = "Failed to load reference data";
+  }
+}
+
+function errorHandler(error: AxiosError) {
+  errorMessage.value = `Failed to load reference data, because: ${error.message}`;
 }
 </script>
 
 <docs>
 <template>
   <RefSideModal
-    label="Label"
-    tableId="Pet"
-    :row="{}"
+    :column="column"
+    :rows="[]"
     :isVisible="showModal"
     @onClose="showModal = false"
   />
   <br />
   <button @click="showModal = !showModal">Toggle modal</button>
 </template>
-<script>
-export default {
-  data: function () {
-    return {
-      showModal: false,
-    };
-  },
-};
+<script setup lang="ts">
+import { ref } from "vue";
+let showModal = ref(false);
+const column = { refTable: "Pet", name: "orders", refSchema: "pet store" };
 </script>
 </docs>

@@ -123,6 +123,7 @@ export default {
         "DATA_CATALOGUE",
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",
+        "RD3",
       ],
       includeDemoData: false,
     };

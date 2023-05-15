@@ -84,6 +84,7 @@ RWE resources,,quantantitative information,refback,,,,Quantitative information,,
 Data resources,,contents,heading,,,,,,,,,Data model and contents,,,
 RWE resources,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected,EMA,Databanks,areasOfInformation
 RWE resources,,quality of life other,text,,,,,,,,,"If other, specify additional quality of life measures",EMA,,
+RWE resources,,mappings to data models,refback,,,,Dataset mappings,,source,,,"overview of dataset mappings available",,,
 RWE resources,,cause of death code other,text,,,,,,,,,"If 'other,' what cause of death vocabulary is used?",EMA,,
 RWE resources,,indication vocabulary other,text,,,,,,,,,"If 'other,' what indication for use vocabulary is used?",EMA,,
 RWE resources,,genetic data vocabulary other,text,,,,,,,,,"If 'other,' what genetic data vocabulary is used?",EMA,,

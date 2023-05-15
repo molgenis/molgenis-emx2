@@ -1,0 +1,212 @@
+tableName,tableType,tableExtends,columnName,columnType,key,required,refSchema,refTable,validation,semantics,description
+subjects,,,,,,,,,,http://purl.obolibrary.org/obo/ExO_0000127,Information about patients and family members withing RD3
+subjects,,,subjectID,string,1,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C142495,"An individual who is the subject of personal data, persons to whom data refers, and from whom data are collected, processed, and stored."
+subjects,,,sex1,ontology,,,,sex,,,"Claimed Sex / Sex at birth (can be different from observed sex, see sample)"
+subjects,,,familyID,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C25173,"A domestic group, or a number of domestic groups linked through descent (demonstrated or stipulated) from a common ancestor, marriage, or adoption."
+subjects,,,materalID,ref,,,,subjects,,http://purl.obolibrary.org/obo/NCIT_C89336,Identifier indicating a reference to mother of the subject
+subjects,,,paternalID,ref,,,,subjects,,http://purl.obolibrary.org/obo/NCIT_C94324,Identifier indicating a reference to father of the subject
+subjects,,,clinical_status,bool,,,,,,http://purl.obolibrary.org/obo/NCIT_C64917,whether it is an affected individual (main disease) Yes/No
+subjects,,,disease,ontology_array,,,,disease,,http://purl.obolibrary.org/obo/NCIT_C15607,"if affected, which MAIN disease code(s) apply to subject"
+subjects,,,phenotype,ontology_array,,,,phenotype,,http://purl.obolibrary.org/obo/NCIT_C16977,Phenotype based on Human Phenotype Ontology (HPO)
+subjects,,,hasNotPhenotype,ontology_array,,,,phenotype,,http://purl.bioontology.org/ontology/HL7/C0442737,Relevant Phenotype NOT present in subject
+subjects,,,mostRecentPhenopacketFile,string,,,,,,,name of the most recent phenopackets file (formated as <subjectID>.<date>.json)
+subjects,,,partOfRelease,ref_array,,,,datareleases,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more Solve-RD releases that indicate when the record was first introduced into RD3 or when it was updated.
+subjects,,,includedInStudies,ref_array,,,,studies,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the study or studies in which this person participates.
+subjects,,,includedInCohorts,ref_array,,,,cohorts,,http://purl.obolibrary.org/obo/NCIT_C61512,"A group of individuals, identified by a common characteristic."
+subjects,,,includedInDatasets,ref_array,,,,datasets,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the dataset or datasets in which this person was assigned to.
+subjects,,,organisation,ontology_array,,,,organisations,,http://purl.obolibrary.org/obo/NCIT_C25412,Name of the organisation that submitted Subject
+subjects,,,ERN,ontology_array,,,,organisations,,http://purl.obolibrary.org/obo/NCIT_C25412,ERN
+subjects,,,solved,bool,,,,,,,Solved Case for Solve-RD (true/false)
+subjects,,,date_solved,date,,,,,,http://purl.obolibrary.org/obo/NCIT_C25164,Date Solved
+subjects,,,remarks,text,,,,,,,Remarks about this Subject (Relevant for SOLVE-RD project)
+subjects,,,consent,heading,,,,,,http://purl.obolibrary.org/obo/NCIT_C16735,
+subjects,,,matchMakerPermission,bool,,,,,,,"If true, permission is given for MatchMaking (boolean)"
+subjects,,,noIncidentalFindings,bool,,,,,,http://purl.obolibrary.org/obo/ICO_0000178,"If true, do NOT report incidental findings back (boolean)"
+subjects,,,recontact,ontology,,,,noyesunknown,,http://purl.obolibrary.org/obo/NCIT_C25737,Recontact is allowed in case of incidental findings
+subjects,,,retracted,ontology,,,,noyesunknown,,,Is the subject retracted or not
+subjects,,,subjectInformation,ref_array,,,,subjectinfo,,http://purl.obolibrary.org/obo/ExO_0000127,Additional information about subjects included in RD3
+subjects,,,recordMetadata,heading,,,,,,http://semanticscience.org/resource/SIO_001330,metadata is data that provides information about data.
+subjects,,,dateRecordCreated,date,,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C164483,The date on which the activity or entity is created.
+subjects,,,recordCreatedBy,ref,,TRUE,,persons,,http://purl.obolibrary.org/obo/NCIT_C42628,Indicates the person or authoritative body who brought the item into existence.
+subjects,,,dateRecordUpdated,date,,,,,,http://purl.obolibrary.org/obo/NCIT_C93629,The date (and time) on which report was updated after it had been submitted.
+subjects,,,wasUpdatedBy,ref,,,,persons,,https://w3id.org/reproduceme#wasUpdatedBy,An entity which is updated by another entity or an agent.
+subjects,,,comments,text,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material."
+subjectinfo,,,,,,,,,,http://purl.obolibrary.org/obo/ExO_0000127,Additional information about subjects included in RD3
+subjectinfo,,,subjectID,string,1,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C142495,"An individual who is the subject of personal data, persons to whom data refers, and from whom data are collected, processed, and stored."
+subjectinfo,,,dateOfBirth,int,,,,,,http://purl.obolibrary.org/obo/NCIT_C83164,The year in which a person was born.
+subjectinfo,,,ageAtDeath,int,,,,,,http://purl.obolibrary.org/obo/NCIT_C135383,The age at which death occurred.
+subjectinfo,,,ageOfOnset,ontology,,,,phenotype,,http://www.orpha.net/ORDO/Orphanet_C023,Age (in years) of onset of clinical manifestations related to the disease of the patient.
+subjectinfo,,,ageAtDiagnosis,int,,,,,,http://purl.bioontology.org/ontology/SNOMEDCT/423493009,"The age (in years), measured from some defined time point (e.g. birth) at which a patient is diagnosed with a disease."
+subjectinfo,,,countryOfBirth,ontology,,,,country,,http://purl.obolibrary.org/obo/GENEPIO_0001094,The country that this person was born in.
+subjectinfo,,,consanguinity_suspected,bool,,,,,,http://purl.obolibrary.org/obo/OMIT_0004546,"subject consanguinity (yes,no)"
+subjectinfo,,,partOfRelease,ref_array,,,,datareleases,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more Solve-RD releases that indicate when the record was first introduced into RD3 or when it was updated.
+subjectinfo,,,recordMetadata,heading,,,,,,http://semanticscience.org/resource/SIO_001330,metadata is data that provides information about data.
+subjectinfo,,,dateRecordCreated,date,,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C164483,The date on which the activity or entity is created.
+subjectinfo,,,recordCreatedBy,ref,,TRUE,,persons,,http://purl.obolibrary.org/obo/NCIT_C42628,Indicates the person or authoritative body who brought the item into existence.
+subjectinfo,,,dateRecordUpdated,date,,,,,,http://purl.obolibrary.org/obo/NCIT_C93629,The date (and time) on which report was updated after it had been submitted.
+subjectinfo,,,wasUpdatedBy,ref,,,,persons,,https://w3id.org/reproduceme#wasUpdatedBy,An entity which is updated by another entity or an agent.
+subjectinfo,,,comments,text,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material."
+samples,,,,,,,,,,http://purl.obolibrary.org/obo/SCDO_0002829,Samples used as input for analyses in RD3
+samples,,,sampleID,string,1,TRUE,,,,http://edamontology.org/data_3273,Name or other identifier of an entry from a biosample database.
+samples,,,alternativeIdentifier,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,A backup sequence of characters used to identify an entity.
+samples,,,belongsToSubject,ref,,,,subjects,,http://purl.obolibrary.org/obo/NCIT_C142495,"An individual who is the subject of personal data, persons to whom data refers, and from whom data are collected, processed, and stored."
+samples,,,ageAtSampling,int,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001775,age at sampling/ First contact with specialised centre (COMMON DATA ELEMENTS 4.1)
+samples,,,sex1,ontology,,,,sex,,,"Claimed Sex / Sex at birth (can be different from observed sex, see sample)"
+samples,,,sex2,ontology,,,,sex,,,Computed sex (based on Y- chromosome)
+samples,,,pathologicalState,ontology,,,,pathologicalstate,,http://purl.obolibrary.org/obo/GO_0001894,The pathological state of the tissue from which this material was derived. (GO:0001894)
+samples,,,percentageTumorCells,decimal,,,,,,http://purl.obolibrary.org/obo/NCIT_C127771,The percentage of tumor cells compared to total cells present in this material. (NCIT:C127771)
+samples,,,tissueType,ontology,,,,tissuetype,,http://purl.obolibrary.org/obo/NCIT_C70713,
+samples,,,extractedProtocol,string,,,,,,http://www.ebi.ac.uk/efo/EFO_0005518,
+samples,,,materialType,ontology_array,,,,materialtype,,,material type. E.g. DNA
+samples,,,flag,bool,,,,,,,QC failed (True /False)
+samples,,,organisation,ontology,,,,organisations,,http://purl.obolibrary.org/obo/NCIT_C25412,Name of the organisation. E.g. University Medical Center Groningen
+samples,,,ERN,ontology,,,,organisations,,http://purl.obolibrary.org/obo/NCIT_C25412,ERN
+samples,,,retracted,ontology,,,,noyesunknown,,,
+samples,,,dateAvailable,date,,,,,,http://purl.obolibrary.org/obo/NCIT_C25164,Date that a file became visible to sandbox/RD3
+samples,,,anatomicalLocation,ontology,,,,anatomicallocation,,http://purl.obolibrary.org/obo/NCIT_C103264,Biological entity that constitutes the structural organization of an individual member of a biological species from which this material was taken.
+samples,,,batch,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C67073,Sample batch number
+samples,,,partOfRelease,ref_array,,,,datareleases,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more Solve-RD releases that indicate when the record was first introduced into RD3 or when it was updated.
+samples,,,includedInStudies,ref_array,,,,studies,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the study or studies in which this person participates.
+samples,,,includedInCohorts,ref_array,,,,cohorts,,http://purl.obolibrary.org/obo/NCIT_C61512,"A group of individuals, identified by a common characteristic."
+samples,,,includedInDatasets,ref_array,,,,datasets,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the dataset or datasets in which this person was assigned to.
+samples,,,recordMetadata,heading,,,,,,http://semanticscience.org/resource/SIO_001330,metadata is data that provides information about data.
+samples,,,dateRecordCreated,date,,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C164483,The date on which the activity or entity is created.
+samples,,,recordCreatedBy,ref,,TRUE,,persons,,http://purl.obolibrary.org/obo/NCIT_C42628,Indicates the person or authoritative body who brought the item into existence.
+samples,,,dateRecordUpdated,date,,,,,,http://purl.obolibrary.org/obo/NCIT_C93629,The date (and time) on which report was updated after it had been submitted.
+samples,,,wasUpdatedBy,ref,,,,persons,,https://w3id.org/reproduceme#wasUpdatedBy,An entity which is updated by another entity or an agent.
+samples,,,comments,text,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material."
+labinfo,,,,,,,,,,,Information or proceesses in the lab that are linked to samples
+labinfo,,,experimentID,string,1,TRUE,,,,,
+labinfo,,,sampleID,ref,,,,samples,,http://purl.obolibrary.org/obo/NCIT_C93400,Name or other identifier of an entry from a biosample database.
+labinfo,,,capture,string,,,,,,,Enrichment kit
+labinfo,,,libraryType,ontology,,,,librarytype,,,"Library Source, e.g Genomic/Transcriptomic"
+labinfo,,,flowcell,string,,,,,,,flowcell information
+labinfo,,,barcode,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C43361,A machine-readable representation of information in a visual format on a surface.
+labinfo,,,samplePosition,string,,,,,,,"lane, or possition in well (A1 t/mH12)"
+labinfo,,,library,ref,,,,library,,,link to more information about the library used in experiment
+labinfo,,,sequencingCentre,ontology,,,,organisations,,http://purl.obolibrary.org/obo/OBI_0001891,An organization that provides sequence determination service
+labinfo,,,sequencer,string,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001921,The used product name and model number of a manufacturer's genomic (dna) sequencer.
+labinfo,,,seqtype,ontology_array,,,,seqtype,,http://purl.obolibrary.org/obo/FIX_0000704,Method used to determine the order of bases in a nucleic acid sequence.
+labinfo,,,arrayID,string,,,,,,,arrayID
+labinfo,,,mean_cov,decimal,,,,,,,Mean read depth
+labinfo,,,c20,decimal,,,,,,,Percentage of nucleotides within the Region of interest that is covered by at least 20 reads
+labinfo,,,retracted,ontology,,,,noyesunknown,,,Is the experiment retracted or not
+labinfo,,,partOfRelease,ref_array,,,,datareleases,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more Solve-RD releases that indicate when the record was first introduced into RD3 or when it was updated.
+labinfo,,,includedInStudies,ref_array,,,,studies,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the study or studies in which this person participates.
+labinfo,,,includedInCohorts,ref_array,,,,cohorts,,http://purl.obolibrary.org/obo/NCIT_C61512,"A group of individuals, identified by a common characteristic."
+labinfo,,,includedInDatasets,ref_array,,,,datasets,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the dataset or datasets in which this person was assigned to.
+labinfo,,,recordMetadata,heading,,,,,,http://semanticscience.org/resource/SIO_001330,metadata is data that provides information about data.
+labinfo,,,dateRecordCreated,date,,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C164483,The date on which the activity or entity is created.
+labinfo,,,recordCreatedBy,ref,,TRUE,,persons,,http://purl.obolibrary.org/obo/NCIT_C42628,Indicates the person or authoritative body who brought the item into existence.
+labinfo,,,dateRecordUpdated,date,,,,,,http://purl.obolibrary.org/obo/NCIT_C93629,The date (and time) on which report was updated after it had been submitted.
+labinfo,,,wasUpdatedBy,ref,,,,persons,,https://w3id.org/reproduceme#wasUpdatedBy,An entity which is updated by another entity or an agent.
+labinfo,,,comments,text,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material."
+files,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C42883,"Individuals files stored in the sandbox environments. Files are linked to subjects, samples, and experiments, as well as with EGA accession number."
+files,,,EGA,string,1,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C171191,The literal identifier for an electronic file (EGA Accession number).
+files,,,name,text,,,,,,http://purl.obolibrary.org/obo/NCIT_C171191,The literal identifier for an electronic file.
+files,,,md5,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C171276,A 32-character hexadecimal number that is computed on a file.
+files,,,fileFormat,ontology,,TRUE,,fileformat,,http://purl.obolibrary.org/obo/NCIT_C171252,"type of file (BAM, FastQ, gVCF, phenopacket, BED, etc.)"
+files,,,subjectID,ref_array,,,,subjects,,,One or more subject identifier associated with a file
+files,,,sampleID,ref_array,,,,samples,,http://purl.obolibrary.org/obo/NCIT_C93400,One more more sample identifier associated with a file
+files,,,experimentID,ref,,,,labinfo,,http://purl.obolibrary.org/obo/NCIT_C171337,Identifier of the corresponding record in the labinfo table
+files,,,partOfRelease,ref_array,,,,datareleases,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more Solve-RD releases that indicate when the record was first introduced into RD3 or when it was updated.
+files,,,fenderFilePath,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C47922,The location of the file on Fender
+files,,,gearshiftFilePath,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C47922,The location of the file on Gearshift
+files,,,includedInStudies,ref_array,,,,studies,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the study or studies in which this person participates.
+files,,,includedInCohorts,ref_array,,,,cohorts,,http://purl.obolibrary.org/obo/NCIT_C61512,"A group of individuals, identified by a common characteristic."
+files,,,includedInDatasets,ref_array,,,,datasets,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the dataset or datasets in which this person was assigned to.
+files,,,recordMetadata,heading,,,,,,http://semanticscience.org/resource/SIO_001330,metadata is data that provides information about data.
+files,,,dateRecordCreated,date,,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C164483,The date on which the activity or entity is created.
+files,,,recordCreatedBy,ref,,TRUE,,persons,,http://purl.obolibrary.org/obo/NCIT_C42628,Indicates the person or authoritative body who brought the item into existence.
+files,,,dateRecordUpdated,date,,,,,,http://purl.obolibrary.org/obo/NCIT_C93629,The date (and time) on which report was updated after it had been submitted.
+files,,,wasUpdatedBy,ref,,,,persons,,https://w3id.org/reproduceme#wasUpdatedBy,An entity which is updated by another entity or an agent.
+files,,,comments,text,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material."
+overview,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C80271,"Overview on RD3 Subjects, samples, and experiments"
+overview,,,subjectID,string,1,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C142495,"An individual who is the subject of personal data, persons to whom data refers, and from whom data are collected, processed, and stored."
+overview,,,sex1,ontology,,,,sex,,,"Claimed Sex / Sex at birth (can be different from observed sex, see sample)"
+overview,,,fid,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C25173,"A domestic group, or a number of domestic groups linked through descent (demonstrated or stipulated) from a common ancestor, marriage, or adoption."
+overview,,,mid,ref,,,,subjects,,http://purl.obolibrary.org/obo/NCIT_C89336,Identifier indicating a reference to mother of the subject
+overview,,,pid,ref,,,,subjects,,http://purl.obolibrary.org/obo/NCIT_C94324,Identifier indicating a reference to father of the subject
+overview,,,partOfRelease,ref_array,,,,datareleases,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more Solve-RD releases that indicate when the record was first introduced into RD3 or when it was updated.
+overview,,,hasOnlyNovelOmics,bool,,,,,,,"If true, this subject does not have data in any data freeze (1,2,3,etc.)"
+overview,,,organisation,ontology_array,,,,organisations,,http://purl.obolibrary.org/obo/NCIT_C25412,Name of the organisation that submitted Subject
+overview,,,ERN,ontology_array,,,,organisations,,http://purl.obolibrary.org/obo/NCIT_C25412,ERN
+overview,,,clinical_status,bool,,,,,,http://purl.obolibrary.org/obo/NCIT_C64917,whether it is an affected individual (main disease) Yes/No
+overview,,,solved,bool,,,,,,,Solved status for RD3 (True/False)
+overview,,,phenotype,ontology_array,,,,phenotype,,http://purl.obolibrary.org/obo/NCIT_C16977,Phenotype based on Human Phenotype Ontology (HPO)
+overview,,,hasNotPhenotype,ontology_array,,,,phenotype,,http://purl.bioontology.org/ontology/HL7/C0442737,Relevant Phenotype NOT present in subject
+overview,,,disease,ontology_array,,,,disease,,http://purl.obolibrary.org/obo/NCIT_C15607,"if affected, which MAIN disease code(s) apply to subject"
+overview,,,subjectData,heading,,,,,,,
+overview,,,numberOfSamples,int,,,,,,,Number of samples derived from a subject
+overview,,,samples,ref_array,,,,samples,,,All samples derived from a subject
+overview,,,numberOfExperiments,int,,,,,,,
+overview,,,experiments,ref_array,,,,labinfo,,,All experiments associated with a subject
+overview,,,files,string,,,,,,,Files associated with a subject
+cohorts,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C61512,"A group of individuals, identified by a common characteristic."
+cohorts,,,cohortID,string,1,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing."
+cohorts,,,acronym,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C93495,The non-unique initials or abbreviated name used for identification.
+cohorts,,,name,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C42614,The words or language units by which a thing is known.
+cohorts,,,description,text,,,,,,http://purl.obolibrary.org/obo/NCIT_C166209,The description of the characteristics that define a cohort.
+cohorts,,,principleInvestigator,string,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0000100,The principle investigator or responsible person for this study.
+cohorts,,,contactPerson,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,A person acting as a channel for communication between groups or on behalf of a group.
+cohorts,,,contactEmail,string,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0000035,An email address for the purpose of contacting the study contact person.
+cohorts,,,sizeOfCohort,int,,,,,,http://purl.obolibrary.org/obo/NCIT_C53190,"A subset of a larger population, selected for investigation to draw conclusions or make estimates about the larger population."
+datareleases,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172217,The act of making data or other structured information accessible to the public or to the user group of a database.
+datareleases,,,name,string,1,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing."
+datareleases,,,label,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C42614,The words or language units by which a thing is known.
+datareleases,,,description,text,,,,,,http://purl.obolibrary.org/obo/NCIT_C25365,"A written or verbal account, representation, statement, or explanation of something."
+datareleases,,,date,date,,,,,,http://semanticscience.org/resource/SIO_001083,A date of database submission refers to the moment in time in which some information was submitted/received to a database system.
+datareleases,,,createdBy,ref,,,,persons,,http://purl.obolibrary.org/obo/NCIT_C42628,Indicates the person or authoritative body who brought the item into existence.
+datareleases,,,dataSource,ontology_array,,,,organisations,,http://purl.obolibrary.org/obo/NCIT_C16493,The person or authoritative body who provided the information.
+datareleases,,,releaseNotes,text,,,,,,http://purl.obolibrary.org/obo/NCIT_C115505,"A notation regarding the decisions, and/or clarification of any information pertaining to data management."
+datasets,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C47824,"container of files belonging together (different datasets can contain overlapping files, except for the intial datasets containing startfiles (before analysis, startfiles= BAM, gVCF files (one per chromosome) and phenopacket file))"
+datasets,,,name,string,1,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing."
+datasets,,,description,text,,,,,,http://purl.obolibrary.org/obo/NCIT_C25365,"A written or verbal account, representation, statement, or explanation of something."
+datasets,,,datauseconditions,ontology_array,,,,datauseconditions,,http://purl.obolibrary.org/obo/DUO_0000001,
+datasets,,,datasetType,,,TRUE,,,,,type of dataset (raw or processed (analysed) data)
+datasets,,,comments,text,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material."
+persons,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,researcher or contactperson involved in the study and/or affliated with organisation
+persons,,,name,string,1,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C25364,
+persons,,,fullName,string,,,,,,http://purl.obolibrary.org/obo/GSSO_001755,
+persons,,,alternativeIdentifier,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,A backup sequence of characters used to identify an entity.
+persons,,,firstName,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C40974,
+persons,,,middleInitials,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C166237,
+persons,,,lastName,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C40975,
+persons,,,email,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C42775,Email address of the contact person or organization
+persons,,,primaryOrganisation,ontology,,,,organisations,,http://purl.obolibrary.org/obo/NCIT_C25412,The most significant institute for medical consultation and/or study inclusion in context of the genetic disease of this person.
+studies,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C63536,"A detailed examination, analysis, or critical inspection of one or multiple subjects designed to discover facts."
+studies,,,name,string,1,TRUE,,,,http://purl.obolibrary.org/obo/OMIABIS_0000006,A unique proper name or character sequence that identifies this particular study.
+studies,,,studyAcronym,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C93495,The non-unique initials or abbreviated name used for identification.
+studies,,,studyName,string,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0000037,A name that designates this study.
+studies,,,inclusionCriteria,text,,,,,,http://purl.obolibrary.org/obo/OBI_0500027,"The conditions which, if met, make an person eligible for participation in this study."
+studies,,,principleInvestigator,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C19924,An investigator who is responsible for all aspects of the conduct of a study.
+studies,,,contactPerson,ref_array,,,,persons,,http://purl.obolibrary.org/obo/NCIT_C176373,Name of study contact.
+studies,,,contactEmail,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C176375,A text string identifier for a location to which e-mail for the study contact can be delivered.
+studies,,,studyDescription,text,,,,,,http://purl.obolibrary.org/obo/NCIT_C142704,A plan specification comprised of protocols (which may specify how and what kinds of data will be gathered) that are executed as part of this study.
+studies,,,studyStartDate,date,,,,,,http://purl.obolibrary.org/obo/NCIT_C69208,The date on which this study began.
+studies,,,studyCompletionDate,date,,,,,,http://purl.obolibrary.org/obo/NCIT_C142702,"The date on which the concluding information for this study is completed. Usually, this is when the last subject has a final visit, or the main analysis has finished, or any other protocol-defined completion date."
+studies,,,currentStudyStatus,string,,,,,,http://purl.obolibrary.org/obo/NCIT_C171103,The status of a study or trial.
+studies,,,numberOfSubjectsEnrolled,int,,,,,,http://purl.obolibrary.org/obo/NCIT_C153145,An integer specifying the quantity of study subjects enrolled in the study at the current time.
+studies,,,samplesCollected,int,,,,,,,An integer specifying the quantity of samples collected at the current time.
+studies,,,belongsToDataRelease,ref_array,,,,datareleases,,http://purl.obolibrary.org/obo/NCIT_C172217,The act of making data or other structured information accessible to the public or to the user group of a database.
+library,,,,,,,,,,,sequencing library information
+library,,,name,string,1,TRUE,,,,http://purl.obolibrary.org/obo/NCIT_C42614,name of library used for NGS
+library,,,designDescription,string,,,,,,,Description of library
+library,,,libraryConstructionProtocol,string,,,,,,,Construction Protocol library
+library,,,libraryLayoutId,string,,,,,,,Library Layout: whether to expect SINGLE or PAIRED end reads.
+library,,,pairedNominalLength,string,,,,,,,Nominal Length: the expected size of the insert.
+library,,,librarySelectionId,string,,,,,,,Library Selection: the method used to select and/or enrich the material being sequenced.
+anatomicallocation,ONTOLOGIES,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C103264,A clinical site that collects and provides patient samples and clinical metadata for research use.
+country,ONTOLOGIES,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25464,"A collective generic term that refers here to a wide variety of dependencies, areas of special sovereignty, uninhabited islands, and other entities in addition to the traditional countries or independent states."
+datauseconditions,ONTOLOGIES,,,,,,,,,http://purl.obolibrary.org/obo/DUO_0000001,"A data item that is used to indicate consent permissions for datasets and/or materials, and relates to the purposes for which datasets and/or material might be removed, stored or used."
+disease,ONTOLOGIES,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,A diagnosis made from a study of the signs and symptoms of a disease.
+fileformat,ONTOLOGIES,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C171252,The format of an electronic file.
+librarytype,ONTOLOGIES,,,,,,,,,,
+materialtype,ONTOLOGIES,,,,,,,,,,
+noyesunknown,ONTOLOGIES,,,,,,,,,,
+organisations,ONTOLOGIES,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25412,A formal association between entities.
+pathologicalstate,ONTOLOGIES,,,,,,,,,http://purl.obolibrary.org/obo/GO_0001894,"A homeostatic process involved in the maintenance of an internal steady state within a defined tissue of an organism, including control of cellular proliferation and death and control of metabolic function."
+phenotype,ONTOLOGIES,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C16977,The assemblage of traits or outward appearance of an individual. It is the product of interactions between genes and between genes and the environment.
+seqtype,ONTOLOGIES,,,,,,,,,http://purl.obolibrary.org/obo/FIX_0000704,
+sex,ONTOLOGIES,,,,,,,,,,
+tissuetype,ONTOLOGIES,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C70713,"The type of a material sample taken from a biological entity for testing, diagnostic, propagation, treatment or research purposes. This includes particular types of cellular molecules, cells, tissues, organs, body fluids, embryos, and body excretory substances."
