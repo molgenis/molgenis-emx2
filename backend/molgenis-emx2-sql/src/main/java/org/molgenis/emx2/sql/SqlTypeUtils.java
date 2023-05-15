@@ -51,7 +51,9 @@ public class SqlTypeUtils extends TypeUtils {
         values.put(c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else
       // compute field, might depend on update values therefor run always on insert/update
-      if (c.getComputed() != null) {
+      // unless readonly, then we only set if null
+      if (c.getComputed() != null
+          && (!c.isReadonly() || row.isNull(c.getName(), c.getColumnType()))) {
         values.put(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
       } else
       // otherwise, unless invisible

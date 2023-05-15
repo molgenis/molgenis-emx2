@@ -1,6 +1,7 @@
 package org.molgenis.emx2.utils;
 
 import java.util.Map;
+import java.util.UUID;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.HostAccess;
@@ -35,9 +36,17 @@ public class JavaScriptUtils {
       for (Map.Entry<String, Object> entry : values.entrySet()) {
         bindings.putMember(entry.getKey(), entry.getValue());
       }
+      if (script.contains("${mg_autoid}")) {
+        bindings.putMember("mg_autoid", generateId());
+      }
       return context.eval("js", script).toString();
     } catch (Exception e) {
       throw new MolgenisException("script failed: " + e.getMessage());
     }
+  }
+
+  private static Object generateId() {
+    // todo come up with better id
+    return UUID.randomUUID().toString();
   }
 }
