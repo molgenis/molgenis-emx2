@@ -2,6 +2,7 @@ import { IColumn } from "../Interfaces/IColumn";
 import { IRow } from "../Interfaces/IRow";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
 import constants from "./constants";
+import Client from "../client/client";
 
 const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } =
   constants;
@@ -58,6 +59,61 @@ export function getPrimaryKey(
       },
       {}
     );
+  }
+}
+
+export async function convertRowToPrimaryKey(
+  row: IRow,
+  tableName: string,
+  schemaName: string
+): Promise<Record<string, any> | null> {
+  console.log(" + convertRowToPrimaryKey");
+  console.log("row", row);
+  console.log("tableName", tableName);
+  console.log("schemaName", schemaName);
+
+  const client = Client.newClient(schemaName);
+  const tableMetadata = await client.fetchTableMetaData(tableName);
+  console.log("tableMetadata", tableMetadata);
+  if (!tableMetadata?.columns) {
+    return null;
+  } else {
+    const result = await tableMetadata.columns.reduce(
+      async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
+        let accum: IRow = await accumPromise;
+        const cellValue = row[column.id];
+        if (column.key === 1 && cellValue) {
+          accum[column.id] = await getKeyValue(
+            cellValue,
+            column,
+            column.refSchema || schemaName
+          );
+        }
+        return accum;
+      },
+      Promise.resolve({})
+    );
+    console.log("result", result);
+    console.log(" - convertRowToPrimaryKey");
+    return result;
+  }
+}
+
+async function getKeyValue(
+  cellValue: any,
+  column: IColumn,
+  schemaName: string
+) {
+  if (typeof cellValue === "string") {
+    return cellValue;
+  } else {
+    if (column.refTable) {
+      return await convertRowToPrimaryKey(
+        cellValue,
+        column.refTable,
+        schemaName
+      );
+    }
   }
 }
 
