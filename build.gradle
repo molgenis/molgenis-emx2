@@ -33,7 +33,7 @@ allprojects {
 }
 
 tasks.withType(Test) {
-    maxParallelForks = Runtime.runtime.availableProcessors();
+    maxParallelForks = Runtime.runtime.availableProcessors() / 2;
 }
 
 repositories {
