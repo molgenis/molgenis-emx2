@@ -43,7 +43,7 @@ public class WebApiSmokeTests {
   private static Database db;
   private static Schema schema;
   final String CSV_TEST_SCHEMA = "pet store csv";
-  static final int PORT = 8080; // other then default so we can see effect
+  static final int PORT = 8081; // other then default so we can see effect
 
   @BeforeAll
   public static void before() throws Exception {
@@ -725,55 +725,70 @@ public class WebApiSmokeTests {
   public void testRdfApi() {
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
-    given().sessionId(SESSION_ID).expect().statusCode(200).when().get("/pet store/api/rdf");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("/pet store/api/rdf/Category");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("/pet store/api/rdf/Category/column/name");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("/pet store/api/rdf/Category/cat");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/column/name");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/cat");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(400)
         .when()
-        .get("/pet store/api/rdf/doesnotexist");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
   }
 
   @Test
   public void testLinkedDataApi() {
-    given().sessionId(SESSION_ID).expect().statusCode(200).when().get("/pet store/api/jsonld");
-    given().sessionId(SESSION_ID).expect().statusCode(200).when().get("/pet store/api/ttl");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("/pet store/api/jsonld/Category");
+        .get("http://localhost:" + PORT + "/pet store/api/jsonld");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("/pet store/api/ttl/Category");
+        .get("http://localhost:" + PORT + "/pet store/api/ttl");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:" + PORT + "/pet store/api/jsonld/Category");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:" + PORT + "/pet store/api/ttl/Category");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(400)
         .when()
-        .get("/pet store/api/ttl/doesnotexist");
+        .get("http://localhost:" + PORT + "/pet store/api/ttl/doesnotexist");
   }
 
   @Test
@@ -783,12 +798,17 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(400)
         .when()
-        .get("/api/fdp/distribution/pet store/Category/ttl");
+        .get("http://localhost:" + PORT + "/api/fdp/distribution/pet store/Category/ttl");
   }
 
   @Test
   public void testGraphGenome400() {
-    given().sessionId(SESSION_ID).expect().statusCode(400).when().get("/api/graphgenome");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(400)
+        .when()
+        .get("http://localhost:" + PORT + "/api/graphgenome");
   }
 
   @Test
