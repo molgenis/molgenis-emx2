@@ -84,8 +84,7 @@ const client: IClient = {
           properties,
           schemaMetaData,
           myAxios,
-          schemaNameCache,
-          1
+          schemaNameCache
         );
         return dataResp[tableId];
       },
@@ -119,8 +118,7 @@ const client: IClient = {
             },
             schemaMetaData,
             myAxios,
-            schemaNameCache,
-            1
+            schemaNameCache
           )
         )[tableId];
 
@@ -283,8 +281,7 @@ const deleteRow = (key: IRow, tableName: string, schemaName: string) => {
 };
 
 const deleteAllTableData = (tableName: string, schemaName: string) => {
-  const tableId = convertToPascalCase(tableName);
-  const query = `mutation {truncate(tables:"${tableId}"){message}}`;
+  const query = `mutation {truncate(tables:"${tableName}"){message}}`;
   return axios.post(graphqlURL(schemaName), { query });
 };
 
@@ -309,7 +306,7 @@ const fetchTableData = async (
   metaData: ISchemaMetaData,
   axios: Axios,
   schemaName: string,
-  expandLevel: number = 2
+  expandLevel: number = 1
 ) => {
   const tableId = convertToPascalCase(tableName);
   const limit = properties.limit ? properties.limit : 20;
