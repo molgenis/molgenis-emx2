@@ -51,7 +51,7 @@
         :id="id + '-footer'"
         :tableName="tableName"
         :errorMessage="errorMessage"
-        :isSaveDisabled="isSaveDisabled"
+        :saveDisabledMessage="saveDisabledMessage"
         @cancel="handleClose"
         @saveDraft="handleSaveDraftRequest"
         @save="handleSaveRequest"
@@ -79,15 +79,21 @@
   </LayoutModal>
 </template>
 
-<script>
-import Client from "../../client/client.ts";
+<script lang="ts">
+import Client from "../../client/client";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import EditModalWizard from "./EditModalWizard.vue";
 import RowEdit from "./RowEdit.vue";
 import ButtonAction from "./ButtonAction.vue";
-import { filterObject, deepClone, getLocalizedLabel } from "../utils.ts";
+import { filterObject, deepClone, getLocalizedLabel } from "../utils";
 import constants from "../constants";
+import { AxiosError } from "axios";
+import { IClient, INewClient } from "../../client/IClient";
+import { ISchemaMetaData } from "../../Interfaces/IMetaData";
+import { ITableMetaData } from "../../Interfaces/ITableMetaData";
+import { IColumn } from "../../Interfaces/IColumn";
+import { IRow } from "../../Interfaces/IRow";
 
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
 
@@ -103,10 +109,10 @@ export default {
   data() {
     return {
       rowData: {},
-      tableMetaData: null,
-      schemaMetaData: null,
-      client: null,
-      errorMessage: null,
+      tableMetaData: null as unknown as ITableMetaData,
+      schemaMetaData: null as unknown as ISchemaMetaData,
+      client: null as unknown as INewClient,
+      errorMessage: "",
       loaded: true,
       currentPage: 1,
       pageCount: 1,
@@ -128,7 +134,7 @@ export default {
     },
     schemaName: {
       type: String,
-      required: false,
+      default: "",
     },
     pkey: {
       type: Object,
@@ -165,10 +171,13 @@ export default {
       }
     },
     pageHeadings() {
-      const headings = this.tableMetaData.columns
+      const columns: IColumn[] = this.tableMetaData?.columns
+        ? this.tableMetaData?.columns
+        : [];
+      const headings: string[] = columns
         .filter((column) => column.columnType === "HEADING")
         .map((column) => column.name);
-      if (this.tableMetaData.columns[0].columnType === "HEADING") {
+      if (columns[0].columnType === "HEADING") {
         return headings;
       } else {
         return ["First chapter"].concat(headings);
@@ -177,12 +186,14 @@ export default {
     titlePrefix() {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
     },
-    isSaveDisabled() {
-      return this.pageCount > 1 ? this.pageCount !== this.currentPage : false;
+    saveDisabledMessage() {
+      return this.pageCount > 1 && this.pageCount !== this.currentPage
+        ? "Saving is only possible on the last chapter"
+        : "";
     },
   },
   methods: {
-    setCurrentPage(newPage) {
+    setCurrentPage(newPage: number) {
       this.currentPage = newPage;
     },
     handleSaveRequest() {
@@ -191,20 +202,26 @@ export default {
     handleSaveDraftRequest() {
       this.save({ ...this.rowData, mg_draft: true });
     },
-    async save(formData) {
-      this.errorMessage = null;
-      const action =
-        this.pkey && !this.clone ? "updateDataRow" : "insertDataRow";
-      const result = await this.client[action](
-        formData,
-        this.tableName,
-        this.schemaName
-      ).catch(this.handleSaveError);
-      if (result) {
-        this.handleClose();
+    async save(formData: IRow) {
+      this.errorMessage = "";
+      let result;
+      if (this.pkey && !this.clone) {
+        result = await this.client
+          .updateDataRow(formData, this.tableName, this.schemaName)
+          .catch(this.handleSaveError);
+        if (result) {
+          this.handleClose();
+        }
+      } else {
+        result = await this.client
+          .insertDataRow(formData, this.tableName, this.schemaName)
+          .catch(this.handleSaveError);
+        if (result) {
+          this.handleClose();
+        }
       }
     },
-    handleSaveError(error) {
+    handleSaveError(error: any) {
       if (error.response?.status === 403) {
         this.errorMessage =
           "Schema doesn't exist or permission denied. Do you need to Sign In?";
@@ -215,7 +232,7 @@ export default {
       }
     },
     async fetchRowData() {
-      const result = await this.client.fetchRowData(this.tableName, this.pkey);
+      const result = await this.client?.fetchRowData(this.tableName, this.pkey);
       if (!result) {
         this.errorMessage = `Error, unable to fetch data for this row (${this.pkey})`;
       } else {
@@ -223,7 +240,7 @@ export default {
       }
     },
     handleClose() {
-      this.errorMessage = null;
+      this.errorMessage = "";
       this.$emit("close");
     },
   },
@@ -234,8 +251,10 @@ export default {
     const settings = await this.client.fetchSettings();
 
     this.useChapters =
-      settings.find((item) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME)
-        ?.value !== "false";
+      settings.find(
+        (item: { key: string; value: string }) =>
+          item.key === IS_CHAPTERS_ENABLED_FIELD_NAME
+      )?.value !== "false";
 
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
 
@@ -244,13 +263,13 @@ export default {
 
       if (this.clone) {
         // in case of clone, remove the key columns from the row data
-        const keyColumnsNames = this.tableMetaData.columns
-          .filter((column) => column.key === 1)
-          .map((column) => column.name);
+        const keyColumnsNames = this.tableMetaData?.columns
+          ?.filter((column: IColumn) => column.key === 1)
+          .map((column: IColumn) => column.name);
 
         this.rowData = filterObject(
           this.rowData,
-          (key) => !keyColumnsNames.includes(key)
+          (key) => !keyColumnsNames?.includes(key)
         );
       }
     }
