@@ -190,6 +190,13 @@ For example:
 | parts     | productNo  | 2   |                           |
 | parts     | partNo     | 2   |                           |
 
+##### Auto id
+Automatically generate an value for a column by using the special ${mg_autoid} token in the computed expression. 
+For example:
+
+- Just the auto id ```${mg_autoid}``` would result in some thing like ```ae6e3b15-c9e2-4d16-8ab3-5984ba64ce09```
+- Auto id with pre and post fix ```'foo-' + ${mg_autoid} + '-bar'``` would result in ```foo-ae6e3b15-c9e2-4d16-8ab3-5984ba64ce09-bar```
+
 ### validation expression, visible expression
 
 Validation expressions and visible expressions are used to fine tune forms. Validation expressions must be valid
@@ -263,11 +270,3 @@ to `[server]/[schema]/settings/#/changelog` ( Settings app -> select the 'Change
 The changelog can be enabled after schema creation via adding a setting with key `isChangelogEnabled`, and setting the
 value to `true`.
 Disabling the changelog is done the setting the value to `false` or removing the setting
-
-## FAQ
-
-Q: Do you support automatic values, such as auto-increment identifiers or dates?
-
-A: No. We believe scientific data must be reproducible. Therefore we want to make sure that when you upload+download
-data twice, the contents are exactly the same. This would break in the event of automatic values. If you really want it,
-you can use computedValue.

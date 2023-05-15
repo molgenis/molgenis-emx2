@@ -316,9 +316,14 @@ function executeExpression(expression, values, tableMetaData) {
     }
   });
 
+  const parsedExpression = expression.replaceAll(
+    "${mg_autoid}",
+    '"[auto-id-placeholder]"'
+  );
+
   const func = new Function(
     Object.keys(copy),
-    `return eval('${expression.replaceAll("'", '"')}');`
+    `return eval('${parsedExpression.replaceAll("'", '"')}');`
   );
   return func(...Object.values(copy));
 }

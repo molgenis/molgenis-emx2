@@ -1,12 +1,12 @@
 package org.molgenis.emx2.utils;
 
 import java.util.Map;
-import java.util.UUID;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.utils.generator.IdGenerator;
 
 public class JavaScriptUtils {
 
@@ -16,11 +16,13 @@ public class JavaScriptUtils {
           .option("engine.WarnInterpreterOnly", "false")
           .build();
 
-  private JavaScriptUtils() {
-    // hide constructor
+  private final IdGenerator idGenerator;
+
+  public JavaScriptUtils(IdGenerator idGenerator) {
+    this.idGenerator = idGenerator;
   }
 
-  public static String executeJavascriptOnMap(String script, Map<String, Object> values) {
+  public String executeJavascriptOnMap(final String script, Map<String, Object> values) {
     try {
       final Context context =
           Context.newBuilder("js")
@@ -36,17 +38,16 @@ public class JavaScriptUtils {
       for (Map.Entry<String, Object> entry : values.entrySet()) {
         bindings.putMember(entry.getKey(), entry.getValue());
       }
+
       if (script.contains("${mg_autoid}")) {
-        bindings.putMember("mg_autoid", generateId());
+        String idScript = script.replace("${mg_autoid}", "\"" + idGenerator.generateId() + "\"");
+        return context.eval("js", idScript).toString();
+      } else {
+        return context.eval("js", script).toString();
       }
-      return context.eval("js", script).toString();
+
     } catch (Exception e) {
       throw new MolgenisException("script failed: " + e.getMessage());
     }
-  }
-
-  private static Object generateId() {
-    // todo come up with better id
-    return UUID.randomUUID().toString();
   }
 }

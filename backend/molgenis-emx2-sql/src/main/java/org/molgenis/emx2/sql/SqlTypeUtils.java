@@ -1,19 +1,19 @@
 package org.molgenis.emx2.sql;
 
-import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.JavaScriptUtils;
 import org.molgenis.emx2.utils.TypeUtils;
+import org.molgenis.emx2.utils.generator.IdGeneratorImpl;
 
 public class SqlTypeUtils extends TypeUtils {
 
-  private SqlTypeUtils() {
-    // to hide the public constructor
-  }
+  private JavaScriptUtils javaScriptUtils = new JavaScriptUtils(new IdGeneratorImpl());
 
-  static Map<String, Object> validateAndGetVisibleValuesAsMap(
+  public SqlTypeUtils() {}
+
+  Map<String, Object> validateAndGetVisibleValuesAsMap(
       Row row, TableMetadata tableMetadata, Collection<Column> updateColumns) {
 
     // we create a graph representation of the row, using identifiers
@@ -54,7 +54,7 @@ public class SqlTypeUtils extends TypeUtils {
       // unless readonly, then we only set if null
       if (c.getComputed() != null
           && (!c.isReadonly() || row.isNull(c.getName(), c.getColumnType()))) {
-        values.put(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
+        values.put(c.getName(), javaScriptUtils.executeJavascriptOnMap(c.getComputed(), graph));
       } else
       // otherwise, unless invisible
       if (columnIsVisible(
@@ -68,9 +68,9 @@ public class SqlTypeUtils extends TypeUtils {
     return values;
   }
 
-  private static boolean columnIsVisible(Column column, Map values) {
+  private boolean columnIsVisible(Column column, Map values) {
     if (column.getVisible() != null) {
-      String visibleResult = executeJavascriptOnMap(column.getVisible(), values);
+      String visibleResult = javaScriptUtils.executeJavascriptOnMap(column.getVisible(), values);
       if (visibleResult.equals("false") || visibleResult.equals("null")) {
         return false;
       }
@@ -135,7 +135,7 @@ public class SqlTypeUtils extends TypeUtils {
     };
   }
 
-  public static void checkValidation(Column column, Map<String, Object> values) {
+  public void checkValidation(Column column, Map<String, Object> values) {
     if (values.get(column.getName()) != null) {
       column.getColumnType().validate(values.get(column.getName()));
       // validation
@@ -148,9 +148,9 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  public static String checkValidation(String validationScript, Map<String, Object> values) {
+  public String checkValidation(String validationScript, Map<String, Object> values) {
     try {
-      String error = executeJavascriptOnMap(validationScript, values);
+      String error = javaScriptUtils.executeJavascriptOnMap(validationScript, values);
       if (error != null) {
         if (error.trim().equals("false")) {
           // you can have a validation rule that simply returns true or false;
