@@ -17,8 +17,8 @@ plugins {
 }
 
 
-targetCompatibility = '17'
-sourceCompatibility = '17'
+targetCompatibility = "17"
+sourceCompatibility = "17"
 
 sonarqube {
     properties {
@@ -33,7 +33,7 @@ allprojects {
 }
 
 tasks.withType(Test) {
-    maxParallelForks = Runtime.runtime.availableProcessors();
+    maxParallelForks = Runtime.runtime.availableProcessors() / 2;
 }
 
 repositories {

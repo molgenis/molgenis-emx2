@@ -49,6 +49,14 @@
               ? datasetmappings.description
               : "N/A"
           }}
+          <RowButtonEdit
+            v-if="datasetmappings"
+            id="row-button-edit-dataset"
+            tableName="DatasetMappings"
+            :pkey="pkeyDataset(datasetmappings)"
+            :visibleColumns="['description']"
+            @close="handleModalClose"
+          />
           <br />
           <br />
           <a :href="downloadURLcsv">Download ETL as csv</a><br />
@@ -56,17 +64,7 @@
         </td>
       </tr>
       <tr>
-        <th v-if="canEdit">
-          <h6>
-            #
-            <RowButtonAdd
-              id="'row-button-add' + index"
-              tableName="VariableMappings"
-              @close="handleModalClose"
-              :defaultValue="defaultValueMapping"
-            />
-          </h6>
-        </th>
+        <th v-if="canEdit">#</th>
         <th><h6>Target column</h6></th>
         <th><h6>Source column</h6></th>
         <th><h6>Description</h6></th>
@@ -80,12 +78,12 @@
               id="'row-button-edit' + index"
               tableName="VariableMappings"
               :pkey="pkey(m)"
-              @close="handleModalClose"
-            />
-            <RowButtonDelete
-              id="'row-button-delete' + index"
-              tableName="VariableMappings"
-              :pkey="pkey(m)"
+              :visibleColumns="[
+                'description',
+                'syntax',
+                'comments',
+                'source variables',
+              ]"
               @close="handleModalClose"
             />
           </div>
@@ -153,13 +151,7 @@
 
 <script>
 import { request, gql } from "graphql-request";
-import {
-  MessageError,
-  RowButtonEdit,
-  RowButtonAdd,
-  RowButtonDelete,
-  EditModal,
-} from "molgenis-components";
+import { MessageError, RowButtonEdit, EditModal } from "molgenis-components";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
@@ -167,8 +159,6 @@ export default {
     EditModal,
     MessageError,
     RowButtonEdit,
-    RowButtonAdd,
-    RowButtonDelete,
   },
   props: {
     source: String,
@@ -231,6 +221,20 @@ export default {
   },
   methods: {
     ...mapActions(["reloadMetadata"]),
+    pkeyDataset(datasetmapping) {
+      return {
+        source: datasetmapping.source,
+        sourceDataset: {
+          resource: datasetmapping.source,
+          name: datasetmapping.sourceDataset.name,
+        },
+        target: datasetmapping.target,
+        targetDataset: {
+          resource: datasetmapping.target,
+          name: datasetmapping.targetDataset.name,
+        },
+      };
+    },
     pkey(mapping) {
       return {
         source: mapping.source,
@@ -289,6 +293,12 @@ export default {
                 }
               }
             ) {
+              target {
+                id
+              }
+              targetDataset {
+                name
+              }
               source {
                 id
               }

@@ -78,6 +78,8 @@ Datasets,,,,,,,,,,,,Definition of a dataset within a (common) data model
 Datasets,,resource,ref,1,TRUE,,Extended resources,,,,,resources that these variables are part of
 Datasets,,name,,1,TRUE,,,,,,,unique dataset name in the model
 Datasets,,label,,,,,,,,,,short human readable description
+Datasets,,since version,,,,,,,,,,When this dataset was introduced
+Datasets,,until version,,,,,,,,,,When this dataset was removed if applicable
 Datasets,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,defines what each record in this table describes
 Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
 Datasets,,description,text,,,,,,,,,description of the role/function of this table
@@ -89,7 +91,7 @@ All variables,,resource,ref,1,TRUE,,Extended resources,,,,,Data source that this
 All variables,,dataset,ref,1,TRUE,,Datasets,resource,,,,Dataset this variable is part of
 All variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table"
 All variables,,label,,,,,,,,,,"Human friendly longer name, if applicable"
-All variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
+All variables,,collection event,ref,,,,Collection events,,,,,"in case of protocolised data collection, this defines the moment in time this variable is collected on"
 All variables,,since version,,,,,,,,,,When this variable was introduced
 All variables,,until version,,,,,,,,,,When this variable was removed if applicable
 Variables,All variables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
@@ -105,8 +107,6 @@ Variables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,
 Variables,,repeats,refback,,,,Repeated variables,,is repeat of,,,listing of all repeated variables defined for this variable
 Variables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,
 Variables,,notes,text,,,,,,,,,Any other information on this variable
-Variables,,since version,,,,,,,,,,When this variable was introduced
-Variables,,until version,,,,,,,,,,When this variable was removed if applicable
 Variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
 Variable values,,resource,ref,1,TRUE,,Extended resources,,,,,
 Variable values,,variable,ref,1,TRUE,,Variables,resource,,,,e.g. PATO

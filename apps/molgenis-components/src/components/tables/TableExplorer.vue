@@ -340,11 +340,9 @@
     </ConfirmModal>
     <RefSideModal
       v-if="refSideModalProps"
-      :table-id="refSideModalProps.table"
-      :label="refSideModalProps.label"
+      :column="refSideModalProps.column"
       :rows="refSideModalProps.rows"
       :schema="this.schemaName"
-      :refSchema="refSideModalProps.schema"
       @onClose="refSideModalProps = undefined"
       :showDataOwner="canManage"
     />
@@ -591,7 +589,7 @@ export default {
     async handelExecuteDeleteAll() {
       this.isDeleteAllModalShown = false;
       const resp = await this.client
-        .deleteAllTableData(this.tableId)
+        .deleteAllTableData(this.tableMetadata.name)
         .catch(this.handleError);
       if (resp) {
         this.reload();
@@ -599,13 +597,11 @@ export default {
     },
     handleCellClick(event) {
       const { column, cellValue } = event;
-      const rows = [cellValue].flat();
+      const rowsInRefTable = [cellValue].flat();
       if (isRefType(column?.columnType)) {
         this.refSideModalProps = {
-          label: column.name,
-          table: column.refTable,
-          schema: column.refSchema,
-          rows,
+          column,
+          rows: rowsInRefTable,
         };
       }
     },
