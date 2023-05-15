@@ -67,18 +67,12 @@ export async function convertRowToPrimaryKey(
   tableName: string,
   schemaName: string
 ): Promise<Record<string, any> | null> {
-  console.log(" + convertRowToPrimaryKey");
-  console.log("row", row);
-  console.log("tableName", tableName);
-  console.log("schemaName", schemaName);
-
   const client = Client.newClient(schemaName);
   const tableMetadata = await client.fetchTableMetaData(tableName);
-  console.log("tableMetadata", tableMetadata);
   if (!tableMetadata?.columns) {
     return null;
   } else {
-    const result = await tableMetadata.columns.reduce(
+    return await tableMetadata.columns.reduce(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
         let accum: IRow = await accumPromise;
         const cellValue = row[column.id];
@@ -93,9 +87,6 @@ export async function convertRowToPrimaryKey(
       },
       Promise.resolve({})
     );
-    console.log("result", result);
-    console.log(" - convertRowToPrimaryKey");
-    return result;
   }
 }
 
