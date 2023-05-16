@@ -6,21 +6,21 @@ version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
-      - image: gradle:jdk17-focal
-      - image: postgres:14-alpine
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
+    # specify the version you desire here
+    - image: gradle:jdk17-focal
+    - image: postgres:14-alpine
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: postgres
+    # Specify service dependencies here if necessary
+    # CircleCI maintains a library of pre-built images
+    # documented at https://circleci.com/docs/2.0/circleci-images/
+    # - image: circleci/postgres:9.4
     working_directory: ~/repo
     
     # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
-    resource_class: large    
+    resource_class: large
 
     environment:
       # Customize the JVM maximum heap limit
@@ -29,86 +29,86 @@ jobs:
       TERM: dumb
 
     steps:
-      - checkout
+    - checkout
 
-      # Initialize the database
-      - run: apt-get update && apt-get install postgresql-client -y
-      - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+    # Initialize the database
+    - run: apt-get update && apt-get install postgresql-client -y
+    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "build.gradle" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+    # Download and cache dependencies
+    - restore_cache:
+        keys:
+        - v1-dependencies-{{ checksum "build.gradle" }}
+        # fallback to using the latest cache if no exact match is found
+        - v1-dependencies-
 
-      - run: ./gradlew dependencies
+    - run: ./gradlew dependencies
 
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: v1-dependencies-{{ checksum "build.gradle" }}
+    - save_cache:
+        paths:
+        - ~/.gradle
+        key: v1-dependencies-{{ checksum "build.gradle" }}
 
-      # run tests!
-      - run:
-          name: update package manger
-          command: apt-get update
+    # run tests!
+    - run:
+        name: update package manger
+        command: apt-get update
 
-      - run:
-          name: add packages for docker cli install
-          command: apt-get -y install gnupg lsb-release curl
+    - run:
+        name: add packages for docker cli install
+        command: apt-get -y install gnupg lsb-release curl
 
-      - run:
-          name: update packages again
-          command: apt-get update
+    - run:
+        name: update packages again
+        command: apt-get update
 
-      - run:
-          name: set repo keys for docker packages
-          command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor
-            -o /usr/share/keyrings/docker-archive-keyring.gpg
+    - run:
+        name: set repo keys for docker packages
+        command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor
+          -o /usr/share/keyrings/docker-archive-keyring.gpg
 
-      - run:
-          name: add repo for docker packages
-          command: echo "deb [arch=$(dpkg --print-architecture)
-            signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]
-            https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-            | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    - run:
+        name: add repo for docker packages
+        command: echo "deb [arch=$(dpkg --print-architecture)
+          signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]
+          https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+          | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-      - run:
-          name: update package manager again
-          command: apt-get update
+    - run:
+        name: update package manager again
+        command: apt-get update
 
-      - run:
-          name: Install Docker client
-          command: apt-get -y install docker-ce docker-ce-cli containerd.io
+    - run:
+        name: Install Docker client
+        command: apt-get -y install docker-ce docker-ce-cli containerd.io
 
-      - setup_remote_docker:
-          version: 19.03.13
-          docker_layer_caching: true
+    - setup_remote_docker:
+        version: 19.03.13
+        docker_layer_caching: true
 
-      - run:
-          name: Sign in to docker
-          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - run:
+        name: Sign in to docker
+        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
-      - run:
-          name: Setup git, todo, move to molgenisci user
-          command: |
-            git config --global --add safe.directory '*'
-            git config user.email "m.a.swertz@rug.nl"
-            git config user.name "mswertz"
-            git config url.https://.insteadOf git://
+    - run:
+        name: Setup git, todo, move to molgenisci user
+        command: |
+          git config --global --add safe.directory '*'
+          git config user.email "m.a.swertz@rug.nl"
+          git config user.name "mswertz"
+          git config url.https://.insteadOf git://
 
-      # to switch to release add following
-      # ./gradlew release jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} --stacktrace
-      - run:
-          name: build, test, release, push docker
-          command: |
-            ./gradlew test jacocoMergedReport sonarqube ci -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.password
+    # to switch to release add following
+    # ./gradlew release jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} --stacktrace
+    - run:
+        name: build, test, release, push docker
+        command: |
+          ./gradlew checkFormat spotlessCheck test jacocoMergedReport sonarqube ci -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.password
 
-          environment:
-            MOLGENIS_POSTGRES_USER: molgenis
-            MOLGENIS_POSTGRES_PASS: molgenis
-            MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
+        environment:
+          MOLGENIS_POSTGRES_USER: molgenis
+          MOLGENIS_POSTGRES_PASS: molgenis
+          MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
 
 #      # push ssr-catalogue to repo (enable if Jenkinsfile offline)
 #      - run: |
