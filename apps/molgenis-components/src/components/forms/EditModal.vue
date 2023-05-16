@@ -14,6 +14,7 @@
           :clone="clone"
           :page="currentPage"
           @setPageCount="pageCount = $event"
+          @numberOfErrorsInForm="handleNumberOfErrors"
           :locale="locale"
           class="flex-grow-1"
         />
@@ -29,6 +30,7 @@
           :clone="clone"
           :locale="locale"
           class="flex-grow-1"
+          @numberOfErrorsInForm="handleNumberOfErrors"
         />
         <div v-if="pageCount > 1" class="border-left chapter-menu">
           <div class="mb-1"><b>Chapters</b></div>
@@ -80,20 +82,19 @@
 </template>
 
 <script lang="ts">
+import { IColumn } from "../../Interfaces/IColumn";
+import { ISchemaMetaData } from "../../Interfaces/IMetaData";
+import { IRow } from "../../Interfaces/IRow";
+import { ITableMetaData } from "../../Interfaces/ITableMetaData";
+import { INewClient } from "../../client/IClient";
 import Client from "../../client/client";
+import constants from "../constants";
 import LayoutModal from "../layout/LayoutModal.vue";
-import RowEditFooter from "./RowEditFooter.vue";
+import { deepClone, filterObject, getLocalizedLabel } from "../utils";
+import ButtonAction from "./ButtonAction.vue";
 import EditModalWizard from "./EditModalWizard.vue";
 import RowEdit from "./RowEdit.vue";
-import ButtonAction from "./ButtonAction.vue";
-import { filterObject, deepClone, getLocalizedLabel } from "../utils";
-import constants from "../constants";
-import { AxiosError } from "axios";
-import { IClient, INewClient } from "../../client/IClient";
-import { ISchemaMetaData } from "../../Interfaces/IMetaData";
-import { ITableMetaData } from "../../Interfaces/ITableMetaData";
-import { IColumn } from "../../Interfaces/IColumn";
-import { IRow } from "../../Interfaces/IRow";
+import RowEditFooter from "./RowEditFooter.vue";
 
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
 
@@ -117,6 +118,7 @@ export default {
       currentPage: 1,
       pageCount: 1,
       useChapters: true,
+      saveDisabledMessage: "",
     };
   },
   props: {
@@ -171,25 +173,10 @@ export default {
       }
     },
     pageHeadings() {
-      const columns: IColumn[] = this.tableMetaData?.columns
-        ? this.tableMetaData?.columns
-        : [];
-      const headings: string[] = columns
-        .filter((column) => column.columnType === "HEADING")
-        .map((column) => column.name);
-      if (columns[0].columnType === "HEADING") {
-        return headings;
-      } else {
-        return ["First chapter"].concat(headings);
-      }
+      return getPageHeadings(this.tableMetaData);
     },
     titlePrefix() {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
-    },
-    saveDisabledMessage() {
-      return this.pageCount > 1 && this.pageCount !== this.currentPage
-        ? "Saving is only possible on the last chapter"
-        : "";
     },
   },
   methods: {
@@ -243,6 +230,10 @@ export default {
       this.errorMessage = "";
       this.$emit("close");
     },
+    handleNumberOfErrors(event: number) {
+      this.saveDisabledMessage =
+        event > 0 ? `There are ${event} error(s) preventing saving` : "";
+    },
   },
   async mounted() {
     this.loaded = false;
@@ -278,6 +269,20 @@ export default {
     this.loaded = true;
   },
 };
+
+function getPageHeadings(tableMetadata: ITableMetaData) {
+  const columns: IColumn[] = tableMetadata?.columns
+    ? tableMetadata?.columns
+    : [];
+  const headings: string[] = columns
+    .filter((column) => column.columnType === "HEADING")
+    .map((column) => column.name);
+  if (columns[0].columnType === "HEADING") {
+    return headings;
+  } else {
+    return ["First chapter"].concat(headings);
+  }
+}
 </script>
 
 <style scoped>
