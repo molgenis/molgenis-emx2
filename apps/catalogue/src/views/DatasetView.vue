@@ -44,8 +44,16 @@
         </li>
       </ul>
     </div>
+    <h6>
+      This dataset is mapped to the following standards:
+      <RowButtonAdd
+        id="add-mapping"
+        table-name="Dataset Mappings"
+        :default-value="{ source: dataset.resource, sourceDataset: dataset }"
+        :visibleColumns="['target', 'target dataset']"
+      />
+    </h6>
     <div v-if="dataset.mappedTo">
-      <h6>This dataset is mapped to the following standards:</h6>
       <ul>
         <li v-for="(m, index) in dataset.mappedTo" :key="index">
           <RouterLink
@@ -64,6 +72,7 @@
         </li>
       </ul>
     </div>
+    <div v-else>N/A</div>
     <h6>Variables</h6>
     <TableExplorer
       tableName="Variables"
@@ -86,6 +95,7 @@ import {
   TableExplorer,
   MessageError,
   convertToPascalCase,
+  RowButtonAdd,
 } from "molgenis-components";
 import { mapActions, mapGetters } from "vuex";
 
@@ -93,6 +103,7 @@ export default {
   components: {
     MessageError,
     TableExplorer,
+    RowButtonAdd,
   },
   props: {
     resource: String,

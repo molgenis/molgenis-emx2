@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 /** @type {import('tailwindcss').Config} */
-import typography from "@tailwindcss/typography"
-import forms from "@tailwindcss/forms"
+import typography from "@tailwindcss/typography";
+import forms from "@tailwindcss/forms";
 export default {
   content: [
     "./components/**/*.{js,vue,ts}",
@@ -113,9 +113,11 @@ export default {
         95: "23.75rem",
       },
       backgroundImage: {
-        "sidebar-gradient": "linear-gradient(180deg, #0164C7 0%, rgba(1, 100, 199, 0) 86.02%)",
+        "sidebar-gradient":
+          "linear-gradient(180deg, #0164C7 0%, rgba(1, 100, 199, 0) 86.02%)",
         "base-gradient": "linear-gradient(180deg, #017FFD 0%, #0163C6 133.81%)",
-        "collapsible-listitem-line": "url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMjAnIGhlaWdodD0nMjQnIHZpZXdCb3g9JzAgMCAyMCAyMicgZmlsbD0nbm9uZScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBkPSdNMSAxVjIxJyBzdHJva2U9JyM4QkM1RkYnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgc3Ryb2tlLWRhc2hhcnJheT0nNCA0Jy8+PC9zdmc+Cg==)",
+        "collapsible-listitem-line":
+          "url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMjAnIGhlaWdodD0nMjQnIHZpZXdCb3g9JzAgMCAyMCAyMicgZmlsbD0nbm9uZScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBkPSdNMSAxVjIxJyBzdHJva2U9JyM4QkM1RkYnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgc3Ryb2tlLWRhc2hhcnJheT0nNCA0Jy8+PC9zdmc+Cg==)",
       },
       backgroundColor: ({ theme }) => ({
         "button-primary": theme("colors.yellow.500"),
@@ -170,7 +172,9 @@ export default {
 
         "search-filter-title": theme("colors.white"),
         "search-filter-expand": theme("colors.yellow.500"),
+        "search-filter-expand-mobile": theme("colors.blue.800"),
         "search-filter-group-title": theme("colors.white"),
+        "search-filter-group-title-mobile": theme("colors.black"),
         "search-filter-group-checkbox": theme("colors.yellow.500"),
         "search-filter-group-toggle": theme("colors.white"),
 

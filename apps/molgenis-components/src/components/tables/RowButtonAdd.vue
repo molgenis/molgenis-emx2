@@ -8,6 +8,7 @@
       :isModalShown="isModalShown"
       :schemaName="schemaName"
       :defaultValue="defaultValue"
+      :visibleColumns="visibleColumns"
       @close="handleClose"
     />
   </span>
@@ -36,6 +37,11 @@ export default {
       type: Object,
       required: false,
     },
+    visibleColumns: {
+      type: Array,
+      required: false,
+      default: () => null,
+    },
   },
   data() {
     return {
@@ -52,16 +58,16 @@ export default {
 </script>
 
 <docs>
-  <template>
+<template>
+  <div>
+    <label for="row-add-btn-sample">composition of RowButton and EditModal configured for row add/insert</label>
     <div>
-      <label for="row-add-btn-sample">composition of RowButton and EditModal configured for row add/insert</label>
-      <div>
-        <RowButtonAdd 
-          id="row-add-btn-sample" 
+      <RowButtonAdd
+          id="row-add-btn-sample"
           tableName="Pet"
           schemaName="pet store"
-        />
-      </div>
+      />
     </div>
-  </template>
+  </div>
+</template>
 </docs>
