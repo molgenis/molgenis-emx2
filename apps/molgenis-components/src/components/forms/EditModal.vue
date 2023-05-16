@@ -85,6 +85,7 @@
 import { IColumn } from "../../Interfaces/IColumn";
 import { ISchemaMetaData } from "../../Interfaces/IMetaData";
 import { IRow } from "../../Interfaces/IRow";
+import { ISetting } from "../../Interfaces/ISetting";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { INewClient } from "../../client/IClient";
 import Client from "../../client/client";
@@ -235,12 +236,11 @@ export default {
     this.loaded = false;
     this.client = Client.newClient(this.schemaName);
     this.schemaMetaData = await this.client.fetchSchemaMetaData();
-    const settings = await this.client.fetchSettings();
+    const settings: ISetting[] = await this.client.fetchSettings();
 
     this.useChapters =
       settings.find(
-        (item: { key: string; value: string }) =>
-          item.key === IS_CHAPTERS_ENABLED_FIELD_NAME
+        (item: ISetting) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME
       )?.value !== "false";
 
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
@@ -266,7 +266,7 @@ export default {
   },
 };
 
-function getPageHeadings(tableMetadata: ITableMetaData) {
+function getPageHeadings(tableMetadata: ITableMetaData): string[] {
   const columns: IColumn[] = tableMetadata?.columns
     ? tableMetadata?.columns
     : [];
