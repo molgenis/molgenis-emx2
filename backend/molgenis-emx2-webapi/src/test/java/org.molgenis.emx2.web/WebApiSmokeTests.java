@@ -8,7 +8,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
-import static org.molgenis.emx2.Constants.MOLGENIS_INCLUDE_CATALOGUE_DEMO;
+import static org.molgenis.emx2.RunMolgenisEmx2.CATALOGUE_DEMO;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -27,12 +27,14 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
+@Isolated
 public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
@@ -49,13 +51,9 @@ public class WebApiSmokeTests {
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
 
-    // will be (re)created by the RunMolgenisEmx2.main
-    db.dropSchemaIfExists("pet store");
-    db.dropSchemaIfExists("catalogue");
-
     // start web service for testing, including env variables
     withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
-        .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
+        // disable because of parallism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
         .execute(() -> RunMolgenisEmx2.main(new String[] {}));
 
     // set default rest assured settings
@@ -90,6 +88,7 @@ public class WebApiSmokeTests {
   @AfterAll
   public static void after() {
     MolgenisWebservice.stop();
+    db.dropSchemaIfExists(CATALOGUE_DEMO);
   }
 
   @Test
@@ -379,6 +378,8 @@ public class WebApiSmokeTests {
       poll = given().sessionId(SESSION_ID).when().get(url);
       Thread.sleep(500);
     }
+
+    assertFalse(poll.body().asString().contains("FAILED"));
 
     // check if id in tasks list
     assertTrue(

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class RunMolgenisEmx2 {
 
+  public static final String CATALOGUE_DEMO = "catalogue-demo";
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
 
   public static final boolean INCLUDE_CATALOGUE_DEMO =
@@ -32,26 +33,23 @@ public class RunMolgenisEmx2 {
             + " (change either via java properties or via ENV variables)");
 
     // setup database
-    Database db = new SqlDatabase(true);
+    Database database = new SqlDatabase(true);
 
     // elevate privileges for init
-    try {
-      db.becomeAdmin();
+    database.tx(
+        db -> {
+          db.becomeAdmin();
 
-      if (db.getSchema("pet store") == null) {
-        Schema schema = db.createSchema("pet store");
-        new PetStoreLoader().load(schema, true);
-      }
+          if (db.getSchema("pet store") == null) {
+            Schema schema = db.createSchema("pet store");
+            new PetStoreLoader().load(schema, true);
+          }
 
-      if (INCLUDE_CATALOGUE_DEMO && db.getSchema("catalogue") == null) {
-        Schema schema = db.createSchema("catalogue", "from DataCatalogue demo data loader");
-        new DataCatalogueLoader().load(schema, true);
-      }
-
-    } finally {
-      // ensure to remove admin
-      db.clearActiveUser();
-    }
+          if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {
+            Schema schema = db.createSchema(CATALOGUE_DEMO, "from DataCatalogue demo data loader");
+            new DataCatalogueLoader().load(schema, true);
+          }
+        });
 
     // start
     MolgenisWebservice.start(port);
