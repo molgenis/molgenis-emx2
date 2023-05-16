@@ -136,26 +136,22 @@ export default {
     },
     schemaName: {
       type: String,
-      default: "",
+      required: true,
     },
     pkey: {
       type: Object,
-      required: false,
       default: () => null,
     },
     clone: {
       type: Boolean,
-      required: false,
       default: () => false,
     },
     visibleColumns: {
       type: Array,
-      required: false,
       default: () => null,
     },
     defaultValue: {
       type: Object,
-      required: false,
       default: () => null,
     },
     locale: {
