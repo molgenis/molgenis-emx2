@@ -27,8 +27,6 @@ class SqlTable implements Table {
   private SqlTableMetadata metadata;
   private static Logger logger = LoggerFactory.getLogger(SqlTable.class);
 
-  private SqlTypeUtils sqlTypeUtils = new SqlTypeUtils();
-
   SqlTable(SqlDatabase db, SqlTableMetadata metadata) {
     this.db = db;
     this.metadata = metadata;
@@ -356,7 +354,7 @@ class SqlTable implements Table {
     subclassRows.get(subclassName).clear();
   }
 
-  private int insertBatch(
+  private static int insertBatch(
       SqlTable table, List<Row> rows, boolean updateOnConflict, Set<String> updateColumns) {
     boolean inherit = table.getMetadata().getInherit() != null;
     if (inherit) {
@@ -389,7 +387,7 @@ class SqlTable implements Table {
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
       // get values
-      Map values = sqlTypeUtils.validateAndGetVisibleValuesAsMap(row, table.getMetadata(), columns);
+      Map values = SqlTypeUtils.validateAndGetVisibleValuesAsMap(row, table.getMetadata(), columns);
       if (!inherit) {
         values.put(MG_INSERTEDBY, user);
         values.put(MG_INSERTEDON, now);
@@ -441,7 +439,7 @@ class SqlTable implements Table {
         .collect(Collectors.toSet());
   }
 
-  private int updateBatch(SqlTable table, List<Row> rows, Set<String> updateColumns) {
+  private static int updateBatch(SqlTable table, List<Row> rows, Set<String> updateColumns) {
     boolean inherit = table.getMetadata().getInherit() != null;
     if (inherit) {
       SqlTable inheritedTable = table.getInheritedTable();
@@ -463,7 +461,7 @@ class SqlTable implements Table {
     }
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
-      Map values = sqlTypeUtils.validateAndGetVisibleValuesAsMap(row, table.getMetadata(), columns);
+      Map values = SqlTypeUtils.validateAndGetVisibleValuesAsMap(row, table.getMetadata(), columns);
       if (!inherit) {
         values.put(MG_UPDATEDBY, user);
         values.put(MG_UPDATEDON, now);
@@ -569,7 +567,9 @@ class SqlTable implements Table {
   private static void deleteBatch(SqlTable table, Collection<Row> rows) {
     if (!rows.isEmpty()) {
       List<String> keyNames =
-          table.getMetadata().getPrimaryKeyFields().stream().map(Field::getName).toList();
+          table.getMetadata().getPrimaryKeyFields().stream()
+              .map(Field::getName)
+              .collect(Collectors.toList());
 
       // in case no primary key is defined, use all columns
       if (keyNames == null) {

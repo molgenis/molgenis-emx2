@@ -4,56 +4,57 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlTypeUtils.checkValidation;
+import static org.molgenis.emx2.sql.SqlTypeUtils.validateAndGetVisibleValuesAsMap;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.JavaScriptUtils;
-import org.molgenis.emx2.utils.generator.IdGeneratorImpl;
 
 class TestEvaluateExpressions {
 
   private static Database db;
   private static Schema schema;
-  private static JavaScriptUtils jsUtils;
-  private static SqlTypeUtils sqlTypeUtils;
 
   @BeforeAll
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestEvaluateExpressions.class.getSimpleName());
-    jsUtils = new JavaScriptUtils(new IdGeneratorImpl());
-    sqlTypeUtils = new SqlTypeUtils();
   }
 
   @Test
   void testStuff() {
 
-    assertEquals("foo", jsUtils.executeJavascriptOnMap("'foo'", Collections.emptyMap()));
+    assertEquals("foo", executeJavascriptOnMap("'foo'", Collections.emptyMap()));
     // assertEquals("foo", jsUtils.executeJavascriptOnMap("{mg_autoid};", Collections.emptyMap()));
   }
 
   @Test
   public void testCheckValidationColumnsSuccess() {
 
-    String error = sqlTypeUtils.checkValidation("columnName2 > 1", Map.of("columnName2", 1));
+    // should not throw exception
+    executeJavascriptOnMap("columnName2", Map.of("columnName2", true));
+    executeJavascriptOnMap("columnName2 > 1", Map.of("columnName2", 2));
+
+    String error = checkValidation("columnName2 > 1", Map.of("columnName2", 1));
     assertEquals("columnName2 > 1", error);
 
-    error = sqlTypeUtils.checkValidation("/^([a-z]+)$/.test(name)", Map.of("name", "123"));
+    error = checkValidation("/^([a-z]+)$/.test(name)", Map.of("name", "123"));
     assertEquals("/^([a-z]+)$/.test(name)", error);
 
-    error = sqlTypeUtils.checkValidation("/^([a-z]+)$/.test(name)", Map.of("name", "abc"));
+    error = checkValidation("/^([a-z]+)$/.test(name)", Map.of("name", "abc"));
     assertNull(error);
 
     error =
-        sqlTypeUtils.checkValidation(
+        checkValidation(
             "if(!/^([a-z]+)$/.test(name))'name should contain only lowercase letters'",
             Map.of("name", "123"));
     assertEquals("name should contain only lowercase letters", error);
 
     error =
-        sqlTypeUtils.checkValidation(
+        checkValidation(
             "if(!/^([a-z]+)$/.test(name))'name should contain only lowercase letters'",
             Map.of("name", "abc"));
     assertNull(error);
@@ -62,7 +63,7 @@ class TestEvaluateExpressions {
   @Test
   public void testCheckValidationColumnsFailure() {
     try {
-      sqlTypeUtils.checkValidation("columnName2", Map.of());
+      checkValidation("columnName2", Map.of());
       fail("should throw exception");
     } catch (MolgenisException exception) {
       String expectedError = "script failed: ReferenceError: columnName2 is not defined";
@@ -74,27 +75,34 @@ class TestEvaluateExpressions {
   public void evaluateValidationExpressionTestSuccessLogical() {
     String expression = "false && true";
     Row row = new Row();
-    assertNotNull(sqlTypeUtils.checkValidation(expression, Map.of()));
+    assertNotNull(checkValidation(expression, Map.of()));
   }
 
   @Test
   public void evaluateValidationExpressionTestSuccessNumerical() {
     String expression = "5 + 37";
     Row row = new Row();
-    assertNotNull(sqlTypeUtils.checkValidation(expression, Map.of()));
+    assertNotNull(checkValidation(expression, Map.of()));
   }
 
   @Test
   public void evaluateValidationExpressionTestSuccessFunctionCall() {
     String expression = "new Date()";
-    assertNotNull(sqlTypeUtils.checkValidation(expression, Map.of()));
+    assertNotNull(checkValidation(expression, Map.of()));
+  }
+
+  @Test
+  public void testCalculateComputedExpression() {
+    String expression = "5 + 7";
+    String outcome = executeJavascriptOnMap(expression, Map.of());
+    assertEquals(12, Integer.parseInt(outcome));
   }
 
   @Test
   public void testCalculateComputedExpressionFailure() {
     String expression = "5 + YAAARGH";
     try {
-      sqlTypeUtils.checkValidation(expression, Map.of());
+      checkValidation(expression, Map.of());
     } catch (MolgenisException exception) {
       assertTrue(exception.getMessage().contains("YAAARGH is not defined"));
     }
@@ -104,8 +112,7 @@ class TestEvaluateExpressions {
   public void testCheckValidationSuccess() {
     String validation = "true && true";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
-    sqlTypeUtils.validateAndGetVisibleValuesAsMap(
-        new Row(), tableMetadata, tableMetadata.getColumns());
+    validateAndGetVisibleValuesAsMap(new Row(), tableMetadata, tableMetadata.getColumns());
   }
 
   @Test
@@ -113,7 +120,7 @@ class TestEvaluateExpressions {
     String validation = "this is very invalid";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
     try {
-      sqlTypeUtils.validateAndGetVisibleValuesAsMap(
+      validateAndGetVisibleValuesAsMap(
           new Row("name", "test"), tableMetadata, tableMetadata.getColumns());
     } catch (MolgenisException exception) {
       assertEquals(
@@ -125,11 +132,11 @@ class TestEvaluateExpressions {
   }
 
   @Test
-  void testCheckValidationTurnToBoolIsFalse() {
+  public void testCheckValidationTurnToBoolIsFalse() {
     String validation = "false";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
     try {
-      sqlTypeUtils.validateAndGetVisibleValuesAsMap(
+      validateAndGetVisibleValuesAsMap(
           new Row("name", "test"), tableMetadata, tableMetadata.getColumns());
     } catch (MolgenisException exception) {
       assertEquals("Validation error on column 'name': false.", exception.getMessage());

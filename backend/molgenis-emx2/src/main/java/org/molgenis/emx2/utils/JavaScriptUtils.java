@@ -7,8 +7,10 @@ import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.generator.IdGenerator;
+import org.molgenis.emx2.utils.generator.IdGeneratorImpl;
 
 public class JavaScriptUtils {
+  public static IdGenerator idGenerator = new IdGeneratorImpl();
 
   private static final Engine engine =
       Engine.newBuilder()
@@ -16,13 +18,11 @@ public class JavaScriptUtils {
           .option("engine.WarnInterpreterOnly", "false")
           .build();
 
-  private final IdGenerator idGenerator;
-
-  public JavaScriptUtils(IdGenerator idGenerator) {
-    this.idGenerator = idGenerator;
+  private JavaScriptUtils() {
+    // hide constructor
   }
 
-  public String executeJavascriptOnMap(final String script, Map<String, Object> values) {
+  public static String executeJavascriptOnMap(String script, Map<String, Object> values) {
     try {
       final Context context =
           Context.newBuilder("js")
@@ -40,8 +40,7 @@ public class JavaScriptUtils {
       }
 
       if (script.contains("${mg_autoid}")) {
-        String idScript = script.replace("${mg_autoid}", "\"" + idGenerator.generateId() + "\"");
-        return context.eval("js", idScript).toString();
+        return script.replace("${mg_autoid}", idGenerator.generateId());
       } else {
         return context.eval("js", script).toString();
       }
