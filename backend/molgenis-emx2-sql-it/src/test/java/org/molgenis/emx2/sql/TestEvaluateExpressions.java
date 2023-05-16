@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
-class TestEvaluateExpressions {
+public class TestEvaluateExpressions {
 
   private static Database db;
   private static Schema schema;
