@@ -5,43 +5,43 @@
 
 #trigger only on master or PR to master
 trigger:
-  - master
+- master
 pr:
-  - master
+- master
 
 resources:
   containers:
-    - container: postgres
-      image: postgres:14-alpine
-      env:
-        POSTGRES_PASSWORD: postgres
-      ports:
-        - 5432:5432
+  - container: postgres
+    image: postgres:14-alpine
+    env:
+      POSTGRES_PASSWORD: postgres
+    ports:
+    - 5432:5432
 
 services:
   postgres: postgres
 
 steps:
-  - script: |
-      sudo apt-get update &&  sudo apt-get install postgresql-client -y
-    displayName: postgresql client
-  - script: |
-      psql -h localhost -p 5432 -U postgres < .docker/initdb.sql
-    displayName: initialize database
-    env:
-      PGPASSWORD: postgres
-  - script: |
-      sudo update-alternatives --display java
-    displayName: list available java versions (for debug purposes)
-  - script: |
-      export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64/
-      ./gradlew -version
-      ./gradlew checkFormat spotlessCheck test jacocoMergedReport sonarqube -Dsonar.login=$(SONAR_TOKEN) -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=$(GITHUB_TOKEN) -Dorg.ajoberstar.grgit.auth.password
-    displayName: run test, ensure we are using java 17 JAVA_HOME
+- script: |
+    sudo apt-get update &&  sudo apt-get install postgresql-client -y
+  displayName: postgresql client
+- script: |
+    psql -h localhost -p 5432 -U postgres < .docker/initdb.sql
+  displayName: initialize database
+  env:
+    PGPASSWORD: postgres
+- script: |
+    sudo update-alternatives --display java
+  displayName: list available java versions (for debug purposes)
+- script: |
+    export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64/
+    ./gradlew -version
+    ./gradlew checkFormat spotlessCheck test jacocoMergedReport sonarqube -Dsonar.login=$(SONAR_TOKEN) -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=$(GITHUB_TOKEN) -Dorg.ajoberstar.grgit.auth.password
+  displayName: run test, ensure we are using java 17 JAVA_HOME
 
-    env:
-      MOLGENIS_POSTGRES_USER: molgenis
-      MOLGENIS_POSTGRES_PASS: molgenis
-      MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
-      JVM_OPTS: -Xmx3200m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+  env:
+    MOLGENIS_POSTGRES_USER: molgenis
+    MOLGENIS_POSTGRES_PASS: molgenis
+    MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
+    JVM_OPTS: -Xmx3200m
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
