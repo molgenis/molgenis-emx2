@@ -97,14 +97,15 @@ zip_handling.remove_unzipped_data()
 # Cohorts update
 print('-----------------------')
 print('Cohort data update to data model ' + DATA_MODEL_VERSION)
-# sign in to server
-print('Sign in to server: ' + SERVER_URL)
-session = Session(
-    url=SERVER_URL,
-    email=SERVER_USERNAME,
-    password=SERVER_PASSWORD
-)
+
 for cohort in COHORTS:
+    # sign in to server
+    print('Sign in to server: ' + SERVER_URL)
+    session = Session(
+        url=SERVER_URL,
+        email=SERVER_USERNAME,
+        password=SERVER_PASSWORD
+    )
     # extract data
     print('Extract data for ' + cohort + ': ' + cohort + '_data.zip')
     session.download_zip(database_name=cohort)
@@ -132,6 +133,13 @@ for cohort in COHORTS:
 # ---------------------------------------------------------------
 
 for network in NETWORKS:
+    # sign in to server
+    print('Sign in to server: ' + SERVER_URL)
+    session = Session(
+        url=SERVER_URL,
+        email=SERVER_USERNAME,
+        password=SERVER_PASSWORD
+    )
     # extract data
     print('Extract data for ' + network + ': ' + network + '_data.zip')
     session.download_zip(database_name=network)
@@ -213,15 +221,15 @@ session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE
 print('-----------------------')
 
 print('Updating data for cohorts')
-# sign in to server
-print('Sign in to server: ' + SERVER_URL)
-session = Session(
-    url=SERVER_URL,
-    email=SERVER_USERNAME,
-    password=SERVER_PASSWORD
-)
 
 for cohort in COHORTS:
+    # sign in to server
+    print('Sign in to server: ' + SERVER_URL)
+    session = Session(
+        url=SERVER_URL,
+        email=SERVER_USERNAME,
+        password=SERVER_PASSWORD
+    )
     print('Upload transformed data for: ' + cohort)
     session.upload_zip(database_name=cohort, data_to_upload=cohort)
 

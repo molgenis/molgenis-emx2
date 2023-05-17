@@ -50,7 +50,6 @@
         id="add-mapping"
         table-name="Dataset Mappings"
         :default-value="{ source: dataset.resource, sourceDataset: dataset }"
-        ,
         :visibleColumns="['target', 'target dataset']"
       />
     </h6>

@@ -30,6 +30,10 @@ subprojects {
     }
     compileJava.dependsOn 'spotlessApply'
 
+    task format {
+        dependsOn spotlessApply
+    }
+
     /* default dependencies for all projects*/
     dependencies {
         implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
@@ -97,6 +101,17 @@ subprojects {
     }
     test {
         useJUnitPlatform()
+        failFast true
+        testLogging {
+            events "passed", "skipped", "failed" //, "standardOut", "standardError"
+
+            showExceptions true
+            exceptionFormat "full"
+            showCauses true
+            showStackTraces true
+
+            showStandardStreams = false
+        }
     }
 }
 
