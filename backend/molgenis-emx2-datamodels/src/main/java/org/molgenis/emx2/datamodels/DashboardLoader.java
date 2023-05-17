@@ -7,6 +7,6 @@ public class DashboardLoader extends AbstractDataLoader {
 
   @Override
   void loadInternalImplementation(Schema schema, boolean includeDemoData) {
-    createSchema(schema, "dasboard/molgenis.csv");
+    createSchema(schema, "dashboard/molgenis.csv");
   }
 }
