@@ -13,7 +13,8 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "format": "prettier src  --write --config ../.prettierrc.js"
+    "format": "prettier src --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src --check --config ../.prettierrc.js"
   },
   "browserslist": {
     "production": [
