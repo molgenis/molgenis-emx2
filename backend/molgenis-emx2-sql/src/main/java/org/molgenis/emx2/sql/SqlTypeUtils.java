@@ -6,8 +6,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
+import org.molgenis.emx2.utils.generator.IdGenerator;
+import org.molgenis.emx2.utils.generator.IdGeneratorImpl;
 
 public class SqlTypeUtils extends TypeUtils {
+
+  public static IdGenerator idGenerator = new IdGeneratorImpl();
 
   private SqlTypeUtils() {
     // to hide the public constructor
@@ -54,7 +58,15 @@ public class SqlTypeUtils extends TypeUtils {
       // unless readonly, then we only set if null
       if (c.getComputed() != null
           && (!c.isReadonly() || row.isNull(c.getName(), c.getColumnType()))) {
-        values.put(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
+        if (c.isAutoId()) { // special case that uses the computed field to signal id should be
+          // generated
+          values.put(
+              c.getName(),
+              c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, idGenerator.generateId()));
+        } else {
+          values.put(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
+        }
+
       } else
       // otherwise, unless invisible
       if (columnIsVisible(

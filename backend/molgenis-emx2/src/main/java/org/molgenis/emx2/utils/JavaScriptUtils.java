@@ -6,11 +6,8 @@ import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.utils.generator.IdGenerator;
-import org.molgenis.emx2.utils.generator.IdGeneratorImpl;
 
 public class JavaScriptUtils {
-  public static IdGenerator idGenerator = new IdGeneratorImpl();
 
   private static final Engine engine =
       Engine.newBuilder()
@@ -39,11 +36,7 @@ public class JavaScriptUtils {
         bindings.putMember(entry.getKey(), entry.getValue());
       }
 
-      if (script.contains("${mg_autoid}")) {
-        return script.replace("${mg_autoid}", idGenerator.generateId());
-      } else {
-        return context.eval("js", script).toString();
-      }
+      return context.eval("js", script).toString();
 
     } catch (Exception e) {
       throw new MolgenisException("script failed: " + e.getMessage());

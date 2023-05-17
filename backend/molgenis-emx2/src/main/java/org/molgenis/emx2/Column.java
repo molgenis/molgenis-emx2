@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
+import static org.molgenis.emx2.Constants.COMPUTED_AUTOID_TOKEN;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
@@ -627,6 +628,10 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
       table = table.getInheritedTable();
     }
     return table.getTableName();
+  }
+
+  public boolean isAutoId() {
+    return this.getComputed() != null && this.getComputed().contains(COMPUTED_AUTOID_TOKEN);
   }
 
   @Override
