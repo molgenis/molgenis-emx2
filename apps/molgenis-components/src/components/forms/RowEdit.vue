@@ -102,7 +102,7 @@ export default {
       default: () => "en",
     },
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "numberOfErrorsInForm"],
   components: {
     FormInput,
   },
@@ -183,6 +183,10 @@ export default {
             this.tableMetaData
           );
         });
+      this.$emit(
+        "numberOfErrorsInForm",
+        Object.values(this.errorPerColumn)?.filter((val) => val).length
+      );
     },
     applyComputed() {
       //apply computed
