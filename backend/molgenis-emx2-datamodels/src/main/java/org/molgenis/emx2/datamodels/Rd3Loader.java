@@ -11,3 +11,4 @@ public class Rd3Loader extends AbstractDataLoader {
     MolgenisIO.fromClasspathDirectory("rd3/ontologies", schema, false);
   }
 }
+
