@@ -406,6 +406,7 @@ SELECT\s
   a.table_name,
   a.column_name,
   a.position,
+  a.key,
   b.import_schema,
   b.table_inherits
   FROM "MOLGENIS".column_metadata a, "MOLGENIS".table_metadata b
@@ -418,6 +419,7 @@ SELECT
   a.table_schema,
   a.table_name,
   a.column_name,
+  a.key,
   a.position,
   b.import_schema,
   b.table_inherits
@@ -427,8 +429,8 @@ SELECT
   AND a.table_schema = b.table_schema
   AND a.table_name=b.table_name
 )
-SELECT table_schema, table_name FROM inherited_columns WHERE column_name={2} AND (table_name <> {0} OR table_schema <> {1});
-""";
+SELECT table_schema, table_name FROM inherited_columns WHERE key <> 1 AND column_name={2} AND (table_name <> {0} OR table_schema <> {1});
+"""; // nb does not apply to key=1 columns, these are copied between subclasses
 
     Result<Record> result =
         jooq.fetch(recursiveQuerySql, tm.getTableName(), tm.getSchemaName(), columnName);

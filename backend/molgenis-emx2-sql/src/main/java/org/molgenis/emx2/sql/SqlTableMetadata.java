@@ -186,8 +186,10 @@ class SqlTableMetadata extends TableMetadata {
     }
 
     validateColumn(newColumn);
-    // check no subclass has column with this name
-    checkNoColumnWithSameNameExistsInSubclass(column.getName(), tm, tm.getJooq());
+    if (!columnName.equals(column.getName())) {
+      // check no subclass has column with this name
+      checkNoColumnWithSameNameExistsInSubclass(column.getName(), tm, tm.getJooq());
+    }
 
     // check if reference and of different size
     if (newColumn.isRefArray()
