@@ -49,8 +49,15 @@
       <RowButtonAdd
         id="add-mapping"
         table-name="Dataset Mappings"
-        :default-value="{ source: dataset.resource, sourceDataset: dataset }"
+        :default-value="{
+          source: { id: dataset.resource.id },
+          sourceDataset: {
+            name: dataset.name,
+            resource: { id: dataset.resource.id },
+          },
+        }"
         :visibleColumns="['target', 'target dataset']"
+        @close="reload"
       />
     </h6>
     <div v-if="dataset.mappedTo">
