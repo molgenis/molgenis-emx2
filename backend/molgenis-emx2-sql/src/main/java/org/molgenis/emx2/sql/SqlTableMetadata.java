@@ -55,6 +55,9 @@ class SqlTableMetadata extends TableMetadata {
                   + ": column exists in inherited class "
                   + tm.getInherit());
         }
+        // check no subclass has column with this name
+        checkNoColumnWithSameNameExistsInSubclass(c.getName(), tm, tm.getJooq());
+
         if (!newColumn.isHeading()) {
           validateColumn(newColumn);
           if (newColumn.getPosition() == null) {
@@ -183,6 +186,8 @@ class SqlTableMetadata extends TableMetadata {
     }
 
     validateColumn(newColumn);
+    // check no subclass has column with this name
+    checkNoColumnWithSameNameExistsInSubclass(column.getName(), tm, tm.getJooq());
 
     // check if reference and of different size
     if (newColumn.isRefArray()

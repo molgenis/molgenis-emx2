@@ -28,6 +28,8 @@ public class TestInherits {
   @Test
   public void testExtends() {
 
+    db.dropSchemaIfExists(
+        TestInherits.class.getSimpleName() + "1"); // is a related schema, drop that first
     Schema s = db.dropCreateSchema(TestInherits.class.getSimpleName());
 
     Table person = s.create(table("Person"));
@@ -61,12 +63,39 @@ public class TestInherits {
                 .setInherit("Employee")
                 .add(column("directs").setType(REF_ARRAY).setRefTable("Employee")));
 
-    Table ceo = s.create(table("CEO").setInherit("Manager"));
+    Schema otherSchema = db.createSchema(TestInherits.class.getSimpleName() + "1");
+    Table ceo =
+        otherSchema.create(
+            table("CEO").setInherit("Manager").setImportSchema(s.getName()).add(column("title")));
 
     // try to add column that already exists in parent
     try {
       employee.getMetadata().add(column("birthDate").setType(DATE));
       fail("should fail: cannot add column to subclass that already exists in superclass");
+    } catch (MolgenisException e) {
+      System.out.println("Errored correctly:\n" + e);
+    }
+
+    // try to add column in superclass that already exists in any subclass
+    try {
+      person.getMetadata().add(column("salary").setType(DATE));
+      fail("should fail: cannot add column in superclass to name that already exists in subclass");
+    } catch (MolgenisException e) {
+      System.out.println("Errored correctly:\n" + e);
+    }
+
+    // try to rename column in superclass that already exists in any subclass
+    try {
+      person.getMetadata().alterColumn("birthDate", column("salary").setType(DATE));
+      fail("should fail: cannot rename column to superclass that already exists in subclass");
+    } catch (MolgenisException e) {
+      System.out.println("Errored correctly:\n" + e);
+    }
+
+    // try to alter name in superclass that already exists in any subclass IN OTHER SCHEMA
+    try {
+      person.getMetadata().add(column("title").setType(DATE));
+      fail("should fail: cannot add column in superclass to name that already exists in subclass");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
@@ -94,7 +123,7 @@ public class TestInherits {
             .setInt("salary", 100)
             .setDate("birthDate", LocalDate.of(2000, 12, 01)));
 
-    Table ceoTable = s.getTable("CEO"); // we use CEO to make it more difficult
+    Table ceoTable = otherSchema.getTable("CEO"); // we use CEO to make it more difficult
     Row managerRow =
         new Row()
             .setString("fullName", "Dagobert Duck")
