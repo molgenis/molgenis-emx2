@@ -1,90 +1,90 @@
 <template>
-  <Spinner v-if="!tableMetadata" />
+  <Spinner v-if="!tableMetadata"/>
   <div
-    class="table-responsive"
-    v-else-if="pkey && tableMetadata && refBackData"
+      class="table-responsive"
+      v-else-if="pkey && tableMetadata && refBackData"
   >
     <table class="table table-sm bg-white table-bordered table-hover">
       <thead>
-        <th
+      <th
           v-for="col in visibleColumns.filter((c) => c.columnType != 'HEADING')"
           :key="col.name"
           scope="col"
-        >
-          <h6 class="mb-0">{{ col.name }}</h6>
-        </th>
+      >
+        <h6 class="mb-0">{{ col.name }}</h6>
+      </th>
       </thead>
       <tbody>
-        <tr
+      <tr
           v-for="(row, idx) in refBackData"
           :key="idx + JSON.stringify(Object.keys(row))"
-          @click="handleRowClick(row)"
-        >
-          <td
+          @click.prevent
+      >
+        <td
             v-for="col in visibleColumns.filter(
               (c) => c.columnType != 'HEADING'
             )"
             :key="idx + col.name"
             style="cursor: pointer"
-          >
-            <div v-if="col.key === 1">
-              <a href="" @click="handleRowClick(row)">{{
+        >
+          <div v-if="col.key === 1">
+            <a href="" @click="handleRowClick(row)">{{
                 renderValue(row, col)[0]
               }}</a>
-            </div>
-            <div
+          </div>
+          <div
               v-else-if="
                 'REF' === col.columnType ||
                 ('REFBACK' === col.columnType && !Array.isArray(row[col.id]))
               "
-            >
-              <RouterLink
+          >
+            <RouterLink
                 v-if="row[col.id]"
                 :to="{
                   name: convertToPascalCase(col.refTable) + '-details',
                   params: routeParams(col, row[col.id]),
                 }"
-              >
-                {{ renderValue(row, col)[0] }}
-              </RouterLink>
-            </div>
-            <span
+            >
+              {{ renderValue(row, col)[0] }}
+            </RouterLink>
+          </div>
+          <span
               v-else-if="
                 'REF_ARRAY' == col.columnType ||
                 ('REFBACK' === col.columnType && Array.isArray(row[col.name]))
               "
-            >
+          >
               <span v-for="(val, idx) in row[col.name]" :key="idx">
                 <RouterLink
-                  v-if="val"
-                  :to="{
+                    v-if="val"
+                    :to="{
                     name: convertToPascalCase(col.refTable) + '-details',
                     params: routeParams(col, val),
                   }"
                 >
                   {{ renderValue(row, col)[idx] }} </RouterLink
-                ><br />
+                ><br/>
               </span>
             </span>
-            <div
+          <div
               v-else
               v-for="(value, idx2) in renderValue(row, col)"
               :key="idx + col.name + idx2"
-            >
-              <div v-if="'TEXT' === col.columnType">
-                <ReadMore :text="value" />
-              </div>
-              <div v-else-if="'FILE' === col.columnType">
-                <a v-if="row[col.name].id" :href="row[col.name].url">
-                  {{ col.name }}.{{ row[col.name].extension }} ({{
-                    renderNumber(row[col.name].size)
-                  }}b)
-                </a>
-              </div>
-              <span v-else>{{ value }}</span>
+          >
+            <div v-if="'TEXT' === col.columnType">
+              <ReadMore :text="value"/>
             </div>
-          </td>
-        </tr>
+            <div v-else-if="'FILE' === col.columnType">
+              <a v-if="row[col.name].id" :href="row[col.name].url">
+                {{ col.name }}.{{ row[col.name].extension }} ({{
+                  renderNumber(row[col.name].size)
+                }}b)
+              </a>
+            </div>
+            <span v-else>{{ value }}</span>
+          </div>
+        </td>
+      </tr>
       </tbody>
     </table>
   </div>
@@ -159,9 +159,9 @@ export default {
         return [];
       }
       if (
-        col.columnType == "REF_ARRAY" ||
-        col.columnType == "REFBACK" ||
-        col.columnType == "ONTOLOGY_ARRAY"
+          col.columnType == "REF_ARRAY" ||
+          col.columnType == "REFBACK" ||
+          col.columnType == "ONTOLOGY_ARRAY"
       ) {
         return row[col.id].map((v) => {
           if (col.name === "tables") {
@@ -192,13 +192,13 @@ export default {
         return new Function(...names, "return `" + template + "`;")(...vals);
       } catch (err) {
         return (
-          err.message +
-          " we got keys:" +
-          JSON.stringify(names) +
-          " vals:" +
-          JSON.stringify(vals) +
-          " and template: " +
-          template
+            err.message +
+            " we got keys:" +
+            JSON.stringify(names) +
+            " vals:" +
+            JSON.stringify(vals) +
+            " and template: " +
+            template
         );
       }
     },
@@ -231,7 +231,7 @@ export default {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.name != this.refBack && !c.name.startsWith("mg_")
+            (c) => c.name != this.refBack && !c.name.startsWith("mg_")
         );
       }
       return [];
