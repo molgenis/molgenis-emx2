@@ -5,8 +5,8 @@
 NAME=$1
 TAG_NAME=$2
 
-echo $NAME
-echo $TAG_NAME
+echo "Using namespace $NAME"
+echo "Using docker tagname $TAG_NAME"
 
 #assuming ubuntu, install kubcetl and helm
 

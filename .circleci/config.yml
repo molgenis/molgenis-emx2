@@ -72,10 +72,13 @@ jobs:
 
     # to switch to release add following
     # ./gradlew release jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} --stacktrace
+    #    ./gradlew checkFormat spotlessCheck test jacocoMergedReport sonarqube ci \
+    #    -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
+    #    -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
     - run:
         name: build, test, release, push docker
         command: |
-          ./gradlew checkFormat spotlessCheck test jacocoMergedReport sonarqube ci \
+          ./gradlew -x test shadowJar jib helmPublishMainChart ci \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
         environment:
