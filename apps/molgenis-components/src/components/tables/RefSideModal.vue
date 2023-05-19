@@ -36,6 +36,7 @@ import { IRow } from "../../Interfaces/IRow";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
+import { convertRowToPrimaryKey } from "../utils";
 import RefTable from "./RefTable.vue";
 import SideModal from "./SideModal.vue";
 
@@ -93,6 +94,13 @@ async function getRowData(
       .fetchRowData(tableId, row)
       .catch(errorHandler);
     queryResult.metadata = metadata;
+
+    queryResult.primaryKey = await convertRowToPrimaryKey(
+      queryResult,
+      tableId,
+      activeSchema
+    );
+
     newQueryResults.push(queryResult);
   }
   return newQueryResults;

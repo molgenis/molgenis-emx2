@@ -2,8 +2,8 @@
   <div class="mb-4">
     <h5 class="ml-1">
       <ObjectDisplay
-        v-if="primaryKey"
-        :data="primaryKey"
+        v-if="reference.primaryKey"
+        :data="reference.primaryKey"
         :meta-data="reference.metadata"
         class="mr-1"
       />
@@ -68,7 +68,7 @@ import { computed, defineEmits, ref, toRefs } from "vue";
 import { IColumn } from "../../Interfaces/IColumn";
 import { IRow } from "../../Interfaces/IRow";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
-import { getPrimaryKey, isRefType } from "../utils";
+import { isRefType } from "../utils";
 import DataDisplayCell from "./DataDisplayCell.vue";
 import ObjectDisplay from "./cellTypes/ObjectDisplay.vue";
 
@@ -91,9 +91,6 @@ const emit = defineEmits<{
 
 let filteredRow = computed(() => getFilteredRow(reference.value));
 let canCollapse = computed(() => Object.keys(filteredRow.value).length > 5);
-let primaryKey = computed(() =>
-  getPrimaryKey(reference.value, reference.value.metadata)
-);
 
 let collapsed = ref(startsCollapsed.value && canCollapse.value);
 
@@ -105,6 +102,7 @@ function getFilteredRow(reference: IRow): IRow {
   delete filtered.mg_updatedOn;
   delete filtered.mg_draft;
   delete filtered.metadata;
+  delete filtered.primaryKey;
   return filtered;
 }
 
