@@ -12,21 +12,40 @@
         <AppHeader />
       </slot>
       <main class="mb-auto">
-        <div v-if="showCookieBanner"
-          class="m-4 text-center lg:mb-5 text-body-lg border-2 border-dashed border-blue-800"
+        <BottomModal
+          :show="showCookieBanner"
+          :full-screen="false"
+          button-alignment="right"
         >
-          <p>Do you want to be tracked ?</p>
-          
-            <div class="flex flex-row justify-center">
-              <Button @click="setAnalyticsCookie(true)" type="secondary"
-                >Yes</Button
-              >
-              <Button @click="setAnalyticsCookie(false)" type="tertiary"
-                >No</Button
-              >
+          <section
+            class="bg-white py-9 lg:px-12.5 px-4 text-gray-900 xl:rounded-3px"
+          >
+            <h2 class="mb-5 uppercase text-heading-4xl font-display">
+              Cookies 🍪🍪🍪
+            </h2>
+            <div class="mb-5 prose max-w-none">
+              We use cookies and similar technologies to enhance your browsing
+              experience, analyze website traffic, and personalize content. By
+              clicking "Accept," you consent to the use of cookies.
             </div>
-        
-        </div>
+            <div class="mb-5 prose max-w-none">
+              We value your privacy and are committed to protecting your
+              personal information. Our use of cookies is solely for improving
+              your experience on our website and ensuring its functionality. We
+              do not sell or share your data with third parties.
+            </div>
+            <div class="flex gap-2">
+               <Button @click="setAnalyticsCookie(true)" type="secondary"
+              >Accept</Button
+            >
+            <Button @click="setAnalyticsCookie(false)" type="tertiary"
+              >Reject</Button
+            >
+            </div>
+           
+          </section>
+        </BottomModal>
+
         <slot>
           <NuxtPage />
         </slot>
@@ -80,12 +99,13 @@ import { hash } from "./utils/fingerprint.js";
 const config = useRuntimeConfig();
 
 const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics");
-let showCookieBanner = config.public.analyticsKey && isAnalyticsAllowedCookie.value === undefined;
+let showCookieBanner =
+  ref(config.public.analyticsKey && isAnalyticsAllowedCookie.value === undefined);
 
 function setAnalyticsCookie(value: boolean) {
   isAnalyticsAllowedCookie.value = value.toString();
-  showCookieBanner = false;
-  if(value === true) {
+  showCookieBanner.value = false;
+  if (value === true) {
     window.location.reload();
   }
 }
@@ -112,14 +132,15 @@ useHead({
       ? `${titleChunk} | ${config.siteTitle}`
       : `${config.siteTitle}`;
   },
-  script: config.public.analyticsKey && isAnalyticsAllowedCookie.value
-    ? [
-        {
-          src: `https://siteimproveanalytics.com/js/siteanalyze_${config.public.analyticsKey}.js`,
-          async: true,
-          tagPosition: "bodyClose",
-        },
-      ]
-    : [],
+  script:
+    config.public.analyticsKey && isAnalyticsAllowedCookie.value
+      ? [
+          {
+            src: `https://siteimproveanalytics.com/js/siteanalyze_${config.public.analyticsKey}.js`,
+            async: true,
+            tagPosition: "bodyClose",
+          },
+        ]
+      : [],
 });
 </script>
