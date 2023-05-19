@@ -12,6 +12,21 @@
         <AppHeader />
       </slot>
       <main class="mb-auto">
+        <div v-if="showCookieBanner"
+          class="m-4 text-center lg:mb-5 text-body-lg border-2 border-dashed border-blue-800"
+        >
+          <p>Do you want to be tracked ?</p>
+          
+            <div class="flex flex-row justify-center">
+              <Button @click="setAnalyticsCookie(true)" type="secondary"
+                >Yes</Button
+              >
+              <Button @click="setAnalyticsCookie(false)" type="tertiary"
+                >No</Button
+              >
+            </div>
+        
+        </div>
         <slot>
           <NuxtPage />
         </slot>
@@ -58,10 +73,22 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import BackgroundGradient from "./components/BackgroundGradient.vue";
 import { hash } from "./utils/fingerprint.js";
+
 const config = useRuntimeConfig();
+
+const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics");
+let showCookieBanner = config.public.analyticsKey && isAnalyticsAllowedCookie.value === undefined;
+
+function setAnalyticsCookie(value: boolean) {
+  isAnalyticsAllowedCookie.value = value.toString();
+  showCookieBanner = false;
+  if(value === true) {
+    window.location.reload();
+  }
+}
 
 let themeFilename = "styles";
 if (config.public.emx2Theme) {
@@ -85,5 +112,14 @@ useHead({
       ? `${titleChunk} | ${config.siteTitle}`
       : `${config.siteTitle}`;
   },
+  script: config.public.analyticsKey && isAnalyticsAllowedCookie.value
+    ? [
+        {
+          src: `https://siteimproveanalytics.com/js/siteanalyze_${config.public.analyticsKey}.js`,
+          async: true,
+          tagPosition: "bodyClose",
+        },
+      ]
+    : [],
 });
 </script>

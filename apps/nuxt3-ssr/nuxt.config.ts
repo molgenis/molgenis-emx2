@@ -3,8 +3,7 @@ import { defineNuxtConfig } from "nuxt/config";
 
 const devProxy = {
   options: {
-    target:
-      process.env.PROXY_TARGET || "https://data-catalogue.molgeniscloud.org/", // 'http://localhost:8080/',
+    target: process.env.PROXY_TARGET || "https://umcgresearchdatacatalogue.nl/", // 'http://localhost:8080/',
     pathFilter: ["**/*/graphql", "**/api/file/**"],
     changeOrigin: true,
     secure: false,
@@ -21,6 +20,7 @@ const config = {
       emx2Theme: "",
       emx2Logo: "",
       siteTitle: "Data Catalogue",
+      analyticsKey: "",
     },
   },
   nitro: {
