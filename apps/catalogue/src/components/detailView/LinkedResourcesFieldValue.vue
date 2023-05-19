@@ -13,18 +13,18 @@
       <tr v-for="row in rows" :key="row.id" @click="handleRowClick(row)">
         <td>
           <a href="" @click.prevent>
-            {{ row.linkedDatasource?.name }}
-            <span v-if="row.linkedDatasource?.name !== row.linkedDatasource?.id"
-              >({{ row.linkedDatasource?.id }})</span
+            {{ row.linkedResource?.name }}
+            <span v-if="row.linkedResource?.name !== row.linkedResource?.id"
+              >({{ row.linkedResource?.id }})</span
             >
           </a>
         </td>
-        <td>{{ row.linkedDatasource?.type?.map((t) => t.name).join(",") }}</td>
-        <td>{{ row.linkedDatasource?.linkageStrategy?.name }}</td>
-        <td>{{ row.linkedDatasource?.linkageDescription?.name }}</td>
-        <td>{{ row.linkedDatasource?.linkageVariable }}</td>
-        <td>{{ row.linkedDatasource?.linkageVariableUnique?.name }}</td>
-        <td>{{ row.linkedDatasource?.linkageCompleteness }}</td>
+        <td>{{ row.linkedResource?.type?.map((t) => t.name).join(",") }}</td>
+        <td>{{ row.linkedResource?.linkageStrategy?.name }}</td>
+        <td>{{ row.linkedResource?.linkageDescription?.name }}</td>
+        <td>{{ row.linkedResource?.linkageVariable }}</td>
+        <td>{{ row.linkedResource?.linkageVariableUnique?.name }}</td>
+        <td>{{ row.linkedResource?.linkageCompleteness }}</td>
       </tr>
     </table>
   </div>
@@ -35,7 +35,7 @@ import { request } from "molgenis-components";
 
 /* will show custom display for the linked data sources. Motivation is that we want to show 'type' as part of the label */
 export default {
-  name: "LinkedDataSourcesFieldValue",
+  name: "linkedResourcesFieldValue",
   data() {
     return {
       rows: [],
@@ -51,7 +51,7 @@ export default {
   computed: {
     filter() {
       return {
-        mainDatasource: { equals: this.metaData.primaryTableKey },
+        mainResource: { equals: this.metaData.primaryTableKey },
       };
     },
   },
@@ -60,20 +60,20 @@ export default {
       this.$router.push({
         name: "Resources-details",
         params: {
-          id: row.linkedDatasource.id,
+          id: row.linkedResource.id,
         },
       });
     },
   },
   async mounted() {
     const query = `
-      query LinkedDataSources($filter: LinkedDataSourcesFilter) {
-        LinkedDataSources(filter: $filter) {
-            mainDatasource {
+      query LinkedResources($filter: LinkedResourcesFilter) {
+        LinkedResources(filter: $filter) {
+            mainResource {
               id
               name
             }
-            linkedDatasource {
+            linkedResource {
               id
               name
               type {
@@ -92,7 +92,7 @@ export default {
     const response = await request("graphql", query, {
       filter: this.filter,
     }).catch((error) => (this.error = error));
-    this.rows = response.LinkedDataSources;
+    this.rows = response.LinkedResources;
   },
 };
 </script>
