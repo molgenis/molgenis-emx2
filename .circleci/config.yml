@@ -90,8 +90,8 @@ jobs:
     - run:
         name: deploy preview or update dev
         command: |
-          def props = readProperties file: 'build/ci.properties'
-          sh ci/create_or_update_preview.sh "preview-emx2-pr-${CIRCLE_PR_NUMBER}" props.tagName
+          export $( cat build/ci.properties | xargs )
+          sh ci/create_or_update_preview.sh "preview-emx2-pr-${CIRCLE_PR_NUMBER}" ${TAG_NAME}
       #      # push ssr-catalogue to repo (enable if Jenkinsfile offline)
       #      - run: |
     #          ./gradlew dockerPush

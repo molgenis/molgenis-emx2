@@ -83,7 +83,7 @@ if (version.toString().endsWith('-SNAPSHOT')) {
 // write a file to pickup in deployment to use specific tags in upgrade
 task ci(type: WriteProperties) {
     outputFile file('build/ci.properties')
-    property 'tagName', tagName
+    property 'TAG_NAME', tagName
 }
 
 jib {
