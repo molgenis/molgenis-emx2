@@ -52,7 +52,7 @@ jobs:
     # install additional software
     - run:
         name: install docker kubectl and helm
-        command: sh ci/install_dockder_helm_kubectl.sh
+        command: sh ci/install_docker_helm_kubectl.sh
 
     - setup_remote_docker:
         version: 19.03.13
