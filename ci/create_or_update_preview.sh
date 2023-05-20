@@ -7,15 +7,17 @@ KUBE_TOKEN=$4
 echo "Using namespace $NAME"
 echo "Using docker tagname $TAG_NAME"
 echo "Using kube_cluster $KUBE_CLUSTER"
-echo "Using kube_token <hidden>"
+echo "Using kube_token $KUBE_TOKEN"
 
 #assuming ubuntu, install kubcetl and helm
 
-#delete if exists
+#create config
 kubectl config set-cluster molgenis-dev --server=$KUBE_CLUSTER
 kubectl config set-context molgenis-dev
-kubectl config view
 kubectl config set-credentials molgenis-dev --token=$KUBE_TOKEN
+kubectl config view
+
+# delete if exists
 kubectl delete namespace $NAME || true
 # wait for deletion to complete
 sleep 15s
