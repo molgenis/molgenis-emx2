@@ -4,7 +4,7 @@ apt-get install -y gnupg lsb-release ca-certificates curl
 install -m 0755 -d /etc/apt/keyrings
 
 ##docker
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list
 apt-get update
 apt-get install docker-ce docker-ce-cli containerd.io -y
