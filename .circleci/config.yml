@@ -82,8 +82,14 @@ jobs:
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
           export $( cat build/ci.properties | xargs )
-          docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME} 
-          docker push molgenis/ssr-catalogue-snapshot --all-tags
+          if [ "${CIRCLE_BRANCH}" = "master" ]
+          then
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME} 
+            docker push molgenis/ssr-catalogue --all-tags
+          else 
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME} 
+            docker push molgenis/ssr-catalogue-snapshot --all-tags
+          fi
         environment:
           MOLGENIS_POSTGRES_USER: molgenis
           MOLGENIS_POSTGRES_PASS: molgenis
@@ -95,7 +101,12 @@ jobs:
         name: deploy preview or update dev
         command: |
           export $( cat build/ci.properties | xargs )
-          sh ci/create_or_update_preview.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} ${KUBE_CLUSTER} ${KUBE_TOKEN}
+          if [ "${CIRCLE_BRANCH}" = "master" ]
+          then
+            echo "TODO upgrade emx2.dev.molgenis.org"
+          else
+            sh ci/create_or_update_preview.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} ${KUBE_CLUSTER} ${KUBE_TOKEN}
+          fi
 
       #      # push ssr-catalogue to repo (enable if Jenkinsfile offline)
       #      - run: |
@@ -104,15 +115,10 @@ jobs:
     - run:
         name: message slack
         command: |
-          curl \
-          -H "Content-type: application/json" \
-          --data "{\"channel\":\"C02AZDG6QQ7\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>
-          PR Preview available on ${CIRCLE_PULL_REQUEST}\"}}]}" \
-          -H "Authorization: Bearer ${SLACK_TOKEN}" \
-          -X POST https://slack.com/api/chat.postMessage
-
-#          -X POST -H "Authorization: Bearer ${SLACK_TOKEN}" \
-#          -H :Content-type: application/json" \
-#          --data '{"channel":"","text":"<a href="Circle-CI » Molgenis » Molgenis-emx2 »
-#          PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}"></a> available with preview at <a href="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org">https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org</a>}' \
-#          https://slack.com/api/chat.postMessage
+          if [ "${CIRCLE_BRANCH}" = "master" ]
+          then
+            echo "TODO slack for release"
+          else
+            curl -d "token=${SLACK_TOKEN}" -d "text=**<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>**
+            PR Preview available on ${CIRCLE_PULL_REQUEST}\" -d "channel=C02AZDG6QQ7"
+          fi
