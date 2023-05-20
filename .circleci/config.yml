@@ -102,9 +102,9 @@ jobs:
         name: message slack
         command: |
           curl \
-          -d "token=${SLACK_TOKEN}" \
-          -d "channel=C02AZDG6QQ7" \
-          --date "{\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"**[Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}](${CIRCLE_PULL_REQUEST})**<br/>PR Preview available on [${CIRCLE_PULL_REQUEST}](${CIRCLE_PULL_REQUEST})\"}}]}" \
+          -H "Content-type: application/json"
+          --data "{\"channel\":\"C02AZDG6QQ7\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"**[Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}](${CIRCLE_PULL_REQUEST})**<br/>PR Preview available on [${CIRCLE_PULL_REQUEST}](${CIRCLE_PULL_REQUEST})\"}}]}" \
+          -H "Authorization: Bearer ${SLACK_TOKEN}" \
           -X POST https://slack.com/api/chat.postMessage
 
 #          -X POST -H "Authorization: Bearer ${SLACK_TOKEN}" \
