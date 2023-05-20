@@ -95,7 +95,7 @@ public class TestInherits {
     // try to alter name in superclass that already exists in any subclass IN OTHER SCHEMA
     try {
       person.getMetadata().add(column("title").setType(DATE));
-      fail("should fail: cannot add column in superclass to name that already exists in subclass");
+      fail("should fail: cannot add column in superclass to name that already exists in subclass IN OTHER SCHEMA");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
