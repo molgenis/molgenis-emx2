@@ -100,7 +100,7 @@ jobs:
     - run:
         name: message slack
         command: |
-          curl -d "token=${SLACK_TOKEN}" -d "channel=C02AZDG6QQ7" -d "text=<a href=\"${CIRCLE_PULL_REQUEST}\">Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}</a><br/>PR Preview available on <a href=\"${CIRCLE_PULL_REQUEST}\">${CIRCLE_PULL_REQUEST}</a>" -X POST https://slack.com/api/chat.postMessage
+          curl -d "token=${SLACK_TOKEN}" -d "channel=C02AZDG6QQ7" -d "text=[Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}](${CIRCLE_PULL_REQUEST})\nPR Preview available on [${CIRCLE_PULL_REQUEST}](${CIRCLE_PULL_REQUEST})" -X POST https://slack.com/api/chat.postMessage
 
 
 #          -X POST -H "Authorization: Bearer ${SLACK_TOKEN}" \
