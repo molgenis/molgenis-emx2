@@ -5,7 +5,7 @@ KUBE_CLUSTER=$3
 KUBE_TOKEN=$4
 
 echo "Using namespace $NAME"
-echo "Using docker tagname $TAG_NAME"
+echo "Using docker tag_name $TAG_NAME"
 echo "Using kube_cluster $KUBE_CLUSTER"
 echo "Using kube_token $KUBE_TOKEN"
 
@@ -13,9 +13,9 @@ echo "Using kube_token $KUBE_TOKEN"
 
 #create config
 kubectl config set-cluster molgenis-dev --server=$KUBE_CLUSTER
-kubectl config set-credentials molgenis-dev --token=$KUBE_TOKEN
 kubectl config set-context molgenis-dev --cluster=molgenis-dev --user=molgenis-dev
 kubectl config use-context molgenis-dev
+kubectl config set-credentials molgenis-dev --token=$KUBE_TOKEN
 kubectl config view
 
 # delete if exists
