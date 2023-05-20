@@ -23,7 +23,7 @@ kubectl delete namespace $NAME || true
 # wait for deletion to complete
 sleep 15s
 kubectl create namespace $NAME
-kubectl annotate --overwrite ns $NAME field.cattle.io/projectId=\"c-l4svj:p-tl227\"
+kubectl annotate --overwrite ns $NAME field.cattle.io/projectId="c-l4svj:p-tl227"
 helm install $NAME ./helm-chart --namespace $NAME \
 --set ingress.hosts[0].host=$NAME.dev.molgenis.org \
 --set adminPassword=admin \

@@ -96,3 +96,11 @@ jobs:
       #      # push ssr-catalogue to repo (enable if Jenkinsfile offline)
       #      - run: |
     #          ./gradlew dockerPush
+
+    - run:
+        name: message slack
+        command: |
+          curl -X POST -H 'Authorization: Bearer ${SLACK_TOKEN}' \
+          -H 'Content-type: application/json' \
+          --data '{"channel":"C02AZDG6QQ7","text":"PR-${CIRCLE_PULL_REQUEST##*/} available on <a href="${CIRCLE_PULL_REQUEST}">github</a> with <a href="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org">preview</a>}' \
+          https://slack.com/api/chat.postMessage
