@@ -1,7 +1,7 @@
 # install software needed for our build env
 snap install kubectl --classic
-snap install docker
-snap install helm
+snap install docker --classic
+snap install helm --classic
 
 #install docker
 
