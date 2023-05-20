@@ -81,6 +81,9 @@ jobs:
           ./gradlew -x test --no-daemon shadowJar jib release helmPublishMainChart ci \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+          export $( cat build/ci.properties | xargs )
+          docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME} 
+          docker push molgenis/ssr-catalogue-snapshot --all-tags
         environment:
           MOLGENIS_POSTGRES_USER: molgenis
           MOLGENIS_POSTGRES_PASS: molgenis
@@ -91,7 +94,6 @@ jobs:
     - run:
         name: deploy preview or update dev
         command: |
-          export $( cat build/ci.properties | xargs )
           sh ci/create_or_update_preview.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} ${KUBE_CLUSTER} ${KUBE_TOKEN}
 
       #      # push ssr-catalogue to repo (enable if Jenkinsfile offline)
