@@ -13,6 +13,7 @@ echo "Using kube_token <hidden>"
 
 #delete if exists
 kubectl config set-cluster molgenis-dev --server=$KUBE_CLUSTER
+kubectl config set-context molgenis-dev
 kubectl config view
 kubectl config set-credentials molgenis-dev --token=$KUBE_TOKEN
 kubectl delete namespace $NAME || true
