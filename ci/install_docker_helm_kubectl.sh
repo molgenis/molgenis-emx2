@@ -1,7 +1,4 @@
 # install software needed for our build env
-apt-get update
-apt install snapd
-
 snap install kubectl --classic
 snap install docker
 snap install helm
