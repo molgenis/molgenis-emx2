@@ -14,7 +14,8 @@ echo "Using kube_token $KUBE_TOKEN"
 #create config
 kubectl config set-cluster molgenis-dev --server=$KUBE_CLUSTER
 kubectl config set-credentials molgenis-dev --token=$KUBE_TOKEN
-kubectl config set-context molgenis-dev --cluster=molgenis-dev --user=molgenis-dev --current
+kubectl config set-context molgenis-dev --cluster=molgenis-dev --user=molgenis-dev
+kubectl config use-context molgenis-dev
 kubectl config view
 
 # delete if exists
