@@ -15,7 +15,7 @@ apt-get install docker-ce docker-ce-cli containerd.io -y
 
 # kubectl repo
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add
-apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
 apt-get update
 apt-get install kubectl -y
 
