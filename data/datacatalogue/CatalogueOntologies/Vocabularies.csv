@@ -1,1 +1,5 @@
-name,code,order,definition,comments,parent,ontologyTermURI
+order,name,code,parent,ontologyTermURI,definition
+,ICD10,,,,
+,ISO 3166 numeric codes,,,,
+,World Bank classification (adapted),,,,
+,ISCED-97/2011,,,,International Standard Classification of Education 97/2011 (ISCED-97/2011); http://uis.unesco.org/en/isced-mappings

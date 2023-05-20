@@ -12,6 +12,7 @@
       :clone="clone"
       :locale="locale"
       @update:modelValue="$emit('update:modelValue', $event)"
+      @numberOfErrorsInForm="$emit('numberOfErrorsInForm', $event)"
     />
   </div>
 </template>
@@ -65,23 +66,31 @@ export default {
     },
   },
   mounted() {
-    this.columnsSplitByHeadings = splitColumnsByHeadings(
-      this.tableMetaData.columns
+    this.columnsSplitByHeadings = splitColumnNamesByHeadings(
+      filterVisibleColumns(this.tableMetaData.columns, this.visibleColumns)
     );
     this.$emit("setPageCount", this.columnsSplitByHeadings.length);
   },
-  emits: ["setPageCount", "update:modelValue"],
+  emits: ["setPageCount", "update:modelValue", "numberOfErrorsInForm"],
 };
 
-function splitColumnsByHeadings(columns) {
+function filterVisibleColumns(columns, visibleColumns) {
+  if (!visibleColumns) {
+    return columns;
+  } else {
+    return columns.filter((column) => visibleColumns.includes(column.name));
+  }
+}
+
+function splitColumnNamesByHeadings(columns) {
   return columns.reduce((accum, column) => {
     if (column.columnType === "HEADING") {
-      accum.push([{ name: column.name }]);
+      accum.push([column.name]);
     } else {
       if (accum.length === 0) {
         accum.push([]);
       }
-      accum[accum.length - 1].push({ name: column.name });
+      accum[accum.length - 1].push(column.name);
     }
     return accum;
   }, []);

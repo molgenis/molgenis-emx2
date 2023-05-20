@@ -7,13 +7,14 @@
   },
   "devDependencies": {
     "vite": "4.1.4",
-    "prettier": "2.8.7"
+    "prettier": "2.8.8"
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "format": "prettier src  --write --config ../.prettierrc.js"
+    "format": "prettier src --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src --check --config ../.prettierrc.js"
   },
   "browserslist": {
     "production": [

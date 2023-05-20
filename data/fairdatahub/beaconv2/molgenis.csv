@@ -69,6 +69,7 @@ IndividualsPhenotypicFeatures,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/
 IndividualsPhenotypicFeatures,,featureType,ontology,,TRUE,,Phenotypes,,,,http://semanticscience.org/resource/SIO_010056,E.g. Abnormality of body height
 IndividualsPhenotypicFeatures,,modifiers,ontology_array,,,,Phenotypes,,,,http://purl.obolibrary.org/obo/HP_0012823,E.g. Exacerbated by tobacco use
 IndividualsPhenotypicFeatures,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound
+IndividualsPhenotypicFeatures,,belongsToIndividual,refback,,,,Individuals,,phenotypicFeatures,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001
 IndividualsDiseases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,Beacon v2 Individuals Diseases
 IndividualsDiseases,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Dis001
 IndividualsDiseases,,diseaseCode,ontology,,TRUE,,Diseases,,,,"http://purl.obolibrary.org/obo/NCIT_C15607,http://semanticscience.org/resource/SIO_001003",E.g. Spinocerebellar ataxia type 34
@@ -79,6 +80,7 @@ IndividualsDiseases,,ageAtDiagnosis_age_iso8601duration,string,,,,,,,,http://pur
 IndividualsDiseases,,familyHistory,bool,,,,,,,,http://purl.obolibrary.org/obo/HP_0032316,E.g. false
 IndividualsDiseases,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound
 IndividualsDiseases,,stage,ontology,,,,DiseaseStage,,,,http://purl.obolibrary.org/obo/OBI_0000278,E.g. acute onset
+IndividualsDiseases,,belongsToIndividual,refback,,,,Individuals,,diseases,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001
 IndividualsMeasures,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25209,Beacon v2 Individuals Measures
 IndividualsMeasures,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001121,E.g. Ind001_Meas001
 IndividualsMeasures,,assayCode,ontology,,TRUE,,AnalysesPerformed,,,,http://purl.obolibrary.org/obo/IAO_0000702,E.g. Metabolomics
@@ -87,6 +89,7 @@ IndividualsMeasures,,measurementVariable,string,,,,,,,,http://purl.obolibrary.or
 IndividualsMeasures,,measurementValue_value,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25712,E.g. 55345
 IndividualsMeasures,,measurementValue_units,ontology,,,,Units,,,,http://purl.obolibrary.org/obo/NCIT_C25709,E.g. Per Millimeter
 IndividualsMeasures,,observationMoment_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82517,E.g. P55Y8M12D
+IndividualsMeasures,,belongsToIndividual,refback,,,,Individuals,,measures,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001
 Runs,,,,,,,,,,,http://edamontology.org/topic_3168,Beacon v2 Runs
 Runs,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C171337,E.g. SRR10903401
 Runs,,biosampleId,string,,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. sample-example-0001

@@ -50,7 +50,7 @@ class TransformGeneral:
         if self.database_type == 'catalogue_2.8':
             data_model = os.path.abspath('../datamodels/molgenis_2.9.csv')
         elif self.database_type == 'cohort_UMCG_2.9':
-            data_model = os.path.abspath('../datamodels/molgenis_stagingCohortsUMCG_2.9.csv')  #'../../datacatalogue3/stagingCohortsUMCG/molgenis.csv')
+            data_model = os.path.abspath('../datamodels/molgenis_stagingCohortsUMCG_2.9.csv')
         elif self.database_type == 'SharedStagingUMCG':
             data_model = os.path.abspath('../datamodels/molgenis_stagingSharedUMCG_2.9.csv')
 

@@ -1,6 +1,6 @@
 import { IColumn } from "./IColumn";
-import { ISetting } from "./ISetting";
 import { ILocale } from "./ILocales";
+import { ISetting } from "./ISetting";
 
 export interface ITableMetaData {
   id: string;

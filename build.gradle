@@ -16,8 +16,8 @@ plugins {
 }
 
 
-targetCompatibility = '17'
-sourceCompatibility = '17'
+targetCompatibility = "17"
+sourceCompatibility = "17"
 
 sonarqube {
     properties {
@@ -166,4 +166,20 @@ task cleandb(type: JavaExec) {
     description = "Clean database. Carefull, will delete all MOLGENIS stuff"
     classpath = sourceSets.main.runtimeClasspath
     main = "org.molgenis.emx2.AToolToCleanDatabase"
+}
+
+//task to install pre-commit hook that applies formatting
+task installPreCommitGitFormatApplyHook(type: Copy) {
+    from new File(rootProject.rootDir, 'pre-commit-format-apply')
+    rename 'pre-commit-format-apply', 'pre-commit'
+    into { new File(rootProject.rootDir, '.git/hooks') }
+    fileMode 0775
+}
+
+//task to install pre-commit hook that only checks formatting
+task installPreCommitGitFormatCheckHook(type: Copy) {
+    from new File(rootProject.rootDir, 'pre-commit-format-check')
+    rename 'pre-commit-format-check', 'pre-commit'
+    into { new File(rootProject.rootDir, '.git/hooks') }
+    fileMode 0775
 }

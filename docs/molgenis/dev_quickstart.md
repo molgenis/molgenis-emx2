@@ -23,7 +23,8 @@ it inside IntelliJ.
 ## Build whole system
 
 Requires [Postgresql 14](https://www.postgresql.org/download/) and java (we use
-[adopt OpenJDK 17](https://adoptium.net/)). Optionally also install python3 for [scripts](use_scripts_jobs.md) feature.
+[adopt OpenJDK 17](https://adoptium.net/)):
+Optionally also install python3 for [scripts](use_scripts_jobs.md) feature.
 
 On Linux/Mac this could go as follows (Windows users, please tell us if this works for you too):
 
@@ -110,15 +111,19 @@ last updated 24 nov 2022
 
 ### Pre-commit hook
 
-We use pre-commit build hook in .git/hooks/pre-push to ensure we don't push stuff that breaks the build.
+We use `gradle checkFormat spotlessCheck` to verify code follows standard format. You can use pre-commit build hook in .git/hooks/pre-commit to ensure we don't
+push stuff that breaks the build. We have included two gradle task for this if you like.
+
+To only run the checks (which you could fix by running `gradle format spotlessApply`), you can add:
 
 ```
-./gradlew test --info
-RESULTS=$?
-if[$RESULTS -ne 0]; then
-    exit 1
-fi
-exit 0
+./gradlew installPreCommitGitFormatCheckHook
+```
+
+To automatically apply the formatting and update your commit, you can add:
+
+```
+./gradlew installPreCommitGitFormatApplyHook
 ```
 
 ### Running tests in intellij
@@ -146,3 +151,11 @@ If you want to delete all the MOLGENIS generated schemas, roles and users in the
 
 Build test ('gradle test') will create database schemas, users, roles and passwords. If you don't like that than please consider to use a different database
 instance for 'test'. You can use environment variables MOLGENIS_POSTGRES_** for this. See [Installation guide](run).
+
+### VS code
+
+Some of us also develop using VS code:
+
+* It automatically will discover the gradle tasks
+* To enable autoformatting of java using spottless,
+  install [spottles plugin](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-spotless-gradle)

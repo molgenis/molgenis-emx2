@@ -130,11 +130,16 @@ if (collectionEvent?.coreVariables?.length) {
 </script>
 
 <template>
-  <ContentBlock
-    :title="collectionEvent?.name"
-    :description="collectionEvent?.description"
-    v-if="collectionEvent"
-  >
+  <section class="bg-white py-18 lg:px-12.5 px-5 text-gray-900">
+    <h2
+      class="mb-5 uppercase text-heading-4xl font-display"
+      v-if="collectionEvent?.name"
+    >
+      {{ collectionEvent?.name }}
+    </h2>
+    <div class="mb-5 prose max-w-none" v-if="collectionEvent?.description">
+      <div v-html="collectionEvent?.description"></div>
+    </div>
     <DefinitionList :items="items" :small="true" />
-  </ContentBlock>
+  </section>
 </template>
