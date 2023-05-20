@@ -1,5 +1,5 @@
 # install software needed for our build env
-apt-get install -y gnupg lsb-release ca-certificates curl
+apt-get install -y gnupg lsb-release ca-certificates curl apt-transport-https
 
 install -m 0755 -d /etc/apt/keyrings
 
@@ -21,8 +21,8 @@ apt-get install kubectl -y
 
 #
 ##helm repo
-curl -fsSL https://baltocdn.com/helm/signing.asc | gpg --dearmor -o /etc/apt/keyrings/helm.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm.list
+curl https://baltocdn.com/helm/signing.asc | apt-key add
+echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
 apt-get update
 apt-get install helm -y
 #
