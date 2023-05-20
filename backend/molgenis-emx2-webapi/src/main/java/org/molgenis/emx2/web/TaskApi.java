@@ -70,13 +70,13 @@ public class TaskApi {
     get("/:schema/:app/api/tasks/:id/delete", TaskApi::deleteTask);
   }
 
-  private static Object viewScheduledTasks(Request request, Response response)
+  private static String viewScheduledTasks(Request request, Response response)
       throws JsonProcessingException {
     // mainly for testing/verification purposes
     return new ObjectMapper().writeValueAsString(taskSchedulerService.scheduledTaskNames());
   }
 
-  private static Object postScript(Request request, Response response) {
+  private static String postScript(Request request, Response response) {
     if (request.params("schema") == null || getSchema(request) != null) {
       MolgenisSession session = sessionManager.getSession(request);
       String user = session.getSessionUser();
@@ -91,7 +91,7 @@ public class TaskApi {
     throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static Object getScript(Request request, Response response)
+  private static byte[] getScript(Request request, Response response)
       throws InterruptedException, UnsupportedEncodingException {
     if (request.params("schema") == null || getSchema(request) != null) {
       MolgenisSession session = sessionManager.getSession(request);
@@ -121,7 +121,7 @@ public class TaskApi {
     throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  private static Object getTaskOutput(Request request, Response response) throws IOException {
+  private static String getTaskOutput(Request request, Response response) throws IOException {
     if (request.params("schema") == null || getSchema(request) != null) {
 
       MolgenisSession session = sessionManager.getSession(request);
