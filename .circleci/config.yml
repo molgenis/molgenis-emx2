@@ -120,7 +120,8 @@ jobs:
             echo "TODO slack for release"
           else
             curl -d "token=${SLACK_TOKEN}" \
-            -d "text=**<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>**\nPR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org" \
+            -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+            PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org" \
             -d "channel=C02AZDG6QQ7" \
             -X POST https://slack.com/api/chat.postMessage
           fi
