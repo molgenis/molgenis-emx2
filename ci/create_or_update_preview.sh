@@ -6,7 +6,7 @@ KUBE_TOKEN=$4
 
 echo "Using namespace $NAME"
 echo "Using docker tagname $TAG_NAME"
-echo "Using kube_cluster <hidden>"
+echo "Using kube_cluster $KUBE_CLUSTER"
 echo "Using kube_token <hidden>"
 
 #assuming ubuntu, install kubcetl and helm
