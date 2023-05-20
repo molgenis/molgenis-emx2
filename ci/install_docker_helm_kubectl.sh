@@ -1,5 +1,5 @@
 # install software needed for our build env
-sudo apt-get install -y ca-certificates curl
+sudo apt-get install -y ca-certificates curl 
 
 ##docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
