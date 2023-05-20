@@ -30,7 +30,7 @@ helm install $NAME ./helm-chart --namespace $NAME \
 --set image.tag=${TAG_NAME} \
 --set image.repository=molgenis/molgenis-emx2-snapshot \
 --set image.pullPolicy=Always \
---set catalogue.includeCatalogueDemo=true
-#--set ssrCatalogue.image.tag=$TAG_NAME \
-#--set ssrCatalogue.environment.siteTitle="Preview Catalogue" \
-#--set ssrCatalogue.environment.apiBase=https://$NAME.dev.molgenis.org/
+--set catalogue.includeCatalogueDemo=true \
+--set ssrCatalogue.image.tag=$TAG_NAME \
+--set ssrCatalogue.environment.siteTitle="Preview Catalogue" \
+--set ssrCatalogue.environment.apiBase=https://$NAME.dev.molgenis.org/
