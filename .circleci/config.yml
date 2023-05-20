@@ -100,7 +100,11 @@ jobs:
     - run:
         name: message slack
         command: |
-          curl -X POST -H 'Authorization: Bearer ${SLACK_TOKEN}' \
-          -H 'Content-type: application/json' \
-          --data '{"channel":"C02AZDG6QQ7","text":"PR-${CIRCLE_PULL_REQUEST##*/} available on <a href="${CIRCLE_PULL_REQUEST}">github</a> with <a href="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org">preview</a>}' \
-          https://slack.com/api/chat.postMessage
+          curl -d "token=${SLACK_TOKEN}" -d "channel=C02AZDG6QQ7" -d "text=test" -X POST https://slack.com/api/chat.postMessage
+
+
+#          -X POST -H "Authorization: Bearer ${SLACK_TOKEN}" \
+#          -H :Content-type: application/json" \
+#          --data '{"channel":"","text":"<a href="Circle-CI » Molgenis » Molgenis-emx2 »
+#          PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}"></a> available with preview at <a href="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org">https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org</a>}' \
+#          https://slack.com/api/chat.postMessage
