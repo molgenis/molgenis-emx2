@@ -6,10 +6,7 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
@@ -472,6 +469,14 @@ public class TypeUtils {
         }
       }
       return result.toString().trim();
+    } else {
+      return null;
+    }
+  }
+
+  public static LocalDateTime millisecondsToLocalDateTime(long milliseconds) {
+    if (milliseconds > 0) {
+      return LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.systemDefault());
     } else {
       return null;
     }

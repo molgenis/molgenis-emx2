@@ -6,12 +6,10 @@ import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.utils.TypeUtils.millisecondsToLocalDateTime;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -143,11 +141,11 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
             "description",
             task.getDescription(),
             "submitDate",
-            toDateTime(task.getSubmitTimeMilliseconds()),
+            millisecondsToLocalDateTime(task.getSubmitTimeMilliseconds()),
             "submitUser",
             task.getSubmitUser(),
             "startDate",
-            toDateTime(task.getStartTimeMilliseconds()),
+            millisecondsToLocalDateTime(task.getStartTimeMilliseconds()),
             "duration",
             task.getDuration(),
             "log",
@@ -308,14 +306,6 @@ f.close()
 
           // todo reload the scheduled jobs to be managed
         });
-  }
-
-  private LocalDateTime toDateTime(long milliseconds) {
-    if (milliseconds > 0) {
-      return LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.systemDefault());
-    } else {
-      return null;
-    }
   }
 
   public Table getScriptTable() {
