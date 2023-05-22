@@ -153,33 +153,6 @@ subprojects {
         }
     }
 
-    //moved docker here because can't have two palantir in /build.gradle
-    //also means we don't need the dockerignore anymore
-    if (project.name == 'nuxt3-ssr') {
-        apply plugin: "com.palantir.docker"
-        pluginManager.withPlugin('com.palantir.docker') {
-            dockerPrepare {
-                // Workaround for https://github.com/palantir/gradle-docker/issues/518
-                duplicatesStrategy = DuplicatesStrategy.INCLUDE
-            }
-        }
-
-        def ssrImageName = 'docker.io/molgenis/ssr-catalogue'
-        def ssrTagName = project.version.toString()
-        if (version.toString().endsWith('-SNAPSHOT')) {
-            ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
-            ssrImageName = "docker.io/molgenis/ssr-catalogue-snapshot"
-            ssrTagName = "${project.version.toString()}-${ext.hash}"
-        }
-
-        docker {
-            name ssrImageName
-            tags 'latest', ssrTagName
-            files "."
-        }
-        tasks.dockerPrepare.dependsOn(build)
-    }
-
     task copyDistFiles(type: Copy) {
         if (project.name == 'molgenis-components') {
             dependsOn buildComponentsShowcase
