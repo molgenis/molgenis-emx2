@@ -6,11 +6,16 @@
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: **see below**
-# COMMENTS: Designed to interact with the PetStore schema
+# COMMENTS: Designed to interact with the PetStore schema.
+# Create a .env file and set the host and credentials
 #///////////////////////////////////////////////////////////////////////////////
 
 from molgenis.client import Client
+from dotenv import load_dotenv
+from os import environ
 import csv
+load_dotenv()
+
 
 def to_csv(file, data, columns):
     with open(file, 'w', encoding='UTF-8', newline='') as f:
@@ -20,12 +25,12 @@ def to_csv(file, data, columns):
         f.close()
 
 
-db = Client('https://david-emx2.molgeniscloud.org/')
+db = Client(environ['MOLGENIS_HOST']))
 
 # check sign in 
 db.signin('','') # run with no credentials
 db.signin('admin','') # run with only username
-db.signin('admin','snazzy-pintail-woo-MOVER') # login
+db.signin('admin',environ['MOLGENIS_PWD']) # login
 
 # get data
 data = db.get(schema = '', table='') # run without specifying target
