@@ -97,7 +97,7 @@ public class Constants {
   public static final String PRIVACY_POLICY_TEXT = "PrivacyPolicyText";
   public static final String PRIVACY_POLICY_TEXT_DEFAULT = "Privacy data + medical";
   public static final String IS_PRIVACY_POLICY_ENABLED = "isPrivacyPolicyEnabled";
-  public static final String SYSTEM_SCHEMA = "SYSTEM";
+  public static final String SYSTEM_SCHEMA = "_SYSTEM_";
 
   private Constants() {
     // hide constructor
