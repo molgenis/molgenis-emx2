@@ -87,6 +87,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   @Override
   public String submitTaskFromName(final String scriptName, final String parameters) {
     StringBuilder result = new StringBuilder();
+    String defaultUser = database.getActiveUser();
     database.tx(
         db -> {
           db.becomeAdmin();
@@ -100,7 +101,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
           Row scriptMetadata = rows.get(0);
           String user = scriptMetadata.getString("cronUser");
           if (user == null) {
-            user = systemSchema.getDatabase().getActiveUser();
+            user = defaultUser;
           }
           db.setActiveUser(user);
           if (scriptMetadata != null) {
