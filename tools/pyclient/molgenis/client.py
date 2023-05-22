@@ -1,8 +1,7 @@
 
 import requests
 from molgenis.graphql import graphql
-from molgenis.utils import cleanUrl
-from molgenis.utils import csvwriter
+from molgenis.utils import cleanUrl, csvwriter
 
 class Client:
     def __init__(self, host: str='http://localhost:8080/'):
