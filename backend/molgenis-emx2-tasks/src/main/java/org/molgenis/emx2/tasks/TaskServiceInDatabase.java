@@ -87,8 +87,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   @Override
-  public String submitTaskFromName(
-      String scriptName, final String userName, final String parameters) {
+  public String submitTaskFromName(final String scriptName, final String parameters) {
     StringBuilder result = new StringBuilder();
     database.tx(
         db -> {
@@ -101,12 +100,9 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
             throw new MolgenisException("Script " + scriptName + " not found");
           }
           Row scriptMetadata = rows.get(0);
-          String user = userName;
+          String user = scriptMetadata.getString("cronUser");
           if (user == null) {
-            user = scriptMetadata.getString("cronUser");
-            if (user == null) {
-              user = systemSchema.getDatabase().getActiveUser();
-            }
+            user = systemSchema.getDatabase().getActiveUser();
           }
           db.setActiveUser(user);
           if (scriptMetadata != null) {

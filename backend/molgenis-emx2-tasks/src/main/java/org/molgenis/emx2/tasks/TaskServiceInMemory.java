@@ -29,12 +29,8 @@ public class TaskServiceInMemory implements TaskService {
   }
 
   @Override
-  public String submitTaskFromName(String name, String userName, String parameters) {
+  public String submitTaskFromName(String name, String parameters) {
     throw new UnsupportedOperationException("Not supported when using in memory task service");
-  }
-
-  public String submitTaskFromName(String name) {
-    return this.submitTaskFromName(name, null, null);
   }
 
   @Override

@@ -85,7 +85,7 @@ public class TaskApi {
       }
       String name = URLDecoder.decode(request.params("name"), StandardCharsets.UTF_8);
       String parameters = request.body();
-      String id = taskService.submitTaskFromName(name, user, parameters);
+      String id = taskService.submitTaskFromName(name, parameters);
       return new TaskReference(id).toString();
     }
     throw new MolgenisException("Schema doesn't exist or permission denied");
@@ -105,7 +105,7 @@ public class TaskApi {
               ? URLDecoder.decode(
                   request.queryParams("parameters"), StandardCharsets.UTF_8.toString())
               : null;
-      String id = taskService.submitTaskFromName(name, user, parameters);
+      String id = taskService.submitTaskFromName(name, parameters);
       // wait until done or timeout
       int timeout = 0;
       Task task = taskService.getTask(id);

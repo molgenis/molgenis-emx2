@@ -14,6 +14,7 @@ import org.quartz.utils.Key;
 public class TaskServiceScheduler {
   private final Scheduler quartzScheduler;
   private static TaskService taskService;
+  private static String EMPTY_PARAMETERSS = "";
 
   public TaskServiceScheduler(TaskService newTaskService) {
     try {
@@ -114,7 +115,7 @@ public class TaskServiceScheduler {
       String name = context.getJobDetail().getKey().getName();
       try {
         // id of submitted task
-        molgenisTaskId = taskService.submitTaskFromName(name);
+        molgenisTaskId = taskService.submitTaskFromName(name, EMPTY_PARAMETERSS);
         // need to keep it in running state until complete so we can interupt if needed
         status = taskService.getTask(molgenisTaskId).getStatus();
         while (status.equals(TaskStatus.WAITING)

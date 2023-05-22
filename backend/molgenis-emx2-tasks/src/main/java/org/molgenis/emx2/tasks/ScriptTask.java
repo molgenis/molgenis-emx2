@@ -72,7 +72,7 @@ public class ScriptTask extends Task<ScriptTask> {
         String installRequirementsCommand =
             "pip3 install -r requirements.txt"; // don't check upgrade
         String runScriptCommand = "python3 -u script.py";
-        String escapedParameters = this.parameters != null ? " " + escapeXSI(this.parameters) : "";
+        String escapedParameters = " " + escapeXSI(this.parameters);
 
         // define outputFile and inputJson
         Path tempOutputFile = Files.createTempFile(tempDir, "output", "." + outputFileExtension);
