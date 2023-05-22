@@ -15,9 +15,10 @@
     "import": "^0.0.6",
     "molgenis-components": "*",
     "vue": "3.2.47",
+    "vue-gtag": "^2.0.1",
     "vue-router": "4.1.6",
-    "vue-tabler-icons": "2.20.0",
     "vue-scrollto": "2.20.0",
+    "vue-tabler-icons": "2.20.0",
     "vuex": "4.1.0"
   },
   "browserslist": [
@@ -27,7 +28,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.1",
     "graphql-tag": "2.12.6",
-    "vite": "4.1.4",
-    "prettier": "2.8.8"
+    "prettier": "2.8.8",
+    "vite": "4.1.4"
   }
 }
