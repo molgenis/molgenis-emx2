@@ -47,7 +47,6 @@ repositories {
 
 dependencies {
     implementation project(':backend:molgenis-emx2-run')
-    docker project(":apps:nuxt3-ssr")
 }
 
 mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'

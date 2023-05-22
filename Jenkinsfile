@@ -88,6 +88,11 @@ pipeline {
                         sh "./gradlew --no-daemon helmLintMainChart --info"
                     }
                 }
+                container (name: 'kaniko', shell: '/busybox/sh') {
+                    sh "#!/busybox/sh\nmkdir -p ${DOCKER_CONFIG}"
+                    sh "#!/busybox/sh\necho '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
+                    sh "#!/busybox/sh\n/kaniko/executor --dockerfile ${WORKSPACE}/apps/nuxt3-ssr/Dockerfile --context ${WORKSPACE}/apps/nuxt3-ssr --destination docker.io/molgenis/ssr-catalogue-snapshot:${TAG_NAME} --destination docker.io/molgenis/ssr-catalogue-snapshot:latest"
+                }
                 container('helm') {
                     sh "kubectl delete namespace ${NAME} || true"
                     sh "sleep 15s" // wait for deletion
