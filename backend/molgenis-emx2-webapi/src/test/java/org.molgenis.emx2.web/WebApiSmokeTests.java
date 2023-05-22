@@ -7,6 +7,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
+import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
@@ -968,8 +969,8 @@ public class WebApiSmokeTests {
   @Test
   public void testScriptScheduling() throws JsonProcessingException, InterruptedException {
     // make sure the 'test' script is not there already from a previous test
-    db.getSchema("ADMIN").getTable("Jobs").truncate();
-    db.getSchema("ADMIN").getTable("Scripts").delete(row("name", "test"));
+    db.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
+    db.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
 
     // get token for admin
     String result =
@@ -988,7 +989,7 @@ public class WebApiSmokeTests {
         given()
             .header(MOLGENIS_TOKEN[0], token)
             .when()
-            .get("/ADMIN/api/scripts/hello+world")
+            .get("/SYSTEM/api/scripts/hello+world")
             .getBody()
             .asString();
     assertEquals("Readme", result);
@@ -1012,7 +1013,7 @@ public class WebApiSmokeTests {
             .header(MOLGENIS_TOKEN[0], token)
             .when()
             .body("blaat")
-            .post("/ADMIN/api/scripts/hello+world")
+            .post("/SYSTEM/api/scripts/hello+world")
             .asString();
 
     Row jobMetadata = waitForScriptToComplete("hello world");
@@ -1022,7 +1023,7 @@ public class WebApiSmokeTests {
             .header(MOLGENIS_TOKEN[0], token)
             .when()
             .body("blaat")
-            .get("/ADMIN/api/tasks/" + jobMetadata.getString("id") + "/output")
+            .get("/SYSTEM/api/tasks/" + jobMetadata.getString("id") + "/output")
             .asString();
     assertEquals("Readme", result);
     // also works outside schema
@@ -1042,7 +1043,7 @@ public class WebApiSmokeTests {
             .when()
             .body(
                 "{\"query\":\"mutation{insert(Scripts:{name:\\\"test\\\",cron:\\\"0/5 * * * * ?\\\",script:\\\"print('test123')\\\"}){message}}\"}")
-            .post("/ADMIN/api/graphql")
+            .post("/SYSTEM/api/graphql")
             .getBody()
             .asString();
 
@@ -1062,7 +1063,7 @@ public class WebApiSmokeTests {
             .header(MOLGENIS_TOKEN[0], token)
             .when()
             .body("{\"query\":\"mutation{delete(Scripts:{name:\\\"test\\\"}){message}}\"}")
-            .post("/ADMIN/api/graphql")
+            .post("/SYSTEM/api/graphql")
             .getBody()
             .asString();
 
@@ -1070,7 +1071,7 @@ public class WebApiSmokeTests {
 
     // script should be deleted
     assertTrue(
-        db.getSchema("ADMIN")
+        db.getSchema(SYSTEM_SCHEMA)
                 .getTable("Scripts")
                 .where(f("name", EQUALS, "test"))
                 .retrieveRows()
@@ -1095,7 +1096,7 @@ public class WebApiSmokeTests {
   }
 
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
-    Table jobs = db.getSchema("ADMIN").getTable("Jobs");
+    Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
     Filter f = f("script", f("name", EQUALS, scriptName));
     int count = 0;
     Row firstJob = null;

@@ -3,7 +3,7 @@
   <RoutedTableExplorer
     v-if="session"
     tableName="Scripts"
-    schemaName="ADMIN"
+    schemaName="SYSTEM"
     :canEdit="true"
     :canManage="false"
   >

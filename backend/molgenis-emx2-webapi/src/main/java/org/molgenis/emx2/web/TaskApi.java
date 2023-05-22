@@ -125,7 +125,7 @@ public class TaskApi {
     if (request.params("schema") == null || getSchema(request) != null) {
 
       MolgenisSession session = sessionManager.getSession(request);
-      Schema adminSchema = session.getDatabase().getSchema("ADMIN");
+      Schema adminSchema = session.getDatabase().getSchema("SYSTEM");
       String jobId = request.params("id");
       Row jobMetadata =
           adminSchema

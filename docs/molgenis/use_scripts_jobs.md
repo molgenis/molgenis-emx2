@@ -1,6 +1,6 @@
 # Scripts and Jobs
 
-In the 'tasks' menu item (also available via http://servername/apps/tasks) you can define scripts and view jobs. Under the hood, in ADMIN database suitable
+In the 'tasks' menu item (also available via http://servername/apps/tasks) you can define scripts and view jobs. Under the hood, in SYSTEM database suitable
 tables for Scripts and Jobs
 
 ## Scripts

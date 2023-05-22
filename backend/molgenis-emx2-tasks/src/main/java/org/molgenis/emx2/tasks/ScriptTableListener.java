@@ -1,5 +1,7 @@
 package org.molgenis.emx2.tasks;
 
+import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
+
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.TableListener;
 
@@ -7,7 +9,7 @@ public class ScriptTableListener extends TableListener {
   private TaskServiceScheduler scheduleService;
 
   public ScriptTableListener(TaskServiceScheduler scheduleService) {
-    super("ADMIN", "Scripts");
+    super(SYSTEM_SCHEMA, "Scripts");
     this.scheduleService = scheduleService;
   }
 

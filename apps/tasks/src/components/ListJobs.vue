@@ -2,7 +2,7 @@
   <div>View jobs</div>
   <RoutedTableExplorer
     tableName="Jobs"
-    schemaName="ADMIN"
+    schemaName="SYSTEM"
     :canEdit="true"
     :canManage="true"
   >

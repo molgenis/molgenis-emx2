@@ -19,7 +19,7 @@ import org.molgenis.emx2.sql.SqlDatabase;
 
 public class TaskServiceInDatabase extends TaskServiceInMemory {
   private Database database;
-  private String systemSchemaName = "ADMIN";
+  private String systemSchemaName = "SYSTEM";
 
   public TaskServiceInDatabase(String systemSchemaName) {
     this.database = new SqlDatabase(false);
