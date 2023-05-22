@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='molgenis-py-client',
+    name='molgenis-emx2-client',
     version='0.1.0',
     description='Python client for the MOLGENIS EMX2 API',
     url='https://github.com/molgenis/molgenis-emx2/',
