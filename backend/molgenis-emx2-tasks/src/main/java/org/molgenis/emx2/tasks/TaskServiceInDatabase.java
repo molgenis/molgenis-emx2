@@ -130,26 +130,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   private void saveWithOutput(Task task, File outputFile) {
-    Row jobRow =
-        row(
-            "id",
-            task.getId(),
-            "status",
-            task.getStatus(),
-            "type",
-            task.getClass().getSimpleName(),
-            "description",
-            task.getDescription(),
-            "submitDate",
-            millisecondsToLocalDateTime(task.getSubmitTimeMilliseconds()),
-            "submitUser",
-            task.getSubmitUser(),
-            "startDate",
-            millisecondsToLocalDateTime(task.getStartTimeMilliseconds()),
-            "duration",
-            task.getDuration(),
-            "log",
-            task.toString());
+    Row jobRow = getRowFromTask(task);
 
     // in case of script we have some more info to store
     if (task instanceof ScriptTask scriptTask) {
@@ -165,6 +146,28 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
           db.becomeAdmin();
           db.getSchema(systemSchemaName).getTable("Jobs").save(jobRow);
         });
+  }
+
+  private Row getRowFromTask(Task task) {
+    return row(
+        "id",
+        task.getId(),
+        "status",
+        task.getStatus(),
+        "type",
+        task.getClass().getSimpleName(),
+        "description",
+        task.getDescription(),
+        "submitDate",
+        millisecondsToLocalDateTime(task.getSubmitTimeMilliseconds()),
+        "submitUser",
+        task.getSubmitUser(),
+        "startDate",
+        millisecondsToLocalDateTime(task.getStartTimeMilliseconds()),
+        "duration",
+        task.getDuration(),
+        "log",
+        task.toString());
   }
 
   private void init() {
