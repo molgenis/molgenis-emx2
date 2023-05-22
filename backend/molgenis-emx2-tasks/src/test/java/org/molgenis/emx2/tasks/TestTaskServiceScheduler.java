@@ -10,16 +10,16 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestTaskServiceScheduler {
-  private static String SCHEMA = TestTaskServiceScheduler.class.getSimpleName();
+  private static String SCHEMA_NAME = TestTaskServiceScheduler.class.getSimpleName();
 
   @BeforeAll
   public static void init() {
-    TestDatabaseFactory.getTestDatabase().dropCreateSchema(SCHEMA);
+    TestDatabaseFactory.getTestDatabase().dropCreateSchema(SCHEMA_NAME);
   }
 
   @Test
   public void testTaskServiceScheduler() throws InterruptedException {
-    TaskServiceInDatabase service = new TaskServiceInDatabase(SCHEMA);
+    TaskServiceInDatabase service = new TaskServiceInDatabase(SCHEMA_NAME);
     TaskServiceScheduler scheduler = new TaskServiceScheduler(service);
 
     Row scriptRow = row("name", "test", "script", "print('hello');", "cron", "0/1 * * * * ?");
@@ -46,7 +46,7 @@ public class TestTaskServiceScheduler {
     Thread.sleep(3000);
     service.getJobTable().truncate();
     // see that no new jobs emerge
-    Thread.sleep(2000);
+    Thread.sleep(3000);
     assertEquals(0, service.getJobTable().retrieveRows().size());
   }
 }

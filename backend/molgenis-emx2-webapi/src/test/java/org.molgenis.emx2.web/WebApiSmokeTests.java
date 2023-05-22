@@ -43,6 +43,7 @@ public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
+  public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
   public static String SESSION_ID; // to toss around a session for the tests
   private static Database db;
   private static Schema schema;
@@ -989,7 +990,7 @@ public class WebApiSmokeTests {
         given()
             .header(MOLGENIS_TOKEN[0], token)
             .when()
-            .get("/SYSTEM/api/scripts/hello+world")
+            .get(SYSTEM_PREFIX + "/api/scripts/hello+world")
             .getBody()
             .asString();
     assertEquals("Readme", result);
@@ -1013,7 +1014,7 @@ public class WebApiSmokeTests {
             .header(MOLGENIS_TOKEN[0], token)
             .when()
             .body("blaat")
-            .post("/SYSTEM/api/scripts/hello+world")
+            .post(SYSTEM_PREFIX + "/api/scripts/hello+world")
             .asString();
 
     Row jobMetadata = waitForScriptToComplete("hello world");
@@ -1023,7 +1024,7 @@ public class WebApiSmokeTests {
             .header(MOLGENIS_TOKEN[0], token)
             .when()
             .body("blaat")
-            .get("/SYSTEM/api/tasks/" + jobMetadata.getString("id") + "/output")
+            .get(SYSTEM_PREFIX + "/api/tasks/" + jobMetadata.getString("id") + "/output")
             .asString();
     assertEquals("Readme", result);
     // also works outside schema
@@ -1043,7 +1044,7 @@ public class WebApiSmokeTests {
             .when()
             .body(
                 "{\"query\":\"mutation{insert(Scripts:{name:\\\"test\\\",cron:\\\"0/5 * * * * ?\\\",script:\\\"print('test123')\\\"}){message}}\"}")
-            .post("/SYSTEM/api/graphql")
+            .post(SYSTEM_PREFIX + "/api/graphql")
             .getBody()
             .asString();
 
@@ -1063,7 +1064,7 @@ public class WebApiSmokeTests {
             .header(MOLGENIS_TOKEN[0], token)
             .when()
             .body("{\"query\":\"mutation{delete(Scripts:{name:\\\"test\\\"}){message}}\"}")
-            .post("/SYSTEM/api/graphql")
+            .post(SYSTEM_PREFIX + "/api/graphql")
             .getBody()
             .asString();
 

@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.web.FileApi.addFileColumnToResponse;
@@ -23,7 +24,7 @@ import spark.Response;
 public class TaskApi {
 
   // todo, make jobs private to the user?
-  public static TaskService taskService = new TaskServiceInDatabase();
+  public static TaskService taskService = new TaskServiceInDatabase(SYSTEM_SCHEMA);
   // to schedule jobs, see MolgenisSessionManager how we keep this in sync with Database using a
   // TableListener
   public static TaskServiceScheduler taskSchedulerService = new TaskServiceScheduler(taskService);
@@ -125,7 +126,7 @@ public class TaskApi {
     if (request.params("schema") == null || getSchema(request) != null) {
 
       MolgenisSession session = sessionManager.getSession(request);
-      Schema adminSchema = session.getDatabase().getSchema("SYSTEM");
+      Schema adminSchema = session.getDatabase().getSchema(SYSTEM_SCHEMA);
       String jobId = request.params("id");
       Row jobMetadata =
           adminSchema
