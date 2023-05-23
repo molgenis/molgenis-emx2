@@ -136,7 +136,6 @@ export default {
       return getLocalizedDescription(column, this.locale);
     },
     showColumn(column) {
-      console.log();
       if (column.columnType === "AUTO_ID") {
         return this.pkey;
       } else if (column.reflink) {
