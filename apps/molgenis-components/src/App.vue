@@ -2,15 +2,10 @@
   <div id="app" class="d-flex">
     <template v-if="$route.path === '/'">
       <router-view name="sidebar" :docsMap="$docsMap"></router-view>
-      <div
-        id="page-content-wrapper"
-        class="container-fluid overflow-auto vh-100"
-      >
+      <div id="page-content-wrapper" class="container-fluid overflow-auto vh-100">
         <div v-for="name in docNames" :key="name" :id="name">
           <h2>{{ name }}</h2>
-          <router-link class="float-right" :to="'/component/' + name">
-            focus
-          </router-link>
+          <router-link class="float-right" :to="'/component/' + name"> focus </router-link>
           <div class="border-top border-primary pt-4 mb-4">
             <router-view :name="name"></router-view>
           </div>

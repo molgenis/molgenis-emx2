@@ -118,13 +118,7 @@ export default {
       return filterTypeMap[this.columnType];
     },
     isMultiConditionFilter() {
-      return [
-        "REF",
-        "REF_ARRAY",
-        "REFBACK",
-        "ONTOLOGY",
-        "ONTOLOGY_ARRAY",
-      ].includes(this.columnType);
+      return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(this.columnType);
     },
   },
   methods: {

@@ -6,11 +6,7 @@
       </div>
 
       <div v-if="logoUrl" class="col-3 d-flex flex-row-reverse">
-        <img
-          class="justify-content-center align-self-center"
-          :src="logoUrl"
-          alt="page logo"
-        />
+        <img class="justify-content-center align-self-center" :src="logoUrl" alt="page logo" />
       </div>
     </div>
     <h3 v-if="subTitle">
@@ -63,10 +59,7 @@ export default {
       return (
         (this.subTitleLink && typeof this.subTitleLink === "object") ||
         (typeof this.subTitleLink === "string" &&
-          !(
-            this.subTitleLink.startsWith("http://") ||
-            this.subTitleLink.startsWith("https://")
-          ))
+          !(this.subTitleLink.startsWith("http://") || this.subTitleLink.startsWith("https://")))
       );
     },
   },

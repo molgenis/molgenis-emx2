@@ -3,47 +3,19 @@
   <div v-else>
     <div>
       <span v-if="session.email && session.email != 'anonymous'">
-        <ButtonAlt @click="showChangePasswordForm = true" class="text-light">
-          Hi {{ session.email }}</ButtonAlt
+        <ButtonAlt @click="showChangePasswordForm = true" class="text-light"> Hi {{ session.email }}</ButtonAlt
         >&nbsp;
-        <MolgenisAccount
-          v-if="showChangePasswordForm"
-          :error="error"
-          @cancel="showChangePasswordForm = false"
-        />
+        <MolgenisAccount v-if="showChangePasswordForm" :error="error" @cancel="showChangePasswordForm = false" />
         <ButtonOutline @click="signout" :light="true">Sign out</ButtonOutline>
       </span>
       <span v-else>
-        <ButtonAlt
-          v-show="!isOidcEnabled"
-          @click="showSignupForm = true"
-          :light="true"
-        >
-          Sign up
-        </ButtonAlt>
-        <SignupForm
-          v-if="showSignupForm"
-          :error="error"
-          @close="closeSignupForm"
-        />
-        <ButtonOutline v-if="isOidcEnabled" :href="oidcLoginUrl" :light="true">
-          Sign in</ButtonOutline
-        >
-        <ButtonOutline v-else @click="showSigninForm = true" :light="true">
-          Sign in</ButtonOutline
-        >
-        <MolgenisSignin
-          v-if="showSigninForm"
-          @signin="changed"
-          @cancel="closeSigninForm"
-        />
+        <ButtonAlt v-show="!isOidcEnabled" @click="showSignupForm = true" :light="true"> Sign up </ButtonAlt>
+        <SignupForm v-if="showSignupForm" :error="error" @close="closeSignupForm" />
+        <ButtonOutline v-if="isOidcEnabled" :href="oidcLoginUrl" :light="true"> Sign in</ButtonOutline>
+        <ButtonOutline v-else @click="showSigninForm = true" :light="true"> Sign in</ButtonOutline>
+        <MolgenisSignin v-if="showSigninForm" @signin="changed" @cancel="closeSigninForm" />
       </span>
-      <LocaleSwitch
-        v-if="locales.length > 1"
-        class="ml-2"
-        v-model="session.locale"
-        :locales="locales"
-      />
+      <LocaleSwitch v-if="locales.length > 1" class="ml-2" v-model="session.locale" :locales="locales" />
     </div>
   </div>
 </template>
@@ -112,9 +84,7 @@ export default defineComponent({
       return this.session?.settings?.isOidcEnabled === "true";
     },
     oidcLoginUrl() {
-      const redirectParam = window?.location?.href
-        ? `?redirect=${window.location.href}`
-        : "";
+      const redirectParam = window?.location?.href ? `?redirect=${window.location.href}` : "";
       return "/_login" + redirectParam;
     },
     locales() {
@@ -144,19 +114,14 @@ export default defineComponent({
     async reload() {
       this.loading = true;
 
-      const responses: PromiseSettledResult<IResponse>[] =
-        await Promise.allSettled([
-          request("/apps/central/graphql", query),
-          request(this.graphql, query),
-        ]);
+      const responses: PromiseSettledResult<IResponse>[] = await Promise.allSettled([
+        request("/apps/central/graphql", query),
+        request(this.graphql, query),
+      ]);
       const dbSettings =
-        responses[0].status === "fulfilled"
-          ? responses[0].value
-          : this.handleError(responses[0].reason);
+        responses[0].status === "fulfilled" ? responses[0].value : this.handleError(responses[0].reason);
       const schemaSettings =
-        responses[1].status === "fulfilled"
-          ? responses[1].value
-          : this.handleError(responses[1].reason);
+        responses[1].status === "fulfilled" ? responses[1].value : this.handleError(responses[1].reason);
 
       if (schemaSettings && schemaSettings._session) {
         this.session = schemaSettings._session;
@@ -197,8 +162,7 @@ export default defineComponent({
       try {
         return JSON.parse(value);
       } catch (error) {
-        this.error =
-          "Parsing of settings failed: " + error + ". value: " + value;
+        this.error = "Parsing of settings failed: " + error + ". value: " + value;
         return null;
       }
     },

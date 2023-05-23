@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="schema-toc sticky-top mr-n3 overflow-auto"
-    style="top: 50px; height: 90vh"
-  >
+  <div class="schema-toc sticky-top mr-n3 overflow-auto" style="top: 50px; height: 90vh">
     <div class="hoverContainer">
       <label class="m-0">Tables:</label>
       <TableEditModal
@@ -14,11 +11,7 @@
       />
     </div>
     <div v-if="schema.tables?.length > 0">
-      <span
-        v-for="table in schema.tables"
-        :key="table.name + schema.tables.length"
-        class="ml-2"
-      >
+      <span v-for="table in schema.tables" :key="table.name + schema.tables.length" class="ml-2">
         <a
           :href="'#'"
           v-scroll-to="{
@@ -28,17 +21,11 @@
           >{{ table.name }}</a
         >
         <div v-if="table.subclasses">
-          <div
-            v-for="subtable in table.subclasses"
-            :key="subtable.name"
-            class="ml-4"
-          >
+          <div v-for="subtable in table.subclasses" :key="subtable.name" class="ml-4">
             <a
               :href="'#'"
               v-scroll-to="{
-                el:
-                  '#' +
-                  (subtable.name ? subtable.name.replaceAll(' ', '_') : ''),
+                el: '#' + (subtable.name ? subtable.name.replaceAll(' ', '_') : ''),
                 offset: -50,
               }"
               >{{ subtable.name }}</a
@@ -61,11 +48,7 @@
       />
     </div>
     <div v-if="schema.ontologies?.length > 0">
-      <div
-        v-for="ontology in schema.ontologies"
-        :key="ontology.name"
-        class="mb-0 ml-2"
-      >
+      <div v-for="ontology in schema.ontologies" :key="ontology.name" class="mb-0 ml-2">
         <a
           :href="'#'"
           v-scroll-to="{

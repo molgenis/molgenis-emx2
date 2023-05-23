@@ -33,21 +33,13 @@ export default {
   methods: {
     nomnomColumnsForTable(table, tableName) {
       let result = "";
-      if (
-        Array.isArray(table.columns) &&
-        this.displaySettings.includes("attributes")
-      ) {
+      if (Array.isArray(table.columns) && this.displaySettings.includes("attributes")) {
         result += "|";
         table.columns
           .filter((column) => column.table === tableName)
           .forEach((column) => {
-            if (
-              column.columnType.includes("REF") ||
-              column.columnType.includes("ONTOLOGY")
-            ) {
-              result += `${column.name}: ${column.columnType.toLowerCase()}(${
-                column.refTable
-              })`;
+            if (column.columnType.includes("REF") || column.columnType.includes("ONTOLOGY")) {
+              result += `${column.name}: ${column.columnType.toLowerCase()}(${column.refTable})`;
             } else {
               result += `${column.name}: ${column.columnType.toLowerCase()}`;
             }
@@ -81,14 +73,9 @@ export default {
       // classes
       if (this.tables) {
         this.tables
-          .filter(
-            (t) =>
-              !t.externalSchema || this.displaySettings.includes("external")
-          )
+          .filter((t) => !t.externalSchema || this.displaySettings.includes("external"))
           .forEach((table) => {
-            res += `[${table.externalSchema ? "<external>" : "<table>"} ${
-              table.name
-            }`;
+            res += `[${table.externalSchema ? "<external>" : "<table>"} ${table.name}`;
             res += this.nomnomColumnsForTable(table, table.name);
             res += "]\n";
             if (table.subclasses !== undefined) {
@@ -103,46 +90,28 @@ export default {
       }
       if (this.displaySettings.includes("ontologies") && this.ontologies) {
         this.ontologies
-          .filter(
-            (t) =>
-              !t.externalSchema || this.displaySettings.includes("external")
-          )
+          .filter((t) => !t.externalSchema || this.displaySettings.includes("external"))
           .forEach((table) => {
-            res += `[${table.externalSchema ? "<external>" : "<ontology>"} ${
-              table.name
-            }`;
+            res += `[${table.externalSchema ? "<external>" : "<ontology>"} ${table.name}`;
             res += "]\n";
           });
       }
 
       // relations
       this.tables
-        .filter(
-          (t) =>
-            t.externalSchema === undefined ||
-            this.displaySettings.includes("external")
-        )
+        .filter((t) => t.externalSchema === undefined || this.displaySettings.includes("external"))
         .forEach((table) => {
           if (Array.isArray(table.columns)) {
             table.columns
-              .filter(
-                (c) =>
-                  !c.inherited &&
-                  (c.refSchema === undefined ||
-                    this.displaySettings.includes("external"))
-              )
+              .filter((c) => !c.inherited && (c.refSchema === undefined || this.displaySettings.includes("external")))
               .forEach((column) => {
                 if (
                   this.displaySettings.includes("ontologies") &&
-                  (column.columnType === "ONTOLOGY" ||
-                    column.columnType === "ONTOLOGY_ARRAY")
+                  (column.columnType === "ONTOLOGY" || column.columnType === "ONTOLOGY_ARRAY")
                 ) {
                   const type = column.refSchema ? "externalo" : "ontology";
                   res += `[<${type}>${column.refTable}]<- ${column.name} [<table>${table.name}]\n`;
-                } else if (
-                  column.columnType === "REF_ARRAY" ||
-                  column.columnType === "REF"
-                ) {
+                } else if (column.columnType === "REF_ARRAY" || column.columnType === "REF") {
                   const type = column.refSchema ? "external" : "table";
                   res += `[<${type}>${column.refTable}]<- ${column.name} [<table>${table.name}]\n`;
                 }

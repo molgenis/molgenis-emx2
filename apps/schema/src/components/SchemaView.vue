@@ -28,10 +28,7 @@
             @update:modelValue="$emit('update:modelValue', schema)"
           />
         </div>
-        <table
-          v-if="schema.ontologies && schema.ontologies?.length > 0"
-          class="table table-bordered table-sm"
-        >
+        <table v-if="schema.ontologies && schema.ontologies?.length > 0" class="table table-bordered table-sm">
           <thead>
             <tr>
               <th style="width: 20ch" scope="col">name</th>

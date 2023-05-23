@@ -2,21 +2,13 @@
   <table class="table" :class="{ 'table-hover': isClickable }">
     <thead>
       <tr>
-        <th
-          v-for="(column, columnIndex) in columns"
-          :key="columnIndex"
-          scope="col"
-        >
+        <th v-for="(column, columnIndex) in columns" :key="columnIndex" scope="col">
           {{ column.label }}
         </th>
       </tr>
     </thead>
     <tbody>
-      <tr
-        v-for="(row, index) in rows"
-        :key="index"
-        @click="$emit('row-click', row)"
-      >
+      <tr v-for="(row, index) in rows" :key="index" @click="$emit('row-click', row)">
         <td v-for="(column, columnIndex) in columns" :key="columnIndex">
           {{ row[column.name] }}
         </td>

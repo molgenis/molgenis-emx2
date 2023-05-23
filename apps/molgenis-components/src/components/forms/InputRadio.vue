@@ -7,16 +7,8 @@
     class="radio-form-group"
     :errorMessage="errorMessage"
   >
-    <div
-      class="input-group"
-      @mouseenter="isMouseOver = true"
-      @mouseleave="isMouseOver = false"
-    >
-      <div
-        v-for="(item, idx) in options"
-        :key="idx"
-        class="form-check form-check-inline"
-      >
+    <div class="input-group" @mouseenter="isMouseOver = true" @mouseleave="isMouseOver = false">
+      <div v-for="(item, idx) in options" :key="idx" class="form-check form-check-inline">
         <input
           class="form-check-input"
           :class="{ 'is-invalid': errorMessage }"
@@ -29,13 +21,7 @@
         <label class="form-check-label" :for="id + idx">{{ item }}</label>
       </div>
       <div class="input-group-append">
-        <button
-          v-show="isClearShown"
-          class="btn btn-link radio-clear-value"
-          @click="radioValue = null"
-        >
-          clear
-        </button>
+        <button v-show="isClearShown" class="btn btn-link radio-clear-value" @click="radioValue = null">clear</button>
       </div>
     </div>
   </FormGroup>
@@ -79,11 +65,7 @@ export default {
       if (this.isClearable !== undefined && this.isClearable === false) {
         return false;
       } else {
-        return (
-          this.isMouseOver &&
-          this.radioValue !== null &&
-          this.radioValue !== undefined
-        );
+        return this.isMouseOver && this.radioValue !== null && this.radioValue !== undefined;
       }
     },
   },

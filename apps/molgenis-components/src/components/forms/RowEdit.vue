@@ -31,13 +31,7 @@
 <script>
 import FormInput from "./FormInput.vue";
 import constants from "../constants.js";
-import {
-  getPrimaryKey,
-  deepClone,
-  convertToCamelCase,
-  getLocalizedLabel,
-  getLocalizedDescription,
-} from "../utils";
+import { getPrimaryKey, deepClone, convertToCamelCase, getLocalizedLabel, getLocalizedDescription } from "../utils";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
 
@@ -109,9 +103,7 @@ export default {
   computed: {
     columnsWithoutMeta() {
       return this?.tableMetaData?.columns
-        ? this.tableMetaData.columns.filter(
-            (column) => !column.name?.startsWith("mg_")
-          )
+        ? this.tableMetaData.columns.filter((column) => !column.name?.startsWith("mg_"))
         : [];
     },
     graphqlFilter() {
@@ -139,28 +131,16 @@ export default {
       if (column.reflink) {
         return this.internalValues[convertToCamelCase(column.refLink)];
       } else {
-        const isColumnVisible = this.visibleColumns
-          ? this.visibleColumns.includes(column.name)
-          : true;
-        return (
-          isColumnVisible &&
-          this.visible(column.visible, column.id) &&
-          column.name !== "mg_tableclass"
-        );
+        const isColumnVisible = this.visibleColumns ? this.visibleColumns.includes(column.name) : true;
+        return isColumnVisible && this.visible(column.visible, column.id) && column.name !== "mg_tableclass";
       }
     },
     visible(expression, columnId) {
       if (expression) {
         try {
-          return executeExpression(
-            expression,
-            this.internalValues,
-            this.tableMetaData
-          );
+          return executeExpression(expression, this.internalValues, this.tableMetaData);
         } catch (error) {
-          this.errorPerColumn[
-            columnId
-          ] = `Invalid visibility expression, reason: ${error}`;
+          this.errorPerColumn[columnId] = `Invalid visibility expression, reason: ${error}`;
           return true;
         }
       } else {
@@ -177,27 +157,16 @@ export default {
           }
         })
         .forEach((column) => {
-          this.errorPerColumn[column.id] = getColumnError(
-            column,
-            this.internalValues,
-            this.tableMetaData
-          );
+          this.errorPerColumn[column.id] = getColumnError(column, this.internalValues, this.tableMetaData);
         });
-      this.$emit(
-        "numberOfErrorsInForm",
-        Object.values(this.errorPerColumn)?.filter((val) => val).length
-      );
+      this.$emit("numberOfErrorsInForm", Object.values(this.errorPerColumn)?.filter((val) => val).length);
     },
     applyComputed() {
       //apply computed
       this.tableMetaData.columns.forEach((c) => {
         if (c.computed) {
           try {
-            this.internalValues[c.id] = executeExpression(
-              c.computed,
-              this.internalValues,
-              this.tableMetaData
-            );
+            this.internalValues[c.id] = executeExpression(c.computed, this.internalValues, this.tableMetaData);
             this.onValuesUpdate();
           } catch (error) {
             this.errorPerColumn[c.id] = "Computation failed: " + error;
@@ -208,11 +177,7 @@ export default {
     //create a filter in case inputs are linked by overlapping refs
     refLinkFilter(c) {
       //need to figure out what refs overlap
-      if (
-        c.refLink &&
-        this.showColumn(c) &&
-        this.internalValues[convertToCamelCase(c.refLink)]
-      ) {
+      if (c.refLink && this.showColumn(c) && this.internalValues[convertToCamelCase(c.refLink)]) {
         let filter = {};
         this.tableMetaData.columns.forEach((c2) => {
           if (c2.name === c.refLink) {
@@ -222,8 +187,7 @@ export default {
                 t.columns.forEach((c3) => {
                   if (c3.key === 1 && c3.refTable === c2.refTable) {
                     filter[c3.name] = {
-                      equals:
-                        this.internalValues[convertToCamelCase(c.refLink)],
+                      equals: this.internalValues[convertToCamelCase(c.refLink)],
                     };
                   }
                 });
@@ -320,10 +284,7 @@ function executeExpression(expression, values, tableMetaData) {
     }
   });
 
-  const func = new Function(
-    Object.keys(copy),
-    `return eval('${expression.replaceAll("'", '"')}');`
-  );
+  const func = new Function(Object.keys(copy), `return eval('${expression.replaceAll("'", '"')}');`);
   return func(...Object.values(copy));
 }
 
@@ -344,11 +305,7 @@ function isRefLinkWithoutOverlap(column, tableMetaData, values) {
     if (Array.isArray(value) && value.length === 0) {
       return false;
     }
-    return (
-      value &&
-      refValue &&
-      !JSON.stringify(value).includes(JSON.stringify(refValue))
-    );
+    return value && refValue && !JSON.stringify(value).includes(JSON.stringify(refValue));
   }
 }
 

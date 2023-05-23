@@ -60,8 +60,7 @@ export default {
         })
         .catch((error) => {
           const errorMessage =
-            error?.response?.data?.errors &&
-            Array.isArray(error?.response?.data?.errors)
+            error?.response?.data?.errors && Array.isArray(error?.response?.data?.errors)
               ? error.response.data.errors[0].message
               : "Failed to delete row data from table ";
 

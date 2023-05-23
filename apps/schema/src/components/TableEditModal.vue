@@ -1,29 +1,10 @@
 <template>
-  <LayoutModal
-    v-if="modalVisible === true"
-    :title="title"
-    :isCloseButtonShown="false"
-  >
+  <LayoutModal v-if="modalVisible === true" :title="title" :isCloseButtonShown="false">
     <template v-slot:body>
       <MessageWarning v-if="table.drop">Marked for deletion</MessageWarning>
-      <InputString
-        id="table_name"
-        v-model="table.name"
-        label="Name"
-        :errorMessage="nameInvalid"
-      />
-      <InputTextLocalized
-        id="table_label"
-        v-model="table.labels"
-        label="label"
-        :locales="locales"
-      />
-      <InputTextLocalized
-        id="table_description"
-        v-model="table.descriptions"
-        label="description"
-        :locales="locales"
-      />
+      <InputString id="table_name" v-model="table.name" label="Name" :errorMessage="nameInvalid" />
+      <InputTextLocalized id="table_label" v-model="table.labels" label="label" :locales="locales" />
+      <InputTextLocalized id="table_description" v-model="table.descriptions" label="description" :locales="locales" />
       <InputSelect
         v-if="rootTable !== undefined"
         id="table_extends"
@@ -43,17 +24,10 @@
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="cancel">Cancel</ButtonAlt>
-      <ButtonAction @click="emitOperation" :disabled="isDisabled"
-        >Apply</ButtonAction
-      >
+      <ButtonAction @click="emitOperation" :disabled="isDisabled">Apply</ButtonAction>
     </template>
   </LayoutModal>
-  <IconAction
-    v-else
-    class="btn-sm hoverIcon"
-    :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
-    @click="showModal"
-  />
+  <IconAction v-else class="btn-sm hoverIcon" :icon="operation === 'add' ? 'plus' : 'pencil-alt'" @click="showModal" />
 </template>
 
 <script>
@@ -129,9 +103,7 @@ export default {
         const result = [this.rootTable.name];
         if (this.rootTable.subclasses !== undefined) {
           result.push(
-            ...this.rootTable.subclasses
-              .map((subclass) => subclass.name)
-              .filter((name) => name !== this.table.name)
+            ...this.rootTable.subclasses.map((subclass) => subclass.name).filter((name) => name !== this.table.name)
           );
         }
         return result;
@@ -153,23 +125,17 @@ export default {
             (table) =>
               table.name === this.table.name ||
               (table.subclasses !== undefined &&
-                table.subclasses
-                  .map((subclass) => subclass.name)
-                  .includes(this.table.name))
+                table.subclasses.map((subclass) => subclass.name).includes(this.table.name))
           ).length > 0) ||
           (this.schema.ontologies &&
-            this.schema.ontologies.filter(
-              (ontology) => ontology.name === this.table.name
-            ).length > 0))
+            this.schema.ontologies.filter((ontology) => ontology.name === this.table.name).length > 0))
       ) {
         return "Name should be unique (no other table or ontology can have same name)";
       }
       return null;
     },
     subclassInvalid() {
-      return this.inheritOptions && this.table.inherit === undefined
-        ? "Extends is required in case of subclass"
-        : null;
+      return this.inheritOptions && this.table.inherit === undefined ? "Extends is required in case of subclass" : null;
     },
     isDisabled() {
       return this.nameInvalid !== null || this.subclassInvalid !== null;

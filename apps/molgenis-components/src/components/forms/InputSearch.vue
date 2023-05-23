@@ -1,10 +1,5 @@
 <template>
-  <FormGroup
-    :id="id"
-    :label="label"
-    :description="description"
-    :errorMessage="errorMessage"
-  >
+  <FormGroup :id="id" :label="label" :description="description" :errorMessage="errorMessage">
     <InputGroup>
       <input
         :id="id"
@@ -16,12 +11,7 @@
         placeholder="Search"
       />
       <template v-slot:append>
-        <button
-          v-if="isClearBtnShown"
-          @click="input = null"
-          class="btn btn-outline-primary"
-          type="button"
-        >
+        <button v-if="isClearBtnShown" @click="input = null" class="btn btn-outline-primary" type="button">
           <i class="fas fa-fw fa-times"></i>
         </button>
       </template>

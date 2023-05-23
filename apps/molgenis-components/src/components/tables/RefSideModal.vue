@@ -1,17 +1,11 @@
 <template>
-  <SideModal
-    :label="localColumnName"
-    :isVisible="true"
-    @onClose="emit('onClose')"
-  >
+  <SideModal :label="localColumnName" :isVisible="true" @onClose="emit('onClose')">
     <div v-if="loading">
       <Spinner />
     </div>
     <div v-else>
       <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
-      <div v-if="!queryResults.length">
-        The selected reference was not found in the database
-      </div>
+      <div v-if="!queryResults.length">The selected reference was not found in the database</div>
       <div v-for="queryResult in queryResults">
         <RefTable
           :reference="queryResult"
@@ -79,19 +73,13 @@ async function updateData(activeSchema: string, rows: IRow[], tableId: string) {
   loading.value = false;
 }
 
-async function getRowData(
-  activeSchema: string,
-  rowKeys: IRow[],
-  tableId: string
-): Promise<IRow[]> {
+async function getRowData(activeSchema: string, rowKeys: IRow[], tableId: string): Promise<IRow[]> {
   let newQueryResults: IRow[] = [];
   const client = Client.newClient(activeSchema);
   const metadata = await client.fetchTableMetaData(tableId);
   for (const row of rowKeys) {
     const externalSchemaClient = Client.newClient(metadata.externalSchema);
-    const queryResult = await externalSchemaClient
-      .fetchRowData(tableId, row)
-      .catch(errorHandler);
+    const queryResult = await externalSchemaClient.fetchRowData(tableId, row).catch(errorHandler);
     queryResult.metadata = metadata;
     newQueryResults.push(queryResult);
   }
@@ -106,8 +94,7 @@ async function handleRefCellClicked({
   refTableRow: IRow;
 }): Promise<void> {
   const refTableId = refColumn.refTable;
-  const activeSchema =
-    refColumn.refSchema || column.value.refSchema || props.schema;
+  const activeSchema = refColumn.refSchema || column.value.refSchema || props.schema;
   if (refTableId && activeSchema) {
     const clickedCellPrimaryKeys = [refTableRow[refColumn.id]].flat();
     localColumnName.value = refColumn.name;

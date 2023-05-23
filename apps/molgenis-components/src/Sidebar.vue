@@ -2,11 +2,7 @@
   <div id="sidebar-wrapper" class="border-right overflow-auto vh-100">
     <div class="sidebar-heading">Components</div>
     <div class="list-group list-group-flush">
-      <li
-        class="list-group-item"
-        v-for="(key, index) in Object.keys(docsTree)"
-        :key="index"
-      >
+      <li class="list-group-item" v-for="(key, index) in Object.keys(docsTree)" :key="index">
         <strong @click="toggleMenuItem(key)">
           <a href="#">{{ key }} </a></strong
         >

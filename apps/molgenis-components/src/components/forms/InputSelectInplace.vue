@@ -21,12 +21,7 @@
         </button>
       </span>
     </span>
-    <span
-      @click="toggleFocus"
-      @mouseover="hover = true"
-      @mouseleave="hover = false"
-      class="inline-select"
-    >
+    <span @click="toggleFocus" @mouseover="hover = true" @mouseleave="hover = false" class="inline-select">
       {{ modelValue }}
       <IconAction icon="pencil-alt" class="hoverIcon" />
     </span>

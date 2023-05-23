@@ -1,9 +1,5 @@
 <template>
-  <component
-    :is="inplace ? 'InlineInput' : 'span'"
-    :value="modelValue"
-    :id="id"
-  >
+  <component :is="inplace ? 'InlineInput' : 'span'" :value="modelValue" :id="id">
     <component
       v-if="typeToInput"
       :is="typeToInput"

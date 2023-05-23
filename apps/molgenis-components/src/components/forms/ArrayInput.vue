@@ -1,11 +1,5 @@
 <template>
-  <FormGroup
-    :id="id + '-0'"
-    :label="label"
-    :required="required"
-    description="description"
-    :errorMessage="errorMessage"
-  >
+  <FormGroup :id="id + '-0'" :label="label" :required="required" description="description" :errorMessage="errorMessage">
     <div v-for="(value, index) in values" :key="index">
       <component
         :is="inputType"
@@ -15,19 +9,10 @@
         @update:modelValue="handleUpdate($event, index)"
       >
         <template v-slot:append>
-          <button
-            v-if="values.length > 1"
-            @click="clearInput(index)"
-            class="btn btn-outline-primary"
-            type="button"
-          >
+          <button v-if="values.length > 1" @click="clearInput(index)" class="btn btn-outline-primary" type="button">
             <i class="fas fa-fw fa-times"></i>
           </button>
-          <button
-            @click="addItem(index)"
-            class="btn btn-outline-primary"
-            type="button"
-          >
+          <button @click="addItem(index)" class="btn btn-outline-primary" type="button">
             <i class="fas fa-fw fa-plus"></i>
           </button>
         </template>

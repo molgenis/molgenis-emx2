@@ -9,11 +9,7 @@
       <tbody>
         <tr v-for="task in tasks" :key="task.id">
           <td>
-            <button
-              @click.prevent.stop="$emit('select', task.id)"
-              type="button"
-              class="btn btn-link"
-            >
+            <button @click.prevent.stop="$emit('select', task.id)" type="button" class="btn btn-link">
               {{ task.description }}
             </button>
           </td>

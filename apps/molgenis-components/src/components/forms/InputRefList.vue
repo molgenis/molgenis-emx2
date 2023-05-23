@@ -1,11 +1,5 @@
 <template>
-  <FormGroup
-    :id="id"
-    :label="label"
-    :required="required"
-    :description="description"
-    :errorMessage="errorMessage"
-  >
+  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
     <div>
       <div>
         <div v-if="count > maxNum">
@@ -16,19 +10,9 @@
             @click="deselect(key)"
           />
         </div>
-        <ButtonAlt
-          v-if="modelValue && modelValue.length"
-          class="pl-1"
-          @click="clearValue"
-        >
-          clear selection
-        </ButtonAlt>
+        <ButtonAlt v-if="modelValue && modelValue.length" class="pl-1" @click="clearValue"> clear selection </ButtonAlt>
       </div>
-      <div
-        :class="
-          showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
-        "
-      >
+      <div :class="showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''">
         <div
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"

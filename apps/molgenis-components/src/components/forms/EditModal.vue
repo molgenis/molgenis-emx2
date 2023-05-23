@@ -60,18 +60,10 @@
       >
         <div class="mr-auto">
           <div v-if="pageCount > 1">
-            <ButtonAction
-              @click="setCurrentPage(currentPage - 1)"
-              :disabled="currentPage <= 1"
-              class="mr-2 pr-3"
-            >
+            <ButtonAction @click="setCurrentPage(currentPage - 1)" :disabled="currentPage <= 1" class="mr-2 pr-3">
               <i :class="'fas fa-fw fa-chevron-left'" /> Previous
             </ButtonAction>
-            <ButtonAction
-              @click="setCurrentPage(currentPage + 1)"
-              :disabled="currentPage >= pageCount"
-              class="pl-3"
-            >
+            <ButtonAction @click="setCurrentPage(currentPage + 1)" :disabled="currentPage >= pageCount" class="pl-3">
               Next <i :class="'fas fa-fw fa-chevron-right'" />
             </ButtonAction>
           </div>
@@ -190,16 +182,12 @@ export default {
       this.errorMessage = "";
       let result;
       if (this.pkey && !this.clone) {
-        result = await this.client
-          .updateDataRow(formData, this.tableName, this.schemaName)
-          .catch(this.handleSaveError);
+        result = await this.client.updateDataRow(formData, this.tableName, this.schemaName).catch(this.handleSaveError);
         if (result) {
           this.handleClose();
         }
       } else {
-        result = await this.client
-          .insertDataRow(formData, this.tableName, this.schemaName)
-          .catch(this.handleSaveError);
+        result = await this.client.insertDataRow(formData, this.tableName, this.schemaName).catch(this.handleSaveError);
         if (result) {
           this.handleClose();
         }
@@ -207,12 +195,9 @@ export default {
     },
     handleSaveError(error: any) {
       if (error.response?.status === 403) {
-        this.errorMessage =
-          "Schema doesn't exist or permission denied. Do you need to Sign In?";
+        this.errorMessage = "Schema doesn't exist or permission denied. Do you need to Sign In?";
       } else {
-        this.errorMessage =
-          error.response?.data?.errors[0]?.message ||
-          "An Error occurred during save";
+        this.errorMessage = error.response?.data?.errors[0]?.message || "An Error occurred during save";
       }
     },
     async fetchRowData() {
@@ -228,8 +213,7 @@ export default {
       this.$emit("close");
     },
     handleNumberOfErrors(event: number) {
-      this.saveDisabledMessage =
-        event > 0 ? `There are ${event} error(s) preventing saving` : "";
+      this.saveDisabledMessage = event > 0 ? `There are ${event} error(s) preventing saving` : "";
     },
   },
   async mounted() {
@@ -239,9 +223,7 @@ export default {
     const settings: ISetting[] = await this.client.fetchSettings();
 
     this.useChapters =
-      settings.find(
-        (item: ISetting) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME
-      )?.value !== "false";
+      settings.find((item: ISetting) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME)?.value !== "false";
 
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
 
@@ -254,10 +236,7 @@ export default {
           ?.filter((column: IColumn) => column.key === 1)
           .map((column: IColumn) => column.name);
 
-        this.rowData = filterObject(
-          this.rowData,
-          (key) => !keyColumnsNames?.includes(key)
-        );
+        this.rowData = filterObject(this.rowData, (key) => !keyColumnsNames?.includes(key));
       }
     }
 
@@ -267,12 +246,8 @@ export default {
 };
 
 function getPageHeadings(tableMetadata: ITableMetaData): string[] {
-  const columns: IColumn[] = tableMetadata?.columns
-    ? tableMetadata?.columns
-    : [];
-  const headings: string[] = columns
-    .filter((column) => column.columnType === "HEADING")
-    .map((column) => column.name);
+  const columns: IColumn[] = tableMetadata?.columns ? tableMetadata?.columns : [];
+  const headings: string[] = columns.filter((column) => column.columnType === "HEADING").map((column) => column.name);
   if (columns[0].columnType === "HEADING") {
     return headings;
   } else {

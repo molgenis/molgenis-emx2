@@ -1,11 +1,5 @@
 <template>
-  <FormGroup
-    :id="id"
-    :label="label"
-    :required="required"
-    :description="description"
-    :errorMessage="errorMessage"
-  >
+  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
     <div class="d-flex">
       <InputDateTime
         :id="id + '-from'"

@@ -1,11 +1,5 @@
 <template>
-  <FormGroup
-    :id="id"
-    :label="label"
-    :required="required"
-    :description="description"
-    :errorMessage="stringError"
-  >
+  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="stringError">
     <InputGroup>
       <template v-slot:prepend>
         <slot name="prepend"></slot>
@@ -47,11 +41,7 @@ export default {
   },
   computed: {
     stringError() {
-      if (
-        this.modelValue &&
-        this.modelValue.length &&
-        this.modelValue.length > this.stringLength
-      ) {
+      if (this.modelValue && this.modelValue.length && this.modelValue.length > this.stringLength) {
         return `Please limit to ${this.stringLength} characters.`;
       } else {
         return this.errorMessage;

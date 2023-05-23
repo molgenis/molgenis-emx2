@@ -9,40 +9,20 @@
       style="overflow-x: scroll"
     >
       <template v-slot:rowcolheader>
-        <slot
-          name="rowcolheader"
-          v-bind="$props"
-          :canEdit="canEdit"
-          :reload="reload"
-          :schemaName="schemaName"
-        />
-        <RowButton
-          v-if="canEdit"
-          type="add"
-          @add="handleRowAction('add')"
-          class="d-inline p-0"
-        />
+        <slot name="rowcolheader" v-bind="$props" :canEdit="canEdit" :reload="reload" :schemaName="schemaName" />
+        <RowButton v-if="canEdit" type="add" @add="handleRowAction('add')" class="d-inline p-0" />
       </template>
       <template v-slot:rowheader="slotProps">
-        <slot
-          name="rowheader"
-          :row="slotProps.row"
-          :metadata="tableMetadata"
-          :rowkey="slotProps.rowkey"
-        />
+        <slot name="rowheader" :row="slotProps.row" :metadata="tableMetadata" :rowkey="slotProps.rowkey" />
         <RowButton
           v-if="canEdit"
           type="edit"
           :table="tableName"
           :schemaName="schemaName"
           :visible-columns="visibleColumnNames"
-          :refTablePrimaryKeyObject="
-            getPrimaryKey(slotProps.row, tableMetadata)
-          "
+          :refTablePrimaryKeyObject="getPrimaryKey(slotProps.row, tableMetadata)"
           @close="reload"
-          @edit="
-            handleRowAction('edit', getPrimaryKey(slotProps.row, tableMetadata))
-          "
+          @edit="handleRowAction('edit', getPrimaryKey(slotProps.row, tableMetadata))"
         />
         <RowButton
           v-if="canEdit"
@@ -52,25 +32,16 @@
           :pkey="getPrimaryKey(slotProps.row, tableMetadata)"
           :visible-columns="visibleColumnNames"
           :default-value="defaultValue"
-          @clone="
-            handleRowAction(
-              'clone',
-              getPrimaryKey(slotProps.row, tableMetadata)
-            )
-          "
+          @clone="handleRowAction('clone', getPrimaryKey(slotProps.row, tableMetadata))"
         />
         <RowButton
           v-if="canEdit"
           type="delete"
-          @delete="
-            handleDeleteRowRequest(getPrimaryKey(slotProps.row, tableMetadata))
-          "
+          @delete="handleDeleteRowRequest(getPrimaryKey(slotProps.row, tableMetadata))"
         />
       </template>
     </TableMolgenis>
-    <MessageWarning v-else>
-      This can only be filled in after you have saved (or saved draft).
-    </MessageWarning>
+    <MessageWarning v-else> This can only be filled in after you have saved (or saved draft). </MessageWarning>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
 
     <EditModal
@@ -187,9 +158,7 @@ export default {
     visibleColumns() {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
-        return this.tableMetadata.columns.filter(
-          (c) => c.id != this.refBack && !c.id.startsWith("mg_")
-        );
+        return this.tableMetadata.columns.filter((c) => c.id != this.refBack && !c.id.startsWith("mg_"));
       }
       return [];
     },
@@ -218,9 +187,7 @@ export default {
     },
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
-      const resp = await this.client
-        .deleteRow(this.editRowPrimaryKey, this.tableName)
-        .catch(this.handleError);
+      const resp = await this.client.deleteRow(this.editRowPrimaryKey, this.tableName).catch(this.handleError);
       if (resp) {
         this.reload();
       }

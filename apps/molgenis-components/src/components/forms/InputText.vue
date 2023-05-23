@@ -1,11 +1,5 @@
 <template>
-  <FormGroup
-    :id="id"
-    :label="label"
-    :required="required"
-    :description="description"
-    :errorMessage="errorMessage"
-  >
+  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
     <InputGroup>
       <textarea
         ref="textarea"
@@ -45,10 +39,7 @@ export default {
   mounted() {
     const el = this.$refs.textarea;
     nextTick(() => {
-      el.setAttribute(
-        "style",
-        "height:" + el.scrollHeight + "px;overflow-y:hidden;"
-      );
+      el.setAttribute("style", "height:" + el.scrollHeight + "px;overflow-y:hidden;");
     });
     el.addEventListener("input", this.resizeTextarea);
   },

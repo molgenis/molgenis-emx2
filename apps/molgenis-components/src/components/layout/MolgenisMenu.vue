@@ -41,11 +41,7 @@
               >{{ sub.label }}</a
             >
           </ButtonDropdown>
-          <a
-            v-else
-            class="nav-link"
-            :href="addBaseUrl(item.href)"
-            :target="item.newWindow ? '_blank' : '_self'"
+          <a v-else class="nav-link" :href="addBaseUrl(item.href)" :target="item.newWindow ? '_blank' : '_self'"
             >{{ item.label }}
           </a>
         </li>
@@ -115,10 +111,7 @@ export default {
       // fully qualified URLs or relative URL navigation supported (although we should deprecate the '../' option
       if (
         href &&
-        (href.startsWith("http://") ||
-          href.startsWith("https://") ||
-          href.startsWith("/") ||
-          href.startsWith(".."))
+        (href.startsWith("http://") || href.startsWith("https://") || href.startsWith("/") || href.startsWith(".."))
       ) {
         return href;
       } else {
@@ -135,17 +128,11 @@ export default {
           return true;
         }
         if (item.role === "Viewer") {
-          return this.session.roles.some((r) =>
-            ["Viewer", "Editor", "Manager", "Owner"].includes(r)
-          );
+          return this.session.roles.some((r) => ["Viewer", "Editor", "Manager", "Owner"].includes(r));
         } else if (item.role === "Editor") {
-          return this.session.roles.some((r) =>
-            ["Editor", "Manager", "Owner"].includes(r)
-          );
+          return this.session.roles.some((r) => ["Editor", "Manager", "Owner"].includes(r));
         } else if (item.role === "Manager") {
-          return this.session.roles.some((r) =>
-            ["Manager", "Owner"].includes(r)
-          );
+          return this.session.roles.some((r) => ["Manager", "Owner"].includes(r));
         }
       }
       return false;

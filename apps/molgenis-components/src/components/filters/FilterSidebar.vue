@@ -46,9 +46,7 @@ export default {
   },
   computed: {
     visibleFilters() {
-      return this.filters.filter(
-        (column) => column.showFilter && column.columnType !== "HEADING"
-      );
+      return this.filters.filter((column) => column.showFilter && column.columnType !== "HEADING");
     },
   },
   methods: {

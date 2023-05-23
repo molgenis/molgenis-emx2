@@ -1,27 +1,12 @@
 <template>
-  <FormGroup
-    :id="id"
-    :label="label"
-    :required="required"
-    :description="description"
-    :errorMessage="errorMessage"
-  >
+  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
     <div>
       <div>
-        <ButtonAlt
-          v-if="modelValue !== null"
-          class="pl-1"
-          icon="fa fa-clear"
-          @click="clearValue"
-        >
+        <ButtonAlt v-if="modelValue !== null" class="pl-1" icon="fa fa-clear" @click="clearValue">
           clear selection
         </ButtonAlt>
       </div>
-      <div
-        :class="
-          showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
-        "
-      >
+      <div :class="showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''">
         <div
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
@@ -34,16 +19,11 @@
             type="radio"
             :value="getPrimaryKey(row, tableMetaData)"
             :checked="isSelected(row)"
-            @change="
-              $emit('update:modelValue', getPrimaryKey(row, tableMetaData))
-            "
+            @change="$emit('update:modelValue', getPrimaryKey(row, tableMetaData))"
             class="form-check-input"
             :class="{ 'is-invalid': errorMessage }"
           />
-          <label
-            class="form-check-label"
-            :for="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
-          >
+          <label class="form-check-label" :for="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`">
             {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
           </label>
         </div>
@@ -155,10 +135,7 @@ export default {
       this.showSelect = false;
     },
     isSelected(row) {
-      return (
-        this.getPrimaryKey(row, this.tableMetaData)?.name ===
-        (this.modelValue ? this.modelValue.name : "")
-      );
+      return this.getPrimaryKey(row, this.tableMetaData)?.name === (this.modelValue ? this.modelValue.name : "");
     },
     flattenObject,
     async loadOptions() {

@@ -1,34 +1,18 @@
 <template>
-  <LayoutModal
-    v-if="modalVisible === true"
-    title="Edit column metadata"
-    :isCloseButtonShown="false"
-  >
+  <LayoutModal v-if="modalVisible === true" title="Edit column metadata" :isCloseButtonShown="false">
     <template v-slot:body>
       <div class="row">
         <div class="column-scroll col">
           <Spinner v-if="loading" />
           <div v-else>
-            <MessageWarning v-if="column.drop"
-              >Marked for deletion
-            </MessageWarning>
+            <MessageWarning v-if="column.drop">Marked for deletion </MessageWarning>
             <MessageError v-if="error">{{ error }}</MessageError>
             <div class="row">
               <div class="col-4">
-                <InputString
-                  id="column_name"
-                  v-model="column.name"
-                  label="columnName"
-                  :errorMessage="nameInvalid"
-                />
+                <InputString id="column_name" v-model="column.name" label="columnName" :errorMessage="nameInvalid" />
               </div>
               <div class="col-4">
-                <InputTextLocalized
-                  id="column_label"
-                  v-model="column.labels"
-                  label="label"
-                  :locales="locales"
-                />
+                <InputTextLocalized id="column_label" v-model="column.labels" label="label" :locales="locales" />
               </div>
               <div class="col-4">
                 <div class="input-group">
@@ -64,9 +48,7 @@
                   id="column_refTable"
                   v-model="column.refTable"
                   :errorMessage="
-                    column.refTable === undefined || column.name === ''
-                      ? 'Referenced table is required'
-                      : undefined
+                    column.refTable === undefined || column.name === '' ? 'Referenced table is required' : undefined
                   "
                   :options="tableNames"
                   label="refTable"
@@ -96,11 +78,7 @@
               </div>
               <div
                 class="col-4"
-                v-if="
-                  column.refTable &&
-                  (column.columnType === 'REF' ||
-                    column.columnType === 'REF_ARRAY')
-                "
+                v-if="column.refTable && (column.columnType === 'REF' || column.columnType === 'REF_ARRAY')"
               >
                 <InputSelect
                   v-if="refLinkCandidates.length > 0"
@@ -113,10 +91,7 @@
               </div>
             </div>
             <div class="row">
-              <div
-                class="col-4"
-                v-if="column.columnType !== 'CONSTANT' && !column.computed"
-              >
+              <div class="col-4" v-if="column.columnType !== 'CONSTANT' && !column.computed">
                 <InputBoolean
                   id="column_required"
                   v-model="column.required"
@@ -124,15 +99,8 @@
                   description="Will give error unless field is filled in. Is not checked if not visible"
                 />
               </div>
-              <div
-                class="col-4"
-                v-if="column.columnType !== 'CONSTANT' && !column.computed"
-              >
-                <InputBoolean
-                  id="column_readonly"
-                  v-model="column.readonly"
-                  label="isReadonly"
-                />
+              <div class="col-4" v-if="column.columnType !== 'CONSTANT' && !column.computed">
+                <InputBoolean id="column_readonly" v-model="column.readonly" label="isReadonly" />
               </div>
             </div>
             <div class="row">
@@ -147,11 +115,7 @@
             </div>
             <div class="row">
               <div class="col">
-                <ButtonAction
-                  class="float-right"
-                  v-if="!previewShow"
-                  @click="previewShow = true"
-                >
+                <ButtonAction class="float-right" v-if="!previewShow" @click="previewShow = true">
                   show form preview
                 </ButtonAction>
               </div>
@@ -184,12 +148,7 @@
             </div>
             <div class="row">
               <div class="col-4">
-                <InputString
-                  id="column_semantics"
-                  v-model="column.semantics"
-                  :list="true"
-                  label="semantics"
-                />
+                <InputString id="column_semantics" v-model="column.semantics" :list="true" label="semantics" />
               </div>
             </div>
 
@@ -211,9 +170,7 @@
         <div v-if="previewShow" class="col-4 bg-white column-scroll">
           <h4>
             Form preview
-            <ButtonAlt @click="previewShow = false" class="pl-0 pr-0"
-              >hide
-            </ButtonAlt>
+            <ButtonAlt @click="previewShow = false" class="pl-0 pr-0">hide </ButtonAlt>
           </h4>
           <RowEdit
             id="form-edit"
@@ -356,9 +313,7 @@ export default {
     table() {
       const table = deepClone(this.originalTable);
       //replace column with current changes
-      const index = table.columns.findIndex(
-        (c) => c.name == this.column.name || c.name == this.column.oldName
-      );
+      const index = table.columns.findIndex((c) => c.name == this.column.name || c.name == this.column.oldName);
       // or if new, we add it
       if (index === -1) {
         table.columns.splice(this.columnIndex, 0, this.column);
@@ -378,23 +333,13 @@ export default {
     //listing of all tables, used for refs
     tableNames() {
       if (this.refSchema !== undefined) {
-        if (
-          this.column.columnType === "ONTOLOGY" ||
-          this.column.columnType === "ONTOLOGY_ARRAY"
-        ) {
-          return this.refSchema.tables
-            .filter((t) => t.tableType === "ONTOLOGIES")
-            .map((t) => t.name);
+        if (this.column.columnType === "ONTOLOGY" || this.column.columnType === "ONTOLOGY_ARRAY") {
+          return this.refSchema.tables.filter((t) => t.tableType === "ONTOLOGIES").map((t) => t.name);
         } else {
-          return this.refSchema.tables
-            .filter((t) => t.tableType !== "ONTOLOGIES")
-            .map((t) => t.name);
+          return this.refSchema.tables.filter((t) => t.tableType !== "ONTOLOGIES").map((t) => t.name);
         }
       } else {
-        if (
-          this.column.columnType === "ONTOLOGY" ||
-          this.column.columnType === "ONTOLOGY_ARRAY"
-        ) {
+        if (this.column.columnType === "ONTOLOGY" || this.column.columnType === "ONTOLOGY_ARRAY") {
           return this.schema.ontologies.map((t) => t.name);
         } else {
           return this.schema.tables.map((t) => t.name);
@@ -409,10 +354,8 @@ export default {
         return "Name should start with letter, followed by letter, number, whitespace or underscore ([a-zA-Z][a-zA-Z0-9_ ]*)";
       }
       if (
-        (this.modelValue === undefined ||
-          this.modelValue.name !== this.column.name) &&
-        this.originalTable.columns?.filter((c) => c.name === this.column.name)
-          .length > 0
+        (this.modelValue === undefined || this.modelValue.name !== this.column.name) &&
+        this.originalTable.columns?.filter((c) => c.name === this.column.name).length > 0
       ) {
         return "Name should be unique";
       } else {
@@ -442,20 +385,13 @@ export default {
     },
     refLinkCandidates() {
       return this.table.columns
-        .filter(
-          (c) =>
-            (c.columnType === "REF" || c.columnType === "REF_ARRAY") &&
-            c.name !== this.modelValue.name
-        )
+        .filter((c) => (c.columnType === "REF" || c.columnType === "REF_ARRAY") && c.name !== this.modelValue.name)
         .map((c) => c.name);
     },
     refBackCandidates(fromTable, toTable) {
-      const schema =
-        this.refSchema !== undefined ? this.refSchema : this.schema;
+      const schema = this.refSchema !== undefined ? this.refSchema : this.schema;
 
-      const columns = schema.tables
-        .filter((t) => t.name === fromTable)
-        .map((t) => t.columns)[0];
+      const columns = schema.tables.filter((t) => t.name === fromTable).map((t) => t.columns)[0];
       return columns?.filter((c) => c.refTable === toTable).map((c) => c.name);
     },
     async loadRefSchema() {

@@ -1,11 +1,5 @@
 <template>
-  <FormGroup
-    :id="id"
-    :label="label"
-    :required="required"
-    :description="description"
-    :errorMessage="errorMessage"
-  >
+  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
     <InputGroup>
       <BaseIntInput
         :id="id"
@@ -14,9 +8,7 @@
         :readonly="readonly"
         :required="required"
         :class="{ 'is-invalid': errorMessage }"
-        @update:modelValue="
-          $emit('update:modelValue', $event === NaN ? null : parseInt($event))
-        "
+        @update:modelValue="$emit('update:modelValue', $event === NaN ? null : parseInt($event))"
       />
       <template v-slot:append>
         <slot name="append" />

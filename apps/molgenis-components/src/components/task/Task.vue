@@ -34,10 +34,7 @@ export default defineComponent({
   },
   methods: {
     async startMonitorTask() {
-      while (
-        (!this.error && !this.task) ||
-        (this.task && !["COMPLETED", "ERROR"].includes(this.task.status))
-      ) {
+      while ((!this.error && !this.task) || (this.task && !["COMPLETED", "ERROR"].includes(this.task.status))) {
         const query = `{
           _tasks(id:"${this.taskId}")
           {

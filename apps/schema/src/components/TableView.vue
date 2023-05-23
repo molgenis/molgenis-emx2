@@ -4,20 +4,15 @@
       <div>
         <span class="hoverContainer">
           <h4
-            :id="
-              table.name !== undefined ? table.name.replaceAll(' ', '_') : ''
-            "
+            :id="table.name !== undefined ? table.name.replaceAll(' ', '_') : ''"
             style="display: inline-block; text-transform: none !important"
             :style="table.drop ? 'text-decoration: line-through' : ''"
           >
             Table: {{ table.name }}
             <span v-if="table.semantics" class="small">
-              (<a
-                :href="purl"
-                target="_blank"
-                v-for="purl in table.semantics"
-                :key="purl"
-                >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
+              (<a :href="purl" target="_blank" v-for="purl in table.semantics" :key="purl">{{
+                purl.substring(purl.lastIndexOf("/") + 1)
+              }}</a
               >)
             </span>
           </h4>
@@ -28,12 +23,7 @@
             @update:modelValue="$emit('update:modelValue', table)"
             :locales="locales"
           />
-          <IconDanger
-            v-if="isManager"
-            @click="deleteTable"
-            icon="trash"
-            class="hoverIcon"
-          />
+          <IconDanger v-if="isManager" @click="deleteTable" icon="trash" class="hoverIcon" />
           <a
             class="hoverIcon"
             :href="'#'"
@@ -68,12 +58,7 @@
           <div>
             <div class="hoverContainer mb-2">
               <label style="display: inline">Subclasses:</label>
-              <span
-                v-if="table.subclasses === undefined"
-                class="hoverContainer"
-              >
-                None
-              </span>
+              <span v-if="table.subclasses === undefined" class="hoverContainer"> None </span>
               <TableEditModal
                 v-if="isManager"
                 :schema="schema"
@@ -83,10 +68,7 @@
                 :locales="locales"
               />
             </div>
-            <table
-              class="table table-bordered table-sm"
-              v-if="table.subclasses"
-            >
+            <table class="table table-bordered table-sm" v-if="table.subclasses">
               <thead>
                 <th style="width: 25ch" scope="col">subclass</th>
                 <th style="width: 25ch" scope="col">extends</th>
@@ -98,11 +80,7 @@
                   class="hoverContainer"
                   :key="table.subclasses.length + '_' + index"
                   :style="subclass.drop ? 'text-decoration: line-through' : ''"
-                  :id="
-                    subclass.name !== undefined
-                      ? subclass.name.replaceAll(' ', '_')
-                      : ''
-                  "
+                  :id="subclass.name !== undefined ? subclass.name.replaceAll(' ', '_') : ''"
                 >
                   <td>
                     {{ subclass.name }}
@@ -113,12 +91,7 @@
                       :rootTable="table"
                       @update:modelValue="$emit('update:modelValue', table)"
                     />
-                    <IconDanger
-                      v-if="isManager"
-                      @click="deleteSubclass(subclass)"
-                      icon="trash"
-                      class="hoverIcon"
-                    />
+                    <IconDanger v-if="isManager" @click="deleteSubclass(subclass)" icon="trash" class="hoverIcon" />
                   </td>
                   <td>extends {{ subclass.inherit }}</td>
                   <td>
@@ -142,39 +115,20 @@
               :locales="locales"
             />
           </div>
-          <table
-            v-if="table.columns?.length > 0"
-            class="table table-bordered table-sm"
-            style="table-layout: fixed"
-          >
+          <table v-if="table.columns?.length > 0" class="table table-bordered table-sm" style="table-layout: fixed">
             <thead>
               <tr class="hoverContainer">
                 <th style="width: 25ch" scope="col">column</th>
-                <th
-                  style="width: 25ch"
-                  scope="col"
-                  v-if="table.subclasses?.length > 0"
-                >
-                  inSubclass
-                </th>
+                <th style="width: 25ch" scope="col" v-if="table.subclasses?.length > 0">inSubclass</th>
                 <th style="width: 32ch" scope="col">definition</th>
                 <th scope="col">label</th>
                 <th scope="col">description</th>
               </tr>
             </thead>
-            <Draggable
-              v-model="table.columns"
-              tag="tbody"
-              @end="applyPosition"
-              item-key="name"
-            >
+            <Draggable v-model="table.columns" tag="tbody" @end="applyPosition" item-key="name">
               <template #item="{ element, index }">
                 <ColumnView
-                  :style="
-                    isSubclassDropped(element)
-                      ? 'text-decoration: line-through'
-                      : ''
-                  "
+                  :style="isSubclassDropped(element) ? 'text-decoration: line-through' : ''"
                   v-model="table.columns[index]"
                   :schema="schema"
                   :schemaNames="schemaNames"
@@ -294,9 +248,7 @@ export default {
     },
     deleteSubclass(subclass) {
       if (!subclass.oldName) {
-        this.table.subclasses = this.table.subclasses.filter(
-          (sb) => sb !== subclass
-        );
+        this.table.subclasses = this.table.subclasses.filter((sb) => sb !== subclass);
       } else if (!subclass.drop) {
         //need to do deep set otherwise vue doesn't see it
         subclass.drop = true;
@@ -309,9 +261,7 @@ export default {
       if (column.table === this.table.name) {
         return this.table.drop;
       } else {
-        return this.table.subclasses?.find(
-          (subclass) => subclass.name === column.table
-        ).drop;
+        return this.table.subclasses?.find((subclass) => subclass.name === column.table).drop;
       }
     },
     createSubclass(subclass) {

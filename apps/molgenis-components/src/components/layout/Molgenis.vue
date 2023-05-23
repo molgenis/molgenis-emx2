@@ -1,17 +1,8 @@
 <template>
   <div style="background-color: #f4f4f4">
     <div style="min-height: calc(100vh - 70px)">
-      <MolgenisMenu
-        :logo="logoURLorDefault"
-        active="My search"
-        :items="menu"
-        :session="session"
-      >
-        <MolgenisSession
-          v-model="session"
-          :key="timestamp"
-          @error="$emit('error', $event)"
-        />
+      <MolgenisMenu :logo="logoURLorDefault" active="My search" :items="menu" :session="session">
+        <MolgenisSession v-model="session" :key="timestamp" @error="$emit('error', $event)" />
       </MolgenisMenu>
       <Breadcrumb
         v-if="showCrumbs && Object.keys(crumbs).length > 1"
@@ -26,17 +17,10 @@
     <MolgenisFooter>
       <span v-if="session && session.manifest">
         Software version:
-        <a
-          :href="
-            'https://github.com/molgenis/molgenis-emx2/releases/tag/v' +
-            session.manifest.SpecificationVersion
-          "
-        >
+        <a :href="'https://github.com/molgenis/molgenis-emx2/releases/tag/v' + session.manifest.SpecificationVersion">
           {{ session.manifest.SpecificationVersion }} </a
         >.
-        <span v-if="session.manifest.DatabaseVersion">
-          Database version: {{ session.manifest.DatabaseVersion }}.
-        </span>
+        <span v-if="session.manifest.DatabaseVersion"> Database version: {{ session.manifest.DatabaseVersion }}. </span>
       </span>
     </MolgenisFooter>
   </div>
@@ -123,9 +107,7 @@ export default {
     },
     crumbs() {
       if (window && location) {
-        let path = decodeURI(
-          window.location.pathname.replace(location.search, "")
-        ).split("/");
+        let path = decodeURI(window.location.pathname.replace(location.search, "")).split("/");
         let url = "/";
         let result = {};
         if (window.location.pathname != "/apps/central/") {
@@ -151,10 +133,7 @@ export default {
       return {};
     },
     logoURLorDefault() {
-      return (
-        this.logoURL ||
-        "/apps/molgenis-components/assets/img/molgenis_logo_white.png"
-      );
+      return this.logoURL || "/apps/molgenis-components/assets/img/molgenis_logo_white.png";
     },
     menu() {
       if (this.session?.settings?.menu) {

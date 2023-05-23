@@ -25,20 +25,13 @@
               <slot name="rowheader" :row="row" />
             </div>
           </td>
-          <td
-            v-for="col in columns"
-            :key="col"
-            @click="onRowClick(row)"
-            style="cursor: pointer"
-          >
+          <td v-for="col in columns" :key="col" @click="onRowClick(row)" style="cursor: pointer">
             <ul v-if="Array.isArray(row[col])" class="list-unstyled">
               <li v-for="(item, index3) in row[col]" :key="index3">
                 {{ item }}
               </li>
             </ul>
-            <span v-else-if="row[col] !== undefined">{{
-              flattenObject(row[col])
-            }}</span>
+            <span v-else-if="row[col] !== undefined">{{ flattenObject(row[col]) }}</span>
           </td>
         </tr>
       </tbody>
@@ -78,11 +71,7 @@ export default {
       return this.selectColumn;
     },
     hasColheader() {
-      return (
-        this.selectColumn ||
-        !!this.$slots["colheader"] ||
-        !!this.$slots["rowheader"]
-      );
+      return this.selectColumn || !!this.$slots["colheader"] || !!this.$slots["rowheader"];
     },
   },
   methods: {
@@ -104,17 +93,12 @@ export default {
       }
     },
     isSelected(row) {
-      return (
-        this.selectedItems !== null &&
-        this.selectedItems.includes(row[this.selectColumn])
-      );
+      return this.selectedItems !== null && this.selectedItems.includes(row[this.selectColumn]);
     },
     toggleSelect(row) {
       if (this.isSelected(row)) {
         /** when a row is deselected */
-        this.selectedItems = this.selectedItems.filter(
-          (item) => item !== row[this.selectColumn]
-        );
+        this.selectedItems = this.selectedItems.filter((item) => item !== row[this.selectColumn]);
         this.$emit("deselect", row[this.selectColumn]);
       } else {
         /** when a row is selected */

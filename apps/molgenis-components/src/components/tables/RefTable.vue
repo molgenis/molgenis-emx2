@@ -1,12 +1,7 @@
 <template>
   <div class="mb-4">
     <h5 class="ml-1">
-      <ObjectDisplay
-        v-if="primaryKey"
-        :data="primaryKey"
-        :meta-data="reference.metadata"
-        class="mr-1"
-      />
+      <ObjectDisplay v-if="primaryKey" :data="primaryKey" :meta-data="reference.metadata" class="mr-1" />
       <button
         v-if="canCollapse"
         class="btn p-0 m-0 btn-outline-primary border-0 ml-auto float-right"
@@ -26,19 +21,12 @@
                 refType: isRefType(metadataOfCell(cellName).columnType),
               }"
             >
-              <DataDisplayCell
-                :data="cellValue"
-                :meta-data="metadataOfCell(cellName)"
-              />
+              <DataDisplayCell :data="cellValue" :meta-data="metadataOfCell(cellName)" />
             </td>
           </tr>
         </table>
       </div>
-      <div
-        v-if="collapsed"
-        class="collapsed-tag border-top rounded-bottom mb-3"
-        @click="collapsed = false"
-      >
+      <div v-if="collapsed" class="collapsed-tag border-top rounded-bottom mb-3" @click="collapsed = false">
         <small class="px-3 link-color"> Show all records... </small>
       </div>
     </div>
@@ -46,15 +34,11 @@
     <small class="text-black-50" v-if="showDataOwner">
       <div v-if="reference.mg_insertedBy">
         Inserted by '{{ reference.mg_insertedBy }}'
-        <span v-if="reference.mg_insertedOn">
-          On {{ new Date(reference.mg_insertedOn).toLocaleString() }}
-        </span>
+        <span v-if="reference.mg_insertedOn"> On {{ new Date(reference.mg_insertedOn).toLocaleString() }} </span>
       </div>
       <div v-if="reference.mg_updatedBy">
         Updated by '{{ reference.mg_updatedBy }}'
-        <span v-if="reference.mg_updatedOn">
-          On {{ new Date(reference.mg_updatedOn).toLocaleString() }}
-        </span>
+        <span v-if="reference.mg_updatedOn"> On {{ new Date(reference.mg_updatedOn).toLocaleString() }} </span>
       </div>
     </small>
     <div v-if="reference.mg_draft">
@@ -91,9 +75,7 @@ const emit = defineEmits<{
 
 let filteredRow = computed(() => getFilteredRow(reference.value));
 let canCollapse = computed(() => Object.keys(filteredRow.value).length > 5);
-let primaryKey = computed(() =>
-  getPrimaryKey(reference.value, reference.value.metadata)
-);
+let primaryKey = computed(() => getPrimaryKey(reference.value, reference.value.metadata));
 
 let collapsed = ref(startsCollapsed.value && canCollapse.value);
 
@@ -111,17 +93,13 @@ function getFilteredRow(reference: IRow): IRow {
 function metadataOfCell(key: string | number): IColumn {
   const metadata = reference.value.metadata;
   if (isMetadata(metadata) && metadata.columns) {
-    return (
-      metadata.columns.find((column) => column.id === key) || ({} as IColumn)
-    );
+    return metadata.columns.find((column) => column.id === key) || ({} as IColumn);
   } else {
     throw "Error: Metadata for RefTable not found";
   }
 }
 
-function isMetadata(
-  metadata: ITableMetaData | string
-): metadata is ITableMetaData {
+function isMetadata(metadata: ITableMetaData | string): metadata is ITableMetaData {
   return (<ITableMetaData>metadata).name !== undefined;
 }
 

@@ -1,12 +1,6 @@
 import { describe, assert, test } from "vitest";
 import constants from "./constants";
-import {
-  deepClone,
-  deepEqual,
-  flattenObject,
-  isNumericKey,
-  isRefType,
-} from "./utils";
+import { deepClone, deepEqual, flattenObject, isNumericKey, isRefType } from "./utils";
 
 const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_MINUS, CODE_DELETE } = constants;
 

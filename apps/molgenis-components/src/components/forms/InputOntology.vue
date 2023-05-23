@@ -1,22 +1,8 @@
 <template>
-  <FormGroup
-    :id="id"
-    :label="label"
-    :required="required"
-    :description="description"
-    :errorMessage="errorMessage"
-  >
+  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
     <MessageError v-if="error">{{ error }}</MessageError>
-    <div
-      class="p-0 m-0"
-      :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }"
-      v-else
-    >
-      <div
-        class="border-0 text-left form-control"
-        style="height: auto"
-        @click="toggleFocus"
-      >
+    <div class="p-0 m-0" :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }" v-else>
+      <div class="border-0 text-left form-control" style="height: auto" @click="toggleFocus">
         <span
           class="btn btn-sm btn-primary text-white mr-1"
           v-for="v in selectionWithoutChildren"
@@ -34,10 +20,7 @@
         />
         <span :class="{ 'input-group': showExpanded }">
           <div v-if="showExpanded" class="input-group-prepend">
-            <button
-              class="btn border-right-0 border btn-outline-primary"
-              type="button"
-            >
+            <button class="btn border-right-0 border btn-outline-primary" type="button">
               <i class="fa fa-search"></i>
             </button>
           </div>
@@ -61,11 +44,7 @@
             @click.stop="clearSelection"
             v-if="!showExpanded && selectionWithoutChildren.length > 0"
           />
-          <i
-            class="p-2 fa fa-caret-down"
-            style="vertical-align: middle"
-            v-if="!showExpanded"
-          />
+          <i class="p-2 fa fa-caret-down" style="vertical-align: middle" v-if="!showExpanded" />
         </span>
       </div>
       <div
@@ -74,12 +53,7 @@
         v-if="focus || showExpanded"
         v-click-outside="loseFocusWhenClickedOutside"
       >
-        <span
-          class="pl-4"
-          v-if="
-            search && Object.keys(terms).length > 50 && searchResultCount >= 0
-          "
-        >
+        <span class="pl-4" v-if="search && Object.keys(terms).length > 50 && searchResultCount >= 0">
           found {{ searchResultCount }} terms.
         </span>
         <InputOntologySubtree
@@ -181,9 +155,7 @@ export default {
     },
     rootTerms() {
       if (this.terms) {
-        let result = Object.values(this.terms).filter(
-          (t) => !t.parent && t.visible
-        );
+        let result = Object.values(this.terms).filter((t) => !t.parent && t.visible);
         return result;
       } else {
         return [];
@@ -191,10 +163,7 @@ export default {
     },
     //Override tableMixin
     orderByObject() {
-      if (
-        this.tableMetadata &&
-        this.tableMetadata.columns.some((c) => c.name === "order")
-      ) {
+      if (this.tableMetadata && this.tableMetadata.columns.some((c) => c.name === "order")) {
         return { order: "ASC" };
       } else {
         return {};
@@ -223,9 +192,7 @@ export default {
       if (term.selected === "complete") {
         result.push(term.name);
       } else if (term.children) {
-        term.children.forEach((childTerm) =>
-          result.push(...this.getSelectedChildNodes(childTerm))
-        );
+        term.children.forEach((childTerm) => result.push(...this.getSelectedChildNodes(childTerm)));
       }
       return result;
     },
@@ -266,27 +233,20 @@ export default {
       let result = [];
       if (term.children) {
         result = term.children;
-        term.children.forEach(
-          (childTerm) =>
-            (result = result.concat(this.getAllChildren(childTerm)))
-        );
+        term.children.forEach((childTerm) => (result = result.concat(this.getAllChildren(childTerm))));
       }
       return result;
     },
     select(item) {
       if (!this.isMultiSelect) {
         //deselect other items
-        Object.keys(this.terms).forEach(
-          (key) => (this.terms[key].selected = false)
-        );
+        Object.keys(this.terms).forEach((key) => (this.terms[key].selected = false));
       }
       let term = this.terms[item];
       term.selected = "complete";
       if (this.isMultiSelect) {
         //if list also select also its children
-        this.getAllChildren(term).forEach(
-          (childTerm) => (childTerm.selected = "complete")
-        );
+        this.getAllChildren(term).forEach((childTerm) => (childTerm.selected = "complete"));
         //select parent(s) if all siblings are selected
         this.getParents(term).forEach((parent) => {
           if (parent.children.every((childTerm) => childTerm.selected)) {
@@ -305,9 +265,7 @@ export default {
         let term = this.terms[item];
         term.selected = false;
         //also deselect all its children
-        this.getAllChildren(this.terms[item]).forEach(
-          (childTerm) => (childTerm.selected = false)
-        );
+        this.getAllChildren(this.terms[item]).forEach((childTerm) => (childTerm.selected = false));
         //also its deselect its parents, might be partial
         this.getParents(term).forEach((parent) => {
           if (parent.children.some((child) => child.selected)) {
@@ -318,9 +276,7 @@ export default {
         });
       } else {
         //non-list, deselect all
-        Object.keys(this.terms).forEach(
-          (key) => (this.terms[key].selected = false)
-        );
+        Object.keys(this.terms).forEach((key) => (this.terms[key].selected = false));
       }
       this.emitValue();
       this.$refs.search.focus();
@@ -348,9 +304,7 @@ export default {
     },
     applySelection(value) {
       //deselect all
-      Object.keys(this.terms).forEach(
-        (key) => (this.terms[key].selected = false)
-      );
+      Object.keys(this.terms).forEach((key) => (this.terms[key].selected = false));
       //apply selection to the tree
       if (value && this.isMultiSelect) {
         //clear existing selection
@@ -363,9 +317,7 @@ export default {
             }
             if (this.isMultiSelect) {
               //if list also select its children
-              this.getAllChildren(term).forEach(
-                (childTerm) => (childTerm.selected = "complete")
-              );
+              this.getAllChildren(term).forEach((childTerm) => (childTerm.selected = "complete"));
               //select parent(s) if all siblings are selected
               this.getParents(term).forEach((parent) => {
                 if (parent.children.every((childTerm) => childTerm.selected)) {
@@ -510,9 +462,7 @@ export default {
   async mounted() {
     if (this.tableName) {
       const client = Client.newClient(this.schemaName);
-      this.data = (
-        await client.fetchTableData(this.tableName, { limit: this.limit || 20 })
-      )[this.tableId];
+      this.data = (await client.fetchTableData(this.tableName, { limit: this.limit || 20 }))[this.tableId];
     }
   },
   created() {

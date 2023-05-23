@@ -11,17 +11,9 @@
         <a v-else :href="url">{{ label }}</a>
         <span class="dropdown">
           <span v-if="dropdown && index == 0">
-            <i
-              class="text-primary dropdown-toggle dropdown-toggle-split pr-0"
-              @click="toggleDropdown"
-            ></i>
+            <i class="text-primary dropdown-toggle dropdown-toggle-split pr-0" @click="toggleDropdown"></i>
             <div class="dropdown-menu" :class="{ show: showDropdown }">
-              <a
-                v-for="(url, label, index) in dropdown"
-                class="dropdown-item text-primary"
-                :href="url"
-                :key="index"
-              >
+              <a v-for="(url, label, index) in dropdown" class="dropdown-item text-primary" :href="url" :key="index">
                 {{ label }}
               </a>
             </div>

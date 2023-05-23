@@ -24,16 +24,9 @@ export const columnNames = (
   getTable(schemaName, tableName, metaData.tables)?.columns?.forEach((col) => {
     //we always expand the subfields of key=1, but other 'ref' fields only if they do not break server
     if (expandLevel > 0 || col.key == 1) {
-      if (
-        !rootLevel &&
-        ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)
-      ) {
+      if (!rootLevel && ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
         //skip
-      } else if (
-        ["REF", "ONTOLOGY", "REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(
-          col.columnType
-        )
-      ) {
+      } else if (["REF", "ONTOLOGY", "REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
         result =
           result +
           " " +
@@ -58,15 +51,9 @@ export const columnNames = (
   return result;
 };
 
-const getTable = (
-  schemaName: string,
-  tableName: string,
-  tableStore: ITableMetaData[]
-) => {
+const getTable = (schemaName: string, tableName: string, tableStore: ITableMetaData[]) => {
   const result = tableStore.find(
-    (table) =>
-      table.id === convertToPascalCase(tableName) &&
-      table.externalSchema === schemaName
+    (table) => table.id === convertToPascalCase(tableName) && table.externalSchema === schemaName
   );
   return result;
 };

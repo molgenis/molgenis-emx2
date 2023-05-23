@@ -41,11 +41,7 @@
       </template>
     </button>
     <div v-for="(listItem, index) in visibleListItems" :key="index">
-      <component
-        :is="cellTypeComponentName"
-        :data="listItem"
-        :metaData="metaData"
-      ></component>
+      <component :is="cellTypeComponentName" :data="listItem" :metaData="metaData"></component>
     </div>
   </div>
 </template>
