@@ -39,30 +39,32 @@ export async function applyFiltersToQuery (baseQuery, filters, facetDetails, fil
             case "CheckboxFilter": {
                 const values = filterValue.map(fv => fv.value)
 
-    
-
-                // we need to know if the user selected a checkbox inside the filter
-                // then decide if it is match all === _and else it is match any === "_or"
-                // if it is a seperate filter it is always _and.
-                // console.log(filterType[filterDetail.facetIdentifier] === 'all')
-
-                console.log(filterDetail, filterType[filterDetail.facetIdentifier])
-
-// if(filterType)
-
-                if (typeof values[0] === "boolean") {
-                    for (const value of values) {
-                        baseQuery.orWhere(filterDetail.applyToColumn).equals(value)
-                        baseQuery.filter(filterDetail.applyToColumn).equals(value)
+                if (filterType[filterDetail.facetIdentifier] === 'all' || values.length === 1) {
+                    if (typeof values[0] === "boolean") {
+                        for (const value of values) {
+                            baseQuery.where(filterDetail.applyToColumn).equals(value)
+                            baseQuery.filter(filterDetail.applyToColumn).equals(value)
+                        }
+                    }
+                    else {
+                        baseQuery.where(filterDetail.applyToColumn).like(values)
+                        baseQuery.filter(filterDetail.applyToColumn).like(values)
+                        baseQuery.subfilter(filterDetail.applyToColumn).like(values)
                     }
                 }
                 else {
-                    baseQuery.orWhere(filterDetail.applyToColumn).like(values)
-                    baseQuery.filter(filterDetail.applyToColumn).like(values)
-                    baseQuery.subfilter(filterDetail.applyToColumn).like(values)
+                    if (typeof values[0] === "boolean") {
+                        for (const value of values) {
+                            baseQuery.orWhere(filterDetail.applyToColumn).equals(value)
+                            baseQuery.filter(filterDetail.applyToColumn).equals(value)
+                        }
+                    }
+                    else {
+                        baseQuery.where(filterDetail.applyToColumn).orLike(values)
+                        baseQuery.filter(filterDetail.applyToColumn).orLike(values)
+                        baseQuery.subfilter(filterDetail.applyToColumn).like(values)
+                    }
                 }
-
-                // }
                 break
             }
         }

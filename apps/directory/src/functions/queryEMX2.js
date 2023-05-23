@@ -150,13 +150,6 @@ class QueryEMX2 {
       }));
   }
 
-  matchAll (column, table = 'root') {
-    this.type = "_matchAll"
-    this.branch = table
-    this.column = this._toCamelCase(column);
-    return this;
-  }
-
   /**
    * If you want to create a nested query, for example { collections: { name: { like: 'lifelines' } } }
    * then column = 'collections', subcolumn = 'name'
@@ -304,6 +297,12 @@ class QueryEMX2 {
   }
 
   /** Text, String, Url, Filter */
+  orLike (value) {
+    const operator = "orLike"; /** custom type, to make it into a bracket type query: { like: ["red", "green"] } */
+    return this._createFilter(operator, value);
+  }
+
+  /** Text, String, Url, Filter */
   like (value) {
     const operator = "like";
 
@@ -398,86 +397,23 @@ ${root}${rootModifier} {\n`;
     return result;
   }
 
-  _foldFilters (filters, nextProperty, type, depth = 0) {
-    let filterCount = 0
+  _createFilterString (filters) {
     let filterString = ''
-    const filterLayer = filters[nextProperty]
 
-    /** nothing next or no filters */
-    if (!filterLayer) return filterString
+    if (!filters) return filterString
 
-    /** we are down to the last part */
-    if (typeof filterLayer === "string") {
-      return filterLayer
+    if (filters['_and'].length) {
+      filterString += `_and: [ ${filters['_and'].join(", ")} ]`
     }
 
-    /** check if we have prebuild filters for or. Checking or could work, but if we need more complex filters that would not suffice */
-    if (Array.isArray(filterLayer)) {
-      filterCount = filterLayer.length
-      if (filterCount > 1) {
-        filterString += filterLayer.join(" }, { ")
-      }
-      else {
-        filterString = filterLayer[0]
-      }
-    }
-    else {
-      /** check if we have branches */
-      const nextFilterLayerKeys = Object.keys(filterLayer)
+    if (filters['_or'].length) {
 
-      filterCount = nextFilterLayerKeys.length
-      const branchFilters = []
-
-      for (let filterBranch = 0; filterBranch < filterCount; filterBranch++) {
-        const nextLayerKey = nextFilterLayerKeys[filterBranch]
-        const nestedFilterString = this._foldFilters(filterLayer, nextLayerKey, type, depth + 1)
-
-        branchFilters.push(`${nextLayerKey}: { ${nestedFilterString} }`)
-      }
-
-      if (branchFilters) {
-        let joinSymbol = ", "
-        if (depth === 0) {
-          joinSymbol = filterCount > 1 ? " }, { " : ", "
-        }
-        filterString += branchFilters.join(joinSymbol)
-      }
-    }
-
-    /** depth 0, the start of the recursion, so this is where we actually return the constructed string */
-    if (depth === 0) {
-      return `${type}: [{ ${filterString} }]`
-    }
-    else {
-      return filterString
-    }
-  }
-
-  _createFilterString (property, filters) {
-    if (!filters) return ''
-
-    let andFilters = this._foldFilters(filters._and, property, "_and")
-    let matchAllFilters = this._foldFilters(filters._matchAll, property, "_and")
-    let orFilters = this._foldFilters(filters._or, property, "_or")
-
-    let filterString = andFilters
-
-    if (matchAllFilters.length > 0) {
       if (filterString.length) {
-        filterString = `${filterString.substring(0, filterString.length - 2)}, ${matchAllFilters} }`
+        filterString += ", "
       }
-      else {
-        filterString = matchAllFilters
-      }
-    }
 
-    if (filterString.length > 0 && orFilters.length > 0) {
-      filterString += `, ${orFilters}`
+      filterString += `_or: [ ${filters['_or'].join(", ")} ]`
     }
-    else if (orFilters.length > 0) {
-      filterString = orFilters
-    }
-
     return filterString
   }
 
@@ -504,7 +440,7 @@ ${root}${rootModifier} {\n`;
         : ""
     );
 
-    const filterString = this._createFilterString(property, this.filters[property])
+    const filterString = this._createFilterString(this.filters[property])
 
     if (filterString.length) {
       modifierParts.push(`filter: { ${filterString} }`)
@@ -516,83 +452,45 @@ ${root}${rootModifier} {\n`;
   }
 
   _createFilterFromPath (path, operator, value) {
+    const valueArray = Array.isArray(value) ? value : [value]
 
-    /** the last part is the actual attribute. */
-    const pathParts = path.split('.')
+    for (const value of valueArray) {
 
-    const filter = `${operator}: ${value}`
-    const queryType = !this.type ? "_and" : this.type
+      /** reverse the path, so we can build it from the inside out */
+      const reversedPathParts = path.split('.').reverse()
+      let graphqlValue = typeof value === "boolean" ? `${value}` : `"${value}"`
 
-    const applyQueryTo = this.branch
-    if (!this.filters[this.branch][queryType][applyQueryTo]) {
-      /** or needs to be individual statements, the and needs to be folded into one
-       * _or [{collections: { name ... }}, {collections: {acronym ...}}] 
-       * Vs
-       * _and: {collections: {name: {...}, acronym: {....}}}
-       */
-      this.filters[this.branch][queryType][applyQueryTo] = {}
-    }
-
-    let filterRef = this.filters[this.branch][queryType][applyQueryTo]
-
-    /** split the parts, so we can combine them later */
-    //if (queryType === "_and") {
-    const pathDepth = pathParts.length
-
-    for (let depth = 0; depth < pathDepth; depth++) {
-      const filterPath = pathParts[depth];
-
-      if (!filterRef[filterPath]) {
-        filterRef[filterPath] = depth === pathDepth - 1 ? filter : {}
-        filterRef = filterRef[filterPath]
+      /** if it is an _or and a like, concat them */
+      const queryType = !this.type ? "_and" : this.type
+      if (operator === 'orLike') {
+        graphqlValue = `["${valueArray.join('", "')}"]`
+        operator = 'like' /** set it to the correct operator for graphQl */
       }
-      else {
-        filterRef = filterRef[filterPath]
+
+
+      /** most inner part of the query e.g. 'like: "red" */
+      let filter = `{ ${operator}: ${graphqlValue} }`
+
+      for (const pathPart of reversedPathParts) {
+        filter = `{ ${pathPart}: ${filter} }`
       }
+      this.filters[this.branch][queryType].push(filter)
+
+      /** we folded all into one so just return */
+      if (graphqlValue.includes("[")) return
     }
-    // }
-    // /** make the query directly */
-    // else {
-    //   const reversePath = pathParts.reverse()
-    //   let filterStringPlaceholder = ''
-    //   for (const trail of reversePath) {
-    //     if (filterStringPlaceholder === '') {
-    //       filterStringPlaceholder = `${trail}: { ${filter} }`
-    //     }
-    //     else {
-    //       filterStringPlaceholder = `${trail}: { ${filterStringPlaceholder} }`
-    //     }
-
-    //   }
-    //   /** if we already have this exact filter, just return. */
-    //   if (filterRef.includes(filterStringPlaceholder)) return
-
-    //   /** add it to the filter stack */
-    //   filterRef.push(filterStringPlaceholder)
-    // }
   }
 
   /** Private function to create the correct filter syntax. */
   _createFilter (operator, value) {
-
-    let graphQLValue = ''
-
-    if (Array.isArray(value)) {
-      graphQLValue = `["${value.join('", "')}"]`
-    }
-    else {
-      graphQLValue = typeof value === "boolean" ? `${value}` : `"${value}"`
-    }
-
     if (!this.filters[this.branch]) {
       this.filters[this.branch] = {
-        _and: {},
-        _or: {},
-        _matchAll: {}
+        _and: [],
+        _or: [],
       }
     }
 
-    this._createFilterFromPath(this.column, operator, graphQLValue)
+    this._createFilterFromPath(this.column, operator, value)
     this.column = "";
 
     return this;
@@ -630,7 +528,6 @@ ${root}${rootModifier} {\n`;
           filters,
           result
         );
-
         result += indentation + "}\n";
       }
     }
