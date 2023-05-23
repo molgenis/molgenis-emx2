@@ -36,7 +36,7 @@ export function createFilters (filters) {
         options: getFilterOptions(facet), /** uses the removeOptions array provided in the configuration */
         filters: filters[facet.name] || [], /** adds the currently active options */
         matchTypeForFilter: 'any', /** if it has been selected from bookmark, it will be applied here. */
-        showMatchTypeSelector: facet.showMatchTypeSelector, /** if you want to make match all / match any available */
+        showMatchTypeSelector: facet.showMatchTypeSelector || true, /** if you want to make match all / match any available */
         negotiatorRequestString: facet.negotiatorRequestString, /** the part that will be send to the negotiator as to indicate what it is */
         builtIn: facet.builtIn, /** if this filter should be ignored for dropdown filters generation */
         showFacet: facet.showFacet || true, /** if this filter should be shown at all */

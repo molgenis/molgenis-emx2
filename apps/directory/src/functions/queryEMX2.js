@@ -445,11 +445,8 @@ ${root}${rootModifier} {\n`;
     }
 
     /** depth 0, the start of the recursion, so this is where we actually return the constructed string */
-    if (depth === 0 && filterCount > 1) {
+    if (depth === 0) {
       return `${type}: [{ ${filterString} }]`
-    }
-    else if (depth === 0) {
-      return `${type}: { ${filterString} }`
     }
     else {
       return filterString
@@ -533,46 +530,46 @@ ${root}${rootModifier} {\n`;
        * Vs
        * _and: {collections: {name: {...}, acronym: {....}}}
        */
-      this.filters[this.branch][queryType][applyQueryTo] = queryType === "_and" ? {} : []
+      this.filters[this.branch][queryType][applyQueryTo] = {}
     }
 
     let filterRef = this.filters[this.branch][queryType][applyQueryTo]
 
     /** split the parts, so we can combine them later */
-    if (queryType === "_and") {
-      const pathDepth = pathParts.length
+    //if (queryType === "_and") {
+    const pathDepth = pathParts.length
 
-      for (let depth = 0; depth < pathDepth; depth++) {
-        const filterPath = pathParts[depth];
+    for (let depth = 0; depth < pathDepth; depth++) {
+      const filterPath = pathParts[depth];
 
-        if (!filterRef[filterPath]) {
-          filterRef[filterPath] = depth === pathDepth - 1 ? filter : {}
-          filterRef = filterRef[filterPath]
-        }
-        else {
-          filterRef = filterRef[filterPath]
-        }
+      if (!filterRef[filterPath]) {
+        filterRef[filterPath] = depth === pathDepth - 1 ? filter : {}
+        filterRef = filterRef[filterPath]
+      }
+      else {
+        filterRef = filterRef[filterPath]
       }
     }
-    /** make the query directly */
-    else {
-      const reversePath = pathParts.reverse()
-      let filterStringPlaceholder = ''
-      for (const trail of reversePath) {
-        if (filterStringPlaceholder === '') {
-          filterStringPlaceholder = `${trail}: { ${filter} }`
-        }
-        else {
-          filterStringPlaceholder = `${trail}: { ${filterStringPlaceholder} }`
-        }
+    // }
+    // /** make the query directly */
+    // else {
+    //   const reversePath = pathParts.reverse()
+    //   let filterStringPlaceholder = ''
+    //   for (const trail of reversePath) {
+    //     if (filterStringPlaceholder === '') {
+    //       filterStringPlaceholder = `${trail}: { ${filter} }`
+    //     }
+    //     else {
+    //       filterStringPlaceholder = `${trail}: { ${filterStringPlaceholder} }`
+    //     }
 
-      }
-      /** if we already have this exact filter, just return. */
-      if (filterRef.includes(filterStringPlaceholder)) return
+    //   }
+    //   /** if we already have this exact filter, just return. */
+    //   if (filterRef.includes(filterStringPlaceholder)) return
 
-      /** add it to the filter stack */
-      filterRef.push(filterStringPlaceholder)
-    }
+    //   /** add it to the filter stack */
+    //   filterRef.push(filterStringPlaceholder)
+    // }
   }
 
   /** Private function to create the correct filter syntax. */
@@ -584,7 +581,7 @@ ${root}${rootModifier} {\n`;
       graphQLValue = `["${value.join('", "')}"]`
     }
     else {
-      graphQLValue = typeof value === "boolean" ? `${value}` :`"${value}"`
+      graphQLValue = typeof value === "boolean" ? `${value}` : `"${value}"`
     }
 
     if (!this.filters[this.branch]) {

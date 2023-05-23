@@ -13,6 +13,7 @@ export const useFiltersStore = defineStore('filtersStore', () => {
 
     let filters = ref({})
     let filterType = ref({})
+    let filterTypeUpdatedFromFilter = ref('')
     let filterOptionsCache = ref({})
     let filterFacets = createFilters(filters)
     const facetDetails = {}
@@ -60,15 +61,18 @@ export const useFiltersStore = defineStore('filtersStore', () => {
             }
             /** reset pagination */
             settingsStore.currentPage = 1
-
             queryDelay = setTimeout(async () => {
                 clearTimeout(queryDelay);
                 applyFiltersToQuery(baseQuery, filters.value, facetDetails, filterType)
-                await updateBiobankCards()
+
+                /** only update if we have something to update, switching the radiobutton itself should not trigger a refresh */
+                if (hasActiveFilters.value && filters.value[filterTypeUpdatedFromFilter].length) {
+                    await updateBiobankCards()
+                }
 
             }, 750);
         },
-        { deep: true, immediat: true },
+        { deep: true, immediate: true },
     )
 
     function updateFilter (filterName, value) {
@@ -91,10 +95,11 @@ export const useFiltersStore = defineStore('filtersStore', () => {
         } else {
             filterType.value[filterName] = value
         }
+        filterTypeUpdatedFromFilter = filterName
     }
 
     function getFilterType (filterName) {
-        return filterType.value[filterName]
+        return filterType.value[filterName] || 'any'
     }
 
     return {

@@ -39,16 +39,16 @@ export async function applyFiltersToQuery (baseQuery, filters, facetDetails, fil
             case "CheckboxFilter": {
                 const values = filterValue.map(fv => fv.value)
 
-                // if (filterType[filterKey] === 'all') {
-                //     for (const value of values) {
-                //         baseQuery.matchAll(filterDetail.applyToColumn, "collections").like(value)
-                //     }
-                //     baseQuery.filter(filterDetail.applyToColumn).like(values)
-                //     baseQuery.subfilter(filterDetail.applyToColumn).like(values)
-                // }
-                // else {
+    
 
-                console.log(filterType)
+                // we need to know if the user selected a checkbox inside the filter
+                // then decide if it is match all === _and else it is match any === "_or"
+                // if it is a seperate filter it is always _and.
+                // console.log(filterType[filterDetail.facetIdentifier] === 'all')
+
+                console.log(filterDetail, filterType[filterDetail.facetIdentifier])
+
+// if(filterType)
 
                 if (typeof values[0] === "boolean") {
                     for (const value of values) {
