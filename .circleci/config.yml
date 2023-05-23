@@ -102,7 +102,7 @@ jobs:
           sh ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
           if [ "${CIRCLE_BRANCH}" = "master" ]
           then
-            helm upgrade emx2 ./helm-chart --namespace emx2 --set image.tag=${TAG_NAME}
+            helm upgrade emx2 ./helm-chart --namespace molgenis-emx2 --set image.tag=${TAG_NAME}
           else
             sh ci/create_or_update_preview.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME}
           fi
