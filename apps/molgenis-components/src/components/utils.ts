@@ -66,11 +66,11 @@ export async function convertRowToPrimaryKey(
   row: IRow,
   tableName: string,
   schemaName: string
-): Promise<Record<string, any> | null> {
+): Promise<Record<string, any>> {
   const client = Client.newClient(schemaName);
   const tableMetadata = await client.fetchTableMetaData(tableName);
   if (!tableMetadata?.columns) {
-    return null;
+    throw new Error("Empty columns in metadata");
   } else {
     return await tableMetadata.columns.reduce(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
