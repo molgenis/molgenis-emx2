@@ -49,7 +49,7 @@ export async function applyFiltersToQuery (baseQuery, filters, facetDetails, fil
                     else {
                         baseQuery.where(filterDetail.applyToColumn).like(values)
                         baseQuery.filter(filterDetail.applyToColumn).like(values)
-                        baseQuery.subfilter(filterDetail.applyToColumn).like(values)
+                        baseQuery.subfilter(filterDetail.applyToColumn).orLike(values)
                     }
                 }
                 else {
@@ -62,7 +62,7 @@ export async function applyFiltersToQuery (baseQuery, filters, facetDetails, fil
                     else {
                         baseQuery.where(filterDetail.applyToColumn).orLike(values)
                         baseQuery.filter(filterDetail.applyToColumn).orLike(values)
-                        baseQuery.subfilter(filterDetail.applyToColumn).like(values)
+                        baseQuery.subfilter(filterDetail.applyToColumn).orLike(values)
                     }
                 }
                 break

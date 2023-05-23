@@ -35,7 +35,8 @@ export const useBiobanksStore = defineStore('biobanksStore', () => {
         biobankCards.value = []
         const biobankResult = await baseQuery.execute()
 
-        const foundBiobanks = biobankResult.Biobanks
+        /** only show biobanks that have collections */
+        const foundBiobanks = biobankResult.Biobanks.filter(biobank => biobank.collections)
         biobankCards.value = foundBiobanks || []
         waitingForResponse.value = false
     }
