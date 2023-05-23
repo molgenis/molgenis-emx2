@@ -404,18 +404,8 @@ public class TypeUtils {
         return TypeUtils.toDecimalArray(v);
       case TEXT:
         return TypeUtils.toText(v);
-        //        if (text != null) {
-        //          return cast(text, SQLDataType.VARCHAR);
-        //        } else {
-        //          return null;
-        //        }
       case TEXT_ARRAY:
         return TypeUtils.toTextArray(v);
-        //        if (textArray != null) {
-        //          return cast(textArray, SQLDataType.VARCHAR.getArrayDataType());
-        //        } else {
-        //          return null;
-        //        }
       case DATE:
         return TypeUtils.toDate(v);
       case DATE_ARRAY:
