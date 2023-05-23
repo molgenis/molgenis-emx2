@@ -45,6 +45,7 @@ public enum ColumnType {
   HEADING(String.class), // use for layout elements or constant values
 
   // format flavors that extend a baseType
+  AUTO_ID(STRING),
   ONTOLOGY(REF),
   ONTOLOGY_ARRAY(REF_ARRAY),
   EMAIL(STRING, EMAIL_REGEX),

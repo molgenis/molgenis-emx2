@@ -1,7 +1,5 @@
 package org.molgenis.emx2.utils;
 
-import static org.jooq.impl.DSL.cast;
-
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -405,19 +403,19 @@ public class TypeUtils {
       case DECIMAL_ARRAY:
         return TypeUtils.toDecimalArray(v);
       case TEXT:
-        String text = TypeUtils.toText(v);
-        if (text != null) {
-          return cast(text, SQLDataType.VARCHAR);
-        } else {
-          return null;
-        }
+        return TypeUtils.toText(v);
+        //        if (text != null) {
+        //          return cast(text, SQLDataType.VARCHAR);
+        //        } else {
+        //          return null;
+        //        }
       case TEXT_ARRAY:
-        String[] textArray = TypeUtils.toTextArray(v);
-        if (textArray != null) {
-          return cast(textArray, SQLDataType.VARCHAR.getArrayDataType());
-        } else {
-          return null;
-        }
+        return TypeUtils.toTextArray(v);
+        //        if (textArray != null) {
+        //          return cast(textArray, SQLDataType.VARCHAR.getArrayDataType());
+        //        } else {
+        //          return null;
+        //        }
       case DATE:
         return TypeUtils.toDate(v);
       case DATE_ARRAY:
@@ -475,5 +473,13 @@ public class TypeUtils {
     } else {
       return null;
     }
+  }
+
+  public static boolean isNull(Object value, ColumnType type) {
+    Object typedValue = getTypedValue(value, type);
+    if (type.isArray()) {
+      return typedValue == null || ((Object[]) typedValue).length == 0;
+    }
+    return typedValue == null;
   }
 }

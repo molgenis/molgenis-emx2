@@ -25,13 +25,6 @@ public class TestEvaluateExpressions {
   }
 
   @Test
-  void testStuff() {
-
-    assertEquals("foo", executeJavascriptOnMap("'foo'", Collections.emptyMap()));
-    // assertEquals("foo", jsUtils.executeJavascriptOnMap("{mg_autoid};", Collections.emptyMap()));
-  }
-
-  @Test
   public void testCheckValidationColumnsSuccess() {
 
     // should not throw exception

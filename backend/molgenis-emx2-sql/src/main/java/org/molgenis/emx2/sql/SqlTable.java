@@ -17,6 +17,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.utils.TypeUtils;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
@@ -307,9 +308,9 @@ class SqlTable implements Table {
     return count.get();
   }
 
-  private static void checkRequired(Row row, Collection<Column> columns) {
+  private static void checkRequired(Map<String, Object> row, Collection<Column> columns) {
     for (Column c : columns) {
-      if (c.isRequired() && row.isNull(c.getName(), c.getColumnType())) {
+      if (c.isRequired() && TypeUtils.isNull(row.get(c.getName()), c.getColumnType())) {
         throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
       }
     }
@@ -396,7 +397,7 @@ class SqlTable implements Table {
       }
       // when insert, we should include all columns, not only 'updateColumns'
       if (!row.isDraft()) {
-        checkRequired(row, allColumns);
+        checkRequired(values, allColumns);
       }
       step.values(values.values());
     }
@@ -434,6 +435,7 @@ class SqlTable implements Table {
                         || c.getName().equals(MG_UPDATEDBY)
                         || c.getName().equals(MG_UPDATEDON))
                     && (c.getComputed() != null
+                        || c.isPrimaryKey()
                         || updateColumns.size() == 0
                         || updateColumns.contains(c.getName())))
         .collect(Collectors.toSet());
@@ -468,7 +470,7 @@ class SqlTable implements Table {
       }
 
       if (!row.isDraft()) {
-        checkRequired(row, columns);
+        checkRequired(values, columns);
       }
 
       list.add(

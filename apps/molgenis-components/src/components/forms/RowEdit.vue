@@ -136,7 +136,10 @@ export default {
       return getLocalizedDescription(column, this.locale);
     },
     showColumn(column) {
-      if (column.reflink) {
+      console.log();
+      if (column.columnType === "AUTO_ID") {
+        return this.pkey;
+      } else if (column.reflink) {
         return this.internalValues[convertToCamelCase(column.refLink)];
       } else {
         const isColumnVisible = this.visibleColumns
@@ -191,7 +194,7 @@ export default {
     applyComputed() {
       //apply computed
       this.tableMetaData.columns.forEach((c) => {
-        if (c.computed) {
+        if (c.computed && c.columnType != "AUTO_ID") {
           try {
             this.internalValues[c.id] = executeExpression(
               c.computed,
@@ -267,7 +270,11 @@ function getColumnError(column, values, tableMetaData) {
   const missesValue = value === undefined || value === null || value === "";
   const type = column.columnType;
 
-  if (column.required && (missesValue || isInvalidNumber)) {
+  if (
+    column.required &&
+    (missesValue || isInvalidNumber) &&
+    column.columnType !== "AUTO_ID"
+  ) {
     return column.name + " is required ";
   }
   if (missesValue) {
@@ -320,14 +327,9 @@ function executeExpression(expression, values, tableMetaData) {
     }
   });
 
-  const parsedExpression = expression.replaceAll(
-    "${mg_autoid}",
-    '"[auto-id-placeholder]"'
-  );
-
   const func = new Function(
     Object.keys(copy),
-    `return eval('${parsedExpression.replaceAll("'", '"')}');`
+    `return eval('${expression.replaceAll("'", '"')}');`
   );
   return func(...Object.values(copy));
 }

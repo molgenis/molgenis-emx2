@@ -1,5 +1,6 @@
 package org.molgenis.emx2.sql;
 
+import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
@@ -53,27 +54,32 @@ public class SqlTypeUtils extends TypeUtils {
       // we get role from environment
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
         values.put(c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
-      } else
-      // compute field, might depend on update values therefor run always on insert/update
-      // unless readonly, then we only set if null
-      if (c.getComputed() != null
-          && (!c.isReadonly() || row.isNull(c.getName(), c.getColumnType()))) {
-        if (c.isAutoId()) { // special case that uses the computed field to signal id should be
-          // generated
+      }
+      // autoid field
+      else if (AUTO_ID.equals(c.getColumnType())
+          && row.isNull(c.getName(), c.getPrimitiveColumnType())) {
+        // do we use a template containing ${mg_autoid} for pre/postfixing ?
+        if (c.getComputed() != null) {
           values.put(
               c.getName(),
               c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, idGenerator.generateId()));
-        } else {
-          values.put(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
         }
-
-      } else
+        // otherwise simply put the id
+        else {
+          values.put(c.getName(), idGenerator.generateId());
+        }
+      }
+      // compute field, might depend on update values therefor run always on insert/update
+      else if (c.getComputed() != null) {
+        values.put(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
+      }
       // otherwise, unless invisible
-      if (columnIsVisible(
+      else if (columnIsVisible(
           c.getOldName() != null ? tableMetadata.getColumn(c.getOldName()) : c, graph)) {
         values.put(c.getName(), getTypedValue(c, row));
-      } else {
-        // invisible columns will be in updatedColumns so set to null
+      }
+      // invisible columns will be in updatedColumns so set to null
+      else {
         values.put(c.getName(), null);
       }
     }

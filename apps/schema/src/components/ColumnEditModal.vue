@@ -115,7 +115,11 @@
             <div class="row">
               <div
                 class="col-4"
-                v-if="column.columnType !== 'CONSTANT' && !column.computed"
+                v-if="
+                  column.columnType !== 'CONSTANT' &&
+                  !column.computed &&
+                  column.columnType !== 'AUTO_ID'
+                "
               >
                 <InputBoolean
                   id="column_required"
@@ -126,7 +130,11 @@
               </div>
               <div
                 class="col-4"
-                v-if="column.columnType !== 'CONSTANT' && !column.computed"
+                v-if="
+                  column.columnType !== 'CONSTANT' &&
+                  !column.computed &&
+                  column.columnType !== 'AUTO_ID'
+                "
               >
                 <InputBoolean
                   id="column_readonly"
@@ -157,7 +165,13 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
+              <div
+                class="col-4"
+                v-if="
+                  column.columnType !== 'CONSTANT' &&
+                  column.columnType !== 'AUTO_ID'
+                "
+              >
                 <InputText
                   id="column_validation"
                   v-model="column.validation"
@@ -165,7 +179,7 @@
                   description="When javascript expression returns 'false' the expression itself is shown. Example: name === 'John'. When javascript expression returns a string then this string is shown. Example if(name!=='John')'name should be John'. Is not checked if not visible."
                 />
               </div>
-              <div class="col-4">
+              <div class="col-4" v-if="column.columnType !== 'AUTO_ID'">
                 <InputText
                   id="column_visible"
                   v-model="column.visible"
@@ -178,7 +192,11 @@
                   id="column_computed"
                   v-model="column.computed"
                   label="computed"
-                  description="When set only the input will be readonly and value computed using this formula"
+                  :description="
+                    column.columnType == 'AUTO_ID'
+                      ? 'Use pattern like \'pre${mg_autoid}post\' to customize prefix/postfix of your auto id'
+                      : 'When set only the input will be readonly and value computed using this formula'
+                  "
                 />
               </div>
             </div>
