@@ -1,5 +1,5 @@
 <template>
-  <Molgenis id="__top" v-model="session">
+  <Molgenis v-model="session">
     <div v-if="session && session.email == 'admin'" class="card">
       <div class="card-header">
         <ul class="nav nav-tabs card-header-tabs">
@@ -27,20 +27,27 @@
         <router-view :session="session" />
       </div>
     </div>
-    <MessageError v-else>
+    <MessageError v-else-if="error">
       You have to be logged in with right permissions to see and edit settings
     </MessageError>
+    <Spinner v-else />
   </Molgenis>
 </template>
 
 <script>
-import { MessageError, MessageWarning, Molgenis } from "molgenis-components";
+import {
+  MessageError,
+  MessageWarning,
+  Molgenis,
+  Spinner,
+} from "molgenis-components";
 
 export default {
   components: {
     Molgenis,
     MessageWarning,
     MessageError,
+    Spinner,
   },
   data() {
     return {
