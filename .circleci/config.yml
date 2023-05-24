@@ -88,8 +88,9 @@ jobs:
           export $( cat build/ci.properties | xargs )
           if [ "${CIRCLE_BRANCH}" = "master" ]
           then
-            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME} 
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME} -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
+            docker push molgenis/ssr-catalogue-snapshot --all-tags
           else 
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME} 
             docker push molgenis/ssr-catalogue-snapshot --all-tags
@@ -106,9 +107,9 @@ jobs:
           sh ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
           if [ "${CIRCLE_BRANCH}" = "master" ]
           then
-            helm upgrade emx2 ./helm-chart --namespace molgenis-emx2 --set image.tag=${TAG_NAME}
+            sh ci/create_or_update_k8s "emx2-master" ${TAG_NAME}
           else
-            sh ci/create_or_update_preview.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME}
+            sh ci/create_or_update_k8s "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME}
           fi
 
     - run:

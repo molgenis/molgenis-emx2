@@ -1,12 +1,17 @@
 #this scripts takes arguments
 NAME=$1
 TAG_NAME=$2
+DELETE=$3
 
 echo "Using namespace $NAME"
 echo "Using docker tag_name $TAG_NAME"
+echo "Delete $DELETE"
 
 # delete if exists
-kubectl delete namespace $NAME || true
+if [ -z "$DELETE" ]
+then
+  kubectl delete namespace $NAME || true
+fi
 # wait for deletion to complete
 sleep 15s
 kubectl create namespace $NAME
