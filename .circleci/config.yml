@@ -86,10 +86,11 @@ jobs:
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
           export $( cat build/ci.properties | xargs )
-          docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME} -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
-          docker push molgenis/ssr-catalogue-snapshot --all-tags
-          if [ "${CIRCLE_BRANCH}" = "master" ]
-          then
+          if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+            docker push molgenis/ssr-catalogue-snapshot --all-tags
+          else
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
           fi
         environment:
