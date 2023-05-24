@@ -107,7 +107,7 @@ jobs:
           then
             bash ci/create_or_update_k8s.sh "emx2-master" ${TAG_NAME}
           else
-            bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME}
+            bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
           fi
 
     - run:
