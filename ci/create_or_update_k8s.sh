@@ -7,11 +7,13 @@ echo "Using namespace $NAME"
 echo "Using docker tag_name $TAG_NAME"
 echo "Delete $DELETE"
 
-REPO=
+REPO=molgenis/molgenis-emx2
+REPO2=molgenis/ssr-catalogue
 if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
   REPO=molgenis/molgenis-emx2-snapshot
+  REPO2=molgenis/ssr-catalogue-snapshot
 fi
-echo "Using repository $REPO"
+echo "Using repositories $REPO and $REPO2"
 
 # delete if exists
 if [ -z "$DELETE" ]
@@ -30,6 +32,7 @@ helm install ${NAME} ./helm-chart --namespace ${NAME} \
 --set image.pullPolicy=Always \
 --set catalogue.includeCatalogueDemo=true \
 --set ssrCatalogue.image.tag=$TAG_NAME \
+--set ssrCatalogue.image.repository=$REPO2 \
 --set ssrCatalogue.environment.siteTitle="Preview Catalogue" \
 --set ssrCatalogue.environment.apiBase=https://${NAME}.dev.molgenis.org/ \
 --set catalogue.includeCatalogueDemo=true
