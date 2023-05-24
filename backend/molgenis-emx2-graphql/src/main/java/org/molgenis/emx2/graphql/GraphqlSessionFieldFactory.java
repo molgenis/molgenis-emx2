@@ -16,6 +16,7 @@ import graphql.schema.GraphQLObjectType;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.JWTgenerator;
 
 public class GraphqlSessionFieldFactory {
 

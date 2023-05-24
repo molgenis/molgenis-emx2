@@ -49,6 +49,10 @@ jobs:
     - run: apt-get update && apt-get install postgresql-client -y
     - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
+    - run:
+        name: install python
+        command: apt-get -y install python3 python3-venv
+
     # install additional software
     - run:
         name: install docker kubectl and helm
@@ -78,7 +82,7 @@ jobs:
     - run:
         name: build, test, release, push docker
         command: |
-          ./gradlew test --no-daemon shadowJar jib release helmPublishMainChart ci \
+          ./gradlew test --no-daemon shadowJar dockerPush release helmPublishMainChart ci \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
           export $( cat build/ci.properties | xargs )
@@ -102,7 +106,7 @@ jobs:
           sh ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
           if [ "${CIRCLE_BRANCH}" = "master" ]
           then
-            helm upgrade molgenis-emx2 ./helm-chart --namespace molgenis-emx2 --set image.tag=${TAG_NAME}
+            helm upgrade emx2 ./helm-chart --namespace molgenis-emx2 --set image.tag=${TAG_NAME}
           else
             sh ci/create_or_update_preview.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME}
           fi

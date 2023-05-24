@@ -98,6 +98,7 @@ public class Constants {
   public static final String PRIVACY_POLICY_TEXT_DEFAULT = "Privacy data + medical";
   public static final String IS_PRIVACY_POLICY_ENABLED = "isPrivacyPolicyEnabled";
   public static final String COMPUTED_AUTOID_TOKEN = "${mg_autoid}";
+  public static final String SYSTEM_SCHEMA = "_SYSTEM_";
 
   private Constants() {
     // hide constructor
