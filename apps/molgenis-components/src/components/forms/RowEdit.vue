@@ -39,7 +39,7 @@ import {
   getLocalizedDescription,
 } from "../utils";
 
-const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
+const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID } = constants;
 
 export default {
   name: "RowEdit",
@@ -136,7 +136,7 @@ export default {
       return getLocalizedDescription(column, this.locale);
     },
     showColumn(column) {
-      if (column.columnType === "AUTO_ID") {
+      if (column.columnType === AUTO_ID) {
         return this.pkey;
       } else if (column.reflink) {
         return this.internalValues[convertToCamelCase(column.refLink)];
@@ -193,7 +193,7 @@ export default {
     applyComputed() {
       //apply computed
       this.tableMetaData.columns.forEach((c) => {
-        if (c.computed && c.columnType != "AUTO_ID") {
+        if (c.computed && c.columnType !== AUTO_ID) {
           try {
             this.internalValues[c.id] = executeExpression(
               c.computed,
@@ -272,7 +272,7 @@ function getColumnError(column, values, tableMetaData) {
   if (
     column.required &&
     (missesValue || isInvalidNumber) &&
-    column.columnType !== "AUTO_ID"
+    column.columnType !== AUTO_ID
   ) {
     return column.name + " is required ";
   }

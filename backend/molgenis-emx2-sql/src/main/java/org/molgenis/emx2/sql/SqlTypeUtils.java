@@ -12,7 +12,7 @@ import org.molgenis.emx2.utils.generator.IdGeneratorImpl;
 
 public class SqlTypeUtils extends TypeUtils {
 
-  public static IdGenerator idGenerator = new IdGeneratorImpl();
+  public static final IdGenerator idGenerator = new IdGeneratorImpl();
 
   private SqlTypeUtils() {
     // to hide the public constructor
@@ -56,17 +56,18 @@ public class SqlTypeUtils extends TypeUtils {
         values.put(c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       }
       // autoid field
-      else if (AUTO_ID.equals(c.getColumnType())
-          && row.isNull(c.getName(), c.getPrimitiveColumnType())) {
+      else if (AUTO_ID.equals(c.getColumnType())) {
         // do we use a template containing ${mg_autoid} for pre/postfixing ?
-        if (c.getComputed() != null) {
+        if (c.getComputed() != null && row.isNull(c.getName(), c.getPrimitiveColumnType())) {
           values.put(
               c.getName(),
               c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, idGenerator.generateId()));
         }
         // otherwise simply put the id
-        else {
+        else if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
           values.put(c.getName(), idGenerator.generateId());
+        } else {
+          values.put(c.getName(), getTypedValue(c, row));
         }
       }
       // compute field, might depend on update values therefor run always on insert/update

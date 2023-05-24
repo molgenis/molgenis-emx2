@@ -113,14 +113,7 @@
               </div>
             </div>
             <div class="row">
-              <div
-                class="col-4"
-                v-if="
-                  column.columnType !== 'CONSTANT' &&
-                  !column.computed &&
-                  column.columnType !== 'AUTO_ID'
-                "
-              >
+              <div class="col-4" v-if="isEditable(column)">
                 <InputBoolean
                   id="column_required"
                   v-model="column.required"
@@ -128,14 +121,7 @@
                   description="Will give error unless field is filled in. Is not checked if not visible"
                 />
               </div>
-              <div
-                class="col-4"
-                v-if="
-                  column.columnType !== 'CONSTANT' &&
-                  !column.computed &&
-                  column.columnType !== 'AUTO_ID'
-                "
-              >
+              <div class="col-4" v-if="isEditable(column)">
                 <InputBoolean
                   id="column_readonly"
                   v-model="column.readonly"
@@ -165,13 +151,7 @@
               </div>
             </div>
             <div class="row">
-              <div
-                class="col-4"
-                v-if="
-                  column.columnType !== 'CONSTANT' &&
-                  column.columnType !== 'AUTO_ID'
-                "
-              >
+              <div class="col-4" v-if="isEditable(column)">
                 <InputText
                   id="column_validation"
                   v-model="column.validation"
@@ -179,7 +159,7 @@
                   description="When javascript expression returns 'false' the expression itself is shown. Example: name === 'John'. When javascript expression returns a string then this string is shown. Example if(name!=='John')'name should be John'. Is not checked if not visible."
                 />
               </div>
-              <div class="col-4" v-if="column.columnType !== 'AUTO_ID'">
+              <div class="col-4" v-if="column.columnType !== AUTO_ID">
                 <InputText
                   id="column_visible"
                   v-model="column.visible"
@@ -193,7 +173,7 @@
                   v-model="column.computed"
                   label="computed"
                   :description="
-                    column.columnType == 'AUTO_ID'
+                    column.columnType == AUTO_ID
                       ? 'Use pattern like \'pre${mg_autoid}post\' to customize prefix/postfix of your auto id'
                       : 'When set only the input will be readonly and value computed using this formula'
                   "
@@ -288,6 +268,8 @@ import {
   deepClone,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
+
+const AUTO_ID = "AUTO_ID";
 
 export default {
   components: {
@@ -502,6 +484,13 @@ export default {
         this.loadRefSchema();
       }
       this.modalVisible = false;
+    },
+    isEditable(column) {
+      return (
+        column.columnType !== "CONSTANT" &&
+        !column.computed &&
+        column.columnType !== AUTO_ID
+      );
     },
   },
   created() {
