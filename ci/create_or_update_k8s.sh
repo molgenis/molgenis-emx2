@@ -7,6 +7,12 @@ echo "Using namespace $NAME"
 echo "Using docker tag_name $TAG_NAME"
 echo "Delete $DELETE"
 
+REPO=
+if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
+  REPO=molgenis/molgenis-emx2-snapshot
+fi
+echo "Using repository $REPO"
+
 # delete if exists
 if [ -z "$DELETE" ]
 then
@@ -20,7 +26,7 @@ helm install ${NAME} ./helm-chart --namespace ${NAME} \
 --set ingress.hosts[0].host=${NAME}.dev.molgenis.org \
 --set adminPassword=admin \
 --set image.tag=${TAG_NAME} \
---set image.repository=molgenis/molgenis-emx2-snapshot \
+--set image.repository=${REPO} \
 --set image.pullPolicy=Always \
 --set catalogue.includeCatalogueDemo=true \
 --set ssrCatalogue.image.tag=$TAG_NAME \
