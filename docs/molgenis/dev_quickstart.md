@@ -24,6 +24,7 @@ it inside IntelliJ.
 
 Requires [Postgresql 14](https://www.postgresql.org/download/) and java (we use
 [adopt OpenJDK 17](https://adoptium.net/)):
+Optionally also install python3 for [scripts](use_scripts_jobs.md) feature.
 
 On Linux/Mac this could go as follows (Windows users, please tell us if this works for you too):
 
@@ -148,13 +149,13 @@ If you want to delete all the MOLGENIS generated schemas, roles and users in the
 
 ### Build+test drop/creates schemas in my database
 
-Build test ('gradle test') will create database schemas, users, roles and passwords. 
-If you don't like that than please consider to use a different database instance for 'test'.
-You can use environment variables MOLGENIS_POSTGRES_** for this.
-See [Installation guide](run).
+Build test ('gradle test') will create database schemas, users, roles and passwords. If you don't like that than please consider to use a different database
+instance for 'test'. You can use environment variables MOLGENIS_POSTGRES_** for this. See [Installation guide](run).
 
 ### VS code
 
 Some of us also develop using VS code:
+
 * It automatically will discover the gradle tasks
-* To enable autoformatting of java using spottless, install [spottles plugin](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-spotless-gradle)
+* To enable autoformatting of java using spottless,
+  install [spottles plugin](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-spotless-gradle)
