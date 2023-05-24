@@ -23,8 +23,8 @@ services:
 
 steps:
 - script: |
-    sudo apt-get update &&  sudo apt-get install postgresql-client -y
-  displayName: postgresql client
+    sudo apt-get update &&  sudo apt-get install postgresql-client python3 python3-venv -y
+  displayName: postgresql client python3
 - script: |
     psql -h localhost -p 5432 -U postgres < .docker/initdb.sql
   displayName: initialize database

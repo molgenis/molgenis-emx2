@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
     # specify the version you desire here
-    - image: gradle:jdk17-focal
+    - image: gradle:jdk17-jammy
     - image: postgres:14-alpine
       environment:
         POSTGRES_USER: postgres
@@ -31,10 +31,6 @@ jobs:
     steps:
     - checkout
 
-    # Initialize the database
-    - run: apt-get update && apt-get install postgresql-client -y
-    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
-
     # Download and cache dependencies
     - restore_cache:
         keys:
@@ -49,38 +45,18 @@ jobs:
         - ~/.gradle
         key: v1-dependencies-{{ checksum "build.gradle" }}
 
-    # run tests!
-    - run:
-        name: update package manger
-        command: apt-get update
+    # Initialize the database
+    - run: apt-get update && apt-get install postgresql-client -y
+    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
     - run:
-        name: add packages for docker cli install
-        command: apt-get -y install gnupg lsb-release curl
+        name: install python
+        command: apt-get -y install python3 python3-venv
 
+    # install additional software
     - run:
-        name: update packages again
-        command: apt-get update
-
-    - run:
-        name: set repo keys for docker packages
-        command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor
-          -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-    - run:
-        name: add repo for docker packages
-        command: echo "deb [arch=$(dpkg --print-architecture)
-          signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]
-          https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-          | tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-    - run:
-        name: update package manager again
-        command: apt-get update
-
-    - run:
-        name: Install Docker client
-        command: apt-get -y install docker-ce docker-ce-cli containerd.io
+        name: install docker kubectl and helm
+        command: sh ci/install_docker_helm_kubectl.sh
 
     - setup_remote_docker:
         version: 19.03.13
@@ -100,16 +76,55 @@ jobs:
 
     # to switch to release add following
     # ./gradlew release jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} --stacktrace
+    #    ./gradlew checkFormat spotlessCheck test jacocoMergedReport sonarqube ci \
+    #    -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
+    #    -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
     - run:
         name: build, test, release, push docker
         command: |
-          ./gradlew checkFormat spotlessCheck test jacocoMergedReport sonarqube ci -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.password
-
+          ./gradlew test --no-daemon shadowJar dockerPush release helmPublishMainChart ci \
+          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+          export $( cat build/ci.properties | xargs )
+          if [ "${CIRCLE_BRANCH}" = "master" ]
+          then
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME} 
+            docker push molgenis/ssr-catalogue --all-tags
+          else 
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME} 
+            docker push molgenis/ssr-catalogue-snapshot --all-tags
+          fi
         environment:
           MOLGENIS_POSTGRES_USER: molgenis
           MOLGENIS_POSTGRES_PASS: molgenis
           MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
 
-#      # push ssr-catalogue to repo (enable if Jenkinsfile offline)
-#      - run: |
-#          ./gradlew dockerPush
+    - run:
+        name: deploy preview or update dev
+        command: |
+          export $( cat build/ci.properties | xargs )
+          sh ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
+          if [ "${CIRCLE_BRANCH}" = "master" ]
+          then
+            helm upgrade emx2 ./helm-chart --namespace molgenis-emx2 --set image.tag=${TAG_NAME}
+          else
+            sh ci/create_or_update_preview.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME}
+          fi
+
+    - run:
+        name: message slack
+        command: |
+          export $( cat build/ci.properties | xargs )
+          if [ "${CIRCLE_BRANCH}" = "master" ]
+          then
+            curl -d "token=${SLACK_TOKEN}" \
+            -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.org" \
+            -d "channel=C02AZDG6QQ7" \
+            -X POST https://slack.com/api/chat.postMessage          
+          else
+            curl -d "token=${SLACK_TOKEN}" \
+            -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+            PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org" \
+            -d "channel=C02AZDG6QQ7" \
+            -X POST https://slack.com/api/chat.postMessage
+          fi
