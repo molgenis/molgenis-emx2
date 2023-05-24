@@ -14,14 +14,13 @@ vi.mock("../client/client", () => {
   // For use with convertRowToPrimaryKey
   return {
     default: {
-      newClient: vi
-        .fn()
-        .mockReturnValueOnce({
-          fetchTableMetaData: vi.fn().mockResolvedValue(contactsMetadata),
-        })
-        .mockReturnValueOnce({
-          fetchTableMetaData: vi.fn().mockResolvedValue(resourcesMetadata),
-        }),
+      newClient: () => ({
+        fetchTableMetaData: (tableName: string) => {
+          if (tableName === "Resources") return resourcesMetadata;
+          else if (tableName === "Contacts") return contactsMetadata;
+          else return {};
+        },
+      }),
     },
   };
 });
@@ -171,5 +170,13 @@ describe("convertRowToPrimaryKey", () => {
     expect(await convertRowToPrimaryKey(row, "Contacts", "")).toStrictEqual(
       expectedPrimaryKey
     );
+  });
+
+  test("it should fail if there is not metadata found", async () => {
+    try {
+      await convertRowToPrimaryKey({}, "Unknown table", "");
+    } catch (error) {
+      expect((error as Error).message).toBe("Empty columns in metadata");
+    }
   });
 });
