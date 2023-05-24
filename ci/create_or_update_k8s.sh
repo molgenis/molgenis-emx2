@@ -9,7 +9,7 @@ echo "Delete $DELETE"
 
 REPO=molgenis/molgenis-emx2
 REPO2=molgenis/ssr-catalogue
-if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
+if [[ $TAG_NAME =~"SNAPSHOT" ]]; then
   REPO=molgenis/molgenis-emx2-snapshot
   REPO2=molgenis/ssr-catalogue-snapshot
 fi

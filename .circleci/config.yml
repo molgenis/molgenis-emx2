@@ -102,12 +102,12 @@ jobs:
         name: deploy preview or update dev
         command: |
           export $( cat build/ci.properties | xargs )
-          sh ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
+          bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
           if [ "${CIRCLE_BRANCH}" = "master" ]
           then
-            sh ci/create_or_update_k8s.sh "emx2-master" ${TAG_NAME}
+            bash ci/create_or_update_k8s.sh "emx2-master" ${TAG_NAME}
           else
-            sh ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME}
+            bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME}
           fi
 
     - run:
