@@ -16,15 +16,18 @@ fi
 echo "Using repositories $REPO and $REPO2"
 
 # delete if exists
+COMMAND=install
 if [ ! -z "$DELETE" ]
 then
   kubectl delete namespace $NAME || true
+else
+  COMMAND=upgrade
 fi
 # wait for deletion to complete
 sleep 15s
 kubectl create namespace $NAME
 kubectl annotate --overwrite ns $NAME field.cattle.io/projectId="c-l4svj:p-tl227"
-helm install ${NAME} ./helm-chart --namespace ${NAME} \
+helm ${COMMAND} ${NAME} ./helm-chart --namespace ${NAME} \
 --set ingress.hosts[0].host=${NAME}.dev.molgenis.org \
 --set adminPassword=admin \
 --set image.tag=${TAG_NAME} \
