@@ -3,11 +3,7 @@ import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
-import {
-  convertToPascalCase,
-  convertRowToPrimaryKey,
-  deepClone,
-} from "../components/utils";
+import { convertToPascalCase, deepClone } from "../components/utils";
 import { IClient, INewClient } from "./IClient";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { columnNames } from "./queryBuilder";
@@ -83,13 +79,14 @@ const client: IClient = {
         if (!schemaMetaData) {
           throw "Schema meta data not found for schema: " + schemaNameCache;
         }
+        const expandLevel = 1;
         const dataResp = await fetchTableData(
           tableId,
           properties,
           schemaMetaData,
           myAxios,
           schemaNameCache,
-          1
+          expandLevel
         );
         return dataResp[tableId];
       },
@@ -114,7 +111,7 @@ const client: IClient = {
             accum[column.id] = { equals: rowId[column.id] };
             return accum;
           }, {});
-
+        const expandLevel = 1;
         const resultArray = (
           await fetchTableData(
             tableName,
@@ -124,7 +121,7 @@ const client: IClient = {
             schemaMetaData,
             myAxios,
             schemaNameCache,
-            1
+            expandLevel
           )
         )[tableId];
 
@@ -282,8 +279,7 @@ const updateDataRow = (
 const deleteRow = async (row: IRow, tableName: string, schemaName: string) => {
   const tableId = convertToPascalCase(tableName);
   const query = `mutation delete($pkey:[${tableId}Input]){delete(${tableId}:$pkey){message}}`;
-  const key = await convertRowToPrimaryKey(row, tableName, schemaName);
-  const variables = { pkey: [key] };
+  const variables = { pkey: [row] };
   return axios.post(graphqlURL(schemaName), { query, variables });
 };
 
