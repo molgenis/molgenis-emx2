@@ -1,43 +1,45 @@
-Create a virtual python environment
+# Installation
 
-    On macOS:
+Ensure the current working directory is `.../tools/pyclient`
 
-    `python -m venv venv`
+### Create a virtual Python environment
 
-    On Linux:
+On macOS:
 
-    `python3.11 -m venv venv`
+    python -m venv venv
+
+On Linux:
+
+    python3.11 -m venv venv
     
-    On Windows:
+On Windows:
+
+    py -3.11 venv venv
+
+### Activate the virtual environment
     
-    `py -3.11 venv venv `
+On macOS and Linux:
 
-Activate the virtual python environment
+    source venv/bin/activate
     
-    On macOS and Linux:
+On Windows:
 
-    `source venv/bin/activate`
+    .venv\Scripts\activate.bat
+
+### Install the script dependencies
+
+    pip install -r requirements.txt
+
+### Install the package
+
+    pip install -e .
+
+# Configuration
+Create file `.env` using  `.env_example` as a reference.
+
+
+
+# How to use
+After installing the dependencies and creating the `.env` file run
     
-    On Windows:
-    
-    `.venv\Scripts\activate.bat`
-
-Install the script dependencies from requirements.txt file
-
-    `pip install -r requirements.txt`
-
-install package locally inside virtual environment
-
-/tools/pyclient
-
-    (venv) $ python -m pip install -e .
-
-Create .env in pyclient/src/molgenis
-
-See .env_example for reference
-
-tools/pyclient/src
-
-Run library
-
     python -m molgenis
