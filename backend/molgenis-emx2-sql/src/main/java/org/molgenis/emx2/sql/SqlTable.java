@@ -17,6 +17,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.utils.TypeUtils;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
@@ -25,11 +26,13 @@ import org.slf4j.LoggerFactory;
 class SqlTable implements Table {
   private SqlDatabase db;
   private SqlTableMetadata metadata;
+  private TableListener tableListener;
   private static Logger logger = LoggerFactory.getLogger(SqlTable.class);
 
-  SqlTable(SqlDatabase db, SqlTableMetadata metadata) {
+  SqlTable(SqlDatabase db, SqlTableMetadata metadata, TableListener tableListener) {
     this.db = db;
     this.metadata = metadata;
+    this.tableListener = tableListener;
   }
 
   @Override
@@ -296,6 +299,10 @@ class SqlTable implements Table {
                   columnsProvided.get(batch.getKey()));
             }
           }
+          // listeners
+          if (table.getTableListener() != null) {
+            table.getTableListener().preparePostSave(rows);
+          }
         });
 
     log(
@@ -307,9 +314,9 @@ class SqlTable implements Table {
     return count.get();
   }
 
-  private static void checkRequired(Row row, Collection<Column> columns) {
+  private static void checkRequired(Map<String, Object> row, Collection<Column> columns) {
     for (Column c : columns) {
-      if (c.isRequired() && row.isNull(c.getName(), c.getColumnType())) {
+      if (c.isRequired() && TypeUtils.isNull(row.get(c.getName()), c.getColumnType())) {
         throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
       }
     }
@@ -354,6 +361,10 @@ class SqlTable implements Table {
     subclassRows.get(subclassName).clear();
   }
 
+  private TableListener getTableListener() {
+    return this.tableListener;
+  }
+
   private static int insertBatch(
       SqlTable table, List<Row> rows, boolean updateOnConflict, Set<String> updateColumns) {
     boolean inherit = table.getMetadata().getInherit() != null;
@@ -396,7 +407,7 @@ class SqlTable implements Table {
       }
       // when insert, we should include all columns, not only 'updateColumns'
       if (!row.isDraft()) {
-        checkRequired(row, allColumns);
+        checkRequired(values, allColumns);
       }
       step.values(values.values());
     }
@@ -434,6 +445,7 @@ class SqlTable implements Table {
                         || c.getName().equals(MG_UPDATEDBY)
                         || c.getName().equals(MG_UPDATEDON))
                     && (c.getComputed() != null
+                        || c.isPrimaryKey()
                         || updateColumns.size() == 0
                         || updateColumns.contains(c.getName())))
         .collect(Collectors.toSet());
@@ -468,7 +480,7 @@ class SqlTable implements Table {
       }
 
       if (!row.isDraft()) {
-        checkRequired(row, columns);
+        checkRequired(values, columns);
       }
 
       list.add(
@@ -524,6 +536,11 @@ class SqlTable implements Table {
             // finally delete in superclass
             if (table.getMetadata().getInherit() != null) {
               table.getInheritedTable().delete(rows);
+            }
+
+            // notify handlers
+            if (table.getTableListener() != null) {
+              table.getTableListener().preparePostDelete(rows);
             }
           });
     } catch (Exception e) {

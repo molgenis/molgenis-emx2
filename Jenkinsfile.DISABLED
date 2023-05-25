@@ -48,7 +48,12 @@ pipeline {
                     sh 'git config url.https://.insteadOf git://'
                     sh "mkdir -p ${DOCKER_CONFIG}"
                     sh "echo '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
-                    sh "apt-get update && apt-get install postgresql-client -y"
+                    sh "apt-get update && apt-get install postgresql-client python3 python3-venv ca-certificates gnupg lsb-release curl -y"
+                    sh "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg"
+                    sh 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null'
+                    sh "apt-get update && apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y"
+                    sh "env"
+                    sh "docker run hello-world"
                     sh "psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql"
                 }
                 dir("${JENKINS_AGENT_WORKDIR}/.m2") {
@@ -75,7 +80,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                    sh "./gradlew checkFormat spotlessCheck test --no-daemon jacocoMergedReport shadowJar jib release helmPublishMainChart ci \
+                    sh "./gradlew checkFormat spotlessCheck test --no-daemon jacocoMergedReport shadowJar dockerPush release helmPublishMainChart ci \
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                         -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
@@ -120,7 +125,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                        sh "./gradlew test checkFormat spotlessCheck --no-daemon jacocoMergedReport shadowJar jib release helmPublishMainChart sonarqube ci \
+                        sh "./gradlew test checkFormat spotlessCheck --no-daemon jacocoMergedReport shadowJar dockerPush release helmPublishMainChart sonarqube ci \
                             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
