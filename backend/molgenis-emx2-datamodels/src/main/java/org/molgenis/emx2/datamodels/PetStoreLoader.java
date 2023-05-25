@@ -49,7 +49,7 @@ public class PetStoreLoader extends AbstractDataLoader {
 
     schema.create(
         table(ORDER)
-            .add(column(ORDER_ID).setPkey())
+            .add(column(ORDER_ID).setPkey().setType(AUTO_ID).setComputed("ORDER:${mg_autoid}"))
             .add(column("pet").setType(REF).setRefTable(PET))
             .add(
                 column(QUANTITY)
@@ -184,14 +184,12 @@ public class PetStoreLoader extends AbstractDataLoader {
         .getTable(ORDER)
         .insert(
             new Row()
-                .set(ORDER_ID, "1")
                 .set("pet", "pooky")
                 .set(QUANTITY, 1l)
                 .set(PRICE, 9.99)
                 .set(COMPLETE, true)
                 .set(STATUS, "delivered"),
             new Row()
-                .set(ORDER_ID, "2")
                 .set("pet", "spike")
                 .set(PRICE, 14.99)
                 .set(QUANTITY, 7l)

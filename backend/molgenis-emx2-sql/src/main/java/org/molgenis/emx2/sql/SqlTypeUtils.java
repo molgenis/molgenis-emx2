@@ -1,13 +1,18 @@
 package org.molgenis.emx2.sql;
 
+import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
+import org.molgenis.emx2.utils.generator.IdGenerator;
+import org.molgenis.emx2.utils.generator.IdGeneratorImpl;
 
 public class SqlTypeUtils extends TypeUtils {
+
+  public static final IdGenerator idGenerator = new IdGeneratorImpl();
 
   private SqlTypeUtils() {
     // to hide the public constructor
@@ -49,17 +54,33 @@ public class SqlTypeUtils extends TypeUtils {
       // we get role from environment
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
         values.put(c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
-      } else
+      }
+      // autoid field
+      else if (AUTO_ID.equals(c.getColumnType())) {
+        // do we use a template containing ${mg_autoid} for pre/postfixing ?
+        if (c.getComputed() != null && row.isNull(c.getName(), c.getPrimitiveColumnType())) {
+          values.put(
+              c.getName(),
+              c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, idGenerator.generateId()));
+        }
+        // otherwise simply put the id
+        else if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
+          values.put(c.getName(), idGenerator.generateId());
+        } else {
+          values.put(c.getName(), getTypedValue(c, row));
+        }
+      }
       // compute field, might depend on update values therefor run always on insert/update
-      if (c.getComputed() != null) {
+      else if (c.getComputed() != null) {
         values.put(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
-      } else
+      }
       // otherwise, unless invisible
-      if (columnIsVisible(
+      else if (columnIsVisible(
           c.getOldName() != null ? tableMetadata.getColumn(c.getOldName()) : c, graph)) {
         values.put(c.getName(), getTypedValue(c, row));
-      } else {
-        // invisible columns will be in updatedColumns so set to null
+      }
+      // invisible columns will be in updatedColumns so set to null
+      else {
         values.put(c.getName(), null);
       }
     }
