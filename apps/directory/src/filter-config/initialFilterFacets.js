@@ -10,6 +10,20 @@ export const initialFilterFacets = [
   //   showFacet: true
   // },
   {
+    facetTitle: 'Diagnosis available',
+    component: 'OntologyFilter',
+    sourceTable: 'DiseaseTypes',
+    applyToColumn: 'collections.diseaseTypes.name',
+    filterValueAttribute: 'name',
+    filterLabelAttribute: 'label',
+    removeOptions: [],
+    ontologyIdentifiers: ['ICD', 'ORPHA'],
+    sortColumn: 'label',
+    sortDirection: 'asc',
+    negotiatorRequestString: 'Disease type(s):',
+    showFacet: true
+  },
+  {
     facetTitle: 'Countries',
     component: 'CheckboxFilter',
     sourceTable: 'Countries',
