@@ -126,5 +126,3 @@ describe("deepEqual", () => {
     assert.isFalse(deepEqual(object1, object2));
   });
 });
-
-});

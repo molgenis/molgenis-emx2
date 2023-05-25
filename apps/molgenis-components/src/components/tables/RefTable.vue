@@ -94,6 +94,7 @@ let canCollapse = computed(() => Object.keys(filteredRow.value).length > 5);
 let primaryKey = computed(() =>
   getPrimaryKey(reference.value, reference.value.metadata)
 );
+
 let collapsed = ref(startsCollapsed.value && canCollapse.value);
 
 function getFilteredRow(reference: IRow): IRow {
