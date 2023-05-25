@@ -88,7 +88,8 @@ const client: IClient = {
           properties,
           schemaMetaData,
           myAxios,
-          schemaNameCache
+          schemaNameCache,
+          1
         );
         return dataResp[tableId];
       },
@@ -122,7 +123,8 @@ const client: IClient = {
             },
             schemaMetaData,
             myAxios,
-            schemaNameCache
+            schemaNameCache,
+            1
           )
         )[tableId];
 
