@@ -1,10 +1,9 @@
 # __main__.py
 
-import sys
 import argparse
+import sys
 
-
-from tools.ontomanager.src.ontomanager.manager import Manager
+from .manager import Manager
 
 actions = ['add', 'remove', 'rename']
 
@@ -14,17 +13,17 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("action")
-    parser.add_argument("database")
+    parser.add_argument("table")
 
     args = parser.parse_args()
 
     # Read the action that is to be performed from the command line
     if len(sys.argv) > 1:
-        action = args.argv[1]
+        action = args.action
         assert action in actions, f"Action {action} is not supported. Select one from {','.join(actions)}."
 
         ontoman = Manager()
-        ontoman.perform(action, args)
+        ontoman.perform(action=action, table=args.table)
 
 
 if __name__ == '__main__':
