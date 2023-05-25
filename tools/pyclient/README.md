@@ -43,3 +43,9 @@ Create file `.env` using  `.env_example` as a reference.
 After installing the dependencies and creating the `.env` file run
     
     python -m molgenis
+
+# Build
+
+    (venv) $ python -m pip install pip-tools
+    (venv) $ pip-compile pyproject.toml
+    (venv) $ pip-sync
