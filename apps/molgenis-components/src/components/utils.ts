@@ -2,7 +2,6 @@ import { IColumn } from "../Interfaces/IColumn";
 import { IRow } from "../Interfaces/IRow";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
 import constants from "./constants";
-import Client from "../client/client";
 
 const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } =
   constants;

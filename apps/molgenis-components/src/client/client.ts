@@ -276,10 +276,10 @@ const updateDataRow = (
   return axios.post(graphqlURL(schemaName), formData);
 };
 
-const deleteRow = async (row: IRow, tableName: string, schemaName: string) => {
+const deleteRow = (key: IRow, tableName: string, schemaName: string) => {
   const tableId = convertToPascalCase(tableName);
   const query = `mutation delete($pkey:[${tableId}Input]){delete(${tableId}:$pkey){message}}`;
-  const variables = { pkey: [row] };
+  const variables = { pkey: [key] };
   return axios.post(graphqlURL(schemaName), { query, variables });
 };
 
