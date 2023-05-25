@@ -48,4 +48,8 @@ After installing the dependencies and creating the `.env` file run
 
     (venv) $ python -m pip install pip-tools
     (venv) $ pip-compile pyproject.toml
-    (venv) $ pip-sync
+
+    (venv) $ python -m build
+    #(venv) $ pip-sync
+
+    (venv) $ pip install molgenis_emx2_client_py-8.185.0-py3-none-any.whl

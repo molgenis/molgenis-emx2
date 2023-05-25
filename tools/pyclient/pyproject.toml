@@ -1,20 +1,11 @@
 [build-system]
-requires = ["setuptools>=67.8.0", "wheel"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "molgenis-emx2-client"
+name = "molgenis-emx2-client-py"
 version = "8.185.0"
 description = "Python client for the MOLGENIS EMX2 API"
-readme = "README.md"
-authors = [{ name = "Real Python", email = "info@realpython.com" }]
-license = { file = "LICENSE" }
-classifiers = [
-    "Development Status :: 4 - Beta",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3 :: Only"
-]
-keywords = ["molgenis"]
 dependencies = [
     'requests==2.31.0',
     'python-dotenv==1.0.0',
@@ -22,18 +13,3 @@ dependencies = [
     'tomli==2.0.1',
 ]
 requires-python = ">=3.11"
-
-[project.optional-dependencies]
-dev = ["black", "bumpver",  "pip-tools", "pytest"]
-
-[project.urls]
-Homepage = "'https://github.com/molgenis/molgenis-emx2/"
-
-[project.scripts]
-#molgenis = "pyclient.__main__:main"
-
-[semantic_release]
-#version_variable = pyclient.__init__.py:__version__
-upload_to_pypi = false
-upload_to_release = true
-#branch = main
