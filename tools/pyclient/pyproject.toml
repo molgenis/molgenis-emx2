@@ -16,7 +16,6 @@ classifiers = [
 ]
 keywords = ["molgenis"]
 dependencies = [
-    'pandas==1.5.3',
     'requests==2.31.0',
     'python-dotenv==1.0.0',
     'setuptools==67.8.0',
