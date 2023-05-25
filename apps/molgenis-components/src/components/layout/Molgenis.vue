@@ -1,5 +1,6 @@
 <template>
   <div style="background-color: #f4f4f4">
+    <CookieWall v-if="analyticsId" :analyticsId="analyticsId"></CookieWall>
     <div style="min-height: calc(100vh - 70px)">
       <MolgenisMenu
         :logo="logoURLorDefault"
@@ -47,6 +48,7 @@ import MolgenisMenu from "./MolgenisMenu.vue";
 import MolgenisSession from "../account/MolgenisSession.vue";
 import MolgenisFooter from "./MolgenisFooter.vue";
 import Breadcrumb from "./Breadcrumb.vue";
+import { request, gql } from "graphql-request";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
@@ -112,6 +114,7 @@ export default {
       logoURL: null,
       fullscreen: false,
       timestamp: Date.now(),
+      analyticsId: null,
     };
   },
   computed: {
@@ -186,6 +189,24 @@ export default {
     },
   },
   emits: ["update:modelValue", "error"],
+  created() {
+    request(
+      "graphql",
+      gql`
+        {
+          _settings {
+            key
+            value
+          }
+        }
+      `
+    ).then((data) => {
+      console.log(data._settings);
+      this.analyticsId = data._settings.find(
+        (setting) => setting.key === "ANALYTICS_ID"
+      ).value;
+    });
+  },
 };
 </script>
 

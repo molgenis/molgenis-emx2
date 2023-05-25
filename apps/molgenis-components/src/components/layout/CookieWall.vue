@@ -15,6 +15,9 @@ const props = defineProps({
     type: String,
     default: "No thanks",
   },
+  analyticsId: {
+    type: String,
+  },
 });
 
 const emit = defineEmits();
@@ -64,6 +67,7 @@ function handleClose() {
       <ButtonAction @click="handleAccept">{{ acceptLabel }}</ButtonAction>
     </template>
   </LayoutModal>
+  <GTag v-if="cookieValue" :tagId="analyticsId" />
 </template>
 
 <docs>

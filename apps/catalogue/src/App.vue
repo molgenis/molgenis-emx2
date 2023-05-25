@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <GTag v-if="analyticsId" :tagId="analyticsId" />
     <Molgenis
       v-model="session"
       :key="JSON.stringify(session)"
@@ -19,8 +18,6 @@
 
 <script>
 import { Molgenis, Spinner, MessageWarning } from "molgenis-components";
-import GTag from "./components/GTag.vue";
-import { request, gql } from "graphql-request";
 
 export default {
   components: {
@@ -43,23 +40,6 @@ export default {
           ? error
           : "An error occurred while trying to load the session data";
     },
-  },
-  created() {
-    request(
-      "graphql",
-      gql`
-        {
-          _settings {
-            key
-            value
-          }
-        }
-      `
-    ).then((data) => {
-      this.analyticsId = data._settings.find(
-        (setting) => setting.key === "ANALYTICS_ID"
-      ).value;
-    });
-  },
+  }
 };
 </script>

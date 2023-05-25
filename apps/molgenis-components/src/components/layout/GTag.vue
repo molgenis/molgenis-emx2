@@ -24,7 +24,6 @@ export default {
     },
   },
   async mounted() {
-    console.log(" mounted");
     this.enablePlugin(this.tagId);
   },
 };
