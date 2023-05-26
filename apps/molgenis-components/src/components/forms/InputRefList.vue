@@ -222,6 +222,7 @@ export default {
           description="Standard input"
           schemaName="pet store"
           :canEdit="canEdit"
+          refLabel="${name}"
       />
       Selection: {{ value }}
     </DemoItem>
@@ -235,6 +236,7 @@ export default {
           :defaultValue="defaultValue"
           schemaName="pet store"
           :canEdit="canEdit"
+          refLabel="${name}"
       />
       Selection: {{ defaultValue }}
     </DemoItem>
@@ -248,6 +250,7 @@ export default {
           :filter="{ category: { name: { equals: 'pooky' } } }"
           schemaName="pet store"
           :canEdit="canEdit"
+          refLabel="${name}"
       />
       Selection: {{ filterValue }}
     </DemoItem>
@@ -261,6 +264,8 @@ export default {
           schemaName="pet store"
           multipleColumns
           :canEdit="canEdit"
+          refLabel="${name}"
+
       />
       Selection: {{ multiColumnValue }}
     </DemoItem>
