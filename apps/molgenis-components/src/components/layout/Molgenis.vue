@@ -201,9 +201,11 @@ export default {
         }
       `
     ).then((data) => {
-      this.analyticsId = data._settings.find(
+      const analyticsSetting = data._settings.find(
         (setting) => setting.key === "ANALYTICS_ID"
-      ).value;
+      );
+
+      this.analyticsId = analyticsSetting ? analyticsSetting.value : null;
     });
   },
 };
