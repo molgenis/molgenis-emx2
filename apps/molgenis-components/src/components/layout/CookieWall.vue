@@ -20,7 +20,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits();
+const emit = defineEmits(["acceptCookie"]);
 
 let isDeclined = ref(false);
 
@@ -43,6 +43,10 @@ function handleClose() {
   isDeclined.value = true;
   emit("acceptCookie", undefined);
 }
+
+const isAnalyticsEnabled = computed(() => {
+  return cookies.get("mg_allow_analytics") === true;
+});
 </script>
 
 <template>
@@ -67,7 +71,7 @@ function handleClose() {
       <ButtonAction @click="handleAccept">{{ acceptLabel }}</ButtonAction>
     </template>
   </LayoutModal>
-  <GTag v-if="cookieValue" :tagId="analyticsId" />
+  <GTag v-if="isAnalyticsEnabled" :tagId="analyticsId" />
 </template>
 
 <docs>
