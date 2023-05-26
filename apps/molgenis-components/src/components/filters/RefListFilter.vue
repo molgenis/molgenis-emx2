@@ -5,6 +5,7 @@
     @update:modelValue="onUpdateCondition"
     :tableName="tableName"
     :schemaName="schemaName"
+    :refLabel="refLabel"
   />
 </template>
 
@@ -28,6 +29,10 @@ export default {
       type: String,
     },
     tableName: {
+      type: String,
+      required: true,
+    },
+    refLabel: {
       type: String,
       required: true,
     },

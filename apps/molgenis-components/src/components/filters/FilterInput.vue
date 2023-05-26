@@ -8,6 +8,7 @@
         @updateCondition="updateCondition(index - 1, $event)"
         :tableName="tableName"
         :schemaName="schemaName"
+        :refLabel="refLabel"
       ></component>
     </div>
     <div v-else v-for="index in fieldCount" :key="index">
@@ -103,6 +104,10 @@ export default {
       required: false,
     },
     schemaName: {
+      type: String,
+      required: false,
+    },
+    refLabel: {
       type: String,
       required: false,
     },
@@ -256,6 +261,7 @@ export default {
             schemaName="pet store"
             :conditions="conditions7"
             @updateConditions="conditions7 = $event"
+            refLabel="${name}"
         />
         <div>conditions: {{ conditions7 }}</div>
       </demo-item>
@@ -270,6 +276,7 @@ export default {
             schemaName="pet store"
             :conditions="conditions8"
             @updateConditions="conditions8 = $event"
+            refLabel="${name}"
         />
         <div>conditions: {{ conditions8 }}</div>
       </demo-item>
