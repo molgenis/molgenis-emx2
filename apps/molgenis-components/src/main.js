@@ -8,6 +8,7 @@ import DemoItem from "./DemoItem.vue";
 import axios from "axios";
 import VueScrollTo from "vue-scrollto";
 import Client from "./client/client";
+import VueGtag from "vue-gtag";
 import * as utils from "./components/utils";
 
 //load the components
@@ -70,6 +71,7 @@ app.component("DemoItem", DemoItem);
 // connect the router
 const router = createRouter({ history: createWebHashHistory(), routes });
 app.use(router);
+app.use(VueGtag, { bootstrap: false }, router);
 
 // render the whole thing
 app.mount("#app");

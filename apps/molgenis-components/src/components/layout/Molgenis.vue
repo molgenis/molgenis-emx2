@@ -60,6 +60,7 @@ export default {
     MolgenisFooter,
     Breadcrumb,
   },
+  emits: ["update:modelValue", "error"],
   props: {
     menuItems: {
       type: Array,
@@ -188,7 +189,6 @@ export default {
       this.fullscreen = !this.fullscreen;
     },
   },
-  emits: ["update:modelValue", "error"],
   created() {
     request(
       "graphql",
@@ -201,7 +201,6 @@ export default {
         }
       `
     ).then((data) => {
-      console.log(data._settings);
       this.analyticsId = data._settings.find(
         (setting) => setting.key === "ANALYTICS_ID"
       ).value;
