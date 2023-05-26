@@ -2,6 +2,8 @@
 import { computed, ref } from "vue";
 import { useCookies } from "@vueuse/integrations/useCookies";
 import LayoutModal from "./LayoutModal.vue";
+import ButtonAction from "../forms/ButtonAction.vue";
+import ButtonAlt from "../forms/ButtonAlt.vue";
 import GTag from "./GTag.vue";
 const cookies = useCookies(["mg_allow_analytics"]);
 const props = defineProps({
