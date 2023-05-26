@@ -13,7 +13,7 @@
       </slot>
       <main class="mb-auto">
         <BottomModal
-          :show="showCookieBanner"
+          :show="showCookieWall"
           :full-screen="false"
           button-alignment="right"
         >
@@ -35,14 +35,13 @@
               do not sell or share your data with third parties.
             </div>
             <div class="flex gap-2">
-               <Button @click="setAnalyticsCookie(true)" type="secondary"
-              >Accept</Button
-            >
-            <Button @click="setAnalyticsCookie(false)" type="tertiary"
-              >Reject</Button
-            >
+              <Button @click="setAnalyticsCookie(true)" type="secondary"
+                >Accept</Button
+              >
+              <Button @click="setAnalyticsCookie(false)" type="tertiary"
+                >Reject</Button
+              >
             </div>
-           
           </section>
         </BottomModal>
 
@@ -99,12 +98,16 @@ import { hash } from "./utils/fingerprint.js";
 const config = useRuntimeConfig();
 
 const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics");
-let showCookieBanner =
-  ref(config.public.analyticsKey && isAnalyticsAllowedCookie.value === undefined);
+console.log("isAnalyticsAllowedCookie: ", isAnalyticsAllowedCookie.value);
+
+const showCookieWall = ref(
+  !!(config.public.analyticsKey && isAnalyticsAllowedCookie.value === undefined)
+);
+console.log("showCookieWall: ", showCookieWall.value);
 
 function setAnalyticsCookie(value: boolean) {
   isAnalyticsAllowedCookie.value = value.toString();
-  showCookieBanner.value = false;
+  showCookieWall.value = false;
   if (value === true) {
     window.location.reload();
   }
