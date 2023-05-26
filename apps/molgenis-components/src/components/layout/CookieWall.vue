@@ -32,14 +32,20 @@ const show = computed(() => {
   return cookies.get("mg_allow_analytics") === undefined;
 });
 
+const cookieOptions = {
+  path: "/",
+  maxAge: 1704085200, // one year,
+  httpOnly: false,
+};
+
 function handleAccept() {
-  cookies.set("mg_allow_analytics", true);
+  cookies.set("mg_allow_analytics", true, cookieOptions);
   emit("acceptCookie", true);
   window.location.reload();
 }
 
 function handleDecline() {
-  cookies.set("mg_allow_analytics", false);
+  cookies.set("mg_allow_analytics", false, cookieOptions);
   emit("acceptCookie", false);
 }
 
