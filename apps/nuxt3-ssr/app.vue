@@ -129,8 +129,8 @@ useHead({
   ],
   titleTemplate: (titleChunk) => {
     return titleChunk
-      ? `${titleChunk} | ${config.siteTitle}`
-      : `${config.siteTitle}`;
+      ? `${titleChunk} | ${config.public.siteTitle}`
+      : `${config.public.siteTitle}`;
   },
   script:
     config.public.analyticsKey && isAnalyticsAllowedCookie.value

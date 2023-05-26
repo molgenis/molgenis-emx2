@@ -1,15 +1,10 @@
 package org.molgenis.emx2.utils;
 
-import static org.jooq.impl.DSL.cast;
-
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
@@ -405,19 +400,9 @@ public class TypeUtils {
       case DECIMAL_ARRAY:
         return TypeUtils.toDecimalArray(v);
       case TEXT:
-        String text = TypeUtils.toText(v);
-        if (text != null) {
-          return cast(text, SQLDataType.VARCHAR);
-        } else {
-          return null;
-        }
+        return TypeUtils.toText(v);
       case TEXT_ARRAY:
-        String[] textArray = TypeUtils.toTextArray(v);
-        if (textArray != null) {
-          return cast(textArray, SQLDataType.VARCHAR.getArrayDataType());
-        } else {
-          return null;
-        }
+        return TypeUtils.toTextArray(v);
       case DATE:
         return TypeUtils.toDate(v);
       case DATE_ARRAY:
@@ -472,6 +457,22 @@ public class TypeUtils {
         }
       }
       return result.toString().trim();
+    } else {
+      return null;
+    }
+  }
+
+  public static boolean isNull(Object value, ColumnType type) {
+    Object typedValue = getTypedValue(value, type);
+    if (type.isArray()) {
+      return typedValue == null || ((Object[]) typedValue).length == 0;
+    }
+    return typedValue == null;
+  }
+
+  public static LocalDateTime millisecondsToLocalDateTime(long milliseconds) {
+    if (milliseconds > 0) {
+      return LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.systemDefault());
     } else {
       return null;
     }

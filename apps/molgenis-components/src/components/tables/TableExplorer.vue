@@ -291,6 +291,13 @@
                   )
                 "
               />
+              <!--@slot Use this to add values or actions buttons to each row -->
+              <slot
+                name="rowheader"
+                :row="slotProps.row"
+                :metadata="tableMetadata"
+                :rowkey="getPrimaryKey(slotProps.row, tableMetadata)"
+              />
             </template>
           </TableMolgenis>
         </div>

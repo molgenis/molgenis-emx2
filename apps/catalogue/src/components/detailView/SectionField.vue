@@ -29,7 +29,7 @@ import RefFieldValue from "./RefFieldValue.vue";
 import TextFieldValue from "./TextFieldValue.vue";
 import HyperlinkFieldValue from "./HyperlinkFieldValue.vue";
 import EmailFieldValue from "./EmailFieldValue.vue";
-import LinkedDataSourcesFieldValue from "./LinkedDataSourcesFieldValue.vue";
+import LinkedResourcesFieldValue from "./LinkedResourcesFieldValue.vue";
 import { StringDisplay, FileDisplay, ObjectDisplay } from "molgenis-components";
 
 export default {
@@ -47,7 +47,7 @@ export default {
     RefFieldValue,
     HyperlinkFieldValue,
     EmailFieldValue,
-    LinkedDataSourcesFieldValue,
+    LinkedResourcesFieldValue,
   },
   props: {
     field: {
@@ -62,8 +62,8 @@ export default {
   computed: {
     fieldTypeComponentName() {
       //custom views
-      if (this.field.meta.refTable === "Linked data sources") {
-        return "LinkedDataSourcesFieldValue";
+      if (this.field.meta.refTable === "Linked resources") {
+        return "LinkedResourcesFieldValue";
       }
       //standard views
       return {
