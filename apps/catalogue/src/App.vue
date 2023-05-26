@@ -40,6 +40,6 @@ export default {
           ? error
           : "An error occurred while trying to load the session data";
     },
-  }
+  },
 };
 </script>

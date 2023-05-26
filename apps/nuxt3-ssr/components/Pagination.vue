@@ -16,6 +16,10 @@ const props = defineProps({
     default: "gray",
     enum: ["gray", "white"],
   },
+  preventDefault: {
+    type: Boolean,
+    default: false,
+  },
 });
 const emit = defineEmits(["update"]);
 
@@ -37,13 +41,19 @@ const borderClasses = computed(() => {
   return BORDER_STYLE_MAPPING[props.type];
 });
 
-function onPrevClick() {
+function onPrevClick($event) {
+  if (props.preventDefault) {
+    $event.preventDefault();
+  }
   if (props.currentPage > 1) {
     emit("update", props.currentPage - 1);
   }
 }
 
-function onNextClick() {
+function onNextClick($event) {
+  if (props.preventDefault) {
+    $event.preventDefault();
+  }
   if (props.currentPage < props.totalPages) {
     emit("update", props.currentPage + 1);
   }
@@ -66,6 +76,7 @@ function changeCurrentPage(event) {
   >
     <a
       :href="currentPage > 1 ? '#' : undefined"
+      role="button"
       @click="onPrevClick"
       class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination text-pagination h-15 w-15"
       :class="{
@@ -90,6 +101,7 @@ function changeCurrentPage(event) {
     </div>
     <a
       :href="currentPage < totalPages ? '#' : undefined"
+      role="button"
       @click="onNextClick"
       class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination text-pagination h-15 w-15"
       :class="{

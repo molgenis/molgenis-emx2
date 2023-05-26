@@ -14,11 +14,10 @@ function clearConditions(filter) {
 
 function clearAll() {
   filters.value.forEach((filter) => {
-    if (filter?.columnType === "ONTOLOGY") {
-      clearConditions(filter);
-    }
     if (filter?.columnType === "_SEARCH") {
       clearSearch(filter);
+    } else {
+      clearConditions(filter);
     }
   });
 }
@@ -30,7 +29,7 @@ function isFilterSet(filter) {
   ) {
     return false;
   }
-  if (filter?.columnType === "ONTOLOGY" && filter?.conditions.length === 0) {
+  if (filter?.columnType !== "_SEARCH" && filter?.conditions.length === 0) {
     return false;
   }
   return true;
@@ -70,7 +69,7 @@ function isAFilterSet(filters) {
           theme="tooltip"
         >
           <Button
-            v-if="filter?.columnType === 'ONTOLOGY' && isFilterSet(filter)"
+            v-if="filter?.columnType !== '_SEARCH' && isFilterSet(filter)"
             @click="clearConditions(filter)"
             icon="trash"
             icon-position="right"

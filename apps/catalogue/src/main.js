@@ -27,8 +27,6 @@ import HomeView from "./views/HomeView.vue";
 
 import "molgenis-components/dist/style.css";
 
-import VueGtag from "vue-gtag";
-
 const scrollBehavior = (to, from, savedPosition) => {
   return savedPosition || { top: 0, left: 0 };
 };

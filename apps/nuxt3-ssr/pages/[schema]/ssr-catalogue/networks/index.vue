@@ -4,7 +4,7 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 10;
 
-useHead({ title: "Cohorts" });
+useHead({ title: "Networks" });
 
 const currentPage = ref(1);
 if (route.query?.page) {
@@ -16,40 +16,34 @@ let offset = computed(() => (currentPage.value - 1) * pageSize);
 
 let filters: IFilter[] = reactive([
   {
-    title: "Search in cohorts",
+    title: "Search in networks",
     columnType: "_SEARCH",
     search: "",
-    searchTables: ["collectionEvents", "subcohorts"],
     initialCollapsed: false,
   },
   {
-    title: "Areas of information",
-    refTable: "AreasOfInformationCohorts",
-    columnName: "areasOfInformation",
+    title: "Countries",
+    refTable: "Countries",
+    columnName: "countries",
     columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
     conditions: [],
   },
   {
-    title: "Data categories",
-    refTable: "DataCategories",
+    title: "Organisations",
     columnName: "dataCategories",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
+    columnType: "REF_ARRAY",
+    refTable: "Organisations",
+    refFields: {
+      key: "id",
+      name: "id",
+      description: "name",
+    },
     conditions: [],
   },
   {
-    title: "Population age groups",
+    title: "Topics",
     refTable: "AgeGroups",
     columnName: "ageGroups",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
-  },
-  {
-    title: "Sample categories",
-    refTable: "SampleCategories",
-    columnName: "sampleCategories",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
@@ -63,29 +57,21 @@ let search = computed(() => {
 
 const query = computed(() => {
   return `
-  query Cohorts($filter:CohortsFilter, $orderby:Cohortsorderby){
-    Cohorts(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+  query Networks($filter:NetworksFilter, $orderby:Networksorderby){
+    Networks(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
       name
       acronym
       description
-      keywords
-      numberOfParticipants
-      startYear
-      endYear
-      type {
-          name
-      }
-      design {
-          name
-      }
-      leadOrganisation {
-          name
-          acronym
+      logo {
+        id
+        size
+        extension
+        url
       }
     }
-    Cohorts_agg (filter:$filter){
-        count
+    Networks_agg (filter:$filter){
+      count
     }
   }
   `;
@@ -97,7 +83,7 @@ const filter = computed(() => buildQueryFilter(filters, search.value));
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
-  key: `cohorts-${offset.value}`,
+  key: `networks-${offset.value}`,
   baseURL: config.public.apiBase,
   method: "POST",
   body: {
@@ -116,21 +102,6 @@ watch(filters, () => {
 });
 
 let activeName = ref("detailed");
-
-const NOTICE_SETTING_KEY = "CATALOGUE_NOTICE";
-const underConstructionNotice = ref();
-
-fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
-  const setting = resp.data["_settings"].find(
-    (setting: { key: string; value: string }) => {
-      return setting.key === NOTICE_SETTING_KEY;
-    }
-  );
-
-  if (setting) {
-    underConstructionNotice.value = setting.value;
-  }
-});
 </script>
 
 <template>
@@ -143,23 +114,11 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
         <template #header>
           <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader
-            title="Cohorts"
-            description="Group of individuals sharing a defining demographic characteristic."
-            icon="image-link"
+            title="Networks"
+            description="Collaborations of multiple institutions and/or cohorts with a common objective."
+            icon="image-diagram"
           >
             <template #suffix>
-              <div
-                v-if="underConstructionNotice"
-                class="mt-1 mb-5 text-left bg-yellow-200 rounded-lg text-black py-5 px-5 flex"
-              >
-                <BaseIcon
-                  name="info"
-                  :width="55"
-                  class="hidden md:block mr-3"
-                />
-                <div class="inline-block">{{ underConstructionNotice }}</div>
-              </div>
-
               <SearchResultsViewTabs
                 class="hidden xl:flex"
                 buttonLeftLabel="Detailed"
@@ -174,11 +133,7 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
                 class="flex xl:hidden"
                 v-model:activeName="activeName"
               >
-                <FilterSidebar
-                  title="Filters"
-                  :filters="filters"
-                  :mobileDisplay="true"
-                />
+                <FilterSidebar title="Filters" :filters="filters" />
               </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>
@@ -187,13 +142,13 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
         <template #search-results>
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
-            <CardList v-if="data?.data?.Cohorts?.length > 0">
+            <CardList v-if="data?.data?.Networks?.length > 0">
               <CardListItem
-                v-for="cohort in data?.data?.Cohorts"
-                :key="cohort.name"
+                v-for="network in data?.data?.Networks"
+                :key="network.name"
               >
-                <CohortCard
-                  :cohort="cohort"
+                <NetworkCard
+                  :network="network"
                   :schema="route.params.schema"
                   :compact="activeName !== 'detailed'"
                 />
@@ -201,16 +156,16 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
             </CardList>
             <div v-else class="flex justify-center pt-3">
               <span class="py-15 text-blue-500">
-                No Cohorts found with current filters
+                No Networks found with current filters
               </span>
             </div>
           </SearchResultsList>
         </template>
 
-        <template v-if="data?.data?.Cohorts?.length > 0" #pagination>
+        <template v-if="data?.data?.Networks?.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
+            :totalPages="Math.ceil(data?.data?.Networks_agg.count / pageSize)"
             @update="setCurrentPage($event)"
           />
         </template>

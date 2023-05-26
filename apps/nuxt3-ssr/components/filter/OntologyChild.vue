@@ -105,7 +105,7 @@ function toggleSelect(term) {
         :class="{ hidden: !terms[child.name].expanded }"
         class="ml-[31px]"
       >
-        <SearchFilterGroupChild
+        <FilterOntologyChild
           :key="key"
           :items="child.children"
           @select="$emit('select', $event)"
