@@ -84,6 +84,8 @@ import RowEditFooter from "../src/components/forms/RowEditFooter.vue";
 
 //layout
 import Breadcrumb from "../src/components/layout/Breadcrumb.vue";
+import CookieWall from "../src/components/layout/CookieWall.vue";
+import GTag from "../src/components/layout/GTag.vue";
 import LayoutCard from "../src/components/layout/LayoutCard.vue";
 import LayoutForm from "../src/components/layout/LayoutForm.vue";
 import LayoutModal from "../src/components/layout/LayoutModal.vue";
@@ -212,6 +214,8 @@ export {
   RowButtonEdit,
   RowEditFooter,
   Breadcrumb,
+  CookieWall,
+  GTag,
   LayoutCard,
   LayoutForm,
   LayoutModal,

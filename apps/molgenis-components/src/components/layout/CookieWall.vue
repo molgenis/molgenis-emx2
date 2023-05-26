@@ -1,6 +1,8 @@
 <script setup>
 import { computed, ref } from "vue";
 import { useCookies } from "@vueuse/integrations/useCookies";
+import LayoutModal from "./LayoutModal.vue";
+import GTag from "./GTag.vue";
 const cookies = useCookies(["mg_allow_analytics"]);
 const props = defineProps({
   title: {

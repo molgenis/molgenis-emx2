@@ -48,6 +48,7 @@ import MolgenisMenu from "./MolgenisMenu.vue";
 import MolgenisSession from "../account/MolgenisSession.vue";
 import MolgenisFooter from "./MolgenisFooter.vue";
 import Breadcrumb from "./Breadcrumb.vue";
+import CookieWall from "./CookieWall.vue";
 import { request, gql } from "graphql-request";
 
 /**
@@ -59,6 +60,7 @@ export default {
     MolgenisMenu,
     MolgenisFooter,
     Breadcrumb,
+    CookieWall,
   },
   emits: ["update:modelValue", "error"],
   props: {
