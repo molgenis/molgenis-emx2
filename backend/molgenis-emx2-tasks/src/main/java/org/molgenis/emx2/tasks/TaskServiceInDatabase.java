@@ -140,7 +140,15 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
     database.tx(
         db -> {
           db.becomeAdmin();
-          db.getSchema(systemSchemaName).getTable("Jobs").save(jobRow);
+          if (db.getSchema(systemSchemaName)
+              .getTable("Jobs")
+              .where(f("id", EQUALS, jobRow.getString("id")))
+              .retrieveRows()
+              .isEmpty()) {
+            db.getSchema(systemSchemaName).getTable("Jobs").insert(jobRow);
+          } else {
+            db.getSchema(systemSchemaName).getTable("Jobs").update(jobRow);
+          }
         });
   }
 

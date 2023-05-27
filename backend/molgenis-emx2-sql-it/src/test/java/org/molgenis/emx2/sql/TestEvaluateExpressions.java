@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 import static org.molgenis.emx2.sql.SqlTypeUtils.checkValidation;
-import static org.molgenis.emx2.sql.SqlTypeUtils.validateAndGetVisibleValuesAsMap;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
@@ -105,7 +105,7 @@ public class TestEvaluateExpressions {
   public void testCheckValidationSuccess() {
     String validation = "true && true";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
-    validateAndGetVisibleValuesAsMap(new Row(), tableMetadata, tableMetadata.getColumns());
+    applyValidationAndComputed(tableMetadata.getColumns(), new Row());
   }
 
   @Test
@@ -113,8 +113,7 @@ public class TestEvaluateExpressions {
     String validation = "this is very invalid";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
     try {
-      validateAndGetVisibleValuesAsMap(
-          new Row("name", "test"), tableMetadata, tableMetadata.getColumns());
+      applyValidationAndComputed(tableMetadata.getColumns(), new Row("name", "test"));
     } catch (MolgenisException exception) {
       assertEquals(
           "script failed: SyntaxError: Unnamed:1:5 Expected ; but found is\n"
@@ -129,8 +128,7 @@ public class TestEvaluateExpressions {
     String validation = "false";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
     try {
-      validateAndGetVisibleValuesAsMap(
-          new Row("name", "test"), tableMetadata, tableMetadata.getColumns());
+      applyValidationAndComputed(tableMetadata.getColumns(), new Row("name", "test"));
     } catch (MolgenisException exception) {
       assertEquals("Validation error on column 'name': false.", exception.getMessage());
     }

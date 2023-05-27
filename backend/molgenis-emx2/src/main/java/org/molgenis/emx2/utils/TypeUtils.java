@@ -154,15 +154,9 @@ public class TypeUtils {
   }
 
   public static Double toDecimal(Object v) {
-    if (v instanceof String) {
-      String value = toString(v);
-      if (value != null) {
-        return Double.parseDouble(value);
-      } else {
-        return null;
-      }
-    }
-    if (v instanceof BigDecimal) return ((BigDecimal) v).doubleValue();
+    if (v instanceof String string) return Double.parseDouble(string);
+    if (v instanceof BigDecimal bigDecimal) return bigDecimal.doubleValue();
+    if (v instanceof Integer integer) return Double.valueOf(integer);
     return (Double) v;
   }
 
