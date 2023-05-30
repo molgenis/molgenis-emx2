@@ -1,11 +1,17 @@
 package org.molgenis.emx2.web;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
+import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
+import static io.restassured.RestAssured.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
+import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.RunMolgenisEmx2.CATALOGUE_DEMO;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -20,49 +26,43 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.Map;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.parallel.Isolated;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.Order;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.MethodName.class)
+@Isolated
 public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
+  public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
   public static String SESSION_ID; // to toss around a session for the tests
   private static Database db;
   private static Schema schema;
   final String CSV_TEST_SCHEMA = "pet store csv";
+  static final int PORT = 8081; // other then default so we can see effect
 
-  @BeforeClass
-  public static void before() throws IOException {
+  @BeforeAll
+  public static void before() throws Exception {
 
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
-    schema = db.dropCreateSchema("pet store");
-    new PetStoreLoader().load(schema, true);
 
-    // grant a user permission
-    schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
-    schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
-    db.grantCreateSchema(PET_SHOP_OWNER);
-
-    // start web service for testing
-    MolgenisWebservice.start(8080);
+    // start web service for testing, including env variables
+    withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
+        // disable because of parallism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
+        .execute(() -> RunMolgenisEmx2.main(new String[] {}));
 
     // set default rest assured settings
-    RestAssured.port = Integer.valueOf(8080);
+    RestAssured.port = PORT;
     RestAssured.baseURI = "http://localhost";
 
     // create an admin session to work with
@@ -81,11 +81,19 @@ public class WebApiSmokeTests {
             .when()
             .post("api/graphql")
             .sessionId();
+
+    // should be created
+    schema = db.getSchema("pet store");
+    // grant a user permission
+    schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
+    schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
+    db.grantCreateSchema(PET_SHOP_OWNER);
   }
 
-  @AfterClass
+  @AfterAll
   public static void after() {
     MolgenisWebservice.stop();
+    db.dropSchemaIfExists(CATALOGUE_DEMO);
   }
 
   @Test
@@ -136,47 +144,47 @@ public class WebApiSmokeTests {
 
     // full table header present in exported table metadata
     String header =
-        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description\r\n";
+        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,validation,visible,computed,semantics,label,description\r\n";
 
     // add new table with description and semantics as metadata
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,TestSem",
-        "TestMetaTable,,,,,,,,,,,,TestSem,TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,TestSem,,TestDesc\r\n");
 
     // update table without new description or semantics, values should be untouched
     addUpdateTableAndCompare(
-        header, "tableName\r\nTestMetaTable", "TestMetaTable,,,,,,,,,,,,TestSem,TestDesc\r\n");
+        header, "tableName\r\nTestMetaTable", "TestMetaTable,,,,,,,,,,,,,,,TestSem,,TestDesc\r\n");
 
     // update only description, semantics should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,description\r\nTestMetaTable,NewTestDesc",
-        "TestMetaTable,,,,,,,,,,,,TestSem,NewTestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,TestSem,,NewTestDesc\r\n");
 
     // make semantics empty by not supplying a value, description  should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,semantics\r\nTestMetaTable,",
-        "TestMetaTable,,,,,,,,,,,,,NewTestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,NewTestDesc\r\n");
 
     // make description empty while also adding a new value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,NewTestSem",
-        "TestMetaTable,,,,,,,,,,,,NewTestSem,\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,NewTestSem,,\r\n");
 
     // empty both description and semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,",
-        "TestMetaTable,,,,,,,,,,,,,\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,\r\n");
 
     // add description value, and string array value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
-        "TestMetaTable,,,,,,,,,,,,\"TestSem1,TestSem2\",TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,TestDesc\r\n");
   }
 
   /**
@@ -242,6 +250,31 @@ public class WebApiSmokeTests {
     assertEquals(new String(contentsPetData), contentsPetDataNew);
     assertEquals(new String(contentsUserData), contentsUserDataNew);
     assertEquals(new String(contentsTagData), contentsTagDataNew);
+  }
+
+  @Test
+  public void testCsvApi_tableFilter() {
+    String result =
+        given()
+            .sessionId(SESSION_ID)
+            .queryParam("filter", "{\"name\":{\"equals\":\"pooky\"}}")
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv/Pet")
+            .asString();
+    assertTrue(result.contains("pooky"));
+    assertFalse(result.contains("spike"));
+
+    result =
+        given()
+            .sessionId(SESSION_ID)
+            .queryParam("filter", "{\"tags\":{\"name\": {\"equals\":\"blue\"}}}")
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv/Pet")
+            .asString();
+    assertTrue(result.contains("jerry"));
+    assertFalse(result.contains("spike"));
   }
 
   private void acceptFileUpload(File content, String table) {
@@ -351,6 +384,8 @@ public class WebApiSmokeTests {
       Thread.sleep(500);
     }
 
+    assertFalse(poll.body().asString().contains("FAILED"));
+
     // check if id in tasks list
     assertTrue(
         given()
@@ -431,7 +466,7 @@ public class WebApiSmokeTests {
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains("Error"));
+    assertTrue(result.contains("errors"));
 
     // read admin password from environment if necessary
     String adminPass =
@@ -499,7 +534,7 @@ public class WebApiSmokeTests {
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains("Error"));
+    assertTrue(result.contains("errors"));
   }
 
   @Test
@@ -521,7 +556,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:8080/pet store/"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/"))
         .when()
         .get("/pet store");
 
@@ -531,7 +566,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:8080/pet store/tables/"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/tables/"))
         .when()
         .get("/pet store/tables");
   }
@@ -543,7 +578,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:8080/pet store/tables"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/tables"))
         .when()
         .get("/pet store/");
 
@@ -568,7 +603,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:8080/pet store/blaat2"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/blaat2"))
         .when()
         .get("/pet store/");
 
@@ -587,7 +622,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:8080/pet store/blaat"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/blaat"))
         .when()
         .get("/pet store/");
 
@@ -694,31 +729,37 @@ public class WebApiSmokeTests {
   @Test
   public void testRdfApi() {
     // skip 'all schemas' test because data is way to big (i.e.
-    // get("http://localhost:8080/api/rdf");)
+    // get("http://localhost:PORT/api/rdf");)
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/rdf");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/rdf/Category");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/rdf/Category/cat");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/column/name");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/cat");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(400)
         .when()
-        .get("http://localhost:8080/pet store/api/rdf/doesnotexist");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
   }
 
   @Test
@@ -728,31 +769,31 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/jsonld");
+        .get("http://localhost:" + PORT + "/pet store/api/jsonld");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/ttl");
+        .get("http://localhost:" + PORT + "/pet store/api/ttl");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/jsonld/Category");
+        .get("http://localhost:" + PORT + "/pet store/api/jsonld/Category");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:8080/pet store/api/ttl/Category");
+        .get("http://localhost:" + PORT + "/pet store/api/ttl/Category");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(400)
         .when()
-        .get("http://localhost:8080/pet store/api/ttl/doesnotexist");
+        .get("http://localhost:" + PORT + "/pet store/api/ttl/doesnotexist");
   }
 
   @Test
@@ -762,6 +803,313 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(400)
         .when()
-        .get("http://localhost:8080/api/fdp/distribution/pet store/Category/ttl");
+        .get("http://localhost:" + PORT + "/api/fdp/distribution/pet store/Category/ttl");
+  }
+
+  @Test
+  public void testGraphGenome400() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(400)
+        .when()
+        .get("http://localhost:" + PORT + "/api/graphgenome");
+  }
+
+  @Test
+  public void downloadCsvTable() {
+    Response response = downloadPet("/pet store/api/csv/Pet");
+    assertTrue(
+        response.getBody().asString().contains("name,category,photoUrls,status,tags,weight"));
+    assertTrue(response.getBody().asString().contains("pooky,cat,,available,,9.4"));
+    assertFalse(response.getBody().asString().contains("mg_"));
+  }
+
+  @Test
+  public void downloadCsvTableWithSystemColumns() {
+    Response response = downloadPet("/pet store/api/csv/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true");
+    assertTrue(response.getBody().asString().contains("mg_"));
+  }
+
+  @Test
+  public void downloadExcelTable() throws IOException {
+    Response response = downloadPet("/pet store/api/excel/Pet");
+    List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
+    assertEquals("name,category,photoUrls,status,tags,weight", rows.get(0));
+    assertEquals("pooky,cat,,available,,9.4", rows.get(1));
+  }
+
+  @Test
+  public void downloadExelTableWithSystemColumns() throws IOException {
+    Response response = downloadPet("/pet store/api/excel/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true");
+    List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
+    assertTrue(rows.get(0).contains("mg_"));
+  }
+
+  @Test
+  public void downloadZipTable() throws IOException, InterruptedException {
+    File file = TestUtils.responseToFile(downloadPet("/pet store/api/zip/Pet"));
+    List<File> files = TestUtils.extractFileFromZip(file);
+    String result = Files.readString(files.get(0).toPath());
+    assertTrue(result.contains("name,category,photoUrls,status,tags,weight"));
+    assertTrue(result.contains("pooky,cat,,available,,9.4"));
+  }
+
+  @Test
+  public void downloadZipTableWithSystemColumns() throws IOException, InterruptedException {
+    File file =
+        TestUtils.responseToFile(
+            downloadPet("/pet store/api/zip/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true"));
+    List<File> files = TestUtils.extractFileFromZip(file);
+    String result = Files.readString(files.get(0).toPath());
+    assertTrue(result.contains("mg_"));
+  }
+
+  private Response downloadPet(String requestString) {
+    return given()
+        .sessionId(SESSION_ID)
+        .accept(ACCEPT_EXCEL)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get(requestString);
+  }
+
+  @Test
+  public void testScriptExecution() throws JsonProcessingException, InterruptedException {
+    // get token for admin
+    String result =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+
+    // submit simple
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .post("/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    String taskId = new ObjectMapper().readTree(result).at("/id").textValue();
+
+    // poll until completed
+    String taskUrl = "/api/tasks/" + taskId;
+    // poll task until complete
+    result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+    String status = new ObjectMapper().readTree(result).at("/status").textValue();
+    int count = 0;
+    // poll while running
+    // (previously we checked on 'complete' but then it also fired if subtask was complete)
+    while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+      if (result.contains("ERROR")) {
+        fail("testScriptExcution failed:" + result);
+      }
+      if (count++ > 100) {
+        throw new MolgenisException("failed: polling took too long");
+      }
+      status = new ObjectMapper().readTree(result).at("/status").textValue();
+      Thread.sleep(500);
+    }
+    if (result.contains("ERROR")) {
+      fail(result);
+    }
+
+    String outputURL = "/api/tasks/" + taskId + "/output";
+    result = given().header(MOLGENIS_TOKEN[0], token).when().get(outputURL).getBody().asString();
+    if (result.equals("Readme")) {
+      System.out.println("testScriptExcution error: " + result);
+    }
+    assertEquals("Readme", result);
+
+    // now with parameters
+
+    // submit simple
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .body("blaat")
+            .when()
+            .post("/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    taskId = new ObjectMapper().readTree(result).at("/id").textValue();
+
+    // poll until completed
+    taskUrl = "/api/tasks/" + taskId;
+    // poll task until complete
+    result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+    status = new ObjectMapper().readTree(result).at("/status").textValue();
+    count = 0;
+    // poll while running
+    // (previously we checked on 'complete' but then it also fired if subtask was complete)
+    while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+      if (result.contains("ERROR")) {
+        fail("testScriptExcution failed:" + result);
+      }
+      if (count++ > 100) {
+        throw new MolgenisException("failed: polling took too long");
+      }
+      status = new ObjectMapper().readTree(result).at("/status").textValue();
+      Thread.sleep(500);
+    }
+    if (result.contains("ERROR")) {
+      fail(result);
+    }
+
+    assertTrue(result.contains("sys.argv[1]=blaat")); // the expected output
+  }
+
+  @Test
+  public void testScriptScheduling() throws JsonProcessingException, InterruptedException {
+    // make sure the 'test' script is not there already from a previous test
+    db.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
+    db.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
+
+    // get token for admin
+    String result =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+
+    // simply retrieve the results using get
+    // todo: also allow anonymous
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get(SYSTEM_PREFIX + "/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    assertEquals("Readme", result);
+
+    // simply retrieve the results using get, outside schema
+    // todo: also allow anonymous
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get("/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    assertEquals("Readme", result);
+
+    // or async using post and then we get a task id
+    // simply retrieve the results using get
+    // todo: also allow anonymous
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("blaat")
+            .post(SYSTEM_PREFIX + "/api/scripts/hello+world")
+            .asString();
+
+    Row jobMetadata = waitForScriptToComplete("hello world");
+    // retrieve the file
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("blaat")
+            .get(SYSTEM_PREFIX + "/api/tasks/" + jobMetadata.getString("id") + "/output")
+            .asString();
+    assertEquals("Readme", result);
+    // also works outside schema
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("blaat")
+            .get("/api/tasks/" + jobMetadata.getString("id") + "/output")
+            .asString();
+    assertEquals("Readme", result);
+
+    // save a scheduled script that fires every second
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body(
+                "{\"query\":\"mutation{insert(Scripts:{name:\\\"test\\\",cron:\\\"0/5 * * * * ?\\\",script:\\\"print('test123')\\\"}){message}}\"}")
+            .post(SYSTEM_PREFIX + "/api/graphql")
+            .getBody()
+            .asString();
+
+    // see that it is listed
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get("/api/tasks/scheduled")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("test")); // should contain our script
+
+    // delete the scripts
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("{\"query\":\"mutation{delete(Scripts:{name:\\\"test\\\"}){message}}\"}")
+            .post(SYSTEM_PREFIX + "/api/graphql")
+            .getBody()
+            .asString();
+
+    assertTrue(result.contains("delete 1 records from Scripts"));
+
+    // script should be deleted
+    assertTrue(
+        db.getSchema(SYSTEM_SCHEMA)
+                .getTable("Scripts")
+                .where(f("name", EQUALS, "test"))
+                .retrieveRows()
+                .size()
+            == 0,
+        "script should be deleted");
+
+    // check if the jobs that ran were okay
+    assertNotNull(jobMetadata, "should have at least a job");
+    System.out.println(jobMetadata);
+    assertEquals("COMPLETED", jobMetadata.getString("status"));
+
+    // script should be unscheduled
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get("/api/tasks/scheduled")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("[]"), "script should be unscheduled");
+  }
+
+  private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
+    Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
+    Filter f = f("script", f("name", EQUALS, scriptName));
+    int count = 0;
+    Row firstJob = null;
+    // should run every 5 secs, lets give it some time to complete at least 1 job
+    while ((firstJob == null || !"COMPLETED".equals(firstJob.getString("status"))) && count < 60) {
+      List<Row> jobList = jobs.where(f).orderBy("submitDate", Order.ASC).retrieveRows();
+      if (jobList.size() > 0) {
+        firstJob = jobList.get(0);
+      }
+      count++; // timing could make this test flakey
+      Thread.sleep(1000);
+    }
+    return firstJob;
   }
 }

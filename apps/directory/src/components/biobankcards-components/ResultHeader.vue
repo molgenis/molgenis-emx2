@@ -31,7 +31,6 @@ export default {
   setup() {
     const biobanksStore = useBiobanksStore();
     return { biobanksStore };
-  }
+  },
 };
 </script>
-

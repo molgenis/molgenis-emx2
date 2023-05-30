@@ -2,11 +2,13 @@
   <span>
     <RowButton type="edit" @edit="isModalShown = true" />
     <EditModal
+      v-if="isModalShown"
       :id="id + 'edit-modal'"
       :tableName="tableName"
       :pkey="pkey"
       :isModalShown="isModalShown"
       :schemaName="schemaName"
+      :visibleColumns="visibleColumns"
       @close="handleClose"
     />
   </span>
@@ -33,6 +35,11 @@ export default {
     pkey: {
       type: Object,
     },
+    visibleColumns: {
+      type: Array,
+      required: false,
+      default: () => null,
+    },
   },
   data() {
     return {
@@ -49,17 +56,30 @@ export default {
 </script>
 
 <docs>
-  <template>
+<template>
+  <div>
+    <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
     <div>
-      <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
-      <div>
-        <RowButtonEdit 
-          id="row-edit-btn-sample" 
+      <RowButtonEdit
+          id="row-edit-btn-sample"
           tableName="Pet"
           :pkey="{name: 'pooky'}"
           schemaName="pet store"
-        />
-      </div>
+      />
     </div>
-  </template>
+  </div>
+  <p>With only few columns visible</p>
+  <div>
+    <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
+    <div>
+      <RowButtonEdit
+          id="row-edit-btn-sample"
+          tableName="Pet"
+          :pkey="{name: 'pooky'}"
+          schemaName="pet store"
+          :visibleColumns="['name']"
+      />
+    </div>
+  </div>
+</template>
 </docs>

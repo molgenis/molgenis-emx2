@@ -1,126 +1,65 @@
 package org.molgenis.emx2.datamodels;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.DATA_CATALOGUE;
+import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.SHARED_STAGING;
 import static org.molgenis.emx2.datamodels.DataCatalogueLoader.CATALOGUE_ONTOLOGIES;
-import static org.molgenis.emx2.datamodels.DataCatalogueNetworkStagingLoader.SHARED_STAGING;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.OrderWith;
-import org.junit.runner.manipulation.Alphanumeric;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-@OrderWith(Alphanumeric.class)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class TestLoaders {
+  public static final String COHORT_STAGING = "CohortStaging";
+  public static final String NETWORK_STAGING = "NetworkStaging";
+  public static final String FAIR_DATA_HUB_TEST = "FAIRDataHubTest";
+  public static final String DIRECTORY = "directory";
+
   static Database database;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     // prevend previous dangling test results
-    database.dropSchemaIfExists("catalogue");
-    database.dropSchemaIfExists("directory");
-    database.dropSchemaIfExists("RWEcatalogue");
-    database.dropSchemaIfExists("CohortStaging");
-    database.dropSchemaIfExists("CohortStaging");
-    database.dropSchemaIfExists("NetworkStaging");
-    database.dropSchemaIfExists("CohortStaging3");
-    database.dropSchemaIfExists("NetworkStaging3");
+    database.dropSchemaIfExists(DIRECTORY);
+    database.dropSchemaIfExists(COHORT_STAGING);
+    database.dropSchemaIfExists(NETWORK_STAGING);
+    database.dropSchemaIfExists(DATA_CATALOGUE);
+    database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
+    database.dropSchemaIfExists(SHARED_STAGING);
+    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
 
   @Test
   public void test1FAIRDataHubLoader() {
-    Schema fairDataHubSchema = database.dropCreateSchema("FAIRDataHubTest");
+    Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
-    assertEquals(34, fairDataHubSchema.getTableNames().size());
+    assertEquals(36, fairDataHubSchema.getTableNames().size());
   }
 
   @Test
   public void test2DataCatalogueLoader() {
-    // staging catalogues will create 'DataCatalogue' and
-    Schema dataCatalogue = database.dropCreateSchema("catalogue");
-    cleanSharedSchemas();
-
+    Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     AvailableDataModels.DATA_CATALOGUE.install(dataCatalogue, true);
-    assertEquals(37, dataCatalogue.getTableNames().size());
-
-    // cleanup because shared schema
-    database.dropSchema("catalogue");
+    assertEquals(33, dataCatalogue.getTableNames().size());
   }
 
   @Test
-  public void test3RWECatalogue() {
-    Schema rweCatalogue = database.dropCreateSchema("RWEcatalogue");
-
-    cleanSharedSchemas();
-    AvailableDataModels.DATA_CATALOGUE.install(rweCatalogue, false);
-    MolgenisIO.fromClasspathDirectory("datacatalogue/RWEcatalogue", rweCatalogue, false);
-
-    // cleanup because shared schema
-    database.dropSchemaIfExists("RWEcatalogue");
-  }
-
-  @Test
-  public void test4DataCatalogueCohortStagingLoader() {
-    Schema cohortStaging = database.dropCreateSchema("CohortStaging");
-    cleanSharedSchemas();
-
+  public void test7DataCatalogueCohortStagingLoader() {
+    Schema cohortStaging = database.createSchema(COHORT_STAGING);
     AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING.install(cohortStaging, true);
-    assertEquals(18, cohortStaging.getTableNames().size());
-
-    // cleanup because shared schema
-    database.dropSchemaIfExists("CohortStaging");
+    assertEquals(19, cohortStaging.getTableNames().size());
   }
 
   @Test
-  public void test5DataCatalogueNetworkStagingLoader() {
-    Schema networkStaging = database.dropCreateSchema("NetworkStaging");
-    cleanSharedSchemas();
+  public void test8DataCatalogueNetworkStagingLoader() {
+    Schema networkStaging = database.createSchema(NETWORK_STAGING);
     AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING.install(networkStaging, true);
-    assertEquals(13, networkStaging.getTableNames().size());
-
-    // cleanup because shared schema
-    database.dropSchemaIfExists("NetworkStaging");
-  }
-
-  @Test
-  public void test7DataCatalogueCohortStagingLoader3() {
-    Schema cohortStaging3 = database.dropCreateSchema("CohortStaging3");
-    cleanSharedSchemas();
-
-    AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING3.install(cohortStaging3, true);
-    assertEquals(17, cohortStaging3.getTableNames().size());
-
-    // cleanup because shared schema
-    database.dropSchemaIfExists("CohortStaging3");
-  }
-
-  @Test
-  public void test8DataCatalogueNetworkStagingLoader3() {
-    Schema networkStaging3 = database.dropCreateSchema("NetworkStaging3");
-    cleanSharedSchemas();
-
-    AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING3.install(networkStaging3, true);
-    assertEquals(13, networkStaging3.getTableNames().size());
-
-    // cleanup because shared schema
-    database.dropSchemaIfExists("NetworkStaging3");
-  }
-
-  @Test
-  public void test9DirectoryLoader() {
-    Schema directorySchema = database.dropCreateSchema("directory");
-    AvailableDataModels.DIRECTORY.install(directorySchema, true);
-    assertEquals(27, directorySchema.getTableNames().size());
-  }
-
-  private static void cleanSharedSchemas() {
-    database.dropSchemaIfExists(DATA_CATALOGUE);
-    database.dropSchemaIfExists(SHARED_STAGING);
-    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
+    assertEquals(16, networkStaging.getTableNames().size());
   }
 }

@@ -17,6 +17,9 @@ spec:
         limits:
           cpu: 2
           memory: 4Gi
+      volumeMounts:
+        - name: docker-socket
+          mountPath: /var/run
     - name: postgres
       image: postgres:14-alpine
       imagePullPolicy: IfNotPresent
@@ -36,7 +39,32 @@ spec:
           value: postgres
         - name: POSTGRES_DB
           value: postgres
+    - name: helm
+      image: alpine/k8s:1.25.7
+      imagePullPolicy: IfNotPresent
+      tty: true
+      resources:
+        requests:
+          cpu: 1
+          memory: 1Gi
+        limits:
+          cpu: 1
+          memory: 1Gi
+      env:
+        - name: "KUBECONFIG"
+          value: "/home/jenkins/agent/.kube/config"
+    - name: docker-daemon
+      image: docker:23.0.3-dind
+      #docker in docker so we can access it via docker socket
+      #https://github.com/jenkinsci/kubernetes-plugin/blob/master/examples/dind.groovy
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: docker-socket
+          mountPath: /var/run
   volumes:
     - name: postgres-initdb
+      emptyDir: {}
+    - name: docker-socket
       emptyDir: {}
   restartPolicy: Never

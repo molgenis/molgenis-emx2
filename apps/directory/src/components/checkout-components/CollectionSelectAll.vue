@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <input
@@ -7,57 +6,60 @@
       class="add-to-cart"
       @change="handleCollectionStatus"
       :checked="allCollectionsSelected"
-      hidden/>
+      hidden
+    />
     <label
       class="add-to-cart-label btn btn-outline-success m-0"
-      for="select-deselect-all">
+      for="select-deselect-all"
+    >
       <span>{{ uiText["select_all_collections"] }}</span>
     </label>
     <label
       class="remove-from-cart-label btn btn-danger m-0"
-      for="select-deselect-all">
+      for="select-deselect-all"
+    >
       <span>{{ uiText["deselect_all_collections"] }}</span>
     </label>
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from "vuex";
 
 export default {
-  name: 'CollectionSelectAll',
+  name: "CollectionSelectAll",
   props: {
     bookmark: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   methods: {
-    ...mapActions(['AddCollectionsToSelection']),
-    ...mapMutations(['RemoveCollectionsFromSelection']),
-    handleCollectionStatus (event) {
-      const { checked } = event.target
+    ...mapActions(["AddCollectionsToSelection"]),
+    ...mapMutations(["RemoveCollectionsFromSelection"]),
+    handleCollectionStatus(event) {
+      const { checked } = event.target;
       const collectionData = {
         collections: this.foundCollectionsAsSelection,
-        bookmark: this.bookmark
-      }
+        bookmark: this.bookmark,
+      };
 
       if (checked) {
-        this.AddCollectionsToSelection(collectionData)
+        this.AddCollectionsToSelection(collectionData);
       } else {
-        this.RemoveCollectionsFromSelection(collectionData)
+        this.RemoveCollectionsFromSelection(collectionData);
       }
-    }
+    },
   },
   computed: {
     ...mapGetters([
-      'allCollectionsSelected',
-      'foundCollectionsAsSelection',
-      'uiText'
-    ])
-  }
-}
+      "allCollectionsSelected",
+      "foundCollectionsAsSelection",
+      "uiText",
+    ]),
+  },
+};
 </script>
 
 <style scoped>

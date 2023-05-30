@@ -1,5 +1,5 @@
 <template>
-  <div class="container bg-white" id="_top" v-if="resourceData">
+  <div class="container bg-white" id="_top" v-if="resourceData" :key="filter">
     <RowButton
       v-if="canEdit"
       type="edit"
@@ -14,7 +14,6 @@
       :isModalShown="isEditModalShown"
       @close="isEditModalShown = false"
     />
-
     <ButtonAlt @click="toggleNA" class="float-right text-white">
       {{ hideNA ? "Show" : "Hide" }} empty fields (N/A)
     </ButtonAlt>
@@ -24,7 +23,15 @@
       :table-name="table"
     />
     <div class="row p-2">
-      <div :class="'border border-' + color" class="col-10 p-0">
+      <div
+        :class="
+          'border border-' +
+          color +
+          ' ' +
+          (sectionsNames.length > 1 ? 'col-10' : 'col-12')
+        "
+        class="p-0"
+      >
         <div v-for="section in sections" :key="section.meta.name">
           <section-card
             :section="section"
@@ -128,16 +135,24 @@ export default {
     toggleNA() {
       this.hideNA = !this.hideNA;
     },
+    async reload() {
+      this.client = Client.newClient();
+      this.reloadMetadata();
+      this.tableMetadata = await this.client.fetchTableMetaData(this.table);
+      this.resourceData = (
+        await this.client.fetchTableDataValues(this.table, {
+          filter: this.filter,
+        })
+      )[0];
+    },
   },
-  async created() {
-    this.client = Client.newClient();
-    this.reloadMetadata();
-    this.tableMetadata = await this.client.fetchTableMetaData(this.table);
-    this.resourceData = (
-      await this.client.fetchTableDataValues(this.table, {
-        filter: this.filter,
-      })
-    )[0];
+  watch: {
+    async filter() {
+      await this.reload();
+    },
+  },
+  async mounted() {
+    await this.reload();
   },
 };
 </script>

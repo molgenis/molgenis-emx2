@@ -14,10 +14,10 @@ defineProps({
       <span class="sr-only">Go up one level</span>
       <BaseIcon name="arrow-left" />
     </NuxtLink>
-    <a href="#">
+    <!-- <a href="#">
       <span class="sr-only">Favorite</span>
       <BaseIcon name="star" />
-    </a>
+    </a> -->
   </div>
   <nav
     class="items-center justify-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg"

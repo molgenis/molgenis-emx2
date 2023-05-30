@@ -1,12 +1,10 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.name }}</h1>
-
+    <h1 v-if="showHeader && tableMetadata">{{ localizedLabel }}</h1>
     <p v-if="showHeader && tableMetadata">
-      {{ tableMetadata.description }}
+      {{ localizedDescription }}
     </p>
-
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
         <ShowHide
@@ -19,6 +17,7 @@
         />
 
         <ShowHide
+          v-if="view !== View.AGGREGATE"
           :columns="columns"
           @update:columns="emitColumns"
           checkAttribute="showColumn"
@@ -35,32 +34,84 @@
             <h6>download</h6>
             <div>
               <div>
-                <ButtonAlt :href="'../api/zip/' + tableId">zip</ButtonAlt>
+                <span class="fixed-width">zip</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableId"
+                  >all rows</ButtonAlt
+                >
               </div>
               <div>
-                <ButtonAlt :href="'../api/excel/' + tableId">excel</ButtonAlt>
+                <span class="fixed-width">csv</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableId"
+                  >all rows</ButtonAlt
+                >
+                <span v-if="Object.keys(graphqlFilter).length > 0">
+                  |
+                  <ButtonAlt
+                    :href="
+                      '/' +
+                      schemaName +
+                      '/api/csv/' +
+                      tableId +
+                      '?filter=' +
+                      JSON.stringify(graphqlFilter)
+                    "
+                  >
+                    filtered rows
+                  </ButtonAlt>
+                </span>
               </div>
               <div>
-                <ButtonAlt :href="'../api/jsonld/' + tableId">
-                  jsonld
+                <span class="fixed-width">excel</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableId"
+                  >all rows</ButtonAlt
+                >
+                <span v-if="Object.keys(graphqlFilter).length > 0">
+                  |
+                  <ButtonAlt
+                    :href="
+                      '/' +
+                      schemaName +
+                      '/api/excel/' +
+                      tableId +
+                      '?filter=' +
+                      JSON.stringify(graphqlFilter)
+                    "
+                  >
+                    filtered rows
+                  </ButtonAlt></span
+                >
+              </div>
+              <div>
+                <span class="fixed-width">jsonld</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/jsonld/' + tableId">
+                  all rows
                 </ButtonAlt>
               </div>
               <div>
-                <ButtonAlt :href="'../api/ttl/' + tableId">ttl</ButtonAlt>
+                <span class="fixed-width">ttl</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/ttl/' + tableId"
+                  >all rows</ButtonAlt
+                >
               </div>
             </div>
           </form>
         </ButtonDropdown>
-
         <span>
-          <button
-            type="button"
-            class="btn btn-outline-primary"
-            @click="toggleView"
+          <ButtonDropdown
+            :closeOnClick="true"
+            :label="ViewButtons[view].label"
+            :icon="ViewButtons[view].icon"
           >
-            view
-            <span class="fas fa-fw" :class="viewIcon"></span>
-          </button>
+            <div
+              v-for="button in ViewButtons"
+              class="dropdown-item"
+              @click="setView(button)"
+              role="button"
+            >
+              <i class="fas fa-fw" :class="'fa-' + button.icon" />
+              {{ button.label }}
+            </div>
+          </ButtonDropdown>
         </span>
       </div>
       <!-- end first btn group -->
@@ -72,13 +123,17 @@
         @update:modelValue="setSearchTerms($event)"
       />
       <Pagination
+        v-if="view !== View.AGGREGATE"
         :modelValue="page"
         @update:modelValue="setPage($event)"
         :limit="limit"
         :count="count"
       />
 
-      <div class="btn-group m-0" v-if="view !== View.RECORD">
+      <div
+        class="btn-group m-0"
+        v-if="view !== View.RECORD && view !== View.AGGREGATE"
+      >
         <span class="btn">Rows per page:</span>
         <InputSelect
           id="explorer-table-page-limit-select"
@@ -129,97 +184,123 @@
         <div v-if="loading">
           <Spinner />
         </div>
-        <RecordCards
-          v-if="!loading && view === View.CARDS"
-          class="card-columns"
-          id="cards"
-          :data="dataRows"
-          :columns="columns"
-          :table-name="tableName"
-          :canEdit="canEdit"
-          :template="cardTemplate"
-          @click="$emit('click', $event)"
-          @reload="reload"
-          @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
-          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
-        />
-        <RecordCards
-          v-if="!loading && view === View.RECORD"
-          id="records"
-          :data="dataRows"
-          :columns="columns"
-          :table-name="tableName"
-          :canEdit="canEdit"
-          :template="recordTemplate"
-          @click="$emit('click', $event)"
-          @reload="reload"
-          @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
-          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
-        />
-        <TableMolgenis
-          v-if="!loading && view == View.TABLE"
-          :selection="selectedItems"
-          @update:selection="selectedItems = $event"
-          :columns="columns"
-          @update:colums="columns = $event"
-          :table-metadata="tableMetadata"
-          :data="dataRows"
-          :showSelect="showSelect"
-          @column-click="onColumnClick"
-          @click="$emit('click', $event)"
-        >
-          <template v-slot:header>
-            <label>{{ count }} records found</label>
-          </template>
-          <template v-slot:rowcolheader>
-            <RowButton
-              v-if="canEdit"
-              type="add"
-              :table="tableName"
-              :schemaName="schemaName"
-              @add="handleRowAction('add')"
-              class="d-inline p-0"
-            />
-          </template>
-          <template v-slot:colheader="slotProps">
-            <IconAction
-              v-if="slotProps.col && orderByColumn === slotProps.col.id"
-              :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-              class="d-inline p-0"
-            />
-          </template>
-          <template v-slot:rowheader="slotProps">
-            <RowButton
-              v-if="canEdit"
-              type="edit"
-              @edit="
-                handleRowAction(
-                  'edit',
-                  getPrimaryKey(slotProps.row, tableMetadata)
-                )
-              "
-            />
-            <RowButton
-              v-if="canEdit"
-              type="clone"
-              @clone="
-                handleRowAction(
-                  'clone',
-                  getPrimaryKey(slotProps.row, tableMetadata)
-                )
-              "
-            />
-            <RowButton
-              v-if="canEdit"
-              type="delete"
-              @delete="
-                handleDeleteRowRequest(
-                  getPrimaryKey(slotProps.row, tableMetadata)
-                )
-              "
-            />
-          </template>
-        </TableMolgenis>
+        <div v-if="!loading">
+          <AggregateTable
+            v-if="view === View.AGGREGATE"
+            :allColumns="columns"
+            :tableName="tableName"
+            :schemaName="schemaName"
+            :minimumValue="1"
+            :graphqlFilter="graphqlFilter"
+          />
+          <RecordCards
+            v-if="view === View.CARDS"
+            class="card-columns"
+            id="cards"
+            :data="dataRows"
+            :columns="columns"
+            :table-name="tableName"
+            :canEdit="canEdit"
+            :template="cardTemplate"
+            @click="$emit('rowClick', $event)"
+            @reload="reload"
+            @edit="
+              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+            "
+            @delete="
+              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+            "
+          />
+          <RecordCards
+            v-if="view === View.RECORD"
+            id="records"
+            :data="dataRows"
+            :columns="columns"
+            :table-name="tableName"
+            :canEdit="canEdit"
+            :template="recordTemplate"
+            @click="$emit('rowClick', $event)"
+            @reload="reload"
+            @edit="
+              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+            "
+            @delete="
+              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+            "
+          />
+          <TableMolgenis
+            v-if="view == View.TABLE"
+            :selection="selectedItems"
+            @update:selection="selectedItems = $event"
+            :columns="columns"
+            @update:colums="columns = $event"
+            :table-metadata="tableMetadata"
+            :data="dataRows"
+            :showSelect="showSelect"
+            @column-click="onColumnClick"
+            @rowClick="$emit('rowClick', $event)"
+            @cellClick="handleCellClick"
+          >
+            <template v-slot:header>
+              <label>{{ count }} records found</label>
+            </template>
+            <template v-slot:rowcolheader>
+              <RowButton
+                v-if="canEdit"
+                type="add"
+                :table="tableName"
+                :schemaName="schemaName"
+                @add="handleRowAction('add')"
+                class="d-inline p-0"
+              />
+            </template>
+            <template v-slot:colheader="slotProps">
+              <IconAction
+                v-if="slotProps.col && orderByColumn === slotProps.col.id"
+                :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+                class="d-inline p-0"
+              />
+            </template>
+            <template v-slot:rowheader="slotProps">
+              <RowButton
+                v-if="canEdit"
+                type="edit"
+                @edit="
+                  handleRowAction(
+                    'edit',
+                    getPrimaryKey(slotProps.row, tableMetadata)
+                  )
+                "
+              />
+              <RowButton
+                v-if="canEdit"
+                type="clone"
+                @clone="
+                  handleRowAction(
+                    'clone',
+                    getPrimaryKey(slotProps.row, tableMetadata)
+                  )
+                "
+              />
+              <RowButton
+                v-if="canEdit"
+                type="delete"
+                @delete="
+                  handleDeleteRowRequest(
+                    getPrimaryKey(slotProps.row, tableMetadata)
+                  )
+                "
+              />
+              <!--@slot Use this to add values or actions buttons to each row -->
+              <slot
+                name="rowheader"
+                :row="slotProps.row"
+                :metadata="tableMetadata"
+                :rowkey="getPrimaryKey(slotProps.row, tableMetadata)"
+              />
+            </template>
+          </TableMolgenis>
+        </div>
       </div>
     </div>
 
@@ -232,6 +313,7 @@
       :clone="editMode === 'clone'"
       :schemaName="schemaName"
       @close="handleModalClose"
+      :locale="locale"
     />
 
     <ConfirmModal
@@ -263,33 +345,78 @@
         }}'?
       </p>
     </ConfirmModal>
+    <RefSideModal
+      v-if="refSideModalProps"
+      :column="refSideModalProps.column"
+      :rows="refSideModalProps.rows"
+      :schema="this.schemaName"
+      @onClose="refSideModalProps = undefined"
+      :showDataOwner="canManage"
+    />
   </div>
 </template>
 
+<style scoped>
+.fixed-width {
+  width: 3em;
+  display: inline-block;
+}
+</style>
+
 <script>
-import Client from "../../client/client.js";
-import { getPrimaryKey, convertToPascalCase } from "../utils";
-import ShowHide from "./ShowHide.vue";
-import Pagination from "./Pagination.vue";
+import Client from "../../client/client.ts";
+import FilterSidebar from "../filters/FilterSidebar.vue";
+import FilterWells from "../filters/FilterWells.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
+import ConfirmModal from "../forms/ConfirmModal.vue";
+import EditModal from "../forms/EditModal.vue";
 import IconAction from "../forms/IconAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputSearch from "../forms/InputSearch.vue";
 import InputSelect from "../forms/InputSelect.vue";
-import SelectionBox from "./SelectionBox.vue";
-import Spinner from "../layout/Spinner.vue";
-import TableMolgenis from "./TableMolgenis.vue";
-import FilterSidebar from "../filters/FilterSidebar.vue";
-import FilterWells from "../filters/FilterWells.vue";
-import RecordCards from "./RecordCards.vue";
-import TableSettings from "./TableSettings.vue";
-import EditModal from "../forms/EditModal.vue";
-import ConfirmModal from "../forms/ConfirmModal.vue";
-import RowButton from "../tables/RowButton.vue";
 import MessageError from "../forms/MessageError.vue";
+import Spinner from "../layout/Spinner.vue";
+import RowButton from "../tables/RowButton.vue";
+import {
+  convertToPascalCase,
+  deepClone,
+  getLocalizedDescription,
+  getLocalizedLabel,
+  getPrimaryKey,
+  isRefType,
+} from "../utils";
+import AggregateTable from "./AggregateTable.vue";
+import Pagination from "./Pagination.vue";
+import RecordCards from "./RecordCards.vue";
+import RefSideModal from "./RefSideModal.vue";
+import SelectionBox from "./SelectionBox.vue";
+import ShowHide from "./ShowHide.vue";
+import TableMolgenis from "./TableMolgenis.vue";
+import TableSettings from "./TableSettings.vue";
 
-const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
+const View = {
+  TABLE: "table",
+  CARDS: "cards",
+  RECORD: "record",
+  AGGREGATE: "aggregate",
+};
+
+const ViewButtons = {
+  table: { id: View.TABLE, label: "Table", icon: "th" },
+  cards: { id: View.CARDS, label: "Card", icon: "list-alt" },
+  record: {
+    id: View.RECORD,
+    label: "Record",
+    icon: "th-list",
+    limitOverride: 1,
+  },
+  aggregate: {
+    id: View.AGGREGATE,
+    label: "Aggregate",
+    icon: "object-group",
+  },
+};
 
 export default {
   name: "TableExplorer",
@@ -313,13 +440,15 @@ export default {
     TableSettings,
     EditModal,
     ConfirmModal,
+    AggregateTable,
+    RefSideModal,
   },
   data() {
     return {
       cardTemplate: null,
       client: null,
       columns: [],
-      count: null,
+      count: 0,
       dataRows: [],
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
@@ -328,7 +457,7 @@ export default {
       isDeleteModalShown: false,
       isEditModalShown: false,
       limit: this.showLimit,
-      loading: false,
+      loading: true,
       order: this.showOrder,
       orderByColumn: this.showOrderBy,
       page: this.showPage,
@@ -337,6 +466,7 @@ export default {
       selectedItems: [],
       tableMetadata: null,
       view: this.showView,
+      refSideModalProps: undefined,
     };
   },
   props: {
@@ -380,6 +510,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    filter: {
+      type: Object,
+      default: () => ({}),
+    },
     showOrderBy: {
       type: String,
       required: false,
@@ -396,22 +530,26 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    locale: {
+      type: String,
+      default: () => "en",
+    },
   },
   computed: {
     tableId() {
       return convertToPascalCase(this.tableName);
     },
+    localizedLabel() {
+      return getLocalizedLabel(this.tableMetadata, this.locale);
+    },
+    localizedDescription() {
+      return getLocalizedDescription(this.tableMetadata, this.locale);
+    },
     View() {
       return View;
     },
-    viewIcon() {
-      if (this.view === View.CARDS) {
-        return "fa-list-alt";
-      } else if (this.view === View.TABLE) {
-        return "fa-th";
-      } else {
-        return "fa-th-list";
-      }
+    ViewButtons() {
+      return ViewButtons;
     },
     countFilters() {
       return this.columns
@@ -419,53 +557,11 @@ export default {
         : null;
     },
     graphqlFilter() {
-      let filter = {};
-      if (this.columns) {
-        this.columns.forEach((col) => {
-          const conditions = col.conditions
-            ? col.conditions.filter(
-                (condition) => condition !== "" && condition !== undefined
-              )
-            : [];
-          if (conditions.length) {
-            if (
-              col.columnType.startsWith("STRING") ||
-              col.columnType.startsWith("TEXT")
-            ) {
-              filter[col.id] = { like: conditions };
-            } else if (col.columnType.startsWith("BOOL")) {
-              filter[col.id] = { equals: conditions };
-            } else if (
-              col.columnType.startsWith("REF") ||
-              col.columnType.startsWith("ONTOLOGY")
-            ) {
-              filter[col.id] = { equals: conditions };
-            } else if (
-              [
-                "LONG",
-                "LONG_ARRAY",
-                "DECIMAL",
-                "DECIMAL_ARRAY",
-                "INT",
-                "INT_ARRAY",
-                "DATE",
-                "DATE_ARRAY",
-              ].includes(col.columnType)
-            ) {
-              filter[col.id] = {
-                between: conditions.flat(),
-              };
-            } else {
-              const msg =
-                "filter unsupported for column type '" +
-                col.columnType +
-                "' (please report a bug)";
-              this.graphqlError = msg;
-            }
-          }
-        });
-      }
-      return filter;
+      let filter = this.filter;
+      const errorCallback = (msg) => {
+        this.graphqlError = msg;
+      };
+      return graphqlFilter(filter, this.columns, errorCallback);
     },
   },
   methods: {
@@ -500,25 +596,31 @@ export default {
     async handelExecuteDeleteAll() {
       this.isDeleteAllModalShown = false;
       const resp = await this.client
-        .deleteAllTableData(this.tableId)
+        .deleteAllTableData(this.tableMetadata.name)
         .catch(this.handleError);
       if (resp) {
         this.reload();
       }
     },
-    toggleView() {
-      if (this.view === View.TABLE) {
-        this.view = View.CARDS;
-        this.limit = this.showLimit;
-      } else if (this.view === View.CARDS) {
-        this.view = View.RECORD;
-        this.limit = 1;
+    handleCellClick(event) {
+      const { column, cellValue } = event;
+      const rowsInRefTable = [cellValue].flat();
+      if (isRefType(column?.columnType)) {
+        this.refSideModalProps = {
+          column,
+          rows: rowsInRefTable,
+        };
+      }
+    },
+    setView(button) {
+      this.view = button.id;
+      if (button.limitOverride) {
+        this.limit = button.limitOverride;
       } else {
-        this.view = View.TABLE;
-        this.limit = 20;
+        this.limit = this.showLimit;
       }
       this.page = 1;
-      this.$emit("updateShowView", this.view, this.limit);
+      this.$emit("updateShowView", button.id, this.limit);
       this.reload();
     },
     onColumnClick(column) {
@@ -627,7 +729,6 @@ export default {
           orderby: orderBy,
         })
         .catch(this.handleError);
-
       this.dataRows = dataResponse[this.tableId];
       this.count = dataResponse[this.tableId + "_agg"]["count"];
       this.loading = false;
@@ -638,12 +739,13 @@ export default {
   },
   emits: [
     "updateShowFilters",
-    "click",
+    "rowClick",
     "updateShowLimit",
     "updateShowPage",
     "updateConditions",
     "updateShowColumns",
     "updateShowOrder",
+    "updateShowView",
     "searchTerms",
   ],
 };
@@ -676,6 +778,54 @@ function getCondition(columnType, condition) {
     return [];
   }
 }
+
+function graphqlFilter(defaultFilter, columns, errorCallback) {
+  let filter = deepClone(defaultFilter);
+  if (columns) {
+    columns.forEach((col) => {
+      const conditions = col.conditions
+        ? col.conditions.filter(
+            (condition) => condition !== "" && condition !== undefined
+          )
+        : [];
+      if (conditions.length) {
+        if (
+          col.columnType.startsWith("STRING") ||
+          col.columnType.startsWith("TEXT")
+        ) {
+          filter[col.id] = { like: conditions };
+        } else if (col.columnType.startsWith("BOOL")) {
+          filter[col.id] = { equals: conditions };
+        } else if (
+          col.columnType.startsWith("REF") ||
+          col.columnType.startsWith("ONTOLOGY")
+        ) {
+          filter[col.id] = { equals: conditions };
+        } else if (
+          [
+            "LONG",
+            "LONG_ARRAY",
+            "DECIMAL",
+            "DECIMAL_ARRAY",
+            "INT",
+            "INT_ARRAY",
+            "DATE",
+            "DATE_ARRAY",
+          ].includes(col.columnType)
+        ) {
+          filter[col.id] = {
+            between: conditions.flat(),
+          };
+        } else {
+          errorCallback(
+            `filter unsupported for column type ${col.columnType} (please report a bug)`
+          );
+        }
+      }
+    });
+  }
+  return filter;
+}
 </script>
 
 <style scoped>
@@ -686,13 +836,11 @@ function getCondition(columnType, condition) {
   border-bottom-left-radius: 0;
   border-left: 0;
 }
-
 .btn-group >>> span:not(:last-child) .btn {
   margin-left: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
-
 .inline-form-group {
   margin-bottom: 0;
 }
@@ -706,7 +854,7 @@ function getCondition(columnType, condition) {
       <table-explorer
         id="my-table-explorer"
         tableName="Pet"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"
@@ -716,6 +864,7 @@ function getCondition(columnType, condition) {
         :showOrder="showOrder"
         :canEdit="canEdit"
         :canManage="canManage"
+        :locale="locale"
       />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
@@ -731,12 +880,11 @@ function getCondition(columnType, condition) {
     </div>
   </div>
 </template>
-
 <script>
   export default {
     data() {
       return {
-        showColumns: ['name'],
+        showColumns: [],
         showFilters: ['name'],
         urlConditions: {"name": "pooky,spike"},
         page: 1,
@@ -744,7 +892,8 @@ function getCondition(columnType, condition) {
         showOrder: 'DESC',
         showOrderBy: 'name',
         canEdit: false,
-        canManage: false
+        canManage: false,
+        locale: 'en'
       }
     },
   }

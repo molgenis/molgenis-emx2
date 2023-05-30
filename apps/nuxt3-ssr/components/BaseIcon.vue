@@ -18,7 +18,7 @@ function toPascalCase(text) {
   return text.replace(/(^\w|-\w)/g, clearAndUpper);
 }
 
-const componentName = toPascalCase(props.name);
+const componentName = "Icons" + toPascalCase(props.name);
 </script>
 
 <template>

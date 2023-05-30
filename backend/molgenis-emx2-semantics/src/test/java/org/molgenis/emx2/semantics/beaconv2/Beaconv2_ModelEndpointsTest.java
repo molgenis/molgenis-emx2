@@ -1,13 +1,13 @@
 package org.molgenis.emx2.semantics.beaconv2;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
@@ -25,7 +25,7 @@ public class Beaconv2_ModelEndpointsTest {
   static Schema beaconSchema;
   static List<Table> tables;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     beaconSchema = database.dropCreateSchema("fairdatahub");
@@ -45,9 +45,9 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(
         json.contains(
             """
-            "response" : {
-                "resultSets" : [ ]
-              }"""));
+                                "response" : {
+                                    "resultSets" : [ ]
+                                  }"""));
     assertEquals(728, json.length());
   }
 
@@ -202,21 +202,21 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(
         json.contains(
             """
-            "response" : {
-                "collections" : [
-                  {
-                    "cohortId" : "Cohort0001","""));
+                                "response" : {
+                                    "collections" : [
+                                      {
+                                        "cohortId" : "Cohort0001","""));
     assertTrue(
         json.contains(
             """
-            "locations" : [
-                      {
-                        "id" : "ISO3166:FR",
-                        "label" : "France"
-                      },
-                      {
-                        "id" : "ISO3166:ES",
-                        "label" : "Spain\""""));
+                                "locations" : [
+                                          {
+                                            "id" : "ISO3166:FR",
+                                            "label" : "France"
+                                          },
+                                          {
+                                            "id" : "ISO3166:ES",
+                                            "label" : "Spain\""""));
   }
 
   @Test
@@ -228,9 +228,9 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(
         json.contains(
             """
-            "response" : {
-                "collections" : [ ]
-              }"""));
+                                "response" : {
+                                    "collections" : [ ]
+                                  }"""));
     assertEquals(729, json.length());
   }
 
@@ -268,34 +268,34 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(
         json.contains(
             """
-				"measures" : [
-				  {
-				    "assayCode" : {
-				      "id" : "EDAM:topic_3308","""
+                                "measures" : [
+                                  {
+                                    "assayCode" : {
+                                      "id" : "EDAM:topic_3308","""
                 .indent(12)));
     assertTrue(
         json.contains(
             """
-				"assayCode" : {
-				  "id" : "EDAM:topic_0121",
-				  "label" : "Proteomics\""""
+                                "assayCode" : {
+                                  "id" : "EDAM:topic_0121",
+                                  "label" : "Proteomics\""""
                 .indent(16)));
     assertTrue(
         json.contains(
             """
-						"date" : "2019-07-06",
-						                "measurementVariable" : "TTN peptipe",
-						                "measurementValue" : {
-						                  "value" : 6853,
-						                  "units" : {
-						                    "id" : "NCIT:C67433",
-						                    "label" : "Nanomole per Milligram of Protein\""""));
+                                "date" : "2019-07-06",
+                                                "measurementVariable" : "TTN peptipe",
+                                                "measurementValue" : {
+                                                  "value" : 6853,
+                                                  "units" : {
+                                                    "id" : "NCIT:C67433",
+                                                    "label" : "Nanomole per Milligram of Protein\""""));
     assertTrue(
         json.contains(
             """
-						"observationMoment" : {
-						  "age" : {
-						    "iso8601duration" : "P75Y9M11D\""""
+                                "observationMoment" : {
+                                  "age" : {
+                                    "iso8601duration" : "P75Y9M11D\""""
                 .indent(16)));
   }
 
@@ -309,9 +309,9 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(
         json.contains(
             """
-            "response" : {
-                "resultSets" : [ ]
-              }"""));
+                                "response" : {
+                                    "resultSets" : [ ]
+                                  }"""));
     assertEquals(728, json.length());
   }
 
@@ -334,9 +334,9 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(
         json.contains(
             """
-                    "response" : {
-                        "resultSets" : [ ]
-                      }"""));
+                                "response" : {
+                                    "resultSets" : [ ]
+                                  }"""));
     assertEquals(728, json.length());
   }
 
@@ -357,17 +357,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C28421",
-					"value": "NCIT_C16576",
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": "NCIT_C16576",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.SEX),
         1);
   }
 
@@ -375,22 +376,23 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHits() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C28421",
-					"value": "NCIT_C16576",
-					"operator": "="
-				  },
-				  {
-					"id": "NCIT_C28421",
-					"value": "NCIT_C20197",
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": "NCIT_C16576",
+                        		"operator": "="
+                        	  },
+                        	  {
+                        		"id": "%s",
+                        		"value": "NCIT_C20197",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.SEX, EJP_VP_IndividualsQuery.SEX),
         0);
   }
 
@@ -398,17 +400,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C28421",
-					"value": "NCIT_C16577",
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": "NCIT_C16577",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.SEX),
         0);
   }
 
@@ -416,17 +419,35 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnDisease_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "SIO_001003",
-					"value": "Orphanet_1895",
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": "Orphanet_1895",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.DISEASE),
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_OntologyFilterSyntax_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "Orphanet_1895"
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.DISEASE),
         1);
   }
 
@@ -434,22 +455,23 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnDisease_AlsoOneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "SIO_001003",
-					"value": "Orphanet_1895",
-					"operator": "="
-				  },
-				  {
-					"id": "SIO_001003",
-					"value": "Orphanet_1955",
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": "Orphanet_1895",
+                        		"operator": "="
+                        	  },
+                        	  {
+                        		"id": "%s",
+                        		"value": "Orphanet_1955",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.DISEASE, EJP_VP_IndividualsQuery.DISEASE),
         1);
   }
 
@@ -457,17 +479,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnDisease_TwoHits() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "SIO_001003",
-					"value": "Orphanet_1955",
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": "Orphanet_1955",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.DISEASE),
         2);
   }
 
@@ -475,17 +498,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnDisease_NoHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "SIO_001003",
-					"value": "Orphanet_18730",
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": "Orphanet_18730",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.DISEASE),
         0);
   }
 
@@ -493,17 +517,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAge_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C25150",
-					"value": 31,
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 31,
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         1);
   }
 
@@ -511,17 +536,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAge_TwoHits() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C25150",
-					"value": 33,
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 33,
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         2);
   }
 
@@ -529,17 +555,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAge_NoHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C25150",
-					"value": 30,
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 30,
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         0);
   }
 
@@ -547,17 +574,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAgeGreaterThan_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C25150",
-					"value": 33,
-					"operator": ">"
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 33,
+                        		"operator": ">"
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         1);
   }
 
@@ -565,17 +593,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAgeLessThan_ThreeHits() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C25150",
-					"value": 50,
-					"operator": "<"
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 50,
+                        		"operator": "<"
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         3);
   }
 
@@ -583,17 +612,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAgeLessThan_TwoHits() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C25150",
-					"value": 34,
-					"operator": "<"
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 34,
+                        		"operator": "<"
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         2);
   }
 
@@ -601,17 +631,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAgeLessThanOrEquals_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C25150",
-					"value": 2,
-					"operator": "<="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 2,
+                        		"operator": "<="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         1);
   }
 
@@ -619,17 +650,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAgeLessThan_NoHits() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C25150",
-					"value": 2,
-					"operator": "<"
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 2,
+                        		"operator": "<"
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         0);
   }
 
@@ -637,17 +669,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "EFO_0004847",
-					"value": 3,
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 3,
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
         1);
   }
 
@@ -655,17 +688,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_NoHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "EFO_0004847",
-					"value": 91,
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 91,
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
         0);
   }
 
@@ -673,17 +707,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThan_TwoHits() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "EFO_0004847",
-					"value": 25,
-					"operator": ">"
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 25,
+                        		"operator": ">"
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
         2);
   }
 
@@ -691,17 +726,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThan_NoHits() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "EFO_0004847",
-					"value": 89,
-					"operator": ">"
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 89,
+                        		"operator": ">"
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
         0);
   }
 
@@ -709,17 +745,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThanOrEquals_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "EFO_0004847",
-					"value": 89,
-					"operator": ">="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 89,
+                        		"operator": ">="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
         1);
   }
 
@@ -727,22 +764,23 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosis_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C156420",
-					"value": 20,
-					"operator": "="
-				  },
-				  {
-					"id": "NCIT_C156420",
-					"value": 2,
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 20,
+                        		"operator": "="
+                        	  },
+                        	  {
+                        		"id": "%s",
+                        		"value": 2,
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_AT_DIAG, EJP_VP_IndividualsQuery.AGE_AT_DIAG),
         1);
   }
 
@@ -750,17 +788,18 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosisLessThan_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C156420",
-					"value": 50,
-					"operator": "<"
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 50,
+                        		"operator": "<"
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_AT_DIAG),
         1);
   }
 
@@ -768,17 +807,37 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnCausalGenes_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C16612",
-					"value": "TTN",
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": "TTN",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_asArray_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": ["TTN"],
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE),
         1);
   }
 
@@ -786,17 +845,149 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnCausalGenes_TwoHits() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C16612",
-					"value": "COL7A1",
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": "COL7A1",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        2);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingAND_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": "TTN",
+                        		"operator": "="
+                        	  },
+                        	  {
+                        		"id": "%s",
+                        		"value": "COL7A1",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingAND_NoHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": "TTN",
+                        		"operator": "="
+                        	  },
+                        	  {
+                        		"id": "%s",
+                        		"value": "CHD7",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        0);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_CombinedArrayAndString_OneHit()
+      throws Exception {
+    assertNrOfHitsFor(
+        """
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": ["TTN","CHD7"],
+                        		"operator": "="
+                        	  },
+                        	  {
+                        		"id": "%s",
+                        		"value": "COL7A1",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingOR_ThreeHits() throws Exception {
+    assertNrOfHitsFor(
+        """
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": ["CHD7","COL7A1"],
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        3);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingOR_TTNinList_TwoHits() throws Exception {
+    assertNrOfHitsFor(
+        """
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": ["TTN","CHD7"],
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        2);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingOR_TTNinList_COL7doublehit_TwoHits()
+      throws Exception {
+    assertNrOfHitsFor(
+        """
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": ["TTN","COL7A1"],
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
         2);
   }
 
@@ -804,41 +995,78 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnPhenotype_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "SIO_010056",
-					"value": "HP_0012651",
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": "HP_0012651",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.PHENOTYPE),
         1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnPhenotype_OntologyFilterSyntax() throws Exception {
+    assertNrOfHitsFor(
+        """
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "HP_0012651"
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.PHENOTYPE),
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnPhenotypeOrDisease_OntologyFilterSyntax()
+      throws Exception {
+    assertNrOfHitsFor(
+        """
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": ["HP_0012651","Orphanet_1895"]
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.PHENOTYPE),
+        2);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnGenderAndDisease_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"description": "Query to get count of female (NCIT_C16576) individuals with diagnostic opinion (sio:SIO_001003) Edinburgh malformation syndrome (Orphanet_1895)",
-				"filters": [
-				  {
-					"id": "NCIT_C28421",
-					"value": "NCIT_C16576",
-					"operator": "="
-				  },
-				  {
-					"id": "SIO_001003",
-					"value": "Orphanet_1895",
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"description": "Query to get count of female (NCIT_C16576) individuals with diagnostic opinion (sio:SIO_001003) Edinburgh malformation syndrome (Orphanet_1895)",
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": "NCIT_C16576",
+                        		"operator": "="
+                        	  },
+                        	  {
+                        		"id": "%s",
+                        		"value": "Orphanet_1895",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.SEX, EJP_VP_IndividualsQuery.DISEASE),
         1);
   }
 
@@ -846,22 +1074,23 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnDiseaseAndGene_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			   "query": {
-				 "filters": [
-				   {
-					 "id": "SIO_001003",
-					 "value": "Orphanet_1895",
-					 "operator": "="
-				   },
-				   {
-					 "id": "NCIT_C16612",
-					 "value": "COL7A1",
-					 "operator": "="
-				   }
-				 ]
-			   }
-			 }""",
+                        {
+                           "query": {
+                        	 "filters": [
+                        	   {
+                        		 "id": "%s",
+                        		 "value": "Orphanet_1895",
+                        		 "operator": "="
+                        	   },
+                        	   {
+                        		 "id": "%s",
+                        		 "value": "COL7A1",
+                        		 "operator": "="
+                        	   }
+                        	 ]
+                           }
+                         }"""
+            .formatted(EJP_VP_IndividualsQuery.DISEASE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
         1);
   }
 
@@ -869,22 +1098,23 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnAgeLessThanAndGene_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "NCIT_C25150",
-					"value": 50,
-					"operator": "<"
-				  },
-				  {
-					"id": "NCIT_C16612",
-					"value": "TTN",
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "%s",
+                        		"value": 50,
+                        		"operator": "<"
+                        	  },
+                        	  {
+                        		"id": "%s",
+                        		"value": "TTN",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR, EJP_VP_IndividualsQuery.CAUSAL_GENE),
         1);
   }
 
@@ -892,27 +1122,31 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnDiseaseAndGeneAndGender_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			   "query": {
-				 "filters": [
-				   {
-					 "id": "SIO_001003",
-					 "value": "Orphanet_1873",
-					 "operator": "="
-				   },
-				   {
-					 "id": "NCIT_C16612",
-					 "value": "CHD7",
-					 "operator": "="
-				   },
-				   {
-					 "id": "NCIT_C28421",
-					 "value": "NCIT_C20197",
-					 "operator": "="
-				   }
-				 ]
-			   }
-			 }""",
+                        {
+                           "query": {
+                        	 "filters": [
+                        	   {
+                        		 "id": "%s",
+                        		 "value": "Orphanet_1873",
+                        		 "operator": "="
+                        	   },
+                        	   {
+                        		 "id": "%s",
+                        		 "value": "CHD7",
+                        		 "operator": "="
+                        	   },
+                        	   {
+                        		 "id": "%s",
+                        		 "value": "NCIT_C20197",
+                        		 "operator": "="
+                        	   }
+                        	 ]
+                           }
+                         }"""
+            .formatted(
+                EJP_VP_IndividualsQuery.DISEASE,
+                EJP_VP_IndividualsQuery.CAUSAL_GENE,
+                EJP_VP_IndividualsQuery.SEX),
         1);
   }
 
@@ -921,27 +1155,31 @@ public class Beaconv2_ModelEndpointsTest {
       throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			   "query": {
-				 "filters": [
-				   {
-					 "id": "sio:SIO_001003",
-					 "value": "ordo:Orphanet_1873",
-					 "operator": "="
-				   },
-				   {
-					 "id": "obo:NCIT_C16612",
-					 "value": "CHD7",
-					 "operator": "="
-				   },
-				   {
-					 "id": "obo:NCIT_C28421",
-					 "value": "obo:NCIT_C20197",
-					 "operator": "="
-				   }
-				 ]
-			   }
-			 }""",
+                        {
+                           "query": {
+                        	 "filters": [
+                        	   {
+                        		 "id": "sio:%s",
+                        		 "value": "ordo:Orphanet_1873",
+                        		 "operator": "="
+                        	   },
+                        	   {
+                        		 "id": "obo:%s",
+                        		 "value": "CHD7",
+                        		 "operator": "="
+                        	   },
+                        	   {
+                        		 "id": "obo:%s",
+                        		 "value": "obo:NCIT_C20197",
+                        		 "operator": "="
+                        	   }
+                        	 ]
+                           }
+                         }"""
+            .formatted(
+                EJP_VP_IndividualsQuery.DISEASE,
+                EJP_VP_IndividualsQuery.CAUSAL_GENE,
+                EJP_VP_IndividualsQuery.SEX),
         1);
   }
 
@@ -949,27 +1187,31 @@ public class Beaconv2_ModelEndpointsTest {
   public void test_EJP_RD_VP_API_FilterOnDiseaseAndGeneAndGenderWithURLs_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
-			{
-			   "query": {
-				 "filters": [
-				   {
-					 "id": "http://semanticscience.org/resource/SIO_001003",
-					 "value": "http://www.orpha.net/ORDO/Orphanet_1873",
-					 "operator": "="
-				   },
-				   {
-					 "id": "http://purl.obolibrary.org/obo/NCIT_C16612",
-					 "value": "CHD7",
-					 "operator": "="
-				   },
-				   {
-					 "id": "http://purl.obolibrary.org/obo/NCIT_C28421",
-					 "value": "http://purl.obolibrary.org/obo/NCIT_C20197",
-					 "operator": "="
-				   }
-				 ]
-			   }
-			 }""",
+                        {
+                           "query": {
+                        	 "filters": [
+                        	   {
+                        		 "id": "http://semanticscience.org/resource/%s",
+                        		 "value": "http://www.orpha.net/ORDO/Orphanet_1873",
+                        		 "operator": "="
+                        	   },
+                        	   {
+                        		 "id": "http://purl.obolibrary.org/obo/%s",
+                        		 "value": "CHD7",
+                        		 "operator": "="
+                        	   },
+                        	   {
+                        		 "id": "http://purl.obolibrary.org/obo/%s",
+                        		 "value": "http://purl.obolibrary.org/obo/NCIT_C20197",
+                        		 "operator": "="
+                        	   }
+                        	 ]
+                           }
+                         }"""
+            .formatted(
+                EJP_VP_IndividualsQuery.DISEASE,
+                EJP_VP_IndividualsQuery.CAUSAL_GENE,
+                EJP_VP_IndividualsQuery.SEX),
         1);
   }
 
@@ -979,17 +1221,17 @@ public class Beaconv2_ModelEndpointsTest {
     // 'Benign'. This works via the refback field 'hasGenomicVariations'.
     assertNrOfHitsFor(
         """
-			{
-			  "query": {
-				"filters": [
-				  {
-					"id": "HP_0045088",
-					"value": "NCIT_C168802",
-					"operator": "="
-				  }
-				]
-			  }
-			}""",
+                        {
+                          "query": {
+                        	"filters": [
+                        	  {
+                        		"id": "HP_0045088",
+                        		"value": "NCIT_C168802",
+                        		"operator": "="
+                        	  }
+                        	]
+                          }
+                        }""",
         1);
   }
 

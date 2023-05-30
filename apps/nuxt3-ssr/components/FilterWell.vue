@@ -14,11 +14,10 @@ function clearConditions(filter) {
 
 function clearAll() {
   filters.value.forEach((filter) => {
-    if (filter?.columnType === "ONTOLOGY") {
-      clearConditions(filter);
-    }
     if (filter?.columnType === "_SEARCH") {
       clearSearch(filter);
+    } else {
+      clearConditions(filter);
     }
   });
 }
@@ -30,7 +29,7 @@ function isFilterSet(filter) {
   ) {
     return false;
   }
-  if (filter?.columnType === "ONTOLOGY" && filter?.conditions.length === 0) {
+  if (filter?.columnType !== "_SEARCH" && filter?.conditions.length === 0) {
     return false;
   }
   return true;
@@ -63,20 +62,31 @@ function isAFilterSet(filters) {
         >
           {{ `${filter?.title}: ${filter?.search}` }}
         </Button>
-        <Button
-          v-if="filter?.columnType === 'ONTOLOGY' && isFilterSet(filter)"
-          @click="clearConditions(filter)"
-          v-tooltip="filter?.conditions.map((item) => item.name).join(', ')"
-          icon="trash"
-          icon-position="right"
-          size="tiny"
-          type="filterWell"
+
+        <VDropdown
+          :triggers="['hover', 'focus']"
+          :distance="12"
+          theme="tooltip"
         >
-          {{ filter?.title }}
-          <small class="text-gray-600">
-            {{ `- ${filter?.conditions.length}` }}
-          </small>
-        </Button>
+          <Button
+            v-if="filter?.columnType !== '_SEARCH' && isFilterSet(filter)"
+            @click="clearConditions(filter)"
+            icon="trash"
+            icon-position="right"
+            size="tiny"
+            type="filterWell"
+          >
+            {{ filter?.title }}
+            <small class="text-gray-600">
+              {{ `- ${filter?.conditions.length}` }}
+            </small>
+          </Button>
+          <template #popper>
+            <ul style="list-style-type: disc" class="pl-3 min-w-95">
+              <li v-for="item in filter?.conditions">{{ item.name }}</li>
+            </ul>
+          </template>
+        </VDropdown>
       </template>
       <Button
         icon="trash"

@@ -1,12 +1,18 @@
 <template>
-  <div>loading {{ resource }} {{ pid }}</div>
+  <div>loading {{ id }}</div>
 </template>
 
 <script>
-import { Client } from "molgenis-components";
+import { Client, convertToPascalCase } from "molgenis-components";
 
 /** will forward from Resource to specific details view, e.g. Databanks-details, based on mg_tableclass */
 export default {
+  props: {
+    id: { type: String, required: true },
+  },
+  data() {
+    return { resourceData: null };
+  },
   computed: {
     resource() {
       if (this.resourceData && this.resourceData.mg_tableclass) {
@@ -15,20 +21,13 @@ export default {
         return null;
       }
     },
-    pid() {
-      if (this.resourceData && this.resourceData.pid) {
-        return this.resourceData.pid;
-      } else {
-        return null;
-      }
-    },
   },
   watch: {
     resourceData() {
-      if (this.resource) {
-        this.$router.push({
-          name: this.resource + "-details",
-          params: { pid: this.pid },
+      if (this.resourceData) {
+        this.$router.replace({
+          name: convertToPascalCase(this.resource) + "-details",
+          params: { id: this.id },
         });
       }
     },
@@ -36,8 +35,8 @@ export default {
   async mounted() {
     this.client = Client.newClient();
     this.resourceData = (
-      await this.client.fetchTableDataValues(this.table, {
-        filter: this.filter,
+      await this.client.fetchTableDataValues("Resources", {
+        filter: { id: { equals: this.id } },
       })
     )[0];
   },

@@ -7,7 +7,7 @@ import Sidebar from "./Sidebar.vue";
 import DemoItem from "./DemoItem.vue";
 import axios from "axios";
 import VueScrollTo from "vue-scrollto";
-import Client from "./client/client.js";
+import Client from "./client/client";
 import * as utils from "./components/utils";
 
 //load the components

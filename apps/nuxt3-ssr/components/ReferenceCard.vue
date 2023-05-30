@@ -23,7 +23,7 @@ defineProps({
     <article class="grid grid-cols-12 gap-6 p-12.5">
       <div class="col-span-3">
         <div class="items-center flex h-full w-full justify-center">
-          <a href="#">
+          <a :href="url">
             <img :src="imageUrl" />
           </a>
         </div>
@@ -35,14 +35,16 @@ defineProps({
               class="min-w-[160px] inline-block mr-4 text-heading-base sm:text-heading-3xl font-extrabold text-blue-500"
             >
               <a :href="url" class="hover:underline hover:bg-blue-50">
-                {{ title }}</a
-              >
+                {{ title }}
+              </a>
             </h2>
           </div>
           <div class="hidden sm:block">
             <div class="flex">
               <!-- <IconButton icon="star" class="text-blue-500" /> -->
-              <IconButton icon="arrow-right" class="text-blue-500" />
+              <a :href="url">
+                <IconButton icon="arrow-right" class="text-blue-500" />
+              </a>
             </div>
           </div>
         </header>

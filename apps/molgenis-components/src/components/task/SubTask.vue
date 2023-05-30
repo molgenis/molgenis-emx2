@@ -12,11 +12,17 @@
   </ul>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent, PropType } from "vue";
+import ITask from "./ITask";
+
+export default defineComponent({
   name: "SubTask",
   props: {
-    task: Object,
+    task: {
+      type: Object as PropType<ITask>,
+      required: true,
+    },
   },
   computed: {
     color() {
@@ -50,7 +56,7 @@ export default {
       }
     },
   },
-};
+});
 </script>
 
 <docs>

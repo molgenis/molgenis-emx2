@@ -25,7 +25,7 @@ class QueryEMX2 {
     this.graphqlUrl = graphqlUrl;
   }
 
-  table (tableName) {
+  table(tableName) {
     /** Tables are always PascalCase */
     this.tableName = this._toPascalCase(tableName);
     return this;
@@ -35,16 +35,15 @@ class QueryEMX2 {
    * @param {string | string[]} columns
    * When you supply an object the Key is the table or REF property and the value is a string or string array
    */
-  select (columns) {
+  select(columns) {
     let requestedColumns = [];
 
     if (!Array.isArray(columns)) {
       requestedColumns = [columns];
     } else if (columns) {
       requestedColumns = this._createPathFromObject("", columns);
-    }
-    else {
-      requestedColumns = this.selection
+    } else {
+      requestedColumns = this.selection;
     }
 
     /** column names are always lowercase */
@@ -60,7 +59,7 @@ class QueryEMX2 {
    * @param {object[]} filters
    * @returns GraphQL query string
    */
-  async execute () {
+  async execute() {
     /** Fail fast */
     if (!this.tableName) {
       throw Error(
@@ -80,16 +79,16 @@ class QueryEMX2 {
     );
   }
   /** Executes the query as aggregate */
-  aggregate () {
+  aggregate() {
     this.aggregateQuery = true;
     return this;
   }
 
-  getQuery () {
+  getQuery() {
     return this._createQuery(this.tableName, this.selection);
   }
 
-  getAggregateQuery () {
+  getAggregateQuery() {
     /** create a hard copy */
     const aggSelection = Object.assign([], this.selection);
     aggSelection.push("count");
@@ -99,7 +98,7 @@ class QueryEMX2 {
   /**
    * Gets the table information for the current schema
    */
-  async getSchemaTablesInformation () {
+  async getSchemaTablesInformation() {
     if (Object.keys(this._schemaTablesInformation).length)
       return this._schemaTablesInformation;
 
@@ -125,7 +124,7 @@ class QueryEMX2 {
   }
 
   /** returns the columns with adjusted names so it can directly be used to query. */
-  async getColumnsForTable (tableName) {
+  async getColumnsForTable(tableName) {
     await this.getSchemaTablesInformation();
 
     return this._schemaTablesInformation
@@ -139,7 +138,7 @@ class QueryEMX2 {
   }
 
   /** returns the correct column names and their types. */
-  async getColumnsMetadataForTable (tableName) {
+  async getColumnsMetadataForTable(tableName) {
     await this.getSchemaTablesInformation();
 
     return this._schemaTablesInformation
@@ -157,7 +156,7 @@ class QueryEMX2 {
    * @param {string} subcolumn
    * @returns
    */
-  where (column) {
+  where(column) {
     this.type = "_and";
     this.branch = "root";
     /** always convert to lowercase, else api will error */
@@ -165,7 +164,7 @@ class QueryEMX2 {
     return this;
   }
 
-  orWhere (column) {
+  orWhere(column) {
     /** need to know if we have the array syntax or just object */
     this.orCount = this.orCount + 1;
     this.type = "_or";
@@ -181,7 +180,7 @@ class QueryEMX2 {
    * @param {string} nestedColumn
    * @returns
    */
-  filter (column) {
+  filter(column) {
     this.type = "_and";
     const firstDot = column.indexOf(".");
     this.branch = this._toCamelCase(column.substring(0, firstDot));
@@ -196,18 +195,17 @@ class QueryEMX2 {
    * @param {string} nestedColumn
    * @returns
    */
-  subfilter (column) {
+  subfilter(column) {
     const firstDot = column.indexOf(".");
     const subcolumn = column.substring(firstDot + 1);
     let secondDot = subcolumn.indexOf(".");
-    this.type = "_or"
+    this.type = "_or";
 
     if (secondDot > 0) {
       this.branch = this._toCamelCase(subcolumn.substring(0, secondDot));
       this.column = this._toCamelCase(subcolumn.substring(secondDot + 1));
-    }
-    else {
-      const queryParts = column.split('.');
+    } else {
+      const queryParts = column.split(".");
       this.branch = this._toCamelCase(queryParts[0]);
       this.column = this._toCamelCase(queryParts[1]);
     }
@@ -215,8 +213,8 @@ class QueryEMX2 {
     return this;
   }
   /** Resets all filters, useful for when you want to add filters dynamically */
-  resetAllFilters () {
-    this.filters = {}
+  resetAllFilters() {
+    this.filters = {};
     this.findInAllColumns = "";
     this.page = {};
     return this;
@@ -227,7 +225,7 @@ class QueryEMX2 {
    * @param {int} amount the amount you want to return
    * @returns
    */
-  limit (item, amount) {
+  limit(item, amount) {
     let columnOrTable =
       item.toLowerCase() === this.tableName.toLowerCase()
         ? "root"
@@ -241,7 +239,7 @@ class QueryEMX2 {
    * @param {int} amount the page you want to have starting at 0
    * @returns
    */
-  offset (item, amount) {
+  offset(item, amount) {
     let columnOrTable =
       item.toLowerCase() === this.tableName.toLowerCase()
         ? "root"
@@ -255,7 +253,7 @@ class QueryEMX2 {
    * @param {string} column the name of the column to apply the order to
    * @param {string} direction "asc" or "dsc"
    */
-  orderBy (item, column, direction) {
+  orderBy(item, column, direction) {
     let columnOrTable =
       item.toLowerCase() === this.tableName.toLowerCase()
         ? "root"
@@ -268,7 +266,7 @@ class QueryEMX2 {
    * Additional function, which does the same as search but might be more semantic
    * @param {any} value searches this value across all columns, can only be applied to the top level table
    */
-  find (value) {
+  find(value) {
     this.findInAllColumns = value;
     return this;
   }
@@ -276,20 +274,20 @@ class QueryEMX2 {
   /**
    * @param {any} value searches this value across all columns, can only be applied to the top level table
    */
-  search (value) {
+  search(value) {
     this.findInAllColumns = value;
     return this;
   }
 
   /** Text, String, Url, Int, Bool, Datetime Filter */
-  equals (value) {
+  equals(value) {
     const operator = "equals";
 
     this._createFilter(operator, value);
     return this;
   }
   /** Text, String, Url, Int, Bool, Datetime Filter */
-  notEquals (value) {
+  notEquals(value) {
     const operator = "not_equals";
 
     this._createFilter(operator, value);
@@ -297,33 +295,34 @@ class QueryEMX2 {
   }
 
   /** Text, String, Url, Filter */
-  orLike (value) {
-    const operator = "orLike"; /** custom type, to make it into a bracket type query: { like: ["red", "green"] } */
+  orLike(value) {
+    const operator =
+      "orLike"; /** custom type, to make it into a bracket type query: { like: ["red", "green"] } */
     return this._createFilter(operator, value);
   }
 
   /** Text, String, Url, Filter */
-  like (value) {
+  like(value) {
     const operator = "like";
 
     return this._createFilter(operator, value);
   }
   /** Text, String, Url, Filter */
-  notLike (value) {
+  notLike(value) {
     const operator = "not_like";
 
     this._createFilter(operator, value);
     return this;
   }
   /** Text, String, Url, Filter */
-  triagramSearch (value) {
+  triagramSearch(value) {
     const operator = "triagram_search";
 
     this._createFilter(operator, value);
     return this;
   }
   /** Text, String, Url, Filter */
-  textSearch (value) {
+  textSearch(value) {
     const operator = "text_search";
 
     this._createFilter(operator, value);
@@ -331,28 +330,28 @@ class QueryEMX2 {
   }
 
   /** Int, Datetime Filter */
-  between (value) {
+  between(value) {
     const operator = "between";
 
     this._createFilter(operator, value);
     return this;
   }
   /** Int, Datetime Filter */
-  notBetween (value) {
+  notBetween(value) {
     const operator = "not_between";
     this._createFilter(operator, value);
     return this;
   }
 
-  _toPascalCase (value) {
+  _toPascalCase(value) {
     return value[0].toUpperCase() + value.substring(1);
   }
 
-  _toCamelCase (value) {
+  _toCamelCase(value) {
     return value[0].toLowerCase() + value.substring(1);
   }
 
-  _createQuery (root, properties) {
+  _createQuery(root, properties) {
     const rootModifier = this._generateModifiers("root");
 
     let result = "";
@@ -401,28 +400,27 @@ ${root}${rootModifier} {\n`;
   // Biobanks(orderby: { name: ASC }, filter: {collections: {_and: [{materials: {name: {like: "BUFFY_COAT"}}}, {materials: {name: {like: "CELL_LINES"}}}]}})
   // but this requires another rewrite ;)
 
-  _createFilterString (filters) {
-    let filterString = ''
+  _createFilterString(filters) {
+    let filterString = "";
 
-    if (!filters) return filterString
+    if (!filters) return filterString;
 
-    if (filters['_and'].length) {
-      filterString += `_and: [ ${filters['_and'].join(", ")} ]`
+    if (filters["_and"].length) {
+      filterString += `_and: [ ${filters["_and"].join(", ")} ]`;
     }
 
-    if (filters['_or'].length) {
-
+    if (filters["_or"].length) {
       if (filterString.length) {
-        filterString += ", "
+        filterString += ", ";
       }
 
-      filterString += `_or: [ ${filters['_or'].join(", ")} ]`
+      filterString += `_or: [ ${filters["_or"].join(", ")} ]`;
     }
-    return filterString
+    return filterString;
   }
 
   /** Generate the bit inside parentheses */
-  _generateModifiers (property) {
+  _generateModifiers(property) {
     const modifierParts = [];
 
     modifierParts.push(
@@ -439,15 +437,15 @@ ${root}${rootModifier} {\n`;
     modifierParts.push(
       this.orderings[property]
         ? `orderby: { ${this.orderings[property].column}: ${this.orderings[
-          property
-        ].direction.toUpperCase()} }`
+            property
+          ].direction.toUpperCase()} }`
         : ""
     );
 
-    const filterString = this._createFilterString(this.filters[property])
+    const filterString = this._createFilterString(this.filters[property]);
 
     if (filterString.length) {
-      modifierParts.push(`filter: { ${filterString} }`)
+      modifierParts.push(`filter: { ${filterString} }`);
     }
 
     const filledModifiers = modifierParts.filter((f) => f.length > 0);
@@ -455,53 +453,51 @@ ${root}${rootModifier} {\n`;
     return filledModifiers.length ? `(${filledModifiers.join(", ")})` : "";
   }
 
-  _createFilterFromPath (path, operator, value) {
-    const valueArray = Array.isArray(value) ? value : [value]
+  _createFilterFromPath(path, operator, value) {
+    const valueArray = Array.isArray(value) ? value : [value];
 
     for (const value of valueArray) {
-
       /** reverse the path, so we can build it from the inside out */
-      const reversedPathParts = path.split('.').reverse()
-      let graphqlValue = typeof value === "boolean" ? `${value}` : `"${value}"`
+      const reversedPathParts = path.split(".").reverse();
+      let graphqlValue = typeof value === "boolean" ? `${value}` : `"${value}"`;
 
       /** if it is an _or and a like, concat them */
-      const queryType = !this.type ? "_and" : this.type
-      if (operator === 'orLike') {
-        graphqlValue = `["${valueArray.join('", "')}"]`
-        operator = 'like' /** set it to the correct operator for graphQl */
+      const queryType = !this.type ? "_and" : this.type;
+      if (operator === "orLike") {
+        graphqlValue = `["${valueArray.join('", "')}"]`;
+        operator = "like"; /** set it to the correct operator for graphQl */
       }
-
 
       /** most inner part of the query e.g. 'like: "red" */
-      let filter = `{ ${operator}: ${graphqlValue} }`
+      let filter = `{ ${operator}: ${graphqlValue} }`;
 
       for (const pathPart of reversedPathParts) {
-        filter = `{ ${pathPart}: ${filter} }`
+        filter = `{ ${pathPart}: ${filter} }`;
       }
-      this.filters[this.branch][queryType].push(filter)
+      this.filters[this.branch][queryType].push(filter);
 
       /** we folded all into one so just return */
-      if (graphqlValue.includes("[")) return
+      if (graphqlValue.includes("[")) return;
     }
   }
 
   /** Private function to create the correct filter syntax. */
-  _createFilter (operator, value) {
+  _createFilter(operator, value) {
     if (!this.filters[this.branch]) {
       this.filters[this.branch] = {
         _and: [],
         _or: [],
-      }
+      };
     }
 
-    this._createFilterFromPath(this.column, operator, value)
+    this._createFilterFromPath(this.column, operator, value);
     this.column = "";
 
     return this;
   }
 
   /** Recursively generate the output string for the branches and their properties */
-  _generateOutput (branches, indentationLevel, filters, result) {
+  _generateOutput(branches, indentationLevel, filters, result) {
     let indentation = "    ".repeat(indentationLevel);
 
     /** Add properties first */
@@ -539,7 +535,7 @@ ${root}${rootModifier} {\n`;
     return result;
   }
 
-  _createPathFromObject (path, properties, requestedColumns = []) {
+  _createPathFromObject(path, properties, requestedColumns = []) {
     for (const property of properties) {
       if (typeof property === "object") {
         const refProperty = Object.keys(property)[0];

@@ -21,27 +21,6 @@ public class MolgenisException extends RuntimeException {
     this.message = message;
   }
 
-  @Deprecated
-  public MolgenisException(String title, String message) {
-    this.type = getClass();
-    this.message = title + ": " + message;
-  }
-
-  @Deprecated
-  public MolgenisException(String title, String message, Exception e) {
-    super(e);
-    this.type = getClass();
-    this.message = title + ": " + message;
-  }
-
-  @Deprecated
-  public MolgenisException(String title, String message, List<MolgenisExceptionDetail> details) {
-    super(message + "\nSee getMessages() for list of error messages");
-    this.type = getClass();
-    this.message = title + ": " + message;
-    this.details.addAll(details);
-  }
-
   public List<MolgenisExceptionDetail> getDetails() {
     return Collections.unmodifiableList(this.details);
   }

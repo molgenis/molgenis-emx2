@@ -102,7 +102,7 @@ export default {
     SearchFilter,
     ButtonDropdown,
     CheckboxFilter,
-    OntologyFilter
+    OntologyFilter,
   },
   computed: {
     filtersToRender() {

@@ -304,16 +304,6 @@ class SqlTableMetadata extends TableMetadata {
     if (getInherit() != null && getInherit().equals(otherTable)) {
       return this; // nothing to do
     }
-    if (getImportSchema() != null && getSchema().getTableMetadata(otherTable) != null) {
-      throw new MolgenisException(
-          "Inheritance failed: cannot extend schema.table '"
-              + getImportSchema()
-              + "."
-              + otherTable
-              + " because table of that name already exists in this schema ("
-              + getSchemaName()
-              + ')');
-    }
     if (getInherit() != null) {
       throw new MolgenisException(
           "Table '"

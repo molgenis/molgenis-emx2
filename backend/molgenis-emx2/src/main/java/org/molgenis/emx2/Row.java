@@ -351,6 +351,8 @@ public class Row {
         return (T) getUuid(name);
       case "UUID[]":
         return (T) getUuidArray(name);
+      case "byte[]":
+        return (T) getBinary(name);
       default:
         throw new MolgenisException(
             "Unknown type: Cannot cast column to java columnType. "
@@ -382,10 +384,7 @@ public class Row {
   }
 
   public boolean isNull(String columnName, ColumnType type) {
-    if (type.isArray()) {
-      return get(columnName, type) == null || ((Object[]) get(columnName, type)).length == 0;
-    }
-    return get(columnName, type) == null;
+    return TypeUtils.isNull(values.get(columnName), type);
   }
 
   public Object get(Column column) {

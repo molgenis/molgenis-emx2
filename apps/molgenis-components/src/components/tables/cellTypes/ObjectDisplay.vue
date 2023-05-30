@@ -1,9 +1,15 @@
 <template>
-  <div v-if="hasTemplate">{{ asTemplate }}</div>
-  <div v-else>{{ asDotSeparatedString }}</div>
+  <span v-if="hasTemplate">
+    {{ asTemplate }}
+  </span>
+  <span v-else>
+    {{ asDotSeparatedString }}
+  </span>
 </template>
 
 <script>
+import { flattenObject } from "../../utils";
+
 export default {
   name: "ObjectDisplay",
   props: {
@@ -18,20 +24,20 @@ export default {
   },
   computed: {
     hasTemplate() {
-      return !!this.metaData.refLabel;
+      return !!this.metaData.refLabel || !!this.metaData.refLabelDefault;
     },
     asTemplate() {
       const names = Object.keys(this.data);
       const vals = Object.values(this.data);
+      const refLabel = this.metaData.refLabel
+        ? this.metaData.refLabel
+        : this.metaData.refLabelDefault;
       try {
-        return new Function(
-          ...names,
-          "return `" + this.metaData.refLabel + "`;"
-        )(...vals);
+        return new Function(...names, "return `" + refLabel + "`;")(...vals);
       } catch (err) {
         const namesString = JSON.stringify(names);
         const valsString = JSON.stringify(vals);
-        return `${err.message} we got keys: ${namesString} vals: ${valsString} and template: ${this.metaData.refLabel}`;
+        return `${err.message} we got keys: ${namesString} vals: ${valsString} and template: ${refLabel}`;
       }
     },
     asDotSeparatedString() {
@@ -40,7 +46,7 @@ export default {
         if (this.data[key] === null) {
           //nothing
         } else if (typeof this.data[key] === "object") {
-          result += this.flattenObject(this.data[key]);
+          result += flattenObject(this.data[key]);
         } else {
           result += "." + this.data[key];
         }

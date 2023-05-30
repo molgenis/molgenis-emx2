@@ -23,6 +23,8 @@
           :schema="schema"
           :schemaNames="schemaNames"
           @update:modelValue="$emit('update:modelValue', column)"
+          :locales="locales"
+          :columnIndex="columnIndex"
         />
         <IconDanger
           v-if="isManager"
@@ -38,6 +40,8 @@
           :tableName="column.table"
           @add="addColumn"
           tooltip="Add column at this position"
+          :locales="locales"
+          :columnIndex="columnIndex"
         />
       </IconBar>
     </td>
@@ -60,9 +64,25 @@
       <span v-if="column.readonly === true || column.readonly === 'true'">
         readonly
       </span>
-      <span v-if="column.key">key={{ column.key }}</span>
+      <span v-if="column.refLabel"> refLabel='{{ column.refLabel }}' </span>
+      <span v-if="column.computed"> computed="{{ column.computed }}"</span>
     </td>
-    <td>{{ column.description }}</td>
+    <td>
+      <table v-if="column.labels" class="table-borderless">
+        <tr v-for="el in column.labels.filter((el) => el.value)">
+          <td>{{ el.locale }}:</td>
+          <td>{{ el.value }}</td>
+        </tr>
+      </table>
+    </td>
+    <td>
+      <table v-if="column.descriptions" class="table-borderless">
+        <tr v-for="el in column.descriptions.filter((el) => el.value)">
+          <td>{{ el.locale }}:</td>
+          <td>{{ el.value }}</td>
+        </tr>
+      </table>
+    </td>
   </tr>
 </template>
 
@@ -110,6 +130,13 @@ export default {
     isManager: {
       type: Boolean,
       default: false,
+    },
+    locales: {
+      type: Array,
+    },
+    columnIndex: {
+      type: Number,
+      required: true,
     },
   },
   computed: {

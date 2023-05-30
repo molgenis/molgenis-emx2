@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
+const mobileShowMoreText = ref(false);
+const mobileShowMoreTextLength = 250;
+
 const props = withDefaults(
   defineProps<{
     cohort: ICohort;
@@ -11,6 +14,8 @@ const props = withDefaults(
     compact: false,
   }
 );
+
+const startEndYear = filters.startEndYear;
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
@@ -31,6 +36,14 @@ const headerClasses = computed(() => {
 const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
 });
+
+const isShowingMobileMoreText = computed(() => {
+  return (
+    mobileShowMoreText.value ||
+    (props.cohort?.description &&
+      props.cohort?.description?.length < mobileShowMoreTextLength)
+  );
+});
 </script>
 
 <template>
@@ -39,15 +52,15 @@ const iconStarClasses = computed(() => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/ssr-catalogue/cohorts/${cohort.pid}`"
+            :to="`/${schema}/ssr-catalogue/cohorts/${cohort.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
-            {{ cohort?.acronym }}
+            {{ cohort?.acronym || cohort?.name }}
           </NuxtLink>
         </h2>
 
-        <span :class="subtitleClasses" class="text-body-base">
-          {{ cohort?.name }}
+        <span :class="subtitleClasses" class="mr-4 text-body-base">
+          {{ cohort?.acronym ? cohort?.name : "" }}
         </span>
       </div>
       <div class="flex">
@@ -58,7 +71,7 @@ const iconStarClasses = computed(() => {
           class="text-blue-500 xl:justify-end"
         />
         -->
-        <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${cohort.pid}`">
+        <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${cohort.id}`">
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"
@@ -73,24 +86,25 @@ const iconStarClasses = computed(() => {
       </p>
 
       <p class="text-body-base mt-5 block xl:hidden">
-        The European Human Exposome Network (EHEN) is the world’s largest
-        network of projects studying the impact of environmental exposures
-        across a lifetime - the exposome - on human health. Collectively, the
-        EHEN projects are working in 24 countries acros...
+        {{
+          isShowingMobileMoreText
+            ? cohort?.description
+            : `${cohort?.description?.substring(
+                0,
+                mobileShowMoreTextLength
+              )}...`
+        }}
       </p>
 
-      <a
-        class="text-blue-500 hover:underline hover:bg-blue-50 mb-5 xl:hidden"
-        href="#"
+      <button
+        v-if="!isShowingMobileMoreText"
+        class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
+        @click="mobileShowMoreText = true"
       >
         Read more
-      </a>
+      </button>
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
-        <div>
-          <dt class="flex-auto block text-gray-600">Keywords</dt>
-          <dd>{{ cohort?.keywords }}</dd>
-        </div>
         <div>
           <dt class="flex-auto block text-gray-600">Type</dt>
           <dd>{{ cohort?.type?.map((type) => type.name).join(",") }}</dd>
@@ -98,6 +112,16 @@ const iconStarClasses = computed(() => {
         <div>
           <dt class="flex-auto block text-gray-600">Design</dt>
           <dd>{{ cohort?.design?.name }}</dd>
+        </div>
+        <div>
+          <dt class="flex-auto block text-gray-600">Participants</dt>
+          <dd>{{ cohort?.numberOfParticipants }}</dd>
+        </div>
+        <div>
+          <dt class="flex-auto block text-gray-600">Duration</dt>
+          <dd>
+            {{ startEndYear(cohort?.startYear, cohort?.endYear) }}
+          </dd>
         </div>
       </dl>
     </div>

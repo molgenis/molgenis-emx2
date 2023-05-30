@@ -53,7 +53,7 @@ public class RDFService {
    * @param request
    * @param response
    */
-  private RDFService(Request request, Response response) throws Exception {
+  public RDFService(Request request, Response response) throws Exception {
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
     // etc
@@ -125,6 +125,7 @@ public class RDFService {
       String rdfApiLocation,
       Table table,
       String rowId,
+      String columnName,
       Schema... schemas) {
     try {
 
@@ -139,13 +140,17 @@ public class RDFService {
         List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();
         for (Table tableToDescribe : tables) {
           describeTable(rdfService.getBuilder(), tableToDescribe, schemaRdfApiContext);
-          describeColumns(rdfService.getBuilder(), tableToDescribe, schemaRdfApiContext);
-          describeValues(
-              rdfService.getJsonMapper(),
-              rdfService.getBuilder(),
-              tableToDescribe,
-              rowId,
-              schemaRdfApiContext);
+          describeColumns(
+              rdfService.getBuilder(), columnName, tableToDescribe, schemaRdfApiContext);
+          // if a column name is provided then only provide column metadata, no row values
+          if (columnName == null) {
+            describeValues(
+                rdfService.getJsonMapper(),
+                rdfService.getBuilder(),
+                tableToDescribe,
+                rowId,
+                schemaRdfApiContext);
+          }
         }
       }
 
@@ -177,19 +182,19 @@ public class RDFService {
     return jsonMapper;
   }
 
-  private ModelBuilder getBuilder() {
+  public ModelBuilder getBuilder() {
     return builder;
   }
 
-  private WriterConfig getConfig() {
+  public WriterConfig getConfig() {
     return config;
   }
 
-  private RDFFormat getRdfFormat() {
+  public RDFFormat getRdfFormat() {
     return rdfFormat;
   }
 
-  private String getHost() {
+  public String getHost() {
     return host;
   }
 }

@@ -13,11 +13,9 @@
         class="fa fa-caret-up mr-2 hover-rotate-clockwize"
       ></i>
       <i v-else class="fa fa-caret-down mr-2"></i>
-      {{ variable.label }}
+      {{ variable.name }}
       <span class="mg-model-label">
-        {{ variable.dataDictionary.resource.pid }} ({{
-          variable.dataDictionary.version
-        }})
+        {{ variable.resource.id }}
       </span>
     </div>
     <p class="mt-3" v-if="showDetail">
@@ -31,8 +29,7 @@
             network: network,
           },
           query: {
-            model: variable.dataDictionary.resource.pid,
-            version: variable.dataDictionary.version,
+            model: variable.resource.id,
           },
         }"
         >view details
@@ -46,8 +43,7 @@
             name: variable.name,
           },
           query: {
-            model: variable.dataDictionary.resource.pid,
-            version: variable.dataDictionary.version,
+            model: variable.resource.id,
           },
         }"
         >view details
@@ -109,12 +105,7 @@
           <dt class="col-2">mapped by</dt>
           <dd class="col-10">
             <span v-if="variable.variableDetails.mappings">
-              <span
-                v-for="mapping in variable.variableDetails.mappings"
-                :key="mapping.fromTable.dataDictionary.resource.pid"
-              >
-                {{ mapping.fromTable.dataDictionary.resource.pid }}
-              </span>
+              {{ mappedByString }}
             </span>
             <span v-else>none</span>
           </dd>
@@ -148,6 +139,11 @@ export default {
       return this.variable.variableDetails.permittedValues
         .map((pv) => pv) // clone to avoid prop mutation
         .sort((a, b) => a.order <= b.order);
+    },
+    mappedByString() {
+      return Object.values(this.variable.variableDetails.mappings)
+        .map((mapping) => mapping.sourceDataset.resource.id)
+        .join(", ");
     },
   },
   methods: {

@@ -28,12 +28,7 @@
                 <span class="biobank-name">{{ biobank.name }}</span>
                 <sup
                   v-if="hasBiobankQuality"
-                  class="
-                    fa-regular fa-circle-check
-                    text-success
-                    certificate-icon
-                    ml-1
-                  "
+                  class="fa-regular fa-circle-check text-success certificate-icon ml-1"
                   aria-hidden="true"
                 ></sup>
               </router-link>
@@ -79,12 +74,7 @@
                 <span class="biobank-name">{{ biobank.name }}</span>
                 <sup
                   v-if="hasBiobankQuality"
-                  class="
-                    fa-regular fa-circle-check
-                    text-success
-                    certificate-icon
-                    ml-1
-                  "
+                  class="fa-regular fa-circle-check text-success certificate-icon ml-1"
                   aria-hidden="true"
                 ></sup>
               </router-link>
@@ -132,13 +122,7 @@
                     class="text-dark"
                   >
                     <span
-                      class="
-                        fa-solid fa-server
-                        collection-icon
-                        fa-lg
-                        mr-2
-                        text-primary
-                      "
+                      class="fa-solid fa-server collection-icon fa-lg mr-2 text-primary"
                       aria-hidden="true"
                     ></span>
                     <span class="collection-name">{{
@@ -296,7 +280,7 @@ export default {
 .collection-icon {
   position: relative;
   top: 0.25em;
-  line-height:unset;
+  line-height: unset;
   clip-path: inset(0% 0% 50% 0%);
 }
 

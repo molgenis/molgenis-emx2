@@ -33,6 +33,7 @@ public class ColumnTypeToXSDDataType {
       case TEXT_ARRAY:
       case UUID:
       case UUID_ARRAY:
+      case AUTO_ID:
         return CoreDatatype.XSD.STRING;
 
       case FILE:

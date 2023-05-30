@@ -1,0 +1,4 @@
+name,definition,codesystem,code,ontologyTermURI
+Likely pathogenic,,,,http://purl.obolibrary.org/obo/NCIT_C168800
+Unknown Significance,,,,http://purl.obolibrary.org/obo/NCIT_C94187
+Likely benign,,,,http://purl.obolibrary.org/obo/NCIT_C168801

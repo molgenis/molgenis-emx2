@@ -2,7 +2,15 @@
   <div>
     <div v-for="name in names" :key="name" class="p-0">
       <div class="mt-0">
-        <a :href="'#' + name" :class="'text-' + color">{{ name }}</a>
+        <a
+          :href="'#'"
+          v-scroll-to="{
+            el: '#' + name,
+          }"
+          :class="'text-' + color"
+        >
+          {{ name }}
+        </a>
       </div>
     </div>
   </div>

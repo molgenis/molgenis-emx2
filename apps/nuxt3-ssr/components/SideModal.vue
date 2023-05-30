@@ -68,7 +68,7 @@ const buttonAlignmentClass = buttonAlignmentSet[buttonAlignment];
         </div>
         <div class="absolute inset-x-0 bottom-0">
           <div
-            :class="`flex items-center ${buttonAlignmentClass} px-6 bg-blue-500 h-19`"
+            :class="`flex items-center ${buttonAlignmentClass} px-6 bg-modal-footer h-19`"
           >
             <slot name="footer"></slot>
           </div>

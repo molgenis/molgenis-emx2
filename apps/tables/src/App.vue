@@ -43,7 +43,7 @@ export default {
       this.error = null;
       request(
         "graphql",
-        "{_schema{name,tables{id,name,tableType,externalSchema,description,columns{name,columnType,key,refTable,required,description}}}}"
+        "{_schema{name,tables{id,name,tableType,externalSchema,labels{locale,value},descriptions{locale,value},columns{name,labels{locale,value}columnType,key,refTable,required,descriptions{locale,value}}}}}"
       )
         .then((data) => {
           this.schema = data._schema;

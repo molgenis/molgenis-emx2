@@ -41,4 +41,20 @@ public class ClinicalInterpretations {
     }
     return result;
   }
+
+  public OntologyTerm getCategory() {
+    return category;
+  }
+
+  public OntologyTerm getClinicalRelevance() {
+    return clinicalRelevance;
+  }
+
+  public String getConditionId() {
+    return conditionId;
+  }
+
+  public OntologyTerm getEffect() {
+    return effect;
+  }
 }

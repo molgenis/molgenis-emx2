@@ -16,4 +16,20 @@ public class Position {
     this.start = start;
     this.end = end;
   }
+
+  public String getAssemblyId() {
+    return assemblyId;
+  }
+
+  public String getRefseqId() {
+    return refseqId;
+  }
+
+  public Long[] getStart() {
+    return start;
+  }
+
+  public Long[] getEnd() {
+    return end;
+  }
 }

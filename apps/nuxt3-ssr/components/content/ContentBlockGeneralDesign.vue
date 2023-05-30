@@ -26,20 +26,28 @@ function setData() {
     },
     {
       label: "Design",
-      content: cohort?.design ? cohort?.design.name : undefined,
-    },
-    {
-      label: "Design definition",
-      content: cohort?.design?.definition,
+      content:
+        cohort?.design?.definition && cohort?.design?.name
+          ? {
+              value: cohort?.design?.name,
+              tooltip: cohort?.design?.definition,
+            }
+          : cohort?.design?.name,
     },
     {
       label: "Design description",
       content: cohort?.designDescription,
     },
     {
+      label: "Design schematic",
+      content: cohort?.designSchematic,
+    },
+    {
       label: "Collection type",
       content: cohort?.collectionType
-        ? cohort?.collectionType[0].name
+        ? cohort?.collectionType
+            .map((collectionType) => collectionType.name)
+            .join(", ")
         : undefined,
     },
     {
@@ -50,14 +58,17 @@ function setData() {
       label: "Population",
       content: cohort?.countries
         ? [...cohort?.countries]
-            .sort((a, b) => a.order - b.order)
-            .map((c) => c.name)
+            .sort((a, b) => b.order - a.order)
+            .map((country) => country.name)
             .join(", ")
         : undefined,
     },
     {
       label: "Regions",
-      content: cohort?.regions?.map((r) => r.name).join(", "),
+      content: cohort?.regions
+        ?.sort((a, b) => b.order - a.order)
+        .map((r) => r.name)
+        .join(", "),
     },
     {
       label: "Number of participants",
@@ -69,8 +80,10 @@ function setData() {
     },
     {
       label: "Age group at inclusion",
-      content: buildOntologyTree(cohort?.populationAgeGroups),
-      type: "ONTOLOGY",
+      content: removeChildIfParentSelected(cohort?.populationAgeGroups || [])
+        .sort((a, b) => a.order - b.order)
+        .map((ageGroup) => ageGroup.name)
+        .join(", "),
     },
     {
       label: "Inclusion criteria",

@@ -25,36 +25,36 @@
         <dd class="col-10">
           <ul class="list-unstyled" v-if="variable.cohortMapping">
             <li
-              v-for="fromVariable in variable.cohortMapping.fromVariable"
-              :key="fromVariable.name"
+              v-for="sourceVariable in variable.cohortMapping.sourceVariables"
+              :key="sourceVariable.name"
             >
               <router-link
                 :to="{
                   name: 'VariableDetailView',
-                  query: { ...$route.query, fromName: fromVariable.name },
+                  query: { ...$route.query, fromName: sourceVariable.name },
                 }"
               >
-                {{ variable.cohortMapping.fromTable.name }}.{{
-                  fromVariable.name
+                {{ variable.cohortMapping.sourceDataset.name }}.{{
+                  sourceVariable.name
                 }}
               </router-link>
             </li>
             <li
-              v-for="fromVariable in variable.cohortMapping
-                .fromVariablesOtherTables"
-              :key="fromVariable.name"
+              v-for="sourceVariable in variable.cohortMapping
+                .sourceVariablesOtherDatasets"
+              :key="sourceVariable.name"
             >
               <router-link
                 :to="{
                   name: 'VariableDetailView',
                   query: {
                     ...$route.query,
-                    fromTable: fromVariable.table.name,
-                    fromName: fromVariable.name,
+                    fromDataset: sourceVariable.dataset.name,
+                    fromName: sourceVariable.name,
                   },
                 }"
               >
-                {{ fromVariable.table.name }}.{{ fromVariable.name }}
+                {{ sourceVariable.dataset.name }}.{{ sourceVariable.name }}
               </router-link>
             </li>
           </ul>

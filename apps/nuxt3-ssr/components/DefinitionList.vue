@@ -27,9 +27,19 @@ function emptyContent(item: DefinitionListItem) {
     return false;
   } else if (Array.isArray(item.content) && item.content.length === 0) {
     return false;
+  } else if (
+    Object.keys(item.content).length === 0 &&
+    Object.getPrototypeOf(item.content) === Object.prototype
+  ) {
+    // empty object
+    return false;
   }
 
   return true;
+}
+
+function showAsFile(item: DefinitionListItem) {
+  return item.content && item.content.url && item.content.extension;
 }
 </script>
 
@@ -53,18 +63,31 @@ function emptyContent(item: DefinitionListItem) {
         <ContentOntology
           v-if="item?.type === 'ONTOLOGY'"
           :tree="item.content"
-          :collapse-all="false"
+          :collapse-all="true"
         ></ContentOntology>
+
+        <a v-else-if="showAsFile(item)" class="flex" :href="item.content.url">
+          <div class="flex-start">
+            <span class="text-blue-500 text-body-base">
+              {{ item.label }}
+            </span>
+          </div>
+        </a>
+
         <ul
-          v-else-if="isArray(item.content)"
+          v-else-if="isArray(item.content) && item.content.length > 1"
           class="grid gap-1 pl-4 list-disc list-outside"
         >
           <li v-for="row in item.content" :key="row">
             {{ row }}
           </li>
         </ul>
+        <p v-else-if="item?.content?.tooltip" class="flex items-center gap-1">
+          {{ item.content.value }}
+          <CustomTooltip label="Read more" :content="item.content.tooltip" />
+        </p>
         <p v-else>
-          {{ item.content }}
+          {{ Array.isArray(item.content) ? item.content[0] : item.content }}
         </p>
       </dd>
     </div>

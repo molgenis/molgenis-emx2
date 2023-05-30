@@ -22,6 +22,8 @@ const props = defineProps({
   },
 });
 
+let showContactInformation = ref(false);
+
 function onContactClick() {
   window.location = props.contact;
 }
@@ -43,9 +45,33 @@ function onContactClick() {
           <BaseIcon name="external-link" class="inline mr-2" />{{ link }}
         </a>
       </div>
+      <SideModal
+        :show="showContactInformation"
+        :fullScreen="false"
+        :slideInRight="true"
+        @close="showContactInformation = false"
+        buttonAlignment="right"
+      >
+        <ContentBlock title="Contact">
+          <div class="font-bold text-body-base">E-mail</div>
+          <a class="text-blue-500 hover:underline" :href="`mailto:${contact}`">
+            {{ contact }}
+          </a>
+        </ContentBlock>
+
+        <template #footer>
+          <Button
+            type="secondary"
+            size="small"
+            label="Close"
+            @click="showContactInformation = false"
+            buttonAlignment="right"
+          />
+        </template>
+      </SideModal>
       <Button
         v-if="contact"
-        @click="onContactClick"
+        @click="showContactInformation = true"
         label="Contact"
         type="secondary"
         size="medium"

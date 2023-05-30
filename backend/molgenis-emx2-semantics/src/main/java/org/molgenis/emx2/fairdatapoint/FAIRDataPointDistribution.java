@@ -173,9 +173,15 @@ public class FAIRDataPointDistribution {
         DCTERMS.MODIFIED,
         literal(
             TypeUtils.toString(sourceDataset.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
-    builder.add(reqURL, DCTERMS.LICENSE, sourceDataset.get("license"));
-    builder.add(reqURL, DCTERMS.ACCESS_RIGHTS, sourceDataset.get("accessRights"));
-    builder.add(reqURL, DCTERMS.RIGHTS, sourceDataset.get("rights"));
+    if (sourceDataset.get("license") != null) {
+      builder.add(reqURL, DCTERMS.LICENSE, sourceDataset.get("license"));
+    }
+    if (sourceDataset.get("accessRights") != null) {
+      builder.add(reqURL, DCTERMS.ACCESS_RIGHTS, sourceDataset.get("accessRights"));
+    }
+    if (sourceDataset.get("rights") != null) {
+      builder.add(reqURL, DCTERMS.RIGHTS, sourceDataset.get("rights"));
+    }
     builder.add(reqURL, DCTERMS.CONFORMS_TO, iri("http://www.w3.org/ns/dcat#Distribution"));
     // todo odrl:Policy? https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
 

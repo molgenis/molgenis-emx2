@@ -1,30 +1,26 @@
 import gql from "graphql-tag";
 export default gql`
-  query Subcohorts($pid: String) {
-    Subcohorts(filter: { resource: { pid: { equals: [$pid] } } }) {
+  query Subcohorts(
+    $id: String
+    $limit: Int
+    $offset: Int
+    $orderby: Subcohortsorderby
+  ) {
+    Subcohorts(
+      limit: $limit
+      offset: $offset
+      filter: { resource: { id: { equals: [$id] } } }
+      orderby: $orderby
+    ) {
       resource {
-        pid
+        id
       }
       name
       description
       numberOfParticipants
-      ageGroups {
-        name
-        code
-        order
-        parent {
-          name
-          code
-          parent {
-            name
-            code
-          }
-          parent {
-            name
-            code
-          }
-        }
-      }
+    }
+    Subcohorts_agg(filter: { resource: { id: { equals: [$id] } } }) {
+      count
     }
   }
 `;

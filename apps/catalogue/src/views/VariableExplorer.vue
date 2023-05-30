@@ -19,6 +19,7 @@
             :isMultiSelect="true"
             tableName="Keywords"
             :show-expanded="true"
+            schemaName="CatalogueOntologies"
           />
         </div>
         <div class="bg-white px-1">
@@ -210,7 +211,7 @@ export default {
       this.fetchVariables();
     }
     if (this.network) {
-      this.setSelectedNetworks([{ pid: this.network }]);
+      this.setSelectedNetworks([{ id: this.network }]);
     }
     this.fetchKeywords();
   },
