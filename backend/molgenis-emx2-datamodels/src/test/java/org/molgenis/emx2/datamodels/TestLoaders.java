@@ -60,50 +60,6 @@ public class TestLoaders {
   public void test8DataCatalogueNetworkStagingLoader() {
     Schema networkStaging = database.createSchema(NETWORK_STAGING);
     AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING.install(networkStaging, true);
-<<<<<<< HEAD
-    assertEquals(13, networkStaging.getTableNames().size());
-
-    // cleanup because shared schema
-    database.dropSchemaIfExists("NetworkStaging");
-  }
-
-  @Test
-  public void test7DataCatalogueCohortStagingLoader3() {
-    Schema cohortStaging3 = database.dropCreateSchema("CohortStaging3");
-    cleanSharedSchemas();
-
-    AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING3.install(cohortStaging3, true);
-    assertEquals(17, cohortStaging3.getTableNames().size());
-
-    // cleanup because shared schema
-    database.dropSchemaIfExists("CohortStaging3");
-  }
-
-  @Test
-  public void test8DataCatalogueNetworkStagingLoader3() {
-    Schema networkStaging3 = database.dropCreateSchema("NetworkStaging3");
-    cleanSharedSchemas();
-
-    AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING3.install(networkStaging3, true);
-    assertEquals(13, networkStaging3.getTableNames().size());
-
-    // cleanup because shared schema
-    database.dropSchemaIfExists("NetworkStaging3");
-  }
-
-  @Test
-  public void test9DirectoryLoader() {
-    Schema directorySchema = database.dropCreateSchema("directory");
-    AvailableDataModels.DIRECTORY.install(directorySchema, true);
-    assertEquals(27, directorySchema.getTableNames().size());
-  }
-
-  private static void cleanSharedSchemas() {
-    database.dropSchemaIfExists(DATA_CATALOGUE);
-    database.dropSchemaIfExists(SHARED_STAGING);
-    database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
-=======
     assertEquals(16, networkStaging.getTableNames().size());
->>>>>>> master
   }
 }
