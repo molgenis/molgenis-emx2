@@ -82,39 +82,36 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     >
       <LandingCardPrimary
         image="image-link"
-        :title="
-          getSettingValue(
-            'CATALOGUE_LANDING_COHORTS_CTA',
-            data.data._settings
-          ) || 'Cohorts'
-        "
+        title="Cohorts"
         description="A complete overview of all cohorts and biobanks."
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
+        "
         :count="data.data.Cohorts_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
       />
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
         image="image-diagram"
-        :title="
-          getSettingValue(
-            'CATALOGUE_LANDING_NETWORKS_CTA',
-            data.data._settings
-          ) || 'Networks'
-        "
+        title="Networks"
         description="Collaborations of multiple institutions and/or cohorts with a common objective."
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', data.data._settings)
+        "
         :count="data.data.Networks_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/networks/`"
       />
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
         image="image-diagram-2"
-        :title="
+        title="Variables"
+        description="A complete overview of available variables."
+        :callToAction="
           getSettingValue(
             'CATALOGUE_LANDING_VARIABLES_CTA',
             data.data._settings
-          ) || 'Variables'
+          )
         "
-        description="A complete overview of available variables."
         :count="data.data.Variables_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/variables/`"
       />
