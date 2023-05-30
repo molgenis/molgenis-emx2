@@ -12,7 +12,7 @@
       :clone="clone"
       :locale="locale"
       @update:modelValue="$emit('update:modelValue', $event)"
-      @numberOfErrorsInForm="$emit('numberOfErrorsInForm', $event)"
+      @errorsInForm="$emit('errorsInForm', $event)"
     />
   </div>
 </template>
@@ -71,7 +71,7 @@ export default {
     );
     this.$emit("setPageCount", this.columnsSplitByHeadings.length);
   },
-  emits: ["setPageCount", "update:modelValue", "numberOfErrorsInForm"],
+  emits: ["setPageCount", "update:modelValue", "errorsInForm"],
 };
 
 function filterVisibleColumns(columns, visibleColumns) {

@@ -14,7 +14,7 @@
           :clone="clone"
           :page="currentPage"
           @setPageCount="pageCount = $event"
-          @numberOfErrorsInForm="handleNumberOfErrors"
+          @errorsInForm="handleErrors"
           :locale="locale"
           class="flex-grow-1"
         />
@@ -30,10 +30,12 @@
           :clone="clone"
           :locale="locale"
           class="flex-grow-1"
-          @numberOfErrorsInForm="handleNumberOfErrors"
+          @errorsInForm="handleErrors"
         />
         <div v-if="pageCount > 1" class="border-left chapter-menu">
-          <div class="mb-1"><b>Chapters</b></div>
+          <div class="mb-1">
+            <b>Chapters</b>
+          </div>
           <div v-for="(heading, index) in pageHeadings">
             <button
               type="button"
@@ -111,6 +113,7 @@ export default {
   data() {
     return {
       rowData: {},
+      rowErrors: {},
       tableMetaData: null as unknown as ITableMetaData,
       schemaMetaData: null as unknown as ISchemaMetaData,
       client: null as unknown as INewClient,
@@ -227,9 +230,15 @@ export default {
       this.errorMessage = "";
       this.$emit("close");
     },
-    handleNumberOfErrors(event: number) {
+    handleErrors(event: Record<string, string | undefined>) {
+      this.rowErrors = { ...this.rowErrors, ...event };
+      const numberOfErrors = Object.values(this.rowErrors).filter(
+        (val) => val
+      ).length;
       this.saveDisabledMessage =
-        event > 0 ? `There are ${event} error(s) preventing saving` : "";
+        numberOfErrors > 0
+          ? `There are ${numberOfErrors} error(s) preventing saving`
+          : "";
     },
   },
   async mounted() {
