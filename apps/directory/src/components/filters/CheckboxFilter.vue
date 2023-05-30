@@ -31,7 +31,7 @@
 import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
 import CheckboxComponent from "./base/CheckboxComponent.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
-import { useFiltersStore } from '../../stores/filtersStore';
+import { useFiltersStore } from "../../stores/filtersStore";
 
 export default {
   setup() {
@@ -52,7 +52,7 @@ export default {
     /** a JSON friendly identifier */
     facetIdentifier: {
       type: String,
-      required: true
+      required: true,
     },
     /**
      * A Promise-function that resolves with an array of options.
@@ -129,7 +129,6 @@ export default {
   },
   methods: {
     toggleSelect() {
-
       if (this.filterSelection && this.filterSelection.length > 0) {
         this.filterSelection = [];
       } else {

@@ -24,7 +24,7 @@ export default {
         return this.filtersStore.getFilterValue("search");
       },
       set(value) {
-          this.filtersStore.updateFilter("search", value);
+        this.filtersStore.updateFilter("search", value);
       },
     },
   },

@@ -7,14 +7,19 @@
       <template v-if="dataContainsUri">
         <div
           v-for="(item, index) in attribute.value"
-          :key="`${index}-${displayName(item)}`">
+          :key="`${index}-${displayName(item)}`"
+        >
           <a :href="item.uri" target="_blank" class="text-break mr-2 mb-2">
             {{ displayName(item) }}
           </a>
         </div>
       </template>
       <template v-else>
-        <p class="text-break mr-2 mb-2" v-for="value of attribute.value" :key="value">
+        <p
+          class="text-break mr-2 mb-2"
+          v-for="value of attribute.value"
+          :key="value"
+        >
           {{ value }}
         </p>
       </template>
@@ -26,27 +31,27 @@
 export default {
   props: {
     attribute: {
-      type: Object
-    }
+      type: Object,
+    },
   },
   computed: {
-    dataContainsUri () {
+    dataContainsUri() {
       if (
         this.attribute.value.length &&
-        typeof this.attribute.value[0] === 'object'
+        typeof this.attribute.value[0] === "object"
       ) {
-        return this.attribute.value.some(item => item.uri)
+        return this.attribute.value.some((item) => item.uri);
       } else {
-        return ''
+        return "";
       }
-    }
+    },
   },
   methods: {
-    displayName (item) {
-      return item.label || item.name || item.id
-    }
-  }
-}
+    displayName(item) {
+      return item.label || item.name || item.id;
+    },
+  },
+};
 </script>
 
 <style scoped>

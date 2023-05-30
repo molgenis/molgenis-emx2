@@ -11,25 +11,25 @@
 
 <script>
 export default {
-  name: 'Subcollection',
+  name: "Subcollection",
   components: {
     // required because of recursion, else Vue will give component not found error
-    ViewGenerator: () => import('../ViewGenerator.vue')
+    ViewGenerator: () => import("../ViewGenerator.vue"),
   },
   props: {
     collection: {
       type: Object,
-      required: true
+      required: true,
     },
     level: {
       type: Number,
-      default: () => 1
-    }
+      default: () => 1,
+    },
   },
   computed: {
-    indentationLevel () {
-      return `ml-${this.level}`
-    }
-  }
-}
+    indentationLevel() {
+      return `ml-${this.level}`;
+    },
+  },
+};
 </script>

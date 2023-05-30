@@ -1,6 +1,8 @@
 <template>
   <tr v-if="attribute && attribute.value && attribute.value.length">
-    <th scope="row" class="pr-1 align-top text-nowrap">{{ displayName(attribute) }}</th>
+    <th scope="row" class="pr-1 align-top text-nowrap">
+      {{ displayName(attribute) }}
+    </th>
     <td>
       <span>
         <a target="_blank" :href="attribute.value">{{ attribute.value }}</a>
@@ -13,13 +15,13 @@
 export default {
   props: {
     attribute: {
-      type: Object
-    }
+      type: Object,
+    },
   },
   methods: {
-    displayName (item) {
-      return item.label || item.name || item.id
-    }
-  }
-}
+    displayName(item) {
+      return item.label || item.name || item.id;
+    },
+  },
+};
 </script>

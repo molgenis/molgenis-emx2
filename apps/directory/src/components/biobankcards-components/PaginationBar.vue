@@ -12,20 +12,18 @@
 </template>
 
 <script>
-import { Pagination } from 'molgenis-components'
-import { useSettingsStore } from '../../stores/settingsStore';
-import { useBiobanksStore } from '../../stores/biobanksStore';
+import { Pagination } from "molgenis-components";
+import { useSettingsStore } from "../../stores/settingsStore";
+import { useBiobanksStore } from "../../stores/biobanksStore";
 
 export default {
-    setup() {
+  setup() {
     const settingsStore = useSettingsStore();
     const biobanksStore = useBiobanksStore();
     return { settingsStore, biobanksStore };
   },
   components: {
-    Pagination
-  }
-}
+    Pagination,
+  },
+};
 </script>
-
-  

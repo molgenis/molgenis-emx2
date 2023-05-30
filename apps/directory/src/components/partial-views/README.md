@@ -1,6 +1,6 @@
 # What is a partial view
 
-A partial view, can be compared to an *organism* in atomic components.
+A partial view, can be compared to an _organism_ in atomic components.
 
 **Requirements:**
 

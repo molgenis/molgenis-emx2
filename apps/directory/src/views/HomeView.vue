@@ -5,19 +5,18 @@
   </div>
 </template>
 
-
 <script>
-import ApplicationHeaderPartialView from '../components/partial-views/ApplicationHeaderPartialView.vue'
-import BiobankCardsPartialView from '../components/partial-views/BiobankCardsPartialView.vue'
+import ApplicationHeaderPartialView from "../components/partial-views/ApplicationHeaderPartialView.vue";
+import BiobankCardsPartialView from "../components/partial-views/BiobankCardsPartialView.vue";
 // import { mapGetters, mapActions, mapState, mapMutations } from 'vuex'
 // import { createBookmark } from '../utils/bookmarkMapper'
 // import ApplicationHeader from '../components/ApplicationHeader.vue'
 
 export default {
-  name: 'biobank-explorer',
+  name: "biobank-explorer",
   components: {
     ApplicationHeaderPartialView,
-    BiobankCardsPartialView
+    BiobankCardsPartialView,
   },
   // computed: {
   //   ...mapGetters([
@@ -54,7 +53,7 @@ export default {
   //   /** check if collections have been added off-screen. */
   //   createBookmark(this.filters, this.selectedCollections)
   // }
-}
+};
 </script>
 
 <style>

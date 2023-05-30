@@ -5,7 +5,7 @@
     </th>
     <td>
       <span>
-        {{ attribute.value.join(', ') }}
+        {{ attribute.value.join(", ") }}
       </span>
     </td>
   </tr>
@@ -15,13 +15,13 @@
 export default {
   props: {
     attribute: {
-      type: Object
-    }
+      type: Object,
+    },
   },
   methods: {
-    displayName (item) {
-      return item.label || item.name || item.id
-    }
-  }
-}
+    displayName(item) {
+      return item.label || item.name || item.id;
+    },
+  },
+};
 </script>
