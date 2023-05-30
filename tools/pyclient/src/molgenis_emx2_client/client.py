@@ -48,3 +48,24 @@ class Client:
             log.error(message)
         else:
             log.error('Error: sign in failed, exiting.')
+
+    def list_databases(self):
+        """List the databases present on the server."""
+        query = """
+        {
+          _schemas {
+            name
+          }
+        }"""
+
+        response = self.session.post(
+            url=f'{self.url}/apps/central/graphql',
+            json={'query': query}
+        )
+
+        response_json: dict = response.json()
+
+        databases = response_json['data']['_schemas']
+        database_names = [db['name'] for db in databases]
+
+        return database_names
