@@ -18,13 +18,14 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs } from "vue";
+import { Ref, computed, toRefs } from "vue";
 import { IColumn } from "../../Interfaces/IColumn";
 import { ISchemaMetaData } from "../../Interfaces/IMetaData";
 import { IRow } from "../../Interfaces/IRow";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import RowEdit from "./RowEdit.vue";
 
+console.log("asdfad");
 const emit = defineEmits(["setPageCount", "update:modelValue", "errorsInForm"]);
 const props = withDefaults(
   defineProps<{
@@ -34,7 +35,7 @@ const props = withDefaults(
     tableName: string;
     tableMetaData: ITableMetaData;
     schemaMetaData: ISchemaMetaData;
-    visibleColumns: string[];
+    visibleColumns: string[] | null;
     locale: string;
     clone?: boolean;
     page?: number;
@@ -42,25 +43,24 @@ const props = withDefaults(
   { page: 1 }
 );
 
-const {
-  id,
-  pkey,
-  tableName,
-  tableMetaData,
-  schemaMetaData,
-  visibleColumns,
-  clone,
-  locale,
-} = props;
+const { id, pkey, tableName, schemaMetaData, visibleColumns, clone, locale } =
+  props;
 
-let { modelValue, page } = toRefs(props);
+let { modelValue, page, tableMetaData } = toRefs(props);
 
-const columnsSplitByHeadings: string[][] = splitColumnNamesByHeadings(
-  filterVisibleColumns(tableMetaData?.columns || [], visibleColumns)
-);
-emit("setPageCount", columnsSplitByHeadings.length);
+let columnsSplitByHeadings: Ref<string[][]> = computed(() => {
+  const split = splitColumnNamesByHeadings(
+    filterVisibleColumns(tableMetaData.value?.columns || [], visibleColumns)
+  );
+  emit("setPageCount", split.length);
+  console.log(visibleColumns);
+  return split;
+});
 
-function filterVisibleColumns(columns: IColumn[], visibleColumns: string[]) {
+function filterVisibleColumns(
+  columns: IColumn[],
+  visibleColumns: string[] | null
+) {
   if (!visibleColumns) {
     return columns;
   } else {

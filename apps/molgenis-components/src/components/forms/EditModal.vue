@@ -152,7 +152,7 @@ export default {
     },
     visibleColumns: {
       type: Array,
-      default: () => [],
+      default: () => null,
     },
     defaultValue: {
       type: Object,
