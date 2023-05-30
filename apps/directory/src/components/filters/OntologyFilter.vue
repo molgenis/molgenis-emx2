@@ -1,6 +1,15 @@
 <template>
   <div>
-    <div class="d-flex flex-column scrollable-content pt-2">
+    <div class="px-2 py-2">
+      <button
+        v-for="ontologyId of ontologyIdentifiers"
+        :key="ontologyId + '-button'"
+      >
+        {{ ontologyId }}
+      </button>
+    </div>
+    <hr class="p-0 m-0" />
+    <div class="ontology pt-3">
       <!-- <CheckboxComponent
         v-for="(option, index) of checkboxOptions"
         :key="index"
@@ -8,22 +17,11 @@
         :option="option"
       /> -->
       <template v-for="ontologyId of ontologyIdentifiers" :key="ontologyId">
-        {{ ontologyId }}
         <tree-component
-          v-if="ontologyOptions[ontologyId]"
+          v-if="ontologyOptions[ontologyId] && ontologyShown == ontologyId"
           :options="ontologyOptions[ontologyId]"
         />
       </template>
-    </div>
-    <div>
-      <button
-        v-if="selectAll"
-        type="button"
-        class="btn btn-link p-2"
-        @click.prevent="toggleSelect"
-      >
-        {{ selectAllText }}
-      </button>
     </div>
   </div>
 </template>
@@ -85,14 +83,6 @@ export default {
       type: Array,
       default: () => [],
     },
-    /**
-     * Whether to use (De)Select All or not.
-     */
-    selectAll: {
-      type: Boolean,
-      required: false,
-      default: () => true,
-    },
     showMatchTypeSelector: {
       type: Boolean,
       default: () => false,
@@ -102,19 +92,10 @@ export default {
     return {
       selection: [],
       resolvedOptions: {},
+      ontologyShown: this.ontologyIdentifiers[0],
     };
   },
   computed: {
-    uiText() {
-      return this.settingsStore.uiText;
-    },
-    selectAllText() {
-      if (this.filterSelection && this.filterSelection.length > 0) {
-        return this.uiText["deselect_all"];
-      } else {
-        return this.uiText["select_all"];
-      }
-    },
     filterSelection: {
       get() {
         return this.filtersStore.getFilterValue(this.facetIdentifier) || [];
@@ -138,21 +119,6 @@ export default {
   },
   created() {
     this.options().then((response) => {
-      // const itemsSplitByOntology = {};
-
-      // for (const ontologyItem of response) {
-      //   for (const ontologyId of this.ontologyIdentifiers) {
-      //     if (
-      //       ontologyItem.value.toLowerCase().includes(ontologyId.toLowerCase())
-      //     ) {
-      //       if (!itemsSplitByOntology[ontologyId]) {
-      //         itemsSplitByOntology[ontologyId] = [ontologyItem];
-      //       } else {
-      //         itemsSplitByOntology[ontologyId].push(ontologyItem);
-      //       }
-      //     }
-      //   }
-      // }
       this.resolvedOptions = response;
     });
   },
@@ -162,5 +128,14 @@ export default {
 <style scoped>
 .btn-link:focus {
   box-shadow: none;
+}
+
+.ontology {
+  min-height: 70vh;
+  max-width: 95vw;
+  width: auto;
+  overflow: auto;
+  max-height: 15rem;
+  white-space: nowrap;
 }
 </style>

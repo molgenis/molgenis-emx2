@@ -99,6 +99,50 @@ export const genericFilterOptions = (filterFacet) => {
 };
 
 export const ontologyFilterOptions = (filterFacet) => {
+<<<<<<< HEAD
+  const { ontologyIdentifiers, sourceTable, applyToColumn, filterLabelAttribute, filterValueAttribute, sortColumn, sortDirection } = filterFacet
+
+  return () => new Promise((resolve) => {
+    
+    const cachedOptions = retrieveFromCache(applyToColumn)
+
+    const selection = [
+      filterLabelAttribute,
+      filterValueAttribute,
+      `parent.${filterValueAttribute}`,
+      `children.${filterValueAttribute}`,
+      `children.children.${filterValueAttribute}`,
+      `children.children.children.${filterValueAttribute}`,
+      `children.children.children.children.${filterValueAttribute}`,
+      `children.children.children.children.children.${filterValueAttribute}`,
+      `children.${filterLabelAttribute}`,
+      `children.children.${filterLabelAttribute}`,
+      `children.children.children.${filterLabelAttribute}`,
+      `children.children.children.children.${filterLabelAttribute}`,
+      `children.children.children.children.children.${filterLabelAttribute}`
+    ]
+
+    if (!cachedOptions.length) {
+      new queryEMX2('graphql')
+        .table(sourceTable)
+        .select(selection)
+        .orderBy(sourceTable, sortColumn, sortDirection)
+        .execute()
+        .then(response => {
+
+          const onlyParents = response[sourceTable].filter(row => !row.parent)
+          const itemsSplitByOntology = {};
+
+          for (const ontologyItem of onlyParents) {
+            for (const ontologyId of ontologyIdentifiers) {
+              if (
+                ontologyItem.name.toLowerCase().includes(ontologyId.toLowerCase())
+              ) {
+                if (!itemsSplitByOntology[ontologyId]) {
+                  itemsSplitByOntology[ontologyId] = [ontologyItem];
+                } else {
+                  itemsSplitByOntology[ontologyId].push(ontologyItem);
+=======
   const {
     ontologyIdentifiers,
     sourceTable,
@@ -149,6 +193,7 @@ export const ontologyFilterOptions = (filterFacet) => {
                   } else {
                     itemsSplitByOntology[ontologyId].push(ontologyItem);
                   }
+>>>>>>> 278739ee9b9884a48fd551f30c5139cd30639110
                 }
               }
             }
