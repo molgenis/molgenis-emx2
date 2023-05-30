@@ -6,9 +6,9 @@ plugins {
 }
 
 def nodeSpec = {
-    version = '16.16.0'
+    version = '18.16.0'
     yarnVersion = '1.22.19'
-    npmVersion = "8.17.0"
+    npmVersion = "9.5.1"
     download = true
 }
 
@@ -32,7 +32,52 @@ subprojects {
 
     task format(type: YarnTask, dependsOn: parent.yarn_install) {
         args = ['run', 'format']
+        if (project.name == 'nuxt3-ssr') {
+            outputs.dir('components')
+            outputs.dir('composables')
+            outputs.dir('gql')
+            outputs.dir('interfaces')
+            outputs.dir('pages')
+            outputs.dir('plugins')
+            outputs.dir('utils')
+            inputs.files(fileTree('components'))
+            inputs.files(fileTree('composables'))
+            inputs.files(fileTree('gql'))
+            inputs.files(fileTree('interfaces'))
+            inputs.files(fileTree('pages'))
+            inputs.files(fileTree('plugins'))
+            inputs.files(fileTree('utils'))
+        } else {
+            inputs.files(fileTree('src'))
+            outputs.dir('src')
+        }
+        outputs.cacheIf { true }
     }
+
+    task checkFormat(type: YarnTask, dependsOn: parent.yarn_install) {
+        args = ['run', 'format']
+        if (project.name == 'nuxt3-ssr') {
+            outputs.dir('components')
+            outputs.dir('composables')
+            outputs.dir('gql')
+            outputs.dir('interfaces')
+            outputs.dir('pages')
+            outputs.dir('plugins')
+            outputs.dir('utils')
+            inputs.files(fileTree('components'))
+            inputs.files(fileTree('composables'))
+            inputs.files(fileTree('gql'))
+            inputs.files(fileTree('interfaces'))
+            inputs.files(fileTree('pages'))
+            inputs.files(fileTree('plugins'))
+            inputs.files(fileTree('utils'))
+        } else {
+            inputs.files(fileTree('src'))
+            outputs.dir('src')
+        }
+        outputs.cacheIf { true }
+    }
+
 
     task build(type: YarnTask, dependsOn: format) {
         // force build order: molgenis-components > ...apps
@@ -67,6 +112,12 @@ subprojects {
             inputs.file('tailwind.config.ts')
             outputs.dir('.nuxt')
             outputs.dir('.output')
+        } else if (project.name == 'graphql-playground') {
+            inputs.file('package.json')
+            inputs.files(fileTree('src'))
+            inputs.file('index.html')
+            inputs.file('vite.config.js')
+            outputs.dir('dist')
         } else {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
@@ -77,7 +128,7 @@ subprojects {
             outputs.dir('dist')
         }
 
-        outputs.cacheIf { false }
+        outputs.cacheIf { true }
 
         args = ['run', 'build']
 

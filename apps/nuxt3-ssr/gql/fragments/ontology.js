@@ -8,6 +8,52 @@ export default gql`
     ontologyTermURI
     parent {
       name
+      code
+      order
+      definition
+      ontologyTermURI
+      parent {
+        name
+        code
+        order
+        definition
+        ontologyTermURI
+        parent {
+          name
+          code
+          order
+          definition
+          ontologyTermURI
+          parent {
+            name
+            code
+            order
+            definition
+            ontologyTermURI
+            parent {
+              name
+              code
+              order
+              definition
+              ontologyTermURI
+              parent {
+                name
+                code
+                order
+                definition
+                ontologyTermURI
+                parent {
+                  name
+                  code
+                  order
+                  definition
+                  ontologyTermURI
+                }
+              }
+            }
+          }
+        }
+      }
     }
     children {
       name

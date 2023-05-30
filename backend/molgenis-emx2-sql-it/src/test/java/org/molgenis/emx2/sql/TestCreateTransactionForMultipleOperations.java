@@ -1,18 +1,19 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.sql.SQLException;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestCreateTransactionForMultipleOperations {
   private static Database db;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws SQLException {
     db = TestDatabaseFactory.getTestDatabase();
   }
@@ -31,15 +32,20 @@ public class TestCreateTransactionForMultipleOperations {
     assertEquals(2, db.getSchema("testCommit").getTable("testCommit").retrieveRows().size());
   }
 
-  @Test(expected = MolgenisException.class)
+  @Test
   public void testRollBack() {
-    db.tx(
-        db -> {
-          Schema schema = db.dropCreateSchema("testRollBack");
-          Table testTable = schema.create(table("testRollBack").add(column("ColA").setKey(2)));
-          Row r = new Row().setString("ColA", "test");
-          testTable.insert(r);
-          testTable.insert(r);
+    assertThrows(
+        MolgenisException.class,
+        () -> {
+          db.tx(
+              db -> {
+                Schema schema = db.dropCreateSchema("testRollBack");
+                Table testTable =
+                    schema.create(table("testRollBack").add(column("ColA").setKey(2)));
+                Row r = new Row().setString("ColA", "test");
+                testTable.insert(r);
+                testTable.insert(r);
+              });
         });
   }
 }

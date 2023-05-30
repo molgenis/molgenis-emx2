@@ -36,11 +36,13 @@ import IconButton from "../IconButton.vue";
             <BreadCrumbs :crumbs="{ Home: '/', Cohorts: '/cohorts' }" />
           </template>
           <template #title-suffix>
-            <IconButton icon="star" label="Favorite" />
+            <!-- <IconButton icon="star" label="Favorite" /> -->
           </template>
         </PageHeader>
       </template>
-      <template #side> <SideNavigation /> </template>
+      <template #side>
+        <SideNavigation />
+      </template>
       <template #main>
         <ContentBlocks>
           <ContentBlockIntro />

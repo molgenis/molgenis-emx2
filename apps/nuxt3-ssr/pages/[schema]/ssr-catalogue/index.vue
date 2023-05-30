@@ -1,225 +1,134 @@
 <script setup lang="ts">
 const route = useRoute();
-const router = useRouter();
 const config = useRuntimeConfig();
-const pageSize = 10;
 
-const currentPage = ref(1);
-if (route.query?.page) {
-  const queryPageNumber = Number(route.query?.page);
-  currentPage.value =
-    typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1;
-}
-let offset = computed(() => (currentPage.value - 1) * pageSize);
-
-let filters = reactive([
+const { data, pending, error, refresh } = await useFetch(
+  `/${route.params.schema}/catalogue/graphql`,
   {
-    title: "Search in cohorts",
-    columnType: "_SEARCH",
-    search: "",
-    searchTables: ["collectionEvents", "subcohorts"],
-    initialCollapsed: false,
-  },
-  {
-    title: "Areas of information",
-    refTable: "AreasOfInformation",
-    columnName: "areasOfInformation",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
-  },
-  {
-    title: "Data categories",
-    refTable: "DataCategories",
-    columnName: "dataCategories",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
-  },
-  {
-    title: "Population age groups",
-    refTable: "AgeGroups",
-    columnName: "ageGroups",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
-  },
-  {
-    title: "Sample categories",
-    refTable: "SampleCategories",
-    columnName: "sampleCategories",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
-  },
-]);
-
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
-});
-
-const query = computed(() => {
-  return `
-  query Cohorts($filter:CohortsFilter, $orderby:Cohortsorderby){
-    Cohorts(limit: ${pageSize} offset: ${offset.value} search:"${search.value}" filter:$filter  orderby:$orderby) {
-      pid
-      name
-      acronym
-      description
-      keywords
-      type {
-          name
-      }
-      design {
-          name
-      }
-      institution {
-          name
-          acronym
-      }
-    }
-    Cohorts_agg (filter:$filter, search:"${search.value}"){
-        count
-    }
-  }
-  `;
-});
-
-const orderby = { name: "ASC" };
-
-function buildFilterVariables() {
-  const filtersVariables = filters.reduce<
-    Record<string, Record<string, object | string>>
-  >((accum, filter) => {
-    if (filter.filterTable && filter?.conditions?.length) {
-      if (!accum[filter.filterTable]) {
-        accum[filter.filterTable] = {};
-      }
-      accum[filter.filterTable][filter.columnName] = {
-        equals: filter.conditions,
-      };
-    }
-
-    return accum;
-  }, {});
-
-  return filtersVariables;
-}
-
-const filter = computed(() => {
-  // build the active filters
-  const filterVariables = buildFilterVariables();
-
-  // append search to the sub tables if set
-  const searchTables = filters.find(
-    (f) => f.columnType === "_SEARCH"
-  )?.searchTables;
-
-  if (searchTables) {
-    searchTables.forEach((searchTable) => {
-      if (search.value) {
-        if (Object.keys(filterVariables).includes(searchTable)) {
-          filterVariables[searchTable]["_search"] = search.value;
-        } else {
-          filterVariables[searchTable] = { _search: search.value };
+    baseURL: config.public.apiBase,
+    method: "POST",
+    body: {
+      query: `{
+        Variables_agg {
+          count
         }
-      }
-    });
+        Cohorts_agg { 
+          count
+          sum {
+            numberOfParticipants
+            numberOfParticipantsWithSamples 
+          }
+        }
+        Networks_agg { 
+          count
+        }
+        Cohorts_groupBy {
+          count 
+          design {
+            name
+          }
+        }
+        _settings (keys: ["NOTICE_SETTING_KEY" "CATALOGUE_LANDING_TITLE" "CATALOGUE_LANDING_DESCRIPTION"]){ 
+          key
+          value 
+        }
+      }`,
+    },
   }
+);
 
-  return filterVariables;
-});
+function percentageLongitudinal(
+  cohortsGroupBy: { count: number; design: { name: string } }[],
+  total: number
+) {
+  const nLongitudinal = cohortsGroupBy.reduce(
+    (accum, group) =>
+      group?.design?.name === "Longitudinal" ? accum + group.count : accum,
+    0
+  );
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
-const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
-  key: `cohorts-${offset.value}`,
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: {
-    query,
-    variables: { orderby, filter },
-  },
-});
-
-function setCurrentPage(pageNumber: number) {
-  router.push({ path: route.path, query: { page: pageNumber } });
-  currentPage.value = pageNumber;
+  return Math.round((nLongitudinal / total) * 100);
 }
 
-watch(filters, () => {
-  setCurrentPage(1);
-});
-
-let activeName = ref("detailed");
+function getSettingValue(settingKey: string, settings: ISetting[]) {
+  return settings.find((setting: { key: string; value: string }) => {
+    return setting.key === settingKey;
+  })?.value;
+}
 </script>
-
 <template>
-  <LayoutsSearchPage>
-    <template #side>
-      <SearchFilter title="Filters" :filters="filters" />
-    </template>
-    <template #main>
-      <SearchResults>
-        <template #header>
-          <!-- <NavigationIconsMobile :link="" /> -->
-          <PageHeader
-            title="Cohorts"
-            description="Group of individuals sharing a defining demographic characteristic."
-            icon="image-link"
-          >
-            <template #suffix>
-              <SearchResultsViewTabs
-                class="hidden xl:flex"
-                buttonLeftLabel="Detailed"
-                buttonLeftName="detailed"
-                buttonLeftIcon="view-normal"
-                buttonRightLabel="Compact"
-                buttonRightName="compact"
-                buttonRightIcon="view-compact"
-                v-model:activeName="activeName"
-              />
-              <SearchResultsViewTabsMobile
-                class="flex xl:hidden"
-                v-model:activeName="activeName"
-              >
-                <SearchFilter title="Filters" :filters="filters" />
-              </SearchResultsViewTabsMobile>
-            </template>
-          </PageHeader>
-        </template>
+  <LayoutsLandingPage class="w-10/12 pt-8">
+    <PageHeader
+      class="mx-auto lg:w-7/12 text-center"
+      :title="
+        getSettingValue('CATALOGUE_LANDING_TITLE', data.data._settings) ||
+        'European Networks Health Data & Cohort Catalogue.'
+      "
+      :description="
+        getSettingValue('CATALOGUE_LANDING_DESCRIPTION', data.data._settings) ||
+        'Browse and manage metadata for data resources, such as cohorts, registries, biobanks, and multi-center collaborations thereof such as networks, common data models and studies.'
+      "
+    ></PageHeader>
 
-        <template #search-results>
-          <FilterWell :filters="filters"></FilterWell>
-          <SearchResultsList>
-            <CardList v-if="data?.data?.Cohorts?.length > 0">
-              <CardListItem
-                v-for="cohort in data?.data?.Cohorts"
-                :key="cohort.name"
-              >
-                <CohortCard
-                  :cohort="cohort"
-                  :schema="route.params.schema"
-                  :compact="activeName !== 'detailed'"
-                />
-              </CardListItem>
-            </CardList>
-            <div v-else class="flex justify-center pt-3">
-              <span class="py-15 text-blue-500">
-                No Cohorts found with current filters
-              </span>
-            </div>
-          </SearchResultsList>
-        </template>
+    <div
+      class="bg-white relative justify-around flex flex-col md:flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0 rounded-t-3px rounded-b-50px shadow-primary"
+    >
+      <LandingCardPrimary
+        image="image-link"
+        title="Cohorts"
+        description="A complete overview of all cohorts and biobanks."
+        :count="data.data.Cohorts_agg.count"
+        :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
+      />
+      <LandingCardPrimary
+        v-if="!config.public.cohortOnly"
+        image="image-diagram"
+        title="Networks"
+        description="Collaborations of multiple institutions and/or cohorts with a common objective."
+        :count="data.data.Networks_agg.count"
+        :link="`/${route.params.schema}/ssr-catalogue/networks/`"
+      />
+      <LandingCardPrimary
+        v-if="!config.public.cohortOnly"
+        image="image-diagram-2"
+        title="Variables"
+        description="A complete overview of available variables."
+        :count="data.data.Variables_agg.count"
+        :link="`/${route.params.schema}/ssr-catalogue/variables/`"
+      />
+    </div>
 
-        <template v-if="data?.data?.Cohorts?.length > 0" #pagination>
-          <Pagination
-            :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
-            @update="setCurrentPage($event)"
-          />
-        </template>
-      </SearchResults>
-    </template>
-  </LayoutsSearchPage>
+    <div
+      class="justify-around flex flex-col md:flex-row pt-5 pb-5 lg:pb-10 lg:px-0"
+    >
+      <LandingCardSecondary icon="people">
+        <b> {{ data.data.Cohorts_agg.sum.numberOfParticipants }} Participants</b
+        ><br />The cumulative number of participants of all datasets combined.
+      </LandingCardSecondary>
+
+      <LandingCardSecondary icon="colorize">
+        <b
+          >{{
+            data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
+          }}
+          Samples</b
+        >
+        <br />The cumulative number of participants with samples collected of
+        all datasets combined.
+      </LandingCardSecondary>
+
+      <LandingCardSecondary icon="schedule">
+        <b
+          >Longitudinal
+          {{
+            percentageLongitudinal(
+              data.data.Cohorts_groupBy,
+              data.data.Cohorts_agg.count
+            )
+          }}%</b
+        ><br />Percentage of longitudinal datasets. The remaining datasets are
+        cross-sectional.
+      </LandingCardSecondary>
+    </div>
+  </LayoutsLandingPage>
 </template>

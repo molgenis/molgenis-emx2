@@ -12,9 +12,7 @@
         :class="{ 'is-invalid': errorMessage }"
         @click="showSelect = true"
         @focus="showSelect = true"
-        :value="
-          refLabel ? applyJsTemplate(modelValue) : flattenObject(modelValue)
-        "
+        :value="applyJsTemplate(modelValue, refLabel)"
       />
       <template v-slot:append>
         <button
@@ -60,7 +58,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import ButtonAction from "./ButtonAction.vue";
-import { flattenObject } from "../utils";
+import { applyJsTemplate } from "../utils";
 
 export default {
   name: "InputRefSelect",
@@ -85,7 +83,10 @@ export default {
       required: false,
     },
     filter: Object,
-    refLabel: String,
+    refLabel: {
+      type: String,
+      required: true,
+    },
     /**
      * if table that this input is selecting from can be edited by the current user
      *  */
@@ -101,36 +102,10 @@ export default {
     },
   },
   methods: {
-    flattenObject(objectToFlatten) {
-      return objectToFlatten === undefined || objectToFlatten === null
-        ? ""
-        : flattenObject(objectToFlatten);
-    },
+    applyJsTemplate,
     select(event) {
       this.showSelect = false;
       this.$emit("update:modelValue", event);
-    },
-    applyJsTemplate(object) {
-      if (object === undefined || object === null) {
-        return "";
-      }
-      const names = Object.keys(object);
-      const vals = Object.values(object);
-      try {
-        return new Function(...names, "return `" + this.refLabel + "`;")(
-          ...vals
-        );
-      } catch (err) {
-        return (
-          err.message +
-          " we got keys:" +
-          JSON.stringify(names) +
-          " vals:" +
-          JSON.stringify(vals) +
-          " and template: " +
-          this.refLabel
-        );
-      }
     },
   },
 };
@@ -139,45 +114,45 @@ export default {
 <docs>
 
 <template>
-<div>
   <div>
-  <label for="input-ref-select-1">Example </label>
-    <InputRefSelect 
-      id="input-ref-select-1" 
-      v-model="value1" 
-      tableName="Pet" 
-      schemaName="pet store"
-    />
-    Selection: {{ value1 }}
+    <div>
+      <label for="input-ref-select-1">Example </label>
+      <InputRefSelect
+          id="input-ref-select-1"
+          v-model="value1"
+          tableName="Pet"
+          schemaName="pet store"
+      />
+      Selection: {{ value1 }}
+    </div>
+
+    <label for="input-ref-select-2" class="mt-3">Example with default value</label>
+    <div>
+      <InputRefSelect
+          id="input-ref-select-2"
+          v-model="value2"
+          tableName="Pet"
+          schemaName="pet store"
+      />
+      Selection: {{ value2 }}
+    </div>
+
+    <label for="input-ref-select-3" class="mt-3">Example with filter (category.name = dog)</label>
+    <div>
+      <InputRefSelect
+          id="input-ref-select-3"
+          v-model="value3"
+          tableName="Pet"
+          :filter="{category:{name: {equals:'dog'}}}"
+          schemaName="pet store"
+      />
+      Selection: {{ value3 }}
+    </div>
+
+
   </div>
 
-  <label for="input-ref-select-2" class="mt-3">Example with default value</label>
-  <div>
-    <InputRefSelect
-        id="input-ref-select-2"
-        v-model="value2"
-        tableName="Pet"
-        schemaName="pet store"
-    />
-    Selection: {{ value2 }}
-  </div>
 
-  <label for="input-ref-select-3" class="mt-3">Example with filter (category.name = dog)</label>
-  <div>
-    <InputRefSelect
-        id="input-ref-select-3"
-        v-model="value3"
-        tableName="Pet"
-        :filter="{category:{name: {equals:'dog'}}}"
-        schemaName="pet store"
-    />
-    Selection: {{ value3 }}
-  </div>
-  
-
-</div>
-
-  
 </template>
 
 <script>

@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.test.ProductComponentPartsExample;
@@ -18,7 +18,7 @@ public class TestImportExportEmx2MetadataIODataAndMetadata {
 
   static Database database;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
   }
@@ -40,7 +40,7 @@ public class TestImportExportEmx2MetadataIODataAndMetadata {
       ProductComponentPartsExample.populate(schema1);
 
       StopWatch.print("example schema loaded");
-      MolgenisIO.toDirectory(directory, schema1);
+      MolgenisIO.toDirectory(directory, schema1, false);
       StopWatch.print("export to directory complete");
       Schema schema2 = database.dropCreateSchema(getClass().getSimpleName() + "2");
       StopWatch.print("schema2 created, ready to reload the exported data");
@@ -49,7 +49,7 @@ public class TestImportExportEmx2MetadataIODataAndMetadata {
       CompareTools.assertEquals(schema1.getMetadata(), schema2.getMetadata());
 
       Path excelFile = tmp.resolve("test.xlsx");
-      MolgenisIO.toExcelFile(excelFile, schema1);
+      MolgenisIO.toExcelFile(excelFile, schema1, true);
       StopWatch.print("export to excel complete");
       Schema schema3 = database.dropCreateSchema(getClass().getSimpleName() + "3");
       StopWatch.print("schema3 created, ready to reload the exported data");
@@ -58,7 +58,7 @@ public class TestImportExportEmx2MetadataIODataAndMetadata {
       CompareTools.assertEquals(schema1.getMetadata(), schema3.getMetadata());
 
       Path zipFile = tmp.resolve("test.zip");
-      MolgenisIO.toZipFile(zipFile, schema1);
+      MolgenisIO.toZipFile(zipFile, schema1, false);
       StopWatch.print("export to zipfile complete");
       Schema schema4 = database.dropCreateSchema(getClass().getSimpleName() + "4");
       StopWatch.print("schema4 created, ready to reload the exported data");

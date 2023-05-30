@@ -2,7 +2,6 @@
   "private": true,
   "workspaces": [
     "catalogue",
-    "catalogue3",
     "directory",
     "settings",
     "central",
@@ -14,7 +13,8 @@
     "nuxt3-ssr",
     "molgenis-components",
     "helloworld",
-    "reports"
-   ]
+    "reports",
+    "tasks"
+  ]
 }
 

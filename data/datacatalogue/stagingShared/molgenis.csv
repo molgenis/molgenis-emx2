@@ -1,30 +1,21 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,2.8
-Contacts,,,,,,,,,,,,
-Contacts,,firstName,,1,TRUE,,,,,,,First name of the contact person
-Contacts,,surname,,1,TRUE,,,,,,,Last name of the contact person
-Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
-Contacts,,initials,,,,,,,,,,Initials of the contact person
-Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
-Contacts,,institution,ref,,,,Institutions,,,,,Affiliated institution of the contact person
-Contacts,,department,text,,,,,,,,,Affiliated department of the contact person
-Contacts,,email,,2,,,,,,,,Contact's email address
-Contacts,,orcid,,3,,,,,,,,Orcid of the contact person
-Contacts,,homepage,,,,,,,,,,Link to contact's homepage
-Contacts,,photo,file,,,,,,,,,Contact's photograph
-Contacts,,expertise,,,,,,,,,,Description of contact's expertise
-Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
-Institutions,,pid,,1,TRUE,,,,,,,Persistent identifier for this institution
-Institutions,,name,,2,,,,,,,,Official name of the institution or organisation as used in EU projects
-Institutions,,acronym,,,,,,,,,,"Official acronym of the institution, if applicable"
-Institutions,,type,ontology,,,CatalogueOntologies,InstitutionTypes,,,,,Type of organisation; in which sector is the institution active?
-Institutions,,typeOther,text,,,,,,,,,"If type is 'other', a description of type of organisation"
-Institutions,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
-Institutions,,address,text,,,,,,,,,Full address of the institution head office or coordinating centre
-Institutions,,website,,,,,,,,,,Link to the homepage of this institution
-Institutions,,email,,,,,,,,,,Contact email address for person responsible for institution entry in catalogue
-Institutions,,description,text,,,,,,,,,General description
-Institutions,,logo,file,,,,,,,,,Institution logo
-Institutions,,roles,ontology_array,,,CatalogueOntologies,InstitutionRoles,,,,,Role(s) of the institution in connection with data sources and data banks in the catalogue
-Institutions,,rolesOther,text,,,,,,,,,"If role is 'other', a description of the primary role"
-Institutions,,expertise,text,,,,,,,,,A short description of the expertise of this institution
+Version,,,,,,,,,,,,3.3
+Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
+Organisations,Resources,,,,,,,,,,,Research departments and research groups
+Resources,,overview,heading,,,,,,,,,General information
+Resources,,id,,1,TRUE,,,,,,,Internal identifier
+Resources,,pid,,2,,,,,,,,Persistent identifier
+Resources,,acronym,,,,,,,,,,Acronym if applicable
+Resources,,name,text,3,TRUE,,,,,,,Name used in European projects
+Organisations,,type,ontology,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?
+Organisations,,type other,text,,,,,,,,,"If type is 'other', a description of type of organisation"
+Organisations,,logo,file,,,,,,,,,Logo of the organisation
+Organisations,,institution,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of"
+Organisations,,institution acronym,string,,,,,,,,,Short name of the organisation
+Resources,,website,hyperlink,,,,,,,,,Organisation website
+Organisations,,email,email,,,,,,,,,Contact email address for person responsible for organization entry in catalogue
+Organisations,,address,text,,,,,,,,,
+Organisations,,expertise,text,,,,,,,,,A short description of the expertise of this institution
+Organisations,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
+Organisations,,features,ontology_array,,,CatalogueOntologies,Organisation features,,,,,Features that describe this organisation
+Organisations,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,,Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:

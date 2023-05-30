@@ -18,7 +18,7 @@ const { data: collectionEventData } = await useFetch(
     body: {
       query: queryValue,
       variables: {
-        pid: route.params.cohort,
+        id: route.params.cohort,
         name: route.params.collectionevent,
       },
     },
@@ -39,7 +39,8 @@ watch(
 let tocItems = reactive([{ label: "Details", id: "details" }]);
 
 const pageCrumbs: any = {
-  Cohorts: `/${route.params.schema}/ssr-catalogue`,
+  Home: `/${route.params.schema}/ssr-catalogue`,
+  Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
 };
 
 // @ts-ignore
@@ -63,7 +64,7 @@ if (collectionEvent?.subcohorts?.length) {
 
 if (collectionEvent?.startYear || collectionEvent?.endYear) {
   items.push({
-    label: "Start/end year: ",
+    label: "Start/end year",
     content: filters.startEndYear(
       collectionEvent.startYear && collectionEvent.startYear.name
         ? collectionEvent.startYear.name
@@ -75,9 +76,7 @@ if (collectionEvent?.startYear || collectionEvent?.endYear) {
   });
 }
 
-let ageGroupsTree = [];
 if (collectionEvent?.ageGroups?.length) {
-  ageGroupsTree = buildOntologyTree(collectionEvent.ageGroups);
   tocItems.push({ label: "Age categories", id: "age_categories" });
 }
 
@@ -91,7 +90,7 @@ if (collectionEvent?.numberOfParticipants) {
 let dataCategoriesTree = [];
 if (collectionEvent?.dataCategories?.length) {
   dataCategoriesTree = buildOntologyTree(collectionEvent.dataCategories);
-  tocItems.push({ label: "Data categories", id: "data_catagories" });
+  tocItems.push({ label: "Data categories", id: "data_categories" });
 }
 
 if (collectionEvent?.sampleCategories?.length) {
@@ -109,12 +108,20 @@ if (collectionEvent?.areasOfInformation?.length) {
   tocItems.push({ label: "Areas of information", id: "areas_of_information" });
 }
 
+let standardizedToolsTree = [];
+if (collectionEvent.standardizedTools) {
+  standardizedToolsTree = buildOntologyTree(collectionEvent.standardizedTools);
+  tocItems.push({ label: "Standardized tools", id: "standardized_tools" });
+}
+
 if (collectionEvent?.coreVariables?.length) {
   items.push({
     label: "Core variables",
-    content: renderList(collectionEvent?.coreVariables, toName),
+    content: collectionEvent?.coreVariables,
   });
 }
+
+useHead({ title: collectionEvent?.name });
 </script>
 
 <template>
@@ -142,12 +149,21 @@ if (collectionEvent?.coreVariables?.length) {
           id="age_categories"
           title="Age categories"
         >
-          <ContentOntology :tree="ageGroupsTree" :collapse-all="false" />
+          <ul class="grid gap-1 pl-4 list-disc list-outside">
+            <li
+              v-for="ageGroup in removeChildIfParentSelected(
+                collectionEvent.ageGroups || []
+              ).sort((a, b) => a.order - b.order)"
+              :key="ageGroup.name"
+            >
+              {{ ageGroup.name }}
+            </li>
+          </ul>
         </ContentBlock>
         <ContentBlock
           v-if="collectionEvent.dataCategories"
-          id="data_catagories"
-          title="Data catagories"
+          id="data_categories"
+          title="Data categories"
         >
           <ContentOntology :tree="dataCategoriesTree" :collapse-all="false" />
         </ContentBlock>
@@ -158,6 +174,27 @@ if (collectionEvent?.coreVariables?.length) {
         >
           <ContentOntology
             :tree="areasOfInformationTree"
+            :collapse-all="false"
+          />
+        </ContentBlock>
+        <ContentBlock
+          v-if="collectionEvent.standardizedTools"
+          id="standardized_tools"
+          title="Standardized tools"
+        >
+          <ContentOntology
+            :tree="standardizedToolsTree"
+            :collapse-all="false"
+          />
+          <DefinitionList
+            v-if="collectionEvent.standardizedToolsOther"
+            class="mt-6"
+            :items="[
+              {
+                label: 'Standardized tools other',
+                content: collectionEvent.standardizedToolsOther,
+              },
+            ]"
             :collapse-all="false"
           />
         </ContentBlock>

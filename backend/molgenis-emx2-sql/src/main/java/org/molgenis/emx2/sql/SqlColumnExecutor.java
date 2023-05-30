@@ -12,6 +12,7 @@ import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.removeRefBackConstr
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
@@ -245,7 +246,7 @@ public class SqlColumnExecutor {
                 + e.getMessage()
                 + ". You might want to set nullable=TRUE or add a default value to update existing rows.");
       } else {
-        throw new MolgenisException(
+        throw new SqlMolgenisException(
             "Create column '" + column.getTableName() + "." + current + "' failed", e);
       }
     }
@@ -270,15 +271,16 @@ public class SqlColumnExecutor {
     }
     if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
       TableMetadata tm =
-          getOntologyTableDefinition(column.getRefTableName(), column.getDescription());
+          getOntologyTableDefinition(column.getRefTableName(), column.getDescriptions());
       // create the table
       refSchema.create(tm);
     }
   }
 
-  public static TableMetadata getOntologyTableDefinition(String name, String description) {
+  public static TableMetadata getOntologyTableDefinition(
+      String name, Map<String, String> descriptions) {
     return new TableMetadata(name)
-        .setDescription(description)
+        .setDescriptions(descriptions)
         .setTableType(TableType.ONTOLOGIES)
         .add(
             column("order")
@@ -346,8 +348,8 @@ public class SqlColumnExecutor {
     if (c.isReference() && !c.isOntology() && c.getRefTable() == null) {
       throw new MolgenisException(
           String.format(
-              "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK",
-              c.getTableName(), c.getName()));
+              "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK (tried to find: %s:%s)",
+              c.getTableName(), c.getName(), c.getRefSchema(), c.getRefTableName()));
     }
     if (c.getRefLink() != null) {
       if (c.getTable().getColumn(c.getRefLink()) == null) {

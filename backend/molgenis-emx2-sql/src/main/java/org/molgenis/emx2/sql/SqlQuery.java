@@ -9,13 +9,11 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.*;
 import org.jooq.Table;
 import org.jooq.conf.ParamType;
-import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Operator;
@@ -133,8 +131,8 @@ public class SqlQuery extends QueryBean {
         result.add(new SqlRow(r));
       }
       return result;
-    } catch (DataAccessException | SQLException e) {
-      throw new MolgenisException(QUERY_FAILED, e);
+    } catch (Exception e) {
+      throw new SqlMolgenisException(QUERY_FAILED, e);
     }
   }
 
@@ -387,6 +385,8 @@ public class SqlQuery extends QueryBean {
         } else if (Operator.AND.equals(f.getOperator())) {
           conditions.add(
               and(jsonFilterQueryConditions(table, column, tableAlias, subAlias, f, searchTerms)));
+        } else if (TRIGRAM_SEARCH.equals(f.getOperator())) {
+          conditions.add(jsonSearchConditions(table, TypeUtils.toStringArray(f.getValues())));
         } else {
           Column c = isValidColumn(table, f.getColumn());
           if (c.isReference()) {
@@ -611,14 +611,14 @@ public class SqlQuery extends QueryBean {
           Column c = isValidColumn(table, sub.getColumn());
           switch (field.getColumn()) {
             case MAX_FIELD -> result.add(
-                key(c.getName()).value(max(field(name(alias(subAlias), c.getName())))));
+                key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
             case MIN_FIELD -> result.add(
-                key(c.getName()).value(min(field(name(alias(subAlias), c.getName())))));
+                key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
             case AVG_FIELD -> result.add(
-                key(c.getName())
+                key(c.getIdentifier())
                     .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
             case SUM_FIELD -> result.add(
-                key(c.getName())
+                key(c.getIdentifier())
                     .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
             default -> throw new MolgenisException(
                 "Unknown aggregate type provided: " + field.getColumn());
@@ -674,7 +674,7 @@ public class SqlQuery extends QueryBean {
             table.getPrimaryKeyFields().stream()
                 .map(f -> f.as(name("pkey_" + f.getName())))
                 .collect(Collectors.toList()));
-        selectFields.add(c.getJooqField());
+        selectFields.add(c.getJooqField().as(c.getIdentifier()));
         // in case of 'ref' we subselect
         if (c.isRef()) {
           subselectFields.add(

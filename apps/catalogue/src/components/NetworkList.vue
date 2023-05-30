@@ -1,13 +1,13 @@
 <template>
   <ul v-if="networks">
-    <li v-for="d in networks" :key="d.pid">
+    <li v-for="d in networks" :key="d.id">
       <RouterLink
         :to="{
           name: 'network',
-          params: { pid: d.pid },
+          params: { id: d.id },
         }"
       >
-        {{ d.pid }} - {{ d.name }}
+        {{ d.id }} - {{ d.name }}
       </RouterLink>
     </li>
   </ul>

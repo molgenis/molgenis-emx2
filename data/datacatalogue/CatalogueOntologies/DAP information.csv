@@ -1,0 +1,19 @@
+order,name,label,code,parent,ontologyTermURI,definition
+,DAP access levels,,,,,Can the institution access individual level data or only aggregate level data (where individual level data refer to individual records and aggregate level data refer to summary tables)?
+,Individual,,,DAP access levels,,
+,Aggregate,,,DAP access levels,,
+,DAP access level completeness,,,,,Can the institution access the whole data source or only an extract of the data source?
+,Complete,,,DAP access level completeness,,
+,Extract,,,DAP access level completeness,,
+,DAP access permissions,,,,,"Is permission required for your institute to access data source (e.g., from a data controller)?"
+,DAP access permissions: No,No,,DAP access permissions,,
+,Always,,,DAP access permissions,,
+,Study-dependent,,,DAP access permissions,,
+,DAP reasons for access,,,,,What is the reason for being able to access (an extract of) the data source?
+,Data originator,,,DAP reasons for access,,
+,Research,,,DAP reasons for access,,
+,Surveillance,,,DAP reasons for access,,
+,Other,,,DAP reasons for access,,
+,Fees,,,,,Are there fees for data access?
+,Yes,,,Fees,,
+,Fees: No,No,,Fees,,

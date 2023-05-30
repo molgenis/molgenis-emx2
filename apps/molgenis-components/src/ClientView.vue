@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import Client from "./client/client.js";
+import Client from "./client/client.ts";
 export default {
   name: "ClientView",
   data() {
@@ -44,7 +44,7 @@ export default {
     async fetchData() {
       const filter = this.filter ? JSON.parse(this.filter) : {};
       const orderby = this.filter ? JSON.parse(this.orderby) : {};
-      this.metaData = await this.client.fetchMetaData();
+      this.metaData = await this.client.fetchSchemaMetaData();
       this.tableData = await this.client.fetchTableData("Pet", {
         filter,
         orderby,

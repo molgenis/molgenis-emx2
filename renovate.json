@@ -18,6 +18,13 @@
       ]
     },
     {
+      "groupName": "nuxt",
+      "matchPackagePrefixes": [
+        "@nuxt",
+        "nuxt"
+      ]
+    },
+    {
       "groupName": "org.eclipse.rdf4j",
       "matchPackagePrefixes": [
         "org.eclipse.rdf4j"
@@ -39,6 +46,12 @@
       "groupName": "org.graalvm.js",
       "matchPackagePrefixes": [
         "org.graalvm.js"
+      ]
+    },
+    {
+      "groupName": "org.apache.poi",
+      "matchPackagePrefixes": [
+        "org.apache.poi"
       ]
     }
   ]

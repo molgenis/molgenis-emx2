@@ -22,8 +22,9 @@ public class SqlSchema implements Schema {
   public SqlTable getTable(String name) {
     SqlTableMetadata tableMetadata = getMetadata().getTableMetadata(name);
     if (tableMetadata == null) return null;
-    if (tableMetadata.exists()) return new SqlTable(db, tableMetadata);
-    else return null;
+    if (tableMetadata.exists()) {
+      return new SqlTable(db, tableMetadata, db.getTableListener(getName(), name));
+    } else return null;
   }
 
   @Override
@@ -32,7 +33,9 @@ public class SqlSchema implements Schema {
     sortTableByDependency(tableMetadata);
     List<Table> result = new ArrayList<>();
     for (TableMetadata tm : tableMetadata) {
-      result.add(new SqlTable(db, (SqlTableMetadata) tm));
+      result.add(
+          new SqlTable(
+              db, (SqlTableMetadata) tm, db.getTableListener(getName(), tm.getTableName())));
     }
     return result;
   }
@@ -300,8 +303,11 @@ public class SqlSchema implements Schema {
         if (!mergeTable.getSettings().isEmpty()) {
           oldTable.setSettings(mergeTable.getSettings());
         }
-        if (mergeTable.getDescription() != null) {
-          oldTable.setDescription(mergeTable.getDescription());
+        if (!mergeTable.getDescriptions().isEmpty()) {
+          oldTable.setDescriptions(mergeTable.getDescriptions());
+        }
+        if (!mergeTable.getLabels().isEmpty()) {
+          oldTable.setLabels(mergeTable.getLabels());
         }
         if (mergeTable.getSemantics() != null) {
           oldTable.setSemantics(mergeTable.getSemantics());
@@ -376,8 +382,10 @@ public class SqlSchema implements Schema {
       }
     }
 
-    // finally update settings
-    targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
+    // finally, update settings if changes are provided
+    if (!mergeSchema.getSettings().isEmpty()) {
+      targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
+    }
   }
 
   public String getName() {

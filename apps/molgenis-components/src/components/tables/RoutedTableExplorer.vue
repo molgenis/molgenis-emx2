@@ -20,12 +20,24 @@
       :showLimit="getLimit()"
       :showOrderBy="getOrderBy()"
       :showOrder="getOrder()"
-    />
+      :locale="locale"
+      @rowClick="$emit('rowClick', $event)"
+    >
+      <template v-slot:rowheader="slotProps">
+        <slot
+          name="rowheader"
+          :row="slotProps.row"
+          :metadata="slotProps.metadata"
+          :rowkey="slotProps.rowkey"
+        />
+      </template>
+    </TableExplorer>
   </div>
 </template>
 
 <script>
 import TableExplorer from "./TableExplorer.vue";
+import { deepClone } from "../utils";
 
 export default {
   name: "RoutedTableExplorer",
@@ -54,6 +66,18 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    locale: {
+      type: String,
+      default: () => "en",
+    },
+    showFilters: {
+      type: Array,
+      default: () => [],
+    },
+    showColumns: {
+      type: Array,
+      default: () => [],
+    },
   },
   methods: {
     getOrderBy() {
@@ -78,7 +102,7 @@ export default {
           return this.$route.query._col.split(",");
         }
       } else {
-        return [];
+        return deepClone(this.showColumns);
       }
     },
     getFilters() {
@@ -89,7 +113,7 @@ export default {
           return this.$route.query._filter.split(",");
         }
       } else {
-        return [];
+        return deepClone(this.showFilters);
       }
     },
     getPage() {
@@ -208,6 +232,7 @@ export default {
       }
     },
   },
+  emits: ["rowClick"],
 };
 </script>
 
@@ -219,7 +244,7 @@ export default {
       <routed-table-explorer
         id="my-table-explorer"
         tableName="Pet"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
       />
     </div>
   </div>

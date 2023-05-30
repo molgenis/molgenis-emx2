@@ -1,14 +1,14 @@
 package org.molgenis.emx2.semantics.rdf;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
@@ -27,7 +27,7 @@ public class OntologyTableSemantics {
   static Schema petStoreSchema;
   static final String RDF_API_LOCATION = "/api/rdf";
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     Schema petStore = database.dropCreateSchema("petStore");
@@ -43,7 +43,7 @@ public class OntologyTableSemantics {
     when(request.url()).thenReturn("http://localhost:8080/petStore/api/fdp");
     OutputStream outputStream = new ByteArrayOutputStream();
     RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, null, null, petStoreSchema);
+        outputStream, request, response, RDF_API_LOCATION, null, null, null, petStoreSchema);
     String result = outputStream.toString();
 
     /**
@@ -66,7 +66,7 @@ public class OntologyTableSemantics {
 
     outputStream = new ByteArrayOutputStream();
     RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, null, null, petStoreSchema);
+        outputStream, request, response, RDF_API_LOCATION, null, null, null, petStoreSchema);
     result = outputStream.toString();
 
     /**

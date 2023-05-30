@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io;
 
-import static junit.framework.TestCase.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.datamodels.util.CompareTools;
@@ -111,8 +111,8 @@ public class TestReadWriteStores {
     StopWatch.start("created some rows");
 
     // write them
-    store.writeTable("test", List.of(), rows);
-    store.writeTable("test2", List.of(), rows);
+    store.writeTable("test", new ArrayList<>(rows.get(0).getColumnNames()), rows);
+    store.writeTable("test2", new ArrayList<>(rows.get(0).getColumnNames()), rows);
 
     StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
 
@@ -126,7 +126,7 @@ public class TestReadWriteStores {
     CompareTools.assertEquals(rows, rows2);
 
     // write another one
-    store.writeTable("test3", List.of(), rows);
+    store.writeTable("test3", new ArrayList<>(rows.get(0).getColumnNames()), rows);
     StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
 
     rows2 =

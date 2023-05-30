@@ -15,10 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Version;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,6 +100,7 @@ public class MolgenisWebservice {
     GraphqlApi.createGraphQLservice(sessionManager);
     LinkedDataFragmentsApi.create(sessionManager);
     RDFApi.create(sessionManager);
+    GraphGenomeApi.create(sessionManager);
     BeaconApi.create(sessionManager);
     FAIRDataPointApi.create(sessionManager);
     BootstrapThemeService.create();
@@ -144,6 +142,9 @@ public class MolgenisWebservice {
   private static String redirectSchemaToFirstMenuItem(Request request, Response response) {
     try {
       Schema schema = getSchema(request);
+      if (schema == null) {
+        throw new MolgenisException("Cannot redirectSchemaToFirstMenuItem, schema is null");
+      }
       String role = schema.getRoleForActiveUser();
       Optional<String> menuSettingValue = schema.getMetadata().findSettingValue("menu");
       if (menuSettingValue.isPresent()) {
@@ -204,7 +205,11 @@ public class MolgenisWebservice {
   }
 
   private static String openApiYaml(Request request, Response response) throws IOException {
-    OpenAPI api = OpenApiYamlGenerator.createOpenApi(getSchema(request).getMetadata());
+    Schema schema = getSchema(request);
+    if (schema == null) {
+      throw new MolgenisException("Schema is null");
+    }
+    OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema.getMetadata());
     response.status(200);
     return Yaml.mapper()
         .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
@@ -220,7 +225,9 @@ public class MolgenisWebservice {
     if (schema == null) {
       throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
     }
-    return schema.getTable(sanitize(request.params(TABLE)));
+    Table table = schema.getTable(sanitize(request.params(TABLE)));
+    if (table == null) throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
+    return table;
   }
 
   /** alternative version for getTable */
@@ -244,6 +251,9 @@ public class MolgenisWebservice {
   }
 
   public static Schema getSchema(Request request) {
+    if (request.params(SCHEMA) == null) {
+      return null;
+    }
     return sessionManager
         .getSession(request)
         .getDatabase()

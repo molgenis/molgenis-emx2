@@ -1,12 +1,12 @@
 package org.molgenis.emx2.semantics.fairdatapoint;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Random;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -29,7 +29,7 @@ public class FAIRDataPointBadDistributionInDatasetTest {
   static Database database;
   static Schema fairDataHub_baddistribution;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     fairDataHub_baddistribution = database.dropCreateSchema("fairDataHub_baddistribution");

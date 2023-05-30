@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  name: "HarmonicationCell",
+  name: "HarmonizationCell",
   props: {
     status,
   },

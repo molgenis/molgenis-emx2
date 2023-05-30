@@ -6,17 +6,14 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
 
-public class Column implements Comparable<Column> {
+public class Column extends HasLabelsDescriptionsAndSettings<Column> implements Comparable<Column> {
 
   // basics
   private TableMetadata table; // table this column is part of
@@ -33,9 +30,6 @@ public class Column implements Comparable<Column> {
   private String refLink; // to allow a reference value to depend on another reference.
   private String refLabel; // template string influencing how ref value is shown
   private String refBack; // for REFBACK, indicate the column to be used for linkback
-
-  // options
-  private String description = null; // long description of the column
 
   @DiffIgnore
   private Integer position =
@@ -114,6 +108,7 @@ public class Column implements Comparable<Column> {
   /* copy constructor to prevent changes on in progress data */
   private void copy(Column column) {
     columnName = column.columnName;
+    labels = column.labels;
     oldName = column.oldName;
     drop = column.drop;
     columnType = column.columnType;
@@ -130,7 +125,7 @@ public class Column implements Comparable<Column> {
     validation = column.validation;
     refLabel = column.refLabel;
     computed = column.computed;
-    description = column.description;
+    descriptions = column.descriptions;
     cascadeDelete = column.cascadeDelete;
     semantics = column.semantics;
     visible = column.visible;
@@ -245,15 +240,6 @@ public class Column implements Comparable<Column> {
     return cascadeDelete;
   }
 
-  public String getDescription() {
-    return description;
-  }
-
-  public Column setDescription(String description) {
-    this.description = description;
-    return this;
-  }
-
   public String getDefaultValue() {
     return defaultValue;
   }
@@ -280,7 +266,7 @@ public class Column implements Comparable<Column> {
   public Column setCascadeDelete(Boolean cascadeDelete) {
     if (cascadeDelete && !isRef()) {
       throw new MolgenisException(
-          "Set casecadeDelete=true failed", "Columnn " + getName() + " must be of type REF");
+          "Set casecadeDelete=true failed: columnn " + getName() + " must be of type REF");
     }
     this.cascadeDelete = cascadeDelete;
     return this;
@@ -308,7 +294,7 @@ public class Column implements Comparable<Column> {
 
   public Column setType(ColumnType type) {
     if (type == null) {
-      throw new MolgenisException("Add column failed", "Type was null for column " + getName());
+      throw new MolgenisException("Add column failed: type was null for column " + getName());
     }
     this.columnType = type;
     return this;
@@ -524,23 +510,20 @@ public class Column implements Comparable<Column> {
     } else return getColumnType().getBaseType();
   }
 
-  public String getRefLabelIfSet() {
+  public String getRefLabel() {
     return this.refLabel;
   }
 
-  public String getRefLabel() {
+  public String getRefLabelDefault() {
     if (!isReference()) return null;
-    if (refLabel == null) {
-      // we concat all columns unless already shown in another column
-      StringBuilder result = new StringBuilder();
-      for (Reference ref : getReferences()) {
-        if (!ref.isOverlapping()) {
-          result.append(".${" + ref.getPath().stream().collect(Collectors.joining(".")) + "}");
-        }
+    // we concat all columns unless already shown in another column
+    StringBuilder result = new StringBuilder();
+    for (Reference ref : getReferences()) {
+      if (!ref.isOverlapping()) {
+        result.append(".${" + ref.getPath().stream().collect(Collectors.joining(".")) + "}");
       }
-      return result.toString().replaceFirst("[.]", "");
     }
-    return refLabel;
+    return result.toString().replaceFirst("[.]", "");
   }
 
   public Column setRefLabel(String refLabel) {
@@ -636,6 +619,14 @@ public class Column implements Comparable<Column> {
 
   public boolean isOntology() {
     return this.getColumnType().equals(ONTOLOGY) || this.getColumnType().equals(ONTOLOGY_ARRAY);
+  }
+
+  public String getRootTableName() {
+    TableMetadata table = this.getTable();
+    while (table.getInherit() != null) {
+      table = table.getInheritedTable();
+    }
+    return table.getTableName();
   }
 
   @Override

@@ -13,7 +13,8 @@ public class Table {
   private boolean drop;
   private String[] pkey;
   private String inherit;
-  private String description;
+  private List<LanguageValue> labels = new ArrayList<>();
+  private List<LanguageValue> descriptions = new ArrayList<>();
   private String externalSchema;
   private Collection<String[]> unique = new ArrayList<>();
   private Collection<Column> columns = new ArrayList<>();
@@ -32,11 +33,18 @@ public class Table {
 
   public Table(SchemaMetadata schema, TableMetadata tableMetadata, boolean minimal) {
     this.name = tableMetadata.getTableName();
+    this.labels =
+        tableMetadata.getLabels().entrySet().stream()
+            .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
+            .toList();
     this.id = tableMetadata.getIdentifier();
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
     this.inherit = tableMetadata.getInherit();
-    this.description = tableMetadata.getDescription();
+    this.descriptions =
+        tableMetadata.getDescriptions().entrySet().stream()
+            .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
+            .toList();
     this.semantics = tableMetadata.getSemantics();
     this.settings =
         tableMetadata.getSettings().entrySet().stream()
@@ -97,12 +105,12 @@ public class Table {
     this.inherit = inherit;
   }
 
-  public String getDescription() {
-    return description;
+  public List<LanguageValue> getDescriptions() {
+    return descriptions;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
+  public void setDescriptions(List<LanguageValue> descriptions) {
+    this.descriptions = descriptions;
   }
 
   public List<Setting> getSettings() {
@@ -151,5 +159,13 @@ public class Table {
 
   public void setTableType(TableType tableType) {
     this.tableType = tableType;
+  }
+
+  public List<LanguageValue> getLabels() {
+    return labels;
+  }
+
+  public void setLabels(List<LanguageValue> labels) {
+    this.labels = labels;
   }
 }

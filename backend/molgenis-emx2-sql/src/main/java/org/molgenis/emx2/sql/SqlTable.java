@@ -3,8 +3,6 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.MutationType.*;
-import static org.molgenis.emx2.sql.EvaluateExpressions.checkForMissingVariablesColumns;
-import static org.molgenis.emx2.sql.EvaluateExpressions.checkValidation;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
@@ -19,6 +17,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.utils.TypeUtils;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
@@ -27,11 +26,13 @@ import org.slf4j.LoggerFactory;
 class SqlTable implements Table {
   private SqlDatabase db;
   private SqlTableMetadata metadata;
+  private TableListener tableListener;
   private static Logger logger = LoggerFactory.getLogger(SqlTable.class);
 
-  SqlTable(SqlDatabase db, SqlTableMetadata metadata) {
+  SqlTable(SqlDatabase db, SqlTableMetadata metadata, TableListener tableListener) {
     this.db = db;
     this.metadata = metadata;
+    this.tableListener = tableListener;
   }
 
   @Override
@@ -63,7 +64,7 @@ class SqlTable implements Table {
                 cm.copyOut(
                     "COPY (" + selectQuery + " ) TO STDOUT WITH (FORMAT CSV,HEADER )", writer);
               } catch (Exception e) {
-                throw new MolgenisException("copyOut failed: ", e);
+                throw new SqlMolgenisException("copyOut failed: ", e);
               }
             });
   }
@@ -88,7 +89,7 @@ class SqlTable implements Table {
                     if (!row.containsName(c.getName())) {
                       line.append(",");
                     } else {
-                      Object value = getTypedValue(row, c);
+                      Object value = getTypedValue(c, row);
                       line.append(value + ",");
                     }
                   }
@@ -107,7 +108,7 @@ class SqlTable implements Table {
                 String sql = "COPY " + tableName + columnNames + " FROM STDIN (FORMAT CSV,HEADER )";
                 cm.copyIn(sql, new StringReader(tmp.toString()));
               } catch (Exception e) {
-                throw new MolgenisException("copyOut failed: ", e);
+                throw new SqlMolgenisException("copyOut failed: ", e);
               }
             });
   }
@@ -150,7 +151,7 @@ class SqlTable implements Table {
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
     } catch (Exception e) {
-      throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed.", e);
+      throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed", e);
     }
   }
 
@@ -267,9 +268,9 @@ class SqlTable implements Table {
               columnsProvided.put(subclassName, new LinkedHashSet<>(row.getColumnNames()));
             }
 
-            // execute batch if 1000 rows, or columns provided changes
+            // execute batch; or columns provided changes
             if (columnsProvidedAreDifferent(columnsProvided.get(subclassName), row)
-                || subclassRows.get(subclassName).size() >= 1000) {
+                || subclassRows.get(subclassName).size() >= 100) {
               executeBatch(
                   (SqlSchema) db2.getSchema(subclassName.split("\\.")[0]),
                   transactionType,
@@ -298,6 +299,10 @@ class SqlTable implements Table {
                   columnsProvided.get(batch.getKey()));
             }
           }
+          // listeners
+          if (table.getTableListener() != null) {
+            table.getTableListener().preparePostSave(rows);
+          }
         });
 
     log(
@@ -309,9 +314,9 @@ class SqlTable implements Table {
     return count.get();
   }
 
-  private static void checkRequired(Row row, Collection<Column> columns) {
+  private static void checkRequired(Map<String, Object> row, Collection<Column> columns) {
     for (Column c : columns) {
-      if (c.isRequired() && row.isNull(c.getName(), c.getColumnType())) {
+      if (c.isRequired() && TypeUtils.isNull(row.get(c.getName()), c.getColumnType())) {
         throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
       }
     }
@@ -356,6 +361,10 @@ class SqlTable implements Table {
     subclassRows.get(subclassName).clear();
   }
 
+  private TableListener getTableListener() {
+    return this.tableListener;
+  }
+
   private static int insertBatch(
       SqlTable table, List<Row> rows, boolean updateOnConflict, Set<String> updateColumns) {
     boolean inherit = table.getMetadata().getInherit() != null;
@@ -366,9 +375,6 @@ class SqlTable implements Table {
 
     // get metadata
     Set<Column> columns = table.getColumnsToBeUpdated(updateColumns);
-
-    // check that columns exist for validation
-    checkForMissingVariablesColumns(columns);
 
     List<Column> allColumns = table.getMetadata().getMutationColumns();
     List<Field> insertFields =
@@ -392,7 +398,7 @@ class SqlTable implements Table {
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
       // get values
-      Map values = SqlTypeUtils.getValuesAsMap(row, columns);
+      Map values = SqlTypeUtils.validateAndGetVisibleValuesAsMap(row, table.getMetadata(), columns);
       if (!inherit) {
         values.put(MG_INSERTEDBY, user);
         values.put(MG_INSERTEDON, now);
@@ -401,8 +407,7 @@ class SqlTable implements Table {
       }
       // when insert, we should include all columns, not only 'updateColumns'
       if (!row.isDraft()) {
-        checkRequired(row, allColumns);
-        checkValidation(values, columns);
+        checkRequired(values, allColumns);
       }
       step.values(values.values());
     }
@@ -412,7 +417,7 @@ class SqlTable implements Table {
       InsertOnDuplicateSetStep<org.jooq.Record> step2 =
           step.onConflict(table.getMetadata().getPrimaryKeyFields().toArray(new Field[0]))
               .doUpdate();
-      // remove 'readonly' from the update list, unless mg_table
+      // remove mg_table as part of update key
       for (Column column :
           columns.stream()
               .filter(
@@ -440,6 +445,7 @@ class SqlTable implements Table {
                         || c.getName().equals(MG_UPDATEDBY)
                         || c.getName().equals(MG_UPDATEDON))
                     && (c.getComputed() != null
+                        || c.isPrimaryKey()
                         || updateColumns.size() == 0
                         || updateColumns.contains(c.getName())))
         .collect(Collectors.toSet());
@@ -452,15 +458,12 @@ class SqlTable implements Table {
       inheritedTable.updateBatch(inheritedTable, rows, updateColumns);
     }
 
-    // get metadata
+    // get columns to be updated, without readonly
     Set<Column> columns =
         table.getColumnsToBeUpdated(updateColumns).stream()
             .filter(c -> !Boolean.TRUE.equals(c.isReadonly()))
             .collect(Collectors.toSet());
     List<Column> pkeyFields = table.getMetadata().getPrimaryKeyColumns();
-
-    // check that columns exist for validation
-    checkForMissingVariablesColumns(columns);
 
     // create batch of updates
     List<UpdateConditionStep> list = new ArrayList();
@@ -470,15 +473,14 @@ class SqlTable implements Table {
     }
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
-      Map values = SqlTypeUtils.getValuesAsMap(row, columns);
+      Map values = SqlTypeUtils.validateAndGetVisibleValuesAsMap(row, table.getMetadata(), columns);
       if (!inherit) {
         values.put(MG_UPDATEDBY, user);
         values.put(MG_UPDATEDON, now);
       }
 
       if (!row.isDraft()) {
-        checkRequired(row, columns);
-        checkValidation(values, columns);
+        checkRequired(values, columns);
       }
 
       list.add(
@@ -517,7 +519,7 @@ class SqlTable implements Table {
             SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
 
             // delete in batches
-            int batchSize = 100000;
+            int batchSize = 1000;
             List<Row> batch = new ArrayList<>();
             for (Row row : rows) {
               batch.add(row);
@@ -535,9 +537,14 @@ class SqlTable implements Table {
             if (table.getMetadata().getInherit() != null) {
               table.getInheritedTable().delete(rows);
             }
+
+            // notify handlers
+            if (table.getTableListener() != null) {
+              table.getTableListener().preparePostDelete(rows);
+            }
           });
     } catch (Exception e) {
-      throw new SqlMolgenisException("Delete into table " + getName() + " failed.   ", e);
+      throw new SqlMolgenisException("Delete into table " + getName() + " failed", e);
     }
 
     log(db.getActiveUser(), getName(), start, count, "deleted");

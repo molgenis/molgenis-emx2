@@ -85,7 +85,7 @@ import MessageError from "../forms/MessageError.vue";
 import InputSearch from "../forms/InputSearch.vue";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import RowButtonAdd from "./RowButtonAdd.vue";
 import RowButtonEdit from "./RowButtonEdit.vue";
 import RowButtonDelete from "./RowButtonDelete.vue";

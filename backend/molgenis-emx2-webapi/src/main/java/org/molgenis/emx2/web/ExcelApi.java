@@ -1,7 +1,9 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.io.FileUtils.getTempFile;
-import static org.molgenis.emx2.web.Constants.TABLE;
+import static org.molgenis.emx2.web.CsvApi.getDownloadColumns;
+import static org.molgenis.emx2.web.CsvApi.getDownloadRows;
+import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
 import static spark.Spark.get;
@@ -16,11 +18,11 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.ImportExcelTask;
 import org.molgenis.emx2.io.MolgenisIO;
+import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import spark.Request;
 import spark.Response;
 
@@ -65,7 +67,7 @@ public class ExcelApi {
 
   static String getExcel(Request request, Response response) throws IOException {
     Schema schema = getSchema(request);
-
+    boolean includeSystemColumns = includeSystemColumns(request);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
@@ -73,7 +75,7 @@ public class ExcelApi {
       if (request.queryParams("emx1") != null) {
         MolgenisIO.toEmx1ExcelFile(excelFile, schema);
       } else {
-        MolgenisIO.toExcelFile(excelFile, schema);
+        MolgenisIO.toExcelFile(excelFile, schema, includeSystemColumns);
       }
 
       response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -90,12 +92,13 @@ public class ExcelApi {
 
   static String getExcelTable(Request request, Response response) throws IOException {
     Table table = getTable(request);
-    if (table == null) throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Path excelFile = tempDir.resolve("download.xlsx");
-      MolgenisIO.toExcelFile(excelFile, table);
+      TableStore excelStore = new TableStoreForXlsxFile(excelFile);
+      excelStore.writeTable(
+          table.getName(), getDownloadColumns(request, table), getDownloadRows(request, table));
       response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       response.header(
           "Content-Disposition",

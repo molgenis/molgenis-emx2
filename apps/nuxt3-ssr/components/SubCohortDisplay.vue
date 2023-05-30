@@ -21,7 +21,7 @@ const { data: subcohortData } = await useFetch(
     method: "POST",
     body: {
       query: queryValue,
-      variables: { pid: route.params.cohort, name: id },
+      variables: { id: route.params.cohort, name: id },
     },
   }
 ).catch((e) => console.log(e));
@@ -68,7 +68,7 @@ if (subcohort?.numberOfParticipants) {
 
 if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
   items.push({
-    label: "Start/end year: ",
+    label: "Start/end year",
     content: filters.startEndYear(
       subcohort.inclusionStart,
       subcohort.inclusionEnd
@@ -79,28 +79,34 @@ if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
 if (subcohort?.ageGroups?.length) {
   items.push({
     label: "Age categories",
-    content: renderList(subcohort.ageGroups, toName),
+    content: renderList(
+      removeChildIfParentSelected(subcohort.ageGroups),
+      toName
+    ),
   });
 }
 
 if (subcohort?.mainMedicalCondition) {
   items.push({
     label: "Main medical condition",
-    content: renderList(subcohort.mainMedicalCondition, toName, toCommaList),
+    type: "ONTOLOGY",
+    content: buildOntologyTree(subcohort.mainMedicalCondition),
   });
 }
 
 if (subcohort?.comorbidity) {
   items.push({
     label: "Comorbidity",
-    content: renderList(subcohort.comorbidity, toName),
+    type: "ONTOLOGY",
+    content: buildOntologyTree(subcohort.comorbidity),
   });
 }
 
 if (subcohort?.countries) {
   items.push({
     label: "Population",
-    content: renderList(subcohort.countries, toName),
+    type: "ONTOLOGY",
+    content: buildOntologyTree(subcohort.countries),
   });
 }
 
@@ -115,11 +121,16 @@ if (subcohort?.inclusionCriteria) {
 </script>
 
 <template>
-  <ContentBlock
-    :title="subcohort?.name"
-    :description="subcohort?.description"
-    v-if="subcohort"
-  >
+  <section class="bg-white py-18 lg:px-12.5 px-5 text-gray-900">
+    <h2
+      class="mb-5 uppercase text-heading-4xl font-display"
+      v-if="subcohort?.name"
+    >
+      {{ subcohort?.name }}
+    </h2>
+    <div class="mb-5 prose max-w-none" v-if="subcohort?.description">
+      <div v-html="subcohort?.description"></div>
+    </div>
     <DefinitionList :items="items" :small="true" />
-  </ContentBlock>
+  </section>
 </template>

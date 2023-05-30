@@ -26,6 +26,7 @@
             v-model="table"
             :schema="schema"
             @update:modelValue="$emit('update:modelValue', table)"
+            :locales="locales"
           />
           <IconDanger
             v-if="isManager"
@@ -44,11 +45,23 @@
             scroll to top
           </a>
         </span>
-        <div v-if="table.description">
-          <label>Description: </label>
-          {{
-            table.description ? table.description : "No description available"
-          }}
+        <div v-if="table.labels">
+          <label class="mb-0">Label: </label>
+          <table class="table-borderless ml-4">
+            <tr v-for="el in table.labels.filter((el) => el.value)">
+              <td>{{ el.locale }}:</td>
+              <td>{{ el.value }}</td>
+            </tr>
+          </table>
+        </div>
+        <div v-if="table.descriptions">
+          <label class="mb-0">Description: </label>
+          <table class="table-borderless ml-4">
+            <tr v-for="el in table.descriptions.filter((el) => el.value)">
+              <td>{{ el.locale }}:</td>
+              <td>{{ el.value }}</td>
+            </tr>
+          </table>
         </div>
 
         <div v-if="table.tableType !== 'ONTOLOGIES'">
@@ -67,6 +80,7 @@
                 operation="add"
                 :rootTable="table"
                 @add="createSubclass"
+                :locales="locales"
               />
             </div>
             <table
@@ -123,7 +137,9 @@
               :schemaNames="schemaNames"
               operation="add"
               :tableName="table.name"
-              @add="addColumn(table.columns.length, $event)"
+              :columnIndex="0"
+              @add="addColumn(0, $event)"
+              :locales="locales"
             />
           </div>
           <table
@@ -142,6 +158,7 @@
                   inSubclass
                 </th>
                 <th style="width: 32ch" scope="col">definition</th>
+                <th scope="col">label</th>
                 <th scope="col">description</th>
               </tr>
             </thead>
@@ -162,9 +179,11 @@
                   :schema="schema"
                   :schemaNames="schemaNames"
                   @update:modelValue="updateColumn(index, $event)"
-                  @add="addColumn(index, $event)"
+                  @add="addColumn(index + 1, $event)"
                   @delete="deleteColumn(index)"
+                  :columnIndex="index"
                   :isManager="isManager"
+                  :locales="locales"
                 />
               </template>
             </Draggable>
@@ -218,6 +237,9 @@ export default {
       type: Boolean,
       default: false,
     },
+    locales: {
+      type: Array,
+    },
   },
   data() {
     return {
@@ -231,10 +253,10 @@ export default {
       this.$emit("update:modelValue", this.table);
     },
     addColumn(index, column) {
-      if (this.table.columns == undefined) {
+      if (this.table.columns === undefined) {
         this.table.columns = [];
       }
-      this.table.columns.splice(index, 0, column);
+      this.table.columns.splice(index ? index : 0, 0, column);
       this.applyPosition();
       this.$emit("update:modelValue", this.table);
     },

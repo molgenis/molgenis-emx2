@@ -4,6 +4,7 @@ import static org.molgenis.emx2.io.emx2.Emx2.outputMetadata;
 import static org.molgenis.emx2.io.emx2.Emx2Members.outputRoles;
 import static org.molgenis.emx2.io.emx2.Emx2Settings.outputSettings;
 import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTable;
+import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTableWithSystemColumns;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -19,25 +20,25 @@ public class MolgenisIO {
     // hide constructor
   }
 
-  private static void outputAll(TableStore store, Schema schema) {
+  private static void outputAll(TableStore store, Schema schema, boolean includeSystemColumns) {
     outputMetadata(store, schema);
     outputRoles(store, schema);
     outputSettings(store, schema);
     for (String tableName : schema.getTableNames()) {
-      outputTable(store, schema.getTable(tableName));
+      writeTableToStore(store, schema.getTable(tableName), includeSystemColumns);
     }
   }
 
-  public static void toDirectory(Path directory, Schema schema) {
-    outputAll(new TableStoreForCsvFilesDirectory(directory), schema);
+  public static void toDirectory(Path directory, Schema schema, boolean includeSystemColumns) {
+    outputAll(new TableStoreForCsvFilesDirectory(directory), schema, includeSystemColumns);
   }
 
-  public static void toZipFile(Path zipFile, Schema schema) {
-    outputAll(new TableStoreForCsvInZipFile(zipFile), schema);
+  public static void toZipFile(Path zipFile, Schema schema, boolean includeSystemColumns) {
+    outputAll(new TableStoreForCsvInZipFile(zipFile), schema, includeSystemColumns);
   }
 
-  public static void toExcelFile(Path excelFile, Schema schema) {
-    outputAll(new TableStoreForXlsxFile(excelFile), schema);
+  public static void toExcelFile(Path excelFile, Schema schema, boolean includeSystemColumns) {
+    outputAll(new TableStoreForXlsxFile(excelFile), schema, includeSystemColumns);
   }
 
   public static void toEmx1ExcelFile(Path excelFile, Schema schema) {
@@ -56,16 +57,25 @@ public class MolgenisIO {
     }
   }
 
-  public static void toZipFile(Path zipFile, Table table) {
-    outputTable(new TableStoreForCsvInZipFile(zipFile), table);
+  public static void toZipFile(Path zipFile, Table table, boolean includeSystemColumns) {
+    writeTableToStore(new TableStoreForCsvInZipFile(zipFile), table, includeSystemColumns);
   }
 
-  public static void toExcelFile(Path excelFile, Table table) {
-    outputTable(new TableStoreForXlsxFile(excelFile), table);
+  public static void toExcelFile(Path excelFile, Table table, boolean includeSystemColumns) {
+    writeTableToStore(new TableStoreForXlsxFile(excelFile), table, includeSystemColumns);
   }
 
-  public static void toCsvFile(Path csvFile, Table table) {
-    outputTable(new TableStoreForCsvFile(csvFile), table);
+  public static void toCsvFile(Path csvFile, Table table, boolean includeSystemColumns) {
+    writeTableToStore(new TableStoreForCsvFile(csvFile), table, includeSystemColumns);
+  }
+
+  private static void writeTableToStore(
+      TableStore store, Table table, boolean includeSystemColumns) {
+    if (includeSystemColumns) {
+      outputTableWithSystemColumns(store, table);
+    } else {
+      outputTable(store, table);
+    }
   }
 
   public static void fromDirectory(Path directory, Schema schema, boolean strict) {

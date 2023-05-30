@@ -1,12 +1,11 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 defineProps<{
-  link: string;
+  link?: string;
 }>();
 
-// // extract the logo name from the theme
-const logoFileName = assetLoader.loadThemeConfig()?.logo;
-// const logoFileName  = 'UMCGkort.woordbeeld'
+const config = useRuntimeConfig();
+const logoFileName = config.public.emx2Logo;
 
 // load the svg data from the assets folder
 let svg = shallowRef();

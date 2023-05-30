@@ -70,12 +70,15 @@
             :key="idx + col.name + isSelected(row)"
             style="cursor: pointer"
             :style="col.showColumn ? '' : 'display: none'"
-            @click="onRowClick(row)"
+            @click="
+              {
+                onRowClick(row);
+                onCellClick(row, col);
+              }
+            "
+            :class="{ refType: isRefType(col.columnType) }"
           >
-            <data-display-cell
-              :data="row[col.id]"
-              :metaData="col"
-            ></data-display-cell>
+            <data-display-cell :data="row[col.id]" :metaData="col" />
           </td>
         </tr>
       </tbody>
@@ -92,8 +95,12 @@ th {
   cursor: grab;
 }
 
-.column-drag-header:hover .column-remove {
-  visibility: visible;
+.table .refType {
+  color: var(--primary);
+}
+.table .refType:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  text-decoration: underline;
 }
 </style>
 
@@ -102,8 +109,8 @@ th {
  * Table that uses MOLGENIS metadata format to configure itself. Provide 'metadata' and 'data' and your table is ready.
  * Can be used without backend to configure a table. Note, columns can be dragged.
  */
+import { deepClone, deepEqual, getPrimaryKey, isRefType } from "../utils";
 import DataDisplayCell from "./DataDisplayCell.vue";
-import { getPrimaryKey } from "../utils";
 
 export default {
   components: { DataDisplayCell },
@@ -159,37 +166,25 @@ export default {
       }
       return found;
     },
-    /** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
-    deepEqual(object1, object2) {
-      const keys1 = Object.keys(object1);
-      const keys2 = Object.keys(object2);
-      if (keys1.length !== keys2.length) {
-        return false;
-      }
-      for (const key of keys1) {
-        const val1 = object1[key];
-        const val2 = object2[key];
-        const areObjects = this.isObject(val1) && this.isObject(val2);
-        if (
-          (areObjects && !this.deepEqual(val1, val2)) ||
-          (!areObjects && val1 !== val2)
-        ) {
-          return false;
-        }
-      }
-      return true;
-    },
-    isObject(object) {
-      return object != null && typeof object === "object";
-    },
+    isRefType,
+    deepEqual,
     onColumnClick(column) {
       this.$emit("column-click", column);
+    },
+    onCellClick(row, column) {
+      const value = row[column.id];
+      if (value) {
+        this.$emit("cellClick", {
+          cellValue: deepClone(value),
+          column: deepClone(column),
+        });
+      }
     },
     onRowClick(row) {
       const key = this.getPrimaryKey(row);
       if (this.showSelect) {
         //deep copy
-        let update = JSON.parse(JSON.stringify(this.selection));
+        let update = deepClone(this.selection);
         if (this.isSelected(row)) {
           /** when a row is deselected */
           update = update.filter(
@@ -263,7 +258,7 @@ export default {
 </template>
 
 <script>
-import Client from "../../../src/client/client.js";
+import Client from "../../../src/client/client.ts";
 
 export default {
   data() {
@@ -313,7 +308,7 @@ export default {
   },
   async mounted() {
     const client = Client.newClient("pet store", this.$axios);
-    const remoteMetaData = await client.fetchMetaData();
+    const remoteMetaData = await client.fetchSchemaMetaData();
     const petColumns = remoteMetaData.tables.find(
       (t) => t.name === "Pet"
     ).columns;

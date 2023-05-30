@@ -44,20 +44,21 @@
   </LayoutModal>
 </template>
 
-<script>
+<script lang="ts">
 import ButtonAction from "../forms/ButtonAction.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
-import Spinner from "../layout/Spinner.vue";
-import MessageSuccess from "../forms/MessageSuccess.vue";
-import MessageError from "../forms/MessageError.vue";
-import LayoutModal from "../layout/LayoutModal.vue";
 import InputPassword from "../forms/InputPassword.vue";
 import InputString from "../forms/InputString.vue";
+import MessageError from "../forms/MessageError.vue";
+import MessageSuccess from "../forms/MessageSuccess.vue";
 import LayoutForm from "../layout/LayoutForm.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
+import Spinner from "../layout/Spinner.vue";
 
-import { request } from "../../client/client.js";
+import { defineComponent } from "vue";
+import { request } from "../../client/client";
 
-export default {
+export default defineComponent({
   components: {
     ButtonAction,
     ButtonAlt,
@@ -71,20 +72,20 @@ export default {
   },
   data: function () {
     return {
-      email: null,
-      password: null,
-      passwordRepeat: null,
+      email: null as string | null,
+      password: null as string | null,
+      passwordRepeat: null as string | null,
       loading: false,
-      error: null,
-      success: null,
+      error: null as string | null,
+      success: null as string | null,
     };
   },
   methods: {
     signup() {
       if (
-        this.email == null ||
-        this.password == null ||
-        this.passwordRepeat == null
+        this.email === null ||
+        this.password === null ||
+        this.passwordRepeat === null
       ) {
         this.error =
           "Error: valid email address and password should be filled in";
@@ -97,29 +98,26 @@ export default {
           "/api/graphql",
           `mutation{signup(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
-          .then((data) => {
+          .then((data: { signup: { status: string; message: string } }) => {
             if (data.signup.status === "SUCCESS") {
               this.success = "Success. Signed up with email: " + this.email;
             } else {
               this.error = "Signup failed: " + data.signup.message;
             }
           })
-          .catch((error) => {
+          .catch((error: { response: { message: string } }) => {
             this.error = "Sign up failed: " + error.response.message;
           });
         this.loading = false;
       }
     },
     close() {
-      /**
-       * when close is pushed
-       */
       this.error = null;
       this.$emit("close");
     },
   },
   emits: ["close"],
-};
+});
 </script>
 
 <docs>

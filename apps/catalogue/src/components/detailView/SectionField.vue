@@ -27,6 +27,9 @@ import RefArrayFieldValue from "./RefArrayFieldValue.vue";
 import OntologyFieldValue from "./OntologyFieldValue.vue";
 import RefFieldValue from "./RefFieldValue.vue";
 import TextFieldValue from "./TextFieldValue.vue";
+import HyperlinkFieldValue from "./HyperlinkFieldValue.vue";
+import EmailFieldValue from "./EmailFieldValue.vue";
+import LinkedResourcesFieldValue from "./LinkedResourcesFieldValue.vue";
 import { StringDisplay, FileDisplay, ObjectDisplay } from "molgenis-components";
 
 export default {
@@ -42,6 +45,9 @@ export default {
     RefArrayFieldValue,
     OntologyFieldValue,
     RefFieldValue,
+    HyperlinkFieldValue,
+    EmailFieldValue,
+    LinkedResourcesFieldValue,
   },
   props: {
     field: {
@@ -55,6 +61,11 @@ export default {
   },
   computed: {
     fieldTypeComponentName() {
+      //custom views
+      if (this.field.meta.refTable === "Linked resources") {
+        return "LinkedResourcesFieldValue";
+      }
+      //standard views
       return {
         STRING: "StringDisplay",
         BOOL: "StringDisplay",
@@ -67,6 +78,8 @@ export default {
         HEADING: "StringDisplay",
         JSONB: "TextFieldValue",
         TEXT: "TextFieldValue",
+        HYPERLINK: "HyperlinkFieldValue",
+        EMAIL: "EmailFieldValue",
         BOOL_ARRAY: "SectionArrayValue",
         UUID_ARRAY: "SectionArrayValue",
         STRING_ARRAY: "SectionArrayValue",

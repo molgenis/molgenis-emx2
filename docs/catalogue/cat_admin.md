@@ -8,6 +8,9 @@
    upload in batch.
    (todo: define what data folder to use in what case)
 
+#### demo dataset
+By setting the ```MOLGENIS_INCLUDE_CATALOGUE_DEMO``` to ```true``` on server startup the demo catalogue is loaded.
+
 ## Updating existing schema
 
 Since 27 sep 2021 we have started to give catalogue schema a seperate version number. This can be found on first line of
@@ -48,3 +51,8 @@ procedure is to update.
 | 2.5 => 2.6  | Edits to table SubcohortCounts: delete SubcohortCounts.year, SubcohortCounts.ageband, SubcohortCounts.gender, SubcohortCounts.N. Add SubcohortCounts.ageGroup, SubcohortCounts.N total, SubcohortCounts.N female, SubcohortCounts.N male. Download whole database, replace molgenis.csv and reupload in new Schema.                                                                                                                      | |
 | 2.6 => 2.7  | Add Network.type and CatalogueOntologies.NetworkTypes. To update: upload molgenis.csv and add 'h2020' and 'harmonization' to NetworkTypes                                                                                                                                                                                                                                                                                                | |
 | 2.7 => 2.8  | Change: Cohorts.designDescription columnType from STRING to TEXT . Upload molgenis.csv to update.                                                                                                                                                                                                                                                                                                | |
+| 2.8 => 2.9  | Add Contacts.statementOfConsentPersonalData and Contacts.statementOfConsentEmail email. Upload molgenis.csv to update                                                                                                                                                                                                                                                                                                | |
+| 2.9 => 3.0  | to do ...| |
+| 3.0 => 3.1  | to do ...| |
+
+
