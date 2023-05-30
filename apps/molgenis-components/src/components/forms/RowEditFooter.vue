@@ -21,11 +21,6 @@
         >
           Save draft
         </ButtonOutline>
-      </Tooltip>
-      <Tooltip
-        name="disabled-save-tooltip"
-        :value="saveDisabledMessage ? saveDisabledMessage : ''"
-      >
         <ButtonAction
           @click="$emit('save')"
           :disabled="Boolean(saveDisabledMessage)"

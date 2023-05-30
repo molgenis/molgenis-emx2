@@ -25,7 +25,6 @@ import { IRow } from "../../Interfaces/IRow";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import RowEdit from "./RowEdit.vue";
 
-console.log("asdfad");
 const emit = defineEmits(["setPageCount", "update:modelValue", "errorsInForm"]);
 const props = withDefaults(
   defineProps<{
@@ -53,7 +52,6 @@ let columnsSplitByHeadings: Ref<string[][]> = computed(() => {
     filterVisibleColumns(tableMetaData.value?.columns || [], visibleColumns)
   );
   emit("setPageCount", split.length);
-  console.log(visibleColumns);
   return split;
 });
 
