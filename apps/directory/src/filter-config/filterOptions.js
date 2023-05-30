@@ -86,17 +86,23 @@ export const ontologyFilterOptions = (filterFacet) => {
   const { ontologyIdentifiers, sourceTable, applyToColumn, filterLabelAttribute, filterValueAttribute, sortColumn, sortDirection } = filterFacet
 
   return () => new Promise((resolve) => {
+    
     const cachedOptions = retrieveFromCache(applyToColumn)
 
     const selection = [
       filterLabelAttribute,
       filterValueAttribute,
-      'parent.name',
+      `parent.${filterValueAttribute}`,
       `children.${filterValueAttribute}`,
       `children.children.${filterValueAttribute}`,
       `children.children.children.${filterValueAttribute}`,
       `children.children.children.children.${filterValueAttribute}`,
-      `children.children.children.children.children.${filterValueAttribute}`
+      `children.children.children.children.children.${filterValueAttribute}`,
+      `children.${filterLabelAttribute}`,
+      `children.children.${filterLabelAttribute}`,
+      `children.children.children.${filterLabelAttribute}`,
+      `children.children.children.children.${filterLabelAttribute}`,
+      `children.children.children.children.children.${filterLabelAttribute}`
     ]
 
     if (!cachedOptions.length) {
@@ -108,8 +114,6 @@ export const ontologyFilterOptions = (filterFacet) => {
         .then(response => {
 
           const onlyParents = response[sourceTable].filter(row => !row.parent)
-
-
           const itemsSplitByOntology = {};
 
           for (const ontologyItem of onlyParents) {

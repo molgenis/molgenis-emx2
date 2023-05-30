@@ -18,7 +18,7 @@ export const initialFilterFacets = [
     filterLabelAttribute: 'label',
     removeOptions: [],
     ontologyIdentifiers: ['ICD', 'ORPHA'],
-    sortColumn: 'label',
+    sortColumn: 'name',
     sortDirection: 'asc',
     negotiatorRequestString: 'Disease type(s):',
     showFacet: true
