@@ -28,7 +28,14 @@ const { data, pending, error, refresh } = await useFetch(
             name
           }
         }
-        _settings (keys: ["NOTICE_SETTING_KEY" "CATALOGUE_LANDING_TITLE" "CATALOGUE_LANDING_DESCRIPTION"]){ 
+        _settings (keys: [
+          "NOTICE_SETTING_KEY"
+          "CATALOGUE_LANDING_TITLE" 
+          "CATALOGUE_LANDING_DESCRIPTION" 
+          "CATALOGUE_LANDING_COHORTS_CTA"
+          "CATALOGUE_LANDING_NETWORKS_CTA"
+          "CATALOGUE_LANDING_VARIABLES_CTA"
+        ]){ 
           key
           value 
         }
@@ -75,7 +82,12 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     >
       <LandingCardPrimary
         image="image-link"
-        title="Cohorts"
+        :title="
+          getSettingValue(
+            'CATALOGUE_LANDING_COHORTS_CTA',
+            data.data._settings
+          ) || 'Cohorts'
+        "
         description="A complete overview of all cohorts and biobanks."
         :count="data.data.Cohorts_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
@@ -83,7 +95,12 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
         image="image-diagram"
-        title="Networks"
+        :title="
+          getSettingValue(
+            'CATALOGUE_LANDING_NETWORKS_CTA',
+            data.data._settings
+          ) || 'Networks'
+        "
         description="Collaborations of multiple institutions and/or cohorts with a common objective."
         :count="data.data.Networks_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/networks/`"
@@ -91,7 +108,12 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
         image="image-diagram-2"
-        title="Variables"
+        :title="
+          getSettingValue(
+            'CATALOGUE_LANDING_VARIABLES_CTA',
+            data.data._settings
+          ) || 'Variables'
+        "
         description="A complete overview of available variables."
         :count="data.data.Variables_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/variables/`"
