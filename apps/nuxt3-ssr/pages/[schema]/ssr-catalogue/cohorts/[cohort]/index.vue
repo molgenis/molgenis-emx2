@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
-import { Ref } from "vue";
 import subcohortsQuery from "~~/gql/subcohorts";
 import collectionEventsQuery from "~~/gql/collectionEvents";
 import ontologyFragment from "~~/gql/fragments/ontology";
@@ -119,12 +118,18 @@ const query = gql`
       linkageOptions
       fundingStatement
       acknowledgements
-      documentation { 
+      documentation {
         name
         description
         url
         file ${loadGql(fileFragment)}
       }
+    }
+    CollectionEvents_agg(filter: { resource: { id: { equals: [$id] } } }) {
+      count
+    }
+    Subcohorts_agg(filter: { resource: { id: { equals: [$id] } } }) {
+      count
     }
   }
 `;
@@ -152,54 +157,33 @@ function setData(data: any) {
   cohort = data?.data?.Cohorts[0];
 }
 
-fetchGql(collectionEventsQuery, { id: route.params.cohort })
-  .then((resp) => onCollectionEventsLoaded(resp.data.CollectionEvents))
-  .catch((e) => console.log(e));
-
-let collectionEvents: Ref = ref([]);
-function onCollectionEventsLoaded(rows: any) {
-  if (!rows?.length) {
-    return;
-  }
-  collectionEvents.value = rows.map((item: any) => {
-    return {
-      name: item.name,
-      description: item.description,
-      startAndEndYear: (() => {
-        const startYear =
-          item.startYear && item.startYear.name ? item.startYear.name : null;
-        const endYear =
-          item.endYear && item.endYear.name ? item.endYear.name : null;
-        return filters.startEndYear(startYear, endYear);
-      })(),
-      numberOfParticipants: item.numberOfParticipants,
-      _renderComponent: "CollectionEventDisplay",
-      _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/collection-events/${item.name}`,
-    };
-  });
+function collectionEventMapper(item: any) {
+  return {
+    id: item.name,
+    name: item.name,
+    description: item.description,
+    startAndEndYear: (() => {
+      const startYear =
+        item.startYear && item.startYear.name ? item.startYear.name : null;
+      const endYear =
+        item.endYear && item.endYear.name ? item.endYear.name : null;
+      return filters.startEndYear(startYear, endYear);
+    })(),
+    numberOfParticipants: item.numberOfParticipants,
+    _renderComponent: "CollectionEventDisplay",
+    _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/collection-events/${item.name}`,
+  };
 }
 
-fetchGql(subcohortsQuery, { id: route.params.cohort })
-  .then((resp) => onSubcohortsLoaded(resp.data.Subcohorts))
-  .catch((e) => console.log(e));
-
-let subcohorts: Ref = ref([]);
-function onSubcohortsLoaded(rows: any) {
-  if (!rows?.length) {
-    return;
-  }
-
-  const mapped = rows.map((subcohort: any) => {
-    return {
-      name: subcohort.name,
-      description: subcohort.description,
-      numberOfParticipants: subcohort.numberOfParticipants,
-      _renderComponent: "SubCohortDisplay",
-      _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/subcohorts/${subcohort.name}`,
-    };
-  });
-
-  subcohorts.value = mapped;
+function subcohortMapper(subcohort: any) {
+  return {
+    id: subcohort.name,
+    name: subcohort.name,
+    description: subcohort.description,
+    numberOfParticipants: subcohort.numberOfParticipants,
+    _renderComponent: "SubCohortDisplay",
+    _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/subcohorts/${subcohort.name}`,
+  };
 }
 
 let tocItems = computed(() => {
@@ -223,14 +207,15 @@ let tocItems = computed(() => {
     });
   }
   // { label: 'Variables & topics', id: 'Variables' },
-  if (subcohorts?.value?.length) {
+  if (cohortData.value.data.Subcohorts_agg?.count > 0) {
     tableOffContents.push({ label: "Subpopulations", id: "Subpopulations" });
   }
-  if (collectionEvents?.value?.length)
+  if (cohortData.value.data.CollectionEvents_agg?.count > 0) {
     tableOffContents.push({
       label: "Collection events",
       id: "CollectionEvents",
     });
+  }
   if (cohort?.networks) {
     tableOffContents.push({ label: "Networks", id: "Networks" });
   }
@@ -377,7 +362,7 @@ useHead({ title: cohort?.acronym || cohort?.name });
         />
 
         <TableContent
-          v-if="subcohorts?.length"
+          v-if="cohortData.data.Subcohorts_agg.count > 0"
           id="Subpopulations"
           title="Subpopulations"
           description="List of subcohorts or subpopulations for this resource"
@@ -386,11 +371,17 @@ useHead({ title: cohort?.acronym || cohort?.name });
             { id: 'description', label: 'Description', singleLine: true },
             { id: 'numberOfParticipants', label: 'Number of participants' },
           ]"
-          :rows="subcohorts"
-        />
+          type="Subcohorts"
+          :query="subcohortsQuery"
+          :filter="{ id: route.params.cohort }"
+          :rowMapper="subcohortMapper"
+          v-slot="slotProps"
+        >
+          <SubCohortDisplay :id="slotProps.id" />
+        </TableContent>
 
         <TableContent
-          v-if="collectionEvents?.length"
+          v-if="cohortData.data.CollectionEvents_agg.count > 0"
           id="CollectionEvents"
           title="Collection events"
           description="List of collection events defined for this resource"
@@ -400,8 +391,14 @@ useHead({ title: cohort?.acronym || cohort?.name });
             { id: 'numberOfParticipants', label: 'Participants' },
             { id: 'startAndEndYear', label: 'Start end year' },
           ]"
-          :rows="collectionEvents"
-        />
+          type="CollectionEvents"
+          :query="collectionEventsQuery"
+          :filter="{ id: route.params.cohort }"
+          :rowMapper="collectionEventMapper"
+          v-slot="slotProps"
+        >
+          <CollectionEventDisplay :id="slotProps.id" />
+        </TableContent>
 
         <ContentBlockPartners
           v-if="cohort?.additionalOrganisations"

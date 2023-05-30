@@ -1,4 +1,5 @@
 export default [
+  "AUTO_ID",
   "BOOL",
   "BOOL_ARRAY",
   "DATE",
