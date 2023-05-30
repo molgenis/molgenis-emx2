@@ -71,7 +71,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     ></PageHeader>
 
     <div
-      class="bg-white relative justify-around flex flex-col md:flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0 rounded-t-3px rounded-b-50px shadow-primary"
+      class="bg-white relative justify-around flex flex-col md:flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0 rounded-t-3px rounded-b-landing shadow-primary"
     >
       <LandingCardPrimary
         image="image-link"
