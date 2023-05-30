@@ -1,15 +1,19 @@
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
-name = "molgenis-emx2-client-py"
-version = "8.185.0"
+name = "molgenis_emx2_client"
+version = "8.187.0"
 description = "Python client for the MOLGENIS EMX2 API"
+readme="README.md"
 dependencies = [
     'requests==2.31.0',
-    'python-dotenv==1.0.0',
-    'setuptools==67.8.0',
-    'tomli==2.0.1',
+    'python-dotenv==1.0.0'
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "Operating System :: OS Independent",
+]

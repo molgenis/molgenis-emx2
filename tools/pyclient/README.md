@@ -1,6 +1,14 @@
 # Installation
 
-Ensure the current working directory is `.../tools/pyclient`
+    pip install molgenis_emx2_client
+
+# Development
+
+Clone the `molgenis-emx2` repository from GitHub
+
+    git clone git@github.com:molgenis/molgenis-emx2.git
+
+Change the working directory to `.../tools/pyclient`
 
 ### Create a virtual Python environment
 
@@ -42,14 +50,10 @@ Create file `.env` using  `.env_example` as a reference.
 # How to use
 After installing the dependencies and creating the `.env` file run
     
-    python -m molgenis
+    python -m molgenis_emx2_client
 
 # Build
 
-    (venv) $ python -m pip install pip-tools
-    (venv) $ pip-compile pyproject.toml
-
     (venv) $ python -m build
-    #(venv) $ pip-sync
 
-    (venv) $ pip install molgenis_emx2_client_py-8.185.0-py3-none-any.whl
+    (venv) $ pip install dist/molgenis_emx2_client*.whl
