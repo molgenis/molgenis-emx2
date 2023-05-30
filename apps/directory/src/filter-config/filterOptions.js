@@ -3,18 +3,18 @@ import queryEMX2 from "../functions/queryEMX2";
 import { useFiltersStore } from "../stores/filtersStore";
 
 /** Async so we can fire and forget for performance. */
-async function cache(applyToColumn, filterOptions) {
+async function cache (applyToColumn, filterOptions) {
   const { filterOptionsCache } = useFiltersStore();
   filterOptionsCache[applyToColumn] = filterOptions;
 }
 
-function retrieveFromCache(applyToColumn) {
+function retrieveFromCache (applyToColumn) {
   const { filterOptionsCache } = useFiltersStore();
   return filterOptionsCache[applyToColumn] || [];
 }
 
 /** Configurable array of values to filter out, for example 'Other, unknown' that make no sense to the user. */
-function removeOptions(filterOptions, filterFacet) {
+function removeOptions (filterOptions, filterFacet) {
   const optionsToRemove = filterFacet.removeOptions;
 
   if (!optionsToRemove || !optionsToRemove.length) return filterOptions;
@@ -40,7 +40,7 @@ export const customFilterOptions = (filterFacet) => {
     });
 };
 
-function _mapToOptions(row, filterLabelAttribute, filterValueAttribute) {
+function _mapToOptions (row, filterLabelAttribute, filterValueAttribute) {
   return {
     text: row[filterLabelAttribute],
     value: row[filterValueAttribute],
@@ -99,11 +99,10 @@ export const genericFilterOptions = (filterFacet) => {
 };
 
 export const ontologyFilterOptions = (filterFacet) => {
-<<<<<<< HEAD
   const { ontologyIdentifiers, sourceTable, applyToColumn, filterLabelAttribute, filterValueAttribute, sortColumn, sortDirection } = filterFacet
 
   return () => new Promise((resolve) => {
-    
+
     const cachedOptions = retrieveFromCache(applyToColumn)
 
     const selection = [
@@ -142,67 +141,16 @@ export const ontologyFilterOptions = (filterFacet) => {
                   itemsSplitByOntology[ontologyId] = [ontologyItem];
                 } else {
                   itemsSplitByOntology[ontologyId].push(ontologyItem);
-=======
-  const {
-    ontologyIdentifiers,
-    sourceTable,
-    applyToColumn,
-    filterLabelAttribute,
-    filterValueAttribute,
-    sortColumn,
-    sortDirection,
-  } = filterFacet;
-
-  return () =>
-    new Promise((resolve) => {
-      const cachedOptions = retrieveFromCache(applyToColumn);
-
-      const selection = [
-        filterLabelAttribute,
-        filterValueAttribute,
-        "parent.name",
-        `children.${filterValueAttribute}`,
-        `children.children.${filterValueAttribute}`,
-        `children.children.children.${filterValueAttribute}`,
-        `children.children.children.children.${filterValueAttribute}`,
-        `children.children.children.children.children.${filterValueAttribute}`,
-      ];
-
-      if (!cachedOptions.length) {
-        new queryEMX2("graphql")
-          .table(sourceTable)
-          .select(selection)
-          .orderBy(sourceTable, sortColumn, sortDirection)
-          .execute()
-          .then((response) => {
-            const onlyParents = response[sourceTable].filter(
-              (row) => !row.parent
-            );
-
-            const itemsSplitByOntology = {};
-
-            for (const ontologyItem of onlyParents) {
-              for (const ontologyId of ontologyIdentifiers) {
-                if (
-                  ontologyItem.name
-                    .toLowerCase()
-                    .includes(ontologyId.toLowerCase())
-                ) {
-                  if (!itemsSplitByOntology[ontologyId]) {
-                    itemsSplitByOntology[ontologyId] = [ontologyItem];
-                  } else {
-                    itemsSplitByOntology[ontologyId].push(ontologyItem);
-                  }
->>>>>>> 278739ee9b9884a48fd551f30c5139cd30639110
                 }
               }
             }
 
             cache(applyToColumn, itemsSplitByOntology);
             resolve(itemsSplitByOntology);
-          });
-      } else {
-        resolve(cachedOptions);
-      }
-    });
+          }
+        });
+    } else {
+      resolve(cachedOptions);
+    }
+  });
 };

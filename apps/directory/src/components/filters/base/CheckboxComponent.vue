@@ -9,7 +9,6 @@
     />
     <span>{{ option.text }}</span>
   </label>
-  <!-- custom control class seems to be broken  -->
 </template>
 
 <script>

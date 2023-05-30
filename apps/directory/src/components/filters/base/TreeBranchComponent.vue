@@ -1,14 +1,19 @@
 <template>
   <ul>
-    <li @click="open = !open">
-      <input @click.stop type="checkbox" :ref="`${option.name}-checkbox`" class="mr-1" />
+    <li @click="open = !open" :class="option.children ? 'clickable' : ''">
+      <span class="toggle-icon">
+        {{ option.children ? (open ? "&#9660;" : "&#9650;") : "" }}
+      </span>
+      <input
+        @click.stop
+        type="checkbox"
+        :ref="`${option.name}-checkbox`"
+        class="mr-1"
+      />
       <label>
         {{ option.label }}
       </label>
       <!-- because Vue3 does not allow me, for some odd reason, to toggle a class or spans with font awesome icons, we have to do it like this. -->
-      <span class="toggle-icon">
-        {{ option.children ? open ? "&#9660;" : "&#9650;" : '' }}
-      </span>
     </li>
     <li
       v-if="option.children"
@@ -49,11 +54,16 @@ li {
 
 .toggle-icon {
   font-size: 0.75rem;
-  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 .indent {
-  margin-left: 0.35rem;
+  margin-left: 0.25rem;
   border-width: 2px !important;
+}
+
+.clickable:hover > label {
+  cursor: pointer;
+  background-color: var(--gray-light);
 }
 </style>

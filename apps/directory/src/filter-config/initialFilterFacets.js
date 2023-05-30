@@ -17,19 +17,11 @@ export const initialFilterFacets = [
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     removeOptions: [],
-<<<<<<< HEAD
     ontologyIdentifiers: ['ICD', 'ORPHA'],
     sortColumn: 'name',
     sortDirection: 'asc',
     negotiatorRequestString: 'Disease type(s):',
     showFacet: true
-=======
-    ontologyIdentifiers: ["ICD", "ORPHA"],
-    sortColumn: "label",
-    sortDirection: "asc",
-    negotiatorRequestString: "Disease type(s):",
-    showFacet: true,
->>>>>>> 278739ee9b9884a48fd551f30c5139cd30639110
   },
   {
     facetTitle: "Countries",
