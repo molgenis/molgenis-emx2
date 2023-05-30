@@ -10,7 +10,7 @@
           :tableName="tableName"
           :tableMetaData="tableMetaData"
           :schemaMetaData="schemaMetaData"
-          :visibleColumns="visibleColumns"
+          :visibleColumns="(visibleColumns as string[])"
           :clone="clone"
           :page="currentPage"
           @setPageCount="pageCount = $event"
@@ -152,7 +152,7 @@ export default {
     },
     visibleColumns: {
       type: Array,
-      default: () => null,
+      default: () => [],
     },
     defaultValue: {
       type: Object,

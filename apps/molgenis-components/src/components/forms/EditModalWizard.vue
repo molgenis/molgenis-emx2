@@ -17,64 +17,50 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { toRefs } from "vue";
+import { IColumn } from "../../Interfaces/IColumn";
+import { ISchemaMetaData } from "../../Interfaces/IMetaData";
+import { IRow } from "../../Interfaces/IRow";
+import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import RowEdit from "./RowEdit.vue";
 
-export default {
-  name: "EditModalWizard",
-  components: { RowEdit },
-  data() {
-    return { columnsSplitByHeadings: null };
-  },
-  props: {
-    modelValue: {
-      type: Object,
-      required: true,
-    },
-    id: {
-      type: String,
-      required: true,
-    },
-    page: {
-      type: Number,
-      default: 1,
-    },
-    tableName: {
-      type: String,
-      required: true,
-    },
-    tableMetaData: {
-      type: Object,
-      required: true,
-    },
-    pkey: { type: Object },
-    clone: {
-      type: Boolean,
-      required: false,
-    },
-    visibleColumns: {
-      type: Array,
-      required: false,
-    },
-    schemaMetaData: {
-      type: Object,
-      required: false,
-    },
-    locale: {
-      type: String,
-      default: () => "en",
-    },
-  },
-  mounted() {
-    this.columnsSplitByHeadings = splitColumnNamesByHeadings(
-      filterVisibleColumns(this.tableMetaData.columns, this.visibleColumns)
-    );
-    this.$emit("setPageCount", this.columnsSplitByHeadings.length);
-  },
-  emits: ["setPageCount", "update:modelValue", "errorsInForm"],
-};
+const emit = defineEmits(["setPageCount", "update:modelValue", "errorsInForm"]);
+const props = withDefaults(
+  defineProps<{
+    id: string;
+    modelValue: IRow;
+    pkey: IRow;
+    tableName: string;
+    tableMetaData: ITableMetaData;
+    schemaMetaData: ISchemaMetaData;
+    visibleColumns: string[];
+    locale: string;
+    clone?: boolean;
+    page?: number;
+  }>(),
+  { page: 1 }
+);
 
-function filterVisibleColumns(columns, visibleColumns) {
+const {
+  id,
+  pkey,
+  tableName,
+  tableMetaData,
+  schemaMetaData,
+  visibleColumns,
+  clone,
+  locale,
+} = props;
+
+let { modelValue, page } = toRefs(props);
+
+const columnsSplitByHeadings: string[][] = splitColumnNamesByHeadings(
+  filterVisibleColumns(tableMetaData?.columns || [], visibleColumns)
+);
+emit("setPageCount", columnsSplitByHeadings.length);
+
+function filterVisibleColumns(columns: IColumn[], visibleColumns: string[]) {
   if (!visibleColumns) {
     return columns;
   } else {
@@ -82,17 +68,17 @@ function filterVisibleColumns(columns, visibleColumns) {
   }
 }
 
-function splitColumnNamesByHeadings(columns) {
+function splitColumnNamesByHeadings(columns: IColumn[]): string[][] {
   return columns.reduce((accum, column) => {
     if (column.columnType === "HEADING") {
       accum.push([column.name]);
     } else {
       if (accum.length === 0) {
-        accum.push([]);
+        accum.push([] as string[]);
       }
       accum[accum.length - 1].push(column.name);
     }
     return accum;
-  }, []);
+  }, [] as string[][]);
 }
 </script>
