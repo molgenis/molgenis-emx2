@@ -25,6 +25,7 @@ class SqlSchemaMetadataExecutor {
     step.execute();
 
     String schemaName = schema.getName();
+    String aggregator = getRolePrefix(schemaName) + AGGREGATOR;
     String member = getRolePrefix(schemaName) + VIEWER;
     String editor = getRolePrefix(schemaName) + EDITOR;
     String manager = getRolePrefix(schemaName) + MANAGER;
@@ -61,6 +62,8 @@ class SqlSchemaMetadataExecutor {
     db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(sessionUser));
 
     // grant the permissions
+    db.getJooq()
+        .execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(aggregator));
     db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(member));
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
 
