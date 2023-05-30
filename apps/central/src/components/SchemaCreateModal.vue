@@ -120,6 +120,7 @@ export default {
         null,
         "PET_STORE",
         "FAIR_DATA_HUB",
+        "DIRECTORY",
         "DATA_CATALOGUE",
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",

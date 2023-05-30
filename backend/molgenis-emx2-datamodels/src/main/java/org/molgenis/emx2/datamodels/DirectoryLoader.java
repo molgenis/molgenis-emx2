@@ -2,6 +2,7 @@ package org.molgenis.emx2.datamodels;
 
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class DirectoryLoader extends AbstractDataLoader {
@@ -15,7 +16,7 @@ public class DirectoryLoader extends AbstractDataLoader {
 
     // optionally, load demo data
     if (includeDemoData) {
-      // MolgenisIO.fromClasspathDirectory("directory/???", schema, false);
+      MolgenisIO.fromClasspathDirectory("directory/data", schema, false);
     }
   }
 }
