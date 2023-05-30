@@ -2,6 +2,17 @@
 
     pip install molgenis_emx2_client
 
+
+# How to use
+Within your Python project import the class Client and use it to sign in
+    
+    from molgenis_emx2_client import Client
+    ...
+
+    ...
+    client = Client('https://example.molgeniscloud.org')
+    client.signin('username', 'password')
+
 # Development
 
 Clone the `molgenis-emx2` repository from GitHub
@@ -38,19 +49,6 @@ On Windows:
 
     pip install -r requirements.txt
 
-### Install the package
-
-    pip install -e .
-
-# Configuration
-Create file `.env` using  `.env_example` as a reference.
-
-
-
-# How to use
-After installing the dependencies and creating the `.env` file run
-    
-    python -m molgenis_emx2_client
 
 # Build
 
