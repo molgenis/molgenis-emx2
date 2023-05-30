@@ -10,12 +10,11 @@
           :tableName="tableName"
           :tableMetaData="tableMetaData"
           :schemaMetaData="schemaMetaData"
-          :visibleColumns="(visibleColumns as string[])"
           :clone="clone"
           :page="currentPage"
-          @setPageCount="pageCount = $event"
-          @errorsInForm="handleErrors"
           :locale="locale"
+          :columnsSplitByHeadings="columnsSplitByHeadings"
+          @errorsInForm="handleErrors"
           class="flex-grow-1"
         />
         <RowEdit
@@ -32,7 +31,10 @@
           class="flex-grow-1"
           @errorsInForm="handleErrors"
         />
-        <div v-if="pageCount > 1" class="border-left chapter-menu">
+        <div
+          v-if="columnsSplitByHeadings.length > 1"
+          class="border-left chapter-menu"
+        >
           <div class="mb-1">
             <b>Chapters</b>
           </div>
@@ -61,7 +63,7 @@
         @save="handleSaveRequest"
       >
         <div class="mr-auto">
-          <div v-if="pageCount > 1">
+          <div v-if="columnsSplitByHeadings.length > 1">
             <ButtonAction
               @click="setCurrentPage(currentPage - 1)"
               :disabled="currentPage <= 1"
@@ -71,7 +73,7 @@
             </ButtonAction>
             <ButtonAction
               @click="setCurrentPage(currentPage + 1)"
-              :disabled="currentPage >= pageCount"
+              :disabled="currentPage >= columnsSplitByHeadings.length"
               class="pl-3"
             >
               Next <i :class="'fas fa-fw fa-chevron-right'" />
@@ -120,7 +122,6 @@ export default {
       errorMessage: "",
       loaded: true,
       currentPage: 1,
-      pageCount: 1,
       useChapters: true,
       saveDisabledMessage: "",
     };
@@ -177,6 +178,14 @@ export default {
     },
     titlePrefix() {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
+    },
+    columnsSplitByHeadings(): string[][] {
+      return splitColumnNamesByHeadings(
+        filterVisibleColumns(
+          this.tableMetaData?.columns || [],
+          this.visibleColumns as string[]
+        )
+      );
     },
   },
   methods: {
@@ -287,6 +296,31 @@ function getPageHeadings(tableMetadata: ITableMetaData): string[] {
   } else {
     return ["First chapter"].concat(headings);
   }
+}
+
+function filterVisibleColumns(
+  columns: IColumn[],
+  visibleColumns: string[] | null
+) {
+  if (!visibleColumns) {
+    return columns;
+  } else {
+    return columns.filter((column) => visibleColumns.includes(column.name));
+  }
+}
+
+function splitColumnNamesByHeadings(columns: IColumn[]): string[][] {
+  return columns.reduce((accum, column) => {
+    if (column.columnType === "HEADING") {
+      accum.push([column.name]);
+    } else {
+      if (accum.length === 0) {
+        accum.push([] as string[]);
+      }
+      accum[accum.length - 1].push(column.name);
+    }
+    return accum;
+  }, [] as string[][]);
 }
 </script>
 
