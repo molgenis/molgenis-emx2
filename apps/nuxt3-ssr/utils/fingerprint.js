@@ -1,1 +1,1 @@
-export const hash = 'lia2diuz';
+export const hash = '';
