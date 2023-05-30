@@ -4,12 +4,11 @@ build-backend = "hatchling.build"
 
 [project]
 name = "molgenis_emx2_client"
-version = "8.187.0"
-description = "Python client for the MOLGENIS EMX2 API"
+version = "0.4"
+description = "Python client for the Molgenis EMX2 API"
 readme="README.md"
 dependencies = [
-    'requests==2.31.0',
-    'python-dotenv==1.0.0'
+    'requests==2.31.0'
 ]
 requires-python = ">=3.10"
 classifiers = [

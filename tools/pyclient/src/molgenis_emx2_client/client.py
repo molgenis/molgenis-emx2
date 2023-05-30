@@ -6,20 +6,23 @@ log = logging.getLogger(__name__)
 
 
 class Client:
+    """Use the Client object to log in to a Molgenis server and perform operations on the server.
     """
-
-    """
-    def __init__(self, url: str, database: str, email: str, password: str) -> None:
+    def __init__(self, url: str, username: str, password: str) -> None:
+        """
+        A Client class instances is created with a server url, username and password.
+        The object starts a network session and logs in to the server using the login credentials.
+        """
         self.url = url
-        self.database = database
 
         self.session = requests.Session()
-        self.graphqlEndpoint = f'{self.url}/{self.database}/graphql'
-        self.apiEndpoint = f'{self.url}/{self.database}/api'
 
-        self.signin(email, password)
+        self.signin(username, password)
 
-    def signin(self, email: str, password: str):
+    def __str__(self):
+        return self.url
+
+    def signin(self, username: str, password: str):
         """Sign in to Molgenis and retrieve session cookie."""
         query = """
           mutation($email:String, $password: String) {
@@ -30,7 +33,7 @@ class Client:
           }
         """
 
-        variables = {'email': email, 'password': password}
+        variables = {'email': username, 'password': password}
 
         response = self.session.post(
             url=f'{self.url}/apps/central/graphql',
@@ -43,7 +46,7 @@ class Client:
         message: str = response_json['data']['signin']['message']
 
         if status == 'SUCCESS':
-            log.debug(f"Success: Signed into {self.database} as {email}.")
+            log.debug(f"Success: Signed into {self.url} as {username}.")
         elif status == 'FAILED':
             log.error(message)
         else:
