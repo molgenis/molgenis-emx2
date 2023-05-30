@@ -397,6 +397,10 @@ ${root}${rootModifier} {\n`;
     return result;
   }
 
+  // the best query would be for example"
+  // Biobanks(orderby: { name: ASC }, filter: {collections: {_and: [{materials: {name: {like: "BUFFY_COAT"}}}, {materials: {name: {like: "CELL_LINES"}}}]}})
+  // but this requires another rewrite ;)
+
   _createFilterString (filters) {
     let filterString = ''
 

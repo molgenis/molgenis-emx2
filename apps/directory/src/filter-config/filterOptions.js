@@ -33,9 +33,16 @@ export const customFilterOptions = (filterFacet) => {
       resolve(customOptions)
     }
     else {
-       resolve(customOptions)
+      resolve(customOptions)
     }
   });
+}
+
+
+function _mapToOptions (row, filterLabelAttribute, filterValueAttribute) {
+  return {
+    text: row[filterLabelAttribute], value: row[filterValueAttribute]
+  }
 }
 
 export const genericFilterOptions = (filterFacet) => {
@@ -44,20 +51,83 @@ export const genericFilterOptions = (filterFacet) => {
   return () => new Promise((resolve) => {
     const cachedOptions = retrieveFromCache(applyToColumn)
 
+    const selection = [filterLabelAttribute, filterValueAttribute]
+
     if (!cachedOptions.length) {
       new queryEMX2('graphql')
         .table(sourceTable)
-        .select([filterLabelAttribute, filterValueAttribute])
+        .select(selection)
         .orderBy(sourceTable, sortColumn, sortDirection)
         .execute()
         .then(response => {
 
-          let filterOptions = response[sourceTable].map((row) => { return { text: row[filterLabelAttribute], value: row[filterValueAttribute] } })
+          let filterOptions = response[sourceTable].map((row) => {
+            return {
+              ..._mapToOptions(row, filterLabelAttribute, filterValueAttribute),
+              parent: row.parent ? row.parent[filterValueAttribute] : undefined,
+              children: row.children ? row.children.map(child => child[filterValueAttribute]) : undefined
+            }
+          })
+
           /**  remove unwanted options if applicable */
           filterOptions = removeOptions(filterOptions, filterFacet)
 
           cache(applyToColumn, filterOptions)
           resolve(filterOptions)
+        })
+    } else {
+      resolve(cachedOptions)
+    }
+  })
+}
+
+
+export const ontologyFilterOptions = (filterFacet) => {
+  const { ontologyIdentifiers, sourceTable, applyToColumn, filterLabelAttribute, filterValueAttribute, sortColumn, sortDirection } = filterFacet
+
+  return () => new Promise((resolve) => {
+    const cachedOptions = retrieveFromCache(applyToColumn)
+
+    const selection = [
+      filterLabelAttribute,
+      filterValueAttribute,
+      'parent.name',
+      `children.${filterValueAttribute}`,
+      `children.children.${filterValueAttribute}`,
+      `children.children.children.${filterValueAttribute}`,
+      `children.children.children.children.${filterValueAttribute}`,
+      `children.children.children.children.children.${filterValueAttribute}`
+    ]
+
+    if (!cachedOptions.length) {
+      new queryEMX2('graphql')
+        .table(sourceTable)
+        .select(selection)
+        .orderBy(sourceTable, sortColumn, sortDirection)
+        .execute()
+        .then(response => {
+
+          const onlyParents = response[sourceTable].filter(row => !row.parent)
+
+
+          const itemsSplitByOntology = {};
+
+          for (const ontologyItem of onlyParents) {
+            for (const ontologyId of ontologyIdentifiers) {
+              if (
+                ontologyItem.name.toLowerCase().includes(ontologyId.toLowerCase())
+              ) {
+                if (!itemsSplitByOntology[ontologyId]) {
+                  itemsSplitByOntology[ontologyId] = [ontologyItem];
+                } else {
+                  itemsSplitByOntology[ontologyId].push(ontologyItem);
+                }
+              }
+            }
+          }
+
+          cache(applyToColumn, itemsSplitByOntology)
+          resolve(itemsSplitByOntology)
         })
     } else {
       resolve(cachedOptions)

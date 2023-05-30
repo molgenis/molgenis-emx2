@@ -88,6 +88,7 @@ import { useSettingsStore } from "../../stores/settingsStore";
 /** Components used for filters */
 import SearchFilter from "../filters/SearchFilter.vue";
 import CheckboxFilter from "../filters/CheckboxFilter.vue";
+import OntologyFilter from "../filters/OntologyFilter.vue";
 import ButtonDropdown from "../micro-components/ButtonDropdown.vue";
 /** */
 
@@ -101,6 +102,7 @@ export default {
     SearchFilter,
     ButtonDropdown,
     CheckboxFilter,
+    OntologyFilter
   },
   computed: {
     filtersToRender() {
