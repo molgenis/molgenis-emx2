@@ -3,7 +3,11 @@ import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
-import { convertToPascalCase, deepClone } from "../components/utils";
+import {
+  convertRowToPrimaryKey,
+  convertToPascalCase,
+  deepClone,
+} from "../components/utils";
 import { IClient, INewClient } from "./IClient";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { columnNames } from "./queryBuilder";
@@ -276,9 +280,10 @@ const updateDataRow = (
   return axios.post(graphqlURL(schemaName), formData);
 };
 
-const deleteRow = (key: IRow, tableName: string, schemaName: string) => {
+const deleteRow = async (row: IRow, tableName: string, schemaName: string) => {
   const tableId = convertToPascalCase(tableName);
   const query = `mutation delete($pkey:[${tableId}Input]){delete(${tableId}:$pkey){message}}`;
+  const key = await convertRowToPrimaryKey(row, tableName, schemaName);
   const variables = { pkey: [key] };
   return axios.post(graphqlURL(schemaName), { query, variables });
 };
