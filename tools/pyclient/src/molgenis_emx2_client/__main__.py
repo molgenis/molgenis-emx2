@@ -2,8 +2,8 @@ import logging
 import os
 import sys
 
-from dotenv import load_do
-from molgenis import Client
+from dotenv import load_dotenv
+from .client import Client
 
 
 def main():
