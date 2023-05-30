@@ -17,8 +17,8 @@
     "@fortawesome/fontawesome-free": "6.2.1",
     "graphql-request": "5.0.0",
     "molgenis-components": "*",
-    "pinia": "^2.0.29",
-    "vue": "3.2.45",
+    "pinia": "2.0.33",
+    "vue": "3.2.47",
     "vue-router": "4.1.6"
   },
   "devDependencies": {
