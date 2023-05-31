@@ -182,3 +182,8 @@ task installPreCommitGitFormatCheckHook(type: Copy) {
     into { new File(rootProject.rootDir, '.git/hooks') }
     fileMode 0775
 }
+
+task runpy(type:Exec) {
+    workingDir './tools/pyclient'
+    commandLine 'python', '-m','build'
+}
