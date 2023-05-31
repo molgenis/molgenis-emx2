@@ -94,7 +94,11 @@ const client: IClient = {
         );
         return dataResp[tableId];
       },
-      fetchRowData: async (tableName: string, rowId: IRow) => {
+      fetchRowData: async (
+        tableName: string,
+        rowId: IRow,
+        expandLevel: number = 1
+      ) => {
         const tableId = convertToPascalCase(tableName);
         if (schemaMetaData === null) {
           schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
@@ -115,7 +119,6 @@ const client: IClient = {
             accum[column.id] = { equals: rowId[column.id] };
             return accum;
           }, {});
-        const expandLevel = 1;
         const resultArray = (
           await fetchTableData(
             tableName,
