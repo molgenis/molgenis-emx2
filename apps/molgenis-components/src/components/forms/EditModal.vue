@@ -31,7 +31,7 @@
               :name="`chapter-${heading}-error-tooltip`"
               :value="
                 chapterStyleAndErrors[index].errorFields.length
-                  ? `errors in fields:\n${chapterStyleAndErrors[index].errorFields}`
+                  ? `errors in:\n${chapterStyleAndErrors[index].errorFields}`
                   : ''
               "
             >
