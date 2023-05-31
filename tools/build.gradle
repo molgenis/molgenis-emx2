@@ -1,8 +1,11 @@
-task runpy(type:Exec) {
-    group 'build'
-    description 'run python lib build'
-    workingDir './pyclient'
-    commandLine 'python3', '-m','build'
-
+subprojects {
+    task runpy(type:Exec) {
+        group 'build'
+        description 'run python lib build'
+        commandLine 'python3', '.', '-m','build'
+        ext.output = {
+            return standardOutput.toString()
+        }
+    }
 }
 
