@@ -54,17 +54,22 @@ public class FileApi {
       throw new MolgenisException(
           "Download failed: file id '" + id + "' not found in table " + tableName);
     }
-    String ext = result.get(0).getString(columnName + "_extension");
-    String mimetype = result.get(0).getString(columnName + "_mimetype");
-    byte[] contents = result.get(0).getBinary(columnName + "_contents");
+    addFileColumnToResponse(response, columnName, result.get(0));
+    return "";
+  }
+
+  public static void addFileColumnToResponse(Response response, String columnName, Row row)
+      throws IOException {
+    String ext = row.getString(columnName + "_extension");
+    String mimetype = row.getString(columnName + "_mimetype");
+    byte[] contents = row.getBinary(columnName + "_contents");
     response
         .raw()
-        .setHeader("Content-Disposition", "attachment; filename=" + c.getName() + "." + ext);
+        .setHeader("Content-Disposition", "attachment; filename=" + columnName + "." + ext);
     response.raw().setContentType(mimetype);
     try (OutputStream out = response.raw().getOutputStream()) {
       out.write(contents); // autoclosing
       out.flush();
     }
-    return "";
   }
 }

@@ -10,7 +10,7 @@ interface PropType {
 }
 
 const props: PropType = withDefaults(defineProps<PropType>(), {
-  maximumButtonShown: 3,
+  maximumButtonShown: 4,
   showMoreButton: true,
 });
 

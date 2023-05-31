@@ -14,7 +14,7 @@ if (route.query?.page) {
 }
 let offset = computed(() => (currentPage.value - 1) * pageSize);
 
-let filters = reactive([
+let filters: IFilter[] = reactive([
   {
     title: "Search in cohorts",
     columnType: "_SEARCH",
@@ -93,46 +93,7 @@ const query = computed(() => {
 
 const orderby = { acronym: "ASC" };
 
-function buildFilterVariables() {
-  const filtersVariables = filters.reduce<
-    Record<string, Record<string, object | string>>
-  >((accum, filter) => {
-    if (filter.filterTable && filter?.conditions?.length) {
-      if (!accum[filter.filterTable]) {
-        accum[filter.filterTable] = {};
-      }
-      accum[filter.filterTable][filter.columnName] = {
-        equals: filter.conditions,
-      };
-    }
-
-    return accum;
-  }, {});
-
-  return filtersVariables;
-}
-
-const filter = computed(() => {
-  // build the active (non search) filters
-  let filterBuilder = buildFilterVariables();
-  if (search.value) {
-    // add the search to the filters
-    // @ts-ignore (dynamic object)
-    filterBuilder = {
-      ...filterBuilder,
-      ...{ _or: [{ _search: search.value }] },
-    };
-    // expand the search to the subtabels
-    // @ts-ignore (dynamic object)
-    filters
-      .find((f) => f.columnType === "_SEARCH")
-      ?.searchTables.forEach((sub) => {
-        filterBuilder["_or"].push({ [sub]: { _search: search.value } });
-      });
-  }
-
-  return { _and: filterBuilder };
-});
+const filter = computed(() => buildQueryFilter(filters, search.value));
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
@@ -175,7 +136,7 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <SearchFilter title="Filters" :filters="filters" />
+      <FilterSidebar title="Filters" :filters="filters" />
     </template>
     <template #main>
       <SearchResults>
@@ -213,7 +174,7 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
                 class="flex xl:hidden"
                 v-model:activeName="activeName"
               >
-                <SearchFilter
+                <FilterSidebar
                   title="Filters"
                   :filters="filters"
                   :mobileDisplay="true"

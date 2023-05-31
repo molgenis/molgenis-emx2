@@ -39,7 +39,7 @@ import {
   getLocalizedDescription,
 } from "../utils";
 
-const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
+const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID } = constants;
 
 export default {
   name: "RowEdit",
@@ -102,7 +102,7 @@ export default {
       default: () => "en",
     },
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "numberOfErrorsInForm"],
   components: {
     FormInput,
   },
@@ -136,7 +136,9 @@ export default {
       return getLocalizedDescription(column, this.locale);
     },
     showColumn(column) {
-      if (column.reflink) {
+      if (column.columnType === AUTO_ID) {
+        return this.pkey;
+      } else if (column.reflink) {
         return this.internalValues[convertToCamelCase(column.refLink)];
       } else {
         const isColumnVisible = this.visibleColumns
@@ -183,11 +185,15 @@ export default {
             this.tableMetaData
           );
         });
+      this.$emit(
+        "numberOfErrorsInForm",
+        Object.values(this.errorPerColumn)?.filter((val) => val).length
+      );
     },
     applyComputed() {
       //apply computed
       this.tableMetaData.columns.forEach((c) => {
-        if (c.computed) {
+        if (c.computed && c.columnType !== AUTO_ID) {
           try {
             this.internalValues[c.id] = executeExpression(
               c.computed,
@@ -263,7 +269,11 @@ function getColumnError(column, values, tableMetaData) {
   const missesValue = value === undefined || value === null || value === "";
   const type = column.columnType;
 
-  if (column.required && (missesValue || isInvalidNumber)) {
+  if (
+    column.required &&
+    (missesValue || isInvalidNumber) &&
+    column.columnType !== AUTO_ID
+  ) {
     return column.name + " is required ";
   }
   if (missesValue) {

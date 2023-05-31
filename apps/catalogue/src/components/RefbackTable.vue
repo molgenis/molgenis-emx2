@@ -18,7 +18,7 @@
         <tr
           v-for="(row, idx) in refBackData"
           :key="idx + JSON.stringify(Object.keys(row))"
-          @click="handleRowClick(row)"
+          @click.prevent
         >
           <td
             v-for="col in visibleColumns.filter(
