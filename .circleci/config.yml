@@ -55,7 +55,7 @@ jobs:
 
     - run:
         name: build python client
-        command: python3 -m build ./tools/pyclient
+        command: python3 tools/pyclient -m build
 
 
     # install additional software
