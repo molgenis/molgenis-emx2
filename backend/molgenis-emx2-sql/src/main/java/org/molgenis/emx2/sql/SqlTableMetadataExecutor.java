@@ -429,7 +429,7 @@ SELECT
   AND a.table_schema = b.table_schema
   AND a.table_name=b.table_name
 )
-SELECT table_schema, table_name FROM inherited_columns WHERE key <> 1 AND column_name={2} AND (table_name <> {0} OR table_schema <> {1});
+SELECT table_schema, table_name, column_name, key FROM inherited_columns WHERE key <> 1 AND column_name={2} AND (table_name <> {0} OR table_schema <> {1});
 """; // nb does not apply to key=1 columns, these are copied between subclasses
 
     Result<Record> result =

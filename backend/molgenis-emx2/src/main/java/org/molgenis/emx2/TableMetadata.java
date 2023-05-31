@@ -315,6 +315,20 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public TableMetadata add(Column... column) {
     for (Column c : column) {
+      if (getInherit() != null
+          && getInheritedTable() != null
+          && getInheritedTable().getColumn(c.getName()) != null
+          && !c.isPrimaryKey()) {
+        throw new MolgenisException(
+            "Cannot add column '"
+                + getTableName()
+                + "."
+                + c.getName()
+                + "': exists in extended table '"
+                + getInherit()
+                + "'");
+      }
+
       if (c.getPosition() == null) {
         c.setPosition(columns.size());
       }

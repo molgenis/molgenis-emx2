@@ -319,21 +319,18 @@ public class SqlSchema implements Schema {
         // add missing (except refback),
         // remove triggers if existing column if type changed
         // drop columns marked with 'drop'
-        for (Column newColumn : mergeTable.getColumns()) {
+        for (Column newColumn : mergeTable.getNonInheritedColumns()) {
           Column oldColumn =
               newColumn.getOldName() != null
-                  ? oldTable.getColumn(newColumn.getOldName())
-                  : oldTable.getColumn(newColumn.getName());
+                  ? oldTable.getLocalColumn(newColumn.getOldName())
+                  : oldTable.getLocalColumn(newColumn.getName());
 
           // drop columns that need dropping
           if (newColumn.isDrop()) {
             oldTable.dropColumn(oldColumn.getName());
           } else
           // if new column and not inherited
-          if (oldColumn == null
-              && !(oldTable.getInherit() != null
-                  && oldTable.getInheritedTable().getColumn(newColumn.getName()) != null)
-              && !newColumn.isRefback()) {
+          if (oldColumn == null && !newColumn.isRefback()) {
             oldTable.add(newColumn);
             created.add(newColumn.getTableName() + "." + newColumn.getName());
           } else
