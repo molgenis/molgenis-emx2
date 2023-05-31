@@ -74,8 +74,8 @@ import ObjectDisplay from "./cellTypes/ObjectDisplay.vue";
 
 const props = defineProps<{
   reference: IRow;
-  tableId: string;
-  schema: string;
+  tableId?: string;
+  schema?: string;
   showDataOwner?: boolean;
   startsCollapsed?: boolean;
 }>();
@@ -95,11 +95,18 @@ let filteredRow = computed(() => getFilteredRow(reference.value));
 let canCollapse = computed(() => Object.keys(filteredRow.value).length > 5);
 let primaryKey = ref({});
 
-convertRowToPrimaryKey(reference.value, props.tableId, props.schema).then(
-  (results) => {
-    primaryKey.value = results;
-  }
-);
+if (props.tableId && props.schema) {
+  convertRowToPrimaryKey(reference.value, props.tableId, props.schema).then(
+    (results) => {
+      if (Object.keys(results).length === 0) {
+        primaryKey.value =
+          getPrimaryKey(reference.value, reference.value.metadata) || {};
+      } else {
+        primaryKey.value = results;
+      }
+    }
+  );
+}
 
 let collapsed = ref(startsCollapsed.value && canCollapse.value);
 
