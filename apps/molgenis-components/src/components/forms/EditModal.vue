@@ -27,15 +27,25 @@
             <b>Chapters</b>
           </div>
           <div v-for="(heading, index) in pageHeadings">
-            <button
-              type="button"
-              class="btn btn-link"
-              :title="heading"
-              :class="{ 'font-weight-bold': index + 1 === currentPage }"
-              @click="setCurrentPage(index + 1)"
+            <Tooltip
+              :name="`chapter-${heading}-error-tooltip`"
+              :value="
+                chapterStyleAndErrors[index].errorFields.length
+                  ? `Chapter contains errors in fields:\n${chapterStyleAndErrors[index].errorFields}`
+                  : ''
+              "
             >
-              {{ heading }}
-            </button>
+              <button
+                type="button"
+                class="btn btn-link"
+                :title="heading"
+                :class="{ 'font-weight-bold': index + 1 === currentPage }"
+                @click="setCurrentPage(index + 1)"
+                :style="chapterStyleAndErrors[index].style"
+              >
+                {{ heading }}
+              </button>
+            </Tooltip>
           </div>
         </div>
       </div>
@@ -87,6 +97,7 @@ import { deepClone, filterObject, getLocalizedLabel } from "../utils";
 import ButtonAction from "./ButtonAction.vue";
 import RowEdit from "./RowEdit.vue";
 import RowEditFooter from "./RowEditFooter.vue";
+import Tooltip from "./Tooltip.vue";
 
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
 
@@ -97,11 +108,12 @@ export default {
     RowEditFooter,
     RowEdit,
     ButtonAction,
+    Tooltip,
   },
   data() {
     return {
       rowData: {},
-      rowErrors: {},
+      rowErrors: {} as Record<string, string | undefined>,
       tableMetaData: null as unknown as ITableMetaData,
       schemaMetaData: null as unknown as ISchemaMetaData,
       client: null as unknown as INewClient,
@@ -172,6 +184,17 @@ export default {
           this.visibleColumns as string[]
         )
       );
+    },
+    chapterStyleAndErrors(): IChapterInfo[] {
+      return this.columnsSplitByHeadings.map((page: string[]): IChapterInfo => {
+        const errorFields = page.filter((fieldsInPage: string) =>
+          Boolean(this.rowErrors[fieldsInPage])
+        );
+        return {
+          style: getChapterStyle(page, this.rowErrors),
+          errorFields,
+        };
+      });
     },
   },
   methods: {
@@ -307,6 +330,21 @@ function splitColumnNamesByHeadings(columns: IColumn[]): string[][] {
     }
     return accum;
   }, [] as string[][]);
+}
+
+function getChapterStyle(
+  page: string[],
+  errors: Record<string, string | undefined>
+): { color: "red" } | {} {
+  const fieldsWithErrors = page.filter((fieldsInPage: string) =>
+    Boolean(errors[fieldsInPage])
+  );
+  return fieldsWithErrors.length ? { color: "red" } : {};
+}
+
+interface IChapterInfo {
+  style: { color?: "red" };
+  errorFields: string[];
 }
 </script>
 
