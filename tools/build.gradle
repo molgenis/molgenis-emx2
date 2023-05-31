@@ -2,7 +2,7 @@ task runpy(type:Exec) {
     group 'build'
     description 'run python lib build'
     workingDir './pyclient'
-    commandLine 'python', '-m','build'
+    commandLine 'python3', '-m','build'
 
 }
 
