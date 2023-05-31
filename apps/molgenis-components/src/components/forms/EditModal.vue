@@ -2,30 +2,18 @@
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
       <div class="d-flex" v-if="loaded && tableMetaData">
-        <EditModalWizard
-          v-if="useChapters"
-          :id="id"
-          v-model="rowData"
-          :pkey="pkey"
-          :tableName="tableName"
-          :tableMetaData="tableMetaData"
-          :schemaMetaData="schemaMetaData"
-          :clone="clone"
-          :page="currentPage"
-          :locale="locale"
-          :columnsSplitByHeadings="columnsSplitByHeadings"
-          @errorsInForm="handleErrors"
-          class="flex-grow-1"
-        />
         <RowEdit
-          v-else
           :id="id"
           v-model="rowData"
           :pkey="pkey"
           :tableName="tableName"
           :tableMetaData="tableMetaData"
           :schemaMetaData="schemaMetaData"
-          :visibleColumns="visibleColumns"
+          :visibleColumns="
+            useChapters
+              ? columnsSplitByHeadings[currentPage - 1]
+              : visibleColumns
+          "
           :clone="clone"
           :locale="locale"
           class="flex-grow-1"
@@ -97,7 +85,6 @@ import constants from "../constants";
 import LayoutModal from "../layout/LayoutModal.vue";
 import { deepClone, filterObject, getLocalizedLabel } from "../utils";
 import ButtonAction from "./ButtonAction.vue";
-import EditModalWizard from "./EditModalWizard.vue";
 import RowEdit from "./RowEdit.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 
@@ -109,7 +96,6 @@ export default {
     LayoutModal,
     RowEditFooter,
     RowEdit,
-    EditModalWizard,
     ButtonAction,
   },
   data() {
