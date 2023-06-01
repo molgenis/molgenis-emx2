@@ -1,52 +1,55 @@
 <template>
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
-      <div class="d-flex" v-if="loaded && tableMetaData">
-        <RowEdit
-          :id="id"
-          v-model="rowData"
-          :pkey="pkey"
-          :tableName="tableName"
-          :tableMetaData="tableMetaData"
-          :schemaMetaData="schemaMetaData"
-          :visibleColumns="
-            useChapters
-              ? columnsSplitByHeadings[currentPage - 1]
-              : visibleColumns
-          "
-          :clone="clone"
-          :locale="locale"
-          class="flex-grow-1"
-          @errorsInForm="handleErrors"
-        />
-        <div
-          v-if="columnsSplitByHeadings.length > 1"
-          class="border-left chapter-menu"
-        >
-          <div class="mb-1">
-            <b>Chapters</b>
-          </div>
-          <div v-for="(heading, index) in pageHeadings">
-            <Tooltip
-              :name="`chapter-${heading}-error-tooltip`"
-              :value="
-                chapterStyleAndErrors[index].errorFields.length
-                  ? `errors in:\n${chapterStyleAndErrors[index].errorFields}`
-                  : ''
+      <div class="container" v-if="loaded && tableMetaData">
+        <div class="row">
+          <div class="col-10">
+            <RowEdit
+              :id="id"
+              v-model="rowData"
+              :pkey="pkey"
+              :tableName="tableName"
+              :tableMetaData="tableMetaData"
+              :schemaMetaData="schemaMetaData"
+              :visibleColumns="
+                useChapters
+                  ? columnsSplitByHeadings[currentPage - 1]
+                  : visibleColumns
               "
-              placement="left"
-            >
-              <button
-                type="button"
-                class="btn btn-link"
-                :title="heading"
-                :class="{ 'font-weight-bold': index + 1 === currentPage }"
-                @click="setCurrentPage(index + 1)"
-                :style="chapterStyleAndErrors[index].style"
+              :clone="clone"
+              :locale="locale"
+              @errorsInForm="handleErrors"
+            />
+          </div>
+          <div
+            v-if="columnsSplitByHeadings.length > 1"
+            class="col-2 border-left chapter-menu"
+          >
+            <div class="mb-1">
+              <b>Chapters</b>
+            </div>
+            <div v-for="(heading, index) in pageHeadings">
+              <Tooltip
+                :name="`chapter-${heading}-error-tooltip`"
+                :value="
+                  chapterStyleAndErrors[index].errorFields.length
+                    ? `errors in:\n${chapterStyleAndErrors[index].errorFields}`
+                    : ''
+                "
+                placement="left"
               >
-                {{ heading }}
-              </button>
-            </Tooltip>
+                <button
+                  type="button"
+                  class="btn btn-link"
+                  :title="heading"
+                  :class="{ 'font-weight-bold': index + 1 === currentPage }"
+                  @click="setCurrentPage(index + 1)"
+                  :style="chapterStyleAndErrors[index].style"
+                >
+                  {{ heading }}
+                </button>
+              </Tooltip>
+            </div>
           </div>
         </div>
       </div>
