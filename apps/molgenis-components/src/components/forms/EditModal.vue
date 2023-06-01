@@ -3,7 +3,10 @@
     <template #body>
       <div class="container" v-if="loaded && tableMetaData">
         <div class="row">
-          <div class="col-10">
+          <div
+            class="col-10 overflow-auto mr-n3"
+            style="max-height: calc(100vh - 200px)"
+          >
             <RowEdit
               :id="id"
               v-model="rowData"
@@ -23,7 +26,8 @@
           </div>
           <div
             v-if="columnsSplitByHeadings.length > 1"
-            class="col-2 border-left chapter-menu"
+            class="col-2 border-left chapter-menu overflow-auto"
+            style="max-height: calc(100vh - 200px)"
           >
             <div class="mb-1">
               <b>Chapters</b>
@@ -353,6 +357,10 @@ interface IChapterInfo {
 </script>
 
 <style scoped>
+>>> .modal-body.bg-light {
+  overflow: hidden;
+}
+
 .chapter-menu {
   padding: 1rem;
   margin: -1rem -1rem -1rem 1rem;
