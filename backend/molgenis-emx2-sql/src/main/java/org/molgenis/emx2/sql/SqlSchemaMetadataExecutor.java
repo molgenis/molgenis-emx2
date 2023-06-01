@@ -31,6 +31,7 @@ class SqlSchemaMetadataExecutor {
     String manager = getRolePrefix(schemaName) + MANAGER;
     String owner = getRolePrefix(schemaName) + Privileges.OWNER;
 
+    db.addRole(aggregator);
     db.addRole(member);
     db.addRole(editor);
     db.addRole(manager);
@@ -218,7 +219,7 @@ class SqlSchemaMetadataExecutor {
       db.getJooq().dropSchema(name(schemaName)).execute();
 
       for (String role : executeGetRoles(db.getJooq(), schemaName)) {
-        db.getJooq().execute("DROP ROLE {0}", name(getRolePrefix(schemaName) + role));
+        db.getJooq().execute("DROP ROLE IF EXISTS {0}", name(getRolePrefix(schemaName) + role));
       }
       MetadataUtils.deleteSchema(db.getJooq(), schemaName);
     } catch (Exception e) {
