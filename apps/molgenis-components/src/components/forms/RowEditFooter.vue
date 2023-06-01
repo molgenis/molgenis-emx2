@@ -18,6 +18,7 @@
         <ButtonOutline
           @click="$emit('saveDraft')"
           :disabled="Boolean(saveDisabledMessage)"
+          class="mr-2 pr-3"
         >
           Save draft
         </ButtonOutline>
