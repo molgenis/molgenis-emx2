@@ -2,7 +2,7 @@
   <span>
     <div v-if="countFilters > 0">
       <div class="d-flex align-items-center">
-        {{ countFilters }} filter{{ countFilters > 1 ? "s" : "" }} (
+        {{ countFilters }} filter {{ countFilters > 1 ? "s" : "" }} (
         <button type="button" @click="removeAll" class="btn btn-link pl-0 pr-0">
           remove all filters
         </button>
