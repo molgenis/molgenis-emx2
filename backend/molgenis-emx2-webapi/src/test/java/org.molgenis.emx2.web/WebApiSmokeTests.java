@@ -905,17 +905,13 @@ public class WebApiSmokeTests {
     String status = new ObjectMapper().readTree(result).at("/status").textValue();
     int count = 0;
     // poll while running
-    // (previously we checked on 'complete' but then it also fired if subtask was complete)
     while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      if (count++ > 10) {
+        throw new MolgenisException("failed: polling took too long, result is: " + result);
+      }
+      Thread.sleep(1000);
       result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
-      if (result.contains("ERROR")) {
-        fail("testScriptExcution failed:" + result);
-      }
-      if (count++ > 100) {
-        throw new MolgenisException("failed: polling took too long");
-      }
       status = new ObjectMapper().readTree(result).at("/status").textValue();
-      Thread.sleep(500);
     }
     if (result.contains("ERROR")) {
       fail(result);
@@ -950,15 +946,12 @@ public class WebApiSmokeTests {
     // poll while running
     // (previously we checked on 'complete' but then it also fired if subtask was complete)
     while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      if (count++ > 10) {
+        throw new MolgenisException("failed: polling took too long, result is: " + result);
+      }
+      Thread.sleep(1000);
       result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
-      if (result.contains("ERROR")) {
-        fail("testScriptExcution failed:" + result);
-      }
-      if (count++ > 100) {
-        throw new MolgenisException("failed: polling took too long");
-      }
       status = new ObjectMapper().readTree(result).at("/status").textValue();
-      Thread.sleep(500);
     }
     if (result.contains("ERROR")) {
       fail(result);
