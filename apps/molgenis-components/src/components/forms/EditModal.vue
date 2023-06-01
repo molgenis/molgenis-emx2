@@ -34,6 +34,7 @@
                   ? `errors in:\n${chapterStyleAndErrors[index].errorFields}`
                   : ''
               "
+              placement="left"
             >
               <button
                 type="button"

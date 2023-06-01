@@ -31,7 +31,9 @@ export default {
   props: {
     /** the value of the tooltip. If left empty no tooltip is rendered */
     value: String,
-    /** placement of the tooltip conform popperjs. Also determines where the tooltip will stick in case screen is too small. See https://popper.js.org/docs/v1/#popperplacements--codeenumcode*/
+    /** placement of the tooltip conform popperjs. Also determines where the tooltip will stick in case screen is too small.
+     * See https://popper.js.org/docs/v1/#popperplacements--codeenumcode
+     */
     placement: { type: String, default: "auto-end" },
   },
   data() {
