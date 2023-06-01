@@ -134,6 +134,7 @@ module.exports = {
         "search-input": "3px",
         "search-button": "0px 3px 3px 0px",
         pagination: "3px",
+        landing: "3px",
       },
       opacity: {
         "background-gradient": 0,
