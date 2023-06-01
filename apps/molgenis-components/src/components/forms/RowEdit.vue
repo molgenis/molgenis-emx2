@@ -102,7 +102,7 @@ export default {
       default: () => "en",
     },
   },
-  emits: ["update:modelValue", "numberOfErrorsInForm"],
+  emits: ["update:modelValue", "errorsInForm"],
   components: {
     FormInput,
   },
@@ -185,10 +185,7 @@ export default {
             this.tableMetaData
           );
         });
-      this.$emit(
-        "numberOfErrorsInForm",
-        Object.values(this.errorPerColumn)?.filter((val) => val).length
-      );
+      this.$emit("errorsInForm", this.errorPerColumn);
     },
     applyComputed() {
       //apply computed
@@ -294,7 +291,7 @@ function getColumnError(column, values, tableMetaData) {
   if (column.validation) {
     return getColumnValidationError(column, values, tableMetaData);
   }
-  if (isRefLinkWithoutOverlap(column, tableMetaData, values)) {
+  if (isRefLinkWithoutOverlap(column, values)) {
     return `value should match your selection in column '${column.refLink}' `;
   }
 
@@ -333,7 +330,7 @@ function executeExpression(expression, values, tableMetaData) {
   return func(...Object.values(copy));
 }
 
-function isRefLinkWithoutOverlap(column, tableMetaData, values) {
+function isRefLinkWithoutOverlap(column, values) {
   if (!column.refLink) {
     return false;
   }
