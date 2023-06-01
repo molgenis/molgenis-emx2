@@ -39,7 +39,7 @@
             :id="`${id}-${row.name}`"
             :name="id"
             type="checkbox"
-            :value="getPrimaryKey(row, tableMetaData)"
+            :value="row.primaryKey"
             v-model="selection"
             @change="emitSelection"
             class="form-check-input"
@@ -89,7 +89,11 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import FilterWell from "../filters/FilterWell.vue";
-import { convertToPascalCase, getPrimaryKey, applyJsTemplate } from "../utils";
+import {
+  convertToPascalCase,
+  convertRowToPrimaryKey,
+  applyJsTemplate,
+} from "../utils";
 
 export default {
   extends: BaseInput,
@@ -148,7 +152,6 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey,
     applyJsTemplate,
     deselect(key) {
       this.selection.splice(key, 1);
@@ -178,6 +181,16 @@ export default {
       const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
       this.count = response[this.tableId + "_agg"].count;
+
+      await Promise.all(
+        this.data.map(async (row) => {
+          row.primaryKey = await convertRowToPrimaryKey(
+            row,
+            this.tableId,
+            this.schemaName
+          );
+        })
+      );
     },
   },
   watch: {
