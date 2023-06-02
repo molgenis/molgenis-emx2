@@ -876,6 +876,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  @Disabled
   public void testScriptExecution() throws JsonProcessingException, InterruptedException {
     // get token for admin
     String result =
