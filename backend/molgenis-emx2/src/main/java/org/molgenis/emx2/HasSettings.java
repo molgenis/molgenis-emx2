@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class HasSettings<T> implements HasSettingsInterface<T> {
   private Map<String, String> settings = new LinkedHashMap<>();
@@ -31,7 +32,7 @@ public class HasSettings<T> implements HasSettingsInterface<T> {
 
   @Override
   public T setSetting(String key, String value) {
-    return changeSettings(Map.of(key, value));
+    return changeSettings(Map.of(key, value == null ? "" : value));
   }
 
   @Override
@@ -57,7 +58,11 @@ public class HasSettings<T> implements HasSettingsInterface<T> {
     Map<String, String> settings = new LinkedHashMap<>();
     settings.putAll(getSettings());
     settings.putAll(changedSettings);
-    this.setSettings(settings);
+    this.setSettings(
+        settings.entrySet().stream()
+            .filter(e -> e.getValue().length() > 0)
+            // remove empty settings
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     return (T) this;
   }
 
