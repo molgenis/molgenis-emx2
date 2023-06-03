@@ -60,8 +60,8 @@ public class HasSettings<T> implements HasSettingsInterface<T> {
     settings.putAll(changedSettings);
     this.setSettings(
         settings.entrySet().stream()
-            .filter(e -> e.getValue().length() > 0)
             // remove empty settings
+            .filter(e -> e.getValue().length() > 0)
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     return (T) this;
   }
