@@ -140,6 +140,7 @@
           :modelValue="limit"
           :options="[10, 20, 50, 100]"
           :clear="false"
+          :required="true"
           @update:modelValue="setLimit($event)"
           class="mb-0"
         />
