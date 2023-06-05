@@ -9,7 +9,7 @@ const cookies = useCookies(["mg_allow_analytics"]);
 const props = defineProps({
   title: {
     type: String,
-    default: "Would you like a cookie ?",
+    default: "Would you like a cookie?",
   },
   acceptLabel: {
     type: String,
