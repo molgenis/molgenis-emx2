@@ -1,7 +1,6 @@
 package org.molgenis.emx2.io;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Row.row;
 
@@ -43,7 +42,8 @@ public class TestEmx2Settings {
     Map<String, String> settings = schema.getMetadata().getSettings();
     assertEquals("bar", settings.get("foo"));
 
-    // can remove the setting by setting to null
+    // can put a null setting without issue
+    // https://github.com/molgenis/molgenis-emx2/issues/2199
     store = new TableStoreForCsvInMemory();
     store.writeTable(
         SETTINGS_TABLE,
@@ -53,6 +53,7 @@ public class TestEmx2Settings {
     // verify
     Emx2Settings.inputSettings(store, schema);
     settings = schema.getMetadata().getSettings();
-    assertFalse(settings.containsKey("foo"));
+    assertTrue(settings.containsKey("foo"));
+    assertNull(settings.get("foo"));
   }
 }
