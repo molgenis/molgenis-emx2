@@ -52,7 +52,7 @@ if (!props.options) {
 // convert to tree of terms
 //list all terms, incl subtrees
 let terms = reactive({});
-data.forEach(e => {
+data.forEach((e) => {
   // did we see it maybe as parent before?
   if (terms[e.name]) {
     //then copy properties, currently only definition
@@ -89,7 +89,7 @@ data.forEach(e => {
 
 let rootTerms = computed(() => {
   if (terms) {
-    const result = Object.values(terms).filter(t => !t.parent && t.visible);
+    const result = Object.values(terms).filter((t) => !t.parent && t.visible);
     return result;
   } else {
     return [];
@@ -103,18 +103,18 @@ function toggleExpand(term) {
 function select(item) {
   if (!props.isMultiSelect) {
     //deselect other items
-    Object.keys(terms).forEach(key => (terms[key].selected = false));
+    Object.keys(terms).forEach((key) => (terms[key].selected = false));
   }
   let term = terms[item];
   term.selected = "complete";
   if (props.isMultiSelect) {
     //if list also select also its children
     getAllChildren(term).forEach(
-      childTerm => (childTerm.selected = "complete")
+      (childTerm) => (childTerm.selected = "complete")
     );
     //select parent(s) if all siblings are selected
-    getParents(term).forEach(parent => {
-      if (parent.children.every(childTerm => childTerm.selected)) {
+    getParents(term).forEach((parent) => {
+      if (parent.children.every((childTerm) => childTerm.selected)) {
         parent.selected = "complete";
       } else {
         parent.selected = "partial";
@@ -130,11 +130,11 @@ function deselect(item) {
     term.selected = false;
     //also deselect all its children
     getAllChildren(terms[item]).forEach(
-      childTerm => (childTerm.selected = false)
+      (childTerm) => (childTerm.selected = false)
     );
     //also its deselect its parents, might be partial
-    getParents(term).forEach(parent => {
-      if (parent.children.some(child => child.selected)) {
+    getParents(term).forEach((parent) => {
+      if (parent.children.some((child) => child.selected)) {
         parent.selected = "partial";
       } else {
         parent.selected = false;
@@ -142,7 +142,7 @@ function deselect(item) {
     });
   } else {
     //non-list, deselect all
-    Object.keys(terms).forEach(name => (terms[name].selected = false));
+    Object.keys(terms).forEach((name) => (terms[name].selected = false));
   }
   emitValue();
   // $refs.search.focus();
@@ -171,7 +171,7 @@ function getAllChildren(term) {
   if (term.children) {
     result = term.children;
     term.children.forEach(
-      childTerm => (result = result.concat(getAllChildren(childTerm)))
+      (childTerm) => (result = result.concat(getAllChildren(childTerm)))
     );
   }
   return result;
@@ -179,8 +179,8 @@ function getAllChildren(term) {
 
 function emitValue() {
   let selectedTerms = Object.values(terms)
-    .filter(term => term.selected === "complete" && !term.children)
-    .map(term => {
+    .filter((term) => term.selected === "complete" && !term.children)
+    .map((term) => {
       return { name: term.name };
     });
   if (props.isMultiSelect) {
@@ -204,7 +204,7 @@ watch(() => props.modelValue, updateSelection, { deep: true });
 
 function updateSelection(newConditions) {
   if (!newConditions.length) {
-    Object.values(terms).forEach(term => (term.selected = false));
+    Object.values(terms).forEach((term) => (term.selected = false));
   }
 }
 </script>
@@ -221,7 +221,8 @@ function updateSelection(newConditions) {
             'rotate-180': !terms[item.name].expanded,
             'text-search-filter-group-toggle-mobile': mobileDisplay,
             'text-search-filter-group-toggle': !mobileDisplay,
-          }">
+          }"
+        >
           <BaseIcon name="caret-up" :width="20" />
         </span>
         <span
@@ -229,7 +230,8 @@ function updateSelection(newConditions) {
           class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-search-filter-group-toggle hover:cursor-pointer"
           :class="`text-search-filter-group-toggle${
             mobileDisplay ? '-mobile' : ''
-          }`">
+          }`"
+        >
         </span>
         <div class="flex items-center">
           <input
@@ -244,7 +246,8 @@ function updateSelection(newConditions) {
               'text-yellow-500': item.selected === 'complete',
               'text-search-filter-group-checkbox': item.selected !== 'complete',
             }"
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox" />
+            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox"
+          />
         </div>
         <label :for="item.name" class="hover:cursor-pointer text-body-sm group">
           <span class="group-hover:underline">{{ item.name }}</span>
@@ -262,7 +265,8 @@ function updateSelection(newConditions) {
                 v-if="item.description"
                 label="Read more"
                 hoverColor="white"
-                :content="item.description" />
+                :content="item.description"
+              />
             </div>
           </div>
         </label>
@@ -271,11 +275,13 @@ function updateSelection(newConditions) {
       <ul
         class="ml-10 mr-4"
         :class="{ hidden: !terms[item.name].expanded }"
-        v-if="item.children">
+        v-if="item.children"
+      >
         <FilterOntologyChild
           :items="item.children"
           @select="select"
-          @deselect="deselect" />
+          @deselect="deselect"
+        />
       </ul>
     </li>
   </ul>

@@ -52,7 +52,7 @@ let filters: IFilter[] = reactive([
 
 let search = computed(() => {
   // @ts-ignore
-  return filters.find(f => f.columnType === "_SEARCH").search;
+  return filters.find((f) => f.columnType === "_SEARCH").search;
 });
 
 const query = computed(() => {
@@ -109,7 +109,8 @@ let activeName = ref("detailed");
           <PageHeader
             title="Variables"
             description="A complete overview of available variables."
-            icon="image-diagram">
+            icon="image-diagram"
+          >
             <template #suffix>
               <SearchResultsViewTabs
                 class="hidden xl:flex"
@@ -119,10 +120,12 @@ let activeName = ref("detailed");
                 buttonRightLabel="Harmonizations"
                 buttonRightName="compact"
                 buttonRightIcon="view-table"
-                v-model:activeName="activeName" />
+                v-model:activeName="activeName"
+              />
               <SearchResultsViewTabsMobile
                 class="flex xl:hidden"
-                v-model:activeName="activeName">
+                v-model:activeName="activeName"
+              >
                 <FilterSidebar title="Filters" :filters="filters" />
               </SearchResultsViewTabsMobile>
             </template>
@@ -135,11 +138,13 @@ let activeName = ref("detailed");
             <CardList v-if="data?.data?.Variables?.length > 0">
               <CardListItem
                 v-for="variable in data?.data?.Variables"
-                :key="variable.name">
+                :key="variable.name"
+              >
                 <VariableCard
                   :variable="variable"
                   :schema="route.params.schema"
-                  :compact="activeName !== 'detailed'" />
+                  :compact="activeName !== 'detailed'"
+                />
               </CardListItem>
             </CardList>
             <div v-else class="flex justify-center pt-3">
@@ -154,7 +159,8 @@ let activeName = ref("detailed");
           <Pagination
             :current-page="currentPage"
             :totalPages="Math.ceil(data?.data?.Variables_agg.count / pageSize)"
-            @update="setCurrentPage($event)" />
+            @update="setCurrentPage($event)"
+          />
         </template>
       </SearchResults>
     </template>

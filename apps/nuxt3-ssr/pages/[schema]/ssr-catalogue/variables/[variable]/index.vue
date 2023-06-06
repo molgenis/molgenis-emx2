@@ -88,7 +88,8 @@ let tocItems = reactive([
             :crumbs="{
               Home: `/${route.params.schema}/ssr-catalogue`,
               Variables: `/${route.params.schema}/ssr-catalogue/variables`,
-            }" />
+            }"
+          />
         </template>
         <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />
@@ -103,7 +104,8 @@ let tocItems = reactive([
         <ContentBlock
           id="description"
           title="Description"
-          :description="variable?.description">
+          :description="variable?.description"
+        >
           <DefinitionList
             :items="[
               {
@@ -118,20 +120,24 @@ let tocItems = reactive([
                 label: 'N repeats',
                 content: variable?.nRepeats > 0 ? variable?.nRepeats : 'None',
               },
-            ]">
+            ]"
+          >
           </DefinitionList>
         </ContentBlock>
         <ContentBlock
           id="harmonization-per-cohort"
           title="Harmonization status per Cohort"
-          description="Overview of the harmonization status per Cohort">
+          description="Overview of the harmonization status per Cohort"
+        >
           <div class="grid grid-cols-3 gap-4">
             <div
               v-for="mapping in variable?.mappings"
-              class="inline-flex gap-1 group text-icon text-breadcrumb-arrow">
+              class="inline-flex gap-1 group text-icon text-breadcrumb-arrow"
+            >
               <BaseIcon name="completed" :width="24" class="text-green-500" />
               <NuxtLink
-                :to="`/${route.params.schema}/ssr-catalogue/cohorts/${mapping.source.id}`">
+                :to="`/${route.params.schema}/ssr-catalogue/cohorts/${mapping.source.id}`"
+              >
                 <span class="text-body-base text-blue-500 hover:underline">{{
                   mapping.source.id
                 }}</span>

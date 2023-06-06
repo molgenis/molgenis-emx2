@@ -78,7 +78,7 @@ function setData(data: any) {
 }
 
 async function fetchVariableCount(models: { id: string }[]) {
-  const modelFilters = models.map(model => ({
+  const modelFilters = models.map((model) => ({
     dataset: { resource: { id: { equals: model.id } } },
   }));
   networkVariablesFilter.value = { filter: { _and: { _or: modelFilters } } };
@@ -157,7 +157,7 @@ let accessConditionsItems = computed(() => {
   if (network?.dataAccessConditions?.length) {
     items.push({
       label: "Conditions",
-      content: cohort.dataAccessConditions.map(c => c.name),
+      content: cohort.dataAccessConditions.map((c) => c.name),
     });
   }
   if (network?.releaseDescription) {
@@ -229,13 +229,15 @@ useHead({ title: network?.acronym || network?.name });
     <template #header>
       <PageHeader
         :title="network?.acronym || network?.name"
-        :description="network?.acronym ? network?.name : ''">
+        :description="network?.acronym ? network?.name : ''"
+      >
         <template #prefix>
           <BreadCrumbs
             :crumbs="{
               Home: `/${route.params.schema}/ssr-catalogue`,
               Networks: `/${route.params.schema}/ssr-catalogue/networks`,
-            }" />
+            }"
+          />
         </template>
         <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />
@@ -246,35 +248,41 @@ useHead({ title: network?.acronym || network?.name });
       <SideNavigation
         :title="network.acronym"
         :image="network?.logo?.url"
-        :items="tocItems" />
+        :items="tocItems"
+      />
     </template>
     <template #main>
       <ContentBlocks v-if="network">
         <ContentBlockIntro
           :image="network?.logo?.url"
           :link="network?.website"
-          :contact="network?.contactEmail" />
+          :contact="network?.contactEmail"
+        />
         <ContentBlockDescription
           id="Description"
           title="Description"
-          :description="network?.description" />
+          :description="network?.description"
+        />
 
         <ContentBlockGeneralDesign
           id="GeneralDesign"
           title="General Design"
           :description="network?.designDescription"
-          :cohort="network" />
+          :cohort="network"
+        />
         <ContentBlockAttachedFiles
           v-if="network?.documentation?.length"
           id="Files"
           title="Attached Files"
-          :documents="network.documentation" />
+          :documents="network.documentation"
+        />
 
         <ContentBlockContact
           v-if="network?.contacts"
           id="Contributors"
           title="Contact and Contributors"
-          :contributors="network?.contacts" />
+          :contributors="network?.contacts"
+        />
 
         <!-- <ContentBlockVariables
           id="Variables"
@@ -285,14 +293,16 @@ useHead({ title: network?.acronym || network?.name });
         <ContentBlockData
           id="AvailableData"
           title="Available Data &amp; Samples"
-          :collectionEvents="network?.collectionEvents" />
+          :collectionEvents="network?.collectionEvents"
+        />
 
         <ContentBlockPartners
           v-if="network?.additionalOrganisations"
           id="Partners"
           title="Partners"
           description=""
-          :partners="network?.additionalOrganisations" />
+          :partners="network?.additionalOrganisations"
+        />
 
         <ContentBlock
           id="access-conditions"
@@ -302,14 +312,16 @@ useHead({ title: network?.acronym || network?.name });
             network?.dataAccessConditions?.length ||
             network?.dataAccessConditionsDescription ||
             network?.releaseDescription
-          ">
+          "
+        >
           <DefinitionList :items="accessConditionsItems" />
         </ContentBlock>
 
         <ContentBlock
           id="funding-and-acknowledgement"
           title="Funding &amp; Citation requirements "
-          v-if="network?.fundingStatement || network?.acknowledgements">
+          v-if="network?.fundingStatement || network?.acknowledgements"
+        >
           <DefinitionList :items="fundingAndAcknowledgementItems" />
         </ContentBlock>
 
@@ -327,7 +339,8 @@ useHead({ title: network?.acronym || network?.name });
           :query="cohortsQuery"
           :filter="{ id: route.params.network }"
           :rowMapper="cohortMapper"
-          v-slot="slotProps">
+          v-slot="slotProps"
+        >
           <CohortDisplay :id="slotProps.id" />
         </TableContent>
 
@@ -344,10 +357,12 @@ useHead({ title: network?.acronym || network?.name });
           type="Variables"
           :query="variablesQuery"
           :filter="networkVariablesFilter"
-          :rowMapper="variableMapper">
+          :rowMapper="variableMapper"
+        >
           <ContentBlock
             title="Variables"
-            description="Under construction"></ContentBlock>
+            description="Under construction"
+          ></ContentBlock>
         </TableContent>
       </ContentBlocks> </template
     >f

@@ -250,7 +250,7 @@ let accessConditionsItems = computed(() => {
   if (cohort?.dataAccessConditions?.length) {
     items.push({
       label: "Conditions",
-      content: cohort.dataAccessConditions.map(c => c.name),
+      content: cohort.dataAccessConditions.map((c) => c.name),
     });
   }
   if (cohort?.releaseDescription) {
@@ -294,13 +294,15 @@ useHead({ title: cohort?.acronym || cohort?.name });
     <template #header>
       <PageHeader
         :title="cohort?.acronym || cohort?.name"
-        :description="cohort?.acronym ? cohort?.name : ''">
+        :description="cohort?.acronym ? cohort?.name : ''"
+      >
         <template #prefix>
           <BreadCrumbs
             :crumbs="{
               Home: `/${route.params.schema}/ssr-catalogue`,
               Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
-            }" />
+            }"
+          />
         </template>
         <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />
@@ -311,35 +313,41 @@ useHead({ title: cohort?.acronym || cohort?.name });
       <SideNavigation
         :title="cohort.acronym"
         :image="cohort?.logo?.url"
-        :items="tocItems" />
+        :items="tocItems"
+      />
     </template>
     <template #main>
       <ContentBlocks v-if="cohort">
         <ContentBlockIntro
           :image="cohort?.logo?.url"
           :link="cohort?.website"
-          :contact="cohort?.contactEmail" />
+          :contact="cohort?.contactEmail"
+        />
         <ContentBlockDescription
           id="Description"
           title="Description"
-          :description="cohort?.description" />
+          :description="cohort?.description"
+        />
 
         <ContentBlockGeneralDesign
           id="GeneralDesign"
           title="General Design"
           :description="cohort?.designDescription"
-          :cohort="cohort" />
+          :cohort="cohort"
+        />
         <ContentBlockAttachedFiles
           v-if="cohort?.documentation?.length"
           id="Files"
           title="Attached Files"
-          :documents="cohort.documentation" />
+          :documents="cohort.documentation"
+        />
 
         <ContentBlockContact
           v-if="cohort?.contacts"
           id="Contributors"
           title="Contact and Contributors"
-          :contributors="cohort?.contacts" />
+          :contributors="cohort?.contacts"
+        />
 
         <!-- <ContentBlockVariables
           id="Variables"
@@ -350,7 +358,8 @@ useHead({ title: cohort?.acronym || cohort?.name });
         <ContentBlockData
           id="AvailableData"
           title="Available Data &amp; Samples"
-          :collectionEvents="cohort?.collectionEvents" />
+          :collectionEvents="cohort?.collectionEvents"
+        />
 
         <TableContent
           v-if="cohortData.data.Subcohorts_agg.count > 0"
@@ -366,7 +375,8 @@ useHead({ title: cohort?.acronym || cohort?.name });
           :query="subcohortsQuery"
           :filter="{ id: route.params.cohort }"
           :rowMapper="subcohortMapper"
-          v-slot="slotProps">
+          v-slot="slotProps"
+        >
           <SubCohortDisplay :id="slotProps.id" />
         </TableContent>
 
@@ -385,7 +395,8 @@ useHead({ title: cohort?.acronym || cohort?.name });
           :query="collectionEventsQuery"
           :filter="{ id: route.params.cohort }"
           :rowMapper="collectionEventMapper"
-          v-slot="slotProps">
+          v-slot="slotProps"
+        >
           <CollectionEventDisplay :id="slotProps.id" />
         </TableContent>
 
@@ -394,14 +405,16 @@ useHead({ title: cohort?.acronym || cohort?.name });
           id="Partners"
           title="Partners"
           description=""
-          :partners="cohort?.additionalOrganisations" />
+          :partners="cohort?.additionalOrganisations"
+        />
 
         <ContentBlockNetwork
           v-if="cohort?.networks"
           id="Networks"
           title="Networks"
           description="Networks Explanation about networks from this cohort and the functionality seen here."
-          :networks="cohort?.networks" />
+          :networks="cohort?.networks"
+        />
 
         <ContentBlock
           id="access-conditions"
@@ -411,14 +424,16 @@ useHead({ title: cohort?.acronym || cohort?.name });
             cohort?.dataAccessConditions?.length ||
             cohort?.dataAccessConditionsDescription ||
             cohort?.releaseDescription
-          ">
+          "
+        >
           <DefinitionList :items="accessConditionsItems" />
         </ContentBlock>
 
         <ContentBlock
           id="funding-and-acknowledgement"
           title="Funding &amp; Citation requirements "
-          v-if="cohort?.fundingStatement || cohort?.acknowledgements">
+          v-if="cohort?.fundingStatement || cohort?.acknowledgements"
+        >
           <DefinitionList :items="fundingAndAcknowledgementItems" />
         </ContentBlock>
       </ContentBlocks> </template

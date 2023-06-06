@@ -74,10 +74,12 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
       :description="
         getSettingValue('CATALOGUE_LANDING_DESCRIPTION', data.data._settings) ||
         'Browse and manage metadata for data resources, such as cohorts, registries, biobanks, and multi-center collaborations thereof such as networks, common data models and studies.'
-      "></PageHeader>
+      "
+    ></PageHeader>
 
     <div
-      class="bg-white relative justify-around flex flex-col md:flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0 rounded-t-3px rounded-b-landing shadow-primary">
+      class="bg-white relative justify-around flex flex-col md:flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0 rounded-t-3px rounded-b-landing shadow-primary"
+    >
       <LandingCardPrimary
         image="image-link"
         title="Cohorts"
@@ -86,7 +88,8 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
         "
         :count="data.data.Cohorts_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/cohorts/`" />
+        :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
+      />
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
         image="image-diagram"
@@ -96,7 +99,8 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', data.data._settings)
         "
         :count="data.data.Networks_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/networks/`" />
+        :link="`/${route.params.schema}/ssr-catalogue/networks/`"
+      />
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
         image="image-diagram-2"
@@ -109,11 +113,13 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           )
         "
         :count="data.data.Variables_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/variables/`" />
+        :link="`/${route.params.schema}/ssr-catalogue/variables/`"
+      />
     </div>
 
     <div
-      class="justify-around flex flex-col md:flex-row pt-5 pb-5 lg:pb-10 lg:px-0">
+      class="justify-around flex flex-col md:flex-row pt-5 pb-5 lg:pb-10 lg:px-0"
+    >
       <LandingCardSecondary icon="people">
         <b> {{ data.data.Cohorts_agg.sum.numberOfParticipants }} Participants</b
         ><br />The cumulative number of participants of all datasets combined.

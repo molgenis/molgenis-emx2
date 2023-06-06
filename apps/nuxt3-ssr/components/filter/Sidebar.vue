@@ -12,11 +12,11 @@ const props = defineProps({
   },
 });
 
-watch(props.filters, filters => {
-  const search = filters.filter(f => f.columnType === "_SEARCH")[0].search;
+watch(props.filters, (filters) => {
+  const search = filters.filter((f) => f.columnType === "_SEARCH")[0].search;
   console.log("search: " + search);
   const conditions = JSON.stringify(
-    filters.filter(f => f?.conditions?.length).map(f => f.conditions)
+    filters.filter((f) => f?.conditions?.length).map((f) => f.conditions)
   );
   console.log("filter conditions: " + conditions);
 });
@@ -25,10 +25,12 @@ watch(props.filters, filters => {
 <template>
   <div
     class="mt-7.5 rounded-t-3px rounded-b-50px"
-    :class="{ 'bg-sidebar-gradient': !mobileDisplay }">
+    :class="{ 'bg-sidebar-gradient': !mobileDisplay }"
+  >
     <h2
       class="p-5 uppercase font-display text-heading-3xl"
-      :class="`text-search-filter-title${mobileDisplay ? '-mobile' : ''}`">
+      :class="`text-search-filter-title${mobileDisplay ? '-mobile' : ''}`"
+    >
       {{ title }}
     </h2>
 
@@ -39,23 +41,27 @@ watch(props.filters, filters => {
         v-model:conditions="filter.conditions"
         v-model:search="filter.search"
         :mobileDisplay="mobileDisplay"
-        :initialCollapsed="filter.initialCollapsed">
+        :initialCollapsed="filter.initialCollapsed"
+      >
         <FilterSearch
           v-if="filter.columnType === '_SEARCH'"
           :mobileDisplay="mobileDisplay"
-          v-model="filter.search" />
+          v-model="filter.search"
+        />
         <FilterOntology
           v-else-if="filter.columnType === 'ONTOLOGY'"
           :table-name="filter.refTable"
           :mobileDisplay="mobileDisplay"
-          v-model="filter.conditions" />
+          v-model="filter.conditions"
+        />
         <FilterList
           v-else-if="filter.columnType === 'REF_ARRAY'"
           :table-name="filter.refTable"
           :key-field="filter.refFields.key"
           :name-field="filter.refFields.name"
           :descriptionField="filter.refFields.description"
-          v-model="filter.conditions" />
+          v-model="filter.conditions"
+        />
       </FilterContainer>
     </template>
 

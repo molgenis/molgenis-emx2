@@ -60,7 +60,8 @@ const isShowingMobileMoreText = computed(() => {
             <h2 class="min-w-[160px] mr-4 md:inline-block block">
               <NuxtLink
                 :to="`/${schema}/ssr-catalogue/networks/${network.id}`"
-                class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50">
+                class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
+              >
                 {{ network?.acronym || network?.name }}
               </NuxtLink>
             </h2>
@@ -80,7 +81,8 @@ const isShowingMobileMoreText = computed(() => {
             <NuxtLink :to="`/${schema}/ssr-catalogue/networks/${network.id}`">
               <IconButton
                 icon="arrow-right"
-                class="text-blue-500 hidden xl:flex xl:justify-end" />
+                class="text-blue-500 hidden xl:flex xl:justify-end"
+              />
             </NuxtLink>
           </div>
         </header>
@@ -104,7 +106,8 @@ const isShowingMobileMoreText = computed(() => {
           <button
             v-if="!isShowingMobileMoreText"
             class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
-            @click="mobileShowMoreText = true">
+            @click="mobileShowMoreText = true"
+          >
             Read more
           </button>
         </div>

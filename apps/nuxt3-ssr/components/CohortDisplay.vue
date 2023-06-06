@@ -27,11 +27,11 @@ const { data: cohortData } = await useFetch(
       },
     },
   }
-).catch(e => console.log(e));
+).catch((e) => console.log(e));
 
 watch(
   cohortData,
-  data => {
+  (data) => {
     cohort = data?.data?.Cohorts[0];
   },
   {
@@ -68,7 +68,8 @@ if (cohort?.numberOfParticipantsWithSamples) {
   <ContentBlock
     :title="cohort?.name"
     :description="cohort?.description"
-    v-if="cohort">
+    v-if="cohort"
+  >
     <DefinitionList :items="items" :small="true" />
   </ContentBlock>
 </template>

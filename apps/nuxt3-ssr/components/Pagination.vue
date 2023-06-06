@@ -72,7 +72,8 @@ function changeCurrentPage(event) {
 
 <template>
   <nav
-    class="pt-12.5 flex items-center justify-center font-display text-heading-xl -mx-2.5">
+    class="pt-12.5 flex items-center justify-center font-display text-heading-xl -mx-2.5"
+  >
     <a
       :href="currentPage > 1 ? '#' : undefined"
       role="button"
@@ -81,7 +82,8 @@ function changeCurrentPage(event) {
       :class="{
         'hover:bg-pagination-hover hover:text-pagination-hover':
           currentPage > 1,
-      }">
+      }"
+    >
       <BaseIcon name="caret-left" :width="24" />
     </a>
     <div class="px-4 tracking-widest sm:px-5" :class="textClasses">Page</div>
@@ -89,10 +91,12 @@ function changeCurrentPage(event) {
       class="sm:px-12 px-7.5 w-32 text-center border rounded-pagination text-pagination-input h-15 flex items-center tracking-widest bg-white"
       :value="currentPage"
       @change="changeCurrentPage"
-      :class="borderClasses" />
+      :class="borderClasses"
+    />
     <div
       class="px-4 tracking-widest sm:px-5 whitespace-nowrap"
-      :class="textClasses">
+      :class="textClasses"
+    >
       OF {{ totalPages }}
     </div>
     <a
@@ -103,7 +107,8 @@ function changeCurrentPage(event) {
       :class="{
         'hover:bg-pagination-hover hover:text-pagination-hover':
           currentPage < totalPages,
-      }">
+      }"
+    >
       <BaseIcon name="caret-right" :width="24" />
     </a>
   </nav>

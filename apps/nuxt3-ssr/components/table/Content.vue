@@ -30,7 +30,7 @@ async function fetchRows() {
     limit: pageSize,
     offset: offset.value,
     orderby,
-  }).catch(e => console.log(e));
+  }).catch((e) => console.log(e));
 
   rows.value = resp.data[props.type]?.map(props.rowMapper);
   count.value = resp.data[`${props.type}_agg`].count;
@@ -60,7 +60,8 @@ function setActiveSideModal(value: string) {
   <ContentBlock :title="title" :description="description">
     <ButtonGroup
       v-if="count > pageSize || primaryActionPath"
-      class="flex mb-5 flex-wrap">
+      class="flex mb-5 flex-wrap"
+    >
       <div class="grow">
         <NuxtLink v-if="primaryActionPath" :to="primaryActionPath">
           <Button :label="primaryActionLabel" type="tertiary" size="medium" />
@@ -69,13 +70,15 @@ function setActiveSideModal(value: string) {
       <div v-if="count > pageSize" class="relative">
         <label
           class="block absolute text-body-xs top-2 left-6 pointer-events-none"
-          for="sort-by">
+          for="sort-by"
+        >
           Sort by
         </label>
         <select
           v-model="orderByColumn"
           name="sort-by"
-          class="h-14 border border-gray-400 pb-2 pt-6 pl-6 pr-12 rounded-full appearance-none hover:bg-gray-100 hover:cursor-pointer bg-none">
+          class="h-14 border border-gray-400 pb-2 pt-6 pl-6 pr-12 rounded-full appearance-none hover:bg-gray-100 hover:cursor-pointer bg-none"
+        >
           <option v-for="header in headers" :value="header.id">
             {{ header.label }}
           </option>
@@ -98,7 +101,8 @@ function setActiveSideModal(value: string) {
       <template #body>
         <TableRow
           v-for="row in rows"
-          @click="setActiveSideModal(row[headers[0].id])">
+          @click="setActiveSideModal(row[headers[0].id])"
+        >
           <TableCell>
             <span>{{ row[headers[0].id] }}</span>
             <dl class="font-normal sm:hidden text-gray-900">
@@ -112,7 +116,8 @@ function setActiveSideModal(value: string) {
             v-for="header in headers.slice(1)"
             class="hidden sm:table-cell"
             :class="header.singleLine && 'w-full'"
-            :style="header.singleLine && 'max-width: 0'">
+            :style="header.singleLine && 'max-width: 0'"
+          >
             <div :class="{ truncate: header.singleLine }">
               {{ row[header.id] }}
             </div>
@@ -126,7 +131,8 @@ function setActiveSideModal(value: string) {
             :fullScreen="false"
             :slideInRight="true"
             @close="setActiveSideModal('')"
-            buttonAlignment="right">
+            buttonAlignment="right"
+          >
             <!-- pass row id to allow slot implementer to fetch data and render side modal body data -->
             <slot :id="row.id"></slot>
 
@@ -144,6 +150,7 @@ function setActiveSideModal(value: string) {
       :currentPage="pageNumber"
       :totalPages="Math.ceil(count / pageSize)"
       @update="setCurrentPage($event)"
-      :prevent-default="true" />
+      :prevent-default="true"
+    />
   </ContentBlock>
 </template>
