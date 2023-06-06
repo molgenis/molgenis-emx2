@@ -4,7 +4,11 @@
     <span v-else @click="openAndFocusInput()" class="editable">
       <slot name="display">{{ modelValue }}</slot>
     </span>
-    <IconAction v-if="!isEditing" icon="pencil-alt" @click="openAndFocusInput()" />
+    <IconAction
+      v-if="!isEditing"
+      icon="pencil-alt"
+      @click="openAndFocusInput()"
+    />
   </span>
 </template>
 

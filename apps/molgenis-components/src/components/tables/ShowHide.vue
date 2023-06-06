@@ -23,7 +23,11 @@
             <input
               class="form-check-input"
               type="checkbox"
-              :checked="col[checkAttribute] == undefined ? defaultValue : col[checkAttribute]"
+              :checked="
+                col[checkAttribute] == undefined
+                  ? defaultValue
+                  : col[checkAttribute]
+              "
               @input.prevent="change(key, !col[checkAttribute])"
               :id="col.name"
             />
@@ -66,7 +70,9 @@ export default {
   },
   methods: {
     value(col) {
-      return col[this.checkAttribute] == undefined ? this.defaultValue : col[this.checkAttribute];
+      return col[this.checkAttribute] == undefined
+        ? this.defaultValue
+        : col[this.checkAttribute];
     },
     change(key, value) {
       let update = JSON.parse(JSON.stringify(this.columns));
@@ -76,7 +82,10 @@ export default {
     hideAll(data) {
       let update = JSON.parse(JSON.stringify(this.columns));
       for (var key in update) {
-        if ((data && !update[key].name.startsWith("mg_")) || (!data && update[key].name.startsWith("mg_"))) {
+        if (
+          (data && !update[key].name.startsWith("mg_")) ||
+          (!data && update[key].name.startsWith("mg_"))
+        ) {
           update[key][this.checkAttribute] = false;
         }
       }
@@ -85,7 +94,10 @@ export default {
     showAll(data) {
       let update = JSON.parse(JSON.stringify(this.columns));
       for (var key in update) {
-        if ((data && !update[key].name.startsWith("mg_")) || (!data && update[key].name.startsWith("mg_"))) {
+        if (
+          (data && !update[key].name.startsWith("mg_")) ||
+          (!data && update[key].name.startsWith("mg_"))
+        ) {
           update[key][this.checkAttribute] = true;
         }
       }

@@ -12,7 +12,9 @@ import * as utils from "./components/utils";
 
 //load the components
 const components = import.meta.globEager("./components/**/*.vue");
-const generatedDocumentComponents = import.meta.globEager("../gen-docs/**/*.vue");
+const generatedDocumentComponents = import.meta.globEager(
+  "../gen-docs/**/*.vue"
+);
 
 let docsMap = {};
 

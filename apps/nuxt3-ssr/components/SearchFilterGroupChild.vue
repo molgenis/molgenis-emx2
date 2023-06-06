@@ -47,22 +47,19 @@ function toggleSelect(term) {
         <span
           v-if="child.children"
           @click="toggleExpand(child)"
-          class="-left-[11px] top-0 text-search-filter-group-toggle rounded-full hover:bg-search-filter-group-toggle hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
-        >
+          class="-left-[11px] top-0 text-search-filter-group-toggle rounded-full hover:bg-search-filter-group-toggle hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20">
           <BaseIcon name="caret-up" :width="20" />
         </span>
         <BaseIcon
           v-if="child.children"
           name="collapsible-list-item-sub"
           :width="20"
-          class="text-blue-200 absolute -top-[9px]"
-        />
+          class="text-blue-200 absolute -top-[9px]" />
         <BaseIcon
           v-else
           name="collapsible-list-item"
           :width="20"
-          class="text-blue-200 absolute -top-[9px]"
-        />
+          class="text-blue-200 absolute -top-[9px]" />
       </span>
       <div class="flex items-start ml-3">
         <div class="flex items-center">
@@ -74,13 +71,11 @@ function toggleSelect(term) {
             :checked="
               child.selected === 'complete' || child.selected === 'partial'
             "
-            class="w-5 h-5 rounded-3px ml-2.5 mr-2.5 mt-0.5 text-search-filter-group-checkbox border border-checkbox"
-          />
+            class="w-5 h-5 rounded-3px ml-2.5 mr-2.5 mt-0.5 text-search-filter-group-checkbox border border-checkbox" />
         </div>
         <label
           :for="child.name"
-          class="hover:cursor-pointer text-body-sm group"
-        >
+          class="hover:cursor-pointer text-body-sm group">
           <span class="group-hover:underline">{{ child.name }}</span>
           <div class="inline-flex items-center whitespace-nowrap">
             <!-- <span
@@ -94,8 +89,7 @@ function toggleSelect(term) {
                 v-if="child.description"
                 label="Description"
                 hoverColor="white"
-                :content="child.description"
-              />
+                :content="child.description" />
             </div>
           </div>
         </label>
@@ -103,14 +97,12 @@ function toggleSelect(term) {
       <ul
         v-if="child.children"
         :class="{ hidden: !terms[child.name].expanded }"
-        class="ml-[31px]"
-      >
-        <SearchFilterGroupChild
+        class="ml-[31px]">
+        <FilterOntologyChild
           :key="key"
           :items="child.children"
           @select="$emit('select', $event)"
-          @deselect="$emit('deselect', $event)"
-        />
+          @deselect="$emit('deselect', $event)" />
       </ul>
     </li>
   </div>

@@ -2,16 +2,24 @@ import { IColumn } from "../Interfaces/IColumn";
 import { IRow } from "../Interfaces/IRow";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
 import constants from "./constants";
+import Client from "../client/client";
 
-const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } = constants;
+const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } =
+  constants;
 
 export function isRefType(columnType: string): boolean {
-  return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(columnType);
+  return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
+    columnType
+  );
 }
 
 export function isNumericKey(event: KeyboardEvent): boolean {
   const keyCode = event.which ?? event.keyCode;
-  return (keyCode >= CODE_0 && keyCode <= CODE_9) || keyCode === CODE_BACKSPACE || keyCode === CODE_DELETE;
+  return (
+    (keyCode >= CODE_0 && keyCode <= CODE_9) ||
+    keyCode === CODE_BACKSPACE ||
+    keyCode === CODE_DELETE
+  );
 }
 
 export function flattenObject(object: Record<string, any>): string {
@@ -33,18 +41,70 @@ export function flattenObject(object: Record<string, any>): string {
   }
 }
 
-export function getPrimaryKey(row: IRow, tableMetadata: ITableMetaData): Record<string, any> | null {
+export function getPrimaryKey(
+  row: IRow,
+  tableMetadata: ITableMetaData
+): Record<string, any> | null {
   //we only have pkey when the record has been saved
   if (!row["mg_insertedOn"] || !tableMetadata?.columns) {
     return null;
   } else {
-    return tableMetadata.columns.reduce((accum: Record<string, any>, column: IColumn) => {
-      const cellValue = row[column.id];
-      if (column.key === 1 && cellValue) {
-        accum[column.id] = cellValue;
-      }
-      return accum;
-    }, {});
+    return tableMetadata.columns.reduce(
+      (accum: Record<string, any>, column: IColumn) => {
+        const cellValue = row[column.id];
+        if (column.key === 1 && cellValue) {
+          accum[column.id] = cellValue;
+        }
+        return accum;
+      },
+      {}
+    );
+  }
+}
+
+export async function convertRowToPrimaryKey(
+  row: IRow,
+  tableName: string,
+  schemaName: string
+): Promise<Record<string, any>> {
+  const client = Client.newClient(schemaName);
+  const tableMetadata = await client.fetchTableMetaData(tableName);
+  if (!tableMetadata?.columns) {
+    throw new Error("Empty columns in metadata");
+  } else {
+    return await tableMetadata.columns.reduce(
+      async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
+        let accum: IRow = await accumPromise;
+        const cellValue = row[column.id];
+        if (column.key === 1 && cellValue) {
+          accum[column.id] = await getKeyValue(
+            cellValue,
+            column,
+            column.refSchema || schemaName
+          );
+        }
+        return accum;
+      },
+      Promise.resolve({})
+    );
+  }
+}
+
+async function getKeyValue(
+  cellValue: any,
+  column: IColumn,
+  schemaName: string
+) {
+  if (typeof cellValue === "string") {
+    return cellValue;
+  } else {
+    if (column.refTable) {
+      return await convertRowToPrimaryKey(
+        cellValue,
+        column.refTable,
+        schemaName
+      );
+    }
   }
 }
 
@@ -52,13 +112,19 @@ export function deepClone(original: any): any {
   return JSON.parse(JSON.stringify(original));
 }
 
-export function filterObject(object: Record<string, any>, filter: (key: string) => boolean): Record<string, any> {
-  return Object.keys(object).reduce((accum: Record<string, any>, key: string) => {
-    if (filter(key)) {
-      accum[key] = object[key];
-    }
-    return accum;
-  }, {});
+export function filterObject(
+  object: Record<string, any>,
+  filter: (key: string) => boolean
+): Record<string, any> {
+  return Object.keys(object).reduce(
+    (accum: Record<string, any>, key: string) => {
+      if (filter(key)) {
+        accum[key] = object[key];
+      }
+      return accum;
+    },
+    {}
+  );
 }
 
 export function flipSign(value: string): string | null {
@@ -87,7 +153,10 @@ export function getBigIntError(value: string): string | undefined {
 }
 
 export function isInvalidBigInt(value: string): boolean {
-  return value !== null && (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG));
+  return (
+    value !== null &&
+    (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
+  );
 }
 
 export function convertToCamelCase(string: string): string {
@@ -118,12 +187,19 @@ export function convertToPascalCase(string: string): string {
   return result;
 }
 
-export function getLocalizedLabel(tableOrColumnMetadata: ITableMetaData | IColumn, locale?: string): string {
+export function getLocalizedLabel(
+  tableOrColumnMetadata: ITableMetaData | IColumn,
+  locale?: string
+): string {
   let label;
   if (tableOrColumnMetadata?.labels) {
-    label = tableOrColumnMetadata.labels.find((el) => el.locale === locale)?.value;
+    label = tableOrColumnMetadata.labels.find(
+      (el) => el.locale === locale
+    )?.value;
     if (!label) {
-      label = tableOrColumnMetadata.labels.find((el) => el.locale === "en")?.value;
+      label = tableOrColumnMetadata.labels.find(
+        (el) => el.locale === "en"
+      )?.value;
     }
   }
   if (!label) {
@@ -137,11 +213,15 @@ export function getLocalizedDescription(
   locale: string
 ): string | undefined {
   if (tableOrColumnMetadata.descriptions) {
-    return tableOrColumnMetadata.descriptions.find((el) => el.locale === locale)?.value;
+    return tableOrColumnMetadata.descriptions.find((el) => el.locale === locale)
+      ?.value;
   }
 }
 
-export function applyJsTemplate(object: object, labelTemplate: string): string | undefined {
+export function applyJsTemplate(
+  object: object,
+  labelTemplate: string
+): string | undefined {
   if (object === undefined || object === null) {
     return "";
   }
@@ -164,7 +244,10 @@ export function applyJsTemplate(object: object, labelTemplate: string): string |
 }
 
 /** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
-export function deepEqual(object1: Record<string, any>, object2: Record<string, any>): boolean {
+export function deepEqual(
+  object1: Record<string, any>,
+  object2: Record<string, any>
+): boolean {
   const keys1 = Object.keys(object1);
   const keys2 = Object.keys(object2);
   if (keys1.length !== keys2.length) {
@@ -174,7 +257,10 @@ export function deepEqual(object1: Record<string, any>, object2: Record<string, 
     const val1 = object1[key];
     const val2 = object2[key];
     const areObjects = isObject(val1) && isObject(val2);
-    if ((areObjects && !deepEqual(val1, val2)) || (!areObjects && val1 !== val2)) {
+    if (
+      (areObjects && !deepEqual(val1, val2)) ||
+      (!areObjects && val1 !== val2)
+    ) {
       return false;
     }
   }

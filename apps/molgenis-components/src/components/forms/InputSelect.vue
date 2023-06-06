@@ -1,6 +1,14 @@
 <template>
-  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
-    <MessageError v-if="!options || !options.length"> No options provided </MessageError>
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
+    <MessageError v-if="!options || !options.length">
+      No options provided
+    </MessageError>
     <select
       v-else-if="!readonly"
       :id="id"
@@ -9,14 +17,29 @@
       class="form-control"
       @change="$emit('update:modelValue', $event.target.value)"
     >
-      <option v-if="!required" :selected="modelValue === undefined || modelValue === null">
+      <option
+        v-if="!required"
+        :selected="modelValue === undefined || modelValue === null"
+      >
         {{ placeholder }}
       </option>
-      <option v-for="(option, index) in options" :key="index + option" :value="option" :selected="modelValue == option">
+      <option
+        v-for="(option, index) in options"
+        :key="index + option"
+        :value="option"
+        :selected="modelValue == option"
+      >
         {{ option }}
       </option>
     </select>
-    <input :id="id" v-else class="form-control" type="text" readonly :value="modelValue" />
+    <input
+      :id="id"
+      v-else
+      class="form-control"
+      type="text"
+      readonly
+      :value="modelValue"
+    />
   </FormGroup>
 </template>
 

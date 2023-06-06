@@ -2,13 +2,21 @@
   <nav aria-label="Pagination">
     <ul class="pagination justify-content-center mb-0">
       <li class="page-item" :class="{ disabled: isFirstPage }">
-        <a class="page-link" href="#" @click.prevent="emitValue(1, isFirstPage)">
+        <a
+          class="page-link"
+          href="#"
+          @click.prevent="emitValue(1, isFirstPage)"
+        >
           <span aria-hidden="true">&laquo;</span>
           <span class="sr-only">First</span></a
         >
       </li>
       <li class="page-item" :class="{ disabled: isFirstPage }">
-        <a class="page-link" href="#" @click.prevent="emitValue(Math.max(modelValue - 1, 1), isFirstPage)">
+        <a
+          class="page-link"
+          href="#"
+          @click.prevent="emitValue(Math.max(modelValue - 1, 1), isFirstPage)"
+        >
           <span aria-hidden="true">&lsaquo;</span>
           <span class="sr-only">Previous</span>
         </a>
@@ -19,13 +27,23 @@
         </a>
       </li>
       <li class="page-item" :class="{ disabled: isLastPage }">
-        <a class="page-link" href="#" @click.prevent="emitValue(Math.min(modelValue + 1, totalPages), isLastPage)">
+        <a
+          class="page-link"
+          href="#"
+          @click.prevent="
+            emitValue(Math.min(modelValue + 1, totalPages), isLastPage)
+          "
+        >
           <span aria-hidden="true">&rsaquo;</span>
           <span class="sr-only">Next</span></a
         >
       </li>
       <li class="page-item" :class="{ disabled: isLastPage }">
-        <a class="page-link" href="#" @click.prevent="emitValue(totalPages, isLastPage)">
+        <a
+          class="page-link"
+          href="#"
+          @click.prevent="emitValue(totalPages, isLastPage)"
+        >
           <span aria-hidden="true">&raquo;</span>
           <span class="sr-only">Last</span></a
         >

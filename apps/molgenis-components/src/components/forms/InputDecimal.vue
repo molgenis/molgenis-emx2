@@ -1,5 +1,11 @@
 <template>
-  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <InputGroup>
       <BaseInputDecimal
         :id="id"

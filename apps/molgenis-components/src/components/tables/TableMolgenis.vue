@@ -1,7 +1,10 @@
 /* eslint-disable vue/no-unused-components */
 <template>
   <div style="max-width: 100%" class="flex-grow-1">
-    <table class="table table-sm bg-white table-bordered table-hover" :class="{ 'table-hover': showSelect }">
+    <table
+      class="table table-sm bg-white table-bordered table-hover"
+      :class="{ 'table-hover': showSelect }"
+    >
       <thead>
         <th slot="header" scope="col" style="width: 1px" v-if="hasColheader">
           <h6 class="mb-0 mt-2 d-inline">#</h6>
@@ -16,7 +19,10 @@
           class="column-drag-header"
           :style="col.showColumn ? '' : 'display: none'"
         >
-          <h6 class="mb-0 align-text-bottom text-nowrap" @click="onColumnClick(col)">
+          <h6
+            class="mb-0 align-text-bottom text-nowrap"
+            @click="onColumnClick(col)"
+          >
             {{ col.name }}
             <slot name="colheader" :col="col" />
           </h6>
@@ -25,13 +31,18 @@
 
       <tbody>
         <tr v-if="data && !data.length">
-          <td :colspan="columnsWithoutMeta.length + 1" class="alert-warning">No results found</td>
+          <td :colspan="columnsWithoutMeta.length + 1" class="alert-warning">
+            No results found
+          </td>
         </tr>
         <tr
           v-else
           v-for="(row, idx) in data"
           :key="idx + JSON.stringify(row) + isSelected(row)"
-          :class="(isSelected(row) ? 'table-primary' : 'table-hover') + (row['mg_draft'] ? 'alert alert-warning' : '')"
+          :class="
+            (isSelected(row) ? 'table-primary' : 'table-hover') +
+            (row['mg_draft'] ? 'alert alert-warning' : '')
+          "
         >
           <td v-if="hasColheader">
             <div style="display: flex">
@@ -44,7 +55,12 @@
                 />
               </div>
               <!--@slot Use this to add values or actions buttons to each row -->
-              <slot name="rowheader" :row="row" :metadata="tableMetadata" :rowkey="getPrimaryKey(row, tableMetadata)" />
+              <slot
+                name="rowheader"
+                :row="row"
+                :metadata="tableMetadata"
+                :rowkey="getPrimaryKey(row, tableMetadata)"
+              />
             </div>
             <i v-if="row.mg_draft" class="fas fa-user-edit">draft</i>
           </td>
@@ -113,12 +129,16 @@ export default {
       return this.columnsWithoutMeta.filter((c) => c.showColumn).length;
     },
     columnsWithoutMeta() {
-      return this.columns ? this.columns.filter((column) => column.columnType !== "HEADING") : [];
+      return this.columns
+        ? this.columns.filter((column) => column.columnType !== "HEADING")
+        : [];
     },
   },
   methods: {
     hasColheader() {
-      return this.showSelect || !!this.$slots.colheader || !!this.$slots.rowheader;
+      return (
+        this.showSelect || !!this.$slots.colheader || !!this.$slots.rowheader
+      );
     },
     initShowColumn() {
       if (this.columns) {
@@ -168,7 +188,9 @@ export default {
         if (this.isSelected(row)) {
           /** when a row is deselected */
           update = update.filter(
-            (item) => JSON.stringify(item, Object.keys(item).sort()) !== JSON.stringify(key, Object.keys(key).sort())
+            (item) =>
+              JSON.stringify(item, Object.keys(item).sort()) !==
+              JSON.stringify(key, Object.keys(key).sort())
           );
           this.$emit("deselect", key);
         } else {

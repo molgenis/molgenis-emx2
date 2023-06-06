@@ -1,5 +1,10 @@
 <template>
-  <FormGroup :id="id" :label="label" :description="description" :errorMessage="errorMessage">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <input
       :id="id"
       :name="name"

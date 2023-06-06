@@ -1,5 +1,11 @@
 <template>
-  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <InputGroup>
       <input
         class="form-control"
@@ -30,7 +36,9 @@
             @deselect="deselect(selectIdx)"
           >
             <template v-slot:rowheader="slotProps">
-              <ButtonAction @click="select(slotProps.rowkey)"> Select </ButtonAction>
+              <ButtonAction @click="select(slotProps.rowkey)">
+                Select
+              </ButtonAction>
             </template>
           </TableSearch>
         </template>

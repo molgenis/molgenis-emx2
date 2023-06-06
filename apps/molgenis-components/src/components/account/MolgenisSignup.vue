@@ -82,8 +82,13 @@ export default defineComponent({
   },
   methods: {
     signup() {
-      if (this.email === null || this.password === null || this.passwordRepeat === null) {
-        this.error = "Error: valid email address and password should be filled in";
+      if (
+        this.email === null ||
+        this.password === null ||
+        this.passwordRepeat === null
+      ) {
+        this.error =
+          "Error: valid email address and password should be filled in";
       } else if (this.password !== this.passwordRepeat) {
         this.error = "Error: Passwords entered must be the same";
       } else {

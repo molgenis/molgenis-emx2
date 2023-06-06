@@ -1,11 +1,24 @@
 <template>
-  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <InputGroup>
       <table class="table table-bordered table-sm mb-0">
         <tr v-for="(el, idx) in modelValue">
-          <td v-if="modelValue.length > 1" class="pt-0 td-shrink text-right">{{ el.locale }}:</td>
+          <td v-if="modelValue.length > 1" class="pt-0 td-shrink text-right">
+            {{ el.locale }}:
+          </td>
           <td class="p-0">
-            <InputText :id="id + ':' + el.locale" v-model="modelValue[idx]['value']" class="mb-0" @input="" />
+            <InputText
+              :id="id + ':' + el.locale"
+              v-model="modelValue[idx]['value']"
+              class="mb-0"
+              @input=""
+            />
           </td>
         </tr>
       </table>
@@ -57,7 +70,9 @@ export default {
     };
   },
   mounted() {
-    const value = !Array.isArray(this.modelValue) ? [{ locale: "en", value: "" }] : deepClone(this.modelValue);
+    const value = !Array.isArray(this.modelValue)
+      ? [{ locale: "en", value: "" }]
+      : deepClone(this.modelValue);
     const initializedValue = initializeLocales(this.locales, value);
     this.$emit("update:modelValue", initializedValue);
   },

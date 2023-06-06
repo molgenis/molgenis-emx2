@@ -11,11 +11,21 @@
     <div class="d-flex" style="gap: 0.5rem">
       <slot></slot>
       <ButtonAlt @click="$emit('cancel')"> Close</ButtonAlt>
-      <Tooltip name="disabled-save-tooltip" :value="saveDisabledMessage ? saveDisabledMessage : ''">
-        <ButtonOutline @click="$emit('saveDraft')" :disabled="Boolean(saveDisabledMessage)"> Save draft </ButtonOutline>
-      </Tooltip>
-      <Tooltip name="disabled-save-tooltip" :value="saveDisabledMessage ? saveDisabledMessage : ''">
-        <ButtonAction @click="$emit('save')" :disabled="Boolean(saveDisabledMessage)">
+      <Tooltip
+        name="disabled-save-tooltip"
+        :value="saveDisabledMessage ? saveDisabledMessage : ''"
+      >
+        <ButtonOutline
+          @click="$emit('saveDraft')"
+          :disabled="Boolean(saveDisabledMessage)"
+          class="mr-2 pr-3"
+        >
+          Save draft
+        </ButtonOutline>
+        <ButtonAction
+          @click="$emit('save')"
+          :disabled="Boolean(saveDisabledMessage)"
+        >
           Save {{ tableName }}
         </ButtonAction>
       </Tooltip>
@@ -42,7 +52,8 @@ const props = withDefaults(
   { tableName: "" }
 );
 
-const { tableName, successMessage, errorMessage, saveDisabledMessage } = toRefs(props);
+const { tableName, successMessage, errorMessage, saveDisabledMessage } =
+  toRefs(props);
 </script>
 
 <docs>

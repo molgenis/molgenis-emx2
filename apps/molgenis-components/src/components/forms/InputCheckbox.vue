@@ -7,7 +7,11 @@
     class="checkbox-form-group"
     :errorMessage="errorMessage"
   >
-    <div v-for="(option, index) in options" :key="index" class="form-check form-check-inline">
+    <div
+      v-for="(option, index) in options"
+      :key="index"
+      class="form-check form-check-inline"
+    >
       <input
         :id="`${id}-${index}`"
         v-model="result"

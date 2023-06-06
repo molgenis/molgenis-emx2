@@ -9,15 +9,33 @@ export interface IClient {
 }
 
 export interface INewClient {
-  insertDataRow: (rowData: IRow, tableName: string, schemaName: string) => Promise<any>;
-  updateDataRow: (rowData: IRow, tableName: string, schemaName: string) => Promise<any>;
+  insertDataRow: (
+    rowData: IRow,
+    tableName: string,
+    schemaName: string
+  ) => Promise<any>;
+  updateDataRow: (
+    rowData: IRow,
+    tableName: string,
+    schemaName: string
+  ) => Promise<any>;
   deleteRow: (rowKey: IRow, tableName: string) => Promise<any>;
   deleteAllTableData: (tableName: string) => Promise<any>;
   fetchSchemaMetaData: () => Promise<any>;
   fetchTableMetaData: (tableName: string) => Promise<ITableMetaData>;
-  fetchTableData: (stableId: string, properties: IQueryMetaData) => Promise<any>;
-  fetchTableDataValues: (tableName: string, properties: IQueryMetaData) => Promise<any>;
-  fetchRowData: (tableName: string, rowId: IRow) => Promise<any>;
+  fetchTableData: (
+    stableId: string,
+    properties: IQueryMetaData
+  ) => Promise<any>;
+  fetchTableDataValues: (
+    tableName: string,
+    properties: IQueryMetaData
+  ) => Promise<any>;
+  fetchRowData: (
+    tableName: string,
+    rowId: IRow,
+    expandLevel: number
+  ) => Promise<any>;
   fetchAggregateData: (
     tableName: string,
     selectedColumn: { name: string; column: string },

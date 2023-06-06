@@ -8,6 +8,7 @@
         @updateCondition="updateCondition(index - 1, $event)"
         :tableName="tableName"
         :schemaName="schemaName"
+        :refLabel="refLabel"
       ></component>
     </div>
     <div v-else v-for="index in fieldCount" :key="index">
@@ -106,6 +107,10 @@ export default {
       type: String,
       required: false,
     },
+    refLabel: {
+      type: String,
+      required: false,
+    },
   },
   data() {
     return {
@@ -118,7 +123,13 @@ export default {
       return filterTypeMap[this.columnType];
     },
     isMultiConditionFilter() {
-      return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(this.columnType);
+      return [
+        "REF",
+        "REF_ARRAY",
+        "REFBACK",
+        "ONTOLOGY",
+        "ONTOLOGY_ARRAY",
+      ].includes(this.columnType);
     },
   },
   methods: {
@@ -250,6 +261,7 @@ export default {
             schemaName="pet store"
             :conditions="conditions7"
             @updateConditions="conditions7 = $event"
+            refLabel="${name}"
         />
         <div>conditions: {{ conditions7 }}</div>
       </demo-item>
@@ -264,6 +276,7 @@ export default {
             schemaName="pet store"
             :conditions="conditions8"
             @updateConditions="conditions8 = $event"
+            refLabel="${name}"
         />
         <div>conditions: {{ conditions8 }}</div>
       </demo-item>

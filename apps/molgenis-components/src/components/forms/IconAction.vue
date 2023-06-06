@@ -1,5 +1,8 @@
 <template>
-  <button class="btn p-0 m-0 btn-outline-primary border-0" @click.prevent="onClick">
+  <button
+    class="btn p-0 m-0 btn-outline-primary border-0"
+    @click.prevent="onClick"
+  >
     <Tooltip :value="tooltip" class="mt-n1 mb-n1 p-1">
       <span v-if="label" class="mr-2">
         {{ label }}

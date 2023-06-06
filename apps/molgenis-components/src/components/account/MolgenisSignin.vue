@@ -103,7 +103,10 @@ export default defineComponent({
     async signin() {
       if (!this.email || !this.password) {
         this.error = "Email and password should be filled in";
-      } else if (this.isPrivacyPolicyEnabled && this.userAgrees[0] !== this.privacyPolicyLabel) {
+      } else if (
+        this.isPrivacyPolicyEnabled &&
+        this.userAgrees[0] !== this.privacyPolicyLabel
+      ) {
         this.error = this.privacyError;
       } else {
         this.error = null;
@@ -125,7 +128,9 @@ export default defineComponent({
               } else this.error = data.signin.message;
             }
           )
-          .catch((error) => (this.error = "internal server graphqlError" + error));
+          .catch(
+            (error) => (this.error = "internal server graphqlError" + error)
+          );
         this.loading = false;
       }
     },
@@ -138,9 +143,14 @@ export default defineComponent({
       this.$emit("cancel");
     },
     async fetchPrivacyPolicy() {
-      const response: IResponse = await request("graphql", `{_settings{key, value}}`);
+      const response: IResponse = await request(
+        "graphql",
+        `{_settings{key, value}}`
+      );
 
-      const policyData = response._settings.find((item) => item.key === POLICY_TEXT_KEY);
+      const policyData = response._settings.find(
+        (item) => item.key === POLICY_TEXT_KEY
+      );
       this.privacyPolicy = policyData?.value;
 
       const policyEnabledSettings = response._settings.find((item) => {

@@ -36,7 +36,10 @@ export default {
     handleKeyValidity(event) {
       const keyCode = event.which ? event.which : event.keyCode;
       if (keyCode === CODE_MINUS) {
-        this.$emit("update:modelValue", parseFloat(flipSign(parseFloat(event.target.value))));
+        this.$emit(
+          "update:modelValue",
+          parseFloat(flipSign(parseFloat(event.target.value)))
+        );
       }
       if (!isNumericKey(event)) {
         event.preventDefault();

@@ -35,15 +35,26 @@
             <div>
               <div>
                 <span class="fixed-width">zip</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableId">all rows</ButtonAlt>
+                <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableId"
+                  >all rows</ButtonAlt
+                >
               </div>
               <div>
                 <span class="fixed-width">csv</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableId">all rows</ButtonAlt>
+                <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableId"
+                  >all rows</ButtonAlt
+                >
                 <span v-if="Object.keys(graphqlFilter).length > 0">
                   |
                   <ButtonAlt
-                    :href="'/' + schemaName + '/api/csv/' + tableId + '?filter=' + JSON.stringify(graphqlFilter)"
+                    :href="
+                      '/' +
+                      schemaName +
+                      '/api/csv/' +
+                      tableId +
+                      '?filter=' +
+                      JSON.stringify(graphqlFilter)
+                    "
                   >
                     filtered rows
                   </ButtonAlt>
@@ -51,11 +62,20 @@
               </div>
               <div>
                 <span class="fixed-width">excel</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableId">all rows</ButtonAlt>
+                <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableId"
+                  >all rows</ButtonAlt
+                >
                 <span v-if="Object.keys(graphqlFilter).length > 0">
                   |
                   <ButtonAlt
-                    :href="'/' + schemaName + '/api/excel/' + tableId + '?filter=' + JSON.stringify(graphqlFilter)"
+                    :href="
+                      '/' +
+                      schemaName +
+                      '/api/excel/' +
+                      tableId +
+                      '?filter=' +
+                      JSON.stringify(graphqlFilter)
+                    "
                   >
                     filtered rows
                   </ButtonAlt></span
@@ -63,18 +83,31 @@
               </div>
               <div>
                 <span class="fixed-width">jsonld</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/jsonld/' + tableId"> all rows </ButtonAlt>
+                <ButtonAlt :href="'/' + schemaName + '/api/jsonld/' + tableId">
+                  all rows
+                </ButtonAlt>
               </div>
               <div>
                 <span class="fixed-width">ttl</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/ttl/' + tableId">all rows</ButtonAlt>
+                <ButtonAlt :href="'/' + schemaName + '/api/ttl/' + tableId"
+                  >all rows</ButtonAlt
+                >
               </div>
             </div>
           </form>
         </ButtonDropdown>
         <span>
-          <ButtonDropdown :closeOnClick="true" :label="ViewButtons[view].label" :icon="ViewButtons[view].icon">
-            <div v-for="button in ViewButtons" class="dropdown-item" @click="setView(button)" role="button">
+          <ButtonDropdown
+            :closeOnClick="true"
+            :label="ViewButtons[view].label"
+            :icon="ViewButtons[view].icon"
+          >
+            <div
+              v-for="button in ViewButtons"
+              class="dropdown-item"
+              @click="setView(button)"
+              role="button"
+            >
               <i class="fas fa-fw" :class="'fa-' + button.icon" />
               {{ button.label }}
             </div>
@@ -97,17 +130,25 @@
         :count="count"
       />
 
-      <div class="btn-group m-0" v-if="view !== View.RECORD && view !== View.AGGREGATE">
+      <div
+        class="btn-group m-0"
+        v-if="view !== View.RECORD && view !== View.AGGREGATE"
+      >
         <span class="btn">Rows per page:</span>
         <InputSelect
           id="explorer-table-page-limit-select"
           :modelValue="limit"
           :options="[10, 20, 50, 100]"
           :clear="false"
+          :required="true"
           @update:modelValue="setLimit($event)"
           class="mb-0"
         />
-        <SelectionBox v-if="showSelect" :selection="selectedItems" @update:selection="selectedItems = $event" />
+        <SelectionBox
+          v-if="showSelect"
+          :selection="selectedItems"
+          @update:selection="selectedItems = $event"
+        />
       </div>
 
       <div class="btn-group" v-if="canManage">
@@ -118,16 +159,29 @@
           @update:settings="reloadMetadata"
         />
 
-        <IconDanger icon="bomb" @click="isDeleteAllModalShown = true"> Delete All </IconDanger>
+        <IconDanger icon="bomb" @click="isDeleteAllModalShown = true">
+          Delete All
+        </IconDanger>
       </div>
     </div>
 
     <div class="d-flex">
       <div v-if="countFilters" class="col-3 pl-0">
-        <FilterSidebar :filters="columns" @updateFilters="emitConditions" :schemaName="schemaName" />
+        <FilterSidebar
+          :filters="columns"
+          @updateFilters="emitConditions"
+          :schemaName="schemaName"
+        />
       </div>
-      <div class="flex-grow-1 pr-0 pl-0" :class="countFilters > 0 ? 'col-9' : 'col-12'">
-        <FilterWells :filters="columns" @updateFilters="emitConditions" class="border-top pt-3 pb-3" />
+      <div
+        class="flex-grow-1 pr-0 pl-0"
+        :class="countFilters > 0 ? 'col-9' : 'col-12'"
+      >
+        <FilterWells
+          :filters="columns"
+          @updateFilters="emitConditions"
+          class="border-top pt-3 pb-3"
+        />
         <div v-if="loading">
           <Spinner />
         </div>
@@ -151,8 +205,12 @@
             :template="cardTemplate"
             @click="$emit('rowClick', $event)"
             @reload="reload"
-            @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
-            @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
+            @edit="
+              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+            "
+            @delete="
+              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+            "
           />
           <RecordCards
             v-if="view === View.RECORD"
@@ -164,8 +222,12 @@
             :template="recordTemplate"
             @click="$emit('rowClick', $event)"
             @reload="reload"
-            @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
-            @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
+            @edit="
+              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+            "
+            @delete="
+              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+            "
           />
           <TableMolgenis
             v-if="view == View.TABLE"
@@ -204,17 +266,38 @@
               <RowButton
                 v-if="canEdit"
                 type="edit"
-                @edit="handleRowAction('edit', getPrimaryKey(slotProps.row, tableMetadata))"
+                @edit="
+                  handleRowAction(
+                    'edit',
+                    getPrimaryKey(slotProps.row, tableMetadata)
+                  )
+                "
               />
               <RowButton
                 v-if="canEdit"
                 type="clone"
-                @clone="handleRowAction('clone', getPrimaryKey(slotProps.row, tableMetadata))"
+                @clone="
+                  handleRowAction(
+                    'clone',
+                    getPrimaryKey(slotProps.row, tableMetadata)
+                  )
+                "
               />
               <RowButton
                 v-if="canEdit"
                 type="delete"
-                @delete="handleDeleteRowRequest(getPrimaryKey(slotProps.row, tableMetadata))"
+                @delete="
+                  handleDeleteRowRequest(
+                    getPrimaryKey(slotProps.row, tableMetadata)
+                  )
+                "
+              />
+              <!--@slot Use this to add values or actions buttons to each row -->
+              <slot
+                name="rowheader"
+                :row="slotProps.row"
+                :metadata="tableMetadata"
+                :rowkey="getPrimaryKey(slotProps.row, tableMetadata)"
               />
             </template>
           </TableMolgenis>
@@ -257,7 +340,11 @@
       <p>
         Truncate <strong>{{ tableName }}</strong>
       </p>
-      <p>Are you sure that you want to delete ALL rows in table '{{ tableName }}'?</p>
+      <p>
+        Are you sure that you want to delete ALL rows in table '{{
+          tableName
+        }}'?
+      </p>
     </ConfirmModal>
     <RefSideModal
       v-if="refSideModalProps"
@@ -418,7 +505,7 @@ export default {
     },
     showLimit: {
       type: Number,
-      default: 20,
+      default: 10,
     },
     urlConditions: {
       type: Object,
@@ -466,7 +553,9 @@ export default {
       return ViewButtons;
     },
     countFilters() {
-      return this.columns ? this.columns.filter((filter) => filter.showFilter).length : null;
+      return this.columns
+        ? this.columns.filter((filter) => filter.showFilter).length
+        : null;
     },
     graphqlFilter() {
       let filter = this.filter;
@@ -498,14 +587,18 @@ export default {
     },
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
-      const resp = await this.client.deleteRow(this.editRowPrimaryKey, this.tableId).catch(this.handleError);
+      const resp = await this.client
+        .deleteRow(this.editRowPrimaryKey, this.tableId)
+        .catch(this.handleError);
       if (resp) {
         this.reload();
       }
     },
     async handelExecuteDeleteAll() {
       this.isDeleteAllModalShown = false;
-      const resp = await this.client.deleteAllTableData(this.tableMetadata.name).catch(this.handleError);
+      const resp = await this.client
+        .deleteAllTableData(this.tableMetadata.name)
+        .catch(this.handleError);
       if (resp) {
         this.reload();
       }
@@ -551,7 +644,10 @@ export default {
     },
     emitColumns(event) {
       this.columns = event;
-      this.$emit("updateShowColumns", getColumnNames(this.columns, "showColumn"));
+      this.$emit(
+        "updateShowColumns",
+        getColumnNames(this.columns, "showColumn")
+      );
     },
     emitFilters(event) {
       this.columns = event;
@@ -589,7 +685,10 @@ export default {
         const showColumn = this.showColumns.length
           ? this.showColumns.includes(column.name)
           : !column.name.startsWith("mg_");
-        const conditions = getCondition(column.columnType, this.urlConditions[column.name]);
+        const conditions = getCondition(
+          column.columnType,
+          this.urlConditions[column.name]
+        );
         return {
           ...column,
           showColumn,
@@ -609,7 +708,9 @@ export default {
     },
     async reloadMetadata() {
       this.client = Client.newClient(this.schemaName);
-      const newTableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(this.handleError);
+      const newTableMetadata = await this.client
+        .fetchTableMetaData(this.tableName)
+        .catch(this.handleError);
       this.setTableMetadata(newTableMetadata);
       this.reload();
     },
@@ -617,7 +718,9 @@ export default {
       this.loading = true;
       this.graphqlError = null;
       const offset = this.limit * (this.page - 1);
-      const orderBy = this.orderByColumn ? { [this.orderByColumn]: this.order } : {};
+      const orderBy = this.orderByColumn
+        ? { [this.orderByColumn]: this.order }
+        : {};
       const dataResponse = await this.client
         .fetchTableData(this.tableName, {
           limit: this.limit,
@@ -649,7 +752,9 @@ export default {
 };
 
 function getColumnNames(columns, property) {
-  return columns.filter((column) => column[property] && column.columnType !== "HEADING").map((column) => column.name);
+  return columns
+    .filter((column) => column[property] && column.columnType !== "HEADING")
+    .map((column) => column.name);
 }
 
 function getCondition(columnType, condition) {
@@ -680,25 +785,42 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
   if (columns) {
     columns.forEach((col) => {
       const conditions = col.conditions
-        ? col.conditions.filter((condition) => condition !== "" && condition !== undefined)
+        ? col.conditions.filter(
+            (condition) => condition !== "" && condition !== undefined
+          )
         : [];
       if (conditions.length) {
-        if (col.columnType.startsWith("STRING") || col.columnType.startsWith("TEXT")) {
+        if (
+          col.columnType.startsWith("STRING") ||
+          col.columnType.startsWith("TEXT")
+        ) {
           filter[col.id] = { like: conditions };
         } else if (col.columnType.startsWith("BOOL")) {
           filter[col.id] = { equals: conditions };
-        } else if (col.columnType.startsWith("REF") || col.columnType.startsWith("ONTOLOGY")) {
+        } else if (
+          col.columnType.startsWith("REF") ||
+          col.columnType.startsWith("ONTOLOGY")
+        ) {
           filter[col.id] = { equals: conditions };
         } else if (
-          ["LONG", "LONG_ARRAY", "DECIMAL", "DECIMAL_ARRAY", "INT", "INT_ARRAY", "DATE", "DATE_ARRAY"].includes(
-            col.columnType
-          )
+          [
+            "LONG",
+            "LONG_ARRAY",
+            "DECIMAL",
+            "DECIMAL_ARRAY",
+            "INT",
+            "INT_ARRAY",
+            "DATE",
+            "DATE_ARRAY",
+          ].includes(col.columnType)
         ) {
           filter[col.id] = {
             between: conditions.flat(),
           };
         } else {
-          errorCallback(`filter unsupported for column type ${col.columnType} (please report a bug)`);
+          errorCallback(
+            `filter unsupported for column type ${col.columnType} (please report a bug)`
+          );
         }
       }
     });

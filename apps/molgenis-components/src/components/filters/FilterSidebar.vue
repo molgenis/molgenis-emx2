@@ -13,6 +13,7 @@
         :columnType="filter.columnType"
         :tableName="filter.refTable"
         :schemaName="filter.refSchema ? filter.refSchema : schemaName"
+        :refLabel="filter.refLabel ? filter.refLabel : filter.refLabelDefault"
       />
     </FilterContainer>
   </div>
@@ -46,7 +47,9 @@ export default {
   },
   computed: {
     visibleFilters() {
-      return this.filters.filter((column) => column.showFilter && column.columnType !== "HEADING");
+      return this.filters.filter(
+        (column) => column.showFilter && column.columnType !== "HEADING"
+      );
     },
   },
   methods: {

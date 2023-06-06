@@ -4,9 +4,17 @@
       <div class="d-flex flex-row">
         <h1>Schema: {{ schema.name }}</h1>
         <div class="form-inline">
-          <ButtonAction v-if="dirty" @click="saveSchema" class="ml-2"> Save </ButtonAction>
-          <ButtonAction v-if="dirty" @click="loadSchema" class="ml-2"> Reset </ButtonAction>
-          <ButtonAction v-if="schema.tables?.length > 0" @click="toggleShowDiagram" class="ml-2">
+          <ButtonAction v-if="dirty" @click="saveSchema" class="ml-2">
+            Save
+          </ButtonAction>
+          <ButtonAction v-if="dirty" @click="loadSchema" class="ml-2">
+            Reset
+          </ButtonAction>
+          <ButtonAction
+            v-if="schema.tables?.length > 0"
+            @click="toggleShowDiagram"
+            class="ml-2"
+          >
             {{ showDiagram ? "Hide" : "Show" }} Diagram
           </ButtonAction>
           <MessageError v-if="error" class="ml-2 m-0 p-2">
@@ -67,7 +75,14 @@ import { request, gql } from "graphql-request";
 import SchemaView from "./SchemaView.vue";
 import SchemaToc from "./SchemaToc.vue";
 import NomnomDiagram from "./NomnomDiagram.vue";
-import { ButtonAction, MessageError, MessageSuccess, MessageWarning, Spinner, deepClone } from "molgenis-components";
+import {
+  ButtonAction,
+  MessageError,
+  MessageSuccess,
+  MessageWarning,
+  Spinner,
+  deepClone,
+} from "molgenis-components";
 import VueScrollTo from "vue-scrollto";
 
 export default {
@@ -148,7 +163,9 @@ export default {
       });
       tables.forEach((table) => {
         delete table.externalSchema;
-        table.columns = table.columns ? table.columns.filter((column) => column.table === table.name) : [];
+        table.columns = table.columns
+          ? table.columns.filter((column) => column.table === table.name)
+          : [];
       });
       tables = Object.values(tableMap);
       //add ontologies
@@ -267,7 +284,11 @@ export default {
         //normal tables
         let tables = !schema.tables
           ? []
-          : schema.tables.filter((table) => table.tableType !== "ONTOLOGIES" && table.externalSchema === schema.name);
+          : schema.tables.filter(
+              (table) =>
+                table.tableType !== "ONTOLOGIES" &&
+                table.externalSchema === schema.name
+            );
         tables.forEach((t) => {
           t.oldName = t.name;
           if (t.columns) {
@@ -284,7 +305,11 @@ export default {
         });
         schema.ontologies = !schema.tables
           ? []
-          : schema.tables.filter((table) => table.tableType === "ONTOLOGIES" && table.externalSchema === schema.name);
+          : schema.tables.filter(
+              (table) =>
+                table.tableType === "ONTOLOGIES" &&
+                table.externalSchema === schema.name
+            );
         //set old name so we can delete them properly
         schema.ontologies.forEach((o) => {
           o.oldName = o.name;
@@ -319,11 +344,15 @@ export default {
         table.columns.sort((a, b) => a.position - b.position);
       });
       //remove the subclass tables
-      schema.tables = schema.tables.filter((table) => table.inherit === undefined);
+      schema.tables = schema.tables.filter(
+        (table) => table.inherit === undefined
+      );
       return schema;
     },
     getSubclassTables(schema, tableName) {
-      let subclasses = schema.tables.filter((table) => table.inherit === tableName);
+      let subclasses = schema.tables.filter(
+        (table) => table.inherit === tableName
+      );
       return subclasses.concat(
         subclasses
           .map((table) => {

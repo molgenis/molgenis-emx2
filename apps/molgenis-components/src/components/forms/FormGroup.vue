@@ -8,7 +8,11 @@
     <small v-if="errorMessage" class="text-danger form-text">
       {{ errorMessage }}
     </small>
-    <small v-if="hasDescription(description)" :id="id + '-help-text'" class="form-text text-muted">
+    <small
+      v-if="hasDescription(description)"
+      :id="id + '-help-text'"
+      class="form-text text-muted"
+    >
       {{ description }}
     </small>
   </div>
@@ -42,7 +46,9 @@ export default {
   },
   methods: {
     hasDescription(description) {
-      return description !== null && description !== undefined && description.length;
+      return (
+        description !== null && description !== undefined && description.length
+      );
     },
   },
 };

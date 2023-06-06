@@ -1,5 +1,7 @@
 <template>
-  <button class="btn btn-sm btn-outline-primary mr-2 mb-2">{{ label }} &nbsp;<i class="fa fa-times"></i></button>
+  <button class="btn btn-sm btn-outline-primary mr-2 mb-2">
+    {{ label }} &nbsp;<i class="fa fa-times"></i>
+  </button>
 </template>
 <script>
 export default {

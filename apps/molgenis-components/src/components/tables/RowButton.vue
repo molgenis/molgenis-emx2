@@ -1,6 +1,10 @@
 <template>
   <span>
-    <component :is="type === 'delete' ? 'IconDanger' : 'IconAction'" :icon="icon" @click="$emit(type)" />
+    <component
+      :is="type === 'delete' ? 'IconDanger' : 'IconAction'"
+      :icon="icon"
+      @click="$emit(type)"
+    />
   </span>
 </template>
 

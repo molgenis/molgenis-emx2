@@ -1,12 +1,18 @@
 <template>
-  <tr class="hoverContainer" :style="column.drop ? 'text-decoration: line-through' : ''">
+  <tr
+    class="hoverContainer"
+    :style="column.drop ? 'text-decoration: line-through' : ''"
+  >
     <td>
       <span class="moveHandle">
         {{ column.name }}
         <span v-if="column.semantics">
-          (<a :href="purl" target="_blank" v-for="purl in column.semantics" :key="purl">{{
-            purl.substring(purl.lastIndexOf("/") + 1)
-          }}</a
+          (<a
+            :href="purl"
+            target="_blank"
+            v-for="purl in column.semantics"
+            :key="purl"
+            >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
           >)
         </span>
       </span>
@@ -20,7 +26,12 @@
           :locales="locales"
           :columnIndex="columnIndex"
         />
-        <IconDanger v-if="isManager" class="hoverIcon" icon="trash" @click="deleteColumn" />
+        <IconDanger
+          v-if="isManager"
+          class="hoverIcon"
+          icon="trash"
+          @click="deleteColumn"
+        />
         <ColumnEditModal
           v-if="isManager"
           :schema="schema"
@@ -37,7 +48,9 @@
     <td v-if="table.subclasses?.length > 0">{{ column.table }}</td>
     <td>
       <span v-if="column.refTable">
-        {{ column.columnType.toLowerCase() }}({{ column.refSchema ? column.refSchema + "." : "" }}{{ column.refTable
+        {{ column.columnType.toLowerCase() }}({{
+          column.refSchema ? column.refSchema + "." : ""
+        }}{{ column.refTable
         }}<span v-if="column.refBack">, refBack={{ column.refBack }}</span>
         <span v-if="column.refLink">, refLink={{ column.refLink }}</span
         >)
@@ -45,8 +58,12 @@
       <span v-else>
         {{ column.columnType.toLowerCase() }}
       </span>
-      <span v-if="column.required === true || column.required === 'true'"> required </span>
-      <span v-if="column.readonly === true || column.readonly === 'true'"> readonly </span>
+      <span v-if="column.required === true || column.required === 'true'">
+        required
+      </span>
+      <span v-if="column.readonly === true || column.readonly === 'true'">
+        readonly
+      </span>
       <span v-if="column.refLabel"> refLabel='{{ column.refLabel }}' </span>
       <span v-if="column.computed"> computed="{{ column.computed }}"</span>
     </td>
@@ -131,8 +148,12 @@ export default {
           table.oldName === this.column.table ||
           table.name === this.column.table ||
           (table.subclasses !== undefined &&
-            (table.subclasses.map((subclass) => subclass.oldName).includes(this.column.table) ||
-              table.subclasses.map((subclass) => subclass.name).includes(this.column.table)))
+            (table.subclasses
+              .map((subclass) => subclass.oldName)
+              .includes(this.column.table) ||
+              table.subclasses
+                .map((subclass) => subclass.name)
+                .includes(this.column.table)))
       );
     },
     rootTableName() {

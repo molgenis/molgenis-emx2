@@ -1,7 +1,19 @@
 <template>
-  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <div class="input-group">
-      <input :id="id" ref="file" type="file" style="display: none" @change="handleFileUpload" />
+      <input
+        :id="id"
+        ref="file"
+        type="file"
+        style="display: none"
+        @change="handleFileUpload"
+      />
       <input
         class="form-control active"
         :class="{ 'is-invalid': errorMessage }"
@@ -24,7 +36,13 @@
         </button>
       </div>
       <div class="input-group-append">
-        <button class="btn btn-outline-primary" type="button" title="Toggle" data-toggle @click="$refs.file.click()">
+        <button
+          class="btn btn-outline-primary"
+          type="button"
+          title="Toggle"
+          data-toggle
+          @click="$refs.file.click()"
+        >
           Browse
         </button>
       </div>

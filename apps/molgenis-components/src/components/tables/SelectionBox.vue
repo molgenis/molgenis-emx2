@@ -8,12 +8,21 @@
         class="badge badge-pill badge-danger"
         style="top: -7px; left: -7px"
       >
-        {{ Array.isArray(selection) ? selection.filter((s) => s != null).length : 0 }}
+        {{
+          Array.isArray(selection)
+            ? selection.filter((s) => s != null).length
+            : 0
+        }}
       </span>
     </ButtonAlt>
     <LayoutModal v-if="expand" @close="expand = false" title="Show selection">
       <template v-slot:body>
-        <span v-if="!Array.isArray(selection) || selection.filter((s) => s != null).length == 0">
+        <span
+          v-if="
+            !Array.isArray(selection) ||
+            selection.filter((s) => s != null).length == 0
+          "
+        >
           No items selected
         </span>
         <span
@@ -27,7 +36,12 @@
         </span>
       </template>
       <template v-slot:footer>
-        <ButtonAlt v-if="Array.isArray(selection) && selection.length > 0" @click="clear"> clear selection </ButtonAlt>
+        <ButtonAlt
+          v-if="Array.isArray(selection) && selection.length > 0"
+          @click="clear"
+        >
+          clear selection
+        </ButtonAlt>
       </template>
     </LayoutModal>
   </div>

@@ -8,7 +8,9 @@
     </span>
     <span v-else>
       {{ text.slice(0, length) }}
-      <a @click.stop.prevent="expand = true" href="#" title="Expand text"> ...show more </a>
+      <a @click.stop.prevent="expand = true" href="#" title="Expand text">
+        ...show more
+      </a>
     </span>
   </div>
 </template>

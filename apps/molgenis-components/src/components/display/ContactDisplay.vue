@@ -2,9 +2,13 @@
   <person-details>
     <template #details>
       <strong>
-        <span v-if="contact.title && contact.title.name">{{ contact.title.name }}</span>
+        <span v-if="contact.title && contact.title.name">{{
+          contact.title.name
+        }}</span>
         <span v-if="contact.initials"> {{ contact.initials }}</span>
-        <span v-if="contact.firstName && contact.initials"> ({{ contact.firstName }}) </span>
+        <span v-if="contact.firstName && contact.initials">
+          ({{ contact.firstName }})
+        </span>
         <span v-else-if="contact.firstName"> {{ contact.firstName }}</span>
         <span v-if="contact.surname"> {{ contact.surname }}</span>
       </strong>
@@ -19,7 +23,11 @@
       </div>
     </template>
     <template v-if="imgSrc" #image>
-      <img :src="imgSrc" :alt="contact.surname + '-image'" class="img-thumbnail" />
+      <img
+        :src="imgSrc"
+        :alt="contact.surname + '-image'"
+        class="img-thumbnail"
+      />
     </template>
   </person-details>
 </template>

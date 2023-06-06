@@ -1,8 +1,16 @@
 <template>
   <div>
-    <span v-if="!focusLabel" class="d-flex form-group bg-white rounded pt-4 pb-1 mb-1">
+    <span
+      v-if="!focusLabel"
+      class="d-flex form-group bg-white rounded pt-4 pb-1 mb-1"
+    >
       <h1>{{ label }}</h1>
-      <IconAction v-if="inplace || editMeta" class="hoverIcon align-top" icon="pencil-alt" @click="toggleFocusLabel" />
+      <IconAction
+        v-if="inplace || editMeta"
+        class="hoverIcon align-top"
+        icon="pencil-alt"
+        @click="toggleFocusLabel"
+      />
     </span>
     <input
       v-else
@@ -11,7 +19,10 @@
       @input="$emit('update:label', $event.target.value)"
       @blur="toggleFocusLabel"
     />
-    <div v-if="!focusDescription" class="d-flex form-group bg-white rounded pb-1 mb-1">
+    <div
+      v-if="!focusDescription"
+      class="d-flex form-group bg-white rounded pb-1 mb-1"
+    >
       <p>{{ description }}</p>
       <IconAction
         v-if="inplace || editMeta"
@@ -61,7 +72,10 @@ export default {
     },
     stripHtml(input) {
       if (input) {
-        return input.replace(/(<\/?(?:h1|h2|h3|h4|p|label|a)[^>]*>)|<[^>]+>/gi, "$1");
+        return input.replace(
+          /(<\/?(?:h1|h2|h3|h4|p|label|a)[^>]*>)|<[^>]+>/gi,
+          "$1"
+        );
       } else {
         return input;
       }

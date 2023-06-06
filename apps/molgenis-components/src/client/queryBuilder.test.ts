@@ -9,7 +9,8 @@ describe("columnNames", () => {
   //Pet
   //expand 1
   test("it should return the pet columns expanded, children are not expanded, expect primary keys", () => {
-    const expectedResult = " name category { name } tags { name } weight orders { orderId }";
+    const expectedResult =
+      " name category { name } tags { name } weight orders { orderId }";
     const result = columnNames("pet store", "Pet", metaData, EXPAND_ONE);
     assert.equal(result, expectedResult);
   });
@@ -31,7 +32,8 @@ describe("columnNames", () => {
   //ontology
   //expand 1
   test("it should return the ontology columns expanded, only children array are not expanded beyond level 0", () => {
-    const expectedResult = " order name label parent { name } children { name }";
+    const expectedResult =
+      " order name label parent { name } children { name }";
     const result = columnNames("pet store", "Tag", metaData, EXPAND_ONE);
     assert.equal(result, expectedResult);
   });
@@ -188,7 +190,8 @@ const metaData: ISchemaMetaData = {
           descriptions: [
             {
               locale: "en",
-              value: "User-friendly label for this term. Should be unique in parent",
+              value:
+                "User-friendly label for this term. Should be unique in parent",
             },
           ],
           position: 2,
@@ -220,7 +223,8 @@ const metaData: ISchemaMetaData = {
           descriptions: [
             {
               locale: "en",
-              value: "Child terms, in case this term is the parent of other terms",
+              value:
+                "Child terms, in case this term is the parent of other terms",
             },
           ],
           position: 8,

@@ -1,7 +1,15 @@
 <template>
   <div class="d-inline-flex from-group">
-    <select class="form-control bg-primary text-white border-0 mr-2 pl-0 pr-0" :modelValue="modelValue" @input="emit">
-      <option v-for="locale in locales" :key="locale" :selected="locale === modelValue">
+    <select
+      class="form-control bg-primary text-white border-0 mr-2 pl-0 pr-0"
+      :modelValue="modelValue"
+      @input="emit"
+    >
+      <option
+        v-for="locale in locales"
+        :key="locale"
+        :selected="locale === modelValue"
+      >
         {{ locale }}
       </option>
     </select>

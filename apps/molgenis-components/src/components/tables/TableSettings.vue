@@ -90,7 +90,9 @@ export default {
         this.tableMetadata.settings = [];
       }
       //remove old
-      this.tableMetadata.settings = this.tableMetadata.settings.filter((setting) => setting.key !== "cardTemplate");
+      this.tableMetadata.settings = this.tableMetadata.settings.filter(
+        (setting) => setting.key !== "cardTemplate"
+      );
       //set new
       this.tableMetadata.settings.push({ key: "cardTemplate", value: value });
     },
@@ -99,7 +101,9 @@ export default {
         this.tableMetadata.settings = [];
       }
       //remove old
-      this.tableMetadata.settings = this.tableMetadata.settings.filter((setting) => setting.key !== "recordTemplate");
+      this.tableMetadata.settings = this.tableMetadata.settings.filter(
+        (setting) => setting.key !== "recordTemplate"
+      );
       //set new
       this.tableMetadata.settings.push({ key: "recordTemplate", value: value });
     },

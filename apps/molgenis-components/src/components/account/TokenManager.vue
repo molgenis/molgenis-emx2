@@ -19,8 +19,14 @@
     <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
     <label><b>Create a token</b></label>
     <form class="form-inline">
-      <InputString id="token-name" placeholder="new token name" v-model="tokenName" />
-      <ButtonAction v-if="tokenName" :key="tokenName" @click="createToken">Create token </ButtonAction>
+      <InputString
+        id="token-name"
+        placeholder="new token name"
+        v-model="tokenName"
+      />
+      <ButtonAction v-if="tokenName" :key="tokenName" @click="createToken"
+        >Create token
+      </ButtonAction>
     </form>
   </div>
 </template>
@@ -68,9 +74,14 @@ export default defineComponent({
   computed: {
     accessTokens(): string[] {
       const tokens: ISetting | undefined = this.session?.settings?.find(
-        (setting: ISetting): boolean => setting.key === "access-tokes" && Boolean(setting.value)
+        (setting: ISetting): boolean =>
+          setting.key === "access-tokes" && Boolean(setting.value)
       );
-      return tokens ? tokens.value.split(",").filter((value: string): boolean => value !== "") : [];
+      return tokens
+        ? tokens.value
+            .split(",")
+            .filter((value: string): boolean => value !== "")
+        : [];
     },
   },
   methods: {

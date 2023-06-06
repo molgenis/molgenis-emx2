@@ -1,11 +1,17 @@
 <template>
   <div class="mb-2 pt-2 border-top bg-white">
-    <div class="filter-header d-flex flex-row justify-content-between" @click="expandedState = !expandedState">
+    <div
+      class="filter-header d-flex flex-row justify-content-between"
+      @click="expandedState = !expandedState"
+    >
       <h6 class="mb-0 font-weight-bold p-2">
         {{ title }}
         <span v-if="count > 0" class="badge badge-secondary">{{ count }}</span>
       </h6>
-      <IconAction class="ml-auto" :icon="expandedState ? 'angle-up' : 'angle-down'" />
+      <IconAction
+        class="ml-auto"
+        :icon="expandedState ? 'angle-up' : 'angle-down'"
+      />
     </div>
     <slot name="header" />
     <div v-if="expandedState" class="p-2">

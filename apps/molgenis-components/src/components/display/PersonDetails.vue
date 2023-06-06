@@ -8,7 +8,11 @@
       </div>
       <div class="col-4">
         <slot name="image">
-          <img :src="imgSrc" alt="person-place-holder-image" class="img-thumbnail" />
+          <img
+            :src="imgSrc"
+            alt="person-place-holder-image"
+            class="img-thumbnail"
+          />
         </slot>
       </div>
     </div>

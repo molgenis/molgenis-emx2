@@ -1,5 +1,10 @@
 <template>
-  <component v-if="!isEmpty" :is="cellTypeComponentName" :data="data" :metaData="metaData" />
+  <component
+    v-if="!isEmpty"
+    :is="cellTypeComponentName"
+    :data="data"
+    :metaData="metaData"
+  />
 </template>
 
 <script lang="ts">
@@ -45,13 +50,19 @@ export default defineComponent({
   },
   computed: {
     cellTypeComponentName() {
-      return this.isArrayType ? "ListDisplay" : typeMap[this.metaData.columnType] || "StringDisplay";
+      return this.isArrayType
+        ? "ListDisplay"
+        : typeMap[this.metaData.columnType] || "StringDisplay";
     },
     isArrayType() {
       return this.metaData.columnType.includes("ARRAY") > 0;
     },
     isEmpty() {
-      return this.data === undefined || this.data === null || (Array.isArray(this.data) && this.data.length === 0);
+      return (
+        this.data === undefined ||
+        this.data === null ||
+        (Array.isArray(this.data) && this.data.length === 0)
+      );
     },
   },
 });

@@ -43,10 +43,10 @@
                   <td>
                     <span
                       class="font-weight-bold mr-2 mb-2 badge bade-lg badge-primary"
-                      v-for="design in cohort.design"
+                      v-if="cohort.design"
                       :key="design"
                     >
-                      {{ design }}
+                      {{ cohort.design.name }}
                     </span>
                   </td>
                 </tr>

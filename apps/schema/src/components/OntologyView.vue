@@ -1,16 +1,24 @@
 <template>
-  <tr :style="ontology.drop ? 'text-decoration: line-through' : ''" class="hoverContainer">
+  <tr
+    :style="ontology.drop ? 'text-decoration: line-through' : ''"
+    class="hoverContainer"
+  >
     <td>
       <div
-        :id="ontology.name !== undefined ? ontology.name.replaceAll(' ', '_') : ''"
+        :id="
+          ontology.name !== undefined ? ontology.name.replaceAll(' ', '_') : ''
+        "
         style="display: inline-block; text-transform: none !important"
         :style="ontology.drop ? 'text-decoration: line-through' : ''"
       >
         {{ ontology.name }}
         <span v-if="ontology.semantics" class="small">
-          (<a :href="purl" target="_blank" v-for="purl in ontology.semantics" :key="purl">{{
-            purl.substring(purl.lastIndexOf("/") + 1)
-          }}</a
+          (<a
+            :href="purl"
+            target="_blank"
+            v-for="purl in ontology.semantics"
+            :key="purl"
+            >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
           >)
         </span>
       </div>
@@ -20,10 +28,17 @@
         :schema="schema"
         @update:modelValue="$emit('update:modelValue', ontology)"
       />
-      <IconDanger v-if="isManager" @click="deleteOntology(ontology)" icon="trash" class="hoverIcon" />
+      <IconDanger
+        v-if="isManager"
+        @click="deleteOntology(ontology)"
+        icon="trash"
+        class="hoverIcon"
+      />
     </td>
     <td>
-      {{ ontology.description ? ontology.description : "No description available" }}
+      {{
+        ontology.description ? ontology.description : "No description available"
+      }}
     </td>
   </tr>
 </template>

@@ -9,6 +9,9 @@ const { data, pending, error, refresh } = await useFetch(
     method: "POST",
     body: {
       query: `{
+        Variables_agg {
+          count
+        }
         Cohorts_agg { 
           count
           sum {
@@ -16,13 +19,23 @@ const { data, pending, error, refresh } = await useFetch(
             numberOfParticipantsWithSamples 
           }
         }
+        Networks_agg { 
+          count
+        }
         Cohorts_groupBy {
           count 
           design {
             name
           }
         }
-        _settings (keys: ["NOTICE_SETTING_KEY" "CATALOGUE_LANDING_TITLE" "CATALOGUE_LANDING_DESCRIPTION"]){ 
+        _settings (keys: [
+          "NOTICE_SETTING_KEY"
+          "CATALOGUE_LANDING_TITLE" 
+          "CATALOGUE_LANDING_DESCRIPTION" 
+          "CATALOGUE_LANDING_COHORTS_CTA"
+          "CATALOGUE_LANDING_NETWORKS_CTA"
+          "CATALOGUE_LANDING_VARIABLES_CTA"
+        ]){ 
           key
           value 
         }
@@ -53,7 +66,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 <template>
   <LayoutsLandingPage class="w-10/12 pt-8">
     <PageHeader
-      class="mx-auto lg:w-7/12"
+      class="mx-auto lg:w-7/12 text-center"
       :title="
         getSettingValue('CATALOGUE_LANDING_TITLE', data.data._settings) ||
         'European Networks Health Data & Cohort Catalogue.'
@@ -61,23 +74,46 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
       :description="
         getSettingValue('CATALOGUE_LANDING_DESCRIPTION', data.data._settings) ||
         'Browse and manage metadata for data resources, such as cohorts, registries, biobanks, and multi-center collaborations thereof such as networks, common data models and studies.'
-      "
-    ></PageHeader>
+      "></PageHeader>
 
     <div
-      class="bg-white shadow-primary justify-around flex flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0"
-    >
+      class="bg-white relative justify-around flex flex-col md:flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0 rounded-t-3px rounded-b-landing shadow-primary">
       <LandingCardPrimary
+        image="image-link"
         title="Cohorts"
-        description="A complete overview of all cohorts and biobanks within the UMCG."
+        description="A complete overview of all cohorts and biobanks."
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
+        "
         :count="data.data.Cohorts_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
-      />
+        :link="`/${route.params.schema}/ssr-catalogue/cohorts/`" />
+      <LandingCardPrimary
+        v-if="!config.public.cohortOnly"
+        image="image-diagram"
+        title="Networks"
+        description="Collaborations of multiple institutions and/or cohorts with a common objective."
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', data.data._settings)
+        "
+        :count="data.data.Networks_agg.count"
+        :link="`/${route.params.schema}/ssr-catalogue/networks/`" />
+      <LandingCardPrimary
+        v-if="!config.public.cohortOnly"
+        image="image-diagram-2"
+        title="Variables"
+        description="A complete overview of available variables."
+        :callToAction="
+          getSettingValue(
+            'CATALOGUE_LANDING_VARIABLES_CTA',
+            data.data._settings
+          )
+        "
+        :count="data.data.Variables_agg.count"
+        :link="`/${route.params.schema}/ssr-catalogue/variables/`" />
     </div>
 
     <div
-      class="justify-around flex flex-col md:flex-row pt-5 pb-5 lg:pb-10 lg:px-0"
-    >
+      class="justify-around flex flex-col md:flex-row pt-5 pb-5 lg:pb-10 lg:px-0">
       <LandingCardSecondary icon="people">
         <b> {{ data.data.Cohorts_agg.sum.numberOfParticipants }} Participants</b
         ><br />The cumulative number of participants of all datasets combined.

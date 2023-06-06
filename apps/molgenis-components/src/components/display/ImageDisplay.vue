@@ -1,5 +1,11 @@
 <template>
-  <img :src="url" :alt="alt" class="img-thumbnail" :class="{ clickable: isClickable }" @click="$emit('clicked', id)" />
+  <img
+    :src="url"
+    :alt="alt"
+    class="img-thumbnail"
+    :class="{ clickable: isClickable }"
+    @click="$emit('clicked', id)"
+  />
 </template>
 
 <style scoped>

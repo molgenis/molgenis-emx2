@@ -29,7 +29,9 @@ export default {
     asTemplate() {
       const names = Object.keys(this.data);
       const vals = Object.values(this.data);
-      const refLabel = this.metaData.refLabel ? this.metaData.refLabel : this.metaData.refLabelDefault;
+      const refLabel = this.metaData.refLabel
+        ? this.metaData.refLabel
+        : this.metaData.refLabelDefault;
       try {
         return new Function(...names, "return `" + refLabel + "`;")(...vals);
       } catch (err) {
