@@ -23,8 +23,7 @@
       :tableName="column.refTable"
       :canEdit="canEdit"
       :filter="refLinkFilter(column)"
-      @update:modelValue="handleModelValueUpdate($event, column.id)"
-    />
+      @update:modelValue="handleModelValueUpdate($event, column.id)" />
   </div>
 </template>
 
@@ -110,14 +109,14 @@ export default {
     columnsWithoutMeta() {
       return this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
-            (column) => !column.name?.startsWith("mg_")
+            column => !column.name?.startsWith("mg_")
           )
         : [];
     },
     graphqlFilter() {
       if (this.tableMetaData && this.pkey) {
         return this.tableMetaData.columns
-          .filter((column) => column.key == 1)
+          .filter(column => column.key == 1)
           .reduce((accum, column) => {
             accum[column.id] = { equals: this.pkey[column.id] };
             return accum;
@@ -171,14 +170,14 @@ export default {
     },
     validateTable() {
       this.tableMetaData?.columns
-        ?.filter((column) => {
+        ?.filter(column => {
           if (this.visibleColumns) {
             return this.visibleColumns.includes(column.name);
           } else {
             return true;
           }
         })
-        .forEach((column) => {
+        .forEach(column => {
           this.errorPerColumn[column.id] = getColumnError(
             column,
             this.internalValues,
@@ -189,7 +188,7 @@ export default {
     },
     applyComputed() {
       //apply computed
-      this.tableMetaData.columns.forEach((c) => {
+      this.tableMetaData.columns.forEach(c => {
         if (c.computed && c.columnType !== AUTO_ID) {
           try {
             this.internalValues[c.id] = executeExpression(
@@ -213,12 +212,12 @@ export default {
         this.internalValues[convertToCamelCase(c.refLink)]
       ) {
         let filter = {};
-        this.tableMetaData.columns.forEach((c2) => {
+        this.tableMetaData.columns.forEach(c2 => {
           if (c2.name === c.refLink) {
-            this.schemaMetaData.tables.forEach((t) => {
+            this.schemaMetaData.tables.forEach(t => {
               //check how the reftable overlaps with columns in our column
               if (t.name === c.refTable) {
-                t.columns.forEach((c3) => {
+                t.columns.forEach(c3 => {
                   if (c3.key === 1 && c3.refTable === c2.refTable) {
                     filter[c3.name] = {
                       equals:
@@ -317,7 +316,7 @@ function getColumnValidationError(column, values, tableMetaData) {
 function executeExpression(expression, values, tableMetaData) {
   //make sure all columns have keys to prevent reference errors
   const copy = deepClone(values);
-  tableMetaData.columns.forEach((c) => {
+  tableMetaData.columns.forEach(c => {
     if (!copy.hasOwnProperty(c.id)) {
       copy[c.id] = null;
     }
@@ -360,7 +359,7 @@ function isValidHyperlink(value) {
 }
 
 function containsInvalidHyperlink(hyperlinks) {
-  return hyperlinks.find((hyperlink) => !isValidHyperlink(hyperlink));
+  return hyperlinks.find(hyperlink => !isValidHyperlink(hyperlink));
 }
 
 function isValidEmail(value) {
@@ -368,7 +367,7 @@ function isValidEmail(value) {
 }
 
 function containsInvalidEmail(emails) {
-  return emails.find((email) => !isValidEmail(email));
+  return emails.find(email => !isValidEmail(email));
 }
 </script>
 

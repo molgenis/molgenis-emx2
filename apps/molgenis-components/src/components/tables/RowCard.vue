@@ -10,8 +10,7 @@
             :table="tableName"
             :pkey="getKey(row)"
             @close="$emit('reload')"
-            @edit="$emit('edit', row)"
-          />
+            @edit="$emit('edit', row)" />
           <RowButton
             v-if="canEdit"
             type="delete"
@@ -19,22 +18,19 @@
             :table="tableName"
             :pkey="getKey(row)"
             @close="$emit('reload')"
-            @delete="$emit('delete', row)"
-          />
+            @delete="$emit('delete', row)" />
         </span>
         <VueTemplate v-if="template" :template="template" :row="row" />
         <dl v-else>
           <div v-for="col in columns" :key="col.id">
             <dt
               v-if="col.showColumn && row[col.id] && col.id != 'mg_tableclass'"
-              class="pr-3"
-            >
+              class="pr-3">
               {{ col.name }}
             </dt>
             <dd
               class="pl-3"
-              v-if="col.showColumn && row[col.id] && col.id != 'mg_tableclass'"
-            >
+              v-if="col.showColumn && row[col.id] && col.id != 'mg_tableclass'">
               <RenderValue :col="col" :row="row" />
             </dd>
           </div>
@@ -87,8 +83,8 @@ export default {
     getKey(row) {
       let result = {};
       this.columns
-        .filter((c) => c.key == 1)
-        .map((c) => (result[c.name] = row[c.name]));
+        .filter(c => c.key == 1)
+        .map(c => (result[c.name] = row[c.name]));
       return result;
     },
   },

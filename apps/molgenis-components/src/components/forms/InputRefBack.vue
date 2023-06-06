@@ -6,30 +6,26 @@
       :data="data"
       :columns="visibleColumns"
       :table-metadata="tableMetadata"
-      style="overflow-x: scroll"
-    >
+      style="overflow-x: scroll">
       <template v-slot:rowcolheader>
         <slot
           name="rowcolheader"
           v-bind="$props"
           :canEdit="canEdit"
           :reload="reload"
-          :schemaName="schemaName"
-        />
+          :schemaName="schemaName" />
         <RowButton
           v-if="canEdit"
           type="add"
           @add="handleRowAction('add')"
-          class="d-inline p-0"
-        />
+          class="d-inline p-0" />
       </template>
       <template v-slot:rowheader="slotProps">
         <slot
           name="rowheader"
           :row="slotProps.row"
           :metadata="tableMetadata"
-          :rowkey="slotProps.rowkey"
-        />
+          :rowkey="slotProps.rowkey" />
         <RowButton
           v-if="canEdit"
           type="edit"
@@ -42,8 +38,7 @@
           @close="reload"
           @edit="
             handleRowAction('edit', getPrimaryKey(slotProps.row, tableMetadata))
-          "
-        />
+          " />
         <RowButton
           v-if="canEdit"
           type="clone"
@@ -57,15 +52,13 @@
               'clone',
               getPrimaryKey(slotProps.row, tableMetadata)
             )
-          "
-        />
+          " />
         <RowButton
           v-if="canEdit"
           type="delete"
           @delete="
             handleDeleteRowRequest(getPrimaryKey(slotProps.row, tableMetadata))
-          "
-        />
+          " />
       </template>
     </TableMolgenis>
     <MessageWarning v-else>
@@ -83,8 +76,7 @@
       :clone="editMode === 'clone'"
       :schemaName="schemaName"
       :defaultValue="defaultValue"
-      @close="handleModalClose"
-    />
+      @close="handleModalClose" />
 
     <ConfirmModal
       v-if="isDeleteModalShown"
@@ -94,8 +86,7 @@
       :tableName="tableName"
       :pkey="editRowPrimaryKey"
       @close="isDeleteModalShown = false"
-      @confirmed="handleExecuteDelete"
-    />
+      @confirmed="handleExecuteDelete" />
   </FormGroup>
 </template>
 
@@ -182,13 +173,13 @@ export default {
       return result;
     },
     visibleColumnNames() {
-      return this.visibleColumns.map((c) => c.id);
+      return this.visibleColumns.map(c => c.id);
     },
     visibleColumns() {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.id != this.refBack && !c.id.startsWith("mg_")
+          c => c.id != this.refBack && !c.id.startsWith("mg_")
         );
       }
       return [];
@@ -239,7 +230,7 @@ export default {
     this.isLoading = true;
     this.tableMetadata = await this.client
       .fetchTableMetaData(this.tableName)
-      .catch((error) => (this.errorMessage = error.message));
+      .catch(error => (this.errorMessage = error.message));
     await this.reload();
   },
 };

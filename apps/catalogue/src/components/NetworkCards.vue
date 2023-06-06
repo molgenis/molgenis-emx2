@@ -7,8 +7,7 @@
             ? network.logo.url
             : 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
         "
-        alt="..."
-      />
+        alt="..." />
     </div>
     <div class="card-body">
       <h5 class="card-title">{{ network.id }}</h5>
@@ -24,20 +23,17 @@
       <div class="card-footer bg-white mt-auto">
         <RouterLink
           class="btn btn-primary ml-2"
-          :to="{ name: 'NetworkDetails', params: { network: network.id } }"
-        >
+          :to="{ name: 'NetworkDetails', params: { network: network.id } }">
           description
         </RouterLink>
         <RouterLink
           class="btn btn-primary ml-2"
-          :to="{ name: 'NetworkCohorts', params: { network: network.id } }"
-        >
+          :to="{ name: 'NetworkCohorts', params: { network: network.id } }">
           cohorts
         </RouterLink>
         <RouterLink
           class="btn btn-primary ml-2"
-          :to="{ name: 'NetworkVariables', params: { network: network.id } }"
-        >
+          :to="{ name: 'NetworkVariables', params: { network: network.id } }">
           variables
         </RouterLink>
       </div>

@@ -4,8 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <InputGroup>
       <textarea
         ref="textarea"
@@ -15,8 +14,7 @@
         :aria-describedby="id + 'Help'"
         :placeholder="placeholder"
         :readonly="readonly"
-        @input="$emit('update:modelValue', $event.target.value)"
-      />
+        @input="$emit('update:modelValue', $event.target.value)" />
       <template v-slot:append>
         <slot name="append"></slot>
       </template>

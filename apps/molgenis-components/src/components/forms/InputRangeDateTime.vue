@@ -4,8 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <div class="d-flex">
       <InputDateTime
         :id="id + '-from'"
@@ -13,16 +12,14 @@
         :readonly="readonly"
         @update:modelValue="emitValue($event, 0)"
         placeholder="from"
-        class="m-0"
-      />
+        class="m-0" />
       <InputDateTime
         :id="id + '-to'"
         :modelValue="modelValue[1]"
         :readonly="readonly"
         @update:modelValue="emitValue($event, 1)"
         placeholder="to"
-        class="m-0"
-      />
+        class="m-0" />
     </div>
   </FormGroup>
 </template>

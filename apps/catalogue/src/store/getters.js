@@ -15,11 +15,11 @@ export default {
         state.session.roles.includes("Manager"))
     );
   },
-  variables: (state) => state.variables,
-  variableCount: (state) => state.variableCount,
-  variableDetails: (state) => state.variableDetails,
-  variableDetailsByName: (state) => (name) => state.variableDetails[name],
-  mappingDetailsByVariableAndMapping: (state) => (name, mapping) => {
+  variables: state => state.variables,
+  variableCount: state => state.variableCount,
+  variableDetails: state => state.variableDetails,
+  variableDetailsByName: state => name => state.variableDetails[name],
+  mappingDetailsByVariableAndMapping: state => (name, mapping) => {
     if (
       state.variableDetails[name] &&
       state.variableDetails[name].mappings[mapping] &&
@@ -30,23 +30,22 @@ export default {
       return {};
     }
   },
-  searchString: (state) =>
+  searchString: state =>
     state.searchInput === null || state.searchInput.trim() === ""
       ? null
       : state.searchInput.trim(),
-  selectedKeywords: (state) => {
-    return state.filters.find((filters) => filters.name === "keywords")
+  selectedKeywords: state => {
+    return state.filters.find(filters => filters.name === "keywords")
       .conditions;
   },
-  selectedNetworks: (state) => {
-    return state.filters.find((filters) => filters.name === "networks")
+  selectedNetworks: state => {
+    return state.filters.find(filters => filters.name === "networks")
       .conditions;
   },
-  selectedCohorts: (state) => {
-    return state.filters.find((filters) => filters.name === "cohorts")
-      .conditions;
+  selectedCohorts: state => {
+    return state.filters.find(filters => filters.name === "cohorts").conditions;
   },
-  resources: (state) => state.resources,
+  resources: state => state.resources,
   /**
    * @returns Grid like object o[x][y], where;
    *  x = variableName,
@@ -61,10 +60,10 @@ export default {
    * }
    *
    */
-  harmonizationGrid: (state) => {
+  harmonizationGrid: state => {
     const harmonizationGrid = {};
 
-    state.variableMappings.forEach((mapping) => {
+    state.variableMappings.forEach(mapping => {
       const varName = mapping.toVariable.name;
       if (!harmonizationGrid[varName]) {
         harmonizationGrid[varName] = {};

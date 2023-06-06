@@ -14,7 +14,7 @@ const fetchById = async (query, type, variables) => {
   if (!dataCache[dataKey]) {
     dataCache[dataKey] = (
       await request("graphql", queryCache[query].default, variables).catch(
-        (e) => {
+        e => {
           console.error(
             `Error fetching data for ${type} (id: ${JSON.stringify(variables)})`
           );

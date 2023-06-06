@@ -34,8 +34,7 @@ const hoverColorClass = computed(() => {
     <VTooltip :showTriggers="['hover', 'touch']" :distance="12">
       <button
         class="w-6 h-6 text-blue-200 cursor-default select-none"
-        :class="hoverColorClass"
-      >
+        :class="hoverColorClass">
         <BaseIcon name="info" />
         <span class="sr-only" v-if="label">{{ label }}</span>
       </button>

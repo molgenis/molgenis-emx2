@@ -6,8 +6,7 @@
           session.email == 'admin' ||
           (session.roles && session.roles.includes('Manager'))
         "
-        class="card"
-      >
+        class="card">
         <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs">
             <li
@@ -20,8 +19,7 @@
                 changelog: 'Changelog',
                 settings: 'Advanced settings',
               }"
-              :key="key"
-            >
+              :key="key">
               <router-link
                 class="nav-link"
                 :class="{

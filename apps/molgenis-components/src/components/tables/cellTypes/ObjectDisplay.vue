@@ -42,7 +42,7 @@ export default {
     },
     asDotSeparatedString() {
       let result = "";
-      Object.keys(this.data).forEach((key) => {
+      Object.keys(this.data).forEach(key => {
         if (this.data[key] === null) {
           //nothing
         } else if (typeof this.data[key] === "object") {

@@ -18,24 +18,20 @@
     <i
       v-if="match == 'complete'"
       class="fa fa-check-circle text-success"
-      @click="show = true"
-    />
+      @click="show = true" />
     <i
       v-else-if="match == 'partial'"
       class="fa fa-check-circle text-warning"
-      @click="show = true"
-    />
+      @click="show = true" />
     <i
       v-else-if="match == 'nza'"
       class="fa fa-times text-primary"
-      @click="show = true"
-    />
+      @click="show = true" />
     <i v-else class="fa fa-question text-primary" />
     <LayoutModal
       v-if="show"
       @close="show = false"
-      title="Harmonisation details"
-    >
+      title="Harmonisation details">
       <template v-slot:body>
         <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
         <div class="row">
@@ -65,7 +61,7 @@
               <dd>
                 {{
                   harmonisation.sourceVariables
-                    ? harmonisation.sourceVariables.map((v) => v.name).join(",")
+                    ? harmonisation.sourceVariables.map(v => v.name).join(",")
                     : "N/A"
                 }}
               </dd>
@@ -85,8 +81,7 @@
           v-if="
             harmonisation.targetVariable.dataset &&
             harmonisation.targetVariable.dataset.mappings
-          "
-        >
+          ">
           <h5>Dataset mappings</h5>
           <div>
             <table>
@@ -174,10 +169,10 @@ export default {
           filter: filter,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.harmonisation = data.VariableHarmonisations[0];
         })
-        .catch((error) => {
+        .catch(error => {
           this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {

@@ -44,8 +44,7 @@ const columnCountClass = computed(() => {
     <h3 class="mb-2.5 font-bold text-body-base">{{ title }}</h3>
     <ul
       class="columns-1 float-left text-body-base"
-      :class="`${columnCountClass} ${listClasses} `"
-    >
+      :class="`${columnCountClass} ${listClasses} `">
       <slot></slot>
     </ul>
   </section>

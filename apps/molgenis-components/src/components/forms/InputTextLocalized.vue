@@ -4,8 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <InputGroup>
       <table class="table table-bordered table-sm mb-0">
         <tr v-for="(el, idx) in modelValue">
@@ -17,8 +16,7 @@
               :id="id + ':' + el.locale"
               v-model="modelValue[idx]['value']"
               class="mb-0"
-              @input=""
-            />
+              @input="" />
           </td>
         </tr>
       </table>
@@ -80,11 +78,11 @@ export default {
 
 function initializeLocales(locales, value) {
   let newValue = [...value];
-  locales.forEach((locale) => {
-    if (locale && !value.find((el) => el.locale === locale)) {
+  locales.forEach(locale => {
+    if (locale && !value.find(el => el.locale === locale)) {
       newValue.push({ locale: locale, value: "" });
     }
-    if (!value.find((el) => el.locale === "en")) {
+    if (!value.find(el => el.locale === "en")) {
       newValue.push({ locale: locale, value: "en" });
     }
   });

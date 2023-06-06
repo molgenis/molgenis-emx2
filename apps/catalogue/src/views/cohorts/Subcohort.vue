@@ -3,19 +3,16 @@
     <grid-block v-if="cohortData">
       <page-header
         :title="cohortData.name"
-        :logoUrl="cohortData.logo.url"
-      ></page-header>
+        :logoUrl="cohortData.logo.url"></page-header>
     </grid-block>
 
     <key-value-block
       v-if="subcohort"
       :heading="'Subpopulations: ' + subcohort.name"
-      :items="details"
-    ></key-value-block>
+      :items="details"></key-value-block>
     <grid-block
       v-if="quantitativeInformation"
-      heading="Quantitative information"
-    >
+      heading="Quantitative information">
       <table-display
         :isClickable="false"
         :columns="[
@@ -24,8 +21,7 @@
           { name: 'N_female', label: 'N female' },
           { name: 'N_male', label: 'N male' },
         ]"
-        :rows="quantitativeInformation"
-      ></table-display>
+        :rows="quantitativeInformation"></table-display>
     </grid-block>
   </div>
 </template>
@@ -75,7 +71,7 @@ export default {
         {
           label: "Age categories",
           value: this.subcohort.ageGroups
-            ? this.subcohort.ageGroups.map((ag) => ag.name)
+            ? this.subcohort.ageGroups.map(ag => ag.name)
             : [],
         },
         {
@@ -88,15 +84,13 @@ export default {
         {
           label: "Population",
           value: this.subcohort.countries
-            ? this.subcohort.countries.map((c) => c.name)
+            ? this.subcohort.countries.map(c => c.name)
             : [],
         },
         {
           label: "Main medical condition",
           value: this.subcohort.mainMedicalCondition
-            ? this.subcohort.mainMedicalCondition
-                .map((mmc) => mmc.name)
-                .join(",")
+            ? this.subcohort.mainMedicalCondition.map(mmc => mmc.name).join(",")
             : "",
         },
         {
@@ -106,14 +100,14 @@ export default {
         {
           label: "Comorbidity",
           value: this.subcohort.comorbidity
-            ? this.subcohort.comorbidity.map((c) => c.name)
+            ? this.subcohort.comorbidity.map(c => c.name)
             : [],
         },
       ];
     },
     quantitativeInformation() {
       return this.subcohort && this.subcohort.counts
-        ? this.subcohort.counts.map((count) => {
+        ? this.subcohort.counts.map(count => {
             count.ageGroup = count.ageGroup.name;
             return count;
           })
@@ -123,7 +117,7 @@ export default {
   mounted: async function () {
     fetchById("cohortDetails", "Cohorts", {
       id: this.$route.params.cohort,
-    }).then((data) => (this.cohortData = data));
+    }).then(data => (this.cohortData = data));
 
     this.subcohort = await fetchById("subcohortDetails", "Subcohorts", {
       id: this.$route.params.cohort,

@@ -20,8 +20,7 @@
                 v-if="selectColumn"
                 type="checkbox"
                 :checked="isSelected(row)"
-                @click.stop="toggleSelect(row)"
-              />
+                @click.stop="toggleSelect(row)" />
               <slot name="rowheader" :row="row" />
             </div>
           </td>
@@ -29,8 +28,7 @@
             v-for="col in columns"
             :key="col"
             @click="onRowClick(row)"
-            style="cursor: pointer"
-          >
+            style="cursor: pointer">
             <ul v-if="Array.isArray(row[col])" class="list-unstyled">
               <li v-for="(item, index3) in row[col]" :key="index3">
                 {{ item }}
@@ -89,7 +87,7 @@ export default {
     flattenObject(object) {
       let result = "";
       if (object && object.length > 0 && typeof object === "object") {
-        Object.keys(object).forEach((key) => {
+        Object.keys(object).forEach(key => {
           if (object[key] === null) {
             //nothing
           } else if (typeof object[key] === "object") {
@@ -113,7 +111,7 @@ export default {
       if (this.isSelected(row)) {
         /** when a row is deselected */
         this.selectedItems = this.selectedItems.filter(
-          (item) => item !== row[this.selectColumn]
+          item => item !== row[this.selectColumn]
         );
         this.$emit("deselect", row[this.selectColumn]);
       } else {

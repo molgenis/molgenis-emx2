@@ -11,8 +11,7 @@
     :readonly="readonly"
     :required="required"
     @keypress="handleKeyValidity"
-    @input="emitIfValid"
-  />
+    @input="emitIfValid" />
 </template>
 
 <script>

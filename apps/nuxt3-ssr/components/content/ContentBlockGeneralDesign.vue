@@ -46,7 +46,7 @@ function setData() {
       label: "Collection type",
       content: cohort?.collectionType
         ? cohort?.collectionType
-            .map((collectionType) => collectionType.name)
+            .map(collectionType => collectionType.name)
             .join(", ")
         : undefined,
     },
@@ -59,7 +59,7 @@ function setData() {
       content: cohort?.countries
         ? [...cohort?.countries]
             .sort((a, b) => b.order - a.order)
-            .map((country) => country.name)
+            .map(country => country.name)
             .join(", ")
         : undefined,
     },
@@ -67,7 +67,7 @@ function setData() {
       label: "Regions",
       content: cohort?.regions
         ?.sort((a, b) => b.order - a.order)
-        .map((r) => r.name)
+        .map(r => r.name)
         .join(", "),
     },
     {
@@ -82,7 +82,7 @@ function setData() {
       label: "Age group at inclusion",
       content: removeChildIfParentSelected(cohort?.populationAgeGroups || [])
         .sort((a, b) => a.order - b.order)
-        .map((ageGroup) => ageGroup.name)
+        .map(ageGroup => ageGroup.name)
         .join(", "),
     },
     {
@@ -91,7 +91,7 @@ function setData() {
     },
     {
       label: "Marker paper",
-      content: cohort?.designPaper?.map((dp) => {
+      content: cohort?.designPaper?.map(dp => {
         return dp.title + (dp.doi ? ` (doi: ${dp.doi})` : "");
       }),
     },
@@ -102,7 +102,6 @@ function setData() {
 <template>
   <ContentBlock :title="title" :description="description">
     <DefinitionList
-      :items="generalDesign.filter((item) => item.content !== undefined)"
-    />
+      :items="generalDesign.filter(item => item.content !== undefined)" />
   </ContentBlock>
 </template>

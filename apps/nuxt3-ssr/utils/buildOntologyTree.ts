@@ -60,7 +60,7 @@ export const buildOntologyTree = (
   const nodeList = Array.from(nodes.values());
 
   // prepare the list to make the flipped tree
-  const treeItems = nodeList.map((node) => {
+  const treeItems = nodeList.map(node => {
     node.children = [];
     return node;
   });

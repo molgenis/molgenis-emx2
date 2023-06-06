@@ -21,7 +21,7 @@ export const columnNames = (
   rootLevel = true
 ) => {
   let result = "";
-  getTable(schemaName, tableName, metaData.tables)?.columns?.forEach((col) => {
+  getTable(schemaName, tableName, metaData.tables)?.columns?.forEach(col => {
     //we always expand the subfields of key=1, but other 'ref' fields only if they do not break server
     if (expandLevel > 0 || col.key == 1) {
       if (
@@ -64,7 +64,7 @@ const getTable = (
   tableStore: ITableMetaData[]
 ) => {
   const result = tableStore.find(
-    (table) =>
+    table =>
       table.id === convertToPascalCase(tableName) &&
       table.externalSchema === schemaName
   );

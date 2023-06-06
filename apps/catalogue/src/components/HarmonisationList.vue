@@ -25,8 +25,7 @@
                 :target-resource="resourceId"
                 :source-resource="t.split(':')[0]"
                 :source-table="t.split(':')[1]"
-                :match="matrix[v][t]"
-              />
+                :match="matrix[v][t]" />
             </td>
           </tr>
         </tbody>
@@ -76,25 +75,23 @@ export default {
     tables() {
       return [
         ...new Set(
-          this.harmonisations.map(
-            (h) => h.source.id + ":" + h.sourceDataset.name
-          )
+          this.harmonisations.map(h => h.source.id + ":" + h.sourceDataset.name)
         ),
       ].sort();
     },
     variables() {
       return [
-        ...new Set(this.harmonisations.map((h) => h.targetVariable.name)),
+        ...new Set(this.harmonisations.map(h => h.targetVariable.name)),
       ].sort();
     },
     matrix() {
       //create scaffold
       let result = {};
-      this.variables.forEach((v) => {
+      this.variables.forEach(v => {
         result[v] = {};
       });
       // put harmonisations over defaults
-      this.harmonisations.forEach((h) => {
+      this.harmonisations.forEach(h => {
         if (h.match) {
           result[h.targetVariable.name][
             h.sourceDataset.resource.id + ":" + h.sourceDataset.name
@@ -125,11 +122,11 @@ export default {
           limit: this.limit,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.harmonisations = data.VariableHarmonisations;
           this.count = data.VariableHarmonisations_agg.count;
         })
-        .catch((error) => {
+        .catch(error => {
           this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {

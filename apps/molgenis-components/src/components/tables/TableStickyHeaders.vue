@@ -20,8 +20,7 @@
           </th>
           <td
             v-for="(column, columnIndex) of columns"
-            :key="`td-${columnIndex}`"
-          >
+            :key="`td-${columnIndex}`">
             <slot name="cell" :value="data[row][column]">
               {{ data[row][column] }}
             </slot>

@@ -3,15 +3,13 @@
     <grid-block v-if="cohortData">
       <page-header
         :title="cohortData.name"
-        :logoUrl="cohortData.logo.url"
-      ></page-header>
+        :logoUrl="cohortData.logo.url"></page-header>
     </grid-block>
 
     <key-value-block
       v-if="collectionEvent"
       :heading="'Collection event: ' + collectionEvent.name"
-      :items="details"
-    ></key-value-block>
+      :items="details"></key-value-block>
   </div>
 </template>
 
@@ -51,7 +49,7 @@ export default {
         {
           label: "Subcohorts",
           value: this.collectionEvent.subcohorts
-            ? this.collectionEvent.subcohorts.map((item) => item.name)
+            ? this.collectionEvent.subcohorts.map(item => item.name)
             : [],
         },
         {
@@ -61,7 +59,7 @@ export default {
         {
           label: "Age categories",
           value: this.collectionEvent.ageGroups
-            ? this.collectionEvent.ageGroups.map((ag) => ag.name)
+            ? this.collectionEvent.ageGroups.map(ag => ag.name)
             : [],
         },
         {
@@ -79,25 +77,25 @@ export default {
         {
           label: "Data Categories",
           value: this.collectionEvent.dataCategories
-            ? this.collectionEvent.dataCategories.map((c) => c.name)
+            ? this.collectionEvent.dataCategories.map(c => c.name)
             : [],
         },
         {
           label: "Areas of information",
           value: this.collectionEvent.areasOfInformation
-            ? this.collectionEvent.areasOfInformation.map((item) => item.name)
+            ? this.collectionEvent.areasOfInformation.map(item => item.name)
             : [],
         },
         {
           label: "Sample categories",
           value: this.collectionEvent.sampleCategories
-            ? this.collectionEvent.sampleCategories.map((item) => item.name)
+            ? this.collectionEvent.sampleCategories.map(item => item.name)
             : [],
         },
         {
           label: "Core variables",
           value: this.collectionEvent.coreVariables
-            ? this.collectionEvent.coreVariables.map((item) => item.name)
+            ? this.collectionEvent.coreVariables.map(item => item.name)
             : [],
         },
       ];
@@ -106,7 +104,7 @@ export default {
   mounted: async function () {
     fetchById("cohortDetails", "Cohorts", {
       id: this.$route.params.cohort,
-    }).then((data) => (this.cohortData = data));
+    }).then(data => (this.cohortData = data));
 
     this.collectionEvent = await fetchById(
       "collectionEvent",

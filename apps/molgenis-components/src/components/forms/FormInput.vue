@@ -2,15 +2,13 @@
   <component
     :is="inplace ? 'InlineInput' : 'span'"
     :value="modelValue"
-    :id="id"
-  >
+    :id="id">
     <component
       v-if="typeToInput"
       :is="typeToInput"
       :isMultiSelect="columnType === 'ONTOLOGY_ARRAY'"
       v-bind="$props"
-      @update:modelValue="handleUpdate"
-    />
+      @update:modelValue="handleUpdate" />
     <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
   </component>
 </template>

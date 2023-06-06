@@ -23,7 +23,7 @@ const { data: collectionEventData } = await useFetch(
       },
     },
   }
-).catch((e) => console.log(e));
+).catch(e => console.log(e));
 
 watch(
   collectionEventData,
@@ -129,8 +129,7 @@ useHead({ title: collectionEvent?.name });
     <template #header>
       <PageHeader
         :title="collectionEvent?.name"
-        :description="collectionEvent?.description"
-      >
+        :description="collectionEvent?.description">
         <template #prefix>
           <BreadCrumbs :crumbs="pageCrumbs" />
         </template>
@@ -147,15 +146,13 @@ useHead({ title: collectionEvent?.name });
         <ContentBlock
           v-if="collectionEvent.ageGroups"
           id="age_categories"
-          title="Age categories"
-        >
+          title="Age categories">
           <ul class="grid gap-1 pl-4 list-disc list-outside">
             <li
               v-for="ageGroup in removeChildIfParentSelected(
                 collectionEvent.ageGroups || []
               ).sort((a, b) => a.order - b.order)"
-              :key="ageGroup.name"
-            >
+              :key="ageGroup.name">
               {{ ageGroup.name }}
             </li>
           </ul>
@@ -163,29 +160,24 @@ useHead({ title: collectionEvent?.name });
         <ContentBlock
           v-if="collectionEvent.dataCategories"
           id="data_categories"
-          title="Data categories"
-        >
+          title="Data categories">
           <ContentOntology :tree="dataCategoriesTree" :collapse-all="false" />
         </ContentBlock>
         <ContentBlock
           v-if="collectionEvent.areasOfInformation"
           id="areas_of_information"
-          title="Areas of information"
-        >
+          title="Areas of information">
           <ContentOntology
             :tree="areasOfInformationTree"
-            :collapse-all="false"
-          />
+            :collapse-all="false" />
         </ContentBlock>
         <ContentBlock
           v-if="collectionEvent.standardizedTools"
           id="standardized_tools"
-          title="Standardized tools"
-        >
+          title="Standardized tools">
           <ContentOntology
             :tree="standardizedToolsTree"
-            :collapse-all="false"
-          />
+            :collapse-all="false" />
           <DefinitionList
             v-if="collectionEvent.standardizedToolsOther"
             class="mt-6"
@@ -195,8 +187,7 @@ useHead({ title: collectionEvent?.name });
                 content: collectionEvent.standardizedToolsOther,
               },
             ]"
-            :collapse-all="false"
-          />
+            :collapse-all="false" />
         </ContentBlock>
       </ContentBlocks>
     </template>

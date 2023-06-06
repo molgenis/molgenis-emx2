@@ -3,8 +3,7 @@
     :id="id"
     :label="label"
     :description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <InputGroup class="d-flex">
       <template v-slot:prepend>
         <slot name="prepend"></slot>
@@ -17,8 +16,7 @@
         :config="config"
         @update:modelValue="emitValue($event, 0)"
         placeholder="from"
-        class="m-0"
-      />
+        class="m-0" />
 
       <BaseInputDate
         :id="id + '-to'"
@@ -27,8 +25,7 @@
         :config="config"
         @update:modelValue="emitValue($event, 1)"
         placeholder="to"
-        class="m-0"
-      />
+        class="m-0" />
       <template v-slot:append>
         <slot name="append"></slot>
       </template>

@@ -9,23 +9,20 @@
         <MolgenisAccount
           v-if="showChangePasswordForm"
           :error="error"
-          @cancel="showChangePasswordForm = false"
-        />
+          @cancel="showChangePasswordForm = false" />
         <ButtonOutline @click="signout" :light="true">Sign out</ButtonOutline>
       </span>
       <span v-else>
         <ButtonAlt
           v-show="!isOidcEnabled"
           @click="showSignupForm = true"
-          :light="true"
-        >
+          :light="true">
           Sign up
         </ButtonAlt>
         <SignupForm
           v-if="showSignupForm"
           :error="error"
-          @close="closeSignupForm"
-        />
+          @close="closeSignupForm" />
         <ButtonOutline v-if="isOidcEnabled" :href="oidcLoginUrl" :light="true">
           Sign in</ButtonOutline
         >
@@ -35,15 +32,13 @@
         <MolgenisSignin
           v-if="showSigninForm"
           @signin="changed"
-          @cancel="closeSigninForm"
-        />
+          @cancel="closeSigninForm" />
       </span>
       <LocaleSwitch
         v-if="locales.length > 1"
         class="ml-2"
         v-model="session.locale"
-        :locales="locales"
-      />
+        :locales="locales" />
     </div>
   </div>
 </template>
@@ -133,7 +128,7 @@ export default defineComponent({
   },
   methods: {
     loadSettings(settings: { _settings: ISetting[] }) {
-      settings._settings.forEach((setting) => {
+      settings._settings.forEach(setting => {
         const value: string =
           setting.value?.startsWith("[") || setting.value?.startsWith("{")
             ? this.parseJson(setting.value)

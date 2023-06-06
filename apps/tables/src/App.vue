@@ -5,8 +5,7 @@
       v-else
       :session="session"
       :schema="schema"
-      :key="JSON.stringify(session)"
-    />
+      :key="JSON.stringify(session)" />
   </Molgenis>
 </template>
 
@@ -45,10 +44,10 @@ export default {
         "graphql",
         "{_schema{name,tables{id,name,tableType,externalSchema,labels{locale,value},descriptions{locale,value},columns{name,labels{locale,value}columnType,key,refTable,required,descriptions{locale,value}}}}}"
       )
-        .then((data) => {
+        .then(data => {
           this.schema = data._schema;
         })
-        .catch((error) => {
+        .catch(error => {
           console.log(JSON.stringify(error));
           if (
             error.response &&

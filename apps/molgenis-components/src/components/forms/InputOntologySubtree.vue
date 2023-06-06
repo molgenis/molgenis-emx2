@@ -1,27 +1,23 @@
 <template>
   <ul style="list-style-type: none">
     <li
-      v-for="term in terms.filter((t) => t.visible)"
-      :key="term.name + term.selected + term.expanded"
-    >
+      v-for="term in terms.filter(t => t.visible)"
+      :key="term.name + term.selected + term.expanded">
       <!--show if selected or search-->
       <i
         class="fa-fw pl-2 pt-1 ml-3"
         role="button"
         :class="getExpandState(term)"
-        @click.stop="toggleExpand(term)"
-      />
+        @click.stop="toggleExpand(term)" />
       <i
         class="fa-fw text-primary pl-2 pt-1"
         :class="getSelectState(term)"
         @click.stop="toggleSelect(term)"
-        role="button"
-      />
+        role="button" />
       <span
         @click.stop="toggleExpandOrSelect(term)"
         class="flex-grow-1 pl-2"
-        role="button"
-      >
+        role="button">
         {{ term.label ? term.label : term.name }}
         <span v-if="term.code">
           (<span v-if="term.codesystem">{{ term.codesystem }}:</span
@@ -40,8 +36,7 @@
         :isMultiSelect="isMultiSelect"
         @select="$emit('select', $event)"
         @deselect="$emit('deselect', $event)"
-        @toggleExpand="$emit('toggleExpand', $event)"
-      />
+        @toggleExpand="$emit('toggleExpand', $event)" />
     </li>
   </ul>
 </template>
@@ -60,7 +55,7 @@ export default {
   methods: {
     countVisibleChildren(term) {
       if (term.children) {
-        return term.children.filter((t) => t.visible).length;
+        return term.children.filter(t => t.visible).length;
       } else {
         return 0;
       }
@@ -78,7 +73,7 @@ export default {
     getAllChildNames(term) {
       let childNames = [];
       if (term.children) {
-        term.children.forEach((childTerm) => {
+        term.children.forEach(childTerm => {
           childNames.push(childTerm.name);
           childNames = childNames.concat(this.getAllChildNames(childTerm));
         });

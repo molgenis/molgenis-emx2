@@ -4,8 +4,7 @@
       <li
         class="nav-item"
         v-for="resource in resourceListSorted"
-        :key="resource"
-      >
+        :key="resource">
         <router-link
           class="nav-link"
           :class="{
@@ -17,8 +16,7 @@
               ...$route.query,
               sourceCohort: resource,
             },
-          }"
-        >
+          }">
           {{ resource }}
         </router-link>
       </li>
@@ -27,8 +25,7 @@
       <resource-harmonization-details
         :variable="variable"
         :name="name"
-        :sourceCohort="$route.query.sourceCohort"
-      />
+        :sourceCohort="$route.query.sourceCohort" />
     </template>
   </div>
 </template>
@@ -48,7 +45,7 @@ export default {
     resourceListSorted() {
       if (this.variable.mappings) {
         return this.variable.mappings
-          .map((m) => m.sourceDataset.resource.id)
+          .map(m => m.sourceDataset.resource.id)
           .sort();
       } else {
         return [];

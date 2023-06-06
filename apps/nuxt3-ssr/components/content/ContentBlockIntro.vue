@@ -31,8 +31,7 @@ function onContactClick() {
 
 <template>
   <section
-    class="bg-white py-9 lg:px-12.5 px-5 text-gray-900 xl:rounded-3px shadow-primary xl:border-b-0 border-b-[1px]"
-  >
+    class="bg-white py-9 lg:px-12.5 px-5 text-gray-900 xl:rounded-3px shadow-primary xl:border-b-0 border-b-[1px]">
     <div class="flex flex-col items-center justify-center gap-11 md:flex-row">
       <img v-if="image" class="max-h-11" :src="image" />
       <div class="flex-grow hidden align-middle md:block">
@@ -40,8 +39,7 @@ function onContactClick() {
           v-if="link"
           :href="link"
           :target="linkTarget"
-          class="text-blue-500 underline hover:bg-blue-50"
-        >
+          class="text-blue-500 underline hover:bg-blue-50">
           <BaseIcon name="external-link" class="inline mr-2" />{{ link }}
         </a>
       </div>
@@ -50,8 +48,7 @@ function onContactClick() {
         :fullScreen="false"
         :slideInRight="true"
         @close="showContactInformation = false"
-        buttonAlignment="right"
-      >
+        buttonAlignment="right">
         <ContentBlock title="Contact">
           <div class="font-bold text-body-base">E-mail</div>
           <a class="text-blue-500 hover:underline" :href="`mailto:${contact}`">
@@ -65,8 +62,7 @@ function onContactClick() {
             size="small"
             label="Close"
             @click="showContactInformation = false"
-            buttonAlignment="right"
-          />
+            buttonAlignment="right" />
         </template>
       </SideModal>
       <Button
@@ -74,8 +70,7 @@ function onContactClick() {
         @click="showContactInformation = true"
         label="Contact"
         type="secondary"
-        size="medium"
-      />
+        size="medium" />
     </div>
   </section>
 </template>

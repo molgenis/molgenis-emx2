@@ -22,8 +22,7 @@
       <InputString
         id="token-name"
         placeholder="new token name"
-        v-model="tokenName"
-      />
+        v-model="tokenName" />
       <ButtonAction v-if="tokenName" :key="tokenName" @click="createToken"
         >Create token
       </ButtonAction>

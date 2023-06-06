@@ -37,7 +37,7 @@ export default {
     async fetchIsChangelogEnabled() {
       const resp = await request("graphql", `{_settings{key, value}}`);
       const changelogSetting = resp._settings.find(
-        (s) => s.key === "isChangelogEnabled"
+        s => s.key === "isChangelogEnabled"
       );
       const changelogValue = changelogSetting
         ? changelogSetting.value

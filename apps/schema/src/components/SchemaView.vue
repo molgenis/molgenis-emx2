@@ -11,8 +11,7 @@
             @update:modelValue="$emit('update:modelValue', schema)"
             @delete="deleteTable(index)"
             :isManager="isManager"
-            :locales="locales"
-          />
+            :locales="locales" />
         </span>
       </span>
       <a id="molgenis_bottom_tables_anchor"></a>
@@ -25,13 +24,11 @@
             operation="add"
             tableType="ontology"
             :schema="schema"
-            @update:modelValue="$emit('update:modelValue', schema)"
-          />
+            @update:modelValue="$emit('update:modelValue', schema)" />
         </div>
         <table
           v-if="schema.ontologies && schema.ontologies?.length > 0"
-          class="table table-bordered table-sm"
-        >
+          class="table table-bordered table-sm">
           <thead>
             <tr>
               <th style="width: 20ch" scope="col">name</th>
@@ -47,8 +44,7 @@
               :schemaNames="schemaNames"
               @update:modelValue="$emit('update:modelValue', schema)"
               @delete="deleteOntology(index)"
-              :isManager="isManager"
-            />
+              :isManager="isManager" />
           </tbody>
         </table>
       </div>

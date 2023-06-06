@@ -3,8 +3,7 @@
     <span v-for="(val, idx) in row[col.id]" :key="idx">
       <HyperlinkDisplay
         v-if="col.columnType === 'HYPERLINK_ARRAY'"
-        :data="val"
-      />
+        :data="val" />
       <EmailDisplay v-else-if="col.columnType === 'EMAIL_ARRAY'" :data="val" />
       <span v-else>
         {{ getLabel(col) ? applyJsTemplate(getLabel(col), val) : val }}
@@ -14,8 +13,7 @@
   <span v-else-if="row[col.id]">
     <HyperlinkDisplay
       v-if="col.columnType === 'HYPERLINK'"
-      :data="row[col.id]"
-    />
+      :data="row[col.id]" />
     <EmailDisplay v-else-if="col.columnType === 'EMAIL'" :data="row[col.id]" />
     <span v-else>
       {{ getValue(col, row) }}

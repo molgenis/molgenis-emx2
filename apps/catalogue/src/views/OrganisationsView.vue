@@ -3,8 +3,7 @@
     <ResourceHeader
       :resource="organisation"
       header-css="bg-dark text-white"
-      table-name="Organisations"
-    />
+      table-name="Organisations" />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <hr class="border-dark" />
     <div class="row">
@@ -60,7 +59,7 @@ export default {
     databanks() {
       let result = null;
       if (this.institution.providerOf) {
-        result = this.institution.providerOf.filter((r) =>
+        result = this.institution.providerOf.filter(r =>
           r.mg_tableclass.includes("Databanks")
         );
       }
@@ -72,7 +71,7 @@ export default {
     datasources() {
       let result = null;
       if (this.institution.providerOf) {
-        result = this.institution.providerOf.filter((r) =>
+        result = this.institution.providerOf.filter(r =>
           r.mg_tableclass.includes("Datasources")
         );
       }
@@ -84,7 +83,7 @@ export default {
     networks() {
       let result = null;
       if (this.institution.providerOf) {
-        result = this.institution.providerOf.filter((r) =>
+        result = this.institution.providerOf.filter(r =>
           r.mg_tableclass.includes("Network")
         );
       }
@@ -103,10 +102,10 @@ export default {
           id: this.id,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.institution = data.Institutions[0];
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.response)
             this.graphqlError = error.response.errors[0].message;
           else this.graphqlError = error;

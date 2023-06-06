@@ -17,8 +17,7 @@
               <IconAction icon="edit" @click="handleRowEditRequest(setting)" />
               <IconDanger
                 icon="trash"
-                @click="handleRowDeleteRequest(setting)"
-              />
+                @click="handleRowDeleteRequest(setting)" />
             </div>
           </td>
           <td>
@@ -34,8 +33,7 @@
       v-if="showModal"
       :title="modalTitle"
       :show="true"
-      @close="showModal = false"
-    >
+      @close="showModal = false">
       <template v-slot:body>
         <div>
           <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
@@ -43,13 +41,11 @@
             <InputString
               v-model="settingKey"
               label="key"
-              :readonly="isKeyReadOnly"
-            />
+              :readonly="isKeyReadOnly" />
             <InputText
               v-model="settingValue"
               label="setting value"
-              :readonly="isValueReadOnly"
-            />
+              :readonly="isValueReadOnly" />
           </LayoutForm>
         </div>
       </template>
@@ -153,7 +149,7 @@ export default {
         },
       };
 
-      await request("graphql", createMutation, variables).catch((e) => {
+      await request("graphql", createMutation, variables).catch(e => {
         console.error(e);
       });
       this.fetchSettings();
@@ -174,7 +170,7 @@ export default {
         },
       };
 
-      await request("graphql", deleteMutation, variables).catch((e) => {
+      await request("graphql", deleteMutation, variables).catch(e => {
         console.error(e);
       });
       this.fetchSettings();

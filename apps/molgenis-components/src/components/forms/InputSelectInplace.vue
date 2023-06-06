@@ -6,8 +6,7 @@
           class="btn btn-link dropdown-item"
           v-if="!required"
           key="empty-option"
-          @click.prevent="select(undefined)"
-        >
+          @click.prevent="select(undefined)">
           &nbsp;
         </button>
         <button
@@ -15,8 +14,7 @@
           v-for="option in options"
           :key="option"
           @click.prevent="select(option)"
-          :class="{ 'text-primary': modelValue === option }"
-        >
+          :class="{ 'text-primary': modelValue === option }">
           {{ option }}
         </button>
       </span>
@@ -25,8 +23,7 @@
       @click="toggleFocus"
       @mouseover="hover = true"
       @mouseleave="hover = false"
-      class="inline-select"
-    >
+      class="inline-select">
       {{ modelValue }}
       <IconAction icon="pencil-alt" class="hoverIcon" />
     </span>

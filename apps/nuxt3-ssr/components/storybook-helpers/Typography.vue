@@ -20,8 +20,7 @@ export default {
         <div
           v-for="(styles, key) in fullConfig.theme.fontFamily"
           :key="key"
-          class=""
-        >
+          class="">
           <p class="text-heading-3xl" :class="'font-' + key">{{ key }}</p>
           <span class="font-mono text-gray-100"
             >Font-size: {{ styles[0] }}, Line-height: {{ styles[1] }}</span
@@ -35,8 +34,7 @@ export default {
         <div
           v-for="(styles, key) in fullConfig.theme.fontSize"
           :key="key"
-          class=""
-        >
+          class="">
           <p class="font-sans" :class="'text-' + key">{{ key }}</p>
           <span class="font-mono text-gray-100"
             >Font-size: {{ styles[0] }}, Line-height: {{ styles[1] }}</span

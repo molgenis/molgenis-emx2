@@ -3,8 +3,7 @@
     type="button"
     class="btn btn-primary"
     :disabled="disabled"
-    @click.prevent="onClick"
-  >
+    @click.prevent="onClick">
     <slot />
     <i v-if="icon" :class="'fa fa-fw fa-' + icon" class="mr-2 ml-0"></i>
   </button>

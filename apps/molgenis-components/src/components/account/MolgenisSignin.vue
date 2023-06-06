@@ -15,8 +15,7 @@
           label="Username"
           placeholder="Enter username"
           description="Please enter username"
-          autofocus
-        />
+          autofocus />
         <InputPassword
           id="signInFormPassword"
           name="password"
@@ -24,14 +23,12 @@
           label="Password"
           placeholder="Enter password"
           description="Please enter the provided password"
-          @enterPressed="signin"
-        />
+          @enterPressed="signin" />
         <div
           v-if="isPrivacyPolicyEnabled"
           class="alert"
           :class="error === privacyError ? 'alert-danger' : 'alert-info'"
-          role="alert"
-        >
+          role="alert">
           <b>Privacy policy</b>
           <p>
             {{ privacyPolicy }}
@@ -43,8 +40,7 @@
             :required="true"
             :options="[privacyPolicyLabel]"
             :hideClearButton="true"
-            v-model="userAgrees"
-          />
+            v-model="userAgrees" />
         </div>
       </LayoutForm>
     </template>
@@ -129,7 +125,7 @@ export default defineComponent({
             }
           )
           .catch(
-            (error) => (this.error = "internal server graphqlError" + error)
+            error => (this.error = "internal server graphqlError" + error)
           );
         this.loading = false;
       }
@@ -149,11 +145,11 @@ export default defineComponent({
       );
 
       const policyData = response._settings.find(
-        (item) => item.key === POLICY_TEXT_KEY
+        item => item.key === POLICY_TEXT_KEY
       );
       this.privacyPolicy = policyData?.value;
 
-      const policyEnabledSettings = response._settings.find((item) => {
+      const policyEnabledSettings = response._settings.find(item => {
         return item.key === "isPrivacyPolicyEnabled";
       });
       this.isPrivacyPolicyEnabled = policyEnabledSettings?.value === "true";

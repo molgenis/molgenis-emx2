@@ -20,12 +20,12 @@ export default {
           }
         }`
     )
-      .then((data) => {
+      .then(data => {
         state.session = data._session;
         state.schema = data._schema;
         state.isLoading = false;
       })
-      .catch((error) => {
+      .catch(error => {
         if (Array.isArray(error.response.errors)) {
           state.graphqlError = error.response.errors[0].message;
         } else {
@@ -35,7 +35,7 @@ export default {
       });
   },
   fetchSchema: async ({ state, commit }) => {
-    const resp = await request("graphql", schema).catch((e) => {
+    const resp = await request("graphql", schema).catch(e => {
       console.error(e);
       state.isLoading = false;
     });
@@ -79,7 +79,7 @@ export default {
       );
 
       queryVariables.filter.resource = {
-        equals: networkModels.map((model) => {
+        equals: networkModels.map(model => {
           return {
             id: model.id,
           };
@@ -91,7 +91,7 @@ export default {
       queryVariables.filter.mappings = {
         source: {
           id: {
-            equals: getters.selectedCohorts.map((cohort) => cohort.id),
+            equals: getters.selectedCohorts.map(cohort => cohort.id),
           },
         },
       };
@@ -106,7 +106,7 @@ export default {
       queryVariables.search = getters.searchString;
     }
 
-    const resp = await request("graphql", query, queryVariables).catch((e) => {
+    const resp = await request("graphql", query, queryVariables).catch(e => {
       console.error(e);
       state.isLoading = false;
     });
@@ -178,7 +178,7 @@ export default {
       },
     };
 
-    const resp = await request("graphql", query, variables).catch((e) =>
+    const resp = await request("graphql", query, variables).catch(e =>
       console.error(e)
     );
 
@@ -224,7 +224,7 @@ export default {
       "graphql",
       mappingQuery,
       mappingQueryVariables
-    ).catch((e) => console.error(e));
+    ).catch(e => console.error(e));
 
     // Put list in to map, use id as key
     if (
@@ -264,7 +264,7 @@ export default {
     const keyWordResp = await request(
       "/CatalogueOntologies/graphql",
       keywordQuery
-    ).catch((e) => console.error(e));
+    ).catch(e => console.error(e));
     commit("setKeywords", keyWordResp.Keywords);
     return state.keywords;
   },
@@ -277,7 +277,7 @@ export default {
   fetchMappings: async (context, variable) => {
     let nameFilter = [variable.name];
     if (variable.repeats) {
-      nameFilter = nameFilter.concat(variable.repeats.map((r) => r.name));
+      nameFilter = nameFilter.concat(variable.repeats.map(r => r.name));
     }
 
     const filter = {
@@ -293,7 +293,7 @@ export default {
       },
     };
 
-    const resp = await request("graphql", mappings, { filter }).catch((e) =>
+    const resp = await request("graphql", mappings, { filter }).catch(e =>
       console.error(e)
     );
     return resp.VariableMappings;
@@ -312,13 +312,13 @@ export default {
     `;
 
     const filter = {
-      id: { equals: selectedNetworks.map((sn) => sn.id) },
+      id: { equals: selectedNetworks.map(sn => sn.id) },
     };
 
-    const resp = await request("graphql", query, { filter }).catch((e) =>
+    const resp = await request("graphql", query, { filter }).catch(e =>
       console.error(e)
     );
 
-    return resp.Networks.flatMap((n) => n.models).filter((m) => m != undefined);
+    return resp.Networks.flatMap(n => n.models).filter(m => m != undefined);
   },
 };

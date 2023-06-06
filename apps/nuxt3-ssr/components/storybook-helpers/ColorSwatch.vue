@@ -10,8 +10,7 @@ defineProps({
 <template>
   <div
     class="rounded-full"
-    :style="color !== null ? `background-color: ${color};` : ''"
-  >
+    :style="color !== null ? `background-color: ${color};` : ''">
     {{}}
   </div>
 </template>

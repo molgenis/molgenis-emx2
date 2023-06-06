@@ -5,8 +5,7 @@
       <li
         class="list-group-item"
         v-for="(key, index) in Object.keys(docsTree)"
-        :key="index"
-      >
+        :key="index">
         <strong @click="toggleMenuItem(key)">
           <a href="#">{{ key }} </a></strong
         >
@@ -74,7 +73,7 @@ export default {
         }
       };
 
-      docItems.forEach((docItem) => {
+      docItems.forEach(docItem => {
         addToTree(docTree, docItem);
       });
 

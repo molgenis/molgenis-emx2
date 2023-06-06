@@ -10,8 +10,7 @@
         session &&
         (session.email == 'admin' ||
           (session.roles && session.roles.length > 0))
-      "
-    >
+      ">
       <h5 class="card-title">Manage members</h5>
       <p>Use table below to add, edit or remove members</p>
       <form v-if="canEdit" class="form-inline">
@@ -20,16 +19,14 @@
           class="mb-2 mr-sm-4"
           v-model="editMember['email']"
           placeholder="email address"
-          label="Email:"
-        />
+          label="Email:" />
         <InputSelect
           id="member-role"
           class="mb-2 mr-sm-4"
           v-model="editMember['role']"
           :options="roles"
           placeholder="role"
-          label="Role:"
-        />
+          label="Role:" />
         <ButtonAction @click="updateMember" class="mb-2 mr-sm-2">
           Add/update
         </ButtonAction>
@@ -38,8 +35,7 @@
         v-model="selectedItems"
         :defaultValue="selectedItems"
         :rows="members"
-        :columns="['email', 'role']"
-      >
+        :columns="['email', 'role']">
         <template v-slot:rowheader="slotProps">
           <ButtonAction v-if="canEdit" @click="removeMember(slotProps.row)">
             Remove
@@ -118,10 +114,10 @@ export default {
         `mutation drop($member:[String]){drop(members:$member){message}}`,
         { member: name }
       )
-        .then((data) => {
+        .then(data => {
           this.loadMembers();
         })
-        .catch((error) => {
+        .catch(error => {
           this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
@@ -141,7 +137,7 @@ export default {
           this.selectedItems = [];
           this.loadMembers();
         })
-        .catch((error) => {
+        .catch(error => {
           this.graphqlError = error.response.errors[0].message;
         })
         .finally((this.loading = false));
@@ -149,12 +145,12 @@ export default {
     loadMembers() {
       this.loading = true;
       request("graphql", "{_schema{name,members{email,role}roles{name}}}")
-        .then((data) => {
+        .then(data => {
           this.schema = data._schema.name;
           this.members = data._schema.members;
-          this.roles = data._schema.roles.map((role) => role.name);
+          this.roles = data._schema.roles.map(role => role.name);
         })
-        .catch((error) => {
+        .catch(error => {
           this.graphqlError = error.response.errors[0].message;
         })
         .finally((this.loading = false));

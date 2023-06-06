@@ -29,8 +29,7 @@ defineProps({
 
         <div
           class="absolute hidden pl-1 -translate-y-1/2 text-favorite hover:text-favorite-hover left-full top-1/2 whitespace-nowrap xl:block"
-          :v-if="slots['title-suffix']"
-        >
+          :v-if="slots['title-suffix']">
           <slot name="title-suffix"></slot>
         </div>
       </div>

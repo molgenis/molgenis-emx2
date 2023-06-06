@@ -4,8 +4,7 @@
       id="displaySettings"
       v-model="displaySettings"
       :defaultValue="displaySettings"
-      :options="['attributes', 'external', 'vertical', 'ontologies']"
-    />
+      :options="['attributes', 'external', 'vertical', 'ontologies']" />
     <div v-html="nomnomlSVG" class="bg-white" style="max-width: 100%"></div>
   </div>
 </template>
@@ -39,8 +38,8 @@ export default {
       ) {
         result += "|";
         table.columns
-          .filter((column) => column.table === tableName)
-          .forEach((column) => {
+          .filter(column => column.table === tableName)
+          .forEach(column => {
             if (
               column.columnType.includes("REF") ||
               column.columnType.includes("ONTOLOGY")
@@ -82,17 +81,16 @@ export default {
       if (this.tables) {
         this.tables
           .filter(
-            (t) =>
-              !t.externalSchema || this.displaySettings.includes("external")
+            t => !t.externalSchema || this.displaySettings.includes("external")
           )
-          .forEach((table) => {
+          .forEach(table => {
             res += `[${table.externalSchema ? "<external>" : "<table>"} ${
               table.name
             }`;
             res += this.nomnomColumnsForTable(table, table.name);
             res += "]\n";
             if (table.subclasses !== undefined) {
-              table.subclasses.forEach((subclass) => {
+              table.subclasses.forEach(subclass => {
                 res += `[<table> ${subclass.name}`;
                 res += this.nomnomColumnsForTable(table, subclass.name);
                 res += "]\n";
@@ -104,10 +102,9 @@ export default {
       if (this.displaySettings.includes("ontologies") && this.ontologies) {
         this.ontologies
           .filter(
-            (t) =>
-              !t.externalSchema || this.displaySettings.includes("external")
+            t => !t.externalSchema || this.displaySettings.includes("external")
           )
-          .forEach((table) => {
+          .forEach(table => {
             res += `[${table.externalSchema ? "<external>" : "<ontology>"} ${
               table.name
             }`;
@@ -118,20 +115,20 @@ export default {
       // relations
       this.tables
         .filter(
-          (t) =>
+          t =>
             t.externalSchema === undefined ||
             this.displaySettings.includes("external")
         )
-        .forEach((table) => {
+        .forEach(table => {
           if (Array.isArray(table.columns)) {
             table.columns
               .filter(
-                (c) =>
+                c =>
                   !c.inherited &&
                   (c.refSchema === undefined ||
                     this.displaySettings.includes("external"))
               )
-              .forEach((column) => {
+              .forEach(column => {
                 if (
                   this.displaySettings.includes("ontologies") &&
                   (column.columnType === "ONTOLOGY" ||

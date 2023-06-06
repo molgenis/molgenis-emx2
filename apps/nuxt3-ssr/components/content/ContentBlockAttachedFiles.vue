@@ -15,7 +15,7 @@ function looksLikeImage(document: IDocumentation) {
 }
 
 const images = documents.filter(looksLikeImage);
-const otherDocuments = documents.filter((d) => !looksLikeImage(d));
+const otherDocuments = documents.filter(d => !looksLikeImage(d));
 </script>
 
 <template>
@@ -25,19 +25,16 @@ const otherDocuments = documents.filter((d) => !looksLikeImage(d));
         <FileImageCard
           v-for="image in images"
           :title="image?.name"
-          :url="image.url ? image.url : image?.file?.url"
-        />
+          :url="image.url ? image.url : image?.file?.url" />
       </FileList>
       <FileList
         v-if="otherDocuments?.length"
         title="Documents"
-        :columnCount="2"
-      >
+        :columnCount="2">
         <FileDocumentCard
           v-for="document in otherDocuments"
           :title="document?.name"
-          :url="document.url ? document.url : document?.file?.url"
-        />
+          :url="document.url ? document.url : document?.file?.url" />
       </FileList>
     </div>
   </ContentBlock>

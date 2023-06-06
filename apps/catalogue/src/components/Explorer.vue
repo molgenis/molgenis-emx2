@@ -26,8 +26,12 @@
                   <label>Limit search to:</label>
                   <InputCheckbox
                     class="custom-control-inline ml-2"
-                    :options="['Collections', 'Tables', 'Variables', 'Topics']"
-                  />
+                    :options="[
+                      'Collections',
+                      'Tables',
+                      'Variables',
+                      'Topics',
+                    ]" />
                 </div>
               </form>
             </div>
@@ -38,8 +42,7 @@
               <router-link
                 class="nav-link"
                 :class="{ active: selected == 'Collections' }"
-                to="resources"
-              >
+                to="resources">
                 Collections ({{ resourceCount }})
               </router-link>
             </li>
@@ -47,8 +50,7 @@
               <router-link
                 class="nav-link"
                 :class="{ active: selected == 'Tables' }"
-                to="tables"
-              >
+                to="tables">
                 Dataset ({{ datasetCount }})
               </router-link>
             </li>
@@ -56,8 +58,7 @@
               <router-link
                 class="nav-link"
                 :class="{ active: selected == 'Variables' }"
-                to="variables"
-              >
+                to="variables">
                 Variables ({{ variableCount }})
               </router-link>
             </li>
@@ -169,7 +170,7 @@ export default {
   methods: {
     selectedTopics(topics) {
       if (Array.isArray(topics)) {
-        return topics.filter((t) => t.checked).map((t) => t.name);
+        return topics.filter(t => t.checked).map(t => t.name);
       }
       return [];
     },
@@ -178,14 +179,12 @@ export default {
         "graphql",
         "{Topics(orderby:{order:ASC}){name,parentTopic{name},variables{name},childTopics{name,variables{name},childTopics{name, variables{name},childTopics{name,variables{name},childTopics{name,variables{name},childTopics{name}}}}}}}"
       )
-        .then((data) => {
-          this.topics = data.Topics.filter(
-            (t) => t["parentTopic"] == undefined
-          );
+        .then(data => {
+          this.topics = data.Topics.filter(t => t["parentTopic"] == undefined);
           this.topics = this.topicsWithContents(this.topics);
           this.applySearch(this.topics, this.search);
         })
-        .catch((error) => {
+        .catch(error => {
           this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
@@ -220,12 +219,12 @@ export default {
           limit: this.limit,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.variableCount = data.Variables_agg.count;
           this.resourceCount = data.Collections_agg.count;
           this.DatasetCount = data.Datasets_agg.count;
         })
-        .catch((error) => {
+        .catch(error => {
           this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
@@ -235,7 +234,7 @@ export default {
     topicsWithContents(topics) {
       let result = [];
       if (topics)
-        topics.forEach((t) => {
+        topics.forEach(t => {
           let childTopics = this.topicsWithContents(t.childTopics);
           if (t.variables || childTopics.length > 0) {
             result.push({ name: t.name, childTopics: childTopics });
@@ -245,7 +244,7 @@ export default {
     },
     applySearch(topics, terms) {
       let result = false;
-      topics.forEach((t) => {
+      topics.forEach(t => {
         t.match = false;
         if (
           terms == null ||

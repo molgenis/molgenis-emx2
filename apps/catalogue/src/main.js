@@ -40,19 +40,19 @@ const router = createRouter({
     {
       name: "search",
       path: "/search",
-      props: (route) => ({ resourceType: route.query.type }),
+      props: route => ({ resourceType: route.query.type }),
       component: SearchResourceView,
     },
     {
       name: "Cohorts",
       path: "/cohorts",
-      props: (route) => ({ searchTerm: route.query.q, tableName: "Cohorts" }),
+      props: route => ({ searchTerm: route.query.q, tableName: "Cohorts" }),
       component: ResourceListView,
     },
     {
       name: "Organisations",
       path: "/organisations",
-      props: (route) => ({
+      props: route => ({
         searchTerm: route.query.q,
         tableName: "Organisations",
       }),
@@ -61,7 +61,7 @@ const router = createRouter({
     {
       name: "Datasources",
       path: "/datasources",
-      props: (route) => ({
+      props: route => ({
         searchTerm: route.query.q,
         tableName: "Data sources",
       }),
@@ -70,7 +70,7 @@ const router = createRouter({
     {
       name: "Databanks",
       path: "/databanks",
-      props: (route) => ({
+      props: route => ({
         searchTerm: route.query.q,
         tableName: "Databanks",
       }),
@@ -79,7 +79,7 @@ const router = createRouter({
     {
       name: "Networks",
       path: "/networks",
-      props: (route) => ({
+      props: route => ({
         searchTerm: route.query.q,
         tableName: "Networks",
       }),
@@ -88,7 +88,7 @@ const router = createRouter({
     {
       name: "Models",
       path: "/models",
-      props: (route) => ({
+      props: route => ({
         searchTerm: route.query.q,
         tableName: "Models",
       }),
@@ -97,7 +97,7 @@ const router = createRouter({
     {
       name: "Studies",
       path: "/studies",
-      props: (route) => ({
+      props: route => ({
         searchTerm: route.query.q,
         tableName: "Studies",
       }),
@@ -106,7 +106,7 @@ const router = createRouter({
     {
       name: "Variables",
       path: "/variables",
-      props: (route) => ({
+      props: route => ({
         searchTerm: route.query.q,
         tableName: "Variables",
       }),
@@ -115,7 +115,7 @@ const router = createRouter({
     {
       name: "Datasets",
       path: "/datasets",
-      props: (route) => ({
+      props: route => ({
         searchTerm: route.query.q,
         tableName: "Datasets",
       }),
@@ -124,7 +124,7 @@ const router = createRouter({
     {
       name: "DatasetMappings",
       path: "/dataset-mappings",
-      props: (route) => ({
+      props: route => ({
         searchTerm: route.query.q,
         tableName: "DatasetMappings",
       }),
@@ -133,7 +133,7 @@ const router = createRouter({
     {
       name: "VariableMappings",
       path: "/variable-mappings",
-      props: (route) => ({
+      props: route => ({
         searchTerm: route.query.q,
         tableName: "VariableMappings",
       }),
@@ -142,7 +142,7 @@ const router = createRouter({
     {
       name: "Publications",
       path: "/publications",
-      props: (route) => ({
+      props: route => ({
         searchTerm: route.query.q,
         tableName: "Publications",
       }),
@@ -164,7 +164,7 @@ const router = createRouter({
       name: "Organisations-details",
       path: "/organisations/:id",
       component: ResourceDetailsView,
-      props: (route) => ({
+      props: route => ({
         table: "Organisations",
         color: "dark",
         filter: { id: { equals: route.params.id } },
@@ -174,7 +174,7 @@ const router = createRouter({
       name: "Networks-details",
       path: "/networks/:id",
       component: ResourceDetailsView,
-      props: (route) => ({
+      props: route => ({
         table: "Networks",
         color: "danger",
         filter: { id: { equals: route.params.id } },
@@ -190,7 +190,7 @@ const router = createRouter({
       name: "DataSources-details",
       path: "/datasources/:id",
       component: ResourceDetailsView,
-      props: (route) => ({
+      props: route => ({
         table: "Data sources",
         color: "secondary",
         filter: { id: { equals: route.params.id } },
@@ -200,7 +200,7 @@ const router = createRouter({
       name: "Databanks-details",
       path: "/databanks/:id",
       component: ResourceDetailsView,
-      props: (route) => ({
+      props: route => ({
         table: "Databanks",
         color: "info",
         filter: { id: { equals: route.params.id } },
@@ -210,7 +210,7 @@ const router = createRouter({
       name: "Publications-details",
       path: "/publications/:doi",
       component: ResourceDetailsView,
-      props: (route) => ({
+      props: route => ({
         table: "Publications",
         color: "secondary",
         filter: { doi: { equals: route.params.doi } },
@@ -220,7 +220,7 @@ const router = createRouter({
       name: "Models-details",
       path: "/models/:id",
       component: ResourceDetailsView,
-      props: (route) => ({
+      props: route => ({
         table: "Models",
         color: "warning",
         filter: { id: { equals: route.params.id } },
@@ -230,7 +230,7 @@ const router = createRouter({
       name: "Networks-details",
       path: "/networks/:id",
       component: ResourceDetailsView,
-      props: (route) => ({
+      props: route => ({
         table: "Networks",
         color: "danger",
         filter: { id: { equals: route.params.id } },
@@ -240,7 +240,7 @@ const router = createRouter({
       name: "Studies-details",
       path: "/studies/:id",
       component: ResourceDetailsView,
-      props: (route) => ({
+      props: route => ({
         table: "Studies",
         color: "success",
         filter: { id: { equals: route.params.id } },
@@ -250,7 +250,7 @@ const router = createRouter({
       name: "Contacts-details",
       path: "/contacts/:resource/:firstName/:lastName",
       component: ResourceDetailsView,
-      props: (route) => ({
+      props: route => ({
         table: "Contacts",
         color: "success",
         filter: {
@@ -264,7 +264,7 @@ const router = createRouter({
     {
       name: "Variables-details",
       path: "/variables/:resource/:dataset/:name",
-      props: (route) => ({
+      props: route => ({
         ...route.params,
         tableName: "Variables",
       }),
@@ -274,7 +274,7 @@ const router = createRouter({
       name: "Datasets-details",
       path: "/datasets/:resource/:name",
       component: DatasetView,
-      props: (route) => ({
+      props: route => ({
         ...route.params,
         tableName: "Datasets",
       }),
@@ -283,7 +283,7 @@ const router = createRouter({
     {
       path: "/datasets/:resource",
       component: ResourceRedirectView,
-      props: (route) => ({
+      props: route => ({
         id: route.params.resource,
       }),
     },
@@ -297,14 +297,14 @@ const router = createRouter({
     {
       path: "/dataset-mappings/:source/:sourceDataset/:target",
       component: ResourceRedirectView,
-      props: (route) => ({
+      props: route => ({
         id: route.params.target,
       }),
     },
     {
       path: "/dataset-mappings/:source/:sourceDataset",
       component: DatasetView,
-      props: (route) => ({
+      props: route => ({
         resource: route.params.source,
         name: route.params.sourceDataset,
       }),
@@ -312,7 +312,7 @@ const router = createRouter({
     {
       path: "/dataset-mappings/:source/:sourceDataset/:target",
       component: ResourceRedirectView,
-      props: (route) => ({
+      props: route => ({
         id: route.params.target,
       }),
     },
@@ -331,7 +331,7 @@ const router = createRouter({
     {
       name: "VariableDetailView",
       path: "/variable-explorer/:name",
-      props: (route) => ({ ...route.params, ...route.query }), // both key and value are dynamic
+      props: route => ({ ...route.params, ...route.query }), // both key and value are dynamic
       component: VariableDetailView,
     },
     {
@@ -366,7 +366,7 @@ const router = createRouter({
     {
       name: "NetworkVariableDetailView",
       path: "/networks-catalogue/:network/variables/:name",
-      props: (route) => ({ ...route.params, ...route.query }), // both key and value are dynamic
+      props: route => ({ ...route.params, ...route.query }), // both key and value are dynamic
       component: VariableDetailView,
     },
     {

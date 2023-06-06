@@ -20,16 +20,14 @@ defineProps({
     </a> -->
   </div>
   <nav
-    class="items-center justify-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg"
-  >
+    class="items-center justify-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg">
     <template v-for="(url, label, index) in crumbs" :key="label">
       <NuxtLink :to="url" class="text-breadcrumb hover:underline">{{
         label
       }}</NuxtLink>
       <span
         v-if="index < Object.keys(crumbs).length - 1"
-        class="text-breadcrumb-arrow"
-      >
+        class="text-breadcrumb-arrow">
         <BaseIcon name="caret-right" :width="12" />
       </span>
     </template>

@@ -6,8 +6,7 @@
         <dt class="col-2 mb-3">description</dt>
         <dd class="col-10">
           <template
-            v-if="variable.cohortMapping && variable.cohortMapping.description"
-          >
+            v-if="variable.cohortMapping && variable.cohortMapping.description">
             {{ variable.cohortMapping.description }}
           </template>
           <template v-else> -</template>
@@ -26,14 +25,12 @@
           <ul class="list-unstyled" v-if="variable.cohortMapping">
             <li
               v-for="sourceVariable in variable.cohortMapping.sourceVariables"
-              :key="sourceVariable.name"
-            >
+              :key="sourceVariable.name">
               <router-link
                 :to="{
                   name: 'VariableDetailView',
                   query: { ...$route.query, fromName: sourceVariable.name },
-                }"
-              >
+                }">
                 {{ variable.cohortMapping.sourceDataset.name }}.{{
                   sourceVariable.name
                 }}
@@ -42,8 +39,7 @@
             <li
               v-for="sourceVariable in variable.cohortMapping
                 .sourceVariablesOtherDatasets"
-              :key="sourceVariable.name"
-            >
+              :key="sourceVariable.name">
               <router-link
                 :to="{
                   name: 'VariableDetailView',
@@ -52,8 +48,7 @@
                     fromDataset: sourceVariable.dataset.name,
                     fromName: sourceVariable.name,
                   },
-                }"
-              >
+                }">
                 {{ sourceVariable.dataset.name }}.{{ sourceVariable.name }}
               </router-link>
             </li>

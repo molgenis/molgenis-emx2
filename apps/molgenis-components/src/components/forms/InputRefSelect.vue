@@ -4,23 +4,20 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <InputGroup>
       <input
         class="form-control"
         :class="{ 'is-invalid': errorMessage }"
         @click="showSelect = true"
         @focus="showSelect = true"
-        :value="applyJsTemplate(modelValue, refLabel)"
-      />
+        :value="applyJsTemplate(modelValue, refLabel)" />
       <template v-slot:append>
         <button
           v-if="modelValue"
           @click="$emit('update:modelValue', null)"
           class="btn btn-outline-primary"
-          type="button"
-        >
+          type="button">
           <i class="fas fa-fw fa-times"></i>
         </button>
       </template>
@@ -33,8 +30,7 @@
             :schemaName="schemaName"
             :canEdit="canEdit"
             @select="select($event)"
-            @deselect="deselect(selectIdx)"
-          >
+            @deselect="deselect(selectIdx)">
             <template v-slot:rowheader="slotProps">
               <ButtonAction @click="select(slotProps.rowkey)">
                 Select

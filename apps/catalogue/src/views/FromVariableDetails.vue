@@ -8,8 +8,7 @@
         <variable-details
           class="col"
           :variableDetails="variable"
-          :showMappedBy="false"
-        />
+          :showMappedBy="false" />
       </div>
     </div>
   </div>

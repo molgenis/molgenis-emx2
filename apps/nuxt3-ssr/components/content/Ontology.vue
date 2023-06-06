@@ -16,7 +16,6 @@ const { tree } = withDefaults(
       v-for="node in tree"
       :node="node"
       :collapse-all="collapseAll"
-      :is-root-node="true"
-    />
+      :is-root-node="true" />
   </ul>
 </template>

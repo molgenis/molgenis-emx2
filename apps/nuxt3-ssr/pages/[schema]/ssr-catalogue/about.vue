@@ -17,8 +17,7 @@
           { id: 'privacy', label: 'Privacy' },
           { id: 'terms', label: 'Terms' },
           { id: 'other', label: 'Links' },
-        ]"
-      />
+        ]" />
     </template>
     <template #main>
       <ContentBlocks>
@@ -74,8 +73,7 @@
         </ContentBlock>
         <ContentBlock
           id="standards"
-          title="National and international standards"
-        >
+          title="National and international standards">
           Where possible, the meta-data in this catalogue was entered according
           to international standards, including
           <a

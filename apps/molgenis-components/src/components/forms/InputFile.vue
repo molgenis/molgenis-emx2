@@ -4,23 +4,20 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <div class="input-group">
       <input
         :id="id"
         ref="file"
         type="file"
         style="display: none"
-        @change="handleFileUpload"
-      />
+        @change="handleFileUpload" />
       <input
         class="form-control active"
         :class="{ 'is-invalid': errorMessage }"
         :placeholder="filename"
         @click="$refs.file.click()"
-        @keydown.prevent
-      />
+        @keydown.prevent />
       <div class="input-group-append">
         <button
           class="btn bg-transparent text-primary"
@@ -28,8 +25,7 @@
           title="Toggle"
           data-toggle
           @click="clearInput"
-          style="margin-left: -40px; z-index: 100"
-        >
+          style="margin-left: -40px; z-index: 100">
           <i class="fa fa-times">
             <span aria-hidden="true" class="sr-only">Clear</span>
           </i>
@@ -41,8 +37,7 @@
           type="button"
           title="Toggle"
           data-toggle
-          @click="$refs.file.click()"
-        >
+          @click="$refs.file.click()">
           Browse
         </button>
       </div>

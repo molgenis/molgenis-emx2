@@ -17,11 +17,8 @@
           v-if="
             !session ||
             !session.roles ||
-            !['Manager', 'Editor', 'Owner'].some((r) =>
-              session.roles.includes(r)
-            )
-          "
-        >
+            !['Manager', 'Editor', 'Owner'].some(r => session.roles.includes(r))
+          ">
           You don't have permission to upload data. Might you need to login?
         </MessageWarning>
         <div v-else>
@@ -46,15 +43,13 @@
           v-if="
             session &&
             session.roles &&
-            ['Manager', 'Editor', 'Viewer', 'Owner'].some((r) =>
+            ['Manager', 'Editor', 'Viewer', 'Owner'].some(r =>
               session.roles.includes(r)
             )
-          "
-        ></div>
+          "></div>
         <h4>Download</h4>
         <MessageWarning
-          v-if="!session || !session.roles || session.roles.length == 0"
-        >
+          v-if="!session || !session.roles || session.roles.length == 0">
           You don't have permission to download data. Might you need to login?
         </MessageWarning>
         <div v-else>
@@ -132,7 +127,7 @@ export default {
   computed: {
     tablesHash() {
       if (this.tables) {
-        return this.tables.map((table) => table.name).join("-");
+        return this.tables.map(table => table.name).join("-");
       } else {
         return null;
       }
@@ -142,11 +137,11 @@ export default {
     loadSchema() {
       this.loading = true;
       request("graphql", "{_schema{name,tables{name}}}")
-        .then((data) => {
+        .then(data => {
           this.schema = data._schema.name;
           this.tables = data._schema.tables;
         })
-        .catch((error) => {
+        .catch(error => {
           this.error = error.response.errors[0].message;
         })
         .finally((this.loading = false));
@@ -170,20 +165,20 @@ export default {
             headers: { fileName: fileName },
           };
           fetch(url, options)
-            .then((response) => {
+            .then(response => {
               if (response.ok) {
-                response.text().then((successText) => {
+                response.text().then(successText => {
                   this.success = successText;
                   this.error = null;
                 });
               } else {
-                response.json().then((error) => {
+                response.json().then(error => {
                   this.success = null;
                   this.error = error.errors[0].message;
                 });
               }
             })
-            .catch((error) => {
+            .catch(error => {
               this.error = error;
             })
             .finally(() => {
@@ -205,20 +200,20 @@ export default {
           method: "POST",
           body: formData,
         })
-          .then((response) => {
+          .then(response => {
             if (response.ok) {
-              response.json().then((task) => {
+              response.json().then(task => {
                 this.taskId = task.id;
                 this.error = null;
               });
             } else {
-              response.json().then((error) => {
+              response.json().then(error => {
                 this.success = null;
                 this.error = error.errors[0].message;
               });
             }
           })
-          .catch((error) => {
+          .catch(error => {
             this.error = error;
           })
           .finally(() => {

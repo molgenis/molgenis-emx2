@@ -3,8 +3,7 @@
     v-if="!isEmpty"
     :is="cellTypeComponentName"
     :data="data"
-    :metaData="metaData"
-  />
+    :metaData="metaData" />
 </template>
 
 <script lang="ts">

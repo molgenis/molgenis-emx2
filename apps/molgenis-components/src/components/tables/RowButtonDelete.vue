@@ -9,8 +9,7 @@
       :tableName="tableName"
       :pkey="pkey"
       @close="handleClose"
-      @confirmed="handleExecuteDelete"
-    />
+      @confirmed="handleExecuteDelete" />
   </span>
 </template>
 
@@ -58,7 +57,7 @@ export default {
             deleteFrom: this.tableName,
           });
         })
-        .catch((error) => {
+        .catch(error => {
           const errorMessage =
             error?.response?.data?.errors &&
             Array.isArray(error?.response?.data?.errors)

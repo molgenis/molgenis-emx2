@@ -8,13 +8,11 @@
       <InputString
         label="email"
         v-model="email"
-        placeholder="Enter user email"
-      />
+        placeholder="Enter user email" />
       <InputPassword
         label="password"
         v-model="password"
-        placeholder="Enter password"
-      />
+        placeholder="Enter password" />
       <ButtonAction @click="alterUser" class="mt-0">Update user</ButtonAction>
     </form>
     <h2>User list</h2>
@@ -23,8 +21,7 @@
       v-model="page"
       :count="userCount"
       :limit="limit"
-      :defaultValue="page"
-    />
+      :defaultValue="page" />
   </div>
 </template>
 
@@ -90,7 +87,7 @@ export default {
           "graphql",
           `mutation{changePassword(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
-          .then((data) => {
+          .then(data => {
             if (data.changePassword.status === "SUCCESS") {
               this.alterSuccess =
                 "Success. Created/altered user: " + this.email;
@@ -100,7 +97,7 @@ export default {
                 "Create/alter user failed: " + data.changePassword.message;
             }
           })
-          .catch((error) => {
+          .catch(error => {
             this.alterError =
               "Create/alter user failed: " + error.response.message;
           });
@@ -113,7 +110,7 @@ export default {
         "graphql",
         `{_admin{users(limit:${this.limit},offset:${this.offset}){email},userCount}}`
       )
-        .then((data) => {
+        .then(data => {
           this.users = data._admin.users;
           this.userCount = data._admin.userCount;
           this.loading = false;

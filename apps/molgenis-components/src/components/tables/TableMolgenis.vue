@@ -3,8 +3,7 @@
   <div style="max-width: 100%" class="flex-grow-1">
     <table
       class="table table-sm bg-white table-bordered table-hover"
-      :class="{ 'table-hover': showSelect }"
-    >
+      :class="{ 'table-hover': showSelect }">
       <thead>
         <th slot="header" scope="col" style="width: 1px" v-if="hasColheader">
           <h6 class="mb-0 mt-2 d-inline">#</h6>
@@ -17,12 +16,10 @@
           :key="col.name + col.showColumn"
           scope="col"
           class="column-drag-header"
-          :style="col.showColumn ? '' : 'display: none'"
-        >
+          :style="col.showColumn ? '' : 'display: none'">
           <h6
             class="mb-0 align-text-bottom text-nowrap"
-            @click="onColumnClick(col)"
-          >
+            @click="onColumnClick(col)">
             {{ col.name }}
             <slot name="colheader" :col="col" />
           </h6>
@@ -42,8 +39,7 @@
           :class="
             (isSelected(row) ? 'table-primary' : 'table-hover') +
             (row['mg_draft'] ? 'alert alert-warning' : '')
-          "
-        >
+          ">
           <td v-if="hasColheader">
             <div style="display: flex">
               <div v-if="showSelect" class="form-check form-check-inline mr-1">
@@ -51,16 +47,14 @@
                   type="checkbox"
                   class="form-check-input position-static"
                   :checked="isSelected(row)"
-                  @click="onRowClick(row)"
-                />
+                  @click="onRowClick(row)" />
               </div>
               <!--@slot Use this to add values or actions buttons to each row -->
               <slot
                 name="rowheader"
                 :row="row"
                 :metadata="tableMetadata"
-                :rowkey="getPrimaryKey(row, tableMetadata)"
-              />
+                :rowkey="getPrimaryKey(row, tableMetadata)" />
             </div>
             <i v-if="row.mg_draft" class="fas fa-user-edit">draft</i>
           </td>
@@ -76,8 +70,7 @@
                 onCellClick(row, col);
               }
             "
-            :class="{ refType: isRefType(col.columnType) }"
-          >
+            :class="{ refType: isRefType(col.columnType) }">
             <data-display-cell :data="row[col.id]" :metaData="col" />
           </td>
         </tr>
@@ -126,11 +119,11 @@ export default {
   },
   computed: {
     countColumns() {
-      return this.columnsWithoutMeta.filter((c) => c.showColumn).length;
+      return this.columnsWithoutMeta.filter(c => c.showColumn).length;
     },
     columnsWithoutMeta() {
       return this.columns
-        ? this.columns.filter((column) => column.columnType !== "HEADING")
+        ? this.columns.filter(column => column.columnType !== "HEADING")
         : [];
     },
   },
@@ -158,7 +151,7 @@ export default {
       let key = this.getPrimaryKey(row);
       let found = false;
       if (Array.isArray(this.selection)) {
-        this.selection.forEach((s) => {
+        this.selection.forEach(s => {
           if (s != null && this.deepEqual(key, s)) {
             found = true;
           }
@@ -188,7 +181,7 @@ export default {
         if (this.isSelected(row)) {
           /** when a row is deselected */
           update = update.filter(
-            (item) =>
+            item =>
               JSON.stringify(item, Object.keys(item).sort()) !==
               JSON.stringify(key, Object.keys(key).sort())
           );

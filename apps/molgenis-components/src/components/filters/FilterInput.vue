@@ -8,8 +8,7 @@
         @updateCondition="updateCondition(index - 1, $event)"
         :tableName="tableName"
         :schemaName="schemaName"
-        :refLabel="refLabel"
-      ></component>
+        :refLabel="refLabel"></component>
     </div>
     <div v-else v-for="index in fieldCount" :key="index">
       <component
@@ -21,8 +20,7 @@
         @addCondition="fieldCount++"
         :showAddButton="index === conditions.length"
         :tableName="tableName"
-        :schemaName="schemaName"
-      ></component>
+        :schemaName="schemaName"></component>
     </div>
   </div>
 </template>

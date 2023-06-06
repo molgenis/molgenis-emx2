@@ -9,14 +9,12 @@
         :modelValue="policyLevel"
         :options="levelOptions"
         :isClearable="false"
-        @update:modelValue="updatePolicyLevel"
-      />
+        @update:modelValue="updatePolicyLevel" />
       <InputText
         id="privacy-policy-text"
         v-model="policyText"
         placeholder="Enter the privacy policy"
-        :readonly="policyLevel !== CUSTOM"
-      />
+        :readonly="policyLevel !== CUSTOM" />
     </div>
     <button type="button" class="btn btn-primary" @click="save">Save</button>
     <MessageSuccess v-if="successMessage">
@@ -72,10 +70,10 @@ export default {
     async fetchPrivacyPolicy() {
       const response = await request("graphql", `{_settings{key, value}}`);
       const policyLevel = response._settings.find(
-        (item) => item.key === POLICY_LEVEL_KEY
+        item => item.key === POLICY_LEVEL_KEY
       )?.value;
       const policyText = response._settings.find(
-        (item) => item.key === POLICY_TEXT_KEY
+        item => item.key === POLICY_TEXT_KEY
       )?.value;
       if (!policyLevel) {
         this.policyText = PREFABS[LEVEL_4];
@@ -110,7 +108,7 @@ export default {
         .then(() => {
           this.successMessage = `Privacy policy successfully saved with privacy level: ${this.policyLevel}`;
         })
-        .catch((error) => {
+        .catch(error => {
           console.error(error);
         });
     },

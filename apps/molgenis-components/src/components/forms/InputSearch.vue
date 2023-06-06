@@ -3,8 +3,7 @@
     :id="id"
     :label="label"
     :description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <InputGroup>
       <input
         :id="id"
@@ -13,15 +12,13 @@
         type="text"
         class="form-control"
         :aria-describedby="id"
-        placeholder="Search"
-      />
+        placeholder="Search" />
       <template v-slot:append>
         <button
           v-if="isClearBtnShown"
           @click="input = null"
           class="btn btn-outline-primary"
-          type="button"
-        >
+          type="button">
           <i class="fas fa-fw fa-times"></i>
         </button>
       </template>

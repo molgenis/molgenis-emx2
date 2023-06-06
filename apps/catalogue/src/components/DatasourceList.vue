@@ -10,8 +10,7 @@
         <OntologyTerms
           :terms="d.type"
           :inline="true"
-          :color="color"
-        ></OntologyTerms>
+          :color="color"></OntologyTerms>
       </RouterLink>
     </li>
   </ul>

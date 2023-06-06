@@ -4,21 +4,18 @@
     class="pb-2 mb-2"
     :style="
       inline ? 'font-size: small; vertical-align: super;' : 'display:block;'
-    "
-  >
+    ">
     <span
       v-for="t in terms"
       :class="'font-weight-bold mr-2 mb-2 badge badge-' + color"
       style="font-size: 100%"
       @mouseover="hover = t.name"
-      @mouseleave="hover = null"
-    >
+      @mouseleave="hover = null">
       {{ t.name }}
       <div
         v-if="hover == t.name && t.definition"
         class="tooltip bs-tooltip-bottom show"
-        role="tooltip"
-      >
+        role="tooltip">
         <div class="arrow"></div>
         <div class="tooltip-inner">
           {{ t.definition }}

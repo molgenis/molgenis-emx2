@@ -38,10 +38,10 @@ export default {
           "graphql",
           "{" + this.value.refTable + "{" + this.value.refColumn + "}}"
         )
-          .then((data) => {
+          .then(data => {
             this.value.options = data[this.value.refTable];
           })
-          .catch((error) => {
+          .catch(error => {
             this.graphqlError = error.response.errors[0].message;
           })
           .finally(() => {

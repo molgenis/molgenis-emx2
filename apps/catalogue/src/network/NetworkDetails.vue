@@ -8,8 +8,7 @@
             ? networkDetails.leadOrganisation.name
             : null
         "
-        :logoUrl="networkDetails.logo ? networkDetails.logo.url : null"
-      />
+        :logoUrl="networkDetails.logo ? networkDetails.logo.url : null" />
       <div>
         <RouterLink
           class="btn btn-primary ml-2 float-right"
@@ -37,18 +36,19 @@
           ...(networkDetails.website
             ? [{ label: 'Website:', href: networkDetails.website }]
             : []),
-        ]"
-      ></links-list>
+        ]"></links-list>
     </grid-block>
 
     <key-value-block
-      :items="[{ label: 'Description', value: networkDetails.description }]"
-    ></key-value-block>
+      :items="[
+        { label: 'Description', value: networkDetails.description },
+      ]"></key-value-block>
 
     <key-value-block
       v-if="networkDetails.fundingStatement"
-      :items="[{ label: 'Funding', value: networkDetails.fundingStatement }]"
-    ></key-value-block>
+      :items="[
+        { label: 'Funding', value: networkDetails.fundingStatement },
+      ]"></key-value-block>
   </div>
 </template>
 
@@ -108,7 +108,7 @@ export default {
                 name
             }
           }}`
-        ).catch((error) => console.log(error));
+        ).catch(error => console.log(error));
         this.networkDetails = result.Networks[0];
         this.$forceUpdate();
       }

@@ -24,7 +24,7 @@ const { data: subcohortData } = await useFetch(
       variables: { id: route.params.cohort, name: id },
     },
   }
-).catch((e) => console.log(e));
+).catch(e => console.log(e));
 
 watch(
   subcohortData,
@@ -124,8 +124,7 @@ if (subcohort?.inclusionCriteria) {
   <section class="bg-white py-18 lg:px-12.5 px-5 text-gray-900">
     <h2
       class="mb-5 uppercase text-heading-4xl font-display"
-      v-if="subcohort?.name"
-    >
+      v-if="subcohort?.name">
       {{ subcohort?.name }}
     </h2>
     <div class="mb-5 prose max-w-none" v-if="subcohort?.description">

@@ -12,16 +12,14 @@
           label="Password"
           placeholder="Enter password"
           description="Please enter the password"
-          @enterPressed="updatePassword"
-        />
+          @enterPressed="updatePassword" />
         <InputPassword
           id="account-password2"
           v-model="password2"
           label="Password Repeat"
           placeholder="Enter password"
           description="Please enter the password again"
-          @enterPressed="updatePassword"
-        />
+          @enterPressed="updatePassword" />
         <ButtonAction @click="updatePassword">Update password</ButtonAction>
         <h2 class="mt-4">Manage tokens</h2>
         <TokenManager />

@@ -11,8 +11,7 @@
     <small
       v-if="hasDescription(description)"
       :id="id + '-help-text'"
-      class="form-text text-muted"
-    >
+      class="form-text text-muted">
       {{ description }}
     </small>
   </div>

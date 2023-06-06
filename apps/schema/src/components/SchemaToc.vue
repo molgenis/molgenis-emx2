@@ -1,8 +1,7 @@
 <template>
   <div
     class="schema-toc sticky-top mr-n3 overflow-auto"
-    style="top: 50px; height: 90vh"
-  >
+    style="top: 50px; height: 90vh">
     <div class="hoverContainer">
       <label class="m-0">Tables:</label>
       <TableEditModal
@@ -10,15 +9,13 @@
         @add="addTable"
         operation="add"
         :schema="schema"
-        @update:modelValue="$emit('update:modelValue', schema)"
-      />
+        @update:modelValue="$emit('update:modelValue', schema)" />
     </div>
     <div v-if="schema.tables?.length > 0">
       <span
         v-for="table in schema.tables"
         :key="table.name + schema.tables.length"
-        class="ml-2"
-      >
+        class="ml-2">
         <a
           :href="'#'"
           v-scroll-to="{
@@ -31,8 +28,7 @@
           <div
             v-for="subtable in table.subclasses"
             :key="subtable.name"
-            class="ml-4"
-          >
+            class="ml-4">
             <a
               :href="'#'"
               v-scroll-to="{
@@ -57,22 +53,19 @@
         operation="add"
         tableType="ontology"
         :schema="schema"
-        @update:modelValue="$emit('update:modelValue', schema)"
-      />
+        @update:modelValue="$emit('update:modelValue', schema)" />
     </div>
     <div v-if="schema.ontologies?.length > 0">
       <div
         v-for="ontology in schema.ontologies"
         :key="ontology.name"
-        class="mb-0 ml-2"
-      >
+        class="mb-0 ml-2">
         <a
           :href="'#'"
           v-scroll-to="{
             el: '#' + ontology.name ? ontology.name.replaceAll(' ', '_') : '',
             offset: -200,
-          }"
-        >
+          }">
           {{ ontology.name }}
         </a>
       </div>

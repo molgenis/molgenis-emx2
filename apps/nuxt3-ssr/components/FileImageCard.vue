@@ -15,8 +15,7 @@ defineProps({
       <img
         :src="url"
         :alt="title"
-        class="rounded-3px object-none w-full h-56"
-      />
+        class="rounded-3px object-none w-full h-56" />
       <figcaption class="mt-3.5 text-body-base text-blue-500">
         {{ title }}
       </figcaption>

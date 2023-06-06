@@ -29,8 +29,7 @@ function toggleMode(detailed) {
           size="small"
           label="filters"
           icon="filter"
-          iconPosition="left"
-        ></Button>
+          iconPosition="left"></Button>
       </template>
     </SideModal>
 
@@ -41,8 +40,7 @@ function toggleMode(detailed) {
       label="view"
       icon="view-normal"
       iconPosition="left"
-      @click="toggleMode(true)"
-    ></Button>
+      @click="toggleMode(true)"></Button>
     <Button
       v-else
       type="secondary"
@@ -50,7 +48,6 @@ function toggleMode(detailed) {
       label="view"
       icon="view-compact"
       iconPosition="left"
-      @click="toggleMode(false)"
-    ></Button>
+      @click="toggleMode(false)"></Button>
   </div>
 </template>

@@ -28,8 +28,7 @@
                 class="rotated-text text-nowrap"
                 scope="col"
                 v-for="resource in resources"
-                :key="resource.id"
-              >
+                :key="resource.id">
                 <div>
                   <span class="table-label">{{ resource.id }}</span>
                 </div>
@@ -44,13 +43,11 @@
               <harmonization-cell
                 v-for="resource in resources"
                 :key="resource.id"
-                :status="getMatchStatus(variable, resource.id)"
-              />
+                :status="getMatchStatus(variable, resource.id)" />
             </tr>
             <tr
               v-for="repeatedVariable in variable.repeats"
-              :key="repeatedVariable.name"
-            >
+              :key="repeatedVariable.name">
               <th class="table-label text-nowrap" scope="row">
                 {{ repeatedVariable.name }}
               </th>
@@ -58,8 +55,7 @@
               <harmonization-cell
                 v-for="resource in resources"
                 :key="resource.id"
-                :status="getMatchStatus(repeatedVariable, resource.id)"
-              />
+                :status="getMatchStatus(repeatedVariable, resource.id)" />
             </tr>
           </tbody>
         </table>
@@ -92,7 +88,7 @@ export default {
       if (!variable.mappings) {
         return "unmapped"; // not mapped
       }
-      const resourceMapping = variable.mappings.find((mapping) => {
+      const resourceMapping = variable.mappings.find(mapping => {
         return mapping.source.id === resourceName;
       });
       if (!resourceMapping) {

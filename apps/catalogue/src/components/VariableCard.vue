@@ -10,16 +10,14 @@
             variable.release.resource.mg_tableclass.includes('Project')
               ? 'Project'
               : 'Databank'
-          "
-        >
+          ">
           <RouterLink
             :to="{
               name: 'databank',
               params: {
                 databankid: variable.release.resource.id,
               },
-            }"
-          >
+            }">
             {{ variable.release.resource.id }}
           </RouterLink>
         </Property>
@@ -31,8 +29,7 @@
                 resourceId: variable.resource.id,
                 tableName: variable.dataset.name,
               },
-            }"
-          >
+            }">
             {{ variable.dataset.name }}
           </RouterLink>
         </Property>
@@ -44,7 +41,7 @@
         </Property>
         <Property label="topics">
           {{
-            variable.topics ? variable.topics.map((t) => t.name).join(",") : ""
+            variable.topics ? variable.topics.map(t => t.name).join(",") : ""
           }}
         </Property>
         <Property label="description">
@@ -73,8 +70,7 @@
             :target-resource="variable.resource.id"
             :target-dataset="variable.dataset.name"
             :target-variable="variable.name"
-            :match="variable.match ? variable.match.name : 'unknown'"
-          />
+            :match="variable.match ? variable.match.name : 'unknown'" />
         </Property>
       </div>
     </div>

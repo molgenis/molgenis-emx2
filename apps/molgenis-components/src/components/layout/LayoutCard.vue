@@ -7,14 +7,12 @@
         v-if="!collapse"
         class="card-fullscreen-icon"
         :icon="fullscreen ? 'compress' : 'expand'"
-        @click="toggle"
-      />
+        @click="toggle" />
     </div>
     <div
       v-if="!this.collapse || !collapsed"
       class="card-body"
-      :style="bodyheight"
-    >
+      :style="bodyheight">
       <!-- @slot Use this slot to place the card content -->
       <slot />
     </div>

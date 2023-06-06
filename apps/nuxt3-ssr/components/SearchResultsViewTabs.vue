@@ -54,8 +54,7 @@ function setRight() {
     <button
       :class="buttonClassesLeft"
       @click="setLeft"
-      class="flex items-center pr-5 tracking-widest uppercase rounded-l-full h-50px pl-7 font-display text-heading-xl"
-    >
+      class="flex items-center pr-5 tracking-widest uppercase rounded-l-full h-50px pl-7 font-display text-heading-xl">
       <BaseIcon :name="buttonLeftIcon" class="mr-3" />
       {{ buttonLeftLabel }}
     </button>
@@ -63,8 +62,7 @@ function setRight() {
     <button
       :class="buttonClassesRight"
       @click="setRight"
-      class="flex items-center pl-5 tracking-widest uppercase rounded-r-full h-50px pr-7 font-display text-heading-xl"
-    >
+      class="flex items-center pl-5 tracking-widest uppercase rounded-r-full h-50px pr-7 font-display text-heading-xl">
       <BaseIcon :name="buttonRightIcon" class="mr-3" />
       {{ buttonRightLabel }}
     </button>

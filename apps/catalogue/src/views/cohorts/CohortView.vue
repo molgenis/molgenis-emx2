@@ -9,8 +9,7 @@
           cohort.institution
             ? { to: '/institutions/' + cohort.institution[0].id }
             : null
-        "
-      ></page-header>
+        "></page-header>
     </grid-block>
 
     <grid-block>
@@ -19,32 +18,33 @@
 
     <div class="card-columns card-columns-2">
       <key-value-block
-        :items="[{ label: 'Description', value: cohort.description }]"
-      ></key-value-block>
+        :items="[
+          { label: 'Description', value: cohort.description },
+        ]"></key-value-block>
 
       <key-value-block
         v-if="cohort.designPaper"
-        :items="[{ label: 'Marker paper', value: cohort.designPaper.title }]"
-      ></key-value-block>
+        :items="[
+          { label: 'Marker paper', value: cohort.designPaper.title },
+        ]"></key-value-block>
 
       <key-value-block
         heading="General design"
-        :items="generalDesignItems"
-      ></key-value-block>
+        :items="generalDesignItems"></key-value-block>
     </div>
 
     <grid-block
       heading="Contributors"
-      v-if="cohort.contributors && cohort.contributors.length"
-    >
+      v-if="cohort.contributors && cohort.contributors.length">
       <div class="card-columns">
         <contact-display
           v-for="(contributor, index) in cohort.contributors"
           :key="index"
           :contact="contributor.contact"
           :contributionType="contributor.contributionType"
-          :contributionDescription="contributor.contributionDescription"
-        ></contact-display>
+          :contributionDescription="
+            contributor.contributionDescription
+          "></contact-display>
       </div>
     </grid-block>
 
@@ -54,13 +54,11 @@
           v-for="(partner, index) in partners"
           :key="index"
           :title="partner.institution.name"
-          :linkUrl="`/institutions/${partner.institution.id}`"
-        >
+          :linkUrl="`/institutions/${partner.institution.id}`">
           <template #image>
             <image-display
               :url="partner.institution.logo.url"
-              :alt="partner.institution.id"
-            ></image-display>
+              :alt="partner.institution.id"></image-display>
           </template>
         </image-card>
       </div>
@@ -72,8 +70,7 @@
           <template #image>
             <image-display
               :url="network.logo.url"
-              :alt="network.name"
-            ></image-display>
+              :alt="network.name"></image-display>
           </template>
           <template #body>
             <h5 class="card-title">{{ network.name }}</h5>
@@ -115,8 +112,7 @@
           { name: 'numberOfParticipants', label: 'Number of participants' },
           { name: 'ageGroups', label: 'Age categories' },
         ]"
-        :rows="subpopulations"
-      ></table-display>
+        :rows="subpopulations"></table-display>
     </grid-block>
 
     <grid-block heading="Collection events" v-if="collectionEvents.length">
@@ -128,8 +124,7 @@
           { name: 'description', label: 'Description' },
           { name: 'startAndEndYear', label: 'Start and end year' },
         ]"
-        :rows="collectionEvents"
-      ></table-display>
+        :rows="collectionEvents"></table-display>
     </grid-block>
 
     <div class="card-columns card-columns-2">
@@ -137,8 +132,7 @@
         <ul>
           <li
             v-for="(condition, index) in cohort.dataAccessConditions"
-            :key="index"
-          >
+            :key="index">
             {{ condition.name }}
           </li>
         </ul>
@@ -220,7 +214,7 @@ export default {
         {
           label: "Cohort type",
           value: this.cohort.type
-            ? this.cohort.type.map((type) => type.name).join(", ")
+            ? this.cohort.type.map(type => type.name).join(", ")
             : "not available",
         },
         {
@@ -242,7 +236,7 @@ export default {
           value: this.cohort.countries
             ? [...this.cohort.countries]
                 .sort((a, b) => a.order - b.order)
-                .map((c) => c.name)
+                .map(c => c.name)
                 .join(",")
             : "",
         },
@@ -253,7 +247,7 @@ export default {
         {
           label: "Age group at inclusion",
           value: this.cohort.populationAgeGroups
-            ? this.cohort.populationAgeGroups.map((pag) => pag.name)
+            ? this.cohort.populationAgeGroups.map(pag => pag.name)
             : [],
         },
       ];
@@ -263,7 +257,7 @@ export default {
         return [];
       } else {
         // only show partners that have a log set
-        return this.cohort.partners.filter((partner) => {
+        return this.cohort.partners.filter(partner => {
           return (
             partner &&
             partner.institution &&
@@ -278,14 +272,14 @@ export default {
         return [];
       } else {
         return this.cohort.networks
-          .map((network) => {
+          .map(network => {
             if (network.description && network.description.length > 200) {
               network.description =
                 network.description.substring(0, 200) + " ...";
             }
             return network;
           })
-          .map((network) => {
+          .map(network => {
             if (!network.logo || !network.logo.url) {
               network.logo = {
                 url: networkNoLogoUrl,
@@ -296,7 +290,7 @@ export default {
       }
     },
     subpopulations() {
-      const topLevelAgeGroup = (ageGroup) => {
+      const topLevelAgeGroup = ageGroup => {
         if (!ageGroup.parent) {
           return ageGroup;
         }
@@ -304,7 +298,7 @@ export default {
       };
       return !this.cohort.subcohorts
         ? []
-        : this.cohort.subcohorts.map((subcohort) => {
+        : this.cohort.subcohorts.map(subcohort => {
             return {
               name: subcohort.name,
               description: subcohort.description,
@@ -314,12 +308,12 @@ export default {
                 : subcohort.ageGroups
                     .map(topLevelAgeGroup)
                     .reduce((ageGroups, ageGroup) => {
-                      if (!ageGroups.find((ag) => ageGroup.name === ag.name)) {
+                      if (!ageGroups.find(ag => ageGroup.name === ag.name)) {
                         ageGroups.push(ageGroup);
                       }
                       return ageGroups;
                     }, [])
-                    .map((ag) => ag.name)
+                    .map(ag => ag.name)
                     .join(","),
               _path: `${this.$route.path}/subcohorts/${subcohort.name}`,
             };
@@ -328,7 +322,7 @@ export default {
     collectionEvents() {
       return !this.cohort.collectionEvents
         ? []
-        : this.cohort.collectionEvents.map((item) => {
+        : this.cohort.collectionEvents.map(item => {
             return {
               name: item.name,
               description: item.description,
@@ -370,7 +364,7 @@ export default {
       if (!this.cohort.documentation) {
         return [];
       }
-      return this.cohort.documentation.map((d) => {
+      return this.cohort.documentation.map(d => {
         return {
           text: d.name,
           href: d.url,
@@ -379,7 +373,7 @@ export default {
     },
     cohortMetaData() {
       return this.metaData._schema.tables.find(
-        (table) => table.name == "Cohorts"
+        table => table.name == "Cohorts"
       );
     },
   },
@@ -391,11 +385,11 @@ export default {
       return Array.from(
         new Set(
           this.cohort.collectionEvents
-            .filter((collectionEvent) => collectionEvent[detail])
-            .flatMap((collectionEvent) => {
+            .filter(collectionEvent => collectionEvent[detail])
+            .flatMap(collectionEvent => {
               return collectionEvent[detail];
             })
-            .map((detail) => detail.name)
+            .map(detail => detail.name)
         )
       );
     },

@@ -9,15 +9,13 @@
         v-model="filter"
         id="filterInput"
         class="form-control"
-        type="text"
-      />
+        type="text" />
       <label for="filterInput">orderby</label>
       <input
         v-model="orderby"
         id="filterInput"
         class="form-control"
-        type="text"
-      />
+        type="text" />
     </div>
     <p>{{ tableData }}</p>
 

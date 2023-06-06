@@ -4,8 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <MessageError v-if="!options || !options.length">
       No options provided
     </MessageError>
@@ -15,20 +14,17 @@
       :modelValue="modelValue"
       :readonly="readonly"
       class="form-control"
-      @change="$emit('update:modelValue', $event.target.value)"
-    >
+      @change="$emit('update:modelValue', $event.target.value)">
       <option
         v-if="!required"
-        :selected="modelValue === undefined || modelValue === null"
-      >
+        :selected="modelValue === undefined || modelValue === null">
         {{ placeholder }}
       </option>
       <option
         v-for="(option, index) in options"
         :key="index + option"
         :value="option"
-        :selected="modelValue == option"
-      >
+        :selected="modelValue == option">
         {{ option }}
       </option>
     </select>
@@ -38,8 +34,7 @@
       class="form-control"
       type="text"
       readonly
-      :value="modelValue"
-    />
+      :value="modelValue" />
   </FormGroup>
 </template>
 

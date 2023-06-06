@@ -4,30 +4,26 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <div>
       <div>
         <ButtonAlt
           v-if="modelValue !== null"
           class="pl-1"
           icon="fa fa-clear"
-          @click="clearValue"
-        >
+          @click="clearValue">
           clear selection
         </ButtonAlt>
       </div>
       <div
         :class="
           showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
-        "
-      >
+        ">
         <div
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           v-for="(row, index) in data"
-          :key="index"
-        >
+          :key="index">
           <input
             :id="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
             :name="id"
@@ -38,12 +34,10 @@
               $emit('update:modelValue', getPrimaryKey(row, tableMetaData))
             "
             class="form-check-input"
-            :class="{ 'is-invalid': errorMessage }"
-          />
+            :class="{ 'is-invalid': errorMessage }" />
           <label
             class="form-check-label"
-            :for="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
-          >
+            :for="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`">
             {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
           </label>
         </div>
@@ -51,8 +45,7 @@
           class="pl-0"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           icon="fa fa-search"
-          @click="openSelect"
-        >
+          @click="openSelect">
           {{ count > maxNum ? `view all ${count} options.` : "view as table" }}
         </ButtonAlt>
       </div>
@@ -68,8 +61,7 @@
             :schemaName="schemaName"
             :showSelect="true"
             :limit="10"
-            :canEdit="canEdit"
-          />
+            :canEdit="canEdit" />
         </template>
         <template v-slot:footer>
           <ButtonAlt @click="closeSelect">Close</ButtonAlt>

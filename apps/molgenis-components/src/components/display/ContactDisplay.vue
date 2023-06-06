@@ -26,8 +26,7 @@
       <img
         :src="imgSrc"
         :alt="contact.surname + '-image'"
-        class="img-thumbnail"
-      />
+        class="img-thumbnail" />
     </template>
   </person-details>
 </template>
@@ -70,7 +69,7 @@ export default {
     contributions() {
       return [...this.contributionType]
         .sort((a, b) => a.order - b.order)
-        .map((ct) => ct.name)
+        .map(ct => ct.name)
         .join(",");
     },
     imgSrc() {

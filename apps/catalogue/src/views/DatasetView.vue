@@ -37,8 +37,7 @@
                 target: m.target.id,
                 targetDataset: m.targetDataset.name,
               },
-            }"
-          >
+            }">
             <span>{{ m.source.id }} : {{ m.sourceDataset.name }} </span>
           </RouterLink>
         </li>
@@ -57,8 +56,7 @@
           },
         }"
         :visibleColumns="['target', 'target dataset']"
-        @close="reload"
-      />
+        @close="reload" />
     </h6>
     <div v-if="dataset.mappedTo">
       <ul>
@@ -72,8 +70,7 @@
                 target: m.target.id,
                 targetDataset: m.targetDataset.name,
               },
-            }"
-          >
+            }">
             <span>{{ m.target.id }} : {{ m.targetDataset.name }} </span>
           </RouterLink>
         </li>
@@ -92,8 +89,7 @@
       }"
       :canEdit="canEdit"
       :canManage="canManage"
-      @rowClick="openVariable"
-    />
+      @rowClick="openVariable" />
   </div>
 </template>
 <script>
@@ -196,10 +192,10 @@ export default {
           name: this.name,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.dataset = data.Datasets[0];
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.response)
             this.graphqlError = error.response.errors[0].message;
           else this.graphqlError = error;

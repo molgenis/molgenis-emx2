@@ -58,7 +58,7 @@ let filters: IFilter[] = reactive([
 
 let search = computed(() => {
   // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
+  return filters.find(f => f.columnType === "_SEARCH").search;
 });
 
 const query = computed(() => {
@@ -120,7 +120,7 @@ let activeName = ref("detailed");
 const NOTICE_SETTING_KEY = "CATALOGUE_NOTICE";
 const underConstructionNotice = ref();
 
-fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
+fetchSetting(NOTICE_SETTING_KEY).then(resp => {
   const setting = resp.data["_settings"].find(
     (setting: { key: string; value: string }) => {
       return setting.key === NOTICE_SETTING_KEY;
@@ -145,18 +145,15 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
           <PageHeader
             title="Cohorts"
             description="Group of individuals sharing a defining demographic characteristic."
-            icon="image-link"
-          >
+            icon="image-link">
             <template #suffix>
               <div
                 v-if="underConstructionNotice"
-                class="mt-1 mb-5 text-left bg-yellow-200 rounded-lg text-black py-5 px-5 flex"
-              >
+                class="mt-1 mb-5 text-left bg-yellow-200 rounded-lg text-black py-5 px-5 flex">
                 <BaseIcon
                   name="info"
                   :width="55"
-                  class="hidden md:block mr-3"
-                />
+                  class="hidden md:block mr-3" />
                 <div class="inline-block">{{ underConstructionNotice }}</div>
               </div>
 
@@ -168,17 +165,14 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
                 buttonRightLabel="Compact"
                 buttonRightName="compact"
                 buttonRightIcon="view-compact"
-                v-model:activeName="activeName"
-              />
+                v-model:activeName="activeName" />
               <SearchResultsViewTabsMobile
                 class="flex xl:hidden"
-                v-model:activeName="activeName"
-              >
+                v-model:activeName="activeName">
                 <FilterSidebar
                   title="Filters"
                   :filters="filters"
-                  :mobileDisplay="true"
-                />
+                  :mobileDisplay="true" />
               </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>
@@ -190,13 +184,11 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
             <CardList v-if="data?.data?.Cohorts?.length > 0">
               <CardListItem
                 v-for="cohort in data?.data?.Cohorts"
-                :key="cohort.name"
-              >
+                :key="cohort.name">
                 <CohortCard
                   :cohort="cohort"
                   :schema="route.params.schema"
-                  :compact="activeName !== 'detailed'"
-                />
+                  :compact="activeName !== 'detailed'" />
               </CardListItem>
             </CardList>
             <div v-else class="flex justify-center pt-3">
@@ -211,8 +203,7 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
           <Pagination
             :current-page="currentPage"
             :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
-            @update="setCurrentPage($event)"
-          />
+            @update="setCurrentPage($event)" />
         </template>
       </SearchResults>
     </template>

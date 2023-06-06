@@ -4,9 +4,8 @@
     v-else-if="
       !session ||
       !session.roles ||
-      !['Viewer'].some((r) => session.roles.includes(r))
-    "
-  >
+      !['Viewer'].some(r => session.roles.includes(r))
+    ">
     Schema doesn't exist or you don't have permission to view. Might you need to
     login?
   </MessageWarning>
@@ -36,8 +35,7 @@
         :rows="reportsWithId"
         class="bg-white"
         selectColumn="id"
-        v-model="selection"
-      >
+        v-model="selection">
         <template v-slot:colheader>
           <IconAction v-if="canEdit" icon="plus" @click="add" />
         </template>
@@ -45,8 +43,7 @@
           <IconAction
             v-if="canEdit"
             icon="pencil-alt"
-            @click="open(slotProps.row)"
-          />
+            @click="open(slotProps.row)" />
           <IconAction v-else icon="eye" @click="open(slotProps.row)" />
         </template>
       </TableSimple>
@@ -100,7 +97,7 @@ export default {
     reportsWithId() {
       if (this.reports) {
         let index = 0;
-        return this.reports.map((report) => {
+        return this.reports.map(report => {
           report.id = index++;
           return report;
         });
@@ -119,15 +116,15 @@ export default {
       this.reports.push({ name: "new report", sql: "" });
       await this.client
         .saveSetting("reports", this.reports)
-        .catch((error) => (this.error = error));
+        .catch(error => (this.error = error));
       this.reload();
     },
     async deleteSelected() {
       this.error = null;
-      this.selection.forEach((id) => this.reports.splice(id, 1));
+      this.selection.forEach(id => this.reports.splice(id, 1));
       await this.client
         .saveSetting("reports", this.reports)
-        .catch((error) => (this.error = error));
+        .catch(error => (this.error = error));
       this.reload();
     },
     open(row) {

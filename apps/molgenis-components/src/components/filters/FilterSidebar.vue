@@ -4,8 +4,7 @@
       v-for="(filter, index) in visibleFilters"
       :key="filter.name"
       :title="filter.name"
-      :conditions="filter.conditions"
-    >
+      :conditions="filter.conditions">
       <FilterInput
         :id="'filter-' + filter.name"
         :conditions="visibleFilters[index].conditions"
@@ -13,8 +12,9 @@
         :columnType="filter.columnType"
         :tableName="filter.refTable"
         :schemaName="filter.refSchema ? filter.refSchema : schemaName"
-        :refLabel="filter.refLabel ? filter.refLabel : filter.refLabelDefault"
-      />
+        :refLabel="
+          filter.refLabel ? filter.refLabel : filter.refLabelDefault
+        " />
     </FilterContainer>
   </div>
 </template>
@@ -48,7 +48,7 @@ export default {
   computed: {
     visibleFilters() {
       return this.filters.filter(
-        (column) => column.showFilter && column.columnType !== "HEADING"
+        column => column.showFilter && column.columnType !== "HEADING"
       );
     },
   },

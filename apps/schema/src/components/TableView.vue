@@ -8,8 +8,7 @@
               table.name !== undefined ? table.name.replaceAll(' ', '_') : ''
             "
             style="display: inline-block; text-transform: none !important"
-            :style="table.drop ? 'text-decoration: line-through' : ''"
-          >
+            :style="table.drop ? 'text-decoration: line-through' : ''">
             Table: {{ table.name }}
             <span v-if="table.semantics" class="small">
               (<a
@@ -26,29 +25,26 @@
             v-model="table"
             :schema="schema"
             @update:modelValue="$emit('update:modelValue', table)"
-            :locales="locales"
-          />
+            :locales="locales" />
           <IconDanger
             v-if="isManager"
             @click="deleteTable"
             icon="trash"
-            class="hoverIcon"
-          />
+            class="hoverIcon" />
           <a
             class="hoverIcon"
             :href="'#'"
             v-scroll-to="{
               el: '#molgenis_tables_container',
               offset: -200,
-            }"
-          >
+            }">
             scroll to top
           </a>
         </span>
         <div v-if="table.labels">
           <label class="mb-0">Label: </label>
           <table class="table-borderless ml-4">
-            <tr v-for="el in table.labels.filter((el) => el.value)">
+            <tr v-for="el in table.labels.filter(el => el.value)">
               <td>{{ el.locale }}:</td>
               <td>{{ el.value }}</td>
             </tr>
@@ -57,7 +53,7 @@
         <div v-if="table.descriptions">
           <label class="mb-0">Description: </label>
           <table class="table-borderless ml-4">
-            <tr v-for="el in table.descriptions.filter((el) => el.value)">
+            <tr v-for="el in table.descriptions.filter(el => el.value)">
               <td>{{ el.locale }}:</td>
               <td>{{ el.value }}</td>
             </tr>
@@ -70,8 +66,7 @@
               <label style="display: inline">Subclasses:</label>
               <span
                 v-if="table.subclasses === undefined"
-                class="hoverContainer"
-              >
+                class="hoverContainer">
                 None
               </span>
               <TableEditModal
@@ -80,13 +75,11 @@
                 operation="add"
                 :rootTable="table"
                 @add="createSubclass"
-                :locales="locales"
-              />
+                :locales="locales" />
             </div>
             <table
               class="table table-bordered table-sm"
-              v-if="table.subclasses"
-            >
+              v-if="table.subclasses">
               <thead>
                 <th style="width: 25ch" scope="col">subclass</th>
                 <th style="width: 25ch" scope="col">extends</th>
@@ -102,8 +95,7 @@
                     subclass.name !== undefined
                       ? subclass.name.replaceAll(' ', '_')
                       : ''
-                  "
-                >
+                  ">
                   <td>
                     {{ subclass.name }}
                     <TableEditModal
@@ -111,14 +103,12 @@
                       v-model="table.subclasses[index]"
                       :schema="schema"
                       :rootTable="table"
-                      @update:modelValue="$emit('update:modelValue', table)"
-                    />
+                      @update:modelValue="$emit('update:modelValue', table)" />
                     <IconDanger
                       v-if="isManager"
                       @click="deleteSubclass(subclass)"
                       icon="trash"
-                      class="hoverIcon"
-                    />
+                      class="hoverIcon" />
                   </td>
                   <td>extends {{ subclass.inherit }}</td>
                   <td>
@@ -139,22 +129,19 @@
               :tableName="table.name"
               :columnIndex="0"
               @add="addColumn(0, $event)"
-              :locales="locales"
-            />
+              :locales="locales" />
           </div>
           <table
             v-if="table.columns?.length > 0"
             class="table table-bordered table-sm"
-            style="table-layout: fixed"
-          >
+            style="table-layout: fixed">
             <thead>
               <tr class="hoverContainer">
                 <th style="width: 25ch" scope="col">column</th>
                 <th
                   style="width: 25ch"
                   scope="col"
-                  v-if="table.subclasses?.length > 0"
-                >
+                  v-if="table.subclasses?.length > 0">
                   inSubclass
                 </th>
                 <th style="width: 32ch" scope="col">definition</th>
@@ -166,8 +153,7 @@
               v-model="table.columns"
               tag="tbody"
               @end="applyPosition"
-              item-key="name"
-            >
+              item-key="name">
               <template #item="{ element, index }">
                 <ColumnView
                   :style="
@@ -183,8 +169,7 @@
                   @delete="deleteColumn(index)"
                   :columnIndex="index"
                   :isManager="isManager"
-                  :locales="locales"
-                />
+                  :locales="locales" />
               </template>
             </Draggable>
           </table>
@@ -262,14 +247,14 @@ export default {
     },
     applyPosition() {
       let position = 1;
-      this.table.columns.forEach((column) => (column.position = position++));
+      this.table.columns.forEach(column => (column.position = position++));
       this.$emit("update:modelValue", this.table);
     },
     validateName() {
       if (!this.name) {
         return "Table name is required";
       }
-      if (this.schema.tables.filter((t) => t.name === this.name).length > 1) {
+      if (this.schema.tables.filter(t => t.name === this.name).length > 1) {
         return "Table name must be unique within schema";
       }
     },
@@ -295,7 +280,7 @@ export default {
     deleteSubclass(subclass) {
       if (!subclass.oldName) {
         this.table.subclasses = this.table.subclasses.filter(
-          (sb) => sb !== subclass
+          sb => sb !== subclass
         );
       } else if (!subclass.drop) {
         //need to do deep set otherwise vue doesn't see it
@@ -310,7 +295,7 @@ export default {
         return this.table.drop;
       } else {
         return this.table.subclasses?.find(
-          (subclass) => subclass.name === column.table
+          subclass => subclass.name === column.table
         ).drop;
       }
     },

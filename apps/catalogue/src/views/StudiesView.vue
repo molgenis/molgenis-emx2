@@ -3,8 +3,7 @@
     <ResourceHeader
       :resource="study"
       headerCss="bg-success text-white"
-      table-name="Studies"
-    />
+      table-name="Studies" />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div class="row">
       <div class="col">
@@ -77,10 +76,10 @@ export default {
           pid: this.pid,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.study = data.Studies[0];
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.response)
             this.graphqlError = error.response.errors[0].message;
           else this.graphqlError = error;

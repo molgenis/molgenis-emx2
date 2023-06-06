@@ -48,8 +48,7 @@ function showAsFile(item: DefinitionListItem) {
     <div
       :class="small ? smallClasses : useGridClasses"
       v-for="item in items.filter(emptyContent)"
-      :key="item.label"
-    >
+      :key="item.label">
       <dt class="flex items-start font-bold text-body-base">
         <div class="flex items-center gap-1">
           {{ item.label }}
@@ -63,8 +62,7 @@ function showAsFile(item: DefinitionListItem) {
         <ContentOntology
           v-if="item?.type === 'ONTOLOGY'"
           :tree="item.content"
-          :collapse-all="true"
-        ></ContentOntology>
+          :collapse-all="true"></ContentOntology>
 
         <a v-else-if="showAsFile(item)" class="flex" :href="item.content.url">
           <div class="flex-start">
@@ -76,8 +74,7 @@ function showAsFile(item: DefinitionListItem) {
 
         <ul
           v-else-if="isArray(item.content) && item.content.length > 1"
-          class="grid gap-1 pl-4 list-disc list-outside"
-        >
+          class="grid gap-1 pl-4 list-disc list-outside">
           <li v-for="row in item.content" :key="row">
             {{ row }}
           </li>

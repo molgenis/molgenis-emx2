@@ -55,8 +55,7 @@
             tableName="DatasetMappings"
             :pkey="pkeyDataset(datasetmappings)"
             :visibleColumns="['description']"
-            @close="handleModalClose"
-          />
+            @close="handleModalClose" />
           <br />
           <br />
           <a :href="downloadURLcsv">Download ETL as csv</a><br />
@@ -84,8 +83,7 @@
                 'comments',
                 'source variables',
               ]"
-              @close="handleModalClose"
-            />
+              @close="handleModalClose" />
           </div>
         </td>
         <td v-if="m.targetVariable">
@@ -97,8 +95,7 @@
                 dataset: targetDataset,
                 name: m.targetVariable.name,
               },
-            }"
-          >
+            }">
             {{ m.targetVariable.name }}
           </RouterLink>
         </td>
@@ -114,8 +111,7 @@
                   dataset: sourceDataset,
                   name: v.name,
                 },
-              }"
-            >
+              }">
               {{ sourceDataset }}.{{ v.name }}
             </RouterLink>
           </div>
@@ -130,8 +126,7 @@
                   dataset: v.dataset.name,
                   name: v.name,
                 },
-              }"
-            >
+              }">
               {{ v.dataset.name }}.{{ v.name }}
             </RouterLink>
           </div>
@@ -360,11 +355,11 @@ export default {
           targetDataset: this.targetDataset,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.datasetmappings = data.DatasetMappings[0];
           this.variablemappings = data.VariableMappings;
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.response)
             this.graphqlError = error.response.errors[0].message;
           else this.graphqlError = error;

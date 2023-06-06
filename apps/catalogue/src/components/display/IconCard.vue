@@ -5,8 +5,7 @@
         <component
           :is="icon"
           :size="iconSize.toString()"
-          class="mg-card-icon"
-        />
+          class="mg-card-icon" />
         {{ cardTitle }}
       </h5>
       <slot></slot>

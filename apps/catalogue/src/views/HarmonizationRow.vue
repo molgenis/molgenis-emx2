@@ -7,8 +7,7 @@
       v-for="resource in resources"
       :key="resource.id"
       class="colored-grid-cell"
-      :status="getCellClass(resource)"
-    />
+      :status="getCellClass(resource)" />
   </tr>
 </template>
 
@@ -43,8 +42,8 @@ export default {
     },
     getMatchStatus(resource) {
       if (this.variable.repeats) {
-        const statusList = this.variable.repeats.map((repeatedVariable) => {
-          const resourceMapping = this.resourceMappings.find((mapping) => {
+        const statusList = this.variable.repeats.map(repeatedVariable => {
+          const resourceMapping = this.resourceMappings.find(mapping => {
             return (
               mapping.targetVariable.name === repeatedVariable.name &&
               mapping.sourceDataset.resource.id === resource.id
@@ -54,7 +53,7 @@ export default {
           return resourceMapping ? resourceMapping.match.name : "na";
         });
 
-        const baseVariable = this.resourceMappings.find((mapping) => {
+        const baseVariable = this.resourceMappings.find(mapping => {
           return (
             mapping.toVariable.name === this.variable.name &&
             mapping.fromTable.dataDictionary.resource.pid === resource.pid
@@ -78,7 +77,7 @@ export default {
           return "unmapped";
         }
       } else {
-        const resourceMapping = this.resourceMappings.find((mapping) => {
+        const resourceMapping = this.resourceMappings.find(mapping => {
           return mapping.sourceDataset.resource.id === resource.id;
         });
 

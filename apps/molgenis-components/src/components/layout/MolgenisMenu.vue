@@ -7,8 +7,7 @@
       data-target="#navbarNav"
       aria-controls="navbarNav"
       aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
+      aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <a v-if="logo" class="navbar-brand" href="/">
@@ -23,15 +22,13 @@
           :class="{
             active: item.active,
             dropdown: item.submenu,
-          }"
-        >
+          }">
           <ButtonDropdown
             class="nav-item"
             v-if="item.submenu && item.submenu.length > 0"
             :label="item.label"
             icon="caret-down"
-            :isMenuItem="true"
-          >
+            :isMenuItem="true">
             <a
               v-for="sub in item.submenu"
               class="dropdown-item"
@@ -90,8 +87,8 @@ export default {
       return this.items.filter(this.permitted);
     },
     homeUrl() {
-      const findFirst = (menu) => {
-        return menu.find((item) => {
+      const findFirst = menu => {
+        return menu.find(item => {
           //will be first non-submenu item that is permitted
           if (item.href) {
             return item;
@@ -135,17 +132,15 @@ export default {
           return true;
         }
         if (item.role === "Viewer") {
-          return this.session.roles.some((r) =>
+          return this.session.roles.some(r =>
             ["Viewer", "Editor", "Manager", "Owner"].includes(r)
           );
         } else if (item.role === "Editor") {
-          return this.session.roles.some((r) =>
+          return this.session.roles.some(r =>
             ["Editor", "Manager", "Owner"].includes(r)
           );
         } else if (item.role === "Manager") {
-          return this.session.roles.some((r) =>
-            ["Manager", "Owner"].includes(r)
-          );
+          return this.session.roles.some(r => ["Manager", "Owner"].includes(r));
         }
       }
       return false;

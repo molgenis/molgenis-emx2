@@ -5,19 +5,16 @@
         :logo="logoURLorDefault"
         active="My search"
         :items="menu"
-        :session="session"
-      >
+        :session="session">
         <MolgenisSession
           v-model="session"
           :key="timestamp"
-          @error="$emit('error', $event)"
-        />
+          @error="$emit('error', $event)" />
       </MolgenisMenu>
       <Breadcrumb
         v-if="showCrumbs && Object.keys(crumbs).length > 1"
         :crumbs="crumbs"
-        :dropdown="schemaUrlsForCrumbs"
-      />
+        :dropdown="schemaUrlsForCrumbs" />
       <div class="container-fluid p-3" style="padding-bottom: 50px">
         <h1 v-if="title">{{ title }}</h1>
         <slot />
@@ -30,8 +27,7 @@
           :href="
             'https://github.com/molgenis/molgenis-emx2/releases/tag/v' +
             session.manifest.SpecificationVersion
-          "
-        >
+          ">
           {{ session.manifest.SpecificationVersion }} </a
         >.
         <span v-if="session.manifest.DatabaseVersion">
@@ -120,7 +116,7 @@ export default {
       //all databases
       result["list all databases"] = "/apps/central/";
       if (this.session && this.session.schemas) {
-        this.session.schemas.forEach((s) => {
+        this.session.schemas.forEach(s => {
           result[s] = "../../" + s; // all paths are of form /:schema/:app
         });
       }
@@ -134,7 +130,7 @@ export default {
         let url = "/";
         let result = {};
         if (window.location.pathname != "/apps/central/") {
-          path.forEach((el) => {
+          path.forEach(el => {
             if (el != "") {
               url += el + "/";
               result[el] = url;
@@ -144,7 +140,7 @@ export default {
         if (this.$route) {
           path = decodeURI(location.hash.split("?")[0]).substr(1).split("/");
           url += "#";
-          path.forEach((el) => {
+          path.forEach(el => {
             if (el != "") {
               url += "/" + el;
               result[el] = url;

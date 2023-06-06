@@ -5,13 +5,11 @@
         v-if="primaryKey"
         :data="primaryKey"
         :meta-data="reference.metadata"
-        class="mr-1"
-      />
+        class="mr-1" />
       <button
         v-if="canCollapse"
         class="btn p-0 m-0 btn-outline-primary border-0 ml-auto float-right"
-        @click="collapsed = !collapsed"
-      >
+        @click="collapsed = !collapsed">
         <i :class="`fas fa-fw fa-angle-${collapsed ? 'up' : 'down'}`"></i>
       </button>
     </h5>
@@ -24,12 +22,10 @@
               @click="onCellClick(cellName)"
               :class="{
                 refType: isRefType(metadataOfCell(cellName).columnType),
-              }"
-            >
+              }">
               <DataDisplayCell
                 :data="cellValue"
-                :meta-data="metadataOfCell(cellName)"
-              />
+                :meta-data="metadataOfCell(cellName)" />
             </td>
           </tr>
         </table>
@@ -37,8 +33,7 @@
       <div
         v-if="collapsed"
         class="collapsed-tag border-top rounded-bottom mb-3"
-        @click="collapsed = false"
-      >
+        @click="collapsed = false">
         <small class="px-3 link-color"> Show all records... </small>
       </div>
     </div>
@@ -97,7 +92,7 @@ let primaryKey = ref({});
 
 if (props.tableId && props.schema) {
   convertRowToPrimaryKey(reference.value, props.tableId, props.schema).then(
-    (results) => {
+    results => {
       if (Object.keys(results).length === 0) {
         primaryKey.value =
           getPrimaryKey(reference.value, reference.value.metadata) || {};
@@ -125,7 +120,7 @@ function metadataOfCell(key: string | number): IColumn {
   const metadata = reference.value.metadata;
   if (isMetadata(metadata) && metadata.columns) {
     return (
-      metadata.columns.find((column) => column.id === key) || ({} as IColumn)
+      metadata.columns.find(column => column.id === key) || ({} as IColumn)
     );
   } else {
     throw "Error: Metadata for RefTable not found";

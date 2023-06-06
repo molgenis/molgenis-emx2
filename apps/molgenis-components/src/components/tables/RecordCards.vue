@@ -13,8 +13,7 @@
       @reload="$emit('reload')"
       @edit="$emit('edit', $event)"
       @delete="$emit('delete', $event)"
-      @click="$emit('click', $event)"
-    />
+      @click="$emit('click', $event)" />
   </div>
 </template>
 

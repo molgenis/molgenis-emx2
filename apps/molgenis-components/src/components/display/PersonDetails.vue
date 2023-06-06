@@ -11,8 +11,7 @@
           <img
             :src="imgSrc"
             alt="person-place-holder-image"
-            class="img-thumbnail"
-          />
+            class="img-thumbnail" />
         </slot>
       </div>
     </div>

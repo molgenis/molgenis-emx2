@@ -25,7 +25,7 @@ export function isNumericKey(event: KeyboardEvent): boolean {
 export function flattenObject(object: Record<string, any>): string {
   if (typeof object === "object") {
     let result = "";
-    Object.keys(object).forEach((key) => {
+    Object.keys(object).forEach(key => {
       if (object[key] === null) {
         return;
       }
@@ -194,11 +194,11 @@ export function getLocalizedLabel(
   let label;
   if (tableOrColumnMetadata?.labels) {
     label = tableOrColumnMetadata.labels.find(
-      (el) => el.locale === locale
+      el => el.locale === locale
     )?.value;
     if (!label) {
       label = tableOrColumnMetadata.labels.find(
-        (el) => el.locale === "en"
+        el => el.locale === "en"
       )?.value;
     }
   }
@@ -213,7 +213,7 @@ export function getLocalizedDescription(
   locale: string
 ): string | undefined {
   if (tableOrColumnMetadata.descriptions) {
-    return tableOrColumnMetadata.descriptions.find((el) => el.locale === locale)
+    return tableOrColumnMetadata.descriptions.find(el => el.locale === locale)
       ?.value;
   }
 }

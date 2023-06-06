@@ -19,7 +19,7 @@
             >
           </a>
         </td>
-        <td>{{ row.linkedResource?.type?.map((t) => t.name).join(",") }}</td>
+        <td>{{ row.linkedResource?.type?.map(t => t.name).join(",") }}</td>
         <td>{{ row.linkedResource?.linkageStrategy?.name }}</td>
         <td>{{ row.linkedResource?.linkageDescription?.name }}</td>
         <td>{{ row.linkedResource?.linkageVariable }}</td>
@@ -91,7 +91,7 @@ export default {
         }`;
     const response = await request("graphql", query, {
       filter: this.filter,
-    }).catch((error) => (this.error = error));
+    }).catch(error => (this.error = error));
     this.rows = response.LinkedResources;
   },
 };

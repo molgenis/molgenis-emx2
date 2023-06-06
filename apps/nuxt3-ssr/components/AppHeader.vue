@@ -16,7 +16,7 @@ const menu = [
   // { label: "Tables", link: "#" },
   // { label: "Manuals", link: "#" },
   { label: "About", link: `/${schema}/ssr-catalogue/about` },
-].filter((item) => item !== undefined);
+].filter(item => item !== undefined);
 </script>
 
 <template>

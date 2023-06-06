@@ -3,8 +3,7 @@
     <i
       class="fa fa-question-circle text-primary"
       @mouseenter="show = true"
-      @mouseleave="show = false"
-    ></i>
+      @mouseleave="show = false"></i>
     <div class="tooltip bs-tooltip-top" :class="{ show: show }">
       <span class="tooltip-inner">
         <span> <slot /></span>

@@ -12,8 +12,7 @@
         id="page-title"
         label="Add new page: "
         v-model="newPage"
-        :errorMessage="nameError"
-      />
+        :errorMessage="nameError" />
       <ButtonAction v-if="newPage && !nameError" @click="openPageEdit(newPage)"
         >Create new
       </ButtonAction>
@@ -54,8 +53,8 @@ export default {
     pages() {
       if (this.session && this.session.settings) {
         return Object.keys(this.session.settings)
-          .filter((key) => key.startsWith("page."))
-          .map((key) => key.substring(5));
+          .filter(key => key.startsWith("page."))
+          .map(key => key.substring(5));
       }
       return [];
     },

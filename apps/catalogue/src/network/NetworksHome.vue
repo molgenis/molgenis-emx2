@@ -11,8 +11,7 @@
     <InputSearch
       id="networks-home-search-input"
       v-model="searchTerms"
-      placeholder="search cohorts"
-    />
+      placeholder="search cohorts" />
     <div v-if="harmonizationNetworks.length > 0">
       <h2>Networks</h2>
       <p>
@@ -23,8 +22,7 @@
         <div
           class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
           v-for="network in harmonizationNetworks"
-          :key="network.id"
-        >
+          :key="network.id">
           <NetworkCard :network="network" />
         </div>
       </div>
@@ -39,8 +37,7 @@
         <div
           class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
           v-for="network in consortiaNetworks"
-          :key="network.id"
-        >
+          :key="network.id">
           <NetworkCard :network="network" />
         </div>
       </div>
@@ -52,8 +49,7 @@
         <div
           class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
           v-for="network in otherNetworks"
-          :key="network.id"
-        >
+          :key="network.id">
           <NetworkCard :network="network" />
         </div>
       </div>
@@ -83,9 +79,9 @@ export default {
     harmonizationNetworks() {
       if (this.networks) {
         return this.networks.filter(
-          (network) =>
+          network =>
             network.type &&
-            network.type.some((type) => type.name === "harmonization")
+            network.type.some(type => type.name === "harmonization")
         );
       } else {
         return [];
@@ -94,8 +90,8 @@ export default {
     consortiaNetworks() {
       if (this.networks) {
         return this.networks.filter(
-          (network) =>
-            network.type && network.type.some((type) => type.name === "h2020")
+          network =>
+            network.type && network.type.some(type => type.name === "h2020")
         );
       } else {
         return [];
@@ -104,10 +100,10 @@ export default {
     otherNetworks() {
       if (this.networks) {
         return this.networks.filter(
-          (network) =>
+          network =>
             !network.type ||
-            (!network.type.some((type) => type.name === "h2020") &&
-              !network.type.some((type) => type.name === "harmonization"))
+            (!network.type.some(type => type.name === "h2020") &&
+              !network.type.some(type => type.name === "harmonization"))
         );
       } else {
         return [];
@@ -146,7 +142,7 @@ export default {
           }
           type {name}
           }}`
-      ).catch((error) => console.log(error));
+      ).catch(error => console.log(error));
 
       this.networks = result.Networks ? result.Networks : [];
     },

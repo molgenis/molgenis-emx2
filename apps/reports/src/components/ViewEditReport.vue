@@ -4,9 +4,8 @@
     v-else-if="
       !session ||
       !session.roles ||
-      !['Viewer'].some((r) => session.roles.includes(r))
-    "
-  >
+      !['Viewer'].some(r => session.roles.includes(r))
+    ">
     Schema doesn't exist or you don't have permission to view. Might you need to
     login?
   </MessageWarning>
@@ -34,14 +33,12 @@
         v-if="count"
         v-model="page"
         :limit="limit"
-        :count="count"
-      /><IconAction icon="download" @click="download(id)" />
+        :count="count" /><IconAction icon="download" @click="download(id)" />
       <TableSimple
         :columns="columns"
         :rows="rows"
         class="bg-white"
-        :key="JSON.stringify(this.rows)"
-      />
+        :key="JSON.stringify(this.rows)" />
     </div>
     <div v-else>No results found.</div>
   </div>
@@ -98,8 +95,8 @@ export default {
     columns() {
       if (this.rows) {
         const names = [];
-        this.rows.forEach((row) => {
-          Object.keys(row).forEach((key) => {
+        this.rows.forEach(row => {
+          Object.keys(row).forEach(key => {
             if (names.indexOf(key) === -1) {
               names.push(key);
             }
@@ -119,7 +116,7 @@ export default {
       const result = await request(
         "graphql",
         `{_reports(id:${this.id},limit:${this.limit},offset:${offset}){data,count}}`
-      ).catch((error) => {
+      ).catch(error => {
         this.error = error;
       });
       this.rows = JSON.parse(result._reports.data);
@@ -133,11 +130,11 @@ export default {
       reports[this.id].name = this.name;
       this.client
         .saveSetting("reports", reports)
-        .then((res) => {
+        .then(res => {
           this.success = "Saved report " + this.id + " and refreshed query";
           this.run();
         })
-        .catch((error) => (this.error = error));
+        .catch(error => (this.error = error));
     },
     async reload() {
       const reports = await this.client.fetchSettingValue("reports");

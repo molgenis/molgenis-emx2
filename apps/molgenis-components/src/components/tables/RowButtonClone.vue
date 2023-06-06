@@ -9,8 +9,7 @@
       :clone="true"
       :isModalShown="isModalShown"
       :schemaName="schemaName"
-      @close="handleClose"
-    />
+      @close="handleClose" />
   </div>
 </template>
 

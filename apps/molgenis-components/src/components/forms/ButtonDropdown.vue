@@ -5,8 +5,7 @@
       ref="showInputButton"
       class="btn btn-outline-primary"
       :class="{ 'dropdown-toggle': !icon, 'nav-link': isMenuItem }"
-      @click="toggle"
-    >
+      @click="toggle">
       <span v-if="label">{{ label }}</span>
       <span v-if="icon" :class="'fa fa-' + icon + ' fa-lg ml-2'"></span>
     </button>
@@ -15,8 +14,7 @@
       class="mg-dropdown-drop bg-white border rounded"
       ref="dropdown"
       v-click-outside="toggle"
-      @click="handleOnClick"
-    >
+      @click="handleOnClick">
       <slot :close="toggle" />
     </span>
   </span>
