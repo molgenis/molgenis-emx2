@@ -103,6 +103,7 @@ public class MolgenisWebservice {
     GraphGenomeApi.create(sessionManager);
     BeaconApi.create(sessionManager);
     FAIRDataPointApi.create(sessionManager);
+    CafeVariomeApi.create(sessionManager);
     BootstrapThemeService.create();
 
     get(
