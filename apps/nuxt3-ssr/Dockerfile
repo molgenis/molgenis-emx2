@@ -3,7 +3,7 @@
 ###
 
 ## Base image to have a node runtime
-FROM node:19.8.1-alpine
+FROM node:19.9.0-alpine
 
 # Used to build theme
 # ENV EMX2_THEME=$EMX2_THEME
@@ -35,6 +35,9 @@ ENV NUXT_PUBLIC_EMX2_LOGO=$NUXT_PUBLIC_EMX2_LOGO
 
 # Set the site title
 ENV NUXT_PUBLIC_SITE_TITLE=$NUXT_PUBLIC_SITE_TITLE
+
+# Set feature flag for cohort only app
+ENV NUXT_PUBLIC_COHORT_ONLY=$NUXT_PUBLIC_COHORT_ONLY
 
 ## Start the server
 CMD node .output/server/index.mjs

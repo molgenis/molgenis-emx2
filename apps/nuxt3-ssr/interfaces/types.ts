@@ -48,6 +48,15 @@ interface ICohort {
   documentation?: IDocumentation[];
 }
 
+interface IVariable {
+  name: string;
+  label: string;
+  description?: string;
+  unit?: IOntologyNode;
+  format?: IOntologyNode;
+  nRepeats?: number;
+}
+
 interface IFile {
   id?: string;
   size?: number;
@@ -120,7 +129,9 @@ interface ICollectionEventCategorySet {
 }
 
 interface INetwork {
+  id: string;
   name: string;
+  acronym?: string;
   description?: string;
   logo?: IUrlObject;
   website?: string;
@@ -141,4 +152,24 @@ interface IOntologyNode extends ITreeNode {
 interface ISetting {
   key: string;
   value: string;
+}
+
+interface IBaseFilter {
+  title: string;
+  initialCollapsed?: boolean;
+}
+
+interface ISearchFilter extends IBaseFilter {
+  columnType: "_SEARCH";
+  search?: string;
+}
+
+interface IFilter extends IBaseFilter {
+  columnType: "_SEARCH" | "ONTOLOGY" | "REF_ARRAY";
+  refTable?: string;
+  columnName?: string;
+  filterTable?: string;
+  conditions?: [] | { [key: string]: string }[];
+  searchTables?: string[];
+  search?: string;
 }

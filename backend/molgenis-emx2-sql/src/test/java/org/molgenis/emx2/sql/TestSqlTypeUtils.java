@@ -2,8 +2,8 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
@@ -13,17 +13,13 @@ class TestSqlTypeUtils {
   void autoIdGetsGenerated() {
     TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
     final Row row = new Row("myCol", null);
-    final Map<String, Object> values1 =
-        SqlTypeUtils.validateAndGetVisibleValuesAsMap(
-            row, tableMetadata, tableMetadata.getColumns());
-    assertNotNull(values1.get("myCol"));
+    applyValidationAndComputed(tableMetadata.getColumns(), row);
+    assertNotNull(row.getString("myCol"));
 
     // and now it should change on update
-    final Row copy = new Row(values1);
-    final Map<String, Object> values2 =
-        SqlTypeUtils.validateAndGetVisibleValuesAsMap(
-            copy, tableMetadata, tableMetadata.getColumns());
-    assertEquals(values1.get("myCol"), values2.get("myCol"));
+    final Row copy = new Row(row);
+    applyValidationAndComputed(tableMetadata.getColumns(), copy);
+    assertEquals(row.getString("myCol"), copy.getString("myCol"));
   }
 
   @Test
@@ -35,17 +31,14 @@ class TestSqlTypeUtils {
                 .setType(ColumnType.AUTO_ID)
                 .setComputed("foo-" + Constants.COMPUTED_AUTOID_TOKEN + "-bar"));
     final Row row = new Row("myCol", null);
-    final Map<String, Object> values1 =
-        SqlTypeUtils.validateAndGetVisibleValuesAsMap(
-            row, tableMetadata, tableMetadata.getColumns());
-    assertTrue(((String) values1.get("myCol")).startsWith("foo"));
-    assertTrue(((String) values1.get("myCol")).endsWith("bar"));
+    applyValidationAndComputed(tableMetadata.getColumns(), row);
+    assertTrue(row.getString("myCol").startsWith("foo"));
+    assertTrue(row.getString("myCol").endsWith("bar"));
 
     // and now it should change on update
-    final Row copy = new Row(values1);
-    final Map<String, Object> values2 =
-        SqlTypeUtils.validateAndGetVisibleValuesAsMap(
-            copy, tableMetadata, tableMetadata.getColumns());
-    assertEquals(values1.get("myCol"), values2.get("myCol"));
+    final Row copy = new Row(row);
+
+    applyValidationAndComputed(tableMetadata.getColumns(), copy);
+    assertEquals(row.getString("myCol"), row.getString("myCol"));
   }
 }

@@ -1,49 +1,59 @@
 <template>
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
-      <div class="d-flex" v-if="loaded && tableMetaData">
-        <EditModalWizard
-          v-if="useChapters"
-          :id="id"
-          v-model="rowData"
-          :pkey="pkey"
-          :tableName="tableName"
-          :tableMetaData="tableMetaData"
-          :schemaMetaData="schemaMetaData"
-          :visibleColumns="visibleColumns"
-          :clone="clone"
-          :page="currentPage"
-          @setPageCount="pageCount = $event"
-          @numberOfErrorsInForm="handleNumberOfErrors"
-          :locale="locale"
-          class="flex-grow-1"
-        />
-        <RowEdit
-          v-else
-          :id="id"
-          v-model="rowData"
-          :pkey="pkey"
-          :tableName="tableName"
-          :tableMetaData="tableMetaData"
-          :schemaMetaData="schemaMetaData"
-          :visibleColumns="visibleColumns"
-          :clone="clone"
-          :locale="locale"
-          class="flex-grow-1"
-          @numberOfErrorsInForm="handleNumberOfErrors"
-        />
-        <div v-if="pageCount > 1" class="border-left chapter-menu">
-          <div class="mb-1"><b>Chapters</b></div>
-          <div v-for="(heading, index) in pageHeadings">
-            <button
-              type="button"
-              class="btn btn-link"
-              :title="heading"
-              :class="{ 'font-weight-bold': index + 1 === currentPage }"
-              @click="setCurrentPage(index + 1)"
-            >
-              {{ heading }}
-            </button>
+      <div class="container" v-if="loaded && tableMetaData">
+        <div class="row">
+          <div
+            class="col-10 overflow-auto mr-n3"
+            style="max-height: calc(100vh - 200px)"
+          >
+            <RowEdit
+              :id="id"
+              v-model="rowData"
+              :pkey="pkey"
+              :tableName="tableName"
+              :tableMetaData="tableMetaData"
+              :schemaMetaData="schemaMetaData"
+              :visibleColumns="
+                useChapters
+                  ? columnsSplitByHeadings[currentPage - 1]
+                  : visibleColumns
+              "
+              :clone="clone"
+              :locale="locale"
+              @errorsInForm="handleErrors"
+            />
+          </div>
+          <div
+            v-if="columnsSplitByHeadings.length > 1"
+            class="col-2 border-left chapter-menu overflow-auto"
+            style="max-height: calc(100vh - 200px)"
+          >
+            <div class="mb-1">
+              <b>Chapters</b>
+            </div>
+            <div v-for="(heading, index) in pageHeadings">
+              <Tooltip
+                :name="`chapter-${heading}-error-tooltip`"
+                :value="
+                  chapterStyleAndErrors[index].errorFields.length
+                    ? `errors in:\n${chapterStyleAndErrors[index].errorFields}`
+                    : ''
+                "
+                placement="left"
+              >
+                <button
+                  type="button"
+                  class="btn btn-link"
+                  :title="heading"
+                  :class="{ 'font-weight-bold': index + 1 === currentPage }"
+                  @click="setCurrentPage(index + 1)"
+                  :style="chapterStyleAndErrors[index].style"
+                >
+                  {{ heading }}
+                </button>
+              </Tooltip>
+            </div>
           </div>
         </div>
       </div>
@@ -59,7 +69,7 @@
         @save="handleSaveRequest"
       >
         <div class="mr-auto">
-          <div v-if="pageCount > 1">
+          <div v-if="columnsSplitByHeadings.length > 1">
             <ButtonAction
               @click="setCurrentPage(currentPage - 1)"
               :disabled="currentPage <= 1"
@@ -69,7 +79,7 @@
             </ButtonAction>
             <ButtonAction
               @click="setCurrentPage(currentPage + 1)"
-              :disabled="currentPage >= pageCount"
+              :disabled="currentPage >= columnsSplitByHeadings.length"
               class="pl-3"
             >
               Next <i :class="'fas fa-fw fa-chevron-right'" />
@@ -93,9 +103,9 @@ import constants from "../constants";
 import LayoutModal from "../layout/LayoutModal.vue";
 import { deepClone, filterObject, getLocalizedLabel } from "../utils";
 import ButtonAction from "./ButtonAction.vue";
-import EditModalWizard from "./EditModalWizard.vue";
 import RowEdit from "./RowEdit.vue";
 import RowEditFooter from "./RowEditFooter.vue";
+import Tooltip from "./Tooltip.vue";
 
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
 
@@ -105,19 +115,19 @@ export default {
     LayoutModal,
     RowEditFooter,
     RowEdit,
-    EditModalWizard,
     ButtonAction,
+    Tooltip,
   },
   data() {
     return {
       rowData: {},
+      rowErrors: {} as Record<string, string | undefined>,
       tableMetaData: null as unknown as ITableMetaData,
       schemaMetaData: null as unknown as ISchemaMetaData,
       client: null as unknown as INewClient,
       errorMessage: "",
       loaded: true,
       currentPage: 1,
-      pageCount: 1,
       useChapters: true,
       saveDisabledMessage: "",
     };
@@ -175,6 +185,25 @@ export default {
     titlePrefix() {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
     },
+    columnsSplitByHeadings(): string[][] {
+      return splitColumnNamesByHeadings(
+        filterVisibleColumns(
+          this.tableMetaData?.columns || [],
+          this.visibleColumns as string[]
+        )
+      );
+    },
+    chapterStyleAndErrors(): IChapterInfo[] {
+      return this.columnsSplitByHeadings.map((page: string[]): IChapterInfo => {
+        const errorFields = page.filter((fieldsInPage: string) =>
+          Boolean(this.rowErrors[fieldsInPage])
+        );
+        return {
+          style: getChapterStyle(page, this.rowErrors),
+          errorFields,
+        };
+      });
+    },
   },
   methods: {
     setCurrentPage(newPage: number) {
@@ -227,9 +256,15 @@ export default {
       this.errorMessage = "";
       this.$emit("close");
     },
-    handleNumberOfErrors(event: number) {
+    handleErrors(event: Record<string, string | undefined>) {
+      this.rowErrors = { ...this.rowErrors, ...event };
+      const numberOfErrors = Object.values(this.rowErrors).filter(
+        (val) => val
+      ).length;
       this.saveDisabledMessage =
-        event > 0 ? `There are ${event} error(s) preventing saving` : "";
+        numberOfErrors > 0
+          ? `There are ${numberOfErrors} error(s) preventing saving`
+          : "";
     },
   },
   async mounted() {
@@ -279,9 +314,53 @@ function getPageHeadings(tableMetadata: ITableMetaData): string[] {
     return ["First chapter"].concat(headings);
   }
 }
+
+function filterVisibleColumns(
+  columns: IColumn[],
+  visibleColumns: string[] | null
+) {
+  if (!visibleColumns) {
+    return columns;
+  } else {
+    return columns.filter((column) => visibleColumns.includes(column.name));
+  }
+}
+
+function splitColumnNamesByHeadings(columns: IColumn[]): string[][] {
+  return columns.reduce((accum, column) => {
+    if (column.columnType === "HEADING") {
+      accum.push([column.name]);
+    } else {
+      if (accum.length === 0) {
+        accum.push([] as string[]);
+      }
+      accum[accum.length - 1].push(column.name);
+    }
+    return accum;
+  }, [] as string[][]);
+}
+
+function getChapterStyle(
+  page: string[],
+  errors: Record<string, string | undefined>
+): { color: "red" } | {} {
+  const fieldsWithErrors = page.filter((fieldsInPage: string) =>
+    Boolean(errors[fieldsInPage])
+  );
+  return fieldsWithErrors.length ? { color: "red" } : {};
+}
+
+interface IChapterInfo {
+  style: { color?: "red" };
+  errorFields: string[];
+}
 </script>
 
 <style scoped>
+>>> .modal-body.bg-light {
+  overflow: hidden;
+}
+
 .chapter-menu {
   padding: 1rem;
   margin: -1rem -1rem -1rem 1rem;

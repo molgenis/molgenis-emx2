@@ -40,6 +40,19 @@ Description text or subtitle shown on
 "Browse and manage metadata for data resources, such as cohorts, registries, biobanks, and multi-center collaborations thereof such as networks, common data models and studies."
 
 
+### Landing page cta (call to action) labels
+
+#### keys
+```CATALOGUE_LANDING_COHORTS_CTA```
+```CATALOGUE_LANDING_NETWORKS_CTA```
+```CATALOGUE_LANDING_VARIABLES_CTA```
+
+#### description
+The label shown on landing CTA element for each of the main sections
+
+#### default
+"Cohorts", "Networks", "Variables" 
+
 
 
 
