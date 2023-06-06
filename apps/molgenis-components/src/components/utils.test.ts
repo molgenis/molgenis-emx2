@@ -1,6 +1,29 @@
-import { describe, assert, test } from "vitest";
+import { describe, assert, test, expect, vi } from "vitest";
 import constants from "./constants";
-import { deepClone, flattenObject, isNumericKey, isRefType } from "./utils";
+import {
+  convertRowToPrimaryKey,
+  deepClone,
+  deepEqual,
+  flattenObject,
+  isNumericKey,
+  isRefType,
+} from "./utils";
+import { contactsMetadata, resourcesMetadata } from "./mockDatasets";
+
+vi.mock("../client/client", () => {
+  // For use with convertRowToPrimaryKey
+  return {
+    default: {
+      newClient: () => ({
+        fetchTableMetaData: (tableName: string) => {
+          if (tableName === "Resources") return resourcesMetadata;
+          else if (tableName === "Contacts") return contactsMetadata;
+          else return {};
+        },
+      }),
+    },
+  };
+});
 
 const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_MINUS, CODE_DELETE } = constants;
 
@@ -72,14 +95,88 @@ describe("flattenObject", () => {
     assert.deepEqual(expectedResult, result);
   });
 });
+describe("deepClone", () => {
+  test("it should make a clone of the input", () => {
+    const input = {
+      foo: "hello",
+      bar: "world",
+    };
 
-test("deepClone", () => {
-  const input = {
-    foo: "hello",
-    bar: "world",
-  };
+    const output = deepClone(input);
 
-  const output = deepClone(input);
+    assert.deepEqual(output, input, "matches original");
+  });
+});
 
-  assert.deepEqual(output, input, "matches original");
+describe("deepEqual", () => {
+  test("it should return true if 2 objects are equal", () => {
+    const object1 = { id: "someId", some: "property" };
+    const object2 = { id: "someId", some: "property" };
+    assert.isTrue(deepEqual(object1, object2));
+  });
+
+  test("it should return true if 2 complex objects are equal", () => {
+    const object1 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop" },
+    };
+    const object2 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop" },
+    };
+    assert.isTrue(deepEqual(object1, object2));
+  });
+
+  test("it should return false if 2 complex objects are not  equal", () => {
+    const object1 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop" },
+    };
+    const object2 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop", additional: "but it has more" },
+    };
+    assert.isFalse(deepEqual(object1, object2));
+  });
+});
+
+describe("convertRowToPrimaryKey", () => {
+  test("it should convert a IRow object to only its primaryKey", async () => {
+    const row = {
+      resource: {
+        id: "TEST",
+        name: "TEST Study",
+        description: "TEST description",
+        mg_tableclass: "Catalogue.Cohorts",
+      },
+      firstName: "Jan",
+      lastName: "Modal",
+      email: "Jan@modal.nl",
+      orcid: "0000-0000-0000-0000",
+      photo: {},
+      mg_draft: false,
+    };
+    const expectedPrimaryKey = {
+      resource: {
+        id: "TEST",
+      },
+      firstName: "Jan",
+      lastName: "Modal",
+    };
+    expect(await convertRowToPrimaryKey(row, "Contacts", "")).toStrictEqual(
+      expectedPrimaryKey
+    );
+  });
+
+  test("it should fail if there is not metadata found", async () => {
+    try {
+      await convertRowToPrimaryKey({}, "Unknown table", "");
+    } catch (error) {
+      expect((error as Error).message).toBe("Empty columns in metadata");
+    }
+  });
 });

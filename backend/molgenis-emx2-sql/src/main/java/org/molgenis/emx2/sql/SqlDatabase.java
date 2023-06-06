@@ -65,6 +65,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         }
       };
 
+  // for acting on save/deletes on tables
+  private List<TableListener> tableListeners = new ArrayList<>();
+
   // copy constructor for transactions; only with its own jooq instance that contains tx
   private SqlDatabase(DSLContext jooq, SqlDatabase copy) {
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
@@ -509,6 +512,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     } else {
       // we create a new instance, isolated from 'this' until end of transaction
       SqlDatabase db = new SqlDatabase(jooq, this);
+      this.tableListeners.forEach(listener -> db.addTableListener(listener));
       try {
         jooq.transaction(
             config -> {
@@ -517,6 +521,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
               ctx.execute("SET CONSTRAINTS ALL DEFERRED");
               db.setJooq(ctx);
               transaction.run(db);
+              db.tableListenersExecutePostCommit();
             });
         // only when commit succeeds we copy state to 'this'
         this.sync(db);
@@ -529,6 +534,12 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       } catch (Exception e) {
         throw new SqlMolgenisException("Transaction failed", e);
       }
+    }
+  }
+
+  private void tableListenersExecutePostCommit() {
+    for (TableListener tableListener : this.tableListeners) {
+      tableListener.executePostCommit();
     }
   }
 
@@ -648,6 +659,24 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       User user = MetadataUtils.loadUserMetadata(this, userName);
       // might not yet have any metadata saved
       return user != null ? user : new User(this, userName);
+    }
+    return null;
+  }
+
+  public void addTableListener(TableListener tableListener) {
+    this.tableListeners.add(tableListener);
+  }
+
+  public TableListener getTableListener(String schemaName, String tableName) {
+    Optional<TableListener> result =
+        tableListeners.stream()
+            .filter(
+                tableListener ->
+                    tableListener.getTableName().equals(tableName)
+                        && tableListener.getSchemaName().equals(schemaName))
+            .findFirst();
+    if (result.isPresent()) {
+      return result.get();
     }
     return null;
   }

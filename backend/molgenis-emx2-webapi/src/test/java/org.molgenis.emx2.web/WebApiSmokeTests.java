@@ -1,14 +1,17 @@
 package org.molgenis.emx2.web;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
-import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
+import static io.restassured.RestAssured.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
-import static org.molgenis.emx2.Constants.MOLGENIS_INCLUDE_CATALOGUE_DEMO;
+import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.RunMolgenisEmx2.CATALOGUE_DEMO;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -27,16 +30,20 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.Order;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
+@Isolated
 public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
+  public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
   public static String SESSION_ID; // to toss around a session for the tests
   private static Database db;
   private static Schema schema;
@@ -49,13 +56,9 @@ public class WebApiSmokeTests {
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
 
-    // will be (re)created by the RunMolgenisEmx2.main
-    db.dropSchemaIfExists("pet store");
-    db.dropSchemaIfExists("catalogue");
-
     // start web service for testing, including env variables
     withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
-        .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
+        // disable because of parallism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
         .execute(() -> RunMolgenisEmx2.main(new String[] {}));
 
     // set default rest assured settings
@@ -90,6 +93,7 @@ public class WebApiSmokeTests {
   @AfterAll
   public static void after() {
     MolgenisWebservice.stop();
+    db.dropSchemaIfExists(CATALOGUE_DEMO);
   }
 
   @Test
@@ -379,6 +383,8 @@ public class WebApiSmokeTests {
       poll = given().sessionId(SESSION_ID).when().get(url);
       Thread.sleep(500);
     }
+
+    assertFalse(poll.body().asString().contains("FAILED"));
 
     // check if id in tasks list
     assertTrue(
@@ -867,5 +873,237 @@ public class WebApiSmokeTests {
         .statusCode(200)
         .when()
         .get(requestString);
+  }
+
+  @Test
+  @Disabled
+  public void testScriptExecution() throws JsonProcessingException, InterruptedException {
+    // get token for admin
+    String result =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+
+    // submit simple
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .post("/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    String taskId = new ObjectMapper().readTree(result).at("/id").textValue();
+
+    // poll until completed
+    String taskUrl = "/api/tasks/" + taskId;
+    // poll task until complete
+    result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+    String status = new ObjectMapper().readTree(result).at("/status").textValue();
+    int count = 0;
+    // poll while running
+    while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      if (count++ > 10) {
+        throw new MolgenisException("failed: polling took too long, result is: " + result);
+      }
+      Thread.sleep(1000);
+      result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+      status = new ObjectMapper().readTree(result).at("/status").textValue();
+    }
+    if (result.contains("ERROR")) {
+      fail(result);
+    }
+
+    String outputURL = "/api/tasks/" + taskId + "/output";
+    result = given().header(MOLGENIS_TOKEN[0], token).when().get(outputURL).getBody().asString();
+    if (result.equals("Readme")) {
+      System.out.println("testScriptExcution error: " + result);
+    }
+    assertEquals("Readme", result);
+
+    // now with parameters
+
+    // submit simple
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .body("blaat")
+            .when()
+            .post("/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    taskId = new ObjectMapper().readTree(result).at("/id").textValue();
+
+    // poll until completed
+    taskUrl = "/api/tasks/" + taskId;
+    // poll task until complete
+    result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+    status = new ObjectMapper().readTree(result).at("/status").textValue();
+    count = 0;
+    // poll while running
+    // (previously we checked on 'complete' but then it also fired if subtask was complete)
+    while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      if (count++ > 10) {
+        throw new MolgenisException("failed: polling took too long, result is: " + result);
+      }
+      Thread.sleep(1000);
+      result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+      status = new ObjectMapper().readTree(result).at("/status").textValue();
+    }
+    if (result.contains("ERROR")) {
+      fail(result);
+    }
+
+    assertTrue(result.contains("sys.argv[1]=blaat")); // the expected output
+  }
+
+  @Test
+  public void testScriptScheduling() throws JsonProcessingException, InterruptedException {
+    // make sure the 'test' script is not there already from a previous test
+    db.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
+    db.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
+
+    // get token for admin
+    String result =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+
+    // simply retrieve the results using get
+    // todo: also allow anonymous
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get(SYSTEM_PREFIX + "/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    assertEquals("Readme", result);
+
+    // simply retrieve the results using get, outside schema
+    // todo: also allow anonymous
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get("/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    assertEquals("Readme", result);
+
+    // or async using post and then we get a task id
+    // simply retrieve the results using get
+    // todo: also allow anonymous
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("blaat")
+            .post(SYSTEM_PREFIX + "/api/scripts/hello+world")
+            .asString();
+
+    Row jobMetadata = waitForScriptToComplete("hello world");
+    // retrieve the file
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("blaat")
+            .get(SYSTEM_PREFIX + "/api/tasks/" + jobMetadata.getString("id") + "/output")
+            .asString();
+    assertEquals("Readme", result);
+    // also works outside schema
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("blaat")
+            .get("/api/tasks/" + jobMetadata.getString("id") + "/output")
+            .asString();
+    assertEquals("Readme", result);
+
+    // save a scheduled script that fires every second
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body(
+                "{\"query\":\"mutation{insert(Scripts:{name:\\\"test\\\",cron:\\\"0/5 * * * * ?\\\",script:\\\"print('test123')\\\"}){message}}\"}")
+            .post(SYSTEM_PREFIX + "/api/graphql")
+            .getBody()
+            .asString();
+
+    // see that it is listed
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get("/api/tasks/scheduled")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("test")); // should contain our script
+
+    // delete the scripts
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("{\"query\":\"mutation{delete(Scripts:{name:\\\"test\\\"}){message}}\"}")
+            .post(SYSTEM_PREFIX + "/api/graphql")
+            .getBody()
+            .asString();
+
+    assertTrue(result.contains("delete 1 records from Scripts"));
+
+    // script should be deleted
+    assertTrue(
+        db.getSchema(SYSTEM_SCHEMA)
+                .getTable("Scripts")
+                .where(f("name", EQUALS, "test"))
+                .retrieveRows()
+                .size()
+            == 0,
+        "script should be deleted");
+
+    // check if the jobs that ran were okay
+    assertNotNull(jobMetadata, "should have at least a job");
+    System.out.println(jobMetadata);
+    assertEquals("COMPLETED", jobMetadata.getString("status"));
+
+    // script should be unscheduled
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get("/api/tasks/scheduled")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("[]"), "script should be unscheduled");
+  }
+
+  private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
+    Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
+    Filter f = f("script", f("name", EQUALS, scriptName));
+    int count = 0;
+    Row firstJob = null;
+    // should run every 5 secs, lets give it some time to complete at least 1 job
+    while ((firstJob == null || !"COMPLETED".equals(firstJob.getString("status"))) && count < 60) {
+      List<Row> jobList = jobs.where(f).orderBy("submitDate", Order.ASC).retrieveRows();
+      if (jobList.size() > 0) {
+        firstJob = jobList.get(0);
+      }
+      count++; // timing could make this test flakey
+      Thread.sleep(1000);
+    }
+    return firstJob;
   }
 }

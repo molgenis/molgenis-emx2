@@ -121,11 +121,16 @@ if (subcohort?.inclusionCriteria) {
 </script>
 
 <template>
-  <ContentBlock
-    :title="subcohort?.name"
-    :description="subcohort?.description"
-    v-if="subcohort"
-  >
+  <section class="bg-white py-18 lg:px-12.5 px-5 text-gray-900">
+    <h2
+      class="mb-5 uppercase text-heading-4xl font-display"
+      v-if="subcohort?.name"
+    >
+      {{ subcohort?.name }}
+    </h2>
+    <div class="mb-5 prose max-w-none" v-if="subcohort?.description">
+      <div v-html="subcohort?.description"></div>
+    </div>
     <DefinitionList :items="items" :small="true" />
-  </ContentBlock>
+  </section>
 </template>

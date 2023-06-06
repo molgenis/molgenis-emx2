@@ -140,6 +140,7 @@
           :modelValue="limit"
           :options="[10, 20, 50, 100]"
           :clear="false"
+          :required="true"
           @update:modelValue="setLimit($event)"
           class="mb-0"
         />
@@ -291,6 +292,13 @@
                   )
                 "
               />
+              <!--@slot Use this to add values or actions buttons to each row -->
+              <slot
+                name="rowheader"
+                :row="slotProps.row"
+                :metadata="tableMetadata"
+                :rowkey="getPrimaryKey(slotProps.row, tableMetadata)"
+              />
             </template>
           </TableMolgenis>
         </div>
@@ -340,11 +348,9 @@
     </ConfirmModal>
     <RefSideModal
       v-if="refSideModalProps"
-      :table-id="refSideModalProps.table"
-      :label="refSideModalProps.label"
+      :column="refSideModalProps.column"
       :rows="refSideModalProps.rows"
       :schema="this.schemaName"
-      :refSchema="refSideModalProps.schema"
       @onClose="refSideModalProps = undefined"
       :showDataOwner="canManage"
     />
@@ -499,7 +505,7 @@ export default {
     },
     showLimit: {
       type: Number,
-      default: 20,
+      default: 10,
     },
     urlConditions: {
       type: Object,
@@ -591,7 +597,7 @@ export default {
     async handelExecuteDeleteAll() {
       this.isDeleteAllModalShown = false;
       const resp = await this.client
-        .deleteAllTableData(this.tableId)
+        .deleteAllTableData(this.tableMetadata.name)
         .catch(this.handleError);
       if (resp) {
         this.reload();
@@ -599,13 +605,11 @@ export default {
     },
     handleCellClick(event) {
       const { column, cellValue } = event;
-      const rows = [cellValue].flat();
+      const rowsInRefTable = [cellValue].flat();
       if (isRefType(column?.columnType)) {
         this.refSideModalProps = {
-          label: column.name,
-          table: column.refTable,
-          schema: column.refSchema,
-          rows,
+          column,
+          rows: rowsInRefTable,
         };
       }
     },

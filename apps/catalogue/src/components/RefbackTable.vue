@@ -18,7 +18,7 @@
         <tr
           v-for="(row, idx) in refBackData"
           :key="idx + JSON.stringify(Object.keys(row))"
-          @click="handleRowClick(row)"
+          @click.prevent
         >
           <td
             v-for="col in visibleColumns.filter(
@@ -27,8 +27,13 @@
             :key="idx + col.name"
             style="cursor: pointer"
           >
+            <div v-if="col.key === 1">
+              <a href="" @click="handleRowClick(row)">{{
+                renderValue(row, col)[0]
+              }}</a>
+            </div>
             <div
-              v-if="
+              v-else-if="
                 'REF' === col.columnType ||
                 ('REFBACK' === col.columnType && !Array.isArray(row[col.id]))
               "

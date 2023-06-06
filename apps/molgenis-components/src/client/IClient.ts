@@ -1,4 +1,4 @@
-import { Axios, AxiosResponse } from "axios";
+import { Axios } from "axios";
 import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
@@ -31,7 +31,11 @@ export interface INewClient {
     tableName: string,
     properties: IQueryMetaData
   ) => Promise<any>;
-  fetchRowData: (tableName: string, rowId: IRow) => Promise<any>;
+  fetchRowData: (
+    tableName: string,
+    rowId: IRow,
+    expandLevel: number
+  ) => Promise<any>;
   fetchAggregateData: (
     tableName: string,
     selectedColumn: { name: string; column: string },

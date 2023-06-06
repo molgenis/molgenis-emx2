@@ -6,6 +6,8 @@ import java.util.Set;
 public interface TaskService {
   String submit(Task task);
 
+  String submitTaskFromName(String name, String parameters);
+
   Set<String> getJobIds();
 
   Task getTask(String id);

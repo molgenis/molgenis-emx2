@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "format": "prettier src  --write --config ../.prettierrc.js"
+    "format": "prettier src  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "dependencies": {
     "core-js": "3.29.1",
@@ -24,9 +25,9 @@
     "last 2 versions"
   ],
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.1.0",
+    "@vitejs/plugin-vue": "4.2.3",
     "graphql-tag": "2.12.6",
-    "vite": "4.1.4",
-    "prettier": "2.8.7"
+    "vite": "4.3.9",
+    "prettier": "2.8.8"
   }
 }

@@ -1,0 +1,10 @@
+name,label,definition,codesystem,code,ontologyTermURI
+bai,BAI,BAM indexing format,EDAM,format:3327,http://edamontology.org/format_3327
+bam,BAM,"BAM format, the binary, BGZF-formatted compressed version of SAM format for alignment of nucleotide sequences (e.g. sequencing reads) to (a) reference sequence(s). May contain base-call and alignment qualities and other data.",EDAM,format:2572,http://edamontology.org/format_2572
+bed,BED,"Browser Extensible Data (BED) format of sequence annotation track, typically to be displayed in a genome browser.",EDAM,format:3003,http://edamontology.org/format_3003
+crai,CRAI,,,,
+cram,CRAM,Reference-based compression of alignment format,EDAM,format:3462,http://edamontology.org/format_3462
+fastq,FastQ,FASTQ short read format ignoring quality scores.,EDAM,format:1930,http://edamontology.org/format_1930
+json,phenopacket,"JavaScript Object Notation format; a lightweight, text-based format to represent tree-structured data using key-value pairs.",EDAM,format:3464,http://edamontology.org/format_3464
+ped,PED,The PED file describes individuals and genetic data and is used by the Plink package.,EDAM,format:3286,http://edamontology.org/format_3286
+vcf,gVCF,"Variant Call Format (VCF) for sequence variation (indels, polymorphisms, structural variation).",EDAM,format:3016,http://edamontology.org/format_3016

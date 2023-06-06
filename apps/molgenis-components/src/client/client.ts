@@ -1,11 +1,15 @@
 import axios, { Axios, AxiosError, AxiosResponse } from "axios";
-import { deepClone, convertToPascalCase, isRefType } from "../components/utils";
-import { IRow } from "../Interfaces/IRow";
 import { ISchemaMetaData } from "../Interfaces/IMetaData";
-import { ITableMetaData } from "../Interfaces/ITableMetaData";
-import { IQueryMetaData } from "./IQueryMetaData";
+import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
+import { ITableMetaData } from "../Interfaces/ITableMetaData";
+import {
+  convertRowToPrimaryKey,
+  convertToPascalCase,
+  deepClone,
+} from "../components/utils";
 import { IClient, INewClient } from "./IClient";
+import { IQueryMetaData } from "./IQueryMetaData";
 import { columnNames } from "./queryBuilder";
 
 export { request };
@@ -79,17 +83,22 @@ const client: IClient = {
         if (!schemaMetaData) {
           throw "Schema meta data not found for schema: " + schemaNameCache;
         }
+        const expandLevel = 1;
         const dataResp = await fetchTableData(
           tableId,
           properties,
           schemaMetaData,
           myAxios,
           schemaNameCache,
-          1
+          expandLevel
         );
         return dataResp[tableId];
       },
-      fetchRowData: async (tableName: string, rowId: IRow) => {
+      fetchRowData: async (
+        tableName: string,
+        rowId: IRow,
+        expandLevel: number = 1
+      ) => {
         const tableId = convertToPascalCase(tableName);
         if (schemaMetaData === null) {
           schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
@@ -110,7 +119,6 @@ const client: IClient = {
             accum[column.id] = { equals: rowId[column.id] };
             return accum;
           }, {});
-
         const resultArray = (
           await fetchTableData(
             tableName,
@@ -120,7 +128,7 @@ const client: IClient = {
             schemaMetaData,
             myAxios,
             schemaNameCache,
-            1
+            expandLevel
           )
         )[tableId];
 
@@ -275,16 +283,16 @@ const updateDataRow = (
   return axios.post(graphqlURL(schemaName), formData);
 };
 
-const deleteRow = (key: IRow, tableName: string, schemaName: string) => {
+const deleteRow = async (row: IRow, tableName: string, schemaName: string) => {
   const tableId = convertToPascalCase(tableName);
   const query = `mutation delete($pkey:[${tableId}Input]){delete(${tableId}:$pkey){message}}`;
+  const key = await convertRowToPrimaryKey(row, tableName, schemaName);
   const variables = { pkey: [key] };
   return axios.post(graphqlURL(schemaName), { query, variables });
 };
 
 const deleteAllTableData = (tableName: string, schemaName: string) => {
-  const tableId = convertToPascalCase(tableName);
-  const query = `mutation {truncate(tables:"${tableId}"){message}}`;
+  const query = `mutation {truncate(tables:"${tableName}"){message}}`;
   return axios.post(graphqlURL(schemaName), { query });
 };
 
@@ -312,22 +320,12 @@ const fetchTableData = async (
   expandLevel: number = 2
 ) => {
   const tableId = convertToPascalCase(tableName);
-  const limit =
-    properties && Object.prototype.hasOwnProperty.call(properties, "limit")
-      ? properties.limit
-      : 20;
-  const offset =
-    properties && Object.prototype.hasOwnProperty.call(properties, "offset")
-      ? properties.offset
-      : 0;
+  const limit = properties.limit ? properties.limit : 20;
+  const offset = properties.offset ? properties.offset : 0;
 
-  const search =
-    properties &&
-    Object.prototype.hasOwnProperty.call(properties, "searchTerms") &&
-    properties.searchTerms !== null &&
-    properties.searchTerms !== ""
-      ? ',search:"' + properties.searchTerms?.trim() + '"'
-      : "";
+  const search = properties.searchTerms
+    ? ',search:"' + properties.searchTerms.trim() + '"'
+    : "";
 
   const cNames = columnNames(schemaName, tableId, metaData, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
@@ -345,14 +343,8 @@ const fetchTableData = async (
           }
         }`;
 
-  const filter =
-    properties && Object.prototype.hasOwnProperty.call(properties, "filter")
-      ? properties.filter
-      : {};
-  const orderby =
-    properties && Object.prototype.hasOwnProperty.call(properties, "orderby")
-      ? properties.orderby
-      : {};
+  const filter = properties.filter ? properties.filter : {};
+  const orderby = properties.orderby ? properties.orderby : {};
   const resp = await axios
     .post(graphqlURL(schemaName), {
       query: tableDataQuery,

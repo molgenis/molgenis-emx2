@@ -4,7 +4,7 @@
       v-for="column in columnsWithoutMeta.filter(showColumn)"
       :key="JSON.stringify(column)"
       :id="`${id}-${column.name}`"
-      v-model="internalValues[column.id]"
+      :modelValue="internalValues[column.id]"
       :columnType="column.columnType"
       :description="getColumnDescription(column)"
       :errorMessage="errorPerColumn[column.id]"
@@ -23,6 +23,7 @@
       :tableName="column.refTable"
       :canEdit="canEdit"
       :filter="refLinkFilter(column)"
+      @update:modelValue="handleModelValueUpdate($event, column.id)"
     />
   </div>
 </template>
@@ -37,7 +38,8 @@ import {
   getLocalizedLabel,
   getLocalizedDescription,
 } from "../utils";
-const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
+
+const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID } = constants;
 
 export default {
   name: "RowEdit",
@@ -75,6 +77,7 @@ export default {
       required: false,
     },
     // visibleColumns:  visible columns, useful if you only want to allow partial edit (column of object)
+    // examples ['name','description']
     visibleColumns: {
       type: Array,
       required: false,
@@ -99,7 +102,7 @@ export default {
       default: () => "en",
     },
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "errorsInForm"],
   components: {
     FormInput,
   },
@@ -133,11 +136,13 @@ export default {
       return getLocalizedDescription(column, this.locale);
     },
     showColumn(column) {
-      if (column.reflink) {
+      if (column.columnType === AUTO_ID) {
+        return this.pkey;
+      } else if (column.reflink) {
         return this.internalValues[convertToCamelCase(column.refLink)];
       } else {
-        const isColumnVisible = Array.isArray(this.visibleColumns)
-          ? this.visibleColumns.find((col) => col.name === column.name)
+        const isColumnVisible = this.visibleColumns
+          ? this.visibleColumns.includes(column.name)
           : true;
         return (
           isColumnVisible &&
@@ -168,9 +173,7 @@ export default {
       this.tableMetaData?.columns
         ?.filter((column) => {
           if (this.visibleColumns) {
-            return this.visibleColumns.find(
-              (visibleColumn) => column.name === visibleColumn.name
-            );
+            return this.visibleColumns.includes(column.name);
           } else {
             return true;
           }
@@ -182,17 +185,19 @@ export default {
             this.tableMetaData
           );
         });
+      this.$emit("errorsInForm", this.errorPerColumn);
     },
     applyComputed() {
       //apply computed
       this.tableMetaData.columns.forEach((c) => {
-        if (c.computed) {
+        if (c.computed && c.columnType !== AUTO_ID) {
           try {
             this.internalValues[c.id] = executeExpression(
               c.computed,
               this.internalValues,
               this.tableMetaData
             );
+            this.onValuesUpdate();
           } catch (error) {
             this.errorPerColumn[c.id] = "Computation failed: " + error;
           }
@@ -228,22 +233,21 @@ export default {
         return filter;
       }
     },
+    handleModelValueUpdate(event, columnId) {
+      this.internalValues[columnId] = event;
+      this.onValuesUpdate();
+    },
+    onValuesUpdate() {
+      this.errorPerColumn = {};
+      this.validateTable();
+      this.applyComputed();
+      this.$emit("update:modelValue", this.internalValues);
+    },
   },
   watch: {
-    internalValues: {
-      handler() {
-        //clean up errors
-        this.errorPerColumn = {};
-        this.validateTable();
-        this.applyComputed();
-        this.$emit("update:modelValue", this.internalValues);
-      },
-      deep: true,
-    },
     tableMetaData: {
       handler() {
-        this.validateTable();
-        this.applyComputed();
+        this.onValuesUpdate();
       },
       deep: true,
     },
@@ -252,8 +256,7 @@ export default {
     if (this.defaultValue) {
       this.internalValues = deepClone(this.defaultValue);
     }
-    this.validateTable();
-    this.applyComputed();
+    this.onValuesUpdate();
   },
 };
 
@@ -263,7 +266,11 @@ function getColumnError(column, values, tableMetaData) {
   const missesValue = value === undefined || value === null || value === "";
   const type = column.columnType;
 
-  if (column.required && (missesValue || isInvalidNumber)) {
+  if (
+    column.required &&
+    (missesValue || isInvalidNumber) &&
+    column.columnType !== AUTO_ID
+  ) {
     return column.name + " is required ";
   }
   if (missesValue) {
@@ -284,7 +291,7 @@ function getColumnError(column, values, tableMetaData) {
   if (column.validation) {
     return getColumnValidationError(column, values, tableMetaData);
   }
-  if (isRefLinkWithoutOverlap(column, tableMetaData, values)) {
+  if (isRefLinkWithoutOverlap(column, values)) {
     return `value should match your selection in column '${column.refLink}' `;
   }
 
@@ -323,7 +330,7 @@ function executeExpression(expression, values, tableMetaData) {
   return func(...Object.values(copy));
 }
 
-function isRefLinkWithoutOverlap(column, tableMetaData, values) {
+function isRefLinkWithoutOverlap(column, values) {
   if (!column.refLink) {
     return false;
   }
@@ -336,6 +343,10 @@ function isRefLinkWithoutOverlap(column, tableMetaData, values) {
   if (typeof value === "string" && typeof refValue === "string") {
     return value && refValue && value !== refValue;
   } else {
+    //empty ref_array => should give 'required' error instead if applicable
+    if (Array.isArray(value) && value.length === 0) {
+      return false;
+    }
     return (
       value &&
       refValue &&
@@ -349,7 +360,7 @@ function isValidHyperlink(value) {
 }
 
 function containsInvalidHyperlink(hyperlinks) {
-  return hyperlinks.find((hyperlink) => !this.isValidHyperlink(hyperlink));
+  return hyperlinks.find((hyperlink) => !isValidHyperlink(hyperlink));
 }
 
 function isValidEmail(value) {
@@ -357,7 +368,7 @@ function isValidEmail(value) {
 }
 
 function containsInvalidEmail(emails) {
-  return emails.find((email) => !this.isValidEmail(email));
+  return emails.find((email) => !isValidEmail(email));
 }
 </script>
 
@@ -402,7 +413,7 @@ function containsInvalidEmail(emails) {
 </template>
 <script>
   export default {
-    data: function() {
+    data: function () {
       return {
         showRowEdit: true,
         locale: 'en',

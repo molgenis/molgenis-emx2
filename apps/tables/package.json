@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "format": "prettier src  --write --config ../.prettierrc.js"
+    "format": "prettier src  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --write --config ../.prettierrc.js"
   },
   "dependencies": {
     "core-js": "3.29.1",
@@ -16,9 +17,9 @@
     "vue-router": "4.1.6"
   },
   "devDependencies": {
-    "vite": "4.1.4",
-    "@vitejs/plugin-vue": "4.1.0",
-    "prettier": "2.8.7"
+    "vite": "4.3.9",
+    "@vitejs/plugin-vue": "4.2.3",
+    "prettier": "2.8.8"
   },
   "browserslist": [
     "> 1%",
