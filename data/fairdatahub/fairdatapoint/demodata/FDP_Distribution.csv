@@ -10,4 +10,4 @@ IndividualsDiseases,Reference to use IndividualsDiseases as an FDP dataset distr
 IndividualsMeasures,Reference to use IndividualsMeasures as an FDP dataset distribution,Table,
 IndividualsPhenotypicFeatures,Reference to use IndividualsPhenotypicFeatures as an FDP dataset distribution,Table,
 Runs,Reference to use Runs as an FDP dataset distribution,Table,
-MyDataRelease,A set of remote files to use as an FDP dataset distribution,File,"File01md5,MinFile02md5"
+MyDataRelease,A set of remote files to use as an FDP dataset distribution,File,"File01,MinFile02"
