@@ -1,11 +1,17 @@
 subprojects {
-    task runpy(type:Exec) {
+    task buildpy(type:Exec) {
         group 'build'
         description 'run python lib build'
-        commandLine 'python3', '.', '-m','build'
+        commandLine 'python3', '-m','build'
         ext.output = {
             return standardOutput.toString()
         }
+        //for caching
+        outputs.dir('dist')
+        inputs.dir('src')
+        inputs.file('pyproject.toml')
+        inputs.file('requirements.txt')
+        inputs.file('README.md')
     }
 }
 

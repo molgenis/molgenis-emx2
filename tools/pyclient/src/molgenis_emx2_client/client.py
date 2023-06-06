@@ -5,7 +5,6 @@ import requests
 
 log = logging.getLogger(__name__)
 
-
 class Client:
     """
     Use the Client object to log in to a Molgenis server and perform operations on the server.
