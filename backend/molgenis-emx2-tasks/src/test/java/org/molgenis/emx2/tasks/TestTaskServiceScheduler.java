@@ -58,8 +58,8 @@ public class TestTaskServiceScheduler {
         fail("polling took too long");
       }
     }
-    // step below we could remove from the test if turns out to still being unstable?
-    Thread.sleep(1000); // wait for processes to be killed
+    // allowing running steps to finish
+    Thread.sleep(5000); // wait for processes to be killed
     // remove the jobs
     service.getJobTable().truncate();
     // check no new jobs emerge in reasonable time
