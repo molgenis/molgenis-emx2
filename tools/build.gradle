@@ -10,10 +10,16 @@ subprojects {
         ext.output = {
             return standardOutput.toString()
         }
-        //for caching
+        //for caching (so our build is not slowed by having python build all the time)
+        // ... a bit messy is python
         outputs.dir('dist')
         outputs.dir(project.name + ".egg-info")
-        inputs.dir('src')
+        outputs.files fileTree('src').matching {
+            include '**/.egg-info/*'
+        }
+        inputs.files fileTree('src').matching {
+            exclude '**/.egg-info/*'
+        }
         inputs.file('pyproject.toml')
         inputs.file('requirements.txt')
         inputs.file('README.md')
@@ -21,23 +27,24 @@ subprojects {
 
     //also run when overall build is run
    task build {
-       finalizedBy buildPython
-   }
-
+       finalizedBy "buildPython"
+    }
 
     task clean {
-        delete 'dist'
-        //maybe too much, but want to get rid of all these .egg-info
-        delete project.name + ".egg-info"
-        def directoryList = []
-        new File("src").traverse( filter: ~/.*.egg-info/, type: groovy.io.FileType.DIRECTORIES){
-            directoryList << it
-        }
-        //need to first list then delete otherwise error
-        directoryList.each { dirObj ->
-            if ( dirObj.exists() ) {
-                println "Removing directory: $dirObj"
-                dirObj.deleteDir()
+        doLast {
+            delete 'dist'
+            //maybe too much, but want to get rid of all these .egg-info
+            delete project.name + ".egg-info"
+            def directoryList = []
+            new File("$projectDir/src").traverse(filter: ~/.*.egg-info/, type: groovy.io.FileType.DIRECTORIES) {
+                directoryList << it
+            }
+            //need to first list then delete otherwise error
+            directoryList.each { dirObj ->
+                if (dirObj.exists()) {
+                    println "Removing directory: $dirObj"
+                    dirObj.deleteDir()
+                }
             }
         }
     }
