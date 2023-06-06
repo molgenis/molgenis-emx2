@@ -140,6 +140,7 @@
           :modelValue="limit"
           :options="[10, 20, 50, 100]"
           :clear="false"
+          :required="true"
           @update:modelValue="setLimit($event)"
           class="mb-0"
         />
@@ -504,7 +505,7 @@ export default {
     },
     showLimit: {
       type: Number,
-      default: 20,
+      default: 10,
     },
     urlConditions: {
       type: Object,
