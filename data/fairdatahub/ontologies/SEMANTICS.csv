@@ -20,3 +20,4 @@ Genes,ONTOLOGIES,http://edamontology.org/data_2298
 Phenotypes,ONTOLOGIES,https://www.wikidata.org/wiki/Property:P3841
 Severity,ONTOLOGIES,http://purl.obolibrary.org/obo/HP_0012824
 FileFormats,ONTOLOGIES,http://edamontology.org/format_1915
+DistributionType,ONTOLOGIES,http://purl.allotrope.org/ontologies/result#AFR_0002205

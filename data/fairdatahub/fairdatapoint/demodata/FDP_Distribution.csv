@@ -1,0 +1,13 @@
+name,description,type,files
+Analyses,Reference to use Analyses as an FDP dataset distribution,Table,
+Biosamples,Reference to use Biosamples as an FDP dataset distribution,Table,
+Cohorts,Reference to use Cohorts as an FDP dataset distribution,Table,
+GenomicVariations,Reference to use GenomicVariations as an FDP dataset distribution,Table,
+GenomicVariationsCaseLevel,Reference to use GenomicVariationsCaseLevel as an FDP dataset distribution,Table,
+GenomicVariationsClinInterpr,Reference to use GenomicVariationsClinInterpr as an FDP dataset distribution,Table,
+Individuals,Reference to use Individuals as an FDP dataset distribution,Table,
+IndividualsDiseases,Reference to use IndividualsDiseases as an FDP dataset distribution,Table,
+IndividualsMeasures,Reference to use IndividualsMeasures as an FDP dataset distribution,Table,
+IndividualsPhenotypicFeatures,Reference to use IndividualsPhenotypicFeatures as an FDP dataset distribution,Table,
+Runs,Reference to use Runs as an FDP dataset distribution,Table,
+MyDataRelease,A set of remote files to use as an FDP dataset distribution,File,"File01md5,MinFile02md5"

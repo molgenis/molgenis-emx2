@@ -13,7 +13,7 @@ FDP_Dataset,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,FAIR Data Point dataset 
 FDP_Dataset,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the dataset.
 FDP_Dataset,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.
 FDP_Dataset,,description,string,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.
-FDP_Dataset,,distribution,string,2,TRUE,,,,,,http://purl.org/dc/terms/distribution,Unique name of a table within this EMX2 schema to denote available dataset distributions.
+FDP_Dataset,,distribution,ref,2,TRUE,,FDP_Distribution,,,,http://purl.org/dc/terms/distribution,"Reference to an FDP_Distribution to make table data or remote file(s) metadata available in the FDP."
 FDP_Dataset,,accrualPeriodicity,string,,,,,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.
 FDP_Dataset,,spatial,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.
 FDP_Dataset,,spatialResolutionInMeters,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,Minimum spatial separation resolvable in a dataset, measured in meters.
@@ -37,3 +37,8 @@ FDP_Dataset,,publisher,string,,,,,,,,http://purl.org/dc/terms/publisher,The enti
 FDP_Dataset,,theme,hyperlink_array,,,,,,,,http://purl.org/dc/terms/theme,A main category of the resource. A resource can have multiple themes.
 FDP_Dataset,,type,string,,,,,,,,http://purl.org/dc/terms/type,The nature or genre of the resource.
 FDP_Dataset,,qualifiedAttribution,string,,,,,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Link to an Agent having some form of responsibility for the resource
+FDP_Distribution,,,,,,,,,,,http://www.w3.org/ns/dcat#Distribution,FAIR Data Point distribution entries.
+FDP_Distribution,,name,string,1,TRUE,,,,,,http://schema.org/name,"Unique name of a Table or (set of) File(s)."
+FDP_Distribution,,description,string,,,,,,,,http://purl.org/dc/terms/description,"Description of a Table or (set of) File(s)."
+FDP_Distribution,,type,ontology,,TRUE,,DistributionType,,,,http://purl.allotrope.org/ontologies/result#AFR_0002205,"Distribution type, either Table or File."
+FDP_Distribution,,files,ref_array,,,,RemoteFiles,,,,http://purl.obolibrary.org/obo/STATO_0000002,"One or multiple metadata for digital remote files."
