@@ -1,4 +1,5 @@
-# manager.py
+# OntologyManager.py
+
 import logging
 
 from molgenis_emx2_client import Client
@@ -38,43 +39,72 @@ class OntologyManager:
         """Add a term to an ontology."""
         print(f"Adding to table {table}.")
 
-        _table = self.__parse_table_name(table)
         _kwargs = self.__parse_kwargs(kwargs)
+        _table = self.__parse_table_name(table)
 
         query = Queries.insert(_table)
-        variables = {"value": [_kwargs]}
+        variables = {"value": _kwargs}
 
-        response = self.client.session.post(
+        response = self.__perform_query(query, variables, action='add')
+
+        return response
+
+    def delete(self, table: str, **kwargs) -> Response:
+        """Delete a term from an ontology."""
+        print(f"Deleting from table {table}.")
+
+        _kwargs = self.__parse_kwargs(kwargs)
+        _table = self.__parse_table_name(table)
+
+        query = Queries.delete(_table)
+        variables = {"pkey": {'name': _kwargs['name']}}
+
+        response = self.__perform_query(query, variables, action='delete')
+
+        return response
+
+    def update(self, table: str, **kwargs):
+        """Rename a term in an ontology."""
+        # TODO: create this function
+        print(f"Renaming in table {table}.")
+
+        _kwargs = self.__parse_kwargs(kwargs)
+        _table = self.__parse_table_name(table)
+        pass
+
+    def __perform_query(self, query: str, variables: dict, action: str) -> Response:
+        """Perform the query using the query and variables supplied."""
+
+        _response = self.client.session.post(
             self.graphql_endpoint,
             json={"query": query, "variables": variables}
         )
 
-        if response.status_code != 200:
-            log.error(f"Error while adding record, status code {response.status_code}")
-            log.error(response.text)
+        match action:
+            case 'add':
+                verbs = ['adding', 'added']
+            case 'delete':
+                verbs = ['deleting', 'deleted']
+            case other:
+                verbs = ['editing', 'edited']
 
-        return response
+        if _response.status_code != 200:
+            log.error(f"Error while {verbs[0]} record, status code {_response.status_code}")
+            log.error(_response.text)
+        else:
+            log.info(f"Successfully {verbs[1]} {variables[next(iter(variables))]['name']}.")
 
-    def delete(self, table: str, **kwargs):
-        """Delete a term from an ontology."""
-        print(f"Deleting from table {table}.")
-        _table = self.__parse_table_name(table)
-        _kwargs = self.__parse_kwargs(kwargs)
-        pass
-
-    def update(self, table: str, **kwargs):
-        """Rename a term in an ontology."""
-        print(f"Renaming in table {table}.")
-        _table = self.__parse_table_name(table)
-        _kwargs = self.__parse_kwargs(kwargs)
-        pass
+        return _response
 
     @staticmethod
-    def __parse_table_name(table_name: str):
+    def __parse_table_name(table_name: str) -> str:
+        """Parse table names to capitalized names without spaces,
+        e.g. 'Network features' -> 'NetworkFeatures'.
+        """
         return "".join(word.capitalize() for word in table_name.split(' '))
 
     @staticmethod
-    def __parse_kwargs(kwargs):
+    def __parse_kwargs(kwargs) -> dict:
         """Ensure the passed kwargs are in correct format."""
         _kwargs = {key: value for (key, value) in kwargs.items() if key in ontology_columns}
         _kwargs = {key: {'name': value} if key == 'parent' else value
@@ -82,6 +112,6 @@ class OntologyManager:
 
         wrong_keywords = [key for key in kwargs.keys() if key not in ontology_columns]
         if len(wrong_keywords) > 0:
-            log.error(f"Incorrect keywords supplied for operation: {', '.join(wrong_keywords)}.")
+            log.error(f"Ignoring incorrect keywords supplied for operation: {', '.join(wrong_keywords)}.")
 
         return _kwargs
