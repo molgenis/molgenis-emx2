@@ -211,12 +211,12 @@ export default {
           (column) =>
             column.key === 1 &&
             column.columnType !== "AUTO_ID" &&
-            this.rowData[column.id] === ""
+            this.rowData[column.id] === null
         )
       ) {
         return "Cannot save draft: primary key is required";
       } else {
-        return null;
+        return "";
       }
     },
   },
