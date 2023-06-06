@@ -208,10 +208,10 @@ export default {
     saveDraftDisabledMessage() {
       if (
         this.tableMetaData?.columns.some(
-          (c) =>
-            c.key == 1 &&
-            c.columnType != "AUTO_ID" &&
-            this.rowData[c.id] == null
+          (column) =>
+            column.key === 1 &&
+            column.columnType !== "AUTO_ID" &&
+            this.rowData[column.id] === ""
         )
       ) {
         return "Cannot save draft: primary key is required";
