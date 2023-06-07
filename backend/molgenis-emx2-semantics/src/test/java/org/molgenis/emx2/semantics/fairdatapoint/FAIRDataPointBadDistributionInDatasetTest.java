@@ -4,13 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Random;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.FAIRDataHubLoader;
 import org.molgenis.emx2.fairdatapoint.FAIRDataPointDataset;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -54,11 +52,21 @@ public class FAIRDataPointBadDistributionInDatasetTest {
             "dcat:distribution <http://localhost:8080/api/fdp/distribution/fairDataHub_baddistribution/Analyses/csv>,"));
 
     // set distribution to a value that does NOT corresepond to a table
-    Table table = fairDataHub_baddistribution.getTable("FDP_Dataset");
-    Random random = new Random();
-    for (Row row : table.retrieveRows()) {
-      row.set("distribution", "something_quite_wrong_" + random.nextInt());
-      table.update(row);
+    Table distribution = fairDataHub_baddistribution.getTable("FDP_Distribution");
+    Row newRow = new Row();
+    Map newBadDistr = new HashMap<>();
+    newBadDistr.put("name", "something_quite_wrong");
+    newBadDistr.put("type", "Table");
+    newRow.set(newBadDistr);
+    distribution.save(newRow);
+    Table dataset = fairDataHub_baddistribution.getTable("FDP_Dataset");
+    for (Row row : dataset.retrieveRows()) {
+      if (row.get(Column.column("id")).equals("datasetId01")) {
+        Map newBadDataset = new HashMap<>();
+        newBadDataset.put("distribution", "something_quite_wrong");
+        row.set(newBadDataset);
+        dataset.update(row);
+      }
     }
 
     // API should check, find that distribution value does not match a table, and throw error
