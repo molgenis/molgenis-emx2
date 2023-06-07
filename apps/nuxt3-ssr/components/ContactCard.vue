@@ -7,8 +7,7 @@ defineProps<{
 <template>
   <li
     class="border lg:even:border-l-0 p-11 relative -mb-[1px]"
-    data-component-name="name"
-  >
+    data-component-name="name">
     <!--
     <IconButton
       label="label"
@@ -34,8 +33,7 @@ defineProps<{
       <a
         class="text-blue-500 block hover:underline"
         v-if="contact?.email"
-        :href="`mailto:${contact?.email}`"
-      >
+        :href="`mailto:${contact?.email}`">
         {{ contact?.email }}
       </a>
       <div v-if="contact.roleDescription" class="mt-3">

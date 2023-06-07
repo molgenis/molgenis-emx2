@@ -12,8 +12,7 @@
             <button
               @click.prevent.stop="$emit('select', task.id)"
               type="button"
-              class="btn btn-link"
-            >
+              class="btn btn-link">
               {{ task.description }}
             </button>
           </td>
@@ -47,11 +46,11 @@ export default defineComponent({
       this.loading = true;
       this.error = null;
       request("graphql", `{_tasks{id,description,status}}`)
-        .then((data) => {
+        .then(data => {
           this.tasks = data._tasks;
           this.loading = false;
         })
-        .catch((error) => {
+        .catch(error => {
           if (Array.isArray(error.response.errors)) {
             this.error = error.response.errors[0].message;
           } else {

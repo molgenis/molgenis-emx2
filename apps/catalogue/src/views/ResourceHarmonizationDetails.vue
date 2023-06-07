@@ -3,8 +3,7 @@
     <harmonization-definition
       v-for="repeatedVariable in repeats"
       :key="repeatedVariable.name"
-      :variable="repeatedVariable"
-    />
+      :variable="repeatedVariable" />
   </div>
   <div class="mt-2" v-else>
     <Spinner />
@@ -36,7 +35,7 @@ export default {
       const cohortMapping = !this.variable.mappings
         ? undefined
         : this.variable.mappings.find(
-            (mapping) => mapping.sourceDataset.resource.id === this.sourceCohort
+            mapping => mapping.sourceDataset.resource.id === this.sourceCohort
           );
       let repeats = [
         {
@@ -46,10 +45,10 @@ export default {
       ];
       if (this.variable.repeats) {
         repeats = repeats.concat(
-          this.variable.repeats.map((repeat) => {
+          this.variable.repeats.map(repeat => {
             if (repeat.mappings) {
               repeat.cohortMapping = repeat.mappings.find(
-                (mapping) =>
+                mapping =>
                   mapping.sourceDataset.resource.id === this.sourceCohort
               );
             }

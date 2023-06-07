@@ -204,8 +204,7 @@ const json = Object.values(data)[0];
             <PageHeader
               title="Cohorts"
               description="Group of individuals sharing a defining demographic characteristic."
-              icon="image-link"
-            >
+              icon="image-link">
               <template #suffix>
                 <SearchResultsViewTabs
                   class="hidden xl:flex"
@@ -215,8 +214,7 @@ const json = Object.values(data)[0];
                   buttonRightLabel="Compact"
                   buttonRightName="compact"
                   buttonRightIcon="view-compact"
-                  activeName="detailed"
-                />
+                  activeName="detailed" />
                 <SearchResultsViewTabsMobile class="flex xl:hidden" />
               </template>
             </PageHeader>

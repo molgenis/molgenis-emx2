@@ -7,8 +7,7 @@
       :options="options"
       v-model="value"
       :list="true"
-      @update:modelValue="emitValue()"
-    />
+      @update:modelValue="emitValue()" />
   </div>
 </template>
 
@@ -35,10 +34,10 @@ export default {
   },
   created() {
     request("graphql", "{Collections{name}}")
-      .then((data) => {
-        this.options = data.Collections.map((c) => c.name);
+      .then(data => {
+        this.options = data.Collections.map(c => c.name);
       })
-      .catch((error) => {
+      .catch(error => {
         this.graphqlError = error.response.errors[0].message;
       })
       .finally(() => {

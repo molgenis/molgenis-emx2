@@ -9,8 +9,7 @@
               scripts: 'Scripts',
               jobs: 'Jobs',
             }"
-            :key="key"
-          >
+            :key="key">
             <router-link
               class="nav-link"
               :class="{

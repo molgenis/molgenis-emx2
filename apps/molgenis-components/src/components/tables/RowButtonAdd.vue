@@ -9,8 +9,7 @@
       :schemaName="schemaName"
       :defaultValue="defaultValue"
       :visibleColumns="visibleColumns"
-      @close="handleClose"
-    />
+      @close="handleClose" />
   </span>
 </template>
 

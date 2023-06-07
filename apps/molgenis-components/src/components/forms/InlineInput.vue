@@ -7,8 +7,7 @@
     <IconAction
       v-if="!isEditing"
       icon="pencil-alt"
-      @click="openAndFocusInput()"
-    />
+      @click="openAndFocusInput()" />
   </span>
 </template>
 

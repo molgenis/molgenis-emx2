@@ -11,14 +11,12 @@
         class="mb-2"
         v-model:pureColor="primaryColor"
         format="hex6"
-        shape="circle"
-      />
+        shape="circle" />
       {{ primaryColor }}
       <InputString
         id="theme-url-input"
         label="Set logo url"
-        v-model="logoURL"
-      />
+        v-model="logoURL" />
       <ButtonAction @click="saveSettings">Save theme</ButtonAction>
       <br /><br />
       <a :href="this.session.settings.cssURL">view theme css</a>
@@ -115,10 +113,10 @@ export default {
           `mutation change($alter:[MolgenisSettingsInput]){change(settings:$alter){message}}`,
           { alter: settingsAlter }
         )
-          .then((data) => {
+          .then(data => {
             this.success = data.change.message;
           })
-          .catch((error) => {
+          .catch(error => {
             this.graphqlError = error.response.errors[0].message;
           })
           .finally((this.loading = false));
@@ -130,10 +128,10 @@ export default {
           `mutation drop($drop:[DropSettingsInput]){drop(settings:$drop){message}}`,
           { drop: settingsDrop }
         )
-          .then((data) => {
+          .then(data => {
             this.success = data.drop.message;
           })
-          .catch((error) => {
+          .catch(error => {
             this.graphqlError = error.response.errors[0].message;
           })
           .finally((this.loading = false));

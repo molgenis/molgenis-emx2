@@ -2,23 +2,20 @@
   <InputString
     :id="id"
     :modelValue="condition"
-    @update:modelValue="onUpdateCondition"
-  >
+    @update:modelValue="onUpdateCondition">
     <template v-slot:append>
       <button
         v-if="condition"
         @click="$emit('clearCondition')"
         class="btn btn-outline-primary"
-        type="button"
-      >
+        type="button">
         <i class="fas fa-fw fa-times"></i>
       </button>
       <button
         v-if="showAddButton && condition"
         @click="$emit('addCondition')"
         class="btn btn-outline-primary"
-        type="button"
-      >
+        type="button">
         <i class="fas fa-fw fa-plus"></i>
       </button>
     </template>

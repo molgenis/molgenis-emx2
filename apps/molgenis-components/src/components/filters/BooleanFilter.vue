@@ -3,8 +3,7 @@
     :id="id"
     :modelValue="condition"
     @update:modelValue="onUpdateCondition"
-    @clearCondition="$emit('clearCondition')"
-  />
+    @clearCondition="$emit('clearCondition')" />
 </template>
 
 <script>

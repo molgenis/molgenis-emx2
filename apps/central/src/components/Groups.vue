@@ -16,8 +16,7 @@
       <InputSearch
         id="groups-search-input"
         placeholder="search by name"
-        v-model="search"
-      />
+        v-model="search" />
       <label>{{ count }} databases found</label>
       <table class="table table-hover table-bordered bg-white">
         <thead>
@@ -25,29 +24,25 @@
             <IconAction
               v-if="session && session.email == 'admin'"
               icon="plus"
-              @click="openCreateSchema"
-            />
+              @click="openCreateSchema" />
           </th>
           <th @click="changeSortOrder('name')" class="sort-col">
             name
             <IconAction
               v-if="sortOrder && sortColumn === 'name'"
               :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-              class="d-inline p-0 hide-icon"
-            />
+              class="d-inline p-0 hide-icon" />
           </th>
           <th>description</th>
           <th
             v-if="showChangeColumn"
             @click="changeSortOrder('lastUpdate')"
-            class="sort-col"
-          >
+            class="sort-col">
             last update
             <IconAction
               v-if="sortOrder && sortColumn === 'lastUpdate'"
               :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-              class="d-inline p-0 hide-icon"
-            />
+              class="d-inline p-0 hide-icon" />
           </th>
         </thead>
         <tbody>
@@ -57,13 +52,11 @@
                 <IconAction
                   v-if="session && session.email == 'admin'"
                   icon="edit"
-                  @click="openEditSchema(schema.name, schema.description)"
-                />
+                  @click="openEditSchema(schema.name, schema.description)" />
                 <IconDanger
                   v-if="session && session.email == 'admin'"
                   icon="trash"
-                  @click="openDeleteSchema(schema.name)"
-                />
+                  @click="openDeleteSchema(schema.name)" />
               </div>
             </td>
             <td>
@@ -77,12 +70,11 @@
                 v-if="changelogSchemas.includes(schema.name)"
                 :schema="schema.name"
                 @input="
-                  (i) => {
+                  i => {
                     schema.update = new Date(i);
                     handleLastUpdateChange();
                   }
-                "
-              />
+                " />
             </td>
           </tr>
         </tbody>
@@ -91,14 +83,12 @@
       <SchemaDeleteModal
         v-if="showDeleteSchema"
         @close="closeDeleteSchema"
-        :schemaName="showDeleteSchema"
-      />
+        :schemaName="showDeleteSchema" />
       <SchemaEditModal
         v-if="showEditSchema"
         @close="closeEditSchema"
         :schemaName="showEditSchema"
-        :schemaDescription="editDescription"
-      />
+        :schemaDescription="editDescription" />
     </div>
   </div>
 </template>
@@ -201,7 +191,7 @@ export default {
     getSchemaList() {
       this.loading = true;
       request("graphql", "{_schemas{name description}}")
-        .then((data) => {
+        .then(data => {
           this.schemas = data._schemas;
           this.loading = false;
           if (this.hasManagerPermission) {
@@ -209,22 +199,21 @@ export default {
           }
         })
         .catch(
-          (error) =>
-            (this.graphqlError = "internal server graphqlError" + error)
+          error => (this.graphqlError = "internal server graphqlError" + error)
         );
     },
     fetchChangelogStatus() {
-      this.schemas.forEach((schema) => {
+      this.schemas.forEach(schema => {
         request(
           `/${schema.name}/settings/graphql`,
           `{_settings (keys: ["isChangelogEnabled"]){ key, value }}`
         )
-          .then((data) => {
+          .then(data => {
             if (data._settings[0].value.toLowerCase() === "true") {
               this.changelogSchemas.push(schema.name);
             }
           })
-          .catch((error) => {
+          .catch(error => {
             console.log(error);
           });
       });
@@ -233,9 +222,9 @@ export default {
       let filtered = unfiltered;
       if (this.search && this.search.trim().length > 0) {
         let terms = this.search.toLowerCase().split(" ");
-        filtered = this.schemas.filter((s) =>
+        filtered = this.schemas.filter(s =>
           terms.every(
-            (v) =>
+            v =>
               s.name.toLowerCase().includes(v) ||
               (s.description && s.description.toLowerCase().includes(v))
           )

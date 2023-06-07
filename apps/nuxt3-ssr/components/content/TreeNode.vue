@@ -24,29 +24,25 @@ const toggleCollapse = () => {
         v-if="node.children?.length"
         @click="toggleCollapse()"
         class="text-blue-500 mr-1 mt-0.5 rounded-full hover:bg-blue-50 hover:cursor-pointer p-0.5"
-        :class="{ 'rotate-180': collapsed }"
-      >
+        :class="{ 'rotate-180': collapsed }">
         <BaseIcon name="caret-up" :width="20" />
       </span>
       <span
         v-else
         class="relative"
         style="top: -0.35rem"
-        :class="{ 'mr-2': isRootNode }"
-      >
+        :class="{ 'mr-2': isRootNode }">
         <BaseIcon
           name="collapsible-list-item"
           :width="20"
           class="text-gray-400"
-          :class="{ invisible: isRootNode }"
-        />
+          :class="{ invisible: isRootNode }" />
       </span>
 
       <div>
         <span
           @click="toggleCollapse()"
-          :class="{ 'cursor-pointer hover:underline': node.children?.length }"
-        >
+          :class="{ 'cursor-pointer hover:underline': node.children?.length }">
           {{ node.name }}
         </span>
         <div class="whitespace-nowrap inline-flex items-center">
@@ -62,13 +58,11 @@ const toggleCollapse = () => {
     <ul
       v-if="node.children?.length"
       class="break-inside-avoid"
-      :class="{ hidden: collapsed }"
-    >
+      :class="{ hidden: collapsed }">
       <TreeNode
         class="pt-1 pl-8"
         v-for="child in node.children"
-        :node="child"
-      ></TreeNode>
+        :node="child"></TreeNode>
     </ul>
   </li>
 </template>

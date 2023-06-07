@@ -4,8 +4,7 @@
     :modelValue="condition"
     @update:modelValue="onUpdateCondition"
     :tableName="tableName"
-    :schemaName="schemaName"
-  />
+    :schemaName="schemaName" />
 </template>
 
 <script>

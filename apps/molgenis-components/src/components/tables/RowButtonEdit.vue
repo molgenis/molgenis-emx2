@@ -9,8 +9,7 @@
       :isModalShown="isModalShown"
       :schemaName="schemaName"
       :visibleColumns="visibleColumns"
-      @close="handleClose"
-    />
+      @close="handleClose" />
   </span>
 </template>
 

@@ -38,8 +38,7 @@
               <li
                 class="list-inline-item"
                 v-for="(permittedValue, index) in permittedValuesByOrder"
-                :key="index"
-              >
+                :key="index">
                 {{ permittedValue.label }} = {{ permittedValue.value }}
               </li>
             </ul>
@@ -81,12 +80,12 @@ export default {
   computed: {
     permittedValuesByOrder() {
       return this.variableDetails.permittedValues
-        .map((pv) => pv) // clone to avoid prop mutation
+        .map(pv => pv) // clone to avoid prop mutation
         .sort((a, b) => a.order <= b.order);
     },
     mappedByCohorts() {
       return this.variableDetails.mappings
-        .map((mapping) => mapping.sourceDataset.resource.id)
+        .map(mapping => mapping.sourceDataset.resource.id)
         .sort()
         .join(", ");
     },

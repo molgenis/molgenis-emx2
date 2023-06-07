@@ -52,7 +52,7 @@ let filters: IFilter[] = reactive([
 
 let search = computed(() => {
   // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
+  return filters.find(f => f.columnType === "_SEARCH").search;
 });
 
 const query = computed(() => {
@@ -116,8 +116,7 @@ let activeName = ref("detailed");
           <PageHeader
             title="Networks"
             description="Collaborations of multiple institutions and/or cohorts with a common objective."
-            icon="image-diagram"
-          >
+            icon="image-diagram">
             <template #suffix>
               <SearchResultsViewTabs
                 class="hidden xl:flex"
@@ -127,12 +126,10 @@ let activeName = ref("detailed");
                 buttonRightLabel="Compact"
                 buttonRightName="compact"
                 buttonRightIcon="view-compact"
-                v-model:activeName="activeName"
-              />
+                v-model:activeName="activeName" />
               <SearchResultsViewTabsMobile
                 class="flex xl:hidden"
-                v-model:activeName="activeName"
-              >
+                v-model:activeName="activeName">
                 <FilterSidebar title="Filters" :filters="filters" />
               </SearchResultsViewTabsMobile>
             </template>
@@ -145,13 +142,11 @@ let activeName = ref("detailed");
             <CardList v-if="data?.data?.Networks?.length > 0">
               <CardListItem
                 v-for="network in data?.data?.Networks"
-                :key="network.name"
-              >
+                :key="network.name">
                 <NetworkCard
                   :network="network"
                   :schema="route.params.schema"
-                  :compact="activeName !== 'detailed'"
-                />
+                  :compact="activeName !== 'detailed'" />
               </CardListItem>
             </CardList>
             <div v-else class="flex justify-center pt-3">
@@ -166,8 +161,7 @@ let activeName = ref("detailed");
           <Pagination
             :current-page="currentPage"
             :totalPages="Math.ceil(data?.data?.Networks_agg.count / pageSize)"
-            @update="setCurrentPage($event)"
-          />
+            @update="setCurrentPage($event)" />
         </template>
       </SearchResults>
     </template>

@@ -5,8 +5,7 @@
     tableName="Scripts"
     schemaName="_SYSTEM_"
     :canEdit="true"
-    :canManage="false"
-  >
+    :canManage="false">
     <template v-slot:rowheader="slotProps">
       <SubmitButton :script="slotProps.row" />
     </template>

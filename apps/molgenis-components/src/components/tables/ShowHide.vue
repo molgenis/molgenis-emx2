@@ -29,8 +29,7 @@
                   : col[checkAttribute]
               "
               @input.prevent="change(key, !col[checkAttribute])"
-              :id="col.name"
-            />
+              :id="col.name" />
             <label class="form-check-label" :for="col.name">
               {{ col.name }}
             </label>

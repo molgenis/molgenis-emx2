@@ -32,8 +32,7 @@
             id: variable.resource.id,
             name: variable.dataset.name,
           },
-        }"
-      >
+        }">
         {{ variable.dataset.name }}
       </RouterLink>
 
@@ -70,8 +69,7 @@
             <h6>Permitted values</h6>
             <table
               v-if="variable.permittedValues"
-              class="table table-sm table-bordered m-2"
-            >
+              class="table table-sm table-bordered m-2">
               <thead>
                 <th>value</th>
                 <th>label</th>
@@ -100,8 +98,7 @@
             <h6>This variable is repeated as:</h6>
             <table
               v-if="variable.repeats"
-              class="table table-sm table-bordered m-2"
-            >
+              class="table table-sm table-bordered m-2">
               <thead>
                 <th>table</th>
                 <th>name</th>
@@ -150,8 +147,7 @@
                       target: variable.resource.id,
                       targetDataset: variable.dataset.name,
                     },
-                  }"
-                >
+                  }">
                   {{ getType(m.source.mg_tableclass) }}:
                   {{ m.source.id }}
                   Dataset:
@@ -329,10 +325,10 @@ export default {
           name: this.name,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.variable = data.Variables[0];
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.response)
             this.graphqlError = error.response.errors[0].message;
           else this.graphqlError = error;

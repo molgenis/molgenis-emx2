@@ -7,8 +7,7 @@
       :schemaName="schema.name"
       :canEdit="canEdit"
       :canManage="canManage"
-      :locale="session?.locale"
-    />
+      :locale="session?.locale" />
   </div>
 </template>
 <script>
@@ -45,7 +44,7 @@ export default {
     },
     activeTable() {
       if (this.schema) {
-        return this.schema.tables.find((table) => table.name === this.table);
+        return this.schema.tables.find(table => table.name === this.table);
       } else {
         return null;
       }

@@ -3,8 +3,7 @@
     <Molgenis
       v-model="session"
       :key="JSON.stringify(session)"
-      @error="handleError"
-    >
+      @error="handleError">
       <Spinner v-if="!error && !session" />
       <MessageWarning v-else-if="error && !session.roles">{{
         error

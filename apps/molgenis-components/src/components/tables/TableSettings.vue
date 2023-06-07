@@ -18,15 +18,13 @@
           name="cardTemplate"
           label="cardTemplate"
           :modelValue="cardTemplate"
-          @update:modelValue="emitCardTemplate"
-        />
+          @update:modelValue="emitCardTemplate" />
         <InputText
           id="table-settings-record-template"
           name="recordTemplate"
           label="recordTemplate"
           :modelValue="recordTemplate"
-          @update:modelValue="emitRecordTemplate"
-        />
+          @update:modelValue="emitRecordTemplate" />
         <ButtonAlt @click="show = false">Close</ButtonAlt>
         <ButtonAction @click="saveSettings">Save settings</ButtonAction>
       </form>
@@ -75,13 +73,13 @@ export default {
   computed: {
     cardTemplate() {
       return this.tableMetadata.settings
-        ?.filter((setting) => setting.key === "cardTemplate")
-        .map((setting) => setting.value)[0];
+        ?.filter(setting => setting.key === "cardTemplate")
+        .map(setting => setting.value)[0];
     },
     recordTemplate() {
       return this.tableMetadata.settings
-        ?.filter((setting) => setting.key === "recordTemplate")
-        .map((setting) => setting.value)[0];
+        ?.filter(setting => setting.key === "recordTemplate")
+        .map(setting => setting.value)[0];
     },
   },
   methods: {
@@ -91,7 +89,7 @@ export default {
       }
       //remove old
       this.tableMetadata.settings = this.tableMetadata.settings.filter(
-        (setting) => setting.key !== "cardTemplate"
+        setting => setting.key !== "cardTemplate"
       );
       //set new
       this.tableMetadata.settings.push({ key: "cardTemplate", value: value });
@@ -102,7 +100,7 @@ export default {
       }
       //remove old
       this.tableMetadata.settings = this.tableMetadata.settings.filter(
-        (setting) => setting.key !== "recordTemplate"
+        setting => setting.key !== "recordTemplate"
       );
       //set new
       this.tableMetadata.settings.push({ key: "recordTemplate", value: value });
@@ -115,7 +113,7 @@ export default {
         this.schemaName ? "/" + this.schemaName + "/graphql" : "graphql",
         `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`,
         { tables: [this.tableMetadata] }
-      ).catch((error) => {
+      ).catch(error => {
         this.graphqlError = error.errors[0].message;
       });
       this.success = resp.change.message;

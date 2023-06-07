@@ -16,11 +16,11 @@ const graphqlError = ref(null);
 
 const query = "{Pet{name}}";
 request("graphql", query)
-  .then((data) => {
+  .then(data => {
     rows.value = data["Pet"];
     loading.value = false;
   })
-  .catch((error) => {
+  .catch(error => {
     if (Array.isArray(error.response.errors)) {
       graphqlError.value = error.response.errors[0].message;
     } else {

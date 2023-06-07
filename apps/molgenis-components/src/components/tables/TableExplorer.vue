@@ -13,8 +13,7 @@
           checkAttribute="showFilter"
           :exclude="['HEADING', 'FILE']"
           label="filters"
-          icon="filter"
-        />
+          icon="filter" />
 
         <ShowHide
           v-if="view !== View.AGGREGATE"
@@ -24,8 +23,7 @@
           label="columns"
           icon="columns"
           id="showColumn"
-          :defaultValue="true"
-        />
+          :defaultValue="true" />
 
         <ButtonDropdown label="download" icon="download" v-slot="scope">
           <form class="px-4 py-3" style="min-width: 15rem">
@@ -54,8 +52,7 @@
                       tableId +
                       '?filter=' +
                       JSON.stringify(graphqlFilter)
-                    "
-                  >
+                    ">
                     filtered rows
                   </ButtonAlt>
                 </span>
@@ -75,8 +72,7 @@
                       tableId +
                       '?filter=' +
                       JSON.stringify(graphqlFilter)
-                    "
-                  >
+                    ">
                     filtered rows
                   </ButtonAlt></span
                 >
@@ -100,14 +96,12 @@
           <ButtonDropdown
             :closeOnClick="true"
             :label="ViewButtons[view].label"
-            :icon="ViewButtons[view].icon"
-          >
+            :icon="ViewButtons[view].icon">
             <div
               v-for="button in ViewButtons"
               class="dropdown-item"
               @click="setView(button)"
-              role="button"
-            >
+              role="button">
               <i class="fas fa-fw" :class="'fa-' + button.icon" />
               {{ button.label }}
             </div>
@@ -120,20 +114,17 @@
         class="mx-1 inline-form-group"
         :id="'explorer-table-search' + Date.now()"
         :modelValue="searchTerms"
-        @update:modelValue="setSearchTerms($event)"
-      />
+        @update:modelValue="setSearchTerms($event)" />
       <Pagination
         v-if="view !== View.AGGREGATE"
         :modelValue="page"
         @update:modelValue="setPage($event)"
         :limit="limit"
-        :count="count"
-      />
+        :count="count" />
 
       <div
         class="btn-group m-0"
-        v-if="view !== View.RECORD && view !== View.AGGREGATE"
-      >
+        v-if="view !== View.RECORD && view !== View.AGGREGATE">
         <span class="btn">Rows per page:</span>
         <InputSelect
           id="explorer-table-page-limit-select"
@@ -142,13 +133,11 @@
           :clear="false"
           :required="true"
           @update:modelValue="setLimit($event)"
-          class="mb-0"
-        />
+          class="mb-0" />
         <SelectionBox
           v-if="showSelect"
           :selection="selectedItems"
-          @update:selection="selectedItems = $event"
-        />
+          @update:selection="selectedItems = $event" />
       </div>
 
       <div class="btn-group" v-if="canManage">
@@ -156,8 +145,7 @@
           v-if="tableMetadata"
           :tableMetadata="tableMetadata"
           :schemaName="schemaName"
-          @update:settings="reloadMetadata"
-        />
+          @update:settings="reloadMetadata" />
 
         <IconDanger icon="bomb" @click="isDeleteAllModalShown = true">
           Delete All
@@ -170,18 +158,15 @@
         <FilterSidebar
           :filters="columns"
           @updateFilters="emitConditions"
-          :schemaName="schemaName"
-        />
+          :schemaName="schemaName" />
       </div>
       <div
         class="flex-grow-1 pr-0 pl-0"
-        :class="countFilters > 0 ? 'col-9' : 'col-12'"
-      >
+        :class="countFilters > 0 ? 'col-9' : 'col-12'">
         <FilterWells
           :filters="columns"
           @updateFilters="emitConditions"
-          class="border-top pt-3 pb-3"
-        />
+          class="border-top pt-3 pb-3" />
         <div v-if="loading">
           <Spinner />
         </div>
@@ -192,8 +177,7 @@
             :tableName="tableName"
             :schemaName="schemaName"
             :minimumValue="1"
-            :graphqlFilter="graphqlFilter"
-          />
+            :graphqlFilter="graphqlFilter" />
           <RecordCards
             v-if="view === View.CARDS"
             class="card-columns"
@@ -210,8 +194,7 @@
             "
             @delete="
               handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
-            "
-          />
+            " />
           <RecordCards
             v-if="view === View.RECORD"
             id="records"
@@ -227,8 +210,7 @@
             "
             @delete="
               handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
-            "
-          />
+            " />
           <TableMolgenis
             v-if="view == View.TABLE"
             :selection="selectedItems"
@@ -240,8 +222,7 @@
             :showSelect="showSelect"
             @column-click="onColumnClick"
             @rowClick="$emit('rowClick', $event)"
-            @cellClick="handleCellClick"
-          >
+            @cellClick="handleCellClick">
             <template v-slot:header>
               <label>{{ count }} records found</label>
             </template>
@@ -252,15 +233,13 @@
                 :table="tableName"
                 :schemaName="schemaName"
                 @add="handleRowAction('add')"
-                class="d-inline p-0"
-              />
+                class="d-inline p-0" />
             </template>
             <template v-slot:colheader="slotProps">
               <IconAction
                 v-if="slotProps.col && orderByColumn === slotProps.col.id"
                 :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-                class="d-inline p-0"
-              />
+                class="d-inline p-0" />
             </template>
             <template v-slot:rowheader="slotProps">
               <RowButton
@@ -271,8 +250,7 @@
                     'edit',
                     getPrimaryKey(slotProps.row, tableMetadata)
                   )
-                "
-              />
+                " />
               <RowButton
                 v-if="canEdit"
                 type="clone"
@@ -281,8 +259,7 @@
                     'clone',
                     getPrimaryKey(slotProps.row, tableMetadata)
                   )
-                "
-              />
+                " />
               <RowButton
                 v-if="canEdit"
                 type="delete"
@@ -290,15 +267,13 @@
                   handleDeleteRowRequest(
                     getPrimaryKey(slotProps.row, tableMetadata)
                   )
-                "
-              />
+                " />
               <!--@slot Use this to add values or actions buttons to each row -->
               <slot
                 name="rowheader"
                 :row="slotProps.row"
                 :metadata="tableMetadata"
-                :rowkey="getPrimaryKey(slotProps.row, tableMetadata)"
-              />
+                :rowkey="getPrimaryKey(slotProps.row, tableMetadata)" />
             </template>
           </TableMolgenis>
         </div>
@@ -314,8 +289,7 @@
       :clone="editMode === 'clone'"
       :schemaName="schemaName"
       @close="handleModalClose"
-      :locale="locale"
-    />
+      :locale="locale" />
 
     <ConfirmModal
       v-if="isDeleteModalShown"
@@ -325,8 +299,7 @@
       :tableName="tableName"
       :pkey="editRowPrimaryKey"
       @close="isDeleteModalShown = false"
-      @confirmed="handleExecuteDelete"
-    />
+      @confirmed="handleExecuteDelete" />
 
     <ConfirmModal
       v-if="isDeleteAllModalShown"
@@ -335,8 +308,7 @@
       actionType="danger"
       :tableName="tableName"
       @close="isDeleteAllModalShown = false"
-      @confirmed="handelExecuteDeleteAll"
-    >
+      @confirmed="handelExecuteDeleteAll">
       <p>
         Truncate <strong>{{ tableName }}</strong>
       </p>
@@ -352,8 +324,7 @@
       :rows="refSideModalProps.rows"
       :schema="this.schemaName"
       @onClose="refSideModalProps = undefined"
-      :showDataOwner="canManage"
-    />
+      :showDataOwner="canManage" />
   </div>
 </template>
 
@@ -554,12 +525,12 @@ export default {
     },
     countFilters() {
       return this.columns
-        ? this.columns.filter((filter) => filter.showFilter).length
+        ? this.columns.filter(filter => filter.showFilter).length
         : null;
     },
     graphqlFilter() {
       let filter = this.filter;
-      const errorCallback = (msg) => {
+      const errorCallback = msg => {
         this.graphqlError = msg;
       };
       return graphqlFilter(filter, this.columns, errorCallback);
@@ -681,7 +652,7 @@ export default {
       this.loading = false;
     },
     setTableMetadata(newTableMetadata) {
-      this.columns = newTableMetadata.columns.map((column) => {
+      this.columns = newTableMetadata.columns.map(column => {
         const showColumn = this.showColumns.length
           ? this.showColumns.includes(column.name)
           : !column.name.startsWith("mg_");
@@ -697,7 +668,7 @@ export default {
         };
       });
       //table settings
-      newTableMetadata.settings?.forEach((setting) => {
+      newTableMetadata.settings?.forEach(setting => {
         if (setting.key === "cardTemplate") {
           this.cardTemplate = setting.value;
         } else if (setting.key === "recordTemplate") {
@@ -753,8 +724,8 @@ export default {
 
 function getColumnNames(columns, property) {
   return columns
-    .filter((column) => column[property] && column.columnType !== "HEADING")
-    .map((column) => column.name);
+    .filter(column => column[property] && column.columnType !== "HEADING")
+    .map(column => column.name);
 }
 
 function getCondition(columnType, condition) {
@@ -771,7 +742,7 @@ function getCondition(columnType, condition) {
       case "INT":
       case "LONG":
       case "DECIMAL":
-        return condition.split(",").map((v) => v.split(".."));
+        return condition.split(",").map(v => v.split(".."));
       default:
         return condition.split(",");
     }
@@ -783,10 +754,10 @@ function getCondition(columnType, condition) {
 function graphqlFilter(defaultFilter, columns, errorCallback) {
   let filter = deepClone(defaultFilter);
   if (columns) {
-    columns.forEach((col) => {
+    columns.forEach(col => {
       const conditions = col.conditions
         ? col.conditions.filter(
-            (condition) => condition !== "" && condition !== undefined
+            condition => condition !== "" && condition !== undefined
           )
         : [];
       if (conditions.length) {

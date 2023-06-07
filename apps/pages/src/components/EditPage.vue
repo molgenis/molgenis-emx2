@@ -11,8 +11,7 @@
         v-model:content="draft"
         toolbar="full"
         class="bg-white"
-        contentType="html"
-      />
+        contentType="html" />
       <div class="mt-2 float-right">
         <ButtonAction @click="savePage">Save '{{ page }}'</ButtonAction>
       </div>
@@ -79,11 +78,11 @@ export default {
           },
         }
       )
-        .then((data) => {
+        .then(data => {
           this.success = data.change.message;
           this.session.settings["page." + this.page] = this.draft;
         })
-        .catch((graphqlError) => {
+        .catch(graphqlError => {
           this.graphqlError = graphqlError.response.errors[0].message;
         })
         .finally((this.loading = false));

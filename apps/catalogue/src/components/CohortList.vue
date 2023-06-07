@@ -6,8 +6,7 @@
         <OntologyTerms
           :terms="c.type"
           :inline="true"
-          :color="color"
-        ></OntologyTerms>
+          :color="color"></OntologyTerms>
       </RouterLink>
     </li>
   </ul>

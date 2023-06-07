@@ -1,16 +1,14 @@
 <template>
   <tr
     :style="ontology.drop ? 'text-decoration: line-through' : ''"
-    class="hoverContainer"
-  >
+    class="hoverContainer">
     <td>
       <div
         :id="
           ontology.name !== undefined ? ontology.name.replaceAll(' ', '_') : ''
         "
         style="display: inline-block; text-transform: none !important"
-        :style="ontology.drop ? 'text-decoration: line-through' : ''"
-      >
+        :style="ontology.drop ? 'text-decoration: line-through' : ''">
         {{ ontology.name }}
         <span v-if="ontology.semantics" class="small">
           (<a
@@ -26,14 +24,12 @@
         v-if="isManager"
         v-model="ontology"
         :schema="schema"
-        @update:modelValue="$emit('update:modelValue', ontology)"
-      />
+        @update:modelValue="$emit('update:modelValue', ontology)" />
       <IconDanger
         v-if="isManager"
         @click="deleteOntology(ontology)"
         icon="trash"
-        class="hoverIcon"
-      />
+        class="hoverIcon" />
     </td>
     <td>
       {{
@@ -93,7 +89,7 @@ export default {
       if (!this.name) {
         return "Ontology name is required";
       }
-      if (this.schema.tables.filter((t) => t.name === this.name).length > 1) {
+      if (this.schema.tables.filter(t => t.name === this.name).length > 1) {
         return "Ontology name must be unique within schema";
       }
     },

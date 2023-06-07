@@ -5,8 +5,7 @@
       v-else
       title="Submit script"
       :show="isModalShown"
-      @close="close"
-    >
+      @close="close">
       <template #body>
         <p v-if="!taskId">
           <InputText v-model="parameters" label="Parameters (optional)" />
@@ -76,20 +75,20 @@ export default {
         method: "POST",
         body: this.parameters,
       })
-        .then((response) => {
+        .then(response => {
           if (response.ok) {
-            response.json().then((task) => {
+            response.json().then(task => {
               this.taskId = task.id;
               this.error = null;
             });
           } else {
-            response.json().then((error) => {
+            response.json().then(error => {
               this.success = null;
               this.error = error.errors[0].message;
             });
           }
         })
-        .catch((error) => {
+        .catch(error => {
           this.error = error;
         })
         .finally(() => {

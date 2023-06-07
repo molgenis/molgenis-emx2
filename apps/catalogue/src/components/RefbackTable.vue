@@ -2,15 +2,13 @@
   <Spinner v-if="!tableMetadata" />
   <div
     class="table-responsive"
-    v-else-if="pkey && tableMetadata && refBackData"
-  >
+    v-else-if="pkey && tableMetadata && refBackData">
     <table class="table table-sm bg-white table-bordered table-hover">
       <thead>
         <th
-          v-for="col in visibleColumns.filter((c) => c.columnType != 'HEADING')"
+          v-for="col in visibleColumns.filter(c => c.columnType != 'HEADING')"
           :key="col.name"
-          scope="col"
-        >
+          scope="col">
           <h6 class="mb-0">{{ col.name }}</h6>
         </th>
       </thead>
@@ -18,15 +16,11 @@
         <tr
           v-for="(row, idx) in refBackData"
           :key="idx + JSON.stringify(Object.keys(row))"
-          @click.prevent
-        >
+          @click.prevent>
           <td
-            v-for="col in visibleColumns.filter(
-              (c) => c.columnType != 'HEADING'
-            )"
+            v-for="col in visibleColumns.filter(c => c.columnType != 'HEADING')"
             :key="idx + col.name"
-            style="cursor: pointer"
-          >
+            style="cursor: pointer">
             <div v-if="col.key === 1">
               <a href="" @click="handleRowClick(row)">{{
                 renderValue(row, col)[0]
@@ -36,15 +30,13 @@
               v-else-if="
                 'REF' === col.columnType ||
                 ('REFBACK' === col.columnType && !Array.isArray(row[col.id]))
-              "
-            >
+              ">
               <RouterLink
                 v-if="row[col.id]"
                 :to="{
                   name: convertToPascalCase(col.refTable) + '-details',
                   params: routeParams(col, row[col.id]),
-                }"
-              >
+                }">
                 {{ renderValue(row, col)[0] }}
               </RouterLink>
             </div>
@@ -52,16 +44,14 @@
               v-else-if="
                 'REF_ARRAY' == col.columnType ||
                 ('REFBACK' === col.columnType && Array.isArray(row[col.name]))
-              "
-            >
+              ">
               <span v-for="(val, idx) in row[col.name]" :key="idx">
                 <RouterLink
                   v-if="val"
                   :to="{
                     name: convertToPascalCase(col.refTable) + '-details',
                     params: routeParams(col, val),
-                  }"
-                >
+                  }">
                   {{ renderValue(row, col)[idx] }} </RouterLink
                 ><br />
               </span>
@@ -69,8 +59,7 @@
             <div
               v-else
               v-for="(value, idx2) in renderValue(row, col)"
-              :key="idx + col.name + idx2"
-            >
+              :key="idx + col.name + idx2">
               <div v-if="'TEXT' === col.columnType">
                 <ReadMore :text="value" />
               </div>
@@ -163,7 +152,7 @@ export default {
         col.columnType == "REFBACK" ||
         col.columnType == "ONTOLOGY_ARRAY"
       ) {
-        return row[col.id].map((v) => {
+        return row[col.id].map(v => {
           if (col.name === "tables") {
             //hack, ideally we start setting refLabel in configuration!
             return v.name;
@@ -204,7 +193,7 @@ export default {
     },
     flattenObject(object) {
       let result = "";
-      Object.keys(object).forEach((key) => {
+      Object.keys(object).forEach(key => {
         if (object[key] === null) {
           //nothing
         } else if (typeof object[key] === "object") {
@@ -225,13 +214,13 @@ export default {
       return result;
     },
     visibleColumnNames() {
-      return this.visibleColumns.map((c) => c.name);
+      return this.visibleColumns.map(c => c.name);
     },
     visibleColumns() {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.name != this.refBack && !c.name.startsWith("mg_")
+          c => c.name != this.refBack && !c.name.startsWith("mg_")
         );
       }
       return [];

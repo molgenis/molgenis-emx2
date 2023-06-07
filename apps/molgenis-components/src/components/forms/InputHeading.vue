@@ -2,34 +2,29 @@
   <div>
     <span
       v-if="!focusLabel"
-      class="d-flex form-group bg-white rounded pt-4 pb-1 mb-1"
-    >
+      class="d-flex form-group bg-white rounded pt-4 pb-1 mb-1">
       <h1>{{ label }}</h1>
       <IconAction
         v-if="inplace || editMeta"
         class="hoverIcon align-top"
         icon="pencil-alt"
-        @click="toggleFocusLabel"
-      />
+        @click="toggleFocusLabel" />
     </span>
     <input
       v-else
       :value="label"
       class="form-control"
       @input="$emit('update:label', $event.target.value)"
-      @blur="toggleFocusLabel"
-    />
+      @blur="toggleFocusLabel" />
     <div
       v-if="!focusDescription"
-      class="d-flex form-group bg-white rounded pb-1 mb-1"
-    >
+      class="d-flex form-group bg-white rounded pb-1 mb-1">
       <p>{{ description }}</p>
       <IconAction
         v-if="inplace || editMeta"
         class="hoverIcon align-top"
         icon="pencil-alt"
-        @click="toggleFocusDescription"
-      />
+        @click="toggleFocusDescription" />
     </div>
     <textarea
       v-else
@@ -39,8 +34,7 @@
       }"
       :aria-describedby="id + 'Help'"
       @input="$emit('update:description', $event.target.value)"
-      @blur="toggleFocusDescription"
-    />
+      @blur="toggleFocusDescription" />
   </div>
 </template>
 

@@ -3,8 +3,7 @@
     <component
       :is="type === 'delete' ? 'IconDanger' : 'IconAction'"
       :icon="icon"
-      @click="$emit(type)"
-    />
+      @click="$emit(type)" />
   </span>
 </template>
 

@@ -4,8 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <InputGroup>
       <BaseInputDate
         :id="id"
@@ -15,8 +14,7 @@
         :class="{ 'is-invalid': errorMessage }"
         :required="required"
         :config="config"
-        @update:modelValue="$emit('update:modelValue', $event)"
-      />
+        @update:modelValue="$emit('update:modelValue', $event)" />
       <template v-slot:append>
         <slot name="append"></slot>
       </template>

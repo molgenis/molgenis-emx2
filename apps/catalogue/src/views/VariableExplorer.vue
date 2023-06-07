@@ -8,8 +8,7 @@
             id="networks-input-ref"
             label="Networks"
             tableName="Networks"
-            v-model="networks"
-          ></InputRefList>
+            v-model="networks"></InputRefList>
         </div>
         <div v-if="hasKeywords" class="bg-white px-1">
           <InputOntology
@@ -19,8 +18,7 @@
             :isMultiSelect="true"
             tableName="Keywords"
             :show-expanded="true"
-            schemaName="CatalogueOntologies"
-          />
+            schemaName="CatalogueOntologies" />
         </div>
         <div class="bg-white px-1">
           <InputRefList
@@ -32,8 +30,7 @@
             :orderBy="{ pid: 'ASC' }"
             :filter="
               network ? { networks: { pid: { equals: network } } } : null
-            "
-          ></InputRefList>
+            "></InputRefList>
         </div>
       </div>
       <div class="col-6 col-sm-7 col-md-8 col-lg-9">
@@ -50,8 +47,7 @@
                 id="search-variables-input"
                 v-model="searchInput"
                 placeholder="Search variables"
-                :isClearBtnShown="true"
-              />
+                :isClearBtnShown="true" />
             </div>
           </div>
           <div class="row">
@@ -66,8 +62,7 @@
                   <router-link
                     class="nav-link"
                     :class="{ active: $route.query.tab !== 'harmonization' }"
-                    :to="{ path: this.$route.path, query: { tab: 'detail' } }"
-                  >
+                    :to="{ path: this.$route.path, query: { tab: 'detail' } }">
                     Details
                   </router-link>
                 </li>
@@ -78,8 +73,7 @@
                     :to="{
                       path: this.$route.path,
                       query: { tab: 'harmonization' },
-                    }"
-                  >
+                    }">
                     Harmonization
                   </router-link>
                 </li>
@@ -138,7 +132,7 @@ export default {
     filtersFiltered() {
       //filter if network filter set external
       return this.filters.filter(
-        (f) => f.name !== "networks" || this.network == null
+        f => f.name !== "networks" || this.network == null
       );
     },
     searchInput: {

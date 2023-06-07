@@ -4,13 +4,11 @@
     <div v-else style="text-align: center">
       <form
         v-if="showHeaderIfNeeded"
-        class="form-inline justify-content-between mb-2 bg-white"
-      >
+        class="form-inline justify-content-between mb-2 bg-white">
         <InputSearch
           id="input-search"
           v-if="lookupTableIdentifier"
-          v-model="searchTerms"
-        />
+          v-model="searchTerms" />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
       </form>
       <Spinner v-if="loading" />
@@ -23,8 +21,7 @@
           :showSelect="showSelect"
           @update:selection="$emit('update:selection', $event)"
           @select="select"
-          @deselect="deselect"
-        >
+          @deselect="deselect">
           <template v-slot:header>
             <slot name="colheader" v-bind="$props" />
             <label>{{ count }} records found</label>
@@ -36,8 +33,7 @@
               :tableName="lookupTableName"
               :schemaName="schemaName"
               @close="loadData"
-              class="d-inline p-0"
-            />
+              class="d-inline p-0" />
           </template>
           <template v-slot:colheader="slotProps">
             <slot
@@ -45,16 +41,14 @@
               v-bind="$props"
               :canEdit="canEdit"
               :reload="loadData"
-              :schemaName="schemaName"
-            />
+              :schemaName="schemaName" />
           </template>
           <template v-slot:rowheader="slotProps">
             <slot
               name="rowheader"
               :row="slotProps.row"
               :metadata="tableMetadata"
-              :rowkey="slotProps.rowkey"
-            />
+              :rowkey="slotProps.rowkey" />
             <RowButtonEdit
               v-if="canEdit"
               :id="'row-button-edit-' + lookupTableName"
@@ -62,16 +56,14 @@
               :schemaName="schemaName"
               :pkey="slotProps.rowkey"
               @close="loadData"
-              class="text-left"
-            />
+              class="text-left" />
             <RowButtonDelete
               v-if="canEdit"
               :id="'row-button-del-' + lookupTableName"
               :tableName="lookupTableName"
               :schemaName="schemaName"
               :pkey="slotProps.rowkey"
-              @close="loadData"
-            />
+              @close="loadData" />
           </template>
         </TableMolgenis>
       </div>
@@ -154,7 +146,7 @@ export default {
     },
     columnsVisible() {
       return this.tableMetadata.columns.filter(
-        (column) =>
+        column =>
           (this.showColumns == null && !column.name.startsWith("mg_")) ||
           (this.showColumns != null && this.showColumns.includes(column.name))
       );

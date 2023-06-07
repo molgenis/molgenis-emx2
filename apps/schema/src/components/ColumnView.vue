@@ -1,8 +1,7 @@
 <template>
   <tr
     class="hoverContainer"
-    :style="column.drop ? 'text-decoration: line-through' : ''"
-  >
+    :style="column.drop ? 'text-decoration: line-through' : ''">
     <td>
       <span class="moveHandle">
         {{ column.name }}
@@ -24,14 +23,12 @@
           :schemaNames="schemaNames"
           @update:modelValue="$emit('update:modelValue', column)"
           :locales="locales"
-          :columnIndex="columnIndex"
-        />
+          :columnIndex="columnIndex" />
         <IconDanger
           v-if="isManager"
           class="hoverIcon"
           icon="trash"
-          @click="deleteColumn"
-        />
+          @click="deleteColumn" />
         <ColumnEditModal
           v-if="isManager"
           :schema="schema"
@@ -41,8 +38,7 @@
           @add="addColumn"
           tooltip="Add column at this position"
           :locales="locales"
-          :columnIndex="columnIndex"
-        />
+          :columnIndex="columnIndex" />
       </IconBar>
     </td>
     <td v-if="table.subclasses?.length > 0">{{ column.table }}</td>
@@ -69,7 +65,7 @@
     </td>
     <td>
       <table v-if="column.labels" class="table-borderless">
-        <tr v-for="el in column.labels.filter((el) => el.value)">
+        <tr v-for="el in column.labels.filter(el => el.value)">
           <td>{{ el.locale }}:</td>
           <td>{{ el.value }}</td>
         </tr>
@@ -77,7 +73,7 @@
     </td>
     <td>
       <table v-if="column.descriptions" class="table-borderless">
-        <tr v-for="el in column.descriptions.filter((el) => el.value)">
+        <tr v-for="el in column.descriptions.filter(el => el.value)">
           <td>{{ el.locale }}:</td>
           <td>{{ el.value }}</td>
         </tr>
@@ -142,17 +138,17 @@ export default {
   computed: {
     table() {
       return this.schema.tables.find(
-        (table) =>
+        table =>
           //use oldName because otheriwse error on renaming
           //must make sure new tables/subtables also have oldName set!
           table.oldName === this.column.table ||
           table.name === this.column.table ||
           (table.subclasses !== undefined &&
             (table.subclasses
-              .map((subclass) => subclass.oldName)
+              .map(subclass => subclass.oldName)
               .includes(this.column.table) ||
               table.subclasses
-                .map((subclass) => subclass.name)
+                .map(subclass => subclass.name)
                 .includes(this.column.table)))
       );
     },

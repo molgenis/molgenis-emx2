@@ -2,8 +2,7 @@
   <SideModal
     :label="localColumnName"
     :isVisible="true"
-    @onClose="emit('onClose')"
-  >
+    @onClose="emit('onClose')">
     <div v-if="loading">
       <Spinner />
     </div>
@@ -19,8 +18,7 @@
           :startsCollapsed="queryResults.length > 1"
           :tableId="column.refTable"
           :schema="column.refSchema || props.schema"
-          @ref-cell-clicked="handleRefCellClicked"
-        />
+          @ref-cell-clicked="handleRefCellClicked" />
       </div>
     </div>
     <template v-slot:footer="slot">

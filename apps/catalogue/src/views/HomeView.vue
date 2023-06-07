@@ -5,8 +5,7 @@
         <BannerImage
           imageUrl="https://image.focuspoints.io/general-1.jpg?_jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJmb2N1c1BvaW50WSI6MC4wLCJmb2N1c1BvaW50WCI6MC4wLCJ3aWR0aCI6MTQ0MCwiaXNzIjoidW1jZyIsImFjdGlvbiI6InRyYW5zZm9ybSIsInVybCI6Imh0dHBzOi8vdW1jZ3Jlc2VhcmNoLm9yZy9kb2N1bWVudHMvNzcwNTM0Lzc3NTkwNy9nZW5lcmFsLTEuanBnL2NlNGVkMTM5LTMxYzMtOTg3Mi02NjBiLWU3ZjVjNDFhNTY0OD90PTE2Mjk3MDYzODQyOTMmZG93bmxvYWQ9dHJ1ZSIsImhlaWdodCI6MzYwfQ.ulaZWsVt6k6Uil4zLdaxpnLrWZJubDttUIlE5hr5yqgXW7ACAD5nF1Kpl4R-Wd2QU2haLYJt0zvzMWv2843gfA"
           title="Cohorts, biobanks and dataset of the UMCG"
-          subTitle="Universitair Medisch Centrum Groningen, the Netherlands"
-        />
+          subTitle="Universitair Medisch Centrum Groningen, the Netherlands" />
       </div>
     </div>
 
@@ -14,8 +13,7 @@
       <div class="col-sm-12 col-md-8">
         <search-resource
           :resourceType="resourceType"
-          placeholder="Search the UMCG cohorts"
-        />
+          placeholder="Search the UMCG cohorts" />
       </div>
     </div>
 
@@ -145,8 +143,7 @@
         <div class="card-deck">
           <IconCard
             cardTitle="Cohort & Biobank Coordination hub"
-            icon="AffiliateIcon"
-          >
+            icon="AffiliateIcon">
             <div class="card-text">
               <address>
                 <strong>University Medical Center Groningen (UMCG)</strong
@@ -223,47 +220,47 @@ export default {
   },
   methods: {
     async load() {
-      const resp = await request("graphql", homeViewQuery).catch((error) => {
+      const resp = await request("graphql", homeViewQuery).catch(error => {
         console.log(error);
       });
 
       this.cohortCount = resp.Cohorts_agg.count;
       this.bioBankCount = resp.Databanks_agg.count;
 
-      this.participantCount = resp.Cohorts.filter((c) => c.numberOfParticipants)
-        .map((c) => c.numberOfParticipants)
+      this.participantCount = resp.Cohorts.filter(c => c.numberOfParticipants)
+        .map(c => c.numberOfParticipants)
         .reduce((a, b) => a + b, 0);
 
       this.participantPercentageAboveOneThousand = Math.round(
         (resp.Cohorts.filter(
-          (c) => c.numberOfParticipants && c.numberOfParticipants > 1000
+          c => c.numberOfParticipants && c.numberOfParticipants > 1000
         ).length /
           resp.Cohorts.length) *
           100
       );
 
       this.percentageLongitudinalStudies = Math.round(
-        (resp.Cohorts.filter(
-          (c) => c.design && c.design.name === "Longitudinal"
-        ).length /
+        (resp.Cohorts.filter(c => c.design && c.design.name === "Longitudinal")
+          .length /
           resp.Cohorts.length) *
           100
       );
 
-      this.designTypeCounts = resp.Cohorts.filter(
-        (c) => c.collectionType
-      ).reduce((count, c) => {
-        c.collectionType.forEach((collectionType) => {
-          const type = collectionType.name;
-          if (count[type] >= 0) {
-            count[type] = count[type] + 1;
-          } else {
-            count[type] = 0;
-          }
-        });
+      this.designTypeCounts = resp.Cohorts.filter(c => c.collectionType).reduce(
+        (count, c) => {
+          c.collectionType.forEach(collectionType => {
+            const type = collectionType.name;
+            if (count[type] >= 0) {
+              count[type] = count[type] + 1;
+            } else {
+              count[type] = 0;
+            }
+          });
 
-        return count;
-      }, {});
+          return count;
+        },
+        {}
+      );
 
       // total number of selected dataCategories
       this.dataCategoriesCounts = resp.Cohorts.reduce((total, cohort) => {
@@ -284,7 +281,7 @@ export default {
             ? cohort.collectionEvents.reduce((perCohort, collectionEvent) => {
                 return (perCohort += collectionEvent.dataCategories
                   ? collectionEvent.dataCategories
-                      .map((dc) => dc.name)
+                      .map(dc => dc.name)
                       .includes("Biological samples")
                     ? 1
                     : 0
@@ -328,14 +325,14 @@ export default {
       }, this.sampleTypeCounts);
 
       const newsItemsSettings = resp._settings.filter(
-        (s) => s.key === "newsItems"
+        s => s.key === "newsItems"
       );
       this.newsItems = newsItemsSettings[0]
         ? JSON.parse(newsItemsSettings[0].value)
         : [];
 
       const recentlyAddedSettings = resp._settings.filter(
-        (s) => s.key === "recentlyAdded"
+        s => s.key === "recentlyAdded"
       );
       this.recentlyAdded = recentlyAddedSettings[0]
         ? JSON.parse(recentlyAddedSettings[0].value)

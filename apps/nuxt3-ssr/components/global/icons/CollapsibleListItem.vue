@@ -5,7 +5,6 @@
       stroke="currentColor"
       stroke-linecap="round"
       stroke-linejoin="round"
-      stroke-dasharray="4 4"
-    />
+      stroke-dasharray="4 4" />
   </svg>
 </template>

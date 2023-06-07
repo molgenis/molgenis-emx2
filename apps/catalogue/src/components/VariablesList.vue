@@ -11,8 +11,7 @@
           v-for="variable in variables"
           :key="variable.resource.id + variable.dataset.name + variable.name"
           :variable="variable"
-          :tableName="tableName"
-        />
+          :tableName="tableName" />
       </div>
     </div>
   </div>
@@ -91,12 +90,12 @@ export default {
           limit: this.limit,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.variables = data.Variables;
           this.count = data.Variables_agg.count;
           this.$forceUpdate();
         })
-        .catch((error) => {
+        .catch(error => {
           this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {

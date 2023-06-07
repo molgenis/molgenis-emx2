@@ -13,14 +13,12 @@
       <InputSearch
         id="tables-list-search-input"
         placeholder="search by name"
-        v-model="search"
-      />
+        v-model="search" />
       <h2>Data tables</h2>
       <TablesTable
         v-if="tables.length > 0"
         :tables="tables"
-        :locale="session?.locale"
-      />
+        :locale="session?.locale" />
       <p v-else>No tables found</p>
       <h2>Ontology tables</h2>
       <p>
@@ -68,10 +66,10 @@ export default {
       if (this.search && this.search.trim().length > 0) {
         let terms = this.search.toLowerCase().split(" ");
         return this.schema.tables
-          .filter((table) => table.externalSchema === this.schema.name)
-          .filter((table) =>
+          .filter(table => table.externalSchema === this.schema.name)
+          .filter(table =>
             terms.every(
-              (term) =>
+              term =>
                 table.name.toLowerCase().includes(term) ||
                 (table.description &&
                   table.description.toLowerCase().includes(term))
@@ -79,16 +77,16 @@ export default {
           );
       } else {
         return this.schema.tables.filter(
-          (table) => table.externalSchema === this.schema.name
+          table => table.externalSchema === this.schema.name
         );
       }
     },
     tables() {
-      return this.tablesFiltered.filter((table) => table.tableType == "DATA");
+      return this.tablesFiltered.filter(table => table.tableType == "DATA");
     },
     ontologies() {
       return this.tablesFiltered.filter(
-        (table) => table.tableType == "ONTOLOGIES"
+        table => table.tableType == "ONTOLOGIES"
       );
     },
   },

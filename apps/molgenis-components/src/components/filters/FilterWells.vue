@@ -11,33 +11,28 @@
       <span v-for="(facet, facetIndex) in filters" :key="facet.name">
         <span
           v-for="(condition, conditionIndex) in facet.conditions"
-          :key="conditionIndex"
-        >
+          :key="conditionIndex">
           <span v-if="Array.isArray(condition)">
             <FilterWell
               v-if="condition[0] !== null && condition[1] !== null"
               @click="remove(facetIndex, conditionIndex)"
               :label="
                 condition[0] + ' &lt; ' + facet.name + ' &lt; ' + condition[1]
-              "
-            />
+              " />
             <FilterWell
               v-else-if="condition[0] !== null"
               @click="remove(facetIndex, conditionIndex)"
-              :label="condition[0] + ' &lt; ' + facet.name"
-            />
+              :label="condition[0] + ' &lt; ' + facet.name" />
 
             <FilterWell
               v-else-if="condition[1] !== null"
               @click="remove(facetIndex, conditionIndex)"
-              :label="facet.name + ' &lt; ' + condition[1]"
-            />
+              :label="facet.name + ' &lt; ' + condition[1]" />
           </span>
           <span v-else>
             <FilterWell
               @click="remove(facetIndex, conditionIndex)"
-              :label="facet.name + ' = ' + renderValue(condition)"
-            />
+              :label="facet.name + ' = ' + renderValue(condition)" />
           </span>
         </span>
       </span>
@@ -59,9 +54,9 @@ export default {
     countFilters() {
       let count = 0;
       if (Array.isArray(this.filters)) {
-        this.filters.forEach((column) => {
+        this.filters.forEach(column => {
           if (Array.isArray(column.conditions)) {
-            column.conditions.forEach((condition) => {
+            column.conditions.forEach(condition => {
               if (Array.isArray(condition)) {
                 if (condition[0] !== null || condition[1] != null) {
                   count++;
@@ -88,7 +83,7 @@ export default {
     },
     flattenObject(object) {
       let result = "";
-      Object.keys(object).forEach((key) => {
+      Object.keys(object).forEach(key => {
         if (object[key] === null) {
           //nothing
         } else if (typeof object[key] === "object") {

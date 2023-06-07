@@ -3,8 +3,7 @@
     :id="id + '-from'"
     :label="label"
     :description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <InputGroup class="d-flex">
       <template v-slot:prepend>
         <slot name="prepend"></slot>
@@ -15,15 +14,13 @@
         :modelValue="modelValue[0]"
         @update:modelValue="emitValue($event, 0)"
         placeholder="from"
-        :class="{ 'is-invalid': errorMessage }"
-      />
+        :class="{ 'is-invalid': errorMessage }" />
       <BaseIntInput
         :id="id + '-to'"
         :modelValue="modelValue[1]"
         @update:modelValue="emitValue($event, 1)"
         placeholder="to"
-        :class="{ 'is-invalid': errorMessage }"
-      />
+        :class="{ 'is-invalid': errorMessage }" />
 
       <template v-slot:append>
         <slot name="append"></slot>

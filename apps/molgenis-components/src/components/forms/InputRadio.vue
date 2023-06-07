@@ -5,18 +5,15 @@
     :required="required"
     :description="description"
     class="radio-form-group"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <div
       class="input-group"
       @mouseenter="isMouseOver = true"
-      @mouseleave="isMouseOver = false"
-    >
+      @mouseleave="isMouseOver = false">
       <div
         v-for="(item, idx) in options"
         :key="idx"
-        class="form-check form-check-inline"
-      >
+        class="form-check form-check-inline">
         <input
           class="form-check-input"
           :class="{ 'is-invalid': errorMessage }"
@@ -24,16 +21,14 @@
           :id="id + idx"
           :aria-describedby="id + 'Help'"
           :value="item"
-          v-model="radioValue"
-        />
+          v-model="radioValue" />
         <label class="form-check-label" :for="id + idx">{{ item }}</label>
       </div>
       <div class="input-group-append">
         <button
           v-show="isClearShown"
           class="btn btn-link radio-clear-value"
-          @click="radioValue = null"
-        >
+          @click="radioValue = null">
           clear
         </button>
       </div>

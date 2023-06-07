@@ -5,8 +5,7 @@
     @update:modelValue="onUpdateCondition"
     :tableName="tableName"
     :schemaName="schemaName"
-    :refLabel="refLabel"
-  />
+    :refLabel="refLabel" />
 </template>
 
 <script>

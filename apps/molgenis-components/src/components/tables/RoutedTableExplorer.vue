@@ -21,15 +21,13 @@
       :showOrderBy="getOrderBy()"
       :showOrder="getOrder()"
       :locale="locale"
-      @rowClick="$emit('rowClick', $event)"
-    >
+      @rowClick="$emit('rowClick', $event)">
       <template v-slot:rowheader="slotProps">
         <slot
           name="rowheader"
           :row="slotProps.row"
           :metadata="slotProps.metadata"
-          :rowkey="slotProps.rowkey"
-        />
+          :rowkey="slotProps.rowkey" />
       </template>
     </TableExplorer>
   </div>
@@ -139,7 +137,7 @@ export default {
     },
     getConditions() {
       let result = {};
-      Object.keys(this.$route.query).forEach((key) => {
+      Object.keys(this.$route.query).forEach(key => {
         if (!key.startsWith("_")) {
           result[key] = this.$route.query[key];
         }
@@ -194,7 +192,7 @@ export default {
     updateConditions(columns) {
       let query = Object.assign({}, this.$route.query);
       delete query._page;
-      columns.forEach((column) => {
+      columns.forEach(column => {
         const conditions = column.conditions;
         if (conditions?.length) {
           switch (column.columnType) {
@@ -210,7 +208,7 @@ export default {
             case "INT":
             case "LONG":
             case "DECIMAL":
-              const result = conditions.map((v) => v.join("..")).join(",");
+              const result = conditions.map(v => v.join("..")).join(",");
               if (result !== "..") {
                 query[column.name] = result;
               } else {

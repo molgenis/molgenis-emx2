@@ -5,8 +5,7 @@
         <div class="row">
           <div
             class="col-10 overflow-auto mr-n3"
-            style="max-height: calc(100vh - 200px)"
-          >
+            style="max-height: calc(100vh - 200px)">
             <RowEdit
               :id="id"
               v-model="rowData"
@@ -21,14 +20,12 @@
               "
               :clone="clone"
               :locale="locale"
-              @errorsInForm="handleErrors"
-            />
+              @errorsInForm="handleErrors" />
           </div>
           <div
             v-if="columnsSplitByHeadings.length > 1"
             class="col-2 border-left chapter-menu overflow-auto"
-            style="max-height: calc(100vh - 200px)"
-          >
+            style="max-height: calc(100vh - 200px)">
             <div class="mb-1">
               <b>Chapters</b>
             </div>
@@ -40,16 +37,14 @@
                     ? `errors in:\n${chapterStyleAndErrors[index].errorFields}`
                     : ''
                 "
-                placement="left"
-              >
+                placement="left">
                 <button
                   type="button"
                   class="btn btn-link"
                   :title="heading"
                   :class="{ 'font-weight-bold': index + 1 === currentPage }"
                   @click="setCurrentPage(index + 1)"
-                  :style="chapterStyleAndErrors[index].style"
-                >
+                  :style="chapterStyleAndErrors[index].style">
                   {{ heading }}
                 </button>
               </Tooltip>
@@ -66,22 +61,19 @@
         :saveDisabledMessage="saveDisabledMessage"
         @cancel="handleClose"
         @saveDraft="handleSaveDraftRequest"
-        @save="handleSaveRequest"
-      >
+        @save="handleSaveRequest">
         <div class="mr-auto">
           <div v-if="columnsSplitByHeadings.length > 1">
             <ButtonAction
               @click="setCurrentPage(currentPage - 1)"
               :disabled="currentPage <= 1"
-              class="mr-2 pr-3"
-            >
+              class="mr-2 pr-3">
               <i :class="'fas fa-fw fa-chevron-left'" /> Previous
             </ButtonAction>
             <ButtonAction
               @click="setCurrentPage(currentPage + 1)"
               :disabled="currentPage >= columnsSplitByHeadings.length"
-              class="pl-3"
-            >
+              class="pl-3">
               Next <i :class="'fas fa-fw fa-chevron-right'" />
             </ButtonAction>
           </div>
@@ -259,7 +251,7 @@ export default {
     handleErrors(event: Record<string, string | undefined>) {
       this.rowErrors = { ...this.rowErrors, ...event };
       const numberOfErrors = Object.values(this.rowErrors).filter(
-        (val) => val
+        val => val
       ).length;
       this.saveDisabledMessage =
         numberOfErrors > 0
@@ -291,7 +283,7 @@ export default {
 
         this.rowData = filterObject(
           this.rowData,
-          (key) => !keyColumnsNames?.includes(key)
+          key => !keyColumnsNames?.includes(key)
         );
       }
     }
@@ -306,8 +298,8 @@ function getPageHeadings(tableMetadata: ITableMetaData): string[] {
     ? tableMetadata?.columns
     : [];
   const headings: string[] = columns
-    .filter((column) => column.columnType === "HEADING")
-    .map((column) => column.name);
+    .filter(column => column.columnType === "HEADING")
+    .map(column => column.name);
   if (columns[0].columnType === "HEADING") {
     return headings;
   } else {
@@ -322,7 +314,7 @@ function filterVisibleColumns(
   if (!visibleColumns) {
     return columns;
   } else {
-    return columns.filter((column) => visibleColumns.includes(column.name));
+    return columns.filter(column => visibleColumns.includes(column.name));
   }
 }
 

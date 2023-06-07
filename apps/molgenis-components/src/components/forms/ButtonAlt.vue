@@ -3,8 +3,7 @@
     type="button"
     class="btn border-0"
     :class="light ? 'btn-outline-light' : 'btn-outline-primary'"
-    @click.prevent="onClick"
-  >
+    @click.prevent="onClick">
     <slot />
     <i v-if="icon" :class="'fa fa-fw fa-' + icon"></i>
   </button>

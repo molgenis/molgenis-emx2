@@ -6,8 +6,7 @@
           'fa fa-folder': topic.childTopics.length > 0 && topic.collapsed,
           'fa fa-folder-open': topic.childTopics.length > 0 && !topic.collapsed,
           'fa fa-file': topic.childTopics.length == 0,
-        }"
-      >
+        }">
       </i>
     </button>
     <div class="form-check form-check-inline">
@@ -20,8 +19,7 @@
           selectChildren(topic, !topic.checked);
           $emit('changed');
         "
-        :key="JSON.stringify(topic)"
-      />
+        :key="JSON.stringify(topic)" />
     </div>
     {{ topic.name }}
 
@@ -29,8 +27,7 @@
       <tree-node
         v-for="subtopic in topic.childTopics"
         :topic="subtopic"
-        :key="JSON.stringify(topic)"
-      />
+        :key="JSON.stringify(topic)" />
     </ul>
   </li>
 </template>
@@ -44,7 +41,7 @@ export default {
     selectChildren(topic, checked) {
       topic.checked = checked;
       if (topic.childTopics) {
-        topic.childTopics.forEach((t) => {
+        topic.childTopics.forEach(t => {
           t.checked = checked;
           this.selectChildren(t, checked);
         });
@@ -59,7 +56,7 @@ export default {
       topic.collapsed = !topic.collapsed;
       if (
         topic.childTopics &&
-        topic.childTopics.filter((c) => c.match).length == 1
+        topic.childTopics.filter(c => c.match).length == 1
       ) {
         this.clickRecursiveIfOne(topic.childTopics[0]);
         topic.childTopics[0].collapsed = !topic.childTopics[0].collapsed;

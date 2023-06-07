@@ -5,8 +5,7 @@
         <a
           class="page-link"
           href="#"
-          @click.prevent="emitValue(1, isFirstPage)"
-        >
+          @click.prevent="emitValue(1, isFirstPage)">
           <span aria-hidden="true">&laquo;</span>
           <span class="sr-only">First</span></a
         >
@@ -15,8 +14,7 @@
         <a
           class="page-link"
           href="#"
-          @click.prevent="emitValue(Math.max(modelValue - 1, 1), isFirstPage)"
-        >
+          @click.prevent="emitValue(Math.max(modelValue - 1, 1), isFirstPage)">
           <span aria-hidden="true">&lsaquo;</span>
           <span class="sr-only">Previous</span>
         </a>
@@ -32,8 +30,7 @@
           href="#"
           @click.prevent="
             emitValue(Math.min(modelValue + 1, totalPages), isLastPage)
-          "
-        >
+          ">
           <span aria-hidden="true">&rsaquo;</span>
           <span class="sr-only">Next</span></a
         >
@@ -42,8 +39,7 @@
         <a
           class="page-link"
           href="#"
-          @click.prevent="emitValue(totalPages, isLastPage)"
-        >
+          @click.prevent="emitValue(totalPages, isLastPage)">
           <span aria-hidden="true">&raquo;</span>
           <span class="sr-only">Last</span></a
         >

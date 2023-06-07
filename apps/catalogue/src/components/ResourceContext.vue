@@ -16,13 +16,11 @@
     <ContributorList
       v-if="resource.contributors"
       :contributors="resource.contributors"
-      color="danger"
-    />
+      color="danger" />
     <h6 v-if="resource.publications">Publications</h6>
     <PublicationList
       v-if="resource.publications"
-      :publications="resource.publications"
-    />
+      :publications="resource.publications" />
   </div>
 </template>
 <script>

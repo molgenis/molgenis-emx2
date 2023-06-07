@@ -4,14 +4,11 @@
       Selection
       <i class="fa fa-lg fa-check-square-o"></i>
       <span
-        v-if="selection && selection.filter((s) => s != null).length > 0"
+        v-if="selection && selection.filter(s => s != null).length > 0"
         class="badge badge-pill badge-danger"
-        style="top: -7px; left: -7px"
-      >
+        style="top: -7px; left: -7px">
         {{
-          Array.isArray(selection)
-            ? selection.filter((s) => s != null).length
-            : 0
+          Array.isArray(selection) ? selection.filter(s => s != null).length : 0
         }}
       </span>
     </ButtonAlt>
@@ -20,17 +17,15 @@
         <span
           v-if="
             !Array.isArray(selection) ||
-            selection.filter((s) => s != null).length == 0
-          "
-        >
+            selection.filter(s => s != null).length == 0
+          ">
           No items selected
         </span>
         <span
           v-else
           class="btn-outline-primary btn-sm mr-2"
-          v-for="(item, idx) in selection.filter((s) => s != null)"
-          :key="JSON.stringify(item)"
-        >
+          v-for="(item, idx) in selection.filter(s => s != null)"
+          :key="JSON.stringify(item)">
           {{ flattenObject(item) }}
           <IconAction icon="times" @click="deselect(idx)" />
         </span>
@@ -38,8 +33,7 @@
       <template v-slot:footer>
         <ButtonAlt
           v-if="Array.isArray(selection) && selection.length > 0"
-          @click="clear"
-        >
+          @click="clear">
           clear selection
         </ButtonAlt>
       </template>

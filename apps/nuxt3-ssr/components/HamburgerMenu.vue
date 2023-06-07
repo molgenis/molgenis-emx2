@@ -16,8 +16,7 @@ defineProps({
         class="font-display text-heading-4xl"
         :class="
           menuItem?.highlight === true ? 'text-blue-500' : 'text-blue-800'
-        "
-      >
+        ">
         {{ menuItem.label }}
       </a>
     </nav>
@@ -32,13 +31,11 @@ defineProps({
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          aria-hidden="true"
-        >
+          aria-hidden="true">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
-            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-          ></path>
+            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
         </svg>
         <span
           class="antialiased tracking-wider translate-y-px font-display text-heading-xl"

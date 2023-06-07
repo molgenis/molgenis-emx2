@@ -18,14 +18,12 @@ defineProps({
       <div class="relative">
         <label
           class="block absolute text-body-xs top-2 left-6 pointer-events-none"
-          for="sort-by"
-        >
+          for="sort-by">
           Sort by
         </label>
         <select
           name="sort-by"
-          class="h-14 border border-gray-400 pb-2 pt-6 pl-6 pr-12 rounded-full appearance-none hover:bg-gray-100 hover:cursor-pointer bg-none"
-        >
+          class="h-14 border border-gray-400 pb-2 pt-6 pl-6 pr-12 rounded-full appearance-none hover:bg-gray-100 hover:cursor-pointer bg-none">
           <option value="name">Name</option>
           <option value="description">Description</option>
           <option value="start-end-year">Start & end year</option>

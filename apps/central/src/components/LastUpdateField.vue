@@ -39,7 +39,7 @@ export default {
     const resp = await request(
       `/${this.schema}/settings/graphql`,
       "{_changes(limit: 1) {operation, stamp, userId, tableName}}"
-    ).catch((error) => {
+    ).catch(error => {
       this.statusMessage = "failed to fetch updated";
       console.log(error);
     });

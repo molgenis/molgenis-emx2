@@ -12,8 +12,7 @@ defineProps<{
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
             :to="`/${schema}/ssr-catalogue/variables/${variable.name}`"
-            class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
-          >
+            class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50">
             {{ variable?.name }}
           </NuxtLink>
         </h2>
@@ -33,8 +32,7 @@ defineProps<{
         <NuxtLink :to="`/${schema}/ssr-catalogue/variables/${variable.name}`">
           <IconButton
             icon="arrow-right"
-            class="text-blue-500 hidden xl:flex xl:justify-end"
-          />
+            class="text-blue-500 hidden xl:flex xl:justify-end" />
         </NuxtLink>
       </div>
     </header>

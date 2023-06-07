@@ -3,8 +3,7 @@
     :id="id"
     :label="label"
     :description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <input
       :id="id"
       :name="name"
@@ -14,8 +13,7 @@
       class="form-control"
       :aria-describedby="id"
       :placeholder="label"
-      :class="{ 'is-invalid': errorMessage }"
-    />
+      :class="{ 'is-invalid': errorMessage }" />
   </FormGroup>
 </template>
 

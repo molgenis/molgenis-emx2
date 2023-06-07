@@ -6,8 +6,7 @@
     v-model="modelValue"
     class="form-control"
     :class="{ 'is-invalid': errorMessage }"
-    :required="required"
-  />
+    :required="required" />
   <FlatPickr
     v-else
     :id="id"
@@ -17,8 +16,7 @@
     :config="config"
     :placeholder="placeholder"
     :disabled="readonly"
-    @input="$emit('update:modelValue', $event.target.value)"
-  />
+    @input="$emit('update:modelValue', $event.target.value)" />
 </template>
 
 <script>

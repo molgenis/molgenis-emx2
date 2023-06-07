@@ -8,14 +8,12 @@
           :topics="topics"
           @select="select"
           @deselect="deselect"
-          :selected="selectedTopic"
-        />
+          :selected="selectedTopic" />
       </div>
       <VariablesList
         class="col-9"
         :resource-id="resourceId"
-        :topic="selectedTopic"
-      />
+        :topic="selectedTopic" />
     </div>
   </div>
 </template>
@@ -63,14 +61,12 @@ export default {
         "graphql",
         "{Topics(orderby:{order:ASC}){name,parent{name},variables_agg{count},children{name,variables_agg{count},children{name, variables_agg{count},children{name,variables{name},children{name,variables{name},children{name}}}}}}}"
       )
-        .then((data) => {
-          this.topics = data.Topics.filter(
-            (t) => t["parentTopic"] == undefined
-          );
+        .then(data => {
+          this.topics = data.Topics.filter(t => t["parentTopic"] == undefined);
           this.topics = this.topicsWithContents(this.topics);
           this.applySearch(this.topics, this.search);
         })
-        .catch((error) => {
+        .catch(error => {
           this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {
@@ -80,7 +76,7 @@ export default {
     topicsWithContents(topics) {
       let result = [];
       if (topics)
-        topics.forEach((t) => {
+        topics.forEach(t => {
           let childTopics = this.topicsWithContents(t.childTopics);
           if (t.variables || childTopics.length > 0) {
             result.push({ name: t.name, childTopics: childTopics });
@@ -90,7 +86,7 @@ export default {
     },
     applySearch(topics, terms) {
       let result = false;
-      topics.forEach((t) => {
+      topics.forEach(t => {
         t.match = false;
         if (
           terms == null ||

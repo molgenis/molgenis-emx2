@@ -11,8 +11,7 @@
       v-else-if="success"
       :title="title"
       :show="true"
-      @close="$emit('close')"
-    >
+      @close="$emit('close')">
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
       </template>
@@ -28,8 +27,7 @@
           id="schema-edit-description"
           v-model="newSchemaDescription"
           label="description"
-          :defaultValue="schemaDescription"
-        />
+          :defaultValue="schemaDescription" />
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
@@ -96,11 +94,11 @@ export default {
           description: this.newSchemaDescription,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.success = data.updateSchema.message;
           this.loading = false;
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.response.status === 403) {
             this.graphqlError =
               error.message + "Forbidden. Do you need to login?";

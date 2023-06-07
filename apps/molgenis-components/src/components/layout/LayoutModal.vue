@@ -6,8 +6,7 @@
       role="dialog"
       style="display: block; overflow: scroll"
       tabindex="-1"
-      aria-modal="true"
-    >
+      aria-modal="true">
       <div v-if="show" class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -18,8 +17,7 @@
               class="close"
               data-dismiss="modal"
               aria-label="Close"
-              @click.prevent="close"
-            >
+              @click.prevent="close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>

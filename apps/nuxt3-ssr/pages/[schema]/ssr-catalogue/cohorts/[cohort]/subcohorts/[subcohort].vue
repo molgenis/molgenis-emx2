@@ -20,7 +20,7 @@ const { data: subcohortData } = await useFetch(
       variables: { id: route.params.cohort, name: route.params.subcohort },
     },
   }
-).catch((e) => console.log(e));
+).catch(e => console.log(e));
 
 watch(
   subcohortData,
@@ -128,8 +128,7 @@ useHead({ title: subcohort?.name });
     <template #header>
       <PageHeader
         :title="subcohort?.name"
-        :description="subcohort?.description"
-      >
+        :description="subcohort?.description">
         <template #prefix>
           <BreadCrumbs :crumbs="pageCrumbs" />
         </template>
@@ -146,15 +145,13 @@ useHead({ title: subcohort?.name });
         <ContentBlock
           v-if="subcohort.ageGroups"
           id="age_categories"
-          title="Age categories"
-        >
+          title="Age categories">
           <ul class="grid gap-1 pl-4 list-disc list-outside">
             <li
               v-for="ageGroup in removeChildIfParentSelected(
                 subcohort.ageGroups || []
               ).sort((a, b) => a.order - b.order)"
-              :key="ageGroup.name"
-            >
+              :key="ageGroup.name">
               {{ ageGroup.name }}
             </li>
           </ul>
@@ -162,18 +159,15 @@ useHead({ title: subcohort?.name });
         <ContentBlock
           v-if="subcohort.mainMedicalCondition"
           id="main_medical_condition"
-          title="Main medical condition"
-        >
+          title="Main medical condition">
           <ContentOntology
             :tree="mainMedicalConditionTree"
-            :collapse-all="false"
-          />
+            :collapse-all="false" />
         </ContentBlock>
         <ContentBlock
           v-if="subcohort.comorbidity"
           id="comorbidity"
-          title="Comorbidity"
-        >
+          title="Comorbidity">
           <ContentOntology :tree="comorbidityTree" :collapse-all="false" />
         </ContentBlock>
       </ContentBlocks>

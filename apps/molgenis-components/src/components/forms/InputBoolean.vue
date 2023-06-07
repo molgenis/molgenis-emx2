@@ -5,8 +5,7 @@
       :checked="modelValue"
       type="checkbox"
       :aria-describedby="id + 'Help'"
-      @change="$emit('update:modelValue', $event.target.checked)"
-    />
+      @change="$emit('update:modelValue', $event.target.checked)" />
     <label class="ml-1" :for="id">{{ label }}</label>
   </div>
   <InputRadio
@@ -16,8 +15,7 @@
     :modelValue="modelValue"
     :options="[true, false]"
     :isClearable="isClearable"
-    @update:modelValue="$emit('update:modelValue', $event)"
-  />
+    @update:modelValue="$emit('update:modelValue', $event)" />
 </template>
 
 <script>

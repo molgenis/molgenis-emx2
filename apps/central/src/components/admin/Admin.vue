@@ -3,8 +3,7 @@
     <h1>Admin tools</h1>
     <MolgenisSignin
       v-if="showSigninForm && session.email === 'anonymous'"
-      @cancel="showSigninForm = false"
-    />
+      @cancel="showSigninForm = false" />
     <Spinner v-if="loading" />
     <MessageError v-else-if="session.email !== 'admin'">
       Permission denied, please log in as an administrator to view this page.
@@ -20,8 +19,7 @@
               settings: 'Settings',
               privacyPolicy: 'Privacy policy',
             }"
-            :key="key"
-          >
+            :key="key">
             <router-link
               class="nav-link"
               :class="{ active: selected == key }"

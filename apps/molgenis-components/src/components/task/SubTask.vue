@@ -6,8 +6,7 @@
       <SubTask
         v-for="(subtask, key) in task.subTasks"
         :task="subtask"
-        :key="key"
-      />
+        :key="key" />
     </li>
   </ul>
 </template>

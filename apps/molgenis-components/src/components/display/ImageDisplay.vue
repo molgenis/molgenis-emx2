@@ -4,8 +4,7 @@
     :alt="alt"
     class="img-thumbnail"
     :class="{ clickable: isClickable }"
-    @click="$emit('clicked', id)"
-  />
+    @click="$emit('clicked', id)" />
 </template>
 
 <style scoped>

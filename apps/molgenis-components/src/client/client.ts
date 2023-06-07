@@ -110,11 +110,11 @@ const client: IClient = {
           throw "Schema meta data not found for schema: " + schemaNameCache;
         }
         const tableMetaData = schemaMetaData.tables.find(
-          (table) =>
+          table =>
             table.id === tableId && table.externalSchema === schemaNameCache
         );
         const filter = tableMetaData?.columns
-          ?.filter((column) => column.key === 1)
+          ?.filter(column => column.key === 1)
           .reduce((accum: any, column) => {
             accum[column.id] = { equals: rowId[column.id] };
             return accum;
@@ -195,7 +195,7 @@ const client: IClient = {
           graphqlURL(schemaNameCache),
           createMutation,
           variables
-        ).catch((e) => {
+        ).catch(e => {
           console.error(e);
         });
       },

@@ -10,8 +10,7 @@
         '  ), url(' +
         imageUrl +
         ')',
-    }"
-  >
+    }">
     <div class="hero-text">
       <h1 v-if="title">{{ title }}</h1>
 

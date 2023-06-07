@@ -25,8 +25,7 @@ const linkToWebsite = (partner: IPartner) => {
         :title="partner?.name"
         :description="partner?.description"
         :url="linkToWebsite(partner)"
-        :links="[{ title: 'Read more', url: linkToWebsite(partner) }]"
-      />
+        :links="[{ title: 'Read more', url: linkToWebsite(partner) }]" />
     </ReferenceCardList>
   </ContentBlock>
 </template>

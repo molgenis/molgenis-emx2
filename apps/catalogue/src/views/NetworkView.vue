@@ -3,15 +3,13 @@
     <ResourceHeader
       :resource="network"
       headerCss="bg-primary text-white"
-      table-name="Networks"
-    />
+      table-name="Networks" />
     <div class="row">
       <div class="col">
         <h6 v-if="network.datasources">Datasources involved</h6>
         <DatasourceList
           v-if="network.datasources"
-          :datasources="network.datasources"
-        />
+          :datasources="network.datasources" />
         <h6>Databanks involved</h6>
         <DatabankList :databanks="network.databanks" />
         <h6>Cohorts involved</h6>
@@ -62,10 +60,10 @@ export default {
           pid: this.pid,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.network = data.Networks[0];
         })
-        .catch((error) => {
+        .catch(error => {
           this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {

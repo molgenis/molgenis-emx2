@@ -6,8 +6,7 @@
       :is="fieldTypeComponentName"
       :data="value"
       :metaData="metaData"
-      :color="color"
-    />
+      :color="color" />
   </div>
 </template>
 

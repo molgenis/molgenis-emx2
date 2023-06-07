@@ -19,8 +19,7 @@
               class="rotated-text text-nowrap"
               scope="col"
               v-for="resource in resourcesWithoutModels"
-              :key="resource.id"
-            >
+              :key="resource.id">
               <div>
                 <span class="table-label">{{ resource.id }}</span>
               </div>
@@ -31,8 +30,7 @@
           <template v-for="variable in variablePage" :key="variable.name">
             <harmonization-row
               :variable="variable"
-              :resources="resourcesWithoutModels"
-            />
+              :resources="resourcesWithoutModels" />
           </template>
         </tbody>
       </table>
@@ -43,8 +41,7 @@
         <button
           class="btn btn-link"
           v-if="variables.length"
-          @click="fetchNextPage"
-        >
+          @click="fetchNextPage">
           Load more
         </button>
       </p>
@@ -77,7 +74,7 @@ export default {
     },
     resourcesWithoutModels() {
       return this.resources.filter(
-        (r) =>
+        r =>
           !r.mg_tableclass.endsWith("Models") &&
           !r.mg_tableclass.endsWith("Networks") &&
           !r.mg_tableclass.endsWith("Organisations")

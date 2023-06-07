@@ -4,8 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <InputGroup class="d-flex">
       <template v-slot:prepend>
         <slot name="prepend"></slot>
@@ -14,14 +13,12 @@
         :id="id + '-from'"
         :modelValue="modelValue[0]"
         @update:modelValue="emitValue($event, 0)"
-        placeholder="from"
-      />
+        placeholder="from" />
       <BaseInputDecimal
         :id="id + '-to'"
         :modelValue="modelValue[1]"
         @update:modelValue="emitValue($event, 1)"
-        placeholder="to"
-      />
+        placeholder="to" />
       <template v-slot:append>
         <slot name="append"></slot>
       </template>

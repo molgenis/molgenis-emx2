@@ -36,12 +36,12 @@ const query = `
     `;
 
 const options: IOption[] = (
-  await fetchGql(query).catch((e) => {
+  await fetchGql(query).catch(e => {
     console.error(e);
   })
-)?.data[props.tableName]?.map((respItem) => {
+)?.data[props.tableName]?.map(respItem => {
   const selectedKeyValues = props.modelValue.map(
-    (selectedItem) => selectedItem[props.keyField]
+    selectedItem => selectedItem[props.keyField]
   );
   return {
     id: respItem[props.keyField],
@@ -57,9 +57,9 @@ const emit = defineEmits(["update:modelValue"]);
 watch(() => props.modelValue, updateSelection, { deep: true });
 
 function updateSelection() {
-  options.forEach((option) => {
+  options.forEach(option => {
     const selectedKeyValues = props.modelValue.map(
-      (selectedItem) => selectedItem[props.keyField]
+      selectedItem => selectedItem[props.keyField]
     );
     option.selected = selectedKeyValues.includes(option.id);
   });
@@ -70,7 +70,7 @@ function toggleSelect(option: IOption) {
     // remove from selection
     emit(
       "update:modelValue",
-      props.modelValue.filter((item) => item[props.keyField] !== option.id)
+      props.modelValue.filter(item => item[props.keyField] !== option.id)
     );
   } else {
     // add to selection
@@ -86,8 +86,7 @@ function toggleSelect(option: IOption) {
     <li v-for="option in options" :key="option.name" class="mb-2.5">
       <div class="flex items-start">
         <span
-          class="flex items-center justify-center w-6 h-6 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle hover:cursor-pointer"
-        >
+          class="flex items-center justify-center w-6 h-6 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle hover:cursor-pointer">
         </span>
         <div class="flex items-center">
           <input
@@ -97,13 +96,11 @@ function toggleSelect(option: IOption) {
             :checked="option.selected"
             @click.stop="toggleSelect(option)"
             :class="{ 'text-search-filter-group-checkbox': option.selected }"
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox"
-          />
+            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox" />
         </div>
         <label
           :for="option.name"
-          class="hover:cursor-pointer text-body-sm group"
-        >
+          class="hover:cursor-pointer text-body-sm group">
           <span class="group-hover:underline">{{ option.name }}</span>
           <div class="inline-flex items-center whitespace-nowrap">
             <!--
@@ -119,8 +116,7 @@ function toggleSelect(option: IOption) {
                 v-if="option.description"
                 label="Read more"
                 hoverColor="white"
-                :content="option.description"
-              />
+                :content="option.description" />
             </div>
           </div>
         </label>

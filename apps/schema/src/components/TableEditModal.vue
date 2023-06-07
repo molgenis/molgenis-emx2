@@ -2,28 +2,24 @@
   <LayoutModal
     v-if="modalVisible === true"
     :title="title"
-    :isCloseButtonShown="false"
-  >
+    :isCloseButtonShown="false">
     <template v-slot:body>
       <MessageWarning v-if="table.drop">Marked for deletion</MessageWarning>
       <InputString
         id="table_name"
         v-model="table.name"
         label="Name"
-        :errorMessage="nameInvalid"
-      />
+        :errorMessage="nameInvalid" />
       <InputTextLocalized
         id="table_label"
         v-model="table.labels"
         label="label"
-        :locales="locales"
-      />
+        :locales="locales" />
       <InputTextLocalized
         id="table_description"
         v-model="table.descriptions"
         label="description"
-        :locales="locales"
-      />
+        :locales="locales" />
       <InputSelect
         v-if="rootTable !== undefined"
         id="table_extends"
@@ -32,14 +28,12 @@
         :options="inheritOptions"
         :readonly="table.oldName !== undefined"
         :errorMessage="subclassInvalid"
-        label="Extends table (can not be edited after creation)"
-      />
+        label="Extends table (can not be edited after creation)" />
       <InputString
         id="table_semantics"
         :list="true"
         v-model="table.semantics"
-        label="Semantics (comma separated list of IRI defining type, and/or keyword 'id')"
-      />
+        label="Semantics (comma separated list of IRI defining type, and/or keyword 'id')" />
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="cancel">Cancel</ButtonAlt>
@@ -52,8 +46,7 @@
     v-else
     class="btn-sm hoverIcon"
     :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
-    @click="showModal"
-  />
+    @click="showModal" />
 </template>
 
 <script>
@@ -130,8 +123,8 @@ export default {
         if (this.rootTable.subclasses !== undefined) {
           result.push(
             ...this.rootTable.subclasses
-              .map((subclass) => subclass.name)
-              .filter((name) => name !== this.table.name)
+              .map(subclass => subclass.name)
+              .filter(name => name !== this.table.name)
           );
         }
         return result;
@@ -150,16 +143,16 @@ export default {
         this.modelValue?.name !== this.table.name &&
         ((this.schema.tables &&
           this.schema.tables.filter(
-            (table) =>
+            table =>
               table.name === this.table.name ||
               (table.subclasses !== undefined &&
                 table.subclasses
-                  .map((subclass) => subclass.name)
+                  .map(subclass => subclass.name)
                   .includes(this.table.name))
           ).length > 0) ||
           (this.schema.ontologies &&
             this.schema.ontologies.filter(
-              (ontology) => ontology.name === this.table.name
+              ontology => ontology.name === this.table.name
             ).length > 0))
       ) {
         return "Name should be unique (no other table or ontology can have same name)";

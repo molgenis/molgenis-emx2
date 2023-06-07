@@ -4,30 +4,26 @@
     :label="label"
     :required="required"
     description="description"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <div v-for="(value, index) in values" :key="index">
       <component
         :is="inputType"
         :id="id + '-' + index"
         :modelValue="values[index]"
         :showAddButton="index === values.length"
-        @update:modelValue="handleUpdate($event, index)"
-      >
+        @update:modelValue="handleUpdate($event, index)">
         <template v-slot:append>
           <button
             v-if="values.length > 1"
             @click="clearInput(index)"
             class="btn btn-outline-primary"
-            type="button"
-          >
+            type="button">
             <i class="fas fa-fw fa-times"></i>
           </button>
           <button
             @click="addItem(index)"
             class="btn btn-outline-primary"
-            type="button"
-          >
+            type="button">
             <i class="fas fa-fw fa-plus"></i>
           </button>
         </template>

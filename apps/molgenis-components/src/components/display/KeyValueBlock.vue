@@ -3,8 +3,7 @@
     <read-more
       v-if="items.length === 1 && items[0].value"
       :text="items[0].value"
-      :length="750"
-    />
+      :length="750" />
     <div v-else-if="items.length > 1">
       <div v-for="(item, index) in items" :key="index">
         <strong>{{ item.label }}</strong>
@@ -12,8 +11,7 @@
           <ul class="list-unstyled">
             <li
               v-for="(valueItem, valueItemIndex) in item.value"
-              :key="valueItemIndex"
-            >
+              :key="valueItemIndex">
               {{ valueItem }}
             </li>
           </ul>

@@ -24,8 +24,7 @@
         <div class="col-auto mb-3">
           <RouterLink
             to="organisations"
-            class="card card-body bg-dark text-white card-height h-100"
-          >
+            class="card card-body bg-dark text-white card-height h-100">
             <h3>
               Organisations
               <span class="badge badge-light text-inline float-right">{{
@@ -41,8 +40,7 @@
         <div class="col-auto mb-3">
           <RouterLink
             to="datasources"
-            class="card card-body bg-primary text-white card-height h-100"
-          >
+            class="card card-body bg-primary text-white card-height h-100">
             <h3>
               Data sources
               <span class="badge badge-light float-right">{{
@@ -57,8 +55,7 @@
         <div class="col-auto mb-3" v-if="cohorts > 0">
           <RouterLink
             to="cohorts"
-            class="card card-body bg-primary text-white card-height h-100"
-          >
+            class="card card-body bg-primary text-white card-height h-100">
             <h3>
               Cohorts
               <span class="badge badge-light float-right">{{ cohorts }}</span>
@@ -71,8 +68,7 @@
         <div class="col-auto mb-3">
           <RouterLink
             to="databanks"
-            class="card card-body bg-info text-white card-height h-100"
-          >
+            class="card card-body bg-info text-white card-height h-100">
             <h3>
               Databanks
               <span class="badge badge-light float-right">{{ databanks }}</span>
@@ -85,8 +81,7 @@
         <div class="col-auto mb-3">
           <RouterLink
             to="networks"
-            class="card card-body bg-danger text-white card-height h-100"
-          >
+            class="card card-body bg-danger text-white card-height h-100">
             <h3>
               Networks
               <span class="badge badge-light float-right">{{ networks }}</span>
@@ -97,8 +92,7 @@
         <div class="col-auto mb-3">
           <RouterLink
             to="studies"
-            class="card card-body bg-success text-white card-height h100"
-          >
+            class="card card-body bg-success text-white card-height h100">
             <h3>
               Studies
               <span class="badge badge-light float-right">{{ studies }}</span>
@@ -112,8 +106,7 @@
         <div class="col-auto mb-3">
           <RouterLink
             to="models"
-            class="card card-body bg-warning text-dark card-height h-100"
-          >
+            class="card card-body bg-warning text-dark card-height h-100">
             <h3>
               Data models
               <span class="badge badge-light float-right">{{ models }}</span>
@@ -276,7 +269,7 @@ export default {
           }
         `
       )
-        .then((data) => {
+        .then(data => {
           this.schemaName = data._schema.name;
           this.organisations = data.Organisations_agg.count;
           this.cohorts = data.Cohorts_agg.count;
@@ -290,7 +283,7 @@ export default {
           this.datasetMappings = data.DatasetMappings_agg.count;
           this.studies = data.Studies_agg.count;
         })
-        .catch((error) => {
+        .catch(error => {
           this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {

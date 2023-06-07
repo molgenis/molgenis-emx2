@@ -13,19 +13,16 @@
       <ButtonAlt @click="$emit('cancel')"> Close</ButtonAlt>
       <Tooltip
         name="disabled-save-tooltip"
-        :value="saveDisabledMessage ? saveDisabledMessage : ''"
-      >
+        :value="saveDisabledMessage ? saveDisabledMessage : ''">
         <ButtonOutline
           @click="$emit('saveDraft')"
           :disabled="Boolean(saveDisabledMessage)"
-          class="mr-2 pr-3"
-        >
+          class="mr-2 pr-3">
           Save draft
         </ButtonOutline>
         <ButtonAction
           @click="$emit('save')"
-          :disabled="Boolean(saveDisabledMessage)"
-        >
+          :disabled="Boolean(saveDisabledMessage)">
           Save {{ tableName }}
         </ButtonAction>
       </Tooltip>

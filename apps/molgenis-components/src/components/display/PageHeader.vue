@@ -9,8 +9,7 @@
         <img
           class="justify-content-center align-self-center"
           :src="logoUrl"
-          alt="page logo"
-        />
+          alt="page logo" />
       </div>
     </div>
     <h3 v-if="subTitle">

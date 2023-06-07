@@ -5,23 +5,20 @@
         v-for="(url, label, index) in crumbs"
         :key="label"
         class="breadcrumb-item"
-        :class="{ active: label === lastKey }"
-      >
+        :class="{ active: label === lastKey }">
         <a v-if="label == lastKey" aria-current="page">{{ label }}</a>
         <a v-else :href="url">{{ label }}</a>
         <span class="dropdown">
           <span v-if="dropdown && index == 0">
             <i
               class="text-primary dropdown-toggle dropdown-toggle-split pr-0"
-              @click="toggleDropdown"
-            ></i>
+              @click="toggleDropdown"></i>
             <div class="dropdown-menu" :class="{ show: showDropdown }">
               <a
                 v-for="(url, label, index) in dropdown"
                 class="dropdown-item text-primary"
                 :href="url"
-                :key="index"
-              >
+                :key="index">
                 {{ label }}
               </a>
             </div>

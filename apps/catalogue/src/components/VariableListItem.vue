@@ -2,16 +2,13 @@
   <li
     class="list-group-item"
     :class="{ 'list-group-item-action': !showDetail }"
-    @click.stop="toggleShowDetail(false)"
-  >
+    @click.stop="toggleShowDetail(false)">
     <div
       @click.stop="toggleShowDetail(true)"
-      class="text-capitalize mg-variable-header mg-list-group-item-header"
-    >
+      class="text-capitalize mg-variable-header mg-list-group-item-header">
       <i
         v-if="!showDetail"
-        class="fa fa-caret-up mr-2 hover-rotate-clockwize"
-      ></i>
+        class="fa fa-caret-up mr-2 hover-rotate-clockwize"></i>
       <i v-else class="fa fa-caret-down mr-2"></i>
       {{ variable.name }} <i v-if="variable.label"> - {{ variable.label }}</i>
       <span class="mg-model-label">
@@ -91,8 +88,7 @@
                 <li
                   class="list-inline-item"
                   v-for="(permittedValue, index) in permittedValuesByOrder"
-                  :key="index"
-                >
+                  :key="index">
                   {{ permittedValue.label }} = {{ permittedValue.value }}
                 </li>
               </ul>
@@ -142,12 +138,12 @@ export default {
   computed: {
     permittedValuesByOrder() {
       return this.variable.variableDetails.permittedValues
-        .map((pv) => pv) // clone to avoid prop mutation
+        .map(pv => pv) // clone to avoid prop mutation
         .sort((a, b) => a.order <= b.order);
     },
     mappedByString() {
       return Object.values(this.variable.variableDetails.mappings)
-        .map((mapping) => mapping.sourceDataset.resource.id)
+        .map(mapping => mapping.sourceDataset.resource.id)
         .join(", ");
     },
   },

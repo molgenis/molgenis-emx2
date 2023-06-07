@@ -9,8 +9,7 @@
       :canEdit="canEdit"
       :canManage="canManage"
       @rowClick="openDetailView"
-      @searchTerms="onSearchTermUpdate"
-    />
+      @searchTerms="onSearchTermUpdate" />
   </div>
 </template>
 

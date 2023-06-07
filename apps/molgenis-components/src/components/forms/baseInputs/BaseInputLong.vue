@@ -9,8 +9,7 @@
     :readonly="readonly"
     :required="required"
     @keypress="handleKeyValidity($event)"
-    @input="emitIfValid($event)"
-  />
+    @input="emitIfValid($event)" />
 </template>
 
 <script>

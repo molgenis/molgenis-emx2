@@ -5,8 +5,7 @@
         type="text"
         class="form-control form-control-lg"
         v-model="query"
-        :placeholder="placeholder"
-      />
+        :placeholder="placeholder" />
       <div class="input-group-append">
         <button type="submit" class="btn btn-primary btn-lg">Search</button>
       </div>

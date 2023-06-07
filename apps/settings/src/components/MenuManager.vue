@@ -16,8 +16,7 @@
         :items="draft"
         :key="key"
         @change="sanitizeDraft"
-        @add="addItem"
-      />
+        @add="addItem" />
     </div>
     <div>
       Help:
@@ -130,24 +129,24 @@ export default {
         `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
         { settings: { key: "menu", value: JSON.stringify(this.draft) } }
       )
-        .then((data) => {
+        .then(data => {
           this.success = data.change.message;
         })
-        .catch((error) => {
+        .catch(error => {
           this.graphqlError = error.response.errors[0].message;
         })
         .finally((this.loading = false));
     },
     sanitizeDraft() {
       if (this.draft) {
-        this.draft.forEach((item) => {
+        this.draft.forEach(item => {
           //give random keys so we can monitor moves
           item.key = Math.random().toString(36).substring(7);
           //give empty submenu so we can drag-nest
           if (item.submenu == undefined) {
             item.submenu = [];
           } else {
-            item.submenu.forEach((sub) => delete sub.submenu);
+            item.submenu.forEach(sub => delete sub.submenu);
           }
         });
       }

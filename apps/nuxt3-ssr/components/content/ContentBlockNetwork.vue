@@ -15,8 +15,7 @@ defineProps<{
         :title="network?.name"
         :description="network?.description"
         :url="network.website"
-        :links="[{ title: 'Read more', url: network.website }]"
-      />
+        :links="[{ title: 'Read more', url: network.website }]" />
     </ReferenceCardList>
   </ContentBlock>
 </template>

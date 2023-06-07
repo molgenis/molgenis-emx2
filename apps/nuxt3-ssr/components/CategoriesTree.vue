@@ -36,13 +36,11 @@ function findParentCategories(categories: ICollectionEventCategory[]) {
       currentValue: ICollectionEventCategory
     ) => {
       if (currentValue.parent) {
-        if (
-          !accumulator.find((item) => item.name == currentValue.parent?.name)
-        ) {
+        if (!accumulator.find(item => item.name == currentValue.parent?.name)) {
           accumulator.push(currentValue.parent);
         }
       } else {
-        if (!accumulator.find((item) => item.name == currentValue?.name)) {
+        if (!accumulator.find(item => item.name == currentValue?.name)) {
           accumulator.push(currentValue);
         }
       }
@@ -61,7 +59,7 @@ function combineParentChildCategories(
       return child?.parent?.name === item?.name;
     });
     const uniqueChildren = [
-      ...new Map(children.map((item) => [item.name, item])).values(),
+      ...new Map(children.map(item => [item.name, item])).values(),
     ];
     return {
       name: item.name,
@@ -114,13 +112,11 @@ watch(
         v-for="category in page"
         :title="category.name"
         :count="category.children?.length"
-        :tooltip="category.definition"
-      >
+        :tooltip="category.definition">
         <ListCollapsibleItemChild
           v-for="child in category.children"
           :title="child.name"
-          :tooltip="child.definition"
-        />
+          :tooltip="child.definition" />
       </ListCollapsibleItemParent>
     </ul>
   </ListCollapsible>

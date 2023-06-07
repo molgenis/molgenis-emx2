@@ -5,8 +5,7 @@
         <th
           v-for="(column, columnIndex) in columns"
           :key="columnIndex"
-          scope="col"
-        >
+          scope="col">
           {{ column.label }}
         </th>
       </tr>
@@ -15,8 +14,7 @@
       <tr
         v-for="(row, index) in rows"
         :key="index"
-        @click="$emit('row-click', row)"
-      >
+        @click="$emit('row-click', row)">
         <td v-for="(column, columnIndex) in columns" :key="columnIndex">
           {{ row[column.name] }}
         </td>

@@ -4,16 +4,14 @@
       class="col-4"
       :label="field.meta.name"
       :tooltip="field.description"
-      :color="color"
-    ></sectionFieldLabel>
+      :color="color"></sectionFieldLabel>
     <div class="col-8">
       <component
         v-if="!isEmptyValue"
         :is="fieldTypeComponentName"
         :data="field.value"
         :metaData="field.meta"
-        :color="color"
-      />
+        :color="color" />
       <div v-else>N/A</div>
     </div>
   </div>

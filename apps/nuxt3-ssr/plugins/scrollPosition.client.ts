@@ -5,7 +5,7 @@ import type { RouterScrollBehavior, RouteLocationNormalized } from "vue-router";
 type ScrollPosition = Awaited<ReturnType<RouterScrollBehavior>>;
 
 // https://github.com/nuxt/framework/discussions/1661
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(nuxtApp => {
   nuxtApp.$router.options.scrollBehavior = async (to, from, savedPosition) => {
     let position: ScrollPosition = savedPosition || undefined;
 
@@ -31,7 +31,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       }
     }
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       nuxtApp.hooks.hook("page:finish", async () => {
         await nextTick();
         if (to.hash) {

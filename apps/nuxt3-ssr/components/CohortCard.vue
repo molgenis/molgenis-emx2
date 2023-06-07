@@ -53,8 +53,7 @@ const isShowingMobileMoreText = computed(() => {
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
             :to="`/${schema}/ssr-catalogue/cohorts/${cohort.id}`"
-            class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
-          >
+            class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50">
             {{ cohort?.acronym || cohort?.name }}
           </NuxtLink>
         </h2>
@@ -74,8 +73,7 @@ const isShowingMobileMoreText = computed(() => {
         <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${cohort.id}`">
           <IconButton
             icon="arrow-right"
-            class="text-blue-500 hidden xl:flex xl:justify-end"
-          />
+            class="text-blue-500 hidden xl:flex xl:justify-end" />
         </NuxtLink>
       </div>
     </header>
@@ -99,15 +97,14 @@ const isShowingMobileMoreText = computed(() => {
       <button
         v-if="!isShowingMobileMoreText"
         class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
-        @click="mobileShowMoreText = true"
-      >
+        @click="mobileShowMoreText = true">
         Read more
       </button>
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>
           <dt class="flex-auto block text-gray-600">Type</dt>
-          <dd>{{ cohort?.type?.map((type) => type.name).join(",") }}</dd>
+          <dd>{{ cohort?.type?.map(type => type.name).join(",") }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Design</dt>

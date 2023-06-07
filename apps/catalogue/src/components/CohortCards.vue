@@ -2,8 +2,7 @@
   <div>
     <RouterLink
       class="btn btn-primary float-right"
-      :to="{ name: 'NetworkVariables', params: { network: network } }"
-    >
+      :to="{ name: 'NetworkVariables', params: { network: network } }">
       View {{ network }} variables
     </RouterLink>
     <h1 class="bg-white">{{ network }} cohorts</h1>
@@ -11,15 +10,13 @@
     <InputSearch
       id="cohort-cards-search-input"
       v-model="searchTerms"
-      placeholder="search cohorts"
-    />
+      placeholder="search cohorts" />
     <p>Found {{ count }} cohorts.</p>
     <div class="row">
       <div
         class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
         v-for="cohort in cohorts"
-        :key="cohort.id"
-      >
+        :key="cohort.id">
         <div class="card col-12 p-0">
           <div class="card-header bg-white">
             <h5 class="card-title mb-0" style="min-height: 4em">
@@ -30,8 +27,7 @@
                 name: 'NetworkCohortDetailView',
                 params: { network: network, id: cohort.id },
               }"
-              class="btn btn-outline-primary float-right"
-            >
+              class="btn btn-outline-primary float-right">
               View details
             </RouterLink>
           </div>
@@ -44,8 +40,7 @@
                     <span
                       class="font-weight-bold mr-2 mb-2 badge bade-lg badge-primary"
                       v-if="cohort.design"
-                      :key="design"
-                    >
+                      :key="design">
                       {{ cohort.design.name }}
                     </span>
                   </td>
@@ -56,8 +51,7 @@
                     <span
                       class="font-weight-bold mr-2 mb-2 badge bade-lg badge-primary"
                       v-for="collectionType in cohort.collectionType"
-                      :key="collectionType.name"
-                    >
+                      :key="collectionType.name">
                       {{ collectionType.name }}
                     </span>
                   </td>
@@ -76,8 +70,7 @@
                       class="font-weight-bold mr-2 mb-2 badge bade-lg badge-primary"
                       style="max-width: 15em"
                       v-for="country in cohort.countries"
-                      :key="country.name"
-                    >
+                      :key="country.name">
                       {{ country.name }}
                     </span>
                   </td>
@@ -86,7 +79,7 @@
                   <td>Institution:</td>
                   <td>
                     <div v-if="cohort.institution">
-                      {{ cohort.organisations.map((o) => o.id).join(", ") }}
+                      {{ cohort.organisations.map(o => o.id).join(", ") }}
                     </div>
                     <span v-else>N/A</span>
                   </td>

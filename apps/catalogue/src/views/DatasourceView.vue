@@ -3,8 +3,7 @@
     <ResourceHeader
       :resource="datasource"
       headerCss="bg-secondary text-white"
-      table-name="Datasources"
-    />
+      table-name="Datasources" />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div class="row">
       <div class="col-8">
@@ -28,8 +27,7 @@
         <h6 v-if="datasource.publications">Publications</h6>
         <PublicationList
           v-if="datasource.publications"
-          :publications="datasource.publications"
-        />
+          :publications="datasource.publications" />
       </div>
     </div>
   </div>
@@ -71,7 +69,7 @@ export default {
           pid: this.pid,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.datasource = data.Datasources[0];
           if (this.datasource.releases) {
             this.version =
@@ -80,7 +78,7 @@ export default {
               ].version;
           }
         })
-        .catch((error) => {
+        .catch(error => {
           this.graphqlError = error.response.errors[0].message;
         })
         .finally(() => {

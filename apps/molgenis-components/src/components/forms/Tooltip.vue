@@ -3,8 +3,7 @@
     class="mg-tooltip-container"
     @mouseenter="showTooltip"
     @mouseleave="destroyTooltip"
-    ref="tooltipContainer"
-  >
+    ref="tooltipContainer">
     <slot />
     <div v-if="value && display" class="mg-tooltip" ref="toolTip">
       {{ value }}

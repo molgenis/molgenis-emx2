@@ -7,8 +7,7 @@
           v-scroll-to="{
             el: '#' + name,
           }"
-          :class="'text-' + color"
-        >
+          :class="'text-' + color">
           {{ name }}
         </a>
       </div>

@@ -7,13 +7,11 @@
         :key="index"
         :variable="variable"
         :network="network"
-        @request-variable-detail="handleVariableDetailsRequest(variable)"
-      />
+        @request-variable-detail="handleVariableDetailsRequest(variable)" />
       <button
         class="btn btn-link mt-2 mb-3"
         v-if="showMoreVisible"
-        @click="fetchAdditionalVariables"
-      >
+        @click="fetchAdditionalVariables">
         Show more variables
       </button>
     </ul>

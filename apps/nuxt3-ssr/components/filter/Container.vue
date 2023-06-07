@@ -53,8 +53,7 @@ function clearSearch() {
         class="font-sans text-body-base font-bold mr-[5px] group-hover:underline group-hover:cursor-pointer"
         :class="`text-search-filter-group-title${
           mobileDisplay ? '-mobile' : ''
-        }`"
-      >
+        }`">
         {{ title }}
       </h3>
       <span
@@ -62,8 +61,7 @@ function clearSearch() {
           'rotate-180': isCollapsed,
           'text-search-filter-group-toggle': !mobileDisplay,
         }"
-        class="flex items-center justify-center w-8 h-8 rounded-full group-hover:bg-search-filter-group-toggle group-hover:cursor-pointer"
-      >
+        class="flex items-center justify-center w-8 h-8 rounded-full group-hover:bg-search-filter-group-toggle group-hover:cursor-pointer">
         <BaseIcon name="caret-up" :width="26" />
       </span>
     </div>
@@ -72,8 +70,7 @@ function clearSearch() {
         v-if="selected.length"
         class="text-body-sm hover:underline hover:cursor-pointer"
         :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
-        @click="clearSelection()"
-      >
+        @click="clearSelection()">
         Remove {{ selected?.length }} selected
       </span>
       <span
@@ -89,8 +86,7 @@ function clearSearch() {
   <div
     v-if="!isCollapsed"
     class="mb-5 ml-5 mr-5"
-    :class="`text-search-filter-group-title${mobileDisplay ? '-mobile' : ''}`"
-  >
+    :class="`text-search-filter-group-title${mobileDisplay ? '-mobile' : ''}`">
     <slot />
   </div>
 </template>

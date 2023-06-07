@@ -12,8 +12,7 @@
       v-else-if="success"
       :title="title"
       :show="true"
-      @close="$emit('close')"
-    >
+      @close="$emit('close')">
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
         <div v-if="template">
@@ -41,28 +40,24 @@
               v-model="schemaName"
               label="name"
               :defaultValue="schemaName"
-              :required="true"
-            />
+              :required="true" />
             <InputSelect
               id="schema-create-template"
               label="template"
               description="Load existing database template"
               v-model="template"
-              :options="templates"
-            />
+              :options="templates" />
             <InputBoolean
               id="schema-create-sample-data"
               v-if="template"
               label="load example data"
               description="Include example data in the template"
-              v-model="includeDemoData"
-            />
+              v-model="includeDemoData" />
             <InputText
               id="schema-create-description"
               v-model="schemaDescription"
               label="description (optional)"
-              :defaultValue="schemaDescription"
-            />
+              :defaultValue="schemaDescription" />
           </LayoutForm>
         </div>
       </template>
@@ -152,11 +147,11 @@ export default {
           includeDemoData: this.includeDemoData,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.success = data.createSchema.message;
           this.loading = false;
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.response.status === 403) {
             this.graphqlError =
               error.message + "Forbidden. Do you need to login?";

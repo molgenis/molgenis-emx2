@@ -4,8 +4,7 @@
       <router-view name="sidebar" :docsMap="$docsMap"></router-view>
       <div
         id="page-content-wrapper"
-        class="container-fluid overflow-auto vh-100"
-      >
+        class="container-fluid overflow-auto vh-100">
         <div v-for="name in docNames" :key="name" :id="name">
           <h2>{{ name }}</h2>
           <router-link class="float-right" :to="'/component/' + name">

@@ -54,12 +54,12 @@ export default defineComponent({
           }
         }`;
         request("graphql", query)
-          .then((data) => {
+          .then(data => {
             this.task = data._tasks[0];
             this.$emit("taskUpdated", this.task);
             this.loading = false;
           })
-          .catch((error) => {
+          .catch(error => {
             console.log(JSON.stringify(error));
             this.error = error;
             this.loading = false;
@@ -74,7 +74,7 @@ export default defineComponent({
 });
 
 function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 </script>
 

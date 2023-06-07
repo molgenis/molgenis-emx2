@@ -5,13 +5,11 @@
     :required="required"
     :description="description"
     class="checkbox-form-group"
-    :errorMessage="errorMessage"
-  >
+    :errorMessage="errorMessage">
     <div
       v-for="(option, index) in options"
       :key="index"
-      class="form-check form-check-inline"
-    >
+      class="form-check form-check-inline">
       <input
         :id="`${id}-${index}`"
         v-model="result"
@@ -21,11 +19,10 @@
         @change="
           $emit(
             'update:modelValue',
-            result.filter((value) => value !== null)
+            result.filter(value => value !== null)
           )
         "
-        :aria-describedby="`${id}-help`"
-      />
+        :aria-describedby="`${id}-help`" />
       <label class="form-check-label" :for="`${id}-${index}`">
         {{ option }}
       </label>
@@ -36,8 +33,7 @@
       @click.prevent="
         result = [];
         $emit('update:modelValue', result);
-      "
-    >
+      ">
       clear
     </button>
   </FormGroup>

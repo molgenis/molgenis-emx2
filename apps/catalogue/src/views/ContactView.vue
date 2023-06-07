@@ -3,8 +3,7 @@
     <ResourceHeader
       header-css="bg-info text-white"
       table-name="Contacts"
-      :resource="contact"
-    />
+      :resource="contact" />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div class="row">
       <div class="col">
@@ -14,8 +13,7 @@
             :to="{
               name: routename(c.resource.mg_tableclass),
               params: { id: c.resource.id },
-            }"
-          >
+            }">
             {{ c.resource.id }}
             <OntologyTerms :terms="c.contributionType" />
           </RouterLink>
@@ -40,8 +38,7 @@
             <a
               :href="
                 'https://www.researchgate.net/profile/' + contact.researchgate
-              "
-            >
+              ">
               researchgate
             </a>
           </li>
@@ -95,10 +92,10 @@ export default {
           name: this.name,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.contact = data.Contacts[0];
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.response)
             this.graphqlError = error.response.errors[0].message;
           else this.graphqlError = error;

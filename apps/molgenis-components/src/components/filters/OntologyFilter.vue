@@ -6,8 +6,7 @@
     :tableName="tableName"
     :schemaName="schemaName"
     :isMultiSelect="true"
-    :showExpanded="true"
-  />
+    :showExpanded="true" />
 </template>
 
 <script>

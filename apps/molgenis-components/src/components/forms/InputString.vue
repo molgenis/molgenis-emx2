@@ -4,8 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="stringError"
-  >
+    :errorMessage="stringError">
     <InputGroup>
       <template v-slot:prepend>
         <slot name="prepend"></slot>
@@ -21,8 +20,7 @@
         :class="{ 'is-invalid': stringError }"
         :aria-describedby="id"
         :placeholder="placeholderValue"
-        :readonly="readonly"
-      />
+        :readonly="readonly" />
       <template v-slot:append>
         <slot name="append"></slot>
       </template>

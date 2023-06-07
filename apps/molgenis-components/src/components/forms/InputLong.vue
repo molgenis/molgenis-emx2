@@ -4,8 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="errorMessage || bigIntError"
-  >
+    :errorMessage="errorMessage || bigIntError">
     <InputGroup>
       <BaseInputLong
         :id="id"
@@ -14,8 +13,7 @@
         :readonly="readonly"
         :required="required"
         :class="{ 'is-invalid': errorMessage || bigIntError }"
-        @update:modelValue="$emit('update:modelValue', $event)"
-      />
+        @update:modelValue="$emit('update:modelValue', $event)" />
       <template v-slot:append>
         <slot name="append" />
       </template>

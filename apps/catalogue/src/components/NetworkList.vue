@@ -5,8 +5,7 @@
         :to="{
           name: 'network',
           params: { id: d.id },
-        }"
-      >
+        }">
         {{ d.id }} - {{ d.name }}
       </RouterLink>
     </li>

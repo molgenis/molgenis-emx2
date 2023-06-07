@@ -13,7 +13,7 @@ function clearConditions(filter) {
 }
 
 function clearAll() {
-  filters.value.forEach((filter) => {
+  filters.value.forEach(filter => {
     if (filter?.columnType === "_SEARCH") {
       clearSearch(filter);
     } else {
@@ -36,7 +36,7 @@ function isFilterSet(filter) {
 }
 
 function isAFilterSet(filters) {
-  return filters.some((filter) => {
+  return filters.some(filter => {
     return isFilterSet(filter);
   });
 }
@@ -45,8 +45,7 @@ function isAFilterSet(filters) {
 <template>
   <div
     v-if="isAFilterSet(filters)"
-    class="bg-search-results-view-tabs text-white flex items-center rounded-t-3px"
-  >
+    class="bg-search-results-view-tabs text-white flex items-center rounded-t-3px">
     <div class="p-4 whitespace-nowrap justify-self-start self-start">
       Active filters
     </div>
@@ -58,24 +57,21 @@ function isAFilterSet(filters) {
           icon="trash"
           icon-position="right"
           size="tiny"
-          type="filterWell"
-        >
+          type="filterWell">
           {{ `${filter?.title}: ${filter?.search}` }}
         </Button>
 
         <VDropdown
           :triggers="['hover', 'focus']"
           :distance="12"
-          theme="tooltip"
-        >
+          theme="tooltip">
           <Button
             v-if="filter?.columnType !== '_SEARCH' && isFilterSet(filter)"
             @click="clearConditions(filter)"
             icon="trash"
             icon-position="right"
             size="tiny"
-            type="filterWell"
-          >
+            type="filterWell">
             {{ filter?.title }}
             <small class="text-gray-600">
               {{ `- ${filter?.conditions.length}` }}

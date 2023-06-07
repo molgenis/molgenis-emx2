@@ -12,8 +12,7 @@
             <td>
               <label
                 class="mx-2 col-form-label form-group mb-0 mr-3"
-                for="aggregate-column-select"
-              >
+                for="aggregate-column-select">
                 Column:
               </label>
             </td>
@@ -24,16 +23,14 @@
                 v-model="selectedColumn"
                 @update:modelValue="fetchData"
                 :options="refColumns"
-                required
-              />
+                required />
             </td>
           </tr>
           <tr>
             <td>
               <label
                 class="mx-2 col-form-label form-group mb-0"
-                for="aggregate-row-select"
-              >
+                for="aggregate-row-select">
                 Row:
               </label>
             </td>
@@ -44,8 +41,7 @@
                 v-model="selectedRow"
                 @update:modelValue="fetchData"
                 :options="refColumns"
-                required
-              />
+                required />
             </td>
           </tr>
         </table>
@@ -63,8 +59,7 @@
         :columns="columns"
         :rows="rows"
         :data="aggregateData"
-        class="mb-n3"
-      >
+        class="mb-n3">
         <template #column="columnProps">
           {{ columnProps.value }}
         </template>
@@ -154,7 +149,7 @@ export default defineComponent({
           },
           this.graphqlFilter
         )
-        .catch((error) => {
+        .catch(error => {
           this.errorMessage = error;
         });
       if (responseData && responseData[this.tableName + "_groupBy"]) {

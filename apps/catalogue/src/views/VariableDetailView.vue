@@ -9,8 +9,7 @@
           :to="{
             path: this.$route.path,
             query: { ...$route.query, tab: 'detail' },
-          }"
-        >
+          }">
           Details
         </router-link>
       </li>
@@ -21,8 +20,7 @@
           :to="{
             path: this.$route.path,
             query: { ...$route.query, tab: 'harmonization' },
-          }"
-        >
+          }">
           Harmonization
         </router-link>
       </li>
@@ -31,16 +29,14 @@
       </li>
     </ul>
     <template
-      v-if="$route.query.tab === 'harmonization' && !$route.query.fromName"
-    >
+      v-if="$route.query.tab === 'harmonization' && !$route.query.fromName">
       <single-var-harmonization-view :variable="variable" />
     </template>
     <template v-else-if="$route.query.fromName">
       <from-variable-details
         :sourceCohort="$route.query.sourceCohort"
         :fromName="$route.query.fromName"
-        :toName="variable.label"
-      />
+        :toName="variable.label" />
     </template>
     <template v-else>
       <single-var-details-view :variable="variable" />

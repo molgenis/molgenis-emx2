@@ -2,8 +2,7 @@
   <LayoutModal
     v-if="modalVisible === true"
     title="Edit column metadata"
-    :isCloseButtonShown="false"
-  >
+    :isCloseButtonShown="false">
     <template v-slot:body>
       <div class="row">
         <div class="column-scroll col">
@@ -19,16 +18,14 @@
                   id="column_name"
                   v-model="column.name"
                   label="columnName"
-                  :errorMessage="nameInvalid"
-                />
+                  :errorMessage="nameInvalid" />
               </div>
               <div class="col-4">
                 <InputTextLocalized
                   id="column_label"
                   v-model="column.labels"
                   label="label"
-                  :locales="locales"
-                />
+                  :locales="locales" />
               </div>
               <div class="col-4">
                 <div class="input-group">
@@ -36,8 +33,7 @@
                     id="column_description"
                     v-model="column.descriptions"
                     label="description"
-                    :locales="locales"
-                  />
+                    :locales="locales" />
                 </div>
               </div>
             </div>
@@ -47,8 +43,7 @@
                   id="column_columnType"
                   v-model="column.columnType"
                   :options="columnTypes"
-                  label="columnType"
-                />
+                  label="columnType" />
               </div>
               <div
                 class="col-4"
@@ -58,8 +53,7 @@
                   column.columnType === 'REFBACK' ||
                   column.columnType === 'ONTOLOGY' ||
                   column.columnType === 'ONTOLOGY_ARRAY'
-                "
-              >
+                ">
                 <InputSelect
                   id="column_refTable"
                   v-model="column.refTable"
@@ -69,30 +63,26 @@
                       : undefined
                   "
                   :options="tableNames"
-                  label="refTable"
-                />
+                  label="refTable" />
                 <InputSelect
                   id="column_refSchema"
                   v-model="column.refSchema"
                   :options="schemaNames"
                   @update:modelValue="loadRefSchema"
                   label="refSchema"
-                  description="When you want to refer to table in another schema"
-                />
+                  description="When you want to refer to table in another schema" />
                 <InputString
                   id="column_refLabel"
                   v-model="column.refLabel"
                   label="refLabel"
-                  description="(Optional) customize how ref values should be shown. E.g. '${name}' or '${firstName} ${lastName}'"
-                />
+                  description="(Optional) customize how ref values should be shown. E.g. '${name}' or '${firstName} ${lastName}'" />
               </div>
               <div class="col-4" v-if="column.columnType === 'REFBACK'">
                 <InputSelect
                   id="column_refBack"
                   label="refBack"
                   v-model="column.refBack"
-                  :options="refBackCandidates(column.refTable, table.name)"
-                />
+                  :options="refBackCandidates(column.refTable, table.name)" />
               </div>
               <div
                 class="col-4"
@@ -100,16 +90,14 @@
                   column.refTable &&
                   (column.columnType === 'REF' ||
                     column.columnType === 'REF_ARRAY')
-                "
-              >
+                ">
                 <InputSelect
                   v-if="refLinkCandidates.length > 0"
                   id="column_refLink"
                   v-model="column.refLink"
                   :options="refLinkCandidates"
                   label="refLink"
-                  description="refLink enables to define overlapping references, e.g. 'patientId', 'sampleId' (where sample also overlaps with patientId)"
-                />
+                  description="refLink enables to define overlapping references, e.g. 'patientId', 'sampleId' (where sample also overlaps with patientId)" />
               </div>
             </div>
             <div class="row">
@@ -118,15 +106,13 @@
                   id="column_required"
                   v-model="column.required"
                   label="required"
-                  description="Will give error unless field is filled in. Is not checked if not visible"
-                />
+                  description="Will give error unless field is filled in. Is not checked if not visible" />
               </div>
               <div class="col-4" v-if="isEditable(column)">
                 <InputBoolean
                   id="column_readonly"
                   v-model="column.readonly"
-                  label="isReadonly"
-                />
+                  label="isReadonly" />
               </div>
             </div>
             <div class="row">
@@ -135,8 +121,7 @@
                   id="column_key"
                   v-model="column.key"
                   :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-                  label="key"
-                />
+                  label="key" />
               </div>
             </div>
             <div class="row">
@@ -144,8 +129,7 @@
                 <ButtonAction
                   class="float-right"
                   v-if="!previewShow"
-                  @click="previewShow = true"
-                >
+                  @click="previewShow = true">
                   show form preview
                 </ButtonAction>
               </div>
@@ -156,16 +140,14 @@
                   id="column_validation"
                   v-model="column.validation"
                   label="validation"
-                  description="When javascript expression returns 'false' the expression itself is shown. Example: name === 'John'. When javascript expression returns a string then this string is shown. Example if(name!=='John')'name should be John'. Is not checked if not visible."
-                />
+                  description="When javascript expression returns 'false' the expression itself is shown. Example: name === 'John'. When javascript expression returns a string then this string is shown. Example if(name!=='John')'name should be John'. Is not checked if not visible." />
               </div>
               <div class="col-4" v-if="column.columnType !== AUTO_ID">
                 <InputText
                   id="column_visible"
                   v-model="column.visible"
                   label="visible"
-                  description="When set only show when javascript expression is !null or !false. Example: other > 5"
-                />
+                  description="When set only show when javascript expression is !null or !false. Example: other > 5" />
               </div>
               <div class="col-4">
                 <InputText
@@ -176,8 +158,7 @@
                     column.columnType == AUTO_ID
                       ? 'Use pattern like \'pre${mg_autoid}post\' to customize prefix/postfix of your auto id'
                       : 'When set only the input will be readonly and value computed using this formula'
-                  "
-                />
+                  " />
               </div>
             </div>
             <div class="row">
@@ -186,8 +167,7 @@
                   id="column_semantics"
                   v-model="column.semantics"
                   :list="true"
-                  label="semantics"
-                />
+                  label="semantics" />
               </div>
             </div>
 
@@ -200,8 +180,7 @@
                   :options="subclassNames"
                   :list="true"
                   label="Available in subclass"
-                  description="indicate this column is available in particular subclass only. Cannot be changed after creation. We hope to enable this in future version"
-                />
+                  description="indicate this column is available in particular subclass only. Cannot be changed after creation. We hope to enable this in future version" />
               </div>
             </div>
           </div>
@@ -219,8 +198,7 @@
             :schemaMetaData="schema"
             :tableMetaData="table"
             :tableName="table.name"
-            :key="JSON.stringify(table)"
-          />
+            :key="JSON.stringify(table)" />
           Values:
           {{ previewData }}
         </div>
@@ -236,8 +214,7 @@
     class="btn-sm hoverIcon"
     :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
     :tooltip="tooltip"
-    @click="showModal"
-  />
+    @click="showModal" />
 </template>
 
 <style>
@@ -346,7 +323,7 @@ export default {
     //current table object unedited
     originalTable() {
       return this.schema.tables.find(
-        (table) =>
+        table =>
           table.name === this.tableName ||
           table.name === this.column.table ||
           (table.subclasses && table.subclasses.includes(this.column.table))
@@ -357,7 +334,7 @@ export default {
       const table = deepClone(this.originalTable);
       //replace column with current changes
       const index = table.columns.findIndex(
-        (c) => c.name == this.column.name || c.name == this.column.oldName
+        c => c.name == this.column.name || c.name == this.column.oldName
       );
       // or if new, we add it
       if (index === -1) {
@@ -370,7 +347,7 @@ export default {
     //listing of related subclasses, used to indicate if column is part of subclass
     subclassNames() {
       if (this.table?.subclasses) {
-        return this.table?.subclasses.map((subclass) => subclass.name);
+        return this.table?.subclasses.map(subclass => subclass.name);
       } else {
         return undefined;
       }
@@ -383,21 +360,21 @@ export default {
           this.column.columnType === "ONTOLOGY_ARRAY"
         ) {
           return this.refSchema.tables
-            .filter((t) => t.tableType === "ONTOLOGIES")
-            .map((t) => t.name);
+            .filter(t => t.tableType === "ONTOLOGIES")
+            .map(t => t.name);
         } else {
           return this.refSchema.tables
-            .filter((t) => t.tableType !== "ONTOLOGIES")
-            .map((t) => t.name);
+            .filter(t => t.tableType !== "ONTOLOGIES")
+            .map(t => t.name);
         }
       } else {
         if (
           this.column.columnType === "ONTOLOGY" ||
           this.column.columnType === "ONTOLOGY_ARRAY"
         ) {
-          return this.schema.ontologies.map((t) => t.name);
+          return this.schema.ontologies.map(t => t.name);
         } else {
-          return this.schema.tables.map((t) => t.name);
+          return this.schema.tables.map(t => t.name);
         }
       }
     },
@@ -411,7 +388,7 @@ export default {
       if (
         (this.modelValue === undefined ||
           this.modelValue.name !== this.column.name) &&
-        this.originalTable.columns?.filter((c) => c.name === this.column.name)
+        this.originalTable.columns?.filter(c => c.name === this.column.name)
           .length > 0
       ) {
         return "Name should be unique";
@@ -443,27 +420,27 @@ export default {
     refLinkCandidates() {
       return this.table.columns
         .filter(
-          (c) =>
+          c =>
             (c.columnType === "REF" || c.columnType === "REF_ARRAY") &&
             c.name !== this.modelValue.name
         )
-        .map((c) => c.name);
+        .map(c => c.name);
     },
     refBackCandidates(fromTable, toTable) {
       const schema =
         this.refSchema !== undefined ? this.refSchema : this.schema;
 
       const columns = schema.tables
-        .filter((t) => t.name === fromTable)
-        .map((t) => t.columns)[0];
-      return columns?.filter((c) => c.refTable === toTable).map((c) => c.name);
+        .filter(t => t.name === fromTable)
+        .map(t => t.columns)[0];
+      return columns?.filter(c => c.refTable === toTable).map(c => c.name);
     },
     async loadRefSchema() {
       this.error = undefined;
       this.loading = true;
       if (this.column.refSchema) {
         this.client = Client.newClient(this.column.refSchema, this.$axios);
-        const schema = await this.client.fetchSchemaMetaData((error) => {
+        const schema = await this.client.fetchSchemaMetaData(error => {
           this.error = error;
         });
         this.refSchema = schema;

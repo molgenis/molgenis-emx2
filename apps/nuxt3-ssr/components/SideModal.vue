@@ -52,13 +52,11 @@ const buttonAlignmentClass = buttonAlignmentSet[buttonAlignment];
     :positioning-disabled="true"
     @show="preAnimation()"
     @apply-show="onShow()"
-    @apply-hide="onHide()"
-  >
+    @apply-hide="onHide()">
     <slot name="button"></slot>
     <template #popper="{ hide }">
       <div
-        :class="`fixed top-8 bottom-8 bg-white overflow-hidden ${roundedClass} ${fullScreenClass}`"
-      >
+        :class="`fixed top-8 bottom-8 bg-white overflow-hidden ${roundedClass} ${fullScreenClass}`">
         <div class="h-full overflow-auto">
           <button @click="hide()" class="absolute top-7 right-8">
             <BaseIcon name="cross" />
@@ -68,8 +66,7 @@ const buttonAlignmentClass = buttonAlignmentSet[buttonAlignment];
         </div>
         <div class="absolute inset-x-0 bottom-0">
           <div
-            :class="`flex items-center ${buttonAlignmentClass} px-6 bg-modal-footer h-19`"
-          >
+            :class="`flex items-center ${buttonAlignmentClass} px-6 bg-modal-footer h-19`">
             <slot name="footer"></slot>
           </div>
         </div>

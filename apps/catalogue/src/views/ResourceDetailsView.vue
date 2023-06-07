@@ -4,24 +4,21 @@
       v-if="canEdit"
       type="edit"
       class="float-right pt-1"
-      @edit="isEditModalShown = true"
-    />
+      @edit="isEditModalShown = true" />
     <EditModal
       v-if="canEdit"
       id="resource-edit-modal"
       :tableName="table"
       :pkey="primaryTableKey"
       :isModalShown="isEditModalShown"
-      @close="isEditModalShown = false"
-    />
+      @close="isEditModalShown = false" />
     <ButtonAlt @click="toggleNA" class="float-right text-white">
       {{ hideNA ? "Show" : "Hide" }} empty fields (N/A)
     </ButtonAlt>
     <ResourceHeader
       :resource="resourceData"
       :headerCss="'bg-' + color + ' text-white'"
-      :table-name="table"
-    />
+      :table-name="table" />
     <div class="row p-2">
       <div
         :class="
@@ -30,23 +27,20 @@
           ' ' +
           (sectionsNames.length > 1 ? 'col-10' : 'col-12')
         "
-        class="p-0"
-      >
+        class="p-0">
         <div v-for="section in sections" :key="section.meta.name">
           <section-card
             :section="section"
             :hideNA="hideNA"
             :color="color"
-            :showCardHeader="sections.length > 1"
-          />
+            :showCardHeader="sections.length > 1" />
         </div>
       </div>
       <section-index
         v-if="sectionsNames.length > 1"
         class="col-2"
         :names="sectionsNames"
-        :color="color"
-      />
+        :color="color" />
     </div>
   </div>
 </template>
@@ -96,8 +90,8 @@ export default {
     ...mapGetters(["canEdit"]),
     sections() {
       const comparePosition = (a, b) => a.position < b.position;
-      const isHeading = (meta) => meta.columnType === "HEADING";
-      const isNonSystemField = (meta) => !meta.id.startsWith("mg_");
+      const isHeading = meta => meta.columnType === "HEADING";
+      const isNonSystemField = meta => !meta.id.startsWith("mg_");
 
       return this.tableMetadata.columns
         .filter(isNonSystemField)
@@ -119,7 +113,7 @@ export default {
         }, []);
     },
     sectionsNames() {
-      return this.sections.map((card) => card.meta.name);
+      return this.sections.map(card => card.meta.name);
     },
     primaryTableKey() {
       return this.tableMetadata.columns.reduce((accum, col) => {

@@ -11,8 +11,7 @@
       v-else-if="success"
       :title="title"
       :show="true"
-      @close="$emit('close')"
-    >
+      @close="$emit('close')">
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
       </template>
@@ -88,11 +87,11 @@ export default {
           name: this.schemaName,
         }
       )
-        .then((data) => {
+        .then(data => {
           this.success = data.deleteSchema.message;
           this.loading = false;
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.response.status === 403) {
             this.graphqlError =
               error.message + "Forbidden. Do you need to login?";

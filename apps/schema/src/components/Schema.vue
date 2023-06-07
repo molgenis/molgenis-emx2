@@ -13,8 +13,7 @@
           <ButtonAction
             v-if="schema.tables?.length > 0"
             @click="toggleShowDiagram"
-            class="ml-2"
-          >
+            class="ml-2">
             {{ showDiagram ? "Hide" : "Show" }} Diagram
           </ButtonAction>
           <MessageError v-if="error" class="ml-2 m-0 p-2">
@@ -37,8 +36,7 @@
           v-if="schema.tables"
           @update:modelValue="handleInput"
           :key="key"
-          :isManager="isManager"
-        />
+          :isManager="isManager" />
       </div>
       <div class="bg-white col ml-2 overflow-auto">
         <a id="molgenis_diagram_anchor"></a>
@@ -48,8 +46,7 @@
           :schemaNames="schemaNames"
           @update:modelValue="handleInput"
           :isManager="isManager"
-          :locales="session?.settings?.locales"
-        />
+          :locales="session?.settings?.locales" />
       </div>
     </div>
   </div>
@@ -139,19 +136,19 @@ export default {
       //transform subclasses back into their original tables.
       //create a map of tables
       let tableMap = {};
-      tables.forEach((table) => {
+      tables.forEach(table => {
         tableMap[table.name] = table;
         if (table.subclasses) {
-          table.subclasses.forEach((subclass) => {
+          table.subclasses.forEach(subclass => {
             tableMap[subclass.name] = subclass;
           });
           delete table.subclasses;
         }
       });
       //redistribute the columns to subclasses
-      tables.forEach((table) => {
+      tables.forEach(table => {
         if (table.columns !== undefined) {
-          table.columns.forEach((column) => {
+          table.columns.forEach(column => {
             if (column.table !== table.oldName) {
               if (tableMap[column.table].columns === undefined) {
                 tableMap[column.table].columns = [];
@@ -161,10 +158,10 @@ export default {
           });
         }
       });
-      tables.forEach((table) => {
+      tables.forEach(table => {
         delete table.externalSchema;
         table.columns = table.columns
-          ? table.columns.filter((column) => column.table === table.name)
+          ? table.columns.filter(column => column.table === table.name)
           : [];
       });
       tables = Object.values(tableMap);
@@ -189,7 +186,7 @@ export default {
           this.warning = null;
           this.success = `Schema saved`;
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.response.status === "403") {
             this.error = "Forbidden. Do you need to login?";
             this.showLogin = true;
@@ -259,7 +256,7 @@ export default {
         }
       `;
       request("graphql", query)
-        .then((data) => {
+        .then(data => {
           this.rawSchema = this.addOldNamesAndRemoveMeta(data._schema);
           this.schema = this.convertToSubclassTables(this.rawSchema);
           this.schemaNames = data._session.schemas;
@@ -268,7 +265,7 @@ export default {
           this.dirty = false;
           this.isManager = data._session.roles?.includes("Manager");
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.response?.errors[0]?.message) {
             this.error = error.response.errors[0].message;
           } else {
@@ -285,20 +282,20 @@ export default {
         let tables = !schema.tables
           ? []
           : schema.tables.filter(
-              (table) =>
+              table =>
                 table.tableType !== "ONTOLOGIES" &&
                 table.externalSchema === schema.name
             );
-        tables.forEach((t) => {
+        tables.forEach(t => {
           t.oldName = t.name;
           if (t.columns) {
             t.columns = t.columns
-              .filter((c) => !c.name.startsWith("mg_"))
-              .map((c) => {
+              .filter(c => !c.name.startsWith("mg_"))
+              .map(c => {
                 c.oldName = c.name;
                 return c;
               })
-              .filter((c) => !c.inherited);
+              .filter(c => !c.inherited);
           } else {
             t.columns = [];
           }
@@ -306,12 +303,12 @@ export default {
         schema.ontologies = !schema.tables
           ? []
           : schema.tables.filter(
-              (table) =>
+              table =>
                 table.tableType === "ONTOLOGIES" &&
                 table.externalSchema === schema.name
             );
         //set old name so we can delete them properly
-        schema.ontologies.forEach((o) => {
+        schema.ontologies.forEach(o => {
           o.oldName = o.name;
         });
         schema.tables = tables;
@@ -324,9 +321,9 @@ export default {
       const schema = deepClone(rawSchema);
       //columns of subclasses should be put in root tables, sorted by position
       // this because position can only edited in context of root table
-      schema.tables.forEach((table) => {
+      schema.tables.forEach(table => {
         if (table.inherit === undefined) {
-          this.getSubclassTables(schema, table.name).forEach((subclass) => {
+          this.getSubclassTables(schema, table.name).forEach(subclass => {
             //get columns from subclass tables
             table.columns.push(...subclass.columns);
             //remove the columns from subclass table
@@ -345,17 +342,17 @@ export default {
       });
       //remove the subclass tables
       schema.tables = schema.tables.filter(
-        (table) => table.inherit === undefined
+        table => table.inherit === undefined
       );
       return schema;
     },
     getSubclassTables(schema, tableName) {
       let subclasses = schema.tables.filter(
-        (table) => table.inherit === tableName
+        table => table.inherit === tableName
       );
       return subclasses.concat(
         subclasses
-          .map((table) => {
+          .map(table => {
             return this.getSubclassTables(schema, table.name);
           })
           .flat(1)
