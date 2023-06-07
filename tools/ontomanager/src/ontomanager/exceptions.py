@@ -28,6 +28,8 @@ class NoSuchNameException(OntomanagerException):
 
 
 class MissingPkeyException(OntomanagerException):
-    """Thrown when an action on an ontology term is requested without specifying the
-    primary key.
-    """
+    """Thrown when an action on an ontology term is requested without specifying the primary key."""
+
+
+class UpdateItemsException(OntomanagerException):
+    """Thrown when the 'old' and 'new' terms for the update method are not correctly specified."""

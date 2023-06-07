@@ -57,3 +57,43 @@ class Queries:
         }
         """
         return query
+
+    @staticmethod
+    def list_databases() -> str:
+        """
+        Query to list the databases on the server.
+        """
+        query = """
+        {
+          _schemas {
+            name
+          }
+        }"""
+
+        return query
+
+    @staticmethod
+    def database_schema() -> str:
+        """
+        Query to list the schema of a database.
+        """
+        query = """
+        {
+          _schema {
+            tables {
+              name
+              externalSchema
+              inherit
+              tableType
+              columns {
+                name 
+                required
+                key
+                columnType 
+                refSchema
+                refTable
+              }      
+            }
+          }
+        }"""
+        return query
