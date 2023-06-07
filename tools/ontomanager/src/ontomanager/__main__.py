@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from .manager import Manager
+from tools.ontomanager.src.ontomanager import OntologyManager
 
 actions = ['add', 'remove', 'rename']
 
@@ -22,7 +22,7 @@ def main():
         action = args.action
         assert action in actions, f"Action {action} is not supported. Select one from {','.join(actions)}."
 
-        ontoman = Manager()
+        ontoman = OntologyManager()
         ontoman.perform(action=action, table=args.table)
 
 
