@@ -25,3 +25,9 @@ class NoSuchTableException(OntomanagerException):
 
 class NoSuchNameException(OntomanagerException):
     """Thrown when an ontology name could not be found."""
+
+
+class MissingPkeyException(OntomanagerException):
+    """Thrown when an action on an ontology term is requested without specifying the
+    primary key.
+    """
