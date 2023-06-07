@@ -15,7 +15,7 @@
     "graphql-request": "5.2.0",
     "vue": "3.2.47",
     "vue-router": "4.1.6",
-    "vue3-colorpicker": "2.1.2",
+    "vue3-colorpicker": "2.1.4",
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
