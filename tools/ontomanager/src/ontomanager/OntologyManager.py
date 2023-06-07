@@ -6,6 +6,8 @@ from molgenis_emx2_client import Client
 from requests import Response
 
 from .constants import ontology_columns
+from .exceptions import OntomanagerException, DuplicateKeyException, MissingPkeyException, NoSuchNameException, \
+    NoSuchTableException
 from .graphql_queries import Queries
 
 log = logging.getLogger(__name__)
@@ -24,6 +26,7 @@ class OntologyManager:
         """
         self.client = Client(url=url, username=username, password=password)
         self.graphql_endpoint = f'{self.client.url}/CatalogueOntologies/graphql'
+        self.ontology_tables = self.__list_ontology_tables()
 
     def perform(self, action: str, table: str, **kwargs):
         """Select the method to perform and pass any keyword arguments"""
@@ -38,6 +41,9 @@ class OntologyManager:
     def add(self, table: str, **kwargs) -> Response:
         """Add a term to an ontology."""
         print(f"Adding to table {table}.")
+
+        if table not in self.ontology_tables:
+            raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
 
         _kwargs = self.__parse_kwargs(kwargs)
         _table = self.__parse_table_name(table)
@@ -58,6 +64,9 @@ class OntologyManager:
 
         query = Queries.delete(_table)
         variables = {"pkey": {'name': _kwargs['name']}}
+
+        if _kwargs['name'] not in self.__list_ontology_terms(table):
+            raise NoSuchNameException(f"Name '{_kwargs['name']}' not found in table '{table}'.")
 
         response = self.__perform_query(query, variables, action='delete')
 
@@ -89,12 +98,37 @@ class OntologyManager:
                 verbs = ['editing', 'edited']
 
         if _response.status_code != 200:
-            log.error(f"Error while {verbs[0]} record, status code {_response.status_code}")
-            log.error(_response.text)
+            message = _response.json()['errors'][0]['message']
+            if 'duplicate key value' in message:
+                raise DuplicateKeyException(message)
+            raise OntomanagerException(_response.json()['errors'][0]['message'])
         else:
             log.info(f"Successfully {verbs[1]} {variables[next(iter(variables))]['name']}.")
 
         return _response
+
+    def __list_ontology_terms(self, table: str) -> list:
+        """Returns a list of the terms in the specified ontology.
+        :param table: the name of the table from which the terms are requested.
+        """
+        query = Queries.list_ontology_terms(table)
+
+        response = self.client.session.post(
+            self.graphql_endpoint,
+            json={"query": query}
+        )
+        terms = [term['name'] for term in response.json()['data'][table]]
+        return terms
+
+    def __list_ontology_tables(self) -> list:
+        """Returns a list of ontology tables in the CatalogueOntologies database."""
+        query = Queries.list_ontology_tables()
+        response = self.client.session.post(
+            self.graphql_endpoint,
+            json={"query": query}
+        )
+        tables = [table['name'] for table in response.json()['data']['_schema']['tables'].keys()]
+        return tables
 
     @staticmethod
     def __parse_table_name(table_name: str) -> str:
@@ -106,6 +140,8 @@ class OntologyManager:
     @staticmethod
     def __parse_kwargs(kwargs) -> dict:
         """Ensure the passed kwargs are in correct format."""
+        if 'name' not in kwargs.keys():
+            raise MissingPkeyException(f"Primary key missing on entry.")
         _kwargs = {key: value for (key, value) in kwargs.items() if key in ontology_columns}
         _kwargs = {key: {'name': value} if key == 'parent' else value
                    for (key, value) in _kwargs.items()}
