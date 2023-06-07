@@ -191,6 +191,9 @@ export default {
           );
         })
       );
+
+      // FIX: we want te return a array of keys and a seperate array with compete rows
+      this.$emit("hackalldata", this.data);
     },
   },
   watch: {

@@ -5,15 +5,6 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { RouterLink } from "vue-router";
-
-export default {
-  components: {
-    RouterLink,
-  },
-  data() {
-    return {};
-  },
-};
 </script>
