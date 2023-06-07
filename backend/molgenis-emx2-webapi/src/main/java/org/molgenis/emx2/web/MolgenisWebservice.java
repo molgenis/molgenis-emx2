@@ -48,6 +48,8 @@ public class MolgenisWebservice {
 
     staticFiles.location("/public_html");
 
+    EmailApi.create();
+
     /*
      * WARNING !! SPARK JAVA USES DESIGN WHERE THE ORDER OF REQUEST DEFINITION DETERMINES THE HANDLER
      */

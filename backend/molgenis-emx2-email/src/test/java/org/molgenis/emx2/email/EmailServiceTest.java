@@ -2,6 +2,8 @@ package org.molgenis.emx2.email;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Arrays;
+import javax.mail.internet.AddressException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
@@ -21,7 +23,7 @@ class EmailServiceTest {
   @EnabledIfEnvironmentVariable(named = "EMX2_TEST_SMTP_SERVER", matches = ".*")
   @EnabledIfEnvironmentVariable(named = "EMX2_TEST_SMTP_RECEIVER", matches = ".*")
   // note set env vars to test sending a mail via smtp server
-  public void sendEmail() {
+  public void sendEmail() throws AddressException {
     EmailSettings.EmailSettingsBuilder builder = new EmailSettings.EmailSettingsBuilder();
     builder.senderEmail(System.getenv("EMX2_TEST_EMAIL_SENDER"));
     builder.auth("true");
@@ -33,7 +35,7 @@ class EmailServiceTest {
     EmailService emailService = new EmailService(settings);
     boolean isSuccess =
         emailService.send(
-            System.getenv("EMX2_TEST_SMTP_RECEIVER"),
+            Arrays.asList(System.getenv("EMX2_TEST_SMTP_RECEIVER")),
             "This is just a test",
             "This is a test mail from EMX2");
     assertTrue(isSuccess);

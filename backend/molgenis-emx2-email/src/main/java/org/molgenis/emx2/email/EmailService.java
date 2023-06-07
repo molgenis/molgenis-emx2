@@ -1,5 +1,6 @@
 package org.molgenis.emx2.email;
 
+import java.util.List;
 import java.util.Properties;
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -37,7 +38,9 @@ public class EmailService {
     this.senderPassword = settings.getSmtpAuthenticatorSenderPassword();
   }
 
-  public Boolean send(String receiverEmail, String subject, String messageText) {
+  public Boolean send(List<String> recipients, String subject, String messageText) {
+    final List<InternetAddress> addressList =
+        recipients.stream().map(EmailValidator::toInternetAddress).toList();
     try {
       Authenticator auth = null;
       if (senderPassword != null) {
@@ -46,7 +49,7 @@ public class EmailService {
       Session session = Session.getInstance(props, auth);
       Message message = new MimeMessage(session);
       message.setFrom(new InternetAddress(senderEmail));
-      message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(receiverEmail));
+      message.setRecipients(Message.RecipientType.TO, addressList.toArray(new InternetAddress[0]));
       message.setSubject(subject);
       message.setText(messageText);
 
