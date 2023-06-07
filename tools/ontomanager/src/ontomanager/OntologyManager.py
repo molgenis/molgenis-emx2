@@ -7,7 +7,7 @@ from requests import Response
 
 from .constants import ontology_columns
 from .exceptions import OntomanagerException, DuplicateKeyException, MissingPkeyException, NoSuchNameException, \
-    NoSuchTableException
+    NoSuchTableException, UpdateItemsException
 from .graphql_queries import Queries
 
 log = logging.getLogger(__name__)
@@ -59,6 +59,9 @@ class OntologyManager:
         """Delete a term from an ontology."""
         print(f"Deleting from table {table}.")
 
+        if table not in self.ontology_tables:
+            raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
+
         _kwargs = self.__parse_kwargs(kwargs)
         _table = self.__parse_table_name(table)
 
@@ -74,12 +77,43 @@ class OntologyManager:
 
     def update(self, table: str, **kwargs):
         """Rename a term in an ontology."""
-        # TODO: create this function
+        # TODO: do the actual update
         print(f"Renaming in table {table}.")
 
-        _kwargs = self.__parse_kwargs(kwargs)
+        if table not in self.ontology_tables:
+            raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
+
+        try:
+            old, new = kwargs['old'], kwargs['new']
+        except KeyError:
+            raise UpdateItemsException("Specify 'old' and 'new' terms.")
+
+        if old not in self.__list_ontology_terms(table):
+            raise NoSuchNameException(f"Name '{old}' not found in table '{table}'.")
+        if new not in self.__list_ontology_terms(table):
+            raise NoSuchNameException(f"Name '{new}' not found in table '{table}'.")
+
         _table = self.__parse_table_name(table)
-        pass
+
+        # Iterate over the other databases on the server and check in which tables the ontology terms are referenced
+        databases = self.__list_databases()
+        server_dict = dict()
+        for db in databases:
+            db_dict = dict()
+            db_schema = self.__get_database_schema(db)
+            for tb, values in db_schema.items():
+                tb_dict = dict()
+                if values.get('externalSchema') == 'CatalogueOntologies':
+                    continue
+                for col, specs in values['columns'].items():
+                    if specs.get('refSchema') == 'CatalogueOntologies' and specs.get('refTable') == table:
+                        tb_dict.update({col: specs['columnType']})
+                        # TODO: perform update here
+                if len(tb_dict.keys()) > 0:
+                    db_dict.update({tb: tb_dict})
+            if len(db_dict.keys()) > 0:
+                server_dict.update({db: db_dict})
+        print(server_dict)
 
     def __perform_query(self, query: str, variables: dict, action: str) -> Response:
         """Perform the query using the query and variables supplied."""
@@ -127,7 +161,36 @@ class OntologyManager:
             self.graphql_endpoint,
             json={"query": query}
         )
-        tables = [table['name'] for table in response.json()['data']['_schema']['tables'].keys()]
+        tables = [table['name'] for table in response.json()['data']['_schema']['tables']]
+        return tables
+
+    def __list_databases(self) -> list:
+        """Returns a list of the databases on the server."""
+        query = Queries.list_databases()
+        response = self.client.session.post(
+            url=f'{self.client.url}/apps/graphql',
+            json={"query": query}
+        )
+        databases = [db['name'] for db in response.json()['data']['_schemas']]
+        return databases
+
+    def __get_database_schema(self, database: str) -> dict:
+        """Returns the schema of the specified database.
+        :param database: the name of the database.
+        """
+        query = Queries.database_schema()
+        response = self.client.session.post(
+            url=f'{self.client.url}/{database}/graphql',
+            json={"query": query}
+        )
+        _tables = response.json()['data']['_schema']['tables']
+        tables = {tab['name']: {'externalSchema': tab['externalSchema'],
+                                'inherit': tab.get('inherit'),
+                                'tableType': tab['tableType'],
+                                'columns': {col['name']: {key: value for (key, value) in col.items() if key != "name"}
+                                            for col in tab['columns']}}
+                  for tab in _tables}
+
         return tables
 
     @staticmethod
