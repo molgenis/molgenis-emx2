@@ -48,7 +48,7 @@ export default {
       await this.$nextTick();
       const container = this.$refs["tooltipContainer"];
       const tooltip = this.$refs["toolTip"];
-      if (container !== undefined && tooltip !== undefined) {
+      if (container && tooltip) {
         this.popperInstance = new Popper(container, tooltip, {
           placement: this.placement,
           modifiers: { preventOverflow: { enabled: true } },
@@ -69,7 +69,13 @@ export default {
 <template>
   <demo-item>
     <Tooltip value="this is quite a long tooltip so we can test that it actually renders with prevent overflow">
-      <IconAction icon="trash" @click="alert('clicked')"/>
+      <IconAction icon="trash" @click="window.alert('clicked')"/>
+    </Tooltip>
+  </demo-item>
+  <demo-item>
+    <Tooltip :value="undefined">
+      <IconAction icon="trash" @click="window.alert('clicked')"/> 
+      Button with empty tooltip
     </Tooltip>
   </demo-item>
 </template>
