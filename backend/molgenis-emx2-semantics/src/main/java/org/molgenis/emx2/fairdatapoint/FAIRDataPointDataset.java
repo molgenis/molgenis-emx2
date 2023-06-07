@@ -2,6 +2,7 @@ package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.molgenis.emx2.beaconv2.common.QueryHelper.finalizeFilter;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointCatalog.extractItemAsIRI;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointDistribution.FORMATS;
 import static org.molgenis.emx2.semantics.RDFService.extractHost;
@@ -34,47 +35,28 @@ public class FAIRDataPointDataset {
   // todo odrl:Policy object instead of String? see
   // https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
 
-  private Request request;
-  private Table fdpDataseTable;
+  private final Request request;
+  private final Table fdpDataseTable;
   private String issued;
   private String modified;
 
-  /**
-   * Constructor
-   *
-   * @param request
-   * @param fdpDataseTable
-   * @throws Exception
-   */
+  /** Constructor */
   public FAIRDataPointDataset(Request request, Table fdpDataseTable) {
     this.request = request;
     this.fdpDataseTable = fdpDataseTable;
   }
 
-  /**
-   * Used to override issued for JUnit testing
-   *
-   * @param issued
-   */
+  /** Used to override issued for JUnit testing */
   public void setIssued(String issued) {
     this.issued = issued;
   }
 
-  /**
-   * Used to override modified for JUnit testing
-   *
-   * @param modified
-   */
+  /** Used to override modified for JUnit testing */
   public void setModified(String modified) {
     this.modified = modified;
   }
 
-  /**
-   * Create and get resulting FDP
-   *
-   * @return
-   * @throws Exception
-   */
+  /** Create and get resulting FDP */
   public String getResult() throws Exception {
     String id = request.params("id");
     Schema schema = fdpDataseTable.getSchema();
@@ -116,19 +98,54 @@ public class FAIRDataPointDataset {
     IRI apiFdpDistributionEnc = encodedIRI(apiFdpDistribution);
 
     builder.add(reqUrl, RDF.TYPE, DCAT.DATASET);
-    String distribution = TypeUtils.toString(datasetFromJSON.get("distribution"));
-    if (!schema.getTableNames().contains(distribution)) {
-      throw new Exception(
-          "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your FDP_Dataset matches a table name (from the same schema) you want to publish.");
+    Map distribution = (Map) datasetFromJSON.get("distribution");
+    Map type = (Map) distribution.get("type"); // type is a required field
+
+    // note: both type.name (an ontology) and the distribution name are required fields
+    if (type.get("name").equals("Table")) {
+      String distributionName = (String) distribution.get("name");
+      if (!schema.getTableNames().contains(distributionName)) {
+        throw new Exception(
+            "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your FDP_Dataset matches a table name (from the same schema) you want to publish.");
+      }
+      for (String format : FORMATS) {
+        builder.add(
+            reqUrl,
+            // not 'Distribution' (class) but 'distribution' (predicate)
+            iri("http://www.w3.org/ns/dcat#distribution"),
+            encodedIRI(
+                apiFdpDistribution
+                    + "/"
+                    + schema.getName()
+                    + "/"
+                    + distribution.get("name")
+                    + "/"
+                    + format));
+      }
+    } else {
+      List<Map> files = (List<Map>) distribution.get("files");
+      if (files == null) {
+        throw new Exception("No files specified for distribution of type File");
+      }
+      for (Map m : files) {
+        String format = (String) ((Map) m.get("format")).get("name");
+        // manually encode forward slash for instance in "nbrf/pir"
+        format = format.replace("/", "%2F");
+        builder.add(
+            reqUrl,
+            // not 'Distribution' (class) but 'distribution' (predicate)
+            iri("http://www.w3.org/ns/dcat#distribution"),
+            encodedIRI(
+                apiFdpDistribution
+                    + "/"
+                    + schema.getName()
+                    + "/"
+                    + m.get("identifier")
+                    + "/"
+                    + format));
+      }
     }
-    for (String format : FORMATS) {
-      builder.add(
-          reqUrl,
-          // not 'Distribution' (class) but 'distribution' (predicate)
-          iri("http://www.w3.org/ns/dcat#distribution"),
-          encodedIRI(
-              apiFdpDistribution + "/" + schema.getName() + "/" + distribution + "/" + format));
-    }
+
     if (datasetFromJSON.get("accrualPeriodicity") != null) {
       builder.add(reqUrl, DCTERMS.ACCRUAL_PERIODICITY, datasetFromJSON.get("accrualPeriodicity"));
     }
@@ -253,7 +270,13 @@ public class FAIRDataPointDataset {
           apiFdpDistributionEnc,
           LDP.CONTAINS,
           encodedIRI(
-              apiFdpDistribution + "/" + schema.getName() + "/" + distribution + "/" + format));
+              apiFdpDistribution
+                  + "/"
+                  + schema.getName()
+                  + "/"
+                  + distribution.get("name")
+                  + "/"
+                  + format));
     }
 
     // Write model
@@ -267,15 +290,11 @@ public class FAIRDataPointDataset {
     GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
     ExecutionResult executionResult =
         grapql.execute(
-            "{FDP_Dataset"
-                + "(filter:{"
-                + idField
-                + ": {equals:\""
-                + id
-                + "\"}})"
-                + "{"
+            "{FDP_Dataset("
+                + finalizeFilter("filter:{" + idField + ": {equals:\"" + id + "\"")
+                + "){"
                 + "id,"
-                + "distribution,"
+                + "distribution{name,description, type{name,codesystem,code,ontologyTermURI,definition}, files{identifier,md5checksum,name,server,path, format{name,codesystem,code,ontologyTermURI,definition}}},"
                 + "accrualPeriodicity,"
                 + "spatial{ontologyTermURI},"
                 + "spatialResolutionInMeters,"
