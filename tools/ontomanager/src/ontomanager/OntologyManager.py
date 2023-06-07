@@ -16,7 +16,7 @@ class OntologyManager:
 
     def __init__(self, url: str, username: str, password: str):
         """
-        Create a Manager object using a URL and log in credentials to the server.
+        Create an OntologyManager object using a URL and login credentials to the server.
 
         :param url: the URL to the server
         :param username: the username to sign in to the server
