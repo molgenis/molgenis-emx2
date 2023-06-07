@@ -29,7 +29,7 @@
     "jsdom": "21.1.2",
     "nuxt-proxy": "0.4.0",
     "postcss": "8.4.24",
-    "postcss-custom-properties": "13.0.0",
+    "postcss-custom-properties": "13.2.0",
     "prettier": "2.8.8",
     "shelljs": "^0.8.5",
     "svgo": "2.8.0",
