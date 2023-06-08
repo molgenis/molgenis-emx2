@@ -1,5 +1,0 @@
-order;name;label;parent;codesystem;code;ontologyTermURI;definition
-;external_server;External server;;;;;
-;file_ingest;File ingest;;;;;
-;rest_api;REST-API;;;;;
-;manual;Manually;;;;;

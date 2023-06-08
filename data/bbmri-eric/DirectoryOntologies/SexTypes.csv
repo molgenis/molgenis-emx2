@@ -1,9 +1,0 @@
-order;name;label;parent;codesystem;code;ontologyTermURI;definition
-;NAV;Not available;;;;;
-;NEUTERED_MALE;Neutered male (animal);;;;;
-;NEUTERED_FEMALE;Neutered female (animal);;;;;
-;UNDIFFERENTIAL;Undifferentiated;;Miabis;;http://purl.obolibrary.org/obo/PATO_0001340;Undifferentiated, the gender could not be uniquely identified such as hermaprhodite
-;UNKNOWN;Unknown;;Miabis;;;A proper value is applicable but not known
-;MALE;Male;;Miabis;;http://purl.obolibrary.org/obo/PATO_0000384;Male
-;FEMALE;Female;;Miabis;;http://purl.obolibrary.org/obo/PATO_0000383;Female
-;NASK;Not asked;;;;;
