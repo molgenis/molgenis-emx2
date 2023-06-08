@@ -57,17 +57,9 @@ public class FAIRDataPointBadDistributionInDatasetTest {
     Map newBadDistr = new HashMap<>();
     newBadDistr.put("name", "something_quite_wrong");
     newBadDistr.put("type", "Table");
+    newBadDistr.put("belongsToDataset", "datasetId01");
     newRow.set(newBadDistr);
     distribution.save(newRow);
-    Table dataset = fairDataHub_baddistribution.getTable("FDP_Dataset");
-    for (Row row : dataset.retrieveRows()) {
-      if (row.get(Column.column("id")).equals("datasetId01")) {
-        Map newBadDataset = new HashMap<>();
-        newBadDataset.put("distribution", "something_quite_wrong");
-        row.set(newBadDataset);
-        dataset.update(row);
-      }
-    }
 
     // API should check, find that distribution value does not match a table, and throw error
     when(request.url())
