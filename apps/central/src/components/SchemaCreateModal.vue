@@ -125,7 +125,7 @@ export default {
         "DATA_CATALOGUE_NETWORK_STAGING",
         "RD3",
         "DASHBOARD",
-        "BBMRI_ERIC",
+        "BIOBANK_DIRECTORY",
       ],
       includeDemoData: false,
     };
