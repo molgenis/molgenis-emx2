@@ -1,13 +1,14 @@
-name,description,type,files
-Analyses,Reference to use Analyses as an FDP dataset distribution,Table,
-Biosamples,Reference to use Biosamples as an FDP dataset distribution,Table,
-Cohorts,Reference to use Cohorts as an FDP dataset distribution,Table,
-GenomicVariations,Reference to use GenomicVariations as an FDP dataset distribution,Table,
-GenomicVariationsCaseLevel,Reference to use GenomicVariationsCaseLevel as an FDP dataset distribution,Table,
-GenomicVariationsClinInterpr,Reference to use GenomicVariationsClinInterpr as an FDP dataset distribution,Table,
-Individuals,Reference to use Individuals as an FDP dataset distribution,Table,
-IndividualsDiseases,Reference to use IndividualsDiseases as an FDP dataset distribution,Table,
-IndividualsMeasures,Reference to use IndividualsMeasures as an FDP dataset distribution,Table,
-IndividualsPhenotypicFeatures,Reference to use IndividualsPhenotypicFeatures as an FDP dataset distribution,Table,
-Runs,Reference to use Runs as an FDP dataset distribution,Table,
-MyDataRelease,A set of remote files to use as an FDP dataset distribution,File,"File01,MinFile02"
+name,description,type,files,belongsToDataset
+Analyses,Reference to use Analyses as an FDP dataset distribution,Table,,datasetId01
+Biosamples,Reference to use Biosamples as an FDP dataset distribution,Table,,"datasetId02,dataAndFilesId07"
+Cohorts,Reference to use Cohorts as an FDP dataset distribution,Table,,datasetId03
+GenomicVariations,Reference to use GenomicVariations as an FDP dataset distribution,Table,,allOtherDistrId08
+GenomicVariationsCaseLevel,Reference to use GenomicVariationsCaseLevel as an FDP dataset distribution,Table,,allOtherDistrId08
+GenomicVariationsClinInterpr,Reference to use GenomicVariationsClinInterpr as an FDP dataset distribution,Table,,allOtherDistrId08
+Individuals,Reference to use Individuals as an FDP dataset distribution,Table,,"minDatId04,dataAndFilesId07"
+IndividualsDiseases,Reference to use IndividualsDiseases as an FDP dataset distribution,Table,,allOtherDistrId08
+IndividualsMeasures,Reference to use IndividualsMeasures as an FDP dataset distribution,Table,,allOtherDistrId08
+IndividualsPhenotypicFeatures,Reference to use IndividualsPhenotypicFeatures as an FDP dataset distribution,Table,,allOtherDistrId08
+Runs,Reference to use Runs as an FDP dataset distribution,Table,,allOtherDistrId08
+MyDataRelease,A set of remote files to use as an FDP dataset distribution,File,"File01","oneFileId05,filesetId06,dataAndFilesId07"
+MyDataFreeze,A set of remote files to use as an FDP dataset distribution,File,"File01,MinFile02","filesetId06,dataAndFilesId07"
