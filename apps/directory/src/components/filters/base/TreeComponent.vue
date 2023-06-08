@@ -1,6 +1,10 @@
+<script setup>
+  defineEmits(["checkbox-update"]);
+</script>
+
 <template>
   <div :key="option.name" v-for="option of sortedOptions">
-    <tree-branch-component :option="option" />
+    <tree-branch-component :option="option" @checkbox-update="handleSelection" />
   </div>
 </template>
 
@@ -12,12 +16,35 @@ export default {
     TreeBranchComponent,
   },
   props: {
+    parentSelected: {
+      type: Boolean,
+      required: false,
+    },
     options: {
       type: Array,
       required: true,
     },
   },
+  data() {
+    return {
+      selectedOptions: [],
+    };
+  },
+  methods: {
+    handleSelection(update) {
+      if(update.checked) {
+        this.selectedOptions.push(update.option)
+      }
+      else {
+        this.selectedOptions = this.selectedOptions.filter(selected => selected.label !== update.option.label)
+      }
+       this.$emit("checkbox-update", update);
+    },
+  },
   computed: {
+    allOptionsSelected() {
+      return this.options.length === this.selectedOptions.length;
+    },
     sortedOptions() {
       if (this.options) {
         const copy = JSON.parse(JSON.stringify(this.options));
