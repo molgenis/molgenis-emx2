@@ -188,7 +188,6 @@ export default {
       this.$emit("errorsInForm", this.errorPerColumn);
     },
     applyComputed() {
-      //apply computed
       this.tableMetaData.columns.forEach((c) => {
         if (c.computed && c.columnType !== AUTO_ID) {
           try {
@@ -197,7 +196,6 @@ export default {
               this.internalValues,
               this.tableMetaData
             );
-            this.onValuesUpdate();
           } catch (error) {
             this.errorPerColumn[c.id] = "Computation failed: " + error;
           }
