@@ -27,7 +27,7 @@ public class EmailApi {
   private static String validationQuery =
       """
 query Resources($filter:ResourcesFilter){
-  Resources(filter:$filter) {
+  Resources(filter: $filter) {
     contacts {
       email
     }
@@ -35,8 +35,8 @@ query Resources($filter:ResourcesFilter){
 }
 """;
 
-  private static final Map<String, Object> validationFilter =
-      Maps.of("filter", "{\"name\":{\"equals\":\"EU Child Cohort Network\"}}");
+  private static final Map validationFilter =
+      Maps.of("filter", Maps.of("name", Maps.of("equals", "EU Child Cohort Network")));
 
   public static void create() {
     post("/api/email/*", "application/json", EmailApi::send);
@@ -57,6 +57,9 @@ query Resources($filter:ResourcesFilter){
     // query for allow list
     MolgenisSession session = sessionManager.getSession(request);
     GraphQL gql = session.getGraphqlForSchema("catalogue-demo");
+
+    //    Map<String, Object> node = new ObjectMapper().readValue(request.body(), Map.class);
+    //    return (Map<String, Object>) node.get(VARIABLES);
 
     final ExecutionResult executionResult =
         gql.execute(ExecutionInput.newExecutionInput(validationQuery).variables(validationFilter));
