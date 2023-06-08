@@ -6,8 +6,10 @@
     ref="tooltipContainer"
   >
     <slot />
-    <div v-if="value && display" class="mg-tooltip" ref="toolTip">
-      {{ value }}
+    <div ref="toolTip" v-if="value && display">
+      <div class="mg-tooltip m-1">
+        {{ value }}
+      </div>
     </div>
   </span>
 </template>
@@ -25,7 +27,7 @@
 </style>
 
 <script>
-import Popper from "popper.js";
+import { createPopper } from "@popperjs/core";
 
 export default {
   props: {
@@ -49,9 +51,9 @@ export default {
       const container = this.$refs["tooltipContainer"];
       const tooltip = this.$refs["toolTip"];
       if (container && tooltip) {
-        this.popperInstance = new Popper(container, tooltip, {
+        this.popperInstance = createPopper(container, tooltip, {
+          strategy: "fixed",
           placement: this.placement,
-          modifiers: { preventOverflow: { enabled: true } },
         });
       }
     },
