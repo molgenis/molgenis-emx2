@@ -11,7 +11,7 @@
         class="mr-1"
       />
       <label>
-        {{ option.label }}
+        {{option.code }} {{ option.label }}
       </label>
       <!-- because Vue3 does not allow me, for some odd reason, to toggle a class or spans with font awesome icons, we have to do it like this. -->
     </li>

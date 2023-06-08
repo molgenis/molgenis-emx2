@@ -1,5 +1,5 @@
 <template>
-  <div :key="option.name" v-for="option of options">
+  <div :key="option.name" v-for="option of sortedOptions">
     <tree-branch-component :option="option" />
   </div>
 </template>
@@ -15,6 +15,23 @@ export default {
     options: {
       type: Array,
       required: true,
+    },
+  },
+  computed: {
+    sortedOptions() {
+      if (this.options) {
+        const copy = JSON.parse(JSON.stringify(this.options));
+
+        return copy.sort(function (a, b) {
+          if (a.code < b.code) {
+            return -1;
+          }
+          if (a.code > b.code) {
+            return 1;
+          }
+          return 0;
+        });
+      } else return [];
     },
   },
 };

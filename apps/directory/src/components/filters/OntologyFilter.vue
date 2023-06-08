@@ -10,12 +10,6 @@
     </div>
     <hr class="p-0 m-0" />
     <div class="ontology pt-3">
-      <!-- <CheckboxComponent
-        v-for="(option, index) of checkboxOptions"
-        :key="index"
-        v-model="filterSelection"
-        :option="option"
-      /> -->
       <template v-for="ontologyId of ontologyIdentifiers" :key="ontologyId">
         <tree-component
           v-if="ontologyOptions[ontologyId] && ontologyShown == ontologyId"
@@ -41,8 +35,6 @@ export default {
   name: "OntologyFilter",
   components: {
     TreeComponent,
-    // MatchTypeRadiobutton,
-    // CheckboxComponent,
   },
   props: {
     facetTitle: {
