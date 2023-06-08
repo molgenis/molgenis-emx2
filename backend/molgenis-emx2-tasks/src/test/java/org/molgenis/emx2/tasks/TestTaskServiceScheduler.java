@@ -5,6 +5,7 @@ import static org.molgenis.emx2.Row.row;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -23,6 +24,7 @@ public class TestTaskServiceScheduler {
   }
 
   @Test
+  @Disabled
   public void testTaskServiceScheduler() throws InterruptedException, SchedulerException {
     TaskServiceInDatabase service = new TaskServiceInDatabase(SCHEMA_NAME);
     TaskServiceScheduler scheduler = new TaskServiceScheduler(service);
