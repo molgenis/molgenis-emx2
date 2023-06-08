@@ -11,7 +11,6 @@ import graphql.GraphQL;
 import graphql.parser.Parser;
 import java.util.List;
 import java.util.Map;
-import org.javers.common.collections.Maps;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -27,9 +26,6 @@ import spark.Response;
 public class EmailApi {
 
   private static final Logger logger = LoggerFactory.getLogger(EmailApi.class);
-
-  private static final Map validationFilter =
-      Maps.of("filter", Maps.of("name", Maps.of("equals", "EU Child Cohort Network")));
 
   public static void create() {
     post("/api/email/*", "application/json", EmailApi::send);
@@ -61,12 +57,13 @@ public class EmailApi {
     }
 
     ObjectMapper objectMapper = new ObjectMapper();
-    SendMailAction sendMailAction = null;
+    SendMailAction sendMailAction;
+    Map<String, Object> validationFilter;
     try {
-      // parse the request
       sendMailAction = objectMapper.readValue(request.body(), SendMailAction.class);
+      validationFilter = objectMapper.readValue(sendMailAction.recipientsFilter(), Map.class);
     } catch (JsonProcessingException e) {
-      response.status(500); // internal server error
+      response.status(500);
       return "Error parsing request: " + e.getMessage();
     }
 
@@ -74,16 +71,13 @@ public class EmailApi {
     MolgenisSession session = sessionManager.getSession(request);
     GraphQL gql = session.getGraphqlForSchema(schema.getName());
 
-    //    Map<String, Object> node = new ObjectMapper().readValue(request.body(), Map.class);
-    //    return (Map<String, Object>) node.get(VARIABLES);
-
     final ExecutionResult executionResult =
         gql.execute(ExecutionInput.newExecutionInput(recipientsQuery).variables(validationFilter));
     // todo check for errors and return on error
     Map<String, Object> resultMap = executionResult.toSpecification();
 
     // todo try catch the whole parsing and return on error
-    final List recipients = EmailValidator.validationResponseToRecievers(resultMap);
+    final List<String> recipients = EmailValidator.validationResponseToRecievers(resultMap);
 
     // send email to all recipients on allow list
     EmailSettings.EmailSettingsBuilder builder = new EmailSettings.EmailSettingsBuilder();
