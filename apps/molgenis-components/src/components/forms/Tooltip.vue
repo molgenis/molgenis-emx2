@@ -58,9 +58,7 @@ export default {
       }
     },
     async destroyTooltip() {
-      if (this.popperInstance) {
-        this.popperInstance.destroy();
-      }
+      this.popperInstance?.destroy();
       this.display = false;
     },
   },

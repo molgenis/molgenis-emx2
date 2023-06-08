@@ -14,6 +14,7 @@
       <Tooltip
         name="disabled-save-tooltip"
         :value="saveDisabledMessage ? saveDisabledMessage : ''"
+        placement="bottom"
       >
         <ButtonOutline
           @click="$emit('saveDraft')"
