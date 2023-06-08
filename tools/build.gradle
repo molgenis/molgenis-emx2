@@ -6,17 +6,9 @@ subprojects {
     task buildPython(type:Exec) {
         group 'build'
         description 'run python lib build'
-        exec {
-            commandLine 'pip', 'install', '--upgrade', 'pip'
-        }
-        exec {
-            commandLine 'python3', '-m', 'pip', 'install', '--upgrade', 'build'
-        }
-        exec {
-            commandLine 'python3', '-m','build'
-            ext.output = {
-                return standardOutput.toString()
-            }
+        commandLine 'python3', '-m','build'
+        ext.output = {
+            return standardOutput.toString()
         }
         //for caching (so our build is not slowed by having python build all the time)
         // ... a bit messy is python
