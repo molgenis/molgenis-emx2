@@ -1,0 +1,98 @@
+package org.molgenis.emx2.fairdatapoint;
+
+import static org.molgenis.emx2.beaconv2.common.QueryHelper.finalizeFilter;
+
+import graphql.ExecutionResult;
+import graphql.GraphQL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.graphql.GraphqlApiFactory;
+
+public class Queries {
+
+  public static List<Map<String, Object>> queryDataset(Schema schema, String idField, String id) {
+    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    ExecutionResult executionResult =
+        grapql.execute(
+            "{FDP_Dataset("
+                + finalizeFilter("filter:{" + idField + ": {equals:\"" + id + "\"")
+                + "){"
+                + "id,"
+                + "distribution{name,description, type{name,codesystem,code,ontologyTermURI,definition}, files{identifier,md5checksum,name,server,path, format{name,codesystem,code,ontologyTermURI,definition}}},"
+                + "accrualPeriodicity,"
+                + "spatial{ontologyTermURI},"
+                + "spatialResolutionInMeters,"
+                + "temporal,"
+                + "temporalResolution,"
+                + "wasGeneratedBy,"
+                + "accessRights,"
+                + "contactPoint,"
+                + "creator,"
+                + "description,"
+                + "hasPolicy,"
+                + "identifier,"
+                + "isReferencedBy,"
+                + "keyword,"
+                + "landingPage,"
+                + "license,"
+                + "language{ontologyTermURI},"
+                + "relation,"
+                + "rights,"
+                + "qualifiedRelation,"
+                + "publisher,"
+                + "theme,"
+                + "title,"
+                + "type,"
+                + "qualifiedAttribution,"
+                + "mg_insertedOn,"
+                + "mg_updatedOn"
+                + "}}");
+    Map<String, Object> result = executionResult.toSpecification();
+    if (result.get("data") == null
+        || ((HashMap<String, Object>) result.get("data")).get("FDP_Dataset") == null) {
+      return new ArrayList<>();
+    }
+    return (List<Map<String, Object>>)
+        ((HashMap<String, Object>) result.get("data")).get("FDP_Dataset");
+  }
+
+  public static List<Map<String, Object>> queryDistribution(
+      Schema schema, String idField, String id) {
+    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    ExecutionResult executionResult =
+        grapql.execute(
+            "{FDP_Distribution("
+                + finalizeFilter("filter:{" + idField + ": {equals:\"" + id + "\"")
+                + "){"
+                + "name,"
+                + "description,"
+                + "type{name,codesystem,code,ontologyTermURI,definition},"
+                + "files{identifier,md5checksum,name,server,path,format{name,codesystem,code,ontologyTermURI,definition}},"
+                + "belongsToDataset{"
+                + "id,"
+                + "spatialResolutionInMeters,"
+                + "temporalResolution,"
+                + "accessRights,"
+                + "description," // note: there is also one in Distribution itself
+                + "hasPolicy,"
+                + "license,"
+                + "rights,"
+                + "title,"
+                + "mg_insertedOn,"
+                + "mg_updatedOn"
+                + "}"
+                + "mg_insertedOn,"
+                + "mg_updatedOn"
+                + "}}");
+    Map<String, Object> result = executionResult.toSpecification();
+    if (result.get("data") == null
+        || ((HashMap<String, Object>) result.get("data")).get("FDP_Distribution") == null) {
+      return new ArrayList<>();
+    }
+    return (List<Map<String, Object>>)
+        ((HashMap<String, Object>) result.get("data")).get("FDP_Distribution");
+  }
+}

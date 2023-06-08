@@ -3,6 +3,7 @@ package org.molgenis.emx2.semantics.fairdatapoint;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.formatToMediaType;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -178,6 +179,6 @@ public class FAIRDataPointTest {
     FAIRDataPointDistribution fairDataPointDistribution =
         new FAIRDataPointDistribution(request, database);
     String result = fairDataPointDistribution.getResult();
-    assertTrue(result.contains(FAIRDataPointDistribution.formatToMediaType(format)));
+    assertTrue(result.contains(formatToMediaType(format)));
   }
 }

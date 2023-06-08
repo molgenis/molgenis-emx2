@@ -25,7 +25,7 @@ public class FAIRDataPointApi {
         FAIRDataPointApi::getFDP); // todo ideally, pass this to get("/api/fdp",..), but how?
     get("/api/fdp/catalog/:schema/:id", FAIRDataPointApi::getCatalog);
     get("/api/fdp/dataset/:schema/:id", FAIRDataPointApi::getDataset);
-    get("/api/fdp/distribution/:schema/:table/:format", FAIRDataPointApi::getDistribution);
+    get("/api/fdp/distribution/:schema/:distribution/:format", FAIRDataPointApi::getDistribution);
 
     // corresponding profiles
     get("/api/fdp/profile", FAIRDataPointApi::getFDPProfile);
