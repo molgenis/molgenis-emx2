@@ -184,7 +184,10 @@ export default {
       const key = this.getPrimaryKey(row);
       if (this.showSelect) {
         //deep copy
-        let update = deepClone(this.selection);
+        let update = []; //prevent null list
+        if (Array.isArray(this.selection)) {
+          update = deepClone(this.selection);
+        }
         if (this.isSelected(row)) {
           /** when a row is deselected */
           update = update.filter(
