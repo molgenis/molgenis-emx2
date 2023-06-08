@@ -9,7 +9,8 @@ public enum AvailableDataModels {
   PET_STORE(new PetStoreLoader()),
   FAIR_DATA_HUB(new FAIRDataHubLoader()),
   RD3(new Rd3Loader()),
-  DASHBOARD(new DashboardLoader());
+  DASHBOARD(new DashboardLoader()),
+  BBMRI_ERIC(new BBMRIEricLoader());
 
   private AbstractDataLoader installer;
 

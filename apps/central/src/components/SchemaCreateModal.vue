@@ -125,6 +125,7 @@ export default {
         "DATA_CATALOGUE_NETWORK_STAGING",
         "RD3",
         "DASHBOARD",
+        "BBMRI_ERIC",
       ],
       includeDemoData: false,
     };

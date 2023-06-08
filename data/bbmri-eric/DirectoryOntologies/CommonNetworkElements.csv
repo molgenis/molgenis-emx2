@@ -1,0 +1,11 @@
+order;name;label;parent;codesystem;code;ontologyTermURI;definition
+;data_access_policy;All the biobanks/collections in the network share the same data access policy.;;;;;
+;charter;All the biobanks/collections in the network have to have a network charter signed.;;;;;
+;sample_access_policy;All the biobanks/collections in the network share the same sample access policy.;;;;;
+;image_access_policy;All the biobanks/collections in the network share the same image access policy.;;;;;
+;focus;All the biobanks/collections in the network share the same focus with which the samples are collected (e.g., disease specific). Further details of the focus should be provided in the biobankNetworkDescription attribute.;;;;;
+;sops;All the biobanks/collections in the network share the same SOPs.;;;;;
+;image_mta;All the biobanks/collections in the network share the same image MTA.;;;;;
+;mta;All the biobanks/collections in the network share the same MTA.;;;;;
+;representation;All the biobanks/collections in the network are represented using the network only.;;;;;
+;url;All the biobanks/collections in the network share the same web presentation on the common URL.;;;;;

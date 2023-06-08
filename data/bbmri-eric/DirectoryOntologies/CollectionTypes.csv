@@ -1,0 +1,17 @@
+order;name;label;parent;codesystem;code;ontologyTermURI;definition;;;
+;QUALITY_CONTROL;Quality control;;;;;A quality control testing study design type is where some aspect of the experiment is quality controlled for the purposes of quality assurance.;;;
+;BIRTH_COHORT;Birth cohort;;;;;A cohort study for which the subjects are followed from the time of birth usually including information about gestation and follow up.;;;
+;POPULATION_BASED;Population-based;;;;;Study done at the population level or among the population groups;;;
+;DISEASE_SPECIFIC;Disease specific;;;;;A study or biobank for which material and information is collected from subjects that have already developed a particular disease.;;;
+;NON_HUMAN;Non-human;;;;;;;;
+;CASE_CONTROL;Case-Control;;;;;A case-control study design compares two groups of subjects: those with the disease or condition under study (cases) and a very similar group of subjects who do not have the disease or condition (controls).;;;
+;OTHER;Other;;;;;Other type of collection;;;
+;SAMPLE;Sample collection;;;;;A collection that contains samples;;;
+;RD;Rare disease collection;;;;;A collection that is focusing on rare diseases;;;
+;IMAGE;Image collection;;;;;A collection that contains images;;;
+;PROSPECTIVE_COLLECTION;Prospective study;;;;;A prospective study;;;
+;HOSPITAL;Hospital;;;;;A collection that contains patients from a hospital;;;
+;CROSS_SECTIONAL;Cross-sectional;;;;;A type of observational study that involves data collection from a population;;;
+;COHORT;Cohort;;;;;A form of longitudinal study for the analysis of risk factors following a group of people who do not have a disease;;;
+;TWIN_STUDY;Twin-study;;;;;Twin studies measure the contribution of genetics (as opposed to environment) to a given trait or condition of interest.;;;
+;LONGITUDINAL;Longitudinal;;;;;Research studies involving repeated observations of the same entity over time. In the biobank context;;;

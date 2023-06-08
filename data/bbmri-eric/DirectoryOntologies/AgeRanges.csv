@@ -1,0 +1,12 @@
+order;name;label;parent;codesystem;code;ontologyTermURI;definition
+;Young Adult;Young Adult (18-24 years);;;;;
+;Middle-aged;Middle-aged (45-64 years);;;;;
+;Undefined;Undefined (age valued with -1);;;;;
+;Aged (>80 years);Aged (>80 years);;;;;
+;Newborn;Newborn (0-1 months);;;;;
+;Unknown;Unknown;;;;;
+;Adolescent;Adolescent (13-17 years);;;;;
+;Aged (65-79 years);Aged (65-79 years);;;;;
+;Adult;Adult (25-44 years);;;;;
+;Infant;Infant (2-23 months);;;;;
+;Child;Child (2-12 years);;;;;
