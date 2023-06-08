@@ -7,6 +7,9 @@ subprojects {
         group 'build'
         description 'run python lib build'
         exec {
+            commandLine 'pip3', 'install', '--upgrade', 'pip'
+        }
+        exec {
             commandLine 'python3', '-m', 'pip', 'install', '--upgrade', 'build'
         }
         exec {
