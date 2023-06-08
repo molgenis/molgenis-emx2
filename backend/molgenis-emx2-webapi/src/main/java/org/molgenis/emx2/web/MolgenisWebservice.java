@@ -48,7 +48,7 @@ public class MolgenisWebservice {
 
     staticFiles.location("/public_html");
 
-    EmailApi.create();
+    post("/:schema/api/email/*", ACCEPT_JSON, EmailApi::send);
 
     /*
      * WARNING !! SPARK JAVA USES DESIGN WHERE THE ORDER OF REQUEST DEFINITION DETERMINES THE HANDLER
