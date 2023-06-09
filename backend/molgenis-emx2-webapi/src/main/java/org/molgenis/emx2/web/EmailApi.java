@@ -9,8 +9,10 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.parser.Parser;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -26,6 +28,7 @@ import spark.Response;
 public class EmailApi {
 
   private static final Logger logger = LoggerFactory.getLogger(EmailApi.class);
+  private static final Parser parser = new Parser();
 
   public static void create() {
     post("/api/email/*", "application/json", EmailApi::send);
@@ -38,24 +41,6 @@ public class EmailApi {
       throw new MolgenisException("Cannot handle send action, schema is null");
     }
 
-    String recipientsQuery =
-        schema.getMetadata().getSetting(Constants.CONTACT_RECIPIENTS_QUERY_SETTING_KEY);
-    if (recipientsQuery == null) {
-      throw new MolgenisException(
-          "Cannot handle send action, schema does not have setting "
-              + Constants.CONTACT_RECIPIENTS_QUERY_SETTING_KEY);
-    }
-
-    graphql.parser.Parser graphQLParser = new Parser();
-    try {
-      graphQLParser.parseDocument(recipientsQuery);
-    } catch (Exception e) {
-      throw new MolgenisException(
-          "Cannot handle send action, schema setting "
-              + Constants.CONTACT_RECIPIENTS_QUERY_SETTING_KEY
-              + " is not a valid graphql query");
-    }
-
     ObjectMapper objectMapper = new ObjectMapper();
     SendMailAction sendMailAction;
     Map<String, Object> validationFilter;
@@ -63,29 +48,79 @@ public class EmailApi {
       sendMailAction = objectMapper.readValue(request.body(), SendMailAction.class);
       validationFilter = objectMapper.readValue(sendMailAction.recipientsFilter(), Map.class);
     } catch (JsonProcessingException e) {
-      response.status(500);
+      response.status(422);
       return "Error parsing request: " + e.getMessage();
     }
 
-    // query for allow list
+    String recipientsQuery = schema.getSettingValue(Constants.CONTACT_RECIPIENTS_QUERY_SETTING_KEY);
+
+    try {
+      parser.parseDocument(recipientsQuery);
+    } catch (Exception e) {
+      throw new MolgenisException(
+          "Cannot handle send action, schema setting "
+              + Constants.CONTACT_RECIPIENTS_QUERY_SETTING_KEY
+              + " is not a valid graphql query");
+    }
+
     MolgenisSession session = sessionManager.getSession(request);
     GraphQL gql = session.getGraphqlForSchema(schema.getName());
 
     final ExecutionResult executionResult =
         gql.execute(ExecutionInput.newExecutionInput(recipientsQuery).variables(validationFilter));
-    // todo check for errors and return on error
+    if (!executionResult.getErrors().isEmpty()) {
+      response.status(500);
+      return "Error parsing request: " + executionResult.getErrors().get(0).getMessage();
+    }
     Map<String, Object> resultMap = executionResult.toSpecification();
 
-    // todo try catch the whole parsing and return on error
-    final List<String> recipients = EmailValidator.validationResponseToRecievers(resultMap);
+    final List<String> recipients = new java.util.ArrayList<>(Collections.emptyList());
+    try {
+      recipients.addAll(EmailValidator.validationResponseToRecievers(resultMap));
+    } catch (Exception e) {
+      response.status(500);
+      return "Error parsing request: " + e.getMessage();
+    }
+
+    if (recipients.isEmpty()) {
+      response.status(400);
+      return "No recipients found for given filter";
+    }
 
     // send email to all recipients on allow list
-    EmailSettings.EmailSettingsBuilder builder = new EmailSettings.EmailSettingsBuilder();
-    EmailSettings settings = builder.build();
+    EmailSettings settings = loadEmailSettings(schema);
     EmailService emailService = new EmailService(settings);
 
     final Boolean sendResult =
         emailService.send(recipients, sendMailAction.subject(), sendMailAction.body());
     return sendResult.toString();
+  }
+
+  private static EmailSettings loadEmailSettings(Schema schema) {
+    EmailSettings.EmailSettingsBuilder builder = new EmailSettings.EmailSettingsBuilder();
+
+    setEmailSetting(schema, "EMAIL_HOST", builder::host);
+    setEmailSetting(schema, "EMAIL_PORT", builder::port);
+    setEmailSetting(schema, "EMAIL_START_TTLS_ENABLE", builder::starttlsEnable);
+    setEmailSetting(schema, "EMAIL_SSL_PROTOCOLS", builder::sslProtocols);
+    setEmailSetting(schema, "EMAIL_SOCKET_FACTORY_PORT", builder::socketFactoryPort);
+    setEmailSetting(schema, "EMAIL_SOCKET_FACTORY_CLASS", builder::socketFactoryClass);
+    setEmailSetting(schema, "EMAIL_SOCKET_FACTORY_FALLBACK", builder::socketFactoryFallback);
+    setEmailSetting(schema, "EMAIL_DEBUG", builder::debug);
+    setEmailSetting(schema, "EMAIL_AUTH", builder::auth);
+    setEmailSetting(schema, "EMAIL_SENDER_EMAIL", builder::senderEmail);
+    setEmailSetting(
+        schema,
+        "EMAIL_SMTP_AUTHENTICATOR_SENDER_PASSWORD",
+        builder::smtpAuthenticatorSenderPassword);
+
+    return builder.build();
+  }
+
+  private static void setEmailSetting(
+      Schema schema, String setting, Function<String, EmailSettings.EmailSettingsBuilder> method) {
+    if (schema.hasSetting(setting)) {
+      method.apply(schema.getSettingValue(setting));
+    }
   }
 }

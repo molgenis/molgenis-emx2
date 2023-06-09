@@ -48,11 +48,11 @@ public class MolgenisWebservice {
 
     staticFiles.location("/public_html");
 
-    post("/:schema/api/email/*", ACCEPT_JSON, EmailApi::send);
-
     /*
      * WARNING !! SPARK JAVA USES DESIGN WHERE THE ORDER OF REQUEST DEFINITION DETERMINES THE HANDLER
      */
+
+    post("/:schema/api/email/*", ACCEPT_JSON, EmailApi::send);
 
     get(
         ("/" + OIDC_CALLBACK_PATH),
