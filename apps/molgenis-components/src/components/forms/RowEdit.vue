@@ -39,7 +39,7 @@ import {
   getLocalizedDescription,
 } from "../utils";
 
-const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID } = constants;
+const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID, HEADING } = constants;
 
 export default {
   name: "RowEdit",
@@ -266,11 +266,10 @@ function getColumnError(column, values, tableMetaData) {
   const missesValue = value === undefined || value === null || value === "";
   const type = column.columnType;
 
-  if (
-    column.required &&
-    (missesValue || isInvalidNumber) &&
-    column.columnType !== AUTO_ID
-  ) {
+  if (column.columnType === AUTO_ID || column.columnType === HEADING) {
+    return undefined;
+  }
+  if (column.required && (missesValue || isInvalidNumber)) {
     return column.name + " is required ";
   }
   if (missesValue) {
