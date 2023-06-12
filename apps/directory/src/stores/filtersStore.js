@@ -157,6 +157,14 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
+  ////
+  ///
+  ////
+  /// TODO: when you select A00-A09, then selected I certain infectuoius diseases, then desect I, then A00-A09 is still selected??
+  ////
+  ///
+  ///
+
   /**
    * @param {string} filterName name of ontology filter
    * @param {string} value the identifier 'value' of the filter option
