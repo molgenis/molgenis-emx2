@@ -1,24 +1,28 @@
 package org.molgenis.emx2.beaconv2.endpoints.datasets;
 
+import static org.molgenis.emx2.beaconv2.endpoints.datasets.Queries.queryDatasets;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
+import org.molgenis.emx2.Table;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class DatasetsResponse {
 
-  private Collection[] collections;
+  // annotation to print empty array as "[ ]" as required per Beacon spec
+  @JsonInclude(JsonInclude.Include.ALWAYS)
+  private DatasetsResultSets[] resultSets; // Collection instead?
 
-  public DatasetsResponse(Request request, java.util.Collection<String> schemaNames) {
-    List<Collection> cList = new ArrayList<>();
+  // query parameters, ignore from output
+  @JsonIgnore private String idForQuery;
 
-    for (String schema : schemaNames) {
-      Collection c =
-          new Collection(schema, schema, "2022-01-01T00:00:00+00:00", "2022-01-01T00:00:00+00:00");
-      cList.add(c);
-    }
-
-    this.collections = cList.toArray(new Collection[cList.size()]);
+  public DatasetsResponse(Request request, List<Table> tables) {
+    idForQuery = request.queryParams("id");
+    String idFilter = (idForQuery != null ? "{id: {equals:\"" + idForQuery + "\"}}" : "");
+    List<DatasetsResultSets> resultSetsList = queryDatasets(tables, idFilter);
+    this.resultSets = resultSetsList.toArray(new DatasetsResultSets[resultSetsList.size()]);
   }
 }
