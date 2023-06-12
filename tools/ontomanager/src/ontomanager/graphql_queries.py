@@ -97,3 +97,29 @@ class Queries:
           }
         }"""
         return query
+
+    @staticmethod
+    def column_values(table: str, column: str):
+        """Query to list the values in a column.
+        :param table: the name of the table
+        :param column: the name of the column
+        """
+        query = """
+        query """ + table + """($filter: """ + table + """Filter) {
+          """ + table + """(filter:$filter) {id, name, """ + column + """{name}}
+        }
+        """
+
+        return query
+
+    @staticmethod
+    def upload_mutation(table: str):
+        """Query to perform an update in the data in a table column.
+        :param table: the name of the table
+        """
+        query = """
+        mutation update($value:[""" + table + """Input]) {
+          update(""" + table + """:$value) {message} 
+        }
+        """
+        return query
