@@ -42,5 +42,5 @@ Distribution,,,,,,,,,,,http://www.w3.org/ns/dcat#Distribution,DCAT v2 distributi
 Distribution,,name,string,1,TRUE,,,,,,http://schema.org/name,"Unique name of a Table or (set of) File(s)."
 Distribution,,description,string,,,,,,,,http://purl.org/dc/terms/description,"Description of a Table or (set of) File(s)."
 Distribution,,type,ontology,,TRUE,,DistributionType,,,,http://purl.allotrope.org/ontologies/result#AFR_0002205,"Distribution type, either Table or File."
-Distribution,,files,ref_array,,,,RemoteFiles,,,,http://purl.obolibrary.org/obo/STATO_0000002,"One or multiple metadata for digital remote files."
+Distribution,,files,ref_array,,,,Files,,,,http://purl.obolibrary.org/obo/STATO_0000002,"One or multiple metadata for digital remote files."
 Distribution,,belongsToDataset,ref_array,,TRUE,,Dataset,,,,http://www.w3.org/ns/dcat#Dataset,Reference to any datasets that contain this distribution.

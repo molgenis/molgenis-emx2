@@ -141,7 +141,7 @@ public class FAIRDataPointDataset {
           // must manually encode forward slash in edge cases like "nbrf/pir"
           format = format.replace("/", "%2F").toLowerCase(Locale.ROOT);
           // we don't use distribution.get("name") because it may contain multiple files
-          // files are in the RemoteFiles table and identifier is unique
+          // files are in the Files table and identifier is unique
           builder.add(
               reqUrl,
               // not 'Distribution' (class) but 'distribution' (predicate)
