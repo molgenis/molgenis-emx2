@@ -29,10 +29,10 @@
       }}<IconAction v-if="canEdit" icon="pencil-alt" @click="edit = true" />
     </h2>
     <MessageError v-if="error">{{ error }}</MessageError>
-    <div v-if="inputs">
+    <div v-if="parameterInputs">
       Please provide parameters:
       <FormInput
-        v-for="input in inputs"
+        v-for="input in parameterInputs"
         :id="input.name"
         :label="input.name"
         :name="input.name"
@@ -132,7 +132,7 @@ export default {
     canEdit() {
       return this.session?.roles?.includes("Manager");
     },
-    inputs() {
+    parameterInputs() {
       const regex = /\${([^}]+)}/g;
       const matches = this.sql.match(regex);
       if (matches)
