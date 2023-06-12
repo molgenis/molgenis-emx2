@@ -152,12 +152,14 @@ class OntologyManager:
                 return
             if len(response.json()['data']) == 0:
                 return
-            column_values = response.json()['data'][self.table]
+            column_values = response.json()['data'][_table]
             column_values_updated = [
                 {'id': val['id'], 'name': val['name'],
                  self.column: [
-                     {'name': self.new if row['name'] == self.old else row['name'] for row in val[self.column]}]}
-                for val in column_values.values()
+                     {'name': self.new if row['name'] == self.old else row['name']} for row in val[self.column]
+                 ]
+                 }
+                for val in column_values
             ]
 
             query = Queries.upload_mutation(_table)
