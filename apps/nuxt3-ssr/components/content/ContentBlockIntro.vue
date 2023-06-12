@@ -24,9 +24,52 @@ const props = defineProps({
 
 let showContactInformation = ref(false);
 
-function onContactClick() {
-  window.location = props.contact;
-}
+const fields = reactive([
+  {
+    name: "senderName",
+    label: "Name",
+    value: "",
+    inputType: "string",
+  },
+  {
+    name: "senderEmail",
+    label: "Email",
+    value: "",
+    inputType: "string",
+  },
+  {
+    name: "senderMessage",
+    label: "Message",
+    value: "",
+    inputType: "textarea",
+  },
+]);
+
+const submitForm = async () => {
+  const senderName = fields.find((field) => field.name === "senderName");
+  const senderEmail = fields.find((field) => field.name === "senderEmail");
+  const senderMessage = fields.find((field) => field.name === "senderMessage");
+  // Validate form fields
+  if (!senderName.value || !senderEmail.value || !senderMessage.value) {
+    alert("Please fill in all fields");
+    return;
+  }
+
+  await sendContactForm({
+    recipientsFilter: '{"filter": {"id":{"equals":"TestCohort"}}}',
+    subject: "Contact request from " + senderName.value,
+    body: `Name: ${senderName.value}\nEmail: ${senderEmail.value}\nMessage: ${senderMessage.value}`,
+  });
+
+  // Reset form fields
+  senderName.value = "";
+  senderEmail.value = "";
+  senderMessage.value = "";
+
+  alert("Form submitted successfully");
+
+  showContactInformation.value = false;
+};
 </script>
 
 <template>
@@ -53,18 +96,19 @@ function onContactClick() {
         buttonAlignment="right"
       >
         <ContentBlock title="Contact">
-          <div class="font-bold text-body-base">E-mail</div>
+          <!-- <div class="font-bold text-body-base">E-mail</div>
           <a class="text-blue-500 hover:underline" :href="`mailto:${contact}`">
             {{ contact }}
-          </a>
+          </a> -->
+          <ContactForm :fields="fields" @submit-form="submitForm" />
         </ContentBlock>
 
         <template #footer>
           <Button
-            type="secondary"
+            type="primary"
             size="small"
-            label="Close"
-            @click="showContactInformation = false"
+            label="Send"
+            @click="submitForm"
             buttonAlignment="right"
           />
         </template>

@@ -173,3 +173,16 @@ interface IFilter extends IBaseFilter {
   searchTables?: string[];
   search?: string;
 }
+
+interface IFormField {
+  name: string;
+  label: string;
+  value: string;
+  inputType: "string" | "textarea";
+}
+
+interface IContactFormData {
+  recipientsFilter: string;
+  subject: string;
+  body: string;
+}
