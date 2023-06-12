@@ -29,6 +29,18 @@
       }}<IconAction v-if="canEdit" icon="pencil-alt" @click="edit = true" />
     </h2>
     <MessageError v-if="error">{{ error }}</MessageError>
+    <div v-if="inputs">
+      Please provide parameters:
+      <FormInput
+        v-for="input in inputs"
+        :id="input.name"
+        :label="input.name"
+        :name="input.name"
+        :columnType="input.columnType"
+        v-model="parameters[input.name]"
+      />
+      <ButtonAction @click="run">run</ButtonAction>
+    </div>
     <div v-if="rows && rows.length > 0">
       <Pagination
         v-if="count"
@@ -60,6 +72,7 @@ import {
   IconAction,
   Spinner,
   MessageWarning,
+  FormInput,
 } from "molgenis-components";
 import { request } from "graphql-request";
 
@@ -76,6 +89,7 @@ export default {
     IconAction,
     Spinner,
     MessageWarning,
+    FormInput,
   },
   props: {
     session: Object,
@@ -88,6 +102,7 @@ export default {
       count: null,
       sql: 'select * from "Pet"',
       name: null,
+      parameters: {},
       error: null,
       success: null,
       page: 1,
@@ -108,8 +123,29 @@ export default {
         return names;
       }
     },
+    parameterKeyValueMap() {
+      return Object.entries(this.parameters).map(([key, value]) => ({
+        key: key,
+        value: Array.isArray(value) ? value.join(",") : value,
+      }));
+    },
     canEdit() {
       return this.session?.roles?.includes("Manager");
+    },
+    inputs() {
+      const regex = /\${([^}]+)}/g;
+      const matches = this.sql.match(regex);
+      if (matches)
+        return matches
+          .map((match) => match.substr(2, match.length - 3))
+          .map((match) =>
+            match.includes(":")
+              ? {
+                  name: match.split(":")[0],
+                  columnType: match.split(":")[1].toUpperCase(),
+                }
+              : { name: match, columnType: "STRING" }
+          );
     },
   },
   methods: {
@@ -118,7 +154,10 @@ export default {
       const offset = this.limit * (this.page - 1);
       const result = await request(
         "graphql",
-        `{_reports(id:${this.id},limit:${this.limit},offset:${offset}){data,count}}`
+        `query report($parameters:[MolgenisSettingsInput]) {_reports(id:${this.id},parameters:$parameters,limit:${this.limit},offset:${offset}){data,count}}`,
+        {
+          parameters: this.parameterKeyValueMap,
+        }
       ).catch((error) => {
         this.error = error;
       });
@@ -150,6 +189,13 @@ export default {
       this.run();
     },
     download(id) {
+      const parameters = this.parameters.entries
+        .map((entry) =>
+          Array.isArray(entry.value)
+            ? entry.key + "=" + entry.value.join(",")
+            : entry.key + "=" + entry.value
+        )
+        .join("&");
       window.open("../api/reports/zip?id=" + id, "_blank");
     },
   },
