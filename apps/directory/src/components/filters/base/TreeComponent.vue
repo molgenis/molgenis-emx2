@@ -1,14 +1,14 @@
 <script setup>
-  defineEmits(["checkbox-update"]);
-  defineProps(["options"])
-
-
-  // todo, wire it through the filter store
+defineProps(["options", "facetIdentifier"]);
 </script>
 
 <template>
   <div :key="option.name" v-for="option of sortedOptions">
-    <tree-branch-component :option="option" @checkbox-update="handleSelection" />
+    <tree-branch-component
+      :option="option"
+      :facetIdentifier="facetIdentifier"
+      @indeterminate-update="signalParentOurIndeterminateStatus"
+    />
   </div>
 </template>
 
@@ -20,26 +20,13 @@ export default {
   components: {
     TreeBranchComponent,
   },
+    emits: ["indeterminate-update"],
   data() {
     return {
       selectedOptions: [],
     };
   },
-  methods: {
-    handleSelection(update) {
-      if(update.checked) {
-        this.selectedOptions.push(update.option)
-      }
-      else {
-        this.selectedOptions = this.selectedOptions.filter(selected => selected.label !== update.option.label)
-      }
-       this.$emit("checkbox-update", update);
-    },
-  },
   computed: {
-    allOptionsSelected() {
-      return this.options.length === this.selectedOptions.length;
-    },
     sortedOptions() {
       if (this.options) {
         const copy = JSON.parse(JSON.stringify(this.options));
@@ -56,8 +43,14 @@ export default {
       } else return [];
     },
   },
+  methods: {
+      signalParentOurIndeterminateStatus(status) {
+      this.$emit("indeterminate-update", status);
+    }
+  }
 };
 </script>
+
 <style scoped>
 ul {
   margin-right: 1rem;

@@ -1,5 +1,5 @@
 /** sets filters on baseQuery, by reference */
-export async function applyFiltersToQuery(
+export async function applyFiltersToQuery (
   baseQuery,
   filters,
   facetDetails,
@@ -86,6 +86,10 @@ export async function applyFiltersToQuery(
             baseQuery.subfilter(filterDetail.applyToColumn).orLike(values);
           }
         }
+        break;
+      }
+      case "OntologyFilter": {
+        console.log("implement me!")
         break;
       }
     }

@@ -12,6 +12,7 @@
     <div class="ontology pt-3">
       <template v-for="ontologyId of ontologyIdentifiers" :key="ontologyId">
         <tree-component
+          :facetIdentifier="facetIdentifier"
           v-if="ontologyOptions[ontologyId] && ontologyShown == ontologyId"
           :options="ontologyOptions[ontologyId]"
         />
@@ -21,17 +22,9 @@
 </template>
 
 <script>
-// import CheckboxComponent from "./base/CheckboxComponent.vue";
-import { useSettingsStore } from "../../stores/settingsStore";
-import { useFiltersStore } from "../../stores/filtersStore";
 import TreeComponent from "./base/TreeComponent.vue";
 
 export default {
-  setup() {
-    const settingsStore = useSettingsStore();
-    const filtersStore = useFiltersStore();
-    return { settingsStore, filtersStore };
-  },
   name: "OntologyFilter",
   components: {
     TreeComponent,
@@ -67,14 +60,6 @@ export default {
       type: Array,
       required: false,
     },
-    /**
-     * This is the v-model value; an array of selected options.
-     * Can also be a { text, value } object array
-     */
-    modelValue: {
-      type: Array,
-      default: () => [],
-    },
     showMatchTypeSelector: {
       type: Boolean,
       default: () => false,
@@ -82,31 +67,14 @@ export default {
   },
   data() {
     return {
-      selection: [],
       resolvedOptions: {},
-      ontologyShown: this.ontologyIdentifiers[0],
+      ontologyShown:
+        this.ontologyIdentifiers[0] /** we start with the top one */,
     };
   },
   computed: {
-    filterSelection: {
-      get() {
-        return this.filtersStore.getFilterValue(this.facetIdentifier) || [];
-      },
-      set(value) {
-        this.filtersStore.updateFilter(this.facetIdentifier, value);
-      },
-    },
     ontologyOptions() {
       return this.resolvedOptions || {};
-    },
-  },
-  methods: {
-    toggleSelect() {
-      if (this.filterSelection && this.filterSelection.length > 0) {
-        this.filterSelection = [];
-      } else {
-        this.filterSelection = this.checkboxOptions;
-      }
     },
   },
   created() {

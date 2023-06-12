@@ -72,14 +72,6 @@ export default {
       required: false,
     },
     /**
-     * This is the v-model value; an array of selected options.
-     * Can also be a { text, value } object array
-     */
-    modelValue: {
-      type: Array,
-      default: () => [],
-    },
-    /**
      * Whether to use (De)Select All or not.
      */
     selectAll: {

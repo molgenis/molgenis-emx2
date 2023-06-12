@@ -23,7 +23,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     facetDetails[filterFacet.facetIdentifier] = { ...filterFacet };
   });
 
-  function resetFilters() {
+  function resetFilters () {
     this.baseQuery.resetFilters();
   }
 
@@ -76,7 +76,118 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     { deep: true, immediate: true }
   );
 
-  function updateFilter(filterName, value) {
+
+  function flattenOntologyBranch (branch, flattendBranches) {
+    if (!branch.children || !branch.children.length) {
+      if (!flattendBranches) {
+        return [branch]
+      }
+      else {
+        flattendBranches.push(branch)
+      }
+      return flattendBranches
+    }
+    else {
+      for (const child of branch.children) {
+        flattendBranches = flattenOntologyBranch(child, flattendBranches)
+      }
+    }
+    return flattendBranches
+  }
+
+
+  /**
+   * 
+   * @param {string} filterName the name of the ontology filter
+   * @param {string | Array<string>} value array with identifiers or a string with an identifier
+   * @param {boolean} add
+   */
+  function updateOntologyFilter (filterName, value, add) {
+    /** value can be a child (single value), or a parent with its children > make it into an array of values */
+    let processedValue = value
+
+    if (value.children && value.children.length) {
+      const copyBranch = JSON.parse(JSON.stringify(value))
+      let allChildrenValues = flattenOntologyBranch(copyBranch)
+      delete copyBranch.children
+      allChildrenValues.push(copyBranch)
+      processedValue = allChildrenValues
+    }
+
+    const multipleOptions = Array.isArray(processedValue)
+
+    if (add) {
+      multipleOptions ? addOntologyOptions(filterName, processedValue) : addOntologyOption(filterName, processedValue)
+    }
+    else {
+      multipleOptions ? removeOntologyOptions(filterName, processedValue) : removeOntologyOption(filterName, processedValue)
+    }
+  }
+
+  /**
+   * @param {string} filterName name of ontology filter
+   * @param {string} value the identifier 'value' of the filter option
+   */
+  function addOntologyOption (filterName, value) {
+    if (filters.value[filterName]) {
+      /** sanity check, if it is there already then the job is done */
+      if (filters.value[filterName].some(option => option.name === value.name)) return
+
+      filters.value[filterName].push(value)
+    }
+    else {
+      filters.value[filterName] = [value]
+    }
+  }
+
+  /**
+   * @param {string} filterName name of ontology filter
+   * @param {Array<string>} value array with identifier 'value' of the filter option
+   */
+  function addOntologyOptions (filterName, value) {
+
+    if (filters.value[filterName]) {
+
+      const existingValues = filters.value[filterName].map(option => option.name)
+      const filterOptionsToAdd = value.filter(newValue => !existingValues.includes(newValue.name))
+      filters.value[filterName] = filters.value[filterName].concat(filterOptionsToAdd)
+    }
+    else {
+      filters.value[filterName] = value
+    }
+  }
+
+  /**
+   * @param {string} filterName name of ontology filter
+   * @param {string} value the identifier 'value' of the filter option
+   */
+  function removeOntologyOption (filterName, value) {
+    /** can't remove an option which is not present. Jobs done. */
+    if (!filters.value[filterName]) return
+
+    filters.value[filterName] = filters.value[filterName].filter(option => option.name !== value.name)
+
+    /** everything is deselected, remove the filter entirely */
+    if (filters.value[filterName].length === 0) delete filters.value[filterName];
+  }
+
+  /**
+   * @param {string} filterName name of ontology filter
+   * @param {Array<string>} value array with identifier 'value' of the filter option
+   */
+  function removeOntologyOptions (filterName, value) {
+    /** can't remove an option which is not present. Jobs done. */
+    if (!filters.value[filterName]) return
+
+    const valuesToRemove = value.map(value => value.name)
+
+    filters.value[filterName] = filters.value[filterName].filter(option => !valuesToRemove.includes(option.name))
+
+    /** everything is deselected, remove the filter entirely */
+    if (filters.value[filterName].length === 0) delete filters.value[filterName];
+  }
+
+  function updateFilter (filterName, value) {
     /** filter reset, so delete */
     if (value === "" || value === undefined || value.length === 0) {
       delete filters.value[filterName];
@@ -85,11 +196,11 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
-  function getFilterValue(filterName) {
+  function getFilterValue (filterName) {
     return filters.value[filterName];
   }
 
-  function updateFilterType(filterName, value) {
+  function updateFilterType (filterName, value) {
     /** filter reset, so delete */
     if (value === "" || value === undefined || value.length === 0) {
       delete filterType.value[filterName];
@@ -99,13 +210,14 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filterTypeUpdatedFromFilter = filterName;
   }
 
-  function getFilterType(filterName) {
+  function getFilterType (filterName) {
     return filterType.value[filterName] || "any";
   }
 
   return {
     resetFilters,
     updateFilter,
+    updateOntologyFilter,
     getFilterValue,
     updateFilterType,
     getFilterType,
