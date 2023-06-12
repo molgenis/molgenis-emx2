@@ -1,5 +1,11 @@
+<script setup>
+import { Molgenis } from "molgenis-components";
+</script>
+
 <template>
-  <RouterView @click="closeAllDropdownButtons" />
+  <molgenis>
+    <RouterView @click="closeAllDropdownButtons" />
+  </molgenis>
 </template>
 <script>
 export default {

@@ -1,10 +1,12 @@
 <script setup>
 defineEmits(["checkbox-update"]);
+defineProps(["parentSelected", "option"])
 </script>
 
 <template>
   <ul>
     <li @click="open = !open" :class="option.children ? 'clickable' : ''">
+      <!-- because Vue3 does not allow me, for some odd reason, to toggle a class or spans with font awesome icons, we have to do it like this. -->
       <span class="toggle-icon">
         {{ option.children ? (open ? "&#9660;" : "&#9650;") : "" }}
       </span>
@@ -17,7 +19,6 @@ defineEmits(["checkbox-update"]);
         :indeterminate.prop="indeterminateState"
       />
       <label> {{ option.code }} {{ option.label }} </label>
-      <!-- because Vue3 does not allow me, for some odd reason, to toggle a class or spans with font awesome icons, we have to do it like this. -->
     </li>
     <li
       v-if="option.children"
@@ -27,7 +28,7 @@ defineEmits(["checkbox-update"]);
         @checkbox-update="handleChildSelection"
         v-if="open"
         :options="option.children"
-        :parentSelected="selectionState"
+        :parentSelected="parentState"
       />
     </li>
   </ul>
@@ -42,25 +43,25 @@ export default {
   components: {
     TreeComponent,
   },
-  props: {
-    parentSelected: {
-      type: Boolean,
-      required: false,
-    },
-    option: {
-      type: Object,
-      required: true,
-    },
-  },
   data() {
     return {
       open: false,
-      selectionState: false,
+      isChecked: false,
       indeterminateState: false,
       selectedChildren: [],
     };
   },
+  watch: {
+    parentSelected(value) {
+      console.log(value)
+      this.isChecked = value;
+      this.$refs[`${this.option.name}-checkbox`].checked = value;
+    },
+  },
   computed: {
+    parentState() {
+      return this.isChecked
+    },
     allChildrenSelected() {
       if (!this.option.children) return true;
       else return this.option.children.length === this.selectedChildren.length;
@@ -69,7 +70,8 @@ export default {
 
   methods: {
     selectOption(checked, option) {
-      this.selectionState = checked;
+      console.log(checked, 'hello')
+      this.isChecked = checked;
       this.$emit("checkbox-update", { checked, option });
     },
     handleChildSelection(update) {
@@ -84,14 +86,14 @@ export default {
 
       if (this.allChildrenSelected) {
         this.$refs[`${this.option.name}-checkbox`].checked = true;
-        this.selectionState = true;
+        this.isChecked = true;
         this.$emit("checkbox-update", { checked: true, option: this.option });
       } else if (this.selectedChildren.length > 0) {
         this.indeterminateState = true;
       } else {
         this.indeterminateState = false;
         this.$refs[`${this.option.name}-checkbox`].checked = false;
-        this.selectionState = false;
+        this.isChecked = false;
         this.$emit("checkbox-update", { checked: false, option: this.option });
       }
     },

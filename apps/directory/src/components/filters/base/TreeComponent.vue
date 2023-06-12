@@ -1,5 +1,9 @@
 <script setup>
   defineEmits(["checkbox-update"]);
+  defineProps(["options"])
+
+
+  // todo, wire it through the filter store
 </script>
 
 <template>
@@ -8,22 +12,13 @@
   </div>
 </template>
 
+
 <script>
 import TreeBranchComponent from "./TreeBranchComponent.vue";
 export default {
   name: "TreeComponent",
   components: {
     TreeBranchComponent,
-  },
-  props: {
-    parentSelected: {
-      type: Boolean,
-      required: false,
-    },
-    options: {
-      type: Array,
-      required: true,
-    },
   },
   data() {
     return {
