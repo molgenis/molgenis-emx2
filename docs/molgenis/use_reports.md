@@ -1,6 +1,6 @@
 # Reports explorer
 
-MOLGENIS allows creation of reports usig SQL.
+MOLGENIS allows creation of reports usig SQL. See pet store template for examples.
 
 ## Listing reports
 
@@ -14,3 +14,9 @@ The name of the report will be used to name the csv.
 
 If you have Manager or Admin permissions then you can also edit a report by clicking the pencil icon.
 You will then be able to change the name and sql of the report.
+
+# Using parameters
+
+You can parameterize your queries using ```${name}``` or when you need strong typing ```${name:string_array}```
+See the 'pet store' schema for an example.
+The part behind the ':' should match a primitive column type in [Schema](use_schema.md) manual.

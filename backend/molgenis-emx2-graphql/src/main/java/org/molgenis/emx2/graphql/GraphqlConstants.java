@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 public class GraphqlConstants {
   public static final String ID = "id";
+  public static final String PARAMETERS = "parameters";
   public static final String INPUT = "Input";
   public static final String ANONYMOUS = "anonymous";
   public static final String COLUMNS = "columns";

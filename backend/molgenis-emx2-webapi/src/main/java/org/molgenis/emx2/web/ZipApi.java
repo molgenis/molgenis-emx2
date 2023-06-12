@@ -15,10 +15,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
@@ -148,6 +145,20 @@ public class ZipApi {
 
   static String getZippedReports(Request request, Response response) throws IOException {
     String reports = request.queryParams("id");
+    Map<String, Object> parameters = new LinkedHashMap<>();
+    request
+        .queryParams()
+        .forEach(
+            param -> {
+              if ("id".equals(param)) {
+                // ignore
+              } else if (request.queryParamsValues(param).length > 1) {
+                parameters.put(param, List.of(request.queryParamsValues(param)));
+              } else {
+                parameters.put(param, request.queryParams(param));
+              }
+            });
+
     Path tempDir =
         Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT); // NOSONAR
     tempDir.toFile().deleteOnExit();
@@ -164,7 +175,7 @@ public class ZipApi {
         Map reportObject = reportList.get(Integer.parseInt(reportId));
         String sql = (String) reportObject.get("sql");
         String name = (String) reportObject.get("name");
-        List<Row> rows = schema.retrieveSql(sql);
+        List<Row> rows = schema.retrieveSql(sql, parameters);
         store.writeTable(name, new ArrayList<>(rows.get(0).getColumnNames()), rows);
       }
 

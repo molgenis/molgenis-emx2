@@ -726,13 +726,20 @@ public class GraphqlSchemaFieldFactory {
   }
 
   private void changeSettings(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
-    List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
-    if (settings != null) {
-      settings.forEach(
+    schema
+        .getMetadata()
+        .setSettings(convertKeyValueInputToMap(dataFetchingEnvironment.getArgument(SETTINGS)));
+  }
+
+  private Map<String, String> convertKeyValueInputToMap(List<Map<String, String>> keyValueList) {
+    Map<String, String> keyValueMap = new LinkedHashMap<>();
+    if (keyValueList != null) {
+      keyValueList.forEach(
           entry -> {
-            schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+            keyValueMap.put(entry.get(KEY), entry.get(VALUE));
           });
     }
+    return keyValueMap;
   }
 
   public GraphQLFieldDefinition dropMutation(Schema schema) {
@@ -786,6 +793,10 @@ public class GraphqlSchemaFieldFactory {
                         .name(COUNT)
                         .type(Scalars.GraphQLInt)))
         .argument(GraphQLArgument.newArgument().name(ID).type(Scalars.GraphQLInt))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(PARAMETERS)
+                .type(GraphQLList.list(inputSettingsMetadataType)))
         .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt))
         .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt))
         .dataFetcher(
@@ -799,15 +810,18 @@ public class GraphqlSchemaFieldFactory {
                   id = dataFetchingEnvironment.getArgument(ID);
                   Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
                   Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
-                  List<Map<String, String>> reportList =
+                  Map<String, String> parameters =
+                      convertKeyValueInputToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
+                  List<Map<String, Object>> reportList =
                       new ObjectMapper().readValue(reportsJson, List.class);
-                  Map<String, String> report = reportList.get(id);
-                  String sql = report.get("sql") + "LIMIT " + limit + " OFFSET " + offset;
+                  Map<String, Object> report = reportList.get(id);
+                  String sql = report.get("sql") + " LIMIT " + limit + " OFFSET " + offset;
                   String countSql =
                       String.format("select count(*) from (%s) as count", report.get("sql"));
-                  result.put(DATA, convertToJson(schema.retrieveSql(sql)));
+                  result.put(DATA, convertToJson(schema.retrieveSql(sql, parameters)));
                   result.put(
-                      COUNT, schema.retrieveSql(countSql).get(0).get("count", Integer.class));
+                      COUNT,
+                      schema.retrieveSql(countSql, parameters).get(0).get("count", Integer.class));
                 }
                 return result;
               } catch (Exception e) {
