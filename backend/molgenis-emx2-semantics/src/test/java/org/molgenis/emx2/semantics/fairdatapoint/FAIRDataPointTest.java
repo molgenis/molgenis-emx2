@@ -77,7 +77,7 @@ public class FAIRDataPointTest {
         .thenReturn("http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId01");
     when(request.params("id")).thenReturn("catalogId01");
     FAIRDataPointCatalog fairDataPointCatalog =
-        new FAIRDataPointCatalog(request, fairDataHubSchemas[0].getTable("FDP_Catalog"));
+        new FAIRDataPointCatalog(request, fairDataHubSchemas[0].getTable("Catalog"));
     String result = fairDataPointCatalog.getResult();
     assertTrue(
         result.contains(
@@ -96,7 +96,7 @@ public class FAIRDataPointTest {
         .thenReturn("http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId01");
     when(request.params("id")).thenReturn("datasetId01");
     FAIRDataPointDataset fairDataPointDataset =
-        new FAIRDataPointDataset(request, fairDataHubSchemas[0].getTable("FDP_Dataset"));
+        new FAIRDataPointDataset(request, fairDataHubSchemas[0].getTable("Dataset"));
     fairDataPointDataset.setIssued("2022-09-19T11:57:06");
     fairDataPointDataset.setModified("2022-09-19T11:57:07");
     String result = fairDataPointDataset.getResult();

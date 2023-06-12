@@ -55,7 +55,7 @@ public class FAIRDataPointDistribution {
       throw new Exception("Schema unknown.");
     }
 
-    // 'distribution' must either refer to the name of existing and visible 'FDP_Distribution' by a
+    // 'distribution' must either refer to the name of existing and visible 'Distribution' by a
     // file contained therein
     Schema schemaObj = database.getSchema(schemaParam);
     List<Map<String, Object>> distrByName = queryDistribution(schemaObj, "name", distributionParam);

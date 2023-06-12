@@ -45,14 +45,14 @@ public class FAIRDataPointBadDistributionInDatasetTest {
             "http://localhost:8080/api/fdp/dataset/fairDataHub_baddistribution/datasetId01");
     when(request.params("id")).thenReturn("datasetId01");
     FAIRDataPointDataset fairDataPointDataset =
-        new FAIRDataPointDataset(request, fairDataHub_baddistribution.getTable("FDP_Dataset"));
+        new FAIRDataPointDataset(request, fairDataHub_baddistribution.getTable("Dataset"));
     String result = fairDataPointDataset.getResult();
     assertTrue(
         result.contains(
             "dcat:distribution <http://localhost:8080/api/fdp/distribution/fairDataHub_baddistribution/Analyses/csv>,"));
 
     // set distribution to a value that does NOT corresepond to a table
-    Table distribution = fairDataHub_baddistribution.getTable("FDP_Distribution");
+    Table distribution = fairDataHub_baddistribution.getTable("Distribution");
     Row newRow = new Row();
     Map newBadDistr = new HashMap<>();
     newBadDistr.put("name", "something_quite_wrong");
@@ -70,11 +70,10 @@ public class FAIRDataPointBadDistributionInDatasetTest {
         assertThrows(
             Exception.class,
             () ->
-                new FAIRDataPointDataset(
-                        request, fairDataHub_baddistribution.getTable("FDP_Dataset"))
+                new FAIRDataPointDataset(request, fairDataHub_baddistribution.getTable("Dataset"))
                     .getResult());
     String expectedMessage =
-        "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your FDP_Dataset matches a table name (from the same schema) you want to publish.";
+        "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your Dataset matches a table name (from the same schema) you want to publish.";
     String actualMessage = exception.getMessage();
     assertTrue(actualMessage.contains(expectedMessage));
   }

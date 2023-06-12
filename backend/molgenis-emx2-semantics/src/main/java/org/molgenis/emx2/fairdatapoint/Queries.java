@@ -17,7 +17,7 @@ public class Queries {
     GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
     ExecutionResult executionResult =
         grapql.execute(
-            "{FDP_Dataset("
+            "{Dataset("
                 + finalizeFilter("filter:{" + idField + ": {equals:\"" + id + "\"")
                 + "){"
                 + "id,"
@@ -52,11 +52,11 @@ public class Queries {
                 + "}}");
     Map<String, Object> result = executionResult.toSpecification();
     if (result.get("data") == null
-        || ((HashMap<String, Object>) result.get("data")).get("FDP_Dataset") == null) {
+        || ((HashMap<String, Object>) result.get("data")).get("Dataset") == null) {
       return new ArrayList<>();
     }
     return (List<Map<String, Object>>)
-        ((HashMap<String, Object>) result.get("data")).get("FDP_Dataset");
+        ((HashMap<String, Object>) result.get("data")).get("Dataset");
   }
 
   public static List<Map<String, Object>> queryDistribution(
@@ -64,7 +64,7 @@ public class Queries {
     GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
     ExecutionResult executionResult =
         grapql.execute(
-            "{FDP_Distribution("
+            "{Distribution("
                 + finalizeFilter("filter:{" + idField + ": {equals:\"" + id + "\"")
                 + "){"
                 + "name,"
@@ -89,10 +89,10 @@ public class Queries {
                 + "}}");
     Map<String, Object> result = executionResult.toSpecification();
     if (result.get("data") == null
-        || ((HashMap<String, Object>) result.get("data")).get("FDP_Distribution") == null) {
+        || ((HashMap<String, Object>) result.get("data")).get("Distribution") == null) {
       return new ArrayList<>();
     }
     return (List<Map<String, Object>>)
-        ((HashMap<String, Object>) result.get("data")).get("FDP_Distribution");
+        ((HashMap<String, Object>) result.get("data")).get("Distribution");
   }
 }

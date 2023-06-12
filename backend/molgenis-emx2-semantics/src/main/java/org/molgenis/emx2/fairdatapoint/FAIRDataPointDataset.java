@@ -104,7 +104,7 @@ public class FAIRDataPointDataset {
         String distributionName = (String) distribution.get("name");
         if (!schema.getTableNames().contains(distributionName)) {
           throw new Exception(
-              "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your FDP_Dataset matches a table name (from the same schema) you want to publish.");
+              "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your Dataset matches a table name (from the same schema) you want to publish.");
         }
         for (String format : FORMATS) {
           builder.add(
