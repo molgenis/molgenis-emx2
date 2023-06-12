@@ -236,16 +236,13 @@ export default {
         result = await this.client
           .updateDataRow(formData, this.tableName, this.schemaName)
           .catch(this.handleSaveError);
-        if (result) {
-          this.handleClose();
-        }
       } else {
         result = await this.client
           .insertDataRow(formData, this.tableName, this.schemaName)
           .catch(this.handleSaveError);
-        if (result) {
-          this.handleClose();
-        }
+      }
+      if (result) {
+        this.handleClose();
       }
     },
     handleSaveError(error: any) {
@@ -273,7 +270,7 @@ export default {
     handleErrors(event: Record<string, string | undefined>) {
       this.rowErrors = { ...this.rowErrors, ...event };
       const numberOfErrors = Object.values(this.rowErrors).filter(
-        (val) => val
+        (value) => value
       ).length;
       this.saveDisabledMessage =
         numberOfErrors > 0
@@ -295,25 +292,36 @@ export default {
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
 
     if (this.pkey) {
-      this.rowData = await this.fetchRowData();
+      const rowData = await this.fetchRowData();
 
       if (this.clone) {
-        // in case of clone, remove the key columns from the row data
-        const keyColumnsNames = this.tableMetaData?.columns
-          ?.filter((column: IColumn) => column.key === 1)
-          .map((column: IColumn) => column.name);
-
-        this.rowData = filterObject(
-          this.rowData,
-          (key) => !keyColumnsNames?.includes(key)
-        );
+        this.rowData = removeKeyColumns(this.tableMetaData, rowData);
+      } else {
+        this.rowData = rowData;
       }
     }
 
     this.rowData = { ...this.rowData, ...deepClone(this.defaultValue) };
+    this.rowErrors = initializeRowErrors(this.tableMetaData.columns);
+    console.log(this.rowErrors);
     this.loaded = true;
   },
 };
+
+function initializeRowErrors(columns: IColumn[]) {
+  return columns.reduce((accum, column) => {
+    accum[column.name] = undefined;
+    return accum;
+  }, {} as Record<string, string | undefined>);
+}
+
+function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
+  const keyColumnsNames = tableMetaData?.columns
+    ?.filter((column: IColumn) => column.key === 1)
+    .map((column: IColumn) => column.name);
+
+  return filterObject(rowData, (key) => !keyColumnsNames?.includes(key));
+}
 
 function getPageHeadings(tableMetadata: ITableMetaData): string[] {
   const columns: IColumn[] = tableMetadata?.columns

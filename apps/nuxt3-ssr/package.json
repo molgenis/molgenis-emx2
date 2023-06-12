@@ -9,7 +9,6 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
     "format": "prettier components composables gql interfaces pages plugins utils  --write --config ../.prettierrc.js",
     "checkFormat": "prettier components composables gql interfaces pages plugins utils  --check --config ../.prettierrc.js",
     "tailwind": "node gen-themes.js",

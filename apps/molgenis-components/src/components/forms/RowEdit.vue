@@ -262,13 +262,16 @@ export default {
 
 function getColumnError(column, values, tableMetaData) {
   const value = values[column.id];
-  const isInvalidNumber = typeof value === "number" && isNaN(value);
+  const isInvalidNumber = column.columnType === "DECIMAL" && isNaN(value);
   const missesValue = value === undefined || value === null || value === "";
   const type = column.columnType;
 
   if (column.columnType === AUTO_ID || column.columnType === HEADING) {
     return undefined;
   }
+  // console.log("values:", values);
+  // console.log(column.id, missesValue, isInvalidNumber, "  ", column);
+
   if (column.required && (missesValue || isInvalidNumber)) {
     return column.name + " is required ";
   }
