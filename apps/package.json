@@ -11,6 +11,7 @@
     "graphql-playground",
     "nuxt3-ssr",
     "molgenis-components",
+    "molgenis-viz",
     "helloworld",
     "reports",
     "tasks"
