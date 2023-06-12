@@ -22,8 +22,8 @@ FDP_Dataset,,temporal,string,,,,,,,,http://purl.org/dc/terms/temporal,The tempor
 FDP_Dataset,,temporalResolution,string,,,,,,,,http://purl.org/dc/terms/temporalResolution,Minimum time period resolvable in the dataset.
 FDP_Dataset,,wasGeneratedBy,string,,,,,,,,http://www.w3.org/ns/prov#wasGeneratedBy,An activity that generated, or provides the business context for, the creation of the dataset.
 FDP_Dataset,,accessRights,string,,,,,,,,http://purl.org/dc/terms/accessRights,Information about who can access the resource or an indication of its security status.
-FDP_Dataset,,contactPoint,string,,,,,,,,http://purl.org/dc/terms/contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].
-FDP_Dataset,,creator,string,,,,,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.
+FDP_Dataset,,contactPoint,ref,,,,Persons,,,,http://purl.org/dc/terms/contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].
+FDP_Dataset,,creator,ref_array,,,,Persons,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.
 FDP_Dataset,,hasPolicy,string,,,,,,,,http://www.w3.org/ns/odrl/2/hasPolicy,An ODRL conformant policy expressing the rights associated with the resource.
 FDP_Dataset,,identifier,string,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.
 FDP_Dataset,,isReferencedBy,string,,,,,,,,http://purl.org/dc/terms/isReferencedBy,A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.
@@ -34,7 +34,7 @@ FDP_Dataset,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/la
 FDP_Dataset,,relation,string,,,,,,,,http://purl.org/dc/terms/relation,A resource with an unspecified relationship to the cataloged item.
 FDP_Dataset,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.
 FDP_Dataset,,qualifiedRelation,string,,,,,,,,http://purl.org/dc/terms/qualifiedRelation,Link to a description of a relationship with another resource.
-FDP_Dataset,,publisher,string,,,,,,,,http://purl.org/dc/terms/publisher,The entity responsible for making the item available.
+FDP_Dataset,,publisher,ref,,,,Organisations,,,,http://purl.org/dc/terms/publisher,The entity responsible for making the item available.
 FDP_Dataset,,theme,hyperlink_array,,,,,,,,http://purl.org/dc/terms/theme,A main category of the resource. A resource can have multiple themes.
 FDP_Dataset,,type,string,,,,,,,,http://purl.org/dc/terms/type,The nature or genre of the resource.
 FDP_Dataset,,qualifiedAttribution,string,,,,,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Link to an Agent having some form of responsibility for the resource
