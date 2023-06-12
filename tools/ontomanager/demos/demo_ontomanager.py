@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 
 from dotenv import load_dotenv
 
@@ -7,7 +7,7 @@ from tools.ontomanager.src.ontomanager import OntologyManager
 from tools.ontomanager.src.ontomanager.exceptions import DuplicateKeyException
 
 
-def test_create(url: str = None, username: str = None, password: str = None):
+def demo_ontomanager(url: str = None, username: str = None, password: str = None):
     load_dotenv()
     if url is None:
         url = os.environ['MG_URL']
@@ -37,4 +37,4 @@ def test_create(url: str = None, username: str = None, password: str = None):
 
 if __name__ == '__main__':
     logging.basicConfig(level='INFO')
-    test_create()
+    demo_ontomanager()
