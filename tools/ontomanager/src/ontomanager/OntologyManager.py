@@ -110,6 +110,8 @@ class OntologyManager:
 
             for tb_name, tb_values in db_schema.items():
                 self.table = tb_name
+                if tb_values.get('externalSchema') == 'CatalogueOntologies':
+                    continue
                 tb_dict = self.__update_table(tb_name, tb_values)
 
                 if len(tb_dict.keys()) > 0:
@@ -122,8 +124,6 @@ class OntologyManager:
             Update a data table in the database.
             """
             tb_dict = dict()
-            if tb_values.get('externalSchema') == 'CatalogueOntologies':
-                return {}
 
             for col, col_values in tb_values['columns'].items():
                 self.column = col
@@ -147,6 +147,9 @@ class OntologyManager:
             )
 
             # TODO: make robust, check for errors
+            if response.status_code == 400:
+                log.error(response.text)
+                return
             if len(response.json()['data']) == 0:
                 return
             column_values = response.json()['data'][self.table]
