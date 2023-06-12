@@ -1,5 +1,7 @@
 package org.molgenis.emx2.email;
 
+import org.apache.logging.log4j.util.Strings;
+
 public class EmailSettings {
 
   private String host;
@@ -80,14 +82,14 @@ public class EmailSettings {
   public static class EmailSettingsBuilder {
     private String host = "smtpout1.molgenis.net";
     private String port = "25"; // / 587 / 2525
-    private String starttlsEnable = "true";
+    private String starttlsEnable = Boolean.FALSE.toString();
     private String sslProtocols = "TLSv1.2";
-    private String socketFactoryPort = "465";
-    private String socketFactoryClass = "javax.net.ssl.SSLSocketFactory";
-    private String socketFactoryFallback = "false";
-    private String debug = "false";
+    private String socketFactoryPort = Strings.EMPTY;
+    private String socketFactoryClass = Strings.EMPTY;
+    private String socketFactoryFallback = Strings.EMPTY;
+    private String debug = Boolean.FALSE.toString();
 
-    private String auth = "false";
+    private String auth = Boolean.FALSE.toString();
     private String senderEmail = "no-reply@molgenis.net";
     private String smtpAuthenticatorSenderPassword;
 
