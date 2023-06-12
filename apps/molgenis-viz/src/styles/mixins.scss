@@ -1,0 +1,49 @@
+
+@mixin textTransform ($weight: 400) {
+  text-transform: uppercase;
+  font-size: 11pt;
+  font-weight: $weight;
+  letter-spacing: 0.08em;
+}
+
+@mixin visuallyHidden {
+  position: absolute;
+  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+  clip: rect(1px, 1px, 1px, 1px);
+  overflow: hidden;
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  white-space: nowrap;
+}
+
+@mixin linkTextTransform {
+  font-size: 11pt;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  a {
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+@mixin flexStartAll {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+@mixin  flexStartCenter {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+@mixin flexCenterAll {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

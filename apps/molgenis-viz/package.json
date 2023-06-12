@@ -1,0 +1,36 @@
+{
+  "name": "molgenis-viz",
+  "version": "0.0.0",
+  "private": true,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/molgenis-viz.umd.js",
+  "module": "./dist/molgenis-viz.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/molgenis-viz.es.js",
+      "require": "./dist/molgenis-viz.umd.js"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "cross-env SHOW_CASE=off vite build",
+    "build-showcase": "cross-env SHOW_CASE=on vite build ",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@heroicons/vue": "^2.0.18",
+    "d3": "^7.8.4",
+    "vue": "3.2.47"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.2.3",
+    "vite": "^4.3.9",
+    "vue-router": "4.1.6"
+  }
+}
