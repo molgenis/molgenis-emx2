@@ -36,6 +36,7 @@
     "cross-env": "7.0.3",
     "popper.js": "1.16.1",
     "universal-cookie": "4.0.4",
+    "@popperjs/core": "2.11.8",
     "vue": "3.2.47",
     "vue-flatpickr-component": "11.0.2",
     "vue-gtag": "2.0.1",
@@ -45,7 +46,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
     "prettier": "2.8.8",
-    "vite": "4.3.8",
+    "vite": "4.3.9",
     "vitest": "0.31.1",
     "vue-router": "4.1.6",
     "vue-scrollto": "2.20.0"

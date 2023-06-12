@@ -12,7 +12,7 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.utils.Key;
 
 public class TaskServiceScheduler {
-  private final Scheduler quartzScheduler;
+  protected final Scheduler quartzScheduler;
   private static TaskService taskService;
   private static String EMPTY_PARAMETERSS = "";
 
