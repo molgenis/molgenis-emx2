@@ -1,14 +1,13 @@
 import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import path from "path";
-import docTagPlugin from "./docs-plugin.js";
 import vue from "@vitejs/plugin-vue";
 
 const BACKEND_LOCATION = process.env.PROXY_API || "http://localhost:8080/";
 
 // basic build conf fo both library and showCase builds
 let conf = {
-  plugins: [docTagPlugin(), vue()],
+  plugins: [vue()],
   base: "",
   resolve: {
     alias: {
@@ -68,7 +67,7 @@ if (process.env.SHOW_CASE !== "on") {
     lib: {
       entry: path.resolve(__dirname, "lib/main.js"),
       name: "MolgenisViz",
-      fileName: (format) => `molgenis-components.${format}.js`,
+      fileName: (format) => `molgenis-viz.${format}.js`,
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled

@@ -21,6 +21,8 @@
     "dev": "vite",
     "build": "cross-env SHOW_CASE=off vite build",
     "build-showcase": "cross-env SHOW_CASE=on vite build ",
+    "docs": "vuese gen",
+    "docs:serve": "vuese serve",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -30,6 +32,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.3",
+    "@vuese/cli": "^2.14.3",
     "vite": "^4.3.9",
     "vue-router": "4.1.6"
   }
