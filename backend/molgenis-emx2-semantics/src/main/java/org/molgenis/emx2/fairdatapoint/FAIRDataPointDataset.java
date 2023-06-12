@@ -89,6 +89,7 @@ public class FAIRDataPointDataset {
     String host = extractHost(requestURI);
     String apiFdp = host + "/api/fdp";
     String apiFdpDistribution = apiFdp + "/distribution";
+    String apiRDF = host + "/" + schema.getName() + "/api/rdf";
 
     IRI reqUrl = iri(request.url()); // escaping/encoding seems OK
     IRI apiFdpDistributionEnc = encodedIRI(apiFdpDistribution);
@@ -199,10 +200,15 @@ public class FAIRDataPointDataset {
       builder.add(reqUrl, DCTERMS.ACCESS_RIGHTS, datasetFromJSON.get("accessRights"));
     }
     if (datasetFromJSON.get("contactPoint") != null) {
-      builder.add(reqUrl, DCAT.CONTACT_POINT, datasetFromJSON.get("contactPoint"));
+      String personId = (String) ((Map) datasetFromJSON.get("contactPoint")).get("identifier");
+      builder.add(reqUrl, DCAT.CONTACT_POINT, encodedIRI(apiRDF + "/Persons/" + personId));
     }
     if (datasetFromJSON.get("creator") != null) {
-      builder.add(reqUrl, DCTERMS.CREATOR, datasetFromJSON.get("creator"));
+      List<Map> creators = (List<Map>) datasetFromJSON.get("creator");
+      for (Map creator : creators) {
+        String personId = (String) creator.get("identifier");
+        builder.add(reqUrl, DCTERMS.CREATOR, encodedIRI(apiRDF + "/Persons/" + personId));
+      }
     }
     if (datasetFromJSON.get("description") != null) {
       builder.add(reqUrl, DCTERMS.DESCRIPTION, datasetFromJSON.get("description"));
@@ -246,7 +252,10 @@ public class FAIRDataPointDataset {
       builder.add(reqUrl, DCAT.QUALIFIED_RELATION, datasetFromJSON.get("qualifiedRelation"));
     }
     if (datasetFromJSON.get("publisher") != null) {
-      builder.add(reqUrl, DCTERMS.PUBLISHER, datasetFromJSON.get("publisher"));
+
+      String organisationName = (String) ((Map) datasetFromJSON.get("publisher")).get("name");
+      builder.add(
+          reqUrl, DCTERMS.PUBLISHER, encodedIRI(apiRDF + "/Organisations/" + organisationName));
     }
     if (this.issued == null) {
       builder.add(
