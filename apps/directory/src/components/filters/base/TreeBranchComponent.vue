@@ -24,6 +24,7 @@
         v-if="open"
         :options="option.children"
         :facetIdentifier="facetIdentifier"
+        :parentSelected="selected"
         @indeterminate-update="signalParentOurIndeterminateStatus"
       />
     </li>
@@ -53,6 +54,10 @@ export default {
       type: Object,
       required: true,
     },
+    parentSelected: {
+      type: Boolean,
+      required: true,
+    },
   },
   name: "TreeBranchComponent",
   components: {
@@ -76,6 +81,8 @@ export default {
       return this.filtersStore.getFilterValue(this.facetIdentifier) || [];
     },
     selected() {
+      if (this.parentSelected) return true;
+
       if (!this.currentFilterSelection || !this.currentFilterSelection.length)
         return false;
       else
@@ -94,6 +101,7 @@ export default {
       return selectedChildren.length;
     },
     indeterminateState() {
+      if (this.parentSelected) return false;
       if (this.childIsIndeterminate) return true;
       if (!this.option.children) return false;
 

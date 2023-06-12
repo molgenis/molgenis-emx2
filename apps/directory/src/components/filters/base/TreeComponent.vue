@@ -1,5 +1,5 @@
 <script setup>
-defineProps(["options", "facetIdentifier"]);
+defineProps(["options", "facetIdentifier", "parentSelected"]);
 </script>
 
 <template>
@@ -8,6 +8,7 @@ defineProps(["options", "facetIdentifier"]);
       :option="option"
       :facetIdentifier="facetIdentifier"
       @indeterminate-update="signalParentOurIndeterminateStatus"
+      :parentSelected="parentSelected"
     />
   </div>
 </template>
