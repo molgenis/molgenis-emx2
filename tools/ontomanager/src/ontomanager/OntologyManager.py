@@ -46,7 +46,7 @@ class OntologyManager:
             raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
 
         _kwargs = self.__parse_kwargs(kwargs)
-        _table = self.__parse_table_name(table)
+        _table = self.parse_table_name(table)
 
         query = Queries.insert(_table)
         variables = {"value": _kwargs}
@@ -63,7 +63,7 @@ class OntologyManager:
             raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
 
         _kwargs = self.__parse_kwargs(kwargs)
-        _table = self.__parse_table_name(table)
+        _table = self.parse_table_name(table)
 
         query = Queries.delete(_table)
         variables = {"pkey": {'name': _kwargs['name']}}
@@ -75,45 +75,128 @@ class OntologyManager:
 
         return response
 
+    class Updater:
+        """Class that handles the update of the terms, ontology tables, databases and database tables."""
+        def __init__(self, manager, ontology_table: str, old: str, new: str):
+            self.ontology_table = ontology_table
+            self.manager = manager
+            self.old = old
+            self.new = new
+
+            self.database = None
+            self.table = None
+            self.column = None
+
+        def update(self) -> dict:
+            """Perform the update."""
+
+            # Iterate over the other databases on the server and check in which tables the ontology terms are referenced
+            databases = self.manager.list_databases()
+            server_dict = dict()
+            for db in databases:
+                self.database = db
+                db_dict = self.__update_database(database=db)
+                if len(db_dict.keys()) > 0:
+                    server_dict.update({db: db_dict})
+
+            return server_dict
+
+        def __update_database(self, database: str) -> dict:
+            """Update the tables in the database, replacing the 'old' term with the 'new' term.
+            :param database: the name of the database
+            """
+            db_dict = dict()
+            db_schema = self.manager.get_database_schema(database)
+
+            for tb_name, tb_values in db_schema.items():
+                self.table = tb_name
+                tb_dict = self.__update_table(tb_name, tb_values)
+
+                if len(tb_dict.keys()) > 0:
+                    db_dict.update({tb_name: tb_dict})
+
+            return db_dict
+
+        def __update_table(self, tb_name: str, tb_values: dict) -> dict:
+            """
+            Update a data table in the database.
+            """
+            tb_dict = dict()
+            if tb_values.get('externalSchema') == 'CatalogueOntologies':
+                return {}
+
+            for col, col_values in tb_values['columns'].items():
+                self.column = col
+                if not (col_values.get('refSchema') == 'CatalogueOntologies'
+                        and col_values.get('refTable') == self.ontology_table):
+                    continue
+                self.__update_column()
+                tb_dict.update({col: col_values['columnType']})
+
+            return tb_dict
+
+        def __update_column(self):
+            """Update the values in the table column"""
+            _table = self.manager.parse_table_name(self.table)
+            query = Queries.column_values(_table, self.column)
+            variables = {'filter': {self.column: {'equals': {'name': self.old}}}}
+
+            response = self.manager.client.session.post(
+                f'{self.manager.client.url}/{self.database}/graphql',
+                json={'query': query, 'variables': variables}
+            )
+
+            # TODO: make robust, check for errors
+            if len(response.json()['data']) == 0:
+                return
+            column_values = response.json()['data'][self.table]
+            column_values_updated = [
+                {'id': val['id'], 'name': val['name'],
+                 self.column: [
+                     {'name': self.new if row['name'] == self.old else row['name'] for row in val[self.column]}]}
+                for val in column_values.values()
+            ]
+
+            query = Queries.upload_mutation(_table)
+            variables = {'value': column_values_updated}
+
+            response = self.manager.client.session.post(
+                f'{self.manager.client.url}/{self.database}/graphql',
+                json={'query': query, 'variables': variables}
+            )
+
+            if response.status_code == 200:
+                print(f"Successfully updated term {self.old} to {self.new} in colum {self.column}"
+                      f" of table {self.table} on database {self.database} in {len(column_values)} rows.")
+
+            pass
+
     def update(self, table: str, **kwargs):
         """Rename a term in an ontology."""
+        ontology_table = table
         # TODO: do the actual update
-        print(f"Renaming in table {table}.")
+        print(f"Renaming in table {ontology_table}.")
 
-        if table not in self.ontology_tables:
-            raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
+        if ontology_table not in self.ontology_tables:
+            raise NoSuchTableException(f"Table '{ontology_table}' not found in CatalogueOntologies.")
 
         try:
             old, new = kwargs['old'], kwargs['new']
         except KeyError:
             raise UpdateItemsException("Specify 'old' and 'new' terms.")
 
-        if old not in self.__list_ontology_terms(table):
-            raise NoSuchNameException(f"Name '{old}' not found in table '{table}'.")
-        if new not in self.__list_ontology_terms(table):
-            raise NoSuchNameException(f"Name '{new}' not found in table '{table}'.")
+        if old not in self.__list_ontology_terms(ontology_table):
+            raise NoSuchNameException(f"Name '{old}' not found in table '{ontology_table}'.")
+        if new not in self.__list_ontology_terms(ontology_table):
+            raise NoSuchNameException(f"Name '{new}' not found in table '{ontology_table}'.")
 
-        _table = self.__parse_table_name(table)
+        updater = self.Updater(self, ontology_table, old, new)
+        server_dict = updater.update()
 
-        # Iterate over the other databases on the server and check in which tables the ontology terms are referenced
-        databases = self.__list_databases()
-        server_dict = dict()
-        for db in databases:
-            db_dict = dict()
-            db_schema = self.__get_database_schema(db)
-            for tb, values in db_schema.items():
-                tb_dict = dict()
-                if values.get('externalSchema') == 'CatalogueOntologies':
-                    continue
-                for col, specs in values['columns'].items():
-                    if specs.get('refSchema') == 'CatalogueOntologies' and specs.get('refTable') == table:
-                        tb_dict.update({col: specs['columnType']})
-                        # TODO: perform update here
-                if len(tb_dict.keys()) > 0:
-                    db_dict.update({tb: tb_dict})
-            if len(db_dict.keys()) > 0:
-                server_dict.update({db: db_dict})
-        print(server_dict)
+        for db_key, dbs in server_dict.items():
+            print(f"{db_key}")
+            for tb_key, tbs in dbs.items():
+                print(f"    {tb_key}:\n     {tbs}")
 
     def __perform_query(self, query: str, variables: dict, action: str) -> Response:
         """Perform the query using the query and variables supplied."""
@@ -164,7 +247,7 @@ class OntologyManager:
         tables = [table['name'] for table in response.json()['data']['_schema']['tables']]
         return tables
 
-    def __list_databases(self) -> list:
+    def list_databases(self) -> list:
         """Returns a list of the databases on the server."""
         query = Queries.list_databases()
         response = self.client.session.post(
@@ -174,7 +257,7 @@ class OntologyManager:
         databases = [db['name'] for db in response.json()['data']['_schemas']]
         return databases
 
-    def __get_database_schema(self, database: str) -> dict:
+    def get_database_schema(self, database: str) -> dict:
         """Returns the schema of the specified database.
         :param database: the name of the database.
         """
@@ -194,7 +277,7 @@ class OntologyManager:
         return tables
 
     @staticmethod
-    def __parse_table_name(table_name: str) -> str:
+    def parse_table_name(table_name: str) -> str:
         """Parse table names to capitalized names without spaces,
         e.g. 'Network features' -> 'NetworkFeatures'.
         """
