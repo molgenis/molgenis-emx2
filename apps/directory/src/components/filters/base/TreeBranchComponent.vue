@@ -14,7 +14,9 @@
         :checked="selected"
         :indeterminate.prop="indeterminateState"
       />
-      <label> {{ option.code }} {{ option.label }} </label>
+      <label>
+        <span class="code">{{ option.code }}</span> {{ option.label }}
+      </label>
     </li>
     <li
       v-if="option.children"
@@ -26,6 +28,7 @@
         :facetIdentifier="facetIdentifier"
         :parentSelected="selected"
         @indeterminate-update="signalParentOurIndeterminateStatus"
+        :filter="filter"
       />
     </li>
   </ul>
@@ -57,7 +60,12 @@ export default {
     parentSelected: {
       type: Boolean,
       required: false,
-      default: () => false
+      default: () => false,
+    },
+    filter: {
+      type: String,
+      required: false,
+      default: () => "",
     },
   },
   name: "TreeBranchComponent",
@@ -138,6 +146,10 @@ li {
 .toggle-icon {
   font-size: 0.75rem;
   margin-right: 0.5rem;
+}
+
+.code {
+  font-weight: 200;
 }
 
 .indent {

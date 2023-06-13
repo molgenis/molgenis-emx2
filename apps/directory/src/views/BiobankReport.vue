@@ -25,14 +25,12 @@ export default {
     const biobanksStore = useBiobanksStore();
 
     const biobankColumns = settingsStore.config.biobankColumns;
-    console.log(biobankColumns);
 
     const biobank = ref({});
     const route = useRoute();
 
     biobanksStore.getBiobankCard(route.params.id).then((result) => {
       biobank.value = result;
-      console.log(biobank.value);
     });
 
     return { settingsStore, biobanksStore, biobank, biobankColumns };

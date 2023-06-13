@@ -76,6 +76,34 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     { deep: true, immediate: true }
   );
 
+  function checkOntologyDescendantsIfMatches(ontologyDescendants, ontologyQuery) {
+    let finalVerdict = false;
+
+    for (const ontologyItem of ontologyDescendants) {
+      if (finalVerdict) return true;
+
+      if (this.ontologyItemMatchesQuery(ontologyItem, ontologyQuery)) {
+        finalVerdict = true;
+        break;
+      } else if (ontologyItem.children) {
+        finalVerdict = this.checkOntologyDescendantsIfMatches(
+          ontologyItem.children,
+          ontologyQuery
+        );
+      }
+    }
+    return finalVerdict;
+  }
+
+  function ontologyItemMatchesQuery(ontologyItem, ontologyQuery) {
+    const findString = ontologyQuery.toLowerCase();
+    const codeFound = ontologyItem.code.toLowerCase().includes(findString);
+    const nameFound = ontologyItem.name.toLowerCase().includes(findString);
+    const labelFound = ontologyItem.label.toLowerCase().includes(findString);
+
+    return codeFound || nameFound || labelFound;
+  }
+
 
   function flattenOntologyBranch (branch, flattendBranches) {
     if (!branch.children || !branch.children.length) {
@@ -152,12 +180,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
       const existingValues = filters.value[filterName].map(option => option.name)
       const filterOptionsToAdd = value.filter(newValue => !existingValues.includes(newValue.name))
-
-      console.log({existingValues, filterOptionsToAdd})
       filters.value[filterName] = filters.value[filterName].concat(filterOptionsToAdd)
     }
     else {
-      console.log(value)
       filters.value[filterName] = value
     }
   }
@@ -226,6 +251,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     getFilterValue,
     updateFilterType,
     getFilterType,
+    checkOntologyDescendantsIfMatches,
+    ontologyItemMatchesQuery,
     filterOptionsCache,
     hasActiveFilters,
     filters,
