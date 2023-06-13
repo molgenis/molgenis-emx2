@@ -1,12 +1,18 @@
 <template>
-  <div :key="option.name" v-for="option of displayOptions">
-    <tree-branch-component
-      :option="option"
-      :facetIdentifier="facetIdentifier"
-      @indeterminate-update="signalParentOurIndeterminateStatus"
-      :parentSelected="parentSelected"
-      :filter="filter"
-    />
+  <div class="d-flex flex-column">
+    <div :key="option.name" v-for="option of displayOptions">
+      <tree-branch-component
+        :option="option"
+        :facetIdentifier="facetIdentifier"
+        @indeterminate-update="signalParentOurIndeterminateStatus"
+        :parentSelected="parentSelected"
+        :filter="filter"
+      />
+    </div>
+    <span v-if="totalOptions > 100" class="badge badge-info mx-5 mb-2"
+      >Too many results, showing the first {{ displaySize }}. Please use the
+      search functionality.</span
+    >
   </div>
 </template>
 
@@ -49,9 +55,35 @@ export default {
     };
   },
   computed: {
+    totalOptions() {
+      return this.filteredOptions.length;
+    },
     displayOptions() {
-      if (this.filteredOptions.length <= 100) return this.filteredOptions;
-      else return this.filteredOptions.slice(0, this.displaySize);
+      if (this.totalOptions <= 100) return this.filteredOptions;
+      const topItems = this.filteredOptions.slice(0, this.displaySize);
+
+      let currentSelectedOntologies = this.filtersStore.getFilterValue(
+        this.facetIdentifier
+      );
+
+      /** no active filters */
+      if (!currentSelectedOntologies) return topItems;
+
+      let currentSelectedOntologyCodes = currentSelectedOntologies.map(
+        (ontologyItem) => ontologyItem.code
+      );
+
+      const currentDisplayedOntologyCodes = topItems.map((item) => item.code);
+      const missingCodes = currentSelectedOntologyCodes.filter(
+        (selectedOntologyItem) =>
+          !currentDisplayedOntologyCodes.includes(selectedOntologyItem)
+      );
+
+      const missingOptions = this.filteredOptions.filter((option) =>
+        missingCodes.includes(option.code)
+      );
+
+      return missingOptions.concat(topItems);
     },
     filteredOptions() {
       if (!this.filter) return this.sortedOptions || [];
@@ -78,8 +110,8 @@ export default {
       return matchingOptions;
     },
     sortedOptions() {
-      if (this.options) {
-        const copy = JSON.parse(JSON.stringify(this.options));
+      if (this.options && this.options.length) {
+        let copy = JSON.parse(JSON.stringify(this.options));
 
         return copy.sort(function (a, b) {
           if (a.code < b.code) {

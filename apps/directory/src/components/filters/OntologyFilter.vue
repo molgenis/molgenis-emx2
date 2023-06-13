@@ -1,17 +1,20 @@
 <template>
   <div>
-    <div class="px-2 py-2 buttonbar">
-      <button
-        v-for="ontologyId of ontologyIdentifiers"
-        :key="ontologyId + '-button'"
-        @click="selectedOntology = ontologyId"
-      >
-        {{ ontologyId }}
-      </button>
+    <div class="px-2 py-2 d-flex">
+      <div class="buttonbar">
+        <button
+          v-for="ontologyId of ontologyIdentifiers"
+          :key="ontologyId + '-button'"
+          @click="selectedOntology = ontologyId"
+          :class="{ active: selectedOntology === ontologyId }"
+        >
+          {{ ontologyId }}
+        </button>
+      </div>
       <input
         type="text"
         placeholder="Search a disease"
-        class="ml-auto ontology-search"
+        class="ml-2 ontology-search"
         v-model="ontologyQuery"
       />
     </div>
@@ -79,7 +82,12 @@ export default {
       const matchingOptions = [];
 
       for (const ontologyItem of this.ontologyOptions[this.selectedOntology]) {
-        if (this.filtersStore.ontologyItemMatchesQuery(ontologyItem, this.ontologyQuery)) {
+        if (
+          this.filtersStore.ontologyItemMatchesQuery(
+            ontologyItem,
+            this.ontologyQuery
+          )
+        ) {
           matchingOptions.push(ontologyItem);
           continue;
         } else if (ontologyItem.children) {
@@ -110,9 +118,33 @@ export default {
   box-shadow: none;
 }
 
-.buttonbar {
-  display: flex;
+.buttonbar > button {
+  border-radius: 0;
 }
+
+.buttonbar > button:focus {
+  outline: none;
+}
+
+.buttonbar > button:focus-visible {
+  outline: dotted 1px;
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.buttonbar > button:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+.buttonbar > button:last-child {
+  border-left-width: 0;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.buttonbar > button.active {
+  border-style: inset;
+}
+
 .ontology {
   max-width: 95vw;
   min-width: 30rem;
@@ -123,6 +155,6 @@ export default {
 }
 
 .ontology-search {
-  width: 50%;
+  width: 100%;
 }
 </style>

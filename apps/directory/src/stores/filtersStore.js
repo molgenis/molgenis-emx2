@@ -76,7 +76,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     { deep: true, immediate: true }
   );
 
-  function checkOntologyDescendantsIfMatches(ontologyDescendants, ontologyQuery) {
+  function checkOntologyDescendantsIfMatches (ontologyDescendants, ontologyQuery) {
     let finalVerdict = false;
 
     for (const ontologyItem of ontologyDescendants) {
@@ -95,7 +95,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return finalVerdict;
   }
 
-  function ontologyItemMatchesQuery(ontologyItem, ontologyQuery) {
+  function ontologyItemMatchesQuery (ontologyItem, ontologyQuery) {
     const findString = ontologyQuery.toLowerCase();
     const codeFound = ontologyItem.code.toLowerCase().includes(findString);
     const nameFound = ontologyItem.name.toLowerCase().includes(findString);
@@ -141,7 +141,18 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       let allChildrenValues = flattenOntologyBranch(copyBranch)
       delete copyBranch.children
       allChildrenValues.push(copyBranch)
-      processedValue = allChildrenValues
+
+      const deduplicatedValues = []
+      const codesProcessed = []
+
+      for (const childValue of allChildrenValues) {
+        if (!codesProcessed.includes(childValue.code)) {
+          deduplicatedValues.push(childValue)
+          codesProcessed.push(childValue.code)
+        }
+      }
+
+      processedValue = deduplicatedValues
     }
 
     const multipleOptions = Array.isArray(processedValue)
