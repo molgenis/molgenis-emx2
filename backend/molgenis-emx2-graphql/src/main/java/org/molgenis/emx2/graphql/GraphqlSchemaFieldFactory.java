@@ -726,9 +726,13 @@ public class GraphqlSchemaFieldFactory {
   }
 
   private void changeSettings(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
-    schema
-        .getMetadata()
-        .setSettings(convertKeyValueInputToMap(dataFetchingEnvironment.getArgument(SETTINGS)));
+    List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
+    if (settings != null) {
+      settings.forEach(
+          entry -> {
+            schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+          });
+    }
   }
 
   private Map<String, String> convertKeyValueInputToMap(List<Map<String, String>> keyValueList) {
