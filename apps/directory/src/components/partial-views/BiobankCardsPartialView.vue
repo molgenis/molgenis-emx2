@@ -23,11 +23,8 @@
     <div v-else-if="!biobanksStore.waiting" class="status-text">
       <h4>No biobanks were found</h4>
     </div>
-    <div v-else class="status-text">
-      <h4>
-        Loading data...
-        <!-- TODO: add spinner -->
-      </h4>
+    <div v-else class="status-text text-center">
+      <spinner class="mt-2" />
     </div>
   </div>
 </template>
@@ -38,6 +35,7 @@ import { useSettingsStore } from "../../stores/settingsStore";
 import ResultHeader from "../biobankcards-components/ResultHeader.vue";
 import PaginationBar from "../biobankcards-components/PaginationBar.vue";
 import BiobankCard from "../biobankcards-components/BiobankCard.vue";
+import { Spinner } from "../../../../molgenis-components";
 
 export default {
   setup() {
@@ -49,6 +47,7 @@ export default {
     ResultHeader,
     PaginationBar,
     BiobankCard,
+    Spinner,
   },
   computed: {
     biobanksShown() {
