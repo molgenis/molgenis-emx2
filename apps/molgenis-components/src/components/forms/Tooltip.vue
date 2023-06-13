@@ -6,8 +6,10 @@
     ref="tooltipContainer"
   >
     <slot />
-    <div v-if="value && display" class="mg-tooltip" ref="toolTip">
-      {{ value }}
+    <div ref="toolTip" v-if="value && display">
+      <div class="mg-tooltip m-1">
+        {{ value }}
+      </div>
     </div>
   </span>
 </template>
@@ -25,7 +27,7 @@
 </style>
 
 <script>
-import Popper from "popper.js";
+import { createPopper } from "@popperjs/core";
 
 export default {
   props: {
@@ -48,17 +50,15 @@ export default {
       await this.$nextTick();
       const container = this.$refs["tooltipContainer"];
       const tooltip = this.$refs["toolTip"];
-      if (container !== undefined && tooltip !== undefined) {
-        this.popperInstance = new Popper(container, tooltip, {
+      if (container && tooltip) {
+        this.popperInstance = createPopper(container, tooltip, {
+          strategy: "fixed",
           placement: this.placement,
-          modifiers: { preventOverflow: { enabled: true } },
         });
       }
     },
     async destroyTooltip() {
-      if (this.popperInstance) {
-        this.popperInstance.destroy();
-      }
+      this.popperInstance?.destroy();
       this.display = false;
     },
   },
@@ -69,7 +69,13 @@ export default {
 <template>
   <demo-item>
     <Tooltip value="this is quite a long tooltip so we can test that it actually renders with prevent overflow">
-      <IconAction icon="trash" @click="alert('clicked')"/>
+      <IconAction icon="trash" @click="window.alert('clicked')"/>
+    </Tooltip>
+  </demo-item>
+  <demo-item>
+    <Tooltip :value="undefined">
+      <IconAction icon="trash" @click="window.alert('clicked')"/> 
+      Button with empty tooltip
     </Tooltip>
   </demo-item>
 </template>

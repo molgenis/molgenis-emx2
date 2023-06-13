@@ -45,7 +45,6 @@
                 <button
                   type="button"
                   class="btn btn-link"
-                  :title="heading"
                   :class="{ 'font-weight-bold': index + 1 === currentPage }"
                   @click="setCurrentPage(index + 1)"
                   :style="chapterStyleAndErrors[index].style"
@@ -64,6 +63,7 @@
         :tableName="tableName"
         :errorMessage="errorMessage"
         :saveDisabledMessage="saveDisabledMessage"
+        :saveDraftDisabledMessage="saveDraftDisabledMessage"
         @cancel="handleClose"
         @saveDraft="handleSaveDraftRequest"
         @save="handleSaveRequest"
@@ -203,6 +203,20 @@ export default {
           errorFields,
         };
       });
+    },
+    saveDraftDisabledMessage() {
+      if (
+        this.tableMetaData?.columns.some(
+          (column) =>
+            column.key === 1 &&
+            column.columnType !== "AUTO_ID" &&
+            this.rowData[column.id] === null
+        )
+      ) {
+        return "Cannot save draft: primary key is required";
+      } else {
+        return "";
+      }
     },
   },
   methods: {

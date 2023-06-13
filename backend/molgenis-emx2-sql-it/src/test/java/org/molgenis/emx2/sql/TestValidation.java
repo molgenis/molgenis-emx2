@@ -75,4 +75,20 @@ public class TestValidation {
                 "weight",
                 3)); // this should not fail on required tags
   }
+
+  @Test
+  public void testRequiredHeadingDoesntBlock() {
+    // see https://github.com/molgenis/molgenis-emx2/issues/2384
+    TableMetadata pet = schema.getTable("Pet").getMetadata();
+    pet.alterColumn("details", pet.getColumn("details").setRequired(true));
+    pet.getTable()
+        .insert(
+            row(
+                "name",
+                "mickey2",
+                "category",
+                "mouse",
+                "weight",
+                3)); // this should not fail on required details
+  }
 }
