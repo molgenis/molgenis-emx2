@@ -1,6 +1,6 @@
 {
   "name": "molgenis-viz",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "files": [
     "dist"
@@ -19,21 +19,22 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "cross-env SHOW_CASE=off vite build",
-    "build-showcase": "cross-env SHOW_CASE=on vite build ",
+    "build-lib": "vite build -m lib",
+    "build-app": "vite build -m app",
+    "preview": "vite preview",
     "docs": "vuese gen",
-    "docs:serve": "vuese serve",
-    "preview": "vite preview"
+    "docs:serve": "vuese serve"
   },
   "dependencies": {
-    "@heroicons/vue": "^2.0.18",
-    "d3": "^7.8.4",
+    "@heroicons/vue": "2.0.18",
+    "d3": "7.8.4",
     "vue": "3.2.47"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.2.3",
-    "@vuese/cli": "^2.14.3",
-    "vite": "^4.3.9",
+    "@vitejs/plugin-vue": "4.2.3",
+    "@vuese/cli": "2.14.3",
+    "sass": "1.63.3",
+    "vite": "4.3.9",
     "vue-router": "4.1.6"
   }
 }

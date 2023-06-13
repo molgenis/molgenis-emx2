@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import ChartLegend from '@/components/VizLegend.vue'
+import ChartLegend from '@/components/viz/ChartLegend.vue'
 import { select, selectAll, geoMercator, geoNaturalEarth1, geoPath, json, zoom } from 'd3'
 const d3 = { select, selectAll, geoMercator, geoNaturalEarth1, geoPath, json, zoom }
 

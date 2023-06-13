@@ -14,7 +14,7 @@
 // @group LAYOUTS
 //
 export default {
-
+  name: 'AppPage'
 }
 </script>
 

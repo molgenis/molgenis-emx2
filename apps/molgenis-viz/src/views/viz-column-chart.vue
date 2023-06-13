@@ -47,16 +47,16 @@
 </template>
 
 <script>
-import Page from '@/components/Page.vue'
-import PageHeader from '@/components/PageHeader.vue'
-import PageSection from '@/components/PageSection.vue'
+import Page from '@/components/layouts/Page.vue'
+import PageHeader from '@/components/layouts/PageHeader.vue'
+import PageSection from '@/components/layouts/PageSection.vue'
 import Breadcrumbs from '@/app-components/breadcrumbs.vue'
-import MessageBox from '@/components/MessageBox.vue'
-import ColumnChart from '@/components/VizColumnChart.vue'
+import MessageBox from '@/components/display/MessageBox.vue'
+import ColumnChart from '@/components/viz/ColumnChart.vue'
 
 import headerImage from '@/assets/adrien-delforge-unsplash.jpg'
 
-import { fetchData, sortData } from '$shared/js/utils.js' 
+import { fetchData, sortData } from '@/utils/utils.js' 
 import { rollups } from 'd3'
 const d3 = { rollups }
 

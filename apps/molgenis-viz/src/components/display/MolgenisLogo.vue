@@ -1,9 +1,9 @@
-<!-- <script setup>
+<script setup>
 import MolgenisLogo from '@/assets/molgenis-logo-blue-small.svg'
-</script> -->
+</script>
 
 <template>
-  <img src="/apps/molgenis-components/assets/img/molgenis_logo_white.png" class="molgenis-logo" alt="molgenis open source data platform" />
+  <img :src="MolgenisLogo" class="molgenis-logo" alt="molgenis open source data platform" />
 </template>
 
 <style lang="scss">

@@ -45,16 +45,16 @@
   </Page>
 </template>
 <script>
-import Page from '@/components/Page.vue'
-import PageHeader from '@/components/PageHeader.vue'
-import PageSection from '@/components/PageSection.vue'
-import MessageBox from '@/components/MessageBox.vue'
+import Page from '@/components/layouts/Page.vue'
+import PageHeader from '@/components/layouts/PageHeader.vue'
+import PageSection from '@/components/layouts/PageSection.vue'
+import MessageBox from '@/components/display/MessageBox.vue'
 import Breadcrumbs from '@/app-components/breadcrumbs.vue'
-import Datatable from '@/components/VizDataTable.vue'
+import Datatable from '@/components/viz/DataTable.vue'
 
 import headerImage from '@/assets/ashley-byrd-unsplash.jpg'
 
-import { fetchData, sortData } from '$shared/js/utils.js'
+import { fetchData, sortData } from '@/utils/utils.js'
 import { mean, format, rollup, rollups } from 'd3'
 const d3 = { mean, format, rollup, rollups }
 

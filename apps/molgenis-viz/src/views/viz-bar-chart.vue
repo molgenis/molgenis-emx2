@@ -46,16 +46,16 @@
 </template>
 
 <script>
-import Page from '@/components/Page.vue'
-import PageHeader from '@/components/PageHeader.vue'
-import PageSection from '@/components/PageSection.vue'
-import MessageBox from '@/components/MessageBox.vue'
+import Page from '@/components/layouts/Page.vue'
+import PageHeader from '@/components/layouts/PageHeader.vue'
+import PageSection from '@/components/layouts/PageSection.vue'
+import MessageBox from '@/components/display/MessageBox.vue'
 import Breadcrumbs from '@/app-components/breadcrumbs.vue'
-import BarChart from '@/components/VizBarChart.vue'
+import BarChart from '@/components/viz/BarChart.vue'
 
 import headerImage from '@/assets/bulkan-evcimen.jpg'
 
-import { fetchData, sortData } from '$shared/js/utils.js' 
+import { fetchData, sortData } from '@/utils/utils.js'
 import { rollups } from 'd3'
 const d3 = { rollups }
 

@@ -45,10 +45,10 @@
 </template>
 
 <script>
-import Page from '@/components/Page.vue'
-import PageHeader from '@/components/PageHeader.vue'
-import PageSection from '@/components/PageSection.vue'
-import LinkCard from '@/components/LinkCard.vue'
+import Page from '@/components/layouts/Page.vue'
+import PageHeader from '@/components/layouts/PageHeader.vue'
+import PageSection from '@/components/layouts/PageSection.vue'
+import LinkCard from '@/components/display/LinkCard.vue'
 
 import headerImage from '@/assets/joeyy-lee-unsplash.jpg'
 import BarChartImage from '@/assets/bulkan-evcimen.jpg'

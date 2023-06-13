@@ -44,14 +44,14 @@
 </template>
 
 <script>
-import Page from '@/components/Page.vue'
-import PageHeader from '@/components/PageHeader.vue'
-import PageSection from '@/components/PageSection.vue'
-import MessageBox from '@/components/MessageBox.vue'
-import PieChart from '@/components/VizPieChart.vue'
+import Page from '@/components/layouts/Page.vue'
+import PageHeader from '@/components/layouts/PageHeader.vue'
+import PageSection from '@/components/layouts/PageSection.vue'
+import MessageBox from '@/components/display/MessageBox.vue'
+import PieChart from '@/components/viz/PieChart.vue'
 import Breadcrumbs from '@/app-components/breadcrumbs.vue'
 
-import { fetchData } from '$shared/js/utils.js' 
+import { fetchData } from '@/utils/utils.js' 
 import { rollups, sum, format } from 'd3'
 const d3 = { rollups, sum, format }
 

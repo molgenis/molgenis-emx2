@@ -75,7 +75,7 @@
 import { select, selectAll, scaleBand, axisBottom, max, min, scaleLinear, axisLeft } from 'd3'
 const d3 = { select, selectAll, scaleBand, axisBottom, max, min, scaleLinear, axisLeft }
 
-import { validateNumRange } from '$shared/js/d3.js'
+import { validateNumRange } from '@/utils/utils.js'
 
 // Create a bar chart (horizontal bars) that displays values along the
 // x-axis by groups (along the y-axis). This component is ideal if you

@@ -42,14 +42,14 @@
 </template>
 
 <script>
-import Page from '@/components/Page.vue'
-import PageHeader from '@/components/PageHeader.vue'
-import PageSection from '@/components/PageSection.vue'
-import MessageBox from '@/components/MessageBox.vue'
-import ChartLegend from '@/components/VizLegend.vue'
+import Page from '@/components/layouts/Page.vue'
+import PageHeader from '@/components/layouts/PageHeader.vue'
+import PageSection from '@/components/layouts/PageSection.vue'
+import MessageBox from '@/components/display/MessageBox.vue'
+import ChartLegend from '@/components/viz/ChartLegend.vue'
 import Breadcrumbs from '@/app-components/breadcrumbs.vue'
 
-import { fetchData } from '$shared/js/utils.js'
+import { fetchData } from '@/utils/utils.js'
 import { schemeGnBu } from 'd3-scale-chromatic'
 import { scaleOrdinal } from 'd3'
 const d3 = {schemeGnBu, scaleOrdinal}
