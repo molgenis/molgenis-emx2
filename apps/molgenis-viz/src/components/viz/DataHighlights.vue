@@ -1,11 +1,7 @@
 <template>
   <h3 :class="setTitleClassNames">{{ title }}</h3>
   <ul class="data-highlights">
-    <li
-      class="data-highlight"
-      v-for="key in Object.keys(data)"
-      key="key" 
-    >
+    <li class="data-highlight" v-for="key in Object.keys(data)" key="key">
       <data :value="data[key]" class="data-value">
         <span class="data-label">{{ key }}</span>
       </data>
@@ -24,7 +20,7 @@
 //
 // @group VISUALISATIONS
 export default {
-  name: 'DataHighlights',
+  name: "DataHighlights",
   props: {
     // one or two words that describes the value
     title: {
@@ -34,25 +30,25 @@ export default {
     showTitle: {
       type: Boolean,
       // `false`
-      default: false
+      default: false,
     },
     // An object containing one or more key-value pairs
     data: {
       type: Object,
       required: true,
       validator: (object) => {
-        return Object.keys(object).length <= 5
-      }
-    }
+        return Object.keys(object).length <= 5;
+      },
+    },
   },
   computed: {
-    setTitleClassNames () {
-      const base = 'data-highlights-title'
-      const visibility = !this.showTitle ? 'visually-hidden' : ''
-      return [base, visibility].join(' ')
-    }
-  }
-}
+    setTitleClassNames() {
+      const base = "data-highlights-title";
+      const visibility = !this.showTitle ? "visually-hidden" : "";
+      return [base, visibility].join(" ");
+    },
+  },
+};
 </script>
 
 <style lang="scss">
@@ -66,7 +62,7 @@ export default {
   list-style: none;
   padding: 0;
   margin: 0;
-  
+
   .data-highlight {
     box-sizing: border-box;
     padding: 1em;
@@ -74,7 +70,7 @@ export default {
     border-radius: 6px;
     flex-grow: 1;
     box-shadow: 0 0 4px 3px $gray-transparent-200;
-    
+
     .data-value {
       .data-label {
         display: block;
@@ -85,7 +81,7 @@ export default {
         color: $blue-100;
         letter-spacing: 0.08em;
       }
-      
+
       &::after {
         content: attr(value);
         display: block;

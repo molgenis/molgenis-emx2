@@ -10,9 +10,9 @@
       :viewBox="viewbox"
       preserveAspectRatio="xMinYMin"
     >
-      <g 
+      <g
         class="chart-area"
-        :transform="`translate(${ (chartWidth / 2 ) }, ${chartHeight / 2})`"
+        :transform="`translate(${chartWidth / 2}, ${chartHeight / 2})`"
       >
         <g class="pie-slices"></g>
         <g class="pie-labels"></g>
@@ -22,10 +22,10 @@
 </template>
 
 <script>
-import { select, selectAll, scaleOrdinal, pie, arc, schemeBlues } from 'd3'
-const d3 = { select, selectAll, scaleOrdinal, pie, arc, schemeBlues }
+import { select, selectAll, scaleOrdinal, pie, arc, schemeBlues } from "d3";
+const d3 = { select, selectAll, scaleOrdinal, pie, arc, schemeBlues };
 
-import { validateNumRange } from '@/utils/utils.js'
+import { validateNumRange } from "@/utils/utils.js";
 
 // Create a pie chart to visually display subelements of your data in relation
 // to the entire dataset. The data should contain no more than 7 elements and
@@ -35,31 +35,31 @@ import { validateNumRange } from '@/utils/utils.js'
 // scheme, make sure colors are accessible and use a *muted* color palette.
 // Please note that group differences can be emphasized by enabling animations.
 //
-// @group VISUALISATIONS 
+// @group VISUALISATIONS
 export default {
-  name: 'PieChart',
+  name: "PieChart",
   props: {
     // A unique ID for the chart
     chartId: {
       type: String,
-      required: true
+      required: true,
     },
-    
+
     // A title that describes the chart
     title: String,
-    
+
     // Additional information to display below the title
     description: String,
-    
+
     // An object containing 7 or fewer group-value pairs
     chartData: {
       type: Object,
       required: true,
       validator: (object) => {
-        return Object.keys(object).length <= 7
-      }
+        return Object.keys(object).length <= 7;
+      },
     },
-    
+
     // set the height of the chart. Width is determined by the
     // dimensions of the parent container so that the chart is
     // responsive. If you would like to specify the width of the
@@ -67,277 +67,299 @@ export default {
     chartHeight: {
       type: Number,
       // `300`
-      default: 400
+      default: 400,
     },
-    
+
     // set all chart margins
     chartMargins: {
       type: Number,
       // `20`
-      default: 20
+      default: 20,
     },
-    
+
     // set chart scale
     chartScale: {
       type: Number,
       // `0.75`
       default: 0.75,
-      validator: (value) => validateNumRange(value)
+      validator: (value) => validateNumRange(value),
     },
-  
+
     // An object containing one-to-one mappings of groups to colors.
     // If colors are not defined, a default palette will be chosen for you.
     chartColors: {
       type: Object,
-      default: null
+      default: null,
     },
-    
+
     // Set the border color for the slices
     strokeColor: {
       type: String,
       // `#3f454b`
-      default: '#3f454b'
+      default: "#3f454b",
     },
-    
+
     // If true, the chart will be aligned to the center of the parent
     // component. Otherwise, the chart will be left aligned.
     centerAlignChart: {
       type: Boolean,
-      default: false
+      default: false,
     },
-    
+
     // If `true`, click events will be enabled for all bars. When a bar is
     // clicked, the row-level data for that bar will be emitted.
     // To access the data, use the event `@slice-clicked=...`
     enableClicks: {
       type: Boolean,
       // `false`
-      default: true
+      default: true,
     },
-
   },
-  emits: ['slice-clicked'],
-  data () {
+  emits: ["slice-clicked"],
+  data() {
     return {
-      chartWidth: 300
-    }
+      chartWidth: 300,
+    };
   },
   computed: {
-    svg () {
-      return d3.select(`#${this.chartId}`)
+    svg() {
+      return d3.select(`#${this.chartId}`);
     },
-    svgClassNames () {
-      const css = ['chart']
+    svgClassNames() {
+      const css = ["chart"];
       if (this.title || this.description) {
-        css.push('chart-has-context')
+        css.push("chart-has-context");
       }
-      
+
       if (this.centerAlignChart) {
-        css.push('chart-center-aligned')
+        css.push("chart-center-aligned");
       }
-      
+
       if (this.enableClicks) {
-        css.push('slice-clicks-enabled')
+        css.push("slice-clicks-enabled");
       }
-      return css.join(' ')
+      return css.join(" ");
     },
-    chartArea () {
-      return this.svg.select('g.chart-area')
+    chartArea() {
+      return this.svg.select("g.chart-area");
     },
-    viewbox () {
-      return `0 0 ${this.chartWidth} ${this.chartHeight}`
+    viewbox() {
+      return `0 0 ${this.chartWidth} ${this.chartHeight}`;
     },
-    radius () {
-      return (Math.min(this.chartWidth, this.chartHeight) / 2) - this.chartMargins
+    radius() {
+      return (
+        Math.min(this.chartWidth, this.chartHeight) / 2 - this.chartMargins
+      );
     },
-    pie () {
-      return d3.pie().sort(null).value(value => value[1])
+    pie() {
+      return d3
+        .pie()
+        .sort(null)
+        .value((value) => value[1]);
     },
-    pieChartData () {      
-      return this.pie(Object.entries(this.chartData))
+    pieChartData() {
+      return this.pie(Object.entries(this.chartData));
     },
-    arcGenerator () {
-      return d3.arc().innerRadius(0).outerRadius(this.radius * 0.7)
+    arcGenerator() {
+      return d3
+        .arc()
+        .innerRadius(0)
+        .outerRadius(this.radius * 0.7);
     },
-    labelArcGenerator () {
-      return d3.arc()
+    labelArcGenerator() {
+      return d3
+        .arc()
         .innerRadius(this.radius * 0.8)
-        .outerRadius(this.radius * 0.8)
+        .outerRadius(this.radius * 0.8);
     },
-    colors () {
+    colors() {
       if (!this.chartColors) {
-        const autoColors = {}
-        const length = Object.keys(this.chartData).length
-        const palette = d3.scaleOrdinal(d3.schemeBlues[length])
+        const autoColors = {};
+        const length = Object.keys(this.chartData).length;
+        const palette = d3.scaleOrdinal(d3.schemeBlues[length]);
         Object.keys(this.chartData).forEach((key, index) => {
-          autoColors[key] = palette(index)
-        })
-        return autoColors
+          autoColors[key] = palette(index);
+        });
+        return autoColors;
       }
-      return this.chartColors
-    }
+      return this.chartColors;
+    },
   },
   methods: {
-    setChartDimensions () {
-      const parent = this.$el.parentNode
-      this.chartWidth = parent.offsetWidth * this.chartScale
+    setChartDimensions() {
+      const parent = this.$el.parentNode;
+      this.chartWidth = parent.offsetWidth * this.chartScale;
     },
-    setLabelPosition (value) {
-      const position = this.labelArcGenerator.centroid(value)
-        const angle = value.startAngle + (value.endAngle - value.startAngle) / 2
-        position[0] = this.radius * 0.99 * (angle < Math.PI ? 1 : -1)
-        return position
+    setLabelPosition(value) {
+      const position = this.labelArcGenerator.centroid(value);
+      const angle = value.startAngle + (value.endAngle - value.startAngle) / 2;
+      position[0] = this.radius * 0.99 * (angle < Math.PI ? 1 : -1);
+      return position;
     },
-    setTextAnchor (value) {
-      const angle = value.startAngle + (value.endAngle - value.startAngle) / 2
-      return angle < Math.PI ? 'start' : 'end'
+    setTextAnchor(value) {
+      const angle = value.startAngle + (value.endAngle - value.startAngle) / 2;
+      return angle < Math.PI ? "start" : "end";
     },
-    setOffsetX (value) {
-      const angle = value.startAngle + (value.endAngle - value.startAngle) / 2
-      return angle < Math.PI ? '-1em' : '1em'
+    setOffsetX(value) {
+      const angle = value.startAngle + (value.endAngle - value.startAngle) / 2;
+      return angle < Math.PI ? "-1em" : "1em";
     },
-    setPieChartData () {
-      const pie = d3.pie().sort(null).value(value => value[1])
-      this.pieChartData = pie(Object.entries(this.chartData))
+    setPieChartData() {
+      const pie = d3
+        .pie()
+        .sort(null)
+        .value((value) => value[1]);
+      this.pieChartData = pie(Object.entries(this.chartData));
     },
-    onMouseOver (value) {
-      const selector = value.data[0]
-      const slice = this.chartArea.select(`.slice[data-group="${selector}"]`)
-      const text = this.chartArea.select(`.pie-label-text[data-group="${selector}"]`)
-      slice.node().classList.add('slice-focused')
-      text.node().classList.add('text-focused')
+    onMouseOver(value) {
+      const selector = value.data[0];
+      const slice = this.chartArea.select(`.slice[data-group="${selector}"]`);
+      const text = this.chartArea.select(
+        `.pie-label-text[data-group="${selector}"]`
+      );
+      slice.node().classList.add("slice-focused");
+      text.node().classList.add("text-focused");
     },
-    onMouseOut (value) {
-      const selector = value.data[0]
-      const slice = this.chartArea.select(`path.slice[data-group="${selector}"]`)
-      const text = this.chartArea.select(`text.pie-label-text[data-group="${selector}"]`)
-      slice.node().classList.remove('slice-focused')
-      text.node().classList.remove('text-focused')
+    onMouseOut(value) {
+      const selector = value.data[0];
+      const slice = this.chartArea.select(
+        `path.slice[data-group="${selector}"]`
+      );
+      const text = this.chartArea.select(
+        `text.pie-label-text[data-group="${selector}"]`
+      );
+      slice.node().classList.remove("slice-focused");
+      text.node().classList.remove("text-focused");
     },
-    onClick (value) {
-      const data = {}
-      data[value.data[0]] = value.data[1]
-      this.$emit('slice-clicked', data)
+    onClick(value) {
+      const data = {};
+      data[value.data[0]] = value.data[1];
+      this.$emit("slice-clicked", data);
     },
-    drawSlices () {
-      const pieSlices = this.chartArea.select('.pie-slices') 
-      pieSlices.selectAll('*').remove()
-      const slices = pieSlices.selectAll('slices')
+    drawSlices() {
+      const pieSlices = this.chartArea.select(".pie-slices");
+      pieSlices.selectAll("*").remove();
+      const slices = pieSlices
+        .selectAll("slices")
         .data(this.pieChartData)
-        .join('path')
-        .attr('d', this.arcGenerator)
-        .attr('class', 'slice')
-        .attr('stroke', this.strokeColor)
-        .attr('data-group', value => value.data[0])
-        .attr('fill', value => this.colors[value.data[0]])
-        
+        .join("path")
+        .attr("d", this.arcGenerator)
+        .attr("class", "slice")
+        .attr("stroke", this.strokeColor)
+        .attr("data-group", (value) => value.data[0])
+        .attr("fill", (value) => this.colors[value.data[0]]);
+
       if (this.enableClicks) {
-        slices.on('mouseover', (event, value) => this.onMouseOver(value))
-        slices.on('mouseout', (event, value) => this.onMouseOut(value))
+        slices.on("mouseover", (event, value) => this.onMouseOver(value));
+        slices.on("mouseout", (event, value) => this.onMouseOut(value));
       }
-      
+
       if (this.enableClicks) {
-        slices.on('click', (event, value) => this.onClick(value))
+        slices.on("click", (event, value) => this.onClick(value));
       }
     },
-    drawLabels () {
-      const pieLabels = this.chartArea.select('.pie-labels')
-      pieLabels.selectAll('*').remove()
-      pieLabels.selectAll('pie-label-lines')
+    drawLabels() {
+      const pieLabels = this.chartArea.select(".pie-labels");
+      pieLabels.selectAll("*").remove();
+      pieLabels
+        .selectAll("pie-label-lines")
         .data(this.pieChartData)
-        .join('polyline')
-        .attr('class', 'pie-label-line')
-        .attr('stroke', this.strokeColor)
-        .attr('points', value => {
-          const centroid = this.arcGenerator.centroid(value)
-          const outerCircleCentroid = this.labelArcGenerator.centroid(value)
-          const labelPosition = this.labelArcGenerator.centroid(value)
-          const angle = value.startAngle + (value.endAngle - value.startAngle) / 2
-          labelPosition[0] = this.radius * 0.95 * (angle < Math.PI ? 1 : -1)
-          return [centroid, outerCircleCentroid, labelPosition]
-        })
-  
-      const labels = pieLabels.selectAll('slice-labels')
+        .join("polyline")
+        .attr("class", "pie-label-line")
+        .attr("stroke", this.strokeColor)
+        .attr("points", (value) => {
+          const centroid = this.arcGenerator.centroid(value);
+          const outerCircleCentroid = this.labelArcGenerator.centroid(value);
+          const labelPosition = this.labelArcGenerator.centroid(value);
+          const angle =
+            value.startAngle + (value.endAngle - value.startAngle) / 2;
+          labelPosition[0] = this.radius * 0.95 * (angle < Math.PI ? 1 : -1);
+          return [centroid, outerCircleCentroid, labelPosition];
+        });
+
+      const labels = pieLabels
+        .selectAll("slice-labels")
         .data(this.pieChartData)
-        .join('text')
-        .attr('class', 'pie-label-text')
-        .attr('data-group', value => value.data[0])
-        .attr('x', value => this.setLabelPosition(value)[0])
-        .attr('y', value => this.setLabelPosition(value)[1])
-        .style('text-anchor', this.setTextAnchor)
-        .style('font-size', '11pt')
-  
-      labels.append('tspan')
-        .attr('class', 'data-label')
-        .attr('x', value => this.setLabelPosition(value)[0])
-        .attr('data-group', value => value.data[0])
-        .text(value => value.data[0])
-        
-      labels.append('tspan')
-        .attr('class', 'data-value')
-        .attr('x', value => this.setLabelPosition(value)[0])
-        .attr('dy', '1.1em')
-        .attr('data-group', value => value.data[0])
-        .text(value => `${value.data[1]}%`)
+        .join("text")
+        .attr("class", "pie-label-text")
+        .attr("data-group", (value) => value.data[0])
+        .attr("x", (value) => this.setLabelPosition(value)[0])
+        .attr("y", (value) => this.setLabelPosition(value)[1])
+        .style("text-anchor", this.setTextAnchor)
+        .style("font-size", "11pt");
+
+      labels
+        .append("tspan")
+        .attr("class", "data-label")
+        .attr("x", (value) => this.setLabelPosition(value)[0])
+        .attr("data-group", (value) => value.data[0])
+        .text((value) => value.data[0]);
+
+      labels
+        .append("tspan")
+        .attr("class", "data-value")
+        .attr("x", (value) => this.setLabelPosition(value)[0])
+        .attr("dy", "1.1em")
+        .attr("data-group", (value) => value.data[0])
+        .text((value) => `${value.data[1]}%`);
     },
-    renderChart () {
-      this.setChartDimensions()
-      this.drawSlices()
-      this.drawLabels()
-    }
+    renderChart() {
+      this.setChartDimensions();
+      this.drawSlices();
+      this.drawLabels();
+    },
   },
-  mounted () {
-    this.renderChart()
-    window.addEventListener('resize', this.renderChart)
+  mounted() {
+    this.renderChart();
+    window.addEventListener("resize", this.renderChart);
   },
-  updated () {
-    this.renderChart()
+  updated() {
+    this.renderChart();
   },
   beforeUnmount() {
-    window.removeEventListener('resize', this.renderChart)
-  }
-}
+    window.removeEventListener("resize", this.renderChart);
+  },
+};
 </script>
 
 <style lang="scss">
 .d3-pie-chart {
-  
   h3.chart-title {
     margin: 0;
     text-align: left;
   }
-  
+
   p.chart-description {
     text-align: left;
     margin: 0;
   }
-  
+
   .chart {
     display: block;
     margin: 0;
-    
+
     .chart-area {
       .slice {
         stroke-width: 1px;
         opacity: 0.7;
         cursor: pointer;
-        
+
         &.slice-focused {
           transition: 250ms;
           transform: scale(1.2);
         }
       }
-      
+
       .pie-label-line {
         fill: none;
         stroke-width: 1px;
       }
-      
+
       .pie-label-text {
         .data-label {
           font-size: 11pt;
         }
-        
+
         .data-value {
           font-size: 11pt;
         }
@@ -354,13 +376,13 @@ export default {
         }
       }
     }
-    
+
     &.slice-clicks-enabled {
       .slice {
         cursor: pointer;
       }
     }
-    
+
     &.chart-has-context {
       margin-top: 12px;
     }

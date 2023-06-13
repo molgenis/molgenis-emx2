@@ -8,12 +8,20 @@
     />
     <PageSection :verticalPadding="0">
       <Breadcrumbs>
-        <li><router-link :to="{name: 'bar-chart'}">Bar Chart</router-link></li>
+        <li>
+          <router-link :to="{ name: 'bar-chart' }">Bar Chart</router-link>
+        </li>
       </Breadcrumbs>
     </PageSection>
     <PageSection class="viz-section">
       <h2>Bar Chart</h2>
-      <p>The <strong>BarChart</strong> component is used to display values for categorical data. Groups are plotted along the y-axis and values along the x-axis. If you would like to display values vertically, use the <router-link :to="{name: 'column-chart'}">Column Chart</router-link> component.</p>
+      <p>
+        The <strong>BarChart</strong> component is used to display values for
+        categorical data. Groups are plotted along the y-axis and values along
+        the x-axis. If you would like to display values vertically, use the
+        <router-link :to="{ name: 'column-chart' }">Column Chart</router-link>
+        component.
+      </p>
     </PageSection>
     <PageSection class="bkg-light" :verticalPadding="2">
       <MessageBox v-if="loading & !hasError">
@@ -30,7 +38,7 @@
         :chartData="data"
         xvar="count"
         yvar="island"
-        :chartMargins="{left: 110, top: 10, right: 40, bottom: 60}"
+        :chartMargins="{ left: 110, top: 10, right: 40, bottom: 60 }"
         :barPaddingInner="0.25"
         :barPaddingOuter="0.25"
         xAxisLabel="Number of Penguins"
@@ -46,19 +54,18 @@
 </template>
 
 <script>
-import Page from '@/components/layouts/Page.vue'
-import PageHeader from '@/components/layouts/PageHeader.vue'
-import PageSection from '@/components/layouts/PageSection.vue'
-import MessageBox from '@/components/display/MessageBox.vue'
-import Breadcrumbs from '@/app-components/breadcrumbs.vue'
-import BarChart from '@/components/viz/BarChart.vue'
+import Page from "@/components/layouts/Page.vue";
+import PageHeader from "@/components/layouts/PageHeader.vue";
+import PageSection from "@/components/layouts/PageSection.vue";
+import MessageBox from "@/components/display/MessageBox.vue";
+import Breadcrumbs from "@/app-components/breadcrumbs.vue";
+import BarChart from "@/components/viz/BarChart.vue";
 
-import headerImage from '@/assets/bulkan-evcimen.jpg'
+import headerImage from "@/assets/bulkan-evcimen.jpg";
 
-import { fetchData, sortData } from '@/utils/utils.js'
-import { rollups } from 'd3'
-const d3 = { rollups }
-
+import { fetchData, sortData } from "@/utils/utils.js";
+import { rollups } from "d3";
+const d3 = { rollups };
 
 export default {
   components: {
@@ -69,7 +76,7 @@ export default {
     Breadcrumbs,
     BarChart,
   },
-  data () {
+  data() {
     return {
       headerImage: headerImage,
       loading: true,
@@ -77,29 +84,34 @@ export default {
       error: null,
       data: [],
       clicked: {},
-    }
+    };
   },
   methods: {
-    updateClicked (data) {
-      this.clicked = data
-    }
+    updateClicked(data) {
+      this.clicked = data;
+    },
   },
-  mounted () {
-    Promise.resolve(
-      fetchData('/api/v2/rdcomponents_penguins?num=500')
-    ).then(response => {
-      const data = response.items
-      const summarised = d3.rollups(data, row => row.length, row => row.island)
-        .map(item => new Object({'island': item[0], 'count': item[1]}))
-      this.data = sortData(summarised, 'value')
-      this.loading = false
-    }).catch(error => {
-      const err = error.message
-      this.loading = false
-      this.hasError = true
-      this.error = err
-      throw new Error(error)
-    })
-  }
-}
+  mounted() {
+    Promise.resolve(fetchData("/api/v2/rdcomponents_penguins?num=500"))
+      .then((response) => {
+        const data = response.items;
+        const summarised = d3
+          .rollups(
+            data,
+            (row) => row.length,
+            (row) => row.island
+          )
+          .map((item) => new Object({ island: item[0], count: item[1] }));
+        this.data = sortData(summarised, "value");
+        this.loading = false;
+      })
+      .catch((error) => {
+        const err = error.message;
+        this.loading = false;
+        this.hasError = true;
+        this.error = err;
+        throw new Error(error);
+      });
+  },
+};
 </script>

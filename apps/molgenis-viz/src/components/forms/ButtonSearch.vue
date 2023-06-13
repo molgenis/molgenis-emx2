@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { MagnifyingGlassCircleIcon } from '@heroicons/vue/24/outline'
+import { MagnifyingGlassCircleIcon } from "@heroicons/vue/24/outline";
 
 // @displayName SearchButton
 // Create a search button for use in forms.
@@ -15,19 +15,18 @@ export default {
     // a unique identifier for the button
     id: {
       type: String,
-      required: true
+      required: true,
     },
     // Set the text of the button
     label: {
       type: String,
       required: false,
       // `'Search'`
-      default: 'Search'
-    }
+      default: "Search",
+    },
   },
-  components: { MagnifyingGlassCircleIcon }
-}
-
+  components: { MagnifyingGlassCircleIcon },
+};
 </script>
 
 <style lang="scss">
@@ -45,12 +44,13 @@ export default {
   border-radius: 6px;
   font-size: 13pt;
   cursor: pointer;
-  
+
   .button-icon {
     margin-right: 6px;
   }
-  
-  &:hover, &:focus {
+
+  &:hover,
+  &:focus {
     outline: 1px solid;
   }
 }

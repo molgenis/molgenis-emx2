@@ -1,38 +1,46 @@
 <template>
   <table :id="tableId" :class="tableClassNames">
-    <caption v-if="caption">{{ caption }}</caption>
+    <caption v-if="caption">
+      {{
+        caption
+      }}
+    </caption>
     <thead role="">
       <tr>
-        <th 
-          v-for="column,index in columnOrder"
+        <th
+          v-for="(column, index) in columnOrder"
           role="columnheader"
           scope="col"
           :data-column-index="index"
           :data-column-name="column"
           :key="column"
-          :class="numericColumns.includes(column) ? 'column-numeric': ''"
+          :class="numericColumns.includes(column) ? 'column-numeric' : ''"
         >
           {{ column }}
         </th>
       </tr>
     </thead>
     <tbody role="presentation">
-      <tr 
-        v-for="row,rowindex in data"
+      <tr
+        v-for="(row, rowindex) in data"
         :key="rowindex"
         :data-row-index="rowindex"
         @click="onClick(row)"
       >
         <td
-          v-for="column, colindex in columnOrder"
+          v-for="(column, colindex) in columnOrder"
           role="gridcell"
           :data-column-index="colindex"
           :data-cell-index="`${rowindex},${colindex}`"
-          :class="dataTypeToCssClass(column,row[column])"
+          :class="dataTypeToCssClass(column, row[column])"
         >
-        <span class="cell-colname" aria-hidden="true">{{ column }}</span>
-        <span class="cell-value" v-if="renderHtml" v-html="row[column]"></span>
-        <span class="cell-value" v-else>{{ row[column] }}</span>
+          <span class="cell-colname" aria-hidden="true">{{ column }}</span>
+          <span
+            class="cell-value"
+            v-if="renderHtml"
+            v-html="row[column]"
+          ></span>
+          <span class="cell-value" v-else>{{ row[column] }}</span>
         </td>
       </tr>
     </tbody>
@@ -45,87 +53,88 @@
 //
 // @group VISUALISATIONS
 export default {
-  name: 'DataTable',
+  name: "DataTable",
   props: {
     // A unique identifier for the table
     tableId: {
       type: String,
-      required: true
+      required: true,
     },
     // dataset to render (array of objects)
     data: {
       type: Array,
-      required: true
+      required: true,
     },
     // an array of column names that define the selection and order of columns
     columnOrder: {
       type: Array,
-      required: true
+      required: true,
     },
-    // optional text that describes the table 
+    // optional text that describes the table
     caption: {
       type: String,
-      default: null
+      default: null,
     },
     // If true, rows will be highlighted on mouse events
     enableRowHighlighting: {
       type: Boolean,
-      default: true
+      default: true,
     },
     // If true, row clicks will return the selected row (as an object)
     // Row level data can be access using the following event
     // `@row-clicked=...`
     enableRowClicks: {
       type: Boolean,
-      default: true
+      default: true,
     },
     // If true, all values will be rendered as HTML. Otherwise, values will be rendered as text
     renderHtml: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
-  emits: ['row-clicked'],
+  emits: ["row-clicked"],
   computed: {
-    tableClassNames () {
-      const base = 'd3-viz d3-table'
-      const highlighting = this.enableRowHighlighting ? 'table-row-highlighting' : ''
-      return [base, highlighting].join(' ')
-    }
+    tableClassNames() {
+      const base = "d3-viz d3-table";
+      const highlighting = this.enableRowHighlighting
+        ? "table-row-highlighting"
+        : "";
+      return [base, highlighting].join(" ");
+    },
   },
-  data () {
+  data() {
     return {
-      numericColumns: []
-    }
+      numericColumns: [],
+    };
   },
   methods: {
-    dataTypeToCssClass (column, value) {
-      let css = `column-${column} data-value`
-      const type = typeof value
-      css += ` value-${type}`
-      if (type === 'number') {
+    dataTypeToCssClass(column, value) {
+      let css = `column-${column} data-value`;
+      const type = typeof value;
+      css += ` value-${type}`;
+      if (type === "number") {
         if (!this.numericColumns.includes(column)) {
-          this.numericColumns.push(column)
+          this.numericColumns.push(column);
         }
         if (value > 0) {
-          css += ' value-positive'
+          css += " value-positive";
         } else if (value < 0) {
-          css += ' value-negative'
+          css += " value-negative";
         } else {
-          css += ' value-zero'
+          css += " value-zero";
         }
       }
-      return css
+      return css;
     },
-    onClick (data) {
-      this.$emit('row-clicked', data)
-    }
-  }
-}
+    onClick(data) {
+      this.$emit("row-clicked", data);
+    },
+  },
+};
 </script>
 
 <style lang="scss">
-
 @mixin visuallyHidden {
   position: absolute;
   clip: rect(1px 1px 1px 1px);
@@ -160,7 +169,7 @@ export default {
   color: $gray-700;
   width: 100%;
   position: relative;
-    
+
   caption {
     caption-side: top;
     text-align: left;
@@ -168,31 +177,31 @@ export default {
     margin-bottom: 16px;
     color: $gray-900;
   }
-    
+
   thead {
     tr {
       th {
         @include columnHeader;
         border-bottom: 2px solid $gray-900;
         color: $gray-900;
-        
+
         &.column-numeric {
           text-align: right;
         }
       }
     }
   }
-    
+
   tbody {
     tr {
       td {
         font-size: 13pt;
         padding: 16px 12px;
-        
+
         &.value-number {
           text-align: right;
         }
-        
+
         .cell-colname {
           @include visuallyHidden;
         }
@@ -218,11 +227,11 @@ export default {
       }
     }
   }
-  
+
   @media (max-width: 892px) {
-		thead {
-			@include visuallyHidden;
-		}
+    thead {
+      @include visuallyHidden;
+    }
 
     tbody {
       tr {
@@ -232,13 +241,13 @@ export default {
           justify-content: flex-start;
           align-items: center;
           padding: 6px 0;
-          
+
           .cell-colname {
             @include revealHiddenContent;
             padding: 4px 12px;
             text-transform: capitalize;
           }
-          
+
           &.value-number {
             text-align: left;
           }

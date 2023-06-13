@@ -8,12 +8,20 @@
     />
     <PageSection :verticalPadding="0">
       <Breadcrumbs>
-        <li><router-link :to="{name: 'column-chart'}">Column Chart</router-link></li>
+        <li>
+          <router-link :to="{ name: 'column-chart' }">Column Chart</router-link>
+        </li>
       </Breadcrumbs>
     </PageSection>
     <PageSection :verticalPadding="2">
       <h2>Column Chart example</h2>
-      <p>The <strong>ColumnChart</strong> component is used to display values for categorical data. Groups are plotted along the x-axis and values along the y-axis. If you would like to display values horizontally, use the <router-link :to="{name: 'bar-chart'}">Bar Chart</router-link> component.</p>
+      <p>
+        The <strong>ColumnChart</strong> component is used to display values for
+        categorical data. Groups are plotted along the x-axis and values along
+        the y-axis. If you would like to display values horizontally, use the
+        <router-link :to="{ name: 'bar-chart' }">Bar Chart</router-link>
+        component.
+      </p>
     </PageSection>
     <PageSection class="bkg-light" :verticalPadding="2">
       <MessageBox v-if="loading & !hasError">
@@ -30,7 +38,7 @@
         :chartData="data"
         xvar="island"
         yvar="count"
-        :chartMargins="{left: 110, top: 10, right: 40, bottom: 60}"
+        :chartMargins="{ left: 110, top: 10, right: 40, bottom: 60 }"
         :barPaddingInner="0.25"
         :barPaddingOuter="0.25"
         xAxisLabel="Number of Penguins"
@@ -47,18 +55,18 @@
 </template>
 
 <script>
-import Page from '@/components/layouts/Page.vue'
-import PageHeader from '@/components/layouts/PageHeader.vue'
-import PageSection from '@/components/layouts/PageSection.vue'
-import Breadcrumbs from '@/app-components/breadcrumbs.vue'
-import MessageBox from '@/components/display/MessageBox.vue'
-import ColumnChart from '@/components/viz/ColumnChart.vue'
+import Page from "@/components/layouts/Page.vue";
+import PageHeader from "@/components/layouts/PageHeader.vue";
+import PageSection from "@/components/layouts/PageSection.vue";
+import Breadcrumbs from "@/app-components/breadcrumbs.vue";
+import MessageBox from "@/components/display/MessageBox.vue";
+import ColumnChart from "@/components/viz/ColumnChart.vue";
 
-import headerImage from '@/assets/adrien-delforge-unsplash.jpg'
+import headerImage from "@/assets/adrien-delforge-unsplash.jpg";
 
-import { fetchData, sortData } from '@/utils/utils.js' 
-import { rollups } from 'd3'
-const d3 = { rollups }
+import { fetchData, sortData } from "@/utils/utils.js";
+import { rollups } from "d3";
+const d3 = { rollups };
 
 export default {
   components: {
@@ -69,7 +77,7 @@ export default {
     ColumnChart,
     Breadcrumbs,
   },
-  data () {
+  data() {
     return {
       headerImage: headerImage,
       loading: true,
@@ -77,31 +85,36 @@ export default {
       error: null,
       data: [],
       clicked: {},
-    }
+    };
   },
   methods: {
-    updateClicked (data) {
-      this.clicked = data
-    }
+    updateClicked(data) {
+      this.clicked = data;
+    },
   },
-  mounted () {
-    Promise.resolve(
-      fetchData('/api/v2/rdcomponents_penguins?num=500')
-    ).then(response => {
-      const data = response.items
-      const summarised = d3.rollups(data, row => row.length, row => row.island)
-        .map(item => new Object({'island': item[0], 'count': item[1]}))
-      this.data = sortData(summarised, 'island')
-      this.loading = false
-    }).catch(error => {
-      const err = error.message
-      this.loading = false
-      this.hasError = true
-      this.error = err
-      throw new Error(error)
-    })
-  }
-}
+  mounted() {
+    Promise.resolve(fetchData("/api/v2/rdcomponents_penguins?num=500"))
+      .then((response) => {
+        const data = response.items;
+        const summarised = d3
+          .rollups(
+            data,
+            (row) => row.length,
+            (row) => row.island
+          )
+          .map((item) => new Object({ island: item[0], count: item[1] }));
+        this.data = sortData(summarised, "island");
+        this.loading = false;
+      })
+      .catch((error) => {
+        const err = error.message;
+        this.loading = false;
+        this.hasError = true;
+        this.error = err;
+        throw new Error(error);
+      });
+  },
+};
 </script>
 
 <style lang="scss">
@@ -112,5 +125,4 @@ export default {
   padding: 1em;
   background-color: $gray-050;
 }
-
 </style>

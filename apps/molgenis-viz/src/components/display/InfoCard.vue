@@ -1,7 +1,7 @@
 <template>
   <div class="info-card">
     <h3 class="info-card-title">{{ title }}</h3>
-    <p class="info-card-text"> {{ text }}</p>
+    <p class="info-card-text">{{ text }}</p>
     <!-- default content -->
     <slot></slot>
   </div>
@@ -13,16 +13,16 @@ export default {
     // Name of the card
     title: {
       type: String,
-      required: true
+      required: true,
     },
-    
+
     // Text to display
     text: {
       type: String,
-      required: true
-    }
-  }
-}
+      required: true,
+    },
+  },
+};
 </script>
 
 <style lang="scss">
@@ -31,7 +31,7 @@ export default {
   padding: 1.25em;
   background-color: $gray-000;
   border-radius: 6px;
-  
+
   .info-card-title {
     font-size: 11pt;
     text-transform: uppercase;

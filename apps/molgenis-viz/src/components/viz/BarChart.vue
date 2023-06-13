@@ -15,11 +15,14 @@
         :transform="`translate(${chartMargins.left}, ${chartMargins.top})`"
       >
         <g class="chart-axes">
-          <g class="chart-axis-x" :transform="`translate(0,${heightMarginAdjusted})`"></g>
+          <g
+            class="chart-axis-x"
+            :transform="`translate(0,${heightMarginAdjusted})`"
+          ></g>
           <g class="chart-axis-y"></g>
         </g>
         <g class="chart-bars">
-          <g 
+          <g
             class="bar-group"
             v-for="row in chartData"
             :key="row[yvar]"
@@ -42,16 +45,16 @@
               :y="yAxis(row[yvar])"
               dx="1.1em"
               :dy="(yAxis.bandwidth() / 1.65)"
-            > 
-              {{ row[xvar]}}
+            >
+              {{ row[xvar] }}
             </text>
           </g>
         </g>
       </g>
       <g class="chart-labels">
-        <text 
+        <text
           :x="(chartWidth / 2)"
-          :y="chartHeight - (chartMargins.bottom / 4.5)"
+          :y="chartHeight - chartMargins.bottom / 4.5"
           :dx="(chartMargins.left - chartMargins.right) / 2"
           class="chart-text chart-axis-title chart-axis-x"
           v-if="xlabel"
@@ -64,7 +67,7 @@
           class="chart-text chart-axis-title chart-axis-y"
           v-if="ylabel"
         >
-        {{ ylabel }}
+          {{ ylabel }}
         </text>
       </g>
     </svg>
@@ -72,10 +75,28 @@
 </template>
 
 <script>
-import { select, selectAll, scaleBand, axisBottom, max, min, scaleLinear, axisLeft } from 'd3'
-const d3 = { select, selectAll, scaleBand, axisBottom, max, min, scaleLinear, axisLeft }
+import {
+  select,
+  selectAll,
+  scaleBand,
+  axisBottom,
+  max,
+  min,
+  scaleLinear,
+  axisLeft,
+} from "d3";
+const d3 = {
+  select,
+  selectAll,
+  scaleBand,
+  axisBottom,
+  max,
+  min,
+  scaleLinear,
+  axisLeft,
+};
 
-import { validateNumRange } from '@/utils/utils.js'
+import { validateNumRange } from "@/utils/utils.js";
 
 // Create a bar chart (horizontal bars) that displays values along the
 // x-axis by groups (along the y-axis). This component is ideal if you
@@ -88,16 +109,16 @@ import { validateNumRange } from '@/utils/utils.js'
 //
 // @group VISUALISATIONS
 export default {
-  name: 'BarChart',
+  name: "BarChart",
   props: {
     // a unique ID for the chart
     chartId: {
       type: String,
-      required: true
+      required: true,
     },
     // A title that describes the chart
     title: String,
-    
+
     // Additional information to display below the title
     description: String,
 
@@ -105,33 +126,33 @@ export default {
     // along the x-axis
     xvar: {
       type: String,
-      required: true
+      required: true,
     },
     // Name of the column that contains the groups to plot
     // along the y-axis
     yvar: {
       type: String,
-      required: true
+      required: true,
     },
     // Specify the max value of the x-axis. If left undefined,
     // max value will be automatically calculated using `d3.max`
     xMax: Number,
-    
+
     // Specify the x-axis ticks
     xTickValues: Array,
-    
+
     // A label that describes the x-axis
     xAxisLabel: String,
-    
+
     // A label that describes the y-axis
     yAxisLabel: String,
-    
+
     // the dataset the plot
     chartData: {
       type: Array,
-      required: true
+      required: true,
     },
-    
+
     // set the height of the chart. Width is determined by the
     // dimensions of the parent container so that the chart is
     // responsive. If you would like to specify the width of the
@@ -139,61 +160,61 @@ export default {
     chartHeight: {
       type: Number,
       // `425`
-      default: 425
+      default: 425,
     },
-    
+
     // adjust the chart margins
     chartMargins: {
       type: Object,
       // `{ top: 15, right: 15, bottom: 60, left: 65 }`
-      default () {
+      default() {
         return {
           top: 15,
           right: 15,
           bottom: 60,
-          left: 65
-        }
-      }
+          left: 65,
+        };
+      },
     },
-    
+
     // Set the fill of all bars (hex code)
     barFill: {
       type: String,
       // `#6C85B5`
-      default: '#6C85B5'
+      default: "#6C85B5",
     },
-    
+
     // Set the color that is displayed when a bar is hovered (hex code)
     barHoverFill: {
       type: String,
       // `#163D89`
-      default: '#163D89'
+      default: "#163D89",
     },
-    
+
     // Adjust the amount of blank space inbetween bar between 0 and 1
     barPaddingInner: {
       type: Number,
       // `0.2`
       default: 0.2,
-      validator: (value) => validateNumRange(value)
+      validator: (value) => validateNumRange(value),
     },
-    
+
     // Adjust the amount of blank space before the first bar and after
     // the last bar. Value must be between 0 and 1.
     barPaddingOuter: {
       type: Number,
       // `0.2`
       default: 0.2,
-      validator: (value) => validateNumRange(value)
+      validator: (value) => validateNumRange(value),
     },
-    
+
     // Along with `barPaddingOuter`, specify how the bars are distributed
     // y-axis. A value of 0 will position the bars closer to the x-axis.
     barAlign: {
       type: Number,
       // `0.5`
       default: 0.5,
-      validator: (value) => validateNumRange(value)
+      validator: (value) => validateNumRange(value),
     },
     // If `true`, click events will be enabled for all bars. When a bar is
     // clicked, the row-level data for that bar will be emitted.
@@ -201,156 +222,165 @@ export default {
     enableClicks: {
       type: Boolean,
       // `false`
-      default: false
+      default: false,
     },
-    
+
     // If `true`, bars will be drawn over 500ms from the y-axis.
     enableAnimation: {
       type: Boolean,
-      default: true
+      default: true,
     },
   },
-  emits: ['bar-clicked'],
-  data () {
+  emits: ["bar-clicked"],
+  data() {
     return {
       chartWidth: 675,
-    }
+    };
   },
   computed: {
-    svgClassNames () {
-      const css = ['chart']
+    svgClassNames() {
+      const css = ["chart"];
       if (this.title || this.description) {
-        css.push('chart-has-context')
+        css.push("chart-has-context");
       }
       if (this.enableAnimation) {
-        css.push('bar-animation-enabled')
+        css.push("bar-animation-enabled");
       }
       if (this.enableClicks) {
-        css.push('bar-clicks-enabled')
+        css.push("bar-clicks-enabled");
       }
-      return css.join(' ')
+      return css.join(" ");
     },
-    svg () {
-      return d3.select(`#${this.chartId}`)
+    svg() {
+      return d3.select(`#${this.chartId}`);
     },
-    chartArea () {
-      return this.svg.select('.chart-area')
+    chartArea() {
+      return this.svg.select(".chart-area");
     },
-    xlabel () {
-      return this.xAxisLabel ? this.xAxisLabel : false
+    xlabel() {
+      return this.xAxisLabel ? this.xAxisLabel : false;
     },
-    ylabel () {
-      return this.yAxisLabel ? this.yAxisLabel : false
+    ylabel() {
+      return this.yAxisLabel ? this.yAxisLabel : false;
     },
-    widthMarginAdjusted () {
-      return this.chartWidth - this.chartMargins.left - this.chartMargins.right
+    widthMarginAdjusted() {
+      return this.chartWidth - this.chartMargins.left - this.chartMargins.right;
     },
-    heightMarginAdjusted () {
-      return this.chartHeight - this.chartMargins.top - this.chartMargins.bottom
+    heightMarginAdjusted() {
+      return (
+        this.chartHeight - this.chartMargins.top - this.chartMargins.bottom
+      );
     },
-    viewBox () {
-      return `0 0 ${this.chartWidth} ${this.chartHeight}`
+    viewBox() {
+      return `0 0 ${this.chartWidth} ${this.chartHeight}`;
     },
-    xAxisMax () {
-      return this.xMax ? this.xMax : d3.max(this.chartData, row => row[this.xvar])
+    xAxisMax() {
+      return this.xMax
+        ? this.xMax
+        : d3.max(this.chartData, (row) => row[this.xvar]);
     },
-    xAxis () {
-      return d3.scaleLinear()
+    xAxis() {
+      return d3
+        .scaleLinear()
         .domain([0, this.xAxisMax])
         .range([0, this.widthMarginAdjusted])
-        .nice()
+        .nice();
     },
-    yAxis () {
-      return d3.scaleBand()
+    yAxis() {
+      return d3
+        .scaleBand()
         .range([0, this.heightMarginAdjusted])
-        .domain(this.chartData.map(row => row[this.yvar]))
+        .domain(this.chartData.map((row) => row[this.yvar]))
         .paddingInner(this.barPaddingInner)
         .paddingOuter(this.barPaddingOuter)
-        .round(true)
+        .round(true);
     },
-    chartAxisX () {
-      const axis = d3.axisBottom(this.xAxis)
-      return this.xTickValues ? axis.tickValues(this.xTickValues) : axis
+    chartAxisX() {
+      const axis = d3.axisBottom(this.xAxis);
+      return this.xTickValues ? axis.tickValues(this.xTickValues) : axis;
     },
-    chartAxisY () {
-      return d3.axisLeft(this.yAxis)
+    chartAxisY() {
+      return d3.axisLeft(this.yAxis);
     },
-    chartBars () {
-      return this.chartArea.selectAll('rect.bar')
-    }
+    chartBars() {
+      return this.chartArea.selectAll("rect.bar");
+    },
   },
   methods: {
-    setChartDimensions () {
-      const parent = this.$el.parentNode
-      this.chartWidth = parent.offsetWidth * 0.95
+    setChartDimensions() {
+      const parent = this.$el.parentNode;
+      this.chartWidth = parent.offsetWidth * 0.95;
     },
-    renderAxes () {
-      this.chartArea.select('.chart-axis-x')
-        .call(this.chartAxisX)
+    renderAxes() {
+      this.chartArea.select(".chart-axis-x").call(this.chartAxisX);
 
-      this.chartArea.select('.chart-axis-y')
-        .call(this.chartAxisY)
+      this.chartArea.select(".chart-axis-y").call(this.chartAxisY);
     },
-    onClick (row) {
+    onClick(row) {
       if (this.enableClicks) {
-        const data = JSON.stringify(row)
-        this.$emit('bar-clicked', data)
+        const data = JSON.stringify(row);
+        this.$emit("bar-clicked", data);
       }
     },
-    onMouseOver (event) {
-      const column = event.target
-      const label = column.nextSibling
-      column.style.fill = this.columnHoverFill
-      label.style.opacity = 1
+    onMouseOver(event) {
+      const column = event.target;
+      const label = column.nextSibling;
+      column.style.fill = this.columnHoverFill;
+      label.style.opacity = 1;
     },
-    onMouseLeave (event) {
-      const column = event.target
-      const label = column.nextSibling
-      column.style.fill = this.columnFill
-      label.style.opacity = 0
+    onMouseLeave(event) {
+      const column = event.target;
+      const label = column.nextSibling;
+      column.style.fill = this.columnFill;
+      label.style.opacity = 0;
     },
-    drawBars () {
-      const bars = this.chartBars.data(this.chartData)
+    drawBars() {
+      const bars = this.chartBars.data(this.chartData);
       if (this.enableAnimation) {
-        bars.attr('width', 0)
-          .attr('x', this.xAxis(0))
+        bars
+          .attr("width", 0)
+          .attr("x", this.xAxis(0))
           .transition()
           .delay(200)
           .duration(500)
-          .attr('x', row => this.xAxis(Math.min(0, row[this.xvar])))
-          .attr('width', row => Math.abs(this.xAxis(row[this.xvar]) - this.xAxis(0)))
+          .attr("x", (row) => this.xAxis(Math.min(0, row[this.xvar])))
+          .attr("width", (row) =>
+            Math.abs(this.xAxis(row[this.xvar]) - this.xAxis(0))
+          );
       } else {
         bars
-          .attr('x', row => this.xAxis(Math.min(0, row[this.xvar])))
-          .attr('width', row => Math.abs(this.xAxis(row[this.xvar]) - this.xAxis(0)))
+          .attr("x", (row) => this.xAxis(Math.min(0, row[this.xvar])))
+          .attr("width", (row) =>
+            Math.abs(this.xAxis(row[this.xvar]) - this.xAxis(0))
+          );
       }
     },
-    renderChart () {
-      this.setChartDimensions()
-      this.renderAxes()
-      this.drawBars()
-    }
+    renderChart() {
+      this.setChartDimensions();
+      this.renderAxes();
+      this.drawBars();
+    },
   },
-  mounted () {
-    this.renderChart()
-    window.addEventListener('resize', this.renderChart)
+  mounted() {
+    this.renderChart();
+    window.addEventListener("resize", this.renderChart);
   },
-  updated () {
-    this.renderChart()
+  updated() {
+    this.renderChart();
   },
   beforeUnmount() {
-    window.removeEventListener('resize', this.renderChart)
-  }
-}
+    window.removeEventListener("resize", this.renderChart);
+  },
+};
 </script>
 
 <style lang="scss">
 .d3-bar-chart {
   h3.chart-title {
-    margin: 0;    
+    margin: 0;
     text-align: left;
   }
-  
+
   p.chart-description {
     text-align: left;
     margin: 0;
@@ -359,16 +389,16 @@ export default {
   .chart {
     display: block;
     margin: 0;
-    
+
     .chart-axes {
       .tick {
         font-size: 11pt;
       }
     }
-    
+
     .chart-labels {
       font-size: 12pt;
-      
+
       .chart-axis-title {
         text-anchor: middle;
         &.chart-axis-y {
@@ -377,7 +407,7 @@ export default {
         }
       }
     }
-    
+
     .bar-group {
       .label {
         text-anchor: middle;
@@ -385,13 +415,13 @@ export default {
         opacity: 0;
       }
     }
-    
+
     &.bar-clicks-enabled {
       rect.bar {
         cursor: pointer;
       }
     }
-    
+
     &.chart-has-context {
       margin-top: 12px;
     }

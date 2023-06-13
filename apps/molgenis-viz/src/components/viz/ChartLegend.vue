@@ -2,25 +2,20 @@
   <ul :class="classNames">
     <li
       class="legend-item"
-      data-legend-item="item" v-for="key in Object.keys(data)"
+      data-legend-item="item"
+      v-for="key in Object.keys(data)"
       :key="key"
     >
       <div class="checkbox-item" v-if="enableClicks">
         <label :for="`cb-${key}`" class="item-label">
-          <svg 
-          class="item-marker"
-          width="16"
-          height="16"
-          viewBox="0 0 16 16"
-          preserveXminYmin="true"
+          <svg
+            class="item-marker"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            preserveXminYmin="true"
           >
-            <circle 
-              cx="8"
-              cy="8"
-              r="8"
-              :fill="data[key]"
-              stroke-width="none"
-            />
+            <circle cx="8" cy="8" r="8" :fill="data[key]" stroke-width="none" />
           </svg>
           <span>{{ key }}</span>
         </label>
@@ -32,23 +27,17 @@
           :value="key"
           v-model="selection"
           @change="emitSelection"
-        >
+        />
       </div>
       <div class="text-item" v-else>
-        <svg 
+        <svg
           class="item-marker"
           width="16"
           height="16"
           viewBox="0 0 16 16"
           preserveXminYmin="true"
         >
-          <circle
-            cx="8"
-            cy="8"
-            r="8"
-            :fill="data[key]"
-            stroke-width="none"
-          />
+          <circle cx="8" cy="8" r="8" :fill="data[key]" stroke-width="none" />
         </svg>
         <span class="item-label">
           {{ key }}
@@ -65,54 +54,54 @@
 //
 // @group VISUALISATIONS
 export default {
-  name: 'ChartLegend',
+  name: "ChartLegend",
   props: {
     // One or more key-value pairs
     data: {
       type: Object,
-      required: true
+      required: true,
     },
     // If true (default), all legend items will be stacked
     stackLegend: {
       type: Boolean,
-      default: true
+      default: true,
     },
-    
+
     // If `true`, click events will be enabled for all bars. When a bar is
     // clicked, the row-level data for that bar will be emitted.
     // To access the data, use the event `@barClicked=>(value) => ...`
     enableClicks: {
       type: Boolean,
       // `false`
-      default: false
+      default: false,
     },
   },
-  emits: ['legend-item-clicked'],
-  data () {
+  emits: ["legend-item-clicked"],
+  data() {
     return {
-      selection: []
-    }
+      selection: [],
+    };
   },
   methods: {
-    emitSelection (event) {
-      const parent = event.target.parentNode      
-      parent.classList.toggle('checkbox-clicked')
-      this.$emit('legend-item-clicked', this.selection)
-    }
+    emitSelection(event) {
+      const parent = event.target.parentNode;
+      parent.classList.toggle("checkbox-clicked");
+      this.$emit("legend-item-clicked", this.selection);
+    },
   },
   computed: {
-    classNames () {
-      const css = ['legend']
+    classNames() {
+      const css = ["legend"];
       if (!this.stackLegend) {
-        css.push('legend-horizontal')
+        css.push("legend-horizontal");
       }
       if (this.enableClicks) {
-        css.push('clicks-enabled')
+        css.push("clicks-enabled");
       }
-      return css.join(' ')
-    }
-  }
-}
+      return css.join(" ");
+    },
+  },
+};
 </script>
 
 <style lang="scss">
@@ -121,7 +110,8 @@ export default {
   padding: 0;
   margin: 0;
 
-  .checkbox-item, .text-item {
+  .checkbox-item,
+  .text-item {
     position: relative;
     display: flex;
     justify-content: flex-start;
@@ -130,17 +120,17 @@ export default {
     flex-wrap: nowrap;
     column-gap: 4px;
     margin-bottom: 5px;
-    
+
     &:last-child {
       margin: 0;
     }
-    
+
     .item-marker {
       width: 16px;
       margin-right: 6px;
     }
   }
-  
+
   &.legend-horizontal {
     display: flex;
     justify-content: flex-start;
@@ -148,12 +138,12 @@ export default {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 0.5em;
-    
+
     .legend-item {
       margin-bottom: 0;
     }
   }
-  
+
   &.clicks-enabled {
     .checkbox-item {
       .item-label {
@@ -163,7 +153,7 @@ export default {
         opacity: 0.65;
         .item-label {
           span {
-           text-decoration:line-through; 
+            text-decoration: line-through;
           }
         }
       }

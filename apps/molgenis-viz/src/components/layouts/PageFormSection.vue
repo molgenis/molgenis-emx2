@@ -9,8 +9,8 @@
 // A layout component for creating sections within a form
 // @group LAYOUTS
 export default {
-  name: 'PageFormSection'
-}
+  name: "PageFormSection",
+};
 </script>
 
 <style lang="scss">

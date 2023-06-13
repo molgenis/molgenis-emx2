@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { Cog6ToothIcon } from '@heroicons/vue/24/outline'
+import { Cog6ToothIcon } from "@heroicons/vue/24/outline";
 
 // Create a loading screen while some action is being performed
 export default {
@@ -19,11 +19,11 @@ export default {
     message: {
       type: String,
       // `Loading`
-      default: 'Loading'
-    } 
+      default: "Loading",
+    },
   },
-  components: { Cog6ToothIcon }
-}
+  components: { Cog6ToothIcon },
+};
 </script>
 
 <style lang="scss">
@@ -45,13 +45,13 @@ export default {
   background-color: $blue-green-200;
   color: $gray-900;
   opacity: 0.8;
-  
+
   .loading-screen-content {
     width: 90%;
     margin: 0 auto;
     z-index: 1;
     text-align: center;
-    
+
     $icon-size: 62px;
     .heroicon.cog-6-tooth {
       width: $icon-size;
@@ -59,7 +59,7 @@ export default {
       transform-origin: center;
       animation: loadingIconSpin 6s linear infinite;
     }
-    
+
     .loading-message {
       font-size: 18pt;
       text-transform: uppercase;

@@ -1,5 +1,5 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { RouterView } from "vue-router";
 </script>
 
 <template>
@@ -15,11 +15,11 @@ body {
 .app-page {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14pt;
-  
+
   .bkg-light {
     background-color: $gray-050;
   }
-  
+
   .output {
     display: block;
     width: 100%;
@@ -28,7 +28,6 @@ body {
     background-color: $gray-700;
     color: $gray-050;
   }
-
 }
 
 .message-box {

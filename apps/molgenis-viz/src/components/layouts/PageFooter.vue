@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import PageFooterMolgenisCitation from './PageFooterMolgenisCitation.vue'
+import PageFooterMolgenisCitation from "./PageFooterMolgenisCitation.vue";
 
 // A layout component to define the page footer. By default, the MOLGENIS
 // citation component is rendered in the app, which displays the MOLGENIS
@@ -19,7 +19,7 @@ import PageFooterMolgenisCitation from './PageFooterMolgenisCitation.vue'
 // @group LAYOUTS
 export default {
   components: {
-    PageFooterMolgenisCitation
-  }
-}
+    PageFooterMolgenisCitation,
+  },
+};
 </script>

@@ -1,12 +1,16 @@
 <template>
-  <a class="action-link" :href="href" :target="showExternalLinkIcon ? '_blank' : false">
+  <a
+    class="action-link"
+    :href="href"
+    :target="showExternalLinkIcon ? '_blank' : false"
+  >
     <slot></slot>
-    <ArrowTopRightOnSquareIcon v-if="showExternalLinkIcon" class="link-icon"/>
+    <ArrowTopRightOnSquareIcon v-if="showExternalLinkIcon" class="link-icon" />
   </a>
 </template>
 
 <script>
-import { ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/outline'
+import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 
 // Render a hyperlink styled like a button. Generic text can be displayed using
 // the default slot. If applicable, you may render an 'external link' icon using
@@ -16,16 +20,16 @@ export default {
     // String containing a url to a page
     href: {
       type: String,
-      required: true
+      required: true,
     },
     // If `true`, an svg icon will be displayed after the text
     showExternalLinkIcon: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
-  components: { ArrowTopRightOnSquareIcon }
-}
+  components: { ArrowTopRightOnSquareIcon },
+};
 </script>
 
 <style lang="scss">
@@ -40,13 +44,14 @@ export default {
   background-color: $molgenis-blue-050;
   border-radius: 6px;
   margin: auto;
-  
+
   .link-icon {
     margin-left: 3px;
     margin-top: -2px;
   }
-  
-  &:hover, &:focus {
+
+  &:hover,
+  &:focus {
     outline: 1px solid;
   }
 }

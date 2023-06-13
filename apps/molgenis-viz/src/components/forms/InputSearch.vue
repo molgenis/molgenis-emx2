@@ -14,37 +14,37 @@
 </template>
 
 <script>
-import InputLabel from '@/components/forms/InputLabel.vue'
+import InputLabel from "@/components/forms/InputLabel.vue";
 
 // @displayName InputSearch
 // Create search field for forms. User input is emitted and accessible using a search event: `<InputSearch @search="(value) => someFunction(value)" />`.
 export default {
   components: {
-    InputLabel
+    InputLabel,
   },
   props: {
     // a unique identifier for the search field
     id: {
       type: String,
-      required: true
+      required: true,
     },
     // a label, or title, that describes the search field
     label: {
       type: String,
-      required: true
+      required: true,
     },
     // an optional description that provides context for the search field
     description: {
       type: String,
-      required: false
-    }
+      required: false,
+    },
   },
-  data () {
+  data() {
     return {
-      value: null
-    }
-  }
-}
+      value: null,
+    };
+  },
+};
 </script>
 
 <style lang="scss" scoped>

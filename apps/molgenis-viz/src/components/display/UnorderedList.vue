@@ -6,7 +6,6 @@
 </template>
 
 <script>
-
 // The `<UnorderedList />` component is primarily used in the `<PageFooter />` component to display links to other pages (both internally and externally). The list may be rendered horizontally (ideal for the links to legal pages) or vertically (site maps).
 export default {
   props: {
@@ -14,39 +13,38 @@ export default {
     listLayout: {
       // `'vertical' / 'horizontal'`
       type: String,
-      default: 'vertical',
+      default: "vertical",
       validator: (value) => {
-        const layouts = ['horizontal', 'vertical']
-        return layouts.includes(value)
-      }
+        const layouts = ["horizontal", "vertical"];
+        return layouts.includes(value);
+      },
     },
     // Choose the icon that separates each link
     listType: {
       // `'none' / 'circle' / 'square' `
       type: String,
       // `circle`
-      default: 'circle',
+      default: "circle",
       validator: (value) => {
-        const separators = ['none', 'circle', 'square']
-        return separators.includes(value)
-      }
-    }
+        const separators = ["none", "circle", "square"];
+        return separators.includes(value);
+      },
+    },
   },
   computed: {
-    classNames () {
-      const base = 'unordered-list'
-      const layout = `list-layout-${this.listLayout}`
-      const type = `list-separator-${this.listType}`
-      return [base, layout, type].join(' ')
-    }
-  }
-}
+    classNames() {
+      const base = "unordered-list";
+      const layout = `list-layout-${this.listLayout}`;
+      const type = `list-separator-${this.listType}`;
+      return [base, layout, type].join(" ");
+    },
+  },
+};
 </script>
 
 <style lang="scss">
-
 @mixin separator {
-  content: '';
+  content: "";
   display: inline-block;
   background-color: currentColor;
   margin-right: 0.3em;
@@ -66,29 +64,29 @@ export default {
   padding: 0;
   color: currentColor;
   list-style: none;
-  
+
   li {
     position: relative;
     a {
       color: currentColor;
     }
   }
-  
+
   &.list-style-none {
     padding: 0;
   }
-  
+
   &.list-layout-horizontal {
     flex-direction: row;
     gap: 1em;
     padding: 0;
   }
-  
+
   &.list-layout-vertical {
     flex-direction: column;
     gap: 0.4em;
   }
-  
+
   &.list-separator-circle {
     li {
       &::before {
@@ -104,12 +102,12 @@ export default {
         @include separator;
       }
     }
-  } 
-    
+  }
+
   &.list-layout-horizontal {
     li {
       &::before {
-       margin-right: 1em;
+        margin-right: 1em;
       }
       &:first-child {
         &::before {

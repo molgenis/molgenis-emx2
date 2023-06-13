@@ -1,5 +1,8 @@
 <template>
-  <div :id="`accordion-${id}`" :class="visible ? 'accordion visible' : 'accordion'">
+  <div
+    :id="`accordion-${id}`"
+    :class="visible ? 'accordion visible' : 'accordion'"
+  >
     <h3 class="accordion-heading">
       <button
         type="button"
@@ -10,7 +13,9 @@
         v-on:click="onclick"
       >
         <span class="toggle-label">{{ title }}</span>
-        <ChevronDownIcon :class="visible ? 'toggle-icon rotated' : 'toggle-icon'" />
+        <ChevronDownIcon
+          :class="visible ? 'toggle-icon rotated' : 'toggle-icon'"
+        />
       </button>
     </h3>
     <section
@@ -27,7 +32,7 @@
 </template>
 
 <script>
-import { ChevronDownIcon } from '@heroicons/vue/24/outline'
+import { ChevronDownIcon } from "@heroicons/vue/24/outline";
 
 // @displayName Accordion
 // Create a collapsible element for hiding and showing content. For example, the
@@ -38,36 +43,36 @@ export default {
     // A unique identifier for the accordion
     id: {
       type: String,
-      required: true
+      required: true,
     },
     // A label that describes the hidden content
     title: {
       type: String,
-      required: true
+      required: true,
     },
     // If true, the accordion will be opened on render
     isOpenByDefault: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   components: { ChevronDownIcon },
-  data () {
+  data() {
     return {
-      visible: false
-    }
+      visible: false,
+    };
   },
   methods: {
-    onclick () {
-      this.visible = !this.visible
-      this.$emit('isOpen', this.visible)
-    }
+    onclick() {
+      this.visible = !this.visible;
+      this.$emit("isOpen", this.visible);
+    },
   },
-  mounted () {
-    this.visible = this.isOpenByDefault ? this.isOpenByDefault : this.visible
-  }
-}
+  mounted() {
+    this.visible = this.isOpenByDefault ? this.isOpenByDefault : this.visible;
+  },
+};
 </script>
 
 <style lang="scss">
@@ -79,7 +84,7 @@ $border-radius: 6px;
   margin: 24px 0;
   border: 1px solid $gray-200;
   border-radius: $border-radius;
-  
+
   .accordion-heading {
     display: flex;
     justify-content: flex-start;
@@ -89,7 +94,7 @@ $border-radius: 6px;
     font-size: 14pt;
     background-color: $gray-050;
     border-radius: $border-radius;
-    
+
     .accordion-toggle {
       border: none;
       position: relative;
@@ -126,12 +131,12 @@ $border-radius: 6px;
       }
     }
   }
-  
+
   .accordion-content {
     margin: 0;
     box-sizing: content-box;
   }
-  
+
   &.visible {
     .accordion-heading {
       border-radius: $border-radius $border-radius 0 0;
