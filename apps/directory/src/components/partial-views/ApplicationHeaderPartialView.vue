@@ -8,7 +8,7 @@
       </div>
     </div>
 
-    <div class="row justify-content-between p-2">
+    <div class="row filterbar p-2">
       <ButtonDropdown
         :id="filter.facetIdentifier"
         v-for="filter in filtersToRender"
@@ -58,6 +58,10 @@ export default {
 .headerbar {
   background-color: white;
   z-index: 1000;
+}
+
+.filterbar {
+  gap:0.25rem;
 }
 
 .search-container {

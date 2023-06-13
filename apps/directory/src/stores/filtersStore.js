@@ -90,6 +90,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     else {
       for (const child of branch.children) {
         flattendBranches = flattenOntologyBranch(child, flattendBranches)
+        delete child.children
+        flattendBranches.push(child)
       }
     }
     return flattendBranches
@@ -150,20 +152,15 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
       const existingValues = filters.value[filterName].map(option => option.name)
       const filterOptionsToAdd = value.filter(newValue => !existingValues.includes(newValue.name))
+
+      console.log({existingValues, filterOptionsToAdd})
       filters.value[filterName] = filters.value[filterName].concat(filterOptionsToAdd)
     }
     else {
+      console.log(value)
       filters.value[filterName] = value
     }
   }
-
-  ////
-  ///
-  ////
-  /// TODO: when you select A00-A09, then selected I certain infectuoius diseases, then desect I, then A00-A09 is still selected??
-  ////
-  ///
-  ///
 
   /**
    * @param {string} filterName name of ontology filter

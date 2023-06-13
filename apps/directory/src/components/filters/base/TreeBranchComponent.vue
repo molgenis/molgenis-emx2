@@ -56,7 +56,8 @@ export default {
     },
     parentSelected: {
       type: Boolean,
-      required: true,
+      required: false,
+      default: () => false
     },
   },
   name: "TreeBranchComponent",
