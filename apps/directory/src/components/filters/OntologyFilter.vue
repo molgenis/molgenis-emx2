@@ -19,7 +19,7 @@
       />
     </div>
     <hr class="p-0 m-0" />
-    <div class="ontology pt-3">
+    <div class="ontology pt-3 d-flex justify-content-center">
       <template v-for="ontologyId of ontologyIdentifiers" :key="ontologyId">
         <tree-component
           :facetIdentifier="facetIdentifier"
@@ -27,6 +27,7 @@
           :options="displayOptions"
           :filter="ontologyQuery"
         />
+        <spinner class="mt-4 mb-5" v-if="!displayOptions.length && selectedOntology == ontologyId" />
       </template>
     </div>
   </div>
@@ -35,11 +36,13 @@
 <script>
 import { useFiltersStore } from "../../stores/filtersStore";
 import TreeComponent from "./base/TreeComponent.vue";
+import { Spinner } from "../../../../molgenis-components";
 
 export default {
   name: "OntologyFilter",
   components: {
     TreeComponent,
+    Spinner,
   },
   setup() {
     const filtersStore = useFiltersStore();

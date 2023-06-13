@@ -13,7 +13,7 @@ export const initialFilterFacets = [
     facetTitle: "Diagnosis available",
     component: "OntologyFilter",
     sourceTable: "DiseaseTypes",
-    applyToColumn: "collections.diseaseTypes.name",
+    applyToColumn: "collections.diagnosisAvailable.code",
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     removeOptions: [],

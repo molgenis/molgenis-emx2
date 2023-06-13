@@ -89,7 +89,8 @@ export async function applyFiltersToQuery (
         break;
       }
       case "OntologyFilter": {
-        console.log("implement me!")
+        const values = filterValue.map((fv) => fv.code);
+        baseQuery.where(filterDetail.applyToColumn).orLike(values);
         break;
       }
     }
