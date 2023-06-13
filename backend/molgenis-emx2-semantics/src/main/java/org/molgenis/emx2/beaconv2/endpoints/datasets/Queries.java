@@ -1,7 +1,13 @@
 package org.molgenis.emx2.beaconv2.endpoints.datasets;
 
+import static org.molgenis.emx2.semantics.RDFService.extractHost;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
+
 import graphql.ExecutionResult;
 import graphql.GraphQL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,10 +15,12 @@ import java.util.Map;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.utils.TypeUtils;
+import spark.Request;
 
 public class Queries {
 
-  public static List<DatasetsResultSets> queryDatasets(List<Table> tables, String... filters) {
+  public static List<DatasetsResultSets> queryDatasets(
+      Request request, List<Table> tables, String... filters) throws URISyntaxException {
     List<DatasetsResultSets> resultSetsList = new ArrayList<>();
 
     StringBuffer concatFilters = new StringBuffer();
@@ -23,6 +31,10 @@ public class Queries {
       concatFilters.deleteCharAt(concatFilters.length() - 1);
     }
 
+    URI requestURI = getURI(request.url());
+    String host = extractHost(requestURI);
+    String apiFdp = host + "/api/fdp";
+    String apiFdpDataset = apiFdp + "/dataset";
     for (Table table : tables) {
       List<DatasetsResultSetsItem> datasetsItemList = new ArrayList<>();
 
@@ -71,13 +83,19 @@ public class Queries {
 
       if (datasetsListFromJSON != null) {
         for (Map map : datasetsListFromJSON) {
+          String id = TypeUtils.toString(map.get("id"));
+          String apiLink =
+              encodedIRI(apiFdpDataset + "/" + table.getSchema().getName() + "/" + id).toString();
           DatasetsResultSetsItem datasetsItem = new DatasetsResultSetsItem();
-          datasetsItem.setId(TypeUtils.toString(map.get("id")));
           datasetsItem.setCreateDateTime(TypeUtils.toString(map.get("mg_insertedOn")));
-
-          // etc
-          // todo
-
+          datasetsItem.setDataUseConditions(null); //todo add?
+          datasetsItem.setDescription(TypeUtils.toString(map.get("description")));
+          datasetsItem.setExternalUrl(apiLink);
+          datasetsItem.setId(id);
+          datasetsItem.setInfo(apiLink);
+          datasetsItem.setName(TypeUtils.toString(map.get("title")));
+          datasetsItem.setUpdateDateTime(TypeUtils.toString(map.get("mg_updatedOn")));
+          datasetsItem.setVersion(TypeUtils.toString(map.get("mg_updatedOn")));
           datasetsItemList.add(datasetsItem);
         }
       }

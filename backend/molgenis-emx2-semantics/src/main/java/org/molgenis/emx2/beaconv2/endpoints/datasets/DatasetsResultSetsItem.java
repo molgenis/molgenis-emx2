@@ -6,14 +6,20 @@ import org.molgenis.emx2.beaconv2.common.OntologyTerm;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class DatasetsResultSetsItem {
 
-  private String createDateTime;  // iso 8601 format, e.g. 2017-01-17T20:33:40Z
-  private OntologyTerm[] dataUseConditions; // e.g. [{"id": "DUO:0000007", "label": "disease specific research", "version": "17-07-2016"}]
-  private String description; // e.g. "This dataset provides examples of the actual data in this Beacon instance."
-  private String externalUrl; // e.g. example.org/wiki/Main_Page
-  private String id; // e.g. ds01010101
-  private Object info; // Placeholder to allow the Beacon to return any additional information that is necessary or could be of interest in relation to the query or the entry returned.
+  private String createDateTime; // iso 8601 format, e.g. "2017-01-17T20:33:40Z"
+  private OntologyTerm[]
+      dataUseConditions; // e.g. [{"id": "DUO:0000007", "label": "disease specific research",
+  // "version": "17-07-2016"}]
+  private String
+      description; // e.g. "This dataset provides examples of the actual data in this Beacon
+  // instance."
+  private String externalUrl; // e.g. "example.org/wiki/Main_Page"
+  private String id; // e.g. "ds01010101"
+  private Object
+      info; // Placeholder to allow the Beacon to return any additional information that is
+  // necessary or could be of interest in relation to the query or the entry returned.
   private String name; // e.g. "Dataset with synthetic data"
-  private String updateDateTime; // iso 8601 format, e.g 2017-01-17T20:33:40Z
+  private String updateDateTime; // iso 8601 format, e.g "2017-01-17T20:33:40Z"
   private String version; // e.g. v1.1
 
   public String getCreateDateTime() {
