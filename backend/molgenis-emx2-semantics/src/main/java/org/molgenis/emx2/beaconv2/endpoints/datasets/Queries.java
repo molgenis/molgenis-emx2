@@ -88,7 +88,7 @@ public class Queries {
               encodedIRI(apiFdpDataset + "/" + table.getSchema().getName() + "/" + id).toString();
           DatasetsResultSetsItem datasetsItem = new DatasetsResultSetsItem();
           datasetsItem.setCreateDateTime(TypeUtils.toString(map.get("mg_insertedOn")));
-          datasetsItem.setDataUseConditions(null); //todo add?
+          datasetsItem.setDataUseConditions(null); // todo add?
           datasetsItem.setDescription(TypeUtils.toString(map.get("description")));
           datasetsItem.setExternalUrl(apiLink);
           datasetsItem.setId(id);
