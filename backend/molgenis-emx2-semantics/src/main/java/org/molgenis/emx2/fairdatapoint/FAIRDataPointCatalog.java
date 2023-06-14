@@ -143,12 +143,6 @@ public class FAIRDataPointCatalog {
     builder.add(publisher, FOAF.NAME, catalogFromJSON.get("publisher"));
     builder.add(
         apiFdpEnc, DCTERMS.LICENSE, iri(TypeUtils.toString(catalogFromJSON.get("license"))));
-    ArrayList<IRI> datasetIRIs =
-        extractDatasetIRIs(catalogFromJSON.get("dataset"), apiFdp, schema.getName());
-    for (IRI datasetIRI : datasetIRIs) {
-      // not 'Dataset' (class) but 'dataset' (predicate)
-      builder.add(reqUrl, iri("http://www.w3.org/ns/dcat#dataset"), datasetIRI);
-    }
     builder.add(apiFdpEnc, DCTERMS.CONFORMS_TO, apiFdpCatalogProfileEnc);
     builder.add(reqUrl, DCTERMS.IS_PART_OF, apiFdpEnc);
     builder.add(
@@ -173,8 +167,14 @@ public class FAIRDataPointCatalog {
     builder.add(apiFdpDatasetEnc, DCTERMS.TITLE, "Datasets");
     builder.add(apiFdpDatasetEnc, LDP.MEMBERSHIP_RESOURCE, reqUrl);
     builder.add(apiFdpDatasetEnc, LDP.HAS_MEMBER_RELATION, DCAT.DATASET);
-    for (IRI datasetIRI : datasetIRIs) {
-      builder.add(apiFdpDatasetEnc, LDP.CONTAINS, datasetIRI);
+    if (catalogFromJSON.get("dataset") != null) {
+      ArrayList<IRI> datasetIRIs =
+          extractDatasetIRIs(catalogFromJSON.get("dataset"), apiFdp, schema.getName());
+      for (IRI datasetIRI : datasetIRIs) {
+        // not 'Dataset' (class) but 'dataset' (predicate)
+        builder.add(reqUrl, iri("http://www.w3.org/ns/dcat#dataset"), datasetIRI);
+        builder.add(apiFdpDatasetEnc, LDP.CONTAINS, datasetIRI);
+      }
     }
 
     /*
