@@ -40,7 +40,7 @@ class OntologyManager:
 
     def add(self, table: str, **kwargs) -> Response:
         """Add a term to an ontology."""
-        print(f"Adding to table {table}.")
+        log.info(f"Adding to table {table}.")
 
         if table not in self.ontology_tables:
             raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
@@ -57,7 +57,7 @@ class OntologyManager:
 
     def delete(self, table: str, **kwargs) -> Response:
         """Delete a term from an ontology."""
-        print(f"Deleting from table {table}.")
+        log.info(f"Deleting from table {table}.")
 
         if table not in self.ontology_tables:
             raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
@@ -110,7 +110,7 @@ class OntologyManager:
 
             for tb_name, tb_values in db_schema.items():
                 self.table = tb_name
-                if tb_values.get('externalSchema') == 'CatalogueOntologies':
+                if tb_values.get('externalSchema') != database:
                     continue
                 tb_dict = self.__update_table(tb_name, tb_values)
 
@@ -125,20 +125,22 @@ class OntologyManager:
             """
             tb_dict = dict()
 
+            tb_pkeys = [col for (col, col_values) in tb_values['columns'].items() if col_values.get('key') == 1]
+
             for col, col_values in tb_values['columns'].items():
                 self.column = col
                 if not (col_values.get('refSchema') == 'CatalogueOntologies'
                         and col_values.get('refTable') == self.ontology_table):
                     continue
-                self.__update_column()
+                self.__update_column(tb_pkeys)
                 tb_dict.update({col: col_values['columnType']})
 
             return tb_dict
 
-        def __update_column(self):
+        def __update_column(self, pkeys: list):
             """Update the values in the table column"""
             _table = self.manager.parse_table_name(self.table)
-            query = Queries.column_values(_table, self.column)
+            query = Queries.column_values(_table, self.column, pkeys)
             variables = {'filter': {self.column: {'equals': {'name': self.old}}}}
 
             response = self.manager.client.session.post(
@@ -148,18 +150,19 @@ class OntologyManager:
 
             # TODO: make robust, check for errors
             if response.status_code == 400:
-                log.error(response.text)
+                log.debug(response.text)
                 return
             if len(response.json()['data']) == 0:
                 return
             column_values = response.json()['data'][_table]
             column_values_updated = [
-                {'id': val['id'], 'name': val['name'],
-                 self.column: [
-                     {'name': self.new if row['name'] == self.old else row['name']} for row in val[self.column]
-                 ]
-                 }
-                for val in column_values
+                {col: (col_val
+                       if col != self.column
+                       else (([{'name': (item['name'] if item['name'] != self.old else self.new)
+                                for item in col_val}]) if type(col_val) is list
+                             else {'name': (col_val['name'] if col_val['name'] != self.old else self.new)}))
+                 for (col, col_val) in row.items()}
+                for row in column_values
             ]
 
             query = Queries.upload_mutation(_table)
@@ -171,16 +174,15 @@ class OntologyManager:
             )
 
             if response.status_code == 200:
-                print(f"Successfully updated term {self.old} to {self.new} in colum {self.column}"
+                log.info(f"Successfully updated term {self.old} to {self.new} in colum {self.column}"
                       f" of table {self.table} on database {self.database} in {len(column_values)} rows.")
 
-            pass
 
     def update(self, table: str, **kwargs):
         """Rename a term in an ontology."""
         ontology_table = table
         # TODO: do the actual update
-        print(f"Renaming in table {ontology_table}.")
+        log.info(f"Renaming in table {ontology_table}.")
 
         if ontology_table not in self.ontology_tables:
             raise NoSuchTableException(f"Table '{ontology_table}' not found in CatalogueOntologies.")
@@ -197,11 +199,6 @@ class OntologyManager:
 
         updater = self.Updater(self, ontology_table, old, new)
         server_dict = updater.update()
-
-        for db_key, dbs in server_dict.items():
-            print(f"{db_key}")
-            for tb_key, tbs in dbs.items():
-                print(f"    {tb_key}:\n     {tbs}")
 
     def __perform_query(self, query: str, variables: dict, action: str) -> Response:
         """Perform the query using the query and variables supplied."""
@@ -286,6 +283,8 @@ class OntologyManager:
         """Parse table names to capitalized names without spaces,
         e.g. 'Network features' -> 'NetworkFeatures'.
         """
+        if table_name == 'RWE resources':
+            return 'RWEResources'
         return "".join(word.capitalize() for word in table_name.split(' '))
 
     @staticmethod
