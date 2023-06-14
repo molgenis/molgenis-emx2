@@ -40,7 +40,10 @@ public class EmailService {
 
   public Boolean send(List<String> recipients, String subject, String messageText) {
     final List<InternetAddress> addressList =
-        recipients.stream().map(EmailValidator::toInternetAddress).toList();
+        recipients.stream()
+            .filter(EmailValidator::isInValidEmail)
+            .map(EmailValidator::toInternetAddress)
+            .toList();
     try {
       Authenticator auth = null;
       if (senderPassword != null) {
