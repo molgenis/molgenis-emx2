@@ -6,8 +6,9 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.FAIRDataHubLoader;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.fairdatapoint.FAIRDataPoint;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
@@ -21,9 +22,8 @@ public class FAIRDataPointNoCatalogsTest {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     fairDataHub_nocatalogs = database.dropCreateSchema("fairDataHub_nocatalogs");
-    FAIRDataHubLoader fairDataHubLoader = new FAIRDataHubLoader();
-    fairDataHubLoader.load(fairDataHub_nocatalogs, true);
-    fairDataHub_nocatalogs.dropTable("FDP_Catalog");
+    PetStoreLoader petStoreLoader = new PetStoreLoader();
+    petStoreLoader.load(fairDataHub_nocatalogs, true);
   }
 
   @Test
