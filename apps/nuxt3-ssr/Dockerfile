@@ -39,6 +39,9 @@ ENV NUXT_PUBLIC_SITE_TITLE=$NUXT_PUBLIC_SITE_TITLE
 # Set feature flag for cohort only app
 ENV NUXT_PUBLIC_COHORT_ONLY=$NUXT_PUBLIC_COHORT_ONLY
 
+# pass optional analytics key 
+ENV NUXT_PUBLIC_ANALYTICS_KEY=$NUXT_PUBLIC_ANALYTICS_KEY
+
 ## Start the server
 CMD node .output/server/index.mjs
 
