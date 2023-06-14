@@ -39,7 +39,8 @@ class OntologyManager:
                 self.update(table, **kwargs)
 
     def add(self, table: str, **kwargs) -> Response:
-        """Add a term to an ontology."""
+        """Add a term to an ontology table.
+        """
         log.info(f"Adding to table {table}.")
 
         if table not in self.ontology_tables:
@@ -132,12 +133,13 @@ class OntologyManager:
                 if not (col_values.get('refSchema') == 'CatalogueOntologies'
                         and col_values.get('refTable') == self.ontology_table):
                     continue
-                self.__update_column(tb_pkeys)
-                tb_dict.update({col: col_values['columnType']})
+                col_dict = self.__update_column(tb_pkeys)
+                if len(col_dict) > 0:
+                    tb_dict.update({col: col_dict})
 
             return tb_dict
 
-        def __update_column(self, pkeys: list):
+        def __update_column(self, pkeys: list) -> list:
             """Update the values in the table column"""
             _table = self.manager.parse_table_name(self.table)
             query = Queries.column_values(_table, self.column, pkeys)
@@ -148,12 +150,13 @@ class OntologyManager:
                 json={'query': query, 'variables': variables}
             )
 
-            # TODO: make robust, check for errors
-            if response.status_code == 400:
+            if response.status_code != 200:
+                log.debug(f"Error {response.status_code} in database {self.database}, table {self.table}, "
+                          f"column {self.column}.")
                 log.debug(response.text)
-                return
+                return []
             if len(response.json()['data']) == 0:
-                return
+                return []
             column_values = response.json()['data'][_table]
             column_values_updated = [
                 {col: (col_val
@@ -173,12 +176,16 @@ class OntologyManager:
                 json={'query': query, 'variables': variables}
             )
 
-            if response.status_code == 200:
+            if response.status_code != 200:
+                log.error(f"Update {self.old} to {self.new} in table {self.table} on database {self.database} failed.")
+                log.debug(response.status_code)
+                log.debug(response.text)
+            else:
                 log.info(f"Successfully updated term {self.old} to {self.new} in colum {self.column}"
-                      f" of table {self.table} on database {self.database} in {len(column_values)} rows.")
+                         f" of table {self.table} on database {self.database} in {len(column_values)} rows.")
+                return column_values_updated
 
-
-    def update(self, table: str, **kwargs):
+    def update(self, table: str, **kwargs) -> dict:
         """Rename a term in an ontology."""
         ontology_table = table
         # TODO: do the actual update
@@ -198,7 +205,9 @@ class OntologyManager:
             raise NoSuchNameException(f"Name '{new}' not found in table '{ontology_table}'.")
 
         updater = self.Updater(self, ontology_table, old, new)
-        server_dict = updater.update()
+        update_results = updater.update()
+
+        return update_results
 
     def __perform_query(self, query: str, variables: dict, action: str) -> Response:
         """Perform the query using the query and variables supplied."""
