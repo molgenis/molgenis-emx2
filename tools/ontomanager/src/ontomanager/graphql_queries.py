@@ -99,14 +99,19 @@ class Queries:
         return query
 
     @staticmethod
-    def column_values(table: str, column: str):
+    def column_values(table: str, column: str, pkeys: list):
         """Query to list the values in a column.
         :param table: the name of the table
         :param column: the name of the column
+        :param pkeys: the list of columns with primary key in the column's data table
         """
+        if column in pkeys:
+            pkeys = [pkey + ' {name}' if pkey == column else pkey for pkey in pkeys]
+        else:
+            pkeys.append(column + ' {name}')
         query = """
         query """ + table + """($filter: """ + table + """Filter) {
-          """ + table + """(filter:$filter) {id, name, """ + column + """{name}}
+          """ + table + """(filter:$filter) {""" + ', '.join(pkeys) + """}
         }
         """
 
