@@ -17,11 +17,16 @@
         Edit report: {{ id }}<IconAction icon="eye" @click="edit = false" />
       </h2>
       <InputString id="reportName" v-model="name" label="name" />
-      <InputText id="reportSql" v-model="sql" label="sql" />
+      <InputText
+        id="reportSql"
+        v-model="sql"
+        label="sql"
+        description="You can type postgresql compatible SQL. You can also create parameters, e.g. ${name:string_array}, which will create a parameter 'name' that then internally is treated as a string_array (see column types). See the download link to understand how parameters are used in URL."
+      />
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <ButtonAction @click="save">Save</ButtonAction>
       <div class="mt-2">
-        <label><b>Result:</b></label>
+        <h2>View report: {{ id }}</h2>
       </div>
     </div>
     <h2 v-else>
@@ -43,7 +48,8 @@
     <MessageError v-if="error">{{ error }}</MessageError>
     <div v-if="rows && rows.length > 0">
       <Pagination v-if="count" v-model="page" :limit="limit" :count="count" />
-      download: <a :href="downloadUrl">zip</a>
+      download as <a :href="downloadZip">zip</a> or
+      <a :href="downloadExcel">excel</a>
       <TableSimple
         :columns="columns"
         :rows="rows"
@@ -143,16 +149,20 @@ export default {
               : { name: match, columnType: "STRING" }
           );
     },
-    downloadUrl() {
-      let parameters = Object.entries(this.parameters)
+    parametersQuery() {
+      return Object.entries(this.parameters)
         .map((entry) =>
           Array.isArray(entry[1])
             ? "&" + entry[0] + "=" + entry[1].join(",")
             : "&" + entry[0] + "=" + entry[1]
         )
         .join("");
-
-      return "../api/reports/zip?id=" + this.id + parameters;
+    },
+    downloadZip() {
+      return "../api/reports/zip?id=" + this.id + this.parametersQuery;
+    },
+    downloadExcel() {
+      return "../api/reports/zip?id=" + this.id + this.parametersQuery;
     },
   },
   methods: {

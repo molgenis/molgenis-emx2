@@ -7,6 +7,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.*;
 import java.util.stream.Stream;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
+import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -26,6 +28,7 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.FileUtils;
 import org.molgenis.emx2.io.ImportCsvZipTask;
 import org.molgenis.emx2.io.MolgenisIO;
+import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import spark.Request;
 import spark.Response;
@@ -45,7 +48,7 @@ public class ZipApi {
     final String tablePath = "/:schema/api/zip/:table"; // NOSONAR
     get(tablePath, ZipApi::getZipTable);
 
-    // query operator
+    // report operations
     final String reportPath = "/:schema/api/reports/zip"; // NOSONAR
     get(reportPath, ZipApi::getZippedReports);
   }
@@ -144,7 +147,47 @@ public class ZipApi {
   }
 
   static String getZippedReports(Request request, Response response) throws IOException {
+    Path tempDir =
+        Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT); // NOSONAR
+    tempDir.toFile().deleteOnExit();
+    try (OutputStream outputStream = response.raw().getOutputStream()) {
+      FileUtils.getTempFile("download", ".zip");
+      Path zipFile = tempDir.resolve("download.zip");
+      TableStoreForCsvInZipFile store = new TableStoreForCsvInZipFile(zipFile);
+
+      // take all the queries
+      generateReportsToStore(request, store);
+
+      // copy the zip to output
+      outputStream.write(Files.readAllBytes(zipFile));
+      response.type("application/zip");
+      response.header("Content-Disposition", "attachment; filename=reports.zip");
+      return "Export success";
+    } finally {
+      try (Stream<Path> files = Files.walk(tempDir)) {
+        files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+      }
+    }
+  }
+
+  static void generateReportsToStore(Request request, TableStore store)
+      throws JsonProcessingException {
     String reports = request.queryParams("id");
+    Schema schema = getSchema(request);
+    Map<String, Object> parameters = getReportParameters(request);
+    String reportsJson = schema.getMetadata().getSetting("reports");
+    List<Map<String, String>> reportList = new ObjectMapper().readValue(reportsJson, List.class);
+    for (String reportId : reports.split(",")) {
+      Map reportObject = reportList.get(Integer.parseInt(reportId));
+      String sql = (String) reportObject.get("sql");
+      String name = (String) reportObject.get("name");
+      List<Row> rows = schema.retrieveSql(sql, parameters);
+      store.writeTable(name, new ArrayList<>(rows.get(0).getColumnNames()), rows);
+    }
+  }
+
+  @NotNull
+  static Map<String, Object> getReportParameters(Request request) {
     Map<String, Object> parameters = new LinkedHashMap<>();
     request
         .queryParams()
@@ -158,36 +201,6 @@ public class ZipApi {
                 parameters.put(param, request.queryParams(param));
               }
             });
-
-    Path tempDir =
-        Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT); // NOSONAR
-    tempDir.toFile().deleteOnExit();
-    try (OutputStream outputStream = response.raw().getOutputStream()) {
-      Schema schema = getSchema(request);
-      String reportsJson = schema.getMetadata().getSetting("reports");
-      List<Map<String, String>> reportList = new ObjectMapper().readValue(reportsJson, List.class);
-      FileUtils.getTempFile("download", ".zip");
-      Path zipFile = tempDir.resolve("download.zip");
-      TableStoreForCsvInZipFile store = new TableStoreForCsvInZipFile(zipFile);
-
-      // take all the queries
-      for (String reportId : reports.split(",")) {
-        Map reportObject = reportList.get(Integer.parseInt(reportId));
-        String sql = (String) reportObject.get("sql");
-        String name = (String) reportObject.get("name");
-        List<Row> rows = schema.retrieveSql(sql, parameters);
-        store.writeTable(name, new ArrayList<>(rows.get(0).getColumnNames()), rows);
-      }
-
-      // copy the zip to output
-      outputStream.write(Files.readAllBytes(zipFile));
-      response.type("application/zip");
-      response.header("Content-Disposition", "attachment; filename=reports.zip");
-      return "Export success";
-    } finally {
-      try (Stream<Path> files = Files.walk(tempDir)) {
-        files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-      }
-    }
+    return parameters;
   }
 }
