@@ -45,7 +45,6 @@
                 <button
                   type="button"
                   class="btn btn-link"
-                  :title="heading"
                   :class="{ 'font-weight-bold': index + 1 === currentPage }"
                   @click="setCurrentPage(index + 1)"
                   :style="chapterStyleAndErrors[index].style"
