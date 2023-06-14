@@ -49,6 +49,7 @@ app.config.globalProperties.$axios = axios;
 app.config.globalProperties.$Client = Client;
 app.config.globalProperties.$utils = utils;
 app.config.globalProperties.$docsMap = docsMap;
+app.config.globalProperties.window = window;
 
 //add directives
 app.directive("scroll-to", VueScrollTo);

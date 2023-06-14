@@ -34,7 +34,7 @@ export interface INewClient {
   fetchRowData: (
     tableName: string,
     rowId: IRow,
-    expandLevel: number
+    expandLevel?: number
   ) => Promise<any>;
   fetchAggregateData: (
     tableName: string,

@@ -15,7 +15,7 @@ public class TestColumnTypeValidation {
       assertEquals("Validation failed: test is not valid EMAIL", e.getMessage());
     }
 
-    EMAIL.validate("test@home.nl");
+    EMAIL.validate("teSt@hoMe.nL");
     EMAIL.validate("test+test@home.nl");
   }
 
