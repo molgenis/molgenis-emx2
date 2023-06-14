@@ -735,7 +735,7 @@ public class GraphqlSchemaFieldFactory {
     }
   }
 
-  private Map<String, String> convertKeyValueInputToMap(List<Map<String, String>> keyValueList) {
+  private Map<String, String> convertKeyValueListToMap(List<Map<String, String>> keyValueList) {
     Map<String, String> keyValueMap = new LinkedHashMap<>();
     if (keyValueList != null) {
       keyValueList.forEach(
@@ -815,7 +815,7 @@ public class GraphqlSchemaFieldFactory {
                   Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
                   Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
                   Map<String, String> parameters =
-                      convertKeyValueInputToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
+                      convertKeyValueListToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
                   List<Map<String, Object>> reportList =
                       new ObjectMapper().readValue(reportsJson, List.class);
                   Map<String, Object> report = reportList.get(id);

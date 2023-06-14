@@ -151,7 +151,7 @@ public class ZipApi {
         .forEach(
             param -> {
               if ("id".equals(param)) {
-                // ignore
+                return;
               } else if (request.queryParamsValues(param).length > 1) {
                 parameters.put(param, List.of(request.queryParamsValues(param)));
               } else {

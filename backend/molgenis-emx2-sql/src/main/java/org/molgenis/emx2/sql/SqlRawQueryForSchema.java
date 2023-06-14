@@ -58,7 +58,7 @@ public class SqlRawQueryForSchema {
             for (org.jooq.Record r : fetch) {
               result.add(new SqlRow(r));
             }
-            logger.info(schema.getDatabase().getActiveUser() + " commpleted" + finalSql);
+            logger.info(schema.getDatabase().getActiveUser() + " completed" + finalSql);
           } catch (SQLException sqle) {
             throw new SqlMolgenisException("query failed", sqle);
           }

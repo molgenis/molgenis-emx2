@@ -28,7 +28,6 @@
       Report: {{ name
       }}<IconAction v-if="canEdit" icon="pencil-alt" @click="edit = true" />
     </h2>
-    <MessageError v-if="error">{{ error }}</MessageError>
     <div v-if="parameterInputs">
       Please provide parameters:
       <FormInput
@@ -41,13 +40,10 @@
       />
       <ButtonAction @click="run">run</ButtonAction>
     </div>
+    <MessageError v-if="error">{{ error }}</MessageError>
     <div v-if="rows && rows.length > 0">
-      <Pagination
-        v-if="count"
-        v-model="page"
-        :limit="limit"
-        :count="count"
-      /><IconAction icon="download" @click="download(id)" />
+      <Pagination v-if="count" v-model="page" :limit="limit" :count="count" />
+      download: <a :href="downloadUrl">zip</a>
       <TableSimple
         :columns="columns"
         :rows="rows"
@@ -147,6 +143,17 @@ export default {
               : { name: match, columnType: "STRING" }
           );
     },
+    downloadUrl() {
+      let parameters = Object.entries(this.parameters)
+        .map((entry) =>
+          Array.isArray(entry[1])
+            ? "&" + entry[0] + "=" + entry[1].join(",")
+            : "&" + entry[0] + "=" + entry[1]
+        )
+        .join("");
+
+      return "../api/reports/zip?id=" + this.id + parameters;
+    },
   },
   methods: {
     async run() {
@@ -159,7 +166,7 @@ export default {
           parameters: this.parameterKeyValueMap,
         }
       ).catch((error) => {
-        this.error = error;
+        this.error = error.response.errors[0].message;
       });
       this.rows = JSON.parse(result._reports.data);
       this.count = result._reports.count;
@@ -187,16 +194,6 @@ export default {
         this.error = "report not found";
       }
       this.run();
-    },
-    download(id) {
-      const parameters = this.parameters.entries
-        .map((entry) =>
-          Array.isArray(entry.value)
-            ? entry.key + "=" + entry.value.join(",")
-            : entry.key + "=" + entry.value
-        )
-        .join("&");
-      window.open("../api/reports/zip?id=" + id, "_blank");
     },
   },
   watch: {
