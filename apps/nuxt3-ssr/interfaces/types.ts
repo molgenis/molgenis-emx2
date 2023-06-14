@@ -177,8 +177,10 @@ interface IFilter extends IBaseFilter {
 interface IFormField {
   name: string;
   label: string;
-  value: string;
+  fieldValue: string; // value is taken by vue reactivity
   inputType: "string" | "textarea";
+  hasError?: boolean;
+  message?: string;
 }
 
 interface IContactFormData {

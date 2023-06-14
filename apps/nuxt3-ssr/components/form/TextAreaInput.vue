@@ -19,6 +19,6 @@ const modelValue = ref("");
     v-model="modelValue"
     :id="id"
     :required="required"
-    class="w-full pr-16 font-sans text-black text-gray-300 bg-white outline-none rounded-search-input h-30 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border p-x-5 p-y-5"
+    class="w-full pr-16 font-sans text-black text-gray-300 bg-white outline-none rounded-textarea-input h-60 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border py-2"
   />
 </template>

@@ -322,6 +322,7 @@ useHead({ title: cohort?.acronym || cohort?.name });
           :image="cohort?.logo?.url"
           :link="cohort?.website"
           :contact="cohort?.contactEmail"
+          :contact-name="cohort?.name"
         />
         <ContentBlockDescription
           id="Description"

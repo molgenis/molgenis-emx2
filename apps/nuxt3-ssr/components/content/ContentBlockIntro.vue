@@ -16,6 +16,9 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  contactName: {
+    type: String,
+  },
   contactTarget: {
     type: String,
     default: "_blank",
@@ -28,45 +31,61 @@ const fields = reactive([
   {
     name: "senderName",
     label: "Name",
-    value: "",
+    fieldValue: "",
     inputType: "string",
   },
   {
     name: "senderEmail",
     label: "Email",
-    value: "",
+    fieldValue: "",
     inputType: "string",
+    hasError: false,
+    message: "",
   },
   {
     name: "senderMessage",
     label: "Message",
-    value: "",
+    fieldValue: "",
     inputType: "textarea",
   },
 ]);
+
+watch(
+  () => fields[1].fieldValue,
+  () => {
+    fields[1].message = "";
+    fields[1].hasError = false;
+  }
+);
 
 const submitForm = async () => {
   const senderName = fields.find((field) => field.name === "senderName");
   const senderEmail = fields.find((field) => field.name === "senderEmail");
   const senderMessage = fields.find((field) => field.name === "senderMessage");
   // Validate form fields
-  if (!senderName.value || !senderEmail.value || !senderMessage.value) {
-    alert("Please fill in all fields");
+
+  if (!senderEmail.fieldValue) {
+    senderEmail.hasError = true;
+    senderEmail.message = "Please enter a valid email address";
     return;
   }
 
-  await sendContactForm({
-    recipientsFilter: '{"filter": {"id":{"equals":"TestCohort"}}}',
-    subject: "Contact request from " + senderName.value,
-    body: `Name: ${senderName.value}\nEmail: ${senderEmail.value}\nMessage: ${senderMessage.value}`,
-  });
+  try {
+    sendContactForm({
+      recipientsFilter: '{"filter": {"id":{"equals":"TestCohort"}}}',
+      subject: "Contact request from " + senderName.fieldValue,
+      body: `Name: ${senderName.fieldValue}\nEmail: ${senderEmail.fieldValue}\nMessage: ${senderMessage.fieldValue}`,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 
   // Reset form fields
-  senderName.value = "";
-  senderEmail.value = "";
-  senderMessage.value = "";
-
-  alert("Form submitted successfully");
+  senderName.fieldValue = "";
+  senderEmail.fieldValue = "";
+  senderMessage.fieldValue = "";
+  senderEmail.hasError = false;
+  senderEmail.message = "";
 
   showContactInformation.value = false;
 };
@@ -95,13 +114,13 @@ const submitForm = async () => {
         @close="showContactInformation = false"
         buttonAlignment="right"
       >
-        <ContentBlock title="Contact">
+        <ContentBlockModal title="Contact" :sub-title="contactName">
           <!-- <div class="font-bold text-body-base">E-mail</div>
           <a class="text-blue-500 hover:underline" :href="`mailto:${contact}`">
             {{ contact }}
           </a> -->
           <ContactForm :fields="fields" @submit-form="submitForm" />
-        </ContentBlock>
+        </ContentBlockModal>
 
         <template #footer>
           <Button
