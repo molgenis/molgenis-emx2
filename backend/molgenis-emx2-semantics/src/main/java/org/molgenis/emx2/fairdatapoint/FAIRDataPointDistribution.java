@@ -2,7 +2,9 @@ package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.fairdatapoint.FAIRDataPointDataset.queryDataset;
+import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.FORMATS;
+import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.formatToMediaType;
+import static org.molgenis.emx2.fairdatapoint.Queries.queryDistribution;
 import static org.molgenis.emx2.semantics.RDFService.extractHost;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
@@ -30,23 +32,6 @@ public class FAIRDataPointDistribution {
     return result;
   }
 
-  public static Set<String> FORMATS =
-      new TreeSet<>(
-          Set.of(
-              "csv",
-              "jsonld",
-              "ttl",
-              "excel",
-              "zip",
-              "rdf-ttl",
-              "rdf-n3",
-              "rdf-ntriples",
-              "rdf-nquads",
-              "rdf-xml",
-              "rdf-trig",
-              "rdf-jsonld",
-              "graphql"));
-
   /**
    * Access a dataset distribution by a combination of schema, table, and format. Example:
    * http://localhost:8080/api/fdp/distribution/rd3/Analyses/jsonld
@@ -57,39 +42,52 @@ public class FAIRDataPointDistribution {
    */
   public FAIRDataPointDistribution(Request request, Database database) throws Exception {
 
-    String schema = request.params("schema");
-    String table = request.params("table");
-    String format = request.params("format");
+    String schemaParam = request.params("schema");
+    String distributionParam = request.params("distribution");
+    String formatParam = request.params("format");
 
-    if (schema == null || table == null || format == null) {
-      throw new Exception("You must provide 3 parameters: schema, table, and format");
+    if (schemaParam == null || distributionParam == null || formatParam == null) {
+      throw new Exception(
+          "You must provide 3 parameters: schema, distribution (or file), and format");
     }
 
-    format = format.toLowerCase();
-    if (!FORMATS.contains(format)) {
-      throw new Exception("Format unknown. Use any of: " + FORMATS);
-    }
-
-    if (database.getSchema(schema) == null) {
+    if (database.getSchema(schemaParam) == null) {
       throw new Exception("Schema unknown.");
     }
 
-    if (database.getSchema(schema).getTable(table) == null) {
-      throw new Exception("Table unknown.");
+    // 'distribution' must either refer to the name of existing and visible 'Distribution' by a
+    // file contained therein
+    Schema schemaObj = database.getSchema(schemaParam);
+    List<Map<String, Object>> distrByName = queryDistribution(schemaObj, "name", distributionParam);
+    List<Map<String, Object>> distrByFile =
+        queryDistribution(schemaObj, "files:{identifier", distributionParam);
+
+    if (distrByName.size() == 0 && distrByFile.size() == 0) {
+      throw new Exception("Distribution or file therein not found");
+    } else if (distrByName.size() > 0 && distrByFile.size() > 0) {
+      throw new Exception(
+          "Cannot resolve distribution because it is ambiguous: file name equal to a table name. Please resolve this issue.");
     }
 
-    // don't trust user: check if distribution is really part of a dataset
-    Schema schemaObj = database.getSchema(schema);
-    List<Map<String, Object>> datasetsFromJSON = queryDataset(schemaObj, "distribution", table);
-    if (datasetsFromJSON.size() == 0) {
-      throw new Exception(
-          "Requested table distribution exists within schema, but is not part of any dataset in the schema and is therefore not retrievable.");
+    List<Map<String, Object>> distributions;
+    if (distrByName.size() > 0) {
+      distributions = distrByName;
+    } else {
+      distributions = distrByFile;
     }
-    if (datasetsFromJSON.size() > 1) {
-      throw new Exception(
-          "Reference in dataset to table distribution is not unique (was secondary key removed?), cannot pinpoint source.");
+
+    Map type = (Map) distributions.get(0).get("type"); // type and type.name are required
+    boolean refersToTable = type.get("name").equals("Table");
+
+    if (refersToTable) {
+      formatParam = formatParam.toLowerCase();
+      if (!FORMATS.contains(formatParam)) {
+        throw new Exception("Format unknown. Use any of: " + FORMATS);
+      }
+      if (database.getSchema(schemaParam).getTable(distributionParam) == null) {
+        throw new Exception("Table unknown.");
+      }
     }
-    Map sourceDataset = datasetsFromJSON.get(0);
 
     // All prefixes and namespaces
     Map<String, String> prefixToNamespace = new HashMap<>();
@@ -121,67 +119,91 @@ public class FAIRDataPointDistribution {
         "MOLGENIS EMX2 data distribution at "
             + host
             + " for table "
-            + table
+            + distributionParam
             + " in schema "
-            + schema
+            + schemaParam
             + ", formatted as "
-            + format
+            + formatParam
             + ".");
-    if (format.equals("csv")
-        || format.equals("jsonld")
-        || format.equals("ttl")
-        || format.equals("excel")
-        || format.equals("zip")) {
-      builder.add(
-          reqURL,
-          DCAT.DOWNLOAD_URL,
-          encodedIRI(host + "/" + schema + "/api/" + format + "/" + table));
-    } else if (format.equals("graphql")) {
-      List<String> columnNames =
-          database.getSchema(schema).getTable(table).getMetadata().getColumnNames();
-      // GraphQL, e.g. http://localhost:8080/fdh/graphql?query={Analyses{id,etc}}
-      builder.add(
-          reqURL,
-          DCAT.DOWNLOAD_URL,
-          encodedIRI(
-              host
-                  + "/"
-                  + schema
-                  + "/graphql?query={"
-                  + table
-                  + "{"
-                  + (String.join(",", columnNames))
-                  + "}}"));
+
+    if (refersToTable) {
+      if (formatParam.equals("csv")
+          || formatParam.equals("jsonld")
+          || formatParam.equals("ttl")
+          || formatParam.equals("excel")
+          || formatParam.equals("zip")) {
+        builder.add(
+            reqURL,
+            DCAT.DOWNLOAD_URL,
+            encodedIRI(host + "/" + schemaParam + "/api/" + formatParam + "/" + distributionParam));
+      } else if (formatParam.equals("graphql")) {
+        List<String> columnNames =
+            database
+                .getSchema(schemaParam)
+                .getTable(distributionParam)
+                .getMetadata()
+                .getColumnNames();
+        // GraphQL, e.g. http://localhost:8080/fdh/graphql?query={Analyses{id,etc}}
+        builder.add(
+            reqURL,
+            DCAT.DOWNLOAD_URL,
+            encodedIRI(
+                host
+                    + "/"
+                    + schemaParam
+                    + "/graphql?query={"
+                    + distributionParam
+                    + "{"
+                    + (String.join(",", columnNames))
+                    + "}}"));
+      } else {
+        // all "rdf-" flavours
+        builder.add(
+            reqURL,
+            DCAT.DOWNLOAD_URL,
+            encodedIRI(
+                host
+                    + "/"
+                    + schemaParam
+                    + "/api/rdf/"
+                    + distributionParam
+                    + "?format="
+                    + formatParam.replace("rdf-", "")));
+      }
+      builder.add(reqURL, DCAT.MEDIA_TYPE, iri(formatToMediaType(formatParam)));
     } else {
-      // all "rdf-" flavours
-      builder.add(
-          reqURL,
-          DCAT.DOWNLOAD_URL,
-          encodedIRI(
-              host + "/" + schema + "/api/rdf/" + table + "?format=" + format.replace("rdf-", "")));
+      // file
+      // todo
     }
 
-    builder.add(reqURL, DCAT.MEDIA_TYPE, iri(formatToMediaType(format)));
-    builder.add(reqURL, DCTERMS.FORMAT, format);
-    builder.add(
-        reqURL,
-        DCTERMS.ISSUED,
-        literal(
-            TypeUtils.toString(sourceDataset.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
-    builder.add(
-        reqURL,
-        DCTERMS.MODIFIED,
-        literal(
-            TypeUtils.toString(sourceDataset.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
-    if (sourceDataset.get("license") != null) {
-      builder.add(reqURL, DCTERMS.LICENSE, sourceDataset.get("license"));
+    builder.add(reqURL, DCTERMS.FORMAT, formatParam);
+
+    for (Map distribution : distributions) {
+      builder.add(
+          reqURL,
+          DCTERMS.ISSUED,
+          literal(
+              TypeUtils.toString(distribution.get("mg_insertedOn")).substring(0, 19),
+              XSD.DATETIME));
+      builder.add(
+          reqURL,
+          DCTERMS.MODIFIED,
+          literal(
+              TypeUtils.toString(distribution.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
+      List<Map> datasets = (List<Map>) distribution.get("belongsToDataset");
+      for (Map dataset : datasets) {
+        if (dataset.get("license") != null) {
+          builder.add(reqURL, DCTERMS.LICENSE, dataset.get("license"));
+        }
+        if (dataset.get("accessRights") != null) {
+          builder.add(reqURL, DCTERMS.ACCESS_RIGHTS, dataset.get("accessRights"));
+        }
+        if (dataset.get("rights") != null) {
+          builder.add(reqURL, DCTERMS.RIGHTS, dataset.get("rights"));
+        }
+      }
     }
-    if (sourceDataset.get("accessRights") != null) {
-      builder.add(reqURL, DCTERMS.ACCESS_RIGHTS, sourceDataset.get("accessRights"));
-    }
-    if (sourceDataset.get("rights") != null) {
-      builder.add(reqURL, DCTERMS.RIGHTS, sourceDataset.get("rights"));
-    }
+
     builder.add(reqURL, DCTERMS.CONFORMS_TO, iri("http://www.w3.org/ns/dcat#Distribution"));
     // todo odrl:Policy? https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
 
@@ -190,54 +212,5 @@ public class FAIRDataPointDistribution {
     StringWriter stringWriter = new StringWriter();
     Rio.write(model, stringWriter, applicationOntologyFormat, config);
     this.result = stringWriter.toString();
-  }
-
-  /**
-   * Convert a format into its corresponding MIME type
-   *
-   * @param format
-   * @return
-   * @throws Exception
-   */
-  public static String formatToMediaType(String format) throws Exception {
-    String mediaType;
-    switch (format) {
-      case "csv":
-        mediaType = "https://www.iana.org/assignments/media-types/text/csv";
-        break;
-      case "jsonld":
-      case "rdf-jsonld":
-      case "graphql":
-        mediaType = "https://www.iana.org/assignments/media-types/application/ld+json";
-        break;
-      case "ttl":
-      case "rdf-ttl":
-        mediaType = "https://www.iana.org/assignments/media-types/text/turtle";
-        break;
-      case "excel":
-        mediaType = "https://www.iana.org/assignments/media-types/application/vnd.ms-excel";
-        break;
-      case "zip":
-        mediaType = "https://www.iana.org/assignments/media-types/application/zip";
-        break;
-      case "rdf-n3":
-        mediaType = "https://www.iana.org/assignments/media-types/text/n3";
-        break;
-      case "rdf-ntriples":
-        mediaType = "https://www.iana.org/assignments/media-types/application/n-triples";
-        break;
-      case "rdf-nquads":
-        mediaType = "https://www.iana.org/assignments/media-types/application/n-quads";
-        break;
-      case "rdf-xml":
-        mediaType = "https://www.iana.org/assignments/media-types/application/rdf+xml";
-        break;
-      case "rdf-trig":
-        mediaType = "https://www.iana.org/assignments/media-types/application/trig";
-        break;
-      default:
-        throw new Exception("MIME Type could not be assigned");
-    }
-    return mediaType;
   }
 }

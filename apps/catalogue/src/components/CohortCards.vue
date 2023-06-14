@@ -93,8 +93,17 @@
                 </tr>
                 <tr>
                   <td>
-                    <a :href="cohort.website" target="__blank">website</a>&nbsp;
-                    <a :href="'mailto:' + cohort.contactEmail">email</a>
+                    <a
+                      v-if="cohort.website"
+                      :href="cohort.website"
+                      target="__blank"
+                      >website</a
+                    >&nbsp;
+                    <a
+                      v-if="cohort.contactEmail"
+                      :href="'mailto:' + cohort.contactEmail"
+                      >email</a
+                    >
                   </td>
                 </tr>
               </table>
