@@ -12,6 +12,7 @@ export default {
   MIN_LONG: "-9223372036854775807",
   IS_CHAPTERS_ENABLED_FIELD_NAME: "isChaptersEnabled",
   AUTO_ID: "AUTO_ID",
+  HEADING: "HEADING",
 };
 
 const LEVEL_1 = "Level 1";

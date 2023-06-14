@@ -52,7 +52,7 @@ public class MolgenisWebservice {
      * WARNING !! SPARK JAVA USES DESIGN WHERE THE ORDER OF REQUEST DEFINITION DETERMINES THE HANDLER
      */
 
-    post("/:schema/api/email/*", ACCEPT_JSON, EmailApi::send);
+    post("/:schema/api/message/*", ACCEPT_JSON, MessageApi::send);
 
     get(
         ("/" + OIDC_CALLBACK_PATH),

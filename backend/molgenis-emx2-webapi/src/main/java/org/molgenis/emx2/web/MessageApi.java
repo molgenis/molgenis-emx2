@@ -1,7 +1,6 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
-import static spark.Spark.post;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,34 +18,30 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.email.EmailService;
 import org.molgenis.emx2.email.EmailSettings;
 import org.molgenis.emx2.email.EmailValidator;
-import org.molgenis.emx2.web.actions.SendMailAction;
+import org.molgenis.emx2.web.actions.SendMessageAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
-public class EmailApi {
+public class MessageApi {
 
-  private static final Logger logger = LoggerFactory.getLogger(EmailApi.class);
+  private static final Logger logger = LoggerFactory.getLogger(MessageApi.class);
   private static final Parser parser = new Parser();
 
-  public static void create() {
-    post("/api/email/*", "application/json", EmailApi::send);
-  }
-
   public static String send(Request request, Response response) {
-    logger.info("Received email request");
+    logger.info("Received message request");
     Schema schema = MolgenisWebservice.getSchema(request);
     if (schema == null) {
       throw new MolgenisException("Cannot handle send action, schema is null");
     }
 
     ObjectMapper objectMapper = new ObjectMapper();
-    SendMailAction sendMailAction;
+    SendMessageAction sendMessageAction;
     Map<String, Object> validationFilter;
     try {
-      sendMailAction = objectMapper.readValue(request.body(), SendMailAction.class);
-      validationFilter = objectMapper.readValue(sendMailAction.recipientsFilter(), Map.class);
+      sendMessageAction = objectMapper.readValue(request.body(), SendMessageAction.class);
+      validationFilter = objectMapper.readValue(sendMessageAction.recipientsFilter(), Map.class);
     } catch (JsonProcessingException e) {
       response.status(422);
       return "Error parsing request: " + e.getMessage();
@@ -92,7 +87,7 @@ public class EmailApi {
     EmailService emailService = new EmailService(settings);
 
     final Boolean sendResult =
-        emailService.send(recipients, sendMailAction.subject(), sendMailAction.body());
+        emailService.send(recipients, sendMessageAction.subject(), sendMessageAction.body());
     return sendResult.toString();
   }
 
