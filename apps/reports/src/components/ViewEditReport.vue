@@ -57,7 +57,7 @@
         :key="JSON.stringify(this.rows)"
       />
     </div>
-    <div v-else>No results found.</div>
+    <div v-else-if="rows">No results found.</div>
   </div>
 </template>
 
@@ -203,7 +203,9 @@ export default {
       } else {
         this.error = "report not found";
       }
-      this.run();
+      if (!this.sql.includes("${")) {
+        await this.run();
+      }
     },
   },
   watch: {
