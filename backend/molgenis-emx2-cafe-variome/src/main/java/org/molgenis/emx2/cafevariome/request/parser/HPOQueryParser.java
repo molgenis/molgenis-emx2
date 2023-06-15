@@ -8,7 +8,6 @@ import spark.Request;
 public class HPOQueryParser {
 
   /**
-   *
    * @param request
    * @return
    * @throws Exception
@@ -29,7 +28,6 @@ public class HPOQueryParser {
   }
 
   /**
-   *
    * @param request
    * @return
    * @throws Exception

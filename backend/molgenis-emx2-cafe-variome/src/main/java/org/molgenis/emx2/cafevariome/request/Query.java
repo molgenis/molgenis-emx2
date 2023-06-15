@@ -7,7 +7,6 @@ public class Query {
   private Request request;
 
   /**
-   *
    * @param request
    * @throws Exception
    */

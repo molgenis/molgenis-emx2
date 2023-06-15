@@ -18,7 +18,6 @@ public class QueryComponents {
   private ORDOQuery ordoQuery;
 
   /**
-   *
    * @param request
    * @throws Exception
    */
@@ -36,7 +35,6 @@ public class QueryComponents {
       System.out.println(queryParam + " = " + request.queryParams(queryParam));
     }
     System.out.println("--");
-
   }
 
   @Override

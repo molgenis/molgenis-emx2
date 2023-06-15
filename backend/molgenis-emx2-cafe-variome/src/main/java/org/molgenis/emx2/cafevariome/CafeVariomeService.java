@@ -7,7 +7,6 @@ import spark.Request;
 public class CafeVariomeService {
 
   /**
-   *
    * @param request
    * @return
    * @throws Exception
