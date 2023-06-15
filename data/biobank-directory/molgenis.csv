@@ -15,7 +15,7 @@ QualityInfoBiobanks,,assess_level_bio,Assessment level,ontology,,TRUE,,Assessmen
 QualityInfoBiobanks,,certification_number,Certification Number,string,,FALSE,,,,,,,
 QualityInfoBiobanks,,certification_report,Certification Report,hyperlink,,FALSE,,,,,,,
 QualityInfoBiobanks,,certification_image_link,Certification Image,hyperlink,,FALSE,,,,,,,
-QualityInfoBiobanks,,label,Label,string,,FALSE,,,,,,,quality_standard
+QualityInfoBiobanks,,label,Label,string,,FALSE,,,,,,,quality_standard.name
 Biobanks,,,,,,,"Description of the biobank organisation, like name, location, network, contact persons, collaboration opportunities and quality assessments",,,,,,
 Biobanks,,id,Id,string,1,TRUE,"Unique biobank ID within BBMRI-ERIC based on MIABIS 2.0 standard (ISO 3166-1 alpha-2 + underscore + biobank national ID or name), prefixed with bbmri-eric:ID: string - MIABIS-2.0-01.",,,,,,
 Biobanks,,pid,PID,string,2,FALSE,Persistent Identifier,,,,,,
@@ -47,7 +47,7 @@ QualityInfoCollections,,assess_level_col,Assessment level,ontology,,TRUE,,Assess
 QualityInfoCollections,,certification_number,Certification Number,string,,FALSE,,,,,,,
 QualityInfoCollections,,certification_report,Certification Report,hyperlink,,FALSE,,,,,,,
 QualityInfoCollections,,certification_image_link,Certification Image,hyperlink,,FALSE,,,,,,,
-QualityInfoCollections,,label,Label,string,,FALSE,,,,,,,quality_standard
+QualityInfoCollections,,label,Label,string,,FALSE,,,,,,,quality_standard.name
 Collections,,,,,,,"Description of the data and samples collected within a biobank, collections may be divided in sub-collections",,,,,,
 Collections,,descriptives,Descriptives,heading,,FALSE,Collection Descriptives,,,,,,
 Collections,,id,Id,string,1,TRUE,"Unique collection ID within BBMRI-ERIC based on MIABIS 2.0 standard, constructed from biobankID prefix + :collection: + local collection ID string - MIABIS-2.0-01.",,,,,,
