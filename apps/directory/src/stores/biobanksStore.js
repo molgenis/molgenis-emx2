@@ -89,8 +89,8 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       .flatMap((biobank) => biobank.collections);
     if (!collections.length) return 0;
     return collections
-      .filter((c) => c.subcollections)
-      .flatMap((collection) => collection.subcollections).length;
+      .filter((c) => c.sub_collections)
+      .flatMap((collection) => collection.sub_collections).length;
   });
 
   return {

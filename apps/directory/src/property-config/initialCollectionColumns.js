@@ -4,11 +4,11 @@ const initialCollectionColumns = [
   {
     label: "Quality labels:",
     column: {
-      qualityInfo: [
+      quality: [
         "label",
-        "certificationReport",
-        "certificationImage",
-        "certificationNumber",
+        "certification_report",
+        "certification_image_link",
+        "certification_number",
       ],
     },
     type: "quality",

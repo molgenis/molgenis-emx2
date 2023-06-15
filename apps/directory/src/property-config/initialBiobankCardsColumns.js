@@ -2,11 +2,11 @@ export const initialBiobankCardColumns = [
   {
     label: "Quality labels:",
     column: {
-      qualityInfo: [
+      quality: [
         "label",
-        "certificationReport",
-        "certificationImage",
-        "certificationNumber",
+        "certification_report",
+        "certification_image_link",
+        "certification_number",
       ],
     },
   },
@@ -16,20 +16,20 @@ export const initialBiobankCardColumns = [
       collections: [
         "id",
         "size",
-        { collectionType: ["label"] },
+        { type: ["label"] },
         {
-          qualityInfo: [
+          quality: [
             "label",
-            "certificationReport",
-            "certificationImage",
-            "certificationNumber",
+            "certification_report",
+            "certification_image_link",
+            "certification_number",
           ],
         },
-        { subcollections: ["id"] },
+        { sub_collections: ["id"] },
       ],
     },
   },
-  { label: "Juridical person:", column: "juridicalPerson" },
+  { label: "Juridical person:", column: "juridical_person" },
   { label: "Biobank capabilities:", column: { capabilities: ["label"] } },
 ];
 

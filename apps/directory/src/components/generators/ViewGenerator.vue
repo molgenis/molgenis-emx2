@@ -25,9 +25,9 @@
       <h3>Subcollections</h3>
 
       <subcollection
-        v-for="subcollection of renderObject.sub_collections"
-        :key="subcollection.id"
-        :collection="subcollection"
+        v-for="sub_collection of renderObject.sub_collections"
+        :key="sub_collection.id"
+        :collection="sub_collection"
       ></subcollection>
     </div>
   </div>

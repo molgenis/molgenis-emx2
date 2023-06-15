@@ -1,14 +1,4 @@
 export const initialFilterFacets = [
-  // {
-  //   component: 'MultiFilter',
-  //   name: 'diagnosis_available',
-  //   label: 'Diagnosis available',
-  //   maxVisibleOptions: 100,
-  //   tableName: 'eu_bbmri_eric_disease_types',
-  //   columnName: 'diagnosis_available',
-  //   humanReadableString: 'Disease type(s):',
-  //   showFacet: true
-  // },
   {
     facetTitle: "Diagnosis available",
     component: "OntologyFilter",
@@ -95,7 +85,6 @@ export const initialFilterFacets = [
     negotiatorRequestString: "Biobank collaboration type(s):",
     showFacet: true,
   },
-
   {
     facetTitle: "Biobank services",
     component: "CheckboxFilter",
@@ -112,7 +101,7 @@ export const initialFilterFacets = [
     facetTitle: "Quality labels",
     component: "CheckboxFilter",
     sourceTable: "AssessmentLevels",
-    applyToColumn: "collections.combinedQualityInfo.name",
+    applyToColumn: "collections.combinedQuality.name",
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     negotiatorRequestString: "Quality label(s):",
@@ -135,8 +124,8 @@ export const initialFilterFacets = [
   {
     facetTitle: "Data category",
     component: "CheckboxFilter",
-    sourceTable: "DataCategories",
-    applyToColumn: "collections.dataCategories.name",
+    sourceTable: "DataTypes",
+    applyToColumn: "collections.dataTypes.name",
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     removeOptions: ["other"],

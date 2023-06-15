@@ -176,7 +176,7 @@ function extractCollectionTypes(collections, prevCollectionHashmap) {
 function mapSubcollections(collections, level) {
   const settingsStore = useSettingsStore();
 
-  const subCollections = [];
+  const sub_collections = [];
 
   for (const collection of collections) {
     if (collection.sub_collections && collection.sub_collections.length) {
@@ -189,13 +189,13 @@ function mapSubcollections(collections, level) {
         ++level
       );
 
-      subCollections.push({
+      sub_collections.push({
         level,
         ...collection,
         viewmodel,
       });
     } else {
-      subCollections.push({
+      sub_collections.push({
         level,
         ...collection,
         viewmodel: getViewmodel(
@@ -205,7 +205,7 @@ function mapSubcollections(collections, level) {
       });
     }
   }
-  return subCollections;
+  return sub_collections;
 }
 
 export function getCollectionDetails(collection) {
