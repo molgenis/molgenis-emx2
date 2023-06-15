@@ -170,21 +170,13 @@ export default {
       }
     },
     validateTable() {
-      this.tableMetaData?.columns
-        ?.filter((column) => {
-          if (this.visibleColumns) {
-            return this.visibleColumns.includes(column.name);
-          } else {
-            return true;
-          }
-        })
-        .forEach((column) => {
-          this.errorPerColumn[column.id] = getColumnError(
-            column,
-            this.internalValues,
-            this.tableMetaData
-          );
-        });
+      this.tableMetaData?.columns?.forEach((column) => {
+        this.errorPerColumn[column.id] = getColumnError(
+          column,
+          this.internalValues,
+          this.tableMetaData
+        );
+      });
       this.$emit("errorsInForm", this.errorPerColumn);
     },
     applyComputed() {
@@ -262,16 +254,13 @@ export default {
 
 function getColumnError(column, values, tableMetaData) {
   const value = values[column.id];
-  const isInvalidNumber = column.columnType === "DECIMAL" && isNaN(value);
-  const missesValue = value === undefined || value === null || value === "";
   const type = column.columnType;
+  const isInvalidNumber = isInValidNumericValue(type, value);
+  const missesValue = value === undefined || value === null || value === "";
 
   if (column.columnType === AUTO_ID || column.columnType === HEADING) {
     return undefined;
   }
-  // console.log("values:", values);
-  // console.log(column.id, missesValue, isInvalidNumber, "  ", column);
-
   if (column.required && (missesValue || isInvalidNumber)) {
     return column.name + " is required ";
   }
@@ -300,9 +289,17 @@ function getColumnError(column, values, tableMetaData) {
   return undefined;
 }
 
+function isInValidNumericValue(columnType, value) {
+  // TODO: what about arrays and longs?
+  if (["DECIMAL", "INT"].includes(columnType)) {
+    return isNaN(value);
+  } else {
+    return false;
+  }
+}
+
 function getColumnValidationError(column, values, tableMetaData) {
   try {
-    //use the keys as variables
     const result = executeExpression(column.validation, values, tableMetaData);
     if (result === false) {
       return `Applying validation rule returned error: ${column.validation}`;
