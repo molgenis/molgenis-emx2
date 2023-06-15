@@ -97,7 +97,7 @@ spec:
             - name: NUXT_PUBLIC_SITE_TITLE
               value: {{ .Values.ssrCatalogue.environment.siteTitle | quote }}
             - name: NUXT_PUBLIC_ANALYTICS_KEY
-              value: {{ .Values.ssrCatalogue.environment.analyticsKey }}
+              value: {{ .Values.ssrCatalogue.environment.analyticsKey | quote }}
       volumes:
         - name: postgres-initdb
           configMap:
