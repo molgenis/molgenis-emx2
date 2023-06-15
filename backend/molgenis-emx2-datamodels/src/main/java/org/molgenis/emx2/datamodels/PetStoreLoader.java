@@ -207,6 +207,8 @@ public class PetStoreLoader extends AbstractDataLoader {
 
     schema
         .getMetadata()
-        .setSetting("reports", "[{\"id\":0, \"sql\":\"select * from \\\"Pet\\\"\"}]");
+        .setSetting(
+            "reports",
+            "[{\"id\":0,\"name\":\"pet report\",\"sql\":\"select * from \\\"Pet\\\"\"},{\"id\":1,\"name\":\"pet report with parameters\",\"sql\":\"select * from \\\"Pet\\\" p where p.name=ANY(${name:string_array})\"}]");
   }
 }
