@@ -25,7 +25,7 @@ public class FAIRDataPointApi {
         FAIRDataPointApi::getFDP); // todo ideally, pass this to get("/api/fdp",..), but how?
     get("/api/fdp/catalog/:schema/:id", FAIRDataPointApi::getCatalog);
     get("/api/fdp/dataset/:schema/:id", FAIRDataPointApi::getDataset);
-    get("/api/fdp/distribution/:schema/:table/:format", FAIRDataPointApi::getDistribution);
+    get("/api/fdp/distribution/:schema/:distribution/:format", FAIRDataPointApi::getDistribution);
 
     // corresponding profiles
     get("/api/fdp/profile", FAIRDataPointApi::getFDPProfile);
@@ -36,21 +36,21 @@ public class FAIRDataPointApi {
 
   private static String getFDP(Request request, Response res) throws Exception {
     res.type(TEXT_TURTLE_MIME_TYPE);
-    Schema[] schemas = getSchemasHavingTable("FDP_Catalog", request);
+    Schema[] schemas = getSchemasHavingTable("Catalog", request);
     return new FAIRDataPoint(request, schemas).getResult();
   }
 
   private static String getCatalog(Request request, Response res) throws Exception {
     res.type(TEXT_TURTLE_MIME_TYPE);
     Schema schema = getSchema(request);
-    Table table = schema.getTable("FDP_Catalog");
+    Table table = schema.getTable("Catalog");
     return new FAIRDataPointCatalog(request, table).getResult();
   }
 
   private static String getDataset(Request request, Response res) throws Exception {
     res.type(TEXT_TURTLE_MIME_TYPE);
     Schema schema = getSchema(request);
-    Table table = schema.getTable("FDP_Dataset");
+    Table table = schema.getTable("Dataset");
     return new FAIRDataPointDataset(request, table).getResult();
   }
 

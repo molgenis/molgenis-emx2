@@ -12,7 +12,13 @@
     "nuxt3-ssr",
     "molgenis-components",
     "helloworld",
-    "reports"
-   ]
+    "reports",
+    "tasks"
+  ],
+  "resolutions": {
+    "nuxt3-ssr/**/@unhead/vue": "1.1.27",
+    "nuxt3-ssr/**/vue": "3.3.4",
+    "nuxt3-ssr/**/vue-router": "4.2.2"
+  }
 }
 

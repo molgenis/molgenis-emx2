@@ -3,15 +3,15 @@
 </template>
 
 <script>
-import {Client, convertToPascalCase} from "molgenis-components";
+import { Client, convertToPascalCase } from "molgenis-components";
 
 /** will forward from Resource to specific details view, e.g. Databanks-details, based on mg_tableclass */
 export default {
   props: {
-    id: {type: String, required: true},
+    id: { type: String, required: true },
   },
   data() {
-    return {resourceData: null};
+    return { resourceData: null };
   },
   computed: {
     resource() {
@@ -27,7 +27,7 @@ export default {
       if (this.resourceData) {
         this.$router.replace({
           name: convertToPascalCase(this.resource) + "-details",
-          params: {id: this.id},
+          params: { id: this.id },
         });
       }
     },
@@ -35,9 +35,9 @@ export default {
   async mounted() {
     this.client = Client.newClient();
     this.resourceData = (
-        await this.client.fetchTableDataValues("Resources", {
-          filter: {id: {equals: this.id}},
-        })
+      await this.client.fetchTableDataValues("Resources", {
+        filter: { id: { equals: this.id } },
+      })
     )[0];
   },
 };

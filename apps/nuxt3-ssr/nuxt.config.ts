@@ -13,6 +13,9 @@ const devProxy = {
 };
 
 const config = {
+  alias: {
+    "@unhead/vue": require.resolve("@unhead/vue"),
+  },
   modules: ["nuxt-proxy", "@nuxt/image-edge"],
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side
@@ -21,6 +24,7 @@ const config = {
       emx2Theme: "",
       emx2Logo: "",
       siteTitle: "Data Catalogue",
+      cohortOnly: false,
     },
   },
   nitro: {

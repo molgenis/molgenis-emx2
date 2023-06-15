@@ -39,7 +39,7 @@ import {
   getLocalizedDescription,
 } from "../utils";
 
-const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
+const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID, HEADING } = constants;
 
 export default {
   name: "RowEdit",
@@ -102,7 +102,7 @@ export default {
       default: () => "en",
     },
   },
-  emits: ["update:modelValue", "numberOfErrorsInForm"],
+  emits: ["update:modelValue", "errorsInForm"],
   components: {
     FormInput,
   },
@@ -136,7 +136,9 @@ export default {
       return getLocalizedDescription(column, this.locale);
     },
     showColumn(column) {
-      if (column.reflink) {
+      if (column.columnType === AUTO_ID) {
+        return this.pkey;
+      } else if (column.reflink) {
         return this.internalValues[convertToCamelCase(column.refLink)];
       } else {
         const isColumnVisible = this.visibleColumns
@@ -183,22 +185,17 @@ export default {
             this.tableMetaData
           );
         });
-      this.$emit(
-        "numberOfErrorsInForm",
-        Object.values(this.errorPerColumn)?.filter((val) => val).length
-      );
+      this.$emit("errorsInForm", this.errorPerColumn);
     },
     applyComputed() {
-      //apply computed
       this.tableMetaData.columns.forEach((c) => {
-        if (c.computed) {
+        if (c.computed && c.columnType !== AUTO_ID) {
           try {
             this.internalValues[c.id] = executeExpression(
               c.computed,
               this.internalValues,
               this.tableMetaData
             );
-            this.onValuesUpdate();
           } catch (error) {
             this.errorPerColumn[c.id] = "Computation failed: " + error;
           }
@@ -267,6 +264,9 @@ function getColumnError(column, values, tableMetaData) {
   const missesValue = value === undefined || value === null || value === "";
   const type = column.columnType;
 
+  if (column.columnType === AUTO_ID || column.columnType === HEADING) {
+    return undefined;
+  }
   if (column.required && (missesValue || isInvalidNumber)) {
     return column.name + " is required ";
   }
@@ -288,7 +288,7 @@ function getColumnError(column, values, tableMetaData) {
   if (column.validation) {
     return getColumnValidationError(column, values, tableMetaData);
   }
-  if (isRefLinkWithoutOverlap(column, tableMetaData, values)) {
+  if (isRefLinkWithoutOverlap(column, values)) {
     return `value should match your selection in column '${column.refLink}' `;
   }
 
@@ -327,7 +327,7 @@ function executeExpression(expression, values, tableMetaData) {
   return func(...Object.values(copy));
 }
 
-function isRefLinkWithoutOverlap(column, tableMetaData, values) {
+function isRefLinkWithoutOverlap(column, values) {
   if (!column.refLink) {
     return false;
   }

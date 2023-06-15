@@ -124,6 +124,8 @@ export default {
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",
         "RD3",
+        "DASHBOARD",
+        "BIOBANK_DIRECTORY",
       ],
       includeDemoData: false,
     };

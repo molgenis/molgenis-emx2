@@ -13,7 +13,7 @@
         class="fa fa-caret-up mr-2 hover-rotate-clockwize"
       ></i>
       <i v-else class="fa fa-caret-down mr-2"></i>
-      {{ variable.name }}
+      {{ variable.name }} <i v-if="variable.label"> - {{ variable.label }}</i>
       <span class="mg-model-label">
         {{ variable.resource.id }}
       </span>
@@ -53,6 +53,11 @@
           <dt class="col-2">variable</dt>
           <dd class="col-10">
             {{ variable.variableDetails.name }}
+          </dd>
+
+          <dt class="col-2">label</dt>
+          <dd class="col-10">
+            {{ variable.variableDetails.label }}
           </dd>
 
           <dt class="col-2">description</dt>

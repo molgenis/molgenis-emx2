@@ -2,8 +2,6 @@
 import AppWrapper from "../AppWrapper.vue";
 import AppHeader from "../AppHeader.vue";
 import SearchPage from "../layouts/SearchPage.vue";
-import SearchFilterGroup from "../SearchFilterGroup.vue";
-import SearchFilter from "../SearchFilter.vue";
 import SearchResults from "../SearchResults.vue";
 import SearchResultsViewTabs from "../SearchResultsViewTabs.vue";
 import SearchResultsViewTabsMobile from "../SearchResultsViewTabsMobile.vue";
@@ -192,12 +190,12 @@ const json = Object.values(data)[0];
 
     <SearchPage>
       <template #side>
-        <SearchFilter title="Filters">
-          <SearchFilterGroup title="Search in networks" :json="json" />
-          <SearchFilterGroup title="Countries" :json="json" />
-          <SearchFilterGroup title="Institutions" :json="json" />
-          <SearchFilterGroup title="Topics" :json="json" />
-        </SearchFilter>
+        <FilterSidebar title="Filters">
+          <FilterOntology title="Search in networks" :json="json" />
+          <FilterOntology title="Countries" :json="json" />
+          <FilterOntology title="Institutions" :json="json" />
+          <FilterOntology title="Topics" :json="json" />
+        </FilterSidebar>
       </template>
       <template #main>
         <SearchResults>

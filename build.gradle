@@ -9,11 +9,10 @@ plugins {
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'application'
-    id 'com.google.cloud.tools.jib' version '3.3.1'
     id 'org.unbroken-dome.helm' version '1.7.0'
     id 'org.unbroken-dome.helm-publish' version '1.7.0'
     id 'org.unbroken-dome.helm-commands' version '1.7.0'
-    id 'com.palantir.docker' version '0.34.0'
+    id 'com.palantir.docker' version '0.35.0'
 }
 
 
@@ -83,37 +82,18 @@ if (version.toString().endsWith('-SNAPSHOT')) {
 // write a file to pickup in deployment to use specific tags in upgrade
 task ci(type: WriteProperties) {
     outputFile file('build/ci.properties')
-    property 'tagName', tagName
-}
-
-jib {
-    from {
-        image = 'eclipse-temurin:17-jdk-focal'
-    }
-    to {
-        image = imageName
-        tags = [tagName.toString()]
-    }
-    container {
-        mainClass = mainClassName
-        ports = ['8080']
-    }
-}
-
-def ssrImageName = 'docker.io/molgenis/ssr-catalogue'
-def ssrTagName = project.version.toString()
-if (version.toString().endsWith('-SNAPSHOT')) {
-    ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
-    ssrImageName = "docker.io/molgenis/ssr-catalogue-snapshot"
-    ssrTagName = "${project.version.toString()}-${ext.hash}"
+    property 'TAG_NAME', tagName
 }
 
 docker {
-    name ssrImageName
-    tags 'latest', ssrTagName
-    dockerfile file('Dockerfile')
-    files 'apps'
+    name imageName
+    tags tagName, 'latest'
+    files shadowJar.archiveFile.get()
+    buildArgs(['JAR_FILE': shadowJar.archiveName])
 }
+tasks.dockerPrepare.dependsOn(shadowJar)
+
+//ssr build moved to apps/build.gradle
 
 def nexusUser = System.getenv('NEXUS_USER') ? System.getenv('NEXUS_USER') : null
 def nexusPassword = System.getenv('NEXUS_PWD') ? System.getenv('NEXUS_PWD') : null

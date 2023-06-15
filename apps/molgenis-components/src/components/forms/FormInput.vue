@@ -36,6 +36,7 @@ import BaseInput from "../forms/baseInputs/BaseInput.vue";
 import InputRefList from "./InputRefList.vue";
 
 const typeToInputMap = {
+  AUTO_ID: InputString,
   HEADING: InputHeading,
   EMAIL: InputString,
   HYPERLINK: InputString,
@@ -166,19 +167,19 @@ export default {
   <div>
     <DemoItem>
       <FormInput
-        id="heading-example"
-        columnType="HEADING"
-        label="Example header"
-        description="Header description"
+          id="heading-example"
+          columnType="HEADING"
+          label="Example header"
+          description="Header description"
       />
     </DemoItem>
     <DemoItem>
       <div>
         <FormInput
-          id="string-example"
-          columnType="STRING"
-          label="Example string input"
-          v-model="stringValue"
+            id="string-example"
+            columnType="STRING"
+            label="Example string input"
+            v-model="stringValue"
         />
       </div>
       <div>You typed: {{ stringValue }}</div>
@@ -188,11 +189,11 @@ export default {
       <div>
         This is inside this
         <FormInput
-          id="string-inplace-example"
-          columnType="STRING"
-          label="Example string input inplace"
-          v-model="stringValueInplace"
-          inplace
+            id="string-inplace-example"
+            columnType="STRING"
+            label="Example string input inplace"
+            v-model="stringValueInplace"
+            inplace
         />
         sentence
       </div>
@@ -200,10 +201,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="string-array-example"
-          columnType="STRING_ARRAY"
-          label="Example string array input"
-          v-model="stringValueArray"
+            id="string-array-example"
+            columnType="STRING_ARRAY"
+            label="Example string array input"
+            v-model="stringValueArray"
         />
       </div>
       <div>You typed: {{ JSON.stringify(stringValueArray, null, 2) }}</div>
@@ -211,10 +212,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="email-example"
-          columnType="EMAIL"
-          label="Example email input"
-          v-model="emailValue"
+            id="email-example"
+            columnType="EMAIL"
+            label="Example email input"
+            v-model="emailValue"
         />
       </div>
       <div>You typed: {{ emailValue }}</div>
@@ -224,11 +225,11 @@ export default {
       <div>
         This is inside this
         <FormInput
-          id="email-inplace-example"
-          columnType="EMAIL"
-          label="Example email input inplace"
-          v-model="emailValueInplace"
-          inplace
+            id="email-inplace-example"
+            columnType="EMAIL"
+            label="Example email input inplace"
+            v-model="emailValueInplace"
+            inplace
         />
         sentence
       </div>
@@ -236,10 +237,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="email-array-example"
-          columnType="EMAIL_ARRAY"
-          label="Example email array input"
-          v-model="emailValueArray"
+            id="email-array-example"
+            columnType="EMAIL_ARRAY"
+            label="Example email array input"
+            v-model="emailValueArray"
         />
       </div>
       <div>You typed: {{ JSON.stringify(emailValueArray, null, 2) }}</div>
@@ -248,10 +249,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="hyperlink-example"
-          columnType="HYPERLINK"
-          label="Example hyperlink input"
-          v-model="hyperlinkValue"
+            id="hyperlink-example"
+            columnType="HYPERLINK"
+            label="Example hyperlink input"
+            v-model="hyperlinkValue"
         />
       </div>
       <div>You typed: {{ hyperlinkValue }}</div>
@@ -261,11 +262,11 @@ export default {
       <div>
         This is inside this
         <FormInput
-          id="hyperlink-inplace-example"
-          columnType="HYPERLINK"
-          label="Example hyperlink input inplace"
-          v-model="hyperlinkValueInplace"
-          inplace
+            id="hyperlink-inplace-example"
+            columnType="HYPERLINK"
+            label="Example hyperlink input inplace"
+            v-model="hyperlinkValueInplace"
+            inplace
         />
         sentence
       </div>
@@ -273,10 +274,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="hyperlink-array-example"
-          columnType="HYPERLINK_ARRAY"
-          label="Example hyperlink array input"
-          v-model="hyperlinkValueArray"
+            id="hyperlink-array-example"
+            columnType="HYPERLINK_ARRAY"
+            label="Example hyperlink array input"
+            v-model="hyperlinkValueArray"
         />
       </div>
       <div>You typed: {{ JSON.stringify(hyperlinkValueArray, null, 2) }}</div>
@@ -285,10 +286,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="date-example"
-          columnType="DATE"
-          label="Example date input"
-          v-model="dateValue"
+            id="date-example"
+            columnType="DATE"
+            label="Example date input"
+            v-model="dateValue"
         />
       </div>
       <div>You selected: {{ dateValue }}</div>
@@ -296,10 +297,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="date-array-example"
-          columnType="DATE_ARRAY"
-          label="Example date array input"
-          v-model="dateValueArray"
+            id="date-array-example"
+            columnType="DATE_ARRAY"
+            label="Example date array input"
+            v-model="dateValueArray"
         />
       </div>
       <div>You selected: {{ JSON.stringify(dateValueArray, null, 2) }}</div>
@@ -307,10 +308,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="date-time-example"
-          columnType="DATETIME"
-          label="Example date-time input"
-          v-model="dateTimeValue"
+            id="date-time-example"
+            columnType="DATETIME"
+            label="Example date-time input"
+            v-model="dateTimeValue"
         />
       </div>
       <div>You selected: {{ dateTimeValue }}</div>
@@ -318,10 +319,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="date-time-array-example"
-          columnType="DATETIME_ARRAY"
-          label="Example date-time array input"
-          v-model="dateTimeValueArray"
+            id="date-time-array-example"
+            columnType="DATETIME_ARRAY"
+            label="Example date-time array input"
+            v-model="dateTimeValueArray"
         />
       </div>
       <div>You selected: {{ JSON.stringify(dateTimeValueArray, null, 2) }}</div>
@@ -329,10 +330,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="int-example"
-          columnType="INT"
-          label="Example integer input"
-          v-model="intValue"
+            id="int-example"
+            columnType="INT"
+            label="Example integer input"
+            v-model="intValue"
         />
       </div>
       <div>You typed: {{ intValue }}</div>
@@ -340,10 +341,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="int-array-example"
-          columnType="INT_ARRAY"
-          label="Example integer array input"
-          v-model="intValueArray"
+            id="int-array-example"
+            columnType="INT_ARRAY"
+            label="Example integer array input"
+            v-model="intValueArray"
         />
       </div>
       <div>You typed: {{ JSON.stringify(intValueArray, null, 2) }}</div>
@@ -351,10 +352,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="text-example"
-          columnType="TEXT"
-          label="Example text input"
-          v-model="textValue"
+            id="text-example"
+            columnType="TEXT"
+            label="Example text input"
+            v-model="textValue"
         />
       </div>
       <div>You typed: {{ textValue }}</div>
@@ -362,10 +363,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="text-array-example"
-          columnType="TEXT_ARRAY"
-          label="Example text array input"
-          v-model="textValueArray"
+            id="text-array-example"
+            columnType="TEXT_ARRAY"
+            label="Example text array input"
+            v-model="textValueArray"
         />
       </div>
       <div>You typed: {{ JSON.stringify(textValueArray, null, 2) }}</div>
@@ -373,10 +374,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="long-example"
-          columnType="LONG"
-          label="Example long input"
-          v-model="longValue"
+            id="long-example"
+            columnType="LONG"
+            label="Example long input"
+            v-model="longValue"
         />
       </div>
       <div>You typed: {{ longValue }}</div>
@@ -384,10 +385,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="long-array-example"
-          columnType="LONG_ARRAY"
-          label="Example long array input"
-          v-model="longValueArray"
+            id="long-array-example"
+            columnType="LONG_ARRAY"
+            label="Example long array input"
+            v-model="longValueArray"
         />
       </div>
       <div>You typed: {{ JSON.stringify(longValueArray, null, 2) }}</div>
@@ -395,10 +396,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="decimal-example"
-          columnType="DECIMAL"
-          label="Example decimal input"
-          v-model="decimalValue"
+            id="decimal-example"
+            columnType="DECIMAL"
+            label="Example decimal input"
+            v-model="decimalValue"
         />
       </div>
       <div>You typed: {{ decimalValue }}</div>
@@ -406,10 +407,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="decimal-array-example"
-          columnType="DECIMAL_ARRAY"
-          label="Example decimal array input"
-          v-model="decimalValueArray"
+            id="decimal-array-example"
+            columnType="DECIMAL_ARRAY"
+            label="Example decimal array input"
+            v-model="decimalValueArray"
         />
       </div>
       <div>You typed: {{ JSON.stringify(decimalValueArray, null, 2) }}</div>
@@ -417,10 +418,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="boolean-example"
-          columnType="BOOL"
-          label="Example boolean input"
-          v-model="booleanValue"
+            id="boolean-example"
+            columnType="BOOL"
+            label="Example boolean input"
+            v-model="booleanValue"
         />
       </div>
       <div>You selected: {{ booleanValue }}</div>
@@ -428,10 +429,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="boolean-array-example"
-          columnType="BOOL_ARRAY"
-          label="Example boolean array input"
-          v-model="booleanValueArray"
+            id="boolean-array-example"
+            columnType="BOOL_ARRAY"
+            label="Example boolean array input"
+            v-model="booleanValueArray"
         />
       </div>
       <div>You selected: {{ JSON.stringify(booleanValueArray, null, 2) }}</div>
@@ -439,13 +440,13 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="ref-example"
-          columnType="REF"
-          label="Example ref input"
-          tableName="Pet"
-          :defaultValue="{ name: 'spike' }"
-          :schemaName="schemaName"
-          v-model="refValue"
+            id="ref-example"
+            columnType="REF"
+            label="Example ref input"
+            tableName="Pet"
+            :defaultValue="{ name: 'spike' }"
+            :schemaName="schemaName"
+            v-model="refValue"
         />
       </div>
       <div>You selected: {{ JSON.stringify(refValue, null, 2) }}</div>
@@ -453,13 +454,13 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="ref-array-example"
-          columnType="REF_ARRAY"
-          label="Example ref array input"
-          tableName="Pet"
-          :defaultValue="[{ name: 'spike' }]"
-          :schemaName="schemaName"
-          v-model="refValueArray"
+            id="ref-array-example"
+            columnType="REF_ARRAY"
+            label="Example ref array input"
+            tableName="Pet"
+            :defaultValue="[{ name: 'spike' }]"
+            :schemaName="schemaName"
+            v-model="refValueArray"
         />
       </div>
       <div>You selected: {{ JSON.stringify(refValueArray, null, 2) }}</div>
@@ -467,12 +468,12 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="ontology-example"
-          columnType="ONTOLOGY"
-          label="Example ontology input"
-          tableName="Category"
-          v-model="ontologyValue"
-          :schemaName="schemaName"
+            id="ontology-example"
+            columnType="ONTOLOGY"
+            label="Example ontology input"
+            tableName="Category"
+            v-model="ontologyValue"
+            :schemaName="schemaName"
         />
       </div>
       <div>You selected: {{ JSON.stringify(ontologyValue, null, 2) }}</div>
@@ -480,12 +481,12 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="ontology-array-example"
-          columnType="ONTOLOGY_ARRAY"
-          label="Example ontology array input"
-          tableName="Category"
-          v-model="ontologyArrayValue"
-          :schemaName="schemaName"
+            id="ontology-array-example"
+            columnType="ONTOLOGY_ARRAY"
+            label="Example ontology array input"
+            tableName="Category"
+            v-model="ontologyArrayValue"
+            :schemaName="schemaName"
         />
       </div>
       <div>You selected: {{ JSON.stringify(ontologyArrayValue, null, 2) }}</div>
@@ -493,10 +494,10 @@ export default {
     <DemoItem>
       <div>
         <FormInput
-          id="file-input-example"
-          columnType="FILE"
-          label="Example file input"
-          v-model="fileValue"
+            id="file-input-example"
+            columnType="FILE"
+            label="Example file input"
+            v-model="fileValue"
         />
       </div>
       <div>You selected: {{ fileValue }}</div>
@@ -507,50 +508,50 @@ export default {
       </div>
       <div>
         <FormInput
-          id="unsupported-input-example"
-          columnType="not_supported_input"
-          inplace
+            id="unsupported-input-example"
+            columnType="not_supported_input"
+            inplace
         />
       </div>
     </DemoItem>
   </div>
 </template>
 <script>
-const schemaName = "pet store";
-export default {
-  data: function () {
-    return {
-      schemaName,
-      stringValue: "test",
-      stringValueInplace: "inplace",
-      stringValueArray: ["value1", "value2"],
-      emailValue: "bla@molgenis.org",
-      emailValueInplace: "bla@molgenis.org",
-      emailValueArray: ["bla@molgenis.org", "asd@molgenis.org"],
-      hyperlinkValue: "www.molgenis.org",
-      hyperlinkValueInplace: "www.molgenis.org",
-      hyperlinkValueArray: ["www.molgenis.org", "molgenis.org"],
-      ontologyValue: null,
-      ontologyArrayValue: [],
-      dateValue: null,
-      dateValueArray: [null, null],
-      dateTimeValue: null,
-      dateTimeValueArray: [null, null],
-      intValue: 42,
-      intValueArray: [5, 37],
-      textValue: "example text",
-      textValueArray: ["text", "more text"],
-      longValue: "1337",
-      longValueArray: ["0", "101"],
-      decimalValue: 3.7,
-      decimalValueArray: [4.2, 13.37],
-      booleanValue: true,
-      booleanValueArray: [true, false],
-      refValue: null,
-      refValueArray: [null, null],
-      fileValue: null,
-    };
-  },
-};
+  const schemaName = "pet store";
+  export default {
+    data: function () {
+      return {
+        schemaName,
+        stringValue: "test",
+        stringValueInplace: "inplace",
+        stringValueArray: ["value1", "value2"],
+        emailValue: "bla@molgenis.org",
+        emailValueInplace: "bla@molgenis.org",
+        emailValueArray: ["bla@molgenis.org", "asd@molgenis.org"],
+        hyperlinkValue: "www.molgenis.org",
+        hyperlinkValueInplace: "www.molgenis.org",
+        hyperlinkValueArray: ["www.molgenis.org", "molgenis.org"],
+        ontologyValue: null,
+        ontologyArrayValue: [],
+        dateValue: null,
+        dateValueArray: [null, null],
+        dateTimeValue: null,
+        dateTimeValueArray: [null, null],
+        intValue: 42,
+        intValueArray: [5, 37],
+        textValue: "example text",
+        textValueArray: ["text", "more text"],
+        longValue: "1337",
+        longValueArray: ["0", "101"],
+        decimalValue: 3.7,
+        decimalValueArray: [4.2, 13.37],
+        booleanValue: true,
+        booleanValueArray: [true, false],
+        refValue: null,
+        refValueArray: [null, null],
+        fileValue: null,
+      };
+    },
+  };
 </script>
 </docs>
