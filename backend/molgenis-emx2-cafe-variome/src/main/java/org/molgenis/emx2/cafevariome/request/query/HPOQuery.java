@@ -4,16 +4,16 @@ import java.util.Arrays;
 
 public class HPOQuery {
 
-  private int termPairwiseSimilarity;
+  private double termPairwiseSimilarity;
   private int minimumMatchedTerms;
   private boolean includeOrpha;
   private String[] searchTerms;
 
-  public int getTermPairwiseSimilarity() {
+  public double getTermPairwiseSimilarity() {
     return termPairwiseSimilarity;
   }
 
-  public void setTermPairwiseSimilarity(int termPairwiseSimilarity) {
+  public void setTermPairwiseSimilarity(double termPairwiseSimilarity) {
     this.termPairwiseSimilarity = termPairwiseSimilarity;
   }
 
