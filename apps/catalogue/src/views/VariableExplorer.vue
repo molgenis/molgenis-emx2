@@ -9,6 +9,7 @@
             label="Networks"
             tableName="Networks"
             v-model="networks"
+            refLabel="${id}"
           ></InputRefList>
         </div>
         <div v-if="hasKeywords" class="bg-white px-1">
@@ -28,6 +29,7 @@
             label="Cohorts"
             tableName="Cohorts"
             v-model="cohorts"
+            refLabel="${id}"
             :maxNum="100"
             :orderBy="{ pid: 'ASC' }"
             :filter="
