@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
+import Datasets from "./components/Datasets.vue";
 import Beacon from "./components/Beacon.vue";
 import Welcome from "./components/Welcome.vue";
 
@@ -12,6 +13,11 @@ const router = createRouter({
     {
       path: "/beacon",
       component: Beacon,
+      props: true,
+    },
+    {
+      path: "/datasets",
+      component: Datasets,
       props: true,
     },
     {
