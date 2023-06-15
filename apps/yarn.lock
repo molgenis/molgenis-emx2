@@ -1326,7 +1326,7 @@
     "@unhead/schema" "1.1.27"
     "@unhead/shared" "1.1.27"
 
-"@unhead/vue@^1.1.26":
+"@unhead/vue@^1.1.26", "@unhead/vue@^1.1.27":
   version "1.1.27"
   resolved "https://registry.yarnpkg.com/@unhead/vue/-/vue-1.1.27.tgz#611a94d52a4be7bff90a2d35ad71c2dffab0826e"
   integrity sha512-ibe7/QW4ZtyCI/et/fI3CnwC+oxqp+7LrhmuLUS93ib1Sl70D51dcAy9eAvh0MG7wWUyMUrf3T95MRifJo7uzA==
