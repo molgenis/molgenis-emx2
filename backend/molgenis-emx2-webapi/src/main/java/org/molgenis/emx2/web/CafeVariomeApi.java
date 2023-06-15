@@ -16,6 +16,7 @@ public class CafeVariomeApi {
 
   private static String getQueryResponse(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
+    response.header("Access-Control-Allow-Origin", "*");
     return CafeVariomeService.query(request);
   }
 }
