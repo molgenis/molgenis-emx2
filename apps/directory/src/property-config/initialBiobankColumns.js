@@ -1,8 +1,9 @@
 export const initialBiobankColumns = [
+  { label: "Name:", column: "name", type: "string" },
   { label: "Id:", column: "id", type: "string", showCopyIcon: true },
   {
     label: "PID:",
-    column: "PID",
+    column: "pid",
     type: "string",
     showCopyIcon: true,
     copyValuePrefix: "http://hdl.handle.net/",
@@ -11,11 +12,11 @@ export const initialBiobankColumns = [
   {
     label: "Quality labels:",
     column: {
-      qualityInfo: [
+      quality: [
         "label",
-        "certificationReport",
-        "certificationImage",
-        "certificationNumber",
+        "certification_report",
+        "certification_image_link",
+        "certification_number",
       ],
     },
     type: "quality",
@@ -23,13 +24,13 @@ export const initialBiobankColumns = [
   },
   {
     label: "Collection types:",
-    column: { collections: [{ collectionType: ["name", "label"] }] },
+    column: { collections: [{ type: ["name", "label"] }] },
     type: "array",
     showOnBiobankCard: true,
   },
   {
     label: "Juridical person:",
-    column: "juridicalPerson",
+    column: "juridical_person",
     type: "string",
     showOnBiobankCard: true,
   },

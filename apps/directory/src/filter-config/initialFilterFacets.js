@@ -32,7 +32,7 @@ export const initialFilterFacets = [
     facetTitle: "Collection type",
     component: "CheckboxFilter",
     sourceTable: "CollectionTypes",
-    applyToColumn: "collections.collectionType.name",
+    applyToColumn: "collections.type.name",
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     removeOptions: ["other"],

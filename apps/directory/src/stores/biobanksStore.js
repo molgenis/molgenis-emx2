@@ -7,11 +7,15 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
   const biobankCardColumns = settingsStore.config.biobankCardColumns;
   const biobankColumns = settingsStore.config.biobankColumns;
+  const collectionColumns = settingsStore.config.collectionColumns;
   const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
   const biobankCardGraphql = biobankCardColumns.map(
     (biobankColumn) => biobankColumn.column
   );
-  const biobankGraphql = biobankColumns.map((column) => column.column);
+
+  const biobankGraphql = biobankColumns.map(
+    (biobankColumn) => biobankColumn.column
+  ).concat({ collections: collectionColumns.map(collectionColumn => collectionColumn.column) });
 
   let biobankCards = ref([]);
   let waitingForResponse = ref(false);
@@ -41,14 +45,16 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   }
 
   async function getBiobankCard (id) {
-    return await new QueryEMX2(graphqlEndpoint)
+
+    const biobankReportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Biobanks")
       .select(biobankGraphql)
       .orderBy("Biobanks", "name", "asc")
       .orderBy("collections", "id", "asc")
       .where("id")
       .like(id)
-      .execute();
+    console.log(biobankReportQuery.getQuery())
+    return await biobankReportQuery.execute();
   }
 
   async function updateBiobankCards () {

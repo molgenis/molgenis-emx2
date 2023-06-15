@@ -1,4 +1,5 @@
 const initialCollectionColumns = [
+  { label: "Name:", column: "name", type: "string" },
   { label: "Id:", column: "id", type: "string", showCopyIcon: true },
   { label: "Website:", column: "url", type: "hyperlink" },
   {
@@ -16,7 +17,7 @@ const initialCollectionColumns = [
   },
   {
     label: "Size:",
-    column: "order_of_magnitude",
+    column: { order_of_magnitude: ["label"] },
     type: "object",
     property: "size",
   },
@@ -29,7 +30,7 @@ const initialCollectionColumns = [
   },
   {
     label: "Donor size:",
-    column: "order_of_magnitude_donors",
+    column: { order_of_magnitude_donors: ["label"] },
     type: "object",
     property: "size",
   },
@@ -40,37 +41,44 @@ const initialCollectionColumns = [
     suffix: "donors",
   },
   {
-    label: "Age:",
-    type: "range",
-    min: "age_low",
-    max: "age_high",
-    unit: "age_unit",
+    label: "Age low:",
+    type: "int",
+    column: "age_low"
   },
-  { label: "Type:", column: "type", type: "mref", showOnBiobankCard: true },
-  { label: "Sex:", column: "sex", type: "categoricalmref" },
+  {
+    label: "Age high:",
+    type: "int",
+    column: "age_high"
+  },
+  {
+    label: "Age high:",
+    type: "int",
+    column: { age_unit: ["label"] }
+  },
+  { label: "Type:", column: { type: ["label"] }, type: "mref", showOnBiobankCard: true },
+  { label: "Sex:", column: { sex: ["label"] }, type: "categoricalmref" },
   {
     label: "Materials:",
-    column: "materials",
+    column: { materials: ["label"] },
     type: "categoricalmref",
     showOnBiobankCard: true,
   },
   {
     label: "Storage:",
-    column: "storage_temperatures",
+    column: { storage_temperatures: ["label"] },
     type: "categoricalmref",
   },
-  { label: "Data:", column: "data_categories", type: "categoricalmref" },
+  { label: "Data:", column: { data_categories: ["label"] }, type: "categoricalmref" },
   {
     label: "Diagnosis:",
-    column: "diagnosis_available",
+    column: { diagnosis_available: ["label"] },
     type: "mref",
     rsql: "diagnosis_available(label,uri,code)",
   },
   {
     label: "Data use conditions:",
-    column: "data_use",
+    column: { data_use: ["label", "ontologyTermURI"] },
     type: "mref",
-    rsql: "data_use(label,uri)",
   },
 ];
 

@@ -151,8 +151,8 @@ function extractCollectionTypes(collections, prevCollectionHashmap) {
       : {};
 
   for (const collection of collections) {
-    if (collection.collectionType) {
-      const foundTypes = collection.collectionType.map((type) => type.label);
+    if (collection.type) {
+      const foundTypes = collection.type.map((type) => type.label);
 
       for (const type of foundTypes) {
         // use it as a hashmap
@@ -231,9 +231,11 @@ export function getCollectionDetails(collection) {
 export const getBiobankDetails = (biobank) => {
   const settingsStore = useSettingsStore();
 
+
+
   if (biobank.collections && biobank.collections.length) {
-    biobank.collections.collectionType = [];
-    biobank.collections.collectionType = Object.keys(
+    biobank.collections.type = [];
+    biobank.collections.type = Object.keys(
       extractCollectionTypes(biobank.collections)
     );
     biobank.collectionDetails = [];

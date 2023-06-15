@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { Tooltip } from "molgenis-components";
+import { Tooltip } from "../../../../../molgenis-components";
 import { mapMutations } from "vuex";
 
 export default {

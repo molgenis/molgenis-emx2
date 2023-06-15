@@ -4,7 +4,7 @@ export const i18n = {
     deselect_all_collections: "Deselect all collections",
     request: "Request",
     close: "Close",
-    home: "Back to the biobank explorer",
+    home: "Back to the catalogue",
     view: "View",
     email: "Email",
     add: "Add",
@@ -20,5 +20,7 @@ export const i18n = {
     filter_loading: "Loading filters",
     select_all: "Select all",
     deselect_all: "Deselect all",
+    biobank_withdrawn: 'This biobank is no longer part of BBMRI-ERIC',
+    collection_withdrawn: 'This collection belongs to a biobank that is no longer part of BBMRI-ERIC'
   },
 };

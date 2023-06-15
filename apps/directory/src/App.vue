@@ -22,3 +22,9 @@ export default {
   },
 };
 </script>
+
+<style>
+nav[aria-label="breadcrumb"]:not(.directory-nav) {
+  display: none;
+}
+</style>
