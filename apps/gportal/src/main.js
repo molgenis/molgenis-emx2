@@ -2,7 +2,6 @@ import { createApp } from "vue";
 import { createRouter, createWebHashHistory } from "vue-router";
 
 import App from "./App.vue";
-import Datasets from "./components/Datasets.vue";
 import Beacon from "./components/Beacon.vue";
 import Datasets from "./components/Datasets.vue";
 import Welcome from "./components/Welcome.vue";
