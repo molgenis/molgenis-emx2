@@ -42,6 +42,7 @@
               label="name"
               :defaultValue="schemaName"
               :required="true"
+              :errorMessage="validate(schemaName)"
             />
             <InputSelect
               id="schema-create-template"
@@ -68,9 +69,13 @@
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-        <ButtonAction @click="executeCreateSchema">
+        <ButtonAction
+          v-if="validate(this.schemaName)"
+          @click="executeCreateSchema"
+        >
           Create database
         </ButtonAction>
+        <ButtonDanger v-else> Create database </ButtonDanger>
       </template>
     </LayoutModal>
   </div>
@@ -81,6 +86,7 @@ import { request } from "graphql-request";
 
 import {
   ButtonAction,
+  ButtonDanger,
   ButtonAlt,
   InputString,
   InputText,
@@ -98,6 +104,7 @@ export default {
     MessageSuccess,
     MessageError,
     ButtonAction,
+    ButtonDanger,
     ButtonAlt,
     InputBoolean,
     LayoutModal,
@@ -139,6 +146,14 @@ export default {
     },
   },
   methods: {
+    validate(name) {
+      const simpleName = /^[a-zA-Z0-9\s\-_]*$/;
+      if (simpleName.test(name)) {
+        return undefined;
+      } else {
+        return "Please only use letters, numbers, space, minus - and underscore _ to create your tablename";
+      }
+    },
     executeCreateSchema() {
       this.loading = true;
       this.graphqlError = null;
