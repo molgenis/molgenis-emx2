@@ -43,6 +43,7 @@
               :href="addBaseUrl(sub.href)"
               :key="sub.label"
               :target="sub.newWindow ? '_blank' : '_self'"
+              @click="navigate(addBaseUrl(sub.href))"
               >{{ sub.label }}</a
             >
           </ButtonDropdown>
@@ -51,6 +52,7 @@
             class="nav-link"
             :href="addBaseUrl(item.href)"
             :target="item.newWindow ? '_blank' : '_self'"
+            @click="navigate(addBaseUrl(item.href))"
             >{{ item.label }}
           </a>
         </li>
@@ -135,6 +137,14 @@ export default {
         //relative paths use the baseURL
         return this.baseURL + (href ? href : "");
       }
+    },
+    navigate(href) {
+      window.location.href = href;
+      if (href.includes("#")) {
+        // Force reload to have our links with anchors work.
+        window.location.reload(true);
+      }
+      return false; // This makes the a tag not use its navigation
     },
     permitted(item) {
       if (!item.role) {
