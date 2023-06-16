@@ -8,13 +8,18 @@
       aria-controls="navbarNav"
       aria-expanded="false"
       aria-label="Toggle navigation"
+      @click="toggleMenuBar = !toggleMenuBar"
     >
       <span class="navbar-toggler-icon"></span>
     </button>
     <a v-if="logo" class="navbar-brand" href="/">
       <img :src="logo" alt="brand-logo" height="30" />
     </a>
-    <div class="collapse navbar-collapse" id="navbarNav">
+    <div
+      class="collapse navbar-collapse"
+      :class="{ show: toggleMenuBar }"
+      id="navbarNav"
+    >
       <ul class="navbar-nav" v-if="items">
         <li
           v-for="item in permittedItems"
@@ -84,6 +89,11 @@ export default {
         return "/" + (path ? path + "/" : "");
       },
     },
+  },
+  data: function () {
+    return {
+      toggleMenuBar: false,
+    };
   },
   computed: {
     permittedItems() {
