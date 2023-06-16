@@ -166,10 +166,22 @@ const client: IClient = {
         );
       },
       fetchSettings: async () => {
+        if (schemaMetaData === null) {
+          schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
+          if (schemaMetaData && !schemaNameCache) {
+            schemaNameCache = schemaMetaData.name;
+          }
+        }
         return fetchSettings(schemaNameCache);
       },
       fetchSettingValue: async (name: string) => {
-        const settings = await fetchSettings(name);
+        if (schemaMetaData === null) {
+          schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
+          if (schemaMetaData && !schemaNameCache) {
+            schemaNameCache = schemaMetaData.name;
+          }
+        }
+        const settings = await fetchSettings(schemaNameCache);
         const setting = settings.find(
           (setting: ISetting) => setting.key == name
         );
