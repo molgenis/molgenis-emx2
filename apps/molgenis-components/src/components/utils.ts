@@ -231,15 +231,29 @@ export function applyJsTemplate(
     // @ts-ignore
     return new Function(...names, "return `" + labelTemplate + "`;")(...vals);
   } catch (err: any) {
-    return (
+    // The template is not working, lets try and fail gracefully
+    console.log(
       err.message +
-      " we got keys:" +
-      JSON.stringify(names) +
-      " vals:" +
-      JSON.stringify(vals) +
-      " and template: " +
-      labelTemplate
+        " we got keys:" +
+        JSON.stringify(names) +
+        " vals:" +
+        JSON.stringify(vals) +
+        " and template: " +
+        labelTemplate
     );
+
+    if (object.hasOwnProperty("primaryKey")) {
+      return flattenObject(object.primaryKey);
+    }
+
+    if (object.hasOwnProperty("name")) {
+      return object.name;
+    }
+
+    if (object.hasOwnProperty("id")) {
+      return object.id;
+    }
+    return flattenObject(object);
   }
 }
 
