@@ -7,7 +7,7 @@ from requests import Response
 
 from .constants import ontology_columns
 from .exceptions import OntomanagerException, DuplicateKeyException, MissingPkeyException, NoSuchNameException, \
-    NoSuchTableException, UpdateItemsException
+    NoSuchTableException, UpdateItemsException, SigninError
 from .graphql_queries import Queries
 
 log = logging.getLogger(__name__)
@@ -27,6 +27,10 @@ class OntologyManager:
         self.client = Client(url=url, username=username, password=password)
         self.graphql_endpoint = f'{self.client.url}/CatalogueOntologies/graphql'
         self.ontology_tables = self.__list_ontology_tables()
+
+        if self.client.signin_status == 'failed':
+            self.client.session.close()
+            raise SigninError('Signing in failed. Exiting.')
 
     def perform(self, action: str, table: str, **kwargs):
         """Select the method to perform and pass any keyword arguments"""
@@ -181,7 +185,7 @@ class OntologyManager:
                 log.debug(response.status_code)
                 log.debug(response.text)
             else:
-                log.info(f"Successfully updated term {self.old} to {self.new} in colum {self.column}"
+                log.info(f"Successfully updated term {self.old} to {self.new} in column {self.column}"
                          f" of table {self.table} on database {self.database} in {len(column_values)} rows.")
                 return column_values_updated
 

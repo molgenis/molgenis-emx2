@@ -33,3 +33,7 @@ class MissingPkeyException(OntomanagerException):
 
 class UpdateItemsException(OntomanagerException):
     """Thrown when the 'old' and 'new' terms for the update method are not correctly specified."""
+
+
+class SigninError(OntomanagerException):
+    """Thrown when signing in to the client has failed."""
