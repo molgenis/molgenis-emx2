@@ -147,11 +147,15 @@ export default {
   },
   methods: {
     validate(name) {
-      const simpleName = /^[a-zA-Z0-9\s\-_]*$/;
-      if (simpleName.test(name)) {
+      const simpleName = /^[a-zA-Z][a-zA-Z0-9_ ]*$/;
+      if (
+        simpleName.test(name) &&
+        typeof name === "string" &&
+        name.length < 32
+      ) {
         return undefined;
       } else {
-        return "Please only use letters, numbers, space, minus - and underscore _ to create your tablename";
+        return "Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters";
       }
     },
     executeCreateSchema() {
