@@ -63,7 +63,7 @@
                 <button
                   id="accordionToggle"
                   type="button"
-                  class="btn btn-primary"
+                  class="btn btn-outline-secondary"
                   @click="accordionOpen = !accordionOpen"
                 >
                   {{
@@ -72,7 +72,7 @@
                 </button>
               </h3>
               <div class="accordion-content" v-show="accordionOpen">
-                <code class="d-block jumbotron">
+                <code class="d-block p-4 jumbotron">
                   <pre>{{ beaconOutput }}</pre>
                 </code>
               </div>
