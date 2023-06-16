@@ -1,7 +1,6 @@
 package org.molgenis.emx2.cafevariome.request.parser;
 
 import static org.molgenis.emx2.cafevariome.request.parameters.EAVQueryParameters.*;
-import static org.molgenis.emx2.cafevariome.request.parameters.HPOQueryParameters.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,7 @@ public class EAVQueryParser {
    * @return
    * @throws Exception
    */
-  public static boolean hasEAV(Map<String, String> request) throws Exception {
+  public static boolean hasEAVParams(Map<String, String> request) throws Exception {
     boolean A = request.containsKey(EAV_ATTRIBUTE(0));
     boolean B = request.containsKey(EAV_OPERATOR(0));
     boolean C = request.containsKey(EAV_VALUE(0));

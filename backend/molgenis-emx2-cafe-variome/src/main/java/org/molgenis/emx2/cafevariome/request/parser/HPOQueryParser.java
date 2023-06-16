@@ -14,7 +14,7 @@ public class HPOQueryParser {
    * @return
    * @throws Exception
    */
-  public static boolean hasHPO(Map<String, String> request) throws Exception {
+  public static boolean hasHPOParams(Map<String, String> request) throws Exception {
     boolean A = request.containsKey(HPO_TERM_PAIRWISE_SIMILARITY);
     boolean B = request.containsKey(HPO_MINIMUM_MATCHED_TERMS);
     boolean C = request.containsKey(HPO_INCLUDE_ORPHA);

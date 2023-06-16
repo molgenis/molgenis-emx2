@@ -14,7 +14,7 @@ public class ORDOQueryParser {
    * @return
    * @throws Exception
    */
-  public static boolean hasORDO(Map<String, String> request) throws Exception {
+  public static boolean hasORDOParams(Map<String, String> request) throws Exception {
     boolean A = request.containsKey(ORDO_TERM_PAIRWISE_SIMILARITY);
     boolean B = request.containsKey(ORDO_MATCH_SCALE);
     boolean C = request.containsKey(ORDO_INCLUDE_HPO);
