@@ -41,7 +41,7 @@ public class EmailService {
   public Boolean send(List<String> recipients, String subject, String messageText) {
     final List<InternetAddress> addressList =
         recipients.stream()
-            .filter(EmailValidator::isInValidEmail)
+            .filter(EmailValidator::isValidEmail)
             .map(EmailValidator::toInternetAddress)
             .toList();
     try {

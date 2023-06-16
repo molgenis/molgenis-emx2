@@ -1,6 +1,8 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
+import static spark.Spark.post;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +29,17 @@ import spark.Response;
 public class MessageApi {
 
   private static final Logger logger = LoggerFactory.getLogger(MessageApi.class);
+
+  @SuppressWarnings("VulnerableCodeUsages")
   private static final Parser parser = new Parser();
+
+  private MessageApi() {
+    // hide constructor
+  }
+
+  public static void create() {
+    post("/:schema/api/message/*", ACCEPT_JSON, MessageApi::send);
+  }
 
   public static String send(Request request, Response response) {
     logger.info("Received message request");
@@ -65,22 +77,28 @@ public class MessageApi {
         gql.execute(ExecutionInput.newExecutionInput(recipientsQuery).variables(validationFilter));
     if (!executionResult.getErrors().isEmpty()) {
       response.status(500);
-      return "Error parsing request: " + executionResult.getErrors().get(0).getMessage();
+      return "Error sending message: " + executionResult.getErrors().get(0).getMessage();
     }
     Map<String, Object> resultMap = executionResult.toSpecification();
 
     final List<String> recipients = new java.util.ArrayList<>(Collections.emptyList());
     try {
-      recipients.addAll(EmailValidator.validationResponseToRecievers(resultMap));
+      recipients.addAll(EmailValidator.validationResponseToReceivers(resultMap));
     } catch (Exception e) {
       response.status(500);
-      return "Error parsing request: " + e.getMessage();
+      return "Error validating message receivers: " + e.getMessage();
     }
 
     if (recipients.isEmpty()) {
-      response.status(400);
+      response.status(500);
       return "No recipients found for given filter";
     }
+
+    logger.info(
+        "Sending message to recipients: {} with subject: {} and message: {}",
+        recipients,
+        sendMessageAction.subject(),
+        sendMessageAction.body());
 
     // send email to all recipients on allow list
     EmailSettings settings = loadEmailSettings(schema);
@@ -88,6 +106,14 @@ public class MessageApi {
 
     final Boolean sendResult =
         emailService.send(recipients, sendMessageAction.subject(), sendMessageAction.body());
+    if (!sendResult) {
+      response.status(500);
+      logger.error(
+          "failed to send message to recipients: {} with subject: {} and message: {}",
+          recipients,
+          sendMessageAction.subject(),
+          sendMessageAction.body());
+    }
     return sendResult.toString();
   }
 
