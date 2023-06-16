@@ -1,3 +1,16 @@
+# demo_ontomanager.py
+
+"""Demonstration of the capabilities of the OntologyManager.
+Create an OntologyManager object by supplying a server's url and login credentials as arguments in the
+function below or create a .env file with the following structure
+
+MG_URL = https://myserver.molgeniscloud.org
+MG_USERNAME = username
+MG_PASSWORD = password
+
+Ensure the CatalogueOntologies database is present on the server before running the script.
+"""
+
 import logging
 import os
 
@@ -10,11 +23,11 @@ from tools.ontomanager.src.ontomanager.exceptions import DuplicateKeyException
 def demo_ontomanager(url: str = None, username: str = None, password: str = None):
     load_dotenv()
     if url is None:
-        url = os.environ['MG_URL']
+        url = os.environ.get('MG_URL')
     if username is None:
-        username = os.environ['MG_USERNAME']
+        username = os.environ.get('MG_USERNAME')
     if password is None:
-        password = os.environ['MG_PASSWORD']
+        password = os.environ.get('MG_PASSWORD')
 
     manager = OntologyManager(url, username, password)
 
@@ -37,4 +50,6 @@ def demo_ontomanager(url: str = None, username: str = None, password: str = None
 
 if __name__ == '__main__':
     logging.basicConfig(level='INFO')
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
     demo_ontomanager()
