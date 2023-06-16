@@ -70,7 +70,7 @@
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
         <ButtonAction
-          v-if="validate(this.schemaName)"
+          v-if="!validate(this.schemaName)"
           @click="executeCreateSchema"
         >
           Create database
