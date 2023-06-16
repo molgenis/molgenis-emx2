@@ -1,12 +1,18 @@
 # Molgenis ontology manager
 
-The Molgenis ontology manager is a package that handles ontologies on a Molgenis server with functionality to add, delete or update Catalogue Ontology entries and edit the databases present on the server accordingly.
+The Molgenis ontology manager is a package that handles ontologies on a Molgenis server with functionality to add, delete or update CatalogueOntologies entries and edit the databases present on the server accordingly.
 
 ## Installation
 
-The molgenis-ontomanager package can be downloaded and installed from the test PyPI repository:
+The package requires the installation of the molgenis-emx2-client package, which depends on the requests package. 
+Install both before installing the Molgenis ontology manager
 
-    python -m pip install -i https://test.pypi.org/simple/ molgenis-ontomanager==0.0.5
+    pip install requests
+    pip install -i https://test.pypi.org/simple/ molgenis-emx2-client
+
+The molgenis-ontomanager package can then be installed from the test PyPI repository:
+
+    pip install -i https://test.pypi.org/simple/ molgenis-ontomanager==0.0.5
 
 The Molgenis ontology manager is supported on Python 3.7 and above. 
 
