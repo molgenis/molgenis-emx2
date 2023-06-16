@@ -1,6 +1,8 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
+import static spark.Spark.post;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +29,17 @@ import spark.Response;
 public class MessageApi {
 
   private static final Logger logger = LoggerFactory.getLogger(MessageApi.class);
+
+  @SuppressWarnings("VulnerableCodeUsages")
   private static final Parser parser = new Parser();
+
+  private MessageApi() {
+    // hide constructor
+  }
+
+  public static void create() {
+    post("/:schema/api/message/*", ACCEPT_JSON, MessageApi::send);
+  }
 
   public static String send(Request request, Response response) {
     logger.info("Received message request");
@@ -65,7 +77,7 @@ public class MessageApi {
         gql.execute(ExecutionInput.newExecutionInput(recipientsQuery).variables(validationFilter));
     if (!executionResult.getErrors().isEmpty()) {
       response.status(500);
-      return "Error parsing request: " + executionResult.getErrors().get(0).getMessage();
+      return "Error sending message: " + executionResult.getErrors().get(0).getMessage();
     }
     Map<String, Object> resultMap = executionResult.toSpecification();
 
@@ -74,11 +86,11 @@ public class MessageApi {
       recipients.addAll(EmailValidator.validationResponseToRecievers(resultMap));
     } catch (Exception e) {
       response.status(500);
-      return "Error parsing request: " + e.getMessage();
+      return "Error validating message receivers: " + e.getMessage();
     }
 
     if (recipients.isEmpty()) {
-      response.status(400);
+      response.status(500);
       return "No recipients found for given filter";
     }
 
