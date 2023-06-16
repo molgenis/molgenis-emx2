@@ -407,6 +407,19 @@ public class SqlSchema implements Schema {
     return metadata.getChangesCount();
   }
 
+  @Override
+  public String getSettingValue(String key) {
+    String setting = metadata.getSetting(key);
+    if (setting == null) {
+      throw new MolgenisException("Setting " + key + " not found");
+    }
+    return setting;
+  }
+
+  public boolean hasSetting(String key) {
+    return metadata.getSetting(key) != null;
+  }
+
   public DSLContext getJooq() {
     return ((SqlDatabase) getDatabase()).getJooq();
   }
