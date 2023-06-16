@@ -65,4 +65,8 @@ public interface Schema {
   List<Change> getChanges(int limit);
 
   Integer getChangesCount();
+
+  String getSettingValue(String key);
+
+  boolean hasSetting(String emailHost);
 }
