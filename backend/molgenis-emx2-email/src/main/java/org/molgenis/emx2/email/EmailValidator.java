@@ -22,18 +22,19 @@ public class EmailValidator {
     }
   }
 
-  public static boolean isInValidEmail(String email) {
+  public static boolean isValidEmail(String email) {
     try {
       new InternetAddress(email);
-      return false;
-    } catch (AddressException e) {
       return true;
+    } catch (AddressException e) {
+      return false;
     }
   }
 
-  public static List<String> validationResponseToRecievers(Map<String, Object> validationResponse) {
-    flattenAllowTree(validationResponse).removeIf(EmailValidator::isInValidEmail);
-    return flattenAllowTree(validationResponse);
+  public static List<String> validationResponseToReceivers(Map<String, Object> validationResponse) {
+    List<String> receivers = flattenAllowTree(validationResponse);
+    receivers.removeIf((e) -> !EmailValidator.isValidEmail(e));
+    return receivers;
   }
 
   private static List<String> flattenAllowTree(Map<String, Object> resultMap) {

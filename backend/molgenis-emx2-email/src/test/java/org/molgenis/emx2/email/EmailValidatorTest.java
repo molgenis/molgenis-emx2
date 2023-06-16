@@ -19,9 +19,9 @@ class EmailValidatorTest {
   }
 
   @Test
-  void isInValidEmail() {
-    assertTrue(EmailValidator.isInValidEmail("i am not a email address"));
-    assertFalse(EmailValidator.isInValidEmail("test@molgenis.org"));
+  void isValidEmail() {
+    assertTrue(EmailValidator.isValidEmail("test@molgenis.org"));
+    assertFalse(EmailValidator.isValidEmail("i am not a email address"));
   }
 
   @Test
@@ -42,6 +42,6 @@ class EmailValidatorTest {
     contacts.add(contactValue);
 
     var expected = Collections.singletonList("test@molgenis.org");
-    assertEquals(expected, EmailValidator.validationResponseToRecievers(validationResponse));
+    assertEquals(expected, EmailValidator.validationResponseToReceivers(validationResponse));
   }
 }

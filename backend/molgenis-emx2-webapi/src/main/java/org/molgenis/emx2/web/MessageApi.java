@@ -83,7 +83,7 @@ public class MessageApi {
 
     final List<String> recipients = new java.util.ArrayList<>(Collections.emptyList());
     try {
-      recipients.addAll(EmailValidator.validationResponseToRecievers(resultMap));
+      recipients.addAll(EmailValidator.validationResponseToReceivers(resultMap));
     } catch (Exception e) {
       response.status(500);
       return "Error validating message receivers: " + e.getMessage();
@@ -94,12 +94,26 @@ public class MessageApi {
       return "No recipients found for given filter";
     }
 
+    logger.info(
+        "Sending message to recipients: {} with subject: {} and message: {}",
+        recipients,
+        sendMessageAction.subject(),
+        sendMessageAction.body());
+
     // send email to all recipients on allow list
     EmailSettings settings = loadEmailSettings(schema);
     EmailService emailService = new EmailService(settings);
 
     final Boolean sendResult =
         emailService.send(recipients, sendMessageAction.subject(), sendMessageAction.body());
+    if (!sendResult) {
+      response.status(500);
+      logger.error(
+          "failed to send message to recipients: {} with subject: {} and message: {}",
+          recipients,
+          sendMessageAction.subject(),
+          sendMessageAction.body());
+    }
     return sendResult.toString();
   }
 
