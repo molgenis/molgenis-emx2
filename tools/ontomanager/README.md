@@ -4,9 +4,9 @@ The Molgenis ontology manager is a package that handles ontologies on a Molgenis
 
 ## Installation
 
-You can install the Molgenis ontology manager from PyPI sometime hopefully:
+The molgenis-ontomanager package can be downloaded and installed from the test PyPI repository:
 
-    python -m pip install molgenis-ontomanager
+    python -m pip install -i https://test.pypi.org/simple/ molgenis-ontomanager==0.0.5
 
 The Molgenis ontology manager is supported on Python 3.7 and above. 
 
