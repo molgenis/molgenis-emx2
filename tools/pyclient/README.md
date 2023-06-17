@@ -55,4 +55,3 @@ On Windows:
     (venv) $ python -m build
 
     (venv) $ pip install dist/molgenis_emx2_client*.whl
-
