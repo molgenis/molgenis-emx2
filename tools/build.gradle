@@ -46,7 +46,7 @@ subprojects {
             commandLine 'twine', 'upload', '--repository', 'testpypi', 'dist/*'
         } else  {
             //todo switch to production when stable
-            commandLine 'twine', 'upload', '--repository', 'testpypi', 'dist/*'
+            commandLine 'twine', 'upload', 'dist/*'
         }
         ext.output = {
             return standardOutput.toString()
