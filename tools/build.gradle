@@ -25,11 +25,6 @@ subprojects {
         inputs.file('README.md')
     }
 
-    //also run when overall build is run
-   task build {
-       finalizedBy "buildPython"
-    }
-
     task clean {
         doLast {
             delete 'dist'
