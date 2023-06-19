@@ -14,21 +14,40 @@ def main():
     """Perform an action using the Molgenis Ontology Manager"""
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("action")
-    parser.add_argument("table")
-    parser.add_argument("-n", "--name", type=str,
-                        help="Fill in the name of the term. Mandatory for add and delete actions.")
-    parser.add_argument("-o", "--order", type=int,
-                        help="Fill in the order of this term, optional.")
-    parser.add_argument("-p", "--parent", type=str,
-                        help="Fill in the parent of this term, optional.")
-    parser.add_argument("-l", "--label", type=str,
-                        help="Fill in the label for this term, optional.")
-    parser.add_argument("-d", "--definition", type=str,
-                        help="Fill in the definition for this term, optional.")
-    parser.add_argument("-u", "--URI", type=str,
-                        help="Fill in the ontology term URI for this term, optional.")
 
+    required_args = parser.add_argument_group('Required arguments')
+    add_delete_args = parser.add_argument_group('Add/delete arguments')
+    update_args = parser.add_argument_group('Update arguments')
+
+    # Required arguments
+    required_args.add_argument("action", type=str,
+                               help="Supply one of the following actions: add, delete, update")
+    required_args.add_argument("table",
+                               help="Supply the name of the CatalogueOntologies table"
+                                    " on which the action is applied.")
+
+    # Optional arguments for actions 'add' and 'delete'
+    add_delete_args.add_argument("-n", "--name", type=str, required=('add' in sys.argv or 'delete' in sys.argv),
+                                 help="Fill in the name of the term. Mandatory for add and delete actions.")
+    add_delete_args.add_argument("-o", "--order", type=int,
+                                 help="Fill in the order of this term, optional.")
+    add_delete_args.add_argument("-p", "--parent", type=str,
+                                 help="Fill in the parent of this term, optional. "
+                                      "Ensure the parent term is present in the table.")
+    add_delete_args.add_argument("-l", "--label", type=str,
+                                 help="Fill in the label for this term, optional.")
+    add_delete_args.add_argument("-d", "--definition", type=str,
+                                 help="Fill in the definition for this term, optional.")
+    add_delete_args.add_argument("-u", "--URI", type=str,
+                                 help="Fill in the ontology term URI for this term, optional.")
+
+    # Arguments for action 'update'
+    update_args.add_argument("-old", "--old", type=str, required='update' in sys.argv,
+                             help="Fill in the name of the term to be replaced. "
+                                  "Mandatory for update action.")
+    update_args.add_argument("-new", "--new", type=str, required='update' in sys.argv,
+                             help="Fill in the name of the term that replaces the old term. "
+                                  "Mandatory for update action.")
     args = parser.parse_args()
 
     # Read the action that is to be performed from the command line
@@ -45,7 +64,9 @@ def main():
                   'parent': args.parent,
                   'ontologyTermURI': args.URI,
                   'definition': args.definition,
-                  'order': args.order}
+                  'order': args.order,
+                  'old': args.old,
+                  'new': args.new}
 
         ontoman = OntologyManager(url, username, password)
         ontoman.perform(action=action, table=args.table, **kwargs)
