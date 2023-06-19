@@ -16,8 +16,8 @@ import os
 
 from dotenv import load_dotenv
 
-from tools.ontomanager.src.ontomanager import OntologyManager
-from tools.ontomanager.src.ontomanager.exceptions import DuplicateKeyException
+from tools.ontomanager.src.molgenis_ontomanager import OntologyManager
+from tools.ontomanager.src.molgenis_ontomanager.exceptions import DuplicateKeyException
 
 
 def demo_ontomanager(url: str = None, username: str = None, password: str = None):
