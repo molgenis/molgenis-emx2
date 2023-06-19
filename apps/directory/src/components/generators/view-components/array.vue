@@ -5,7 +5,7 @@
     </th>
     <td>
       <span>
-        {{ attribute.value.join(", ") }}
+        {{ value(attribute).join(", ") }}
       </span>
     </td>
   </tr>
@@ -21,6 +21,24 @@ export default {
   methods: {
     displayName(item) {
       return item.label || item.name || item.id;
+    },
+    value(item) {
+      /** sanity check  */
+      if (!item || !item.value || !item.value.length) return [];
+
+      const values = item.value;
+
+      const isArray = Array.isArray(values);
+
+      /** sanity check II */
+      if (!isArray) return values;
+
+      const isArrayOfObjects = typeof values[0] === "object";
+
+      /** we have a just an array of values. Perfect to return */
+      if (!isArrayOfObjects) return values;
+
+      return values.map((value) => value.label || value.name || value.id);
     },
   },
 };

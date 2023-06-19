@@ -8,27 +8,24 @@
         {{ attribute.value }}
       </span>
 
-      <template v-if="attribute.linkValue">
-        <Tooltip :value="'Copy to clipboard'">
-          <span
-            id="copy-icon"
-            @click.prevent="copyToClipboard(attribute.linkValue)"
-            class="fa fa-clipboard ml-1"
-          >
-          </span>
-        </Tooltip>
-      </template>
+      <tooltip-component class="ml-1" v-if="attribute.linkValue" text="Copy to clipboard" @click.prevent="copyToClipboard(attribute.linkValue)">
+        <span
+          id="copy-icon"
+          
+          class="fa fa-clipboard"
+        >
+        </span>
+      </tooltip-component>
     </td>
   </tr>
 </template>
 
 <script>
-import { Tooltip } from "../../../../../molgenis-components";
-import { mapMutations } from "vuex";
+import TooltipComponent from "../../popovers/TooltipComponent.vue";
 
 export default {
   components: {
-    Tooltip,
+    TooltipComponent,
   },
   props: {
     attribute: {
@@ -36,7 +33,7 @@ export default {
     },
   },
   methods: {
-    ...mapMutations(["SetNotification"]),
+    // ...mapMutations(["SetNotification"]),
     displayName(item) {
       return item.label || item.name || item.id;
     },

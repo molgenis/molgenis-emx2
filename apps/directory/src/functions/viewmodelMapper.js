@@ -8,7 +8,7 @@ export const mapToString = (object, property, prefix, suffix) => {
   return object[property] ? `${prefix}${object[property]}${suffix}` : "";
 };
 
-export function mapObjArray(objects) {
+export function mapObjArray (objects) {
   if (!objects) return [];
   if (!objects.some((o) => o.uri))
     return objects.map((item) => item.label || item.name);
@@ -19,11 +19,11 @@ export function mapObjArray(objects) {
     }));
 }
 
-export function mapUrl(url) {
-  url && (url.startsWith("http") ? url : "http://" + url);
+export function mapUrl (url) {
+ return url ? url.startsWith("http") ? url : "http://" + url : url;
 }
 
-export function mapRange(min, max, unit) {
+export function mapRange (min, max, unit) {
   let range = "";
   if ((min || min === 0) && max) {
     range = `${min}-${max} `;
@@ -40,7 +40,7 @@ export function mapRange(min, max, unit) {
   return range;
 }
 
-function getObjectForValueExtraction(object, propertyKey) {
+function getObjectForValueExtraction (object, propertyKey) {
   /** this column is a nested propery */
   if (typeof propertyKey === "object") {
     const nextKey = Object.keys(propertyKey)[0];
@@ -72,7 +72,7 @@ function getObjectForValueExtraction(object, propertyKey) {
  * @param {*} columns column config
  * @returns an array of generator attributes: { label: columnInfo.label, type: columnInfo.type, value: attributeValue, component: columnInfo.component }
  */
-export function getViewmodel(object, columns) {
+export function getViewmodel (object, columns) {
   const attributes = [];
 
   for (const columnInfo of columns) {
@@ -144,7 +144,7 @@ export function getViewmodel(object, columns) {
 /**
  * Get all the types available within the collection tree
  */
-function extractCollectionTypes(collections, prevCollectionHashmap) {
+function extractCollectionTypes (collections, prevCollectionHashmap) {
   let collectionTypes =
     prevCollectionHashmap && Object.keys(prevCollectionHashmap).length
       ? prevCollectionHashmap
@@ -173,7 +173,7 @@ function extractCollectionTypes(collections, prevCollectionHashmap) {
   return collectionTypes;
 }
 
-function mapSubcollections(collections, level) {
+function mapSubcollections (collections, level) {
   const settingsStore = useSettingsStore();
 
   const sub_collections = [];
@@ -208,7 +208,7 @@ function mapSubcollections(collections, level) {
   return sub_collections;
 }
 
-export function getCollectionDetails(collection) {
+export function getCollectionDetails (collection) {
   const settingsStore = useSettingsStore();
   const viewmodel = getViewmodel(
     collection,
@@ -254,3 +254,45 @@ export const getBiobankDetails = (biobank) => {
     viewmodel: getViewmodel(biobank, settingsStore.config.biobankColumns),
   };
 };
+
+export const mapNetworkInfo = data => {
+  return data.network.map(network => {
+    return {
+      name: { value: network.name, type: 'string' },
+      report: { value: `/network/${network.id}`, type: 'report' }
+    }
+  })
+}
+
+export const getNameOfHead = head => {
+  if (!head) return ''
+
+  const { first_name, last_name, role } = head
+
+  let name = ''
+
+  if (first_name) name += `${first_name} `
+  if (last_name) name += `${last_name} `
+  if (role) name += `(${role})`
+
+  return name !== '' ? name.trim() : undefined
+}
+
+export const mapContactInfo = instance => {
+  return {
+    name: {
+      value: getNameOfHead(instance.head),
+      type: 'string'
+    },
+    website: { value: mapUrl(instance.url), type: 'url' },
+    email: {
+      value: instance.contact ? instance.contact.email : undefined,
+      type: 'email'
+    },
+    juridical_person: { value: instance.juridical_person, type: 'string' },
+    country: {
+      value: instance.country ? instance.country.label || instance.country.name : undefined,
+      type: 'string'
+    }
+  }
+}

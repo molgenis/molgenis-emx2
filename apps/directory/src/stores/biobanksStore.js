@@ -15,7 +15,8 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
   const biobankGraphql = biobankColumns.map(
     (biobankColumn) => biobankColumn.column
-  ).concat({ collections: collectionColumns.map(collectionColumn => collectionColumn.column) });
+  ).concat({ collections: collectionColumns.map(collectionColumn => collectionColumn.column) })
+    .concat(["name"]);
 
   let biobankCards = ref([]);
   let waitingForResponse = ref(false);
@@ -48,12 +49,20 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
     const biobankReportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Biobanks")
-      .select(biobankGraphql)
+      .select([
+        "contact.first_name",
+        "contact.last_name",
+        "contact.email",
+        "head.first_name",
+        "head.last_name",
+        "country.label",
+        "url",
+        ...biobankGraphql
+      ])
       .orderBy("Biobanks", "name", "asc")
       .orderBy("collections", "id", "asc")
       .where("id")
       .like(id)
-    console.log(biobankReportQuery.getQuery())
     return await biobankReportQuery.execute();
   }
 

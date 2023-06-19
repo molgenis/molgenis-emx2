@@ -51,16 +51,16 @@ const initialCollectionColumns = [
     column: "age_high"
   },
   {
-    label: "Age high:",
-    type: "int",
+    label: "Age unit:",
+    type: "mref",
     column: { age_unit: ["label"] }
   },
-  { label: "Type:", column: { type: ["label"] }, type: "mref", showOnBiobankCard: true },
-  { label: "Sex:", column: { sex: ["label"] }, type: "categoricalmref" },
+  { label: "Type:", column: { type: ["label"] }, type: "array", showOnBiobankCard: true },
+  { label: "Sex:", column: { sex: ["label"] }, type: "array" },
   {
     label: "Materials:",
     column: { materials: ["label"] },
-    type: "categoricalmref",
+    type: "array",
     showOnBiobankCard: true,
   },
   {
@@ -68,7 +68,7 @@ const initialCollectionColumns = [
     column: { storage_temperatures: ["label"] },
     type: "categoricalmref",
   },
-  { label: "Data:", column: { data_categories: ["label"] }, type: "categoricalmref" },
+  { label: "Data:", column: { data_categories: ["label"] }, type: "array" },
   {
     label: "Diagnosis:",
     column: { diagnosis_available: ["label"] },
@@ -78,7 +78,7 @@ const initialCollectionColumns = [
   {
     label: "Data use conditions:",
     column: { data_use: ["label", "ontologyTermURI"] },
-    type: "mref",
+    type: "array",
   },
 ];
 

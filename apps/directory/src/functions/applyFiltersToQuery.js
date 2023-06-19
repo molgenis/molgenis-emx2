@@ -23,38 +23,38 @@ export async function applyFiltersToQuery (
         baseQuery.orWhere("collections.name").like(filterValue);
         baseQuery.orWhere("collections.acronym").like(filterValue);
         baseQuery
-          .orWhere("collections.diagnosisAvailable.name")
+          .orWhere("collections.diagnosis_available.name")
           .like(filterValue);
         baseQuery
-          .orWhere("collections.diagnosisAvailable.code")
+          .orWhere("collections.diagnosis_available.code")
           .like(filterValue);
         baseQuery
-          .orWhere("collections.diagnosisAvailable.label")
+          .orWhere("collections.diagnosis_available.label")
           .like(filterValue);
         baseQuery
-          .orWhere("collections.diagnosisAvailable.definition")
+          .orWhere("collections.diagnosis_available.definition")
           .like(filterValue);
         baseQuery.orWhere("collections.materials.name").like(filterValue);
         baseQuery.orWhere("collections.materials.label").like(filterValue);
 
         /** and filter the collections  */
-        baseQuery.filter("collections.id").like(filterValue);
-        baseQuery.filter("collections.name").like(filterValue);
-        baseQuery.filter("collections.acronym").like(filterValue);
+        baseQuery.subfilter("collections.id").like(filterValue);
+        baseQuery.subfilter("collections.name").like(filterValue);
+        baseQuery.subfilter("collections.acronym").like(filterValue);
         baseQuery
-          .filter("collections.diagnosisAvailable.name")
+          .subfilter("collections.diagnosis_available.name")
           .like(filterValue);
         baseQuery
-          .filter("collections.diagnosisAvailable.code")
+          .subfilter("collections.diagnosis_available.code")
           .like(filterValue);
         baseQuery
-          .filter("collections.diagnosisAvailable.label")
+          .subfilter("collections.diagnosis_available.label")
           .like(filterValue);
         baseQuery
-          .filter("collections.diagnosisAvailable.definition")
+          .subfilter("collections.diagnosis_available.definition")
           .like(filterValue);
-        baseQuery.filter("collections.materials.name").like(filterValue);
-        baseQuery.filter("collections.materials.label").like(filterValue);
+        baseQuery.subfilter("collections.materials.name").like(filterValue);
+        baseQuery.subfilter("collections.materials.label").like(filterValue);
         break;
       }
       case "CheckboxFilter": {

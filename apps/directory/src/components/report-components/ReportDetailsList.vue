@@ -1,6 +1,8 @@
 <template>
   <table class="mg-report-details-list mb-3">
-    <caption v-show="false">Details list</caption>
+    <caption v-show="false">
+      Details list
+    </caption>
     <template v-for="(value, key) in reportDetails">
       <tr v-if="showRow(value)" :key="key">
         <!-- Header -->
@@ -12,7 +14,9 @@
           <span v-else class="badge badge-info">no</span>
         </td>
         <!--Type string-->
-        <td v-else-if="value.type.includes('string')" colspan="2">{{ value.value }}</td>
+        <td v-else-if="value.type.includes('string')" colspan="2">
+          {{ value.value }}
+        </td>
         <!--Type url-->
         <td v-else-if="value.type === 'url'">
           <a :href="value.value" target="_blank" rel="noopener noreferrer">
@@ -24,7 +28,7 @@
         <td v-else-if="value.type === 'email'" colspan="2">
           <a :href="'mailto:' + value.value">
             <i class="fa fa-fw fa-paper-plane" aria-hidden="true"></i>
-            <span class="mg-icon-text">{{ uiText['email'] }}</span>
+            <span class="mg-icon-text">{{ uiText["email"] }}</span>
           </a>
         </td>
         <!--Type phone-->
@@ -38,7 +42,11 @@
             v-for="(val, index) in value.value"
             class="m-1 badge"
             :key="index"
-            :class="'badge-' + (value.badgeColor ? value.badgeColor : 'success')">{{ val }}</span>
+            :class="
+              'badge-' + (value.badgeColor ? value.badgeColor : 'success')
+            "
+            >{{ val }}</span
+          >
         </td>
         <!--Type report-->
         <td v-else-if="value.type === 'report'" colspan="2">
@@ -59,47 +67,54 @@
 </style>
 
 <script>
-import { mapGetters } from 'vuex'
+import { useSettingsStore } from '../../stores/settingsStore';
 export default {
-  name: 'ReportDetailsList',
+  name: "ReportDetailsList",
   // Object with as key the variable, as value an object with two keys: value and type
   props: {
     reportDetails: {
       [String]: {
         value: String,
         type:
-          'string' |
-          'email' |
-          'url' |
-          'bool' |
-          'list' |
-          'phone' |
-          'report' |
-          'string-with-key',
+          "string" |
+          "email" |
+          "url" |
+          "bool" |
+          "list" |
+          "phone" |
+          "report" |
+          "string-with-key",
         batchColor: {
           type:
-            'success' |
-            'warning' |
-            'info' |
-            'secondary' |
-            'danger' |
-            'light' |
-            'dark',
-          required: false
-        }
-      }
-    }
+            "success" |
+            "warning" |
+            "info" |
+            "secondary" |
+            "danger" |
+            "light" |
+            "dark",
+          required: false,
+        },
+      },
+    },
+  },
+  setup() {
+    const settingsStore = useSettingsStore();
+
+    return { settingsStore };
   },
   methods: {
-    showRow (value) {
-      return (value.value && value.value.length !== 0) || value.type === 'bool'
+    showRow(value) {
+      return (value.value && value.value.length !== 0) || value.type === "bool";
     },
-    showKey (type) {
-      return ['bool', 'string-with-key', 'list'].includes(type)
-    }
+    showKey(type) {
+      return ["bool", "string-with-key", "list"].includes(type);
+    },
   },
   computed: {
-    ...mapGetters(['uiText'])
-  }
-}
+    uiText(){
+      return this.settingsStore.uiText
+    }
+  },
+};
 </script>

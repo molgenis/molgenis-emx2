@@ -37,7 +37,7 @@
           <report-title type="Biobank" :name="biobank.name"></report-title>
           <div class="container">
             <div class="row">
-              <div class="col-md-8">
+              <div class="col-md-8" v-if="biobankDataAvailable">
                 <view-generator :viewmodel="biobank.viewmodel" />
 
                 <!-- Collection Part -->
@@ -65,36 +65,36 @@
                 </div>
               </div>
               <!-- Right side card -->
-              <!-- <div class="col-md-4">
-                  <div class="card">
-                    <div class="card-body">
-                      <div class="card-text">
-                        <h5>Contact Information</h5>
-                        <report-details-list
-                          :reportDetails="contact"
-                        ></report-details-list>
-                        <h5 v-if="networks && networks.length > 0">Networks</h5>
-                        <report-details-list
-                          :reportDetails="network"
-                          v-for="network in networks"
-                          :key="network.id"
-                        ></report-details-list>
-                        <h5
-                          v-if="
-                            quality &&
-                            quality.Certification &&
-                            quality.Certification.value.length > 0
-                          "
-                        >
-                          Quality
-                        </h5>
-                        <report-details-list
-                          :reportDetails="quality"
-                        ></report-details-list>
-                      </div>
+              <div class="col-md-4">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-text">
+                      <h5>Contact Information</h5>
+                      <report-details-list
+                        :reportDetails="contact"
+                      ></report-details-list>
+                      <h5 v-if="networks && networks.length > 0">Networks</h5>
+                      <report-details-list
+                        :reportDetails="network"
+                        v-for="network in networks"
+                        :key="network.id"
+                      ></report-details-list>
+                      <h5
+                        v-if="
+                          quality &&
+                          quality.Certification &&
+                          quality.Certification.value.length > 0
+                        "
+                      >
+                        Quality
+                      </h5>
+                      <report-details-list
+                        :reportDetails="quality"
+                      ></report-details-list>
                     </div>
                   </div>
-                </div> -->
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -111,12 +111,25 @@ import { useSettingsStore } from "../stores/settingsStore";
 import { Spinner } from "../../../molgenis-components";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
+import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
-import { getBiobankDetails, getCollectionDetails } from "../functions/viewmodelMapper";
+import {
+  getBiobankDetails,
+  getCollectionDetails,
+  mapContactInfo,
+  mapNetworkInfo,
+  mapObjArray,
+} from "../functions/viewmodelMapper";
 
 export default {
   name: "biobank-report-card",
-  components: { Spinner, ReportTitle, CollectionTitle, ViewGenerator },
+  components: {
+    Spinner,
+    ReportTitle,
+    CollectionTitle,
+    ViewGenerator,
+    ReportDetailsList,
+  },
   setup() {
     const settingsStore = useSettingsStore();
     const biobanksStore = useBiobanksStore();
@@ -142,13 +155,35 @@ export default {
     isLoading() {
       return this.biobanksStore.waiting;
     },
-    collectionsData () {
-      console.log(this.biobank.collections)
-      return !this.isLoading && this.biobank.collections && this.biobank.collections.length
+    biobankDataAvailable() {
+      return Object.keys(this.biobank).length;
+    },
+    collectionsData() {
+      return !this.isLoading &&
+        this.biobank.collections &&
+        this.biobank.collections.length
         ? this.biobank.collections
-          .filter((it) => !it.parent_collection)
-          .map((col) => getCollectionDetails(col))
-        : []
+            .filter((it) => !it.parent_collection)
+            .map((col) => getCollectionDetails(col))
+        : [];
+    },
+    networks() {
+      return this.biobankDataAvailable && this.biobank.network
+        ? mapNetworkInfo(this.biobank)
+        : [];
+    },
+    contact() {
+      return this.biobankDataAvailable && this.biobank.contact
+        ? mapContactInfo(this.biobank)
+        : {};
+    },
+    quality() {
+      return {
+        Certification: {
+          value: mapObjArray(this.biobank.quality),
+          type: "list",
+        },
+      };
     },
   },
 };

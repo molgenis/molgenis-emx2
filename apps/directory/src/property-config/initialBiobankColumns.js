@@ -1,5 +1,4 @@
 export const initialBiobankColumns = [
-  { label: "Name:", column: "name", type: "string" },
   { label: "Id:", column: "id", type: "string", showCopyIcon: true },
   {
     label: "PID:",
@@ -37,7 +36,7 @@ export const initialBiobankColumns = [
   {
     label: "Biobank capabilities:",
     column: { capabilities: ["name", "label"] },
-    type: "mref",
+    type: "array",
     showOnBiobankCard: true,
   },
 ];
