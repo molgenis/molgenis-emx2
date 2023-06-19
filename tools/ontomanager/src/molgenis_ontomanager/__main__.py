@@ -5,7 +5,7 @@ import logging
 import sys
 from getpass import getpass
 
-from ontomanager import OntologyManager
+from .__init__ import OntologyManager
 
 actions = ['add', 'delete', 'update']
 
