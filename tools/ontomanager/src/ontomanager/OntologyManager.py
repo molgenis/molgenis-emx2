@@ -35,7 +35,7 @@ class OntologyManager:
     def perform(self, action: str, table: str, **kwargs):
         """Select the method to perform and pass any keyword arguments"""
         match action:
-            case 'create':
+            case 'add':
                 self.add(table, **kwargs)
             case 'delete':
                 self.delete(table, **kwargs)
