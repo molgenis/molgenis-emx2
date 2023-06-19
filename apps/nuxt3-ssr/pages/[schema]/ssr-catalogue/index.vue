@@ -148,7 +148,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     >
       <LandingCardSecondary icon="people">
         <b>
-          {{ formatNumber(data.data.Cohorts_agg.sum.numberOfParticipants) }}
+          {{ new Intl.NumberFormat('nl-NL').format(data.data.Cohorts_agg.sum.numberOfParticipants) }}
           {{
             getSettingValue(
               "CATALOGUE_LANDING_PARTICIPANTS_LABEL",
