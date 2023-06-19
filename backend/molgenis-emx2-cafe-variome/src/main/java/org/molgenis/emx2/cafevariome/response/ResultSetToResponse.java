@@ -1,5 +1,6 @@
 package org.molgenis.emx2.cafevariome.response;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,8 +9,8 @@ import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSetsIte
 
 public class ResultSetToResponse {
 
-  public static Response transform(List<IndividualsResultSets> resultSets) {
-    Response response = new Response();
+  public static CVResponse transform(List<IndividualsResultSets> resultSets) {
+    CVResponse response = new CVResponse();
     Map<String, QueryResult> sources = new HashMap<>();
     for (int i = 0; i < resultSets.size(); i++) {
 
@@ -35,8 +36,8 @@ public class ResultSetToResponse {
       source.setOwner_name("Todo the owner");
       source.setOwner_email("owner@molgenis.org");
       source.setUri("Todo reconstruct URI");
-      source.setDate_created("Todo source date");
-      source.setRecord_count(0);
+      source.setDate_created(Instant.now().toEpochMilli());
+      source.setRecord_count(999);
       source.setLocked(false);
       source.setStatus(true);
       queryResult.setSource(source);

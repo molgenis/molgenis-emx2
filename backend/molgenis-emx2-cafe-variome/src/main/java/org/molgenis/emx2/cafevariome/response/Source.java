@@ -1,20 +1,42 @@
 package org.molgenis.emx2.cafevariome.response;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Source {
 
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private String uid;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private String name;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private String display_name;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private String description;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private String owner_name;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private String owner_email;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private String uri;
-  private String date_created;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
+  private long date_created;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private int record_count;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private boolean locked;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private boolean status;
 
   public void setUid(String uid) {
@@ -45,7 +67,7 @@ public class Source {
     this.uri = uri;
   }
 
-  public void setDate_created(String date_created) {
+  public void setDate_created(long date_created) {
     this.date_created = date_created;
   }
 

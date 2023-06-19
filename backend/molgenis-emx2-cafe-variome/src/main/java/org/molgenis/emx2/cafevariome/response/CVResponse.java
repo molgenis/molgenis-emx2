@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Map;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class Response {
+public class CVResponse {
 
-  public Response() {}
+  public CVResponse() {}
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
   Map<String, QueryResult> sources;

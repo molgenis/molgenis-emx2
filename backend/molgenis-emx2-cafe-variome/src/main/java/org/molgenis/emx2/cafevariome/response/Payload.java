@@ -1,11 +1,15 @@
 package org.molgenis.emx2.cafevariome.response;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Payload {
 
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private String[] subjects;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private String[] attributes;
 
   public void setSubjects(String[] subjects) {

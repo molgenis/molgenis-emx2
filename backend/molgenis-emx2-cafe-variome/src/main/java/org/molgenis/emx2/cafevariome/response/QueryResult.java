@@ -1,13 +1,21 @@
 package org.molgenis.emx2.cafevariome.response;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class QueryResult {
 
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private String type;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private int count;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private Payload payload;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private Source source;
 
   public void setType(String type) {
