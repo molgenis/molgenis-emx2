@@ -46,7 +46,6 @@ export default {
   data: function () {
     return {
       internalValues: deepClone(this.modelValue),
-      errorPerColumn: {},
     };
   },
   props: {
