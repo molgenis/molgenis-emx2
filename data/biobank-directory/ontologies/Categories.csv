@@ -1,0 +1,6 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,paediatric_included,Paediatric Included,,,,,Collections that include paediatric patients
+,rare_disease,Rare Disease,,,,,
+,cancer,Cancer,,,,,
+,covid19,Covid-19,,,,,
+,paediatric_only,Paediatric,,,,,Collections that only contain paediatric patients

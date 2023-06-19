@@ -8,22 +8,25 @@ For MOLGENIS EMX1, the FDP implementation guide can be found [here](https://molg
 
 ### Setup and configuration
 The easiest way to enable FDP in MOLGENIS EMX2 is by choosing 'FAIR_DATA_HUB' as a template for your database.
-This will add two tables that will define the content of your FAIR Data Point:
-[FDP_Catalog](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/fairdatapoint/demodata/FDP_Catalog.csv) and [FDP_Dataset](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/fairdatapoint/demodata/FDP_Dataset.csv).
+This will add three tables that will define the content of your FAIR Data Point:
+[Catalog](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/fairdatapoint/demodata/Catalog.csv), [Dataset](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/fairdatapoint/demodata/Dataset.csv) and [Distribution](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/fairdatapoint/demodata/Distribution.csv).
 Loading the 'FAIR_DATA_HUB' template including the example data will result in a fully operational FAIR Data Point.
 The example data can be used as a reference on how to enter data into the system, but can be safely removed or replaced.
 
 After setting up these tables, this is how its contents are translated to the FDP structure:
-- Each row in FDP_Catalog contains a reference to one or multiple FDP_Datasets via the `dataset` field.
-- Each FDP_Dataset refers to exactly one table name within the database schema via the `distribution` field.
-- The data for that table is to be distributed via the FAIR Data Point.
+- Each Dataset contains a reference to one or multiple Catalogs via the `belongsToCatalog` field.
+  - These references can also be viewed in the referred-to Catalogs via the `dataset` field.
+- Each Distribution contains a reference to one or multiple Datasets via the `belongsToDataset` field.
+  - These references can also be viewed in the referred-to Datasets via the `distribution` field.
 
 ### API structure and traversal
 Adding rows to these tables and setting the right permissions will result in a FAIR Data Point endpoint at `<server>/api/fdp` with the following traversable layers:
 - The root endpoint, containing FDP catalogs
-- Catalog, containing FDP datasets (you can specify its contents via the FDP_Catalog table)
-- Dataset, containing FDP distributions (you can specify its contents via the FDP_Dataset table)
-- Distribution, containing download URL for a particular format (13 currently available)
+- Catalog, containing FDP datasets (you can specify its contents via the Catalog table)
+- Dataset, containing FDP distributions (you can specify its contents via the Dataset table)
+- Distribution, containing either 
+  - Download URL of a Table for a particular format (13 currently available)
+  - File metadata including its format (selected from EDAM ontology)
 - A download URL that points to a particular API (e.g. CSV, JSON, ZIP, RDF, etc.)
 
 A full example of traversal from root to data:

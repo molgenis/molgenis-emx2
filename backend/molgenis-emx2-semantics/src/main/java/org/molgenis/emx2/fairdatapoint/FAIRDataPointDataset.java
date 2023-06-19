@@ -3,13 +3,12 @@ package org.molgenis.emx2.fairdatapoint;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointCatalog.extractItemAsIRI;
-import static org.molgenis.emx2.fairdatapoint.FAIRDataPointDistribution.FORMATS;
+import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.FORMATS;
+import static org.molgenis.emx2.fairdatapoint.Queries.queryDataset;
 import static org.molgenis.emx2.semantics.RDFService.extractHost;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
 
-import graphql.ExecutionResult;
-import graphql.GraphQL;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.*;
@@ -23,58 +22,37 @@ import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
 public class FAIRDataPointDataset {
 
-  // todo: double check cardinality
   // todo: check data types (int, date, hyperlinks etc)
   // todo odrl:Policy object instead of String? see
   // https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
 
-  private Request request;
-  private Table fdpDataseTable;
+  private final Request request;
+  private final Table fdpDataseTable;
   private String issued;
   private String modified;
 
-  /**
-   * Constructor
-   *
-   * @param request
-   * @param fdpDataseTable
-   * @throws Exception
-   */
+  /** Constructor */
   public FAIRDataPointDataset(Request request, Table fdpDataseTable) {
     this.request = request;
     this.fdpDataseTable = fdpDataseTable;
   }
 
-  /**
-   * Used to override issued for JUnit testing
-   *
-   * @param issued
-   */
+  /** Used to override issued for JUnit testing */
   public void setIssued(String issued) {
     this.issued = issued;
   }
 
-  /**
-   * Used to override modified for JUnit testing
-   *
-   * @param modified
-   */
+  /** Used to override modified for JUnit testing */
   public void setModified(String modified) {
     this.modified = modified;
   }
 
-  /**
-   * Create and get resulting FDP
-   *
-   * @return
-   * @throws Exception
-   */
+  /** Create and get resulting FDP */
   public String getResult() throws Exception {
     String id = request.params("id");
     Schema schema = fdpDataseTable.getSchema();
@@ -111,24 +89,87 @@ public class FAIRDataPointDataset {
     String host = extractHost(requestURI);
     String apiFdp = host + "/api/fdp";
     String apiFdpDistribution = apiFdp + "/distribution";
+    String apiRDF = host + "/" + schema.getName() + "/api/rdf";
 
     IRI reqUrl = iri(request.url()); // escaping/encoding seems OK
     IRI apiFdpDistributionEnc = encodedIRI(apiFdpDistribution);
 
     builder.add(reqUrl, RDF.TYPE, DCAT.DATASET);
-    String distribution = TypeUtils.toString(datasetFromJSON.get("distribution"));
-    if (!schema.getTableNames().contains(distribution)) {
-      throw new Exception(
-          "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your FDP_Dataset matches a table name (from the same schema) you want to publish.");
+    List<Map> distributions = (List<Map>) datasetFromJSON.get("distribution");
+    for (Map distribution : distributions) {
+      Map type = (Map) distribution.get("type"); // type is a required field
+
+      // note: both type.name (an ontology) and the distribution name are required fields
+      if (type.get("name").equals("Table")) {
+        String distributionName = (String) distribution.get("name");
+        if (!schema.getTableNames().contains(distributionName)) {
+          throw new Exception(
+              "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your Dataset matches a table name (from the same schema) you want to publish.");
+        }
+        for (String format : FORMATS) {
+          builder.add(
+              reqUrl,
+              // not 'Distribution' (class) but 'distribution' (predicate)
+              iri("http://www.w3.org/ns/dcat#distribution"),
+              encodedIRI(
+                  apiFdpDistribution
+                      + "/"
+                      + schema.getName()
+                      + "/"
+                      + distribution.get("name")
+                      + "/"
+                      + format));
+          builder.add(
+              apiFdpDistributionEnc,
+              LDP.CONTAINS,
+              encodedIRI(
+                  apiFdpDistribution
+                      + "/"
+                      + schema.getName()
+                      + "/"
+                      + distribution.get("name")
+                      + "/"
+                      + format));
+        }
+      } else {
+        List<Map> files = (List<Map>) distribution.get("files");
+        if (files == null) {
+          throw new Exception("No files specified for distribution of type File");
+        }
+        for (Map m : files) {
+          String format = (String) ((Map) m.get("format")).get("name");
+          // must manually encode forward slash in edge cases like "nbrf/pir"
+          format = format.replace("/", "%2F").toLowerCase(Locale.ROOT);
+          // we don't use distribution.get("name") because it may contain multiple files
+          // files are in the Files table and identifier is unique
+          builder.add(
+              reqUrl,
+              // not 'Distribution' (class) but 'distribution' (predicate)
+              iri("http://www.w3.org/ns/dcat#distribution"),
+              encodedIRI(
+                  apiFdpDistribution
+                      + "/"
+                      + schema.getName()
+                      + "/"
+                      + m.get("identifier")
+                      + "/"
+                      + format));
+
+          builder.add(
+              apiFdpDistributionEnc,
+              LDP.CONTAINS,
+              encodedIRI(
+                  apiFdpDistribution
+                      + "/"
+                      + schema.getName()
+                      + "/"
+                      + m.get("identifier")
+                      + "/"
+                      + format));
+        }
+      }
     }
-    for (String format : FORMATS) {
-      builder.add(
-          reqUrl,
-          // not 'Distribution' (class) but 'distribution' (predicate)
-          iri("http://www.w3.org/ns/dcat#distribution"),
-          encodedIRI(
-              apiFdpDistribution + "/" + schema.getName() + "/" + distribution + "/" + format));
-    }
+
     if (datasetFromJSON.get("accrualPeriodicity") != null) {
       builder.add(reqUrl, DCTERMS.ACCRUAL_PERIODICITY, datasetFromJSON.get("accrualPeriodicity"));
     }
@@ -159,10 +200,15 @@ public class FAIRDataPointDataset {
       builder.add(reqUrl, DCTERMS.ACCESS_RIGHTS, datasetFromJSON.get("accessRights"));
     }
     if (datasetFromJSON.get("contactPoint") != null) {
-      builder.add(reqUrl, DCAT.CONTACT_POINT, datasetFromJSON.get("contactPoint"));
+      String personId = (String) ((Map) datasetFromJSON.get("contactPoint")).get("identifier");
+      builder.add(reqUrl, DCAT.CONTACT_POINT, encodedIRI(apiRDF + "/Persons/" + personId));
     }
     if (datasetFromJSON.get("creator") != null) {
-      builder.add(reqUrl, DCTERMS.CREATOR, datasetFromJSON.get("creator"));
+      List<Map> creators = (List<Map>) datasetFromJSON.get("creator");
+      for (Map creator : creators) {
+        String personId = (String) creator.get("identifier");
+        builder.add(reqUrl, DCTERMS.CREATOR, encodedIRI(apiRDF + "/Persons/" + personId));
+      }
     }
     if (datasetFromJSON.get("description") != null) {
       builder.add(reqUrl, DCTERMS.DESCRIPTION, datasetFromJSON.get("description"));
@@ -206,7 +252,10 @@ public class FAIRDataPointDataset {
       builder.add(reqUrl, DCAT.QUALIFIED_RELATION, datasetFromJSON.get("qualifiedRelation"));
     }
     if (datasetFromJSON.get("publisher") != null) {
-      builder.add(reqUrl, DCTERMS.PUBLISHER, datasetFromJSON.get("publisher"));
+
+      String organisationName = (String) ((Map) datasetFromJSON.get("publisher")).get("name");
+      builder.add(
+          reqUrl, DCTERMS.PUBLISHER, encodedIRI(apiRDF + "/Organisations/" + organisationName));
     }
     if (this.issued == null) {
       builder.add(
@@ -248,69 +297,12 @@ public class FAIRDataPointDataset {
     builder.add(apiFdpDistributionEnc, DCTERMS.TITLE, "Distributions");
     builder.add(apiFdpDistributionEnc, LDP.MEMBERSHIP_RESOURCE, reqUrl);
     builder.add(apiFdpDistributionEnc, LDP.HAS_MEMBER_RELATION, DCAT.DISTRIBUTION);
-    for (String format : FORMATS) {
-      builder.add(
-          apiFdpDistributionEnc,
-          LDP.CONTAINS,
-          encodedIRI(
-              apiFdpDistribution + "/" + schema.getName() + "/" + distribution + "/" + format));
-    }
 
     // Write model
     Model model = builder.build();
     StringWriter stringWriter = new StringWriter();
     Rio.write(model, stringWriter, applicationOntologyFormat, config);
     return stringWriter.toString();
-  }
-
-  public static List<Map<String, Object>> queryDataset(Schema schema, String idField, String id) {
-    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
-    ExecutionResult executionResult =
-        grapql.execute(
-            "{FDP_Dataset"
-                + "(filter:{"
-                + idField
-                + ": {equals:\""
-                + id
-                + "\"}})"
-                + "{"
-                + "id,"
-                + "distribution,"
-                + "accrualPeriodicity,"
-                + "spatial{ontologyTermURI},"
-                + "spatialResolutionInMeters,"
-                + "temporal,"
-                + "temporalResolution,"
-                + "wasGeneratedBy,"
-                + "accessRights,"
-                + "contactPoint,"
-                + "creator,"
-                + "description,"
-                + "hasPolicy,"
-                + "identifier,"
-                + "isReferencedBy,"
-                + "keyword,"
-                + "landingPage,"
-                + "license,"
-                + "language{ontologyTermURI},"
-                + "relation,"
-                + "rights,"
-                + "qualifiedRelation,"
-                + "publisher,"
-                + "theme,"
-                + "title,"
-                + "type,"
-                + "qualifiedAttribution,"
-                + "mg_insertedOn,"
-                + "mg_updatedOn"
-                + "}}");
-    Map<String, Object> result = executionResult.toSpecification();
-    if (result.get("data") == null
-        || ((HashMap<String, Object>) result.get("data")).get("FDP_Dataset") == null) {
-      return new ArrayList<>();
-    }
-    return (List<Map<String, Object>>)
-        ((HashMap<String, Object>) result.get("data")).get("FDP_Dataset");
   }
 
   /**
