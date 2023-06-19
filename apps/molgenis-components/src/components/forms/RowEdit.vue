@@ -38,8 +38,9 @@ import {
   getLocalizedLabel,
   getLocalizedDescription,
 } from "../utils";
+import { getColumnError } from "./formUtils/formUtils";
 
-const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID, HEADING } = constants;
+const { AUTO_ID } = constants;
 
 export default {
   name: "RowEdit",
@@ -110,7 +111,7 @@ export default {
     columnsWithoutMeta() {
       return this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
-            (column) => !column.name?.startsWith("mg_")
+            (column) => !column.id?.startsWith("mg_")
           )
         : [];
     },
@@ -142,12 +143,12 @@ export default {
         return this.internalValues[convertToCamelCase(column.refLink)];
       } else {
         const isColumnVisible = this.visibleColumns
-          ? this.visibleColumns.includes(column.name)
+          ? this.visibleColumns.includes(column.id)
           : true;
         return (
           isColumnVisible &&
           this.visible(column.visible, column.id) &&
-          column.name !== "mg_tableclass"
+          column.id !== "mg_tableclass"
         );
       }
     },
@@ -251,124 +252,6 @@ export default {
     this.onValuesUpdate();
   },
 };
-
-function getColumnError(column, values, tableMetaData) {
-  const value = values[column.id];
-  const type = column.columnType;
-  const isInvalidNumber = isInValidNumericValue(type, value);
-  const missesValue = value === undefined || value === null || value === "";
-
-  if (column.columnType === AUTO_ID || column.columnType === HEADING) {
-    return undefined;
-  }
-  if (column.required && (missesValue || isInvalidNumber)) {
-    return column.name + " is required ";
-  }
-  if (missesValue) {
-    return undefined;
-  }
-  if (type === "EMAIL" && !isValidEmail(value)) {
-    return "Invalid email address";
-  }
-  if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
-    return "Invalid email address";
-  }
-  if (type === "HYPERLINK" && !isValidHyperlink(value)) {
-    return "Invalid hyperlink";
-  }
-  if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
-    return "Invalid hyperlink";
-  }
-  if (column.validation) {
-    return getColumnValidationError(column, values, tableMetaData);
-  }
-  if (isRefLinkWithoutOverlap(column, values)) {
-    return `value should match your selection in column '${column.refLink}' `;
-  }
-
-  return undefined;
-}
-
-function isInValidNumericValue(columnType, value) {
-  // TODO: what about arrays and longs?
-  if (["DECIMAL", "INT"].includes(columnType)) {
-    return isNaN(value);
-  } else {
-    return false;
-  }
-}
-
-function getColumnValidationError(column, values, tableMetaData) {
-  try {
-    const result = executeExpression(column.validation, values, tableMetaData);
-    if (result === false) {
-      return `Applying validation rule returned error: ${column.validation}`;
-    } else if (result === true || result === undefined) {
-      return undefined;
-    } else {
-      return `Applying validation rule returned error: ${result}`;
-    }
-  } catch (error) {
-    return `Invalid validation expression '${column.validation}', reason: ${error}`;
-  }
-}
-
-function executeExpression(expression, values, tableMetaData) {
-  //make sure all columns have keys to prevent reference errors
-  const copy = deepClone(values);
-  tableMetaData.columns.forEach((c) => {
-    if (!copy.hasOwnProperty(c.id)) {
-      copy[c.id] = null;
-    }
-  });
-
-  const func = new Function(
-    Object.keys(copy),
-    `return eval('${expression.replaceAll("'", '"')}');`
-  );
-  return func(...Object.values(copy));
-}
-
-function isRefLinkWithoutOverlap(column, values) {
-  if (!column.refLink) {
-    return false;
-  }
-  const columnRefLink = column.refLink;
-  const refLinkId = convertToCamelCase(columnRefLink);
-
-  const value = values[column.id];
-  const refValue = values[refLinkId];
-
-  if (typeof value === "string" && typeof refValue === "string") {
-    return value && refValue && value !== refValue;
-  } else {
-    //empty ref_array => should give 'required' error instead if applicable
-    if (Array.isArray(value) && value.length === 0) {
-      return false;
-    }
-    return (
-      value &&
-      refValue &&
-      !JSON.stringify(value).includes(JSON.stringify(refValue))
-    );
-  }
-}
-
-function isValidHyperlink(value) {
-  return HYPERLINK_REGEX.test(String(value).toLowerCase());
-}
-
-function containsInvalidHyperlink(hyperlinks) {
-  return hyperlinks.find((hyperlink) => !isValidHyperlink(hyperlink));
-}
-
-function isValidEmail(value) {
-  return EMAIL_REGEX.test(String(value).toLowerCase());
-}
-
-function containsInvalidEmail(emails) {
-  return emails.find((email) => !isValidEmail(email));
-}
 </script>
 
 <docs>

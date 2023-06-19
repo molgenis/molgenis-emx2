@@ -21,7 +21,7 @@
               "
               :clone="clone"
               :locale="locale"
-              @errorsInForm="handleErrors"
+              @update:model-value="checkForErrors"
             />
           </div>
           <div
@@ -106,6 +106,7 @@ import ButtonAction from "./ButtonAction.vue";
 import RowEdit from "./RowEdit.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import Tooltip from "./Tooltip.vue";
+import { getColumnError } from "./formUtils/formUtils";
 
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
 
@@ -120,7 +121,7 @@ export default {
   },
   data() {
     return {
-      rowData: {},
+      rowData: {} as Record<string, any>,
       rowErrors: {} as Record<string, string | undefined>,
       tableMetaData: null as unknown as ITableMetaData,
       schemaMetaData: null as unknown as ISchemaMetaData,
@@ -205,14 +206,13 @@ export default {
       });
     },
     saveDraftDisabledMessage() {
-      if (
-        this.tableMetaData?.columns.some(
-          (column) =>
-            column.key === 1 &&
-            column.columnType !== "AUTO_ID" &&
-            this.rowData[column.id] === null
-        )
-      ) {
+      const hasPrimaryKeyValue = this.tableMetaData?.columns.some(
+        (column) =>
+          column.key === 1 &&
+          column.columnType !== "AUTO_ID" &&
+          !this.rowData[column.id]
+      );
+      if (hasPrimaryKeyValue) {
         return "Cannot save draft: primary key is required";
       } else {
         return "";
@@ -267,15 +267,9 @@ export default {
       this.errorMessage = "";
       this.$emit("close");
     },
-    handleErrors(event: Record<string, string | undefined>) {
-      this.rowErrors = { ...this.rowErrors, ...event };
-      const numberOfErrors = Object.values(this.rowErrors).filter(
-        (value) => value
-      ).length;
-      this.saveDisabledMessage =
-        numberOfErrors > 0
-          ? `There are ${numberOfErrors} error(s) preventing saving`
-          : "";
+    checkForErrors() {
+      this.rowErrors = getRowErrors(this.tableMetaData, this.rowData);
+      this.saveDisabledMessage = getSaveDisabledMessage(this.rowErrors);
     },
   },
   async mounted() {
@@ -302,15 +296,17 @@ export default {
     }
 
     this.rowData = { ...this.rowData, ...deepClone(this.defaultValue) };
-    this.rowErrors = initializeRowErrors(this.tableMetaData.columns);
-    console.log(this.rowErrors);
+    this.checkForErrors();
     this.loaded = true;
   },
 };
 
-function initializeRowErrors(columns: IColumn[]) {
-  return columns.reduce((accum, column) => {
-    accum[column.name] = undefined;
+function getRowErrors(
+  tableMetaData: ITableMetaData,
+  rowData: Record<string, any>
+) {
+  return tableMetaData.columns.reduce((accum, column) => {
+    accum[column.id] = getColumnError(column, rowData, tableMetaData);
     return accum;
   }, {} as Record<string, string | undefined>);
 }
@@ -344,19 +340,19 @@ function filterVisibleColumns(
   if (!visibleColumns) {
     return columns;
   } else {
-    return columns.filter((column) => visibleColumns.includes(column.name));
+    return columns.filter((column) => visibleColumns.includes(column.id));
   }
 }
 
 function splitColumnNamesByHeadings(columns: IColumn[]): string[][] {
   return columns.reduce((accum, column) => {
     if (column.columnType === "HEADING") {
-      accum.push([column.name]);
+      accum.push([column.id]);
     } else {
       if (accum.length === 0) {
         accum.push([] as string[]);
       }
-      accum[accum.length - 1].push(column.name);
+      accum[accum.length - 1].push(column.id);
     }
     return accum;
   }, [] as string[][]);
@@ -370,6 +366,15 @@ function getChapterStyle(
     Boolean(errors[fieldsInPage])
   );
   return fieldsWithErrors.length ? { color: "red" } : {};
+}
+
+function getSaveDisabledMessage(rowErrors: Record<string, string | undefined>) {
+  const numberOfErrors = Object.values(rowErrors).filter(
+    (value) => value
+  ).length;
+  return numberOfErrors > 0
+    ? `There are ${numberOfErrors} error(s) preventing saving`
+    : "";
 }
 
 interface IChapterInfo {
