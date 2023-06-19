@@ -21,6 +21,7 @@
               "
               :clone="clone"
               :locale="locale"
+              :errorPerColumn="rowErrors"
               @update:model-value="checkForErrors"
             />
           </div>

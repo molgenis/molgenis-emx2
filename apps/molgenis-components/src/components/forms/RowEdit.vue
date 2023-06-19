@@ -38,7 +38,6 @@ import {
   getLocalizedLabel,
   getLocalizedDescription,
 } from "../utils";
-import { getColumnError } from "./formUtils/formUtils";
 
 const { AUTO_ID } = constants;
 
@@ -101,6 +100,10 @@ export default {
     locale: {
       type: String,
       default: () => "en",
+    },
+    errorPerColumn: {
+      type: Object,
+      default: () => {},
     },
   },
   emits: ["update:modelValue", "errorsInForm"],
@@ -170,16 +173,6 @@ export default {
         return true;
       }
     },
-    validateTable() {
-      this.tableMetaData?.columns?.forEach((column) => {
-        this.errorPerColumn[column.id] = getColumnError(
-          column,
-          this.internalValues,
-          this.tableMetaData
-        );
-      });
-      this.$emit("errorsInForm", this.errorPerColumn);
-    },
     applyComputed() {
       //apply computed
       this.tableMetaData.columns.forEach((c) => {
@@ -231,8 +224,6 @@ export default {
       this.onValuesUpdate();
     },
     onValuesUpdate() {
-      this.errorPerColumn = {};
-      this.validateTable();
       this.applyComputed();
       this.$emit("update:modelValue", this.internalValues);
     },
