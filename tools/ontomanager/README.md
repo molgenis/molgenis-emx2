@@ -23,7 +23,7 @@ Import the OntologyManager class from the package and create an instance by prov
 
 Example usage:
 
-    from molgenis-ontomanager import OntologyManager
+    from molgenis_ontomanager import OntologyManager
     ...
 
     ...
@@ -72,9 +72,9 @@ The above functionality can also be employed in the command line interface:
 For add and remove actions the flag `--name` is mandatory, and the flags `--order`, `--label`, `--parent`, `--URI`, `--definition` are optional.
 For the update action the flags `--old` and `--new` are mandatory and the only accepted arguments.
 
-    python3 -m ontomanager add Countries --name='Republic of Molgenia', --label='Molgenia'
-    python3 -m ontomanager add Countries --name=Armadilland', --parent='Republic of Molgenia'
+    python3 -m molgenis_ontomanager add Countries --name='Republic of Molgenia', --label='Molgenia'
+    python3 -m molgenis_ontomanager add Countries --name=Armadilland', --parent='Republic of Molgenia'
 
-    python3 -m ontomanager update Countries --old=Armadilland --new='Republic of Molgenia'
+    python3 -m molgenis_ontomanager update Countries --old=Armadilland --new='Republic of Molgenia'
 
-    python3 -m ontomanager delete Countries --name='Republic of Molgenia'
+    python3 -m molgenis_ontomanager delete Countries --name='Republic of Molgenia'

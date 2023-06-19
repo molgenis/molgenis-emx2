@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "molgenis_ontomanager"
-version = "0.1.2"
+name = "molgenis-ontomanager"
+version = "0.1.4"
 description = "Tool to manage catalogue ontologies on Molgenis servers."
 readme = "README.md"
 requires-python = ">=3.7"
