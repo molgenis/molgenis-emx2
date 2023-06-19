@@ -72,9 +72,6 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
   })?.value;
 }
 
-function formatNumber(number: number) {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
 </script>
 <template>
   <LayoutsLandingPage class="w-10/12 pt-8">
@@ -170,9 +167,8 @@ function formatNumber(number: number) {
       <LandingCardSecondary icon="colorize">
         <b
           >{{
-            formatNumber(
-              data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
-            )
+              new Intl.NumberFormat('nl-NL')
+              .format(data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples)
           }}
           {{
             getSettingValue(
