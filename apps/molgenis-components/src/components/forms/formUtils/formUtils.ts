@@ -1,11 +1,22 @@
 import { IColumn } from "../../../Interfaces/IColumn";
+import { IRow } from "../../../Interfaces/IRow";
 import { ITableMetaData } from "../../../Interfaces/ITableMetaData";
 import constants from "../../constants.js";
-import { deepClone, convertToCamelCase } from "../../utils";
+import { deepClone, convertToCamelCase, filterObject } from "../../utils";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID, HEADING } = constants;
 
-export function getColumnError(
+export function getRowErrors(
+  tableMetaData: ITableMetaData,
+  rowData: Record<string, any>
+) {
+  return tableMetaData.columns.reduce((accum, column) => {
+    accum[column.id] = getColumnError(column, rowData, tableMetaData);
+    return accum;
+  }, {} as Record<string, string | undefined>);
+}
+
+function getColumnError(
   column: IColumn,
   values: Record<string, any>,
   tableMetaData: ITableMetaData
@@ -21,7 +32,7 @@ export function getColumnError(
     return undefined;
   }
   if (column.required && (missesValue || isInvalidNumber)) {
-    return column.name + " is required ";
+    return column.name + " is required";
   }
   if (missesValue) {
     return undefined;
@@ -42,7 +53,7 @@ export function getColumnError(
     return getColumnValidationError(column.validation, values, tableMetaData);
   }
   if (isRefLinkWithoutOverlap(column, values)) {
-    return `value should match your selection in column '${column.refLink}' `;
+    return `value should match your selection in column '${column.refLink}'`;
   }
 
   return undefined;
@@ -137,4 +148,72 @@ function isValidEmail(value: any) {
 
 function containsInvalidEmail(emails: any) {
   return emails.find((email: any) => !isValidEmail(email));
+}
+
+export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
+  const keyColumnsNames = tableMetaData?.columns
+    ?.filter((column: IColumn) => column.key === 1)
+    .map((column: IColumn) => column.name);
+
+  return filterObject(rowData, (key) => !keyColumnsNames?.includes(key));
+}
+
+export function getPageHeadings(tableMetadata: ITableMetaData): string[] {
+  const columns: IColumn[] = tableMetadata?.columns
+    ? tableMetadata?.columns
+    : [];
+  const headings: string[] = columns
+    .filter((column) => column.columnType === HEADING)
+    .map((column) => column.name);
+  if (columns[0].columnType === HEADING) {
+    return headings;
+  } else {
+    return ["First chapter"].concat(headings);
+  }
+}
+
+export function filterVisibleColumns(
+  columns: IColumn[],
+  visibleColumns: string[] | null
+) {
+  if (!visibleColumns) {
+    return columns;
+  } else {
+    return columns.filter((column) => visibleColumns.includes(column.id));
+  }
+}
+
+export function splitColumnNamesByHeadings(columns: IColumn[]): string[][] {
+  return columns.reduce((accum, column) => {
+    if (column.columnType === "HEADING") {
+      accum.push([column.id]);
+    } else {
+      if (accum.length === 0) {
+        accum.push([] as string[]);
+      }
+      accum[accum.length - 1].push(column.id);
+    }
+    return accum;
+  }, [] as string[][]);
+}
+
+export function getChapterStyle(
+  page: string[],
+  errors: Record<string, string | undefined>
+): { color: "red" } | {} {
+  const fieldsWithErrors = page.filter((fieldsInPage: string) =>
+    Boolean(errors[fieldsInPage])
+  );
+  return fieldsWithErrors.length ? { color: "red" } : {};
+}
+
+export function getSaveDisabledMessage(
+  rowErrors: Record<string, string | undefined>
+) {
+  const numberOfErrors = Object.values(rowErrors).filter(
+    (value) => value
+  ).length;
+  return numberOfErrors > 0
+    ? `There are ${numberOfErrors} error(s) preventing saving`
+    : "";
 }

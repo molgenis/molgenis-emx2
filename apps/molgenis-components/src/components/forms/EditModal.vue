@@ -93,7 +93,6 @@
 </template>
 
 <script lang="ts">
-import { IColumn } from "../../Interfaces/IColumn";
 import { ISchemaMetaData } from "../../Interfaces/IMetaData";
 import { IRow } from "../../Interfaces/IRow";
 import { ISetting } from "../../Interfaces/ISetting";
@@ -102,13 +101,20 @@ import { INewClient } from "../../client/IClient";
 import Client from "../../client/client";
 import constants from "../constants";
 import LayoutModal from "../layout/LayoutModal.vue";
-import { deepClone, filterObject, getLocalizedLabel } from "../utils";
+import { deepClone, getLocalizedLabel } from "../utils";
 import ButtonAction from "./ButtonAction.vue";
 import RowEdit from "./RowEdit.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import Tooltip from "./Tooltip.vue";
-import { getColumnError } from "./formUtils/formUtils";
-
+import {
+  filterVisibleColumns,
+  getChapterStyle,
+  getPageHeadings,
+  getRowErrors,
+  getSaveDisabledMessage,
+  removeKeyColumns,
+  splitColumnNamesByHeadings,
+} from "./formUtils/formUtils";
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
 
 export default {
@@ -301,82 +307,6 @@ export default {
     this.loaded = true;
   },
 };
-
-function getRowErrors(
-  tableMetaData: ITableMetaData,
-  rowData: Record<string, any>
-) {
-  return tableMetaData.columns.reduce((accum, column) => {
-    accum[column.id] = getColumnError(column, rowData, tableMetaData);
-    return accum;
-  }, {} as Record<string, string | undefined>);
-}
-
-function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
-  const keyColumnsNames = tableMetaData?.columns
-    ?.filter((column: IColumn) => column.key === 1)
-    .map((column: IColumn) => column.name);
-
-  return filterObject(rowData, (key) => !keyColumnsNames?.includes(key));
-}
-
-function getPageHeadings(tableMetadata: ITableMetaData): string[] {
-  const columns: IColumn[] = tableMetadata?.columns
-    ? tableMetadata?.columns
-    : [];
-  const headings: string[] = columns
-    .filter((column) => column.columnType === "HEADING")
-    .map((column) => column.name);
-  if (columns[0].columnType === "HEADING") {
-    return headings;
-  } else {
-    return ["First chapter"].concat(headings);
-  }
-}
-
-function filterVisibleColumns(
-  columns: IColumn[],
-  visibleColumns: string[] | null
-) {
-  if (!visibleColumns) {
-    return columns;
-  } else {
-    return columns.filter((column) => visibleColumns.includes(column.id));
-  }
-}
-
-function splitColumnNamesByHeadings(columns: IColumn[]): string[][] {
-  return columns.reduce((accum, column) => {
-    if (column.columnType === "HEADING") {
-      accum.push([column.id]);
-    } else {
-      if (accum.length === 0) {
-        accum.push([] as string[]);
-      }
-      accum[accum.length - 1].push(column.id);
-    }
-    return accum;
-  }, [] as string[][]);
-}
-
-function getChapterStyle(
-  page: string[],
-  errors: Record<string, string | undefined>
-): { color: "red" } | {} {
-  const fieldsWithErrors = page.filter((fieldsInPage: string) =>
-    Boolean(errors[fieldsInPage])
-  );
-  return fieldsWithErrors.length ? { color: "red" } : {};
-}
-
-function getSaveDisabledMessage(rowErrors: Record<string, string | undefined>) {
-  const numberOfErrors = Object.values(rowErrors).filter(
-    (value) => value
-  ).length;
-  return numberOfErrors > 0
-    ? `There are ${numberOfErrors} error(s) preventing saving`
-    : "";
-}
 
 interface IChapterInfo {
   style: { color?: "red" };
