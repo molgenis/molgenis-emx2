@@ -26,30 +26,34 @@ class SqlSchemaMetadataExecutor {
 
     String schemaName = schema.getName();
     String aggregator = getRolePrefix(schemaName) + AGGREGATOR;
-    String member = getRolePrefix(schemaName) + VIEWER;
+    String viewer = getRolePrefix(schemaName) + VIEWER;
     String editor = getRolePrefix(schemaName) + EDITOR;
     String manager = getRolePrefix(schemaName) + MANAGER;
     String owner = getRolePrefix(schemaName) + Privileges.OWNER;
 
     db.addRole(aggregator);
-    db.addRole(member);
+    db.addRole(viewer);
     db.addRole(editor);
     db.addRole(manager);
     db.addRole(owner);
 
-    // make editor also member
-    db.getJooq().execute("GRANT {0} TO {1}", name(member), name(editor));
+    // make viewer also aggregator
+    db.getJooq().execute("GRANT {0} TO {1}", name(aggregator), name(viewer));
 
-    // make manager also editor and member
+    // make editor also viewer
+    db.getJooq().execute("GRANT {0} TO {1}", name(viewer), name(editor));
+
+    // make manager also editor, viewer and aggregator
     db.getJooq()
         .execute(
-            "GRANT {0},{1} TO {2} WITH ADMIN OPTION", name(member), name(editor), name(manager));
+            "GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION",
+            name(aggregator), name(viewer), name(editor), name(manager));
 
     // make owner also editor, manager, member
     db.getJooq()
         .execute(
-            "GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION",
-            name(member), name(editor), name(manager), name(owner));
+            "GRANT {0},{1},{2},{3} TO {4} WITH ADMIN OPTION",
+            name(aggregator), name(viewer), name(editor), name(manager), name(owner));
 
     String currentUser = db.getJooq().fetchOne("SELECT current_user").get(0, String.class);
     String sessionUser = db.getJooq().fetchOne("SELECT session_user").get(0, String.class);
@@ -65,7 +69,6 @@ class SqlSchemaMetadataExecutor {
     // grant the permissions
     db.getJooq()
         .execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(aggregator));
-    db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(member));
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
 
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);

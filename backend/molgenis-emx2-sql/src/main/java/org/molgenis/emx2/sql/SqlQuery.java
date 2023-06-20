@@ -5,7 +5,6 @@ import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Order.ASC;
-import static org.molgenis.emx2.Privileges.AGGREGATOR;
 import static org.molgenis.emx2.Privileges.VIEWER;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
@@ -617,10 +616,10 @@ public class SqlQuery extends QueryBean {
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
-          fields.add(field("GREATEST(COUNT(*),{0})", 10L).as(COUNT_FIELD));
-        } else {
+        if (schema.hasActiveUserRole(VIEWER.toString())) {
           fields.add(count().as(COUNT_FIELD));
+        } else {
+          fields.add(field("GREATEST(COUNT(*),{0})", 10L).as(COUNT_FIELD));
         }
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
         checkHasViewPermission(table);
@@ -683,10 +682,10 @@ public class SqlQuery extends QueryBean {
     List<Field> groupByFields = new ArrayList<>();
     for (SelectColumn field : groupBy.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
-          selectFields.add(field("GREATEST({0},COUNT(*))", 10L).as(COUNT_FIELD));
-        } else {
+        if (schema.hasActiveUserRole(VIEWER.toString())) {
           selectFields.add(field("COUNT(*)"));
+        } else {
+          selectFields.add(field("GREATEST({0},COUNT(*))", 10L).as(COUNT_FIELD));
         }
       } else {
         Column c = isValidColumn(table, field.getColumn());

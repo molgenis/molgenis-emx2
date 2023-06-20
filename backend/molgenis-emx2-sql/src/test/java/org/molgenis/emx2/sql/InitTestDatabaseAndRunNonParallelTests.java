@@ -99,6 +99,10 @@ public class InitTestDatabaseAndRunNonParallelTests {
     testSchemm.getMetadata().create(table("pet", column("name").setPkey()));
     testSchemm.getMetadata().create(table("cat").setInherit("pet"));
 
+    // run migration 9
+    executeMigrationFile(
+        database, "migration9.sql", "database migration: schema metadata visible for aggregator");
+
     migration5addMgTableclassUpdateTrigger(database);
   }
 }
