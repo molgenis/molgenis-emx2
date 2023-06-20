@@ -7,7 +7,10 @@
       v-if="bioschemasJsonld && !isLoading"
       v-text="bioschemasJsonld"
       type="application/ld+json"/> -->
-    <div v-if="!biobankDataAvailable" class="d-flex justify-content-center align-items-center spinner-container">
+    <div
+      v-if="!biobankDataAvailable"
+      class="d-flex justify-content-center align-items-center spinner-container"
+    >
       <spinner />
     </div>
     <div v-else class="container-fluid">
@@ -58,10 +61,12 @@
                         :collectionData="collection"
                       /> -->
                   </div>
-                  <view-generator
-                    class="collection-view"
-                    :viewmodel="collection.viewmodel"
-                  />
+                  <collapse-component>
+                    <view-generator
+                      class="collection-view"
+                      :viewmodel="collection.viewmodel"
+                    /> </collapse-component
+                  >
                 </div>
               </div>
               <!-- Right side card -->
@@ -112,6 +117,7 @@ import { Spinner } from "../../../molgenis-components";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
+import CollapseComponent from '../components/report-components/CollapseComponent.vue';
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import {
   getBiobankDetails,
@@ -121,6 +127,7 @@ import {
   mapObjArray,
 } from "../functions/viewmodelMapper";
 
+
 export default {
   name: "biobank-report-card",
   components: {
@@ -129,6 +136,7 @@ export default {
     CollectionTitle,
     ViewGenerator,
     ReportDetailsList,
+    CollapseComponent
   },
   setup() {
     const settingsStore = useSettingsStore();
@@ -188,7 +196,7 @@ export default {
 
 <style scoped>
 .spinner-container {
-  height:70vh;
+  height: 70vh;
 }
 </style>
 

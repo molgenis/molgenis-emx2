@@ -9,9 +9,15 @@
           v-for="(item, index) in attribute.value"
           :key="`${index}-${displayName(item)}`"
         >
-          <a :href="item.uri" target="_blank" class="text-break mr-2 mb-2">
+          <a
+            v-if="item.uri && item.uri.length"
+            :href="item.uri"
+            target="_blank"
+            class="text-break mr-2 mb-2"
+          >
             {{ displayName(item) }}
           </a>
+          <span v-else>{{ displayName(item) }}</span>
         </div>
       </template>
       <template v-else>

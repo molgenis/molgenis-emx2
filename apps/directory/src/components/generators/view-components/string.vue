@@ -9,7 +9,7 @@
       </span>
 
       <tooltip-component
-        class="ml-2 copy-item d-inline"
+        class="ml-2 copy-item"
         v-if="attribute.linkValue"
         text="Copy to clipboard"
         @click.prevent="copyToClipboard(attribute.linkValue)"
@@ -47,6 +47,7 @@ export default {
 
 <style scoped>
 .copy-item {
+  display: inline-block;
   width: 1rem;
 }
 

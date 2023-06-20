@@ -68,10 +68,10 @@ const initialCollectionColumns = [
     column: { storage_temperatures: ["label"] },
     type: "categoricalmref",
   },
-  { label: "Data:", column: { data_categories: ["label"] }, type: "array" },
+  { label: "Data:", column: { data_categories: ["label", "ontologyTermURI"] }, type: "mref" },
   {
     label: "Diagnosis:",
-    column: { diagnosis_available: ["label", "code", "ontologyTermURI"] },
+    column: { diagnosis_available: ["label", "ontologyTermURI"] },
     type: "mref"
   },
   {

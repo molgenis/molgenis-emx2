@@ -3,7 +3,7 @@ export const initialFilterFacets = [
     facetTitle: "Diagnosis available",
     component: "OntologyFilter",
     sourceTable: "DiseaseTypes",
-    applyToColumn: "collections.diagnosisAvailable.code",
+    applyToColumn: "collections.diagnosis_available.code",
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     removeOptions: [],
