@@ -16,6 +16,8 @@ export const getName = contact => {
 export const mapToString = (object, property, prefix, suffix) => {
   if (!object) return "";
 
+  if(typeof object === "string") return object
+
   prefix = prefix ? `${prefix} ` : "";
   suffix = suffix ? ` ${suffix}` : "";
   return object[property] ? `${prefix}${object[property]}${suffix}` : "";
@@ -294,11 +296,10 @@ export const collectionReportInformation = collection => {
       id: collection.biobank.id,
       name: collection.biobank.name,
       juridical_person: collection.biobank.juridical_person,
-      country: collection.country.name,
+      country: collection.country.label || collection.country.name,
       report: `/biobank/${collection.biobank.id}`,
       website: mapUrl(collection.biobank.url),
       email: collection.biobank.contact ? collection.biobank.contact.email : undefined,
-      partnerCharter: collection.biobank.partner_charter_signed ? 'yes' : 'no'
     }
   }
 

@@ -93,7 +93,6 @@ const getCollectionAdditionalProperty = (data, propertyName) => {
   let value
 
   if ('ontologyTermURI' in data) {
-    console.log("1")
     // it means the data contains the uri of the code in the model and must be used
     value = {
       '@type': 'CategoryCode',
@@ -162,7 +161,6 @@ export const mapCollectionToBioschemas = (collection) => {
 
 export const mapBiobankToBioschemas = (biobank) => {
 
-  console.log(biobank)
   return {
     '@context': 'https://schema.org',
     '@type': 'DataCatalog',

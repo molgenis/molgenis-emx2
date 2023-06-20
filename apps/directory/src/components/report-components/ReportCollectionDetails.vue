@@ -1,10 +1,10 @@
 <template>
   <div>
-    <collection-selector
+    <!-- <collection-selector
       class="mb-2 float-right"
       v-if="isTopLevelCollection"
       :collectionData="collection"
-      :disabled="collection.biobank.withdrawn"/>
+      :disabled="collection.biobank.withdrawn"/> -->
 
     <report-description
       :description="collection.description"
@@ -16,9 +16,8 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import { getCollectionDetails } from '../../utils/templateMapper'
-import CollectionSelector from '../buttons/CollectionSelector.vue'
+import { getCollectionDetails } from "../../functions/viewmodelMapper";
+// import CollectionSelector from '../buttons/CollectionSelector.vue'
 import ReportDescription from '../report-components/ReportDescription.vue'
 import ViewGenerator from '../generators/ViewGenerator.vue'
 
@@ -31,12 +30,11 @@ export default {
     }
   },
   components: {
-    CollectionSelector,
+    // CollectionSelector,
     ReportDescription,
     ViewGenerator
   },
   computed: {
-    ...mapState(['collectionColumns']),
     collectionModel () {
       return this.collection ? getCollectionDetails(this.collection) : {}
     },

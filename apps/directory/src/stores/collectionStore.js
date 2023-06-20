@@ -28,9 +28,18 @@ export const useCollectionStore = defineStore("collectionStore", () => {
         const collectionReportQuery = new QueryEMX2(graphqlEndpoint)
             .table("Collections")
             .select([
+                "name",
+                "size",
+                "description",
                 "biobank.id",
                 "biobank.name",
                 "biobank.withdrawn",
+                "biobank.url",
+                "biobank.juridical_person",
+                "biobank.contact.first_name",
+                "biobank.contact.last_name",
+                "biobank.contact.email",
+                "biobank.contact.role",
                 "contact.first_name",
                 "contact.last_name",
                 "contact.email",
@@ -44,6 +53,8 @@ export const useCollectionStore = defineStore("collectionStore", () => {
                 "network.id",
                 "url",
                 "withdrawn",
+                "parent_collection.id",
+                "parent_collection.name",
                 ...collectionGraphql
             ])
             .orderBy("Collections", "id", "asc")

@@ -1,5 +1,4 @@
 const initialCollectionColumns = [
-  { label: "Name:", column: "name", type: "string" },
   { label: "Id:", column: "id", type: "string", showCopyIcon: true },
   { label: "Website:", column: "url", type: "hyperlink" },
   {
@@ -19,7 +18,7 @@ const initialCollectionColumns = [
     label: "Size:",
     column: { order_of_magnitude: ["label"] },
     type: "object",
-    property: "size",
+    property: "label",
   },
   {
     label: "Available:",
@@ -32,7 +31,7 @@ const initialCollectionColumns = [
     label: "Donor size:",
     column: { order_of_magnitude_donors: ["label"] },
     type: "object",
-    property: "size",
+    property: "donors",
   },
   {
     label: "Donors:",

@@ -9,7 +9,7 @@
     </div>
 
     <div
-    class="hello"
+      class="hello"
       v-if="collectionDataAvailable && bioschemasJsonld"
       v-html="bioschemasJsonld"
     ></div>
@@ -19,11 +19,10 @@
     >
       <spinner />
     </div>
-
     <div class="container-fluid" v-if="collectionDataAvailable">
       <div class="row">
         <div class="col my-3 shadow-sm d-flex p-2 align-items-center">
-          <nav aria-label="breadcrumb">
+          <nav class="directory-nav" aria-label="breadcrumb">
             <ol class="breadcrumb my-1">
               <li class="breadcrumb-item">
                 <router-link to="/catalogue" title="Back to the catalogue">
@@ -70,16 +69,16 @@
           <div class="container p-0">
             <div class="row">
               <div class="col-md-8">
-                <!-- <report-collection-details
+                <report-collection-details
                   v-if="collection"
                   :collection="collection"
-                /> -->
+                />
               </div>
 
               <!-- Right side card -->
-              <!-- <collection-report-info-card
+              <collection-report-info-card
                 :info="info"
-              ></collection-report-info-card> -->
+              ></collection-report-info-card>
             </div>
             <!-- facts data -->
             <!-- <div
@@ -102,6 +101,8 @@ import { useCollectionStore } from "../stores/collectionStore";
 import { useSettingsStore } from "../stores/settingsStore";
 import { Spinner } from "../../../molgenis-components";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
+import ReportCollectionDetails from "../components/report-components/ReportCollectionDetails.vue";
+import CollectionReportInfoCard from "../components/report-components/CollectionReportInfoCard.vue";
 import { collectionReportInformation } from "../functions/viewmodelMapper";
 import { mapCollectionToBioschemas } from "../functions/bioschemasMapper";
 
@@ -110,6 +111,8 @@ export default {
   components: {
     Spinner,
     ReportTitle,
+    ReportCollectionDetails,
+    CollectionReportInfoCard
   },
   setup() {
     const settingsStore = useSettingsStore();
@@ -119,9 +122,7 @@ export default {
     const route = useRoute();
 
     collectionStore.getCollectionReport(route.params.id).then((result) => {
-      collection.value = result.Collections.length
-        ? result.Collections[0]
-        : {};
+      collection.value = result.Collections.length ? result.Collections[0] : {};
     });
 
     return { settingsStore, collectionStore, collection };
@@ -142,21 +143,19 @@ export default {
       return Object.keys(this.collection).length;
     },
     info() {
-      return collectionReportInformation(this.collection);
-    },
-    collectionId() {
-      const splittedUrl = this.$route.fullPath.split("/");
-      return splittedUrl[splittedUrl.length - 1];
+      return this.collectionDataAvailable
+        ? collectionReportInformation(this.collection)
+        : {};
     },
     bioschemasJsonld() {
       return this.collectionDataAvailable
         ? this.wrapBioschema(mapCollectionToBioschemas(this.collection))
         : undefined;
     },
-    factsData() {
-      // TODO rework this so that facts are stand-alone, this is a workaround because @ReportCollectionDetails
-      return { value: this.collection.facts };
-    },
+    // factsData() {
+    //   // TODO rework this so that facts are stand-alone, this is a workaround because @ReportCollectionDetails
+    //   return { value: this.collection.facts };
+    // },
   },
 };
 </script>
