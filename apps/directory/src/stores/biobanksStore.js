@@ -53,6 +53,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
         "contact.first_name",
         "contact.last_name",
         "contact.email",
+        "contact.country.label",
         "head.first_name",
         "head.last_name",
         "country.label",

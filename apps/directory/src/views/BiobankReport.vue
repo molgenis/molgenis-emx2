@@ -3,17 +3,14 @@
     <div v-if="biobank.withdrawn" class="alert alert-warning" role="alert">
       {{ uiText["biobank_withdrawn"] }}
     </div>
-    <!-- <script
-      v-if="bioschemasJsonld && !isLoading"
-      v-text="bioschemasJsonld"
-      type="application/ld+json"/> -->
+    <div v-if="biobankDataAvailable && bioschemasJsonld" v-html="bioschemasJsonld"></div>
     <div
       v-if="!biobankDataAvailable"
       class="d-flex justify-content-center align-items-center spinner-container"
     >
       <spinner />
     </div>
-    <div v-else class="container-fluid">
+    <div v-else class="container-fluid pl-0">
       <div class="row">
         <div class="col my-3 shadow-sm d-flex p-2 align-items-center">
           <nav class="directory-nav" aria-label="breadcrumb">
@@ -38,7 +35,7 @@
       <div class="row" v-if="biobankDataAvailable">
         <div class="col">
           <report-title type="Biobank" :name="biobank.name"></report-title>
-          <div class="container">
+          <div class="container pl-0">
             <div class="row">
               <div class="col-md-8" v-if="biobankDataAvailable">
                 <view-generator :viewmodel="biobank.viewmodel" />
@@ -65,8 +62,8 @@
                     <view-generator
                       class="collection-view"
                       :viewmodel="collection.viewmodel"
-                    /> </collapse-component
-                  >
+                    />
+                  </collapse-component>
                 </div>
               </div>
               <!-- Right side card -->
@@ -117,7 +114,7 @@ import { Spinner } from "../../../molgenis-components";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
-import CollapseComponent from '../components/report-components/CollapseComponent.vue';
+import CollapseComponent from "../components/report-components/CollapseComponent.vue";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import {
   getBiobankDetails,
@@ -126,7 +123,7 @@ import {
   mapNetworkInfo,
   mapObjArray,
 } from "../functions/viewmodelMapper";
-
+import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
 
 export default {
   name: "biobank-report-card",
@@ -136,7 +133,7 @@ export default {
     CollectionTitle,
     ViewGenerator,
     ReportDetailsList,
-    CollapseComponent
+    CollapseComponent,
   },
   setup() {
     const settingsStore = useSettingsStore();
@@ -155,7 +152,13 @@ export default {
 
     return { settingsStore, biobanksStore, biobank, biobankColumns };
   },
-  methods: {},
+  methods: {
+    wrapBioschema(schemaData) {
+      /** ignore because it is not useless ;) */
+      // eslint-disable-next-line no-useless-escape
+      return `<script type="application/ld+json">${JSON.stringify(schemaData)}<\/script>`
+    }
+  },
   computed: {
     uiText() {
       return this.settingsStore.uiText;
@@ -189,6 +192,11 @@ export default {
           type: "list",
         },
       };
+    },
+    bioschemasJsonld() {
+      return this.biobankDataAvailable
+        ? this.wrapBioschema(mapBiobankToBioschemas(this.biobank))
+        : undefined;
     },
   },
 };
