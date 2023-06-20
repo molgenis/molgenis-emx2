@@ -5,6 +5,7 @@ import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Order.ASC;
+import static org.molgenis.emx2.Privileges.AGGREGATOR;
 import static org.molgenis.emx2.Privileges.VIEWER;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
@@ -73,9 +74,6 @@ public class SqlQuery extends QueryBean {
 
   @Override
   public List<Row> retrieveRows() {
-    if (!schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
-      throw new MolgenisException("Cannot retrieve rows: requires VIEWER permission");
-    }
     SelectColumn select = getSelect();
     Filter filter = getFilter();
     String[] searchTerms = getSearchTerms();
@@ -87,6 +85,9 @@ public class SqlQuery extends QueryBean {
               + select.getColumn()
               + " unknown for retrieve rows in schema "
               + schema.getName());
+    }
+    if (!table.getTableType().equals(TableType.ONTOLOGIES)) {
+      checkHasViewPermission(table);
     }
     String tableAlias = "root-" + table.getTableName();
 
@@ -137,6 +138,13 @@ public class SqlQuery extends QueryBean {
       return result;
     } catch (Exception e) {
       throw new SqlMolgenisException(QUERY_FAILED, e);
+    }
+  }
+
+  private void checkHasViewPermission(SqlTableMetadata table) {
+    if (!table.getTableType().equals(TableType.ONTOLOGIES)
+        && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
+      throw new MolgenisException("Cannot retrieve rows: requires VIEWER permission");
     }
   }
 
@@ -294,6 +302,7 @@ public class SqlQuery extends QueryBean {
       SelectColumn select,
       Filter filters,
       String[] searchTerms) {
+    checkHasViewPermission(table);
     String subAlias = tableAlias + (parentColumn != null ? "-" + parentColumn.getName() : "");
     Collection<Field<?>> selection = jsonSubselectFields(table, subAlias, select);
     return jsonField(
@@ -608,8 +617,13 @@ public class SqlQuery extends QueryBean {
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        fields.add(count().as(COUNT_FIELD));
+        if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
+          fields.add(field("GREATEST(COUNT(*),{0})", 10L).as(COUNT_FIELD));
+        } else {
+          fields.add(count().as(COUNT_FIELD));
+        }
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
+        checkHasViewPermission(table);
         List<JSONEntry<?>> result = new ArrayList<>();
         for (SelectColumn sub : field.getSubselect()) {
           Column c = isValidColumn(table, sub.getColumn());
@@ -669,9 +683,17 @@ public class SqlQuery extends QueryBean {
     List<Field> groupByFields = new ArrayList<>();
     for (SelectColumn field : groupBy.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        selectFields.add(field("COUNT(*)"));
+        if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
+          selectFields.add(field("GREATEST({0},COUNT(*))", 10L).as(COUNT_FIELD));
+        } else {
+          selectFields.add(field("COUNT(*)"));
+        }
       } else {
         Column c = isValidColumn(table, field.getColumn());
+        // can only group by ontology terms because not allowed to see other values, right?
+        if (!c.isOntology()) {
+          checkHasViewPermission(table);
+        }
         List<Field> subselectFields = new ArrayList<>();
         // need pkey to allow for joining of the subqueries
         subselectFields.addAll(

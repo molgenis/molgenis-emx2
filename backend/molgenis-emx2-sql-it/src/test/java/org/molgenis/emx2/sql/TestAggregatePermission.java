@@ -1,56 +1,75 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.AGGREGATOR;
+import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.sql.SqlQuery.COUNT_FIELD;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TestAggregatePermission {
-
-  public static final String AGGREGATE_PERMISSION_TESTER = "aggregatePermissionTester";
   private static Database db;
   static Schema schema;
-  private static Logger logger =
-      LoggerFactory.getLogger(TestCrossSchemaForeignKeysAndInheritance.class);
 
   @BeforeAll
   public static void setUp() throws SQLException {
-    // jdbc:postgresql://mswertz-test-psql1.postgres.database.azure.com:5432/{your_database}?user=molgenis@mswertz-test-psql1&password={your_password}&sslmode=require
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestAggregatePermission.class.getSimpleName());
     new PetStoreLoader().load(schema, true);
+    schema.addMember(ANONYMOUS, AGGREGATOR.toString());
+    db.setActiveUser(ANONYMOUS);
   }
 
   @Test
-  public void testAggregatePermission() {
-    schema = db.getSchema(TestAggregatePermission.class.getSimpleName());
-    // ensure remove anonymous viewer from this pet store, otherwise we still be a viewer
-    schema.removeMember("anonymous");
-    schema.addMember(AGGREGATE_PERMISSION_TESTER, AGGREGATOR.toString());
-
-    // switch to this test user
-    db.setActiveUser(AGGREGATE_PERMISSION_TESTER);
-
-    // should be aggregator
+  public void shouldBeAggregatorRoleOnly() {
     List<String> roles = schema.getInheritedRolesForActiveUser();
     assertEquals(1, roles.size());
     assertEquals(AGGREGATOR.toString(), roles.get(0));
+  }
 
-    // should not be able to query rows
-    try {
-      schema.getTable("Pet").retrieveRows();
-      fail("As aggregator should not be able to query tables");
-    } catch (Exception e) {
-      logger.info("Errored correctly: " + e.getMessage());
-    }
+  @Test
+  public void testAggregatorCannotRetrieveRowsUnlessOntology() {
+    assertThrows(MolgenisException.class, () -> schema.getTable("Pet").retrieveRows());
+    assertDoesNotThrow(() -> schema.getTable("Tag").retrieveRows());
+  }
+
+  @Test
+  public void testAggregatorCannotRetrieveJson() {
+    assertThrows(MolgenisException.class, () -> schema.query("Pet").retrieveJSON());
+    assertDoesNotThrow(() -> schema.query("Tag").retrieveJSON());
+  }
+
+  @Test
+  public void testAggregatorCanRetrieveCountsWithMinimum10() {
+    assertTrue(schema.query("Pet_agg", s(COUNT_FIELD)).retrieveJSON().contains("10"));
+  }
+
+  @Test
+  public void testAggregatorCanGroupByCountWithMinimum10() throws JsonProcessingException {
+    String json = schema.query("Pet_groupBy", s("count"), s("tags", s("name"))).retrieveJSON();
+    Map<String, List<Map<String, Object>>> result = new ObjectMapper().readValue(json, Map.class);
+    List<Integer> counts =
+        result.get("Pet_groupBy").stream()
+            .map(object -> (Integer) object.get(COUNT_FIELD))
+            .toList();
+    counts.forEach(count -> assertEquals(count, 10));
+  }
+
+  @Test
+  public void testAggregatorCanGroupByNonOntologyFields() throws JsonProcessingException {
+    assertThrows(
+        MolgenisException.class,
+        () -> schema.query("Pet_groupBy", s("count"), s("category", s("name"))).retrieveJSON());
   }
 }
