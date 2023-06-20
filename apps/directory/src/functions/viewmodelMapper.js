@@ -1,5 +1,18 @@
 import { useSettingsStore } from "../stores/settingsStore";
 
+export const getName = contact => {
+  const { title_before_name, first_name, last_name, title_after_name } = contact
+
+  let name = ''
+
+  if (title_before_name) name += `${title_before_name} `
+  if (first_name) name += `${first_name} `
+  if (last_name) name += `${last_name} `
+  if (title_after_name) name += ` ${title_after_name}`
+
+  return name !== '' ? name.trim() : undefined
+}
+
 export const mapToString = (object, property, prefix, suffix) => {
   if (!object) return "";
 
@@ -262,6 +275,56 @@ export const getBiobankDetails = (biobank) => {
     viewmodel: getViewmodel(biobank, settingsStore.config.biobankColumns),
   };
 };
+
+export const collectionReportInformation = collection => {
+  const collectionReport = {}
+
+  collectionReport.head = getNameOfHead(collection.head) || undefined
+
+  if (collection.contact) {
+    collectionReport.contact = {
+      name: getName(collection.contact),
+      email: collection.contact.email ? collection.contact.email : undefined,
+      phone: collection.contact.phone ? collection.contact.phone : undefined
+    }
+  }
+
+  if (collection.biobank) {
+    collectionReport.biobank = {
+      id: collection.biobank.id,
+      name: collection.biobank.name,
+      juridical_person: collection.biobank.juridical_person,
+      country: collection.country.name,
+      report: `/biobank/${collection.biobank.id}`,
+      website: mapUrl(collection.biobank.url),
+      email: collection.biobank.contact ? collection.biobank.contact.email : undefined,
+      partnerCharter: collection.biobank.partner_charter_signed ? 'yes' : 'no'
+    }
+  }
+
+  if (collection.network) {
+    collectionReport.networks = collection.network.map(network => {
+      return {
+        name: network.name,
+        report: `/network/${network.id}`
+      }
+    })
+  }
+
+  collectionReport.certifications = mapObjArray(collection.quality)
+
+  collectionReport.collaboration = []
+
+  if (collection.collaboration_commercial) { collectionReport.collaboration.push({ name: 'Commercial', value: 'yes' }) }
+  if (collection.collaboration_non_for_profit) { collectionReport.collaboration.push({ name: 'Not for profit', value: 'yes' }) }
+
+  // Give this information to the report, so we can use it in the breadcrumb.
+  if (collection.parent_collection) {
+    collectionReport.parentCollection = collection.parent_collection
+  }
+
+  return collectionReport
+}
 
 export const mapNetworkInfo = data => {
   return data.network.map(network => {

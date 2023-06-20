@@ -3,7 +3,10 @@
     <div v-if="biobank.withdrawn" class="alert alert-warning" role="alert">
       {{ uiText["biobank_withdrawn"] }}
     </div>
-    <div v-if="biobankDataAvailable && bioschemasJsonld" v-html="bioschemasJsonld"></div>
+    <div
+      v-if="biobankDataAvailable && bioschemasJsonld"
+      v-html="bioschemasJsonld"
+    ></div>
     <div
       v-if="!biobankDataAvailable"
       class="d-flex justify-content-center align-items-center spinner-container"
@@ -105,6 +108,7 @@
   </div>
 </template>
 
+<!-- eslint-disable no-useless-escape -->
 <script>
 import { ref } from "vue";
 import { useRoute } from "vue-router";
@@ -139,8 +143,6 @@ export default {
     const settingsStore = useSettingsStore();
     const biobanksStore = useBiobanksStore();
 
-    const biobankColumns = settingsStore.config.biobankColumns;
-
     const biobank = ref({});
     const route = useRoute();
 
@@ -150,14 +152,15 @@ export default {
         : {};
     });
 
-    return { settingsStore, biobanksStore, biobank, biobankColumns };
+    return { settingsStore, biobanksStore, biobank };
   },
   methods: {
     wrapBioschema(schemaData) {
       /** ignore because it is not useless ;) */
-      // eslint-disable-next-line no-useless-escape
-      return `<script type="application/ld+json">${JSON.stringify(schemaData)}<\/script>`
-    }
+      return `<script type="application/ld+json">${JSON.stringify(
+        schemaData
+      )}<\/script>`;
+    },
   },
   computed: {
     uiText() {
@@ -207,4 +210,3 @@ export default {
   height: 70vh;
 }
 </style>
-

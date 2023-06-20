@@ -92,23 +92,24 @@ const getOntologyTerm = (property, term) => {
 const getCollectionAdditionalProperty = (data, propertyName) => {
   let value
 
-  if ('uri' in data) {
+  if ('ontologyTermURI' in data) {
+    console.log("1")
     // it means the data contains the uri of the code in the model and must be used
     value = {
       '@type': 'CategoryCode',
-      '@id': data.uri,
-      codeValue: data.uri.split('/').slice(-1).pop() || undefined
+      '@id': data.ontologyTermURI,
+      codeValue: data.ontologyTermURI.split('/').slice(-1).pop() || undefined
     }
   } else {
     // Split values such as /api/v2/eu_bbmri_eric_material_types/TISSUE_FROZEN
-    const codeValue = 'id' in data ? data.id : data._href.split('/').slice(-1).pop()
+    const codeValue = 'code' in data ? data.code : 'ontologyTermURI' in data ? data.ontologyTermURI.split('/').slice(-1).pop() : ""
     const ontologyTerm = getOntologyTerm(propertyName, codeValue)
     // it gets mappings from the static object. It should be better to include the uri in the model
     if (ontologyTerm) {
-      if ('uri' in ontologyTerm) {
+      if ('ontologyTermURI' in ontologyTerm) {
         value = {
           '@type': 'CategoryCode',
-          '@id': ontologyTerm.uri,
+          '@id': ontologyTerm.ontologyTermURI,
           codeValue: ontologyTerm.code
         }
       } else {

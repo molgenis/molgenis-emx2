@@ -54,12 +54,15 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
         "contact.last_name",
         "contact.email",
         "contact.country.label",
+        "contact.role",
         "head.first_name",
         "head.last_name",
+        "head.role",
         "country.label",
         "network.name",
         "network.id",
         "url",
+        "withdrawn",
         ...biobankGraphql
       ])
       .orderBy("Biobanks", "name", "asc")

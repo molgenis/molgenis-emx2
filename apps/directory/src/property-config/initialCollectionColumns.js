@@ -59,7 +59,7 @@ const initialCollectionColumns = [
   { label: "Sex:", column: { sex: ["label"] }, type: "array" },
   {
     label: "Materials:",
-    column: { materials: ["label"] },
+    column: { materials: ["label", "ontologyTermURI", "code"] },
     type: "array",
     showOnBiobankCard: true,
   },
@@ -68,10 +68,10 @@ const initialCollectionColumns = [
     column: { storage_temperatures: ["label"] },
     type: "categoricalmref",
   },
-  { label: "Data:", column: { data_categories: ["label", "ontologyTermURI"] }, type: "mref" },
+  { label: "Data:", column: { data_categories: ["label","code", "ontologyTermURI"] }, type: "mref" },
   {
     label: "Diagnosis:",
-    column: { diagnosis_available: ["label", "ontologyTermURI"] },
+    column: { diagnosis_available: ["code", "label", "ontologyTermURI"] },
     type: "mref"
   },
   {
