@@ -71,9 +71,8 @@ const initialCollectionColumns = [
   { label: "Data:", column: { data_categories: ["label"] }, type: "array" },
   {
     label: "Diagnosis:",
-    column: { diagnosis_available: ["label"] },
-    type: "mref",
-    rsql: "diagnosis_available(label,uri,code)",
+    column: { diagnosis_available: ["label", "code", "ontologyTermURI"] },
+    type: "mref"
   },
   {
     label: "Data use conditions:",

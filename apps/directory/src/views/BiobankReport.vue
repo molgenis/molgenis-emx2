@@ -7,7 +7,7 @@
       v-if="bioschemasJsonld && !isLoading"
       v-text="bioschemasJsonld"
       type="application/ld+json"/> -->
-    <div v-if="isLoading" class="d-flex justify-content-center mt-5">
+    <div v-if="!biobankDataAvailable" class="d-flex justify-content-center align-items-center spinner-container">
       <spinner />
     </div>
     <div v-else class="container-fluid">
@@ -32,7 +32,7 @@
           /> -->
         </div>
       </div>
-      <div class="row" v-if="!this.isLoading">
+      <div class="row" v-if="biobankDataAvailable">
         <div class="col">
           <report-title type="Biobank" :name="biobank.name"></report-title>
           <div class="container">
@@ -152,14 +152,11 @@ export default {
     uiText() {
       return this.settingsStore.uiText;
     },
-    isLoading() {
-      return this.biobanksStore.waiting;
-    },
     biobankDataAvailable() {
       return Object.keys(this.biobank).length;
     },
     collectionsData() {
-      return !this.isLoading &&
+      return this.biobankDataAvailable &&
         this.biobank.collections &&
         this.biobank.collections.length
         ? this.biobank.collections
@@ -188,3 +185,10 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.spinner-container {
+  height:70vh;
+}
+</style>
+

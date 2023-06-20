@@ -8,13 +8,13 @@
         {{ attribute.value }}
       </span>
 
-      <tooltip-component class="ml-1" v-if="attribute.linkValue" text="Copy to clipboard" @click.prevent="copyToClipboard(attribute.linkValue)">
-        <span
-          id="copy-icon"
-          
-          class="fa fa-clipboard"
-        >
-        </span>
+      <tooltip-component
+        class="ml-2 copy-item d-inline"
+        v-if="attribute.linkValue"
+        text="Copy to clipboard"
+        @click.prevent="copyToClipboard(attribute.linkValue)"
+      >
+        <span id="copy-icon" class="fa fa-clipboard"> </span>
       </tooltip-component>
     </td>
   </tr>
@@ -46,6 +46,10 @@ export default {
 </script>
 
 <style scoped>
+.copy-item {
+  width: 1rem;
+}
+
 .fa-clipboard {
   position: relative;
   font-size: large;

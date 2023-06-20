@@ -8,19 +8,27 @@ export const mapToString = (object, property, prefix, suffix) => {
   return object[property] ? `${prefix}${object[property]}${suffix}` : "";
 };
 
+function getUriIfAvailable (item) {
+  if (item.uri) return "uri"
+  if (item.url) return "uri"
+  if (item.ontologyTermURI) return "ontologyTermURI"
+
+  return ""
+}
+
 export function mapObjArray (objects) {
   if (!objects) return [];
-  if (!objects.some((o) => o.uri))
+  if (!objects.some((o) => getUriIfAvailable(o)))
     return objects.map((item) => item.label || item.name);
   else
     return objects.map((item) => ({
       label: item.label || item.name,
-      uri: item.uri || "#",
+      uri: item[getUriIfAvailable(item)],
     }));
 }
 
 export function mapUrl (url) {
- return url ? url.startsWith("http") ? url : "http://" + url : url;
+  return url ? url.startsWith("http") ? url : "http://" + url : url;
 }
 
 export function mapRange (min, max, unit) {

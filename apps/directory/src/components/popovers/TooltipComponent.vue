@@ -1,5 +1,5 @@
 <template>
-  <div class="d-inline tooltip-component">
+  <div class="tooltip-component">
     <slot> Default </slot>
     <div class="tooltip-text px-2">{{ text }}</div>
   </div>
@@ -19,6 +19,9 @@ export default {
 <style scoped>
 .tooltip-component {
     position: relative;
+    width: auto;
+    align-self: flex-start;
+    justify-self: flex-start;
 }
 
 .tooltip-component:hover .tooltip-text {
@@ -31,8 +34,7 @@ export default {
   color: var(--light);
   white-space: nowrap;
   position: absolute;
-  left:0;
-  bottom:4;
+right:0px;
   z-index:1040;
   border-radius: 4px;
 }

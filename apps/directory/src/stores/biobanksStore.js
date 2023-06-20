@@ -56,6 +56,8 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
         "head.first_name",
         "head.last_name",
         "country.label",
+        "network.name",
+        "network.id",
         "url",
         ...biobankGraphql
       ])
