@@ -18,7 +18,7 @@ public class TestLoaders {
   public static final String COHORT_STAGING = "CohortStaging";
   public static final String NETWORK_STAGING = "NetworkStaging";
   public static final String FAIR_DATA_HUB_TEST = "FAIRDataHubTest";
-  public static final String DIRECTORY = "directory";
+  public static final String DIRECTORY_TEST = "DirectoryTest";
 
   static Database database;
 
@@ -26,20 +26,20 @@ public class TestLoaders {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     // prevend previous dangling test results
-    database.dropSchemaIfExists(DIRECTORY);
     database.dropSchemaIfExists(COHORT_STAGING);
     database.dropSchemaIfExists(NETWORK_STAGING);
     database.dropSchemaIfExists(DATA_CATALOGUE);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
+    database.dropSchemaIfExists(DIRECTORY_TEST);
   }
 
   @Test
   public void test1FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
-    assertEquals(36, fairDataHubSchema.getTableNames().size());
+    assertEquals(40, fairDataHubSchema.getTableNames().size());
   }
 
   @Test
@@ -61,5 +61,12 @@ public class TestLoaders {
     Schema networkStaging = database.createSchema(NETWORK_STAGING);
     AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING.install(networkStaging, true);
     assertEquals(16, networkStaging.getTableNames().size());
+  }
+
+  @Test
+  public void test9DirectoryLoader() {
+    Schema networkStaging = database.createSchema(DIRECTORY_TEST);
+    AvailableDataModels.BIOBANK_DIRECTORY.install(networkStaging, true);
+    assertEquals(33, networkStaging.getTableNames().size());
   }
 }

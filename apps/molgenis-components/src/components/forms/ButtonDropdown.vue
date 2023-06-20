@@ -24,7 +24,7 @@
 
 <script>
 import vClickOutside from "click-outside-vue3";
-import Popper from "popper.js";
+import { createPopper } from "@popperjs/core";
 
 export default {
   directives: {
@@ -55,7 +55,7 @@ export default {
         await this.$nextTick();
         const dropDownBtn = this.$refs["showInputButton"];
         const dropDownContent = this.$refs["dropdown"];
-        this.popperInstance = new Popper(dropDownBtn, dropDownContent, {
+        this.popperInstance = createPopper(dropDownBtn, dropDownContent, {
           placement: this.placement,
           modifiers: { offset: { offset: "0,2px" } },
         });

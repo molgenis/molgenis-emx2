@@ -17,6 +17,8 @@
           :reference="queryResult"
           :showDataOwner="showDataOwner"
           :startsCollapsed="queryResults.length > 1"
+          :tableId="column.refTable"
+          :schema="column.refSchema || props.schema"
           @ref-cell-clicked="handleRefCellClicked"
         />
       </div>
@@ -89,8 +91,9 @@ async function getRowData(
   const metadata = await client.fetchTableMetaData(tableId);
   for (const row of rowKeys) {
     const externalSchemaClient = Client.newClient(metadata.externalSchema);
+    const expandLevel = 2;
     const queryResult = await externalSchemaClient
-      .fetchRowData(tableId, row)
+      .fetchRowData(tableId, row, expandLevel)
       .catch(errorHandler);
     queryResult.metadata = metadata;
     newQueryResults.push(queryResult);

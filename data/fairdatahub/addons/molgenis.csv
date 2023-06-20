@@ -1,12 +1,22 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Files,,,,,,,,,,,https://w3id.org/reproduceme#File,"A storage to store data. For example, a computer file."
-Files,,md5checksum,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C171276,A 32-character hexadecimal number that is computed on a file.
+Files,,,,,,,,,,,http://purl.obolibrary.org/obo/STATO_0000002,"An electronic file is an information content entity which conforms to a specification or format and which is meant to hold data and information in digital form, accessible to software agents"
+Files,,identifier,string,1,TRUE,,,,,,http://purl.org/dc/elements/1.1/identifier,"Recommended practice is to identify the resource by means of a string conforming to an identification system. An unambiguous reference to the resource within a given context."
+Files,,md5checksum,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C171276,A 32-character hexadecimal number that is computed on a file.
 Files,,name,string,,TRUE,,,,,,http://edamontology.org/data_1050,The name (or part of a name) of a file (of any type).
 Files,,server,string,,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C48297,A computer which provides some service for other computers connected to it via a network.
 Files,,path,string,,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001927,A file path is an identifier for a file in a file system or network.
-Files,,format,ontology,,,,FileFormats,,,,http://purl.org/dc/terms/FileFormat,A digital resource format.
+Files,,format,ontology,,TRUE,,FileFormats,,,,http://purl.org/dc/terms/FileFormat,A digital resource format.
 Files,,analyses,ref_array,,,,Analyses,,,,http://edamontology.org/operation_2945,Beacon v2 Analyses
 Files,,biosamples,ref_array,,,,Biosamples,,,,http://purl.obolibrary.org/obo/NCIT_C43376,Beacon v2 Biosamples
 Files,,cohorts,ref_array,,,,Cohorts,,,,http://purl.obolibrary.org/obo/NCIT_C61512,Beacon v2 Cohorts
 Files,,individuals,ref_array,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C90492,Beacon v2 Individuals
 Files,,runs,ref_array,,,,Runs,,,,http://edamontology.org/topic_3168,Beacon v2 Runs
+Persons,,,,,,,,,,,http://semanticscience.org/resource/SIO_000498,"A person is an object that has certain capacities or attributes constituting personhood."
+Persons,,identifier,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C94034,"A unique symbol that establishes identity of the qualified person."
+Persons,,fullName,string,,,,,,,,http://semanticscience.org/resource/SIO_000183,"A personal name is a name to identify an individual person and usually comprises of a first name and a last name."
+Persons,,alternativeIdentifier,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,"A backup sequence of characters used to identify an entity."
+Persons,,firstName,string,,,,,,,,http://semanticscience.org/resource/SIO_000181,"A first name is a name that denotes a specific individual between members of a group of individuals, whose members usually share the same surname."
+Persons,,middleInitials,string,,,,,,,,http://semanticscience.org/resource/SIO_001317,"A middle name is a name assigned to an individual that is not the first or last name."
+Persons,,lastName,string,,,,,,,,http://semanticscience.org/resource/SIO_000182,"A last name (surname) is a name added to a given name and is part of a personal name and is often the family name."
+Persons,,email,email,,,,,,,,http://semanticscience.org/resource/SIO_001323,"An email address is an identifier to send mail to particular electronic mailbox."
+Persons,,primaryOrganisation,ontology,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,"A formal association between entities."
