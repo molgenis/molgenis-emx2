@@ -136,7 +136,7 @@ export default {
   fetchVariableDetails: async (context, variable) => {
     const query = gql`
       query TargetVariables($filter: VariablesFilter) {
-        Variables(limit: 1, filter: $filter) {
+        Variables(limit: 1, filter: $filter, orderby: { name: ASC }) {
           name
           label
           format {
