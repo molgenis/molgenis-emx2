@@ -89,7 +89,7 @@ const bgClass = computed(() => {
     <slot name="button"></slot>
     <template #popper="{ hide }">
       <div
-        :class="`fixed top-8 bottom-8 ${bgClass} overflow-hidden ${roundedClass} ${fullScreenClass}`"
+        :class="`fixed top-8 calc-remaining-height ${bgClass} overflow-hidden ${roundedClass} ${fullScreenClass}`"
       >
         <div class="h-full overflow-auto">
           <button @click="hide()" class="absolute top-7 right-8">
@@ -111,6 +111,11 @@ const bgClass = computed(() => {
 </template>
 
 <style>
+.calc-remaining-height {
+  max-height: calc(100vh - 4rem);
+  height: calc(100vh - 4rem);
+}
+
 .v-popper--theme-dropdown .v-popper__inner {
   background: none;
   border-radius: 0;
