@@ -156,9 +156,25 @@ public class LinkedDataService {
                 row.put(c.getName(), map.get(ref.getName()));
               }
             } else if (c.isOntology()) {
-              List<Map> mapList = (List<Map>) row.get(c.getName());
-              if (mapList != null) {
-                for (Map map : mapList) row.put(c.getName(), map.get("ontologyTermURI"));
+              Object rowObj = row.get(c.getName());
+              if (rowObj == null) {
+                row.put(c.getName(), null);
+              } else if (rowObj instanceof List) {
+                List<Map> listOfObjects = (List<Map>) row.get(c.getName());
+                if (listOfObjects != null) {
+                  row.put(
+                      c.getName(),
+                      listOfObjects.stream()
+                          .map(o -> prefix + o.get(ref.getName()))
+                          .collect(Collectors.toList()));
+                }
+              } else if (rowObj instanceof Map) {
+                Map ontologyTerm = (Map) row.get(c.getName());
+                row.put(c.getName(), ontologyTerm.get("ontologyTermURI"));
+              } else {
+                throw new Exception(
+                    "Expected ontology row to be instance of map or list but was "
+                        + rowObj.getClass());
               }
             } else {
               // list of maps
