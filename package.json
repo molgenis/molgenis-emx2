@@ -1,0 +1,12 @@
+{
+  "name": "molgenis-emx2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:molgenis/molgenis-emx2.git",
+  "author": "Joris de Keijser <chinook25@gmail.com>",
+  "license": "LGPLv3",
+  "devDependencies": {
+    "@playwright/test": "1.35.1"
+  },
+  "scripts": {}
+}
