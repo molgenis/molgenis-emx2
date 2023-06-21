@@ -1,5 +1,8 @@
 package org.molgenis.emx2.io;
 
+import static org.molgenis.emx2.Constants.ANONYMOUS;
+import static org.molgenis.emx2.Privileges.AGGREGATOR;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,7 +17,7 @@ import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
 
-public class TestImportExportEmx2MetadataIODataAndMetadata {
+public class TestImportExportEmx2DataAndMetadata {
 
   static Database database;
 
@@ -67,6 +70,13 @@ public class TestImportExportEmx2MetadataIODataAndMetadata {
       CompareTools.assertEquals(schema1.getMetadata(), schema4.getMetadata());
 
       StopWatch.print("schema comparison: all equal");
+
+      // test if we can also download as aggregator
+      excelFile = tmp.resolve("test2.xlsx");
+      schema1.addMember(ANONYMOUS, AGGREGATOR.toString());
+      database.setActiveUser(ANONYMOUS);
+      schema1 = database.getSchema(getClass().getSimpleName() + "1");
+      MolgenisIO.toExcelFile(excelFile, schema1, true);
 
     } finally {
       Files.walk(tmp).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
