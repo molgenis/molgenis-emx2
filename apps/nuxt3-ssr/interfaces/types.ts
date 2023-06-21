@@ -173,3 +173,12 @@ interface IFilter extends IBaseFilter {
   searchTables?: string[];
   search?: string;
 }
+
+export enum INotificationType {
+  light,
+  dark,
+  success,
+  error,
+  warning,
+  info,
+}
