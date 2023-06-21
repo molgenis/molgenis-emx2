@@ -135,6 +135,8 @@ import {
   convertToPascalCase,
   getLocalizedDescription,
   getLocalizedLabel,
+  flattenObject,
+  applyJsTemplate,
 } from "../src/components/utils";
 import constants, { privacyConstants } from "../src/components/constants";
 
@@ -258,4 +260,6 @@ export {
   convertToCamelCase,
   getLocalizedDescription,
   getLocalizedLabel,
+  flattenObject,
+  applyJsTemplate,
 };

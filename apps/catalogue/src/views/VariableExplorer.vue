@@ -32,9 +32,7 @@
             refLabel="${id}"
             :maxNum="100"
             :orderBy="{ pid: 'ASC' }"
-            :filter="
-              network ? { networks: { pid: { equals: network } } } : null
-            "
+            :filter="network ? { networks: { id: { equals: network } } } : null"
           ></InputRefList>
         </div>
       </div>
@@ -207,6 +205,7 @@ export default {
     },
   },
   async created() {
+    this.$store.commit("setSearchInput", "");
     await this.fetchSchema();
     if (!this.variables.length) {
       // Only on initial creation

@@ -26,6 +26,7 @@
     - [Architecture](dev_architecture.md)
     - [GraphQL](dev_graphql.md)
     - [Batch API](dev_batchapi.md)
+    - [Message API](dev_messageapi.md)
     - [FAIR Data Point](dev_fairdatapoint.md)
     - [Beacon v2](dev_beaconv2.md)
     - [RDF](dev_rdf.md)
