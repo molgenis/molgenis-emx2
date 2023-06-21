@@ -19,6 +19,7 @@ public class TestLoaders {
   public static final String NETWORK_STAGING = "NetworkStaging";
   public static final String FAIR_DATA_HUB_TEST = "FAIRDataHubTest";
   public static final String DIRECTORY_TEST = "DirectoryTest";
+  public static final String NETWORK_MANAGEMENT_TEST = "NetworkManagementTest";
 
   static Database database;
 
@@ -33,6 +34,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(SHARED_STAGING);
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
     database.dropSchemaIfExists(DIRECTORY_TEST);
+    database.dropSchemaIfExists(NETWORK_MANAGEMENT_TEST);
   }
 
   @Test
@@ -68,5 +70,12 @@ public class TestLoaders {
     Schema networkStaging = database.createSchema(DIRECTORY_TEST);
     AvailableDataModels.BIOBANK_DIRECTORY.install(networkStaging, true);
     assertEquals(33, networkStaging.getTableNames().size());
+  }
+
+  @Test
+  public void test10NetworkManagementLoader() {
+    Schema networkStaging = database.createSchema(NETWORK_MANAGEMENT_TEST);
+    AvailableDataModels.DATA_CATALOGUE_NETWORK_MANAGEMENT.install(networkStaging, true);
+    assertEquals(11, networkStaging.getTableNames().size());
   }
 }

@@ -11,7 +11,7 @@ public enum AvailableDataModels {
   RD3(new Rd3Loader()),
   DASHBOARD(new DashboardLoader()),
   BIOBANK_DIRECTORY(new BiobankDirectoryLoader()),
-  DATASHIELD_NETWORKS(new DatashieldNetworksLoader());
+  DATA_CATALOGUE_NETWORK_MANAGEMENT(new DataCatalogueNetworkManagementLoader());
 
   private AbstractDataLoader installer;
 
