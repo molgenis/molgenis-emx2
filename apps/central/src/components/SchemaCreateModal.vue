@@ -70,12 +70,11 @@
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
         <ButtonAction
-          v-if="!validate(this.schemaName)"
+          :disabled="validate(this.schemaName)"
           @click="executeCreateSchema"
         >
           Create database
         </ButtonAction>
-        <ButtonDanger v-else> Create database </ButtonDanger>
       </template>
     </LayoutModal>
   </div>
@@ -148,6 +147,9 @@ export default {
   methods: {
     validate(name) {
       const simpleName = /^[a-zA-Z][a-zA-Z0-9_ ]*$/;
+      if (name === null) {
+        return undefined;
+      }
       if (
         simpleName.test(name) &&
         typeof name === "string" &&
