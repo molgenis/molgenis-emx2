@@ -7,23 +7,115 @@
       :canManage="false"
     >
       <template v-slot:rowheader="slotProps">
-        <ButtonAction
-          type="button"
-          @click="accessRequest = `https://host/${slotProps.row.id}`"
-          >Request</ButtonAction
-        >
+        <div class="checkbox">
+          <input 
+            :id="slotProps.row.id"
+            type="checkbox"
+            class="input"
+            name="rems-selections"
+            v-model="selection"
+            :value="slotProps.row.id"
+          />
+          <label :for="slotProps.row.id" class="label">
+            <CheckCircleIcon />
+            Request
+          </label>
+        </div>
       </template>
     </RoutedTableExplorer>
+    <div class="d-flex flex-row justify-content-end">
+      <ButtonAlt @click="clearAll">
+        Clear all
+      </ButtonAlt>
+      <ButtonOutline @click="selectAll">
+        Select all
+      </ButtonOutline>
+      <ButtonAction type="button" class="mx-2">
+        Request Access {{ selection.length ? `(${selection.length})` : ''}}
+        <ShoppingCartIcon />
+      </ButtonAction>
+    </div>
     <p>Your request:</p>
     <output class="d-block p-2 bg-dark text-light">
-      {{ accessRequest ? accessRequest : "Select a dataset" }}
+      <code>{{ selection }}</code><br/>
+      <code>{{ url }}</code>
     </output>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { RoutedTableExplorer, ButtonAction } from "molgenis-components";
+import { ref, watch } from "vue";
+import { 
+  RoutedTableExplorer,
+  ButtonAction,
+  ButtonAlt,
+  ButtonOutline
+} from "molgenis-components";
 
-let accessRequest = ref(null);
+import CheckCircleIcon from "./icons/check-circle.vue"
+import ShoppingCartIcon from './icons/shopping-cart.vue'
+
+let selection = ref([]);
+let url = ref(null);
+
+function setUrl() {
+  const resources = selection.value.map(item => `resource=${item}`)
+  url = `https://rems-gdi-nl.molgenis.net/apply-for?${resources.join('&')}`
+}
+
+function clearAll () {
+  selection.value = []
+  url = null
+}
+
+function selectAll () {
+  console.dir(selection)
+}
+
+watch([selection, url], setUrl)
+
+
 </script>
+
+<style lang="scss">
+.checkbox {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  
+  .label {
+    margin: 0;
+    width: 140px;
+    text-align: center;
+    padding: .375rem .75rem;
+    background-color: transparent;
+    border: 1px solid var(--blue);
+    border-radius: .25rem;
+    color: var(--blue);
+    cursor: pointer;
+    
+    .heroicons {
+      display: none;
+    }
+  }
+ 
+  .input {
+    position: absolute;
+    clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+    clip: rect(1px, 1px, 1px, 1px);
+    overflow: hidden;
+    height: 1px;
+    width: 1px;
+    margin: -1px;
+    white-space: nowrap;
+    
+  }
+  .input:checked + .label {
+    background-color: var(--blue);
+    color: var(--light);
+    .heroicons {
+      display: inline;
+    }
+  }
+}
+</style>
