@@ -18,7 +18,7 @@
           />
           <label :for="slotProps.row.id" class="label">
             <CheckCircleIcon />
-            Request
+            <span>Request</span>
           </label>
         </div>
       </template>
@@ -30,10 +30,10 @@
       <ButtonOutline @click="selectAll">
         Select all
       </ButtonOutline>
-      <ButtonAction type="button" class="mx-2">
+      <a :href="url" type="button" class="btn btn-primary mx-2">
         Request Access {{ selection.length ? `(${selection.length})` : ''}}
         <ShoppingCartIcon />
-      </ButtonAction>
+      </a>
     </div>
     <p>Your request:</p>
     <output class="d-block p-2 bg-dark text-light">
@@ -47,7 +47,6 @@
 import { ref, watch } from "vue";
 import { 
   RoutedTableExplorer,
-  ButtonAction,
   ButtonAlt,
   ButtonOutline
 } from "molgenis-components";
@@ -56,7 +55,7 @@ import CheckCircleIcon from "./icons/check-circle.vue"
 import ShoppingCartIcon from './icons/shopping-cart.vue'
 
 let selection = ref([]);
-let url = ref(null);
+let url = ref('https://rems-gdi-nl.molgenis.net');
 
 function setUrl() {
   const resources = selection.value.map(item => `resource=${item}`)
@@ -80,13 +79,15 @@ watch([selection, url], setUrl)
 <style lang="scss">
 .checkbox {
   position: relative;
-  display: flex;
-  flex-direction: row;
   
   .label {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
     margin: 0;
     width: 140px;
-    text-align: center;
     padding: .375rem .75rem;
     background-color: transparent;
     border: 1px solid var(--blue);
@@ -96,6 +97,9 @@ watch([selection, url], setUrl)
     
     .heroicons {
       display: none;
+      $size: 18px;
+      height: $size;
+      width: $size;
     }
   }
  
