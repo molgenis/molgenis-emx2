@@ -15,6 +15,7 @@
             name="rems-selections"
             v-model="selection"
             :value="slotProps.row.id"
+            :ref="setRefs"
           />
           <label :for="slotProps.row.id" class="label">
             <CheckCircleIcon />
@@ -51,28 +52,39 @@ import {
   ButtonOutline
 } from "molgenis-components";
 
-import CheckCircleIcon from "./icons/check-circle.vue"
-import ShoppingCartIcon from './icons/shopping-cart.vue'
+import CheckCircleIcon from "./icons/check-circle.vue";
+import ShoppingCartIcon from './icons/shopping-cart.vue';
 
 let selection = ref([]);
+let checkboxes = ref([]);
 let url = ref('https://rems-gdi-nl.molgenis.net');
 
+watch([selection], setUrl);
+
 function setUrl() {
-  const resources = selection.value.map(item => `resource=${item}`)
-  url = `https://rems-gdi-nl.molgenis.net/apply-for?${resources.join('&')}`
+  const resources = selection.value.map(item => `resource=${item}`);
+  url = `https://rems-gdi-nl.molgenis.net/apply-for?${resources.join('&')}`;
 }
 
 function clearAll () {
-  selection.value = []
-  url = null
+  selection.value = [];
+  url = null;
+}
+
+function setRefs(value) {
+  if (value !== null) {
+    checkboxes.value.push(value._value);
+  }
 }
 
 function selectAll () {
-  console.dir(selection)
+  checkboxes.value.forEach(value => {
+    if (selection.value.indexOf(value) === -1) {
+      selection.value.push(value);
+    }
+  });
+  setUrl();
 }
-
-watch([selection, url], setUrl)
-
 
 </script>
 
@@ -83,23 +95,24 @@ watch([selection, url], setUrl)
   .label {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     gap: 4px;
     margin: 0;
     width: 140px;
     padding: .375rem .75rem;
-    background-color: transparent;
+    background-color: hsl(210, 99%, 96%);
     border: 1px solid var(--blue);
     border-radius: .25rem;
     color: var(--blue);
     cursor: pointer;
     
     .heroicons {
-      display: none;
+      visibility: hidden;
       $size: 18px;
       height: $size;
       width: $size;
+      margin-right: 8px;
     }
   }
  
@@ -115,10 +128,8 @@ watch([selection, url], setUrl)
     
   }
   .input:checked + .label {
-    background-color: var(--blue);
-    color: var(--light);
     .heroicons {
-      display: inline;
+      visibility: visible;
     }
   }
 }
