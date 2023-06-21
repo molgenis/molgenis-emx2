@@ -10,7 +10,7 @@ public enum AvailableDataModels {
   FAIR_DATA_HUB(new FAIRDataHubLoader()),
   RD3(new Rd3Loader()),
   DASHBOARD(new DashboardLoader()),
-  BIOBANK_DIRECTORY(new BiobankDirectoryLoader());
+  BIOBANK_DIRECTORY(new BiobankDirectoryLoader()),
   DATASHIELD_NETWORKS(new DatashieldNetworksLoader());
 
   private AbstractDataLoader installer;
