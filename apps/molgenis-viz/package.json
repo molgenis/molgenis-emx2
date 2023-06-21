@@ -30,6 +30,7 @@
   "dependencies": {
     "@heroicons/vue": "2.0.18",
     "d3": "7.8.4",
+    "graphql-request": "^6.1.0",
     "vue": "3.2.47"
   },
   "devDependencies": {

@@ -4,6 +4,7 @@ import path from "path";
 import vue from "@vitejs/plugin-vue";
 
 const BACKEND_LOCATION = process.env.PROXY_API || "http://localhost:8080/";
+const HOST = process.env.MOLGENIS_APPS_HOST || "https://emx2.dev.molgenis.org";
 
 // basic build conf fo both library
 let conf = {
@@ -37,12 +38,12 @@ let conf = {
         secure: false,
       },
       "^/graphql": {
-        target: `${BACKEND_LOCATION}/api`,
+        target: `${HOST}`,
         changeOrigin: true,
         secure: false,
       },
-      "^/.*/graphql$": {
-        target: `${BACKEND_LOCATION}`,
+      "^/[a-zA-Z0-9_.-]+/graphql": {
+        target: `${HOST}`,
         changeOrigin: true,
         secure: false,
       },
@@ -56,6 +57,7 @@ let conf = {
         changeOrigin: true,
         secure: false,
       },
+      "/api": { target: `${HOST}`, changeOrigin: true, secure: false } 
     },
   },
 };

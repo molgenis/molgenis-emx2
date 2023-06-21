@@ -27,10 +27,10 @@
         {{ data }}
       </output>
       <p>This generates the following legend.</p>
-      <MessageBox v-if="loading & !hasError">
+      <MessageBox v-if="loading">
         <p>Fetching data</p>
       </MessageBox>
-      <MessageBox v-else-if="!loading && hasError" type="error">
+      <MessageBox v-else-if="error" type="error">
         <p>{{ error }}</p>
       </MessageBox>
       <div id="legendContainer" v-else>
@@ -38,7 +38,7 @@
           :data="data"
           :stackLegend="true"
           :enableClicks="true"
-          @legend-item-clicked="updateSelection"
+          @legend-item-clicked="selection"
         />
       </div>
       <p>
@@ -53,7 +53,14 @@
   </Page>
 </template>
 
-<script>
+<script setup>
+import { ref } from "vue";
+import { request } from "graphql-request";
+
+import { schemeGnBu } from "d3-scale-chromatic";
+import { scaleOrdinal } from "d3";
+const d3 = { schemeGnBu, scaleOrdinal };
+
 import Page from "@/components/layouts/Page.vue";
 import PageHeader from "@/components/layouts/PageHeader.vue";
 import PageSection from "@/components/layouts/PageSection.vue";
@@ -61,53 +68,47 @@ import MessageBox from "@/components/display/MessageBox.vue";
 import ChartLegend from "@/components/viz/ChartLegend.vue";
 import Breadcrumbs from "@/app-components/breadcrumbs.vue";
 
-import { fetchData } from "@/utils/utils.js";
-import { schemeGnBu } from "d3-scale-chromatic";
-import { scaleOrdinal } from "d3";
-const d3 = { schemeGnBu, scaleOrdinal };
-
 import headerImage from "@/assets/studio-media-unsplash.jpg";
 
-export default {
-  components: {
-    Page,
-    PageHeader,
-    PageSection,
-    MessageBox,
-    ChartLegend,
-    Breadcrumbs,
-  },
-  data() {
-    return {
-      headerImage: headerImage,
-      loading: true,
-      hasError: false,
-      error: null,
-      data: [],
-      clicked: [],
-    };
-  },
-  methods: {
-    updateSelection(value) {
-      this.clicked = value;
-    },
-  },
-  mounted() {
-    Promise.resolve(fetchData("/api/v2/rdcomponents_penguins?num=500"))
-      .then((response) => {
-        const data = response.items;
-        const groups = [...new Set(data.map((row) => row.island))];
-        const palette = d3.scaleOrdinal(d3.schemeGnBu[groups.length]);
-        const colors = {};
-        groups.forEach((key, index) => (colors[key] = palette(index)));
-        this.data = colors;
-        this.loading = false;
-      })
-      .catch((error) => {
-        throw new Error(error);
-      });
-  },
-};
+let loading = ref(false);
+let data = ref([]);
+let error = ref(null);
+let selection = ref([])
+let clicked = ref(null);
+
+const query = `{
+  Statistics(
+    filter: { component: { name: { equals: "organisations.by.type" } } }
+  ) {
+    label
+    value
+    component {
+      name
+    }
+  }
+}
+`
+
+request("/dataviz/graphql", query)
+.then(response => {
+  console.log(response)
+})
+.catch((error) => {
+    if (Array.isArray(error.response.errors)) {
+      error.value = error.response.errors[0].message;
+    } else {
+      error.value = error;
+    }
+    loading.value = false;
+  });
+      // const data = response.items;
+      // const groups = [...new Set(data.map((row) => row.island))];
+      // const palette = d3.scaleOrdinal(d3.schemeGnBu[groups.length]);
+      // const colors = {};
+      // groups.forEach((key, index) => (colors[key] = palette(index)));
+      // this.data = colors;
+      // this.loading = false;
+
 </script>
 
 <style lang="scss">
