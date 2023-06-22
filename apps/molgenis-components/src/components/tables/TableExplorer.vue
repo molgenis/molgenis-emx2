@@ -27,7 +27,12 @@
           :defaultValue="true"
         />
 
-        <ButtonDropdown label="download" icon="download" v-slot="scope">
+        <ButtonDropdown
+          v-if="canView"
+          label="download"
+          icon="download"
+          v-slot="scope"
+        >
           <form class="px-4 py-3" style="min-width: 15rem">
             <IconAction icon="times" @click="scope.close" class="float-right" />
 
@@ -96,7 +101,7 @@
             </div>
           </form>
         </ButtonDropdown>
-        <span>
+        <span v-if="canView">
           <ButtonDropdown
             :closeOnClick="true"
             :label="ViewButtons[view].label"
@@ -117,6 +122,7 @@
       <!-- end first btn group -->
 
       <InputSearch
+        v-if="canView"
         class="mx-1 inline-form-group"
         :id="'explorer-table-search' + Date.now()"
         :modelValue="searchTerms"
@@ -458,7 +464,7 @@ export default {
       isDeleteModalShown: false,
       isEditModalShown: false,
       limit: this.showLimit,
-      loading: true,
+      loading: false,
       order: this.showOrder,
       orderByColumn: this.showOrderBy,
       page: this.showPage,
@@ -466,7 +472,7 @@ export default {
       searchTerms: "",
       selectedItems: [],
       tableMetadata: null,
-      view: this.showView,
+      view: this.canView ? this.showView : View.AGGREGATE,
       refSideModalProps: undefined,
     };
   },
@@ -522,6 +528,10 @@ export default {
     showOrder: {
       type: String,
       default: () => "ASC",
+    },
+    canView: {
+      type: Boolean,
+      default: () => false,
     },
     canEdit: {
       type: Boolean,
@@ -681,21 +691,25 @@ export default {
       this.loading = false;
     },
     setTableMetadata(newTableMetadata) {
-      this.columns = newTableMetadata.columns.map((column) => {
-        const showColumn = this.showColumns.length
-          ? this.showColumns.includes(column.name)
-          : !column.name.startsWith("mg_");
-        const conditions = getCondition(
-          column.columnType,
-          this.urlConditions[column.name]
-        );
-        return {
-          ...column,
-          showColumn,
-          showFilter: this.showFilters.includes(column.name),
-          conditions,
-        };
-      });
+      this.columns = newTableMetadata.columns
+        .filter(
+          (column) => this.canView || column.columnType.startsWith("ONTOLOGY")
+        )
+        .map((column) => {
+          const showColumn = this.showColumns.length
+            ? this.showColumns.includes(column.name)
+            : !column.name.startsWith("mg_");
+          const conditions = getCondition(
+            column.columnType,
+            this.urlConditions[column.name]
+          );
+          return {
+            ...column,
+            showColumn,
+            showFilter: this.showFilters.includes(column.name),
+            conditions,
+          };
+        });
       //table settings
       newTableMetadata.settings?.forEach((setting) => {
         if (setting.key === "cardTemplate") {
@@ -712,7 +726,9 @@ export default {
         .fetchTableMetaData(this.tableName)
         .catch(this.handleError);
       this.setTableMetadata(newTableMetadata);
-      this.reload();
+      if (this.canView) {
+        this.reload();
+      }
     },
     async reload() {
       this.loading = true;

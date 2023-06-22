@@ -1,11 +1,12 @@
 <template>
   <div>
+    {{ allColumns }} === {{ refColumns }}
     <Spinner v-if="loading" class="m-3" />
-    <div v-else-if="!refColumns.length" class="alert alert-warning">
-      Not enough input to create an aggregate table
+    <div v-else-if="refColumns.length === 0" class="alert alert-warning">
+      Not enough input to create an aggregate table. Need at least 1 column with
+      permission that can be used as group by.
     </div>
-
-    <div class="border d-inline-block p-2 bg-white">
+    <div v-else class="border d-inline-block p-2 bg-white">
       <div class="aggregate-options">
         <table>
           <tr>
@@ -125,7 +126,7 @@ export default defineComponent({
       selectedColumn: "",
       selectedRow: "",
       refColumns: [] as string[],
-      loading: true,
+      loading: false,
       rows: [] as string[],
       columns: [] as string[],
       aggregateData: {} as IAggregateData,
@@ -191,9 +192,9 @@ export default defineComponent({
       if (this.refColumns?.length > 0) {
         this.selectedColumn = this.refColumns[0];
         this.selectedRow = this.refColumns[1] || this.refColumns[0];
+        //this.fetchData();
       }
     }
-    this.fetchData();
   },
 });
 

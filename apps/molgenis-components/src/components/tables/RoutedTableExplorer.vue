@@ -3,6 +3,7 @@
     <TableExplorer
       :tableName="tableName"
       :schemaName="schemaName"
+      :canView="canView"
       :canEdit="canEdit"
       :canManage="canManage"
       @updateConditions="updateConditions"
@@ -57,6 +58,10 @@ export default {
     schemaName: {
       type: String,
       required: false,
+    },
+    canView: {
+      type: Boolean,
+      default: () => false,
     },
     canEdit: {
       type: Boolean,
