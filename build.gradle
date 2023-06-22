@@ -5,7 +5,7 @@
 plugins {
     id "java"
     id "org.sonarqube" version "3.5.0.2730"
-    id "de.gliderpilot.semantic-release" version "1.4.2"
+    id "de.gliderpilot.semantic-release" version "1.4.0"
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'application'
