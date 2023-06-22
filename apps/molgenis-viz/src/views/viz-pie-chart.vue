@@ -39,8 +39,8 @@
       <PieChart
         v-else
         chartId="sexByPenguin"
-        title="Summary of species"
-        :description="`In total, ${total} penguins were observed across all stations. The following chart shows the breakdown of observed penguins by species.`"
+        title="Summary of organisation type"
+        :description="`In total, ${total} organisations across the Netherlands and Belgium were selected. The following chart shows the breakdown of oganisations by type.`"
         :chartData="data"
         :enableClicks="true"
         :chartHeight="200"
@@ -49,80 +49,67 @@
       <h3>Selected Item</h3>
       <p>Click a slice in the chart of above to display the row-level data</p>
       <output class="output">
-        {{ clicked }}
+        {{ selection }}
       </output>
     </PageSection>
   </Page>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from "vue";
+import { fetchData, asDataObject } from "@/utils/utils.js";
+import { sum, format } from "d3"
+const d3 = { sum, format }
+
 import Page from "@/components/layouts/Page.vue";
 import PageHeader from "@/components/layouts/PageHeader.vue";
 import PageSection from "@/components/layouts/PageSection.vue";
 import MessageBox from "@/components/display/MessageBox.vue";
 import PieChart from "@/components/viz/PieChart.vue";
 import Breadcrumbs from "@/app-components/breadcrumbs.vue";
-
-import { fetchData } from "@/utils/utils.js";
-import { rollups, sum, format } from "d3";
-const d3 = { rollups, sum, format };
-
 import headerImage from "@/assets/sheri-silver-unsplash.jpg";
 
-export default {
-  components: {
-    Page,
-    PageHeader,
-    PageSection,
-    MessageBox,
-    PieChart,
-    Breadcrumbs,
-  },
-  data() {
-    return {
-      headerImage: headerImage,
-      loading: true,
-      hasError: false,
-      error: null,
-      data: [],
-      total: 0,
-      clicked: {},
-    };
-  },
-  methods: {
-    updateSelection(value) {
-      this.clicked = value;
-    },
-  },
-  mounted() {
-    Promise.resolve(fetchData("/api/v2/rdcomponents_penguins?num=500"))
-      .then((response) => {
-        const data = response.items;
-        const format = d3.format(".2f");
-        const grouped = d3.rollups(
-          data,
-          (row) => row.length,
-          (row) => row.species
-        );
-        const summarised = {};
-        grouped.map((array) => {
-          if (typeof array[0] === "undefined") {
-            summarised["unknown"] = array[1];
-          } else {
-            summarised[array[0]] = format((array[1] / data.length) * 100);
-          }
-        });
-        this.data = summarised;
-        this.total = d3.sum(grouped, (item) => item[1]);
-        this.loading = false;
+let loading = ref(true);
+let hasError = ref(false);
+let error = ref(null);
+let selection = ref({});
+let data = ref([]);
+let total = ref(0);
+
+const query = `{
+  Statistics(filter: {component: {name: {equals: "organisations.by.type"}}}) {
+    id
+    label
+    value
+    valueOrder
+    component {
+      name
+      definition
+    }
+  }
+}`;
+
+function updateSelection(value) {
+  selection.value = value;
+}
+
+onMounted(() => {
+  Promise.resolve(fetchData(query))
+    .then((response) => {
+      const format = d3.format(".2f");
+      const totalOrgs = d3.sum(response.data.Statistics, row => row.value)
+      const orgs = response.data.Statistics.map(row => {
+        return {...row, rate: format((row.value / totalOrgs) * 100)}
       })
-      .catch((error) => {
-        const err = error.message;
-        this.loading = false;
-        this.hasError = true;
-        this.error = err;
-        throw new Error(error);
-      });
-  },
-};
+      
+      total.value = totalOrgs
+      data.value = asDataObject(orgs, "label", "rate")
+      
+      loading.value = false;
+    })
+    .catch((error) => {
+      hasError.value = true;
+      error.value = error;
+    });
+});
 </script>
