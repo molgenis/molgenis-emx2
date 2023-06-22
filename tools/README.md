@@ -6,6 +6,10 @@ This package contains python tools. Each tool can be built into a package using 
 In root of molgenis-emx2 run 
 ```gradle buildPython```
 
+## How to install tools for use
+Currently we publish only to pytest. So for example to install specific version:
+```pip install -i https://test.pypi.org/simple/ molgenis-emx2-client~=8.193.2.dev1687022806011```
+
 ## To locally build one package 
 You can run within that folder
 ```gradle buildPython```
