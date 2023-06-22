@@ -29,10 +29,6 @@
         defeats the purpose of highlighting key findings. If you need more,
         consider using the DataTable component.
       </p>
-      <p>
-        In this example, I used the Palmer Penguins data to display the mean-
-        body mass, flipper length, and bill length.
-      </p>
     </PageSection>
     <PageSection class="bkg-light" :verticalPadding="2">
       <MessageBox v-if="loading & !hasError">
@@ -48,9 +44,7 @@
 
 <script setup>
 import {ref, onMounted} from "vue";
-import { fetchData } from "@/utils/utils.js";
-import { mean, format } from "d3";
-const d3 = { mean, format };
+import { fetchData, asDataObject } from "@/utils/utils.js";
 
 import Page from "@/components/layouts/Page.vue";
 import PageHeader from "@/components/layouts/PageHeader.vue";
@@ -75,60 +69,14 @@ const query = `{
   }
 }`
 
-
 onMounted(() => {
   Promise.resolve(fetchData(query))
   .then(response => {
-    const data = response.data.Statistics
-    
+    const data = asDataObject(response.data.Statistics, "label", "value")
+    summarised.value = data
   })
 })
 
-// export default {
-//   components: {
-//     Page,
-//     PageHeader,
-//     PageSection,
-//     MessageBox,
-//     DataHighlights,
-//     Breadcrumbs,
-//   },
-//   data() {
-//     return {
-//       headerImage: headerImage,
-//       loading: true,
-//       hasError: false,
-//       error: null,
-//       data: {},
-//       summarised: {},
-//     };
-//   },
-//   mounted() {
-//     Promise.resolve(fetchData("/api/v2/rdcomponents_penguins?num=500"))
-//       .then((response) => {
-//         const data = response.items;
-//         const format = d3.format(".1f");
-//         const summarised = {
-//           "Avg. Body Mass (g)": format(d3.mean(data, (row) => row.body_mass_g)),
-//           "Avg. Flipper Length (mm)": format(
-//             d3.mean(data, (row) => row.flipper_length_mm)
-//           ),
-//           "Avg Bill Length (mm)": format(
-//             d3.mean(data, (row) => row.bill_length_mm)
-//           ),
-//         };
-
-//         this.summarised = summarised;
-//         this.loading = false;
-//       })
-//       .catch((error) => {
-//         this.loading = false;
-//         this.hasError = true;
-//         this.error = error;
-//         throw new Error(error);
-//       });
-//   },
-// };
 </script>
 
 <style lang="scss">
