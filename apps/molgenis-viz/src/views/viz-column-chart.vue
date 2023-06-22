@@ -100,54 +100,6 @@ onMounted(() => {
       error.value = error;
     });
 });
-
-// export default {
-//   components: {
-//     Page,
-//     PageHeader,
-//     PageSection,
-//     MessageBox,
-//     ColumnChart,
-//     Breadcrumbs,
-//   },
-//   data() {
-//     return {
-//       headerImage: headerImage,
-//       loading: true,
-//       hasError: false,
-//       error: null,
-//       data: [],
-//       clicked: {},
-//     };
-//   },
-//   methods: {
-//     updateClicked(data) {
-//       this.clicked = data;
-//     },
-//   },
-//   mounted() {
-//     Promise.resolve(fetchData("/api/v2/rdcomponents_penguins?num=500"))
-//       .then((response) => {
-//         const data = response.items;
-//         const summarised = d3
-//           .rollups(
-//             data,
-//             (row) => row.length,
-//             (row) => row.island
-//           )
-//           .map((item) => new Object({ island: item[0], count: item[1] }));
-//         this.data = sortData(summarised, "island");
-//         this.loading = false;
-//       })
-//       .catch((error) => {
-//         const err = error.message;
-//         this.loading = false;
-//         this.hasError = true;
-//         this.error = err;
-//         throw new Error(error);
-//       });
-//   },
-// };
 </script>
 
 <style lang="scss">

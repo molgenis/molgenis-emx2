@@ -58,8 +58,8 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { fetchData, asDataObject } from "@/utils/utils.js";
-import { sum, format } from "d3"
-const d3 = { sum, format }
+import { sum, format } from "d3";
+const d3 = { sum, format };
 
 import Page from "@/components/layouts/Page.vue";
 import PageHeader from "@/components/layouts/PageHeader.vue";
@@ -97,14 +97,14 @@ onMounted(() => {
   Promise.resolve(fetchData(query))
     .then((response) => {
       const format = d3.format(".2f");
-      const totalOrgs = d3.sum(response.data.Statistics, row => row.value)
-      const orgs = response.data.Statistics.map(row => {
-        return {...row, rate: format((row.value / totalOrgs) * 100)}
-      })
-      
-      total.value = totalOrgs
-      data.value = asDataObject(orgs, "label", "rate")
-      
+      const totalOrgs = d3.sum(response.data.Statistics, (row) => row.value);
+      const orgs = response.data.Statistics.map((row) => {
+        return { ...row, rate: format((row.value / totalOrgs) * 100) };
+      });
+
+      total.value = totalOrgs;
+      data.value = asDataObject(orgs, "label", "rate");
+
       loading.value = false;
     })
     .catch((error) => {

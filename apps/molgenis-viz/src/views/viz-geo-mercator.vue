@@ -69,11 +69,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted } from "vue";
 
 import { fetchData } from "@/utils/utils.js";
 import geojson from "@/data/world.geo.json";
-
 
 import Page from "@/components/layouts/Page.vue";
 import PageHeader from "@/components/layouts/PageHeader.vue";
@@ -90,13 +89,12 @@ let data = ref([]);
 let location = ref(null);
 const mapColorGroups = {
   Submitted: "#F4D58D",
-  'No Data': "#B6C2D9"
+  "No Data": "#B6C2D9",
 };
 
 function updateSelection(value) {
-  location.value = value
+  location.value = value;
 }
-
 
 const query = `{
   Organisations(
@@ -113,23 +111,28 @@ const query = `{
       hasSubmittedData
     }
   }
-}`
+}`;
 
 onMounted(() => {
   Promise.resolve(fetchData(query))
-  .then(response => {
-    const orgs = response.data.Organisations.map(row => {
-      return {...row, hasSubmittedData: row.providerInformation[0].hasSubmittedData ? 'Submitted' : 'No Data' }
+    .then((response) => {
+      const orgs = response.data.Organisations.map((row) => {
+        return {
+          ...row,
+          hasSubmittedData: row.providerInformation[0].hasSubmittedData
+            ? "Submitted"
+            : "No Data",
+        };
+      });
+      data.value = orgs;
+      loading.value = false;
     })
-    data.value = orgs
-    loading.value = false
-  }).catch(error => {
-    loading.value = false
-    hasError.value = false
-    error.value = error
-  })
-})
-
+    .catch((error) => {
+      loading.value = false;
+      hasError.value = false;
+      error.value = error;
+    });
+});
 
 // export default {
 //   components: {
