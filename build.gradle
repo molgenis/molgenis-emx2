@@ -37,13 +37,13 @@ tasks.withType(Test) {
 
 repositories {
     mavenLocal()
+    maven {
+        url = 'https://repo1.maven.org/maven2'
+    }
     mavenCentral()
     gradlePluginPortal()
     maven {
         url = 'https://repo.maven.apache.org/maven2'
-    }
-    maven {
-        url = 'https://repo1.maven.org/maven2'
     }
     maven {
         url = "https://registry.molgenis.org/repository/maven-public"
