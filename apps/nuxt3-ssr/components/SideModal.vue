@@ -89,15 +89,17 @@ const bgClass = computed(() => {
     <slot name="button"></slot>
     <template #popper="{ hide }">
       <div
-        :class="`fixed top-8 calc-remaining-max-height overflow-auto ${bgClass} ${roundedClass} ${fullScreenClass}`"
+        :class="`fixed top-8 calc-remaining-max-height overflow-hidden ${bgClass} ${roundedClass} ${fullScreenClass}`"
       >
-        <div class="relative">
+        <div>
           <div>
             <button @click="hide()" class="absolute top-7 right-8">
               <BaseIcon name="cross" />
             </button>
 
-            <slot></slot>
+            <div class="overflow-auto calc-remaining-max-height">
+              <slot></slot>
+            </div>
           </div>
 
           <div v-if="includeFooter" class="absolute inset-x-0 bottom-0">
