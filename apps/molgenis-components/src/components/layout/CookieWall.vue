@@ -22,6 +22,10 @@ const props = defineProps({
   analyticsId: {
     type: String,
   },
+  htmlContentString: {
+    type: String,
+    default: null,
+  },
 });
 
 const emit = defineEmits(["acceptCookie"]);
@@ -62,7 +66,8 @@ const isAnalyticsEnabled = computed(() => {
 <template>
   <LayoutModal :title="title" @close="handleClose" :show="show && !isDeclined">
     <template v-slot:body>
-      <slot>
+      <div v-if="htmlContentString" v-html="htmlContentString"></div>
+      <div v-else>
         <p>
           We use cookies and similar technologies to enhance your browsing
           experience, analyze website traffic, and personalize content. By
@@ -74,10 +79,10 @@ const isAnalyticsEnabled = computed(() => {
           experience on our website and ensuring its functionality. We do not
           sell or share your data with third parties.
         </p>
-      </slot>
+      </div>
     </template>
     <template v-slot:footer>
-      <ButtonAlt @click="handleDecline">No thanks</ButtonAlt>
+      <ButtonAlt @click="handleDecline">{{ rejectLabel }}</ButtonAlt>
       <ButtonAction @click="handleAccept">{{ acceptLabel }}</ButtonAction>
     </template>
   </LayoutModal>

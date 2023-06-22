@@ -1,6 +1,10 @@
 <template>
   <div style="background-color: #f4f4f4">
-    <CookieWall v-if="analyticsId" :analyticsId="analyticsId"></CookieWall>
+    <CookieWall
+      v-if="analyticsId"
+      :analyticsId="analyticsId"
+      :htmlContentString="cookieWallContent"
+    />
     <div style="min-height: calc(100vh - 70px)">
       <MolgenisMenu
         :logo="logoURLorDefault"
@@ -118,6 +122,7 @@ export default {
       fullscreen: false,
       timestamp: Date.now(),
       analyticsId: null,
+      cookieWallContent: null,
     };
   },
   computed: {
@@ -208,6 +213,14 @@ export default {
       );
 
       this.analyticsId = analyticsSetting ? analyticsSetting.value : null;
+
+      const analyticsCookieWallContentSetting = data._settings.find(
+        (setting) => setting.key === "ANALYTICS_COOKIE_WALL_CONTENT"
+      );
+
+      this.cookieWallContent = analyticsCookieWallContentSetting
+        ? analyticsCookieWallContentSetting.value
+        : null;
     });
   },
 };
