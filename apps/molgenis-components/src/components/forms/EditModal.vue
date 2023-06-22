@@ -21,7 +21,8 @@
               "
               :clone="clone"
               :locale="locale"
-              @errorsInForm="handleErrors"
+              :errorPerColumn="rowErrors"
+              @update:model-value="checkForErrors"
             />
           </div>
           <div
@@ -92,7 +93,6 @@
 </template>
 
 <script lang="ts">
-import { IColumn } from "../../Interfaces/IColumn";
 import { ISchemaMetaData } from "../../Interfaces/IMetaData";
 import { IRow } from "../../Interfaces/IRow";
 import { ISetting } from "../../Interfaces/ISetting";
@@ -101,12 +101,20 @@ import { INewClient } from "../../client/IClient";
 import Client from "../../client/client";
 import constants from "../constants";
 import LayoutModal from "../layout/LayoutModal.vue";
-import { deepClone, filterObject, getLocalizedLabel } from "../utils";
+import { deepClone, getLocalizedLabel } from "../utils";
 import ButtonAction from "./ButtonAction.vue";
 import RowEdit from "./RowEdit.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import Tooltip from "./Tooltip.vue";
-
+import {
+  filterVisibleColumns,
+  getChapterStyle,
+  getPageHeadings,
+  getRowErrors,
+  getSaveDisabledMessage,
+  removeKeyColumns,
+  splitColumnNamesByHeadings,
+} from "./formUtils/formUtils";
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
 
 export default {
@@ -120,7 +128,7 @@ export default {
   },
   data() {
     return {
-      rowData: {},
+      rowData: {} as Record<string, any>,
       rowErrors: {} as Record<string, string | undefined>,
       tableMetaData: null as unknown as ITableMetaData,
       schemaMetaData: null as unknown as ISchemaMetaData,
@@ -205,14 +213,13 @@ export default {
       });
     },
     saveDraftDisabledMessage() {
-      if (
-        this.tableMetaData?.columns.some(
-          (column) =>
-            column.key === 1 &&
-            column.columnType !== "AUTO_ID" &&
-            this.rowData[column.id] === null
-        )
-      ) {
+      const hasPrimaryKeyValue = this.tableMetaData?.columns.some(
+        (column) =>
+          column.key === 1 &&
+          column.columnType !== "AUTO_ID" &&
+          !this.rowData[column.id]
+      );
+      if (hasPrimaryKeyValue) {
         return "Cannot save draft: primary key is required";
       } else {
         return "";
@@ -236,16 +243,13 @@ export default {
         result = await this.client
           .updateDataRow(formData, this.tableName, this.schemaName)
           .catch(this.handleSaveError);
-        if (result) {
-          this.handleClose();
-        }
       } else {
         result = await this.client
           .insertDataRow(formData, this.tableName, this.schemaName)
           .catch(this.handleSaveError);
-        if (result) {
-          this.handleClose();
-        }
+      }
+      if (result) {
+        this.handleClose();
       }
     },
     handleSaveError(error: any) {
@@ -270,15 +274,9 @@ export default {
       this.errorMessage = "";
       this.$emit("close");
     },
-    handleErrors(event: Record<string, string | undefined>) {
-      this.rowErrors = { ...this.rowErrors, ...event };
-      const numberOfErrors = Object.values(this.rowErrors).filter(
-        (val) => val
-      ).length;
-      this.saveDisabledMessage =
-        numberOfErrors > 0
-          ? `There are ${numberOfErrors} error(s) preventing saving`
-          : "";
+    checkForErrors() {
+      this.rowErrors = getRowErrors(this.tableMetaData, this.rowData);
+      this.saveDisabledMessage = getSaveDisabledMessage(this.rowErrors);
     },
   },
   async mounted() {
@@ -295,74 +293,20 @@ export default {
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
 
     if (this.pkey) {
-      this.rowData = await this.fetchRowData();
+      const rowData = await this.fetchRowData();
 
       if (this.clone) {
-        // in case of clone, remove the key columns from the row data
-        const keyColumnsNames = this.tableMetaData?.columns
-          ?.filter((column: IColumn) => column.key === 1)
-          .map((column: IColumn) => column.name);
-
-        this.rowData = filterObject(
-          this.rowData,
-          (key) => !keyColumnsNames?.includes(key)
-        );
+        this.rowData = removeKeyColumns(this.tableMetaData, rowData);
+      } else {
+        this.rowData = rowData;
       }
     }
 
     this.rowData = { ...this.rowData, ...deepClone(this.defaultValue) };
+    this.checkForErrors();
     this.loaded = true;
   },
 };
-
-function getPageHeadings(tableMetadata: ITableMetaData): string[] {
-  const columns: IColumn[] = tableMetadata?.columns
-    ? tableMetadata?.columns
-    : [];
-  const headings: string[] = columns
-    .filter((column) => column.columnType === "HEADING")
-    .map((column) => column.name);
-  if (columns[0].columnType === "HEADING") {
-    return headings;
-  } else {
-    return ["First chapter"].concat(headings);
-  }
-}
-
-function filterVisibleColumns(
-  columns: IColumn[],
-  visibleColumns: string[] | null
-) {
-  if (!visibleColumns) {
-    return columns;
-  } else {
-    return columns.filter((column) => visibleColumns.includes(column.name));
-  }
-}
-
-function splitColumnNamesByHeadings(columns: IColumn[]): string[][] {
-  return columns.reduce((accum, column) => {
-    if (column.columnType === "HEADING") {
-      accum.push([column.name]);
-    } else {
-      if (accum.length === 0) {
-        accum.push([] as string[]);
-      }
-      accum[accum.length - 1].push(column.name);
-    }
-    return accum;
-  }, [] as string[][]);
-}
-
-function getChapterStyle(
-  page: string[],
-  errors: Record<string, string | undefined>
-): { color: "red" } | {} {
-  const fieldsWithErrors = page.filter((fieldsInPage: string) =>
-    Boolean(errors[fieldsInPage])
-  );
-  return fieldsWithErrors.length ? { color: "red" } : {};
-}
 
 interface IChapterInfo {
   style: { color?: "red" };
