@@ -89,20 +89,23 @@ const bgClass = computed(() => {
     <slot name="button"></slot>
     <template #popper="{ hide }">
       <div
-        :class="`fixed top-8 calc-remaining-height ${bgClass} overflow-hidden ${roundedClass} ${fullScreenClass}`"
+        :class="`fixed top-8 calc-remaining-max-height overflow-auto ${bgClass} ${roundedClass} ${fullScreenClass}`"
       >
-        <div class="h-full overflow-auto">
-          <button @click="hide()" class="absolute top-7 right-8">
-            <BaseIcon name="cross" />
-          </button>
+        <div class="relative">
+          <div>
+            <button @click="hide()" class="absolute top-7 right-8">
+              <BaseIcon name="cross" />
+            </button>
 
-          <slot></slot>
-        </div>
-        <div v-if="includeFooter" class="absolute inset-x-0 bottom-0">
-          <div
-            :class="`flex items-center ${buttonAlignmentClass} px-6 bg-modal-footer h-19`"
-          >
-            <slot name="footer"></slot>
+            <slot></slot>
+          </div>
+
+          <div v-if="includeFooter" class="absolute inset-x-0 bottom-0">
+            <div
+              :class="`flex items-center ${buttonAlignmentClass} px-6 bg-modal-footer h-19`"
+            >
+              <slot name="footer"></slot>
+            </div>
           </div>
         </div>
       </div>
@@ -111,9 +114,8 @@ const bgClass = computed(() => {
 </template>
 
 <style>
-.calc-remaining-height {
+.calc-remaining-max-height {
   max-height: calc(100vh - 4rem);
-  height: calc(100vh - 4rem);
 }
 
 .v-popper--theme-dropdown .v-popper__inner {
