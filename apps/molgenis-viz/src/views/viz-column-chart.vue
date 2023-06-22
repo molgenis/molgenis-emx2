@@ -32,89 +32,122 @@
       </MessageBox>
       <ColumnChart
         v-else
-        chartId="penguinsColumnChart"
-        title="Palmer Penguins by Island"
-        description="The following chart displays the number of penguins observed by location (island)."
+        chartId="organisationsByType"
+        title="Organistations by type"
+        description="The following chart shows the number of organisations by type."
         :chartData="data"
-        xvar="island"
-        yvar="count"
+        xvar="label"
+        yvar="value"
         :chartMargins="{ left: 110, top: 10, right: 40, bottom: 60 }"
         :barPaddingInner="0.25"
         :barPaddingOuter="0.25"
-        xAxisLabel="Number of Penguins"
+        yAxisLabel="Number of Organisations"
         :enableClicks="true"
         @column-clicked="updateClicked"
       />
       <h3>Selected Item</h3>
       <p>Click a bar in the chart of above to display the row-level data</p>
       <output class="output">
-        {{ clicked }}
+        {{ selection }}
       </output>
     </PageSection>
   </Page>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from "vue"
+import { fetchData, sortData } from "@/utils/utils.js";
+
 import Page from "@/components/layouts/Page.vue";
 import PageHeader from "@/components/layouts/PageHeader.vue";
 import PageSection from "@/components/layouts/PageSection.vue";
 import Breadcrumbs from "@/app-components/breadcrumbs.vue";
 import MessageBox from "@/components/display/MessageBox.vue";
 import ColumnChart from "@/components/viz/ColumnChart.vue";
-
 import headerImage from "@/assets/adrien-delforge-unsplash.jpg";
 
-import { fetchData, sortData } from "@/utils/utils.js";
-import { rollups } from "d3";
-const d3 = { rollups };
+let loading = ref(true);
+let hasError = ref(false);
+let error = ref(null);
+let selection = ref({});
+let data = ref([]);
 
-export default {
-  components: {
-    Page,
-    PageHeader,
-    PageSection,
-    MessageBox,
-    ColumnChart,
-    Breadcrumbs,
-  },
-  data() {
-    return {
-      headerImage: headerImage,
-      loading: true,
-      hasError: false,
-      error: null,
-      data: [],
-      clicked: {},
-    };
-  },
-  methods: {
-    updateClicked(data) {
-      this.clicked = data;
-    },
-  },
-  mounted() {
-    Promise.resolve(fetchData("/api/v2/rdcomponents_penguins?num=500"))
-      .then((response) => {
-        const data = response.items;
-        const summarised = d3
-          .rollups(
-            data,
-            (row) => row.length,
-            (row) => row.island
-          )
-          .map((item) => new Object({ island: item[0], count: item[1] }));
-        this.data = sortData(summarised, "island");
-        this.loading = false;
-      })
-      .catch((error) => {
-        const err = error.message;
-        this.loading = false;
-        this.hasError = true;
-        this.error = err;
-        throw new Error(error);
-      });
-  },
-};
+const query = `{
+  Statistics(filter: {component: {name: {equals: "organisations.by.type"}}}) {
+    id
+    label
+    value
+    valueOrder
+    component {
+      name
+      definition
+    }
+  }
+}`
+
+function updateClicked(value) {
+  selection.value = value
+}
+
+onMounted(() => {
+  Promise.resolve(fetchData(query))
+  .then(response => {
+    data.value =  sortData(response.data.Statistics, "label")
+    loading.value = false
+  }).catch(error => {
+    hasError.value = true
+    error.value = error
+  })
+})
+
+
+// export default {
+//   components: {
+//     Page,
+//     PageHeader,
+//     PageSection,
+//     MessageBox,
+//     ColumnChart,
+//     Breadcrumbs,
+//   },
+//   data() {
+//     return {
+//       headerImage: headerImage,
+//       loading: true,
+//       hasError: false,
+//       error: null,
+//       data: [],
+//       clicked: {},
+//     };
+//   },
+//   methods: {
+//     updateClicked(data) {
+//       this.clicked = data;
+//     },
+//   },
+//   mounted() {
+//     Promise.resolve(fetchData("/api/v2/rdcomponents_penguins?num=500"))
+//       .then((response) => {
+//         const data = response.items;
+//         const summarised = d3
+//           .rollups(
+//             data,
+//             (row) => row.length,
+//             (row) => row.island
+//           )
+//           .map((item) => new Object({ island: item[0], count: item[1] }));
+//         this.data = sortData(summarised, "island");
+//         this.loading = false;
+//       })
+//       .catch((error) => {
+//         const err = error.message;
+//         this.loading = false;
+//         this.hasError = true;
+//         this.error = err;
+//         throw new Error(error);
+//       });
+//   },
+// };
 </script>
 
 <style lang="scss">

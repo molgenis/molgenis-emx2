@@ -46,7 +46,12 @@
   </Page>
 </template>
 
-<script>
+<script setup>
+import {ref, onMounted} from "vue";
+import { fetchData } from "@/utils/utils.js";
+import { mean, format } from "d3";
+const d3 = { mean, format };
+
 import Page from "@/components/layouts/Page.vue";
 import PageHeader from "@/components/layouts/PageHeader.vue";
 import PageSection from "@/components/layouts/PageSection.vue";
@@ -55,55 +60,75 @@ import DataHighlights from "@/components/viz/DataHighlights.vue";
 import Breadcrumbs from "@/app-components/breadcrumbs.vue";
 import headerImage from "@/assets/ray-shrewsberry-unsplash.jpg";
 
-import { fetchData } from "@/utils/utils.js";
-import { mean, format } from "d3";
-const d3 = { mean, format };
+let loading = ref(false);
+let hasError = ref(false);
+let error = ref(null);
+let summarised = ref({});
 
-export default {
-  components: {
-    Page,
-    PageHeader,
-    PageSection,
-    MessageBox,
-    DataHighlights,
-    Breadcrumbs,
-  },
-  data() {
-    return {
-      headerImage: headerImage,
-      loading: true,
-      hasError: false,
-      error: null,
-      data: {},
-      summarised: {},
-    };
-  },
-  mounted() {
-    Promise.resolve(fetchData("/api/v2/rdcomponents_penguins?num=500"))
-      .then((response) => {
-        const data = response.items;
-        const format = d3.format(".1f");
-        const summarised = {
-          "Avg. Body Mass (g)": format(d3.mean(data, (row) => row.body_mass_g)),
-          "Avg. Flipper Length (mm)": format(
-            d3.mean(data, (row) => row.flipper_length_mm)
-          ),
-          "Avg Bill Length (mm)": format(
-            d3.mean(data, (row) => row.bill_length_mm)
-          ),
-        };
+const query = `{
+  Statistics(filter: {component: {name: {equals: "organisations.by.type"}}}) {
+    label
+    value
+    component {
+      name
+    }
+  }
+}`
 
-        this.summarised = summarised;
-        this.loading = false;
-      })
-      .catch((error) => {
-        this.loading = false;
-        this.hasError = true;
-        this.error = error;
-        throw new Error(error);
-      });
-  },
-};
+
+onMounted(() => {
+  Promise.resolve(fetchData(query))
+  .then(response => {
+    const data = response.data.Statistics
+    
+  })
+})
+
+// export default {
+//   components: {
+//     Page,
+//     PageHeader,
+//     PageSection,
+//     MessageBox,
+//     DataHighlights,
+//     Breadcrumbs,
+//   },
+//   data() {
+//     return {
+//       headerImage: headerImage,
+//       loading: true,
+//       hasError: false,
+//       error: null,
+//       data: {},
+//       summarised: {},
+//     };
+//   },
+//   mounted() {
+//     Promise.resolve(fetchData("/api/v2/rdcomponents_penguins?num=500"))
+//       .then((response) => {
+//         const data = response.items;
+//         const format = d3.format(".1f");
+//         const summarised = {
+//           "Avg. Body Mass (g)": format(d3.mean(data, (row) => row.body_mass_g)),
+//           "Avg. Flipper Length (mm)": format(
+//             d3.mean(data, (row) => row.flipper_length_mm)
+//           ),
+//           "Avg Bill Length (mm)": format(
+//             d3.mean(data, (row) => row.bill_length_mm)
+//           ),
+//         };
+
+//         this.summarised = summarised;
+//         this.loading = false;
+//       })
+//       .catch((error) => {
+//         this.loading = false;
+//         this.hasError = true;
+//         this.error = error;
+//         throw new Error(error);
+//       });
+//   },
+// };
 </script>
 
 <style lang="scss">
