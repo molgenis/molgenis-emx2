@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted } from "vue";
 import { fetchData, sortData } from "@/utils/utils.js";
 
 import Page from "@/components/layouts/Page.vue";
@@ -83,23 +83,23 @@ const query = `{
       definition
     }
   }
-}`
+}`;
 
 function updateClicked(value) {
-  selection.value = value
+  selection.value = value;
 }
 
 onMounted(() => {
   Promise.resolve(fetchData(query))
-  .then(response => {
-    data.value =  sortData(response.data.Statistics, "label")
-    loading.value = false
-  }).catch(error => {
-    hasError.value = true
-    error.value = error
-  })
-})
-
+    .then((response) => {
+      data.value = sortData(response.data.Statistics, "label");
+      loading.value = false;
+    })
+    .catch((error) => {
+      hasError.value = true;
+      error.value = error;
+    });
+});
 
 // export default {
 //   components: {

@@ -44,7 +44,7 @@
         xAxisLabel="Number of Organisations"
         :enableClicks="true"
         @bar-clicked="updateClicked"
-        />
+      />
       <p>Click a bar in the chart of above to display the row-level data</p>
       <output class="output">
         {{ selection }}
@@ -54,7 +54,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted } from "vue";
 import { fetchData, reverseSortData } from "@/utils/utils.js";
 
 import Page from "@/components/layouts/Page.vue";
@@ -82,24 +82,23 @@ const query = `{
       definition
     }
   }
-}`
+}`;
 
 function updateClicked(value) {
-  selection.value = value
+  selection.value = value;
 }
 
 onMounted(() => {
   Promise.resolve(fetchData(query))
-  .then(response => {
-    const organisations = response.data.Statistics
-    data.value = reverseSortData(organisations, "value")
-    console.log(data.value)
-    loading.value = false
-  }).catch(error => {
-    hasError.value = true
-    error.value = error
-  })
-})
-
-
+    .then((response) => {
+      const organisations = response.data.Statistics;
+      data.value = reverseSortData(organisations, "value");
+      console.log(data.value);
+      loading.value = false;
+    })
+    .catch((error) => {
+      hasError.value = true;
+      error.value = error;
+    });
+});
 </script>

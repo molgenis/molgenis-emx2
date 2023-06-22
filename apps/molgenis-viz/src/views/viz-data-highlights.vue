@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import {ref, onMounted} from "vue";
+import { ref, onMounted } from "vue";
 import { fetchData, asDataObject } from "@/utils/utils.js";
 
 import Page from "@/components/layouts/Page.vue";
@@ -67,16 +67,14 @@ const query = `{
       name
     }
   }
-}`
+}`;
 
 onMounted(() => {
-  Promise.resolve(fetchData(query))
-  .then(response => {
-    const data = asDataObject(response.data.Statistics, "label", "value")
-    summarised.value = data
-  })
-})
-
+  Promise.resolve(fetchData(query)).then((response) => {
+    const data = asDataObject(response.data.Statistics, "label", "value");
+    summarised.value = data;
+  });
+});
 </script>
 
 <style lang="scss">
