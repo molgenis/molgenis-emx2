@@ -53,7 +53,7 @@
       </g>
       <g class="chart-labels">
         <text
-          :x="(chartWidth / 2)"
+          :x="chartWidth / 2"
           :y="chartHeight - chartMargins.bottom / 4.5"
           :dx="(chartMargins.left - chartMargins.right) / 2"
           class="chart-text chart-axis-title chart-axis-x"
@@ -63,7 +63,7 @@
         </text>
         <text
           :x="-(chartHeight / 2.25)"
-          :y="(chartMargins.left / 5.1)"
+          :y="chartMargins.left / 5.1"
           class="chart-text chart-axis-title chart-axis-y"
           v-if="ylabel"
         >
