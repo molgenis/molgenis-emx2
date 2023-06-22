@@ -19,8 +19,7 @@
         The <strong>ChartLegend</strong> component is used to create legends for
         other visualisation components. The legend is rendered using an object
         containing one or more key-value pair. For example, in the box below, I
-        assigned unique colors to the examples dataset using D3 scaleOrdinal and
-        d3 color schemes.
+        assigned unique colors to the examples dataset using d3-scale-chromatic.
       </p>
       <p>Here's the example input data.</p>
       <output class="output">
@@ -38,7 +37,7 @@
           :data="data"
           :stackLegend="true"
           :enableClicks="true"
-          @legend-item-clicked="selection"
+          @legend-item-clicked="updateSelection"
         />
       </div>
       <p>
@@ -47,19 +46,16 @@
         the "filtered" state.
       </p>
       <output class="output">
-        {{ clicked }}
+        {{ selection }}
       </output>
     </PageSection>
   </Page>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { request } from "graphql-request";
-
+import { ref, onMounted } from "vue";
 import { schemeGnBu } from "d3-scale-chromatic";
-import { scaleOrdinal } from "d3";
-const d3 = { schemeGnBu, scaleOrdinal };
+import { fetchData } from "@/utils/utils";
 
 import Page from "@/components/layouts/Page.vue";
 import PageHeader from "@/components/layouts/PageHeader.vue";
@@ -67,48 +63,43 @@ import PageSection from "@/components/layouts/PageSection.vue";
 import MessageBox from "@/components/display/MessageBox.vue";
 import ChartLegend from "@/components/viz/ChartLegend.vue";
 import Breadcrumbs from "@/app-components/breadcrumbs.vue";
-
 import headerImage from "@/assets/studio-media-unsplash.jpg";
 
 let loading = ref(false);
 let data = ref([]);
 let error = ref(null);
-let selection = ref([])
-let clicked = ref(null);
+let selection = ref([]);
+
+function updateSelection(value) {
+  selection.value = value;
+}
 
 const query = `{
-  Statistics(
-    filter: { component: { name: { equals: "organisations.by.type" } } }
-  ) {
+  Statistics (filter: { component: {name: {equals:"organisations.by.type"}}}) {
     label
-    value
     component {
       name
     }
   }
-}
-`
+}`;
 
-request("/dataviz/graphql", query)
-.then(response => {
-  console.log(response)
-})
-.catch((error) => {
-    if (Array.isArray(error.response.errors)) {
-      error.value = error.response.errors[0].message;
-    } else {
+onMounted(() => {
+  Promise.resolve(fetchData(query))
+    .then((response) => {
+      const stats = response.data.Statistics;
+      const groups = [...new Set(stats.map((row) => row.label))];
+      const scheme = schemeGnBu[groups.length];
+      const colors = {};
+      groups.forEach((key, index) => (colors[key] = scheme[index]));
+
+      data.value = colors;
+      loading.value = false;
+    })
+    .catch((error) => {
+      loading.value = false;
       error.value = error;
-    }
-    loading.value = false;
-  });
-      // const data = response.items;
-      // const groups = [...new Set(data.map((row) => row.island))];
-      // const palette = d3.scaleOrdinal(d3.schemeGnBu[groups.length]);
-      // const colors = {};
-      // groups.forEach((key, index) => (colors[key] = palette(index)));
-      // this.data = colors;
-      // this.loading = false;
-
+    });
+});
 </script>
 
 <style lang="scss">
