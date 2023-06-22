@@ -38,6 +38,7 @@ tasks.withType(Test) {
 repositories {
     mavenLocal()
     mavenCentral()
+    gradlePluginPortal()
     maven {
         url = 'https://repo.maven.apache.org/maven2'
     }
