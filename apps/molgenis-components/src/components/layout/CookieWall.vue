@@ -1,11 +1,11 @@
 <script setup>
 import { computed, ref } from "vue";
-import { useCookies } from "@vueuse/integrations/useCookies";
 import LayoutModal from "./LayoutModal.vue";
 import ButtonAction from "../forms/ButtonAction.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import GTag from "./GTag.vue";
-const cookies = useCookies(["mg_allow_analytics"]);
+import { useCookies } from "vue3-cookies";
+const { cookies } = useCookies();
 const props = defineProps({
   title: {
     type: String,
@@ -33,7 +33,7 @@ const emit = defineEmits(["acceptCookie"]);
 let isDeclined = ref(false);
 
 const show = computed(() => {
-  return cookies.get("mg_allow_analytics") === undefined;
+  return cookies.get("mg_allow_analytics") === null && !isDeclined.value;
 });
 
 const cookieOptions = {
@@ -43,19 +43,20 @@ const cookieOptions = {
 };
 
 function handleAccept() {
-  cookies.set("mg_allow_analytics", true, cookieOptions);
+  cookies.set("mg_allow_analytics", true, '1y');
   emit("acceptCookie", true);
   window.location.reload();
 }
 
 function handleDecline() {
-  cookies.set("mg_allow_analytics", false, cookieOptions);
+  cookies.set("mg_allow_analytics", false, '1y');
+  isDeclined.value = true;
   emit("acceptCookie", false);
 }
 
 function handleClose() {
   isDeclined.value = true;
-  emit("acceptCookie", undefined);
+  emit("acceptCookie", null);
 }
 
 const isAnalyticsEnabled = computed(() => {
@@ -100,9 +101,9 @@ const isAnalyticsEnabled = computed(() => {
   </demo-item>
 </template>
 <script setup>
+import { useCookies } from "vue3-cookies";
 import { computed, ref } from "vue";
-import { useCookies } from "@vueuse/integrations/useCookies";
-const cookies = useCookies();
+const { cookies } = useCookies();
 
 let cookieValue  = ref(cookies.get('mg_allow_analytics'));
 
