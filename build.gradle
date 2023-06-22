@@ -38,7 +38,7 @@ tasks.withType(Test) {
 repositories {
     mavenLocal()
     maven {
-        url = 'https://mirrors.huaweicloud.com/repository/maven/'
+        url = 'https://archiva-repository.apache.org/archiva/repository/all-public'
     }
     mavenCentral()
     maven {
