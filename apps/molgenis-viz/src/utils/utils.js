@@ -1,19 +1,18 @@
 // fetchData
-// retrive data from a given endpoint
+// retrive data from a given endpoint using graphql
 //
-// @param url string to an API endoint
+// @param query string containing a graphql query
 //
 // @return json
-export async function fetchData(url) {
-  const response = await fetch(url);
-  if (response.status / 100 !== 2) {
-    const error = JSON.stringify({
-      message: response.statusText,
-      status: response.status,
-      url: response.url,
-    });
-    throw new Error(error);
-  }
+export async function fetchData(query) {
+  const response = await fetch("graphql", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({ query: query }),
+  });
   return response.json();
 }
 
