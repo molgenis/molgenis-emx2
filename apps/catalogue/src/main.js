@@ -2,6 +2,7 @@ import { createApp } from "vue";
 import { createRouter, createWebHashHistory } from "vue-router";
 import { EditModal } from "molgenis-components";
 import VueScrollTo from "vue-scrollto";
+import VueGtag from "vue-gtag";
 
 import App from "./App.vue";
 import store from "./store/store";
@@ -400,6 +401,7 @@ const app = createApp(App);
 app.use(router);
 app.use(store);
 app.use(VueScrollTo);
+app.use(VueGtag, { bootstrap: false }, router);
 
 // workaround for not importing recursive component
 app.component("EditModal", EditModal);
