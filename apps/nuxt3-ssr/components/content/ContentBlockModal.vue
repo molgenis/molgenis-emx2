@@ -32,7 +32,7 @@ const bgClass = computed(() => {
 </script>
 
 <template>
-  <section class="py-18 lg:px-12.5 px-5 text-gray-900" :class="bgClass">
+  <section class="pb-18 pt-7 px-7 text-gray-900" :class="bgClass">
     <div v-if="subTitle">{{ subTitle }}</div>
     <h2 class="mb-5 uppercase text-heading-4xl font-display" v-if="title">
       {{ title }}
