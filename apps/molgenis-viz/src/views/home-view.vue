@@ -52,10 +52,7 @@
       <h2>About</h2>
       <p>
         Data used in the visualisations comes from the
-        <a href="https://github.com/allisonhorst/palmerpenguins/"
-          >Palmer Penguins dataset</a
-        >. Data used in the maps was built using the
-        <a href="https://ror.org">ROR.org</a> data repository.
+        <a href="https://ror.org">ROR Database</a>.
       </p>
     </PageSection>
   </Page>
