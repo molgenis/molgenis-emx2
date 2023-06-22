@@ -2,8 +2,8 @@
   <div :class="`message-box message-${type}`">
     <div class="message-icon" v-if="showIcon">
       <CheckCircleIcon v-if="type === 'success'" />
-      <ExclaimationTriangleIcon v-else-if="type === 'warning'" />
-      <ExclaimationCircleIcon v-else-if="type === 'error'" />
+      <ExclamationTriangleIcon v-else-if="type === 'warning'" />
+      <ExclamationCircleIcon v-else-if="type === 'error'" />
       <ChatBubbleBottomCenterIcon v-else />
     </div>
     <div class="message-text">
@@ -48,7 +48,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scope>
+<style lang="scss">
 .message-box {
   box-sizing: border-box;
   display: flex;
