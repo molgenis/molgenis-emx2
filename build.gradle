@@ -37,6 +37,7 @@ tasks.withType(Test) {
 
 repositories {
     mavenLocal()
+    mavenCentral()
     maven {
         url = 'https://repo.maven.apache.org/maven2'
     }
