@@ -21,6 +21,7 @@
     "dev": "vite",
     "build-lib": "vite build -m lib",
     "build-app": "vite build -m app",
+    "build": "vite build -m lib && vite build -m app",
     "preview": "vite preview",
     "docs": "vuese gen",
     "docs:serve": "vuese serve",
