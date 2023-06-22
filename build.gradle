@@ -40,6 +40,7 @@ repositories {
     mavenCentral()
     maven {
         url = 'https://repo.spring.io/plugins-release/'
+    }
     maven {
         url = 'https://repo.maven.apache.org/maven2'
     }
