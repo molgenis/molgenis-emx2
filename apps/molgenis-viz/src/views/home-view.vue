@@ -18,7 +18,7 @@
     </PageSection>
     <PageSection class="bkg-light" :verticalPadding="2">
       <h2>Visualisation Components</h2>
-      <p style="text-align: center;">
+      <p style="text-align: center">
         We have several D3 visualisation components available and more on the
         way.
       </p>
