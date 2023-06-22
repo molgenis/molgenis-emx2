@@ -3,9 +3,6 @@ import { defineConfig } from "vite";
 import path from "path";
 import vue from "@vitejs/plugin-vue";
 
-const BACKEND_LOCATION = process.env.PROXY_API || "http://localhost:8080/";
-const HOST = process.env.MOLGENIS_APPS_HOST || "https://emx2.dev.molgenis.org";
-
 // basic build conf fo both library
 let conf = {
   plugins: [vue()],
@@ -29,40 +26,12 @@ let conf = {
         `
       }
     }
-  },
-  server: {
-    proxy: {
-      "/apps/molgenis-components/assets/img/molgenis_logo_white.png": {
-        target: BACKEND_LOCATION,
-        changeOrigin: true,
-        secure: false,
-      },
-      "^/graphql": {
-        target: `${HOST}`,
-        changeOrigin: true,
-        secure: false,
-      },
-      "^/[a-zA-Z0-9_.-]+/graphql": {
-        target: `${HOST}`,
-        changeOrigin: true,
-        secure: false,
-      },
-      "/apps/central/theme.css": {
-        target: `${BACKEND_LOCATION}`,
-        changeOrigin: true,
-        secure: false,
-      },
-      "^/apps/resources/webfonts/.*": {
-        target: `${BACKEND_LOCATION}`,
-        changeOrigin: true,
-        secure: false,
-      },
-      "/api": { target: `${HOST}`, changeOrigin: true, secure: false } 
-    },
-  },
+  }
 };
 
 export default defineConfig(({ command, mode }) => {
+  require('dotenv').config({ path: `./.env` });
+  
   if (command === 'serve') {
     return {
       ...conf,
@@ -72,10 +41,9 @@ export default defineConfig(({ command, mode }) => {
           vue: require.resolve("vue/dist/vue.runtime.esm-bundler.js"),
         },
       },
-      base: "",
       server: {
-        port: 8080
-      }
+        proxy: require("../dev-proxy.config")
+      },
     }
   } else {
 
