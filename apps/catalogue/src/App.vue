@@ -24,7 +24,6 @@ export default {
     Molgenis,
     Spinner,
     MessageWarning,
-    GTag,
   },
   data() {
     return {
