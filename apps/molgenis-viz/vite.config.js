@@ -77,5 +77,9 @@ export default defineConfig(({ command, mode }) => {
         }
       }
     }
+    
+    if (command === "build" && mode == "app") {
+      return conf
+    }
   }
 })
