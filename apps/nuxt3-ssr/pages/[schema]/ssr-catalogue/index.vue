@@ -33,8 +33,17 @@ const { data, pending, error, refresh } = await useFetch(
           "CATALOGUE_LANDING_TITLE" 
           "CATALOGUE_LANDING_DESCRIPTION" 
           "CATALOGUE_LANDING_COHORTS_CTA"
+          "CATALOGUE_LANDING_COHORTS_TEXT"
           "CATALOGUE_LANDING_NETWORKS_CTA"
+          "CATALOGUE_LANDING_NETWORKS_TEXT"
           "CATALOGUE_LANDING_VARIABLES_CTA"
+          "CATALOGUE_LANDING_VARIABLES_TEXT"
+          "CATALOGUE_LANDING_PARTICIPANTS_LABEL"
+          "CATALOGUE_LANDING_PARTICIPANTS_TEXT"
+          "CATALOGUE_LANDING_SAMPLES_LABEL"
+          "CATALOGUE_LANDING_SAMPLES_TEXT"
+          "CATALOGUE_LANDING_DESIGN_LABEL"
+          "CATALOGUE_LANDING_DESIGN_TEXT"
         ]){ 
           key
           value 
@@ -83,7 +92,12 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
       <LandingCardPrimary
         image="image-link"
         title="Cohorts"
-        description="A complete overview of all cohorts and biobanks."
+        :description="
+          getSettingValue(
+            'CATALOGUE_LANDING_COHORTS_TEXT',
+            data.data._settings
+          ) || 'A complete overview of all cohorts and biobanks.'
+        "
         :callToAction="
           getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
         "
@@ -94,7 +108,13 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         v-if="!config.public.cohortOnly"
         image="image-diagram"
         title="Networks"
-        description="Collaborations of multiple institutions and/or cohorts with a common objective."
+        :description="
+          getSettingValue(
+            'CATALOGUE_LANDING_NETWORKS_TEXT',
+            data.data._settings
+          ) ||
+          'Collaborations of multiple institutions and/or cohorts with a common objective.'
+        "
         :callToAction="
           getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', data.data._settings)
         "
@@ -105,7 +125,12 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         v-if="!config.public.cohortOnly"
         image="image-diagram-2"
         title="Variables"
-        description="A complete overview of available variables."
+        :description="
+          getSettingValue(
+            'CATALOGUE_LANDING_VARIABLES_TEXT',
+            data.data._settings
+          ) || 'A complete overview of available variables.'
+        "
         :callToAction="
           getSettingValue(
             'CATALOGUE_LANDING_VARIABLES_CTA',
@@ -121,31 +146,70 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
       class="justify-around flex flex-col md:flex-row pt-5 pb-5 lg:pb-10 lg:px-0"
     >
       <LandingCardSecondary icon="people">
-        <b> {{ data.data.Cohorts_agg.sum.numberOfParticipants }} Participants</b
-        ><br />The cumulative number of participants of all datasets combined.
+        <b>
+          {{
+            new Intl.NumberFormat("nl-NL").format(
+              data.data.Cohorts_agg.sum.numberOfParticipants
+            )
+          }}
+          {{
+            getSettingValue(
+              "CATALOGUE_LANDING_PARTICIPANTS_LABEL",
+              data.data._settings
+            ) || "Participants"
+          }}
+        </b>
+        <br />{{
+          getSettingValue(
+            "CATALOGUE_LANDING_PARTICIPANTS_TEXT",
+            data.data._settings
+          ) || "The cumulative number of participants of all datasets combined."
+        }}
       </LandingCardSecondary>
 
       <LandingCardSecondary icon="colorize">
         <b
           >{{
-            data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
+            new Intl.NumberFormat("nl-NL").format(
+              data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
+            )
           }}
-          Samples</b
+          {{
+            getSettingValue(
+              "CATALOGUE_LANDING_SAMPLES_LABEL",
+              data.data._settings
+            ) || "Samples"
+          }}</b
         >
-        <br />The cumulative number of participants with samples collected of
-        all datasets combined.
+        <br />{{
+          getSettingValue(
+            "CATALOGUE_LANDING_SAMPLES_TEXT",
+            data.data._settings
+          ) ||
+          "The cumulative number of participants with samples collected of all datasets combined."
+        }}
       </LandingCardSecondary>
 
       <LandingCardSecondary icon="schedule">
         <b
-          >Longitudinal
+          >{{
+            getSettingValue(
+              "CATALOGUE_LANDING_DESIGN_LABEL",
+              data.data._settings
+            ) || "Longitudinal"
+          }}
           {{
             percentageLongitudinal(
               data.data.Cohorts_groupBy,
               data.data.Cohorts_agg.count
             )
           }}%</b
-        ><br />Percentage of longitudinal datasets. The remaining datasets are
+        ><br />{{
+          getSettingValue(
+            "CATALOGUE_LANDING_DESIGN_TEXT",
+            data.data._settings
+          ) || "Percentage of longitudinal datasets. The remaining datasets are"
+        }}
         cross-sectional.
       </LandingCardSecondary>
     </div>

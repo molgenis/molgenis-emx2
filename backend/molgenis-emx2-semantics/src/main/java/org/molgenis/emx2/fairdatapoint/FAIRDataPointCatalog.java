@@ -38,7 +38,7 @@ public class FAIRDataPointCatalog {
   }
 
   /**
-   * schemaName -> List of Map{key, value} for each FDP_Catalog record
+   * schemaName -> List of Map{key, value} for each Catalog record
    *
    * @param schemas
    * @param id
@@ -61,7 +61,7 @@ public class FAIRDataPointCatalog {
     GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
     ExecutionResult executionResult =
         grapql.execute(
-            "{FDP_Catalog"
+            "{Catalog"
                 + (id != null ? "(filter:{id: {equals:\"" + id + "\"}})" : "")
                 + "{"
                 + "id,"
@@ -79,7 +79,7 @@ public class FAIRDataPointCatalog {
     Map<String, Object> result = executionResult.toSpecification();
     if (result.containsKey("data")) {
       return (List<Map<String, Object>>)
-          ((HashMap<String, Object>) result.get("data")).get("FDP_Catalog");
+          ((HashMap<String, Object>) result.get("data")).get("Catalog");
     } else {
       return null;
     }
@@ -143,12 +143,6 @@ public class FAIRDataPointCatalog {
     builder.add(publisher, FOAF.NAME, catalogFromJSON.get("publisher"));
     builder.add(
         apiFdpEnc, DCTERMS.LICENSE, iri(TypeUtils.toString(catalogFromJSON.get("license"))));
-    ArrayList<IRI> datasetIRIs =
-        extractDatasetIRIs(catalogFromJSON.get("dataset"), apiFdp, schema.getName());
-    for (IRI datasetIRI : datasetIRIs) {
-      // not 'Dataset' (class) but 'dataset' (predicate)
-      builder.add(reqUrl, iri("http://www.w3.org/ns/dcat#dataset"), datasetIRI);
-    }
     builder.add(apiFdpEnc, DCTERMS.CONFORMS_TO, apiFdpCatalogProfileEnc);
     builder.add(reqUrl, DCTERMS.IS_PART_OF, apiFdpEnc);
     builder.add(
@@ -173,8 +167,14 @@ public class FAIRDataPointCatalog {
     builder.add(apiFdpDatasetEnc, DCTERMS.TITLE, "Datasets");
     builder.add(apiFdpDatasetEnc, LDP.MEMBERSHIP_RESOURCE, reqUrl);
     builder.add(apiFdpDatasetEnc, LDP.HAS_MEMBER_RELATION, DCAT.DATASET);
-    for (IRI datasetIRI : datasetIRIs) {
-      builder.add(apiFdpDatasetEnc, LDP.CONTAINS, datasetIRI);
+    if (catalogFromJSON.get("dataset") != null) {
+      ArrayList<IRI> datasetIRIs =
+          extractDatasetIRIs(catalogFromJSON.get("dataset"), apiFdp, schema.getName());
+      for (IRI datasetIRI : datasetIRIs) {
+        // not 'Dataset' (class) but 'dataset' (predicate)
+        builder.add(reqUrl, iri("http://www.w3.org/ns/dcat#dataset"), datasetIRI);
+        builder.add(apiFdpDatasetEnc, LDP.CONTAINS, datasetIRI);
+      }
     }
 
     /*
@@ -217,9 +217,7 @@ public class FAIRDataPointCatalog {
     builder.add(
         accessRights, DCTERMS.DESCRIPTION, "Access rights are provided on a per-dataset basis.");
     builder.add(
-        apiFdpEnc,
-        FOAF.HOMEPAGE,
-        encodedIRI(host + "/" + schema.getName() + "/tables/#/FDP_Catalog"));
+        apiFdpEnc, FOAF.HOMEPAGE, encodedIRI(host + "/" + schema.getName() + "/tables/#/Catalog"));
 
     // Write model
     Model model = builder.build();

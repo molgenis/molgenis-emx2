@@ -1,7 +1,6 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
-import static org.molgenis.emx2.web.MolgenisWebservice.getSchemaNames;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
@@ -96,15 +95,15 @@ public class BeaconApi {
     return getWriter().writeValueAsString(new BeaconFilteringTermsResponse());
   }
 
-  private static String getDatasets(Request request, Response response)
-      throws JsonProcessingException {
+  private static String getDatasets(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
     String skip = request.queryParams("skip");
     String limit = request.queryParams("limit");
 
     // TODO pass request to response to set limits, offsets etc
     // result should be BeaconBooleanResponse, BeaconCountResponse or BeaconCollectionResponse
-    return getWriter().writeValueAsString(new Datasets(request, getSchemaNames(request)));
+    List<Table> tables = getTableFromAllSchemas("Dataset", request);
+    return getWriter().writeValueAsString(new Datasets(request, tables));
   }
 
   private static String getAnalyses(Request request, Response response) throws Exception {

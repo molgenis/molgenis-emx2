@@ -43,10 +43,10 @@
                   <td>
                     <span
                       class="font-weight-bold mr-2 mb-2 badge bade-lg badge-primary"
-                      v-for="design in cohort.design"
+                      v-if="cohort.design"
                       :key="design"
                     >
-                      {{ design }}
+                      {{ cohort.design.name }}
                     </span>
                   </td>
                 </tr>
@@ -93,8 +93,17 @@
                 </tr>
                 <tr>
                   <td>
-                    <a :href="cohort.website" target="__blank">website</a>&nbsp;
-                    <a :href="'mailto:' + cohort.contactEmail">email</a>
+                    <a
+                      v-if="cohort.website"
+                      :href="cohort.website"
+                      target="__blank"
+                      >website</a
+                    >&nbsp;
+                    <a
+                      v-if="cohort.contactEmail"
+                      :href="'mailto:' + cohort.contactEmail"
+                      >email</a
+                    >
                   </td>
                 </tr>
               </table>
@@ -143,7 +152,7 @@ export default {
     this.client = Client.newClient();
     const resp = await this.client.fetchTableData(this.table, {
       filter: this.graphqlFilter,
-      orderBy: this.orderBy,
+      orderby: this.orderBy,
     });
     this.cohorts = resp[this.table] ? resp[this.table] : [];
     this.count = resp[this.table + "_agg"].count;
