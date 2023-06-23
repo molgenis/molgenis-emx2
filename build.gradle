@@ -29,11 +29,13 @@ sonarqube {
     }
 }
 
+tasks.withType(Test) {
+    maxParallelForks = Runtime.runtime.availableProcessors() / 2;
+}
+
 repositories {
     mavenLocal()
-    maven {
-        url = 'https://repo.maven.apache.org/maven2'
-    }
+    mavenCentral()
     maven {
         url = "https://registry.molgenis.org/repository/maven-public"
     }
@@ -59,12 +61,6 @@ publishing {
 }
 
 project.ext.ghToken = project.hasProperty('ghToken') ? project.getProperty('ghToken') : System.getenv('GITHUB_TOKEN') ?: null
-//semanticRelease {
-//    repo {
-//        releaseAsset shadowJar
-//        ghToken = project.ghToken
-//    }
-//}
 
 def imageName = 'docker.io/molgenis/molgenis-emx2'
 def tagName = project.version.toString()
