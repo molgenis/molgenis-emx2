@@ -54,6 +54,20 @@ let filters: IFilter[] = reactive([
     filterTable: "collectionEvents",
     conditions: [],
   },
+  {
+    title: "Cohort Types",
+    refTable: "ResourceTypes",
+    columnName: "type",
+    columnType: "ONTOLOGY",
+    conditions: [],
+  },
+  {
+    title: "Design",
+    refTable: "CohortDesigns",
+    columnName: "design",
+    columnType: "ONTOLOGY",
+    conditions: [],
+  },
 ]);
 
 let search = computed(() => {

@@ -738,5 +738,10 @@ public class TestGraphqSchemaFields {
     JsonNode result = execute("{_reports(id:0){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
     assertEquals(8, result.at("/_reports/count").intValue());
+
+    // report 1 has parameters
+    result = execute("{_reports(id:1,parameters:{key:\"name\", value:\"spike\"}){data,count}}");
+    assertTrue(result.at("/_reports/data").textValue().contains("spike"));
+    assertEquals(1, result.at("/_reports/count").intValue());
   }
 }

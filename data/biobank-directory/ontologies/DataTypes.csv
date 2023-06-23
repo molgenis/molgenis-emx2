@@ -1,0 +1,16 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,ANTIBODIES,Antibodies titer (IgM and IgG),,,,,
+,IMAGING_DATA,Imaging data,,Miabis,,,Y/N if imaging data are collected from the participants in the sample collection/study
+,NAV,Not available,,,,,Not available
+,TREATMENT_PROTOCOL,Treatment protocol (types of drugs used),,,,,
+,NATIONAL_REGISTRIES,National registries,,Miabis,,,Y/N if register data is associated to the participants in the sample collection/study
+,DiseaseDuration,Data on disease duration and disease outcome,,,,,
+,SURVEY_DATA,Survey data,,Miabis,,http://purl.obolibrary.org/obo/OMIABIS_0000060,Y/N if information from surveys are collected from the participants in the sample collection/study
+,OTHER,Other,,Miabis,,,Other
+,CLINICAL_SYMPTOMS,Data on clinical symptoms,,,,,
+,CT,"CT imaging of lungs, alternatively Xray",,,,,
+,PHYSIOLOGICAL_BIOCHEMICAL_MEASUREMENTS,Physiological/Biochemical measurements,,Miabis,,,Y/N if Measurements/tests performed during a clinical/home visit and from samples taken from donor
+,GENEALOGICAL_RECORDS,Genealogical records,,Miabis,,,Y/N if genealogical records are associated with the participants in the sample collection/study
+,MEDICAL_RECORDS,Medical records,,Miabis,,http://purl.obolibrary.org/obo/OMIABIS_0001027,Y/N if medical records are collected from the participants in the sample collection/study
+,BIOLOGICAL_SAMPLES,Biological samples,,,,,Y/N if biological samples are collected from the participants in the sample collection/study
+,BLOOD,Blood count and other lab results especially at the moment of hospital admission,,,,,

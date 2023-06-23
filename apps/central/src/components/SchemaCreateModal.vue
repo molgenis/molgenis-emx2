@@ -42,6 +42,7 @@
               label="name"
               :defaultValue="schemaName"
               :required="true"
+              :errorMessage="validate(schemaName)"
             />
             <InputSelect
               id="schema-create-template"
@@ -68,7 +69,10 @@
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-        <ButtonAction @click="executeCreateSchema">
+        <ButtonAction
+          :disabled="validate(this.schemaName)"
+          @click="executeCreateSchema"
+        >
           Create database
         </ButtonAction>
       </template>
@@ -81,6 +85,7 @@ import { request } from "graphql-request";
 
 import {
   ButtonAction,
+  ButtonDanger,
   ButtonAlt,
   InputString,
   InputText,
@@ -98,6 +103,7 @@ export default {
     MessageSuccess,
     MessageError,
     ButtonAction,
+    ButtonDanger,
     ButtonAlt,
     InputBoolean,
     LayoutModal,
@@ -125,6 +131,7 @@ export default {
         "DATA_CATALOGUE_NETWORK_STAGING",
         "RD3",
         "DASHBOARD",
+        "BIOBANK_DIRECTORY",
       ],
       includeDemoData: false,
     };
@@ -138,6 +145,21 @@ export default {
     },
   },
   methods: {
+    validate(name) {
+      const simpleName = /^[a-zA-Z][a-zA-Z0-9_ ]*$/;
+      if (name === null) {
+        return undefined;
+      }
+      if (
+        simpleName.test(name) &&
+        typeof name === "string" &&
+        name.length < 32
+      ) {
+        return undefined;
+      } else {
+        return "Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters";
+      }
+    },
     executeCreateSchema() {
       this.loading = true;
       this.graphqlError = null;
