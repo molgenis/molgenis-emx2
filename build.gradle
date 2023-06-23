@@ -5,7 +5,6 @@
 plugins {
     id "java"
     id "org.sonarqube" version "3.5.0.2730"
-    id "com.mooltiverse.oss.nyx" version "2.4.4-hotfix219.3"
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'application'
@@ -13,6 +12,10 @@ plugins {
     id 'org.unbroken-dome.helm-publish' version '1.7.0'
     id 'org.unbroken-dome.helm-commands' version '1.7.0'
     id 'com.palantir.docker' version '0.35.0'
+}
+
+subprojects {
+    version = rootProject.version
 }
 
 targetCompatibility = "17"
@@ -24,24 +27,6 @@ sonarqube {
         property 'sonar.projectKey', 'molgenis_molgenis-emx2'
         property 'sonar.coverage.jacoco.xmlReportPaths', "${projectDir}/backend/build/reports/jacoco/jacocoMergedReport/jacocoMergedReport.xml"
     }
-}
-
-nyx {
-    preset = 'simple'
-    releaseTypes {
-        items {
-            internal {
-                collapseVersions = true
-                collapsedVersionQualifier = 'SNAPSHOT'
-                identifiers {}
-            }
-        }
-    }
-}
-build.dependsOn nyxInfer
-
-tasks.withType(Test) {
-    maxParallelForks = Runtime.runtime.availableProcessors() / 2;
 }
 
 repositories {
