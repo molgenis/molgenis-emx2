@@ -37,3 +37,7 @@ class UpdateItemsException(OntomanagerException):
 
 class SigninError(OntomanagerException):
     """Thrown when signing in to the client has failed."""
+
+
+class InvalidDatabaseException(OntomanagerException):
+    """Thrown when a database is requested that cannot be loaded, due to invalid database name."""
