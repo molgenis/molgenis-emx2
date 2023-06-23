@@ -6,7 +6,6 @@ plugins {
 }
 
 nyx {
-    dryRun = true
     verbosity = "INFO"
     preset = "simple"
     releasePrefix = "v"
