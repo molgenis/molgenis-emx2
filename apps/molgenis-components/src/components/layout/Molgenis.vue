@@ -1,10 +1,5 @@
 <template>
   <div style="background-color: #f4f4f4">
-    <CookieWall
-      v-if="analyticsId"
-      :analyticsId="analyticsId"
-      :htmlContentString="cookieWallContent"
-    />
     <div style="min-height: calc(100vh - 70px)">
       <MolgenisMenu
         :logo="logoURLorDefault"
@@ -52,8 +47,6 @@ import MolgenisMenu from "./MolgenisMenu.vue";
 import MolgenisSession from "../account/MolgenisSession.vue";
 import MolgenisFooter from "./MolgenisFooter.vue";
 import Breadcrumb from "./Breadcrumb.vue";
-import CookieWall from "./CookieWall.vue";
-import { request, gql } from "graphql-request";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
@@ -64,9 +57,7 @@ export default {
     MolgenisMenu,
     MolgenisFooter,
     Breadcrumb,
-    CookieWall,
   },
-  emits: ["update:modelValue", "error"],
   props: {
     menuItems: {
       type: Array,
@@ -121,8 +112,6 @@ export default {
       logoURL: null,
       fullscreen: false,
       timestamp: Date.now(),
-      analyticsId: null,
-      cookieWallContent: null,
     };
   },
   computed: {
@@ -196,33 +185,7 @@ export default {
       this.fullscreen = !this.fullscreen;
     },
   },
-  created() {
-    request(
-      "graphql",
-      gql`
-        {
-          _settings {
-            key
-            value
-          }
-        }
-      `
-    ).then((data) => {
-      const analyticsSetting = data._settings.find(
-        (setting) => setting.key === "ANALYTICS_ID"
-      );
-
-      this.analyticsId = analyticsSetting ? analyticsSetting.value : null;
-
-      const analyticsCookieWallContentSetting = data._settings.find(
-        (setting) => setting.key === "ANALYTICS_COOKIE_WALL_CONTENT"
-      );
-
-      this.cookieWallContent = analyticsCookieWallContentSetting
-        ? analyticsCookieWallContentSetting.value
-        : null;
-    });
-  },
+  emits: ["update:modelValue", "error"],
 };
 </script>
 

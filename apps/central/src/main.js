@@ -7,7 +7,6 @@ import ManageSettings from "./components/admin/ManageSettings.vue";
 import ManageUsers from "./components/admin/ManageUsers.vue";
 import ManagePrivacyPolicy from "./components/admin/ManagePrivacyPolicy.vue";
 import "molgenis-components/dist/style.css";
-import VueGtag from "vue-gtag";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -33,5 +32,4 @@ const router = createRouter({
 
 const app = createApp(App);
 app.use(router);
-app.use(VueGtag, { bootstrap: false }, router);
 app.mount("#app");

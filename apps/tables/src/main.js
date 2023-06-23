@@ -4,7 +4,6 @@ import App from "./App.vue";
 import ListTables from "./components/ListTables.vue";
 import ViewTable from "./components/ViewTable.vue";
 import { EditModal } from "molgenis-components";
-import VueGtag from "vue-gtag";
 
 import "molgenis-components/dist/style.css";
 
@@ -26,7 +25,6 @@ const router = createRouter({
 
 const app = createApp(App);
 app.use(router);
-app.use(VueGtag, { bootstrap: false }, router);
 // workaround for not importing recursive component
 app.component("EditModal", EditModal);
 app.mount("#app");
