@@ -26,8 +26,14 @@ sonarqube {
     }
 }
 
+scmVersion {
+    tag {
+        prefix.set("v")
+    }
+}
 allprojects {
     group = 'org.molgenis'
+    project.version = scmVersion.version
 }
 
 tasks.withType(Test) {
