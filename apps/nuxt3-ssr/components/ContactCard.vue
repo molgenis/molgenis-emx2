@@ -18,10 +18,10 @@ defineProps<{
   -->
     <div class="flex items-start justify-center flex-col h-full">
       <span class="font-bold block">
-        <span class="font-bold block" v-if="contact?.title">
-          {{ contact?.title.name }}
+        <span class="font-bold" v-if="contact?.title">
+          {{ contact?.title.name }}&nbsp;
         </span>
-        <span v-if="contact?.initials"> {{ contact?.initials }} </span>
+        <span v-if="contact?.initials">{{ contact?.initials }}</span>
         <span v-if="contact?.firstName && contact?.initials">
           ({{ contact?.firstName }})
         </span>
