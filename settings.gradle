@@ -7,7 +7,8 @@ plugins {
 
 nyx {
     dryRun = true
-    preset = 'simple'
+    preset = "simple"
+    releasePrefix = "v"
     releaseTypes {
         items {
             internal {
