@@ -1,4 +1,5 @@
 <script setup>
+import { INotificationType } from "~/interfaces/types";
 const props = defineProps({
   image: {
     type: String,
@@ -14,7 +15,7 @@ const props = defineProps({
   },
   contact: {
     type: String,
-    required: true,
+    required: false,
   },
   contactName: {
     type: String,
@@ -58,6 +59,12 @@ watch(
   }
 );
 
+const showMessageStatusModal = ref(false);
+const notificationType = ref(INotificationType.success);
+const notificationTitle = ref("The message has been sent");
+const notificationMessage = ref("");
+const timeoutInMills = ref(5000);
+
 const submitForm = async () => {
   const senderName = fields.find((field) => field.name === "senderName");
   const senderEmail = fields.find((field) => field.name === "senderEmail");
@@ -70,8 +77,10 @@ const submitForm = async () => {
     return;
   }
 
+  const isSendSuccess = false;
+
   try {
-    sendContactForm({
+    isSendSuccess = await sendContactForm({
       recipientsFilter: '{"filter": {"id":{"equals":"TestCohort"}}}',
       subject: "Contact request from " + senderName.fieldValue,
       body: `Name: ${senderName.fieldValue}\nEmail: ${senderEmail.fieldValue}\nMessage: ${senderMessage.fieldValue}`,
@@ -87,7 +96,20 @@ const submitForm = async () => {
   senderEmail.hasError = false;
   senderEmail.message = "";
 
+  if (isSendSuccess) {
+    notificationType.value = INotificationType.success;
+    notificationTitle.value = "The message has been sent";
+    timeoutInMills.value = 5000;
+  } else {
+    notificationType.value = INotificationType.error;
+    notificationTitle.value = "Error";
+    notificationMessage.value =
+      "Your message could not be sent. Please try again later";
+    timeoutInMills.value = 30000;
+  }
+
   showContactInformation.value = false;
+  showMessageStatusModal.value = true;
 };
 </script>
 
@@ -140,5 +162,16 @@ const submitForm = async () => {
         size="medium"
       />
     </div>
+
+    <NotificationModal
+      v-if="showMessageStatusModal"
+      :type="notificationType"
+      :title="notificationTitle"
+      :timeout-in-mills="timeoutInMills"
+      :notificationMessage="notificationMessage"
+      @close="showMessageStatusModal = false"
+    >
+      <p v-if="notificationMessage">{{ notificationMessage }}</p>
+    </NotificationModal>
   </section>
 </template>
