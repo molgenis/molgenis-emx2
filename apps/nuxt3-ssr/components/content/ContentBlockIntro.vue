@@ -136,12 +136,21 @@ const submitForm = async () => {
         @close="showContactInformation = false"
         buttonAlignment="right"
       >
-        <ContentBlockModal title="Contact" :sub-title="contactName">
-          <!-- <div class="font-bold text-body-base">E-mail</div>
-          <a class="text-blue-500 hover:underline" :href="`mailto:${contact}`">
-            {{ contact }}
-          </a> -->
+        <ContentBlockModal
+          title="Contact"
+          :sub-title="contactName"
+          class="flex flex-col gap-3"
+        >
           <ContactForm :fields="fields" @submit-form="submitForm" />
+          <div class="pl-3 pb-3">
+            <span class="text-body-base">or contact us at: </span>
+            <a
+              class="text-blue-500 hover:underline"
+              :href="`mailto:${contact}`"
+            >
+              {{ contact }}
+            </a>
+          </div>
         </ContentBlockModal>
 
         <template #footer>
