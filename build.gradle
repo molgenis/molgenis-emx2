@@ -18,6 +18,8 @@ allprojects {
     version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
 }
 
+nyxPublish.dependsOn assemble
+
 targetCompatibility = "17"
 sourceCompatibility = "17"
 
