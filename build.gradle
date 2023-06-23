@@ -5,7 +5,7 @@
 plugins {
     id "java"
     id "org.sonarqube" version "3.5.0.2730"
-    id 'pl.allegro.tech.build.axion-release' version '1.15.3'
+    id "com.mooltiverse.oss.nyx" version "2.4.4-hotfix219.3"
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'application'
@@ -26,15 +26,19 @@ sonarqube {
     }
 }
 
-scmVersion {
-    tag {
-        prefix.set("v")
+nyx {
+    preset = 'simple'
+    releaseTypes {
+        items {
+            internal {
+                collapseVersions = true
+                collapsedVersionQualifier = 'SNAPSHOT'
+                identifiers {}
+            }
+        }
     }
 }
-allprojects {
-    group = 'org.molgenis'
-    project.version = scmVersion.version
-}
+build.dependsOn nyxInfer
 
 tasks.withType(Test) {
     maxParallelForks = Runtime.runtime.availableProcessors() / 2;
