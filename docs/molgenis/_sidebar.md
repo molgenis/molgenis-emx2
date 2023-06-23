@@ -15,7 +15,6 @@
     - [Linked data](semantics.md)
     - [Using APIs](use_usingapis.md)
     - [Admin](use_global_settings.md)
-    - [Analytics](use_analytics.md)
 - **Installation guide**
     - [Run as java service](run_java.md)
     - [Run with docker compose](run_docker.md)

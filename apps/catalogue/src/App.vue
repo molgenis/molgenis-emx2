@@ -29,7 +29,6 @@ export default {
     return {
       session: {},
       error: null,
-      analyticsId: null,
     };
   },
   methods: {
