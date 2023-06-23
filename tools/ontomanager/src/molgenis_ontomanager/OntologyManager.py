@@ -7,7 +7,7 @@ from requests import Response
 
 from .constants import ontology_columns
 from .exceptions import OntomanagerException, DuplicateKeyException, MissingPkeyException, NoSuchNameException, \
-    NoSuchTableException, UpdateItemsException, SigninError
+    NoSuchTableException, UpdateItemsException, SigninError, InvalidDatabaseException
 from .graphql_queries import Queries
 
 log = logging.getLogger(__name__)
@@ -111,7 +111,10 @@ class OntologyManager:
             :param database: the name of the database
             """
             db_dict = dict()
-            db_schema = self.manager.get_database_schema(database)
+            try:
+                db_schema = self.manager.get_database_schema(database)
+            except InvalidDatabaseException:
+                return db_dict
 
             for tb_name, tb_values in db_schema.items():
                 self.table = tb_name
@@ -185,15 +188,13 @@ class OntologyManager:
                 log.debug(response.status_code)
                 log.debug(response.text)
             else:
-                log.info(f"Successfully updated term {self.old} to {self.new} in column {self.column}"
-                         f" of table {self.table} on database {self.database} in {len(column_values)} rows.")
+                log.info(f"Successfully updated term in column '{self.column}'"
+                         f" of table '{self.table}' on database '{self.database}' in {len(column_values)} rows.")
                 return column_values_updated
 
     def update(self, table: str, **kwargs) -> dict:
         """Rename a term in an ontology."""
         ontology_table = table
-        # TODO: do the actual update
-        log.info(f"Renaming in table {ontology_table}.")
 
         if ontology_table not in self.ontology_tables:
             raise NoSuchTableException(f"Table '{ontology_table}' not found in CatalogueOntologies.")
@@ -202,6 +203,8 @@ class OntologyManager:
             old, new = kwargs['old'], kwargs['new']
         except KeyError:
             raise UpdateItemsException("Specify 'old' and 'new' terms.")
+
+        log.info(f"Renaming in term '{old}' to '{new}' in table {ontology_table}.")
 
         if old not in self.__list_ontology_terms(ontology_table):
             raise NoSuchNameException(f"Name '{old}' not found in table '{ontology_table}'.")
@@ -233,7 +236,7 @@ class OntologyManager:
             message = _response.json()['errors'][0]['message']
             if 'duplicate key value' in message:
                 raise DuplicateKeyException(message)
-            raise OntomanagerException(_response.json()['errors'][0]['message'])
+            raise OntomanagerException(message)
         else:
             log.info(f"Successfully {verbs[1]} {variables[next(iter(variables))]['name']}.")
 
@@ -281,6 +284,9 @@ class OntologyManager:
             url=f'{self.client.url}/{database}/graphql',
             json={"query": query}
         )
+        if response.status_code == 404:
+            raise InvalidDatabaseException(f"Invalid database name {database}.")
+
         _tables = response.json()['data']['_schema']['tables']
         tables = {tab['name']: {'externalSchema': tab['externalSchema'],
                                 'inherit': tab.get('inherit'),
