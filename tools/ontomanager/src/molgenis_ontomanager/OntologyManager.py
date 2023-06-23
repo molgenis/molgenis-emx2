@@ -285,9 +285,12 @@ class OntologyManager:
             json={"query": query}
         )
         if response.status_code == 404:
-            raise InvalidDatabaseException(f"Invalid database name {database}.")
+            raise InvalidDatabaseException(f"Invalid database name '{database}'.")
 
-        _tables = response.json()['data']['_schema']['tables']
+        try:
+            _tables = response.json()['data']['_schema']['tables']
+        except KeyError:
+            raise InvalidDatabaseException(f"No tables found in database '{database}'.")
         tables = {tab['name']: {'externalSchema': tab['externalSchema'],
                                 'inherit': tab.get('inherit'),
                                 'tableType': tab['tableType'],
