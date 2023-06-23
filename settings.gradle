@@ -11,6 +11,11 @@ nyx {
     releasePrefix = "v"
     releaseTypes {
         items {
+	    mainline {
+                 matchBranches = "master"
+                 publish = "true"
+                 publicationServices = ["github"]
+            }
             internal {
                 collapseVersions = true
                 collapsedVersionQualifier = 'SNAPSHOT'
@@ -30,8 +35,8 @@ nyx {
     }
     releaseAssets {
         jar {
-            path = "build/libs/molgenis-emx2-{{version}}.jar"
-            fileName = "molgenis-emx2-{{version}}.jar"
+            path = "build/libs/molgenis-emx2-{{#replace from="'v'"}}{{version}}{{/replace}}.jar"
+            fileName = "molgenis-emx2--{{#replace from="'v'"}}{{version}}{{/replace}}.jar"
         }
     }
 }
