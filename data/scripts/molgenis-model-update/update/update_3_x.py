@@ -174,9 +174,12 @@ class TransformDataCatalogue(Transform):
         df_datasets = pd.concat([df_source_tables, df_target_tables], ignore_index=True)
         df_datasets.drop(df_datasets[(df_datasets['dataDictionary.resource'] == 'IPEC_CDM') &
                                      (df_datasets['dataDictionary.version'] == '1.0.0')].index, inplace=True)
+        df_datasets.drop(df_datasets[(df_datasets['dataDictionary.resource'] == 'PSYCONN') &
+                                     (df_datasets['dataDictionary.version'] == '1.0.0')].index, inplace=True)
         df_datasets.rename(columns={'dataDictionary.resource': 'resource',
                                     'dataDictionary.version': 'since version'}, inplace=True)
         df_datasets.loc[df_datasets['resource'] == 'IPEC_CDM', 'since version'] = '1.0.0'
+        df_datasets.loc[df_datasets['resource'] == 'PSYCONN', 'since version'] = '1.0.0'
         df_datasets = float_to_int(df_datasets)  # convert float back to integer
         df_datasets.to_csv(self.path + 'Datasets.csv', index=False)
 
@@ -189,10 +192,13 @@ class TransformDataCatalogue(Transform):
         df_variables = float_to_int(df_variables)  # convert float back to integer
         df_variables.drop(df_variables[(df_variables['dataDictionary.resource'] == 'IPEC_CDM') &
                                        (df_variables['dataDictionary.version'] == '1.0.0')].index, inplace=True)
+        df_variables.drop(df_variables[(df_variables['dataDictionary.resource'] == 'PSYCONN') &
+                                       (df_variables['dataDictionary.version'] == '1.0.0')].index, inplace=True)
         df_variables.rename(columns={'dataDictionary.resource': 'resource',
                                      'table': 'dataset',
                                      'dataDictionary.version': 'since version'}, inplace=True)
         df_variables.loc[df_variables['resource'] == 'IPEC_CDM', 'since version'] = '1.0.0'
+        df_variables.loc[df_variables['resource'] == 'PSYCONN', 'since version'] = '1.0.0'
         df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
     def variable_values(self):
@@ -204,12 +210,16 @@ class TransformDataCatalogue(Transform):
         df_variable_values.drop(df_variable_values[(df_variable_values['dataDictionary.resource'] == 'IPEC_CDM') &
                                                    (df_variable_values['dataDictionary.version'] == '1.0.0')].index,
                                 inplace=True)
+        df_variable_values.drop(df_variable_values[(df_variable_values['dataDictionary.resource'] == 'PSYCONN') &
+                                                   (df_variable_values['dataDictionary.version'] == '1.0.0')].index,
+                                inplace=True)
         df_variable_values.rename(columns={'dataDictionary.resource': 'resource',
                                            'dataDictionary.version': 'since version',
                                            'variable.table': 'variable.dataset',
                                            'ontologyTermIRI': 'ontologyTermURI'}, inplace=True)
         df_variable_values = float_to_int(df_variable_values)  # convert float back to integer
         df_variable_values.loc[df_variable_values['resource'] == 'IPEC_CDM', 'since version'] = '1.0.0'
+        df_variable_values.loc[df_variable_values['resource'] == 'PSYCONN', 'since version'] = '1.0.0'
         df_variable_values.to_csv(self.path + 'VariableValues.csv', index=False)
 
     def repeated_variables(self):
@@ -234,7 +244,7 @@ class TransformDataCatalogue(Transform):
                                           'toDataDictionary.resource': 'target',
                                           'toTable': 'targetDataset'}, inplace=True)
         df_table_mappings.drop(df_table_mappings[(df_table_mappings['target'] == 'IPEC_CDM') &
-                                                 df_table_mappings['toDataDictionary.version'] == '1.0.0'].index,
+                                                 (df_table_mappings['toDataDictionary.version'] == '1.0.0')].index,
                                inplace=True)
         df_table_mappings = float_to_int(df_table_mappings)  # convert float back to integer
         df_table_mappings.to_csv(self.path + 'DatasetMappings.csv', index=False)
@@ -252,7 +262,8 @@ class TransformDataCatalogue(Transform):
                                              'toTable': 'targetDataset',
                                              'toVariable': 'targetVariable'}, inplace=True)
         df_variable_mappings.drop(df_variable_mappings[(df_variable_mappings['target'] == 'IPEC_CDM') &
-                                                       (df_variable_mappings['toDataDictionary.version'] == '1.0.0')].index, inplace=True)
+                                                       (df_variable_mappings['toDataDictionary.version'] == '1.0.0')]
+                                  .index, inplace=True)
         df_variable_mappings = float_to_int(df_variable_mappings)  # convert float back to integer
         df_variable_mappings.to_csv(self.path + 'VariableMappings.csv', index=False)
 
@@ -314,7 +325,6 @@ class TransformDataStaging(Transform):
         list_partners = df_partners['institution'].unique().tolist()
         string_partners = ','.join(list_partners)
         df_cohorts['additional organisations'] = string_partners
-
         df_cohorts.rename(columns={'pid': 'id',
                                    'institution': 'lead organisation'}, inplace=True)
         df_cohorts['website'] = df_cohorts['website'].apply(get_hyperlink)
@@ -393,9 +403,12 @@ class TransformDataStaging(Transform):
             df_datasets = pd.read_csv(self.path + 'TargetTables.csv')
         df_datasets.drop(df_datasets[(df_datasets['dataDictionary.resource'] == 'IPEC_CDM') &
                                      (df_datasets['dataDictionary.version'] == '1.0.0')].index, inplace=True)
+        df_datasets.drop(df_datasets[(df_datasets['dataDictionary.resource'] == 'PSYCONN') &
+                                     (df_datasets['dataDictionary.version'] == '1.0.0')].index, inplace=True)
         df_datasets.rename(columns={'dataDictionary.resource': 'resource',
                                     'dataDictionary.version': 'since version'}, inplace=True)
         df_datasets.loc[df_datasets['resource'] == 'IPEC_CDM', 'since version'] = '1.0.0'
+        df_datasets.loc[df_datasets['resource'] == 'PSYCONN', 'since version'] = '1.0.0'
         df_datasets = float_to_int(df_datasets)  # convert float back to integer
         df_datasets.to_csv(self.path + 'Datasets.csv', index=False)
 
@@ -408,10 +421,13 @@ class TransformDataStaging(Transform):
             df_variables = pd.read_csv(self.path + 'TargetVariables.csv', keep_default_na=False)
         df_variables.drop(df_variables[(df_variables['dataDictionary.resource'] == 'IPEC_CDM') &
                                        (df_variables['dataDictionary.version'] == '1.0.0')].index, inplace=True)
+        df_variables.drop(df_variables[(df_variables['dataDictionary.resource'] == 'PSYCONN') &
+                                       (df_variables['dataDictionary.version'] == '1.0.0')].index, inplace=True)
         df_variables.rename(columns={'dataDictionary.resource': 'resource',
                                      'dataDictionary.version': 'since version',
                                      'table': 'dataset',}, inplace=True)
         df_variables.loc[df_variables['resource'] == 'IPEC_CDM', 'since version'] = '1.0.0'
+        df_variables.loc[df_variables['resource'] == 'PSYCONN', 'since version'] = '1.0.0'
         df_variables = float_to_int(df_variables)  # convert float back to integer
         df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
@@ -425,11 +441,15 @@ class TransformDataStaging(Transform):
         df_variable_values.drop(df_variable_values[(df_variable_values['dataDictionary.resource'] == 'IPEC_CDM') &
                                                    (df_variable_values['dataDictionary.version'] == '1.0.0')].index,
                                 inplace=True)
+        df_variable_values.drop(df_variable_values[(df_variable_values['dataDictionary.resource'] == 'PSYCONN') &
+                                                   (df_variable_values['dataDictionary.version'] == '1.0.0')].index,
+                                inplace=True)
         df_variable_values.rename(columns={'dataDictionary.resource': 'resource',
                                            'dataDictionary.version': 'since version',
                                            'variable.table': 'variable.dataset',
                                            'ontologyTermIRI': 'ontologyTermURI'}, inplace=True)
         df_variable_values.loc[df_variable_values['resource'] == 'IPEC_CDM', 'since version'] = '1.0.0'
+        df_variable_values.loc[df_variable_values['resource'] == 'PSYCONN', 'since version'] = '1.0.0'
         df_variable_values = float_to_int(df_variable_values)  # convert float back to integer
         df_variable_values.to_csv(self.path + 'VariableValues.csv', index=False)
 

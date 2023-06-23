@@ -1,0 +1,14 @@
+name,label
+IonTorrent,IonTorrent
+Nanopore,Nanopore
+PANEL,PANEL
+PE,Pair-end
+PE 150-bp,PE 150-bp
+PacBio,PacBio
+RRBS,Reduced Representation Bisulfite Sequencing
+SR,Single read
+SR 35-bp,SR 35-bp
+WGS,Whole genome sequencing 
+WXS,Whole exome sequencing 
+array,Array
+ssRNA-seq,ssRNA-seq

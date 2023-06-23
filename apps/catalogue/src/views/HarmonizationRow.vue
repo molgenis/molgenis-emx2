@@ -51,20 +51,29 @@ export default {
             );
           });
 
-          return resourceMapping ? resourceMapping.match.name : "zna";
+          return resourceMapping ? resourceMapping.match.name : "na";
         });
 
-        if (
-          statusList.includes("complete") &&
-          !statusList.includes("zna") &&
-          statusList.includes("partial")
-        ) {
+        const baseVariable = this.resourceMappings.find((mapping) => {
+          return (
+            mapping.toVariable.name === this.variable.name &&
+            mapping.fromTable.dataDictionary.resource.pid === resource.pid
+          );
+        });
+
+        if (baseVariable) {
+          statusList.push(baseVariable.match.name);
+        }
+        // If all repeats have a mapping and there are no 'NAs', variable is 'complete'
+        if (!statusList.includes("na")) {
           return "complete";
+          // If some repeats have a mapping but there are 'NAs', variable is 'partial'
         } else if (
           statusList.includes("partial") ||
-          (statusList.includes("complete") && statusList.includes("zna"))
+          statusList.includes("complete")
         ) {
           return "partial";
+          // Unmapped when no repeats have a mapping (only NAs)
         } else {
           return "unmapped";
         }
