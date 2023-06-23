@@ -63,7 +63,7 @@ const showMessageStatusModal = ref(false);
 const notificationType = ref(INotificationType.success);
 const notificationTitle = ref("The message has been sent");
 const notificationMessage = ref("");
-const timeoutInMills = ref(5000);
+const timeoutInMills = ref(3000);
 
 const submitForm = async () => {
   const senderName = fields.find((field) => field.name === "senderName");
@@ -77,7 +77,7 @@ const submitForm = async () => {
     return;
   }
 
-  const isSendSuccess = false;
+  let isSendSuccess = false;
 
   try {
     isSendSuccess = await sendContactForm({
@@ -99,7 +99,7 @@ const submitForm = async () => {
   if (isSendSuccess) {
     notificationType.value = INotificationType.success;
     notificationTitle.value = "The message has been sent";
-    timeoutInMills.value = 5000;
+    timeoutInMills.value = 3000;
   } else {
     notificationType.value = INotificationType.error;
     notificationTitle.value = "Error";
