@@ -14,8 +14,8 @@ plugins {
     id 'com.palantir.docker' version '0.35.0'
 }
 
-subprojects {
-    version = rootProject.version
+allprojects {
+    version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
 }
 
 targetCompatibility = "17"
