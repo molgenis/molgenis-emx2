@@ -188,3 +188,12 @@ interface IContactFormData {
   subject: string;
   body: string;
 }
+
+export enum INotificationType {
+  light,
+  dark,
+  success,
+  error,
+  warning,
+  info,
+}
