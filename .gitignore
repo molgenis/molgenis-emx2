@@ -53,3 +53,6 @@ apps/nuxt3-ssr/utils/fingerprint.js
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+#python build
+**/version.txt
