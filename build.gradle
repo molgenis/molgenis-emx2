@@ -51,6 +51,7 @@ mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
     archiveBaseName = 'molgenis-emx2'
     mergeServiceFiles()
+    archiveVersion = project.version.replace("v","")
 }
 
 publishing {

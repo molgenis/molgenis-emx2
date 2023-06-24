@@ -35,7 +35,7 @@ nyx {
     }
     releaseAssets {
         jar {
-            path = "build/libs/molgenis-emx2-{{#replace from=\"v\"}}{{version}}{{/replace}}.jar"
+            path = "build/libs/molgenis-emx2-{{#replace from=\"v\"}}{{version}}{{/replace}}-all.jar"
             fileName = "molgenis-emx2--{{#replace from=\"v\"}}{{version}}{{/replace}}.jar"
         }
     }
