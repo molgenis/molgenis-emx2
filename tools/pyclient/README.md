@@ -1,12 +1,11 @@
 # Installation
 
-    pip install molgenis_emx2_client
-
+    pip install molgenis_emx2_pyclient
 
 # How to use
 Within your Python project import the class Client and use it to sign in
     
-    from molgenis_emx2_client import Client
+    from molgenis_emx2_pyclient import Client
     ...
 
     ...
@@ -54,4 +53,4 @@ On Windows:
 
     (venv) $ python -m build
 
-    (venv) $ pip install dist/molgenis_emx2_client*.whl
+    (venv) $ pip install dist/molgenis_emx2_pyclient*.whl
