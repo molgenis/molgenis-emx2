@@ -12,7 +12,7 @@
   >
     <section class="d-flex flex-column align-items-center">
       <div class="align-self-stretch">
-        <header class="border-0 card-header p-1">
+        <header class="border-0 biobank-card-header p-1">
           <h5 class="pt-1 pl-1 pr-1 mt-1">
             <router-link
               :to="'/biobank/' + biobank.id"
@@ -355,7 +355,7 @@ export default {
 }
 
 /* TODO put in theme */
-.card-header {
+.biobank-card-header {
   background-color: #efefef;
 }
 

@@ -15,8 +15,8 @@
     </div>
     <div v-else class="container-fluid pl-0">
       <div class="row">
-        <div class="col my-3 shadow-sm d-flex p-2 align-items-center">
-          <nav class="directory-nav" aria-label="breadcrumb">
+        <div class="col my-3 shadow-sm d-flex p-2 align-items-center bg-white">
+          <breadcrumb>
             <ol class="breadcrumb my-1">
               <li class="breadcrumb-item">
                 <router-link to="/catalogue" title="Back to the catalogue">
@@ -27,7 +27,7 @@
                 {{ biobank.name }}
               </li>
             </ol>
-          </nav>
+          </breadcrumb>
           <!-- <check-out
             class="ml-auto"
             :disabled="biobank.withdrawn"
@@ -36,7 +36,7 @@
         </div>
       </div>
       <div class="row" v-if="biobankDataAvailable">
-        <div class="col">
+        <div class="col p-0">
           <report-title type="Biobank" :name="biobank.name"></report-title>
           <div class="container pl-0">
             <div class="row">
@@ -115,6 +115,7 @@ import { useRoute } from "vue-router";
 import { useBiobanksStore } from "../stores/biobanksStore";
 import { useSettingsStore } from "../stores/settingsStore";
 import { Spinner } from "../../../molgenis-components";
+import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
@@ -138,6 +139,7 @@ export default {
     ViewGenerator,
     ReportDetailsList,
     CollapseComponent,
+    Breadcrumb
   },
   setup() {
     const settingsStore = useSettingsStore();

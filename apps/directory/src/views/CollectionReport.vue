@@ -21,8 +21,8 @@
     </div>
     <div class="container-fluid" v-if="collectionDataAvailable">
       <div class="row">
-        <div class="col my-3 shadow-sm d-flex p-2 align-items-center">
-          <nav class="directory-nav" aria-label="breadcrumb">
+        <div class="col my-3 shadow-sm d-flex p-2 align-items-center bg-white">
+          <breadcrumb>
             <ol class="breadcrumb my-1">
               <li class="breadcrumb-item">
                 <router-link to="/catalogue" title="Back to the catalogue">
@@ -51,7 +51,7 @@
                 {{ collection.name }}
               </li>
             </ol>
-          </nav>
+          </breadcrumb>
           <!-- <check-out
             v-if="collection"
             class="ml-auto"
@@ -62,7 +62,7 @@
       </div>
 
       <div class="row" v-if="collectionDataAvailable">
-        <div class="col">
+        <div class="col p-0">
           <report-title type="Collection" :name="collection.name">
           </report-title>
 
@@ -100,6 +100,7 @@ import { useRoute } from "vue-router";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useSettingsStore } from "../stores/settingsStore";
 import { Spinner } from "../../../molgenis-components";
+import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue"
 import ReportTitle from "../components/report-components/ReportTitle.vue";
 import ReportCollectionDetails from "../components/report-components/ReportCollectionDetails.vue";
 import CollectionReportInfoCard from "../components/report-components/CollectionReportInfoCard.vue";
@@ -112,7 +113,8 @@ export default {
     Spinner,
     ReportTitle,
     ReportCollectionDetails,
-    CollectionReportInfoCard
+    CollectionReportInfoCard,
+    Breadcrumb
   },
   setup() {
     const settingsStore = useSettingsStore();

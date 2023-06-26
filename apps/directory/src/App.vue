@@ -24,6 +24,7 @@ export default {
 </script>
 
 <style>
+/* removing the built-in nav because it conflicts */
 nav[aria-label="breadcrumb"]:not(.directory-nav) {
   display: none;
 }
