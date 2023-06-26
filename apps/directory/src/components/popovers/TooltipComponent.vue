@@ -18,10 +18,10 @@ export default {
 
 <style scoped>
 .tooltip-component {
-    position: relative;
-    width: auto;
-    align-self: flex-start;
-    justify-self: flex-start;
+  position: relative;
+  width: auto;
+  align-self: flex-start;
+  justify-self: flex-start;
 }
 
 .tooltip-component:hover .tooltip-text {
@@ -34,8 +34,8 @@ export default {
   color: var(--light);
   white-space: nowrap;
   position: absolute;
-right:0px;
-  z-index:1040;
+  right: 0px;
+  z-index: 1040;
   border-radius: 4px;
 }
 </style>

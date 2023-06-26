@@ -8,34 +8,57 @@
         'back-side': showCollections,
       },
       fullSize ? 'biobank-card-large' : 'biobank-card',
-      'flip',
     ]"
   >
-    <div tabindex="0">
-      <section>
-        <div>
-          <header class="border-0 card-header p-1">
-            <h5 class="p-1 pb-0 mt-1">
-              <router-link
-                :to="'/biobank/' + biobank.id"
-                title="Biobank details"
-                class="text-dark"
+    <section class="d-flex flex-column align-items-center">
+      <div class="align-self-stretch">
+        <header class="border-0 card-header p-1">
+          <h5 class="pt-1 pl-1 pr-1 mt-1">
+            <router-link
+              :to="'/biobank/' + biobank.id"
+              title="Biobank details"
+              class="text-dark"
+            >
+              <span
+                class="fa fa-server mr-2 text-primary"
+                aria-hidden="true"
+              ></span>
+              <span class="biobank-name">{{ biobank.name }}</span>
+              <sup
+                v-if="hasBiobankQuality"
+                class="d-inline-block"
+                aria-hidden="true"
               >
-                <span
-                  class="fa-solid fa-server mr-2 text-primary"
-                  aria-hidden="true"
-                ></span>
-                <span class="biobank-name">{{ biobank.name }}</span>
-                <sup
-                  v-if="hasBiobankQuality"
-                  class="fa-regular fa-circle-check text-success certificate-icon ml-1"
-                  aria-hidden="true"
-                ></sup>
-              </router-link>
-            </h5>
-          </header>
+                <info-popover
+                  faIcon="fa-regular fa-circle-check"
+                  textColor="text-success"
+                  class="ml-1 certificate-icon"
+                  popover-placement="right"
+                >
+                  <div
+                    class="popover-content"
+                    v-for="quality of biobankQualities"
+                    :key="quality.label"
+                  >
+                    <table>
+                      <tbody>
+                        <th class="pr-3">
+                          {{ getQualityInfo(quality.label).label }}
+                        </th>
+                        <td>
+                          {{ getQualityInfo(quality.label).definition }}
+                        </td>
+                      </tbody>
+                    </table>
+                  </div>
+                </info-popover>
+              </sup>
+            </router-link>
+          </h5>
+        </header>
 
-          <div class="shadow-sm" v-if="numberOfCollections">
+        <div v-if="!showCollections">
+          <div class="mb-1 shadow-sm" v-if="numberOfCollections">
             <button
               class="btn btn-link text-info pl-2"
               @click.prevent="showCollections = true"
@@ -46,6 +69,7 @@
           <div class="p-2 pt-1 biobank-section" :style="cardContainerHeight">
             <small>
               <view-generator :viewmodel="biobankcardViewmodel" />
+              <!-- <matches-on :viewmodel="biobank" /> -->
               <router-link
                 :to="'/biobank/' + biobank.id"
                 :title="`${biobank.name} details`"
@@ -56,30 +80,8 @@
             </small>
           </div>
         </div>
-      </section>
-      <section>
-        <!-- We need to hide this, because you cannot have two scrollbars at the same time. -->
-        <div v-if="showCollections">
-          <header class="border-0 card-header p-1">
-            <h5 class="pt-1 pl-1 pr-1 mt-1">
-              <router-link
-                :to="'/biobank/' + biobank.id"
-                title="Biobank details"
-                class="text-dark"
-              >
-                <span
-                  class="fa-solid fa-server mr-2 text-primary"
-                  aria-hidden="true"
-                ></span>
-                <span class="biobank-name">{{ biobank.name }}</span>
-                <sup
-                  v-if="hasBiobankQuality"
-                  class="fa-regular fa-circle-check text-success certificate-icon ml-1"
-                  aria-hidden="true"
-                ></sup>
-              </router-link>
-            </h5>
-          </header>
+
+        <div v-else>
           <div class="d-flex mb-1 shadow-sm">
             <button
               class="btn btn-link text-info pl-2"
@@ -96,7 +98,6 @@
                 }}
                 available
               </h5>
-
               <collection-selector
                 v-if="numberOfCollections > 1"
                 class="text-right mr-1 ml-auto align-self-center"
@@ -106,23 +107,22 @@
                 multi
               ></collection-selector>
             </div>
-            <div class="pl-2" v-if="!numberOfCollections">
-              This biobank has no collections yet.
-            </div>
+            <hr class="mt-1" v-if="numberOfCollections" />
+            <div v-else class="pl-2">This biobank has no collections yet.</div>
             <div
               class="collection-items mx-1"
               v-for="(collectionDetail, index) of biobank.collectionDetails"
               :key="collectionDetail.id"
             >
               <div v-if="showCollections" class="mb-2">
-                <div class="pl-2 py-2 d-flex">
+                <div class="pl-2 pt-2 d-flex">
                   <router-link
                     :to="'/collection/' + collectionDetail.id"
                     title="Collection details"
                     class="text-dark"
                   >
                     <span
-                      class="fa-solid fa-server collection-icon fa-lg mr-2 text-primary"
+                      class="fa fa-server collection-icon fa-lg mr-2 text-primary"
                       aria-hidden="true"
                     ></span>
                     <span class="collection-name">{{
@@ -141,24 +141,27 @@
 
                 <small>
                   <view-generator
-                    class="p-2 pt-2"
+                    class="p-1"
                     :viewmodel="collectionViewmodel(collectionDetail)"
                   />
+
+                  <!-- <matches-on :viewmodel="collectionDetail" class="px-1 ml-1" /> -->
                   <router-link
                     :to="'/collection/' + collectionDetail.id"
                     :title="`${collectionDetail.name} details`"
-                    class="text-info ml-2 pl-1"
+                    class="text-info ml-1 pl-1"
                   >
                     <span>More details</span>
                   </router-link>
                 </small>
                 <hr v-if="index != lastCollection" />
+                <div v-else class="pb-3"></div>
               </div>
             </div>
           </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </article>
 </template>
 
@@ -169,18 +172,22 @@ import {
 } from "../../functions/viewmodelMapper";
 import ViewGenerator from "../generators/ViewGenerator.vue";
 import CollectionSelector from "../checkout-components/CollectionSelector.vue";
+import InfoPopover from "../popovers/InfoPopover.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useBiobanksStore } from "../../stores/biobanksStore";
+import { useQualitiesStore } from "../../stores/qualitiesStore";
 
 export default {
   setup() {
     const settingsStore = useSettingsStore();
     const biobanksStore = useBiobanksStore();
-    return { settingsStore, biobanksStore };
+    const qualitiesStore = useQualitiesStore();
+    return { settingsStore, biobanksStore, qualitiesStore };
   },
   components: {
     ViewGenerator,
     CollectionSelector,
+    InfoPopover,
   },
   props: {
     fullSize: {
@@ -211,6 +218,9 @@ export default {
         }
       }
       return { attributes };
+    },
+    getQualityInfo(key) {
+      return this.qualityStandardsDictionary[key];
     },
   },
   computed: {
@@ -257,6 +267,14 @@ export default {
         (attr) => attr.type === "quality" && attr.value && attr.value.length
       );
     },
+    biobankQualities() {
+      return this.biobankcardViewmodel.attributes.find(
+        (attr) => attr.type === "quality"
+      ).value;
+    },
+    qualityStandardsDictionary() {
+      return this.qualitiesStore.qualityStandardsDictionary;
+    },
     /** broken */
     biobankInSelection() {
       return false;
@@ -270,8 +288,9 @@ export default {
       //   .some(id => biobankCollectionSelection.map(pc => pc.value).includes(id))
     },
   },
-  mounted() {
+  async mounted() {
     this.showCollections = this.settingsStore.config.biobankCardShowCollections;
+    await this.qualitiesStore.getQualityStandardInformation();
   },
 };
 </script>
@@ -289,15 +308,19 @@ export default {
 }
 </style>
 
-<style>
-.loading-screen {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
+<style scoped>
+.collection-icon {
+  position: relative;
+  top: 0.25em;
+  clip-path: inset(-15% 0% 75% 0%);
 }
 
+.certificate-icon {
+  font-size: 0.8rem;
+}
+</style>
+
+<style>
 .btn-link:focus {
   box-shadow: none;
 }
@@ -336,7 +359,6 @@ export default {
   background-color: #efefef;
 }
 
-/** Flip card */
 article {
   padding: 1.5rem;
 }
@@ -344,55 +366,19 @@ article {
 article footer {
   padding: 1.5rem 0 0 0;
 }
-article.flip {
+article {
   padding: 0;
   position: relative;
   height: 28rem;
-  perspective: 1000px;
 }
 
-article.flip div[tabindex="0"] {
+article {
   box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, 0.132),
     0 1.2px 3.6px 0 rgba(0, 0, 0, 0.108);
 }
 
-article.flip div[tabindex="0"]:focus {
-  outline: none !important;
-}
-
-article.flip [tabindex="0"] section {
-  background-color: #fff;
-  border: 0.1px solid #fff;
-}
-
-article.flip.back-side > [tabindex="0"] {
-  transform: rotateY(180deg);
-}
-article.flip [tabindex="0"] {
-  position: relative;
-  width: 100%;
+article section {
   height: 100%;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-  -webkit-transform-style: preserve-3d;
-}
-
-article.flip [tabindex="0"] section {
-  position: absolute;
   width: 100%;
-  height: 100%;
-  -webkit-backface-visibility: hidden;
-  /* Safari */
-  backface-visibility: hidden;
-  box-sizing: border-box;
-  visibility: visible;
-  -webkit-perspective: 0;
-  perspective: 0;
 }
-
-article.flip [tabindex="0"] section:last-child {
-  transform: rotateY(180deg);
-}
-
-/** ~~~ */
 </style>

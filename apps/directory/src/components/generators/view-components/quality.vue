@@ -14,10 +14,14 @@
 </template>
 
 <script>
+import { useQualitiesStore } from '../../../stores/qualitiesStore';
 import QualityColumn from "../../tables/QualityColumn.vue";
-import { mapState } from "vuex";
 
 export default {
+  setup() {
+    const qualitiesStore = useQualitiesStore();
+    return { qualitiesStore };
+  },
   components: {
     QualityColumn,
   },
@@ -32,7 +36,13 @@ export default {
     },
   },
   computed: {
-    ...mapState(["qualityStandardsDictionary"]),
+    qualityStandardsDictionary() {
+      return this.qualitiesStore.qualityStandardsDictionary;
+    },
+  },
+  async mounted() {
+    this.showCollections = this.settingsStore.config.biobankCardShowCollections;
+    await this.qualitiesStore.getQualityStandardInformation();
   },
 };
 </script>

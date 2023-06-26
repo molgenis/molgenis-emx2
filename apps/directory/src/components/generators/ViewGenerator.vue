@@ -38,7 +38,7 @@ import mref from "./view-components/mref.vue";
 import array from "./view-components/array.vue";
 import string from "./view-components/string.vue";
 import longtext from "./view-components/longtext.vue";
-// import quality from './view-components/quality.vue'
+import quality from './view-components/quality.vue'
 import hyperlink from "./view-components/hyperlink.vue";
 import FactsTable from "./custom-view-components/FactsTable.vue";
 import Subcollection from "./view-components/Subcollection.vue";
@@ -48,7 +48,7 @@ export default {
   components: {
     mref,
     longtext,
-    // quality,
+    quality,
     array,
     string,
     hyperlink,

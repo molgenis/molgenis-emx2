@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import { computed, ref } from "vue";
 import QueryEMX2 from "../functions/queryEMX2";
 import { useSettingsStore } from "./settingsStore";
 
@@ -10,18 +9,6 @@ export const useCollectionStore = defineStore("collectionStore", () => {
     const collectionGraphql = collectionColumns.map(
         (collectionColumn) => collectionColumn.column
     );
-
-    let waitingForResponse = ref(false);
-
-    const baseQuery = new QueryEMX2(graphqlEndpoint)
-        .table("Collections")
-        .select([
-            "id",
-            "name",
-            ...collectionGraphql,
-        ])
-        .orderBy("collections", "id", "asc");
-
 
     async function getCollectionReport (id) {
 
@@ -63,13 +50,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
         return await collectionReportQuery.execute();
     }
 
-    const waiting = computed(() => {
-        return waitingForResponse.value;
-    });
-
     return {
-        waiting,
-        baseQuery,
         getCollectionReport,
     };
 });
