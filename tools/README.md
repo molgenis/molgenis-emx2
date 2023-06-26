@@ -13,7 +13,7 @@ The molgenis-emx2-pyclient packages is published in PyPI at https://pypi.org/pro
 
 In order to install a specific version you can type:
 
-    pip installmolgenis-emx2-pyclient~=8.193.2.dev1687022806011
+    pip install molgenis-emx2-pyclient==8.193.2
 
 ## To locally build one package 
 You can run within that folder
