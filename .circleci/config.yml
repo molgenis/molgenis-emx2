@@ -43,7 +43,7 @@ jobs:
         command: |
           ./gradlew dependencies
           apt-get update && apt-get install postgresql-client -y 
-          curl -sL https://deb.nodesource.com/setup_18.x | -E bash -
+          curl -sL https://deb.nodesource.com/setup_18.x | bash -
           apt install nodejs
           npx playwright install --with-deps
 
