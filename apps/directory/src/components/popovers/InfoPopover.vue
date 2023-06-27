@@ -122,7 +122,7 @@ export default {
 </script>
 <style scoped>
 .w3tooltip {
-  position: relative;
+  position: absolute;
   display: inline-block;
 }
 .w3tooltip .tooltiptext {
