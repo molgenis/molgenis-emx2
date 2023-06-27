@@ -56,7 +56,10 @@
           </div>
           <div class="row">
             <div class="col-12">
-              <filter-wells :filters="filtersFiltered" />
+              <filter-wells
+                :filters="filtersFiltered"
+                @updateFilters="fetchVariables"
+              />
             </div>
           </div>
           <div class="row">
@@ -84,8 +87,9 @@
                   </router-link>
                 </li>
               </ul>
-              <template v-if="$route.query.tab === 'harmonization'">
-                <harmonization-view />
+              <Spinner v-if="isLoading" />
+              <template v-else-if="$route.query.tab === 'harmonization'">
+                <harmonization-view :network="network" />
               </template>
               <template v-else>
                 <variables-details-view :network="network" />
@@ -107,6 +111,7 @@ import {
   InputOntology,
   InputRefList,
   FilterWells,
+  Spinner,
 } from "molgenis-components";
 
 export default {
@@ -118,6 +123,7 @@ export default {
     InputOntology,
     FilterWells,
     InputRefList,
+    Spinner,
   },
   props: {
     network: {
@@ -126,7 +132,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(["filters"]),
+    ...mapState(["filters", "isLoading"]),
     ...mapGetters([
       "variables",
       "variableCount",

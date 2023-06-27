@@ -44,9 +44,10 @@ export default {
   },
   fetchVariables: async ({ state, commit, getters, dispatch }, offset = 0) => {
     state.isLoading = true;
+    commit("setVariableCount", "...loading count");
     const query = gql`
             query Variables($search: String, $filter: VariablesFilter) {
-                Variables(limit: 100, offset: ${offset}, search: $search, filter: $filter, orderby:{label: ASC}) {
+                Variables(limit: 50, offset: ${offset}, search: $search, filter: $filter, orderby:{label: ASC}) {
                     name
                     dataset {
                       name
@@ -242,6 +243,29 @@ export default {
     }
 
     return variableDetails;
+  },
+
+  fetchCohorts: async ({ state, commit }) => {
+    if (state.keywords.length) {
+      return state.keywords;
+    }
+
+    const cohortQuery = gql`
+      query Cohorts {
+        Cohorts(orderby: { id: ASC }) {
+          id
+          networks {
+            id
+          }
+        }
+      }
+    `;
+
+    const cohortResp = await request("graphql", cohortQuery).catch((e) =>
+      console.error(e)
+    );
+    commit("setCohorts", cohortResp.Cohorts);
+    return state.cohorts;
   },
 
   fetchKeywords: async ({ state, commit }) => {

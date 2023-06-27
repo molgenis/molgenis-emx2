@@ -6,7 +6,8 @@
     :description="description"
     :errorMessage="errorMessage"
   >
-    <div>
+    2467 <Spinner v-if="loading" />
+    <div e-else>
       <div>
         <div v-if="count > maxNum">
           <FilterWell
@@ -89,6 +90,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import FilterWell from "../filters/FilterWell.vue";
+import Spinner from "../layout/Spinner.vue";
 import {
   convertToPascalCase,
   convertRowToPrimaryKey,
@@ -105,6 +107,7 @@ export default {
       selection: this.modelValue,
       count: 0,
       tableMetaData: null,
+      loading: false,
     };
   },
   components: {
@@ -113,6 +116,7 @@ export default {
     LayoutModal,
     FormGroup,
     ButtonAlt,
+    Spinner,
   },
   props: {
     schemaName: {
@@ -172,6 +176,7 @@ export default {
       this.showSelect = false;
     },
     async loadOptions() {
+      this.loading = true;
       const options = {
         limit: this.maxNum,
       };
@@ -181,6 +186,7 @@ export default {
       const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
       this.count = response[this.tableId + "_agg"].count;
+      this.loading = false;
 
       await Promise.all(
         this.data.map(async (row) => {

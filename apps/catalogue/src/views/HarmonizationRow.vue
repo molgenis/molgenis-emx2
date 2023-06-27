@@ -42,10 +42,11 @@ export default {
       }, {});
     },
     getMatchStatus(resource) {
-      if (this.variable.repeats) {
+      if (this.variable.repeats && Array.isArray(this.resourceMappings)) {
         const statusList = this.variable.repeats.map((repeatedVariable) => {
           const resourceMapping = this.resourceMappings.find((mapping) => {
             return (
+              mapping.targetVariable &&
               mapping.targetVariable.name === repeatedVariable.name &&
               mapping.sourceDataset.resource.id === resource.id
             );
@@ -56,6 +57,7 @@ export default {
 
         const baseVariable = this.resourceMappings.find((mapping) => {
           return (
+            mapping.toVariable &&
             mapping.toVariable.name === this.variable.name &&
             mapping.fromTable.dataDictionary.resource.pid === resource.pid
           );
@@ -77,7 +79,7 @@ export default {
         } else {
           return "unmapped";
         }
-      } else {
+      } else if (Array.isArray(this.resourceMappings)) {
         const resourceMapping = this.resourceMappings.find((mapping) => {
           return mapping.sourceDataset.resource.id === resource.id;
         });

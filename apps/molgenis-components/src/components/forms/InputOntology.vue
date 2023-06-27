@@ -6,7 +6,8 @@
     :description="description"
     :errorMessage="errorMessage"
   >
-    <MessageError v-if="error">{{ error }}</MessageError>
+    <Spinner v-if="loading" />
+    <MessageError v-else-if="error">{{ error }}</MessageError>
     <div
       class="p-0 m-0"
       :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }"
@@ -112,6 +113,7 @@ import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "click-outside-vue3";
+import Spinner from "../layout/Spinner.vue";
 import { convertToPascalCase } from "../utils.ts";
 
 /**
@@ -130,6 +132,7 @@ export default {
     FormGroup,
     InputOntologySubtree,
     MessageError,
+    Spinner,
   },
   directives: {
     clickOutside: vClickOutside.directive,
@@ -173,6 +176,7 @@ export default {
       //use to block to many search results
       searchResultCount: 0,
       data: {},
+      loading: false,
     };
   },
   computed: {
@@ -509,10 +513,12 @@ export default {
   },
   async mounted() {
     if (this.tableName) {
+      this.loading = true;
       const client = Client.newClient(this.schemaName);
       this.data = (
         await client.fetchTableData(this.tableName, { limit: this.limit || 20 })
       )[this.tableId];
+      this.loading = false;
     }
   },
   created() {
@@ -522,7 +528,6 @@ export default {
       //override default
       this.limit = 100000;
     }
-    this.loading = false;
   },
 };
 </script>
