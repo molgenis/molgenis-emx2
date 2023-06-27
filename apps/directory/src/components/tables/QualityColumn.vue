@@ -38,19 +38,15 @@
       <info-popover
         v-if="qualityInfo && Object.keys(qualityInfo).length"
         class="ml-2"
-        popover-placement="top"
+        popover-placement="bottom"
       >
         <div class="popover-content">
-          <table>
-            <tbody>
-              <th class="pr-3">
-                {{ getQualityInfo(quality.label).label }}
-              </th>
-              <td>
-                {{ getQualityInfo(quality.label).definition }}
-              </td>
-            </tbody>
-          </table>
+          <div>
+            <b> {{ getQualityInfo(quality.label).label }}</b>
+          </div>
+          <div>
+            <span> {{ getQualityInfo(quality.label).definition }}</span>
+          </div>
         </div>
       </info-popover>
     </li>
@@ -92,6 +88,14 @@ export default {
 </script>
 
 <style scoped>
+.popover-content {
+  text-align: left;
+  width: 14rem;
+  max-width: 14rem;
+  overflow-wrap: break-word;
+  white-space: initial;
+}
+
 .quality-logo {
   max-width: 9rem;
   max-height: 4rem;

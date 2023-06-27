@@ -101,8 +101,8 @@ export default {
         }
         case "bottom": {
           const top = this.elementHeight + 8;
-          const left = (this.elementWidth / 2) - (this.contentWidth / 2);
-          return `top: ${top}px;left:${left}px;`;
+          const right = (this.elementWidth / 2) - (this.contentWidth / 2);
+          return `top: ${top}px;right:${right}px;`;
         }
         default: {
           const bottom = this.elementHeight + 8;
@@ -122,13 +122,12 @@ export default {
 </script>
 <style scoped>
 .w3tooltip {
-  position: absolute;
+  position: relative;
   display: inline-block;
 }
 .w3tooltip .tooltiptext {
   visibility: hidden;
   position: absolute;
-  width: auto;
   background-color: var(--dark);
   color: #fff;
   text-align: center;
