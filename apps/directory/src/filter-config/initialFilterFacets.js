@@ -75,14 +75,14 @@ export const initialFilterFacets = [
   },
   {
     facetTitle: "Collaboration type",
-    component: "CheckboxFilter",
-    applyToColumn: "collections.availableForCommercialUse",
+    component: "ToggleFilter",
+    applyToColumn: "collections.collaboration_commercial",
     showMatchTypeSelector: false,
-    customOptions: [
-      { text: "Commercial use", value: true },
-      { text: "Non-commercial use only", value: false },
-    ],
-    negotiatorRequestString: "Biobank collaboration type(s):",
+    trueOption: {
+      text: 'Available to commercial use',
+      value: true
+    },
+    negotiatorRequestString: "Available to commercial use",
     showFacet: true,
   },
   {

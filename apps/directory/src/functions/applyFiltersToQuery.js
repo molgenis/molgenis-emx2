@@ -57,8 +57,9 @@ export async function applyFiltersToQuery (
         baseQuery.subfilter("collections.materials.label").like(filterValue);
         break;
       }
+      case "ToggleFilter":
       case "CheckboxFilter": {
-        const values = filterValue.map((fv) => fv.value);
+        const values = Array.isArray(filterValue) ? filterValue.map((fv) => fv.value) : [filterValue];
 
         if (
           filterType[filterDetail.facetIdentifier] === "all" ||

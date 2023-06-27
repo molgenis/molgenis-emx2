@@ -17,6 +17,12 @@
       >
         <component :is="filter.component" v-bind="filter"> </component>
       </ButtonDropdown>
+
+      <toggle-filter
+        v-for="toggleFilter of toggleFiltersToRender"
+        :key="toggleFilter.name"
+        v-bind="toggleFilter"
+      />
     </div>
   </div>
 </template>
@@ -29,6 +35,7 @@ import { useSettingsStore } from "../../stores/settingsStore";
 import SearchFilter from "../filters/SearchFilter.vue";
 import CheckboxFilter from "../filters/CheckboxFilter.vue";
 import OntologyFilter from "../filters/OntologyFilter.vue";
+import ToggleFilter from "../filters/ToggleFilter.vue";
 import ButtonDropdown from "../micro-components/ButtonDropdown.vue";
 /** */
 
@@ -43,11 +50,21 @@ export default {
     ButtonDropdown,
     CheckboxFilter,
     OntologyFilter,
+    ToggleFilter,
   },
   computed: {
     filtersToRender() {
       return this.filtersStore.filterFacets.filter(
-        (filterFacet) => !filterFacet.builtIn
+        (filterFacet) =>
+          filterFacet.showFacet &&
+          !filterFacet.builtIn &&
+          filterFacet.component !== "ToggleFilter"
+      );
+    },
+    toggleFiltersToRender() {
+      return this.filtersStore.filterFacets.filter(
+        (filterFacet) =>
+          filterFacet.showFacet && filterFacet.component === "ToggleFilter"
       );
     },
   },
@@ -61,7 +78,7 @@ export default {
 }
 
 .filterbar {
-  gap:0.25rem;
+  gap: 0.25rem;
 }
 
 .search-container {

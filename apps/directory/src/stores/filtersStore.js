@@ -230,7 +230,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function updateFilter (filterName, value) {
     /** filter reset, so delete */
-    if (value === "" || value === undefined || value.length === 0) {
+    if (value === null || value === "" || value === undefined || value.length === 0) {
       delete filters.value[filterName];
     } else {
       filters.value[filterName] = value;

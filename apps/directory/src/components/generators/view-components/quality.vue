@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { useQualitiesStore } from '../../../stores/qualitiesStore';
+import { useQualitiesStore } from "../../../stores/qualitiesStore";
 import QualityColumn from "../../tables/QualityColumn.vue";
 
 export default {
@@ -40,8 +40,8 @@ export default {
       return this.qualitiesStore.qualityStandardsDictionary;
     },
   },
-  async mounted() {
-    await this.qualitiesStore.getQualityStandardInformation();
+  mounted() {
+    this.qualitiesStore.getQualityStandardInformation();
   },
 };
 </script>
