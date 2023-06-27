@@ -38,10 +38,14 @@ jobs:
         # fallback to using the latest cache if no exact match is found
         - v1-dependencies-
 
-    # install deps
-    - run: ./gradlew dependencies
-    - run: apt-get update && apt-get install postgresql-client nodejs npm -y 
-    - run: npx playwright install --with-deps
+    - run: 
+        name: install deps
+        command:
+          ./gradlew dependencies
+          apt-get update && apt-get install postgresql-client -y 
+          curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          apt install nodejs
+          npx playwright install --with-deps
 
     - save_cache:
         paths:
