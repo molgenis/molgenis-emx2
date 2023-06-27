@@ -7,5 +7,7 @@
   "devDependencies": {
     "@playwright/test": "1.35.1"
   },
-  "scripts": {}
+  "scripts": {
+    "e2e": "playwright test"
+  }
 }
