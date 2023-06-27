@@ -72,6 +72,8 @@
 import VariableDetails from "../components/VariableDetails.vue";
 import { fetchResources } from "../store/repository/resourceRepository";
 import HarmonizationCell from "../components/harmonization/HarmonizationCell.vue";
+import gql from "graphql-tag";
+import { request } from "graphql-request";
 
 export default {
   name: "SingleVarDetailsView",
@@ -110,9 +112,26 @@ export default {
           return "unmapped";
       }
     },
+    async fetchNetworkResources(networkId) {
+      const query = gql`
+        query Networks($id: [String]) {
+          Networks(filter: { id: { equals: $id } }) {
+            cohorts {
+              id
+            }
+          }
+        }
+      `;
+      const variables = { id: networkId };
+
+      const resp = await request("graphql", query, variables);
+      return resp?.Networks[0]?.cohorts;
+    },
   },
-  async created() {
-    this.resources = await fetchResources();
+  async mounted() {
+    this.resources = await (this.network
+      ? this.fetchNetworkResources(this.network)
+      : fetchResources());
   },
 };
 </script>
