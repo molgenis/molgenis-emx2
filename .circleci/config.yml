@@ -45,8 +45,7 @@ jobs:
           apt-get update && apt-get install postgresql-client -y 
           curl -sL https://deb.nodesource.com/setup_18.x | bash -
           apt install nodejs
-          npm install --global yarn
-          npx playwright install --with-deps
+          npm install -D @playwright/test
 
     - save_cache:
         paths:
@@ -88,7 +87,7 @@ jobs:
         name: build and test java, then test e2e
         command: |
           ./gradlew test --no-daemon
-          set CI=true && npx playwright test e2eTests  --project=chromium
+          set CI=true && npx playwright test e2eTests/ --project=chromium
 
 
     # to switch to release add following
