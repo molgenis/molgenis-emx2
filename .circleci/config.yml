@@ -45,6 +45,7 @@ jobs:
           apt-get update && apt-get install postgresql-client -y 
           curl -sL https://deb.nodesource.com/setup_18.x | bash -
           apt install nodejs
+          npm install --global yarn
           npx playwright install --with-deps
 
     - save_cache:
