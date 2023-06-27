@@ -14,7 +14,16 @@
         v-for="filter in filtersToRender"
         :key="filter.facetIdentifier"
         :button-text="filter.facetTitle"
+        :active="filterIsActive(filter.facetIdentifier)"
       >
+        <template v-slot:counter>
+          <span
+            class="badge badge-light border mr-2 ml-1"
+            v-if="filterSelectionCount(filter.facetIdentifier) > 0"
+          >
+            {{ filterSelectionCount(filter.facetIdentifier) }}</span
+          >
+        </template>
         <component :is="filter.component" v-bind="filter"> </component>
       </ButtonDropdown>
 
@@ -23,6 +32,15 @@
         :key="toggleFilter.name"
         v-bind="toggleFilter"
       />
+
+      <button
+        v-if="hasActiveFilters"
+        @click="clearAllFilters"
+        type="button"
+        class="btn btn-link"
+      >
+        Clear all filters
+      </button>
     </div>
   </div>
 </template>
@@ -53,6 +71,9 @@ export default {
     ToggleFilter,
   },
   computed: {
+    hasActiveFilters() {
+      return this.filtersStore.hasActiveFilters;
+    },
     filtersToRender() {
       return this.filtersStore.filterFacets.filter(
         (filterFacet) =>
@@ -66,6 +87,22 @@ export default {
         (filterFacet) =>
           filterFacet.showFacet && filterFacet.component === "ToggleFilter"
       );
+    },
+  },
+  methods: {
+    clearAllFilters() {
+      this.filtersStore.clearAllFilters();
+    },
+    filterSelectionCount(facetIdentifier) {
+      const options = this.filtersStore.filters[facetIdentifier];
+      if (!options || !options.length) {
+        return 0;
+      } else {
+        return options.length;
+      }
+    },
+    filterIsActive(facetIdentifier) {
+      return this.filtersStore.filters[facetIdentifier] !== undefined
     },
   },
 };

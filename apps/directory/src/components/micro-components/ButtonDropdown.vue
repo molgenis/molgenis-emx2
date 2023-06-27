@@ -1,10 +1,12 @@
 <template>
-  <details class="dropdown-button border border-secondary p-0">
+  <details class="dropdown-button p-0" :class="buttonstateClass">
     <summary>
-      {{ buttonText }} <span class="fa-solid fa-caret-down"></span>
+      {{ buttonText }} 
+      <slot name="counter"></slot>
+      <span class="fa-solid fa-caret-down"></span>
     </summary>
     <div>
-      <div class="dropdown bg-white" @click.stop>
+      <div class="dropdown bg-white" :class="containerstateClass" @click.stop>
         <slot />
       </div>
       <div class="close" @click="closeSelf"></div>
@@ -19,10 +21,25 @@ export default {
       type: String,
       required: true,
     },
+    active: {
+      type: Boolean,
+      required: false,
+      default: () => false,
+    },
   },
   methods: {
     closeSelf(event) {
       event.target.parentElement.parentElement.removeAttribute("open");
+    },
+  },
+  computed: {
+    buttonstateClass() {
+      return this.active
+        ? "bg-secondary text-white"
+        : "border border-secondary";
+    },
+    containerstateClass() {
+      return this.active ? "text-dark" : "";
     },
   },
 };

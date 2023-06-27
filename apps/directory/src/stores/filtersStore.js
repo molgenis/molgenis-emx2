@@ -228,6 +228,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     if (filters.value[filterName].length === 0) delete filters.value[filterName];
   }
 
+  function clearAllFilters () {
+    filters.value = {}
+  }
+
   function updateFilter (filterName, value) {
     /** filter reset, so delete */
     if (value === null || value === "" || value === undefined || value.length === 0) {
@@ -258,6 +262,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   return {
     resetFilters,
     updateFilter,
+    clearAllFilters,
     updateOntologyFilter,
     getFilterValue,
     updateFilterType,
