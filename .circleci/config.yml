@@ -85,7 +85,7 @@ jobs:
 
     - run:
         name: build and test java, then test e2e
-        command: \
+        command: |
           ./gradlew test --no-daemon
           set CI=true && yarn --cwd e2eTest e2e
 
