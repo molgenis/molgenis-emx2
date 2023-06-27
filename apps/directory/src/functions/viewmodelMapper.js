@@ -1,4 +1,5 @@
 import { useSettingsStore } from "../stores/settingsStore";
+import { sortCollectionsByName } from "./sorting";
 
 export const getName = contact => {
   const { title_before_name, first_name, last_name, title_after_name } = contact
@@ -198,10 +199,11 @@ function extractCollectionTypes (collections, prevCollectionHashmap) {
 
 function mapSubcollections (collections, level) {
   const settingsStore = useSettingsStore();
+  const sortedCollections = sortCollectionsByName(collections)
 
   const sub_collections = [];
 
-  for (const collection of collections) {
+  for (const collection of sortedCollections) {
     if (collection.sub_collections && collection.sub_collections.length) {
       const viewmodel = getViewmodel(
         collection,
@@ -267,7 +269,9 @@ export const getBiobankDetails = (biobank) => {
       (collection) => !collection.parent_collection
     );
 
-    for (const collection of parentCollections) {
+    const sortedParentCollections = sortCollectionsByName(parentCollections)
+
+    for (const collection of sortedParentCollections) {
       biobank.collectionDetails.push(getCollectionDetails(collection));
     }
   }

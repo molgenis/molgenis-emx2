@@ -13,7 +13,7 @@
           <div
             class="card-body d-flex border-bottom"
             :key="`${collection.label}-${index}`"
-            v-for="(collection, index) in collections"
+            v-for="(collection, index) in sortedAlphabetically(collections)"
           >
             <div>
               <span
@@ -85,6 +85,8 @@
 import { useCheckoutStore } from "../../stores/checkoutStore";
 import { useCollectionStore } from "../../stores/collectionStore";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { sortCollectionsByLabel } from "../../functions/sorting";
+
 import SimpleModal from "./SimpleModal.vue";
 export default {
   setup() {
@@ -133,6 +135,10 @@ export default {
       this.checkoutStore.removeAllCollectionsFromSelection({
         bookmark: this.bookmark,
       });
+    },
+    sortedAlphabetically(collectionArray) {
+      console.log(collectionArray)
+      return sortCollectionsByLabel(collectionArray)
     },
     sendRequest() {
       this.cartVisible = false;

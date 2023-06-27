@@ -19,16 +19,16 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
   function addCollectionsToSelection ({ biobank, collections, bookmark }) {
     // checkoutValid.value = false;
-
     const biobankIdentifier = biobank.label || biobank.name
+    const currentSelectionForBiobank = selectedCollections.value[biobankIdentifier]
 
-    if (selectedCollections.value[biobankIdentifier]) {
-      const currentIds = selectedCollections.value[biobankIdentifier].map((sc) => sc.value);
+    if (currentSelectionForBiobank && currentSelectionForBiobank.length) {
+      const currentIds = currentSelectionForBiobank.map((sc) => sc.value);
       const newCollections = collections.filter(
         (cf) => !currentIds.includes(cf.value)
       );
 
-      selectedCollections.value[biobankIdentifier] = selectedCollections.value[biobankIdentifier].concat(
+      selectedCollections.value[biobankIdentifier] = currentSelectionForBiobank.concat(
         newCollections)
     }
     else {

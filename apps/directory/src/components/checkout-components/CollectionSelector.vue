@@ -91,10 +91,9 @@ export default {
   methods: {
     handleCollectionStatus(event) {
       const { checked } = event.target;
-
       const collectionData = {
         biobank: this.biobankData,
-        collections: this.collections,
+        collections: JSON.parse(JSON.stringify(this.collections)),
         bookmark: this.bookmark,
       };
 
@@ -128,7 +127,7 @@ export default {
       return this.settingsStore.uiText;
     },
   },
-  beforeMount() {
+  mounted() {
     let initialData;
 
     if (Array.isArray(this.collectionData)) {
