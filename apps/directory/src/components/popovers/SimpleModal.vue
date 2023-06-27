@@ -1,11 +1,15 @@
 <template>
   <dialog ref="modal">
-    <article class="border border-black bg-white p-2">
+    <article class="border border-black bg-white p-2" :class="bodyClass">
       <slot />
-      <div class="d-flex pt-4">
-        <button class="btn btn-primary" @click="$emit('save')">Save</button>
-        <button class="btn btn-dark ml-auto" @click="$emit('close')">Cancel</button>
-      </div>
+      <slot name="modal-footer">
+        <div class="d-flex pt-4">
+          <button class="btn btn-primary" @click="$emit('save')">Save</button>
+          <button class="btn btn-dark ml-auto" @click="$emit('close')">
+            Cancel
+          </button>
+        </div>
+      </slot>
     </article>
   </dialog>
 </template>
@@ -16,21 +20,27 @@ export default {
     open: {
       type: Boolean,
       required: false,
-      default: () => false
+      default: () => false,
+    },
+    bodyClass: {
+      type: String,
+      required: false
     }
   },
   watch: {
-    open (open) {
+    open(open) {
       if (open) {
-        this.$refs.modal.setAttribute('open', '')
-        document.getElementsByTagName('body')[0].style.overflow = 'hidden'
+        this.$refs.modal.setAttribute("open", "");
+        document.getElementsByTagName("body")[0].style.overflow = "hidden";
       } else {
-        this.$refs.modal.removeAttribute('open')
-        document.getElementsByTagName('body')[0].style.removeProperty('overflow')
+        this.$refs.modal.removeAttribute("open");
+        document
+          .getElementsByTagName("body")[0]
+          .style.removeProperty("overflow");
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 <style scoped>
 dialog[open]:not(dialog[open="false"]) {
@@ -52,10 +62,10 @@ dialog[open]:not(dialog[open="false"]) {
 
 article {
   position: absolute;
-  top:1rem;
+  top: 1rem;
   z-index: 1210;
-  height:auto;
-  width:auto;
+  height: auto;
+  width: auto;
   border-radius: 4px;
 }
 </style>

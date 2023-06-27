@@ -52,12 +52,12 @@
               </li>
             </ol>
           </breadcrumb>
-          <!-- <check-out
+          <check-out
             v-if="collection"
             class="ml-auto"
             :bookmark="false"
             :disabled="collection.biobank.withdrawn"
-          /> -->
+          />
         </div>
       </div>
 
@@ -71,6 +71,7 @@
               <div class="col-md-8">
                 <report-collection-details
                   v-if="collection"
+                  :biobank="info.biobank"
                   :collection="collection"
                 />
               </div>
@@ -100,8 +101,9 @@ import { useRoute } from "vue-router";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useSettingsStore } from "../stores/settingsStore";
 import { Spinner } from "../../../molgenis-components";
-import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue"
+import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
+import CheckOut from "../components/checkout-components/CheckOut.vue"
 import ReportCollectionDetails from "../components/report-components/ReportCollectionDetails.vue";
 import CollectionReportInfoCard from "../components/report-components/CollectionReportInfoCard.vue";
 import { collectionReportInformation } from "../functions/viewmodelMapper";
@@ -114,7 +116,8 @@ export default {
     ReportTitle,
     ReportCollectionDetails,
     CollectionReportInfoCard,
-    Breadcrumb
+    Breadcrumb,
+    CheckOut
   },
   setup() {
     const settingsStore = useSettingsStore();

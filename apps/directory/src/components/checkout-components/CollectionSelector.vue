@@ -49,6 +49,10 @@ export default {
     return { checkoutStore, settingsStore };
   },
   props: {
+    biobankData: {
+      type: Object,
+      required: true,
+    },
     collectionData: {
       type: [Object, Array],
       required: true,
@@ -89,6 +93,7 @@ export default {
       const { checked } = event.target;
 
       const collectionData = {
+        biobank: this.biobankData,
         collections: this.collections,
         bookmark: this.bookmark,
       };
@@ -105,12 +110,19 @@ export default {
       return this.identifier;
     },
     isChecked() {
-      const selectedCollectionIds = this.checkoutStore.selectedCollections.map(
-        (sc) => sc.value
-      );
-      return this.collections
-        .map((collection) => collection.value)
-        .every((id) => selectedCollectionIds.includes(id));
+
+      const biobankIdentifier = this.biobankData.label || this.biobankData.name
+      const selectedCollections =
+        this.checkoutStore.selectedCollections[biobankIdentifier];
+
+      if (selectedCollections) {
+        const selectedCollectionIds = selectedCollections.map((sc) => sc.value);
+
+        return this.collections
+          .map((collection) => collection.value)
+          .every((id) => selectedCollectionIds.includes(id));
+      }
+      return false;
     },
     uiText() {
       return this.settingsStore.uiText;
@@ -121,7 +133,7 @@ export default {
 
     if (Array.isArray(this.collectionData)) {
       initialData = this.collectionData;
-      this.identifier = `selector-${Math.random().toString().substr(2)}`;
+      this.identifier = `selector-${Math.random().toString().substring(2)}`;
     } else {
       initialData = [this.collectionData];
       this.identifier = this.collectionData.id;

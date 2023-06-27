@@ -1,14 +1,18 @@
 <template>
   <div>
-    <!-- <collection-selector
-      class="mb-2 float-right"
-      v-if="isTopLevelCollection"
-      :collectionData="collection"
-      :disabled="collection.biobank.withdrawn"/> -->
-
-    <report-description
-      :description="collection.description"
-      :maxLength="500"></report-description>
+    <div class="d-flex">
+      <report-description
+        :description="collection.description"
+        :maxLength="500"
+      ></report-description>
+      <collection-selector
+        class="mb-2 ml-auto"
+        v-if="isTopLevelCollection"
+        :biobankData="biobank"
+        :collectionData="collection"
+        :disabled="collection.biobank.withdrawn"
+      />
+    </div>
 
     <!-- collection information -->
     <view-generator :viewmodel="collectionModel.viewmodel" />
@@ -17,30 +21,34 @@
 
 <script>
 import { getCollectionDetails } from "../../functions/viewmodelMapper";
-// import CollectionSelector from '../buttons/CollectionSelector.vue'
-import ReportDescription from '../report-components/ReportDescription.vue'
-import ViewGenerator from '../generators/ViewGenerator.vue'
+import CollectionSelector from "../checkout-components/CollectionSelector.vue";
+import ReportDescription from "../report-components/ReportDescription.vue";
+import ViewGenerator from "../generators/ViewGenerator.vue";
 
 export default {
-  name: 'ReportCollectionDetails',
+  name: "ReportCollectionDetails",
   props: {
+    biobank: {
+      type: Object,
+      required: true,
+    },
     collection: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   components: {
-    // CollectionSelector,
+    CollectionSelector,
     ReportDescription,
-    ViewGenerator
+    ViewGenerator,
   },
   computed: {
-    collectionModel () {
-      return this.collection ? getCollectionDetails(this.collection) : {}
+    collectionModel() {
+      return this.collection ? getCollectionDetails(this.collection) : {};
     },
-    isTopLevelCollection () {
-      return this.collection.parent_collection === undefined
-    }
-  }
-}
+    isTopLevelCollection() {
+      return this.collection.parent_collection === undefined;
+    },
+  },
+};
 </script>

@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import QueryEMX2 from "../functions/queryEMX2";
 import { useSettingsStore } from "./settingsStore";
+import { ref } from "vue";
 
 export const useCollectionStore = defineStore("collectionStore", () => {
     const settingsStore = useSettingsStore();
@@ -9,6 +10,25 @@ export const useCollectionStore = defineStore("collectionStore", () => {
     const collectionGraphql = collectionColumns.map(
         (collectionColumn) => collectionColumn.column
     );
+
+    const commercialAvailableCollections = ref([])
+
+    async function getCommercialAvailableCollections () {
+
+        if (!commercialAvailableCollections.value.length) {
+            const commercialCollectionQuery = new QueryEMX2(graphqlEndpoint)
+                .table("Collections")
+                .select("id")
+                .where("collaboration_commercial")
+                .equals(true)
+            const commercialAvailableCollectionsResponse = await commercialCollectionQuery.execute();
+            if (commercialAvailableCollectionsResponse.Collections && commercialAvailableCollectionsResponse.Collections.length) {
+                commercialAvailableCollections.value = commercialAvailableCollectionsResponse.Collections.map(collection => collection.id)
+            }
+        }
+
+        return commercialAvailableCollections.value
+    }
 
     async function getCollectionReport (id) {
 
@@ -52,5 +72,6 @@ export const useCollectionStore = defineStore("collectionStore", () => {
 
     return {
         getCollectionReport,
+        getCommercialAvailableCollections
     };
 });

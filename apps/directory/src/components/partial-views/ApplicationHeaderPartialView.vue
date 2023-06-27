@@ -6,6 +6,9 @@
           <SearchFilter />
         </div>
       </div>
+      <div class="col-4 d-flex justify-content-end">
+        <check-out :bookmark="true" />
+      </div>
     </div>
 
     <div class="row filterbar p-2">
@@ -48,6 +51,7 @@
 <script>
 import { useFiltersStore } from "../../stores/filtersStore";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { useCheckoutStore } from "../../stores/checkoutStore";
 
 /** Components used for filters */
 import SearchFilter from "../filters/SearchFilter.vue";
@@ -57,11 +61,14 @@ import ToggleFilter from "../filters/ToggleFilter.vue";
 import ButtonDropdown from "../micro-components/ButtonDropdown.vue";
 /** */
 
+import CheckOut from "../checkout-components/CheckOut.vue";
+
 export default {
   setup() {
     const settingsStore = useSettingsStore();
     const filtersStore = useFiltersStore();
-    return { settingsStore, filtersStore };
+    const checkoutStore = useCheckoutStore();
+    return { settingsStore, filtersStore, checkoutStore };
   },
   components: {
     SearchFilter,
@@ -69,6 +76,7 @@ export default {
     CheckboxFilter,
     OntologyFilter,
     ToggleFilter,
+    CheckOut
   },
   computed: {
     hasActiveFilters() {
@@ -102,7 +110,7 @@ export default {
       }
     },
     filterIsActive(facetIdentifier) {
-      return this.filtersStore.filters[facetIdentifier] !== undefined
+      return this.filtersStore.filters[facetIdentifier] !== undefined;
     },
   },
 };

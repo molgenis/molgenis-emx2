@@ -1,208 +1,192 @@
 <template>
-  <b-modal
-    hide-header
-    id="collectioncart-modal"
-    size="lg"
-    scrollable
-    centered
-    body-bg-variant="white"
-    footer-bg-variant="warning"
-    body-class="pb-0"
-    v-model="cartVisible"
-    @hide="cartVisible = false">
-    <template v-if="collectionCart.length > 0">
+  <simple-modal :open="cartVisible" :bodyClass="'w-50'">
+    <template v-if="collectionCount > 0">
       <div
+        :key="biobankName"
         class="card mb-3 border"
-        :key="`${cart.biobankLabel}-${index}`"
-        v-for="(cart, index) in collectionCart">
+        v-for="(collections, biobankName) in collectionCart"
+      >
         <div class="card-header font-weight-bold">
-          {{ cart.biobankLabel }}
+          {{ biobankName }}
         </div>
         <div class="collection-cart">
           <div
             class="card-body d-flex border-bottom"
             :key="`${collection.label}-${index}`"
-            v-for="(collection, index) in cart.collections">
+            v-for="(collection, index) in collections"
+          >
             <div>
-              <font-awesome-icon
-                title="Not available for commercial use"
+              <span
                 v-if="isNonCommercialCollection(collection.value)"
-                class="text-danger non-commercial mr-1"
-                :icon="['fab', 'creative-commons-nc-eu']"/>
+                class="fa-brands fa-creative-commons-nc-eu text-danger non-commercial mr-2"
+                title="Not available for commercial use"
+              ></span>
+
               <span> {{ collection.label }}</span>
             </div>
-            <div class="pl-3 ml-auto">
+            <div
+              class="pl-3 ml-auto"
+              @click="
+                removeCollectionsFromSelection({
+                  biobank: { name: biobankName },
+                  collections: [collection],
+                  bookmark: bookmark,
+                })
+              "
+            >
               <span
                 class="fa fa-times text-bold remove-collection"
                 title="Remove collection"
-                @click="
-                  RemoveCollectionsFromSelection({
-                    collections: [collection],
-                    bookmark: bookmark,
-                  })
-                "></span>
+              ></span>
             </div>
           </div>
         </div>
       </div>
     </template>
+
     <template v-else>
-      <p>You haven't selected any collections yet.</p>
+      <p class="py-3 pl-1">You haven't selected any collections yet.</p>
     </template>
-    <p v-if="isPodium && !collectionsInPodium.length">
-      Sorry, none of the samples are currently in Podium.
-    </p>
     <template v-slot:modal-footer>
-      <b-button class="btn btn-dark mr-auto" @click="removeAllCollections">{{ uiText['remove_all']}}</b-button>
-      <div>
-        <span class="text-white font-weight-bold d-block">{{
-          modalFooterText
-        }}</span>
-        <span class="text-white" v-if="selectedNonCommercialCollections > 0">
-          <font-awesome-icon
-            title="Not available for commercial use"
-            class="text-white non-commercial mr-1"
-            :icon="['fab', 'creative-commons-nc-eu']"/>
-          {{ selectedNonCommercialCollections }} are non-commercial only
-        </span>
-      </div>
-      <div class="ml-auto">
-        <b-button class="btn btn-dark mr-2" @click="cartVisible = false">{{ uiText['close'] }}</b-button>
-        <b-button
-          :disabled="
-            (isPodium && !collectionsInPodium.length) ||
-            !selectedCollections.length
-          "
-          class="btn btn-secondary ml-auto"
-          @click="sendRequest">{{ negotiatorButtonText }}</b-button>
+      <div class="bg-primary d-flex align-items-center p-2">
+        <button class="btn btn-dark mr-auto" @click="removeAllCollections">
+          {{ uiText["remove_all"] }}
+        </button>
+        <div>
+          <span class="text-white font-weight-bold d-block">{{
+            modalFooterText
+          }}</span>
+          <span class="text-white" v-if="anyCollectionNonCommercial">
+            <span
+              title="Not available for commercial use"
+              class="text-white non-commercial mr-1 fa-brands fa-creative-commons-nc-eu"
+            ></span>
+            {{ selectedNonCommercialCollections }} are non-commercial only
+          </span>
+        </div>
+        <div class="ml-auto">
+          <button class="btn btn-dark mr-2" @click="cartVisible = false">
+            {{ uiText["close"] }}
+          </button>
+          <button
+            :disabled="collectionCount === 0"
+            class="btn btn-secondary ml-auto"
+            @click="sendRequest"
+          >
+            {{ uiText["send_to_negotiator"] }}
+          </button>
+        </div>
       </div>
     </template>
-  </b-modal>
+  </simple-modal>
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { useCheckoutStore } from "../../stores/checkoutStore";
+import { useCollectionStore } from "../../stores/collectionStore";
+import { useSettingsStore } from "../../stores/settingsStore";
+import SimpleModal from "./SimpleModal.vue";
 export default {
+  setup() {
+    const settingsStore = useSettingsStore();
+    const checkoutStore = useCheckoutStore();
+    const collectionStore = useCollectionStore();
+
+    return { settingsStore, checkoutStore, collectionStore };
+  },
+  components: { SimpleModal },
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       required: true,
-      default: () => false
+      default: () => false,
     },
     biobankName: {
       type: String,
-      required: false
+      required: false,
     },
     bookmark: {
       type: Boolean,
       required: false,
-      default: () => true
-    }
-
+      default: () => true,
+    },
   },
   data: function () {
     return {
-      cartVisible: false
-    }
+      cartVisible: false,
+      commercialAvailableCollections: [],
+    };
   },
   methods: {
-    ...mapMutations(['RemoveCollectionsFromSelection']),
-    ...mapActions(['SendToNegotiator']),
-    getNameForBiobank (collectionName) {
-      const entryInDictionary = this.collectionBiobankDictionary[collectionName]
+    isNonCommercialCollection(collectionId) {
+      const isCommercial = this.commercialAvailableCollections.find(
+        (colId) => colId === collectionId
+      );
 
-      if (entryInDictionary) return entryInDictionary
-
-      if (this.biobankReport) {
-        return this.biobankReport.label || this.biobankReport.name
-      }
-
-      if (this.collectionReport) {
-        return this.collectionReport.biobank_label
-      }
-
-      return ''
+      return !isCommercial;
     },
-    groupCollectionsByBiobank (collectionSelectionArray) {
-      const biobankWithSelectedCollections = []
-      collectionSelectionArray.forEach(cs => {
-        const biobankLabel = this.getNameForBiobank(cs.value)
-        const biobankPresent = biobankWithSelectedCollections.find(
-          bsc => bsc.biobankLabel === biobankLabel
-        )
-
-        if (biobankPresent) {
-          biobankPresent.collections.push(cs)
-        } else {
-          biobankWithSelectedCollections.push({
-            biobankLabel,
-            collections: [cs]
-          })
-        }
-      })
-      return biobankWithSelectedCollections
+    removeCollectionsFromSelection(collectionData) {
+      this.checkoutStore.removeCollectionsFromSelection(collectionData);
     },
-    isNonCommercialCollection (collectionId) {
-      return this.nonCommercialCollections.indexOf(collectionId) >= 0
+    removeAllCollections() {
+      this.cartVisible = false;
+      this.checkoutStore.removeAllCollectionsFromSelection({
+        bookmark: this.bookmark,
+      });
     },
-    removeAllCollections () {
-      this.cartVisible = false
-      this.RemoveCollectionsFromSelection({
-        collections: this.currentSelectedCollections,
-        bookmark: this.bookmark
-      })
+    sendRequest() {
+      this.cartVisible = false;
+      //todo: this.SendToNegotiator();
     },
-    sendRequest () {
-      this.cartVisible = false
-      this.SendToNegotiator()
-    }
   },
   watch: {
     /** if toggled from outside */
-    value (newValue) {
+    modelValue(newValue) {
       /** only trigger if different */
       if (this.newValue !== this.cartVisible) {
-        this.cartVisible = newValue
+        this.cartVisible = newValue;
       }
     },
-    cartVisible (visibility) {
+    cartVisible(visibility) {
       /** send back to parent */
-      this.$emit('input', visibility)
-    }
+      this.$emit("update:modelValue", visibility);
+    },
   },
   computed: {
-    ...mapGetters([
-      'collectionsInPodium',
-      'selectedCollections',
-      'selectedNonCommercialCollections',
-      'collectionBiobankDictionary',
-      'uiText'
-    ]),
-    ...mapState([
-      'isPodium',
-      'nonCommercialCollections',
-      'biobankReport',
-      'collectionReport'
-    ]),
-    modalFooterText () {
-      const collectionCount = this.isPodium
-        ? this.collectionsInPodium.length
-        : this.selectedCollections.length
-      return this.isPodium
-        ? `${collectionCount} collection(s) present in Podium`
-        : `${collectionCount} collection(s) selected`
+    uiText() {
+      return this.settingsStore.uiText;
     },
-    negotiatorButtonText () {
-      return this.isPodium ? this.uiText.send_to_podium : this.uiText.send_to_negotiator
+    collectionCount() {
+      return this.checkoutStore.collectionSelectionCount;
     },
-    currentSelectedCollections () {
-      return this.isPodium ? this.collectionsInPodium : this.selectedCollections
+    modalFooterText() {
+      return `${this.collectionCount} collection(s) selected`;
     },
-    collectionCart () {
-      return this.groupCollectionsByBiobank(this.currentSelectedCollections)
-    }
-  }
-}
+    collectionCart() {
+      return this.checkoutStore.selectedCollections;
+    },
+    anyCollectionNonCommercial() {
+      return this.selectedNonCommercialCollections > 0;
+    },
+
+    selectedNonCommercialCollections() {
+      let allCollectionIds = [];
+      for (const biobank in this.collectionCart) {
+        allCollectionIds = allCollectionIds.concat(
+          this.collectionCart[biobank].map((col) => col.value)
+        );
+      }
+      const nonCommercialCollections = allCollectionIds.filter(
+        (col) => !this.commercialAvailableCollections.includes(col)
+      );
+      return nonCommercialCollections.length;
+    },
+  },
+  async beforeMount() {
+    this.commercialAvailableCollections =
+      await this.collectionStore.getCommercialAvailableCollections();
+  },
+};
 </script>
 
 <style scoped>

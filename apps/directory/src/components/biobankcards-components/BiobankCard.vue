@@ -101,6 +101,7 @@
               <collection-selector
                 v-if="numberOfCollections > 1"
                 class="text-right mr-1 ml-auto align-self-center"
+                :biobankData="biobank"
                 :collectionData="biobank.collections"
                 bookmark
                 iconOnly
@@ -132,6 +133,7 @@
                   <div class="ml-auto">
                     <collection-selector
                       class="ml-auto"
+                      :biobankData="biobank"
                       :collectionData="collectionDetail"
                       iconOnly
                       bookmark
