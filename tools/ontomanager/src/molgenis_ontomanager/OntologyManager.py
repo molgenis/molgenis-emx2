@@ -2,7 +2,7 @@
 
 import logging
 
-from molgenis_emx2_client import Client
+from molgenis_emx2_client.client import Client
 from requests import Response
 
 from .constants import ontology_columns
@@ -318,7 +318,8 @@ class OntologyManager:
         _kwargs = {key: {'name': value} if key == 'parent' else value
                    for (key, value) in _kwargs.items()}
 
-        wrong_keywords = [key for key in kwargs.keys() if key not in ontology_columns]
+        wrong_keywords = [key for (key, values) in kwargs.items()
+                          if key not in ontology_columns and values is not None]
         if len(wrong_keywords) > 0:
             log.error(f"Ignoring incorrect keywords supplied for operation: {', '.join(wrong_keywords)}.")
 
