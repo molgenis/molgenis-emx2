@@ -11,10 +11,10 @@ nyx {
     releasePrefix = "v"
     releaseTypes {
         items {
-	    mainline {
-                 matchBranches = "master"
-                 publish = "true"
-                 publicationServices = ["github"]
+            mainline {
+                matchBranches = "master"
+                publish = "true"
+                publicationServices = ["github"]
             }
             internal {
                 collapseVersions = true
@@ -41,27 +41,27 @@ nyx {
         }
     }
     changelog {
-	sections {
-	    Added = ^feat$
-	    Fixed = ^fix$
-	}	
-	substitutions {
-	   (?m)#([0-9]+)(?s) = [#%s](https://github.com/example/prj/issues/%s)
-	}
+        sections = [
+                'Added' : '^feat$',
+                'Fixed' : '^fix$',
+        ]
+        substitutions = [
+                '(?m)#([0-9]+)(?s)': '[#%s](https://github.com/molgenis/molgenis-emx2/issues/%s)'
+        ]
     }
-  commitMessageConventions {
-    enabled = [ 'conventionalCommits' ]
-    items {
-      conventionalCommits {
-        expression = '(?m)^(?<type>[a-zA-Z0-9_]+)(!)?(\\\\((?<scope>[a-z ]+)\\\\))?:( (?<title>.+))$(?s).*'
-        bumpExpressions {
-          major = '(?s)(?m)^[a-zA-Z0-9_]+(!|.*^(BREAKING( |-)CHANGE: )).*'
-          minor = '(?s)(?m)^feat(?!!|.*^(BREAKING( |-)CHANGE: )).*'
-          patch = '(?s)(?m)^fix(?!!|.*^(BREAKING( |-)CHANGE: )).*'
+    commitMessageConventions {
+        enabled = [ 'conventionalCommits' ]
+        items {
+            conventionalCommits {
+                expression = '(?m)^(?<type>[a-zA-Z0-9_]+)(!)?(\\\\((?<scope>[a-z ]+)\\\\))?:( (?<title>.+))$(?s).*'
+                bumpExpressions {
+                    major = '(?s)(?m)^[a-zA-Z0-9_]+(!|.*^(BREAKING( |-)CHANGE: )).*'
+                    minor = '(?s)(?m)^feat(?!!|.*^(BREAKING( |-)CHANGE: )).*'
+                    patch = '(?s)(?m)^fix(?!!|.*^(BREAKING( |-)CHANGE: )).*'
+                }
+            }
         }
-      }
     }
-  }
 }
 
 rootProject.name = 'emx2'
@@ -90,7 +90,7 @@ include(':backend:molgenis-emx2-graphql')
 include(':backend:molgenis-emx2-run')
 include(':backend:molgenis-emx2-tasks')
 include(':backend:molgenis-emx2-semantics')
-include ('backend:molgenis-emx2-email')
+include('backend:molgenis-emx2-email')
 include(':tools:pyclient')
 
 
