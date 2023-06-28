@@ -2,21 +2,24 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import QueryEMX2 from "../functions/queryEMX2";
 import { useSettingsStore } from "./settingsStore";
+import { useCollectionStore } from "./collectionStore";
 
 export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
+  const collectionStore = useCollectionStore();
+
   const biobankCardColumns = settingsStore.config.biobankCardColumns;
   const biobankColumns = settingsStore.config.biobankColumns;
-  const collectionColumns = settingsStore.config.collectionColumns;
   const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
   const biobankCardGraphql = biobankCardColumns.map(
     (biobankColumn) => biobankColumn.column
   );
 
+  const collectionColumns = collectionStore.getCollectionColumns()
+
   const biobankGraphql = biobankColumns.map(
     (biobankColumn) => biobankColumn.column
-  ).concat({ collections: collectionColumns.map(collectionColumn => collectionColumn.column) })
-    .concat(["collections.name"]);
+  ).concat({ collections: collectionColumns })
 
   let biobankCards = ref([]);
   let waitingForResponse = ref(false);
@@ -70,6 +73,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       .orderBy("collections", "id", "asc")
       .where("id")
       .like(id)
+      
     return await biobankReportQuery.execute();
   }
 

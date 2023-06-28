@@ -132,6 +132,7 @@ import {
   mapObjArray,
 } from "../functions/viewmodelMapper";
 import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
+import { useQualitiesStore } from '../stores/qualitiesStore';
 
 export default {
   name: "biobank-report-card",
@@ -149,6 +150,7 @@ export default {
   setup() {
     const settingsStore = useSettingsStore();
     const biobanksStore = useBiobanksStore();
+    const qualitiesStore = useQualitiesStore();
 
     const biobank = ref({});
     const route = useRoute();
@@ -159,7 +161,7 @@ export default {
         : {};
     });
 
-    return { settingsStore, biobanksStore, biobank };
+    return { settingsStore, biobanksStore, qualitiesStore, biobank };
   },
   methods: {
     wrapBioschema(schemaData) {
@@ -208,6 +210,10 @@ export default {
         ? this.wrapBioschema(mapBiobankToBioschemas(this.biobank))
         : undefined;
     },
+  },
+  async mounted() {
+    this.showCollections = this.settingsStore.config.biobankCardShowCollections;
+    await this.qualitiesStore.getQualityStandardInformation();
   },
 };
 </script>

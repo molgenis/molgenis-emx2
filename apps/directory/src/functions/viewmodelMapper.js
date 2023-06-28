@@ -56,7 +56,7 @@ export function mapRange (min, max, unit) {
   } else if (max) {
     range = `< ${max} `;
   }
-  if (range.length > 0 && unit.length) {
+  if (range.length > 0 && unit && unit.length) {
     range += unit.map((unit) => unit.label).join();
   } else {
     range = undefined;

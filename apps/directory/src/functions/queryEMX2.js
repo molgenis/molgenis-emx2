@@ -539,7 +539,7 @@ ${root}${rootModifier} {\n`;
     for (const property of properties) {
       if (typeof property === "object") {
         const refProperty = Object.keys(property)[0];
-        const nextPath = path ? `${path}.${refProperty} ` : refProperty;
+        const nextPath = path ? `${path}.${refProperty}` : refProperty;
         this._createPathFromObject(
           nextPath,
           property[refProperty],
@@ -549,7 +549,7 @@ ${root}${rootModifier} {\n`;
         if (!path || path.length === 0) {
           requestedColumns.push(property);
         } else {
-          requestedColumns.push(`${path}.${property} `);
+          requestedColumns.push(`${path}.${property}`);
         }
       }
     }

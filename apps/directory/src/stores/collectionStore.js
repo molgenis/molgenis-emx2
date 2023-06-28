@@ -7,11 +7,25 @@ export const useCollectionStore = defineStore("collectionStore", () => {
     const settingsStore = useSettingsStore();
     const collectionColumns = settingsStore.config.collectionColumns;
     const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
-    const collectionGraphql = collectionColumns.map(
-        (collectionColumn) => collectionColumn.column
-    );
 
     const commercialAvailableCollections = ref([])
+
+    function getCollectionColumns () {
+        const properties = collectionColumns.filter(column => column.column).map(
+            (collectionColumn) => collectionColumn.column
+        );
+
+        const rangeProperties = collectionColumns.filter(column => column.type === 'range');
+
+        for (const property of rangeProperties) {
+            properties.push(property.min, property.max, property.unit_column)
+        }
+
+        /** add defaults */
+        properties.push("id", "name")
+
+        return properties
+    }
 
     async function getCommercialAvailableCollections () {
 
@@ -62,7 +76,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
                 "withdrawn",
                 "parent_collection.id",
                 "parent_collection.name",
-                ...collectionGraphql
+                ...getCollectionColumns()
             ])
             .orderBy("Collections", "id", "asc")
             .where("id")
@@ -72,6 +86,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
 
     return {
         getCollectionReport,
+        getCollectionColumns,
         getCommercialAvailableCollections
     };
 });

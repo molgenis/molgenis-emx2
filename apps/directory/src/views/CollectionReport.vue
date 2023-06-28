@@ -103,11 +103,12 @@ import { useSettingsStore } from "../stores/settingsStore";
 import { Spinner } from "../../../molgenis-components";
 import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
-import CheckOut from "../components/checkout-components/CheckOut.vue"
+import CheckOut from "../components/checkout-components/CheckOut.vue";
 import ReportCollectionDetails from "../components/report-components/ReportCollectionDetails.vue";
 import CollectionReportInfoCard from "../components/report-components/CollectionReportInfoCard.vue";
 import { collectionReportInformation } from "../functions/viewmodelMapper";
 import { mapCollectionToBioschemas } from "../functions/bioschemasMapper";
+import { useQualitiesStore } from "../stores/qualitiesStore";
 
 export default {
   name: "collection-report-card",
@@ -117,11 +118,12 @@ export default {
     ReportCollectionDetails,
     CollectionReportInfoCard,
     Breadcrumb,
-    CheckOut
+    CheckOut,
   },
   setup() {
     const settingsStore = useSettingsStore();
     const collectionStore = useCollectionStore();
+    const qualitiesStore = useQualitiesStore();
 
     const collection = ref({});
     const route = useRoute();
@@ -130,7 +132,7 @@ export default {
       collection.value = result.Collections.length ? result.Collections[0] : {};
     });
 
-    return { settingsStore, collectionStore, collection };
+    return { settingsStore, collectionStore, qualitiesStore, collection };
   },
   methods: {
     wrapBioschema(schemaData) {
@@ -161,6 +163,10 @@ export default {
     //   // TODO rework this so that facts are stand-alone, this is a workaround because @ReportCollectionDetails
     //   return { value: this.collection.facts };
     // },
+  },
+  async mounted() {
+    this.showCollections = this.settingsStore.config.biobankCardShowCollections;
+    await this.qualitiesStore.getQualityStandardInformation();
   },
 };
 </script>

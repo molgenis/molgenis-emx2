@@ -40,19 +40,12 @@ const initialCollectionColumns = [
     suffix: "donors",
   },
   {
-    label: "Age low:",
-    type: "int",
-    column: "age_low"
-  },
-  {
-    label: "Age high:",
-    type: "int",
-    column: "age_high"
-  },
-  {
-    label: "Age unit:",
-    type: "mref",
-    column: { age_unit: ["label"] }
+    label: "Age:",
+    type: "range",
+    min: 'age_low',
+    max: 'age_high',
+    unit: 'age_unit',
+    unit_column: { age_unit: ["label"] }
   },
   { label: "Type:", column: { type: ["label"] }, type: "array", showOnBiobankCard: true },
   { label: "Sex:", column: { sex: ["label"] }, type: "array" },
@@ -67,7 +60,7 @@ const initialCollectionColumns = [
     column: { storage_temperatures: ["label"] },
     type: "categoricalmref",
   },
-  { label: "Data:", column: { data_categories: ["label","code", "ontologyTermURI"] }, type: "mref" },
+  { label: "Data:", column: { data_categories: ["label", "code", "ontologyTermURI"] }, type: "mref" },
   {
     label: "Diagnosis:",
     column: { diagnosis_available: ["code", "label", "ontologyTermURI"] },

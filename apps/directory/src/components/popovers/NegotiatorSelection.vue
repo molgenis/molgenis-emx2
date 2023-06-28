@@ -137,7 +137,6 @@ export default {
       });
     },
     sortedAlphabetically(collectionArray) {
-      console.log(collectionArray)
       return sortCollectionsByLabel(collectionArray)
     },
     sendRequest() {
