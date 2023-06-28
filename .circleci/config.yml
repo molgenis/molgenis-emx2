@@ -87,7 +87,7 @@ jobs:
         name: build and test java, then test e2e
         command: |
           ./gradlew shadowJar --no-daemon
-          set CI=true && npx playwright test e2eTests/ --project=chromium
+          set CI=true && npx playwright test --project=chromium
 
 
     # to switch to release add following
