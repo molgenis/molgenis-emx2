@@ -41,6 +41,7 @@ nyx {
         }
     }
     changelog {
+        path = "CHANGELOG.md"
         sections = [
                 'Added' : '^feat$',
                 'Fixed' : '^fix$',
