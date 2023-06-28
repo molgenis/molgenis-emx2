@@ -44,7 +44,7 @@
         </Property>
         <Property label="topics">
           {{
-            variable.topics ? variable.topics.map((t) => t.name).join(",") : ""
+            variable.topics ? variable.topics.map((t) => t.name).join(", ") : ""
           }}
         </Property>
         <Property label="description">
