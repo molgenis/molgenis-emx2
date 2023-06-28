@@ -3,8 +3,7 @@
   <article
     :class="[
       {
-        'border-secondary': biobankInSelection,
-        'border-light': !biobankInSelection,
+        'border border-secondary': biobankInSelection,
         'back-side': showCollections,
       },
       fullSize ? 'biobank-card-large' : 'biobank-card',
@@ -178,13 +177,15 @@ import InfoPopover from "../popovers/InfoPopover.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useBiobanksStore } from "../../stores/biobanksStore";
 import { useQualitiesStore } from "../../stores/qualitiesStore";
+import { useCheckoutStore } from "../../stores/checkoutStore";
 
 export default {
   setup() {
     const settingsStore = useSettingsStore();
     const biobanksStore = useBiobanksStore();
     const qualitiesStore = useQualitiesStore();
-    return { settingsStore, biobanksStore, qualitiesStore };
+    const checkoutStore = useCheckoutStore();
+    return { settingsStore, biobanksStore, qualitiesStore, checkoutStore };
   },
   components: {
     ViewGenerator,
@@ -277,17 +278,11 @@ export default {
     qualityStandardsDictionary() {
       return this.qualitiesStore.qualityStandardsDictionary;
     },
-    /** broken */
     biobankInSelection() {
-      return false;
-      // if (!this.biobank.collections) return false
-
-      // const biobankCollectionSelection = this.biobank.collections
-      //   .filter(bcf => !bcf.parent_collection)
-      //   .map(bc => ({ label: bc.label || bc.name, value: bc.id }))
-      // return this.selectedCollections
-      //   .map(sc => sc.value)
-      //   .some(id => biobankCollectionSelection.map(pc => pc.value).includes(id))
+      const biobankIdentifier = this.biobank.label || this.biobank.name;
+      return (
+        this.checkoutStore.selectedCollections[biobankIdentifier] !== undefined
+      );
     },
   },
   async mounted() {
