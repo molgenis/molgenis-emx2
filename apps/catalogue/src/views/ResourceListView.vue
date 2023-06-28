@@ -172,6 +172,13 @@ export default {
             doi: row.doi,
           },
         });
+      } else if (this.tableName === "Networks") {
+        this.$router.push({
+          name: "NetworkDetails",
+          params: {
+            network: row.id,
+          },
+        });
       } else if (row.id) {
         this.$router.push({
           name: this.detailRouteName,
