@@ -85,10 +85,23 @@
                 <tr>
                   <td>Institution:</td>
                   <td>
-                    <div v-if="cohort.institution">
-                      {{ cohort.organisations.map((o) => o.id).join(", ") }}
-                    </div>
-                    <span v-else></span>
+                    <span v-if="cohort.leadOrganisation">
+                      {{ cohort.leadOrganisation.map((o) => o.id).join(", ") }}
+                    </span>
+                    <span
+                      v-if="
+                        cohort.leadOrganisation &&
+                        cohort.additionalOrganisations
+                      "
+                      >,
+                    </span>
+                    <span v-if="cohort.additionalOrganisations">
+                      {{
+                        cohort.additionalOrganisations
+                          .map((o) => o.id)
+                          .join(", ")
+                      }}
+                    </span>
                   </td>
                 </tr>
                 <tr>
