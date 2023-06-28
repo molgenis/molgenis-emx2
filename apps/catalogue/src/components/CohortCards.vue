@@ -91,11 +91,11 @@
                     <span
                       v-if="
                         cohort.leadOrganisation &&
-                        cohorts.additionalOrganisations
+                        cohort.additionalOrganisations
                       "
                       >,
                     </span>
-                    <span v-if="cohorts.additionalOrganisations">
+                    <span v-if="cohort.additionalOrganisations">
                       {{
                         cohort.additionalOrganisations
                           .map((o) => o.id)
