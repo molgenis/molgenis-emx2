@@ -67,7 +67,7 @@
                   <td v-if="cohort.numberOfParticipants">
                     {{ Number(cohort.numberOfParticipants).toLocaleString() }}
                   </td>
-                  <td v-else>N/A</td>
+                  <td v-else></td>
                 </tr>
                 <tr>
                   <td><label>Countries:</label></td>
@@ -88,7 +88,7 @@
                     <div v-if="cohort.institution">
                       {{ cohort.organisations.map((o) => o.id).join(", ") }}
                     </div>
-                    <span v-else>N/A</span>
+                    <span v-else></span>
                   </td>
                 </tr>
                 <tr>
