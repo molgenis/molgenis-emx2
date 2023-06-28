@@ -14,6 +14,7 @@ nyx {
             mainline {
                 matchBranches = "master"
                 publish = "true"
+                description = "{{#fileContent}}CHANGELOG.md{{/fileContent}}"
                 publicationServices = ["github"]
             }
             internal {
