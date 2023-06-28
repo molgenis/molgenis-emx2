@@ -86,7 +86,7 @@ jobs:
     - run:
         name: build and test java, then test e2e
         command: |
-          ./gradlew test --no-daemon
+          ./gradlew test shadowJar --no-daemon
           set CI=true && npx playwright test e2eTests/ --project=chromium
 
 
@@ -98,7 +98,7 @@ jobs:
     - run:
         name: release, push docker, push python
         command: |
-          ./gradlew --no-daemon shadowJar dockerPush helmPublishMainChart publishPython ci release \
+          ./gradlew --no-daemon dockerPush helmPublishMainChart publishPython ci release \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
           export $( cat build/ci.properties | xargs )
