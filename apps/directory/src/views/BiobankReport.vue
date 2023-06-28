@@ -28,11 +28,11 @@
               </li>
             </ol>
           </breadcrumb>
-          <!-- <check-out
+          <check-out
             class="ml-auto"
             :disabled="biobank.withdrawn"
             :bookmark="false"
-          /> -->
+          />
         </div>
       </div>
       <div class="row" v-if="biobankDataAvailable">
@@ -55,11 +55,12 @@
                       :title="collection.name"
                       :id="collection.id"
                     />
-                    <!-- <collection-selector
-                        :disabled="biobank.withdrawn"
-                        class="pl-4 ml-auto"
-                        :collectionData="collection"
-                      /> -->
+                    <collection-selector
+                      :disabled="biobank.withdrawn"
+                      class="pl-4 ml-auto"
+                      :biobankData="biobank"
+                      :collectionData="collection"
+                    />
                   </div>
                   <collapse-component>
                     <view-generator
@@ -115,6 +116,8 @@ import { useRoute } from "vue-router";
 import { useBiobanksStore } from "../stores/biobanksStore";
 import { useSettingsStore } from "../stores/settingsStore";
 import { Spinner } from "../../../molgenis-components";
+import CheckOut from "../components/checkout-components/CheckOut.vue";
+import CollectionSelector from "../components/checkout-components/CollectionSelector.vue";
 import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
@@ -139,7 +142,9 @@ export default {
     ViewGenerator,
     ReportDetailsList,
     CollapseComponent,
-    Breadcrumb
+    CheckOut,
+    CollectionSelector,
+    Breadcrumb,
   },
   setup() {
     const settingsStore = useSettingsStore();
