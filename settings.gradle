@@ -40,6 +40,28 @@ nyx {
             type = "application/java-archive"
         }
     }
+    changelog {
+	sections {
+	    Added = ^feat$
+	    Fixed = ^fix$
+	}	
+	substitutions {
+	   (?m)#([0-9]+)(?s) = [#%s](https://github.com/example/prj/issues/%s)
+	}
+    }
+  commitMessageConventions {
+    enabled = [ 'conventionalCommits' ]
+    items {
+      conventionalCommits {
+        expression = '(?m)^(?<type>[a-zA-Z0-9_]+)(!)?(\\\\((?<scope>[a-z ]+)\\\\))?:( (?<title>.+))$(?s).*'
+        bumpExpressions {
+          major = '(?s)(?m)^[a-zA-Z0-9_]+(!|.*^(BREAKING( |-)CHANGE: )).*'
+          minor = '(?s)(?m)^feat(?!!|.*^(BREAKING( |-)CHANGE: )).*'
+          patch = '(?s)(?m)^fix(?!!|.*^(BREAKING( |-)CHANGE: )).*'
+        }
+      }
+    }
+  }
 }
 
 rootProject.name = 'emx2'
