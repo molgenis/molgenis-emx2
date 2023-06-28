@@ -96,7 +96,7 @@ export default {
           value: this.subcohort.mainMedicalCondition
             ? this.subcohort.mainMedicalCondition
                 .map((mmc) => mmc.name)
-                .join(",")
+                .join(", ")
             : "",
         },
         {
