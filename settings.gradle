@@ -48,9 +48,6 @@ nyx {
                 'Added' : '^feat$',
                 'Fixed' : '^fix$',
         ]
-        substitutions = [
-                '(?m)#([0-9]+)(?s)': '[#%s](https://github.com/molgenis/molgenis-emx2/issues/%s)'
-        ]
     }
     commitMessageConventions {
         enabled = [ 'conventionalCommits' ]
