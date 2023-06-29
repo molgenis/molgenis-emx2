@@ -43,6 +43,7 @@ nyx {
     }
     changelog {
         path = "CHANGELOG.md"
+	template = "changelog-notes.tpl"
         sections = [
                 'Added' : '^feat$',
                 'Fixed' : '^fix$',
