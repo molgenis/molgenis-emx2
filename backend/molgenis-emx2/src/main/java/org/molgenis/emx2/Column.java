@@ -353,6 +353,11 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return getColumnType().isReference();
   }
 
+  public boolean isCaseSensitiveType() {
+    final ColumnType baseType = this.getColumnType().getBaseType();
+    return baseType.equals(STRING) || baseType.equals(TEXT);
+  }
+
   public String getSchemaName() {
     return getTable().getSchemaName();
   }

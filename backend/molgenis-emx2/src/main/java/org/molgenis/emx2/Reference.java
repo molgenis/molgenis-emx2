@@ -2,6 +2,8 @@ package org.molgenis.emx2;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.ColumnType.TEXT;
 import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
 
 import java.util.List;
@@ -116,5 +118,10 @@ public class Reference {
     return new Column(this.column.getTable(), this.getName(), true)
         .setType(this.getPrimitiveType())
         .setRequired(this.column.isRequired());
+  }
+
+  public boolean isCaseSensitiveType() {
+    final ColumnType baseType = this.getColumnType().getBaseType();
+    return baseType.equals(STRING) || baseType.equals(TEXT);
   }
 }

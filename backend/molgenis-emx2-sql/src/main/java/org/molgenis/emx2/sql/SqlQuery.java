@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
+import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.Operator.*;
@@ -1254,20 +1255,47 @@ public class SqlQuery extends QueryBean {
       if (ASC.equals(col.getValue())) {
         if (column.isReference()) {
           for (Reference ref : column.getReferences()) {
-            query =
-                (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(ref.getName())).asc());
+            if (ref.isCaseSensitiveType()) {
+              query =
+                  (SelectJoinStep<org.jooq.Record>)
+                      query.orderBy(lower(field(name(ref.getName()), VARCHAR)).asc());
+            } else {
+              query =
+                  (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(ref.getName())).asc());
+            }
           }
         } else {
-          query = (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).asc());
+          if (column.isCaseSensitiveType()) {
+            query =
+                (SelectJoinStep<org.jooq.Record>)
+                    query.orderBy(lower(field(name(col.getKey()), VARCHAR)).asc());
+          } else {
+            query =
+                (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).asc());
+          }
         }
       } else {
         if (column.isReference()) {
           for (Reference ref : column.getReferences()) {
-            query =
-                (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(ref.getName())).asc());
+
+            if (ref.isCaseSensitiveType()) {
+              query =
+                  (SelectJoinStep<org.jooq.Record>)
+                      query.orderBy(lower(field(name(ref.getName()), VARCHAR)).asc());
+            } else {
+              query =
+                  (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(ref.getName())).asc());
+            }
           }
         } else {
-          query = (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).desc());
+          if (column.isCaseSensitiveType()) {
+            query =
+                (SelectJoinStep<org.jooq.Record>)
+                    query.orderBy(lower(field(name(col.getKey()), VARCHAR)).desc());
+          } else {
+            query =
+                (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).desc());
+          }
         }
       }
     }
