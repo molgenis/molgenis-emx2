@@ -4,6 +4,7 @@ import QueryEMX2 from "../functions/queryEMX2";
 import { useSettingsStore } from "./settingsStore";
 import { useCollectionStore } from "./collectionStore";
 
+
 export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
   const collectionStore = useCollectionStore();
@@ -14,6 +15,32 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   const biobankCardGraphql = biobankCardColumns.map(
     (biobankColumn) => biobankColumn.column
   );
+
+  let facetBiobankColumnDetails = ref([])
+
+  function getFacetColumnDetails () {
+    if (!facetBiobankColumnDetails.value.length) {
+
+      const filterFacetProperties = []
+
+      const filterFacets = settingsStore.config.filterFacets.filter(facet => !facet.builtIn && facet.filterValueAttribute && facet.filterLabelAttribute )
+
+      for (const facet of filterFacets) {
+        let nestedpath = facet.applyToColumn.split(".")
+        /** pop off the trail because that is not what the user always needs */
+        nestedpath.pop()
+
+        const nestedPathBase = nestedpath.join('.')
+
+        filterFacetProperties.push(`${nestedPathBase}.${facet.filterLabelAttribute}`, `${nestedPathBase}.${facet.filterValueAttribute}`)
+      }
+      facetBiobankColumnDetails = filterFacetProperties
+
+      console.log(facetBiobankColumnDetails)
+    }
+
+    return facetBiobankColumnDetails
+  }
 
   const collectionColumns = collectionStore.getCollectionColumns()
 
@@ -33,6 +60,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       "collections.name",
       "collections.size",
       ...biobankCardGraphql,
+      ...getFacetColumnDetails()
     ]) // TODO: add different config for the collection side
     .orderBy("Biobanks", "name", "asc")
     .orderBy("collections", "id", "asc");
@@ -73,7 +101,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       .orderBy("collections", "id", "asc")
       .where("id")
       .like(id)
-      
+
     return await biobankReportQuery.execute();
   }
 

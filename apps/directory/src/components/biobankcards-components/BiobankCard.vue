@@ -146,7 +146,7 @@
                     :viewmodel="collectionViewmodel(collectionDetail)"
                   />
 
-                  <!-- <matches-on :viewmodel="collectionDetail" class="px-1 ml-1" /> -->
+                  <matches-on :viewmodel="collectionDetail" class="px-1 ml-1" />
                   <router-link
                     :to="'/collection/' + collectionDetail.id"
                     :title="`${collectionDetail.name} details`"
@@ -174,6 +174,7 @@ import {
 import ViewGenerator from "../generators/ViewGenerator.vue";
 import CollectionSelector from "../checkout-components/CollectionSelector.vue";
 import InfoPopover from "../popovers/InfoPopover.vue";
+import MatchesOn from "../biobankcards-components/MatchesOn.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useBiobanksStore } from "../../stores/biobanksStore";
 import { useQualitiesStore } from "../../stores/qualitiesStore";
@@ -191,6 +192,7 @@ export default {
     ViewGenerator,
     CollectionSelector,
     InfoPopover,
+    MatchesOn
   },
   props: {
     fullSize: {

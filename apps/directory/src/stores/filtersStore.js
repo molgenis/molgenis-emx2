@@ -15,7 +15,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   let filterType = ref({});
   let filterTypeUpdatedFromFilter = ref("");
   let filterOptionsCache = ref({});
-  let filterFacets = createFilters(filters);
+  let filterFacets = createFilters(settingsStore.config.filterFacets);
   const facetDetails = {};
 
   /** extract the components types so we can use that in adding the correct query parts */
