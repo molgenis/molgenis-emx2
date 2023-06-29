@@ -39,7 +39,7 @@ subprojects {
 
     task publishPython(type:Exec) {
         dependsOn buildPython
-        dependsOn test
+        dependsOn ":backend:assemble" //should run after test succeed and assemble is ready
         group 'release'
         description 'publish python package'
         //expects credentials for testpypi
