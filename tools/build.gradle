@@ -4,9 +4,17 @@ plugins {
 
 subprojects {
     task buildPython(type:Exec) {
+        if(version.toString().contains("SNAPSHOT")) {
+            //must comply with https://peps.python.org/pep-0440/
+            //todo: can we somehow include the github hash?
+            new File(projectDir, "version.txt").text = version.replace("-SNAPSHOT","").replace("v","") + ".dev" + new Date().getTime()
+        } else {
+            new File(projectDir, "version.txt").text = version.replace("v","")
+        }
         group 'build'
         description 'run python lib build'
-        commandLine 'python3', '-m','build'
+        //convert version number to pep440 scheme
+        commandLine'python3', '-m', 'build'
         ext.output = {
             return standardOutput.toString()
         }
@@ -23,6 +31,27 @@ subprojects {
         inputs.file('pyproject.toml')
         inputs.file('requirements.txt')
         inputs.file('README.md')
+        doLast {
+            println "remove version.txt again"
+            delete "version.txt"
+        }
+    }
+
+    task publishPython(type:Exec) {
+        dependsOn buildPython
+        group 'release'
+        description 'publish python package'
+        //expects credentials for testpypi
+        if(version.toString().contains("SNAPSHOT")) {
+            commandLine 'twine', 'upload', '--repository', 'testpypi', 'dist/*'
+        } else  {
+            //todo switch to production when stable
+            commandLine 'twine', 'upload', 'dist/*'
+        }
+        ext.output = {
+            return standardOutput.toString()
+        }
+        inputs.dir('dist')
     }
 
     task clean {

@@ -43,7 +43,7 @@
       />
     </template>
     <template v-else>
-      <single-var-details-view :variable="variable" />
+      <single-var-details-view :variable="variable" :network="network" />
     </template>
   </div>
 </template>
@@ -64,6 +64,7 @@ export default {
   props: {
     name: String,
     model: String,
+    network: String,
   },
   data() {
     return {
