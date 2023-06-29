@@ -38,7 +38,7 @@ subprojects {
     }
 
     task publishPython(type:Exec) {
-        dependsOn buildPython
+        dependsOn buildPython, test
         group 'release'
         description 'publish python package'
         //expects credentials for testpypi
