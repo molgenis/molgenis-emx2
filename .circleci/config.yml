@@ -85,9 +85,13 @@ jobs:
           git config url.https://.insteadOf git://
 
     - run:
-        name: build and test java, then test e2e
+        name: build and test java
         command: |
           ./gradlew shadowJar --no-daemon
+
+    - run:
+        name: test e2e
+        command: |
           set CI=true && npx playwright test --project=chromium
 
 
