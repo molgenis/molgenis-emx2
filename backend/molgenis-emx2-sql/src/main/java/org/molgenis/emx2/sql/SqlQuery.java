@@ -510,7 +510,8 @@ public class SqlQuery extends QueryBean {
     for (SelectColumn select : selection.getSubselect()) {
       Column column =
           select.getColumn().endsWith("_agg") || select.getColumn().endsWith("_groupBy")
-              ? getColumnByName(table, select.getColumn().replace("_agg", "").replace("_groupBy", ""))
+              ? getColumnByName(
+                  table, select.getColumn().replace("_agg", "").replace("_groupBy", ""))
               : getColumnByName(table, select.getColumn());
 
       // add the fields, using subselects for references
