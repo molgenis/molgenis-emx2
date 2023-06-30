@@ -1168,6 +1168,35 @@ public class WebApiSmokeTests {
     assertTrue(result.contains("datasets"));
   }
 
+  @Test
+  public void testFairDataPointSmoke() {
+    // todo: enable fdp somehow? I suppose we would need a publid fair data hub for this?
+
+    String result = given().get("/api/fdp").getBody().asString();
+    assertTrue(result.contains("endpointSets"));
+
+    //    result = given().get("/api/fdp/catalogue/pet store/Pet").getBody().asString();
+    //    assertTrue(result.contains("todo"));
+    //
+    //    result = given().get("/api/fdp/dataset/pet store/Pet").getBody().asString();
+    //    assertTrue(result.contains("todo"));
+    //
+    //    result = given().get("/api/fdp/distribution/pet store/json/json").getBody().asString();
+    //    assertTrue(result.contains("todo"));
+    //
+    //    result = given().get("/api/fdp/profile").getBody().asString();
+    //    assertTrue(result.contains("todo"));
+    //
+    //    result = given().get("/api/fdp/catalogue/profile").getBody().asString();
+    //    assertTrue(result.contains("todo"));
+    //
+    //    result = given().get("/api/fdp/dataset/profile").getBody().asString();
+    //    assertTrue(result.contains("todo"));
+    //
+    //    result = given().get("/api/fdp/distribution/profile").getBody().asString();
+    //    assertTrue(result.contains("todo"));
+  }
+
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
     Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
     Filter f = f("script", f("name", EQUALS, scriptName));
