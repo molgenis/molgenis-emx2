@@ -11,10 +11,11 @@ nyx {
     releasePrefix = "v"
     releaseTypes {
         items {
-	    mainline {
-                 matchBranches = "master"
-                 publish = "true"
-                 publicationServices = ["github"]
+            mainline {
+                matchBranches = "master"
+                publish = "true"
+                description = "{{#fileContent}}CHANGELOG.md{{/fileContent}}"
+                publicationServices = ["github"]
             }
             internal {
                 collapseVersions = true
@@ -38,6 +39,27 @@ nyx {
             path = "build/libs/molgenis-emx2-{{#replace from=\"v\"}}{{version}}{{/replace}}-all.jar"
             fileName = "molgenis-emx2-{{#replace from=\"v\"}}{{version}}{{/replace}}-all.jar"
             type = "application/java-archive"
+        }
+    }
+    changelog {
+        path = "CHANGELOG.md"
+	template = "changelog-notes.tpl"
+        sections = [
+                'Added' : '^feat$',
+                'Fixed' : '^fix$',
+        ]
+    }
+    commitMessageConventions {
+        enabled = [ 'conventionalCommits' ]
+        items {
+            conventionalCommits {
+                expression = '(?m)^(?<type>[a-zA-Z0-9_]+)(!)?(\\\\((?<scope>[a-z ]+)\\\\))?:( (?<title>.+))$(?s).*'
+                bumpExpressions {
+                    major = '(?s)(?m)^[a-zA-Z0-9_]+(!|.*^(BREAKING( |-)CHANGE: )).*'
+                    minor = '(?s)(?m)^feat(?!!|.*^(BREAKING( |-)CHANGE: )).*'
+                    patch = '(?s)(?m)^fix(?!!|.*^(BREAKING( |-)CHANGE: )).*'
+                }
+            }
         }
     }
 }
@@ -68,7 +90,7 @@ include(':backend:molgenis-emx2-graphql')
 include(':backend:molgenis-emx2-run')
 include(':backend:molgenis-emx2-tasks')
 include(':backend:molgenis-emx2-semantics')
-include ('backend:molgenis-emx2-email')
+include('backend:molgenis-emx2-email')
 include(':tools:pyclient')
 
 
