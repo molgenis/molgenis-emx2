@@ -1128,6 +1128,46 @@ public class WebApiSmokeTests {
     assertTrue(result.contains("[]"), "script should be unscheduled");
   }
 
+  @Test
+  public void testBeaconApiSmokeTests() {
+    // todo: ideally we would here validate the responses against json schemas, are those schemas
+    // easily available?
+    // todo: can we put in some relevant filter parameters so we really test if they are functional?
+
+    String result = given().get("/api/beacon").getBody().asString();
+    assertTrue(result.contains("info"));
+
+    result = given().get("/api/beacon/configuration").getBody().asString();
+    assertTrue(result.contains("productionStatus"));
+
+    result = given().get("/api/beacon/map").getBody().asString();
+    assertTrue(result.contains("endpointSets"));
+
+    result = given().get("/api/beacon/entry_types").getBody().asString();
+    assertTrue(result.contains("entry"));
+
+    result = given().get("/api/beacon/datasets").getBody().asString();
+    assertTrue(result.contains("datasets"));
+
+    result = given().get("/api/beacon/g_variants").getBody().asString();
+    assertTrue(result.contains("datasets"));
+
+    result = given().get("/api/beacon/analyses").getBody().asString();
+    assertTrue(result.contains("datasets"));
+
+    result = given().get("/api/beacon/biosamples").getBody().asString();
+    assertTrue(result.contains("datasets"));
+
+    result = given().get("/api/beacon/cohorts").getBody().asString();
+    assertTrue(result.contains("datasets"));
+
+    result = given().get("/api/beacon/individuals").getBody().asString();
+    assertTrue(result.contains("datasets"));
+
+    result = given().get("/api/beacon/runs").getBody().asString();
+    assertTrue(result.contains("datasets"));
+  }
+
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
     Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
     Filter f = f("script", f("name", EQUALS, scriptName));
