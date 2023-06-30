@@ -1,20 +1,18 @@
-# Molgenis ontology manager
+# Molgenis EMX2 Ontology Manager
 
-The Molgenis ontology manager is a package that handles ontologies on a Molgenis server with functionality to add, delete or update CatalogueOntologies entries and edit the databases present on the server accordingly.
+The Molgenis EMX2 Ontology Manager is a package that handles ontologies on a Molgenis server with functionality to add, delete or update CatalogueOntologies entries and edit the databases present on the server accordingly.
 
 ## Installation
 
-The package requires the installation of the molgenis-emx2-client package, which depends on the requests package. 
+The package requires a Python installation version above or equal to 3.7 and the molgenis-emx2-pyclient package.
 Install both before installing the Molgenis ontology manager
 
-    pip install requests
-    pip install -i https://test.pypi.org/simple/ molgenis-emx2-client
+    pip install molgenis-emx2-pyclient
 
 The molgenis-ontomanager package can then be installed from the test PyPI repository:
 
-    pip install -i https://test.pypi.org/simple/ molgenis-ontomanager
+    pip install -i https://test.pypi.org/simple/ molgenis-emx2-ontomanager
 
-The Molgenis ontology manager is supported on Python 3.7 and above. 
 
 ## How to use
 
@@ -23,10 +21,11 @@ Import the OntologyManager class from the package and create an instance by prov
 
 Example usage:
 
-    from molgenis_ontomanager import OntologyManager
+    from molgenis_emx2_ontomanager import OntologyManager
     ...
 
     ...
+
     server_url = "https://example.molgeniscloud.org"
     username = "username"
     password = ...
@@ -44,7 +43,8 @@ Example:
     ontomanager.add(table='Countries', name='Armadilland',
                                        parent='Republic of Molgenia')
 
-The argument `name` is mandatory. The optional arguments are `order, label, parent, codesystem, code, ontologyTermURI, definition`.
+The argument `name` is mandatory. 
+The optional arguments are `order, label, parent, codesystem, code, ontologyTermURI, definition`.
 Note that a term cannot be added to the ontology table if its name is already present.
 If a parent term is specified, this must already be present in the table.
 
@@ -68,13 +68,14 @@ Example:
     ontomanager.delete(table='Countries', name='Republic of Molgenia')  
 
 ### In command line as module
-The above functionality can also be employed in the command line interface:
+The above functionality can also be applied in the command line interface:
 For add and remove actions the flag `--name` is mandatory, and the flags `--order`, `--label`, `--parent`, `--URI`, `--definition` are optional.
 For the update action the flags `--old` and `--new` are mandatory and the only accepted arguments.
+The actions in the previous examples can be performed using the cli as follows:
 
     python3 -m molgenis_ontomanager add Countries --name='Republic of Molgenia' --label='Molgenia'
     python3 -m molgenis_ontomanager add Countries --name=Armadilland --parent='Republic of Molgenia'
 
-    python3 -m molgenis_ontomanager update Countries --old=Armadilland --new='Republic of Molgenia'
+    python3 -m molgenis_ontomanager update Countries --old='Republic of Molgenia' --new=Armadilland
 
     python3 -m molgenis_ontomanager delete Countries --name='Republic of Molgenia'
