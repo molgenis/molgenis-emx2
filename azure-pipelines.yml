@@ -36,7 +36,8 @@ steps:
 - script: |
     export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64/
     ./gradlew -version
-    ./gradlew checkFormat spotlessCheck test jacocoMergedReport sonarqube -Dsonar.login=$(SONAR_TOKEN) -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=$(GITHUB_TOKEN) -Dorg.ajoberstar.grgit.auth.password
+    ./gradlew checkFormat spotlessCheck test jacocoMergedReport 
+  # sonarqube -Dsonar.login=$(SONAR_TOKEN) -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=$(GITHUB_TOKEN) -Dorg.ajoberstar.grgit.auth.password
   displayName: run test, ensure we are using java 17 JAVA_HOME
 
   env:

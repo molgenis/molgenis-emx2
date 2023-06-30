@@ -213,14 +213,14 @@ export default {
   async created() {
     this.$store.commit("setSearchInput", "");
     await this.fetchSchema();
-    if (!this.variables.length) {
-      // Only on initial creation
-      this.fetchVariables();
-    }
     if (this.network) {
       this.setSelectedNetworks([{ id: this.network }]);
     }
-    this.fetchKeywords();
+    await this.fetchKeywords();
+    if (!this.variables.length) {
+      // Only on initial creation
+      await this.fetchVariables();
+    }
   },
 };
 </script>
