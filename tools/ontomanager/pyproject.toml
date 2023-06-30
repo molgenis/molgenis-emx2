@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "molgenis-ontomanager"
-version = "0.1.6"
-description = "Tool to manage catalogue ontologies on Molgenis servers."
+name = "Molgenis EMX2 Ontology Manager"
+version = "0.1.7"
+description = "Tool to manage catalogue ontologies on Molgenis EMX2 servers."
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
