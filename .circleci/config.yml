@@ -85,14 +85,14 @@ jobs:
     - run:
         name: build, test, release, push docker
         command: |
-          echo "PR number is ${CIRCLE_PR_NUMBER}"
           ./gradlew -s test --no-daemon shadowJar dockerPush helmPublishMainChart ci release publishPython \
-          -Dorg.ajoberstar.grgit.auth.username=$GITHUB_TOKEN -Dorg.ajoberstar.grgit.auth.password
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
           if [ "${CIRCLE_BRANCH}" = "master" ]; then
-            ./gradlew sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
+            ./gradlew sonar -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
           else
-            ./gradlew -s sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-            -Dsonar.pullrequest.key=$CIRCLE_PR_NUMBER -Dsonar.pullrequest.branch=$CIRCLE_BRANCH
+            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+            ./gradlew -s sonar -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+            -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
           fi
           
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
