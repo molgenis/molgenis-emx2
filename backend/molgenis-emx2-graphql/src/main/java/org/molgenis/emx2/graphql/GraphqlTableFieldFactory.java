@@ -209,7 +209,12 @@ public class GraphqlTableFieldFactory {
             tableBuilder.field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(id)
-                    .type(createTableObjectType(col.getRefTable())));
+                    .type(createTableObjectType(col.getRefTable()))
+                     .argument(
+                        GraphQLArgument.newArgument()
+                            .name(GraphqlConstants.FILTER_ARGUMENT)
+                            .type(getTableFilterInputType(col.getRefTable()))
+                            .build()));
             break;
           case REF_ARRAY:
           case REFBACK:

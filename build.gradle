@@ -5,7 +5,6 @@
 plugins {
     id "java"
     id "org.sonarqube" version "3.5.0.2730"
-    id 'pl.allegro.tech.build.axion-release' version '1.15.3'
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'application'
@@ -14,6 +13,18 @@ plugins {
     id 'org.unbroken-dome.helm-commands' version '1.7.0'
     id 'com.palantir.docker' version '0.35.0'
 }
+
+allprojects {
+    if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version) {
+        version = rootProject.nyxState.releaseScope.previousVersion + "-SNAPSHOT"
+    }
+    else {
+        version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
+    }
+}
+println "Corrected version checking for optional snapshot: " + rootProject.version
+
+nyxPublish.dependsOn assemble
 
 targetCompatibility = "17"
 sourceCompatibility = "17"
@@ -26,25 +37,13 @@ sonarqube {
     }
 }
 
-scmVersion {
-    tag {
-        prefix.set("v")
-    }
-}
-allprojects {
-    group = 'org.molgenis'
-    project.version = scmVersion.version
-}
-
 tasks.withType(Test) {
     maxParallelForks = Runtime.runtime.availableProcessors() / 2;
 }
 
 repositories {
     mavenLocal()
-    maven {
-        url = 'https://repo.maven.apache.org/maven2'
-    }
+    mavenCentral()
     maven {
         url = "https://registry.molgenis.org/repository/maven-public"
     }
@@ -58,6 +57,7 @@ mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
     archiveBaseName = 'molgenis-emx2'
     mergeServiceFiles()
+    archiveVersion = project.version.replace("v","")
 }
 
 publishing {
@@ -70,12 +70,6 @@ publishing {
 }
 
 project.ext.ghToken = project.hasProperty('ghToken') ? project.getProperty('ghToken') : System.getenv('GITHUB_TOKEN') ?: null
-//semanticRelease {
-//    repo {
-//        releaseAsset shadowJar
-//        ghToken = project.ghToken
-//    }
-//}
 
 def imageName = 'docker.io/molgenis/molgenis-emx2'
 def tagName = project.version.toString()
