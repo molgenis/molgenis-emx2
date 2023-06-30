@@ -210,7 +210,7 @@ public class GraphqlTableFieldFactory {
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(id)
                     .type(createTableObjectType(col.getRefTable()))
-                     .argument(
+                    .argument(
                         GraphQLArgument.newArgument()
                             .name(GraphqlConstants.FILTER_ARGUMENT)
                             .type(getTableFilterInputType(col.getRefTable()))
