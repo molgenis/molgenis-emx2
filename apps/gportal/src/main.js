@@ -7,6 +7,7 @@ import Datasets from "./components/Datasets.vue";
 import Welcome from "./components/Welcome.vue";
 
 import "molgenis-components/dist/style.css";
+import "./styles/index.scss";
 
 const router = createRouter({
   history: createWebHashHistory(),
