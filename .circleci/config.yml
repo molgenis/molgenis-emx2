@@ -87,10 +87,8 @@ jobs:
         command: |
           ./gradlew -s test --no-daemon shadowJar dockerPush helmPublishMainChart ci release publishPython \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.pullrequest.key=${CIRCLE_PR_NUMBER} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+          -Dsonar.pullrequest.key=${CIRCLE_PR_NUMBER} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
-          
-          
           export $( cat build/ci.properties | xargs )
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
