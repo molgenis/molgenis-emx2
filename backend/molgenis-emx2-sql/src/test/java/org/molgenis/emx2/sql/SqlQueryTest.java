@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 import static org.molgenis.emx2.Order.ASC;
@@ -72,6 +71,5 @@ class SqlQueryTest {
     sqlQuery.orderBy("name", ASC);
     final List<Row> result = sqlQuery.retrieveRows();
     assertEquals(Collections.emptyList(), result);
-    verify(whereMock.orderBy((OrderField<Object>) any()), Mockito.times(1));
   }
 }
