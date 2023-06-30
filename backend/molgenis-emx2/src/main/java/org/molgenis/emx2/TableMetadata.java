@@ -305,7 +305,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public Column getColumn(String name) {
-    if (columns.containsKey(name)) return new Column(this, columns.get(name));
+    if (columns.containsKey(name)){
+      return new Column(this, columns.get(name));
+    }
     if (inherit != null) {
       Column c = getInheritedTable().getColumn(name);
       if (c != null) return new Column(c.getTable(), c);
