@@ -25,6 +25,8 @@ allprojects {
 println "Corrected version checking for optional snapshot: " + rootProject.version
 
 nyxPublish.dependsOn assemble
+sonar.dependsOn jacocoMergedReport
+jacoco.dependsOn ":backend:test"
 
 targetCompatibility = "17"
 sourceCompatibility = "17"
