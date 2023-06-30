@@ -85,11 +85,16 @@ jobs:
     - run:
         name: build, test, release, push docker
         command: |
-          ./gradlew -s test --no-daemon shadowJar dockerPush helmPublishMainChart sonarqube ci release publishPython \
-          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-          -Dsonar.pullrequest.key=${CIRCLE_PR_NUMBER} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
-          export $( cat build/ci.properties | xargs )
+          ./gradlew -s test --no-daemon shadowJar dockerPush helmPublishMainChart ci release publishPython \
+          -Dorg.ajoberstar.grgit.auth.username=$GITHUB_TOKEN -Dorg.ajoberstar.grgit.auth.password
+          echo $CIRCLE_PR_NUMBER
+          if [ "${CIRCLE_BRANCH}" = "master" ]; then
+            ./gradlew sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
+          else
+            ./gradlew sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+            -Dsonar.pullrequest.key=$CIRCLE_PR_NUMBER -Dsonar.pullrequest.branch=$CIRCLE_BRANCH
+          fi
+          
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
