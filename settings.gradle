@@ -14,6 +14,7 @@ nyx {
             mainline {
                 matchBranches = "master"
                 publish = "true"
+                description = "{{#fileContent}}CHANGELOG.md{{/fileContent}}"
                 publicationServices = ["github"]
             }
             internal {
@@ -42,12 +43,10 @@ nyx {
     }
     changelog {
         path = "CHANGELOG.md"
+	template = "changelog-notes.tpl"
         sections = [
                 'Added' : '^feat$',
                 'Fixed' : '^fix$',
-        ]
-        substitutions = [
-                '(?m)#([0-9]+)(?s)': '[#%s](https://github.com/molgenis/molgenis-emx2/issues/%s)'
         ]
     }
     commitMessageConventions {
