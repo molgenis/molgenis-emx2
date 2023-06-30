@@ -85,8 +85,8 @@ jobs:
     - run:
         name: build, test, release, push docker
         command: |
-          ./gradlew -s test --no-daemon shadowJar dockerPush helmPublishMainChart ci release publishPython \
-          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
+          ./gradlew -s test --no-daemon shadowJar dockerPush helmPublishMainChart sonarqube ci release publishPython \
+          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PR_NUMBER} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
           export $( cat build/ci.properties | xargs )
