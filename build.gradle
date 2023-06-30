@@ -25,7 +25,6 @@ allprojects {
 println "Corrected version checking for optional snapshot: " + rootProject.version
 
 nyxPublish.dependsOn assemble
-sonar.dependsOn test
 
 targetCompatibility = "17"
 sourceCompatibility = "17"
