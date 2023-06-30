@@ -86,17 +86,17 @@ jobs:
         name: build, test, release, push docker
         command: |
           if [ "${CIRCLE_BRANCH}" = "master" ]; then
-            ./gradlew -s test jacocoMergedReport sonar --no-daemon shadowJar dockerPush helmPublishMainChart ci release publishPython \
+            ./gradlew -s test sonar --no-daemon shadowJar dockerPush helmPublishMainChart ci release publishPython \
             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
           else
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            ./gradlew -s test jacocoMergedReport sonar --no-daemon shadowJar dockerPush helmPublishMainChart ci release publishPython \
+            ./gradlew -s test sonar --no-daemon shadowJar dockerPush helmPublishMainChart ci release publishPython \
             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
             -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
           fi
-          
+          export $( cat build/ci.properties | xargs )
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
