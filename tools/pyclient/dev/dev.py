@@ -9,17 +9,7 @@
 # COMMENTS: Designed to interact with the PetStore schema
 #///////////////////////////////////////////////////////////////////////////////
 
-from molgenis.client import Client
-import csv
-
-def to_csv(file, data, columns):
-    with open(file, 'w', encoding='UTF-8', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=columns)
-        writer.writeheader()
-        writer.writerows(data)
-        f.close()
-
-
+from src.molgenis_emx2_pyclient.client2 import Client
 db = Client('https://david-emx2.molgeniscloud.org/')
 
 # check sign in 

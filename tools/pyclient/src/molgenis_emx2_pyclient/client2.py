@@ -1,7 +1,9 @@
 
+from molgenis_emx2_pyclient.graphql import graphql
+from molgenis_emx2_pyclient.utils import cleanUrl
+import pandas as pd
 import requests
-from molgenis.graphql import graphql
-from molgenis.utils import cleanUrl, csvwriter
+import csv
 
 class Client:
     def __init__(self, host: str='http://localhost:8080/'):
@@ -25,12 +27,10 @@ class Client:
         @return status message; response
         """
         self.username = username
+        variables={'email': username, 'password': password}
         response = self.session.post(
             url=self.api_graphql,
-            json={
-                'query': graphql.signin(),
-                'variables': {'email': username, 'password': password}
-            }
+            json={'query': graphql.signin(),'variables': variables}
         )
         response.raise_for_status()
         
@@ -60,29 +60,25 @@ class Client:
             error = data.get('message')
             print(f"Unable to sign out of {self.host}\n{error}")
             
-    def __prepareData__(self, file: str=None, data: list=[]):
-        dataToImport = None
-
-        if bool(file) and bool(data):
-            raise ValueError('Unable to import data as both file and dataset are provided. Please select one.')
-
-        elif not bool(file) and not bool(data):
-            raise ValueError('Unable to import data. No file or dataset provided.')
-
-        elif bool(file):
-            with open(file, 'rb') as stream:
-                dataToImport = stream.read()
-                stream.close()
-
-        elif bool(data):
-            writer = csvwriter(data = data)
-            writer.toString()
-            return writer.csv
+    def _toCsv_(self, data):
+        return pd.DataFrame(data) \
+          .to_csv(index=False, quoting=csv.QUOTE_ALL, encoding="UTF-8")
+    
+    def _fromFile_(self, file):
+        with open(file, 'rb') as stream:
+            data = stream.read()
+            stream.close()
+        return data
+    
+    def _prepData_(self, file: str=None, data:list=[]):
+        if bool(file) and not bool(data):
+            return self._fromFile_(file=file)
+        
+        elif not bool(file) and bool(data):
+            return self._toCsv_(data=data)
         
         else:
-            raise ValueError('Unable to import data.')
-        
-        return dataToImport
+            raise ValueError("unable to prepare data. Enter a file path or a add a dataset")
             
     def add(self, schema: str=None, table: str=None, file: str=None, data: list=[]):
         """Add
@@ -95,22 +91,20 @@ class Client:
         
         @return status message; response
         """
-        dataToImport = self.__prepareData__(file=file, data=data)
+        dataToImport = self._prepData_(file=file, data=data)
+        response = self.session.post(
+            url=f"{self.host}/{schema}/api/csv/{table}",
+            headers={'Content-Type':'text/csv'},
+            data = dataToImport
+        )
         
-        if bool(dataToImport):
-            response = self.session.post(
-                url=f"{self.host}/{schema}/api/csv/{table}",
-                headers={'Content-Type':'text/csv'},
-                data = dataToImport
-            )
+        if response.status_code == 200:
+            print(f"Imported data into {schema}::{table}")
+        else:
+            errors = '\n'.join([err['message'] for err in response.json().get('errors')])
+            print(f"Failed to import data into {schema}::{table}\n{errors}")
             
-            if response.status_code == 200:
-                print(f"Imported data into {schema}::{table}")
-            else:
-                errors = '\n'.join([err['message'] for err in response.json().get('errors')])
-                print(f"Failed to import data into {schema}::{table}\n{errors}")
-                
-            return response
+        return response
     
     def delete(self, schema: str=None, table: str=None, file: str=None, data: list=[]):
         """Add
@@ -124,22 +118,20 @@ class Client:
         @return status message; response
         """
         dataToImport = self.__prepareData__(file=file, data=data)
+        response = self.session.delete(
+            url=f"{self.host}/{schema}/api/csv/{table}",
+            headers={'Content-Type':'text/csv'},
+            data = dataToImport
+        )
+        response.raise_for_status()
         
-        if bool(dataToImport):
-            response = self.session.delete(
-                url=f"{self.host}/{schema}/api/csv/{table}",
-                headers={'Content-Type':'text/csv'},
-                data = dataToImport
-            )
-            response.raise_for_status()
+        if response.status_code == 200:
+            print(f"Imported data into {schema}::{table}")
+        else:
+            errors = '\n'.join([err['message'] for err in response.json().get('errors')])
+            print(f"Failed to import data into {schema}::{table}\n{errors}")
             
-            if response.status_code == 200:
-                print(f"Imported data into {schema}::{table}")
-            else:
-                errors = '\n'.join([err['message'] for err in response.json().get('errors')])
-                print(f"Failed to import data into {schema}::{table}\n{errors}")
-                
-            return response
+        return response
         
         
     def get(self, schema: str=None, table: str=None):
