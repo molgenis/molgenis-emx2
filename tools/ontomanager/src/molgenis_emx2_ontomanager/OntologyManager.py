@@ -10,7 +10,7 @@ from requests import Response
 
 from .constants import ontology_columns
 from .exceptions import OntomanagerException, DuplicateKeyException, MissingPkeyException, NoSuchNameException, \
-    NoSuchTableException, UpdateItemsException, SigninError, InvalidDatabaseException
+    NoSuchTableException, UpdateItemsException, SigninError, InvalidDatabaseException, ParentReferenceException
 from .graphql_queries import Queries
 
 log = logging.getLogger("OntologyManager")
@@ -57,10 +57,8 @@ class OntologyManager:
             if isinstance(kwargs['data'], pd.DataFrame):
                 self._add_dataframe(table, **kwargs)
             if isinstance(kwargs['data'], dict):
-                # Ensure the dictionary is in correct format
                 self._add_dict(table, kwargs['data'])
             elif isinstance(kwargs['data'], list):
-                # Ensure the data is a list of dictionaries of correct format
                 self._add_list(table, kwargs['data'])
         else:
             self._add_term(table, kwargs)
@@ -98,21 +96,46 @@ class OntologyManager:
         self._add_dict(table, _data_dict)
         return None
 
-    def delete(self, table: str, **kwargs) -> Response:
-        """Delete a term from an ontology."""
+    def delete(self, table: str, **kwargs):
+        """Delete a term or a list of terms from an ontology."""
         log.info(f"Deleting from table {table}.")
 
         if table not in self.ontology_tables:
             raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
 
-        _kwargs = self.__parse_kwargs(kwargs)
+        if 'names' in kwargs.keys():
+            if isinstance(kwargs['names'], list):
+                self._delete_list(table, kwargs['names'])
+        if 'name' in kwargs.keys():
+            self._delete_term(table, kwargs=kwargs['name'])
+
+    def _delete_list(self, table: str, terms: list):
+        """Delete the listed terms from the table.
+        If one or more terms are referenced by another term, they are added
+        to a list and deleted at a later stage.
+        """
+        parent_terms = list()
+        for term in terms:
+            try:
+                self._delete_term(table, term)
+            except ParentReferenceException:
+                parent_terms.append(term)
+        if len(parent_terms) > 0:
+            self._delete_list(table, parent_terms)
+
+    def _delete_term(self, table: str, kwargs):
+        """Delete the term from the table."""
+        _term = kwargs
+        if isinstance(kwargs, dict):
+            _term = kwargs['name']
+
         _table = self.parse_table_name(table)
 
         query = Queries.delete(_table)
-        variables = {"pkey": {'name': _kwargs['name']}}
+        variables = {"pkey": {'name': _term}}
 
-        if _kwargs['name'] not in self.__list_ontology_terms(table):
-            raise NoSuchNameException(f"Name '{_kwargs['name']}' not found in table '{table}'.")
+        if _term not in self.__list_ontology_terms(table):
+            raise NoSuchNameException(f"Name '{_term}' not found in table '{table}'.")
 
         response = self.__perform_query(query, variables, action='delete')
 
@@ -302,6 +325,8 @@ class OntologyManager:
             message = _response.json()['errors'][0]['message']
             if 'duplicate key value' in message:
                 raise DuplicateKeyException(message)
+            if '.parent REFERENCES ' in message:
+                raise ParentReferenceException(message)
             raise OntomanagerException(message)
         else:
             log.info(f"Successfully {verbs[1]} {variables[next(iter(variables))]['name']}.")
