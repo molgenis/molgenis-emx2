@@ -78,8 +78,17 @@ subprojects {
         outputs.cacheIf { true }
     }
 
+    task installSSR(type: YarnTask, dependsOn: format) {
+        if (project.name == 'nuxt3-ssr') {
+            yarn_install.enabled = true;
+            inputs.file('package.json')
+            outputs.dir('node_modules')
+            outputs.cacheIf { true }
+        }
+    }
 
-    task build(type: YarnTask, dependsOn: format) {
+
+    task build(type: YarnTask, dependsOn: installSSR) {
         // force build order: molgenis-components > ...apps
         if (project.name != 'molgenis-components') {
             dependsOn ":apps:molgenis-components:build"
@@ -97,21 +106,7 @@ subprojects {
             outputs.dir('gen-docs')
             outputs.dir('showCase')
         } else if (project.name == 'nuxt3-ssr') {
-            inputs.file('package.json')
-            inputs.files(fileTree('assets'))
-            inputs.files(fileTree('components'))
-            inputs.files(fileTree('composables'))
-            inputs.files(fileTree('middleware'))
-            inputs.files(fileTree('layouts'))
-            inputs.files(fileTree('pages'))
-            inputs.files(fileTree('static'))
-            inputs.files(fileTree('store'))
-            inputs.file('nuxt.config.ts')
-            inputs.file('app.vue')
-            inputs.file('router.options.ts')
-            inputs.file('tailwind.config.ts')
-            outputs.dir('.nuxt')
-            outputs.dir('.output')
+
         } else if (project.name == 'graphql-playground') {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
