@@ -149,32 +149,56 @@ public class TestQuery {
     assertEquals((Integer) 2, rows.get(0).getInteger("Mother-ID"));
   }
 
-  private Query selectPerson() {
-    return schema.getTable(PERSON).select(s("ID"), s("First_Name"), s("Last_Name"));
-  }
   @Test
   void  orderByRefColumnAsc() {
-    final String unorderd = selectPerson()
+    final String unorderd = schema
+            .getTable(PERSON)
+            .select(
+
+                    s("ID"),
+                    s("First_Name"),
+                    s("Last_Name"))
+
             .retrieveRows()
             .stream()
             .map(r -> r.getString("First_Name"))
             .collect(Collectors.joining(","));
 
 
-    final String orderdbyRefDefaultOrder = selectPerson().retrieveRows()
+    final String orderdbyRefDefaultOrder = schema
+            .getTable(PERSON)
+            .select(
+                s("ID"),
+                s("First_Name"),
+                s("Last_Name"))
+            .orderBy("Mother")
+            .retrieveRows()
                 .stream()
                 .map(r -> r.getString("First_Name"))
                 .collect(Collectors.joining(","));
 
 
-    final String orderdbyRefAsc = selectPerson()
+    final String orderdbyRefAsc = schema
+            .getTable(PERSON)
+            .select(
+                    s("ID"),
+                    s("First_Name"),
+                    s("Last_Name"))
+            .orderBy("Mother", Order.ASC)
             .retrieveRows()
             .stream()
             .map(r -> r.getString("First_Name"))
             .collect(Collectors.joining(","));
 
 
-    final String orderdbyRefDesc = selectPerson().retrieveRows()
+    final String orderdbyRefDesc = schema
+            .getTable(PERSON)
+            .select(
+                    s("ID"),
+                    s("First_Name"),
+                    s("Last_Name"))
+            .orderBy("Mother", Order.DESC)
+            .retrieveRows()
             .stream()
             .map(r -> r.getString("First_Name"))
             .collect(Collectors.joining(","));

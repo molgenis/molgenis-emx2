@@ -1263,10 +1263,8 @@ public class SqlQuery extends QueryBean {
       } else {
         if (column.isReference()) {
           for (Reference ref : column.getReferences()) {
-//            query =
-//                    (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(ref.getName())).desc());
             query =
-                (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(ref.getName())).asc());
+                (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(ref.getName())).desc());
           }
         } else {
           query = (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).desc());
