@@ -128,3 +128,15 @@ class Queries:
         }
         """
         return query
+
+    @staticmethod
+    def search_filter_query(table: str):
+        """Query to search for the presence of a term in the table.
+        :param table: the name of the table
+        """
+        query = """
+        query """ + table + """($filter: """ + table + """Filter) {
+          """ + table + """(filter:$filter) {name}
+        }
+        """
+        return query

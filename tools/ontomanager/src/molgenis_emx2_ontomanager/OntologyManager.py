@@ -10,7 +10,7 @@ from .exceptions import OntomanagerException, DuplicateKeyException, MissingPkey
     NoSuchTableException, UpdateItemsException, SigninError, InvalidDatabaseException
 from .graphql_queries import Queries
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("OntologyManager")
 
 
 class OntologyManager:
@@ -110,10 +110,27 @@ class OntologyManager:
         @param term: the term that is looked for.
         @return: a string of the table where the table is found, None if the term is not found
         """
+        variables = {"filter": {"equals": {"name": term}}}
         for table in self.ontology_tables:
-            pass
+            _table = self.parse_table_name(table)
+            query = Queries.search_filter_query(_table)
 
+            response = self.client.session.post(
+                url=self.graphql_endpoint,
+                json={'query': query, 'variables': variables}
+            )
 
+            if response.status_code != 200:
+                if 'Validation error' in response.json()['errors'][0]['message']:
+                    raise NoSuchTableException(f"Table '{_table}' not found, however table '{table}' is listed.")
+                else:
+                    raise OntomanagerException(f"Status code {response.status_code} encountered: "
+                                               f"'{response.json()['errors']}'.")
+
+            if len(response.json()['data']) > 0:
+                return table
+
+        return None
 
     class Updater:
         """Class that handles the update of the terms, ontology tables, databases and database tables."""
@@ -316,9 +333,8 @@ class OntologyManager:
         """Parse table names to capitalized names without spaces,
         e.g. 'Network features' -> 'NetworkFeatures'.
         """
-        if table_name == 'RWE resources':
-            return 'RWEResources'
-        return "".join(word.capitalize() for word in table_name.split(' '))
+        return "".join(word[0].upper() + word[1:]
+                       for word in table_name.split(' '))
 
     @staticmethod
     def __parse_kwargs(kwargs) -> dict:
