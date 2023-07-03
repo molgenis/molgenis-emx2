@@ -13,6 +13,39 @@ The molgenis-ontomanager package can then be installed from the test PyPI reposi
 
     pip install -i https://test.pypi.org/simple/ molgenis-emx2-ontomanager
 
+## Development
+Clone the Molgenis EMX2 repository using git
+    
+    git clone https://github.com/molgenis/molgenis-emx2.git
+
+Change the working directory to `tools/ontomanager`
+
+Set up the virtual environment and install the required packages
+
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+
+#### Building the package
+Specify the version in `pyproject.toml`
+    
+    ...
+    [project]
+    name = "molgenis-emx2-ontomanager"
+    version = "x.y.z"
+    description = "Tool to manage catalogue ontologies on Molgenis EMX2 servers."
+    ...
+
+
+Build the package
+
+    python3 -m build
+
+Install the built package
+
+    pip install dist/molgenis-emx2-ontomanager-x.y.z-py3-none-any.whl
+where `x.y.z` is the version you set in the `pyproject.toml` file.
+
 
 ## How to use
 
