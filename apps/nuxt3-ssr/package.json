@@ -10,23 +10,23 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "format": "prettier components composables gql interfaces pages plugins utils  --write --config ../.prettierrc.js",
+    "format": "echo \"go format yourself\"",
     "checkFormat": "prettier components composables gql interfaces pages plugins utils  --check --config ../.prettierrc.js",
     "tailwind": "node gen-themes.js",
     "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./assets/icons -o ./assets/minified-icons --config ./svgo.config.js && node ./scripts/create_vue_components_from_icons.js"
   },
   "devDependencies": {
     "@nuxt/image-edge": "1.0.0-27809804.194d2d6",
-    "@nuxt/vite-builder": "3.4.3",
     "@nuxt/test-utils": "3.4.1",
+    "@nuxt/vite-builder": "3.4.3",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.8",
     "@vitejs/plugin-vue": "4.1.0",
     "@vue/test-utils": "2.3.2",
     "autoprefixer": "10.4.14",
     "graphql-tag": "2.12.6",
-    "nuxt": "3.4.3",
     "jsdom": "21.1.2",
+    "nuxt": "3.6.1",
     "nuxt-proxy": "0.4.0",
     "postcss": "8.4.24",
     "postcss-custom-properties": "13.2.0",
@@ -34,9 +34,12 @@
     "shelljs": "^0.8.5",
     "svgo": "2.8.0",
     "tailwindcss": "3.3.2",
-    "vitest": "^0.30.1"
+    "vite": "4.3.9",
+    "vitest": "0.30.1",
+    "vue": "3.3.4"
   },
   "dependencies": {
+    "@unhead/vue": "1.1.29",
     "floating-vue": "^2.0.0-beta.20"
   }
 }

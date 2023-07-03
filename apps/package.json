@@ -1,19 +1,12 @@
 {
   "private": true,
   "workspaces": [
-    "catalogue",
-    "settings",
-    "central",
-    "schema",
-    "tables",
-    "updownload",
-    "pages",
-    "graphql-playground",
-    "nuxt3-ssr",
-    "molgenis-components",
-    "helloworld",
-    "reports",
-    "tasks"
+    "./*"
+  ],
+  "nohoist": [
+    "./nuxt3-ssr/**",
+    "./nuxt3-ssr/vite/**",
+    "./nuxt3-ssr/vue/**"
   ]
 }
 

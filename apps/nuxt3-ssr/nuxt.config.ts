@@ -1,5 +1,8 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 import { defineNuxtConfig } from "nuxt/config";
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+const currentDir = dirname(fileURLToPath(import.meta.url));
 
 const devProxy = {
   options: {
@@ -13,6 +16,11 @@ const devProxy = {
 };
 
 const config = {
+  alias: {
+    '@unhead/vue': require.resolve(
+        join(currentDir, './node_modules/@unhead/vue')
+    ),
+  },
   modules: ["nuxt-proxy", "@nuxt/image-edge"],
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side
