@@ -85,9 +85,17 @@ jobs:
     - run:
         name: build, test, release, push docker
         command: |
-          ./gradlew test --no-daemon shadowJar dockerPush helmPublishMainChart publishPython ci \
-          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+          if [ "${CIRCLE_BRANCH}" = "master" ]; then
+            ./gradlew -s test jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release publishPython \
+            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
+          else
+            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+            ./gradlew -s test jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release publishPython \
+            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+            -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+          fi
           export $( cat build/ci.properties | xargs )
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
