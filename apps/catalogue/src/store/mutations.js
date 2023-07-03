@@ -32,9 +32,6 @@ export default {
   setKeywords(state, keywords) {
     state.keywords = keywords;
   },
-  setCohorts(state, cohorts) {
-    state.cohorts = cohorts;
-  },
   setResources(state, resources) {
     state.resources = resources;
   },

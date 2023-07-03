@@ -47,7 +47,6 @@ export default {
       .conditions;
   },
   resources: (state) => state.resources,
-  cohorts: (state) => state.cohorts,
   /**
    * @returns Grid like object o[x][y], where;
    *  x = variableName,

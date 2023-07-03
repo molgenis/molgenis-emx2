@@ -245,29 +245,6 @@ export default {
     return variableDetails;
   },
 
-  fetchCohorts: async ({ state, commit }) => {
-    if (state.keywords.length) {
-      return state.keywords;
-    }
-
-    const cohortQuery = gql`
-      query Cohorts {
-        Cohorts(orderby: { id: ASC }) {
-          id
-          networks {
-            id
-          }
-        }
-      }
-    `;
-
-    const cohortResp = await request("graphql", cohortQuery).catch((e) =>
-      console.error(e)
-    );
-    commit("setCohorts", cohortResp.Cohorts);
-    return state.cohorts;
-  },
-
   fetchKeywords: async ({ state, commit }) => {
     if (state.keywords.length) {
       return state.keywords;

@@ -13,7 +13,6 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
 import HarmonizationCell from "../components/harmonization/HarmonizationCell.vue";
 
 export default {
@@ -25,21 +24,17 @@ export default {
   },
   data() {
     return {
-      resourceMappings: undefined,
       resourceStatusMap: undefined,
     };
   },
+  computed: {
+    resourceMappings() {
+      return this.variable?.mappings;
+    },
+  },
   methods: {
-    ...mapActions(["fetchMappings"]),
     getCellClass(cohort) {
       return this.resourceMappings ? this.getMatchStatus(cohort) : null;
-    },
-    async fetchData() {
-      this.resourceMappings = await this.fetchMappings(this.variable);
-      this.resourceStatusMap = this.resources.reduce((statusMap, resource) => {
-        statusMap[resource.pid] = this.getMatchStatus(resource);
-        return statusMap;
-      }, {});
     },
     getMatchStatus(resource) {
       if (this.variable.repeats && Array.isArray(this.resourceMappings)) {
@@ -48,7 +43,7 @@ export default {
             return (
               mapping.targetVariable &&
               mapping.targetVariable.name === repeatedVariable.name &&
-              mapping.sourceDataset.resource.id === resource.id
+              mapping.source.id === resource.id
             );
           });
 
@@ -57,9 +52,9 @@ export default {
 
         const baseVariable = this.resourceMappings.find((mapping) => {
           return (
-            mapping.toVariable &&
-            mapping.toVariable.name === this.variable.name &&
-            mapping.fromTable.dataDictionary.resource.pid === resource.pid
+            mapping.targetVariable &&
+            mapping.targetVariable.name === this.variable.name &&
+            mapping.source.id === resource.id
           );
         });
 
@@ -81,7 +76,7 @@ export default {
         }
       } else if (Array.isArray(this.resourceMappings)) {
         const resourceMapping = this.resourceMappings.find((mapping) => {
-          return mapping.sourceDataset.resource.id === resource.id;
+          return mapping.source.id === resource.id;
         });
 
         if (!resourceMapping) {
@@ -100,9 +95,6 @@ export default {
         }
       }
     },
-  },
-  async mounted() {
-    await this.fetchData();
   },
 };
 </script>

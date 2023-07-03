@@ -1,5 +1,6 @@
 <template>
   <div class="container-fluid">
+    <MessageError v-if="error">{{ error }}</MessageError>
     <div class="row">
       <div class="col-6 col-sm-5 col-md-4 col-lg-3">
         <h5>Filters</h5>
@@ -10,9 +11,10 @@
             tableName="Networks"
             v-model="networks"
             refLabel="${id}"
+            @update:modelValue="reload"
           ></InputRefList>
         </div>
-        <div v-if="hasKeywords" class="bg-white px-1">
+        <div class="bg-white px-1">
           <InputOntology
             id="topics-ontology-input"
             label="Topics"
@@ -21,6 +23,7 @@
             tableName="Keywords"
             :show-expanded="true"
             schemaName="CatalogueOntologies"
+            @update:modelValue="reload"
           />
         </div>
         <div class="bg-white px-1">
@@ -42,7 +45,7 @@
             <div class="col-3">
               <h3>
                 Variables
-                <span v-if="variableCount">({{ variableCount }})</span>
+                <span v-if="variablesCount">({{ variablesCount }})</span>
               </h3>
             </div>
             <div class="col-9">
@@ -51,14 +54,6 @@
                 v-model="searchInput"
                 placeholder="Search variables"
                 :isClearBtnShown="true"
-              />
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-12">
-              <filter-wells
-                :filters="filtersFiltered"
-                @updateFilters="fetchVariables"
               />
             </div>
           </div>
@@ -87,13 +82,27 @@
                   </router-link>
                 </li>
               </ul>
-              <Spinner v-if="isLoading" />
-              <template v-else-if="$route.query.tab === 'harmonization'">
-                <harmonization-view :network="network" />
+              <template v-if="$route.query.tab === 'harmonization'">
+                <harmonization-view
+                  :variables="variables"
+                  :cohorts="cohorts"
+                  :key="variables?.length"
+                />
               </template>
               <template v-else>
-                <variables-details-view :network="network" />
+                <variables-details-view
+                  :variables="variables"
+                  :key="variables?.length"
+                />
               </template>
+              <Spinner v-if="isLoading" />
+              <button
+                class="btn btn-link mt-2 mb-3"
+                v-else-if="variables?.length < variablesCount"
+                @click="fetchAdditionalVariables"
+              >
+                Show more variables
+              </button>
             </div>
           </div>
         </div>
@@ -105,14 +114,17 @@
 <script>
 import VariablesDetailsView from "./VariablesDetailsView.vue";
 import HarmonizationView from "./HarmonizationView.vue";
-import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
 import {
   InputSearch,
   InputOntology,
   InputRefList,
   FilterWells,
   Spinner,
+  MessageError,
 } from "molgenis-components";
+import { gql, request } from "graphql-request";
+
+const LIMIT = 50;
 
 export default {
   name: "VariableExplorer",
@@ -124,6 +136,7 @@ export default {
     FilterWells,
     InputRefList,
     Spinner,
+    MessageError,
   },
   props: {
     network: {
@@ -131,98 +144,213 @@ export default {
       default: null,
     },
   },
+  data() {
+    return {
+      isLoading: false,
+      cohorts: [],
+      variables: [],
+      variablesCount: null,
+      variablesOffset: 0,
+      keywords: [],
+      error: null,
+      networks: [],
+      searchInput: null,
+    };
+  },
   computed: {
-    ...mapState(["filters", "isLoading"]),
-    ...mapGetters([
-      "variables",
-      "variableCount",
-      "searchString",
-      "selectedNetworks",
-      "selectedKeywords",
-      "selectedCohorts",
-    ]),
-    filtersFiltered() {
-      //filter if network filter set external
-      return this.filters.filter(
-        (f) => f.name !== "networks" || this.network == null
-      );
+    selectedKeywords() {
+      return this.keywords.map((term) => term.name);
     },
-    searchInput: {
-      get() {
-        return this.$store.state.searchInput;
-      },
-      set(value) {
-        this.$store.commit("setSearchInput", value);
-      },
+    selectedCohorts() {
+      return this.cohorts.map((cohort) => cohort.id);
     },
-    networks: {
-      get() {
-        return this.selectedNetworks;
-      },
-      set(value) {
-        this.setSelectedNetworks(value);
-      },
+    selectedNetworks() {
+      if (this.network) {
+        return [this.network];
+      } else {
+        return this.networks?.map((network) => network.id);
+      }
     },
-    cohorts: {
-      get() {
-        return this.selectedCohorts;
-      },
-      set(value) {
-        this.setSelectedCohorts(value);
-      },
-    },
-    keywords: {
-      get() {
-        return this.selectedKeywords;
-      },
-      set(value) {
-        this.setSelectedKeywords(value);
-      },
-    },
-    hasKeywords() {
-      return !!(
-        this.$store.state.keywords && this.$store.state.keywords.length
-      );
+    selectedModels() {
+      return this.networks
+        ?.map((network) => network.models.map((model) => model.id))
+        .flat();
     },
   },
   methods: {
-    ...mapMutations([
-      "setSelectedNetworks",
-      "setSelectedKeywords",
-      "setSelectedCohorts",
-    ]),
-    ...mapActions(["fetchVariables", "fetchKeywords", "fetchSchema"]),
-    onError(e) {
-      this.graphqlError = e.response ? e.response.errors[0].message : e;
+    async fetchAdditionalVariables() {
+      this.variablesOffset = this.variablesOffset + LIMIT;
+      this.isLoading = true;
+      try {
+        const result = await fetchVariables(
+          this.selectedModels,
+          this.selectedCohorts,
+          this.selectedKeywords,
+          this.search,
+          this.variablesOffset
+        );
+        this.variables.push(...result.Variables);
+      } catch (error) {
+        this.error = error.response ? error.response.errors[0].message : error;
+      }
+      this.isLoading = false;
     },
-  },
-  watch: {
-    selectedKeywords() {
-      this.fetchVariables();
-    },
-    searchString() {
-      this.fetchVariables();
-    },
-    selectedNetworks() {
-      this.fetchVariables();
-    },
-    selectedCohorts() {
-      this.fetchVariables();
+    async reload() {
+      this.error = null;
+      this.isLoading = true;
+      this.variables = [];
+      try {
+        const result1 = await fetchCohortsAndNetworks(this.selectedNetworks);
+        this.cohorts = result1.Cohorts;
+        this.networks = result1.Networks;
+        const result2 = await fetchVariables(
+          this.selectedModels,
+          this.selectedCohorts,
+          this.selectedKeywords,
+          this.search,
+          this.variablesOffset
+        );
+        this.variables = result2.Variables;
+        this.variablesCount = result2.Variables_agg.count;
+      } catch (error) {
+        this.error = error.response ? error.response.errors[0].message : error;
+      }
+      this.isLoading = false;
     },
   },
   async created() {
-    this.$store.commit("setSearchInput", "");
-    await this.fetchSchema();
-    if (this.network) {
-      this.setSelectedNetworks([{ id: this.network }]);
-    }
-    await this.fetchKeywords();
-    if (!this.variables.length) {
-      // Only on initial creation
-      await this.fetchVariables();
-    }
+    this.reload();
   },
 };
+
+//todo: move these to central place?
+/** get cohorts optionally filtered by networks */
+async function fetchCohortsAndNetworks(networkIdArray) {
+  const query = gql`
+    query CohortsAndNetworks(
+      $cohortsFilter: CohortsFilter
+      $networksFilter: NetworksFilter
+    ) {
+      Cohorts(filter: $cohortsFilter) {
+        id
+        name
+      }
+      Networks(filter: $networksFilter) {
+        name
+        models {
+          id
+        }
+      }
+    }
+  `;
+  const queryParams = {};
+  if (networkIdArray) {
+    queryParams.cohortsFilter = {
+      networks: { id: { equals: networkIdArray } },
+    };
+    queryParams.networksFilter = { id: { equals: networkIdArray } };
+  }
+  const queryResponse = await request("graphql", query, queryParams);
+  return queryResponse;
+}
+
+/** get target variables including mappings from the cohorts filtered by networks, keywords, cohorts and/or search terms */
+async function fetchVariables(models, cohorts, keywords, search, offset) {
+  const query = gql`
+    query Variables(
+      $search: String
+      $variablesFilter: VariablesFilter
+      $offset: Int
+      $limit: Int
+    ) {
+      Variables(
+        limit: $limit
+        offset: $offset
+        search: $search
+        filter: $variablesFilter
+        orderby: { label: ASC }
+      ) {
+        name
+        keywords {
+          name
+        }
+        description
+        unit {
+          name
+        }
+        format {
+          name
+        }
+        dataset {
+          name
+        }
+        resource {
+          id
+          name
+        }
+        label
+        repeats {
+          name
+        }
+        mappings {
+          source {
+            id
+          }
+          targetVariable {
+            name
+          }
+          targetDataset {
+            resource {
+              id
+            }
+          }
+          sourceDataset {
+            resource {
+              id
+            }
+          }
+          match {
+            name
+          }
+          syntax
+          description
+          sourceVariablesOtherDatasets {
+            dataset {
+              name
+            }
+            name
+          }
+        }
+        permittedValues {
+          value
+          label
+        }
+      }
+      Variables_agg(search: $search, filter: $variablesFilter) {
+        count
+      }
+    }
+  `;
+  const queryParams = {
+    offset,
+    search,
+    limit: LIMIT,
+    variablesFilter: { resource: { mg_tableclass: { like: ["Models"] } } },
+  };
+  if (keywords?.length > 0) {
+    queryParams.variablesFilter.keywords = { name: { equals: keywords } };
+  }
+  if (models?.length > 0) {
+    queryParams.variablesFilter.resource = { id: { equals: models } };
+  }
+  console.log(queryParams);
+
+  // if(cohorts?.length > 0) {
+  //   queryParams.variablesFilter.datasets = {resource:{id:{equals: cohorts}}}
+  // }
+  const queryResponse = await request("graphql", query, queryParams);
+  return queryResponse;
+}
 </script>
 
 <style></style>

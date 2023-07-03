@@ -1,6 +1,6 @@
 <template>
   <div class="mt-3">
-    <template v-if="variables.length && cohorts.length">
+    <template v-if="variables?.length">
       <table class="table table-bordered table-sm">
         <caption>
           <span
@@ -18,7 +18,7 @@
             <th
               class="rotated-text text-nowrap"
               scope="col"
-              v-for="cohort in cohortsInThisNetwork"
+              v-for="cohort in cohorts"
               :key="cohort.id"
             >
               <div>
@@ -29,69 +29,23 @@
         </thead>
         <tbody>
           <template v-for="variable in variables" :key="variable.name">
-            <harmonization-row
-              :variable="variable"
-              :resources="cohortsInThisNetwork"
-            />
+            <harmonization-row :variable="variable" :resources="cohorts" />
           </template>
         </tbody>
       </table>
-      <p v-if="isLoading" class="text-center font-italic pt-3">
-        <Spinner />
-        Fetching variable data..
-      </p>
-      <button
-        class="btn btn-link mt-2 mb-3"
-        v-else-if="showMoreVisible"
-        @click="fetchAdditionalVariables"
-      >
-        Show more variables
-      </button>
     </template>
-    <div v-else>
-      <Spinner />
-    </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions, mapState } from "vuex";
 import HarmonizationRow from "./HarmonizationRow.vue";
-import { Spinner } from "molgenis-components";
-
-const INITIAL_PAGE_SIZE = 100;
 
 export default {
   name: "HarmonizationView",
-  components: { HarmonizationRow, Spinner },
+  components: { HarmonizationRow },
   props: {
-    network: String,
-  },
-  computed: {
-    ...mapGetters(["cohorts", "variables", "variableCount"]),
-    ...mapState(["isLoading"]),
-    showMoreVisible() {
-      return this.variables.length < this.variableCount;
-    },
-    cohortsInThisNetwork() {
-      return this.cohorts.filter(
-        (c) =>
-          this.network === null ||
-          c.networks?.some((n) => {
-            return n.id === this.network;
-          })
-      );
-    },
-  },
-  methods: {
-    ...mapActions(["fetchCohorts", "fetchAdditionalVariables"]),
-    async handleVariableDetailsRequest(variable) {
-      const result = await this.fetchVariableDetails(variable);
-      variable.variableDetails = result;
-    },
-  },
-  async mounted() {
-    await this.fetchCohorts();
+    variables: Array,
+    cohorts: Array,
   },
 };
 </script>

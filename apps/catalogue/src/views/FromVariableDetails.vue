@@ -23,19 +23,7 @@ export default {
   name: "FromVariableDetails",
   components: { VariableDetails },
   props: {
-    sourceCohort: String,
-    fromName: String,
-  },
-  data() {
-    return {
-      variable: {},
-    };
-  },
-  async created() {
-    this.variable = await fetchFromVariableDetails(
-      this.fromName,
-      this.sourceCohort
-    );
+    variable: Object,
   },
 };
 </script>
