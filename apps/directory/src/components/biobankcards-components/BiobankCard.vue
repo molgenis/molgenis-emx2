@@ -192,7 +192,7 @@ export default {
     ViewGenerator,
     CollectionSelector,
     InfoPopover,
-    MatchesOn
+    MatchesOn,
   },
   props: {
     fullSize: {

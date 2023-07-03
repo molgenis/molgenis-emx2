@@ -48,8 +48,8 @@ export default {
       return this.checkoutStore.collectionSelectionCount;
     },
     disableButton() {
-      return this.disabled || this.collectionSelectionCount === 0
-    }
+      return this.disabled || this.collectionSelectionCount === 0;
+    },
   },
   data: () => ({
     showCart: false,

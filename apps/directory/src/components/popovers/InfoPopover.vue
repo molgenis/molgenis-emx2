@@ -5,7 +5,6 @@
     }"
   >
     <div class="w3tooltip" tabindex="0" @click.prevent="">
-
       <span v-if="label && !iconBeforeLabel">{{ label }}</span>
       <span
         :ref="uniqueLabelId"
@@ -17,7 +16,9 @@
         ]"
         aria-hidden="true"
       ></span>
-      <span :ref="uniqueLabelId" v-if="label && iconBeforeLabel">{{ label }}</span>
+      <span :ref="uniqueLabelId" v-if="label && iconBeforeLabel">{{
+        label
+      }}</span>
 
       <span
         class="tooltiptext"
@@ -101,12 +102,12 @@ export default {
         }
         case "bottom": {
           const top = this.elementHeight + 8;
-          const right = (this.elementWidth / 2) - (this.contentWidth / 2);
+          const right = this.elementWidth / 2 - this.contentWidth / 2;
           return `top: ${top}px;right:${right}px;`;
         }
         default: {
           const bottom = this.elementHeight + 8;
-          const right = (this.elementWidth / 2) - (this.contentWidth / 2);
+          const right = this.elementWidth / 2 - this.contentWidth / 2;
           return `bottom: ${bottom}px;right:${right}px;`;
         }
       }

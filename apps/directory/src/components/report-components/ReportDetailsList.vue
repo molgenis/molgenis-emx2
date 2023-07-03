@@ -67,7 +67,7 @@
 </style>
 
 <script>
-import { useSettingsStore } from '../../stores/settingsStore';
+import { useSettingsStore } from "../../stores/settingsStore";
 export default {
   name: "ReportDetailsList",
   // Object with as key the variable, as value an object with two keys: value and type
@@ -112,9 +112,9 @@ export default {
     },
   },
   computed: {
-    uiText(){
-      return this.settingsStore.uiText
-    }
+    uiText() {
+      return this.settingsStore.uiText;
+    },
   },
 };
 </script>

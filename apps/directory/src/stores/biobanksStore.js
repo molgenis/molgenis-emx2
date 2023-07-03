@@ -4,7 +4,6 @@ import QueryEMX2 from "../functions/queryEMX2";
 import { useSettingsStore } from "./settingsStore";
 import { useCollectionStore } from "./collectionStore";
 
-
 export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
   const collectionStore = useCollectionStore();
@@ -16,37 +15,44 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     (biobankColumn) => biobankColumn.column
   );
 
-  let facetBiobankColumnDetails = ref([])
+  let facetBiobankColumnDetails = ref([]);
 
-  function getFacetColumnDetails () {
+  function getFacetColumnDetails() {
     if (!facetBiobankColumnDetails.value.length) {
+      const filterFacetProperties = [];
 
-      const filterFacetProperties = []
-
-      const filterFacets = settingsStore.config.filterFacets.filter(facet => !facet.builtIn && facet.filterValueAttribute && facet.filterLabelAttribute )
+      const filterFacets = settingsStore.config.filterFacets.filter(
+        (facet) =>
+          !facet.builtIn &&
+          facet.filterValueAttribute &&
+          facet.filterLabelAttribute
+      );
 
       for (const facet of filterFacets) {
-        let nestedpath = facet.applyToColumn.split(".")
+        let nestedpath = facet.applyToColumn.split(".");
         /** pop off the trail because that is not what the user always needs */
-        nestedpath.pop()
+        nestedpath.pop();
 
-        const nestedPathBase = nestedpath.join('.')
+        const nestedPathBase = nestedpath.join(".");
 
-        filterFacetProperties.push(`${nestedPathBase}.${facet.filterLabelAttribute}`, `${nestedPathBase}.${facet.filterValueAttribute}`)
+        filterFacetProperties.push(
+          `${nestedPathBase}.${facet.filterLabelAttribute}`,
+          `${nestedPathBase}.${facet.filterValueAttribute}`
+        );
       }
-      facetBiobankColumnDetails = filterFacetProperties
+      facetBiobankColumnDetails = filterFacetProperties;
 
-      console.log(facetBiobankColumnDetails)
+      console.log(facetBiobankColumnDetails);
     }
 
-    return facetBiobankColumnDetails
+    return facetBiobankColumnDetails;
   }
 
-  const collectionColumns = collectionStore.getCollectionColumns()
+  const collectionColumns = collectionStore.getCollectionColumns();
 
-  const biobankGraphql = biobankColumns.map(
-    (biobankColumn) => biobankColumn.column
-  ).concat({ collections: collectionColumns })
+  const biobankGraphql = biobankColumns
+    .map((biobankColumn) => biobankColumn.column)
+    .concat({ collections: collectionColumns });
 
   let biobankCards = ref([]);
   let waitingForResponse = ref(false);
@@ -60,13 +66,13 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       "collections.name",
       "collections.size",
       ...biobankCardGraphql,
-      ...getFacetColumnDetails()
+      ...getFacetColumnDetails(),
     ]) // TODO: add different config for the collection side
     .orderBy("Biobanks", "name", "asc")
     .orderBy("collections", "id", "asc");
 
   /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
-  async function getBiobankCards () {
+  async function getBiobankCards() {
     waitingForResponse.value = true;
     if (biobankCards.value.length === 0) {
       const biobankResult = await baseQuery.execute();
@@ -76,8 +82,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return biobankCards.value;
   }
 
-  async function getBiobankCard (id) {
-
+  async function getBiobankCard(id) {
     const biobankReportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Biobanks")
       .select([
@@ -95,25 +100,25 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
         "network.id",
         "url",
         "withdrawn",
-        ...biobankGraphql
+        ...biobankGraphql,
       ])
       .orderBy("Biobanks", "name", "asc")
       .orderBy("collections", "id", "asc")
       .where("id")
-      .like(id)
+      .like(id);
 
     return await biobankReportQuery.execute();
   }
 
-  async function updateBiobankCards () {
+  async function updateBiobankCards() {
     waitingForResponse.value = true;
     biobankCards.value = [];
     const biobankResult = await baseQuery.execute();
 
     /** only show biobanks that have collections */
-    const foundBiobanks = biobankResult.Biobanks ? biobankResult.Biobanks.filter(
-      (biobank) => biobank.collections
-    ) : [];
+    const foundBiobanks = biobankResult.Biobanks
+      ? biobankResult.Biobanks.filter((biobank) => biobank.collections)
+      : [];
     biobankCards.value = foundBiobanks;
     waitingForResponse.value = false;
   }

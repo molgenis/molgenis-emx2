@@ -1,7 +1,7 @@
 <template>
   <details class="dropdown-button p-0" :class="buttonstateClass">
     <summary>
-      {{ buttonText }} 
+      {{ buttonText }}
       <slot name="counter"></slot>
       <span class="fa-solid fa-caret-down"></span>
     </summary>

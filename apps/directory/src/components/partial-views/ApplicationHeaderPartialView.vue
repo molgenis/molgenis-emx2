@@ -76,7 +76,7 @@ export default {
     CheckboxFilter,
     OntologyFilter,
     ToggleFilter,
-    CheckOut
+    CheckOut,
   },
   computed: {
     hasActiveFilters() {

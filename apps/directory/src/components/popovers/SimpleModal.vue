@@ -24,8 +24,8 @@ export default {
     },
     bodyClass: {
       type: String,
-      required: false
-    }
+      required: false,
+    },
   },
   watch: {
     open(open) {

@@ -7,20 +7,21 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   let selectedCollections = ref({});
 
   const collectionSelectionCount = computed(() => {
-    const allBiobanks = Object.keys(selectedCollections.value)
+    const allBiobanks = Object.keys(selectedCollections.value);
     let collectionCount = 0;
 
     for (const biobank of allBiobanks) {
-      collectionCount += selectedCollections.value[biobank].length
+      collectionCount += selectedCollections.value[biobank].length;
     }
 
     return collectionCount;
-  })
+  });
 
-  function addCollectionsToSelection ({ biobank, collections, bookmark }) {
+  function addCollectionsToSelection({ biobank, collections, bookmark }) {
     // checkoutValid.value = false;
-    const biobankIdentifier = biobank.label || biobank.name
-    const currentSelectionForBiobank = selectedCollections.value[biobankIdentifier]
+    const biobankIdentifier = biobank.label || biobank.name;
+    const currentSelectionForBiobank =
+      selectedCollections.value[biobankIdentifier];
 
     if (currentSelectionForBiobank && currentSelectionForBiobank.length) {
       const currentIds = currentSelectionForBiobank.map((sc) => sc.value);
@@ -28,11 +29,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
         (cf) => !currentIds.includes(cf.value)
       );
 
-      selectedCollections.value[biobankIdentifier] = currentSelectionForBiobank.concat(
-        newCollections)
-    }
-    else {
-      selectedCollections.value[biobankIdentifier] = collections
+      selectedCollections.value[
+        biobankIdentifier
+      ] = currentSelectionForBiobank.concat(newCollections);
+    } else {
+      selectedCollections.value[biobankIdentifier] = collections;
     }
 
     // commit('SetSearchHistory', getters.getHumanReadableString)
@@ -45,30 +46,32 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     return { collections, bookmark };
   }
 
-  function removeCollectionsFromSelection ({ biobank, collections, bookmark }) {
+  function removeCollectionsFromSelection({ biobank, collections, bookmark }) {
     checkoutValid.value = false;
-    const biobankIdentifier = biobank.label || biobank.name
+    const biobankIdentifier = biobank.label || biobank.name;
 
     if (selectedCollections.value[biobankIdentifier]) {
-
-      const collectionSelectionForBiobank = selectedCollections.value[biobankIdentifier]
+      const collectionSelectionForBiobank =
+        selectedCollections.value[biobankIdentifier];
       const collectionsToRemove = collections.map((c) => c.value);
       for (const collectionId of collectionsToRemove) {
-        const getRemoveIdIndex = collectionSelectionForBiobank.findIndex(collection => collection.value === collectionId)
+        const getRemoveIdIndex = collectionSelectionForBiobank.findIndex(
+          (collection) => collection.value === collectionId
+        );
 
         if (getRemoveIdIndex < 0) {
-          break
-        }
-        else {
-          collectionSelectionForBiobank.splice(getRemoveIdIndex, 1)
+          break;
+        } else {
+          collectionSelectionForBiobank.splice(getRemoveIdIndex, 1);
         }
       }
 
       if (collectionSelectionForBiobank.length) {
-        selectedCollections.value[biobankIdentifier] = collectionSelectionForBiobank
-      }
-      else {
-        delete selectedCollections.value[biobankIdentifier]
+        selectedCollections.value[
+          biobankIdentifier
+        ] = collectionSelectionForBiobank;
+      } else {
+        delete selectedCollections.value[biobankIdentifier];
       }
     }
 
@@ -79,10 +82,10 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     }
   }
 
-  function removeAllCollectionsFromSelection ({ bookmark }) {
+  function removeAllCollectionsFromSelection({ bookmark }) {
     checkoutValid.value = false;
 
-    selectedCollections.value = {}
+    selectedCollections.value = {};
 
     if (bookmark) {
       // TODO: figure out how this is impacted on other screens besides the biobankcard view.
@@ -96,6 +99,6 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     collectionSelectionCount,
     addCollectionsToSelection,
     removeCollectionsFromSelection,
-    removeAllCollectionsFromSelection
+    removeAllCollectionsFromSelection,
   };
 });

@@ -137,7 +137,7 @@ export default {
       });
     },
     sortedAlphabetically(collectionArray) {
-      return sortCollectionsByLabel(collectionArray)
+      return sortCollectionsByLabel(collectionArray);
     },
     sendRequest() {
       this.cartVisible = false;
@@ -188,8 +188,7 @@ export default {
     },
   },
   async beforeMount() {
-    this.commercialAvailableCollections =
-      await this.collectionStore.getCommercialAvailableCollections();
+    this.commercialAvailableCollections = await this.collectionStore.getCommercialAvailableCollections();
   },
 };
 </script>

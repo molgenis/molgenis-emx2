@@ -7,11 +7,11 @@ export const initialFilterFacets = [
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     removeOptions: [],
-    ontologyIdentifiers: ['ICD', 'ORPHA'],
-    sortColumn: 'name',
-    sortDirection: 'asc',
-    negotiatorRequestString: 'Disease type(s):',
-    showFacet: true
+    ontologyIdentifiers: ["ICD", "ORPHA"],
+    sortColumn: "name",
+    sortDirection: "asc",
+    negotiatorRequestString: "Disease type(s):",
+    showFacet: true,
   },
   {
     facetTitle: "Countries",
@@ -79,8 +79,8 @@ export const initialFilterFacets = [
     applyToColumn: "collections.collaboration_commercial",
     showMatchTypeSelector: false,
     trueOption: {
-      text: 'Available to commercial use',
-      value: true
+      text: "Available to commercial use",
+      value: true,
     },
     negotiatorRequestString: "Available to commercial use",
     showFacet: true,
@@ -124,12 +124,12 @@ export const initialFilterFacets = [
   {
     facetTitle: "Data category",
     component: "CheckboxFilter",
-    sourceTable: "DataTypes",
+    sourceTable: "DataCategories",
     applyToColumn: "collections.data_categories.name",
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     removeOptions: ["other"],
-    negotiatorRequestString: "Data type(s):",
+    negotiatorRequestString: "Data categories:",
     sortColumn: "name",
     sortDirection: "asc",
     showFacet: true,

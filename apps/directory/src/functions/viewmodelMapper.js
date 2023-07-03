@@ -1,38 +1,43 @@
 import { useSettingsStore } from "../stores/settingsStore";
 import { sortCollectionsByName } from "./sorting";
 
-export const getName = contact => {
-  const { title_before_name, first_name, last_name, title_after_name } = contact
+export const getName = (contact) => {
+  const {
+    title_before_name,
+    first_name,
+    last_name,
+    title_after_name,
+  } = contact;
 
-  let name = ''
+  let name = "";
 
-  if (title_before_name) name += `${title_before_name} `
-  if (first_name) name += `${first_name} `
-  if (last_name) name += `${last_name} `
-  if (title_after_name) name += ` ${title_after_name}`
+  if (title_before_name) name += `${title_before_name} `;
+  if (first_name) name += `${first_name} `;
+  if (last_name) name += `${last_name} `;
+  if (title_after_name) name += ` ${title_after_name}`;
 
-  return name !== '' ? name.trim() : undefined
-}
+  return name !== "" ? name.trim() : undefined;
+};
 
 export const mapToString = (object, property, prefix, suffix) => {
   if (!object) return "";
 
-  if(typeof object === "string") return object
+  if (typeof object === "string") return object;
 
   prefix = prefix ? `${prefix} ` : "";
   suffix = suffix ? ` ${suffix}` : "";
   return object[property] ? `${prefix}${object[property]}${suffix}` : "";
 };
 
-function getUriIfAvailable (item) {
-  if (item.uri) return "uri"
-  if (item.url) return "uri"
-  if (item.ontologyTermURI) return "ontologyTermURI"
+function getUriIfAvailable(item) {
+  if (item.uri) return "uri";
+  if (item.url) return "uri";
+  if (item.ontologyTermURI) return "ontologyTermURI";
 
-  return ""
+  return "";
 }
 
-export function mapObjArray (objects) {
+export function mapObjArray(objects) {
   if (!objects) return [];
   if (!objects.some((o) => getUriIfAvailable(o)))
     return objects.map((item) => item.label || item.name);
@@ -43,11 +48,11 @@ export function mapObjArray (objects) {
     }));
 }
 
-export function mapUrl (url) {
-  return url ? url.startsWith("http") ? url : "http://" + url : url;
+export function mapUrl(url) {
+  return url ? (url.startsWith("http") ? url : "http://" + url) : url;
 }
 
-export function mapRange (min, max, unit) {
+export function mapRange(min, max, unit) {
   let range = "";
   if ((min || min === 0) && max) {
     range = `${min}-${max} `;
@@ -64,7 +69,7 @@ export function mapRange (min, max, unit) {
   return range;
 }
 
-function getObjectForValueExtraction (object, propertyKey) {
+function getObjectForValueExtraction(object, propertyKey) {
   /** this column is a nested propery */
   if (typeof propertyKey === "object") {
     const nextKey = Object.keys(propertyKey)[0];
@@ -96,7 +101,7 @@ function getObjectForValueExtraction (object, propertyKey) {
  * @param {*} columns column config
  * @returns an array of generator attributes: { label: columnInfo.label, type: columnInfo.type, value: attributeValue, component: columnInfo.component }
  */
-export function getViewmodel (object, columns) {
+export function getViewmodel(object, columns) {
   const attributes = [];
 
   for (const columnInfo of columns) {
@@ -168,7 +173,7 @@ export function getViewmodel (object, columns) {
 /**
  * Get all the types available within the collection tree
  */
-function extractCollectionTypes (collections, prevCollectionHashmap) {
+function extractCollectionTypes(collections, prevCollectionHashmap) {
   let collectionTypes =
     prevCollectionHashmap && Object.keys(prevCollectionHashmap).length
       ? prevCollectionHashmap
@@ -197,9 +202,9 @@ function extractCollectionTypes (collections, prevCollectionHashmap) {
   return collectionTypes;
 }
 
-function mapSubcollections (collections, level) {
+function mapSubcollections(collections, level) {
   const settingsStore = useSettingsStore();
-  const sortedCollections = sortCollectionsByName(collections)
+  const sortedCollections = sortCollectionsByName(collections);
 
   const sub_collections = [];
 
@@ -233,7 +238,7 @@ function mapSubcollections (collections, level) {
   return sub_collections;
 }
 
-export function getCollectionDetails (collection) {
+export function getCollectionDetails(collection) {
   const settingsStore = useSettingsStore();
   const viewmodel = getViewmodel(
     collection,
@@ -256,8 +261,6 @@ export function getCollectionDetails (collection) {
 export const getBiobankDetails = (biobank) => {
   const settingsStore = useSettingsStore();
 
-
-
   if (biobank.collections && biobank.collections.length) {
     biobank.collections.type = [];
     biobank.collections.type = Object.keys(
@@ -269,7 +272,7 @@ export const getBiobankDetails = (biobank) => {
       (collection) => !collection.parent_collection
     );
 
-    const sortedParentCollections = sortCollectionsByName(parentCollections)
+    const sortedParentCollections = sortCollectionsByName(parentCollections);
 
     for (const collection of sortedParentCollections) {
       biobank.collectionDetails.push(getCollectionDetails(collection));
@@ -282,17 +285,17 @@ export const getBiobankDetails = (biobank) => {
   };
 };
 
-export const collectionReportInformation = collection => {
-  const collectionReport = {}
+export const collectionReportInformation = (collection) => {
+  const collectionReport = {};
 
-  collectionReport.head = getNameOfHead(collection.head) || undefined
+  collectionReport.head = getNameOfHead(collection.head) || undefined;
 
   if (collection.contact) {
     collectionReport.contact = {
       name: getName(collection.contact),
       email: collection.contact.email ? collection.contact.email : undefined,
-      phone: collection.contact.phone ? collection.contact.phone : undefined
-    }
+      phone: collection.contact.phone ? collection.contact.phone : undefined,
+    };
   }
 
   if (collection.biobank) {
@@ -303,72 +306,83 @@ export const collectionReportInformation = collection => {
       country: collection.country.label || collection.country.name,
       report: `/biobank/${collection.biobank.id}`,
       website: mapUrl(collection.biobank.url),
-      email: collection.biobank.contact ? collection.biobank.contact.email : undefined,
-    }
+      email: collection.biobank.contact
+        ? collection.biobank.contact.email
+        : undefined,
+    };
   }
 
   if (collection.network) {
-    collectionReport.networks = collection.network.map(network => {
+    collectionReport.networks = collection.network.map((network) => {
       return {
         name: network.name,
-        report: `/network/${network.id}`
-      }
-    })
+        report: `/network/${network.id}`,
+      };
+    });
   }
 
-  collectionReport.certifications = mapObjArray(collection.quality)
+  collectionReport.certifications = mapObjArray(collection.quality);
 
-  collectionReport.collaboration = []
+  collectionReport.collaboration = [];
 
-  if (collection.collaboration_commercial) { collectionReport.collaboration.push({ name: 'Commercial', value: 'yes' }) }
-  if (collection.collaboration_non_for_profit) { collectionReport.collaboration.push({ name: 'Not for profit', value: 'yes' }) }
+  if (collection.collaboration_commercial) {
+    collectionReport.collaboration.push({ name: "Commercial", value: "yes" });
+  }
+  if (collection.collaboration_non_for_profit) {
+    collectionReport.collaboration.push({
+      name: "Not for profit",
+      value: "yes",
+    });
+  }
 
   // Give this information to the report, so we can use it in the breadcrumb.
   if (collection.parent_collection) {
-    collectionReport.parentCollection = collection.parent_collection
+    collectionReport.parentCollection = collection.parent_collection;
   }
 
-  return collectionReport
-}
+  return collectionReport;
+};
 
-export const mapNetworkInfo = data => {
-  return data.network.map(network => {
+export const mapNetworkInfo = (data) => {
+  return data.network.map((network) => {
     return {
-      name: { value: network.name, type: 'string' },
-      report: { value: `/network/${network.id}`, type: 'report' }
-    }
-  })
-}
+      name: { value: network.name, type: "string" },
+      report: { value: `/network/${network.id}`, type: "report" },
+    };
+  });
+};
 
-export const getNameOfHead = head => {
-  if (!head) return ''
+export const getNameOfHead = (head) => {
+  if (!head) return "";
 
-  const { first_name, last_name, role } = head
+  const { first_name, last_name, role } = head;
 
-  let name = ''
+  let name = "";
 
-  if (first_name) name += `${first_name} `
-  if (last_name) name += `${last_name} `
-  if (role) name += `(${role})`
+  if (first_name) name += `${first_name} `;
+  if (last_name) name += `${last_name} `;
+  if (role) name += `(${role})`;
 
-  return name !== '' ? name.trim() : undefined
-}
+  return name !== "" ? name.trim() : undefined;
+};
 
-export const mapContactInfo = instance => {
+export const mapContactInfo = (instance) => {
   return {
     name: {
       value: getNameOfHead(instance.head),
-      type: 'string'
+      type: "string",
     },
-    website: { value: mapUrl(instance.url), type: 'url' },
+    website: { value: mapUrl(instance.url), type: "url" },
     email: {
       value: instance.contact ? instance.contact.email : undefined,
-      type: 'email'
+      type: "email",
     },
-    juridical_person: { value: instance.juridical_person, type: 'string' },
+    juridical_person: { value: instance.juridical_person, type: "string" },
     country: {
-      value: instance.country ? instance.country.label || instance.country.name : undefined,
-      type: 'string'
-    }
-  }
-}
+      value: instance.country
+        ? instance.country.label || instance.country.name
+        : undefined,
+      type: "string",
+    },
+  };
+};

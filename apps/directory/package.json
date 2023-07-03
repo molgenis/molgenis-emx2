@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "test": "jest --collectCoverage",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "format": "prettier src  --write --config ../.prettierrc.js"
+    "format": "prettier src  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "6.2.1",

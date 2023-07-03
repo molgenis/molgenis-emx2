@@ -8,16 +8,16 @@
 
 <script>
 export default {
-  name: 'CollectionTitle',
+  name: "CollectionTitle",
   props: {
     id: {
       type: String,
-      required: true
+      required: true,
     },
     title: {
       type: String,
-      required: true
-    }
-  }
-}
+      required: true,
+    },
+  },
+};
 </script>

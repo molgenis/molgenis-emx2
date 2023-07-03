@@ -42,12 +42,17 @@ const initialCollectionColumns = [
   {
     label: "Age:",
     type: "range",
-    min: 'age_low',
-    max: 'age_high',
-    unit: 'age_unit',
-    unit_column: { age_unit: ["label"] }
+    min: "age_low",
+    max: "age_high",
+    unit: "age_unit",
+    unit_column: { age_unit: ["label"] },
   },
-  { label: "Type:", column: { type: ["label"] }, type: "array", showOnBiobankCard: true },
+  {
+    label: "Type:",
+    column: { type: ["label"] },
+    type: "array",
+    showOnBiobankCard: true,
+  },
   { label: "Sex:", column: { sex: ["label"] }, type: "array" },
   {
     label: "Materials:",
@@ -60,11 +65,15 @@ const initialCollectionColumns = [
     column: { storage_temperatures: ["label"] },
     type: "categoricalmref",
   },
-  { label: "Data:", column: { data_categories: ["label", "code", "ontologyTermURI"] }, type: "mref" },
+  {
+    label: "Data:",
+    column: { data_categories: ["label", "code", "ontologyTermURI"] },
+    type: "mref",
+  },
   {
     label: "Diagnosis:",
     column: { diagnosis_available: ["code", "label", "ontologyTermURI"] },
-    type: "mref"
+    type: "mref",
   },
   {
     label: "Data use conditions:",

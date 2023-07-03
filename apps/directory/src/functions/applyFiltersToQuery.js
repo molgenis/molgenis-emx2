@@ -1,5 +1,5 @@
 /** sets filters on baseQuery, by reference */
-export async function applyFiltersToQuery (
+export async function applyFiltersToQuery(
   baseQuery,
   filters,
   facetDetails,
@@ -59,7 +59,9 @@ export async function applyFiltersToQuery (
       }
       case "ToggleFilter":
       case "CheckboxFilter": {
-        const values = Array.isArray(filterValue) ? filterValue.map((fv) => fv.value) : [filterValue];
+        const values = Array.isArray(filterValue)
+          ? filterValue.map((fv) => fv.value)
+          : [filterValue];
 
         if (
           filterType[filterDetail.facetIdentifier] === "all" ||

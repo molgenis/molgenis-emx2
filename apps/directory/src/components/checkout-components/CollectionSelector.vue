@@ -109,10 +109,10 @@ export default {
       return this.identifier;
     },
     isChecked() {
-
-      const biobankIdentifier = this.biobankData.label || this.biobankData.name
-      const selectedCollections =
-        this.checkoutStore.selectedCollections[biobankIdentifier];
+      const biobankIdentifier = this.biobankData.label || this.biobankData.name;
+      const selectedCollections = this.checkoutStore.selectedCollections[
+        biobankIdentifier
+      ];
 
       if (selectedCollections) {
         const selectedCollectionIds = selectedCollections.map((sc) => sc.value);

@@ -1,5 +1,5 @@
 <template>
-  <details >
+  <details>
     <summary @click="open = !open">{{ openText }}</summary>
     <slot />
   </details>

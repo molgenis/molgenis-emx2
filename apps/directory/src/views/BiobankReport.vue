@@ -132,7 +132,7 @@ import {
   mapObjArray,
 } from "../functions/viewmodelMapper";
 import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
-import { useQualitiesStore } from '../stores/qualitiesStore';
+import { useQualitiesStore } from "../stores/qualitiesStore";
 
 export default {
   name: "biobank-report-card",

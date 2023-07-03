@@ -1,6 +1,11 @@
 # directory
 
-This template should help get you started developing with Vue 3 in Vite.
+# Requirements
+
+The application works with the latest Biobank Directory model (or any model that extends this one).
+Make sure you create a database using this schema before you use the app. 
+Molgenis has a builtin template you can use.
+
 # Login path for access to graphql query
 
 When you do
