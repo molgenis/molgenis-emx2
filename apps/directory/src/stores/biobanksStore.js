@@ -29,18 +29,24 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       );
 
       for (const facet of filterFacets) {
-        let nestedpath = facet.applyToColumn.split(".");
-        /** pop off the trail because that is not what the user always needs */
-        nestedpath.pop();
+        const columns = Array.isArray(facet.applyToColumn)
+          ? facet.applyToColumn
+          : [facet.applyToColumn];
 
-        const nestedPathBase = nestedpath.join(".");
+        for (const column of columns) {
+          let nestedpath = column.split(".");
+          /** pop off the trail because that is not what the user always needs */
+          nestedpath.pop();
 
-        filterFacetProperties.push(
-          `${nestedPathBase}.${facet.filterLabelAttribute}`,
-          `${nestedPathBase}.${facet.filterValueAttribute}`
-        );
+          const nestedPathBase = nestedpath.join(".");
+
+          filterFacetProperties.push(
+            `${nestedPathBase}.${facet.filterLabelAttribute}`,
+            `${nestedPathBase}.${facet.filterValueAttribute}`
+          );
+        }
+        facetBiobankColumnDetails = filterFacetProperties;
       }
-      facetBiobankColumnDetails = filterFacetProperties;
     }
 
     return facetBiobankColumnDetails;

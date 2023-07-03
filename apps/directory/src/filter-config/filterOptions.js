@@ -3,14 +3,14 @@ import queryEMX2 from "../functions/queryEMX2";
 import { useFiltersStore } from "../stores/filtersStore";
 
 /** Async so we can fire and forget for performance. */
-async function cache(applyToColumn, filterOptions) {
+async function cache(facetIdentifier, filterOptions) {
   const { filterOptionsCache } = useFiltersStore();
-  filterOptionsCache[applyToColumn] = filterOptions;
+  filterOptionsCache[facetIdentifier] = filterOptions;
 }
 
-function retrieveFromCache(applyToColumn) {
+function retrieveFromCache(facetIdentifier) {
   const { filterOptionsCache } = useFiltersStore();
-  return filterOptionsCache[applyToColumn] || [];
+  return filterOptionsCache[facetIdentifier] || [];
 }
 
 /** Configurable array of values to filter out, for example 'Other, unknown' that make no sense to the user. */
@@ -26,13 +26,13 @@ function removeOptions(filterOptions, filterFacet) {
 }
 
 export const customFilterOptions = (filterFacet) => {
-  const { applyToColumn, customOptions } = filterFacet;
+  const { facetIdentifier, customOptions } = filterFacet;
   return () =>
     new Promise((resolve) => {
-      const cachedOptions = retrieveFromCache(applyToColumn);
+      const cachedOptions = retrieveFromCache(facetIdentifier);
 
       if (!cachedOptions.length) {
-        cache(applyToColumn, customOptions);
+        cache(facetIdentifier, customOptions);
         resolve(customOptions);
       } else {
         resolve(customOptions);
@@ -50,7 +50,7 @@ function _mapToOptions(row, filterLabelAttribute, filterValueAttribute) {
 export const genericFilterOptions = (filterFacet) => {
   const {
     sourceTable,
-    applyToColumn,
+    facetIdentifier,
     filterLabelAttribute,
     filterValueAttribute,
     sortColumn,
@@ -59,7 +59,7 @@ export const genericFilterOptions = (filterFacet) => {
 
   return () =>
     new Promise((resolve) => {
-      const cachedOptions = retrieveFromCache(applyToColumn);
+      const cachedOptions = retrieveFromCache(facetIdentifier);
 
       const selection = [filterLabelAttribute, filterValueAttribute];
 
@@ -89,7 +89,7 @@ export const genericFilterOptions = (filterFacet) => {
             /**  remove unwanted options if applicable */
             filterOptions = removeOptions(filterOptions, filterFacet);
 
-            cache(applyToColumn, filterOptions);
+            cache(facetIdentifier, filterOptions);
             resolve(filterOptions);
           });
       } else {
@@ -102,7 +102,7 @@ export const ontologyFilterOptions = (filterFacet) => {
   const {
     ontologyIdentifiers,
     sourceTable,
-    applyToColumn,
+    facetIdentifier,
     filterLabelAttribute,
     filterValueAttribute,
     sortColumn,
@@ -111,7 +111,7 @@ export const ontologyFilterOptions = (filterFacet) => {
 
   return () =>
     new Promise((resolve) => {
-      const cachedOptions = retrieveFromCache(applyToColumn);
+      const cachedOptions = retrieveFromCache(facetIdentifier);
 
       const selection = [
         filterLabelAttribute,
@@ -162,7 +162,7 @@ export const ontologyFilterOptions = (filterFacet) => {
                 }
               }
 
-              cache(applyToColumn, itemsSplitByOntology);
+              cache(facetIdentifier, itemsSplitByOntology);
               resolve(itemsSplitByOntology);
             }
           });

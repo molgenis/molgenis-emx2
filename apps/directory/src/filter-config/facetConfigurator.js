@@ -5,6 +5,12 @@ import {
 } from "./filterOptions";
 import { useSettingsStore } from "../stores/settingsStore";
 
+function getFacetIdentifier(facet) {
+  return facet.facetTitle
+    ? facet.facetTitle.replaceAll(" ", "")
+    : facet.applyToColumn;
+}
+
 export const filterTemplate = {
   facetTitle: "New Filter",
   component: "CheckboxFilter",
@@ -32,9 +38,7 @@ export function createFilters(filters) {
       facetTitle:
         facet.facetTitle ||
         facet.applyToColumn /** a custom 'human readable' text for on the button */,
-      facetIdentifier: facet.facetTitle
-        ? facet.facetTitle.replaceAll(" ", "")
-        : facet.applyToColumn,
+      facetIdentifier: getFacetIdentifier(facet),
       component:
         facet.component ||
         "CheckboxFilter" /** a custom specified component, or just the default */,
@@ -48,9 +52,10 @@ export function createFilters(filters) {
       filterLabelAttribute:
         facet.filterLabelAttribute ||
         "name" /** specify if you want to use another column as the label for the filter option, instead of name */,
-      options: getFilterOptions(
-        facet
-      ) /** uses the removeOptions array provided in the configuration */,
+      options: getFilterOptions({
+        ...facet,
+        facetIdentifier: getFacetIdentifier(facet),
+      }) /** uses the removeOptions array provided in the configuration */,
       ontologyIdentifiers: facet.ontologyIdentifiers || [],
       trueOption: facet.trueOption /** use this for a togglefilter */,
       filters:

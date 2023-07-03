@@ -17,7 +17,7 @@ export const initialFilterFacets = [
     facetTitle: "Countries",
     component: "CheckboxFilter",
     sourceTable: "Countries",
-    applyToColumn: "country.name",
+    applyToColumn: ["country.name", "collections.country.name"],
     filterValueAttribute: "name",
     filterLabelAttribute: "label",
     removeOptions: [],

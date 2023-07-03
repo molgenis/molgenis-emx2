@@ -8,13 +8,12 @@ export const useQualitiesStore = defineStore("qualitiesStore", () => {
   const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
 
   const qualityStandardsDictionary = ref({});
-  let waitingOnResults = ref(false)
+  let waitingOnResults = ref(false);
 
-  async function getQualityStandardInformation () {
-
+  async function getQualityStandardInformation() {
     if (Object.keys(qualityStandardsDictionary.value).length === 0) {
       if (!waitingOnResults.value) {
-        waitingOnResults.value = true
+        waitingOnResults.value = true;
 
         let labQualitiesResult = await new QueryEMX2(graphqlEndpoint)
           .table("LaboratoryStandards")
@@ -30,7 +29,7 @@ export const useQualitiesStore = defineStore("qualitiesStore", () => {
           .orderBy("OperationalStandards", "name", "asc")
           .execute();
 
-       let operationQualities = operationQualitiesResult.OperationalStandards;
+        let operationQualities = operationQualitiesResult.OperationalStandards;
 
         const allQualities = labQualities.concat(operationQualities);
         const qualityNameDictionary = {};
@@ -44,7 +43,7 @@ export const useQualitiesStore = defineStore("qualitiesStore", () => {
           }
         }
         this.qualityStandardsDictionary = qualityNameDictionary;
-        waitingOnResults.value = false
+        waitingOnResults.value = false;
       }
     }
   }

@@ -29,13 +29,15 @@ export default {
   methods: {
     extractValue(path, object) {
       if (!path) return "";
-      
+
       const pathParts = path.split(".");
 
       let value;
       for (const path of pathParts) {
         if (!value) {
           value = object[path];
+        } else if (Array.isArray(value)) {
+          return value;
         } else {
           value = value[path];
         }
@@ -61,7 +63,7 @@ export default {
       return this.filtersStore.filterOptionsCache;
     },
     matches() {
-      const matches = [];
+      let matches = [];
       const facetIdentifiers = Object.keys(this.activeFilters);
       for (const facetIdentifier of facetIdentifiers) {
         const activeFilterValues = this.activeFilters[facetIdentifier];
@@ -70,46 +72,68 @@ export default {
         } /** no need to check further if there are no active filters */
 
         const filterColumn = this.filterInfoDictionary[facetIdentifier].column;
-        const filterLabel = this.filterInfoDictionary[facetIdentifier].label;
-        const potentialMatch = this.extractValue(filterColumn, this.viewmodel);
 
-        if (!potentialMatch) {
-          continue;
-        }
+        const columns = Array.isArray(filterColumn)
+          ? filterColumn
+          : [filterColumn];
 
-        const isArray = Array.isArray(potentialMatch);
-        const match = { name: filterLabel, value: [] };
+        for (const column of columns) {
+          const filterLabel = this.filterInfoDictionary[facetIdentifier].label;
+          const potentialMatch = this.extractValue(column, this.viewmodel);
 
-        for (const activeFilterValue of activeFilterValues) {
-          /** need to find the correct filter value instead of the name */
-          if (!this.filterOptionsCache[filterColumn]) {
-            continue; /** if the filteroption does not exist */
+          if (!potentialMatch) {
+            continue;
           }
 
-          const filterOption = this.filterOptionsCache[filterColumn].find(
-            (fo) => fo.value === activeFilterValue.value
-          );
+          const isArray = Array.isArray(potentialMatch);
 
-          if (!filterOption) continue;
+          const match = { name: filterLabel, value: [] };
 
-          const filterValue = filterOption.value;
+          for (const activeFilterValue of activeFilterValues) {
+            /** need to find the correct filter value instead of the name */
+            if (!this.filterOptionsCache[facetIdentifier]) {
+              continue; /** if the filteroption does not exist */
+            }
 
-          if (
-            (isArray &&
-              potentialMatch.some(
-                (item) => item.id === filterValue
-              )) /** if the value is an array */ ||
-            (typeof potentialMatch === "object" &&
-              filterValue === potentialMatch.id) /** if value is an object */ ||
-            filterValue.toString() ===
-              potentialMatch.toString() /** if it is a single value */
-          ) {
-            match.value.push(filterOption.text);
+            const filterOption = this.filterOptionsCache[facetIdentifier].find(
+              (fo) => fo.value === activeFilterValue.value
+            );
+
+            if (!filterOption) continue;
+
+            const filterValue = filterOption.value;
+
+            if (
+              (isArray &&
+                potentialMatch.some(
+                  (item) =>
+                    item.id === filterValue ||
+                    item.name === filterValue ||
+                    item.label === filterValue
+                )) /** if the value is an array */ ||
+              (typeof potentialMatch === "object" &&
+                filterValue ===
+                  potentialMatch.id) /** if value is an object */ ||
+              filterValue.toString() ===
+                potentialMatch.toString() /** if it is a single value */
+            ) {
+              match.value.push(filterOption.text);
+            }
           }
-        }
 
-        if (match.value.length > 0) {
-          matches.push(match);
+          if (match.value.length > 0) {
+            /** check if it is there, because it can already have been matched on biobank / collection. Do not need it twicer */
+            const existingMatch = matches.find(
+              (match) => match.name === filterLabel
+            );
+            if (existingMatch) {
+              match.value = [
+                ...new Set(match.value.concat(existingMatch.value)),
+              ];
+              matches = matches.filter((match) => match.name !== filterLabel);
+            }
+            matches.push(match);
+          }
         }
       }
       return matches;

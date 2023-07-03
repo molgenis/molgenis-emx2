@@ -40,7 +40,7 @@ export default {
       return this.qualitiesStore.qualityStandardsDictionary;
     },
   },
- async mounted() {
+  async mounted() {
     await this.qualitiesStore.getQualityStandardInformation();
   },
 };

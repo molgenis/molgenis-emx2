@@ -63,28 +63,34 @@ export async function applyFiltersToQuery(
           ? filterValue.map((fv) => fv.value)
           : [filterValue];
 
-        if (
-          filterType[filterDetail.facetIdentifier] === "all" ||
-          values.length === 1
-        ) {
-          if (typeof values[0] === "boolean") {
-            for (const value of values) {
-              baseQuery.where(filterDetail.applyToColumn).equals(value);
-              baseQuery.filter(filterDetail.applyToColumn).equals(value);
+        let columns = Array.isArray(filterDetail.applyToColumn)
+          ? filterDetail.applyToColumn
+          : [filterDetail.applyToColumn];
+
+        for (const column of columns) {
+          if (
+            filterType[filterDetail.facetIdentifier] === "all" ||
+            values.length === 1
+          ) {
+            if (typeof values[0] === "boolean") {
+              for (const value of values) {
+                baseQuery.where(column).equals(value);
+                baseQuery.filter(column).equals(value);
+              }
+            } else {
+              baseQuery.where(column).like(values);
+              baseQuery.filter(column).like(values);
             }
           } else {
-            baseQuery.where(filterDetail.applyToColumn).like(values);
-            baseQuery.filter(filterDetail.applyToColumn).like(values);
-          }
-        } else {
-          if (typeof values[0] === "boolean") {
-            for (const value of values) {
-              baseQuery.orWhere(filterDetail.applyToColumn).equals(value);
-              baseQuery.orFilter(filterDetail.applyToColumn).equals(value);
+            if (typeof values[0] === "boolean") {
+              for (const value of values) {
+                baseQuery.orWhere(column).equals(value);
+                baseQuery.orFilter(column).equals(value);
+              }
+            } else {
+              baseQuery.orWhere(column).orLike(values);
+              baseQuery.orFilter(column).orLike(values);
             }
-          } else {
-            baseQuery.orWhere(filterDetail.applyToColumn).orLike(values);
-            baseQuery.orFilter(filterDetail.applyToColumn).orLike(values);
           }
         }
         break;
