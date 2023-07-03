@@ -2,7 +2,7 @@
 
 import logging
 
-from molgenis_emx2_client.client import Client
+from molgenis_emx2_pyclient.client import Client
 from requests import Response
 
 from .constants import ontology_columns
@@ -79,6 +79,41 @@ class OntologyManager:
         response = self.__perform_query(query, variables, action='delete')
 
         return response
+
+    def update(self, table: str, **kwargs) -> dict:
+        """Rename a term in an ontology."""
+        ontology_table = table
+
+        if ontology_table not in self.ontology_tables:
+            raise NoSuchTableException(f"Table '{ontology_table}' not found in CatalogueOntologies.")
+
+        try:
+            old, new = kwargs['old'], kwargs['new']
+        except KeyError:
+            raise UpdateItemsException("Specify 'old' and 'new' terms.")
+
+        log.info(f"Renaming in term '{old}' to '{new}' in table {ontology_table}.")
+
+        if old not in self.__list_ontology_terms(ontology_table):
+            raise NoSuchNameException(f"Name '{old}' not found in table '{ontology_table}'.")
+        if new not in self.__list_ontology_terms(ontology_table):
+            raise NoSuchNameException(f"Name '{new}' not found in table '{ontology_table}'.")
+
+        updater = self.Updater(self, ontology_table, old, new)
+        update_results = updater.update()
+
+        return update_results
+
+    def search(self, term: str) -> str | None:
+        """
+        Search for a term in the CatalogueOntologies table and return the table in which the term is present.
+        @param term: the term that is looked for.
+        @return: a string of the table where the table is found, None if the term is not found
+        """
+        for table in self.ontology_tables:
+            pass
+
+
 
     class Updater:
         """Class that handles the update of the terms, ontology tables, databases and database tables."""
@@ -191,30 +226,6 @@ class OntologyManager:
                 log.info(f"Successfully updated term in column '{self.column}'"
                          f" of table '{self.table}' on database '{self.database}' in {len(column_values)} rows.")
                 return column_values_updated
-
-    def update(self, table: str, **kwargs) -> dict:
-        """Rename a term in an ontology."""
-        ontology_table = table
-
-        if ontology_table not in self.ontology_tables:
-            raise NoSuchTableException(f"Table '{ontology_table}' not found in CatalogueOntologies.")
-
-        try:
-            old, new = kwargs['old'], kwargs['new']
-        except KeyError:
-            raise UpdateItemsException("Specify 'old' and 'new' terms.")
-
-        log.info(f"Renaming in term '{old}' to '{new}' in table {ontology_table}.")
-
-        if old not in self.__list_ontology_terms(ontology_table):
-            raise NoSuchNameException(f"Name '{old}' not found in table '{ontology_table}'.")
-        if new not in self.__list_ontology_terms(ontology_table):
-            raise NoSuchNameException(f"Name '{new}' not found in table '{ontology_table}'.")
-
-        updater = self.Updater(self, ontology_table, old, new)
-        update_results = updater.update()
-
-        return update_results
 
     def __perform_query(self, query: str, variables: dict, action: str) -> Response:
         """Perform the query using the query and variables supplied."""
