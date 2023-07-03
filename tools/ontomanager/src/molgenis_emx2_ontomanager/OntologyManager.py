@@ -2,6 +2,9 @@
 
 import logging
 
+import numpy as np
+import pandas as pd
+
 from molgenis_emx2_pyclient.client import Client
 from requests import Response
 
@@ -22,7 +25,7 @@ class OntologyManager:
 
         :param url: the URL to the server
         :param username: the username to sign in to the server
-        :param password: the password that belongs to the username for this server, default None
+        :param password: the password that belongs to the username for this server
         """
         self.client = Client(url=url, username=username, password=password)
         self.graphql_endpoint = f'{self.client.url}/CatalogueOntologies/graphql'
@@ -42,13 +45,28 @@ class OntologyManager:
             case 'update':
                 self.update(table, **kwargs)
 
-    def add(self, table: str, **kwargs) -> Response:
+    def add(self, table: str, **kwargs):
         """Add a term to an ontology table.
         """
         log.info(f"Adding to table {table}.")
 
         if table not in self.ontology_tables:
             raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
+
+        if 'data' in kwargs.keys():
+            if isinstance(kwargs['data'], pd.DataFrame):
+                self._add_dataframe(table, **kwargs)
+            if isinstance(kwargs['data'], dict):
+                # Ensure the dictionary is in correct format
+                self._add_dict(table, kwargs['data'])
+            elif isinstance(kwargs['data'], list):
+                # Ensure the data is a list of dictionaries of correct format
+                self._add_list(table, kwargs['data'])
+        else:
+            self._add_term(table, kwargs)
+
+    def _add_term(self, table: str, kwargs):
+        """Add a single term to a table."""
 
         _kwargs = self.__parse_kwargs(kwargs)
         _table = self.parse_table_name(table)
@@ -59,6 +77,26 @@ class OntologyManager:
         response = self.__perform_query(query, variables, action='add')
 
         return response
+
+    def _add_dict(self, table: str, terms_dict: dict):
+        """Add terms to a table from a dictionary object."""
+        for values in terms_dict.values():
+            self._add_term(table=table, kwargs=values)
+
+    def _add_list(self, table: str, terms_list: list):
+        """Add terms to table from a list of dictionaries."""
+        for term in terms_list:
+            if isinstance(term, dict):
+                self._add_term(table, **term)
+
+    def _add_dataframe(self, table: str, **kwargs):
+        """Add terms to a table from a pandas DataFrame object."""
+        # Unpack the DataFrame into a dictionary
+        _data: pd.DataFrame = kwargs.get('data').replace({np.nan: None})
+        _data_dict = _data.to_dict(orient='index')
+
+        self._add_dict(table, _data_dict)
+        return None
 
     def delete(self, table: str, **kwargs) -> Response:
         """Delete a term from an ontology."""
@@ -257,7 +295,7 @@ class OntologyManager:
                 verbs = ['adding', 'added']
             case 'delete':
                 verbs = ['deleting', 'deleted']
-            case other:
+            case _:
                 verbs = ['editing', 'edited']
 
         if _response.status_code != 200:
