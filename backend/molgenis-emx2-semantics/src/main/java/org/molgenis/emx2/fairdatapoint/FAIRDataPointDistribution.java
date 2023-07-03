@@ -63,7 +63,7 @@ public class FAIRDataPointDistribution {
         queryDistribution(schemaObj, "files:{identifier", distributionParam);
 
     if (distrByName.size() == 0 && distrByFile.size() == 0) {
-      throw new Exception("Distribution or file therein not found");
+      throw new Exception("No such distribution or file therein available in schema");
     } else if (distrByName.size() > 0 && distrByFile.size() > 0) {
       throw new Exception(
           "Cannot resolve distribution because it is ambiguous: file name equal to a table name. Please resolve this issue.");

@@ -87,6 +87,10 @@ public class FAIRDataPointCatalog {
 
   public FAIRDataPointCatalog(Request request, Table fdpCatalogTable) throws Exception {
 
+    if (fdpCatalogTable == null) {
+      throw new Exception("No such catalog available in schema");
+    }
+
     String id = request.params("id");
     Schema schema = fdpCatalogTable.getSchema();
 

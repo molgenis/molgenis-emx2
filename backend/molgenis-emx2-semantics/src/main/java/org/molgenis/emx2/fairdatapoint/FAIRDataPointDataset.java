@@ -54,6 +54,10 @@ public class FAIRDataPointDataset {
 
   /** Create and get resulting FDP */
   public String getResult() throws Exception {
+    if (fdpDataseTable == null) {
+      throw new Exception("No such dataset available in schema");
+    }
+
     String id = request.params("id");
     Schema schema = fdpDataseTable.getSchema();
     List<Map<String, Object>> datasetsFromJSON = queryDataset(schema, "id", id);

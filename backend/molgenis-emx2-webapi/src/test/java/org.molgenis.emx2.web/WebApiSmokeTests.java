@@ -1170,31 +1170,37 @@ public class WebApiSmokeTests {
 
   @Test
   public void testFairDataPointSmoke() {
-    // todo: enable fdp somehow? I suppose we would need a publid fair data hub for this?
 
-    // String result = given().get("/api/fdp").getBody().asString();
-    // assertTrue(result.contains("endpointSets"));
+    // check response on all endpoints, in the case of 'pet store' we expect to see specific errors
+    // since there are no DCAT tables present in the data model (which is fine)
+    
+    String result = given().get("/api/fdp").getBody().asString();
+    assertTrue(result.contains("No catalogs available"));
 
-    //    result = given().get("/api/fdp/catalogue/pet store/Pet").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/dataset/pet store/Pet").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/distribution/pet store/json/json").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/catalogue/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/dataset/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/distribution/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
+    result = given().get("/api/fdp/catalog/pet store/NoCatalogAvailable").getBody().asString();
+    assertTrue(result.contains("No such catalog available in schema"));
+
+    result = given().get("/api/fdp/dataset/pet store/NoDatasetAvailable").getBody().asString();
+    assertTrue(result.contains("No such dataset available in schema"));
+
+    result =
+        given()
+            .get("/api/fdp/distribution/pet store/NoDistributionAvailable/ttl")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("No such distribution or file therein available in schema"));
+
+    result = given().get("/api/fdp/profile").getBody().asString();
+    assertTrue(result.contains(":FAIRDataPointShape a sh:NodeShape"));
+
+    result = given().get("/api/fdp/catalog/profile").getBody().asString();
+    assertTrue(result.contains(":CatalogShape a sh:NodeShape"));
+
+    result = given().get("/api/fdp/dataset/profile").getBody().asString();
+    assertTrue(result.contains("dcat:Dataset"));
+
+    result = given().get("/api/fdp/distribution/profile").getBody().asString();
+    assertTrue(result.contains("dcat:Distribution"));
   }
 
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
