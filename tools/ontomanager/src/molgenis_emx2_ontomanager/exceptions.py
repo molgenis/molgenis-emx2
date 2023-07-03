@@ -41,3 +41,7 @@ class SigninError(OntomanagerException):
 
 class InvalidDatabaseException(OntomanagerException):
     """Thrown when a database is requested that cannot be loaded, due to invalid database name."""
+
+
+class ParentReferenceException(OntomanagerException):
+    """Thrown when an ontology item to be deleted is referenced by a child term."""
