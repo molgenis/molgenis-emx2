@@ -40,8 +40,8 @@ export default {
       return this.qualitiesStore.qualityStandardsDictionary;
     },
   },
-  mounted() {
-    this.qualitiesStore.getQualityStandardInformation();
+ async mounted() {
+    await this.qualitiesStore.getQualityStandardInformation();
   },
 };
 </script>

@@ -8,37 +8,44 @@ export const useQualitiesStore = defineStore("qualitiesStore", () => {
   const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
 
   const qualityStandardsDictionary = ref({});
+  let waitingOnResults = ref(false)
 
-  async function getQualityStandardInformation() {
+  async function getQualityStandardInformation () {
+
     if (Object.keys(qualityStandardsDictionary.value).length === 0) {
-      let labQualities = await new QueryEMX2(graphqlEndpoint)
-        .table("LaboratoryStandards")
-        .select(["name", "label", "definition"])
-        .orderBy("LaboratoryStandards", "name", "asc")
-        .execute();
+      if (!waitingOnResults.value) {
+        waitingOnResults.value = true
 
-      labQualities = labQualities.LaboratoryStandards;
+        let labQualitiesResult = await new QueryEMX2(graphqlEndpoint)
+          .table("LaboratoryStandards")
+          .select(["name", "label", "definition"])
+          .orderBy("LaboratoryStandards", "name", "asc")
+          .execute();
 
-      let operationQualities = await new QueryEMX2(graphqlEndpoint)
-        .table("OperationalStandards")
-        .select(["name", "label", "definition"])
-        .orderBy("OperationalStandards", "name", "asc")
-        .execute();
+        let labQualities = labQualitiesResult.LaboratoryStandards;
 
-      operationQualities = operationQualities.OperationalStandards;
+        let operationQualitiesResult = await new QueryEMX2(graphqlEndpoint)
+          .table("OperationalStandards")
+          .select(["name", "label", "definition"])
+          .orderBy("OperationalStandards", "name", "asc")
+          .execute();
 
-      const allQualities = labQualities.concat(operationQualities);
-      const qualityNameDictionary = {};
+       let operationQualities = operationQualitiesResult.OperationalStandards;
 
-      for (const quality of allQualities) {
-        if (!qualityNameDictionary[quality.name]) {
-          qualityNameDictionary[quality.name] = {
-            label: quality.label,
-            definition: quality.definition,
-          };
+        const allQualities = labQualities.concat(operationQualities);
+        const qualityNameDictionary = {};
+
+        for (const quality of allQualities) {
+          if (!qualityNameDictionary[quality.name]) {
+            qualityNameDictionary[quality.name] = {
+              label: quality.label,
+              definition: quality.definition,
+            };
+          }
         }
+        this.qualityStandardsDictionary = qualityNameDictionary;
+        waitingOnResults.value = false
       }
-      this.qualityStandardsDictionary = qualityNameDictionary;
     }
   }
 

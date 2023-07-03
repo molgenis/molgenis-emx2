@@ -41,8 +41,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
         );
       }
       facetBiobankColumnDetails = filterFacetProperties;
-
-      console.log(facetBiobankColumnDetails);
     }
 
     return facetBiobankColumnDetails;

@@ -68,7 +68,7 @@
           <div class="p-2 pt-1 biobank-section" :style="cardContainerHeight">
             <small>
               <view-generator :viewmodel="biobankcardViewmodel" />
-              <!-- <matches-on :viewmodel="biobank" /> -->
+              <matches-on :viewmodel="biobank" />
               <router-link
                 :to="'/biobank/' + biobank.id"
                 :title="`${biobank.name} details`"
@@ -287,9 +287,11 @@ export default {
       );
     },
   },
-  async mounted() {
-    this.showCollections = this.settingsStore.config.biobankCardShowCollections;
+  async beforeMount() {
     await this.qualitiesStore.getQualityStandardInformation();
+  },
+  mounted() {
+    this.showCollections = this.settingsStore.config.biobankCardShowCollections;
   },
 };
 </script>

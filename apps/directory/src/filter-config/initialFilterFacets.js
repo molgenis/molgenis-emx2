@@ -76,7 +76,7 @@ export const initialFilterFacets = [
   {
     facetTitle: "Collaboration type",
     component: "ToggleFilter",
-    applyToColumn: "collections.collaboration_commercial",
+    applyToColumn: "collections.commercial_use",
     showMatchTypeSelector: false,
     trueOption: {
       text: "Available to commercial use",

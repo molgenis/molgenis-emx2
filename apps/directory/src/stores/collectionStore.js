@@ -34,7 +34,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
       const commercialCollectionQuery = new QueryEMX2(graphqlEndpoint)
         .table("Collections")
         .select("id")
-        .where("collaboration_commercial")
+        .where("commercial_use")
         .equals(true);
       const commercialAvailableCollectionsResponse = await commercialCollectionQuery.execute();
       if (

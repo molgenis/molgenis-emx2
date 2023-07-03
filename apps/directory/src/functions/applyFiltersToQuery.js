@@ -99,5 +99,3 @@ export async function applyFiltersToQuery(
   console.log(baseQuery.getQuery());
   return baseQuery;
 }
-
-// TODO: add the properties to the base query,

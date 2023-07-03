@@ -26,12 +26,29 @@ export default {
       required: true,
     },
   },
+  methods: {
+    extractValue(path, object) {
+      if (!path) return "";
+      
+      const pathParts = path.split(".");
+
+      let value;
+      for (const path of pathParts) {
+        if (!value) {
+          value = object[path];
+        } else {
+          value = value[path];
+        }
+      }
+      return value;
+    },
+  },
   computed: {
     filterInfoDictionary() {
       const filterInfoDictionary = {};
       this.filtersStore.filterFacets.forEach((filter) => {
         filterInfoDictionary[filter.facetIdentifier] = {
-          column: filter.column,
+          column: filter.applyToColumn,
           label: filter.facetTitle,
         };
       });
@@ -54,7 +71,7 @@ export default {
 
         const filterColumn = this.filterInfoDictionary[facetIdentifier].column;
         const filterLabel = this.filterInfoDictionary[facetIdentifier].label;
-        const potentialMatch = this.viewmodel[filterColumn];
+        const potentialMatch = this.extractValue(filterColumn, this.viewmodel);
 
         if (!potentialMatch) {
           continue;
@@ -65,12 +82,12 @@ export default {
 
         for (const activeFilterValue of activeFilterValues) {
           /** need to find the correct filter value instead of the name */
-          if (!this.filterOptionsCache[facetIdentifier]) {
+          if (!this.filterOptionsCache[filterColumn]) {
             continue; /** if the filteroption does not exist */
           }
 
-          const filterOption = this.filterOptionsCache[facetIdentifier].find(
-            (fo) => fo.value === activeFilterValue
+          const filterOption = this.filterOptionsCache[filterColumn].find(
+            (fo) => fo.value === activeFilterValue.value
           );
 
           if (!filterOption) continue;
@@ -95,7 +112,6 @@ export default {
           matches.push(match);
         }
       }
-
       return matches;
     },
     notEmpty() {
