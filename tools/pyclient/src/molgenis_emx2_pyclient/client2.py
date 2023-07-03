@@ -4,6 +4,7 @@ from molgenis_emx2_pyclient.utils import cleanUrl
 import pandas as pd
 import requests
 import csv
+import io
 
 class Client:
     def __init__(self, host: str='http://localhost:8080/'):
@@ -117,7 +118,7 @@ class Client:
         
         @return status message; response
         """
-        dataToImport = self.__prepareData__(file=file, data=data)
+        dataToImport = self._prepData_(file=file, data=data)
         response = self.session.delete(
             url=f"{self.host}/{schema}/api/csv/{table}",
             headers={'Content-Type':'text/csv'},
@@ -126,24 +127,30 @@ class Client:
         response.raise_for_status()
         
         if response.status_code == 200:
-            print(f"Imported data into {schema}::{table}")
+            print(f"Deleted data from {schema}::{table}")
         else:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
-            print(f"Failed to import data into {schema}::{table}\n{errors}")
+            print(f"Failed to delete data from {schema}::{table}\n{errors}")
             
         return response
         
         
-    def get(self, schema: str=None, table: str=None):
+    def get(self, schema: str=None, table: str=None, asDataFrame=False):
         """Get
         Retrieve data from a schema and return as a list of dictionaries
         
         @param schema name of the schema
         @param table name of the table
+        @param asDataFrame if True, the response will be returned as a
+          pandas DataFrame. Otherwise, a recordset will be returned.
         
         @return list of dictionaries; status message
         """
         response = self.session.get(url = f"{self.host}/{schema}/api/csv/{table}")
         response.raise_for_status()
-        return response
+        
+        data = pd.read_csv(io.StringIO(response.text), sep=",")
+        if asDataFrame:
+            return data
+        return data.to_dict('records')
         
