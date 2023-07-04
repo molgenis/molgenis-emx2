@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
@@ -19,6 +20,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 import spark.Response;
 
+@Tag("slow")
 public class Beaconv2_ModelEndpointsTest {
 
   static Database database;

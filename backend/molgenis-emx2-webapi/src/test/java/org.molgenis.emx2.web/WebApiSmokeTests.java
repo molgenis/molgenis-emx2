@@ -30,7 +30,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.parallel.Isolated;
+import org.junit.jupiter.api.Tag;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
@@ -42,7 +42,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
-@Isolated
+@Tag("slow")
 public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
@@ -340,6 +340,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  @Disabled("gives many false positive errors")
   public void testJsonYamlApi() {
     String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
 

@@ -4,10 +4,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.molgenis.emx2.MolgenisException;
 
+@Tag("slow")
+// todo move to sql
 class SqlSchemaTest {
   @Mock SqlDatabase db;
   @Mock SqlSchemaMetadata metadata;
