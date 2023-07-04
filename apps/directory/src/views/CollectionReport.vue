@@ -77,9 +77,7 @@
               </div>
 
               <!-- Right side card -->
-              <collection-report-info-card
-                :info="info"
-              ></collection-report-info-card>
+              <collection-report-info-card :info="info" />
             </div>
             <!-- facts data -->
             <!-- <div
@@ -95,80 +93,61 @@
 </template>
 
 <!-- eslint-disable no-useless-escape -->
-<script>
-import { ref } from "vue";
+<script setup>
+import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
-import { useCollectionStore } from "../stores/collectionStore";
-import { useSettingsStore } from "../stores/settingsStore";
 import { Spinner } from "../../../molgenis-components";
-import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
-import ReportTitle from "../components/report-components/ReportTitle.vue";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
-import ReportCollectionDetails from "../components/report-components/ReportCollectionDetails.vue";
+import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
 import CollectionReportInfoCard from "../components/report-components/CollectionReportInfoCard.vue";
-import { collectionReportInformation } from "../functions/viewmodelMapper";
+import ReportCollectionDetails from "../components/report-components/ReportCollectionDetails.vue";
+import ReportTitle from "../components/report-components/ReportTitle.vue";
 import { mapCollectionToBioschemas } from "../functions/bioschemasMapper";
+import { collectionReportInformation } from "../functions/viewmodelMapper";
+import { useCollectionStore } from "../stores/collectionStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
+import { useSettingsStore } from "../stores/settingsStore";
 
-export default {
-  name: "collection-report-card",
-  components: {
-    Spinner,
-    ReportTitle,
-    ReportCollectionDetails,
-    CollectionReportInfoCard,
-    Breadcrumb,
-    CheckOut,
-  },
-  setup() {
-    const settingsStore = useSettingsStore();
-    const collectionStore = useCollectionStore();
-    const qualitiesStore = useQualitiesStore();
+const settingsStore = useSettingsStore();
+const collectionStore = useCollectionStore();
+const qualitiesStore = useQualitiesStore();
 
-    const collection = ref({});
-    const route = useRoute();
+const collection = ref({});
+const route = useRoute();
 
-    collectionStore.getCollectionReport(route.params.id).then((result) => {
-      collection.value = result.Collections.length ? result.Collections[0] : {};
-    });
+collectionStore.getCollectionReport(route.params.id).then((result) => {
+  collection.value = result.Collections.length ? result.Collections[0] : {};
+});
 
-    return { settingsStore, collectionStore, qualitiesStore, collection };
-  },
-  methods: {
-    wrapBioschema(schemaData) {
-      /** ignore because it is not useless ;) */
-      return `<script type="application/ld+json">${JSON.stringify(
-        schemaData
-      )}<\/script>`;
-    },
-  },
-  computed: {
-    uiText() {
-      return this.settingsStore.uiText;
-    },
-    collectionDataAvailable() {
-      return Object.keys(this.collection).length;
-    },
-    info() {
-      return this.collectionDataAvailable
-        ? collectionReportInformation(this.collection)
-        : {};
-    },
-    bioschemasJsonld() {
-      return this.collectionDataAvailable
-        ? this.wrapBioschema(mapCollectionToBioschemas(this.collection))
-        : undefined;
-    },
-    // factsData() {
-    //   // TODO rework this so that facts are stand-alone, this is a workaround because @ReportCollectionDetails
-    //   return { value: this.collection.facts };
-    // },
-  },
-  async mounted() {
-    this.showCollections = this.settingsStore.config.biobankCardShowCollections;
-    await this.qualitiesStore.getQualityStandardInformation();
-  },
-};
+await qualitiesStore.getQualityStandardInformation();
+
+const uiText = computed(() => {
+  return settingsStore.uiText;
+});
+const collectionDataAvailable = computed(() => {
+  return Object.keys(collection).length;
+});
+const info = computed(() => {
+  return collectionDataAvailable.value
+    ? collectionReportInformation(collection)
+    : {};
+});
+const bioschemasJsonld = computed(() => {
+  return collectionDataAvailable.value
+    ? wrapBioschema(mapCollectionToBioschemas(collection))
+    : undefined;
+});
+
+function wrapBioschema(schemaData) {
+  /** ignore because it is not useless ;) */
+  return `<script type="application/ld+json">${JSON.stringify(
+    schemaData
+  )}<\/script>`;
+}
+// factsData() {
+//   // TODO rework this so that facts are stand-alone, this is a workaround because @ReportCollectionDetails
+//   return { value: this.collection.facts };
+// }
 </script>
 
 <style scoped>

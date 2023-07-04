@@ -131,10 +131,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return !waitingForResponse.value && biobankCards.value.length > 0;
   });
 
-  const waiting = computed(() => {
-    return waitingForResponse.value;
-  });
-
   const biobankCardsBiobankCount = computed(() => {
     return biobankCards.value.length;
   });
@@ -160,7 +156,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     updateBiobankCards,
     getBiobankCards,
     getBiobankCard,
-    waiting,
+    waiting: waitingForResponse,
     biobankCardsHaveResults,
     biobankCardsBiobankCount,
     biobankCardsCollectionCount,
