@@ -42,9 +42,9 @@ export default {
       }, {});
     },
     getMatchStatus(resource) {
-      if (this.variable.repeats && Array.isArray(this.resourceMappings)) {
+      if (this.variable.repeats) {
         const statusList = this.variable.repeats.map((repeatedVariable) => {
-          const resourceMapping = this.resourceMappings.find((mapping) => {
+          const resourceMapping = this.resourceMappings?.find((mapping) => {
             return (
               mapping.targetVariable &&
               mapping.targetVariable.name === repeatedVariable.name &&
@@ -55,7 +55,7 @@ export default {
           return resourceMapping ? resourceMapping.match.name : "na";
         });
 
-        const baseVariable = this.resourceMappings.find((mapping) => {
+        const baseVariable = this.resourceMappings?.find((mapping) => {
           return (
             mapping.toVariable &&
             mapping.toVariable.name === this.variable.name &&

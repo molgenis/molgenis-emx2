@@ -109,7 +109,6 @@ export default {
 
     const resp = await request("graphql", query, queryVariables).catch((e) => {
       console.error(e);
-      state.isLoading = false;
     });
 
     // check if result is still the relevant
@@ -124,8 +123,8 @@ export default {
         commit("addVariables", resp.Variables);
       }
       commit("setVariableCount", resp.Variables_agg.count);
-      state.isLoading = false;
     }
+    state.isLoading = false;
 
     return resp.TargetVariables;
   },
