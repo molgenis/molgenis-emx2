@@ -155,7 +155,7 @@ export default {
     const biobank = ref({});
     const route = useRoute();
 
-    biobanksStore.getBiobankCard(route.params.id).then((result) => {
+    biobanksStore.getBiobank(route.params.id).then((result) => {
       biobank.value = result.Biobanks.length
         ? getBiobankDetails(result.Biobanks[0])
         : {};

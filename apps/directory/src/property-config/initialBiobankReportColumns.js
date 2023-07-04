@@ -1,4 +1,4 @@
-export const initialBiobankCardColumns = [
+export const initialBiobankReportColumns = [
   {
     label: "Quality labels:",
     column: {
@@ -31,6 +31,16 @@ export const initialBiobankCardColumns = [
   },
   { label: "Juridical person:", column: "juridical_person" },
   { label: "Biobank capabilities:", column: { capabilities: ["label"] } },
+  /** properties that are required but should not be rendered as attributes */
+  {
+    column: [
+      "id",
+      "name",
+      "collections.id",
+      "collections.name",
+      "collections.size"
+    ]
+  }
 ];
 
-export default initialBiobankCardColumns;
+export default initialBiobankReportColumns;

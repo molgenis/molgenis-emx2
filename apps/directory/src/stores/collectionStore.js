@@ -13,7 +13,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
   function getCollectionColumns() {
     const properties = collectionColumns
       .filter((column) => column.column)
-      .map((collectionColumn) => collectionColumn.column);
+      .flatMap((collectionColumn) => collectionColumn.column);
 
     const rangeProperties = collectionColumns.filter(
       (column) => column.type === "range"
@@ -53,36 +53,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
   async function getCollectionReport(id) {
     const collectionReportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Collections")
-      .select([
-        "name",
-        "size",
-        "description",
-        "biobank.id",
-        "biobank.name",
-        "biobank.withdrawn",
-        "biobank.url",
-        "biobank.juridical_person",
-        "biobank.contact.first_name",
-        "biobank.contact.last_name",
-        "biobank.contact.email",
-        "biobank.contact.role",
-        "contact.first_name",
-        "contact.last_name",
-        "contact.email",
-        "contact.role",
-        "contact.country.label",
-        "head.first_name",
-        "head.last_name",
-        "head.role",
-        "country.label",
-        "network.name",
-        "network.id",
-        "url",
-        "withdrawn",
-        "parent_collection.id",
-        "parent_collection.name",
-        ...getCollectionColumns(),
-      ])
+      .select(getCollectionColumns())
       .orderBy("Collections", "id", "asc")
       .where("id")
       .like(id);
