@@ -4,7 +4,7 @@ import { i18n } from "../i18n/i18n";
 import { initialFilterFacets } from "../filter-config/initialFilterFacets";
 import initialCollectionColumns from "../property-config/initialCollectionColumns";
 import initialBiobankColumns from "../property-config/initialBiobankColumns";
-import initialBiobankCardColumns from "../property-config/initialBiobankCardsColumns";
+import initialBiobankReportColumns from "../property-config/initialBiobankReportColumns";
 import QueryEMX2 from "../functions/queryEMX2";
 /**
  * Settings store is where all the configuration of the application is handled.
@@ -19,7 +19,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     graphqlEndpoint: "graphql",
     negotiatorType: "eric-negotiator",
     biobankColumns: initialBiobankColumns,
-    biobankCardColumns: initialBiobankCardColumns,
+    biobankReportColumns: initialBiobankReportColumns,
     collectionColumns: initialCollectionColumns,
     filterFacets: initialFilterFacets,
     filterMenuInitiallyFolded: false,

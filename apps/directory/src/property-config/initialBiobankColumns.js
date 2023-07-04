@@ -39,6 +39,21 @@ export const initialBiobankColumns = [
     type: "array",
     showOnBiobankCard: true,
   },
+  /** properties that are required but should not be rendered as attributes */
+  {
+    column: [
+      "name",
+      "head.first_name",
+      "head.last_name",
+      "head.role",
+      "country.label",
+      "network.name",
+      "network.id",
+      "url",
+      "withdrawn"
+    ]
+  },
+
 ];
 
 export default initialBiobankColumns;

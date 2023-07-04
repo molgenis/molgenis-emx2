@@ -1,5 +1,4 @@
 <template>
-  <!-- template -->
   <article
     :class="[
       {
@@ -176,17 +175,16 @@ import CollectionSelector from "../checkout-components/CollectionSelector.vue";
 import InfoPopover from "../popovers/InfoPopover.vue";
 import MatchesOn from "../biobankcards-components/MatchesOn.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
-import { useBiobanksStore } from "../../stores/biobanksStore";
 import { useQualitiesStore } from "../../stores/qualitiesStore";
 import { useCheckoutStore } from "../../stores/checkoutStore";
 
 export default {
   setup() {
     const settingsStore = useSettingsStore();
-    const biobanksStore = useBiobanksStore();
     const qualitiesStore = useQualitiesStore();
     const checkoutStore = useCheckoutStore();
-    return { settingsStore, biobanksStore, qualitiesStore, checkoutStore };
+
+    return { settingsStore, qualitiesStore, checkoutStore };
   },
   components: {
     ViewGenerator,
