@@ -78,7 +78,7 @@ def tagName = project.version.toString().replace("v","")
 if (version.toString().endsWith('-SNAPSHOT')) {
     ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
     imageName = "docker.io/molgenis/molgenis-emx2-snapshot"
-    tagName = "${project.version.toString()}-${ext.hash}"
+    tagName = "${project.version.toString().replace("v","")}-${ext.hash}"
 }
 // write a file to pickup in deployment to use specific tags in upgrade
 task ci(type: WriteProperties) {
