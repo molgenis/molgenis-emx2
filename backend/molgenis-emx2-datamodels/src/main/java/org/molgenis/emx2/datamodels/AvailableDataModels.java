@@ -3,6 +3,7 @@ package org.molgenis.emx2.datamodels;
 import org.molgenis.emx2.Schema;
 
 public enum AvailableDataModels {
+  DIRECTORY(new DirectoryLoader()),
   DATA_CATALOGUE_COHORT_STAGING(new DataCatalogueCohortStagingLoader()),
   DATA_CATALOGUE_NETWORK_STAGING(new DataCatalogueNetworkStagingLoader()),
   DATA_CATALOGUE(new DataCatalogueLoader()),

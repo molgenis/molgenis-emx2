@@ -1,4 +1,2 @@
 id,name_system,pid,url,national_node,withdrawn,label
-bbmri-eric:akiID:NL_00001,Catalogue in The Netherlands,cat_neth_biobank2,https://linktopid/cat_neth_biobank2.nl,NL,FALSE,
-bbmri-eric:akiID:NL_00002,Collection catalogue of The Netherlands,,https://collections@catalogue.nl,NL,FALSE,
-bbmri-eric:akiID:DE_00001,Another DataCatalogue,,https://another_data_catalogue.eu,DE,FALSE,
+bbmri-eric:akiID:CH_00001,Biobank SQAN,910293,https://www.sqan.ch/#/biobanks/3624,CH,false,Biobank SQAN
