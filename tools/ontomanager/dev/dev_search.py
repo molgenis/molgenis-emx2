@@ -16,9 +16,13 @@ from dotenv import load_dotenv
 from tools.ontomanager.src.molgenis_emx2_ontomanager import OntologyManager
 
 
-def demo_search(search_terms: list | str):
-    """Function to demo search.
+def dev_search(search_terms: list | str):
+    """Function to demo search. Sign in to the server using the login details provided.
+
     :param search_terms: a string or list of strings
+    :param url: the url of the Molgenis EMX2 server
+    :param username: the username or email address of the user
+    :param password: the password for this username
     """
     load_dotenv()
 
@@ -43,6 +47,6 @@ def demo_search(search_terms: list | str):
 
 if __name__ == '__main__':
     terms = ['Sibling', 'Blabla', 'morbidity', 'Hospital data', 'medication']
-    demo_results = demo_search(terms)
+    demo_results = dev_search(terms)
     for (term, table) in demo_results.items():
         print(f"{term}: {table}")

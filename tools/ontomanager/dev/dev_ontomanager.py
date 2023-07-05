@@ -20,7 +20,15 @@ from tools.ontomanager.src.molgenis_emx2_ontomanager import OntologyManager
 from tools.ontomanager.src.molgenis_emx2_ontomanager.exceptions import DuplicateKeyException
 
 
-def demo_ontomanager(url: str = None, username: str = None, password: str = None):
+def dev_ontomanager(url: str = None, username: str = None, password: str = None):
+    """
+    Script to demonstrate the add, update, and delete functionality of the Molgenis EMX2
+    Ontology Manager package.
+
+    :param url: the url of the Molgenis EMX2 server
+    :param username: the username or email address of the user
+    :param password: the password for this username
+    """
     load_dotenv()
     if url is None:
         url = os.environ.get('MG_URL')
@@ -52,4 +60,4 @@ if __name__ == '__main__':
     logging.basicConfig(level='INFO')
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
-    demo_ontomanager()
+    dev_ontomanager()

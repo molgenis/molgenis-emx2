@@ -12,13 +12,16 @@ Ensure the CatalogueOntologies database is present on the server before running 
 import os
 
 from dotenv import load_dotenv
-
 from molgenis_emx2_ontomanager import OntologyManager
 
 
 def demo_search(search_terms: list | str, url: str = None, username: str = None, password: str = None):
-    """Function to demo search.
+    """Function to demo search. Sign in to the server using the login details provided.
+
     :param search_terms: a string or list of strings
+    :param url: the url of the Molgenis EMX2 server
+    :param username: the username or email address of the user
+    :param password: the password for this username
     """
     load_dotenv()
     if url is None:
@@ -32,6 +35,7 @@ def demo_search(search_terms: list | str, url: str = None, username: str = None,
 
     if isinstance(search_terms, str):
         search_terms = list(search_terms)
+    search_terms = [item for item in search_terms]
     if not isinstance(search_terms, list):
         raise ValueError("Supply the search terms as a string or a list.")
 
