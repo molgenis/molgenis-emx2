@@ -15,23 +15,17 @@ import os
 import pandas as pd
 from dotenv import load_dotenv
 
-from molgenis_emx2_ontomanager import OntologyManager
-from molgenis_emx2_ontomanager.exceptions import DuplicateKeyException
+from tools.ontomanager.src.molgenis_emx2_ontomanager import OntologyManager
+from tools.ontomanager.src.molgenis_emx2_ontomanager.exceptions import DuplicateKeyException
 
 
-def demo_csv(url: str = None, username: str = None, password: str = None):
+def demo_csv():
     """
     Upload terms to a CatalogueOntologies table from a .csv file using the OntologyManager.
     The .csv file is first loaded into memory as a pandas DataFrame.
     This DataFrame is then passed as a parameter in the OntologyManager.add() method.
     """
     load_dotenv()
-    if url is None:
-        url = os.environ.get('MG_URL')
-    if username is None:
-        username = os.environ.get('MG_USERNAME')
-    if password is None:
-        password = os.environ.get('MG_PASSWORD')
 
     url = os.environ['MG_URL']
     username = os.environ['MG_USERNAME']

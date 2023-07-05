@@ -13,20 +13,18 @@ import os
 
 from dotenv import load_dotenv
 
-from molgenis_emx2_ontomanager import OntologyManager
+from tools.ontomanager.src.molgenis_emx2_ontomanager import OntologyManager
 
 
-def demo_search(search_terms: list | str, url: str = None, username: str = None, password: str = None):
+def demo_search(search_terms: list | str):
     """Function to demo search.
     :param search_terms: a string or list of strings
     """
     load_dotenv()
-    if url is None:
-        url = os.environ.get('MG_URL')
-    if username is None:
-        username = os.environ.get('MG_USERNAME')
-    if password is None:
-        password = os.environ.get('MG_PASSWORD')
+
+    url = os.environ['MG_URL']
+    username = os.environ['MG_USERNAME']
+    password = os.environ['MG_PASSWORD']
 
     manager = OntologyManager(url, username, password)
 
