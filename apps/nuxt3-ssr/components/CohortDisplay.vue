@@ -65,11 +65,11 @@ if (cohort?.numberOfParticipantsWithSamples) {
 </script>
 
 <template>
-  <ContentBlock
+  <ContentBlockModal
     :title="cohort?.name"
     :description="cohort?.description"
     v-if="cohort"
   >
     <DefinitionList :items="items" :small="true" />
-  </ContentBlock>
+  </ContentBlockModal>
 </template>
