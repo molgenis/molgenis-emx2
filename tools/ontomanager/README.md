@@ -69,17 +69,33 @@ Example usage:
 #### Adding an ontology term
 Specify the table in which the term is to be added, the name of the term to be added, and optionally additional information such as a label, parent term or definition.
 
-Example:
+##### Example:
 
     ontomanager.add(table='Countries', name='Republic of Molgenia', 
-                                       label='Molgenia')
+                                       order=1000)
     ontomanager.add(table='Countries', name='Armadilland',
-                                       parent='Republic of Molgenia')
+                                       parent='Republic of Molgenia', order=1001)
 
 The argument `name` is mandatory. 
 The optional arguments are `order, label, parent, codesystem, code, ontologyTermURI, definition`.
 Note that a term cannot be added to the ontology table if its name is already present.
 If a parent term is specified, this must already be present in the table.
+
+Terms can also be added to a CatalogueOntologies table through a pandas DataFrame from, for example, a .csv file.
+Firstly load the .csv file into memory in a DataFrame, then pass this DataFrame as `data` in the `add` method.
+
+##### Example:
+The demos/data/Countries.csv contains the following data
+
+| name                 |   order | parent               |
+|----------------------|---------|----------------------|
+| Republic of Molgenia |    1000 |                      |
+| Armadilland          |    1001 | Republic of Molgenia |
+
+    import pandas as pd
+    ...
+    countries = pd.read_csv('demos/data/Countries.csv')
+    ontomanager.add(table='Countries', data=countries)
 
 #### Updating an ontology term
 Updating references to an ontology term can be performed by the ontology manager's update functionality.
