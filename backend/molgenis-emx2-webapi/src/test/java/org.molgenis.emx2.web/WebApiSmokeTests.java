@@ -340,7 +340,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
+  @Disabled("unstable")
   public void testJsonYamlApi() {
     String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
 
@@ -915,7 +915,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
+  @Disabled("unstable")
   public void testScriptExecution() throws JsonProcessingException, InterruptedException {
     // get token for admin
     String result =
@@ -1130,7 +1130,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
+  @Disabled("unstable")
   public void testBeaconApiSmokeTests() {
     // todo: ideally we would here validate the responses against json schemas, are those schemas
     // easily available?
