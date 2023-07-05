@@ -85,7 +85,7 @@ Terms can also be added to a CatalogueOntologies table through a pandas DataFram
 Firstly load the .csv file into memory in a DataFrame, then pass this DataFrame as `data` in the `add` method.
 
 ##### Example:
-The demos/data/Countries.csv contains the following data
+The `demos/data/Countries.csv` file contains the following data
 
 | name                 |   order | parent               |
 |----------------------|---------|----------------------|
@@ -102,17 +102,34 @@ Updating references to an ontology term can be performed by the ontology manager
 This can be done by calling the `update` method, specifying the name of the ontology table and the old and new terms.
 The ontology manager will look for any references to the term in every table in all databases on the server and replace those by the new term.
 
-Example:
+##### Example:
 
     ontomanager.update(table='Countries', old='Republic of Molgenia',
                                           new='Armadilland')
+
+A pandas DataFrame object with columns _old_ and _new_ can also be passed using the `data` argument in the `update` method  .
+The entries in that DataFrame are then sequentially implemented.
+
+##### Example:
+The `demos/data/update.csv` file contains the following data
+
+| old                  | new                  |
+|----------------------|----------------------|
+| Croatia              | Republic of Molgenia |
+| Republic of Molgenia | Armadilland          |
+| Armadilland          | Croatia              |
+
+This dataset can be loaded into memory as a pandas DataFrame object and then implemented using the following code
+    
+    update_df = pd.read_csv('data/update.csv')
+    ontomanager.update(table='Countries', data=update_df)
 
 
 #### Deleting an ontology term
 Deleting a term from an ontology table can be done by calling the manager's `delete` method, specifying the table and the name of the term to be deleted.
 Note that it is not possible to delete a term that is still referenced in a table in one of the databases
 
-Example:
+##### Example:
 
     ontomanager.delete(table='Countries', name='Republic of Molgenia')  
 

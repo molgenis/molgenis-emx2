@@ -193,14 +193,14 @@ class OntologyManager:
         """Perform references updates from a dictionary object."""
         if 'old' in data.keys() and 'new' in data.keys():
             return {
-                {'old': data['old'], 'new': data['new']}:
+                f"{data['old']}~{data['new']}":
                     {'result': self._update_term(table, old=data['old'], new=data['new'])}
             }
 
         results = dict()
         for key, values in data.items():
             results.update({
-                {'old': values['old'], 'new': values['new']}:
+                f"{values['old']}~{values['new']}":
                     {'result': self._update_term(table, old=values['old'], new=values['new'])}
             })
         return results
