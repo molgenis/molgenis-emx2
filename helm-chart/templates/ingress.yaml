@@ -11,6 +11,9 @@ metadata:
     heritage: {{ .Release.Service | quote }}
   annotations:
     kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      gzip on;
+      gzip_types text/plain text/xml text/css application/json application/javascript application/xml application/xml+rss text/javascript image/svg+xml;
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
