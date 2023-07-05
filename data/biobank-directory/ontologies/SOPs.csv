@@ -1,7 +1,7 @@
-order,name,label,parent,codesystem,code,ontologyTermURI,definition,,,
-,sample_processing_sop,Sample processing PD/SOP,,,,,Sample processing PD/SOP,,,
-,data_transport_sop,Data transport PD/SOP,,,,,Data transport PD/SOP,,,
-,data_storage_sop,Data storage PD/SOP,,,,,Data storage PD/SOP,,,
-,sample_storage_sop,Sample storage PD/SOP,,,,,Sample storage PD/SOP,,,
-,sample_transport_sop,Sample transport PD/SOP,,,,,Sample transport PD/SOP,,,
-,data_processing_sop,Data processing PD/SOP,,,,,Data processing PD/SOP,,,
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,sample_processing_sop,Sample processing PD/SOP,,,,,Sample processing PD/SOP
+,data_transport_sop,Data transport PD/SOP,,,,,Data transport PD/SOP
+,data_storage_sop,Data storage PD/SOP,,,,,Data storage PD/SOP
+,sample_storage_sop,Sample storage PD/SOP,,,,,Sample storage PD/SOP
+,sample_transport_sop,Sample transport PD/SOP,,,,,Sample transport PD/SOP
+,data_processing_sop,Data processing PD/SOP,,,,,Data processing PD/SOP
