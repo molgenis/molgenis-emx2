@@ -4,7 +4,6 @@ import logging
 
 import numpy as np
 import pandas as pd
-
 from molgenis_emx2_pyclient.client import Client
 from requests import Response
 
@@ -14,6 +13,8 @@ from .exceptions import OntomanagerException, DuplicateKeyException, MissingPkey
 from .graphql_queries import Queries
 
 log = logging.getLogger("OntologyManager")
+
+MAX_TRIES = 10
 
 
 class OntologyManager:
@@ -53,13 +54,17 @@ class OntologyManager:
         if table not in self.ontology_tables:
             raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
 
-        if data:
+        if data is not None:
             if isinstance(data, pd.DataFrame):
                 self._add_dataframe(table, data)
-            if isinstance(data, dict):
+            elif isinstance(data, dict):
                 self._add_dict(table, data)
-            if isinstance(data, list):
+            elif isinstance(data, list):
                 self._add_list(table, data)
+            else:
+                log.error(f"Data type {type(data)} encountered for parameter 'data'.")
+                raise ValueError(f"Unknown data type for parameter 'data'."
+                                 f"Supply data as pandas DataFrame, dict or list.")
         else:
             self._add_term(table, kwargs)
 
@@ -111,8 +116,9 @@ class OntologyManager:
         if name:
             self._delete_term(table, name)
 
-    def _delete_list(self, table: str, terms: list):
-        """Delete the listed terms from the table.
+    def _delete_list(self, table: str, terms: list, num_tries: int = 0):
+        """
+        Delete the listed terms from the table.
         If one or more terms are referenced by another term, they are added
         to a list and deleted at a later stage.
         """
@@ -123,7 +129,10 @@ class OntologyManager:
             except ParentReferenceException:
                 parent_terms.append(term)
         if len(parent_terms) > 0:
-            self._delete_list(table, parent_terms)
+            if num_tries > MAX_TRIES:
+                raise ParentReferenceException(f"Could not delete terms '{','.join(parent_terms)}' due to terms'"
+                                               f"reference to parent term.")
+            self._delete_list(table, parent_terms, num_tries+1)
 
     def _delete_term(self, table: str, term: str):
         """Delete the term from the table."""
@@ -141,18 +150,69 @@ class OntologyManager:
 
         return response
 
-    def update(self, table: str, **kwargs) -> dict:
+    def update(self, table: str, data: pd.DataFrame | dict | list = None,
+               old: str = None, new: str = None) -> dict:
         """Rename a term in an ontology."""
         ontology_table = table
 
         if ontology_table not in self.ontology_tables:
             raise NoSuchTableException(f"Table '{ontology_table}' not found in CatalogueOntologies.")
 
-        try:
-            old, new = kwargs['old'], kwargs['new']
-        except KeyError:
-            raise UpdateItemsException("Specify 'old' and 'new' terms.")
+        if data is not None:
+            if isinstance(data, pd.DataFrame):
+                return self._update_dataframe(ontology_table, data)
+            if isinstance(data, dict):
+                return self._update_dict(ontology_table, data)
+            if isinstance(list, dict):
+                return self._update_list(ontology_table, data)
+            else:
+                log.error(f"Data type {type(data)} encountered for parameter 'data'.")
+                raise ValueError(f"Unknown data type for parameter 'data'."
+                                 f"Supply data as pandas DataFrame, dict or list.")
 
+        if not old:
+            if not new:
+                raise UpdateItemsException("Specify 'old' and 'new' terms.")
+            raise UpdateItemsException("Specify 'old' term.")
+        if not new:
+            raise UpdateItemsException("Specify 'new' term.")
+
+        return self._update_term(ontology_table, old, new)
+
+    def _update_dataframe(self, table: str, data: pd.DataFrame) -> dict:
+        """Perform references updates from a pandas DataFrame object."""
+
+        # Check if 'old' and 'new' columns are present
+        if 'old' not in data.columns or 'new' not in data.columns:
+            raise UpdateItemsException("Ensure 'old' and 'new' columns in dataset.")
+
+        data_dict = data.to_dict(orient='index')
+        return self._update_dict(table, data_dict)
+
+    def _update_dict(self, table: str, data: dict) -> dict:
+        """Perform references updates from a dictionary object."""
+        if 'old' in data.keys() and 'new' in data.keys():
+            return {
+                {'old': data['old'], 'new': data['new']}:
+                    {'result': self._update_term(table, old=data['old'], new=data['new'])}
+            }
+
+        results = dict()
+        for key, values in data.items():
+            results.update({
+                {'old': values['old'], 'new': values['new']}:
+                    {'result': self._update_term(table, old=values['old'], new=values['new'])}
+            })
+        return results
+
+    def _update_list(self, table: str, data: list) -> dict:
+        """Perform references updates from a list of dictionaries."""
+        results = dict()
+        for item in data:
+            results.update(self._update_dict(table, item))
+        return results
+
+    def _update_term(self, ontology_table: str, old: str, new: str):
         log.info(f"Renaming in term '{old}' to '{new}' in table {ontology_table}.")
 
         if old not in self.__list_ontology_terms(ontology_table):
@@ -195,6 +255,7 @@ class OntologyManager:
 
     class Updater:
         """Class that handles the update of the terms, ontology tables, databases and database tables."""
+
         def __init__(self, manager, ontology_table: str, old: str, new: str):
             self.ontology_table = ontology_table
             self.manager = manager
