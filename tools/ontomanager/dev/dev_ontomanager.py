@@ -40,7 +40,8 @@ def dev_ontomanager(url: str = None, username: str = None, password: str = None)
     manager = OntologyManager(url, username, password)
 
     try:
-        manager.add(table='Countries', order=1000, name="Republic of Molgenia", label="Molgenia")
+        # manager.add(table='Countries', order=1000, name="Republic of Molgenia", label="Molgenia")
+        manager.add(table='Countries', data={'name': 'Republic of Molgenia', 'order': 1000})
     except DuplicateKeyException:
         pass
     try:
