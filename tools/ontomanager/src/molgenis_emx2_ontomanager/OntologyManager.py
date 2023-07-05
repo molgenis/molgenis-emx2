@@ -99,18 +99,17 @@ class OntologyManager:
         self._add_dict(table, _data_dict)
         return None
 
-    def delete(self, table: str, **kwargs):
+    def delete(self, table: str, name: str = None, names: list = None):
         """Delete a term or a list of terms from an ontology."""
         log.info(f"Deleting from table {table}.")
 
         if table not in self.ontology_tables:
             raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
 
-        if 'names' in kwargs.keys():
-            if isinstance(kwargs['names'], list):
-                self._delete_list(table, kwargs['names'])
-        if 'name' in kwargs.keys():
-            self._delete_term(table, kwargs=kwargs['name'])
+        if names:
+            self._delete_list(table, names)
+        if name:
+            self._delete_term(table, name)
 
     def _delete_list(self, table: str, terms: list):
         """Delete the listed terms from the table.
@@ -126,11 +125,9 @@ class OntologyManager:
         if len(parent_terms) > 0:
             self._delete_list(table, parent_terms)
 
-    def _delete_term(self, table: str, kwargs):
+    def _delete_term(self, table: str, term: str):
         """Delete the term from the table."""
-        _term = kwargs
-        if isinstance(kwargs, dict):
-            _term = kwargs['name']
+        _term = term
 
         _table = self.parse_table_name(table)
 

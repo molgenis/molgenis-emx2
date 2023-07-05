@@ -40,7 +40,7 @@ def dev_ontomanager(url: str = None, username: str = None, password: str = None)
     manager = OntologyManager(url, username, password)
 
     try:
-        # manager.add(table='Countries', order=1000, name="Republic of Molgenia", label="Molgenia")
+        # manager.add(table='Countries', order=1000, name="Republic of Molgenia")
         manager.add(table='Countries', data={'name': 'Republic of Molgenia', 'order': 1000})
     except DuplicateKeyException:
         pass
@@ -53,8 +53,9 @@ def dev_ontomanager(url: str = None, username: str = None, password: str = None)
     manager.update(table='Countries', old='Armadilland', new='Republic of Molgenia')
     manager.update(table='Countries', old='Republic of Molgenia', new='Croatia')
 
-    manager.delete(table='Countries', name="Armadilland")
-    manager.delete(table='Countries', name="Republic of Molgenia")
+    # manager.delete(table='Countries', name="Armadilland")
+    # manager.delete(table='Countries', name="Republic of Molgenia")
+    manager.delete(table='Countries', names=["Armadilland", "Republic of Molgenia"])
 
 
 if __name__ == '__main__':
