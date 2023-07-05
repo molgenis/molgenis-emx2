@@ -38,9 +38,9 @@ export const initialBiobankReportColumns = [
       "name",
       "collections.id",
       "collections.name",
-      "collections.size"
-    ]
-  }
+      "collections.size",
+    ],
+  },
 ];
 
 export default initialBiobankReportColumns;

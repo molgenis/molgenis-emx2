@@ -50,10 +50,9 @@ export const initialBiobankColumns = [
       "network.name",
       "network.id",
       "url",
-      "withdrawn"
-    ]
+      "withdrawn",
+    ],
   },
-
 ];
 
 export default initialBiobankColumns;
