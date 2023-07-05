@@ -7,6 +7,7 @@ export async function applyFiltersToQuery(
 ) {
   baseQuery.resetAllFilters();
   const activeFilters = Object.keys(filters);
+
   if (activeFilters.length === 0) return baseQuery;
 
   for (const filterKey of activeFilters) {
@@ -89,7 +90,7 @@ export async function applyFiltersToQuery(
               }
             } else {
               baseQuery.orWhere(column).orLike(values);
-              baseQuery.orFilter(column).orLike(values);
+              baseQuery.filter(column).orLike(values);
             }
           }
         }

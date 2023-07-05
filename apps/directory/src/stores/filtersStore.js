@@ -13,17 +13,16 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   let filters = ref({});
   let filterType = ref({});
-  let filterTypeUpdatedFromFilter = ref("");
   let filterOptionsCache = ref({});
   let filterFacets = createFilters(settingsStore.config.filterFacets);
-  const facetDetails = {};
+  const facetDetails = ref({});
 
   /** extract the components types so we can use that in adding the correct query parts */
   filterFacets.forEach((filterFacet) => {
     facetDetails[filterFacet.facetIdentifier] = { ...filterFacet };
   });
 
-  function resetFilters() {
+  function resetFilters () {
     this.baseQuery.resetFilters();
   }
 
@@ -44,8 +43,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
       queryDelay = setTimeout(async () => {
         clearTimeout(queryDelay);
-
-        applyFiltersToQuery(baseQuery, filters, facetDetails, filterType);
+        applyFiltersToQuery(baseQuery, filters, facetDetails, filterType.value);
         await updateBiobankCards();
       }, 750);
     },
@@ -64,10 +62,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
         clearTimeout(queryDelay);
         applyFiltersToQuery(baseQuery, filters.value, facetDetails, filterType);
 
-        /** only update if we have something to update, switching the radiobutton itself should not trigger a refresh */
         if (
-          hasActiveFilters.value &&
-          filters.value[filterTypeUpdatedFromFilter].length
+          hasActiveFilters.value
         ) {
           await updateBiobankCards();
         }
@@ -76,7 +72,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     { deep: true, immediate: true }
   );
 
-  function checkOntologyDescendantsIfMatches(
+  function checkOntologyDescendantsIfMatches (
     ontologyDescendants,
     ontologyQuery
   ) {
@@ -98,7 +94,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return finalVerdict;
   }
 
-  function ontologyItemMatchesQuery(ontologyItem, ontologyQuery) {
+  function ontologyItemMatchesQuery (ontologyItem, ontologyQuery) {
     const findString = ontologyQuery.toLowerCase();
     const codeFound = ontologyItem.code.toLowerCase().includes(findString);
     const nameFound = ontologyItem.name.toLowerCase().includes(findString);
@@ -107,7 +103,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return codeFound || nameFound || labelFound;
   }
 
-  function flattenOntologyBranch(branch, flattendBranches) {
+  function flattenOntologyBranch (branch, flattendBranches) {
     if (!branch.children || !branch.children.length) {
       if (!flattendBranches) {
         return [branch];
@@ -131,7 +127,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
    * @param {string | Array<string>} value array with identifiers or a string with an identifier
    * @param {boolean} add
    */
-  function updateOntologyFilter(filterName, value, add) {
+  function updateOntologyFilter (filterName, value, add) {
     /** value can be a child (single value), or a parent with its children > make it into an array of values */
     let processedValue = value;
 
@@ -171,7 +167,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
    * @param {string} filterName name of ontology filter
    * @param {string} value the identifier 'value' of the filter option
    */
-  function addOntologyOption(filterName, value) {
+  function addOntologyOption (filterName, value) {
     if (filters.value[filterName]) {
       /** sanity check, if it is there already then the job is done */
       if (
@@ -189,7 +185,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
    * @param {string} filterName name of ontology filter
    * @param {Array<string>} value array with identifier 'value' of the filter option
    */
-  function addOntologyOptions(filterName, value) {
+  function addOntologyOptions (filterName, value) {
     if (filters.value[filterName]) {
       const existingValues = filters.value[filterName].map(
         (option) => option.name
@@ -209,7 +205,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
    * @param {string} filterName name of ontology filter
    * @param {string} value the identifier 'value' of the filter option
    */
-  function removeOntologyOption(filterName, value) {
+  function removeOntologyOption (filterName, value) {
     /** can't remove an option which is not present. Jobs done. */
     if (!filters.value[filterName]) return;
 
@@ -226,7 +222,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
    * @param {string} filterName name of ontology filter
    * @param {Array<string>} value array with identifier 'value' of the filter option
    */
-  function removeOntologyOptions(filterName, value) {
+  function removeOntologyOptions (filterName, value) {
     /** can't remove an option which is not present. Jobs done. */
     if (!filters.value[filterName]) return;
 
@@ -241,11 +237,11 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       delete filters.value[filterName];
   }
 
-  function clearAllFilters() {
+  function clearAllFilters () {
     filters.value = {};
   }
 
-  function updateFilter(filterName, value) {
+  function updateFilter (filterName, value) {
     /** filter reset, so delete */
     if (
       value === null ||
@@ -259,21 +255,20 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
-  function getFilterValue(filterName) {
+  function getFilterValue (filterName) {
     return filters.value[filterName];
   }
 
-  function updateFilterType(filterName, value) {
+  function updateFilterType (filterName, value) {
     /** filter reset, so delete */
     if (value === "" || value === undefined || value.length === 0) {
       delete filterType.value[filterName];
     } else {
       filterType.value[filterName] = value;
     }
-    filterTypeUpdatedFromFilter = filterName;
   }
 
-  function getFilterType(filterName) {
+  function getFilterType (filterName) {
     return filterType.value[filterName] || "any";
   }
 
