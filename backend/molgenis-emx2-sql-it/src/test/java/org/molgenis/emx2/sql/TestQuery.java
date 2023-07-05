@@ -11,7 +11,6 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -150,53 +149,40 @@ public class TestQuery {
   }
 
   @Test
-  void  orderByRefColumnAsc() {
-    final String unorderd = schema
+  void orderByRefColumnAsc() {
+    final String unorderd =
+        schema
             .getTable(PERSON)
-            .select(
-
-                    s("ID"),
-                    s("First_Name"),
-                    s("Last_Name"))
-
+            .select(s("ID"), s("First_Name"), s("Last_Name"))
             .retrieveRows()
             .stream()
             .map(r -> r.getString("First_Name"))
             .collect(Collectors.joining(","));
 
-
-    final String orderdbyRefDefaultOrder = schema
+    final String orderdbyRefDefaultOrder =
+        schema
             .getTable(PERSON)
-            .select(
-                s("ID"),
-                s("First_Name"),
-                s("Last_Name"))
+            .select(s("ID"), s("First_Name"), s("Last_Name"))
             .orderBy("Mother")
             .retrieveRows()
-                .stream()
-                .map(r -> r.getString("First_Name"))
-                .collect(Collectors.joining(","));
+            .stream()
+            .map(r -> r.getString("First_Name"))
+            .collect(Collectors.joining(","));
 
-
-    final String orderdbyRefAsc = schema
+    final String orderdbyRefAsc =
+        schema
             .getTable(PERSON)
-            .select(
-                    s("ID"),
-                    s("First_Name"),
-                    s("Last_Name"))
+            .select(s("ID"), s("First_Name"), s("Last_Name"))
             .orderBy("Mother", Order.ASC)
             .retrieveRows()
             .stream()
             .map(r -> r.getString("First_Name"))
             .collect(Collectors.joining(","));
 
-
-    final String orderdbyRefDesc = schema
+    final String orderdbyRefDesc =
+        schema
             .getTable(PERSON)
-            .select(
-                    s("ID"),
-                    s("First_Name"),
-                    s("Last_Name"))
+            .select(s("ID"), s("First_Name"), s("Last_Name"))
             .orderBy("Mother", Order.DESC)
             .retrieveRows()
             .stream()
@@ -208,8 +194,4 @@ public class TestQuery {
     assertEquals("Kwik,Kwek,Kwak,Donald,Katrien", orderdbyRefAsc);
     assertEquals("Donald,Katrien,Kwik,Kwek,Kwak", orderdbyRefDesc);
   }
-
-
-
-
 }
