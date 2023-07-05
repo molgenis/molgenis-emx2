@@ -8,7 +8,7 @@ plugins {
 nyx {
     verbosity = "INFO"
     preset = "simple"
-    releasePrefix = ""
+    releasePrefix = "v"
     releaseTypes {
         items {
             mainline {
