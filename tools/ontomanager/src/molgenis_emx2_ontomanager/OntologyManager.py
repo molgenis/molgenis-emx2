@@ -45,7 +45,7 @@ class OntologyManager:
             case 'update':
                 self.update(table, **kwargs)
 
-    def add(self, table: str, **kwargs):
+    def add(self, table: str, data: pd.DataFrame | dict | list = None, **kwargs):
         """Add a term to an ontology table.
         """
         log.info(f"Adding to table {table}.")
@@ -53,13 +53,13 @@ class OntologyManager:
         if table not in self.ontology_tables:
             raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
 
-        if 'data' in kwargs.keys():
-            if isinstance(kwargs['data'], pd.DataFrame):
-                self._add_dataframe(table, **kwargs)
-            if isinstance(kwargs['data'], dict):
-                self._add_dict(table, kwargs['data'])
-            elif isinstance(kwargs['data'], list):
-                self._add_list(table, kwargs['data'])
+        if data:
+            if isinstance(data, pd.DataFrame):
+                self._add_dataframe(table, data)
+            if isinstance(data, dict):
+                self._add_dict(table, data)
+            if isinstance(data, list):
+                self._add_list(table, data)
         else:
             self._add_term(table, kwargs)
 
@@ -78,8 +78,11 @@ class OntologyManager:
 
     def _add_dict(self, table: str, terms_dict: dict):
         """Add terms to a table from a dictionary object."""
-        for values in terms_dict.values():
-            self._add_term(table=table, kwargs=values)
+        if 'name' in terms_dict.keys():
+            self._add_term(table=table, kwargs=terms_dict)
+        else:
+            for values in terms_dict.values():
+                self._add_term(table=table, kwargs=values)
 
     def _add_list(self, table: str, terms_list: list):
         """Add terms to table from a list of dictionaries."""
@@ -87,10 +90,10 @@ class OntologyManager:
             if isinstance(term, dict):
                 self._add_term(table, **term)
 
-    def _add_dataframe(self, table: str, **kwargs):
+    def _add_dataframe(self, table: str, df: pd.DataFrame):
         """Add terms to a table from a pandas DataFrame object."""
         # Unpack the DataFrame into a dictionary
-        _data: pd.DataFrame = kwargs.get('data').replace({np.nan: None})
+        _data: pd.DataFrame = df.replace({np.nan: None})
         _data_dict = _data.to_dict(orient='index')
 
         self._add_dict(table, _data_dict)
