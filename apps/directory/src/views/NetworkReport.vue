@@ -1,40 +1,30 @@
 <template>
   <div class="container mg-network-report-card">
-    <div>BLABLABLA</div>
-    <loading
-      :active="isLoading"
-      loader="dots"
-      :is-full-page="true"
-      color="var(--secondary)"
-      background-color="var(--light)"
-    ></loading>
-    <div class="container-fluid">
+    <Spinner v-if="!loaded" />
+    <div v-else class="container-fluid">
       <div class="row">
         <div class="col">
           <!-- Back to previous page buttons -->
           <button class="btn btn-link" @click="back">
-            <i class="fa fa-angle-left mr-1" aria-hidden="true"></i>
+            <i class="fa fa-angle-left mr-1" aria-hidden="true" />
             <span>{{ uiText["back"] }}</span>
           </button>
         </div>
       </div>
 
-      <div class="row" v-if="this.network && !this.isLoading">
+      <div class="row" v-if="network && loaded">
         <div class="col">
-          <report-title type="Network" :name="network.name"></report-title>
+          <ReportTitle type="Network" :name="network.name" />
           <div class="container">
             <div class="row">
               <div class="col-md-8">
                 <p><b>Id: </b>{{ network.id }}</p>
-                <report-description
+                <ReportDescription
                   :description="network.description"
                   :maxLength="500"
-                ></report-description>
+                />
                 <div
-                  v-if="
-                    network.common_network_elements &&
-                    network.common_network_elements.length
-                  "
+                  v-if="network.common_network_elements?.length"
                   class="my-5"
                 >
                   <h3>Network details</h3>
@@ -47,10 +37,9 @@
                     </li>
                   </ul>
                 </div>
-                <report-details-list
-                  :reportDetails="detailsContent"
-                ></report-details-list>
-                <b-tabs
+                <!-- detailsContent unused?? -->
+                <!-- <ReportDetailsList :reportDetails="detailsContent" /> -->
+                <div
                   v-if="
                     !collections ||
                     !biobanks ||
@@ -58,7 +47,7 @@
                     biobanksAvailable
                   "
                 >
-                  <b-tab
+                  <div
                     id="collections"
                     :active="collectionsAvailable"
                     :disabled="!collectionsAvailable"
@@ -66,17 +55,17 @@
                     <slot name="title">
                       <h5>
                         Collections
-                        <b-badge
-                          :variant="collectionsAvailable ? 'secondary' : 'dark'"
+                        <div
                           v-if="collections"
+                          :variant="collectionsAvailable ? 'secondary' : 'dark'"
                         >
                           {{ collections.length }}
-                        </b-badge>
+                        </div>
                         <i
                           v-else
                           class="fa fa-spin fa-spinner"
                           aria-hidden="true"
-                        ></i>
+                        />
                       </h5>
                     </slot>
                     <div class="pt-3">
@@ -85,15 +74,15 @@
                         :key="collection.id"
                       >
                         <hr v-if="index" />
-                        <collection-title
+                        <CollectionTitle
                           :title="collection.name"
                           :id="collection.id"
                         />
-                        <view-generator :viewmodel="collection.viewmodel" />
+                        <ViewGenerator :viewmodel="collection.viewmodel" />
                       </div>
                     </div>
-                  </b-tab>
-                  <b-tab
+                  </div>
+                  <div
                     id="biobanks"
                     :active="!collectionsAvailable && biobanksAvailable"
                     :disabled="!biobanksAvailable"
@@ -101,17 +90,17 @@
                     <slot name="title">
                       <h5>
                         Biobanks
-                        <b-badge
-                          :variant="biobanksAvailable ? 'secondary' : 'dark'"
+                        <div
                           v-if="biobanks"
+                          :variant="biobanksAvailable ? 'secondary' : 'dark'"
                         >
-                          {{ biobanks && biobanks.length }}
-                        </b-badge>
+                          {{ biobanks.length }}
+                        </div>
                         <i
                           v-else
                           class="fa fa-spin fa-spinner"
                           aria-hidden="true"
-                        ></i>
+                        />
                       </h5>
                     </slot>
                     <div class="pt-3">
@@ -121,18 +110,18 @@
                       >
                         <hr v-if="index" />
                         <h4>
-                          <router-link :to="`/biobank/${biobank.id}`">{{
-                            biobank.name
-                          }}</router-link>
+                          <router-link :to="`/biobank/${biobank.id}`">
+                            {{ biobank.name }}
+                          </router-link>
                         </h4>
-                        <report-description
+                        <ReportDescription
                           :description="biobank.description"
                           :maxLength="250"
-                        ></report-description>
+                        />
                       </div>
                     </div>
-                  </b-tab>
-                </b-tabs>
+                  </div>
+                </div>
               </div>
               <!-- Right side card -->
               <div class="col-md-4">
@@ -140,9 +129,7 @@
                   <div class="card-body">
                     <div class="card-text">
                       <h5>Contact Information</h5>
-                      <report-details-list
-                        :reportDetails="contact"
-                      ></report-details-list>
+                      <ReportDetailsList :reportDetails="contact" />
                     </div>
                   </div>
                 </div>
@@ -155,8 +142,10 @@
   </div>
 </template>
 
-<script>
-// import { Spinner } from "../../../molgenis-components";
+<script setup>
+import { computed, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { Spinner } from "../../../molgenis-components";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ReportDescription from "../components/report-components/ReportDescription.vue";
@@ -169,67 +158,45 @@ import {
 import { useNetworkStore } from "../stores/networkStore";
 import { useSettingsStore } from "../stores/settingsStore";
 
-export default {
-  name: "NetworkReport",
-  components: {
-    ReportTitle,
-    ReportDescription,
-    ReportDetailsList,
-    // Spinner,
-    CollectionTitle,
-    ViewGenerator,
-  },
-  setup() {
-    const settingsStore = useSettingsStore();
-    const networkStore = useNetworkStore();
-    return { settingsStore, networkStore };
-  },
-  methods: {
-    back() {
-      this.$router.go(-1);
-    },
-  },
-  computed: {
-    uiText() {
-      return this.settingsStore.uiText;
-    },
-    networkReport() {
-      return this.networkStore.networkReport;
-    },
-    isLoading() {
-      return true;
-    },
-    collections() {
-      return this.networkReport.collections
-        ? this.networkReport.collections
-            .filter((collection) => {
-              return !collection.parentCollection;
-            })
-            .map((col) => getCollectionDetails(col))
-        : [];
-    },
-    collectionsAvailable() {
-      return this.collections?.length;
-    },
-    biobanksAvailable() {
-      return this.biobanks?.length;
-    },
-    network() {
-      return this.networkReport.network;
-    },
-    biobanks() {
-      return this.networkReport.biobanks;
-    },
-    contact() {
-      return mapContactInfo(this.network);
-    },
-    networkId() {
-      const splittedUrl = this.$route.fullPath.split("/");
-      return splittedUrl[splittedUrl.length - 1];
-    },
-  },
-  async mounted() {
-    await this.networkStore.GetNetworkReport([this.networkId]);
-  },
-};
+const router = useRouter();
+const route = useRoute();
+
+let loaded = ref(false);
+
+const settingsStore = useSettingsStore();
+const networkStore = useNetworkStore();
+
+const splittedUrl = route.fullPath.split("/");
+const networkId = splittedUrl[splittedUrl.length - 1];
+
+networkStore.getNetworkReport(networkId).then(() => {
+  loaded.value = true;
+});
+
+const uiText = computed(() => settingsStore.uiText);
+const networkReport = computed(() => networkStore.networkReport);
+
+const collections = computed(() => {
+  return (
+    networkReport.value.collections
+      ?.filter((collection) => {
+        return !collection.parentCollection;
+      })
+      .map((col) => getCollectionDetails(col)) || []
+  );
+});
+const collectionsAvailable = computed(() => {
+  return collections.value?.length;
+});
+
+const biobanks = computed(() => networkReport.value.biobanks);
+const biobanksAvailable = computed(() => biobanks.value?.length);
+const network = computed(() => {
+  return networkReport.value.network;
+});
+const contact = computed(() => mapContactInfo(network.value));
+
+function back() {
+  router.go(-1);
+}
 </script>
