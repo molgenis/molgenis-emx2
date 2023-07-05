@@ -41,14 +41,16 @@ def demo_csv_upload(url: str = None, username: str = None, password: str = None)
     countries = pd.read_csv('data/Countries.csv')
     update_df = pd.read_csv('data/update.csv')
 
+    # Add the terms from the countries table to the Countries ontology table on the server
     try:
         manager.add(table='Countries', data=countries)
     except DuplicateKeyException:
         pass
 
-    # TODO allow updating multiple terms in update method
-    # manager.update(table='Countries', data=update_df)
+    # Update the references to the countries in the update_df dataset sequentially
+    manager.update(table='Countries', data=update_df)
 
+    # Delete the countries that were previously added from the Countries ontology table
     manager.delete(table='Countries', names=countries['name'].tolist())
 
 
