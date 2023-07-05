@@ -41,6 +41,7 @@ mvnw.cmd
 release.properties
 tls
 **/**/bin/
+.env
 
 yarn_error.log
 .nyc_output

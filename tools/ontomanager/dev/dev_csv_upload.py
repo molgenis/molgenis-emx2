@@ -19,17 +19,23 @@ from tools.ontomanager.src.molgenis_emx2_ontomanager import OntologyManager
 from tools.ontomanager.src.molgenis_emx2_ontomanager.exceptions import DuplicateKeyException
 
 
-def demo_csv():
+def dev_csv_upload(url: str = None, username: str = None, password: str = None):
     """
     Upload terms to a CatalogueOntologies table from a .csv file using the OntologyManager.
     The .csv file is first loaded into memory as a pandas DataFrame.
     This DataFrame is then passed as a parameter in the OntologyManager.add() method.
+
+    :param url: the url of the Molgenis EMX2 server
+    :param username: the username or email address of the user
+    :param password: the password for this username
     """
     load_dotenv()
-
-    url = os.environ['MG_URL']
-    username = os.environ['MG_USERNAME']
-    password = os.environ['MG_PASSWORD']
+    if url is None:
+        url = os.environ.get('MG_URL')
+    if username is None:
+        username = os.environ.get('MG_USERNAME')
+    if password is None:
+        password = os.environ.get('MG_PASSWORD')
 
     manager = OntologyManager(url, username, password)
 
@@ -51,4 +57,4 @@ if __name__ == '__main__':
     logging.basicConfig(level='INFO')
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
-    demo_csv()
+    dev_csv_upload()
