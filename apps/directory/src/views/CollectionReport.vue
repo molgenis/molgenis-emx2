@@ -1,7 +1,7 @@
 <template>
   <div class="container mg-collection-report-card pb-4">
     <div
-      v-if="collectionDataAvailable && collection.biobank.withdrawn"
+      v-if="loaded && collectionDataAvailable && collection.biobank.withdrawn"
       class="alert alert-warning"
       role="alert"
     >
@@ -10,16 +10,16 @@
 
     <div
       class="hello"
-      v-if="collectionDataAvailable && bioschemasJsonld"
+      v-if="loaded && collectionDataAvailable && bioschemasJsonld"
       v-html="bioschemasJsonld"
-    ></div>
+    />
     <div
-      v-if="!collectionDataAvailable"
+      v-if="!collectionDataAvailable || !loaded"
       class="d-flex justify-content-center align-items-center spinner-container"
     >
       <spinner />
     </div>
-    <div class="container-fluid" v-if="collectionDataAvailable">
+    <div class="container-fluid" v-if="loaded && collectionDataAvailable">
       <div class="row">
         <div class="col my-3 shadow-sm d-flex p-2 align-items-center bg-white">
           <breadcrumb>
@@ -115,11 +115,13 @@ const qualitiesStore = useQualitiesStore();
 const collection = ref({});
 const route = useRoute();
 
+let loaded = ref(false);
 collectionStore.getCollectionReport(route.params.id).then((result) => {
   collection.value = result.Collections.length ? result.Collections[0] : {};
+  loaded.value = true;
 });
 
-await qualitiesStore.getQualityStandardInformation();
+qualitiesStore.getQualityStandardInformation();
 
 const uiText = computed(() => {
   return settingsStore.uiText;
@@ -129,13 +131,15 @@ const collectionDataAvailable = computed(() => {
 });
 const info = computed(() => {
   return collectionDataAvailable.value
-    ? collectionReportInformation(collection)
+    ? collectionReportInformation(collection.value)
     : {};
 });
 const bioschemasJsonld = computed(() => {
-  return collectionDataAvailable.value
-    ? wrapBioschema(mapCollectionToBioschemas(collection))
-    : undefined;
+  if (collection.value.biobank && collectionDataAvailable.value) {
+    return wrapBioschema(mapCollectionToBioschemas(collection.value));
+  } else {
+    return undefined;
+  }
 });
 
 function wrapBioschema(schemaData) {
