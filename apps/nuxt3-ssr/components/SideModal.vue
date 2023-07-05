@@ -93,7 +93,7 @@ const bgClass = computed(() => {
       >
         <div>
           <div>
-            <button @click="hide()" class="absolute top-7 right-8 z-10">
+            <button @click="hide()" class="absolute top-7 right-7 z-10">
               <BaseIcon name="cross" />
             </button>
 
