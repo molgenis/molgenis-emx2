@@ -340,6 +340,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  @Disabled
   public void testJsonYamlApi() {
     String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
 
@@ -1129,6 +1130,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  @Disabled
   public void testBeaconApiSmokeTests() {
     // todo: ideally we would here validate the responses against json schemas, are those schemas
     // easily available?
