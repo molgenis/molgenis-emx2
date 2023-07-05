@@ -17,10 +17,10 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 
-public class InitTestDatabaseAndRunNonParallelTests {
+class InitTestDatabaseAndRunNonParallelTests {
 
   @Test
-  public void createDatabase() {
+  void createDatabase() {
     // we want this run only once and NOT parallel for total test suite
     // AND we want run all other tests in parallel
     // so tests are in molgenis-emx2-sql-it ('integration test')
@@ -32,7 +32,7 @@ public class InitTestDatabaseAndRunNonParallelTests {
 
   @Test
   @Tag("slow")
-  public void testMigration2() {
+  void testMigration2() {
     SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
     database.dropCreateSchema("TestMigrations");
 
