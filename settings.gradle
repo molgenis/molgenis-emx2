@@ -8,7 +8,7 @@ plugins {
 nyx {
     verbosity = "INFO"
     preset = "simple"
-    releasePrefix = "v"
+    releasePrefix = ""
     releaseTypes {
         items {
             mainline {
@@ -68,6 +68,7 @@ rootProject.name = 'emx2'
 include(':apps')
 include(':apps:central')
 include(':apps:catalogue')
+include(':apps:directory')
 include(':apps:settings')
 include(':apps:schema')
 include(':apps:updownload')
@@ -90,7 +91,7 @@ include(':backend:molgenis-emx2-graphql')
 include(':backend:molgenis-emx2-run')
 include(':backend:molgenis-emx2-tasks')
 include(':backend:molgenis-emx2-semantics')
-include('backend:molgenis-emx2-email')
+include(':backend:molgenis-emx2-email')
 include(':tools:pyclient')
 
 
