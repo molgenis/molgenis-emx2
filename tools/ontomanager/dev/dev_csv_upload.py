@@ -48,7 +48,7 @@ def dev_csv_upload(url: str = None, username: str = None, password: str = None):
         pass
 
     # TODO allow updating multiple terms in update method
-    # manager.update(table='Countries', data=update_df)
+    manager.update(table='Countries', data=update_df)
 
     manager.delete(table='Countries', names=countries['name'].tolist())
 
