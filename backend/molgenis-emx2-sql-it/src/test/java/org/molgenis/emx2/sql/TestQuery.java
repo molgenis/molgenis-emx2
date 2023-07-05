@@ -10,6 +10,8 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -146,4 +148,68 @@ public class TestQuery {
     assertEquals(1, rows.size());
     assertEquals((Integer) 2, rows.get(0).getInteger("Mother-ID"));
   }
+
+  @Test
+  void  orderByRefColumnAsc() {
+    final String unorderd = schema
+            .getTable(PERSON)
+            .select(
+
+                    s("ID"),
+                    s("First_Name"),
+                    s("Last_Name"))
+
+            .retrieveRows()
+            .stream()
+            .map(r -> r.getString("First_Name"))
+            .collect(Collectors.joining(","));
+
+
+    final String orderdbyRefDefaultOrder = schema
+            .getTable(PERSON)
+            .select(
+                s("ID"),
+                s("First_Name"),
+                s("Last_Name"))
+            .orderBy("Mother")
+            .retrieveRows()
+                .stream()
+                .map(r -> r.getString("First_Name"))
+                .collect(Collectors.joining(","));
+
+
+    final String orderdbyRefAsc = schema
+            .getTable(PERSON)
+            .select(
+                    s("ID"),
+                    s("First_Name"),
+                    s("Last_Name"))
+            .orderBy("Mother", Order.ASC)
+            .retrieveRows()
+            .stream()
+            .map(r -> r.getString("First_Name"))
+            .collect(Collectors.joining(","));
+
+
+    final String orderdbyRefDesc = schema
+            .getTable(PERSON)
+            .select(
+                    s("ID"),
+                    s("First_Name"),
+                    s("Last_Name"))
+            .orderBy("Mother", Order.DESC)
+            .retrieveRows()
+            .stream()
+            .map(r -> r.getString("First_Name"))
+            .collect(Collectors.joining(","));
+
+    assertEquals("Donald,Katrien,Kwik,Kwek,Kwak", unorderd);
+    assertEquals("Kwik,Kwek,Kwak,Donald,Katrien", orderdbyRefDefaultOrder);
+    assertEquals("Kwik,Kwek,Kwak,Donald,Katrien", orderdbyRefAsc);
+    assertEquals("Donald,Katrien,Kwik,Kwek,Kwak", orderdbyRefDesc);
+  }
+
+
+
+
 }
