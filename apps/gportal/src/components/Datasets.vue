@@ -5,6 +5,9 @@
     :canEdit="false"
     :canManage="false"
   >
+    <template v-slot:rowcolheader>
+      <h6 class="mb-0 align-text-bottom text-nowrap">Select</h6>
+    </template>
     <template v-slot:rowheader="slotProps">
       <div class="checkbox">
         <input
@@ -73,15 +76,6 @@ function selectAll() {
   });
   setUrl();
 }
-
-onMounted(() => {
-  setTimeout(() => {
-    const colheader = document.querySelector("table.table > thead > th > h6");
-    colheader.classList = "";
-    colheader.classList.add("mb-0", "align-text-bottom", "text-nowrap");
-    colheader.innerText = "Select";
-  }, 200);
-});
 </script>
 
 <style lang="scss">

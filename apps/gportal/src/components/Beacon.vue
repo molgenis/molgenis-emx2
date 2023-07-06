@@ -14,7 +14,7 @@
             v-model="genderAtBirth"
             refLabel="${name}"
             :multi-select="true"
-            @hackalldata="genderAtBirthData = $event"
+            @optionsLoaded="genderAtBirthData = $event"
           />
           <label>Choose Gene</label>
           <InputRefList
@@ -23,7 +23,7 @@
             v-model="genes"
             refLabel="${name}"
             :multi-select="true"
-            @hackalldata="geneData = $event"
+            @optionsLoaded="geneData = $event"
           />
         </form>
       </aside>
