@@ -14,7 +14,7 @@ function setBookmark (bookmark) {
 }
 
 export async function applyBookmark (watchedQuery) {
-
+console.log(watchedQuery)
     let query = watchedQuery;
 
     /** need to wait until router is loaded */
@@ -28,19 +28,25 @@ export async function applyBookmark (watchedQuery) {
 
         query = route.query
     }
-
     /** reset the cart and the filters */
     if (!query) return
 
-    // const filtersStore = useFiltersStore();
+
     const collectionStore = useCollectionStore();
+    const filtersStore = useFiltersStore();
+
+    /** do not apply when bookmark is changed from the app itself. */
+    if(filtersStore.filterTriggeredBookmark) {
+        filtersStore.filterTriggeredBookmark = false
+        return
+    }
 
     // const keysInQuery = Object.keys(query)
-    // /** we load the filters, grab the names, so we can loop over it to map the selections */
-    // const filters = filtersStore.facetDetails.map(fd => fd.facetIdentifier)
-    //   .filter(facetIdentifier => keysInQuery.includes(facetIdentifier))
-    //   .filter(fr => !['search', 'nToken', 'matchAll'].includes(fr)) /** remove specific filters and negotiator token, else we are doing them again. */
-
+    /** we load the filters, grab the names, so we can loop over it to map the selections */
+    const filters = Object.keys(filtersStore.facetDetails)
+        // .filter(facetIdentifier => keysInQuery.includes(facetIdentifier))
+        // .filter(fr => !['search', 'nToken', 'matchAll'].includes(fr)) /** remove specific filters and negotiator token, else we are doing them again. */
+console.log({filters})
     // if (query.search) {
     //   Vue.set(state.filters.selections, 'search', decodeURIComponent(query.search))
     // }
@@ -62,6 +68,7 @@ export async function applyBookmark (watchedQuery) {
 
         const missingCollections = await collectionStore.getMissingCollectionInformation(cartIds)
 
+        // todo: cant do it like this because of the watcher!
         for (const collection of missingCollections) {
             checkoutStore.addCollectionsToSelection({ biobank: collection.biobank, collections: [{ label: collection.name, value: collection.id }] })
         }
@@ -71,8 +78,14 @@ export async function applyBookmark (watchedQuery) {
         //     state.searchHistory.push('Starting with a preselected list of collections')
         // }
     }
-}
 
+    for (const filterName of filters) {
+        if (query[filterName]) {
+            let queryValues = decodeURIComponent(query[filterName]).split(',')
+            filtersStore.updateFilter(filterName, queryValues, true)
+        }
+    }
+}
 export function createBookmark (filters, collectionCart) {
     const filtersStore = useFiltersStore();
     const bookmark = {}

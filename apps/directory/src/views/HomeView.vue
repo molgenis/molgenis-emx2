@@ -1,3 +1,8 @@
+<script setup>
+import ApplicationHeaderPartialView from "../components/partial-views/ApplicationHeaderPartialView.vue";
+import BiobankCardsPartialView from "../components/partial-views/BiobankCardsPartialView.vue";
+</script>
+
 <template>
   <div>
     <application-header-partial-view />
@@ -6,20 +11,12 @@
 </template>
 
 <script>
-import ApplicationHeaderPartialView from "../components/partial-views/ApplicationHeaderPartialView.vue";
-import BiobankCardsPartialView from "../components/partial-views/BiobankCardsPartialView.vue";
-// import { createBookmark } from '../utils/bookmarkMapper'
-
 export default {
   name: "biobank-explorer",
   components: {
     ApplicationHeaderPartialView,
     BiobankCardsPartialView,
-  },
-  // mounted () {
-  //   /** check if collections have been added off-screen. */
-  //   createBookmark(this.filters, this.selectedCollections)
-  // }
+  }
 };
 </script>
 

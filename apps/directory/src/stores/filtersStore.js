@@ -15,18 +15,28 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const settingsStore = useSettingsStore();
 
+  let filterTriggeredBookmark = ref(false)
+  let bookmarkTriggeredFilter = ref(false)
+
   let filters = ref({});
   let filterType = ref({});
   let filterOptionsCache = ref({});
   let filterFacets = createFilters(settingsStore.config.filterFacets);
-  const facetDetails = ref({});
+  const facetDetailsDictionary = ref({})
 
-  /** extract the components types so we can use that in adding the correct query parts */
-  filterFacets.forEach((filterFacet) => {
-    facetDetails[filterFacet.facetIdentifier] = { ...filterFacet };
-  });
+  const facetDetails = computed(() => {
+    if (!Object.keys(facetDetailsDictionary.value).length)
+      /** extract the components types so we can use that in adding the correct query parts */
+      filterFacets.forEach((filterFacet) => {
+        facetDetailsDictionary.value[filterFacet.facetIdentifier] = { ...filterFacet };
+      });
 
-  function getValuePropertyForFacet(facetIdentifier) {
+    return facetDetailsDictionary.value
+  })
+
+
+
+  function getValuePropertyForFacet (facetIdentifier) {
     return facetDetails[facetIdentifier].filterValueAttribute
   }
 
@@ -51,8 +61,14 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
       queryDelay = setTimeout(async () => {
         clearTimeout(queryDelay);
-        applyFiltersToQuery(baseQuery, filters, facetDetails, filterType.value);
-        createBookmark(filters, checkoutStore.selectedCollections)
+        applyFiltersToQuery(baseQuery, filters, facetDetails.value, filterType.value);
+        filterTriggeredBookmark.value = true
+
+        if (!bookmarkTriggeredFilter.value) {
+          createBookmark(filters, checkoutStore.selectedCollections)
+        }
+        bookmarkTriggeredFilter.value = false
+
         await updateBiobankCards();
 
       }, 750);
@@ -70,7 +86,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       settingsStore.currentPage = 1;
       queryDelay = setTimeout(async () => {
         clearTimeout(queryDelay);
-        applyFiltersToQuery(baseQuery, filters.value, facetDetails, filterType);
+        applyFiltersToQuery(baseQuery, filters.value, facetDetails.value, filterType);
+        filterTriggeredBookmark.value = true
         createBookmark(filters.value, checkoutStore.selectedCollections)
         if (
           hasActiveFilters.value
@@ -251,7 +268,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filters.value = {};
   }
 
-  function updateFilter (filterName, value) {
+  function updateFilter (filterName, value, fromBookmark) {
+    bookmarkTriggeredFilter.value = fromBookmark
+
     /** filter reset, so delete */
     if (
       value === null ||
@@ -283,6 +302,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   return {
+    facetDetails,
     resetFilters,
     updateFilter,
     clearAllFilters,
@@ -294,6 +314,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     checkOntologyDescendantsIfMatches,
     ontologyItemMatchesQuery,
     filterOptionsCache,
+    filterTriggeredBookmark,
     hasActiveFilters,
     filters,
     filterFacets,
