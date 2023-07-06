@@ -48,9 +48,6 @@
         Show more variables
       </button>
     </template>
-    <div v-else>
-      <Spinner />
-    </div>
   </div>
 </template>
 
@@ -58,8 +55,6 @@
 import { mapGetters, mapActions, mapState } from "vuex";
 import HarmonizationRow from "./HarmonizationRow.vue";
 import { Spinner } from "molgenis-components";
-
-const INITIAL_PAGE_SIZE = 100;
 
 export default {
   name: "HarmonizationView",

@@ -23,7 +23,6 @@ export default {
       .then((data) => {
         state.session = data._session;
         state.schema = data._schema;
-        state.isLoading = false;
       })
       .catch((error) => {
         if (Array.isArray(error.response.errors)) {
@@ -31,8 +30,8 @@ export default {
         } else {
           state.graphqlError = error;
         }
-        state.isLoading = false;
       });
+    state.isLoading = false;
   },
   fetchSchema: async ({ state, commit }) => {
     const resp = await request("graphql", schema).catch((e) => {
@@ -48,18 +47,61 @@ export default {
     const query = gql`
             query Variables($search: String, $filter: VariablesFilter) {
                 Variables(limit: 50, offset: ${offset}, search: $search, filter: $filter, orderby:{label: ASC}) {
+                  name
+                  keywords {
                     name
-                    dataset {
-                      name
-                    }
-                    resource {
+                  }
+                  description
+                  unit {
+                    name
+                  }
+                  format {
+                    name
+                  }
+                  dataset {
+                    name
+                  }
+                  resource {
+                    id
+                    name
+                  }
+                  label
+                  repeats {
+                    name
+                  }
+                  mappings {
+                    source {
                       id
+                    }
+                    targetVariable {
                       name
                     }
-                    label
-                    repeats {
-                        name
+                    targetDataset {
+                      resource {
+                        id
+                      }
                     }
+                    sourceDataset {
+                      resource {
+                        id
+                      }
+                    }
+                    match {
+                      name
+                    }
+                    syntax
+                    description
+                    sourceVariablesOtherDatasets {
+                      dataset {
+                        name
+                      }
+                      name
+                    }
+                  }
+                  permittedValues {
+                    value
+                    label
+                  }
                 }
                 Variables_agg(search: $search, filter: $filter) {
                     count
@@ -245,8 +287,8 @@ export default {
   },
 
   fetchCohorts: async ({ state, commit }) => {
-    if (state.keywords.length) {
-      return state.keywords;
+    if (state.cohorts.length) {
+      return state.cohorts;
     }
 
     const cohortQuery = gql`

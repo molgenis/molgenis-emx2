@@ -31,7 +31,7 @@
             v-model="cohorts"
             refLabel="${id}"
             :maxNum="100"
-            :orderBy="{ pid: 'ASC' }"
+            :orderby="{ id: 'ASC' }"
             :filter="network ? { networks: { id: { equals: network } } } : null"
           ></InputRefList>
         </div>
@@ -87,13 +87,14 @@
                   </router-link>
                 </li>
               </ul>
-              <Spinner v-if="isLoading" />
-              <template v-else-if="$route.query.tab === 'harmonization'">
-                <harmonization-view :network="network" />
-              </template>
-              <template v-else>
-                <variables-details-view :network="network" />
-              </template>
+              <variables-details-view
+                :network="network"
+                v-show="$route.query.tab !== 'harmonization'"
+              />
+              <harmonization-view
+                :network="network"
+                v-show="$route.query.tab === 'harmonization'"
+              />
             </div>
           </div>
         </div>
