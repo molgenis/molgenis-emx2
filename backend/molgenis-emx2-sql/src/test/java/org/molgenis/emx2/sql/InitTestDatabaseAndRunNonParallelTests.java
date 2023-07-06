@@ -105,6 +105,8 @@ class InitTestDatabaseAndRunNonParallelTests {
     executeMigrationFile(
         database, "migration9.sql", "database migration: schema metadata visible for aggregator");
 
+    executeMigrationFile(database, "migration10.sql", "add aggregator roles for all schemas");
+
     migration5addMgTableclassUpdateTrigger(database);
   }
 }
