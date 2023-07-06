@@ -1289,7 +1289,7 @@ public class SqlQuery extends QueryBean {
         if (column.isReference()) {
           for (Reference ref : column.getReferences()) {
             query =
-                (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(ref.getName())).asc());
+                (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(ref.getName())).desc());
           }
         } else {
           query = (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).desc());

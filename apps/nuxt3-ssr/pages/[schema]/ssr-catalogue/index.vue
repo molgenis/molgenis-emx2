@@ -71,7 +71,6 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     return setting.key === settingKey;
   })?.value;
 }
-
 </script>
 <template>
   <LayoutsLandingPage class="w-10/12 pt-8">
@@ -148,7 +147,11 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     >
       <LandingCardSecondary icon="people">
         <b>
-          {{ new Intl.NumberFormat('nl-NL').format(data.data.Cohorts_agg.sum.numberOfParticipants) }}
+          {{
+            new Intl.NumberFormat("nl-NL").format(
+              data.data.Cohorts_agg.sum.numberOfParticipants
+            )
+          }}
           {{
             getSettingValue(
               "CATALOGUE_LANDING_PARTICIPANTS_LABEL",
@@ -167,8 +170,9 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
       <LandingCardSecondary icon="colorize">
         <b
           >{{
-              new Intl.NumberFormat('nl-NL')
-              .format(data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples)
+            new Intl.NumberFormat("nl-NL").format(
+              data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
+            )
           }}
           {{
             getSettingValue(

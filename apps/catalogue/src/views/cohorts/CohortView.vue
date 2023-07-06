@@ -243,7 +243,7 @@ export default {
             ? [...this.cohort.countries]
                 .sort((a, b) => a.order - b.order)
                 .map((c) => c.name)
-                .join(",")
+                .join(", ")
             : "",
         },
         {
@@ -320,7 +320,7 @@ export default {
                       return ageGroups;
                     }, [])
                     .map((ag) => ag.name)
-                    .join(","),
+                    .join(", "),
               _path: `${this.$route.path}/subcohorts/${subcohort.name}`,
             };
           });

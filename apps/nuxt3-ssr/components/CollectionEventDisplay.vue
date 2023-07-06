@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Ref } from "vue";
 import query from "~~/gql/collectionEvent";
+import ContentBlockModal from "./content/ContentBlockModal.vue";
 
 const { id: collectionEventName } = defineProps<{
   id: string;
@@ -130,16 +131,11 @@ if (collectionEvent?.coreVariables?.length) {
 </script>
 
 <template>
-  <section class="bg-white py-18 lg:px-12.5 px-5 text-gray-900">
-    <h2
-      class="mb-5 uppercase text-heading-4xl font-display"
-      v-if="collectionEvent?.name"
-    >
-      {{ collectionEvent?.name }}
-    </h2>
-    <div class="mb-5 prose max-w-none" v-if="collectionEvent?.description">
-      <div v-html="collectionEvent?.description"></div>
-    </div>
+  <ContentBlockModal
+    v-if="collectionEvent"
+    :title="collectionEvent?.name"
+    :description="collectionEvent?.description"
+  >
     <DefinitionList :items="items" :small="true" />
-  </section>
+  </ContentBlockModal>
 </template>

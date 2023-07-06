@@ -53,3 +53,5 @@ apps/nuxt3-ssr/utils/fingerprint.js
 
 #python build
 **/version.txt
+
+CHANGELOG.md

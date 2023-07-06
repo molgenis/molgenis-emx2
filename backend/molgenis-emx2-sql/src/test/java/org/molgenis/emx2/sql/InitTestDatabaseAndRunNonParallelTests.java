@@ -12,25 +12,27 @@ import static org.molgenis.emx2.sql.Migrations.migration5addMgTableclassUpdateTr
 import java.util.Collections;
 import java.util.List;
 import org.jooq.DSLContext;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 
-public class InitTestDatabaseAndRunNonParallelTests {
+class InitTestDatabaseAndRunNonParallelTests {
 
-  @BeforeAll
-  public static void createDatabase() {
+  @Test
+  void createDatabase() {
     // we want this run only once and NOT parallel for total test suite
     // AND we want run all other tests in parallel
     // so tests are in molgenis-emx2-sql-it ('integration test')
     // and 'init' only happens once, here
+    System.out.println("INITIALIZING DATABASE");
     Database db = new SqlDatabase(true);
     assertTrue(db.getDatabaseVersion() > 0);
   }
 
   @Test
-  public void testMigration2() {
+  @Tag("slow")
+  void testMigration2() {
     SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
     database.dropCreateSchema("TestMigrations");
 

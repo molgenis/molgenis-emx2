@@ -23,7 +23,6 @@ export default {
       .then((data) => {
         state.session = data._session;
         state.schema = data._schema;
-        state.isLoading = false;
       })
       .catch((error) => {
         if (Array.isArray(error.response.errors)) {
@@ -31,8 +30,8 @@ export default {
         } else {
           state.graphqlError = error;
         }
-        state.isLoading = false;
       });
+    state.isLoading = false;
   },
   fetchSchema: async ({ state, commit }) => {
     const resp = await request("graphql", schema).catch((e) => {
@@ -44,21 +43,65 @@ export default {
   },
   fetchVariables: async ({ state, commit, getters, dispatch }, offset = 0) => {
     state.isLoading = true;
+    commit("setVariableCount", "...loading count");
     const query = gql`
             query Variables($search: String, $filter: VariablesFilter) {
-                Variables(limit: 100, offset: ${offset}, search: $search, filter: $filter, orderby:{label: ASC}) {
+                Variables(limit: 50, offset: ${offset}, search: $search, filter: $filter, orderby:{label: ASC}) {
+                  name
+                  keywords {
                     name
-                    dataset {
-                      name
-                    }
-                    resource {
+                  }
+                  description
+                  unit {
+                    name
+                  }
+                  format {
+                    name
+                  }
+                  dataset {
+                    name
+                  }
+                  resource {
+                    id
+                    name
+                  }
+                  label
+                  repeats {
+                    name
+                  }
+                  mappings {
+                    source {
                       id
+                    }
+                    targetVariable {
                       name
                     }
-                    label
-                    repeats {
-                        name
+                    targetDataset {
+                      resource {
+                        id
+                      }
                     }
+                    sourceDataset {
+                      resource {
+                        id
+                      }
+                    }
+                    match {
+                      name
+                    }
+                    syntax
+                    description
+                    sourceVariablesOtherDatasets {
+                      dataset {
+                        name
+                      }
+                      name
+                    }
+                  }
+                  permittedValues {
+                    value
+                    label
+                  }
                 }
                 Variables_agg(search: $search, filter: $filter) {
                     count
@@ -108,7 +151,6 @@ export default {
 
     const resp = await request("graphql", query, queryVariables).catch((e) => {
       console.error(e);
-      state.isLoading = false;
     });
 
     // check if result is still the relevant
@@ -123,8 +165,8 @@ export default {
         commit("addVariables", resp.Variables);
       }
       commit("setVariableCount", resp.Variables_agg.count);
-      state.isLoading = false;
     }
+    state.isLoading = false;
 
     return resp.TargetVariables;
   },
@@ -242,6 +284,29 @@ export default {
     }
 
     return variableDetails;
+  },
+
+  fetchCohorts: async ({ state, commit }) => {
+    if (state.cohorts.length) {
+      return state.cohorts;
+    }
+
+    const cohortQuery = gql`
+      query Cohorts {
+        Cohorts(orderby: { id: ASC }) {
+          id
+          networks {
+            id
+          }
+        }
+      }
+    `;
+
+    const cohortResp = await request("graphql", cohortQuery).catch((e) =>
+      console.error(e)
+    );
+    commit("setCohorts", cohortResp.Cohorts);
+    return state.cohorts;
   },
 
   fetchKeywords: async ({ state, commit }) => {

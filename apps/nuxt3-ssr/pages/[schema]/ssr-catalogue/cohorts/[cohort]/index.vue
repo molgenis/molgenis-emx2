@@ -191,9 +191,6 @@ let tocItems = computed(() => {
     { label: "Description", id: "Description" },
     { label: "General design", id: "GeneralDesign" },
   ];
-  if (cohort?.documentation) {
-    tableOffContents.push({ label: "Attached files", id: "Files" });
-  }
   if (cohort?.contacts) {
     tableOffContents.push({
       label: "Contact & contributors",
@@ -240,6 +237,10 @@ let tocItems = computed(() => {
       label: "Funding & Citation requirements ",
       id: "funding-and-acknowledgement",
     });
+  }
+
+  if (cohort?.documentation) {
+    tableOffContents.push({ label: "Attached files", id: "Files" });
   }
 
   return tableOffContents;
@@ -322,6 +323,7 @@ useHead({ title: cohort?.acronym || cohort?.name });
           :image="cohort?.logo?.url"
           :link="cohort?.website"
           :contact="cohort?.contactEmail"
+          :contact-name="cohort?.name"
         />
         <ContentBlockDescription
           id="Description"
@@ -334,12 +336,6 @@ useHead({ title: cohort?.acronym || cohort?.name });
           title="General Design"
           :description="cohort?.designDescription"
           :cohort="cohort"
-        />
-        <ContentBlockAttachedFiles
-          v-if="cohort?.documentation?.length"
-          id="Files"
-          title="Attached Files"
-          :documents="cohort.documentation"
         />
 
         <ContentBlockContact
@@ -436,6 +432,13 @@ useHead({ title: cohort?.acronym || cohort?.name });
         >
           <DefinitionList :items="fundingAndAcknowledgementItems" />
         </ContentBlock>
+
+        <ContentBlockAttachedFiles
+          v-if="cohort?.documentation?.length"
+          id="Files"
+          title="Attached Files"
+          :documents="cohort.documentation"
+        />
       </ContentBlocks> </template
     >f
   </LayoutsDetailPage>
