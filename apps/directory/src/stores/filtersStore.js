@@ -4,9 +4,13 @@ import { createFilters } from "../filter-config/facetConfigurator";
 import { applyFiltersToQuery } from "../functions/applyFiltersToQuery";
 import { useBiobanksStore } from "./biobanksStore";
 import { useSettingsStore } from "./settingsStore";
+import { useCheckoutStore } from "./checkoutStore";
+import { createBookmark } from "../functions/bookmarkMapper";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
+  const checkoutStore = useCheckoutStore();
+
   const { baseQuery, updateBiobankCards } = biobankStore;
 
   const settingsStore = useSettingsStore();
@@ -21,6 +25,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   filterFacets.forEach((filterFacet) => {
     facetDetails[filterFacet.facetIdentifier] = { ...filterFacet };
   });
+
+  function getValuePropertyForFacet(facetIdentifier) {
+    return facetDetails[facetIdentifier].filterValueAttribute
+  }
 
   function resetFilters () {
     this.baseQuery.resetFilters();
@@ -44,7 +52,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       queryDelay = setTimeout(async () => {
         clearTimeout(queryDelay);
         applyFiltersToQuery(baseQuery, filters, facetDetails, filterType.value);
+        createBookmark(filters, checkoutStore.selectedCollections)
         await updateBiobankCards();
+
       }, 750);
     },
     { deep: true }
@@ -61,7 +71,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       queryDelay = setTimeout(async () => {
         clearTimeout(queryDelay);
         applyFiltersToQuery(baseQuery, filters.value, facetDetails, filterType);
-
+        createBookmark(filters.value, checkoutStore.selectedCollections)
         if (
           hasActiveFilters.value
         ) {
@@ -280,6 +290,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     getFilterValue,
     updateFilterType,
     getFilterType,
+    getValuePropertyForFacet,
     checkOntologyDescendantsIfMatches,
     ontologyItemMatchesQuery,
     filterOptionsCache,

@@ -1,5 +1,25 @@
 <script setup>
 import { Molgenis } from "molgenis-components";
+import { computed, onMounted, watch } from "vue";
+import { applyBookmark } from "./functions/bookmarkMapper";
+import { useRoute } from "vue-router";
+
+onMounted(async () => {
+  await applyBookmark();
+});
+
+const route = useRoute();
+
+const query = computed(() => route.query);
+
+watch(
+  query,
+  (newQuery) => {
+    console.log(newQuery)
+    applyBookmark(newQuery);
+  },
+  { immediate: true, deep: true }
+);
 </script>
 
 <template>

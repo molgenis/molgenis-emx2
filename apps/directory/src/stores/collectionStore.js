@@ -2,15 +2,18 @@ import { defineStore } from "pinia";
 import QueryEMX2 from "../functions/queryEMX2";
 import { useSettingsStore } from "./settingsStore";
 import { ref } from "vue";
+import { useCheckoutStore } from "./checkoutStore";
 
 export const useCollectionStore = defineStore("collectionStore", () => {
   const settingsStore = useSettingsStore();
+
+
   const collectionColumns = settingsStore.config.collectionColumns;
   const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
 
   const commercialAvailableCollections = ref([]);
 
-  function getCollectionColumns() {
+  function getCollectionColumns () {
     const properties = collectionColumns
       .filter((column) => column.column)
       .flatMap((collectionColumn) => collectionColumn.column);
@@ -23,13 +26,43 @@ export const useCollectionStore = defineStore("collectionStore", () => {
       properties.push(property.min, property.max, property.unit_column);
     }
 
-    /** add defaults */
-    properties.push("id", "name");
-
     return properties;
   }
 
-  async function getCommercialAvailableCollections() {
+  /** when we hydrate a bookmark, we need some information for the cart */
+  async function getMissingCollectionInformation (collectionIds) {
+    const checkoutStore = useCheckoutStore();
+
+    const collectionIdsToCheck = Array.isArray(collectionIds) ? collectionIds : [collectionIds]
+    const biobanksInCart = Object.keys(checkoutStore.selectedCollections);
+
+    const collectionIdsInCart = []
+
+    if (biobanksInCart.length) {
+      for (const biobank of biobanksInCart) {
+        collectionIdsInCart.push(...checkoutStore.selectedCollections[biobank].map(collection => collection.value))
+      }
+    }
+
+    const idsMissing = collectionIdsToCheck.filter(colId => !collectionIdsInCart.includes(colId));
+
+    if (idsMissing.length) {
+      const missingCollectionQuery = new QueryEMX2(graphqlEndpoint)
+        .table("Collections")
+        .select(["id", "name", "biobank.name"])
+        .where("id")
+        .orLike(idsMissing);
+      const result = await missingCollectionQuery.execute();
+
+      return result.Collections
+
+    }
+    else {
+      return {}
+    }
+  }
+
+  async function getCommercialAvailableCollections () {
     if (!commercialAvailableCollections.value.length) {
       const commercialCollectionQuery = new QueryEMX2(graphqlEndpoint)
         .table("Collections")
@@ -50,7 +83,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
     return commercialAvailableCollections.value;
   }
 
-  async function getCollectionReport(id) {
+  async function getCollectionReport (id) {
     const collectionReportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Collections")
       .select(getCollectionColumns())
@@ -61,8 +94,9 @@ export const useCollectionStore = defineStore("collectionStore", () => {
   }
 
   return {
-    getCollectionReport,
     getCollectionColumns,
+    getMissingCollectionInformation,
+    getCollectionReport,
     getCommercialAvailableCollections,
   };
 });

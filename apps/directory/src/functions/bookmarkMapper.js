@@ -1,8 +1,10 @@
 import router from '../router'
+import { useFiltersStore } from '../stores/filtersStore'
+import { useCollectionStore } from '../stores/collectionStore';
+import { useRoute, useRouter } from 'vue-router';
+import { useCheckoutStore } from '../stores/checkoutStore';
 
 function setBookmark (bookmark) {
-    console.log(bookmark)
-
     router.push(
         {
             name: router.currentRoute.name,
@@ -11,45 +13,115 @@ function setBookmark (bookmark) {
     )
 }
 
-export const createBookmark = (filters, collectionCart) => {
+export async function applyBookmark (watchedQuery) {
 
+    let query = watchedQuery;
 
-    console.log(filters, collectionCart)
-    // const { selections, satisfyAll } = filters
+    /** need to wait until router is loaded */
+    if (!query) {
+        const router = useRouter()
+        const route = useRoute()
 
-    const bookmark = {}
-    // /** Selections is an object which holds the information on every filter about which option / string has been supplied */
-    // if (selections && Object.keys(selections).length > 0) {
-    //     for (const property in selections) {
-    //         const value = selections[property]
+        await router.isReady();
 
-    //         /** can't do if(!value) because that would also trigger if value === 0 */
-    //         if (value === '' || value === null || value === undefined || value.length === 0) { continue }
+        if (!route.query) return
 
-    //         if (Array.isArray(value) && value.length > 0) {
-    //             bookmark[property] = encodeURI(value.join(','))
-    //         } else {
-    //             bookmark[property] = encodeURI(value)
-    //         }
-    //     }
+        query = route.query
+    }
+
+    /** reset the cart and the filters */
+    if (!query) return
+
+    // const filtersStore = useFiltersStore();
+    const collectionStore = useCollectionStore();
+
+    // const keysInQuery = Object.keys(query)
+    // /** we load the filters, grab the names, so we can loop over it to map the selections */
+    // const filters = filtersStore.facetDetails.map(fd => fd.facetIdentifier)
+    //   .filter(facetIdentifier => keysInQuery.includes(facetIdentifier))
+    //   .filter(fr => !['search', 'nToken', 'matchAll'].includes(fr)) /** remove specific filters and negotiator token, else we are doing them again. */
+
+    // if (query.search) {
+    //   Vue.set(state.filters.selections, 'search', decodeURIComponent(query.search))
     // }
+
+    // if (query.nToken) {
+    //   state.nToken = query.nToken
+    // }
+
+    // if (query.satisfyAll) {
+    //   Vue.set(state.filters, 'satisfyAll', decodeURIComponent(query.satisfyAll).split(','))
+    // }
+
+    if (query.cart) {
+        const checkoutStore = useCheckoutStore();
+
+        const decoded = decodeURIComponent(query.cart)
+        const cartIdString = window.atob(decoded)
+        const cartIds = cartIdString.split(',')
+
+        const missingCollections = await collectionStore.getMissingCollectionInformation(cartIds)
+
+        for (const collection of missingCollections) {
+            checkoutStore.addCollectionsToSelection({ biobank: collection.biobank, collections: [{ label: collection.name, value: collection.id }] })
+        }
+
+        /** add the beginning of history if from a link-back url */
+        // if (state.searchHistory.length === 0) {
+        //     state.searchHistory.push('Starting with a preselected list of collections')
+        // }
+    }
+}
+
+export function createBookmark (filters, collectionCart) {
+    const filtersStore = useFiltersStore();
+    const bookmark = {}
+    const matchAll = []
+
+    if (filters) {
+        const activeFilters = Object.keys(filters);
+        for (const filterName of activeFilters) {
+
+            const value = filters[filterName]
+
+            /** can't do if(!value) because that would also trigger if value === 0 */
+            if (value === '' || value === null || value === undefined || value.length === 0) { continue }
+
+            const filterType = filtersStore.getFilterType(filterName)
+
+            if (filterType === 'all') {
+                matchAll.push(filterName)
+            }
+
+            if (Array.isArray(value) && value.length > 0) {
+                const extractedValues = value.map(value => value['value'])
+                bookmark[filterName] = encodeURI(extractedValues.join(','))
+            } else if (typeof value === 'object') {
+                bookmark[filterName] = encodeURI(value['value'])
+            } else {
+                bookmark[filterName] = encodeURI(value)
+            }
+        }
+    }
 
     /** This manages the selection in the cart */
     if (collectionCart && Object.keys(collectionCart).length) {
+
         const bookmarkIds = []
-        for(const biobank in collectionCart) {
-             bookmarkIds.push(collectionCart[biobank].map(s => s.value));
+        for (const biobank in collectionCart) {
+            bookmarkIds.push(collectionCart[biobank].map(s => s.value));
         }
-       
+
         const encodedCart = window.btoa(bookmarkIds.join(',')).toString('base64')
         bookmark.cart = encodeURI(encodedCart)
     }
 
-    // if (satisfyAll && satisfyAll.length) {
-    //     bookmark.satisfyAll = encodeURI(satisfyAll.join(','))
-    // }
-
-    setBookmark(bookmark)
+    if (matchAll.length) {
+        bookmark.matchAll = encodeURI(matchAll.join(','))
+    }
+    if (Object.keys(bookmark).length) {
+        setBookmark(bookmark)
+    }
 }
 
 export default {

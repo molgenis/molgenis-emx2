@@ -43,7 +43,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     if (bookmark) {
       checkoutValid.value = true;
-      createBookmark(filtersStore.filters, selectedCollections)
+      createBookmark(filtersStore.filters, selectedCollections.value)
     }
 
     return { collections, bookmark };
@@ -98,6 +98,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   }
 
   return {
+    checkoutValid,
     selectedCollections,
     collectionSelectionCount,
     addCollectionsToSelection,
