@@ -54,6 +54,7 @@ public class WebApiSmokeTests {
   final String CSV_TEST_SCHEMA = "pet store csv";
   static final int PORT = 8081; // other then default so we can see effect
 
+  @Tag("windowsFail")
   @BeforeAll
   public static void before() throws Exception {
 
