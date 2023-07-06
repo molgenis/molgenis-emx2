@@ -19,7 +19,7 @@ module.exports = {
     secure: false,
   },
   /* should match only '/schema_name/graphql', previous ** was to eager also matching if graphql was /graphql or /a/b/graphql */
-  "^/[a-zA-Z0-9_.-]+/graphql": {
+  "^/[a-zA-Z0-9_.%-]+/graphql": {
     target: `${HOST}`,
     ...opts,
   },

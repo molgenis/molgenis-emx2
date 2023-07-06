@@ -52,6 +52,8 @@ public class MolgenisWebservice {
      * WARNING !! SPARK JAVA USES DESIGN WHERE THE ORDER OF REQUEST DEFINITION DETERMINES THE HANDLER
      */
 
+    MessageApi.create();
+
     get(
         ("/" + OIDC_CALLBACK_PATH),
         (request, response) -> oidcController.handleLoginCallback(request, response));

@@ -97,6 +97,8 @@ import {
   Client,
   convertToCamelCase,
   convertToPascalCase,
+  flattenObject,
+  applyJsTemplate,
 } from "molgenis-components";
 
 export default {
@@ -168,52 +170,22 @@ export default {
             //hack, ideally we start setting refLabel in configuration!
             return v.name;
           } else if (col.refLabel) {
-            return this.applyJsTemplate(col.refLabel, v);
+            return applyJsTemplate(v, col.refLabel);
           } else {
-            return this.flattenObject(v);
+            return flattenObject(v);
           }
         });
       } else if (col.columnType == "REF" || col.columnType == "ONTOLOGY") {
         if (col.refLabel) {
-          return [this.applyJsTemplate(col.refLabel, row[col.id])];
+          return [applyJsTemplate(row[col.id], col.refLabel)];
         } else {
-          return [this.flattenObject(row[col.id])];
+          return [flattenObject(row[col.id])];
         }
       } else if (col.columnType.includes("ARRAY")) {
         return row[col.id];
       } else {
         return [row[col.id]];
       }
-    },
-    applyJsTemplate(template, object) {
-      const names = Object.keys(object);
-      const vals = Object.values(object);
-      try {
-        return new Function(...names, "return `" + template + "`;")(...vals);
-      } catch (err) {
-        return (
-          err.message +
-          " we got keys:" +
-          JSON.stringify(names) +
-          " vals:" +
-          JSON.stringify(vals) +
-          " and template: " +
-          template
-        );
-      }
-    },
-    flattenObject(object) {
-      let result = "";
-      Object.keys(object).forEach((key) => {
-        if (object[key] === null) {
-          //nothing
-        } else if (typeof object[key] === "object") {
-          result += this.flattenObject(object[key]);
-        } else {
-          result += "." + object[key];
-        }
-      });
-      return result.replace(/^\./, "");
     },
   },
   computed: {

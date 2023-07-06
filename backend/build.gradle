@@ -95,12 +95,26 @@ subprojects {
         test.outputs.upToDateWhen { false }
     }
 
-    //enable environment variables to be set by test
-    tasks.test {
-        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
-    }
     test {
-        useJUnitPlatform()
+        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
+        useJUnitPlatform ()
+        failFast true
+        testLogging {
+            events "passed", "skipped", "failed" //, "standardOut", "standardError"
+
+            showExceptions true
+            exceptionFormat "full"
+            showCauses true
+            showStackTraces true
+
+            showStandardStreams = false
+        }
+    }
+    tasks.register('testFast', Test)  {
+        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
+        useJUnitPlatform {
+            excludeTags "slow"
+        }
         failFast true
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"

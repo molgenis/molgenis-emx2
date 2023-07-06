@@ -29,7 +29,9 @@
           showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
         "
       >
+        <Spinner v-if="loading" />
         <div
+          v-else
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           v-for="(row, index) in data"
@@ -83,6 +85,7 @@
 
 <script>
 import Client from "../../client/client.ts";
+import Spinner from "../layout/Spinner.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
 import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
@@ -105,6 +108,7 @@ export default {
       selection: this.modelValue,
       count: 0,
       tableMetaData: null,
+      loading: false,
     };
   },
   components: {
@@ -113,6 +117,7 @@ export default {
     LayoutModal,
     FormGroup,
     ButtonAlt,
+    Spinner,
   },
   props: {
     schemaName: {
@@ -120,6 +125,7 @@ export default {
       required: false,
     },
     filter: Object,
+    orderby: Object,
     multipleColumns: Boolean,
     maxNum: { type: Number, default: 11 },
     tableName: {
@@ -172,11 +178,15 @@ export default {
       this.showSelect = false;
     },
     async loadOptions() {
+      this.loading = true;
       const options = {
         limit: this.maxNum,
       };
       if (this.filter) {
         options["filter"] = this.filter;
+      }
+      if (this.orderby) {
+        options["orderby"] = this.orderby;
       }
       const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
@@ -190,10 +200,7 @@ export default {
             this.schemaName
           );
         })
-      );
-
-      // FIX: we want te return a array of keys and a seperate array with compete rows
-      this.$emit("hackalldata", this.data);
+      ).then(() => (this.loading = false));
     },
   },
   watch: {
@@ -201,7 +208,9 @@ export default {
       this.selection = this.modelValue;
     },
     filter() {
-      this.loadOptions();
+      if (!this.loading) {
+        this.loadOptions();
+      }
     },
   },
   async created() {

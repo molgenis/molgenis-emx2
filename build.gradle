@@ -5,7 +5,6 @@
 plugins {
     id "java"
     id "org.sonarqube" version "3.5.0.2730"
-    id "de.gliderpilot.semantic-release" version "1.4.2"
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'application'
@@ -15,6 +14,19 @@ plugins {
     id 'com.palantir.docker' version '0.35.0'
 }
 
+allprojects {
+    if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version ||
+        //temporarily also compare to 'v' because we are remove this prefix
+        rootProject.nyxState.releaseScope.previousVersion == "v" + rootProject.version ) {
+        version = rootProject.nyxState.releaseScope.previousVersion + "-SNAPSHOT"
+    }
+    else {
+        version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
+    }
+}
+println "Corrected version checking for optional snapshot: " + rootProject.version
+
+nyxPublish.dependsOn assemble
 
 targetCompatibility = "17"
 sourceCompatibility = "17"
@@ -27,19 +39,13 @@ sonarqube {
     }
 }
 
-allprojects {
-    group = 'org.molgenis'
-}
-
 tasks.withType(Test) {
     maxParallelForks = Runtime.runtime.availableProcessors() / 2;
 }
 
 repositories {
     mavenLocal()
-    maven {
-        url = 'https://repo.maven.apache.org/maven2'
-    }
+    mavenCentral()
     maven {
         url = "https://registry.molgenis.org/repository/maven-public"
     }
@@ -53,6 +59,7 @@ mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
     archiveBaseName = 'molgenis-emx2'
     mergeServiceFiles()
+    archiveVersion = project.version.replace("v","")
 }
 
 publishing {
@@ -65,19 +72,13 @@ publishing {
 }
 
 project.ext.ghToken = project.hasProperty('ghToken') ? project.getProperty('ghToken') : System.getenv('GITHUB_TOKEN') ?: null
-semanticRelease {
-    repo {
-        releaseAsset shadowJar
-        ghToken = project.ghToken
-    }
-}
 
 def imageName = 'docker.io/molgenis/molgenis-emx2'
-def tagName = project.version.toString()
+def tagName = project.version.toString().replace("v","")
 if (version.toString().endsWith('-SNAPSHOT')) {
     ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
     imageName = "docker.io/molgenis/molgenis-emx2-snapshot"
-    tagName = "${project.version.toString()}-${ext.hash}"
+    tagName = "${project.version.toString().replace("v","")}-${ext.hash}"
 }
 // write a file to pickup in deployment to use specific tags in upgrade
 task ci(type: WriteProperties) {
