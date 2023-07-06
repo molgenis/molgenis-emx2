@@ -33,12 +33,10 @@
                       v-for="element of network.common_network_elements"
                       :key="`key-${element}`"
                     >
-                      {{ element.label || element.description }}
+                      {{ element.label || element.definition }}
                     </li>
                   </ul>
                 </div>
-                <!-- detailsContent unused?? -->
-                <!-- <ReportDetailsList :reportDetails="detailsContent" /> -->
                 <div
                   v-if="
                     !collections ||
@@ -157,6 +155,7 @@ import {
 } from "../functions/viewmodelMapper";
 import { useNetworkStore } from "../stores/networkStore";
 import { useSettingsStore } from "../stores/settingsStore";
+import { useQualitiesStore } from "../stores/qualitiesStore";
 
 const router = useRouter();
 const route = useRoute();
@@ -165,12 +164,15 @@ let loaded = ref(false);
 
 const settingsStore = useSettingsStore();
 const networkStore = useNetworkStore();
+const qualitiesStore = useQualitiesStore();
 
 const splittedUrl = route.fullPath.split("/");
 const networkId = splittedUrl[splittedUrl.length - 1];
 
-networkStore.getNetworkReport(networkId).then(() => {
-  loaded.value = true;
+qualitiesStore.getQualityStandardInformation().then(() => {
+  networkStore.getNetworkReport(networkId).then(() => {
+    loaded.value = true;
+  });
 });
 
 const uiText = computed(() => settingsStore.uiText);
