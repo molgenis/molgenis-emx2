@@ -41,7 +41,6 @@ public class GraphqlTableFieldFactory {
   private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedOutputType> tableTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedOutputType> tableAggTypes = new LinkedHashMap<>();
-  private Map<String, GraphQLNamedOutputType> tableOrderByTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedOutputType> tableGroupByTypes = new LinkedHashMap();
   private Map<String, GraphQLNamedInputType> tableFilterInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> tableOrderByInputTypes = new LinkedHashMap<>();

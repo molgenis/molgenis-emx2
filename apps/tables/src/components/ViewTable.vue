@@ -5,6 +5,7 @@
     <RoutedTableExplorer
       :tableName="table"
       :schemaName="schema.name"
+      :canView="canView"
       :canEdit="canEdit"
       :canManage="canManage"
       :locale="session?.locale"
@@ -25,6 +26,19 @@ export default {
     RoutedTableExplorer,
   },
   computed: {
+    canView() {
+      if (this.session) {
+        console.log(this.session.roles);
+        const isAdmin = this.session.email === "admin";
+        const roles = this.session.roles;
+        const isViewer = roles && roles.includes("Viewer") || this.activeTable.tableType === "ONTOLOGIES";
+        const isEditor = roles && roles.includes("Editor");
+        const isManager = roles && roles.includes("Manager");
+        return isAdmin || isEditor || isManager || isViewer;
+      } else {
+        return false;
+      }
+    },
     canEdit() {
       if (this.session) {
         const isAdmin = this.session.email === "admin";

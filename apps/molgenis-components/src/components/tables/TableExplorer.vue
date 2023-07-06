@@ -194,6 +194,7 @@
         <div v-if="!loading">
           <AggregateTable
             v-if="view === View.AGGREGATE"
+            :canView="canView"
             :allColumns="columns"
             :tableName="tableName"
             :schemaName="schemaName"
@@ -691,25 +692,21 @@ export default {
       this.loading = false;
     },
     setTableMetadata(newTableMetadata) {
-      this.columns = newTableMetadata.columns
-        .filter(
-          (column) => this.canView || column.columnType.startsWith("ONTOLOGY")
-        )
-        .map((column) => {
-          const showColumn = this.showColumns.length
-            ? this.showColumns.includes(column.name)
-            : !column.name.startsWith("mg_");
-          const conditions = getCondition(
-            column.columnType,
-            this.urlConditions[column.name]
-          );
-          return {
-            ...column,
-            showColumn,
-            showFilter: this.showFilters.includes(column.name),
-            conditions,
-          };
-        });
+      this.columns = newTableMetadata.columns.map((column) => {
+        const showColumn = this.showColumns.length
+          ? this.showColumns.includes(column.name)
+          : !column.name.startsWith("mg_");
+        const conditions = getCondition(
+          column.columnType,
+          this.urlConditions[column.name]
+        );
+        return {
+          ...column,
+          showColumn,
+          showFilter: this.showFilters.includes(column.name),
+          conditions,
+        };
+      });
       //table settings
       newTableMetadata.settings?.forEach((setting) => {
         if (setting.key === "cardTemplate") {
