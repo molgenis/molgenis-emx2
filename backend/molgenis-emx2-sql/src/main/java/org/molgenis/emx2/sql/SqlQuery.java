@@ -140,7 +140,7 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private void checkHasViewPermission(SqlTableMetadata table) {
+  public static void checkHasViewPermission(SqlTableMetadata table) {
     if (!table.getTableType().equals(TableType.ONTOLOGIES)
         && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
       throw new MolgenisException("Cannot retrieve rows: requires VIEWER permission");
