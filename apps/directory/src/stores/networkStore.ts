@@ -11,13 +11,14 @@ export const useNetworkStore = defineStore("networkStore", () => {
 
   let networkReport = ref<any>({});
 
-  async function getNetworkReport(netWorkId: string) {
+  async function loadNetworkReport(netWorkId: string) {
     const biobanksQuery = new QueryEMX2(graphqlEndpoint)
       .table("Biobanks")
       .select(["name", "id", "description"])
       .where("network.id")
       .like(netWorkId);
-    const biobanks = await biobanksQuery.execute();
+    const biobanksResult = await biobanksQuery.execute();
+
     const reportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Networks")
       .select([
@@ -34,24 +35,25 @@ export const useNetworkStore = defineStore("networkStore", () => {
       ])
       .where("id")
       .like(netWorkId);
-    const network = await reportQuery.execute();
+    const networkResult = await reportQuery.execute();
+
     const collectionsColumns = collectionsStore.getCollectionColumns() as any;
     const collectionsQuery = new QueryEMX2(graphqlEndpoint)
       .table("Collections")
       .select(collectionsColumns)
       .where("network.id")
       .like(netWorkId);
-    const collections = await collectionsQuery.execute();
+    const collectionsResult = await collectionsQuery.execute();
+
     networkReport.value = {
-      network: network.Networks[0],
-      biobanks: biobanks.Biobanks,
-      collections: collections.Collections,
+      network: networkResult.Networks[0],
+      biobanks: biobanksResult.Biobanks,
+      collections: collectionsResult.Collections,
     };
   }
 
   return {
     networkReport,
-
-    getNetworkReport,
+    loadNetworkReport,
   };
 });

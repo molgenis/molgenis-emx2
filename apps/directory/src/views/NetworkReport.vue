@@ -166,19 +166,26 @@ const settingsStore = useSettingsStore();
 const networkStore = useNetworkStore();
 const qualitiesStore = useQualitiesStore();
 
-const splittedUrl = route.fullPath.split("/");
-const networkId = splittedUrl[splittedUrl.length - 1];
-
-qualitiesStore.getQualityStandardInformation().then(() => {
-  networkStore.getNetworkReport(networkId).then(() => {
-    loaded.value = true;
-  });
-});
+const networkPromise = networkStore.loadNetworkReport(route.params.id);
+const qualitiesPromise = qualitiesStore.getQualityStandardInformation();
+Promise.all([qualitiesPromise, networkPromise]).then(
+  () => (loaded.value = true)
+);
 
 const uiText = computed(() => settingsStore.uiText);
 const networkReport = computed(() => networkStore.networkReport);
+const collections = computed(filterCollections);
+const collectionsAvailable = computed(() => collections.value?.length);
+const biobanks = computed(() => networkReport.value.biobanks);
+const biobanksAvailable = computed(() => biobanks.value?.length);
+const network = computed(() => networkReport.value.network);
+const contact = computed(() => mapContactInfo(network.value));
 
-const collections = computed(() => {
+function back() {
+  router.go(-1);
+}
+
+function filterCollections() {
   return (
     networkReport.value.collections
       ?.filter((collection) => {
@@ -186,19 +193,5 @@ const collections = computed(() => {
       })
       .map((col) => getCollectionDetails(col)) || []
   );
-});
-const collectionsAvailable = computed(() => {
-  return collections.value?.length;
-});
-
-const biobanks = computed(() => networkReport.value.biobanks);
-const biobanksAvailable = computed(() => biobanks.value?.length);
-const network = computed(() => {
-  return networkReport.value.network;
-});
-const contact = computed(() => mapContactInfo(network.value));
-
-function back() {
-  router.go(-1);
 }
 </script>

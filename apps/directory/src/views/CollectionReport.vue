@@ -116,12 +116,16 @@ const collection = ref({});
 const route = useRoute();
 
 let loaded = ref(false);
-collectionStore.getCollectionReport(route.params.id).then((result) => {
-  collection.value = result.Collections.length ? result.Collections[0] : {};
+
+const collectionsPromise = collectionStore
+  .getCollectionReport(route.params.id)
+  .then((result) => {
+    collection.value = result.Collections.length ? result.Collections[0] : {};
+  });
+const qualitiesPromise = qualitiesStore.getQualityStandardInformation();
+Promise.all([qualitiesPromise, collectionsPromise]).then(() => {
   loaded.value = true;
 });
-
-qualitiesStore.getQualityStandardInformation();
 
 const uiText = computed(() => {
   return settingsStore.uiText;
