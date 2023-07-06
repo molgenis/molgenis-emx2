@@ -109,4 +109,11 @@ class InitTestDatabaseAndRunNonParallelTests {
 
     migration5addMgTableclassUpdateTrigger(database);
   }
+
+  @Test
+  public void test() {
+    SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+
+    executeMigrationFile(database, "migration10.sql", "add aggregator roles for all schemas");
+  }
 }
