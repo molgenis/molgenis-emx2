@@ -63,10 +63,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
   const baseQuery = new QueryEMX2(graphqlEndpoint)
     .table("Biobanks")
-    .select([
-      ...biobankCardGraphql,
-      ...getFacetColumnDetails(),
-    ])
+    .select([...biobankCardGraphql, ...getFacetColumnDetails()])
     .orderBy("Biobanks", "name", "asc")
     .orderBy("collections", "id", "asc");
 

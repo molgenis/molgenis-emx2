@@ -15,7 +15,9 @@ plugins {
 }
 
 allprojects {
-    if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version) {
+    if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version ||
+        //temporarily also compare to 'v' because we are remove this prefix
+        rootProject.nyxState.releaseScope.previousVersion == "v" + rootProject.version ) {
         version = rootProject.nyxState.releaseScope.previousVersion + "-SNAPSHOT"
     }
     else {
@@ -72,11 +74,11 @@ publishing {
 project.ext.ghToken = project.hasProperty('ghToken') ? project.getProperty('ghToken') : System.getenv('GITHUB_TOKEN') ?: null
 
 def imageName = 'docker.io/molgenis/molgenis-emx2'
-def tagName = project.version.toString()
+def tagName = project.version.toString().replace("v","")
 if (version.toString().endsWith('-SNAPSHOT')) {
     ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
     imageName = "docker.io/molgenis/molgenis-emx2-snapshot"
-    tagName = "${project.version.toString()}-${ext.hash}"
+    tagName = "${project.version.toString().replace("v","")}-${ext.hash}"
 }
 // write a file to pickup in deployment to use specific tags in upgrade
 task ci(type: WriteProperties) {
