@@ -18,105 +18,97 @@
         {{ variable.resource.id }}
       </span>
     </div>
-    <p class="mt-3" v-if="showDetail">
-        <dl class="row">
-          <dt class="col-2">variable</dt>
-          <dd class="col-10">
-            {{ variable.name }}
-          </dd>
+    <div class="mt-3" v-if="showDetail">
+      <dl class="row">
+        <dt class="col-2">variable</dt>
+        <dd class="col-10">
+          {{ variable.name }}
+        </dd>
 
-          <dt class="col-2">label</dt>
-          <dd class="col-10">
-            {{ variable.label }}
-          </dd>
+        <dt class="col-2">label</dt>
+        <dd class="col-10">
+          {{ variable.label }}
+        </dd>
 
-          <dt class="col-2">description</dt>
-          <dd class="col-10">
-            <span v-if="variable.description">{{
-              variable.description
-            }}</span>
-            <span v-else>-</span>
-          </dd>
+        <dt class="col-2">description</dt>
+        <dd class="col-10">
+          <span v-if="variable.description">{{ variable.description }}</span>
+          <span v-else>-</span>
+        </dd>
 
-          <dt class="col-2">unit</dt>
-          <dd class="col-10">
-            <span v-if="variable.unit">{{
-              variable.unit.name
-            }}</span>
-            <span v-else>-</span>
-          </dd>
+        <dt class="col-2">unit</dt>
+        <dd class="col-10">
+          <span v-if="variable.unit">{{ variable.unit.name }}</span>
+          <span v-else>-</span>
+        </dd>
 
-          <dt class="col-2">format</dt>
-          <dd class="col-10">
-            <span v-if="variable.format">{{
-              variable.format.name
-            }}</span>
-            <span v-else>-</span>
-          </dd>
+        <dt class="col-2">format</dt>
+        <dd class="col-10">
+          <span v-if="variable.format">{{ variable.format.name }}</span>
+          <span v-else>-</span>
+        </dd>
 
-          <template v-if="variable.permittedValues">
-            <dt class="col-2">permitted values</dt>
-            <dd class="col-10">
-              <ul class="list-inline">
-                <li
-                  class="list-inline-item"
-                  v-for="(permittedValue, index) in permittedValuesByOrder"
-                  :key="index"
-                >
-                  {{ permittedValue.label }} = {{ permittedValue.value }}
-                </li>
-              </ul>
-            </dd>
-          </template>
-
-          <dt class="col-2">n repeats</dt>
+        <template v-if="variable.permittedValues">
+          <dt class="col-2">permitted values</dt>
           <dd class="col-10">
-            <span v-if="variable.repeats">{{
-              variable.repeats.length
-            }}</span>
-            <span v-else>none</span>
-          </dd>
-
-          <dt class="col-2">mapped by</dt>
-          <dd class="col-10">
-            <span v-if="variable.mappings">
-              {{ mappedByString }}
-              <router-link
-                  v-if="network"
-                  class="nav-link"
-                  :to="{
-          name: 'NetworkVariableDetailView',
-          params: {
-            name: variable.name,
-            network: network,
-          },
-          query: {
-            model: variable.resource.id,
-          },
-        }"
+            <ul class="list-inline">
+              <li
+                class="list-inline-item"
+                v-for="(permittedValue, index) in permittedValuesByOrder"
+                :key="index"
               >
-      view details
-    </router-link>
-    <router-link
-        v-else
-        class="nav-link"
-        :to="{
-          name: 'VariableDetailView',
-          params: {
-            name: variable.name,
-          },
-          query: {
-            model: variable.resource.id,
-          },
-        }"
-    >
-      view details
-    </router-link>
-            </span>
-            <span v-else>none</span>
+                {{ permittedValue.label }} = {{ permittedValue.value }}
+              </li>
+            </ul>
           </dd>
-        </dl>
-    </p>
+        </template>
+
+        <dt class="col-2">n repeats</dt>
+        <dd class="col-10">
+          <span v-if="variable.repeats">{{ variable.repeats.length }}</span>
+          <span v-else>none</span>
+        </dd>
+
+        <dt class="col-2">mapped by</dt>
+        <dd class="col-10">
+          <span v-if="variable.mappings">
+            {{ mappedByString }}
+            <router-link
+              v-if="network"
+              class="nav-link"
+              :to="{
+                name: 'NetworkVariableDetailView',
+                params: {
+                  name: variable.name,
+                  network: network,
+                },
+                query: {
+                  model: variable.resource.id,
+                },
+              }"
+            >
+              view details
+            </router-link>
+            <router-link
+              v-else
+              class="nav-link"
+              :to="{
+                name: 'VariableDetailView',
+                params: {
+                  name: variable.name,
+                },
+                query: {
+                  model: variable.resource.id,
+                },
+              }"
+            >
+              view details
+            </router-link>
+          </span>
+          <span v-else>none</span>
+        </dd>
+      </dl>
+    </div>
   </li>
 </template>
 
