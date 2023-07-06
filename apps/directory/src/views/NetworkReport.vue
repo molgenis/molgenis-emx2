@@ -37,70 +37,38 @@
                     </li>
                   </ul>
                 </div>
-                <div
-                  v-if="
-                    !collections ||
-                    !biobanks ||
-                    collectionsAvailable ||
-                    biobanksAvailable
-                  "
-                >
-                  <div
-                    id="collections"
-                    :active="collectionsAvailable"
-                    :disabled="!collectionsAvailable"
+                <Tabs>
+                  <Tab
+                    :title="`Collections (${collections.length})`"
+                    class="tab-content"
                   >
-                    <slot name="title">
-                      <h5>
-                        Collections
+                    <div
+                      v-if="
+                        !collections ||
+                        !biobanks ||
+                        collectionsAvailable ||
+                        biobanksAvailable
+                      "
+                    >
+                      <div class="pt-3">
                         <div
-                          v-if="collections"
-                          :variant="collectionsAvailable ? 'secondary' : 'dark'"
+                          v-for="(collection, index) in collections"
+                          :key="collection.id"
                         >
-                          {{ collections.length }}
+                          <hr v-if="index" />
+                          <CollectionTitle
+                            :title="collection.name"
+                            :id="collection.id"
+                          />
+                          <ViewGenerator :viewmodel="collection.viewmodel" />
                         </div>
-                        <i
-                          v-else
-                          class="fa fa-spin fa-spinner"
-                          aria-hidden="true"
-                        />
-                      </h5>
-                    </slot>
-                    <div class="pt-3">
-                      <div
-                        v-for="(collection, index) in collections"
-                        :key="collection.id"
-                      >
-                        <hr v-if="index" />
-                        <CollectionTitle
-                          :title="collection.name"
-                          :id="collection.id"
-                        />
-                        <ViewGenerator :viewmodel="collection.viewmodel" />
                       </div>
                     </div>
-                  </div>
-                  <div
-                    id="biobanks"
-                    :active="!collectionsAvailable && biobanksAvailable"
-                    :disabled="!biobanksAvailable"
+                  </Tab>
+                  <Tab
+                    :title="`Biobanks (${biobanks.length})`"
+                    class="tabs-content"
                   >
-                    <slot name="title">
-                      <h5>
-                        Biobanks
-                        <div
-                          v-if="biobanks"
-                          :variant="biobanksAvailable ? 'secondary' : 'dark'"
-                        >
-                          {{ biobanks.length }}
-                        </div>
-                        <i
-                          v-else
-                          class="fa fa-spin fa-spinner"
-                          aria-hidden="true"
-                        />
-                      </h5>
-                    </slot>
                     <div class="pt-3">
                       <div
                         v-for="(biobank, index) in biobanks"
@@ -118,8 +86,8 @@
                         />
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </Tab>
+                </Tabs>
               </div>
               <!-- Right side card -->
               <div class="col-md-4">
@@ -156,6 +124,8 @@ import {
 import { useNetworkStore } from "../stores/networkStore";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
+import Tabs from "./tabs.vue";
+import Tab from "./tab.vue";
 
 const router = useRouter();
 const route = useRoute();
