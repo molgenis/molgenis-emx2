@@ -211,7 +211,7 @@ Documentation,,resource,ref,1,TRUE,,Extended resources,,,,,The resource this doc
 Documentation,,name,,1,TRUE,,,,,,,Document name,EMA,,
 Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of documentation,EMA,,
 Documentation,,description,text,,,,,,,,,Description of the document,,,
-Documentation,,,,,,,,,,,,Hyperlink to the source of the documentation,EMA,,
+Documentation,,url,hyperlink,,,,,,,,,Hyperlink to the source of the documentation,EMA,,
 Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation,EMA,,
 Resource organisations,,,,,,,,,,,,Data access provider relationship where an organisation can provide access to (parts of) a resource,,,
 Resource organisations,,organisation,ref,1,TRUE,,Organisations,,,,,Group that provides access,,,
