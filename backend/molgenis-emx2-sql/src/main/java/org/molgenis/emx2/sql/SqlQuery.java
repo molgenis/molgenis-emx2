@@ -85,9 +85,7 @@ public class SqlQuery extends QueryBean {
               + " unknown for retrieve rows in schema "
               + schema.getName());
     }
-    if (!table.getTableType().equals(TableType.ONTOLOGIES)) {
-      checkHasViewPermission(table);
-    }
+    checkHasViewPermission(table);
     String tableAlias = "root-" + table.getTableName();
 
     // if empty selection, we will add the default selection here, excl File and Refback

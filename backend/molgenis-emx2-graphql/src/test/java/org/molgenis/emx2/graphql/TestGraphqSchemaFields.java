@@ -60,6 +60,9 @@ public class TestGraphqSchemaFields {
       assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));
     } finally {
       database.becomeAdmin();
+      grapql =
+          new GraphqlApiFactory()
+              .createGraphqlForSchema(database.getSchema(schemaName), taskService);
     }
   }
 
