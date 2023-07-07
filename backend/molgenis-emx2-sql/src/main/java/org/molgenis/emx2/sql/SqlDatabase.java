@@ -585,6 +585,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public void clearCache() {
+    // clear schemas that are using this database
+    this.schemaCache.forEach((key, value) -> value.reload());
     this.schemaCache.clear();
     this.schemaNames.clear();
     this.schemaInfos.clear();
