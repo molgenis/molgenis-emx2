@@ -14,7 +14,8 @@
     "molgenis-components",
     "helloworld",
     "reports",
-    "tasks"
+    "tasks",
+    "gportal"
   ]
 }
 
