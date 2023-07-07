@@ -22,3 +22,6 @@ Severity,ONTOLOGIES,http://purl.obolibrary.org/obo/HP_0012824
 FileFormats,ONTOLOGIES,http://edamontology.org/format_1915
 DistributionType,ONTOLOGIES,http://purl.allotrope.org/ontologies/result#AFR_0002205
 Organisations,ONTOLOGIES,http://semanticscience.org/resource/SIO_000688
+InclusionStatus,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C19332
+GenotypicSex,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C168871
+GenderIdentity,ONTOLOGIES,http://purl.bioontology.org/ontology/MESH/D005783
