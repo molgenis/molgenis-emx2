@@ -37,16 +37,9 @@ export async function applyBookmark (watchedQuery) {
         filtersStore.filterTriggeredBookmark = false
         return
     }
-
-    /** we load the filters, grab the names, so we can loop over it to map the selections */
-    const filters = Object.keys(filtersStore.facetDetails)
-  
+    /**  negotiator token */
     // if (query.nToken) {
     //   state.nToken = query.nToken
-    // }
-
-    // if (query.satisfyAll) {
-    //   Vue.set(state.filters, 'satisfyAll', decodeURIComponent(query.satisfyAll).split(','))
     // }
 
     if (query.cart) {
@@ -68,13 +61,26 @@ export async function applyBookmark (watchedQuery) {
         // }
     }
 
+
+    /** we load the filters, grab the names, so we can loop over it to map the selections */
+    const filters = Object.keys(filtersStore.facetDetails)
+
+
+    if (query.matchAll) {
+        const matchAllFilters = decodeURIComponent(query.matchAll).split(',')
+
+        for (const filterName of matchAllFilters) {
+            filtersStore.updateFilterType(filterName, "all", true)
+        }
+    }
+
     for (const filterName of filters) {
         if (query[filterName]) {
             const filterOptions = filtersStore.filterOptionsCache[filterName];
             let queryValues = decodeURIComponent(query[filterName]).split(',')
             const filtersToAdd = filterOptions.filter(fo => queryValues.includes(fo.value))
 
-            filtersStore.updateFilter(filterName, filtersToAdd)
+            filtersStore.updateFilter(filterName, filtersToAdd, true)
         }
     }
 }

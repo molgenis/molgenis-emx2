@@ -110,7 +110,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       const waitForStore = setTimeout(() => {
         applyBookmark();
         clearTimeout(waitForStore)
-      }, 150)
+      }, 250)
     }
   })
 
@@ -303,7 +303,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return filters.value[filterName];
   }
 
-  function updateFilterType (filterName, value) {
+  function updateFilterType (filterName, value, fromBookmark) {
+    bookmarkTriggeredFilter.value = fromBookmark
+
     /** filter reset, so delete */
     if (value === "" || value === undefined || value.length === 0) {
       delete filterType.value[filterName];

@@ -17,7 +17,8 @@ watch(
     if (filtersStore.filtersReady) {
       applyBookmark(newQuery);
     }
-    else {
+    /** check if we have even have a query */
+    else if(newQuery && Object.keys(newQuery).length) {
       filtersStore.bookmarkWaitingForApplication = true
     }
   },
