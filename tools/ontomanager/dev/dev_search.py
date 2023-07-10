@@ -46,7 +46,7 @@ def dev_search(search_terms: list | str):
 
 
 if __name__ == '__main__':
-    terms = ['Sibling', 'Blabla', 'morbidity', 'Hospital data', 'medication']
+    terms = ['Sibling', 'Croatia', 'Non-profit organisations', 'Hospital data', 'medication']
     demo_results = dev_search(terms)
     for (term, table) in demo_results.items():
         print(f"{term}: {table}")

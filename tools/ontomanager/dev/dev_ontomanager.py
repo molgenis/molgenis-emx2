@@ -42,12 +42,12 @@ def dev_ontomanager(url: str = None, username: str = None, password: str = None)
     try:
         # manager.add(table='Countries', order=1000, name="Republic of Molgenia")
         manager.add(table='Countries', data={'name': 'Republic of Molgenia', 'order': 1000})
-    except DuplicateKeyException:
-        pass
+    except DuplicateKeyException as e:
+        logging.error(e)
     try:
         manager.add(table='Countries', name="Armadilland", parent="Republic of Molgenia")
-    except DuplicateKeyException:
-        pass
+    except DuplicateKeyException as e:
+        logging.error(e)
 
     manager.update(table='Countries', old='Croatia', new='Armadilland')
     manager.update(table='Countries', old='Armadilland', new='Republic of Molgenia')
@@ -55,7 +55,7 @@ def dev_ontomanager(url: str = None, username: str = None, password: str = None)
 
     # manager.delete(table='Countries', name="Armadilland")
     # manager.delete(table='Countries', name="Republic of Molgenia")
-    manager.delete(table='Countries', names=["Armadilland", "Republic of Molgenia"])
+    # manager.delete(table='Countries', names=["Armadilland", "Republic of Molgenia"])
 
 
 if __name__ == '__main__':

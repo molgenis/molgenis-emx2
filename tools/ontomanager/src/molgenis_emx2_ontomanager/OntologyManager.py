@@ -68,6 +68,117 @@ class OntologyManager:
         else:
             self._add_term(table, kwargs)
 
+    def update(self, table: str, data: pd.DataFrame | dict | list = None,
+               old: str = None, new: str = None) -> dict:
+        """Rename a term in an ontology."""
+        ontology_table = table
+
+        if ontology_table not in self.ontology_tables:
+            raise NoSuchTableException(f"Table '{ontology_table}' not found in CatalogueOntologies.")
+
+        if data is not None:
+            if isinstance(data, pd.DataFrame):
+                return self._update_dataframe(ontology_table, data)
+            if isinstance(data, dict):
+                return self._update_dict(ontology_table, data)
+            if isinstance(list, dict):
+                return self._update_list(ontology_table, data)
+            else:
+                log.error(f"Data type {type(data)} encountered for parameter 'data'.")
+                raise ValueError(f"Unknown data type for parameter 'data'."
+                                 f"Supply data as pandas DataFrame, dict or list.")
+
+        if not old:
+            if not new:
+                raise UpdateItemsException("Specify 'old' and 'new' terms.")
+            raise UpdateItemsException("Specify 'old' term.")
+        if not new:
+            raise UpdateItemsException("Specify 'new' term.")
+
+        return self._update_term(ontology_table, old, new)
+
+    def delete(self, table: str, name: str = None, names: list = None):
+        """Delete a term or a list of terms from an ontology."""
+        log.info(f"Deleting from table {table}.")
+
+        if table not in self.ontology_tables:
+            raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
+
+        if names:
+            self._delete_list(table, names)
+        if name:
+            self._delete_term(table, name)
+
+    def search(self, term: str) -> str | None:
+        """
+        Search for a term in the CatalogueOntologies table and return the table in which the term is present.
+        @param term: the term that is looked for.
+        @return: a string of the table where the table is found, None if the term is not found
+        """
+        variables = {"filter": {"equals": {"name": term}}}
+        table = None
+        for tb in self.ontology_tables:
+            _table = self.parse_table_name(tb)
+            query = Queries.search_filter_query(_table)
+
+            response = self.client.session.post(
+                url=self.graphql_endpoint,
+                json={'query': query, 'variables': variables}
+            )
+
+            if response.status_code != 200:
+                if 'Validation error' in response.json()['errors'][0]['message']:
+                    raise NoSuchTableException(f"Table '{_table}' not found, however table '{tb}' is listed.")
+                else:
+                    raise OntomanagerException(f"Status code {response.status_code} encountered: "
+                                               f"'{response.json()['errors']}'.")
+
+            if len(response.json()['data']) > 0:
+                table = tb
+
+        if table is not None:
+            usage = self._search_usage(term, table)
+            print(usage)
+
+        return table
+
+    def _search_usage(self, term: str, ontology_table: str) -> dict | None:
+        """Search for the ontology term's usage in all databases on the server."""
+        usage_dict = dict()
+        for db in self.list_databases():
+            try:
+                db_schema = self.get_database_schema(db)
+            except InvalidDatabaseException:
+                continue
+            db_dict = dict()
+            for tb_name, tb_values in db_schema.items():
+                if tb_values.get('externalSchema') != db:
+                    continue
+                for col_name, col_values in tb_values['columns'].items():
+                    if not (col_values.get('refSchema') == 'CatalogueOntologies'
+                            and col_values.get('refTable') == ontology_table):
+                        continue
+                    tb_pkeys = [col for (col, col_values) in tb_values['columns'].items() if col_values.get('key') == 1]
+                    _table = self.parse_table_name(tb_name)
+                    query = Queries.column_values(_table, self.parse_column_name(col_name), tb_pkeys)
+                    variables = {'filter': {self.parse_column_name(col_name): {'equals': {'name': term}}}}
+
+                    response = self.client.session.post(
+                        f'{self.client.url}/{db}/graphql',
+                        json={'query': query, 'variables': variables}
+                    )
+                    if response.status_code != 200:
+                        log.error(response.json()['errors'])
+                        continue
+                    if len(response.json()['data']) == 0:
+                        continue
+
+                    column_values = response.json()['data'][_table]
+                    db_dict.update({tb_name: column_values})
+            if len(db_dict.keys()) > 0:
+                usage_dict.update({db: db_dict})
+        return usage_dict
+
     def _add_term(self, table: str, kwargs):
         """Add a single term to a table."""
 
@@ -103,81 +214,6 @@ class OntologyManager:
 
         self._add_dict(table, _data_dict)
         return None
-
-    def delete(self, table: str, name: str = None, names: list = None):
-        """Delete a term or a list of terms from an ontology."""
-        log.info(f"Deleting from table {table}.")
-
-        if table not in self.ontology_tables:
-            raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
-
-        if names:
-            self._delete_list(table, names)
-        if name:
-            self._delete_term(table, name)
-
-    def _delete_list(self, table: str, terms: list, num_tries: int = 0):
-        """
-        Delete the listed terms from the table.
-        If one or more terms are referenced by another term, they are added
-        to a list and deleted at a later stage.
-        """
-        parent_terms = list()
-        for term in terms:
-            try:
-                self._delete_term(table, term)
-            except ParentReferenceException:
-                parent_terms.append(term)
-        if len(parent_terms) > 0:
-            if num_tries > MAX_TRIES:
-                raise ParentReferenceException(f"Could not delete terms '{','.join(parent_terms)}' due to terms'"
-                                               f"reference to parent term.")
-            self._delete_list(table, parent_terms, num_tries+1)
-
-    def _delete_term(self, table: str, term: str):
-        """Delete the term from the table."""
-        _term = term
-
-        _table = self.parse_table_name(table)
-
-        query = Queries.delete(_table)
-        variables = {"pkey": {'name': _term}}
-
-        if _term not in self.__list_ontology_terms(table):
-            raise NoSuchNameException(f"Name '{_term}' not found in table '{table}'.")
-
-        response = self.__perform_query(query, variables, action='delete')
-
-        return response
-
-    def update(self, table: str, data: pd.DataFrame | dict | list = None,
-               old: str = None, new: str = None) -> dict:
-        """Rename a term in an ontology."""
-        ontology_table = table
-
-        if ontology_table not in self.ontology_tables:
-            raise NoSuchTableException(f"Table '{ontology_table}' not found in CatalogueOntologies.")
-
-        if data is not None:
-            if isinstance(data, pd.DataFrame):
-                return self._update_dataframe(ontology_table, data)
-            if isinstance(data, dict):
-                return self._update_dict(ontology_table, data)
-            if isinstance(list, dict):
-                return self._update_list(ontology_table, data)
-            else:
-                log.error(f"Data type {type(data)} encountered for parameter 'data'.")
-                raise ValueError(f"Unknown data type for parameter 'data'."
-                                 f"Supply data as pandas DataFrame, dict or list.")
-
-        if not old:
-            if not new:
-                raise UpdateItemsException("Specify 'old' and 'new' terms.")
-            raise UpdateItemsException("Specify 'old' term.")
-        if not new:
-            raise UpdateItemsException("Specify 'new' term.")
-
-        return self._update_term(ontology_table, old, new)
 
     def _update_dataframe(self, table: str, data: pd.DataFrame) -> dict:
         """Perform references updates from a pandas DataFrame object."""
@@ -225,33 +261,39 @@ class OntologyManager:
 
         return update_results
 
-    def search(self, term: str) -> str | None:
+    def _delete_list(self, table: str, terms: list, num_tries: int = 0):
         """
-        Search for a term in the CatalogueOntologies table and return the table in which the term is present.
-        @param term: the term that is looked for.
-        @return: a string of the table where the table is found, None if the term is not found
+        Delete the listed terms from the table.
+        If one or more terms are referenced by another term, they are added
+        to a list and deleted at a later stage.
         """
-        variables = {"filter": {"equals": {"name": term}}}
-        for table in self.ontology_tables:
-            _table = self.parse_table_name(table)
-            query = Queries.search_filter_query(_table)
+        parent_terms = list()
+        for term in terms:
+            try:
+                self._delete_term(table, term)
+            except ParentReferenceException:
+                parent_terms.append(term)
+        if len(parent_terms) > 0:
+            if num_tries > MAX_TRIES:
+                raise ParentReferenceException(f"Could not delete terms '{','.join(parent_terms)}' due to terms'"
+                                               f"reference to parent term.")
+            self._delete_list(table, parent_terms, num_tries+1)
 
-            response = self.client.session.post(
-                url=self.graphql_endpoint,
-                json={'query': query, 'variables': variables}
-            )
+    def _delete_term(self, table: str, term: str):
+        """Delete the term from the table."""
+        _term = term
 
-            if response.status_code != 200:
-                if 'Validation error' in response.json()['errors'][0]['message']:
-                    raise NoSuchTableException(f"Table '{_table}' not found, however table '{table}' is listed.")
-                else:
-                    raise OntomanagerException(f"Status code {response.status_code} encountered: "
-                                               f"'{response.json()['errors']}'.")
+        _table = self.parse_table_name(table)
 
-            if len(response.json()['data']) > 0:
-                return table
+        query = Queries.delete(_table)
+        variables = {"pkey": {'name': _term}}
 
-        return None
+        if _term not in self.__list_ontology_terms(table):
+            raise NoSuchNameException(f"Name '{_term}' not found in table '{table}'.")
+
+        response = self.__perform_query(query, variables, action='delete')
+
+        return response
 
     class Updater:
         """Class that handles the update of the terms, ontology tables, databases and database tables."""
@@ -439,10 +481,10 @@ class OntologyManager:
         if response.status_code == 404:
             raise InvalidDatabaseException(f"Invalid database name '{database}'.")
 
-        try:
-            _tables = response.json()['data']['_schema']['tables']
-        except KeyError:
+        if len(response.json()['data']['_schema']) == 0:
             raise InvalidDatabaseException(f"No tables found in database '{database}'.")
+
+        _tables = response.json()['data']['_schema']['tables']
         tables = {tab['name']: {'externalSchema': tab['externalSchema'],
                                 'inherit': tab.get('inherit'),
                                 'tableType': tab['tableType'],
@@ -459,6 +501,14 @@ class OntologyManager:
         """
         return "".join(word[0].upper() + word[1:]
                        for word in table_name.split(' '))
+
+    @staticmethod
+    def parse_column_name(col_name: str) -> str:
+        """Parse table names to camelcase names,
+        e.g. 'areas of information' -> 'areasOfInformation"""
+        if ' ' in col_name:
+            return col_name.split(' ')[0] + "".join(word[0].upper() + word[1:] for word in col_name.split(' ')[1:])
+        return col_name
 
     @staticmethod
     def __parse_kwargs(kwargs) -> dict:
