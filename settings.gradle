@@ -8,7 +8,7 @@ plugins {
 nyx {
     verbosity = "INFO"
     preset = "simple"
-    releasePrefix = ""
+    releasePrefix = "v"
     releaseTypes {
         items {
             mainline {
@@ -43,24 +43,11 @@ nyx {
     }
     changelog {
         path = "CHANGELOG.md"
-	template = "changelog-notes.tpl"
+	    template = "changelog-notes.tpl"
         sections = [
                 'Added' : '^feat$',
                 'Fixed' : '^fix$',
         ]
-    }
-    commitMessageConventions {
-        enabled = [ 'conventionalCommits' ]
-        items {
-            conventionalCommits {
-                expression = '(?m)^(?<type>[a-zA-Z0-9_]+)(!)?(\\\\((?<scope>[a-z ]+)\\\\))?:( (?<title>.+))$(?s).*'
-                bumpExpressions {
-                    major = '(?s)(?m)^[a-zA-Z0-9_]+(!|.*^(BREAKING( |-)CHANGE: )).*'
-                    minor = '(?s)(?m)^feat(?!!|.*^(BREAKING( |-)CHANGE: )).*'
-                    patch = '(?s)(?m)^fix(?!!|.*^(BREAKING( |-)CHANGE: )).*'
-                }
-            }
-        }
     }
 }
 
@@ -80,6 +67,7 @@ include(':apps:helloworld')
 include(':apps:molgenis-components')
 include(':apps:reports')
 include(':apps:tasks')
+include(':apps:gportal')
 include(':docs')
 include(':backend:molgenis-emx2')
 include(':backend:molgenis-emx2-datamodels')
@@ -93,5 +81,3 @@ include(':backend:molgenis-emx2-tasks')
 include(':backend:molgenis-emx2-semantics')
 include(':backend:molgenis-emx2-email')
 include(':tools:pyclient')
-
-
