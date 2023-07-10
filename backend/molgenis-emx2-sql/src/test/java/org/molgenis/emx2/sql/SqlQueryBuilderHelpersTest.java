@@ -42,7 +42,11 @@ class SqlQueryBuilderHelpersTest {
     testDb.dropSchemaIfExists(testSchemaName);
     testSchema = (SqlSchema) testDb.createSchema(testSchemaName);
     testTable =
-        (SqlTable) testSchema.create(new TableMetadata("testTable").add(new Column("testColumn")));
+        (SqlTable)
+            testSchema.create(
+                new TableMetadata("testTable")
+                    .add(new Column("testColumn"))
+                    .add(new Column("testColumn2").setType(ColumnType.INT)));
   }
 
   @AfterAll()
@@ -77,7 +81,23 @@ class SqlQueryBuilderHelpersTest {
     SelectConnectByStep<Record> ascQuery =
         SqlQueryBuilderHelpers.orderBy(tableMetadata, select, from);
     assertEquals(
-        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by \"testColumn\" asc",
+        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by lower(\"testColumn\") asc",
+        ascQuery.getSQL());
+  }
+
+  @Test
+  void orderByOnNonCaseSensitiveColumn() {
+    final SqlTableMetadata tableMetadata = testTable.getMetadata();
+    final DSLContext jooq = tableMetadata.getJooq();
+
+    SelectJoinStep<org.jooq.Record> from = jooq.select().from(tableMetadata.getJooqTable());
+
+    final SelectColumn select = new SelectColumn("testColumn2");
+    select.setOrderBy(Collections.singletonMap("testColumn2", Order.ASC));
+    SelectConnectByStep<Record> ascQuery =
+        SqlQueryBuilderHelpers.orderBy(tableMetadata, select, from);
+    assertEquals(
+        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by \"testColumn2\" asc",
         ascQuery.getSQL());
   }
 
@@ -93,7 +113,7 @@ class SqlQueryBuilderHelpersTest {
     SelectConnectByStep<Record> ascQuery =
         SqlQueryBuilderHelpers.orderBy(tableMetadata, select, from);
     assertEquals(
-        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by \"testColumn\" desc",
+        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by lower(\"testColumn\") desc",
         ascQuery.getSQL());
   }
 
@@ -110,7 +130,7 @@ class SqlQueryBuilderHelpersTest {
         SqlQueryBuilderHelpers.orderBy(
             tableMetadata, select, jooq.select().from(tableMetadata.getJooqTable()));
     assertEquals(
-        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by \"refColumn\" asc",
+        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by lower(\"refColumn\") asc",
         ascQuery.getSQL());
 
     final SelectColumn selectDesc = new SelectColumn("refColumn");
@@ -119,7 +139,7 @@ class SqlQueryBuilderHelpersTest {
         SqlQueryBuilderHelpers.orderBy(
             tableMetadata, selectDesc, jooq.select().from(tableMetadata.getJooqTable()));
     assertEquals(
-        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by \"refColumn\" desc",
+        "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by lower(\"refColumn\") desc",
         descQuery.getSQL());
   }
 

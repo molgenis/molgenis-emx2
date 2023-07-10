@@ -1,7 +1,9 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.name;
+import static org.jooq.impl.DSL.lower;
+import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.ColumnType.TEXT;
 import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.Order.ASC;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
@@ -14,6 +16,7 @@ import org.jooq.SelectConnectByStep;
 import org.jooq.SelectJoinStep;
 import org.jooq.SortField;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.Reference;
@@ -28,29 +31,33 @@ class SqlQueryBuilderHelpers {
 
   static SelectConnectByStep<Record> orderBy(
       TableMetadata table, SelectColumn select, SelectConnectByStep<org.jooq.Record> query) {
-    for (Map.Entry<String, Order> col : select.getOrderBy().entrySet()) {
-      Column column = getColumnByName(table, col.getKey());
-      query = setOderByForColumn(column, col, query);
+    for (Map.Entry<String, Order> orderEntry : select.getOrderBy().entrySet()) {
+      Column column = getColumnByName(table, orderEntry.getKey());
+      query = setOderByForColumn(column, orderEntry.getValue(), query);
     }
     return query;
   }
 
   private static SelectJoinStep<Record> setOderByForColumn(
-      Column column, Map.Entry<String, Order> col, SelectConnectByStep<org.jooq.Record> query) {
+      Column column, Order order, SelectConnectByStep<org.jooq.Record> query) {
 
     if (column.isReference()) {
       for (Reference ref : column.getReferences()) {
-        final Field<Object> refField = field(name(ref.getName()));
-        final SortField<Object> sortField =
-            ASC.equals(col.getValue()) ? refField.asc() : refField.desc();
-        query = (SelectJoinStep<Record>) query.orderBy(sortField);
+        final Column refColumn = ref.toPrimitiveColumn();
+        query = setOrderByForColumn(refColumn, order, query);
       }
-      return (SelectJoinStep<org.jooq.Record>) query;
     } else {
-      final Field<Object> field = field(name(col.getKey()));
-      final SortField<Object> sortField = ASC.equals(col.getValue()) ? field.asc() : field.desc();
-      return (SelectJoinStep<org.jooq.Record>) query.orderBy(sortField);
+      query = setOrderByForColumn(column, order, query);
     }
+    return (SelectJoinStep<org.jooq.Record>) query;
+  }
+
+  private static SelectJoinStep<Record> setOrderByForColumn(
+      Column column, Order order, SelectConnectByStep<org.jooq.Record> query) {
+    final Field<?> field =
+        isCaseSensitiveField(column) ? lower(column.getJooqField()) : column.getJooqField();
+    final SortField<?> sortField = ASC.equals(order) ? field.asc() : field.desc();
+    return (SelectJoinStep<org.jooq.Record>) query.orderBy(sortField);
   }
 
   static Column getColumnByName(TableMetadata table, String columnName) {
@@ -87,5 +94,10 @@ class SqlQueryBuilderHelpers {
           "Query failed: Column '" + columnName + "' is unknown in table " + table.getTableName());
     }
     return column;
+  }
+
+  static boolean isCaseSensitiveField(Column column) {
+    final ColumnType baseType = column.getColumnType().getBaseType();
+    return baseType.equals(STRING) || baseType.equals(TEXT);
   }
 }
