@@ -1,15 +1,16 @@
 <template>
   <div>
-    <ul class="tabs-header row">
+    <ul class="tabs-header row justify-content-start">
       <li
         v-for="title in tabTitles"
         :key="title"
-        class="tabs-item col"
+        class="tabs-item"
         :class="{ selected: selectedTitle === title }"
         @click="setTitle(title)"
       >
         {{ title }}
       </li>
+      <li class="filler-line col"></li>
     </ul>
 
     <slot class="tab-content" />
@@ -31,23 +32,26 @@ function setTitle(newTitle: string) {
 </script>
 
 <style scoped>
+.filler-line {
+  border-bottom: 1px solid #dee2e6;
+}
 .tabs-header {
   list-style: none;
   padding: 0;
   margin: 0;
   justify-content: space-between;
-  gap: 5px;
 }
 
 .tabs-item {
   color: #ec6707;
-  padding: 5px 0;
+  padding: 5px;
   cursor: pointer;
   font-size: 1.25rem;
-  border: 1px solid black;
+  border-bottom: 1px solid #dee2e6;
 }
 
 .tabs-item.selected {
+  border: 1px solid #dee2e6;
   border-bottom: none;
 }
 

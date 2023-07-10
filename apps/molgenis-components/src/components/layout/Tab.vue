@@ -1,5 +1,5 @@
 <template>
-  <div class="tabs-content" v-show="selectedTitle === title">
+  <div v-show="selectedTitle === title">
     <slot />
   </div>
 </template>
