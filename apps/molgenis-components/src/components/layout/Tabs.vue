@@ -6,27 +6,31 @@
         :key="title"
         class="tabs-item col"
         :class="{ selected: selectedTitle === title }"
-        @click="selectedTitle = title"
+        @click="setTitle(title)"
       >
         {{ title }}
       </li>
     </ul>
 
-    <slot />
+    <slot class="tab-content" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useSlots, ref, provide } from "vue";
-
 const slots = useSlots();
 const tabTitles = ref(slots.default().map((tab) => tab.props?.title));
 const selectedTitle = ref(tabTitles.value[0]);
 
 provide("selectedTitle", selectedTitle);
+
+function setTitle(newTitle: string) {
+  console.log(newTitle);
+  selectedTitle.value = newTitle;
+}
 </script>
 
-<style>
+<style scoped>
 .tabs-header {
   list-style: none;
   padding: 0;
@@ -54,3 +58,12 @@ provide("selectedTitle", selectedTitle);
   padding: 10px;
 }
 </style>
+
+<docs>
+  <template>
+    <Tabs>
+      <Tab title="First tab">This is the first tab</Tab>
+      <Tab title="Second tab">This is the content of the second tab</Tab>
+    </Tabs>
+  </template>
+</docs>

@@ -38,10 +38,7 @@
                   </ul>
                 </div>
                 <Tabs>
-                  <Tab
-                    :title="`Collections (${collections.length})`"
-                    class="tab-content"
-                  >
+                  <Tab :title="`Collections (${collections.length})`">
                     <div
                       v-if="
                         !collections ||
@@ -65,10 +62,7 @@
                       </div>
                     </div>
                   </Tab>
-                  <Tab
-                    :title="`Biobanks (${biobanks.length})`"
-                    class="tabs-content"
-                  >
+                  <Tab :title="`Biobanks (${biobanks.length})`">
                     <div class="pt-3">
                       <div
                         v-for="(biobank, index) in biobanks"
@@ -109,9 +103,9 @@
 </template>
 
 <script setup>
+import { Spinner, Tab, Tabs } from "molgenis-components";
 import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { Spinner } from "../../../molgenis-components";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ReportDescription from "../components/report-components/ReportDescription.vue";
@@ -122,10 +116,8 @@ import {
   mapContactInfo,
 } from "../functions/viewmodelMapper";
 import { useNetworkStore } from "../stores/networkStore";
-import { useSettingsStore } from "../stores/settingsStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
-import Tabs from "./tabs.vue";
-import Tab from "./tab.vue";
+import { useSettingsStore } from "../stores/settingsStore";
 
 const router = useRouter();
 const route = useRoute();
