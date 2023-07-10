@@ -13,9 +13,8 @@ You can also make the test start/stop emx2:
 
 ```set CI=true && npx playwright test```
 
-You can also run from the root as follows
+You can also run from the molgenis-emx2 project root as follows
 
-```npx playwright test e2e```
+```npx playwright test --config e2e --project=chromium```
 
-
-The test is part of .circleci/config.yml
+The test is part of .circleci/config.yml running that same command
