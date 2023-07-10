@@ -4,15 +4,22 @@
     <div v-else class="container-fluid">
       <div class="row">
         <div class="col">
-          <!-- Back to previous page buttons -->
-          <button class="btn btn-link" @click="back">
-            <i class="fa fa-angle-left mr-1" aria-hidden="true" />
-            <span>{{ uiText["back"] }}</span>
-          </button>
+          <Breadcrumb>
+            <ol class="breadcrumb my-1">
+              <li class="breadcrumb-item">
+                <router-link to="/catalogue" title="Back to the catalogue">
+                  {{ uiText["home"] }}
+                </router-link>
+              </li>
+              <li class="breadcrumb-item active text-dark" aria-current="page">
+                {{ network.name }}
+              </li>
+            </ol>
+          </Breadcrumb>
         </div>
       </div>
 
-      <div class="row" v-if="network && loaded">
+      <div class="row" v-if="network">
         <div class="col">
           <ReportTitle type="Network" :name="network.name" />
           <div class="container">
@@ -107,6 +114,7 @@ import { Spinner, Tab, Tabs } from "molgenis-components";
 import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
+import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ReportDescription from "../components/report-components/ReportDescription.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
@@ -119,7 +127,6 @@ import { useNetworkStore } from "../stores/networkStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
 import { useSettingsStore } from "../stores/settingsStore";
 
-const router = useRouter();
 const route = useRoute();
 
 let loaded = ref(false);
@@ -142,10 +149,6 @@ const biobanks = computed(() => networkReport.value.biobanks);
 const biobanksAvailable = computed(() => biobanks.value?.length);
 const network = computed(() => networkReport.value.network);
 const contact = computed(() => mapContactInfo(network.value));
-
-function back() {
-  router.go(-1);
-}
 
 function filterCollections() {
   return (
