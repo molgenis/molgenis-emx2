@@ -92,7 +92,7 @@ jobs:
     - run:
         name: test e2e
         command: |
-          set CI=true && npx playwright test e2e --project=chromium
+          set CI=true && npx playwright test --config e2e --project=chromium
 
 
     # to switch to release add following
