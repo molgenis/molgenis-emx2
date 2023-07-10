@@ -2,12 +2,8 @@ import { useSettingsStore } from "../stores/settingsStore";
 import { sortCollectionsByName } from "./sorting";
 
 export const getName = (contact) => {
-  const {
-    title_before_name,
-    first_name,
-    last_name,
-    title_after_name,
-  } = contact;
+  const { title_before_name, first_name, last_name, title_after_name } =
+    contact;
 
   let name = "";
 
@@ -367,22 +363,26 @@ export const getNameOfHead = (head) => {
 };
 
 export const mapContactInfo = (instance) => {
-  return {
-    name: {
-      value: getNameOfHead(instance.head),
-      type: "string",
-    },
-    website: { value: mapUrl(instance.url), type: "url" },
-    email: {
-      value: instance.contact ? instance.contact.email : undefined,
-      type: "email",
-    },
-    juridical_person: { value: instance.juridical_person, type: "string" },
-    country: {
-      value: instance.country
-        ? instance.country.label || instance.country.name
-        : undefined,
-      type: "string",
-    },
-  };
+  if (instance.contact) {
+    return {
+      name: {
+        value: getNameOfHead(instance.contact),
+        type: "string",
+      },
+      website: { value: mapUrl(instance.contact.url), type: "url" },
+      email: {
+        value: instance.contact.email,
+        type: "email",
+      },
+      juridical_person: { value: instance.juridical_person, type: "string" },
+      country: {
+        value: instance.contact.country
+          ? instance.contact.country.label || instance.contact.country.name
+          : undefined,
+        type: "string",
+      },
+    };
+  } else {
+    return {};
+  }
 };
