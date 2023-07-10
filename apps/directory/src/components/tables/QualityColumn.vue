@@ -24,11 +24,12 @@
         </span>
       </a>
       <span v-else>
-        <span v-if="!quality.certification_image_link">
+        <span v-if="!quality.certification_image_link && getQualityInfo(quality.label)">
           {{ getQualityInfo(quality.label).label }}
         </span>
         <span v-else>
           <img
+          v-if="getQualityInfo(quality.label)"
             :src="quality.certification_image_link"
             class="quality-logo"
             :alt="generateQualityLabel(quality)"

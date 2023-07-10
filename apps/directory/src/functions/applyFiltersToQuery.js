@@ -13,7 +13,6 @@ export async function applyFiltersToQuery(
   for (const filterKey of activeFilters) {
     const filterDetail = facetDetails[filterKey];
 
-    console.log(facetDetails)
     const filterValue = filters[filterKey];
 
     switch (filterDetail.component) {

@@ -5,7 +5,7 @@ import { applyFiltersToQuery } from "../functions/applyFiltersToQuery";
 import { useBiobanksStore } from "./biobanksStore";
 import { useSettingsStore } from "./settingsStore";
 import { useCheckoutStore } from "./checkoutStore";
-import { createBookmark } from "../functions/bookmarkMapper";
+import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
@@ -15,6 +15,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const settingsStore = useSettingsStore();
 
+
+  let bookmarkWaitingForApplication = ref(false)
   let filterTriggeredBookmark = ref(false)
   let bookmarkTriggeredFilter = ref(false)
 
@@ -34,7 +36,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return facetDetailsDictionary.value
   })
 
-
+  const filtersReady = computed(() => {
+    return filterOptionsCache.value ? Object.keys(filterOptionsCache.value).length > 0 : false
+  })
 
   function getValuePropertyForFacet (facetIdentifier) {
     return facetDetails[facetIdentifier].filterValueAttribute
@@ -60,16 +64,17 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       settingsStore.currentPage = 1;
 
       queryDelay = setTimeout(async () => {
-        clearTimeout(queryDelay);
+
         applyFiltersToQuery(baseQuery, filters, facetDetails.value, filterType.value);
         filterTriggeredBookmark.value = true
 
         if (!bookmarkTriggeredFilter.value) {
           createBookmark(filters, checkoutStore.selectedCollections)
+          bookmarkTriggeredFilter.value = false
         }
-        bookmarkTriggeredFilter.value = false
 
         await updateBiobankCards();
+        clearTimeout(queryDelay);
 
       }, 750);
     },
@@ -98,6 +103,16 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     },
     { deep: true, immediate: true }
   );
+
+  watch(filtersReady, (filtersReady) => {
+
+    if (filtersReady && bookmarkWaitingForApplication) {
+      const waitForStore = setTimeout(() => {
+        applyBookmark();
+        clearTimeout(waitForStore)
+      }, 150)
+    }
+  })
 
   function checkOntologyDescendantsIfMatches (
     ontologyDescendants,
@@ -318,5 +333,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     hasActiveFilters,
     filters,
     filterFacets,
+    filtersReady,
+    bookmarkWaitingForApplication
   };
 });

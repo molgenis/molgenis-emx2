@@ -1,7 +1,7 @@
-import router from '../router'
+import router from "../router";
 import { useFiltersStore } from '../stores/filtersStore'
 import { useCollectionStore } from '../stores/collectionStore';
-import { useRoute, useRouter } from 'vue-router';
+// import { useRoute, useRouter } from 'vue-router';
 import { useCheckoutStore } from '../stores/checkoutStore';
 
 function setBookmark (bookmark) {
@@ -14,43 +14,33 @@ function setBookmark (bookmark) {
 }
 
 export async function applyBookmark (watchedQuery) {
-console.log(watchedQuery)
+
     let query = watchedQuery;
 
-    /** need to wait until router is loaded */
     if (!query) {
-        const router = useRouter()
-        const route = useRoute()
-
-        await router.isReady();
+        const route = router.currentRoute.value
 
         if (!route.query) return
 
         query = route.query
     }
+
+
     /** reset the cart and the filters */
     if (!query) return
-
 
     const collectionStore = useCollectionStore();
     const filtersStore = useFiltersStore();
 
     /** do not apply when bookmark is changed from the app itself. */
-    if(filtersStore.filterTriggeredBookmark) {
+    if (filtersStore.filterTriggeredBookmark) {
         filtersStore.filterTriggeredBookmark = false
         return
     }
 
-    // const keysInQuery = Object.keys(query)
     /** we load the filters, grab the names, so we can loop over it to map the selections */
     const filters = Object.keys(filtersStore.facetDetails)
-        // .filter(facetIdentifier => keysInQuery.includes(facetIdentifier))
-        // .filter(fr => !['search', 'nToken', 'matchAll'].includes(fr)) /** remove specific filters and negotiator token, else we are doing them again. */
-console.log({filters})
-    // if (query.search) {
-    //   Vue.set(state.filters.selections, 'search', decodeURIComponent(query.search))
-    // }
-
+  
     // if (query.nToken) {
     //   state.nToken = query.nToken
     // }
@@ -68,7 +58,6 @@ console.log({filters})
 
         const missingCollections = await collectionStore.getMissingCollectionInformation(cartIds)
 
-        // todo: cant do it like this because of the watcher!
         for (const collection of missingCollections) {
             checkoutStore.addCollectionsToSelection({ biobank: collection.biobank, collections: [{ label: collection.name, value: collection.id }] })
         }
@@ -81,8 +70,11 @@ console.log({filters})
 
     for (const filterName of filters) {
         if (query[filterName]) {
+            const filterOptions = filtersStore.filterOptionsCache[filterName];
             let queryValues = decodeURIComponent(query[filterName]).split(',')
-            filtersStore.updateFilter(filterName, queryValues, true)
+            const filtersToAdd = filterOptions.filter(fo => queryValues.includes(fo.value))
+
+            filtersStore.updateFilter(filterName, filtersToAdd)
         }
     }
 }

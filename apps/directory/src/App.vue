@@ -3,15 +3,23 @@ import { Molgenis } from "molgenis-components";
 import { computed, watch } from "vue";
 import { applyBookmark } from "./functions/bookmarkMapper";
 import { useRoute } from "vue-router";
+import { useFiltersStore } from "./stores/filtersStore";
 
 const route = useRoute();
 
 const query = computed(() => route.query);
 
+const filtersStore = useFiltersStore();
+
 watch(
   query,
   (newQuery) => {
-    applyBookmark(newQuery);
+    if (filtersStore.filtersReady) {
+      applyBookmark(newQuery);
+    }
+    else {
+      filtersStore.bookmarkWaitingForApplication = true
+    }
   },
   { immediate: true, deep: true }
 );

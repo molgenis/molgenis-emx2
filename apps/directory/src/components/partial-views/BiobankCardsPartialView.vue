@@ -21,7 +21,7 @@
       <pagination-bar class="mt-4" />
     </div>
     <div v-else-if="!biobanksStore.waiting" class="status-text">
-      <h4>No biobanks were found</h4>
+      <h4>{{ noResultsText }}</h4>
     </div>
     <div v-else class="status-text text-center">
       <spinner class="mt-2" />
@@ -36,12 +36,15 @@ import ResultHeader from "../biobankcards-components/ResultHeader.vue";
 import PaginationBar from "../biobankcards-components/PaginationBar.vue";
 import BiobankCard from "../biobankcards-components/BiobankCard.vue";
 import { Spinner } from "../../../../molgenis-components";
+import { useFiltersStore } from '../../stores/filtersStore';
 
 export default {
   setup() {
     const biobanksStore = useBiobanksStore();
     const settingsStore = useSettingsStore();
-    return { biobanksStore, settingsStore };
+    const filtersStore = useFiltersStore();
+
+    return { biobanksStore, settingsStore, filtersStore };
   },
   components: {
     ResultHeader,
@@ -58,6 +61,9 @@ export default {
         this.settingsStore.config.pageSize * this.settingsStore.currentPage
       );
     },
+    noResultsText() {
+      return this.filtersStore.bookmarkWaitingForApplication ? "Loading state" : "No biobanks were found"
+    }
   },
   async mounted() {
     await this.biobanksStore.getBiobankCards();
