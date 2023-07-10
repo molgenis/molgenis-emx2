@@ -109,10 +109,11 @@ class OntologyManager:
         if name:
             self._delete_term(table, name)
 
-    def search(self, term: str) -> str | None:
+    def search(self, term: str, find_usage: bool = False) -> str | dict | None:
         """
         Search for a term in the CatalogueOntologies table and return the table in which the term is present.
         @param term: the term that is looked for.
+        @param find_usage: if this is true, the rows of the tables where the term is used are returned, default False
         @return: a string of the table where the table is found, None if the term is not found
         """
         variables = {"filter": {"equals": {"name": term}}}
@@ -136,9 +137,9 @@ class OntologyManager:
             if len(response.json()['data']) > 0:
                 table = tb
 
-        if table is not None:
+        if find_usage and table is not None:
             usage = self._search_usage(term, table)
-            print(usage)
+            return {table: usage}
 
         return table
 
