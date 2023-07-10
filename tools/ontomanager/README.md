@@ -130,8 +130,13 @@ Deleting a term from an ontology table can be done by calling the manager's `del
 Note that it is not possible to delete a term that is still referenced in a table in one of the databases
 
 ##### Example:
+In order to delete the term _Republic of Molgenia_ use the following command:
 
     ontomanager.delete(table='Countries', name='Republic of Molgenia')  
+
+Multiple terms can be deleted with one command by supplying the argument `names` with the term names passed as a list
+
+    ontomanager.delete(table='Countries', names=['Republic of Molgenia', 'Armadilland'])  
 
 ### In command line as module
 The above functionality can also be applied in the command line interface:
