@@ -112,7 +112,7 @@
 <script setup>
 import { Spinner, Tab, Tabs } from "molgenis-components";
 import { computed, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
