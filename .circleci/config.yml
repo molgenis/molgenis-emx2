@@ -38,7 +38,15 @@ jobs:
         # fallback to using the latest cache if no exact match is found
         - v1-dependencies-
 
-    - run: ./gradlew dependencies
+    - run: 
+        name: install deps
+        command: |
+          ./gradlew dependencies
+          apt-get update && apt-get install postgresql-client -y 
+          curl -sL https://deb.nodesource.com/setup_18.x | bash -
+          apt install nodejs
+          npx playwright install --with-deps
+          npm install -D @playwright/test
 
     - save_cache:
         paths:
@@ -46,7 +54,6 @@ jobs:
         key: v1-dependencies-{{ checksum "build.gradle" }}
 
     # Initialize the database
-    - run: apt-get update && apt-get install postgresql-client -y
     - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
     - run:
@@ -77,13 +84,24 @@ jobs:
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
 
+    - run:
+        name: build and test java
+        command: |
+          ./gradlew shadowJar --no-daemon
+
+    - run:
+        name: test e2e
+        command: |
+          set CI=true && npx playwright test --config e2e --project=chromium
+
+
     # to switch to release add following
     # ./gradlew release jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} --stacktrace
     #    ./gradlew checkFormat spotlessCheck test jacocoMergedReport sonarqube ci \
     #    -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
     #    -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
     - run:
-        name: build, test, release, push docker
+        name: release, push docker, push python
         command: |
           if [ "${CIRCLE_BRANCH}" = "master" ]; then
             ./gradlew -s test jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release publishPython \
