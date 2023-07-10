@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
@@ -18,6 +19,7 @@ import spark.Request;
  * FDP Distribution must be referenced as a table name by at least 1 FDP Dataset. If not, this
  * Distribution should not be presented.
  */
+@Tag("slow")
 public class FAIRDataPointDistributionNotInDatasetTest {
 
   static Database database;

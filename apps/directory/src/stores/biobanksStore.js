@@ -8,10 +8,10 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
   const collectionStore = useCollectionStore();
 
-  const biobankCardColumns = settingsStore.config.biobankCardColumns;
+  const biobankReportColumns = settingsStore.config.biobankReportColumns;
   const biobankColumns = settingsStore.config.biobankColumns;
   const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
-  const biobankCardGraphql = biobankCardColumns.map(
+  const biobankCardGraphql = biobankReportColumns.flatMap(
     (biobankColumn) => biobankColumn.column
   );
 
@@ -54,8 +54,8 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
   const collectionColumns = collectionStore.getCollectionColumns();
 
-  const biobankGraphql = biobankColumns
-    .map((biobankColumn) => biobankColumn.column)
+  const biobankProperties = biobankColumns
+    .flatMap((biobankColumn) => biobankColumn.column)
     .concat({ collections: collectionColumns });
 
   let biobankCards = ref([]);
@@ -63,15 +63,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
   const baseQuery = new QueryEMX2(graphqlEndpoint)
     .table("Biobanks")
-    .select([
-      "id",
-      "name",
-      "collections.id",
-      "collections.name",
-      "collections.size",
-      ...biobankCardGraphql,
-      ...getFacetColumnDetails(),
-    ]) // TODO: add different config for the collection side
+    .select([...biobankCardGraphql, ...getFacetColumnDetails()])
     .orderBy("Biobanks", "name", "asc")
     .orderBy("collections", "id", "asc");
 
@@ -86,26 +78,10 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return biobankCards.value;
   }
 
-  async function getBiobankCard(id) {
+  async function getBiobank(id) {
     const biobankReportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Biobanks")
-      .select([
-        "name",
-        "contact.first_name",
-        "contact.last_name",
-        "contact.email",
-        "contact.country.label",
-        "contact.role",
-        "head.first_name",
-        "head.last_name",
-        "head.role",
-        "country.label",
-        "network.name",
-        "network.id",
-        "url",
-        "withdrawn",
-        ...biobankGraphql,
-      ])
+      .select(biobankProperties)
       .orderBy("Biobanks", "name", "asc")
       .orderBy("collections", "id", "asc")
       .where("id")
@@ -155,7 +131,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   return {
     updateBiobankCards,
     getBiobankCards,
-    getBiobankCard,
+    getBiobank,
     waiting: waitingForResponse,
     biobankCardsHaveResults,
     biobankCardsBiobankCount,

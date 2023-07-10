@@ -66,7 +66,7 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
 
   @Override
   public BinaryFileWrapper getBinaryFileWrapper(String name) {
-    URL url = getClass().getClassLoader().getResource(directoryPath + "/_files");
+    URL url = getClass().getResource(directoryPath + "/_files");
     String path = url.getPath();
     List<File> result =
         Arrays.stream(new File(path).listFiles())

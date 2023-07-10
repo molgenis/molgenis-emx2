@@ -6,12 +6,14 @@ import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
 import java.io.StringWriter;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
+@Tag("slow")
 public class TestOpenApi {
 
   @Test
