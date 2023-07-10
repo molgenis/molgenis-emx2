@@ -4,7 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "molgenis-emx2-ontomanager"
-version = "0.2.5"
 description = "Tool to manage catalogue ontologies on Molgenis EMX2 servers."
 readme = "README.md"
 requires-python = ">=3.7"
@@ -13,10 +12,11 @@ classifiers = [
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Operating System :: OS Independent",
 ]
-dynamic = ["dependencies"]
+dynamic = ["version", "dependencies"]
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
+version = {file = "version.txt"}
 
 [project.urls]
 "Homepage" = "https://github.com/molgenis/molgenis-emx2"
