@@ -17,7 +17,13 @@ watch(
   query,
   (newQuery) => {
     if (newQuery && Object.keys(newQuery).length) {
-      filtersStore.bookmarkWaitingForApplication = true;
+      const remainingKeys = Object.keys(newQuery).filter(
+        (key) => key !== "cart"
+      );
+      /** if we only have a cart we do not need to wait for the filters to be applied before updating the biobankcards. */
+      if (remainingKeys.length > 0) {
+        filtersStore.bookmarkWaitingForApplication = true;
+      }
     }
 
     if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
