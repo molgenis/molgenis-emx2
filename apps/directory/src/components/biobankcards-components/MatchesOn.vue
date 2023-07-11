@@ -67,7 +67,8 @@ export default {
       const facetIdentifiers = Object.keys(this.activeFilters);
       for (const facetIdentifier of facetIdentifiers) {
         const activeFilterValues = this.activeFilters[facetIdentifier];
-        if (!activeFilterValues) {
+
+        if (!activeFilterValues || !Array.isArray(activeFilterValues)) {
           continue;
         } /** no need to check further if there are no active filters */
 

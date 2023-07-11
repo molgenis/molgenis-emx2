@@ -76,6 +76,9 @@ export async function applyBookmark(watchedQuery) {
           queryValues.includes(fo.value)
         );
       }
+      else {
+        filtersToAdd = filtersToAdd === 'true' ? true : filtersToAdd
+      }
 
       filtersStore.updateFilter(filterName, filtersToAdd, true);
     }
