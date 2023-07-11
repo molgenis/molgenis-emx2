@@ -21,8 +21,11 @@ export interface INewClient {
   ) => Promise<any>;
   deleteRow: (rowKey: IRow, tableName: string) => Promise<any>;
   deleteAllTableData: (tableName: string) => Promise<any>;
-  fetchSchemaMetaData: () => Promise<any>;
-  fetchTableMetaData: (tableName: string) => Promise<ITableMetaData>;
+  fetchSchemaMetaData: (schemaName?: string) => Promise<any>;
+  fetchTableMetaData: (
+    tableName: string,
+    schemaName?: string
+  ) => Promise<ITableMetaData>;
   fetchTableData: (
     stableId: string,
     properties: IQueryMetaData

@@ -13,8 +13,8 @@ import { IQueryMetaData } from "./IQueryMetaData";
 import { columnNames } from "./queryBuilder";
 
 export { request };
-const client: IClient = {
-  newClient: (schemaName?: string, externalAxios?: Axios): INewClient => {
+class Client implements IClient {
+  newClient(schemaName?: string, externalAxios?: Axios) {
     const myAxios = externalAxios || axios;
     // use closure to have metaData cache private to client
     let schemaMetaData: ISchemaMetaData | null | void = null;
@@ -212,8 +212,10 @@ const client: IClient = {
         });
       },
     };
-  },
-};
+  }
+}
+
+const client: IClient = Client.prototype;
 export default client;
 
 const metaDataQuery = `{
