@@ -6,7 +6,7 @@ import { useFiltersStore } from "./filtersStore";
 export const useCheckoutStore = defineStore("checkoutStore", () => {
   const filtersStore = useFiltersStore();
   const checkoutValid = ref(false);
-  const cartUpdated = ref(false)
+  const cartUpdated = ref(false);
 
   let selectedCollections = ref({});
 
@@ -21,7 +21,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     return collectionCount;
   });
 
-  function addCollectionsToSelection ({ biobank, collections, bookmark }) {
+  function addCollectionsToSelection({ biobank, collections, bookmark }) {
     checkoutValid.value = false;
     const biobankIdentifier = biobank.label || biobank.name;
     const currentSelectionForBiobank =
@@ -44,18 +44,16 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     if (bookmark) {
       checkoutValid.value = true;
-      createBookmark(filtersStore.filters, selectedCollections.value)
-    }
-    else {
+      createBookmark(filtersStore.filters, selectedCollections.value);
+    } else {
       /** we should not refresh on a cart update, so track this */
       cartUpdated.value = true;
     }
 
-
     return { collections, bookmark };
   }
 
-  function removeCollectionsFromSelection ({ biobank, collections, bookmark }) {
+  function removeCollectionsFromSelection({ biobank, collections, bookmark }) {
     checkoutValid.value = false;
     const biobankIdentifier = biobank.label || biobank.name;
 
@@ -86,22 +84,21 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     if (bookmark) {
       checkoutValid.value = true;
-      createBookmark(filtersStore.filters, selectedCollections.value)
-    }
-    else {
+      createBookmark(filtersStore.filters, selectedCollections.value);
+    } else {
       /** we should not refresh on a cart update, so track this */
       cartUpdated.value = true;
     }
   }
 
-  function removeAllCollectionsFromSelection ({ bookmark }) {
+  function removeAllCollectionsFromSelection({ bookmark }) {
     checkoutValid.value = false;
 
     selectedCollections.value = {};
 
     if (bookmark) {
       checkoutValid.value = true;
-      createBookmark(filtersStore.filters, selectedCollections.value)
+      createBookmark(filtersStore.filters, selectedCollections.value);
     }
   }
 

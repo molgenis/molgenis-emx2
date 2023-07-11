@@ -19,7 +19,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
   let facetBiobankColumnDetails = ref([]);
 
-  function getFacetColumnDetails () {
+  function getFacetColumnDetails() {
     if (!facetBiobankColumnDetails.value.length) {
       const filterFacetProperties = [];
 
@@ -65,16 +65,12 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
   const baseQuery = new QueryEMX2(graphqlEndpoint)
     .table("Biobanks")
-    .select([
-      ...biobankCardGraphql,
-      ...getFacetColumnDetails(),
-    ])
+    .select([...biobankCardGraphql, ...getFacetColumnDetails()])
     .orderBy("Biobanks", "name", "asc")
     .orderBy("collections", "id", "asc");
 
   /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
-  async function getBiobankCards () {
-
+  async function getBiobankCards() {
     if (!filtersStore.bookmarkWaitingForApplication) {
       waitingForResponse.value = true;
       if (biobankCards.value.length === 0) {
@@ -86,7 +82,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return biobankCards.value;
   }
 
-  async function getBiobank (id) {
+  async function getBiobank(id) {
     const biobankReportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Biobanks")
       .select(biobankProperties)
@@ -98,8 +94,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return await biobankReportQuery.execute();
   }
 
-  async function updateBiobankCards () {
-
+  async function updateBiobankCards() {
     if (!waitingForResponse.value) {
       waitingForResponse.value = true;
       biobankCards.value = [];

@@ -36,7 +36,7 @@ import ResultHeader from "../biobankcards-components/ResultHeader.vue";
 import PaginationBar from "../biobankcards-components/PaginationBar.vue";
 import BiobankCard from "../biobankcards-components/BiobankCard.vue";
 import { Spinner } from "../../../../molgenis-components";
-import { useFiltersStore } from '../../stores/filtersStore';
+import { useFiltersStore } from "../../stores/filtersStore";
 
 export default {
   setup() {
@@ -62,8 +62,10 @@ export default {
       );
     },
     noResultsText() {
-      return this.filtersStore.bookmarkWaitingForApplication ? "Loading state" : "No biobanks were found"
-    }
+      return this.filtersStore.bookmarkWaitingForApplication
+        ? "Loading state"
+        : "No biobanks were found";
+    },
   },
   async mounted() {
     await this.biobanksStore.getBiobankCards();

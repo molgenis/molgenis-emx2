@@ -3,18 +3,18 @@ import queryEMX2 from "../functions/queryEMX2";
 import { useFiltersStore } from "../stores/filtersStore";
 
 /** Async so we can fire and forget for performance. */
-async function cache (facetIdentifier, filterOptions) {
+async function cache(facetIdentifier, filterOptions) {
   const { filterOptionsCache } = useFiltersStore();
   filterOptionsCache[facetIdentifier] = filterOptions;
 }
 
-function retrieveFromCache (facetIdentifier) {
+function retrieveFromCache(facetIdentifier) {
   const { filterOptionsCache } = useFiltersStore();
   return filterOptionsCache[facetIdentifier] || [];
 }
 
 /** Configurable array of values to filter out, for example 'Other, unknown' that make no sense to the user. */
-function removeOptions (filterOptions, filterFacet) {
+function removeOptions(filterOptions, filterFacet) {
   const optionsToRemove = filterFacet.removeOptions;
 
   if (!optionsToRemove || !optionsToRemove.length) return filterOptions;
@@ -40,7 +40,7 @@ export const customFilterOptions = (filterFacet) => {
     });
 };
 
-function _mapToOptions (row, filterLabelAttribute, filterValueAttribute) {
+function _mapToOptions(row, filterLabelAttribute, filterValueAttribute) {
   return {
     text: row[filterLabelAttribute],
     value: row[filterValueAttribute],
@@ -99,7 +99,6 @@ export const genericFilterOptions = (filterFacet) => {
 };
 
 export const ontologyFilterOptions = (filterFacet) => {
-
   const {
     ontologyIdentifiers,
     sourceTable,
@@ -109,8 +108,6 @@ export const ontologyFilterOptions = (filterFacet) => {
     sortColumn,
     sortDirection,
   } = filterFacet;
-
-
 
   return () =>
     new Promise((resolve) => {
@@ -141,7 +138,6 @@ export const ontologyFilterOptions = (filterFacet) => {
       if (!cachedOptions.length) {
         /** make it query after all the others, saves 50% of initial load */
         const waitAfterBiobanks = setTimeout(() => {
-
           new queryEMX2("graphql")
             .table(sourceTable)
             .select(selection)
@@ -171,10 +167,9 @@ export const ontologyFilterOptions = (filterFacet) => {
                 cache(facetIdentifier, itemsSplitByOntology);
                 resolve(itemsSplitByOntology);
               }
-
             });
-            clearTimeout(waitAfterBiobanks)
-        }, 1000)
+          clearTimeout(waitAfterBiobanks);
+        }, 1000);
       } else {
         resolve(cachedOptions);
       }

@@ -15,40 +15,43 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const settingsStore = useSettingsStore();
 
-
-  let bookmarkWaitingForApplication = ref(false)
+  let bookmarkWaitingForApplication = ref(false);
 
   /** check for url manipulations */
-  let bookmarkTriggeredFilter = ref(false)
+  let bookmarkTriggeredFilter = ref(false);
 
   /** check for filter manipulations */
-  let filterTriggeredBookmark = ref(false)
+  let filterTriggeredBookmark = ref(false);
 
   let filters = ref({});
   let filterType = ref({});
   let filterOptionsCache = ref({});
   let filterFacets = createFilters(settingsStore.config.filterFacets);
-  const facetDetailsDictionary = ref({})
+  const facetDetailsDictionary = ref({});
 
   const facetDetails = computed(() => {
     if (!Object.keys(facetDetailsDictionary.value).length)
       /** extract the components types so we can use that in adding the correct query parts */
       filterFacets.forEach((filterFacet) => {
-        facetDetailsDictionary.value[filterFacet.facetIdentifier] = { ...filterFacet };
+        facetDetailsDictionary.value[filterFacet.facetIdentifier] = {
+          ...filterFacet,
+        };
       });
 
-    return facetDetailsDictionary.value
-  })
+    return facetDetailsDictionary.value;
+  });
 
   const filtersReady = computed(() => {
-    return filterOptionsCache.value ? Object.keys(filterOptionsCache.value).length > 0 : false
-  })
+    return filterOptionsCache.value
+      ? Object.keys(filterOptionsCache.value).length > 0
+      : false;
+  });
 
-  function getValuePropertyForFacet (facetIdentifier) {
-    return facetDetails[facetIdentifier].filterValueAttribute
+  function getValuePropertyForFacet(facetIdentifier) {
+    return facetDetails[facetIdentifier].filterValueAttribute;
   }
 
-  function resetFilters () {
+  function resetFilters() {
     this.baseQuery.resetFilters();
   }
 
@@ -70,19 +73,21 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       /** when we reset the filters on bookmark update, we do not want to search, so hold your horses */
 
       queryDelay = setTimeout(async () => {
-
-        applyFiltersToQuery(baseQuery, filters, facetDetails.value, filterType.value);
+        applyFiltersToQuery(
+          baseQuery,
+          filters,
+          facetDetails.value,
+          filterType.value
+        );
 
         if (!bookmarkTriggeredFilter.value) {
-          createBookmark(filters, checkoutStore.selectedCollections)
+          createBookmark(filters, checkoutStore.selectedCollections);
         }
-        bookmarkTriggeredFilter.value = false
+        bookmarkTriggeredFilter.value = false;
 
         await updateBiobankCards();
         clearTimeout(queryDelay);
-
       }, 750);
-
     },
     { deep: true }
   );
@@ -99,36 +104,37 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       /** when we reset the filters on bookmark update, we do not want to search, so hold your horses */
       queryDelay = setTimeout(async () => {
         clearTimeout(queryDelay);
-        applyFiltersToQuery(baseQuery, filters.value, facetDetails.value, filterType);
+        applyFiltersToQuery(
+          baseQuery,
+          filters.value,
+          facetDetails.value,
+          filterType
+        );
 
         if (!bookmarkTriggeredFilter.value) {
-          createBookmark(filters.value, checkoutStore.selectedCollections)
+          createBookmark(filters.value, checkoutStore.selectedCollections);
         }
-        bookmarkTriggeredFilter.value = false
+        bookmarkTriggeredFilter.value = false;
 
-        if (
-          hasActiveFilters.value
-        ) {
+        if (hasActiveFilters.value) {
           await updateBiobankCards();
           clearTimeout(queryDelay);
         }
       }, 750);
-
     },
     { deep: true, immediate: true }
   );
 
   watch(filtersReady, (filtersReady) => {
-
     if (filtersReady) {
       const waitForStore = setTimeout(() => {
         applyBookmark();
-        clearTimeout(waitForStore)
-      }, 350)
+        clearTimeout(waitForStore);
+      }, 350);
     }
-  })
+  });
 
-  function checkOntologyDescendantsIfMatches (
+  function checkOntologyDescendantsIfMatches(
     ontologyDescendants,
     ontologyQuery
   ) {
@@ -150,7 +156,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return finalVerdict;
   }
 
-  function ontologyItemMatchesQuery (ontologyItem, ontologyQuery) {
+  function ontologyItemMatchesQuery(ontologyItem, ontologyQuery) {
     const findString = ontologyQuery.toLowerCase();
     const codeFound = ontologyItem.code.toLowerCase().includes(findString);
     const nameFound = ontologyItem.name.toLowerCase().includes(findString);
@@ -159,7 +165,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return codeFound || nameFound || labelFound;
   }
 
-  function flattenOntologyBranch (branch, flattendBranches) {
+  function flattenOntologyBranch(branch, flattendBranches) {
     if (!branch.children || !branch.children.length) {
       if (!flattendBranches) {
         return [branch];
@@ -183,7 +189,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
    * @param {string | Array<string>} value array with identifiers or a string with an identifier
    * @param {boolean} add
    */
-  function updateOntologyFilter (filterName, value, add) {
+  function updateOntologyFilter(filterName, value, add) {
     /** value can be a child (single value), or a parent with its children > make it into an array of values */
     let processedValue = value;
 
@@ -223,7 +229,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
    * @param {string} filterName name of ontology filter
    * @param {string} value the identifier 'value' of the filter option
    */
-  function addOntologyOption (filterName, value) {
+  function addOntologyOption(filterName, value) {
     if (filters.value[filterName]) {
       /** sanity check, if it is there already then the job is done */
       if (
@@ -241,7 +247,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
    * @param {string} filterName name of ontology filter
    * @param {Array<string>} value array with identifier 'value' of the filter option
    */
-  function addOntologyOptions (filterName, value) {
+  function addOntologyOptions(filterName, value) {
     if (filters.value[filterName]) {
       const existingValues = filters.value[filterName].map(
         (option) => option.name
@@ -261,7 +267,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
    * @param {string} filterName name of ontology filter
    * @param {string} value the identifier 'value' of the filter option
    */
-  function removeOntologyOption (filterName, value) {
+  function removeOntologyOption(filterName, value) {
     /** can't remove an option which is not present. Jobs done. */
     if (!filters.value[filterName]) return;
 
@@ -278,7 +284,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
    * @param {string} filterName name of ontology filter
    * @param {Array<string>} value array with identifier 'value' of the filter option
    */
-  function removeOntologyOptions (filterName, value) {
+  function removeOntologyOptions(filterName, value) {
     /** can't remove an option which is not present. Jobs done. */
     if (!filters.value[filterName]) return;
 
@@ -293,12 +299,12 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       delete filters.value[filterName];
   }
 
-  function clearAllFilters () {
+  function clearAllFilters() {
     filters.value = {};
   }
 
-  function updateFilter (filterName, value, fromBookmark) {
-    bookmarkTriggeredFilter.value = fromBookmark
+  function updateFilter(filterName, value, fromBookmark) {
+    bookmarkTriggeredFilter.value = fromBookmark;
 
     /** filter reset, so delete */
     if (
@@ -313,12 +319,12 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
-  function getFilterValue (filterName) {
+  function getFilterValue(filterName) {
     return filters.value[filterName];
   }
 
-  function updateFilterType (filterName, value, fromBookmark) {
-    bookmarkTriggeredFilter.value = fromBookmark
+  function updateFilterType(filterName, value, fromBookmark) {
+    bookmarkTriggeredFilter.value = fromBookmark;
 
     /** filter reset, so delete */
     if (value === "" || value === undefined || value.length === 0) {
@@ -328,7 +334,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
-  function getFilterType (filterName) {
+  function getFilterType(filterName) {
     return filterType.value[filterName] || "any";
   }
 
@@ -350,6 +356,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filterFacets,
     filtersReady,
     bookmarkWaitingForApplication,
-    filterTriggeredBookmark
+    filterTriggeredBookmark,
   };
 });

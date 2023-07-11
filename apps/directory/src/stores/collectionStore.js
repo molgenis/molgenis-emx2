@@ -7,13 +7,12 @@ import { useCheckoutStore } from "./checkoutStore";
 export const useCollectionStore = defineStore("collectionStore", () => {
   const settingsStore = useSettingsStore();
 
-
   const collectionColumns = settingsStore.config.collectionColumns;
   const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
 
   const commercialAvailableCollections = ref([]);
 
-  function getCollectionColumns () {
+  function getCollectionColumns() {
     const properties = collectionColumns
       .filter((column) => column.column)
       .flatMap((collectionColumn) => collectionColumn.column);
@@ -30,21 +29,29 @@ export const useCollectionStore = defineStore("collectionStore", () => {
   }
 
   /** when we hydrate a bookmark, we need some information for the cart */
-  async function getMissingCollectionInformation (collectionIds) {
+  async function getMissingCollectionInformation(collectionIds) {
     const checkoutStore = useCheckoutStore();
 
-    const collectionIdsToCheck = Array.isArray(collectionIds) ? collectionIds : [collectionIds]
+    const collectionIdsToCheck = Array.isArray(collectionIds)
+      ? collectionIds
+      : [collectionIds];
     const biobanksInCart = Object.keys(checkoutStore.selectedCollections);
 
-    const collectionIdsInCart = []
+    const collectionIdsInCart = [];
 
     if (biobanksInCart.length) {
       for (const biobank of biobanksInCart) {
-        collectionIdsInCart.push(...checkoutStore.selectedCollections[biobank].map(collection => collection.value))
+        collectionIdsInCart.push(
+          ...checkoutStore.selectedCollections[biobank].map(
+            (collection) => collection.value
+          )
+        );
       }
     }
 
-    const idsMissing = collectionIdsToCheck.filter(colId => !collectionIdsInCart.includes(colId));
+    const idsMissing = collectionIdsToCheck.filter(
+      (colId) => !collectionIdsInCart.includes(colId)
+    );
 
     if (idsMissing.length) {
       const missingCollectionQuery = new QueryEMX2(graphqlEndpoint)
@@ -54,15 +61,13 @@ export const useCollectionStore = defineStore("collectionStore", () => {
         .orLike(idsMissing);
       const result = await missingCollectionQuery.execute();
 
-      return result.Collections
-
-    }
-    else {
-      return {}
+      return result.Collections;
+    } else {
+      return {};
     }
   }
 
-  async function getCommercialAvailableCollections () {
+  async function getCommercialAvailableCollections() {
     if (!commercialAvailableCollections.value.length) {
       const commercialCollectionQuery = new QueryEMX2(graphqlEndpoint)
         .table("Collections")
@@ -83,7 +88,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
     return commercialAvailableCollections.value;
   }
 
-  async function getCollectionReport (id) {
+  async function getCollectionReport(id) {
     const collectionReportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Collections")
       .select(getCollectionColumns())
