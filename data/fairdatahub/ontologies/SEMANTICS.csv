@@ -25,3 +25,17 @@ Organisations,ONTOLOGIES,http://semanticscience.org/resource/SIO_000688
 InclusionStatus,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C19332
 GenotypicSex,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C168871
 GenderIdentity,ONTOLOGIES,http://purl.bioontology.org/ontology/MESH/D005783
+"AllowRecontacting","ONTOLOGIES","http://purl.obolibrary.org/obo/NCIT_C176244"
+"BiospecimenType","ONTOLOGIES","http://purl.obolibrary.org/obo/NCIT_C70699"
+"DataUseModifiers","ONTOLOGIES","http://purl.obolibrary.org/obo/DUO_0000017"
+"DataUsePermissions","ONTOLOGIES","http://purl.obolibrary.org/obo/DUO_0000001"
+"FamilyRelations","ONTOLOGIES","http://purl.obolibrary.org/obo/NCIT_C71384"
+"InclusionCriteria","ONTOLOGIES","http://purl.obolibrary.org/obo/OBI_0500027"
+"MedicalHistory","ONTOLOGIES","http://scdontology.h3abionet.org/ontology/SCDO_1000093"
+"Medication","ONTOLOGIES","http://edamontology.org/data_3103"
+"ReferenceGenomeAssemblies","ONTOLOGIES","http://edamontology.org/data_2787"
+"RepresentedBy","ONTOLOGIES","http://purl.obolibrary.org/obo/BFO_0000023"
+"SequencingEnrichmentKits","ONTOLOGIES","http://purl.obolibrary.org/obo/GENEPIO_0000081"
+"SequencingMethods","ONTOLOGIES","http://purl.obolibrary.org/obo/NCIT_C17565"
+"SequencingPlatforms","ONTOLOGIES","http://purl.obolibrary.org/obo/GENEPIO_0000071"
+"StorageConditions","ONTOLOGIES","http://purl.obolibrary.org/obo/NCIT_C96145"
