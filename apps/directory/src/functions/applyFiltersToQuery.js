@@ -1,5 +1,5 @@
 /** sets filters on baseQuery, by reference */
-export async function applyFiltersToQuery(
+export async function applyFiltersToQuery (
   baseQuery,
   filters,
   facetDetails,

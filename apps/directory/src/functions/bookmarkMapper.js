@@ -64,9 +64,14 @@ export async function applyBookmark (watchedQuery) {
 
     for (const filterName of filters) {
         if (query[filterName]) {
+
             const filterOptions = filtersStore.filterOptionsCache[filterName];
-            let queryValues = decodeURIComponent(query[filterName]).split(',')
-            const filtersToAdd = filterOptions.filter(fo => queryValues.includes(fo.value))
+            let filtersToAdd = decodeURIComponent(query[filterName])
+
+            if (filterOptions) {
+                const queryValues = filtersToAdd.split(',')
+                filtersToAdd = filterOptions.filter(fo => queryValues.includes(fo.value))
+            }
 
             filtersStore.updateFilter(filterName, filtersToAdd, true)
         }

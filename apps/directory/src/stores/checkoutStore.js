@@ -44,11 +44,13 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     if (bookmark) {
       checkoutValid.value = true;
-
-      /** we should not refresh on a cart update, so track this */
-      cartUpdated.value = true;
       createBookmark(filtersStore.filters, selectedCollections.value)
     }
+    else {
+      /** we should not refresh on a cart update, so track this */
+      cartUpdated.value = true;
+    }
+
 
     return { collections, bookmark };
   }
@@ -84,10 +86,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     if (bookmark) {
       checkoutValid.value = true;
-
+      createBookmark(filtersStore.filters, selectedCollections.value)
+    }
+    else {
       /** we should not refresh on a cart update, so track this */
       cartUpdated.value = true;
-      createBookmark(filtersStore.filters, selectedCollections.value)
     }
   }
 

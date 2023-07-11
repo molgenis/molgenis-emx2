@@ -16,6 +16,7 @@ const checkoutStore = useCheckoutStore();
 watch(
   query,
   (newQuery) => {
+    filtersStore.bookmarkWaitingForApplication = true;
     if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
       applyBookmark(newQuery);
     }
