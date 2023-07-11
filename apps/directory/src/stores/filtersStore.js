@@ -98,7 +98,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
       /** when we reset the filters on bookmark update, we do not want to search, so hold your horses */
       queryDelay = setTimeout(async () => {
-        console.trace("0")
         clearTimeout(queryDelay);
         applyFiltersToQuery(baseQuery, filters.value, facetDetails.value, filterType);
 

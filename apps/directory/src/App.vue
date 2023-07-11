@@ -4,24 +4,21 @@ import { computed, watch } from "vue";
 import { applyBookmark } from "./functions/bookmarkMapper";
 import { useRoute } from "vue-router";
 import { useFiltersStore } from "./stores/filtersStore";
+import { useCheckoutStore} from "./stores/checkoutStore"
 
 const route = useRoute();
 
 const query = computed(() => route.query);
 
 const filtersStore = useFiltersStore();
+const checkoutStore = useCheckoutStore();
 
 watch(
   query,
-  (newQuery, oldQuery) => {
-    if (filtersStore.filtersReady) {
-      applyBookmark(newQuery, oldQuery);
+  (newQuery) => {
+    if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
+      applyBookmark(newQuery);
     }
-    // } else if (newQuery && Object.keys(newQuery).length) {
-    // /** check if we have even have a query */
-    //   filtersStore.bookmarkWaitingForApplication = true;
-    //   applyBookmark(newQuery, oldQuery);
-    // }
   },
   { immediate: true, deep: true }
 );
