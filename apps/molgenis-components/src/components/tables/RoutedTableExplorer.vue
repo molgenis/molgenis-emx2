@@ -24,6 +24,9 @@
       :locale="locale"
       @rowClick="$emit('rowClick', $event)"
     >
+      <template v-slot:rowcolheader>
+        <slot name="rowcolheader" />
+      </template>
       <template v-slot:rowheader="slotProps">
         <slot
           name="rowheader"

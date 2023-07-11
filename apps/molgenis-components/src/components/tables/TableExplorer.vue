@@ -261,6 +261,7 @@
                 @add="handleRowAction('add')"
                 class="d-inline p-0"
               />
+              <slot name="rowcolheader" />
             </template>
             <template v-slot:colheader="slotProps">
               <IconAction

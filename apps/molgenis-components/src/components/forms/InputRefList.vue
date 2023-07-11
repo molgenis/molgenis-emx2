@@ -201,6 +201,7 @@ export default {
           );
         })
       ).then(() => (this.loading = false));
+      this.$emit("optionsLoaded", this.data);
     },
   },
   watch: {
