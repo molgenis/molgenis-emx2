@@ -1,9 +1,14 @@
 <template>
   <div class="container mg-network-report-card">
-    <Spinner v-if="!loaded" />
+    <div
+      v-if="!loaded"
+      class="d-flex justify-content-center align-items-center spinner-container"
+    >
+      <Spinner />
+    </div>
     <div v-else class="container-fluid">
       <div class="row">
-        <div class="col">
+        <div class="col my-3 shadow-sm d-flex p-2 align-items-center bg-white">
           <Breadcrumb>
             <ol class="breadcrumb my-1">
               <li class="breadcrumb-item">
