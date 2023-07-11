@@ -4,7 +4,7 @@ import { computed, watch } from "vue";
 import { applyBookmark } from "./functions/bookmarkMapper";
 import { useRoute } from "vue-router";
 import { useFiltersStore } from "./stores/filtersStore";
-import { useCheckoutStore} from "./stores/checkoutStore"
+import { useCheckoutStore } from "./stores/checkoutStore";
 
 const route = useRoute();
 
@@ -16,7 +16,10 @@ const checkoutStore = useCheckoutStore();
 watch(
   query,
   (newQuery) => {
-    filtersStore.bookmarkWaitingForApplication = true;
+    if (newQuery && Object.keys(newQuery).length) {
+      filtersStore.bookmarkWaitingForApplication = true;
+    }
+
     if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
       applyBookmark(newQuery);
     }
