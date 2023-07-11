@@ -14,6 +14,9 @@ function setBookmark (bookmark) {
 }
 
 export async function applyBookmark (watchedQuery) {
+    const checkoutStore = useCheckoutStore();
+    const collectionStore = useCollectionStore();
+    const filtersStore = useFiltersStore();
 
     let query = watchedQuery;
 
@@ -25,26 +28,14 @@ export async function applyBookmark (watchedQuery) {
         query = route.query
     }
 
+    if (!query || !Object.keys(query).length > 0) return
 
-    /** reset the cart and the filters */
-    if (!query) return
-
-    const collectionStore = useCollectionStore();
-    const filtersStore = useFiltersStore();
-
-    /** do not apply when bookmark is changed from the app itself. */
-    if (filtersStore.filterTriggeredBookmark) {
-        filtersStore.filterTriggeredBookmark = false
-        return
-    }
     /**  negotiator token */
     // if (query.nToken) {
     //   state.nToken = query.nToken
     // }
 
     if (query.cart) {
-        const checkoutStore = useCheckoutStore();
-
         const decoded = decodeURIComponent(query.cart)
         const cartIdString = window.atob(decoded)
         const cartIds = cartIdString.split(',')
@@ -60,19 +51,31 @@ export async function applyBookmark (watchedQuery) {
         //     state.searchHistory.push('Starting with a preselected list of collections')
         // }
     }
+    // else {
+    //     checkoutStore.removeAllCollectionsFromSelection({ bookmark: false });
+    // }
 
 
     /** we load the filters, grab the names, so we can loop over it to map the selections */
     const filters = Object.keys(filtersStore.facetDetails)
-
+    // console.trace("?")
+    //     /** reset and re-apply is easier than to figure out if any of them have been removed */
 
     if (query.matchAll) {
         const matchAllFilters = decodeURIComponent(query.matchAll).split(',')
-
         for (const filterName of matchAllFilters) {
             filtersStore.updateFilterType(filterName, "all", true)
         }
     }
+
+    /** verify we have any filters, */
+    // const otherKeys = ['cart', 'matchAll']
+    // const anyFiltersSelected = Object.keys(query).filter(key => !otherKeys.includes(key))
+
+    // if (!anyFiltersSelected.length) {
+    //     filtersStore.clearAllFilters();
+    //     return;
+    // }
 
     for (const filterName of filters) {
         if (query[filterName]) {

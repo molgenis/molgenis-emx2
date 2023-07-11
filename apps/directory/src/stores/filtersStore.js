@@ -17,8 +17,12 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
 
   let bookmarkWaitingForApplication = ref(false)
-  let filterTriggeredBookmark = ref(false)
+
+  /** check for url manipulations */
   let bookmarkTriggeredFilter = ref(false)
+
+  /** check for filter manipulations */
+  let filterTriggeredBookmark = ref(false)
 
   let filters = ref({});
   let filterType = ref({});
@@ -63,20 +67,22 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       /** reset pagination */
       settingsStore.currentPage = 1;
 
+      /** when we reset the filters on bookmark update, we do not want to search, so hold your horses */
+
       queryDelay = setTimeout(async () => {
 
         applyFiltersToQuery(baseQuery, filters, facetDetails.value, filterType.value);
-        filterTriggeredBookmark.value = true
 
         if (!bookmarkTriggeredFilter.value) {
           createBookmark(filters, checkoutStore.selectedCollections)
-          bookmarkTriggeredFilter.value = false
         }
+        bookmarkTriggeredFilter.value = false
 
         await updateBiobankCards();
         clearTimeout(queryDelay);
 
       }, 750);
+
     },
     { deep: true }
   );
@@ -89,28 +95,37 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       }
       /** reset pagination */
       settingsStore.currentPage = 1;
+
+      /** when we reset the filters on bookmark update, we do not want to search, so hold your horses */
       queryDelay = setTimeout(async () => {
+        console.trace("0")
         clearTimeout(queryDelay);
         applyFiltersToQuery(baseQuery, filters.value, facetDetails.value, filterType);
-        filterTriggeredBookmark.value = true
-        createBookmark(filters.value, checkoutStore.selectedCollections)
+
+        if (!bookmarkTriggeredFilter.value) {
+          createBookmark(filters.value, checkoutStore.selectedCollections)
+        }
+        bookmarkTriggeredFilter.value = false
+
         if (
           hasActiveFilters.value
         ) {
           await updateBiobankCards();
+          clearTimeout(queryDelay);
         }
       }, 750);
+
     },
     { deep: true, immediate: true }
   );
 
   watch(filtersReady, (filtersReady) => {
 
-    if (filtersReady && bookmarkWaitingForApplication) {
+    if (filtersReady) {
       const waitForStore = setTimeout(() => {
         applyBookmark();
         clearTimeout(waitForStore)
-      }, 250)
+      }, 350)
     }
   })
 
@@ -331,11 +346,11 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     checkOntologyDescendantsIfMatches,
     ontologyItemMatchesQuery,
     filterOptionsCache,
-    filterTriggeredBookmark,
     hasActiveFilters,
     filters,
     filterFacets,
     filtersReady,
-    bookmarkWaitingForApplication
+    bookmarkWaitingForApplication,
+    filterTriggeredBookmark
   };
 });

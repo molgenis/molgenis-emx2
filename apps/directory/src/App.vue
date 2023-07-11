@@ -13,14 +13,15 @@ const filtersStore = useFiltersStore();
 
 watch(
   query,
-  (newQuery) => {
+  (newQuery, oldQuery) => {
     if (filtersStore.filtersReady) {
-      applyBookmark(newQuery);
+      applyBookmark(newQuery, oldQuery);
     }
-    /** check if we have even have a query */
-    else if(newQuery && Object.keys(newQuery).length) {
-      filtersStore.bookmarkWaitingForApplication = true
-    }
+    // } else if (newQuery && Object.keys(newQuery).length) {
+    // /** check if we have even have a query */
+    //   filtersStore.bookmarkWaitingForApplication = true;
+    //   applyBookmark(newQuery, oldQuery);
+    // }
   },
   { immediate: true, deep: true }
 );

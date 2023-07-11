@@ -9,7 +9,6 @@
     </div>
 
     <div
-      class="hello"
       v-if="collectionDataAvailable && bioschemasJsonld"
       v-html="bioschemasJsonld"
     ></div>
