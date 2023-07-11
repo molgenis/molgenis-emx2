@@ -289,6 +289,8 @@ let fundingAndAcknowledgementItems = computed(() => {
 });
 
 useHead({ title: cohort?.acronym || cohort?.name });
+
+const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
 </script>
 <template>
   <LayoutsDetailPage>
@@ -324,6 +326,7 @@ useHead({ title: cohort?.acronym || cohort?.name });
           :link="cohort?.website"
           :contact="cohort?.contactEmail"
           :contact-name="cohort?.name"
+          :contact-message-filter="messageFilter"
         />
         <ContentBlockDescription
           id="Description"

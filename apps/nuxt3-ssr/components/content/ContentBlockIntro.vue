@@ -24,6 +24,9 @@ const props = defineProps({
     type: String,
     default: "_blank",
   },
+  contactMessageFilter: {
+    type: String,
+  },
 });
 
 let showContactInformation = ref(false);
@@ -81,7 +84,7 @@ const submitForm = async () => {
 
   try {
     isSendSuccess = await sendContactForm({
-      recipientsFilter: '{"filter": {"id":{"equals":"TestCohort"}}}',
+      recipientsFilter: props.contactMessageFilter,
       subject: "Contact request from " + senderName.fieldValue,
       body: `Name: ${senderName.fieldValue}\nEmail: ${senderEmail.fieldValue}\nMessage: ${senderMessage.fieldValue}`,
     });
@@ -141,24 +144,45 @@ const submitForm = async () => {
           :sub-title="contactName"
           class="flex flex-col gap-3"
         >
-          <ContactForm :fields="fields" @submit-form="submitForm" />
-          <div class="pl-3 pb-3">
-            <span class="text-body-base">or contact us at: </span>
+          <template v-if="contactMessageFilter">
+            <ContactForm :fields="fields" @submit-form="submitForm" />
+            <div class="pl-3 pb-3">
+              <span class="text-body-base">or contact us at: </span>
+              <a
+                class="text-blue-500 hover:underline"
+                :href="`mailto:${contact}`"
+              >
+                {{ contact }}
+              </a>
+            </div>
+          </template>
+          <template v-else>
+            <div class="font-bold text-body-base">E-mail</div>
             <a
               class="text-blue-500 hover:underline"
               :href="`mailto:${contact}`"
             >
               {{ contact }}
             </a>
-          </div>
+          </template>
         </ContentBlockModal>
 
         <template #footer>
           <Button
+            v-if="contactMessageFilter"
             type="primary"
             size="small"
             label="Send"
             @click="submitForm"
+            buttonAlignment="right"
+          />
+
+          <Button
+            v-else
+            type="secondary"
+            size="small"
+            label="Close"
+            @click="showContactInformation = false"
             buttonAlignment="right"
           />
         </template>
