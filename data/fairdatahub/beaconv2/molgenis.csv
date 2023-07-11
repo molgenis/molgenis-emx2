@@ -114,5 +114,13 @@ Runs,,libraryStrategy,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_00019
 Runs,,libraryLayout,string,,,,,,,,http://purl.obolibrary.org/obo/FBcv_0003208,Either PAIRED or SINGLE,
 Runs,,platform,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000071,E.g. PacBio platform,
 Runs,,platformModel,ontology,,,,SequencingInstrumentModels,,,,http://purl.obolibrary.org/obo/GENEPIO_0001921,E.g. Illumina HiSeq X Ten,
-Study,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C63536,"A detailed examination, analysis, or critical inspection of one or multiple subjects designed to discover facts.","FAIR Genomes"
-Study,,Identifier,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0000006,"A unique proper name or character sequence that identifies this particular study.","FAIR Genomes"
+"Study","","","","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C63536","A detailed examination, analysis, or critical inspection of one or multiple subjects designed to discover facts.","FAIR Genomes"
+"Study","","Identifier","string","1","TRUE","","","","","","http://purl.obolibrary.org/obo/OMIABIS_0000006","A unique proper name or character sequence that identifies this particular study.","FAIR Genomes"
+"Study","","Name","string","","","","","","","","http://purl.obolibrary.org/obo/OMIABIS_0000037","A name that designates this study.","FAIR Genomes"
+"Study","","Description","text","","","","","","","","http://purl.obolibrary.org/obo/OMIABIS_0000036","A statement or piece of writing that provides details on this study.","FAIR Genomes"
+"Study","","InclusionCriteria","ontology_array","","","","InclusionCriteria","","","","http://purl.obolibrary.org/obo/OBI_0500027","The conditions which, if met, make an person eligible for participation in this study.","FAIR Genomes"
+"Study","","PrincipalInvestigator","string","","","","","","","","http://purl.obolibrary.org/obo/OMIABIS_0000100","The principal investigator or responsible person for this study.","FAIR Genomes"
+"Study","","ContactInformation","string","","","","","","","","http://purl.obolibrary.org/obo/OMIABIS_0000035","An email address for the purpose of contacting the study contact person.","FAIR Genomes"
+"Study","","StudyDesign","text","","","","","","","","http://purl.obolibrary.org/obo/OBI_0500000","A plan specification comprised of protocols (which may specify how and what kinds of data will be gathered) that are executed as part of this study.","FAIR Genomes"
+"Study","","StartDate","date","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C69208","The date on which this study began.","FAIR Genomes"
+"Study","","CompletionDate","date","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C142702","The date on which the concluding information for this study is completed. Usually, this is when the last subject has a final visit, or the main analysis has finished, or any other protocol-defined completion date.","FAIR Genomes"
