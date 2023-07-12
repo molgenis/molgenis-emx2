@@ -6,6 +6,7 @@ import static org.molgenis.emx2.SelectColumn.s;
 import java.io.File;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
@@ -15,6 +16,7 @@ import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
+@Tag("slow")
 public class TestLegacyImport {
   static Database db;
 

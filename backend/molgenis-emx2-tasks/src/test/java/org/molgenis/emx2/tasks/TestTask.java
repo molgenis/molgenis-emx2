@@ -2,8 +2,10 @@ package org.molgenis.emx2.tasks;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("slow")
 public class TestTask {
 
   @Test

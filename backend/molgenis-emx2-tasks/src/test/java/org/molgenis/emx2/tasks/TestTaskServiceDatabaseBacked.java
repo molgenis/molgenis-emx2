@@ -3,11 +3,13 @@ package org.molgenis.emx2.tasks;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
+@Tag("slow")
 public class TestTaskServiceDatabaseBacked {
   private static Database database;
 
