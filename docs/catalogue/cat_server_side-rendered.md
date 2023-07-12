@@ -99,8 +99,8 @@ The label shown on landing CTA element for each of the main sections
 - CATALOGUE_LANDING_DESIGN_LABEL: *Longitudinal*
 - CATALOGUE_LANDING_DESIGN_TEXT: *Percentage of longitudinal datasets. The remaining datasets are
         cross-sectional*
-- CATALOGUE_LANDING_DATASETS_LABEL: *Datasets*
-- CATALOGUE_LANDING_DATASETS_TEXT: *The total number of datasets / subcohorts included*
+- CATALOGUE_LANDING_SUBCOHORTS_LABEL: *Subcohorts*
+- CATALOGUE_LANDING_SUBCOHORTS_TEXT: *The total number of subcohorts included*
 
 
 
