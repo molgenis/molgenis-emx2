@@ -75,9 +75,6 @@ export default defineConfig(({ command, mode }) => {
     if (command === "build" && mode == "app") {
       return {
         ...conf,
-        server: {
-          proxy: require("../dev-proxy.config"),
-        },
         build: {
           rollupOptions: {
             output: {
