@@ -388,7 +388,11 @@ const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
             { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description', singleLine: true },
             { id: 'numberOfParticipants', label: 'Participants' },
-            { id: 'startAndEndYear', label: 'Start end year' },
+            {
+              id: 'startAndEndYear',
+              label: 'Start end year',
+              orderByColumn: 'startYear',
+            },
           ]"
           type="CollectionEvents"
           :query="collectionEventsQuery"
