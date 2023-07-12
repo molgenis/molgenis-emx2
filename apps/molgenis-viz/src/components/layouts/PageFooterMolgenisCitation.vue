@@ -2,44 +2,31 @@
   <div class="footer-meta molgenis-citation">
     <p>
       This database was created using
-      <a href="https://www.molgenis.org/">MOLGENIS open source software</a> v{{
-        molgenisVersion
-      }}
-      released on {{ molgenisBuildDate }}.
+      <a href="https://www.molgenis.org/">MOLGENIS open source software</a>
+      using version {{ version }}
     </p>
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      molgenisVersion: null,
-      molgenisBuildDate: null,
-    };
-  },
-  methods: {
-    async fetchData(url) {
-      const response = await fetch(url);
-      return response.json();
-    },
-    getAppContext() {
-      Promise.all([this.fetchData("/app-ui-context")]).then((response) => {
-        const data = response[0];
-        this.molgenisVersion = data.version;
+<script setup>
+import { ref, onMounted } from "vue";
+import { fetchData } from "../../utils/utils";
 
-        const buildDate = new Date(data.buildDate.split(" ")[0]);
-        const month = buildDate.toLocaleString("default", { month: "long" });
-        const day = buildDate.getDay();
-        const year = buildDate.getFullYear();
-        this.molgenisBuildDate = `${day} ${month} ${year}`;
-      });
-    },
-  },
-  mounted() {
-    this.getAppContext();
-  },
-};
+let version = ref(null);
+
+const query = `{
+  _manifest {
+    DatabaseVersion
+    SpecificationVersion
+  }
+}`;
+
+onMounted(() => {
+  Promise.resolve(fetchData(query)).then((response) => {
+    const data = response.data._manifest;
+    version.value = data.SpecificationVersion;
+  });
+});
 </script>
 
 <style lang="scss">
