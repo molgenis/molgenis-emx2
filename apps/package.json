@@ -2,6 +2,7 @@
   "private": true,
   "workspaces": [
     "catalogue",
+    "directory",
     "settings",
     "central",
     "schema",
@@ -14,7 +15,8 @@
     "molgenis-viz",
     "helloworld",
     "reports",
-    "tasks"
+    "tasks",
+    "gportal"
   ]
 }
 

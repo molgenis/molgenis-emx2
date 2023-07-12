@@ -65,7 +65,9 @@
               <dd>
                 {{
                   harmonisation.sourceVariables
-                    ? harmonisation.sourceVariables.map((v) => v.name).join(",")
+                    ? harmonisation.sourceVariables
+                        .map((v) => v.name)
+                        .join(", ")
                     : "N/A"
                 }}
               </dd>

@@ -45,7 +45,9 @@ public class MessageApi {
     logger.info("Received message request");
     Schema schema = MolgenisWebservice.getSchema(request);
     if (schema == null) {
-      throw new MolgenisException("Cannot handle send action, schema is null");
+      String msg = "Cannot handle send action, schema is null";
+      logger.error(msg);
+      throw new MolgenisException(msg);
     }
 
     ObjectMapper objectMapper = new ObjectMapper();
@@ -56,7 +58,9 @@ public class MessageApi {
       validationFilter = objectMapper.readValue(sendMessageAction.recipientsFilter(), Map.class);
     } catch (JsonProcessingException e) {
       response.status(422);
-      return "Error parsing request: " + e.getMessage();
+      String msg = "Error parsing request: " + e.getMessage();
+      logger.error(msg);
+      return msg;
     }
 
     String recipientsQuery = schema.getSettingValue(Constants.CONTACT_RECIPIENTS_QUERY_SETTING_KEY);
@@ -64,10 +68,12 @@ public class MessageApi {
     try {
       parser.parseDocument(recipientsQuery);
     } catch (Exception e) {
-      throw new MolgenisException(
+      String msg =
           "Cannot handle send action, schema setting "
               + Constants.CONTACT_RECIPIENTS_QUERY_SETTING_KEY
-              + " is not a valid graphql query");
+              + " is not a valid graphql query";
+      logger.error(msg);
+      throw new MolgenisException(msg);
     }
 
     MolgenisSession session = sessionManager.getSession(request);
@@ -77,7 +83,10 @@ public class MessageApi {
         gql.execute(ExecutionInput.newExecutionInput(recipientsQuery).variables(validationFilter));
     if (!executionResult.getErrors().isEmpty()) {
       response.status(500);
-      return "Error sending message: " + executionResult.getErrors().get(0).getMessage();
+      String msg =
+          "Error validating message receivers: " + executionResult.getErrors().get(0).getMessage();
+      logger.error(msg);
+      return msg;
     }
     Map<String, Object> resultMap = executionResult.toSpecification();
 
@@ -86,12 +95,16 @@ public class MessageApi {
       recipients.addAll(EmailValidator.validationResponseToReceivers(resultMap));
     } catch (Exception e) {
       response.status(500);
-      return "Error validating message receivers: " + e.getMessage();
+      String msg = "Error validating message receivers: " + e.getMessage();
+      logger.error(msg);
+      return msg;
     }
 
     if (recipients.isEmpty()) {
       response.status(500);
-      return "No recipients found for given filter";
+      String msg = "No recipients found for given filter";
+      logger.error(msg);
+      return msg;
     }
 
     logger.info(
@@ -104,7 +117,7 @@ public class MessageApi {
     EmailSettings settings = loadEmailSettings(schema);
     EmailService emailService = new EmailService(settings);
 
-    final Boolean sendResult =
+    final boolean sendResult =
         emailService.send(recipients, sendMessageAction.subject(), sendMessageAction.body());
     if (!sendResult) {
       response.status(500);
@@ -114,7 +127,7 @@ public class MessageApi {
           sendMessageAction.subject(),
           sendMessageAction.body());
     }
-    return sendResult.toString();
+    return String.valueOf(sendResult);
   }
 
   private static EmailSettings loadEmailSettings(Schema schema) {

@@ -24,7 +24,7 @@
             >
           </a>
         </td>
-        <td>{{ row.linkedResource?.type?.map((t) => t.name).join(",") }}</td>
+        <td>{{ row.linkedResource?.type?.map((t) => t.name).join(", ") }}</td>
         <td>{{ row.linkedResource?.linkageStrategy?.name }}</td>
         <td>{{ row.linkedResource?.linkageDescription?.name }}</td>
         <td>{{ row.linkedResource?.linkageVariable }}</td>
@@ -62,13 +62,13 @@ export default {
     downloadMappingsZipUrl() {
       return (
         "../api/reports/zip?id=0,1,2,3&resources=" +
-        this.rows.map((row) => row.linkedResource.id).join(",")
+        this.rows.map((row) => row.linkedResource.id).join(", ")
       );
     },
     downloadMappingsExcelUrl() {
       return (
         "../api/reports/excel?id=0,1,2,3&resources=" +
-        this.rows.map((row) => row.linkedResource.id).join(",")
+        this.rows.map((row) => row.linkedResource.id).join(", ")
       );
     },
   },

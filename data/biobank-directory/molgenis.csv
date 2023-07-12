@@ -73,7 +73,7 @@ Collections,,combined_network,Combined_network,ref_array,,FALSE,"Reference to on
 Collections,,also_known,Also known in,ref_array,,FALSE,Collection also exists in …,AlsoKnownIn,,${name_system},,,
 Collections,,characteristics,Characteristics,heading,,FALSE,Characteristics,,,,,,
 Collections,,type,Type,ontology_array,,TRUE,Type(s) of collection - MIABIS-2.0-19.,CollectionTypes,,${label},,,
-Collections,,data_categories,Data categories,ontology_array,,TRUE,Denotes which types of data are available (MIABIS-2.0-13).,DataTypes,,${label},,,
+Collections,,data_categories,Data categories,ontology_array,,TRUE,The data categories from which data is available. Can be several values MIABIS-2.0-3,DataCategories,,${label},,,
 Collections,,order_of_magnitude,Order of magnitude,ontology,,TRUE,Size of the collection measured as 10n samples.,SampleSizes,,${label},,,
 Collections,,size,Size,int,,FALSE,Exact size of the collection to the given date.,,,,,,
 Collections,,categories,Categories,ontology_array,,FALSE,Collection Categories,Categories,,${label},,,

@@ -5,11 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.EntryTypes;
 import org.molgenis.emx2.json.JsonUtil;
 import spark.Request;
 
+@Tag("slow")
 public class Beaconv2_EntryTypesTest {
 
   @Test

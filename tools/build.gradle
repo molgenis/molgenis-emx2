@@ -4,12 +4,12 @@ plugins {
 
 subprojects {
     task buildPython(type:Exec) {
-        if(project.version.toString().contains("SNAPSHOT")) {
+        if(version.toString().contains("SNAPSHOT")) {
             //must comply with https://peps.python.org/pep-0440/
             //todo: can we somehow include the github hash?
-            new File(projectDir, "version.txt").text = project.version.toString().substring(0, project.version.toString().indexOf("-")) + ".dev" + new Date().getTime()
+            new File(projectDir, "version.txt").text = version.replace("-SNAPSHOT","") + ".dev" + new Date().getTime()
         } else {
-            new File(projectDir, "version.txt").text = project.version
+            new File(projectDir, "version.txt").text = version
         }
         group 'build'
         description 'run python lib build'
@@ -39,10 +39,11 @@ subprojects {
 
     task publishPython(type:Exec) {
         dependsOn buildPython
+        dependsOn ":backend:assemble" //should run after test succeed and assemble is ready
         group 'release'
         description 'publish python package'
         //expects credentials for testpypi
-        if(project.version.toString().contains("SNAPSHOT")) {
+        if(version.toString().contains("SNAPSHOT")) {
             commandLine 'twine', 'upload', '--repository', 'testpypi', 'dist/*'
         } else  {
             //todo switch to production when stable

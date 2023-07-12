@@ -1,13 +1,11 @@
 <template>
   <div class="mt-1">
-    {{ network }}
     <ul v-if="variables.length" class="list-group">
       <variable-list-item
         v-for="(variable, index) in variables"
         :key="index"
         :variable="variable"
         :network="network"
-        @request-variable-detail="handleVariableDetailsRequest(variable)"
       />
       <button
         class="btn btn-link mt-2 mb-3"
@@ -46,11 +44,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["fetchVariableDetails", "fetchAdditionalVariables"]),
-    async handleVariableDetailsRequest(variable) {
-      const result = await this.fetchVariableDetails(variable);
-      variable.variableDetails = result;
-    },
+    ...mapActions(["fetchAdditionalVariables"]),
   },
 };
 </script>

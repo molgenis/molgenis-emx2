@@ -3,6 +3,7 @@ package org.molgenis.emx2.io;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
@@ -14,6 +15,7 @@ import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
+@Tag("slow")
 public class TestImportExportAllExamples {
 
   static Database db;
