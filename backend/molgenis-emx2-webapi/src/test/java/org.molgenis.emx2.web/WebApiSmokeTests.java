@@ -1,7 +1,32 @@
 package org.molgenis.emx2.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.Assert;
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.*;
+import org.molgenis.emx2.Order;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
+import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.utils.EnvironmentProperty;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.Map;
+
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
-import static io.restassured.RestAssured.*;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,30 +40,6 @@ import static org.molgenis.emx2.RunMolgenisEmx2.CATALOGUE_DEMO;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.Assert;
-import io.restassured.RestAssured;
-import io.restassured.response.Response;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.Map;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Tag;
-import org.molgenis.emx2.*;
-import org.molgenis.emx2.Order;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
-import org.molgenis.emx2.io.tablestore.TableStore;
-import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
-import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
-import org.molgenis.emx2.utils.EnvironmentProperty;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -54,10 +55,9 @@ public class WebApiSmokeTests {
   final String CSV_TEST_SCHEMA = "pet store csv";
   static final int PORT = 8081; // other then default so we can see effect
 
-  @Tag("windowsFail")
   @BeforeAll
   public static void before() throws Exception {
-
+    // FIXME: beforeAll fails under windows
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
 
