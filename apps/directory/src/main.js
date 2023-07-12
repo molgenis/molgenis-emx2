@@ -4,6 +4,8 @@ import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
 
+import "molgenis-components/dist/style.css";
+
 /** When in devmode use this stylesheet */
 if (import.meta.env.DEV) {
   import("./dev-assets/mg-bbmri-eric-4.css");

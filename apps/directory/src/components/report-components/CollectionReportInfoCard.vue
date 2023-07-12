@@ -77,7 +77,7 @@
                   <span
                     class="fa fa-fw fa-paper-plane mr-2"
                     aria-hidden="true"
-                  ></span>
+                  />
                   <a :href="'mailto:' + info.biobank.email">
                     <span>{{ uiText["email"] }}</span>
                   </a>
@@ -104,11 +104,11 @@
                     <span
                       class="fa fa-fw fa-address-card mr-2"
                       aria-hidden="true"
-                    ></span>
+                    />
                     <router-link :to="network.report">
-                      <span
-                        >{{ uiText["view"] }} {{ network.name }} network</span
-                      >
+                      <span>
+                        {{ uiText["view"] }} {{ network.name }} network
+                      </span>
                     </router-link>
                   </div>
                 </div>
@@ -156,28 +156,14 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed, toRefs } from "vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 
-export default {
-  name: "CollectionReportInfoCard",
-  props: {
-    info: {
-      type: Object,
-      required: true,
-    },
-  },
-  setup() {
-    const settingsStore = useSettingsStore();
-
-    return { settingsStore };
-  },
-  computed: {
-    uiText() {
-      return this.settingsStore.uiText;
-    },
-  },
-};
+const settingsStore = useSettingsStore();
+const uiText = computed(() => settingsStore.uiText);
+const props = defineProps(["info"]);
+let { info } = toRefs(props);
 </script>
 
 <style scoped>
