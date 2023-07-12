@@ -296,15 +296,44 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     const { sourceTable, sortColumn, sortDirection } = filterFacet;
     const attributes = getOntologyAttributes(filterFacet);
 
-    const ontologyResult = await new QueryEMX2(graphqlEndpoint)
-      .table(sourceTable)
-      .select(attributes)
-      .where("code")
-      .orLike(codes)
-      .orderBy(sourceTable, sortColumn, sortDirection)
-      .execute();
+    let codesToQuery = [];
+    const codeCount = codes.length;
 
-    return ontologyResult ? ontologyResult[sourceTable] : ontologyResult;
+    const chunkSize = 20;
+    let chunk = [];
+    if (codes.length > 20) {
+      for (let index = 0; index < codeCount; index++) {
+        chunk.push(codes[index]);
+        if (chunk.length === chunkSize) {
+          codesToQuery.push(chunk);
+          chunk = [];
+        }
+      }
+      if (chunk.length) {
+        codesToQuery.push(chunk);
+        chunk = [];
+      }
+    } else {
+      codesToQuery = [codes];
+    }
+
+    const ontologyResults = [];
+
+    for (const codeBlock of codesToQuery) {
+      const ontologyResult = await new QueryEMX2(graphqlEndpoint)
+        .table(sourceTable)
+        .select(attributes)
+        .where("code")
+        .orLike(codeBlock)
+        .orderBy(sourceTable, sortColumn, sortDirection)
+        .execute();
+
+      if (ontologyResult && ontologyResult[sourceTable]) {
+        ontologyResults.push(...ontologyResult[sourceTable]);
+      }
+    }
+
+    return ontologyResults;
   }
 
   /**
