@@ -1,15 +1,26 @@
 <script setup>
 import { RouterView } from "vue-router";
+import PageFooter from "./components/layouts/PageFooter.vue";
+import MolgenisLogo from "./components/display/MolgenisLogo.vue";
 </script>
 
 <template>
   <RouterView />
+  <PageFooter>
+    <MolgenisLogo />
+  </PageFooter>
 </template>
 
 <style lang="scss">
 body {
   padding: 0;
   margin: 0;
+}
+
+.molgenis-logo {
+  display: block;
+  margin: 0 auto;
+  padding: 0;
 }
 
 .app-page {
@@ -39,5 +50,9 @@ body {
       margin: 0;
     }
   }
+}
+
+.page-footer {
+  padding: 2em 0;
 }
 </style>

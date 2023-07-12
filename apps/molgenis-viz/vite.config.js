@@ -7,11 +7,6 @@ import vue from "@vitejs/plugin-vue";
 let conf = {
   plugins: [vue()],
   base: "",
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
-  },
   css: {
     preprocessorOptions: {
       scss: {
@@ -37,7 +32,6 @@ export default defineConfig(({ command, mode }) => {
       ...conf,
       resolve: {
         alias: {
-          '@': fileURLToPath(new URL('./src', import.meta.url)),
           vue: require.resolve("vue/dist/vue.runtime.esm-bundler.js"),
         },
       },
@@ -81,6 +75,9 @@ export default defineConfig(({ command, mode }) => {
     if (command === "build" && mode == "app") {
       return {
         ...conf,
+        server: {
+          proxy: require("../dev-proxy.config"),
+        },
         build: {
           rollupOptions: {
             output: {

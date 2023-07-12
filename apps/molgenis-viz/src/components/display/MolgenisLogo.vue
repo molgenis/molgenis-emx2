@@ -1,5 +1,5 @@
 <script setup>
-import MolgenisLogo from "@/assets/molgenis-logo-blue-small.svg";
+import MolgenisLogo from "../../assets/molgenis-logo-blue-small.svg";
 </script>
 
 <template>

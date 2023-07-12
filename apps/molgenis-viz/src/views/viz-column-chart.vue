@@ -56,15 +56,15 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchData, sortData } from "@/utils/utils.js";
+import { fetchData, sortData } from "../utils/utils.js";
 
-import Page from "@/components/layouts/Page.vue";
-import PageHeader from "@/components/layouts/PageHeader.vue";
-import PageSection from "@/components/layouts/PageSection.vue";
-import Breadcrumbs from "@/app-components/breadcrumbs.vue";
-import MessageBox from "@/components/display/MessageBox.vue";
-import ColumnChart from "@/components/viz/ColumnChart.vue";
-import headerImage from "@/assets/adrien-delforge-unsplash.jpg";
+import Page from "../components/layouts/Page.vue";
+import PageHeader from "../components/layouts/PageHeader.vue";
+import PageSection from "../components/layouts/PageSection.vue";
+import Breadcrumbs from "../app-components/breadcrumbs.vue";
+import MessageBox from "../components/display/MessageBox.vue";
+import ColumnChart from "../components/viz/ColumnChart.vue";
+import headerImage from "../assets/adrien-delforge-unsplash.jpg";
 
 let loading = ref(true);
 let hasError = ref(false);

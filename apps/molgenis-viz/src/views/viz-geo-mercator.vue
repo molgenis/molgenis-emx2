@@ -71,16 +71,16 @@
 <script setup>
 import { ref, onMounted } from "vue";
 
-import { fetchData } from "@/utils/utils.js";
-import geojson from "@/data/world.geo.json";
+import { fetchData } from "../utils/utils.js";
+import geojson from "../data/world.geo.json";
 
-import Page from "@/components/layouts/Page.vue";
-import PageHeader from "@/components/layouts/PageHeader.vue";
-import PageSection from "@/components/layouts/PageSection.vue";
-import MessageBox from "@/components/display/MessageBox.vue";
-import GeoMercator from "@/components/viz/GeoMercator.vue";
-import Breadcrumbs from "@/app-components/breadcrumbs.vue";
-import headerImage from "@/assets/t-h-chia-unsplash.jpg";
+import Page from "../components/layouts/Page.vue";
+import PageHeader from "../components/layouts/PageHeader.vue";
+import PageSection from "../components/layouts/PageSection.vue";
+import MessageBox from "../components/display/MessageBox.vue";
+import GeoMercator from "../components/viz/GeoMercator.vue";
+import Breadcrumbs from "../app-components/breadcrumbs.vue";
+import headerImage from "../assets/t-h-chia-unsplash.jpg";
 
 let loading = ref(true);
 let hasError = ref(false);

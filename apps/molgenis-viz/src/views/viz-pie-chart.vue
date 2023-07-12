@@ -57,17 +57,17 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchData, asDataObject } from "@/utils/utils.js";
+import { fetchData, asDataObject } from "../utils/utils.js";
 import { sum, format } from "d3";
 const d3 = { sum, format };
 
-import Page from "@/components/layouts/Page.vue";
-import PageHeader from "@/components/layouts/PageHeader.vue";
-import PageSection from "@/components/layouts/PageSection.vue";
-import MessageBox from "@/components/display/MessageBox.vue";
-import PieChart from "@/components/viz/PieChart.vue";
-import Breadcrumbs from "@/app-components/breadcrumbs.vue";
-import headerImage from "@/assets/sheri-silver-unsplash.jpg";
+import Page from "../components/layouts/Page.vue";
+import PageHeader from "../components/layouts/PageHeader.vue";
+import PageSection from "../components/layouts/PageSection.vue";
+import MessageBox from "../components/display/MessageBox.vue";
+import PieChart from "../components/viz/PieChart.vue";
+import Breadcrumbs from "../app-components/breadcrumbs.vue";
+import headerImage from "../assets/sheri-silver-unsplash.jpg";
 
 let loading = ref(true);
 let hasError = ref(false);

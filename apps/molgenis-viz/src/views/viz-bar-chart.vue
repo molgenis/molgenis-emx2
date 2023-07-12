@@ -55,15 +55,15 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchData, reverseSortData } from "@/utils/utils.js";
+import { fetchData, reverseSortData } from "../utils/utils.js";
 
-import Page from "@/components/layouts/Page.vue";
-import PageHeader from "@/components/layouts/PageHeader.vue";
-import PageSection from "@/components/layouts/PageSection.vue";
-import MessageBox from "@/components/display/MessageBox.vue";
-import Breadcrumbs from "@/app-components/breadcrumbs.vue";
-import BarChart from "@/components/viz/BarChart.vue";
-import headerImage from "@/assets/bulkan-evcimen.jpg";
+import Page from "../components/layouts/Page.vue";
+import PageHeader from "../components/layouts/PageHeader.vue";
+import PageSection from "../components/layouts/PageSection.vue";
+import MessageBox from "../components/display/MessageBox.vue";
+import Breadcrumbs from "../app-components/breadcrumbs.vue";
+import BarChart from "../components/viz/BarChart.vue";
+import headerImage from "../assets/bulkan-evcimen.jpg";
 
 let loading = ref(true);
 let hasError = ref(false);

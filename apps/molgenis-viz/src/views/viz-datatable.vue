@@ -48,15 +48,15 @@
 </template>
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchData, reverseSortData, renameKey } from "@/utils/utils.js";
+import { fetchData, reverseSortData, renameKey } from "../utils/utils.js";
 
-import Page from "@/components/layouts/Page.vue";
-import PageHeader from "@/components/layouts/PageHeader.vue";
-import PageSection from "@/components/layouts/PageSection.vue";
-import MessageBox from "@/components/display/MessageBox.vue";
-import Breadcrumbs from "@/app-components/breadcrumbs.vue";
-import Datatable from "@/components/viz/DataTable.vue";
-import headerImage from "@/assets/ashley-byrd-unsplash.jpg";
+import Page from "../components/layouts/Page.vue";
+import PageHeader from "../components/layouts/PageHeader.vue";
+import PageSection from "../components/layouts/PageSection.vue";
+import MessageBox from "../components/display/MessageBox.vue";
+import Breadcrumbs from "../app-components/breadcrumbs.vue";
+import Datatable from "../components/viz/DataTable.vue";
+import headerImage from "../assets/ashley-byrd-unsplash.jpg";
 
 let loading = ref(true);
 let hasError = ref(false);

@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import ChartLegend from "@/components/viz/ChartLegend.vue";
+import ChartLegend from "./ChartLegend.vue";
 import {
   select,
   selectAll,

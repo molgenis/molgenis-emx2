@@ -18,7 +18,7 @@
     </PageSection>
     <PageSection class="bkg-light" :verticalPadding="2">
       <h2>Visualisation Components</h2>
-      <p style="text-align: center">
+      <p style="text-align: center;">
         We have several D3 visualisation components available and more on the
         way.
       </p>
@@ -58,41 +58,20 @@
   </Page>
 </template>
 
-<script>
-import Page from "@/components/layouts/Page.vue";
-import PageHeader from "@/components/layouts/PageHeader.vue";
-import PageSection from "@/components/layouts/PageSection.vue";
-import LinkCard from "@/components/display/LinkCard.vue";
+<script setup>
+import Page from "../components/layouts/Page.vue";
+import PageHeader from "../components/layouts/PageHeader.vue";
+import PageSection from "../components/layouts/PageSection.vue";
+import LinkCard from "../components/display/LinkCard.vue";
 
-import headerImage from "@/assets/joeyy-lee-unsplash.jpg";
-import BarChartImage from "@/assets/bulkan-evcimen.jpg";
-import ColumnChartImage from "@/assets/adrien-delforge-unsplash.jpg";
-import PieChartImage from "@/assets/sheri-silver-unsplash.jpg";
-import MapImage from "@/assets/t-h-chia-unsplash.jpg";
-import LegendImage from "@/assets/studio-media-unsplash.jpg";
-import HighlightsImage from "@/assets/ray-shrewsberry-unsplash.jpg";
-import DatatableImage from "@/assets/ashley-byrd-unsplash.jpg";
-
-export default {
-  components: {
-    Page,
-    PageHeader,
-    PageSection,
-    LinkCard,
-  },
-  data() {
-    return {
-      headerImage: headerImage,
-      BarChartImage: BarChartImage,
-      PieChartImage: PieChartImage,
-      ColumnChartImage: ColumnChartImage,
-      MapImage: MapImage,
-      LegendImage: LegendImage,
-      HighlightsImage: HighlightsImage,
-      DatatableImage: DatatableImage,
-    };
-  },
-};
+import headerImage from "../assets/joeyy-lee-unsplash.jpg";
+import BarChartImage from "../assets/bulkan-evcimen.jpg";
+import ColumnChartImage from "../assets/adrien-delforge-unsplash.jpg";
+import PieChartImage from "../assets/sheri-silver-unsplash.jpg";
+import MapImage from "../assets/t-h-chia-unsplash.jpg";
+import LegendImage from "../assets/studio-media-unsplash.jpg";
+import HighlightsImage from "../assets/ray-shrewsberry-unsplash.jpg";
+import DatatableImage from "../assets/ashley-byrd-unsplash.jpg";
 </script>
 
 <style lang="scss">

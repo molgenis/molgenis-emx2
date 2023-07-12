@@ -25,7 +25,7 @@
 import { select, selectAll, scaleOrdinal, pie, arc, schemeBlues } from "d3";
 const d3 = { select, selectAll, scaleOrdinal, pie, arc, schemeBlues };
 
-import { validateNumRange } from "@/utils/utils.js";
+import { validateNumRange } from "../../utils/utils.js";
 
 // Create a pie chart to visually display subelements of your data in relation
 // to the entire dataset. The data should contain no more than 7 elements and

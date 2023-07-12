@@ -96,7 +96,7 @@ const d3 = {
   axisLeft,
 };
 
-import { validateNumRange } from "@/utils/utils.js";
+import { validateNumRange } from "../../utils/utils.js";
 
 // Create a column chart (vertical bars) where the height of a bar
 // is corresponds to a value of a categorical variable (along the x-axis). If

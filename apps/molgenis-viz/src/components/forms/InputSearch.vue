@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import InputLabel from "@/components/forms/InputLabel.vue";
+import InputLabel from "../forms/InputLabel.vue";
 
 // @displayName InputSearch
 // Create search field for forms. User input is emitted and accessible using a search event: `<InputSearch @search="(value) => someFunction(value)" />`.

@@ -55,15 +55,15 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { schemeGnBu } from "d3-scale-chromatic";
-import { fetchData } from "@/utils/utils";
+import { fetchData } from "../utils/utils";
 
-import Page from "@/components/layouts/Page.vue";
-import PageHeader from "@/components/layouts/PageHeader.vue";
-import PageSection from "@/components/layouts/PageSection.vue";
-import MessageBox from "@/components/display/MessageBox.vue";
-import ChartLegend from "@/components/viz/ChartLegend.vue";
-import Breadcrumbs from "@/app-components/breadcrumbs.vue";
-import headerImage from "@/assets/studio-media-unsplash.jpg";
+import Page from "../components/layouts/Page.vue";
+import PageHeader from "../components/layouts/PageHeader.vue";
+import PageSection from "../components/layouts/PageSection.vue";
+import MessageBox from "../components/display/MessageBox.vue";
+import ChartLegend from "../components/viz/ChartLegend.vue";
+import Breadcrumbs from "../app-components/breadcrumbs.vue";
+import headerImage from "../assets/studio-media-unsplash.jpg";
 
 let loading = ref(false);
 let data = ref([]);
