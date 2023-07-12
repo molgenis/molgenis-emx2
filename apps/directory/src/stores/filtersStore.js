@@ -6,6 +6,7 @@ import { useBiobanksStore } from "./biobanksStore";
 import { useSettingsStore } from "./settingsStore";
 import { useCheckoutStore } from "./checkoutStore";
 import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
+import QueryEMX2 from "../functions/queryEMX2";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
@@ -14,6 +15,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const { baseQuery, updateBiobankCards } = biobankStore;
 
   const settingsStore = useSettingsStore();
+
+  const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
 
   let bookmarkWaitingForApplication = ref(false);
 
@@ -189,7 +192,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
    * @param {string | Array<string>} value array with identifiers or a string with an identifier
    * @param {boolean} add
    */
-  function updateOntologyFilter(filterName, value, add) {
+  function updateOntologyFilter(filterName, value, add, fromBookmark) {
+    bookmarkTriggeredFilter.value = fromBookmark;
+
     /** value can be a child (single value), or a parent with its children > make it into an array of values */
     let processedValue = value;
 
@@ -255,12 +260,51 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       const filterOptionsToAdd = value.filter(
         (newValue) => !existingValues.includes(newValue.name)
       );
-      filters.value[filterName] = filters.value[filterName].concat(
-        filterOptionsToAdd
-      );
+      filters.value[filterName] =
+        filters.value[filterName].concat(filterOptionsToAdd);
     } else {
       filters.value[filterName] = value;
     }
+  }
+  /** did not move this to be used in filteroptions because the store is async. */
+  function getOntologyAttributes(filterFacet) {
+    const { filterLabelAttribute, filterValueAttribute } = filterFacet;
+    return [
+      filterLabelAttribute,
+      filterValueAttribute,
+      "code",
+      `parent.${filterValueAttribute}`,
+      `children.${filterValueAttribute}`,
+      `children.children.${filterValueAttribute}`,
+      `children.children.children.${filterValueAttribute}`,
+      `children.children.children.children.${filterValueAttribute}`,
+      `children.children.children.children.children.${filterValueAttribute}`,
+      "children.code",
+      "children.children.code",
+      "children.children.children.code",
+      "children.children.children.children.code",
+      "children.children.children.children.children.code",
+      `children.${filterLabelAttribute}`,
+      `children.children.${filterLabelAttribute}`,
+      `children.children.children.${filterLabelAttribute}`,
+      `children.children.children.children.${filterLabelAttribute}`,
+      `children.children.children.children.children.${filterLabelAttribute}`,
+    ];
+  }
+
+  async function getOntologyOptionsForCodes(filterFacet, codes) {
+    const { sourceTable, sortColumn, sortDirection } = filterFacet;
+    const attributes = getOntologyAttributes(filterFacet);
+
+    const ontologyResult = await new QueryEMX2(graphqlEndpoint)
+      .table(sourceTable)
+      .select(attributes)
+      .where("code")
+      .orLike(codes)
+      .orderBy(sourceTable, sortColumn, sortDirection)
+      .execute();
+
+    return ontologyResult ? ontologyResult[sourceTable] : ontologyResult;
   }
 
   /**
@@ -301,6 +345,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function clearAllFilters() {
     filters.value = {};
+    createBookmark(filters.value, checkoutStore.selectedCollections);
   }
 
   function updateFilter(filterName, value, fromBookmark) {
@@ -350,6 +395,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     getValuePropertyForFacet,
     checkOntologyDescendantsIfMatches,
     ontologyItemMatchesQuery,
+    getOntologyOptionsForCodes,
     filterOptionsCache,
     hasActiveFilters,
     filters,
