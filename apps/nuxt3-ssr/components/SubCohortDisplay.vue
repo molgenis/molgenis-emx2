@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Ref } from "vue";
 import query from "~~/gql/subcohort";
+import ContentBlockModal from "./content/ContentBlockModal.vue";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -121,16 +122,11 @@ if (subcohort?.inclusionCriteria) {
 </script>
 
 <template>
-  <section class="bg-white py-18 lg:px-12.5 px-5 text-gray-900">
-    <h2
-      class="mb-5 uppercase text-heading-4xl font-display"
-      v-if="subcohort?.name"
-    >
-      {{ subcohort?.name }}
-    </h2>
-    <div class="mb-5 prose max-w-none" v-if="subcohort?.description">
-      <div v-html="subcohort?.description"></div>
-    </div>
+  <ContentBlockModal
+    v-if="subcohort"
+    :title="subcohort?.name"
+    :description="subcohort?.description"
+  >
     <DefinitionList :items="items" :small="true" />
-  </section>
+  </ContentBlockModal>
 </template>

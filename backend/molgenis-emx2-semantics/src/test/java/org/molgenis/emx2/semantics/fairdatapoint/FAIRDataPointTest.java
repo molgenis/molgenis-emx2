@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.formatToMediaType;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
@@ -17,6 +18,7 @@ import org.molgenis.emx2.fairdatapoint.FAIRDataPointDistribution;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 
+@Tag("slow")
 public class FAIRDataPointTest {
 
   static Database database;

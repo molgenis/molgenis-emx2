@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import AboutView from "../views/AboutView.vue";
 import BiobankReport from "../views/BiobankReport.vue";
+import NetworkReport from "../views/NetworkReport.vue";
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -29,6 +30,7 @@ const router = createRouter({
       name: "biobankdetails",
       component: BiobankReport,
     },
+    { path: "/network/:id", name: "networkdetails", component: NetworkReport },
     {
       path: "/",
       name: "home",
