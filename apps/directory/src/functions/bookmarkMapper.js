@@ -37,8 +37,9 @@ export async function applyBookmark(watchedQuery) {
     const cartIdString = atob(decoded);
     const cartIds = cartIdString.split(",");
 
-    const missingCollections =
-      await collectionStore.getMissingCollectionInformation(cartIds);
+    const missingCollections = await collectionStore.getMissingCollectionInformation(
+      cartIds
+    );
     if (missingCollections && Object.keys(missingCollections).length) {
       for (const collection of missingCollections) {
         checkoutStore.addCollectionsToSelection({
