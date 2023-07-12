@@ -47,8 +47,8 @@ const { data, pending, error, refresh } = await useFetch(
           "CATALOGUE_LANDING_SAMPLES_TEXT"
           "CATALOGUE_LANDING_DESIGN_LABEL"
           "CATALOGUE_LANDING_DESIGN_TEXT"
-          "CATALOGUE_LANDING_DATASETS_LABEL"
-          "CATALOGUE_LANDING_DATASETS_TEXT"
+          "CATALOGUE_LANDING_SUBCOHORTS_LABEL"
+          "CATALOGUE_LANDING_SUBCOHORTS_TEXT"
         ]){ 
           key
           value 
@@ -223,17 +223,17 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           {{ data.data.Subcohorts_agg.count }}
           {{
             getSettingValue(
-              "CATALOGUE_LANDING_DATASETS_LABEL",
+              "CATALOGUE_LANDING_SUBCOHORTS_LABEL",
               data.data._settings
-            ) || "Datasets"
+            ) || "Subcohorts"
           }}
         </b>
         <br />
         {{
           getSettingValue(
-            "CATALOGUE_LANDING_DATASETS_TEXT",
+            "CATALOGUE_LANDING_SUBCOHORTS_TEXT",
             data.data._settings
-          ) || "The total number of datasets / subcohorts included "
+          ) || "The total number of subcohorts included"
         }}
       </LandingCardSecondary>
     </div>
