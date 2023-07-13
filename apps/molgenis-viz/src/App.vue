@@ -1,15 +1,15 @@
-<script setup>
-import { RouterView } from "vue-router";
-import PageFooter from "./components/layouts/PageFooter.vue";
-import MolgenisLogo from "./components/display/MolgenisLogo.vue";
-</script>
-
 <template>
   <RouterView />
   <PageFooter>
     <MolgenisLogo />
   </PageFooter>
 </template>
+
+<script setup>
+import { RouterView } from "vue-router";
+import PageFooter from "./components/layouts/PageFooter.vue";
+import MolgenisLogo from "./components/display/MolgenisLogo.vue";
+</script>
 
 <style lang="scss">
 body {

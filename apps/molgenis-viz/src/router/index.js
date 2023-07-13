@@ -8,9 +8,8 @@ import DataHighlights from "../views/viz-data-highlights.vue";
 import GeoMercator from "../views/viz-geo-mercator.vue";
 import Datatable from "../views/viz-datatable.vue";
 
-const initialState = window.__INITIAL_STATE__ || {};
 const router = createRouter({
-  history: createWebHistory(initialState.baseUrl),
+  history: createWebHistory(),
   routes: [
     {
       name: "home",
