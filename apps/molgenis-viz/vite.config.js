@@ -6,6 +6,11 @@ import vue from "@vitejs/plugin-vue";
 let conf = {
   plugins: [vue()],
   base: "",
+  resolve: {
+    alias: {
+      vue: require.resolve("vue/dist/vue.runtime.esm-bundler.js"),
+    },
+  },
   css: {
     preprocessorOptions: {
       scss: {
@@ -29,11 +34,6 @@ export default defineConfig(({ command, mode }) => {
   if (command === 'serve') {
     return {
       ...conf,
-      resolve: {
-        alias: {
-          vue: require.resolve("vue/dist/vue.runtime.esm-bundler.js"),
-        },
-      },
       server: {
         proxy: require("../dev-proxy.config")
       },
@@ -82,7 +82,7 @@ export default defineConfig(({ command, mode }) => {
                 if (/png|jpg|svg/.test(extension)) {
                   return `img/[name].[hash][extname]`
                 }
-                return `${extension}/[name].[hash][extname]`
+                return `${extension}/dashboard.[hash][extname]`
               },
               chunkFileNames: 'js/[name].[hash].js',
               entryFileNames: 'js/[name].[hash].js'
