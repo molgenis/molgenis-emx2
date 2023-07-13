@@ -116,6 +116,12 @@ export default {
 
     // Additional information to display below the title
     description: String,
+    
+    // the dataset the plot
+    chartData: {
+      type: Array,
+      required: true,
+    },
 
     // Name of the column that contains the groups to plot
     // along the x-axis
@@ -141,11 +147,14 @@ export default {
 
     // A label that describes the y-axis
     yAxisLabel: String,
-
-    // the dataset the plot
-    chartData: {
-      type: Array,
-      required: true,
+    
+    // If defined, x-axis labels will be split into multiple lines. Value must
+    // be a separator that indicates where the string should be split. Please
+    // be aware that you may need to adjust the chart margins and height
+    // depending on how many lines you wish to break.
+    xAxisLineBreaker: {
+      type: String,
+      default: null
     },
 
     // set the height of the chart. Width is determined by the
@@ -306,10 +315,29 @@ export default {
       const parent = this.$el.parentNode;
       this.chartWidth = parent.offsetWidth * 0.95;
     },
+    breakXAxisLines () {
+      const separator = this.xAxisLineBreaker
+      this.svg
+        .selectAll('.chart-axis-x .tick text')
+        .call(labels => {                
+          labels.each(function(){
+            var node = d3.select(this);
+            var stringArray = node.text().split(separator);
+            node.text('');
+            stringArray.forEach(function(str) {
+              node.append("tspan").attr("x", 0).attr("dy","1em").text(str);
+            })
+          })
+        });
+    },
     renderAxes() {
       this.chartArea.select(".chart-axis-x").call(this.chartAxisX);
 
       this.chartArea.select(".chart-axis-y").call(this.chartAxisY);
+      
+      if (typeof this.xAxisLineBreaker !== 'undefined') {
+        this.breakXAxisLines()
+      }
     },
     onClick(row) {
       if (this.enableClicks) {
