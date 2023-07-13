@@ -168,7 +168,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           getSettingValue(
             "CATALOGUE_LANDING_PARTICIPANTS_TEXT",
             data.data._settings
-          ) || "The cumulative number of participants of all datasets combined."
+          ) || "The cumulative number of participants of all cohorts and subcohorts combined."
         }}
       </LandingCardSecondary>
 
