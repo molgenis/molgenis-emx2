@@ -9,9 +9,9 @@ Install both before installing the Molgenis ontology manager
 
     pip install molgenis-emx2-pyclient
 
-The molgenis-ontomanager package can then be installed from the test PyPI repository:
+The molgenis-ontomanager package can then be installed from the PyPI repository:
 
-    pip install -i https://test.pypi.org/simple/ molgenis-emx2-ontomanager
+    pip install molgenis-emx2-ontomanager
 
 ## Development
 Clone the Molgenis EMX2 repository using git
