@@ -92,5 +92,6 @@ include(':backend:molgenis-emx2-tasks')
 include(':backend:molgenis-emx2-semantics')
 include('backend:molgenis-emx2-email')
 include(':tools:pyclient')
+include(':tools:ontomanager')
 
 
