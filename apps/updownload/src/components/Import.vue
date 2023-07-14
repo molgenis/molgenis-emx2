@@ -46,7 +46,7 @@
           v-if="
             session &&
             session.roles &&
-            ['Manager', 'Editor', 'Viewer', 'Aggregator', 'Owner'].some((r) =>
+            ['Manager', 'Editor', 'Viewer', 'Owner'].some((r) =>
               session.roles.includes(r)
             )
           "
@@ -72,10 +72,10 @@
               <a :href="'../api/ttl'">ttl</a> /
               <a :href="'../api/jsonld'">jsonld</a>
             </p>
-            <div v-if="visibleTables?.length > 0" :key="tablesHash">
+            <div v-if="tables" :key="tablesHash">
               Export specific tables:
               <ul>
-                <li v-for="table in visibleTables" :key="table.name">
+                <li v-for="table in tables" :key="table.name">
                   {{ table.name }}:
                   <a :href="'../api/csv/' + table.name">csv</a> /
                   <a :href="'../api/excel/' + table.name">excel</a>
@@ -130,13 +130,6 @@ export default {
     };
   },
   computed: {
-    visibleTables() {
-      if (this.session?.roles.includes("Viewer")) {
-        return this.tables;
-      } else {
-        return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
-      }
-    },
     tablesHash() {
       if (this.tables) {
         return this.tables.map((table) => table.name).join("-");
@@ -148,7 +141,7 @@ export default {
   methods: {
     loadSchema() {
       this.loading = true;
-      request("graphql", "{_schema{name,tables{name,tableType}}}")
+      request("graphql", "{_schema{name,tables{name}}}")
         .then((data) => {
           this.schema = data._schema.name;
           this.tables = data._schema.tables;

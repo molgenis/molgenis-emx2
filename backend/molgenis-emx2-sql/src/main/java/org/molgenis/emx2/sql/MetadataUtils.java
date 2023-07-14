@@ -190,7 +190,7 @@ public class MetadataUtils {
                 "DROP POLICY IF EXISTS {0} ON {1}",
                 name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
             jooq.execute(
-                "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},{3},'/Aggregator'),'MEMBER'))",
+                "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},{3},'/Viewer'),'MEMBER'))",
                 name(SCHEMA_METADATA.getName() + "_POLICY"),
                 SCHEMA_METADATA,
                 MG_ROLE_PREFIX,
@@ -266,7 +266,7 @@ public class MetadataUtils {
 
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
-    // we record the role name in as a column 'table_rls_manager' and 'table_rls_aggregator' and use
+    // we record the role name in as a column 'table_rls_manager' and 'table_rls_viewer' and use
     // this to enforce policy of being able to change vs view table.
     jooq.execute(
         "CREATE POLICY {0} ON {1} USING (pg_has_role(current_user, {2} || {3} || '/"
