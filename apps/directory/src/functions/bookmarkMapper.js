@@ -14,11 +14,10 @@ function setBookmark(bookmark) {
 }
 
 export async function applyBookmark(watchedQuery) {
-  if(bookmarkApplied) {
+  if (bookmarkApplied) {
     bookmarkApplied = false;
     return;
   }
-
 
   const checkoutStore = useCheckoutStore();
   const collectionStore = useCollectionStore();
