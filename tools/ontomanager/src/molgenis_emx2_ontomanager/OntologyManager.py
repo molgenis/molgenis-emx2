@@ -31,6 +31,7 @@ class OntologyManager:
         self.client = Client(url=url, username=username, password=password)
         self.graphql_endpoint = f'{self.client.url}/CatalogueOntologies/graphql'
         self.ontology_tables = self.__list_ontology_tables()
+        self.schema = self.get_schema()
 
         if self.client.signin_status == 'failed':
             self.client.session.close()
@@ -146,12 +147,8 @@ class OntologyManager:
     def _search_usage(self, term: str, ontology_table: str) -> dict | None:
         """Search for the ontology term's usage in all databases on the server."""
         usage_dict = dict()
-        for db in self.list_databases():
-            try:
-                db_schema = self.get_database_schema(db)
-            except InvalidDatabaseException:
-                continue
-            db_dict = dict()
+        for db, db_schema in self.schema.items():
+            db_usage_dict = dict()
             for tb_name, tb_values in db_schema.items():
                 if tb_values.get('externalSchema') != db:
                     continue
@@ -159,7 +156,13 @@ class OntologyManager:
                     if not (col_values.get('refSchema') == 'CatalogueOntologies'
                             and col_values.get('refTable') == ontology_table):
                         continue
-                    tb_pkeys = [col for (col, col_values) in tb_values['columns'].items() if col_values.get('key') == 1]
+
+                    tb_pkeys = [
+                        (col if col_vals.get('columnType') != 'REF'
+                         else col + ' {' + (", ".join(c for (c, v) in db_schema[col_vals['refTable']]['columns'].items()
+                                                      if v.get('key') == 1)) + '}')
+                        for (col, col_vals) in tb_values['columns'].items() if col_vals.get('key') == 1
+                    ]
                     _table = self.parse_table_name(tb_name)
                     query = Queries.column_values(_table, self.parse_column_name(col_name), tb_pkeys)
                     variables = {'filter': {self.parse_column_name(col_name): {'equals': {'name': term}}}}
@@ -175,9 +178,9 @@ class OntologyManager:
                         continue
 
                     column_values = response.json()['data'][_table]
-                    db_dict.update({tb_name: column_values})
-            if len(db_dict.keys()) > 0:
-                usage_dict.update({db: db_dict})
+                    db_usage_dict.update({tb_name: column_values})
+            if len(db_usage_dict.keys()) > 0:
+                usage_dict.update({db: db_usage_dict})
         return usage_dict
 
     def _add_term(self, table: str, kwargs):
@@ -301,7 +304,7 @@ class OntologyManager:
 
         def __init__(self, manager, ontology_table: str, old: str, new: str):
             self.ontology_table = ontology_table
-            self.manager = manager
+            self.manager: OntologyManager = manager
             self.old = old
             self.new = new
 
@@ -329,7 +332,7 @@ class OntologyManager:
             """
             db_dict = dict()
             try:
-                db_schema = self.manager.get_database_schema(database)
+                db_schema = self.manager.schema.get(database)
             except InvalidDatabaseException:
                 return db_dict
 
@@ -350,7 +353,14 @@ class OntologyManager:
             """
             tb_dict = dict()
 
-            tb_pkeys = [col for (col, col_values) in tb_values['columns'].items() if col_values.get('key') == 1]
+            # tb_pkeys = [col for (col, col_values) in tb_values['columns'].items() if col_values.get('key') == 1]
+
+            tb_pkeys = [
+                (col if col_vals.get('columnType') != 'REF'
+                 else col + ' {' + (", ".join(c for (c, v) in self.manager.schema[self.database][col_vals['refTable']]['columns'].items()
+                                              if v.get('key') == 1)) + '}')
+                for (col, col_vals) in tb_values['columns'].items() if col_vals.get('key') == 1
+            ]
 
             for col, col_values in tb_values['columns'].items():
                 self.column = col
@@ -469,6 +479,14 @@ class OntologyManager:
         )
         databases = [db['name'] for db in response.json()['data']['_schemas']]
         return databases
+
+    def get_schema(self):
+        """Get the schema for all databases on the server."""
+        schema = {
+            db: self.get_database_schema(db)
+            for db in self.list_databases()
+        }
+        return schema
 
     def get_database_schema(self, database: str) -> dict:
         """Returns the schema of the specified database.

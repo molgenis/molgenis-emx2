@@ -9,6 +9,7 @@ MG_PASSWORD = password
 
 Ensure the CatalogueOntologies database is present on the server before running the script.
 """
+import logging
 import os
 
 from dotenv import load_dotenv
@@ -39,13 +40,16 @@ def dev_search(search_terms: list | str):
 
     results = dict()
     for st in search_terms:
-        _table = manager.search(st)
+        _table = manager.search(st, find_usage=True)
         results[st] = _table
 
     return results
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level='DEBUG')
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
     terms = ['Sibling', 'Croatia', 'Non-profit organisations', 'Hospital data', 'medication']
     demo_results = dev_search(terms)
     for (term, table) in demo_results.items():
