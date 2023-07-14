@@ -1,5 +1,37 @@
 <script setup>
 import { Molgenis } from "molgenis-components";
+import { computed, watch } from "vue";
+import { applyBookmark } from "./functions/bookmarkMapper";
+import { useRoute } from "vue-router";
+import { useFiltersStore } from "./stores/filtersStore";
+import { useCheckoutStore } from "./stores/checkoutStore";
+
+const route = useRoute();
+
+const query = computed(() => route.query);
+
+const filtersStore = useFiltersStore();
+const checkoutStore = useCheckoutStore();
+
+watch(
+  query,
+  (newQuery) => {
+    if (newQuery && Object.keys(newQuery).length) {
+      const remainingKeys = Object.keys(newQuery).filter(
+        (key) => key !== "cart"
+      );
+      /** if we only have a cart we do not need to wait for the filters to be applied before updating the biobankcards. */
+      if (remainingKeys.length > 0) {
+        filtersStore.bookmarkWaitingForApplication = true;
+      }
+    }
+
+    if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
+      applyBookmark(newQuery);
+    }
+  },
+  { immediate: true, deep: true }
+);
 </script>
 
 <template>

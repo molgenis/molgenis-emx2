@@ -67,7 +67,8 @@ export default {
       const facetIdentifiers = Object.keys(this.activeFilters);
       for (const facetIdentifier of facetIdentifiers) {
         const activeFilterValues = this.activeFilters[facetIdentifier];
-        if (!activeFilterValues) {
+
+        if (!activeFilterValues || !Array.isArray(activeFilterValues)) {
           continue;
         } /** no need to check further if there are no active filters */
 
@@ -91,8 +92,14 @@ export default {
 
           for (const activeFilterValue of activeFilterValues) {
             /** need to find the correct filter value instead of the name */
-            if (!this.filterOptionsCache[facetIdentifier]) {
+
+            const optionsCache = this.filterOptionsCache[facetIdentifier];
+            if (!optionsCache) {
               continue; /** if the filteroption does not exist */
+            }
+            /** we are dealing with a multiple ontology, e.g. diagnosis available we can not deal with that yet */
+            if (!Array.isArray(optionsCache)) {
+              continue;
             }
 
             const filterOption = this.filterOptionsCache[facetIdentifier].find(
