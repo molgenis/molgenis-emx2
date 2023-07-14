@@ -3,7 +3,7 @@
     <p>
       This database was created using
       <a href="https://www.molgenis.org/">MOLGENIS open source software</a>
-      using version {{ version }}
+      <span v-if="version">using version {{ version }}</span>
     </p>
   </div>
 </template>
