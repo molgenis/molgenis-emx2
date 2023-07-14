@@ -1,5 +1,7 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Privileges.VIEWER;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionResult;
@@ -214,7 +216,10 @@ public class GraphqlApiFactory {
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
     for (TableMetadata table : schema.getMetadata().getTables()) {
       if (table.getColumns().size() > 0) {
-        queryBuilder.field(tableField.tableQueryField(table));
+        if (table.getTableType().equals(TableType.ONTOLOGIES)
+            || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
+          queryBuilder.field(tableField.tableQueryField(table));
+        }
         queryBuilder.field(tableField.tableAggField(table));
         queryBuilder.field(tableField.tableGroupByField(table));
       }

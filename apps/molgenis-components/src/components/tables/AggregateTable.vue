@@ -1,11 +1,11 @@
 <template>
   <div>
     <Spinner v-if="loading" class="m-3" />
-    <div v-else-if="!refColumns.length" class="alert alert-warning">
-      Not enough input to create an aggregate table
+    <div v-else-if="refColumns.length === 0" class="alert alert-warning">
+      Not enough input to create an aggregate table. Need at least 1 column with
+      permission that can be used as group by.
     </div>
-
-    <div class="border d-inline-block p-2 bg-white">
+    <div v-else class="border d-inline-block p-2 bg-white">
       <div class="aggregate-options">
         <table>
           <tr>
@@ -22,7 +22,6 @@
                 class="mb-0"
                 id="aggregate-column-select"
                 v-model="selectedColumn"
-                @update:modelValue="fetchData"
                 :options="refColumns"
                 required
               />
@@ -42,7 +41,6 @@
                 class="mb-2"
                 id="aggregate-row-select"
                 v-model="selectedRow"
-                @update:modelValue="fetchData"
                 :options="refColumns"
                 required
               />
@@ -99,6 +97,10 @@ export default defineComponent({
   name: "AggregateTable",
   components: { TableStickyHeaders, InputSelect },
   props: {
+    canView: {
+      type: Boolean,
+      required: true,
+    },
     schemaName: {
       type: String,
       required: true,
@@ -185,29 +187,37 @@ export default defineComponent({
       }
     },
   },
-  created() {
-    if (this.allColumns.length > 0) {
-      this.refColumns = getRefTypeColumns(this.allColumns as IColumn[]);
+  watch: {
+    selectedColumn() {
+      this.fetchData();
+    },
+    selectedRow() {
+      this.fetchData();
+    },
+    allColumns() {
+      if (this.allColumns.length > 0) {
+        this.refColumns = getRefTypeColumns(
+          this.allColumns as IColumn[],
+          this.canView
+        );
+      }
       if (this.refColumns?.length > 0) {
         this.selectedColumn = this.refColumns[0];
         this.selectedRow = this.refColumns[1] || this.refColumns[0];
       }
-    }
-    this.fetchData();
+      this.fetchData();
+    },
   },
 });
 
-function getRefTypeColumns(columns: IColumn[]): string[] {
+function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
   return columns
-    .filter((column: IColumn) => isRefType(column))
+    .filter(
+      (column: IColumn) =>
+        (column.columnType.startsWith("REF") && canView) ||
+        column.columnType.startsWith("ONTOLOGY")
+    )
     .map((column: IColumn) => column.name);
-}
-
-function isRefType(column: IColumn): boolean {
-  return (
-    column.columnType.startsWith("REF") ||
-    column.columnType.startsWith("ONTOLOGY")
-  );
 }
 </script>
 

@@ -1,6 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.FilterBean.*;
+import static org.molgenis.emx2.Privileges.VIEWER;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
@@ -40,7 +41,6 @@ public class GraphqlTableFieldFactory {
   private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedOutputType> tableTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedOutputType> tableAggTypes = new LinkedHashMap<>();
-  private Map<String, GraphQLNamedOutputType> tableOrderByTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedOutputType> tableGroupByTypes = new LinkedHashMap();
   private Map<String, GraphQLNamedInputType> tableFilterInputTypes = new LinkedHashMap<>();
   private Map<String, GraphQLNamedInputType> tableOrderByInputTypes = new LinkedHashMap<>();
@@ -206,43 +206,46 @@ public class GraphqlTableFieldFactory {
                     .type(GraphQLList.list(Scalars.GraphQLInt)));
             break;
           case REF:
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name(id)
-                    .type(createTableObjectType(col.getRefTable()))
-                    .argument(
-                        GraphQLArgument.newArgument()
-                            .name(GraphqlConstants.FILTER_ARGUMENT)
-                            .type(getTableFilterInputType(col.getRefTable()))
-                            .build()));
+            if (hasViewPermission(table)) {
+              tableBuilder.field(
+                  GraphQLFieldDefinition.newFieldDefinition()
+                      .name(id)
+                      .type(createTableObjectType(col.getRefTable()))
+                      .argument(
+                          GraphQLArgument.newArgument()
+                              .name(GraphqlConstants.FILTER_ARGUMENT)
+                              .type(getTableFilterInputType(col.getRefTable()))
+                              .build()));
+            }
             break;
           case REF_ARRAY:
           case REFBACK:
-            // case MREF:
-            tableBuilder.field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name(id)
-                    .type(GraphQLList.list(createTableObjectType(col.getRefTable())))
-                    .argument(
-                        GraphQLArgument.newArgument()
-                            .name(GraphqlConstants.FILTER_ARGUMENT)
-                            .type(getTableFilterInputType(col.getRefTable()))
-                            .build())
-                    .argument(
-                        GraphQLArgument.newArgument()
-                            .name(GraphqlConstants.LIMIT)
-                            .type(Scalars.GraphQLInt)
-                            .build())
-                    .argument(
-                        GraphQLArgument.newArgument()
-                            .name(GraphqlConstants.OFFSET)
-                            .type(Scalars.GraphQLInt)
-                            .build())
-                    .argument(
-                        GraphQLArgument.newArgument()
-                            .name(GraphqlConstants.ORDERBY)
-                            .type(createTableOrderByInputType(col.getRefTable()))
-                            .build()));
+            if (hasViewPermission(table)) {
+              tableBuilder.field(
+                  GraphQLFieldDefinition.newFieldDefinition()
+                      .name(id)
+                      .type(GraphQLList.list(createTableObjectType(col.getRefTable())))
+                      .argument(
+                          GraphQLArgument.newArgument()
+                              .name(GraphqlConstants.FILTER_ARGUMENT)
+                              .type(getTableFilterInputType(col.getRefTable()))
+                              .build())
+                      .argument(
+                          GraphQLArgument.newArgument()
+                              .name(GraphqlConstants.LIMIT)
+                              .type(Scalars.GraphQLInt)
+                              .build())
+                      .argument(
+                          GraphQLArgument.newArgument()
+                              .name(GraphqlConstants.OFFSET)
+                              .type(Scalars.GraphQLInt)
+                              .build())
+                      .argument(
+                          GraphQLArgument.newArgument()
+                              .name(GraphqlConstants.ORDERBY)
+                              .type(createTableOrderByInputType(col.getRefTable()))
+                              .build()));
+            }
             tableBuilder.field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(id + "_agg")
@@ -262,6 +265,11 @@ public class GraphqlTableFieldFactory {
     return tableTypes.get(tableObjectType);
   }
 
+  private boolean hasViewPermission(TableMetadata table) {
+    return table.getTableType().equals(TableType.ONTOLOGIES)
+        || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString());
+  }
+
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
     String tableGroupByType = table.getIdentifier() + "GroupBy";
     if (!tableGroupByTypes.containsKey(tableGroupByType)) {
@@ -274,7 +282,8 @@ public class GraphqlTableFieldFactory {
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
       for (Column column : table.getColumns()) {
         // for now only 'ref' types. We might want to have truncating actions for the other types.
-        if (column.isRef() || column.isRefArray()) {
+        if ((column.isRef() || column.isRefArray())
+            && (hasViewPermission(table) || column.isOntology())) {
           groupByBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(column.getIdentifier())
@@ -295,47 +304,49 @@ public class GraphqlTableFieldFactory {
       GraphQLObjectType.Builder builder = GraphQLObjectType.newObject().name(tableAggregationType);
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
-      List<Column> aggCols =
-          table.getColumns().stream()
-              .filter(
-                  c ->
-                      ColumnType.INT.equals(c.getColumnType())
-                          || ColumnType.DECIMAL.equals(c.getColumnType())
-                          || ColumnType.LONG.equals(c.getColumnType()))
-              .toList();
+      if (hasViewPermission(table)) {
+        List<Column> aggCols =
+            table.getColumns().stream()
+                .filter(
+                    c ->
+                        ColumnType.INT.equals(c.getColumnType())
+                            || ColumnType.DECIMAL.equals(c.getColumnType())
+                            || ColumnType.LONG.equals(c.getColumnType()))
+                .toList();
 
-      if (aggCols.size() > 0) {
-        GraphQLObjectType.Builder max =
-            GraphQLObjectType.newObject().name(tableAggregationType + "_max");
-        GraphQLObjectType.Builder min =
-            GraphQLObjectType.newObject().name(tableAggregationType + "_min");
-        GraphQLObjectType.Builder sum =
-            GraphQLObjectType.newObject().name(tableAggregationType + "_sum");
-        GraphQLObjectType.Builder avg =
-            GraphQLObjectType.newObject().name(tableAggregationType + "_avg");
-        for (Column col : aggCols) {
-          max.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getIdentifier())
-                  .type(graphQLTypeOf(col)));
-          min.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getIdentifier())
-                  .type(graphQLTypeOf(col)));
-          avg.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getIdentifier())
-                  .type(Scalars.GraphQLFloat));
-          sum.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getIdentifier())
-                  .type(graphQLTypeOf(col)));
+        if (aggCols.size() > 0) {
+          GraphQLObjectType.Builder max =
+              GraphQLObjectType.newObject().name(tableAggregationType + "_max");
+          GraphQLObjectType.Builder min =
+              GraphQLObjectType.newObject().name(tableAggregationType + "_min");
+          GraphQLObjectType.Builder sum =
+              GraphQLObjectType.newObject().name(tableAggregationType + "_sum");
+          GraphQLObjectType.Builder avg =
+              GraphQLObjectType.newObject().name(tableAggregationType + "_avg");
+          for (Column col : aggCols) {
+            max.field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(col.getIdentifier())
+                    .type(graphQLTypeOf(col)));
+            min.field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(col.getIdentifier())
+                    .type(graphQLTypeOf(col)));
+            avg.field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(col.getIdentifier())
+                    .type(Scalars.GraphQLFloat));
+            sum.field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(col.getIdentifier())
+                    .type(graphQLTypeOf(col)));
+          }
+          builder
+              .field(GraphQLFieldDefinition.newFieldDefinition().name(MAX_FIELD).type(max))
+              .field(GraphQLFieldDefinition.newFieldDefinition().name(MIN_FIELD).type(min))
+              .field(GraphQLFieldDefinition.newFieldDefinition().name(AVG_FIELD).type(avg))
+              .field(GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sum));
         }
-        builder
-            .field(GraphQLFieldDefinition.newFieldDefinition().name(MAX_FIELD).type(max))
-            .field(GraphQLFieldDefinition.newFieldDefinition().name(MIN_FIELD).type(min))
-            .field(GraphQLFieldDefinition.newFieldDefinition().name(AVG_FIELD).type(avg))
-            .field(GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sum));
       }
 
       tableAggTypes.put(tableAggregationType, builder.build());
