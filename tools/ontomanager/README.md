@@ -27,14 +27,7 @@ Set up the virtual environment and install the required packages
     pip install -r requirements.txt
 
 #### Building the package
-Specify the version in `pyproject.toml`
-    
-    ...
-    [project]
-    name = "molgenis-emx2-ontomanager"
-    version = "x.y.z"
-    description = "Tool to manage catalogue ontologies on Molgenis EMX2 servers."
-    ...
+Specify the package version by creating the `version.txt` file and writing the version number on the first line of this file. 
 
 
 Build the package
@@ -44,7 +37,7 @@ Build the package
 Install the built package
 
     pip install dist/molgenis-emx2-ontomanager-x.y.z-py3-none-any.whl
-where `x.y.z` is the version you set in the `pyproject.toml` file.
+where `x.y.z` is the version you set in the `version.txt` file.
 
 
 ## How to use

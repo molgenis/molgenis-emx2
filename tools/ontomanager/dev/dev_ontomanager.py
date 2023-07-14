@@ -59,7 +59,7 @@ def dev_ontomanager(url: str = None, username: str = None, password: str = None)
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level='INFO')
+    logging.basicConfig(level='DEBUG')
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     dev_ontomanager()
