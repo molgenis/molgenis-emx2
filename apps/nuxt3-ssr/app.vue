@@ -60,15 +60,11 @@
 
 <script setup>
 import BackgroundGradient from "./components/BackgroundGradient.vue";
-import { hash } from "./utils/fingerprint.js";
 const config = useRuntimeConfig();
 
 let themeFilename = "styles";
 if (config.public.emx2Theme) {
   themeFilename += `.${config.public.emx2Theme}`;
-}
-if (hash) {
-  themeFilename += `.${hash}`;
 }
 
 const styleHref = `/_nuxt-styles/css/${themeFilename}.css`;

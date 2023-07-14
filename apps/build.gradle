@@ -32,26 +32,28 @@ subprojects {
 
     task format(type: YarnTask, dependsOn: parent.yarn_install) {
         args = ['run', 'format']
+        outputs.cacheIf { true }
         if (project.name == 'nuxt3-ssr') {
-            outputs.dir('components')
-            outputs.dir('composables')
-            outputs.dir('gql')
-            outputs.dir('interfaces')
-            outputs.dir('pages')
-            outputs.dir('plugins')
-            outputs.dir('utils')
             inputs.files(fileTree('components'))
             inputs.files(fileTree('composables'))
             inputs.files(fileTree('gql'))
             inputs.files(fileTree('interfaces'))
             inputs.files(fileTree('pages'))
             inputs.files(fileTree('plugins'))
+            inputs.files(fileTree('scripts'))
             inputs.files(fileTree('utils'))
+            outputs.files(fileTree('components'))
+            outputs.files(fileTree('composables'))
+            outputs.files(fileTree('gql'))
+            outputs.files(fileTree('interfaces'))
+            outputs.files(fileTree('pages'))
+            outputs.files(fileTree('plugins'))
+            outputs.files(fileTree('scripts'))
+            outputs.files(fileTree('utils'))
         } else {
             inputs.files(fileTree('src'))
             outputs.dir('src')
         }
-        outputs.cacheIf { true }
     }
 
     task checkFormat(type: YarnTask, dependsOn: parent.yarn_install) {
@@ -101,17 +103,30 @@ subprojects {
             inputs.files(fileTree('assets'))
             inputs.files(fileTree('components'))
             inputs.files(fileTree('composables'))
-            inputs.files(fileTree('middleware'))
-            inputs.files(fileTree('layouts'))
+            inputs.files(fileTree('gql'))
+            inputs.files(fileTree('interfaces'))
             inputs.files(fileTree('pages'))
-            inputs.files(fileTree('static'))
-            inputs.files(fileTree('store'))
-            inputs.file('nuxt.config.ts')
+            inputs.files(fileTree('plugins'))
+            inputs.files(fileTree('publi'))
+            inputs.files(fileTree('scripts'))
+            inputs.files(fileTree('utils'))
             inputs.file('app.vue')
+            inputs.file('custom-build.js')
+            inputs.file('error.vue')
+            inputs.file('gen-themes.js')
+            inputs.file('graphql.config.json')
+            inputs.file('nuxt.config.ts')
+            inputs.file('package.json')
             inputs.file('router.options.ts')
+            inputs.file('svgo.config.js')
             inputs.file('tailwind.config.ts')
+            inputs.file('tailwind.config.umcg.cjs')
+            inputs.file('tsconfig.json')
+            inputs.file('vitest.config.js')
             outputs.dir('.nuxt')
             outputs.dir('.output')
+            outputs.dir('.gradle')
+            outputs.file('scripts/fingerprint.js')
         } else if (project.name == 'graphql-playground') {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
@@ -180,7 +195,6 @@ subprojects {
         project.delete(files(".output"))
         project.delete(files("showCase"))
     }
-
 }
 
 /* convert build files into one apps.jar that we can use as a dependency in the java part */

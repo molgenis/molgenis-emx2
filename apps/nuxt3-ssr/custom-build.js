@@ -17,16 +17,10 @@ fs.readdir(location, (err, files) => {
   }
 });
 
-var fingerPrint = Date.now().toString(36);
-fs.writeFileSync(
-  "./utils/fingerprint.js",
-  "export const hash = '" + fingerPrint + "';"
-);
-
 shell.exec(
-  `tailwindcss -c ./tailwind.config.cjs -i ${location}main.css -o ${location}styles.${fingerPrint}.css --minify`
+  `tailwindcss -c ./tailwind.config.cjs -i ${location}main.css -o ${location}styles.css --minify`
 );
 shell.exec(
-  `tailwindcss -c ./tailwind.config.umcg.cjs -i ${location}main.css -o ${location}styles.umcg.${fingerPrint}.css --minify`
+  `tailwindcss -c ./tailwind.config.umcg.cjs -i ${location}main.css -o ${location}styles.umcg.css --minify`
 );
 shell.exec("nuxt build");
