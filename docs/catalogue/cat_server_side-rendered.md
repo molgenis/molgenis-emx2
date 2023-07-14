@@ -85,9 +85,9 @@ The label shown on landing CTA element for each of the main sections
 
 ```CATALOGUE_LANDING_DESIGN_TEXT```
 
-```CATALOGUE_LANDING_DATASETS_LABEL```
+```CATALOGUE_LANDING_SUBCOHORTS_LABEL```
 
-```CATALOGUE_LANDING_DATASETS_TEXT```
+```CATALOGUE_LANDING_SUBCOHORTS_TEXT```
 
 
 #### default
