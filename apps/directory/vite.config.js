@@ -1,8 +1,8 @@
 import { fileURLToPath, URL } from "node:url";
-
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { createHtmlPlugin } from "vite-plugin-html";
+import monacoEditorPlugin from "vite-plugin-monaco-editor";
 
 // eslint-disable-next-line no-undef
 const HOST =
@@ -21,6 +21,9 @@ export default defineConfig(({ command }) => ({
     createHtmlPlugin({
       entry: "src/main.js",
       template: command === "serve" ? "dev-index.html" : "index.html",
+    }),
+    monacoEditorPlugin({
+      languages: ["editorWorkerService", "json"],
     }),
   ],
   resolve: {
