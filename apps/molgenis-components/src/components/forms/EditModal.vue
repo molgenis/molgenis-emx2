@@ -4,7 +4,8 @@
       <div class="container" v-if="loaded && tableMetaData">
         <div class="row">
           <div
-            class="col-10 overflow-auto mr-n3"
+            class="overflow-auto mr-n3"
+            :class="{ 'col-10': showChapters, 'col-12': !showChapters }"
             style="max-height: calc(100vh - 200px)"
           >
             <RowEdit
@@ -15,7 +16,7 @@
               :tableMetaData="tableMetaData"
               :schemaMetaData="schemaMetaData"
               :visibleColumns="
-                useChapters
+                myUseChapters
                   ? columnsSplitByHeadings[currentPage - 1]
                   : visibleColumns
               "
@@ -26,7 +27,7 @@
             />
           </div>
           <div
-            v-if="columnsSplitByHeadings.length > 1"
+            v-if="showChapters"
             class="col-2 border-left chapter-menu overflow-auto"
             style="max-height: calc(100vh - 200px)"
           >
@@ -70,7 +71,7 @@
         @save="handleSaveRequest"
       >
         <div class="mr-auto">
-          <div v-if="columnsSplitByHeadings.length > 1">
+          <div v-if="showChapters">
             <ButtonAction
               @click="setCurrentPage(currentPage - 1)"
               :disabled="currentPage <= 1"
@@ -94,7 +95,6 @@
 
 <script lang="ts">
 import { ISchemaMetaData } from "../../Interfaces/IMetaData";
-import { IRow } from "../../Interfaces/IRow";
 import { ISetting } from "../../Interfaces/ISetting";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { INewClient } from "../../client/IClient";
@@ -134,9 +134,9 @@ export default {
       schemaMetaData: null as unknown as ISchemaMetaData,
       client: null as unknown as INewClient,
       errorMessage: "",
-      loaded: true,
+      loaded: false,
       currentPage: 1,
-      useChapters: true,
+      myUseChapters: this.useChapters,
       saveDisabledMessage: "",
     };
   },
@@ -176,6 +176,10 @@ export default {
     locale: {
       type: String,
       default: () => "en",
+    },
+    useChapters: {
+      type: Boolean,
+      default: () => null,
     },
   },
   computed: {
@@ -224,6 +228,9 @@ export default {
       } else {
         return "";
       }
+    },
+    showChapters() {
+      return this.myUseChapters && this.columnsSplitByHeadings.length > 1;
     },
   },
   methods: {
@@ -285,10 +292,12 @@ export default {
     this.schemaMetaData = await this.client.fetchSchemaMetaData();
     const settings: ISetting[] = await this.client.fetchSettings();
 
-    this.useChapters =
-      settings.find(
-        (item: ISetting) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME
-      )?.value !== "false";
+    if (this.useChapters === null) {
+      this.myUseChapters =
+        settings.find(
+          (item: ISetting) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME
+        )?.value !== "false";
+    }
 
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
 
@@ -338,7 +347,19 @@ interface IChapterInfo {
 <docs>
   <template>
   <DemoItem label="Edit Modal">
-  <p>This component can be used in chapter mode split the form into multiple chapter based on headings. Use the "isChaptersEnabled" schema setting to switch mode. <br/>Current value: <pre style='display:inline'>{{useChapters}}</pre></p>
+  <p>This component can be used in chapter mode split the form into multiple chapter based on headings.</p>
+  <div class="mt-2 mb-3">
+    Use the "isChaptersEnabled" schema setting to switch mode.
+    <div class="font-weight-bold">isChaptersEnabled: 
+      <input :disabled="loadFromBackend" type="checkbox" id="checkbox" v-model="useChapters" />
+    </div>
+    <div class="font-weight-bold">load from backend: 
+      <input type="checkbox" id="checkbox" v-model="loadFromBackend" />
+    </div>
+
+
+  </div>
+  
     <button class="btn btn-primary" @click="isModalShown = !isModalShown">
       Show {{ demoMode }} {{ tableName }}
     </button>
@@ -374,13 +395,14 @@ interface IChapterInfo {
     />
     <label for="clone" class="pl-1">Clone</label>
     <EditModal
-      :key="tableName + demoKey + demoMode"
+      :key="tableName + demoKey + demoMode + useChapters"
       id="edit-modal"
       :tableName="tableName"
       :pkey="demoKey"
       :clone="demoMode === 'clone'"
       :isModalShown="isModalShown"
       :schemaName="schemaName"
+      :useChapters="useChapters"
       @close="isModalShown = false"
     />
   </DemoItem>
@@ -395,32 +417,38 @@ export default {
       demoMode: "insert", // one of [insert, update, clone]
       demoKey: null, // empty in case of insert
       isModalShown: false,
-      useChapters: true
+      useChapters: true,
+      loadFromBackend: false
     };
   },
   methods: {
     async reload() {
       const client = this.$Client.newClient(this.schemaName);
       const tableMetaData = await client.fetchTableMetaData(this.tableName);
-      const rowData = await client.fetchTableDataValues(this.tableName);
-      this.demoKey = this.$utils.getPrimaryKey(rowData[0], tableMetaData);
+      const rowData = await client.fetchTableDataValues(this.tableName, {});
+      this.demoKey = this.demoMode === "insert" ? null : this.$utils.getPrimaryKey(rowData[0], tableMetaData);
       const settings = await client.fetchSettings();
-      this.useChapters =
-        settings.find((item) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME)?.value !==
+      if(this.loadFromBackend) {
+           this.useChapters =
+        settings.find((item) => item.key === this.$constants.IS_CHAPTERS_ENABLED_FIELD_NAME)?.value !==
         "false";
-    },
-    onModeChange() {
-      if (this.demoMode !== "insert") {
-        this.reload();
-      } else {
-        this.demoKey = null;
       }
-    },
+   
+    }
   },
   watch: {
     demoMode() {
-      this.onModeChange();
+      this.reload();
     },
+    useChapters () {
+      this.reload();
+    },
+    loadFromBackend () {
+      this.reload();
+    }
+  },
+  mounted() {
+    this.reload();
   },
 };
 </script>
