@@ -80,8 +80,8 @@ export async function applyFiltersToQuery(
                 baseQuery.filter(column).equals(value);
               }
             } else {
-              baseQuery.where(column).like(values);
-              baseQuery.filter(column).like(values);
+              baseQuery.where(column).in(values);
+              baseQuery.filter(column).in(values);
             }
           } else {
             if (typeof values[0] === "boolean") {
@@ -90,8 +90,8 @@ export async function applyFiltersToQuery(
                 baseQuery.orFilter(column).equals(value);
               }
             } else {
-              baseQuery.orWhere(column).orLike(values);
-              baseQuery.filter(column).orLike(values);
+              baseQuery.orWhere(column).in(values);
+              baseQuery.filter(column).in(values);
             }
           }
         }
@@ -99,7 +99,7 @@ export async function applyFiltersToQuery(
       }
       case "OntologyFilter": {
         const values = filterValue.map((fv) => fv.code);
-        baseQuery.where(filterDetail.applyToColumn).orLike(values);
+        baseQuery.where(filterDetail.applyToColumn).in(values);
         break;
       }
     }

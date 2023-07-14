@@ -7,6 +7,7 @@ import { useSettingsStore } from "./settingsStore";
 import { useCheckoutStore } from "./checkoutStore";
 import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
 import QueryEMX2 from "../functions/queryEMX2";
+import { convertArrayToChunks } from "../functions/arrayUtilities";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
@@ -297,27 +298,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     const { sourceTable, sortColumn, sortDirection } = filterFacet;
     const attributes = getOntologyAttributes(filterFacet);
 
-    let codesToQuery = [];
-    const codeCount = codes.length;
-
-    const chunkSize = 20;
-    let chunk = [];
-    if (codes.length > 20) {
-      for (let index = 0; index < codeCount; index++) {
-        chunk.push(codes[index]);
-        if (chunk.length === chunkSize) {
-          codesToQuery.push(chunk);
-          chunk = [];
-        }
-      }
-      if (chunk.length) {
-        codesToQuery.push(chunk);
-        chunk = [];
-      }
-    } else {
-      codesToQuery = [codes];
-    }
-
+    let codesToQuery = convertArrayToChunks(codes, 600);
     const ontologyResults = [];
 
     for (const codeBlock of codesToQuery) {
@@ -325,7 +306,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
         .table(sourceTable)
         .select(attributes)
         .where("code")
-        .orLike(codeBlock)
+        .in(codeBlock)
         .orderBy(sourceTable, sortColumn, sortDirection)
         .execute();
 

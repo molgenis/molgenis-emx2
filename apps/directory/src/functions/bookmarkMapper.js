@@ -3,7 +3,10 @@ import { useFiltersStore } from "../stores/filtersStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useCheckoutStore } from "../stores/checkoutStore";
 
+let bookmarkApplied = false;
+
 function setBookmark(bookmark) {
+  bookmarkApplied = true;
   router.push({
     name: router.currentRoute.name,
     query: bookmark,
@@ -11,6 +14,12 @@ function setBookmark(bookmark) {
 }
 
 export async function applyBookmark(watchedQuery) {
+  if(bookmarkApplied) {
+    bookmarkApplied = false;
+    return;
+  }
+
+
   const checkoutStore = useCheckoutStore();
   const collectionStore = useCollectionStore();
   const filtersStore = useFiltersStore();
