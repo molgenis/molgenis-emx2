@@ -33,10 +33,7 @@ class SqlTableMetadataExecutor {
     jooq.execute("CREATE TABLE {0}()", jooqTable);
     MetadataUtils.saveTableMetadata(jooq, table);
 
-    // grant rights to schema manager, editor and viewer role
-    jooq.execute(
-        "GRANT SELECT ON {0} TO {1}",
-        jooqTable, name(getRolePrefix(table) + Privileges.AGGREGATOR.toString()));
+    // grant rights to schema manager, editor and viewer rol
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
         jooqTable, name(getRolePrefix(table) + Privileges.VIEWER.toString()));

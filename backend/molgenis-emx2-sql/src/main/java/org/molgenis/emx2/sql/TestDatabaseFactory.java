@@ -6,9 +6,12 @@ public class TestDatabaseFactory {
   private static Database db;
 
   public static Database getTestDatabase() {
-    db = new SqlDatabase(false);
-    db.setActiveUser(db.getAdminUserName());
+
+    if (db == null) {
+      db = new SqlDatabase(false);
+      // default to admin user for the tests
+      db.setActiveUser(db.getAdminUserName());
+    }
     return db;
-    // don't share the database between tests because different users different permissions.
   }
 }
