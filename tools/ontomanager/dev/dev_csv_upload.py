@@ -47,13 +47,15 @@ def dev_csv_upload(url: str = None, username: str = None, password: str = None):
     #     manager.add(table='Countries', data=countries)
     # except DuplicateKeyException:
     #     pass
-    mutations = manager.add(table='Countries', data=countries)
+    additions = manager.add(table='Countries', data=countries)
+    print(additions)
 
     # Update the references to the countries in the update_df dataset sequentially
-    manager.update(table='Countries', data=update_df)
+    # manager.update(table='Countries', data=update_df)
 
     # Delete the countries that were previously added from the Countries ontology table
-    manager.delete(table='Countries', names=countries['name'].tolist())
+    deletions = manager.delete(table='Countries', names=countries['name'].tolist())
+    print(deletions)
 
 
 if __name__ == '__main__':
