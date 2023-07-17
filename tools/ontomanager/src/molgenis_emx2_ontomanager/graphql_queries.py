@@ -53,6 +53,15 @@ class Queries:
         {
           """ + table + """ {
             name
+            order
+            label
+            parent {
+              name
+            }
+            codesystem
+            code
+            ontologyTermURI
+            definition
           }
         }
         """

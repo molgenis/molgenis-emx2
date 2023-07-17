@@ -51,7 +51,6 @@ class OntologyManager:
     def add(self, table: str, data: pd.DataFrame | dict | list = None, **kwargs):
         """Add a term to an ontology table.
         """
-        mutations = dict()
         log.info(f"Adding to table {table}.")
 
         if table not in self.ontology_tables:
@@ -110,9 +109,10 @@ class OntologyManager:
             raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
 
         if names:
-            self._delete_list(table, names)
+            mutations = self._delete_list(table, names)
         if name:
-            self._delete_term(table, name)
+            mutations = self._delete_term(table, name)
+        return mutations
 
     def search(self, term: str, find_usage: bool = False) -> str | dict | None:
         """
@@ -199,11 +199,11 @@ class OntologyManager:
         try:
             response = self.__perform_query(query, variables, action='add')
         except DuplicateKeyException:
-            log.error(f"Term '{_kwargs['name']}' already present in table '{table}'")
-            return {'failure': f"Term '{_kwargs['name']}' already present in table '{table}'"}
+            log.error(f"Term '{_kwargs['name']}' already present in table '{table}'.")
+            return {'failure': f"Term '{_kwargs['name']}' already present in table '{table}'."}
 
         mutation_id = generate_action_id(action=True)
-        return {mutation_id: _kwargs}
+        return {mutation_id: {'action': 'add', **_kwargs}}
 
     def _add_dict(self, table: str, terms_dict: dict) -> dict:
         """Add terms to a table from a dictionary object."""
@@ -272,9 +272,9 @@ class OntologyManager:
     def _update_term(self, ontology_table: str, old: str, new: str):
         log.info(f"Renaming in term '{old}' to '{new}' in table {ontology_table}.")
 
-        if old not in self.__list_ontology_terms(ontology_table):
+        if old not in self.__list_ontology_terms(ontology_table).keys():
             raise NoSuchNameException(f"Name '{old}' not found in table '{ontology_table}'.")
-        if new not in self.__list_ontology_terms(ontology_table):
+        if new not in self.__list_ontology_terms(ontology_table).keys():
             raise NoSuchNameException(f"Name '{new}' not found in table '{ontology_table}'.")
 
         updater = self.Updater(self, ontology_table, old, new)
@@ -282,23 +282,31 @@ class OntologyManager:
 
         return update_results
 
-    def _delete_list(self, table: str, terms: list, num_tries: int = 0):
+    def _delete_list(self, table: str, terms: list, num_tries: int = 0,
+                     mutations: dict = None) -> dict:
         """
         Delete the listed terms from the table.
         If one or more terms are referenced by another term, they are added
         to a list and deleted at a later stage.
         """
+        if mutations is None:
+            id_key = generate_action_id(action=False)
+            mutations = {id_key: {}}
+        else:
+            id_key = list(mutations.keys())[0]
+
         parent_terms = list()
         for term in terms:
             try:
-                self._delete_term(table, term)
+                mutations[id_key].update(self._delete_term(table, term))
             except ParentReferenceException:
                 parent_terms.append(term)
         if len(parent_terms) > 0:
             if num_tries > MAX_TRIES:
                 raise ParentReferenceException(f"Could not delete terms '{','.join(parent_terms)}' due to terms'"
                                                f"reference to parent term.")
-            self._delete_list(table, parent_terms, num_tries+1)
+            mutations = self._delete_list(table, parent_terms, num_tries+1, mutations=mutations)
+        return mutations
 
     def _delete_term(self, table: str, term: str):
         """Delete the term from the table."""
@@ -309,12 +317,18 @@ class OntologyManager:
         query = Queries.delete(_table)
         variables = {"pkey": {'name': _term}}
 
-        if _term not in self.__list_ontology_terms(table):
+        terms_data = self.__list_ontology_terms(table)
+        if _term not in terms_data.keys():
             raise NoSuchNameException(f"Name '{_term}' not found in table '{table}'.")
 
-        response = self.__perform_query(query, variables, action='delete')
+        try:
+            response = self.__perform_query(query, variables, action='delete')
+        except NoSuchNameException:
+            log.error(f"Term '{_term}' could not be deleted from table '{table}' as it is not present there.")
+            return {'failure': f"Term '{_term}' not present in table '{table}'."}
 
-        return response
+        mutation_id = generate_action_id(action=True)
+        return {mutation_id: {'action': 'delete', 'name': _term, **terms_data[_term]}}
 
     class Updater:
         """Class that handles the update of the terms, ontology tables, databases and database tables."""
@@ -464,7 +478,7 @@ class OntologyManager:
 
         return _response
 
-    def __list_ontology_terms(self, table: str) -> list:
+    def __list_ontology_terms(self, table: str) -> dict:
         """Returns a list of the terms in the specified ontology.
         :param table: the name of the table from which the terms are requested.
         """
@@ -474,7 +488,10 @@ class OntologyManager:
             self.graphql_endpoint,
             json={"query": query}
         )
-        terms = [term['name'] for term in response.json()['data'][table]]
+        terms = {
+            item.pop('name'): item
+            for item in response.json()['data'][table]
+        }
         return terms
 
     def __list_ontology_tables(self) -> list:
