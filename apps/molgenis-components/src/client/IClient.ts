@@ -46,4 +46,5 @@ export interface INewClient {
   fetchSettingValue: (name: string) => Promise<any>;
   saveSetting: (key: string, value: any) => Promise<any>;
   saveTableSettings: (settings: ISetting[]) => Promise<any>;
+  clearCache: () => void;
 }
