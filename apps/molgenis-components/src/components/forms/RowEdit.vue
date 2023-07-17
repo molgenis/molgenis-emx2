@@ -102,7 +102,7 @@ export default {
     },
     errorPerColumn: {
       type: Object,
-      default: () => {},
+      default: () => ({}),
     },
   },
   emits: ["update:modelValue", "errorsInForm"],

@@ -5,12 +5,14 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
+@Tag("slow")
 public class TestComputedValue {
   static Database db;
   static Schema schema;

@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class ChangeLogUtilsTest {
+class ChangeLogUtilsTest {
   @Test
-  public void testBuildProcessAuditFunction() {
+  void testBuildProcessAuditFunction() {
     String expectedFunction =
         """
                         CREATE OR REPLACE FUNCTION "pet store"."process_Pet_audit"() RETURNS TRIGGER AS $Pet_audit$
@@ -31,7 +31,7 @@ public class ChangeLogUtilsTest {
   }
 
   @Test
-  public void testBuildAuditTrigger() {
+  void testBuildAuditTrigger() {
     String expectedTrigger =
         """
                         CREATE TRIGGER Pet_audit
@@ -43,7 +43,7 @@ public class ChangeLogUtilsTest {
   }
 
   @Test
-  public void testBuildAuditTriggerWithSpaceInTableName() {
+  void testBuildAuditTriggerWithSpaceInTableName() {
     String expectedTrigger =
         """
                         CREATE TRIGGER My_pets_audit
@@ -55,14 +55,14 @@ public class ChangeLogUtilsTest {
   }
 
   @Test
-  public void testRemoveProcessAuditFunction() {
+  void testRemoveProcessAuditFunction() {
     assertEquals(
         "DROP FUNCTION IF EXISTS \"my schema\".\"process_my_table_audit\"() CASCADE",
         ChangeLogUtils.buildProcessAuditFunctionRemove("my schema", "my table").strip());
   }
 
   @Test
-  public void testRemoveAuditTrigger() {
+  void testRemoveAuditTrigger() {
     assertEquals(
         "DROP TRIGGER IF EXISTS my_table_audit ON \"my schema\".\"my table\" CASCADE",
         ChangeLogUtils.buildAuditTriggerRemove("my schema", "my table").strip());

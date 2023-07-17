@@ -359,12 +359,12 @@ useHead({ title: network?.acronym || network?.name });
           :filter="networkVariablesFilter"
           :rowMapper="variableMapper"
         >
-          <ContentBlock
+          <ContentBlockModal
             title="Variables"
             description="Under construction"
-          ></ContentBlock>
+          ></ContentBlockModal>
         </TableContent>
-      </ContentBlocks> </template
-    >f
+      </ContentBlocks>
+    </template>
   </LayoutsDetailPage>
 </template>
