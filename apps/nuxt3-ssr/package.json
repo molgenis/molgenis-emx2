@@ -21,8 +21,9 @@
     "@nuxt/vite-builder": "3.4.3",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.8",
+    "@types/node": "16.10.0",
     "@vitejs/plugin-vue": "4.1.0",
-    "@vue/test-utils": "2.3.2",
+    "@vue/test-utils": "2.4.0",
     "autoprefixer": "10.4.14",
     "graphql-tag": "2.12.6",
     "jsdom": "21.1.2",
@@ -37,6 +38,9 @@
     "vitest": "^0.30.1"
   },
   "dependencies": {
-    "floating-vue": "^2.0.0-beta.20"
+    "@unhead/vue": "1.1.30",
+    "floating-vue": "^2.0.0-beta.20",
+    "vite": "4.0.0",
+    "vue": "3.3.4"
   }
 }
