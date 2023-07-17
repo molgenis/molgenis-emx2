@@ -4,24 +4,56 @@ import { createFilters } from "../filter-config/facetConfigurator";
 import { applyFiltersToQuery } from "../functions/applyFiltersToQuery";
 import { useBiobanksStore } from "./biobanksStore";
 import { useSettingsStore } from "./settingsStore";
+import { useCheckoutStore } from "./checkoutStore";
+import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
+import QueryEMX2 from "../functions/queryEMX2";
+import { convertArrayToChunks } from "../functions/arrayUtilities";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
+  const checkoutStore = useCheckoutStore();
+
   const { baseQuery, updateBiobankCards } = biobankStore;
 
   const settingsStore = useSettingsStore();
 
+  const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
+
+  let bookmarkWaitingForApplication = ref(false);
+
+  /** check for url manipulations */
+  let bookmarkTriggeredFilter = ref(false);
+
+  /** check for filter manipulations */
+  let filterTriggeredBookmark = ref(false);
+
   let filters = ref({});
   let filterType = ref({});
-  let filterTypeUpdatedFromFilter = ref("");
   let filterOptionsCache = ref({});
   let filterFacets = createFilters(settingsStore.config.filterFacets);
-  const facetDetails = {};
+  const facetDetailsDictionary = ref({});
 
-  /** extract the components types so we can use that in adding the correct query parts */
-  filterFacets.forEach((filterFacet) => {
-    facetDetails[filterFacet.facetIdentifier] = { ...filterFacet };
+  const facetDetails = computed(() => {
+    if (!Object.keys(facetDetailsDictionary.value).length)
+      /** extract the components types so we can use that in adding the correct query parts */
+      filterFacets.forEach((filterFacet) => {
+        facetDetailsDictionary.value[filterFacet.facetIdentifier] = {
+          ...filterFacet,
+        };
+      });
+
+    return facetDetailsDictionary.value;
   });
+
+  const filtersReady = computed(() => {
+    return filterOptionsCache.value
+      ? Object.keys(filterOptionsCache.value).length > 0
+      : false;
+  });
+
+  function getValuePropertyForFacet(facetIdentifier) {
+    return facetDetails[facetIdentifier].filterValueAttribute;
+  }
 
   function resetFilters() {
     this.baseQuery.resetFilters();
@@ -42,11 +74,23 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       /** reset pagination */
       settingsStore.currentPage = 1;
 
-      queryDelay = setTimeout(async () => {
-        clearTimeout(queryDelay);
+      /** when we reset the filters on bookmark update, we do not want to search, so hold your horses */
 
-        applyFiltersToQuery(baseQuery, filters, facetDetails, filterType);
+      queryDelay = setTimeout(async () => {
+        applyFiltersToQuery(
+          baseQuery,
+          filters,
+          facetDetails.value,
+          filterType.value
+        );
+
+        if (!bookmarkTriggeredFilter.value) {
+          createBookmark(filters, checkoutStore.selectedCollections);
+        }
+        bookmarkTriggeredFilter.value = false;
+
         await updateBiobankCards();
+        clearTimeout(queryDelay);
       }, 750);
     },
     { deep: true }
@@ -60,21 +104,39 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       }
       /** reset pagination */
       settingsStore.currentPage = 1;
+
+      /** when we reset the filters on bookmark update, we do not want to search, so hold your horses */
       queryDelay = setTimeout(async () => {
         clearTimeout(queryDelay);
-        applyFiltersToQuery(baseQuery, filters.value, facetDetails, filterType);
+        applyFiltersToQuery(
+          baseQuery,
+          filters.value,
+          facetDetails.value,
+          filterType
+        );
 
-        /** only update if we have something to update, switching the radiobutton itself should not trigger a refresh */
-        if (
-          hasActiveFilters.value &&
-          filters.value[filterTypeUpdatedFromFilter].length
-        ) {
+        if (!bookmarkTriggeredFilter.value) {
+          createBookmark(filters.value, checkoutStore.selectedCollections);
+        }
+        bookmarkTriggeredFilter.value = false;
+
+        if (hasActiveFilters.value) {
           await updateBiobankCards();
+          clearTimeout(queryDelay);
         }
       }, 750);
     },
     { deep: true, immediate: true }
   );
+
+  watch(filtersReady, (filtersReady) => {
+    if (filtersReady) {
+      const waitForStore = setTimeout(() => {
+        applyBookmark();
+        clearTimeout(waitForStore);
+      }, 350);
+    }
+  });
 
   function checkOntologyDescendantsIfMatches(
     ontologyDescendants,
@@ -131,7 +193,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
    * @param {string | Array<string>} value array with identifiers or a string with an identifier
    * @param {boolean} add
    */
-  function updateOntologyFilter(filterName, value, add) {
+  function updateOntologyFilter(filterName, value, add, fromBookmark) {
+    bookmarkTriggeredFilter.value = fromBookmark;
+
     /** value can be a child (single value), or a parent with its children > make it into an array of values */
     let processedValue = value;
 
@@ -204,6 +268,55 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       filters.value[filterName] = value;
     }
   }
+  /** did not move this to be used in filteroptions because the store is async. */
+  function getOntologyAttributes(filterFacet) {
+    const { filterLabelAttribute, filterValueAttribute } = filterFacet;
+    return [
+      filterLabelAttribute,
+      filterValueAttribute,
+      "code",
+      `parent.${filterValueAttribute}`,
+      `children.${filterValueAttribute}`,
+      `children.children.${filterValueAttribute}`,
+      `children.children.children.${filterValueAttribute}`,
+      `children.children.children.children.${filterValueAttribute}`,
+      `children.children.children.children.children.${filterValueAttribute}`,
+      "children.code",
+      "children.children.code",
+      "children.children.children.code",
+      "children.children.children.children.code",
+      "children.children.children.children.children.code",
+      `children.${filterLabelAttribute}`,
+      `children.children.${filterLabelAttribute}`,
+      `children.children.children.${filterLabelAttribute}`,
+      `children.children.children.children.${filterLabelAttribute}`,
+      `children.children.children.children.children.${filterLabelAttribute}`,
+    ];
+  }
+
+  async function getOntologyOptionsForCodes(filterFacet, codes) {
+    const { sourceTable, sortColumn, sortDirection } = filterFacet;
+    const attributes = getOntologyAttributes(filterFacet);
+
+    let codesToQuery = convertArrayToChunks(codes, 600);
+    const ontologyResults = [];
+
+    for (const codeBlock of codesToQuery) {
+      const ontologyResult = await new QueryEMX2(graphqlEndpoint)
+        .table(sourceTable)
+        .select(attributes)
+        .where("code")
+        .in(codeBlock)
+        .orderBy(sourceTable, sortColumn, sortDirection)
+        .execute();
+
+      if (ontologyResult && ontologyResult[sourceTable]) {
+        ontologyResults.push(...ontologyResult[sourceTable]);
+      }
+    }
+
+    return ontologyResults;
+  }
 
   /**
    * @param {string} filterName name of ontology filter
@@ -243,9 +356,12 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function clearAllFilters() {
     filters.value = {};
+    createBookmark(filters.value, checkoutStore.selectedCollections);
   }
 
-  function updateFilter(filterName, value) {
+  function updateFilter(filterName, value, fromBookmark) {
+    bookmarkTriggeredFilter.value = fromBookmark;
+
     /** filter reset, so delete */
     if (
       value === null ||
@@ -263,14 +379,15 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return filters.value[filterName];
   }
 
-  function updateFilterType(filterName, value) {
+  function updateFilterType(filterName, value, fromBookmark) {
+    bookmarkTriggeredFilter.value = fromBookmark;
+
     /** filter reset, so delete */
     if (value === "" || value === undefined || value.length === 0) {
       delete filterType.value[filterName];
     } else {
       filterType.value[filterName] = value;
     }
-    filterTypeUpdatedFromFilter = filterName;
   }
 
   function getFilterType(filterName) {
@@ -278,6 +395,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   return {
+    facetDetails,
     resetFilters,
     updateFilter,
     clearAllFilters,
@@ -285,11 +403,16 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     getFilterValue,
     updateFilterType,
     getFilterType,
+    getValuePropertyForFacet,
     checkOntologyDescendantsIfMatches,
     ontologyItemMatchesQuery,
+    getOntologyOptionsForCodes,
     filterOptionsCache,
     hasActiveFilters,
     filters,
     filterFacets,
+    filtersReady,
+    bookmarkWaitingForApplication,
+    filterTriggeredBookmark,
   };
 });
