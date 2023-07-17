@@ -55,7 +55,7 @@ def dev_ontomanager(url: str = None, username: str = None, password: str = None)
 
     # manager.delete(table='Countries', name="Armadilland")
     # manager.delete(table='Countries', name="Republic of Molgenia")
-    # manager.delete(table='Countries', names=["Armadilland", "Republic of Molgenia"])
+    manager.delete(table='Countries', names=["Armadilland", "Republic of Molgenia"])
 
 
 if __name__ == '__main__':

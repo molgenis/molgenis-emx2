@@ -43,10 +43,11 @@ def dev_csv_upload(url: str = None, username: str = None, password: str = None):
     update_df = pd.read_csv('data/update.csv')
 
     # Add the terms from the countries table to the Countries ontology table on the server
-    try:
-        manager.add(table='Countries', data=countries)
-    except DuplicateKeyException:
-        pass
+    # try:
+    #     manager.add(table='Countries', data=countries)
+    # except DuplicateKeyException:
+    #     pass
+    mutations = manager.add(table='Countries', data=countries)
 
     # Update the references to the countries in the update_df dataset sequentially
     manager.update(table='Countries', data=update_df)
