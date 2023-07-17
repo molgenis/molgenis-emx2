@@ -6,8 +6,10 @@
       :imageSrc="headerImage"
       height="large"
     />
-    <PageSection :verticalPadding="2">
-      <h2>Welcome to the <strong>rd-components</strong> library!</h2>
+    <PageSection :verticalPadding="2" aria-labelledby="welcome-title">
+      <h2 id="welcome-title">
+        Welcome to the <strong>molgenis-viz</strong> library!
+      </h2>
       <p>
         We have developed and designed many components for use in MOLGENIS
         applications. This allows us to create applications in a systematic way
@@ -16,11 +18,18 @@
         components. Have a look around!
       </p>
     </PageSection>
-    <PageSection class="bkg-light" :verticalPadding="2">
-      <h2>Visualisation Components</h2>
-      <p style="text-align: center;">
+    <PageSection
+      class="bkg-light"
+      :verticalPadding="2"
+      aria-labelledby="components-title"
+    >
+      <h2 id="components-title">Visualisation Components</h2>
+      <p style="text-align: center">
         We have several D3 visualisation components available and more on the
-        way.
+        way. Follow the links below to view a demonstration of the components.
+        The Data used in the examples visualisations was sourced from the
+        <a href="https://ror.org">ROR Database</a> and is stored in the
+        Dashboard schema.
       </p>
       <div class="link-container">
         <LinkCard :imageSrc="BarChartImage">
@@ -47,13 +56,6 @@
           <router-link :to="{ name: 'chart-legend' }">Legends</router-link>
         </LinkCard>
       </div>
-    </PageSection>
-    <PageSection>
-      <h2>About</h2>
-      <p>
-        Data used in the visualisations comes from the
-        <a href="https://ror.org">ROR Database</a>.
-      </p>
     </PageSection>
   </Page>
 </template>

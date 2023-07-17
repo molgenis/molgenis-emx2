@@ -1,12 +1,15 @@
 <template>
-  <RouterView />
-  <PageFooter>
-    <MolgenisLogo />
-  </PageFooter>
+  <Molgenis>
+    <RouterView />
+    <PageFooter>
+      <MolgenisLogo />
+    </PageFooter>
+  </Molgenis>
 </template>
 
 <script setup>
 import { RouterView } from "vue-router";
+import { Molgenis } from "molgenis-components";
 import PageFooter from "./components/layouts/PageFooter.vue";
 import MolgenisLogo from "./components/display/MolgenisLogo.vue";
 </script>
@@ -54,5 +57,8 @@ body {
 
 .page-footer {
   padding: 2em 0;
+  .molgenis-citation {
+    background-color: transparent;
+  }
 }
 </style>
