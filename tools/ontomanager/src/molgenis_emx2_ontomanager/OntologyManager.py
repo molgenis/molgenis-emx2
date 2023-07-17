@@ -11,6 +11,7 @@ from .constants import ontology_columns
 from .exceptions import OntomanagerException, DuplicateKeyException, MissingPkeyException, NoSuchNameException, \
     NoSuchTableException, UpdateItemsException, SigninError, InvalidDatabaseException, ParentReferenceException
 from .graphql_queries import Queries
+from .utils import generate_action_id
 
 log = logging.getLogger("OntologyManager")
 
@@ -50,6 +51,7 @@ class OntologyManager:
     def add(self, table: str, data: pd.DataFrame | dict | list = None, **kwargs):
         """Add a term to an ontology table.
         """
+        mutations = dict()
         log.info(f"Adding to table {table}.")
 
         if table not in self.ontology_tables:
@@ -57,17 +59,19 @@ class OntologyManager:
 
         if data is not None:
             if isinstance(data, pd.DataFrame):
-                self._add_dataframe(table, data)
+                mutations = self._add_dataframe(table, data)
             elif isinstance(data, dict):
-                self._add_dict(table, data)
+                mutations = self._add_dict(table, data)
             elif isinstance(data, list):
-                self._add_list(table, data)
+                mutations = self._add_list(table, data)
             else:
                 log.error(f"Data type {type(data)} encountered for parameter 'data'.")
                 raise ValueError(f"Unknown data type for parameter 'data'."
                                  f"Supply data as pandas DataFrame, dict or list.")
         else:
-            self._add_term(table, kwargs)
+            mutations = self._add_term(table, kwargs)
+
+        return mutations
 
     def update(self, table: str, data: pd.DataFrame | dict | list = None,
                old: str = None, new: str = None) -> dict:
@@ -183,7 +187,7 @@ class OntologyManager:
                 usage_dict.update({db: db_usage_dict})
         return usage_dict
 
-    def _add_term(self, table: str, kwargs):
+    def _add_term(self, table: str, kwargs) -> dict:
         """Add a single term to a table."""
 
         _kwargs = self.__parse_kwargs(kwargs)
@@ -192,32 +196,45 @@ class OntologyManager:
         query = Queries.insert(_table)
         variables = {"value": _kwargs}
 
-        response = self.__perform_query(query, variables, action='add')
+        try:
+            response = self.__perform_query(query, variables, action='add')
+        except DuplicateKeyException:
+            log.error(f"Term '{_kwargs['name']}' already present in table '{table}'")
+            return {'failure': f"Term '{_kwargs['name']}' already present in table '{table}'"}
 
-        return response
+        mutation_id = generate_action_id(action=True)
+        return {mutation_id: _kwargs}
 
-    def _add_dict(self, table: str, terms_dict: dict):
+    def _add_dict(self, table: str, terms_dict: dict) -> dict:
         """Add terms to a table from a dictionary object."""
         if 'name' in terms_dict.keys():
-            self._add_term(table=table, kwargs=terms_dict)
+            mutations = self._add_term(table=table, kwargs=terms_dict)
         else:
+            mutations = dict()
             for values in terms_dict.values():
-                self._add_term(table=table, kwargs=values)
+                mutations.update(self._add_term(table=table, kwargs=values))
+            collection_id = generate_action_id(action=False)
+            mutations = {collection_id: mutations}
+        return mutations
 
-    def _add_list(self, table: str, terms_list: list):
+    def _add_list(self, table: str, terms_list: list) -> dict:
         """Add terms to table from a list of dictionaries."""
+        mutations = dict()
         for term in terms_list:
             if isinstance(term, dict):
-                self._add_term(table, **term)
+                mutations.update(self._add_term(table, **term))
+        collection_id = generate_action_id(action=False)
+        mutations = {collection_id: mutations}
+        return mutations
 
-    def _add_dataframe(self, table: str, df: pd.DataFrame):
+    def _add_dataframe(self, table: str, df: pd.DataFrame) -> dict:
         """Add terms to a table from a pandas DataFrame object."""
         # Unpack the DataFrame into a dictionary
         _data: pd.DataFrame = df.replace({np.nan: None})
         _data_dict = _data.to_dict(orient='index')
 
-        self._add_dict(table, _data_dict)
-        return None
+        mutations = self._add_dict(table, _data_dict)
+        return mutations
 
     def _update_dataframe(self, table: str, data: pd.DataFrame) -> dict:
         """Perform references updates from a pandas DataFrame object."""
