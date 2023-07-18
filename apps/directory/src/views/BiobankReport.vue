@@ -6,7 +6,7 @@
     <div
       v-if="biobankDataAvailable && bioschemasJsonld"
       v-html="bioschemasJsonld"
-    ></div>
+    />
     <div
       v-if="!biobankDataAvailable"
       class="d-flex justify-content-center align-items-center spinner-container"
@@ -16,18 +16,13 @@
     <div v-else class="container-fluid pl-0">
       <div class="row">
         <div class="col my-3 shadow-sm d-flex p-2 align-items-center bg-white">
-          <breadcrumb>
-            <ol class="breadcrumb my-1">
-              <li class="breadcrumb-item">
-                <router-link to="/catalogue" title="Back to the catalogue">
-                  {{ uiText["home"] }}
-                </router-link>
-              </li>
-              <li class="breadcrumb-item active text-dark" aria-current="page">
-                {{ biobank.name }}
-              </li>
-            </ol>
-          </breadcrumb>
+          <Breadcrumb
+            class="directory-nav"
+            :crumbs="{
+              'Back to catalogue': uiText['home'],
+              [biobank.name]: '/',
+            }"
+          />
           <check-out
             class="ml-auto"
             :disabled="biobank.withdrawn"
@@ -113,11 +108,11 @@
 <script>
 import { ref } from "vue";
 import { useRoute } from "vue-router";
-import { Spinner } from "../../../molgenis-components";
+import { Breadcrumb, Spinner } from "../../../molgenis-components";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
 import CollectionSelector from "../components/checkout-components/CollectionSelector.vue";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
-import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
+// import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
 import CollapseComponent from "../components/report-components/CollapseComponent.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
