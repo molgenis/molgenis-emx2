@@ -316,8 +316,6 @@ export default {
     },
     appConfig() {
       const config = this.settingsStore.config || {};
-
-      console.log({ config });
       return JSON.stringify(config);
     },
     filterEditMode() {

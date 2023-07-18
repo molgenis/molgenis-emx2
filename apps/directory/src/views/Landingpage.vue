@@ -78,9 +78,14 @@ import LandingpageCallToAction from "../components/landingpage-components/Landin
 import LandingpageHeader from "../components/landingpage-components/LandingpageHeader.vue";
 import LandingpageCollectionSpotlight from "../components/landingpage-components/LandingpageCollectionSpotlight.vue";
 import LandingpageSearch from "../components/landingpage-components/LandingpageSearch.vue";
-import { mapState } from "vuex";
+import { useSettingsStore } from "../stores/settingsStore";
 
 export default {
+  setup() {
+    const settingsStore = useSettingsStore();
+
+    return { settingsStore };
+  },
   props: {
     editable: {
       type: Boolean,
@@ -96,7 +101,9 @@ export default {
     LandingpageCollectionSpotlight,
   },
   computed: {
-    ...mapState(["landingpage"]),
+    landingpage() {
+      return this.settingsStore.config.landingpage;
+    },
     pageHeader() {
       return this.landingpage.page_header;
     },

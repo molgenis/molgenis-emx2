@@ -1,6 +1,6 @@
 <template>
   <!-- todo: break this into components or something. -->
-  <div class="container-fluid p-0 landingpage-editor">
+  <div class="container-fluid p-0 landingpage-editor" v-if="newConfigReady">
     <div class="d-flex">
       <label
         ><input
@@ -335,6 +335,11 @@ export default {
       this.revision++;
     },
   },
+  computed: {
+    newConfigReady() {
+      return Object.keys(this.newConfig).length > 0;
+    },
+  },
   methods: {
     openModal(section) {
       this.section = section;
@@ -363,7 +368,9 @@ export default {
   },
   mounted() {
     this.originalConfig = this.currentConfig;
+
     this.newConfig = JSON.parse(this.originalConfig);
+    console.log({ a: this.newConfig });
   },
 };
 </script>

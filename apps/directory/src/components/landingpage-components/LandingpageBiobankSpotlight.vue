@@ -14,7 +14,7 @@
         :title="`Go to ${biobankName}`"
         class="btn"
         :class="css.biobankSpotlight.buttonClasses"
-        :style="buttonStyle"
+        :style="css.biobankSpotlight.buttonStyle"
       >
         <span>{{ buttonText }}</span>
       </router-link>

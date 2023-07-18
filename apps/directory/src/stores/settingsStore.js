@@ -5,6 +5,7 @@ import { initialFilterFacets } from "../filter-config/initialFilterFacets";
 import initialCollectionColumns from "../property-config/initialCollectionColumns";
 import initialBiobankColumns from "../property-config/initialBiobankColumns";
 import initialBiobankReportColumns from "../property-config/initialBiobankReportColumns";
+import initialLandingpage from "../property-config/initialLandingpage";
 import QueryEMX2 from "../functions/queryEMX2";
 /**
  * Settings store is where all the configuration of the application is handled.
@@ -26,6 +27,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     filterFacets: initialFilterFacets,
     filterMenuInitiallyFolded: false,
     biobankCardShowCollections: true,
+    landingpage: initialLandingpage,
     pageSize: 12,
     i18n,
   });
