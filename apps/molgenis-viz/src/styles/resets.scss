@@ -1,24 +1,28 @@
-body {
-  padding: 0;
-  margin: 0;
+
+// remove parent container background color
+#app > div {
+  background-color: transparent;
 }
 
-.mg-page,
-.mg-app,
-.container-fluid,
-.row,
-.col-sm-8,
-.col-sm-3 {
+// reset app container padding
+#app > div > div > div.container-fluid.p-3 {
   padding: 0;
 }
-.mg-page .mg-page-content {
-  margin-top: 0;
-}
 
-footer.footer {
+// hide footer
+#app > div > div.text-center {
   display: none;
 }
 
+// overwrite elements set by parent theme
+.app-page {
+  
+  ::before, ::after {
+    box-sizing: content-box;
+  }
+}
+
+// set visually hidden class to be used throughout the app(s)
 .visually-hidden {
   position: absolute;
   clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
