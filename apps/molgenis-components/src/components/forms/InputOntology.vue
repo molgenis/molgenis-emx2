@@ -93,6 +93,7 @@
           @deselect="deselect"
           @toggleExpand="toggleExpand"
         />
+        <Spinner v-else-if="loading" />
         <div v-else>No results found</div>
       </div>
     </div>
@@ -113,6 +114,7 @@ import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "click-outside-vue3";
 import { convertToPascalCase } from "../utils.ts";
+import Spinner from "../layout/Spinner.vue";
 
 /**
  * Expects a table that has as structure {name, parent{name} and optionally code, definition, ontologyURI}
@@ -130,6 +132,7 @@ export default {
     FormGroup,
     InputOntologySubtree,
     MessageError,
+    Spinner,
   },
   directives: {
     clickOutside: vClickOutside.directive,
@@ -173,6 +176,7 @@ export default {
       //use to block to many search results
       searchResultCount: 0,
       data: {},
+      loading: true,
     };
   },
   computed: {
@@ -518,11 +522,11 @@ export default {
   created() {
     if (this.options) {
       this.data = this.options;
+      this.loading = false;
     } else {
       //override default
       this.limit = 100000;
     }
-    this.loading = false;
   },
 };
 </script>
