@@ -19,7 +19,7 @@
           <Breadcrumb
             class="directory-nav"
             :crumbs="{
-              'Back to catalogue': uiText['home'],
+              [uiText['home']]: '/',
               [biobank.name]: '/',
             }"
           />
@@ -112,7 +112,6 @@ import { Breadcrumb, Spinner } from "../../../molgenis-components";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
 import CollectionSelector from "../components/checkout-components/CollectionSelector.vue";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
-// import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
 import CollapseComponent from "../components/report-components/CollapseComponent.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
