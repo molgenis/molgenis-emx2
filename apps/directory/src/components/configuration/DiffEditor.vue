@@ -1,8 +1,6 @@
 <template>
   <div class="container-fluid p-0">
-    <div
-      class="row px-5 pb-3">
-
+    <div class="row px-5 pb-3">
       <div class="row w-100 mt-1">
         <div class="col-6 pr-0"><h3>Current config</h3></div>
         <div class="col-6 pl-0"><h3>New config</h3></div>
@@ -23,60 +21,57 @@
 </template>
 
 <script>
+import * as monaco from "monaco-editor";
+
 export default {
   props: {
     currentConfig: {
       type: String,
-      required: true
-
+      required: true,
     },
     newConfig: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
-  data () {
+  data() {
     return {
-      diffEditor: {}
-    }
+      diffEditor: {},
+    };
   },
   methods: {
-    save () {
-      const changesToSave = this.diffEditor.getModifiedEditor().getValue()
-      this.$emit('save', changesToSave)
+    save() {
+      const changesToSave = this.diffEditor.getModifiedEditor().getValue();
+      this.$emit("save", changesToSave);
     },
-    cancel () {
-      this.$emit('cancel')
-    }
+    cancel() {
+      this.$emit("cancel");
+    },
   },
-  destroyed () {
-    this.diffEditor.dispose()
+  destroyed() {
+    this.diffEditor.dispose();
   },
-  async mounted () {
-    const monaco = await import('monaco-editor/esm/vs/editor/editor.api')
-
+  async mounted() {
     const originalModel = monaco.editor.createModel(
       this.currentConfig,
-      'application/json'
-    )
+      "application/json"
+    );
     const modifiedModel = monaco.editor.createModel(
       this.newConfig,
-      'application/json'
-    )
+      "application/json"
+    );
 
-    this.diffEditor = monaco.editor.createDiffEditor(
-      this.$refs['diff-editor']
-    )
+    this.diffEditor = monaco.editor.createDiffEditor(this.$refs["diff-editor"]);
 
     this.diffEditor.setModel({
       original: originalModel,
-      modified: modifiedModel
-    })
-  }
-}
+      modified: modifiedModel,
+    });
+  },
+};
 </script>
 
-<style scoped >
+<style scoped>
 .editor {
   margin: 0 auto;
   border: 1px solid black;

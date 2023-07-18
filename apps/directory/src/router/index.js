@@ -32,6 +32,21 @@ const router = createRouter({
     },
     { path: "/network/:id", name: "networkdetails", component: NetworkReport },
     {
+      path: "/configuration",
+      component: () =>
+        // import(
+        //   /* webpackChunkName: "configuration-screen" */ "../views/ConfigTest.vue"
+        // ),
+        import(
+          /* webpackChunkName: "configuration-screen" */ "../views/ConfigurationScreen.vue"
+        ),
+      // todo check
+      // beforeEnter: async (to, from, next) => {
+      //   const response = await api.get('/app-ui-context')
+      //   if (response.roles.includes('ROLE_SU')) { next() } else next('/')
+      // }
+    },
+    {
       path: "/",
       name: "home",
       component: HomeView,

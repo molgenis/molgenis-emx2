@@ -12,6 +12,8 @@ import QueryEMX2 from "../functions/queryEMX2";
  */
 export const useSettingsStore = defineStore("settingsStore", () => {
   let session = ref({});
+  let configUpdateStatus = ref(0);
+
   const currentPage = ref(1);
 
   let config = ref({
@@ -52,8 +54,29 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     return config.value.i18n[config.value.language];
   });
 
-  // todo add config from database
-  // todo add config management functions
+  async function GetApplicationConfiguration() {
+    // todo, obviously.
+    const configResult = false;
+    if (configResult) {
+      config.value = configResult;
+    }
+  }
+  async function SaveApplicationConfiguration() {
+    return Error("Not implemented");
+  }
+  async function UpdateLandingpage() {
+    return Error("Not implemented");
+  }
 
-  return { config, currentPage, getCurrentSession, initializeConfig, uiText };
+  return {
+    config,
+    currentPage,
+    getCurrentSession,
+    initializeConfig,
+    GetApplicationConfiguration,
+    SaveApplicationConfiguration,
+    UpdateLandingpage,
+    configUpdateStatus,
+    uiText,
+  };
 });

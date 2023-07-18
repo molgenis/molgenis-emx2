@@ -43,11 +43,14 @@ watch(
 export default {
   methods: {
     closeAllDropdownButtons(event) {
-      const allDropdownButtons = document.querySelectorAll(".dropdown-button");
+      if (event.target.id) {
+        const allDropdownButtons =
+          document.querySelectorAll(".dropdown-button");
 
-      for (const dropdownButton of allDropdownButtons) {
-        if (dropdownButton.id !== event.target.id) {
-          dropdownButton.removeAttribute("open");
+        for (const dropdownButton of allDropdownButtons) {
+          if (dropdownButton.id !== event.target.id) {
+            dropdownButton.removeAttribute("open");
+          }
         }
       }
     },

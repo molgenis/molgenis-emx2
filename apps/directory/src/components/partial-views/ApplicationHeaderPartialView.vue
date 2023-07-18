@@ -7,6 +7,14 @@
         </div>
       </div>
       <div class="col-4 d-flex justify-content-end">
+        <!-- v-if="showSettings" -->
+        <router-link
+          class="btn btn-light border mr-2 align-self-start"
+          to="/configuration"
+        >
+          <span class="mr-2">Settings</span>
+          <span class="fa-solid fa-gear" />
+        </router-link>
         <check-out :bookmark="true" />
       </div>
     </div>

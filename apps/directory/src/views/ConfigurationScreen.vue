@@ -5,21 +5,24 @@
         type="button"
         @click="switchView('ui')"
         class="btn btn-link text-white"
-        :class="{ 'editor-active': editorType === 'ui' }">
+        :class="{ 'editor-active': editorType === 'ui' }"
+      >
         Filters
       </button>
       <button
         type="button"
         @click="switchView('editor')"
         class="btn btn-link text-white"
-        :class="{ 'editor-active': editorType === 'editor' }">
+        :class="{ 'editor-active': editorType === 'editor' }"
+      >
         JSON
       </button>
       <button
         type="button"
         @click="switchView('landingpage')"
         class="btn btn-link text-white"
-        :class="{ 'editor-active': editorType === 'landingpage' }">
+        :class="{ 'editor-active': editorType === 'landingpage' }"
+      >
         Landingpage
       </button>
     </nav>
@@ -32,23 +35,26 @@
 
     <a href="" ref="download" class="hidden"></a>
 
-    <div v-show="editorType === 'ui'" class="row px-5 pb-3">
+    <div v-if="editorType === 'ui'" class="row px-5 pb-3">
       <div class="col-6">
         <FilterConfigUI
           :config="config"
           @update="updateFilters"
           @add="addFilter"
-          @edit="setFilterEditIndex"/>
+          @edit="setFilterEditIndex"
+        />
       </div>
-      <div class="col-6" v-if="filterIndex !== -1">
+      <div class="col-6" v-if="filterEditMode">
         <h3>
           {{ config.filterFacets[this.filterIndex].label }} filter configuration
         </h3>
         <filter-editor
+          :key="filterIndex"
           class="filter-editor"
           :value="config.filterFacets[this.filterIndex]"
           @input="applyChanges"
-          @delete="deleteFilter"/>
+          @delete="deleteFilter"
+        />
         <small>
           <pre class="code-help">
 {
@@ -75,33 +81,31 @@
     </div>
 
     <!-- Advanced Editor -->
-    <div
-      v-show="editorType === 'editor'"
-      class="row px-5 pb-3"
-      @keyup.ctrl.f="format">
-      <div ref="editor" class="editor" @keyup="dirty = true"></div>
-    </div>
+    <json-editor
+      :config="currentConfig"
+      @save="saveFromEditor"
+      v-if="editorType === 'editor'"
+    />
 
+    <!-- Diff editor -->
     <diff-editor
       v-if="editorType === 'diff'"
       :currentConfig="currentConfig"
       :newConfig="uploadedAppConfig"
-      @save="saveDiff"
-      @cancel="switchView('editor')"/>
-    <!-- End Advanced Editor -->
+      @save="saveFromEditor"
+      @cancel="switchView('editor')"
+    />
 
     <!-- Landingpage editor -->
     <div v-if="editorType === 'landingpage'" class="row px-5 pb-5">
       <landingpage-editor
         :currentConfig="currentConfig"
-        @save="saveOtherChanges"
-        @cancel="switchView('editor')"/>
+        @save="saveLandingpage"
+        @cancel="switchView('editor')"
+      />
     </div>
-
     <!-- standard button bar -->
-    <div
-      v-if="editorType !== 'diff' && editorType !== 'landingpage'"
-      class="row px-5 pb-5">
+    <div v-if="currentView === 'ui'" class="row px-5 pb-5">
       <div class="col pl-0">
         <button class="btn btn-primary mr-3 save-button" @click="save">
           Save configuration
@@ -121,7 +125,8 @@
           type="file"
           id="file-selector"
           accept=".json"
-          @change="processUpload"/>
+          @change="processUpload"
+        />
       </div>
       <div>
         <div class="row">
@@ -130,16 +135,20 @@
               v-if="configUpdateStatus === 204"
               class="alert alert-success m-0 mr-3"
               role="alert"
-              @click="statusClosed = true">
+              @click="statusClosed = true"
+            >
               <span>Configuration saved!</span>
             </div>
             <div
               v-else
               class="alert alert-warning m-0"
               role="alert"
-              @click="statusClosed = true">
-              <span>We could not save the configuration, make sure you are logged
-                in with sufficient rights.</span>
+              @click="statusClosed = true"
+            >
+              <span
+                >We could not save the configuration, make sure you are logged
+                in with sufficient rights.</span
+              >
             </div>
           </div>
 
@@ -147,210 +156,197 @@
             <span>You have unsaved changes</span>
           </div>
         </div>
-        <small class="mt-4 float-right">To format your file press ctrl + f</small>
+        <small class="mt-4 float-right"
+          >To format your file press ctrl + f</small
+        >
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapActions, mapMutations, mapState } from 'vuex'
-import DiffEditor from '../components/configuration/DiffEditor.vue'
-import FilterEditor from '../components/configuration/FilterEditor.vue'
-import FilterConfigUI from '../components/configuration/FilterConfigUI.vue'
-import LandingpageEditor from '../components/configuration/LandingpageEditor.vue'
-import { filterTemplate } from '../config/facetConfigurator'
+import DiffEditor from "../components/configuration/DiffEditor.vue";
+import FilterEditor from "../components/configuration/FilterEditor.vue";
+import FilterConfigUI from "../components/configuration/FilterConfigUI.vue";
+import JsonEditor from "../components/configuration/JsonEditor.vue";
+import LandingpageEditor from "../components/configuration/LandingpageEditor.vue";
+import { filterTemplate } from "../filter-config/facetConfigurator";
+import { useSettingsStore } from "../stores/settingsStore";
 
 export default {
-  components: { FilterConfigUI, DiffEditor, FilterEditor, LandingpageEditor },
-  data () {
+  setup() {
+    const settingsStore = useSettingsStore();
+    return { settingsStore };
+  },
+  components: {
+    FilterConfigUI,
+    DiffEditor,
+    FilterEditor,
+    LandingpageEditor,
+    JsonEditor,
+  },
+  data() {
     return {
       editor: {},
+      config: {},
       statusClosed: true,
       dirty: false,
       undoFilterSort: 0,
-      editorType: 'ui', // ui / editor / diff
-      newAppConfig: '',
-      config: {},
-      uploadedAppConfig: '',
-      jsonError: '',
-      filterIndex: -1
-    }
+      editorType: "ui", // ui / editor / diff
+      newAppConfig: "",
+      uploadedAppConfig: "",
+      jsonError: "",
+      filterIndex: -1,
+    };
   },
   methods: {
-    ...mapActions([
-      'GetApplicationConfiguration',
-      'SaveApplicationConfiguration'
-    ]),
-    ...mapMutations(['UpdateLandingpage']),
-
-    switchView (view) {
-      const viewTimer = setTimeout(() => {
-        this.editorType = view
-        clearTimeout(viewTimer)
-      }, 200)
-
-      if (view === 'editor') {
-        this.editor.getModel().setValue(this.newAppConfig || this.appConfig)
-        this.format()
-      }
-
-      if (view === 'ui') {
-        this.config = JSON.parse(this.editor.getValue())
-      }
+    switchView(view) {
+      this.editorType = view;
     },
-    format () {
-      this.editor.getAction('editor.action.formatDocument').run()
+    applyChanges(filterObject) {
+      this.dirty = true;
+      this.config.filterFacets[this.filterIndex] = filterObject;
+      this.syncCurrentConfigState();
     },
-    applyChanges (filterObject) {
-      this.dirty = true
-      this.config.filterFacets[this.filterIndex] = filterObject
-      this.syncCurrentConfigState()
+    deleteFilter() {
+      this.dirty = true;
+      this.config.filterFacets.splice(this.filterIndex, 1);
+      this.filterIndex = -1;
+      this.syncCurrentConfigState();
     },
-    deleteFilter () {
-      this.dirty = true
-      this.config.filterFacets.splice(this.filterIndex, 1)
-      this.filterIndex = -1
-      this.syncCurrentConfigState()
-    },
-    syncCurrentConfigState () {
-      /**  apply config to draggables */
-      this.config = Object.assign({}, this.config)
+    syncCurrentConfigState() {
       /** apply changes to the json editor */
-      this.newAppConfig = JSON.stringify(this.config)
+      this.newAppConfig = this.appConfig;
     },
-    save () {
-      this.format()
-      this.statusClosed = false
-      if (this.editorType === 'editor') {
-        this.saveToDatabase(this.editor.getValue())
-      }
-      if (this.editorType === 'ui') {
-        this.saveToDatabase(this.newAppConfig)
-      }
+    save() {
+      this.saveToDatabase(this.newAppConfig);
     },
-    updateFilters (newConfig) {
-      this.dirty = true
-      this.newAppConfig = JSON.stringify(newConfig)
+    updateFilters(newConfig) {
+      this.dirty = true;
+      this.newAppConfig = newConfig;
     },
-    saveDiff (changesToSave) {
-      this.newAppConfig = changesToSave
-      this.saveToDatabase(changesToSave)
+    saveFromEditor(changesToSave) {
+      this.newAppConfig = changesToSave;
+      this.saveToDatabase(changesToSave);
 
-      this.switchView('editor')
+      this.switchView("editor");
     },
-    saveOtherChanges (changesToSave) {
-      this.newAppConfig = changesToSave
-      this.saveToDatabase(changesToSave)
+    saveLandingpage(changesToSave) {
+      this.newAppConfig = changesToSave;
+      this.saveToDatabase(changesToSave);
     },
-    checkJSONStructure (jsonString) {
-      if (typeof jsonString === 'object') return
+    checkJSONStructure(jsonString) {
+      if (typeof jsonString === "object") return;
       try {
-        JSON.parse(jsonString)
-        this.jsonError = ''
+        JSON.parse(jsonString);
+        this.jsonError = "";
       } catch (e) {
-        this.jsonError = e
+        this.jsonError = e;
       }
     },
-    saveToDatabase (newConfiguration) {
-      this.checkJSONStructure(newConfiguration)
+    saveToDatabase(newConfiguration) {
+      this.checkJSONStructure(newConfiguration);
       if (!this.jsonError) {
-        this.SaveApplicationConfiguration(newConfiguration)
-        this.dirty = false
+        this.settingsStore.SaveApplicationConfiguration(newConfiguration);
+        this.dirty = false;
       }
     },
-    cancel () {
-      this.dirty = false
-      this.newAppConfig = ''
+    cancel() {
+      this.dirty = false;
+      this.newAppConfig = "";
 
-      this.config = Object.assign({}, JSON.parse(this.appConfig))
-      this.editor.getModel().setValue(this.appConfig)
-      this.filterIndex = -1
+      this.config = Object.assign({}, JSON.parse(this.appConfig));
+      this.editor.getModel().setValue(this.appConfig);
+      this.filterIndex = -1;
     },
-    download () {
-      const file = new Blob([this.editor.getValue()], { type: 'json' })
-      const a = document.createElement('a')
-      const url = URL.createObjectURL(file)
-      a.href = url
-      a.download = `${window.location.host}-config.json`
-      document.body.appendChild(a)
-      a.click()
+    download() {
+      const file = new Blob([this.newAppConfig || this.appConfig], {
+        type: "json",
+      });
+      const a = document.createElement("a");
+      const url = URL.createObjectURL(file);
+      a.href = url;
+      a.download = `${window.location.host}-config.json`;
+      document.body.appendChild(a);
+      a.click();
       setTimeout(function () {
-        document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
-      }, 0)
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 0);
     },
-    upload () {
-      const fileInput = document.getElementById('file-selector')
-      fileInput.click()
+    upload() {
+      const fileInput = document.getElementById("file-selector");
+      fileInput.click();
     },
-    async processUpload (event) {
-      const reader = new FileReader()
-      reader.addEventListener('load', (event) => {
-        this.uploadedAppConfig = atob(event.target.result.split(',')[1])
+    async processUpload(event) {
+      const reader = new FileReader();
+      reader.addEventListener("load", (event) => {
+        this.uploadedAppConfig = atob(event.target.result.split(",")[1]);
 
-        this.switchView('diff')
-      })
-      reader.readAsDataURL(event.target.files[0])
+        this.switchView("diff");
+      });
+      reader.readAsDataURL(event.target.files[0]);
     },
-    setFilterEditIndex (newIndex) {
-      this.filterIndex = newIndex
+    setFilterEditIndex(newIndex) {
+      this.filterIndex = newIndex;
     },
-    addFilter () {
-      this.dirty = true
-      const filterCount = this.config.filterFacets.length
-      this.config.filterFacets.push(filterTemplate)
-      this.syncCurrentConfigState()
-      this.filterIndex = filterCount
-    }
+    addFilter() {
+      this.dirty = true;
+      const filterCount = this.config.filterFacets.length;
+      this.config.filterFacets.push(filterTemplate);
+      this.syncCurrentConfigState();
+      this.filterIndex = filterCount;
+    },
   },
   computed: {
-    ...mapState(['appConfig', 'configUpdateStatus']),
-    showNotification () {
-      return this.configUpdateStatus !== 0 && !this.statusClosed
+    currentView() {
+      return this.editorType;
     },
-    currentConfig () {
-      return this.editor.getValue()
+    configUpdateStatus() {
+      return this.settingsStore.configUpdateStatus;
     },
-    newConfig () {
-      return this.uploadedAppConfig
-    }
+    showNotification() {
+      return this.configUpdateStatus !== 0 && !this.statusClosed;
+    },
+    currentConfig() {
+      return this.newAppConfig || JSON.parse(JSON.stringify(this.appConfig));
+    },
+    newConfig() {
+      return this.uploadedAppConfig;
+    },
+    appConfig() {
+      const config = this.settingsStore.config || {};
+
+      console.log({ config });
+      return JSON.stringify(config);
+    },
+    filterEditMode() {
+      return this.filterIndex >= 0;
+    },
   },
   watch: {
-    configUpdateStatus (newStatus) {
+    configUpdateStatus(newStatus) {
       if (newStatus !== 0) {
         const timer = setTimeout(() => {
-          this.statusClosed = true
-          clearTimeout(timer)
-        }, 5000)
+          this.statusClosed = true;
+          clearTimeout(timer);
+        }, 5000);
       }
-    }
+    },
   },
-  destroyed () {
-    this.filterIndex = -1
+  destroyed() {
+    this.filterIndex = -1;
   },
-  async mounted () {
-    await this.GetApplicationConfiguration()
+  async mounted() {
+    await this.settingsStore.GetApplicationConfiguration();
 
-    this.config = JSON.parse(this.appConfig)
-    this.UpdateLandingpage(this.config)
-    const monaco = await import('monaco-editor/esm/vs/editor/editor.api')
-
-    this.editor = monaco.editor.create(this.$refs.editor, {
-      automaticLayout: true,
-      value: this.appConfig,
-      language: 'json'
-    })
-
-    const formatTimer = setTimeout(() => {
-      this.format()
-      clearTimeout(formatTimer)
-    }, 500)
-  }
-}
+    this.config = JSON.parse(this.appConfig);
+    this.settingsStore.UpdateLandingpage(this.config);
+  },
+};
 </script>
 
-<style scoped >
+<style scoped>
 .code-help {
   margin-top: 4rem;
 }
@@ -366,16 +362,9 @@ export default {
 #file-selector {
   display: none;
 }
-::v-deep .original-in-monaco-diff-editor .view-lines,
-::v-deep .original-in-monaco-diff-editor .margin-view-overlays {
+:deep(.original-in-monaco-diff-editor .view-lines),
+:deep(.original-in-monaco-diff-editor .margin-view-overlays) {
   background-color: #eaeaea;
-}
-
-.editor {
-  margin: 0 auto;
-  border: 1px solid black;
-  height: 65vh;
-  width: 100%;
 }
 
 .filter-editor {

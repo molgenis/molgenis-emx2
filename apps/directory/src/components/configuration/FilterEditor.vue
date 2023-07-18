@@ -5,69 +5,67 @@
     <button class="btn btn-info mt-3" :disabled="!dirty" @click="apply">
       Apply changes to {{ value.label }}
     </button>
-    <button
-      class="btn btn-danger ml-3 mt-3"
-      @click="deleteFilter">
+    <button class="btn btn-danger ml-3 mt-3" @click="deleteFilter">
       Delete {{ value.label }}
     </button>
   </div>
 </template>
 
 <script>
+import * as monaco from "monaco-editor";
+
 export default {
   props: {
     value: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   methods: {
-    format () {
+    format() {
       if (this.filterEditor && this.filterEditor.getAction) {
-        this.filterEditor.getAction('editor.action.formatDocument').run()
+        this.filterEditor.getAction("editor.action.formatDocument").run();
       }
     },
-    apply () {
-      this.$emit('input', JSON.parse(this.filterEditor.getValue()))
+    apply() {
+      this.$emit("input", JSON.parse(this.filterEditor.getValue()));
     },
-    deleteFilter () {
-      this.$emit('delete')
-    }
+    deleteFilter() {
+      this.$emit("delete");
+    },
   },
-  data () {
+  data() {
     return {
       dirty: false,
-      filterEditor: {}
-    }
+      filterEditor: {},
+    };
   },
-  destroyed () {
-    this.dirty = false
-    this.filterEditor.dispose()
+  destroyed() {
+    this.dirty = false;
+    this.filterEditor.dispose();
   },
   watch: {
-    value (newValue) {
-      this.dirty = false
+    value(newValue) {
+      this.dirty = false;
       if (this.filterEditor.dispose) {
-        this.filterEditor.getModel().setValue(JSON.stringify(newValue))
-        this.format()
+        this.filterEditor.getModel().setValue(JSON.stringify(newValue));
+        this.format();
       }
-    }
+    },
   },
-  async mounted () {
-    const monaco = await import('monaco-editor/esm/vs/editor/editor.api')
-
-    this.filterEditor = monaco.editor.create(this.$refs['filter-editor'], {
+  mounted() {
+    this.filterEditor = monaco.editor.create(this.$refs["filter-editor"], {
       automaticLayout: true,
       value: JSON.stringify(this.value),
-      language: 'json'
-    })
+      language: "json",
+    });
 
     const formatTimer = setTimeout(() => {
-      this.format()
-      clearTimeout(formatTimer)
-    }, 500)
-  }
-}
+      this.format();
+      clearTimeout(formatTimer);
+    }, 200);
+  },
+};
 </script>
 
 <style scoped>
