@@ -1,4 +1,4 @@
-package org.molgenis.emx2.cafevariome.request.parameters;
+package org.molgenis.emx2.cafevariome.post.request.parameters;
 
 import java.util.Arrays;
 import java.util.List;

@@ -1,10 +1,10 @@
-package org.molgenis.emx2.cafevariome.request.parser;
+package org.molgenis.emx2.cafevariome.post.request.parser;
 
-import static org.molgenis.emx2.cafevariome.request.parameters.RequiredQueryParameters.*;
+import static org.molgenis.emx2.cafevariome.post.request.parameters.RequiredQueryParameters.*;
 
 import java.util.Map;
-import org.molgenis.emx2.cafevariome.request.parameters.RequiredQueryParameters;
-import org.molgenis.emx2.cafevariome.request.query.RequiredQuery;
+import org.molgenis.emx2.cafevariome.post.request.parameters.RequiredQueryParameters;
+import org.molgenis.emx2.cafevariome.post.request.query.RequiredQuery;
 
 public class RequiredQueryParser {
 

@@ -1,4 +1,4 @@
-package org.molgenis.emx2.cafevariome.response;
+package org.molgenis.emx2.cafevariome.post.response;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;

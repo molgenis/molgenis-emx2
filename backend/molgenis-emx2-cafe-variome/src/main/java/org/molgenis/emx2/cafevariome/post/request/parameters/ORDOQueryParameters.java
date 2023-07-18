@@ -1,4 +1,4 @@
-package org.molgenis.emx2.cafevariome.request.parameters;
+package org.molgenis.emx2.cafevariome.post.request.parameters;
 
 public class ORDOQueryParameters {
   public static final String ORDO_TERM_PAIRWISE_SIMILARITY =

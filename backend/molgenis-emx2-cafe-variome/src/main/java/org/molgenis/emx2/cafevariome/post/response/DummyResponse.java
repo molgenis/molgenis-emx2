@@ -1,4 +1,4 @@
-package org.molgenis.emx2.cafevariome.response;
+package org.molgenis.emx2.cafevariome.post.response;
 
 public class DummyResponse {
   public static final String dummyResponse =

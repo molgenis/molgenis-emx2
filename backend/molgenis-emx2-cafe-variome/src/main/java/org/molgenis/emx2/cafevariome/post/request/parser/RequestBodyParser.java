@@ -1,4 +1,4 @@
-package org.molgenis.emx2.cafevariome.request.parser;
+package org.molgenis.emx2.cafevariome.post.request.parser;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;

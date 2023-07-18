@@ -1,4 +1,4 @@
-package org.molgenis.emx2.cafevariome.response;
+package org.molgenis.emx2.cafevariome.post.response;
 
 import java.time.Instant;
 import java.util.HashMap;

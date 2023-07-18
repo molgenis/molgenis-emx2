@@ -7,8 +7,8 @@ import static spark.Spark.post;
 
 import java.util.List;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.cafevariome.CafeVariomeService;
-import org.molgenis.emx2.cafevariome.response.CVResponse;
+import org.molgenis.emx2.cafevariome.post.CafeVariomeQueryService;
+import org.molgenis.emx2.cafevariome.post.response.CVResponse;
 import spark.Request;
 import spark.Response;
 
@@ -23,7 +23,7 @@ public class CafeVariomeApi {
     response.type(APPLICATION_JSON_MIME_TYPE);
     response.header("Access-Control-Allow-Origin", "*");
     List<Table> tables = getTableFromAllSchemas("Individuals", request);
-    CVResponse responseBody = CafeVariomeService.query(request, tables);
+    CVResponse responseBody = CafeVariomeQueryService.query(request, tables);
     response.status(200);
     String responseStr = getWriter().writeValueAsString(responseBody);
     return postProcessResponseString(responseStr); // not whole response?

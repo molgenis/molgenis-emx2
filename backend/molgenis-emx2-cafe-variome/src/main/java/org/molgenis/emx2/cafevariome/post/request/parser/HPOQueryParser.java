@@ -1,9 +1,9 @@
-package org.molgenis.emx2.cafevariome.request.parser;
+package org.molgenis.emx2.cafevariome.post.request.parser;
 
-import static org.molgenis.emx2.cafevariome.request.parameters.HPOQueryParameters.*;
+import static org.molgenis.emx2.cafevariome.post.request.parameters.HPOQueryParameters.*;
 
 import java.util.Map;
-import org.molgenis.emx2.cafevariome.request.query.HPOQuery;
+import org.molgenis.emx2.cafevariome.post.request.query.HPOQuery;
 
 public class HPOQueryParser {
 

@@ -1,11 +1,11 @@
-package org.molgenis.emx2.cafevariome.request.gql;
+package org.molgenis.emx2.cafevariome.post.request.gql;
 
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.finalizeFilter;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.molgenis.emx2.cafevariome.request.query.HPOQuery;
-import org.molgenis.emx2.cafevariome.request.query.ORDOQuery;
+import org.molgenis.emx2.cafevariome.post.request.query.HPOQuery;
+import org.molgenis.emx2.cafevariome.post.request.query.ORDOQuery;
 
 public class Filters {
 

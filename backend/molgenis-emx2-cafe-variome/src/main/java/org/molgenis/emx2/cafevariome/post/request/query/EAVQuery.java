@@ -1,4 +1,4 @@
-package org.molgenis.emx2.cafevariome.request.query;
+package org.molgenis.emx2.cafevariome.post.request.query;
 
 import java.util.List;
 

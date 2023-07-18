@@ -1,9 +1,9 @@
-package org.molgenis.emx2.cafevariome.request.parser;
+package org.molgenis.emx2.cafevariome.post.request.parser;
 
-import static org.molgenis.emx2.cafevariome.request.parameters.ORDOQueryParameters.*;
+import static org.molgenis.emx2.cafevariome.post.request.parameters.ORDOQueryParameters.*;
 
 import java.util.Map;
-import org.molgenis.emx2.cafevariome.request.query.ORDOQuery;
+import org.molgenis.emx2.cafevariome.post.request.query.ORDOQuery;
 
 public class ORDOQueryParser {
 

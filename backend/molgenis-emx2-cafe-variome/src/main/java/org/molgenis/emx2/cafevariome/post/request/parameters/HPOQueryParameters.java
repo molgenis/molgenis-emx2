@@ -1,4 +1,4 @@
-package org.molgenis.emx2.cafevariome.request.parameters;
+package org.molgenis.emx2.cafevariome.post.request.parameters;
 
 public class HPOQueryParameters {
   public static final String HPO_TERM_PAIRWISE_SIMILARITY = "jsonAPI[query][components][sim][0][r]";

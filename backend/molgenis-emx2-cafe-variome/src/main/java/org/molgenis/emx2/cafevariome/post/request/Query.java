@@ -1,18 +1,18 @@
-package org.molgenis.emx2.cafevariome.request;
+package org.molgenis.emx2.cafevariome.post.request;
 
-import static org.molgenis.emx2.cafevariome.request.parser.EAVQueryParser.getEAVQueryFromRequest;
-import static org.molgenis.emx2.cafevariome.request.parser.EAVQueryParser.hasEAVParams;
-import static org.molgenis.emx2.cafevariome.request.parser.HPOQueryParser.getHPOQueryFromRequest;
-import static org.molgenis.emx2.cafevariome.request.parser.HPOQueryParser.hasHPOParams;
-import static org.molgenis.emx2.cafevariome.request.parser.ORDOQueryParser.getORDOQueryFromRequest;
-import static org.molgenis.emx2.cafevariome.request.parser.ORDOQueryParser.hasORDOParams;
-import static org.molgenis.emx2.cafevariome.request.parser.RequiredQueryParser.getRequiredQueryFromRequest;
+import static org.molgenis.emx2.cafevariome.post.request.parser.EAVQueryParser.getEAVQueryFromRequest;
+import static org.molgenis.emx2.cafevariome.post.request.parser.EAVQueryParser.hasEAVParams;
+import static org.molgenis.emx2.cafevariome.post.request.parser.HPOQueryParser.getHPOQueryFromRequest;
+import static org.molgenis.emx2.cafevariome.post.request.parser.HPOQueryParser.hasHPOParams;
+import static org.molgenis.emx2.cafevariome.post.request.parser.ORDOQueryParser.getORDOQueryFromRequest;
+import static org.molgenis.emx2.cafevariome.post.request.parser.ORDOQueryParser.hasORDOParams;
+import static org.molgenis.emx2.cafevariome.post.request.parser.RequiredQueryParser.getRequiredQueryFromRequest;
 
 import java.util.Map;
-import org.molgenis.emx2.cafevariome.request.query.EAVQuery;
-import org.molgenis.emx2.cafevariome.request.query.HPOQuery;
-import org.molgenis.emx2.cafevariome.request.query.ORDOQuery;
-import org.molgenis.emx2.cafevariome.request.query.RequiredQuery;
+import org.molgenis.emx2.cafevariome.post.request.query.EAVQuery;
+import org.molgenis.emx2.cafevariome.post.request.query.HPOQuery;
+import org.molgenis.emx2.cafevariome.post.request.query.ORDOQuery;
+import org.molgenis.emx2.cafevariome.post.request.query.RequiredQuery;
 
 public class Query {
 

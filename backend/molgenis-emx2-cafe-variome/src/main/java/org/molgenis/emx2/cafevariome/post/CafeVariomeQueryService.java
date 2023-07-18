@@ -1,7 +1,7 @@
-package org.molgenis.emx2.cafevariome;
+package org.molgenis.emx2.cafevariome.post;
 
 import static org.molgenis.emx2.beaconv2.endpoints.individuals.QueryIndividuals.queryIndividuals;
-import static org.molgenis.emx2.cafevariome.request.gql.Filters.makeHPOFilter;
+import static org.molgenis.emx2.cafevariome.post.request.gql.Filters.makeHPOFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSets;
-import org.molgenis.emx2.cafevariome.request.Query;
-import org.molgenis.emx2.cafevariome.request.parser.RequestBodyParser;
-import org.molgenis.emx2.cafevariome.response.CVResponse;
-import org.molgenis.emx2.cafevariome.response.ResultSetToResponse;
+import org.molgenis.emx2.cafevariome.post.request.Query;
+import org.molgenis.emx2.cafevariome.post.request.parser.RequestBodyParser;
+import org.molgenis.emx2.cafevariome.post.response.CVResponse;
+import org.molgenis.emx2.cafevariome.post.response.ResultSetToResponse;
 import spark.Request;
 
-public class CafeVariomeService {
+public class CafeVariomeQueryService {
 
   private static ObjectMapper jsonMapper =
       new ObjectMapper()

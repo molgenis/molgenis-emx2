@@ -1,12 +1,12 @@
-package org.molgenis.emx2.cafevariome.request.parser;
+package org.molgenis.emx2.cafevariome.post.request.parser;
 
-import static org.molgenis.emx2.cafevariome.request.parameters.EAVQueryParameters.*;
+import static org.molgenis.emx2.cafevariome.post.request.parameters.EAVQueryParameters.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.molgenis.emx2.cafevariome.request.query.EAVQuery;
-import org.molgenis.emx2.cafevariome.request.query.EAVTriple;
+import org.molgenis.emx2.cafevariome.post.request.query.EAVQuery;
+import org.molgenis.emx2.cafevariome.post.request.query.EAVTriple;
 
 public class EAVQueryParser {
 
