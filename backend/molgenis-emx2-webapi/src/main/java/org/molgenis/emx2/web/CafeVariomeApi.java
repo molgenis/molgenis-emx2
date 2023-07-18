@@ -3,12 +3,15 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
 import static org.molgenis.emx2.web.BeaconApi.APPLICATION_JSON_MIME_TYPE;
 import static org.molgenis.emx2.web.BeaconApi.getTableFromAllSchemas;
+import static spark.Spark.get;
 import static spark.Spark.post;
 
 import java.util.List;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.cafevariome.get.CafeVariomeIndexService;
+import org.molgenis.emx2.cafevariome.get.IndexResponse;
 import org.molgenis.emx2.cafevariome.post.CafeVariomeQueryService;
-import org.molgenis.emx2.cafevariome.post.response.CVResponse;
+import org.molgenis.emx2.cafevariome.post.response.QueryResponse;
 import spark.Request;
 import spark.Response;
 
@@ -16,21 +19,33 @@ public class CafeVariomeApi {
   static final String CAFE_VARIOME_API_LOCATION = "/api/cafevariome";
 
   public static void create(MolgenisSessionManager sm) {
-    post(CAFE_VARIOME_API_LOCATION, CafeVariomeApi::getQueryResponse);
+    get(CAFE_VARIOME_API_LOCATION, CafeVariomeApi::indexResponse);
+    post(CAFE_VARIOME_API_LOCATION, CafeVariomeApi::queryResponse);
   }
 
-  private static String getQueryResponse(Request request, Response response) throws Exception {
+  private static String indexResponse(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
     response.header("Access-Control-Allow-Origin", "*");
     List<Table> tables = getTableFromAllSchemas("Individuals", request);
-    CVResponse responseBody = CafeVariomeQueryService.query(request, tables);
+    IndexResponse indexResponse = CafeVariomeIndexService.index(request, tables);
+    String responseStr = getWriter().writeValueAsString(indexResponse);
     response.status(200);
+    return responseStr; // not whole response?
+  }
+
+  private static String queryResponse(Request request, Response response) throws Exception {
+    response.type(APPLICATION_JSON_MIME_TYPE);
+    response.header("Access-Control-Allow-Origin", "*");
+    List<Table> tables = getTableFromAllSchemas("Individuals", request);
+    QueryResponse responseBody = CafeVariomeQueryService.query(request, tables);
     String responseStr = getWriter().writeValueAsString(responseBody);
+    response.status(200);
     return postProcessResponseString(responseStr); // not whole response?
   }
 
   /**
    * Postprocess default JSON into a JSON escaped string with an outer array
+   *
    * @param responseStr
    * @return
    * @throws Exception

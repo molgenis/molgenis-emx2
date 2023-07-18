@@ -9,8 +9,8 @@ import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSetsIte
 
 public class ResultSetToResponse {
 
-  public static CVResponse transform(List<IndividualsResultSets> resultSets) {
-    CVResponse response = new CVResponse();
+  public static QueryResponse transform(List<IndividualsResultSets> resultSets) {
+    QueryResponse response = new QueryResponse();
     Map<String, QueryResult> sources = new HashMap<>();
     for (int i = 0; i < resultSets.size(); i++) {
 

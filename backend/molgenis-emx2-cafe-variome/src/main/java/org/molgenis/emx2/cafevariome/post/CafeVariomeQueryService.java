@@ -13,7 +13,7 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSets;
 import org.molgenis.emx2.cafevariome.post.request.Query;
 import org.molgenis.emx2.cafevariome.post.request.parser.RequestBodyParser;
-import org.molgenis.emx2.cafevariome.post.response.CVResponse;
+import org.molgenis.emx2.cafevariome.post.response.QueryResponse;
 import org.molgenis.emx2.cafevariome.post.response.ResultSetToResponse;
 import spark.Request;
 
@@ -29,7 +29,7 @@ public class CafeVariomeQueryService {
    * @return
    * @throws Exception
    */
-  public static CVResponse query(Request request, List<Table> tables) throws Exception {
+  public static QueryResponse query(Request request, List<Table> tables) throws Exception {
     Map<String, String> requestMap = RequestBodyParser.parse(request.body());
     Query query = new Query(requestMap);
 
@@ -47,7 +47,7 @@ public class CafeVariomeQueryService {
     // ResultSetToCafeVariomeJSON.transform(individualsResultSets);
     // parentArray.add(String.valueOf(response));
 
-    CVResponse response = ResultSetToResponse.transform(individualsResultSets);
+    QueryResponse response = ResultSetToResponse.transform(individualsResultSets);
 
     return response;
     // return DummyResponse.dummyResponse;
