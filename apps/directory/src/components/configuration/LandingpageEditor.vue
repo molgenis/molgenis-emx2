@@ -368,9 +368,7 @@ export default {
   },
   mounted() {
     this.originalConfig = this.currentConfig;
-
     this.newConfig = JSON.parse(this.originalConfig);
-    console.log({ a: this.newConfig });
   },
 };
 </script>

@@ -58,22 +58,21 @@
         <small>
           <pre class="code-help">
 {
-    "component": "CheckboxFilter",  /** component to render                                                                                      */
-    "name": "",                     /** The name of the filter                                                                                   */
-    "label": "New filter",          /** the name to show on the dropdown, defaults to name property                                              */
-    "tableName": "",                /** name of the table where the mref leads to. This table contains the filter options                        */
-    "columnName": "",               /** name of the column in the collections table                                                              */
-    "humanReadableString": "",      /** sentence that you / biobanks will see in the negotiator that describe the selected filters               */
-    "showFacet": true,              /** Set this to false if the filter should not be immediately visible                                        */
-    "initialDisplayItems": 100,     /** optional: the amount of prefetched options                                                               */
-    "maxVisibleOptions": 25,        /** optional: number of options before you see 'see more..'                                                  */
-    "filterLabelAttribute": "",     /** optional: column name of the mref table, defaults to 'label'                                             */
-    "headerClass": "",              /** optional: you can add bootstrap classes here                                                             */
-    "showSatisfyAllSelector": true, /** optional: set this to false to disable 'match all / match any', defaults to true                         */
-    "queryOptions": "",             /** optional: you can add additional RSQL query options like sort here                                       */
-    "removeOptions": []             /** optional: Add options (case insensitive), that you do not want to have in your selection. E.g 'unknown'  */
-    "applyTo": []                   /** optional: specify on which table or tables it should apply to. Defaults to ['eu_bbmri_eric_collections'] */
-    "adaptive:" false               /** optional: if a filter is adaptive (=true), a reduced list of options in calculated and show              */
+  facetTitle: "My facet"                                     /** a custom 'human readable' text for on the button                                              */
+  component: "CheckboxFilter"                                /** a custom specified component, or just the default                                             */
+  sourceTable: "myTable"                                     /** the table where the options are coming from.                                                  */
+  applyToColumn: "myColumn"                                  /** the column in the main table to apply the filter on.                                          */
+  filterValueAttribute:"id"                                  /** specify a column name if you want a different column for the value                            */
+  filterLabelAttribute: "name"                               /** specify if you want to use another column as the label for the filter option, instead of name */
+  ontologyIdentifiers: []                                    /** for use when you have multiple ontologies in a single table, e.g. orhpa and icd               */
+  trueOption: { text: "When clicked is true", value: true }, /** use this for a togglefilter                                                                   */
+  matchTypeForFilter: "any"                                  /** if it has been selected from bookmark, it will be applied here.                               */
+  showMatchTypeSelector: true                                /** if you want to make match all / match any available                                           */
+  negotiatorRequestString: "From my filterfacet: "           /** the part that will be send to the negotiator as to indicate what it is                        */
+  showFacet: true                                            /** if this filter should be shown at start                                                       */
+  adaptive: false                                            /** if the filters options should react on search results                                         */
+  sortColumn: "name"                                         /** specify a column to apply sorting on                                                          */
+  sortDirection: "asc"                                       /** the direction to sort                                                                         */
 }
           </pre>
         </small>
