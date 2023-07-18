@@ -8,7 +8,7 @@ public class DashboardLoader extends AbstractDataLoader {
   @Override
   void loadInternalImplementation(Schema schema, boolean includeDemoData) {
     createSchema(schema, "dashboard/molgenis.csv");
-    createSchema(schema, "dashboard/molgenis_settings.csv");
+    MolgenisIO.fromClasspathDirectory("dashboard/molgenis_settings.csv", schema, false);
 
     if (includeDemoData) {
       MolgenisIO.fromClasspathDirectory("dashboard/demodata/ontologies", schema, false);
