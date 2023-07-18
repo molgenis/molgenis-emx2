@@ -1,24 +1,21 @@
+// reset styles set by parent theme
+#app {
+  // remove parent container background color
+  & > div {
+    background-color: #ffffff !important;
 
-// remove parent container background color
-#app > div {
-  background-color: transparent;
-}
+    // reset padding & overwrite inline styles
+    & > div {
+      div.container-fluid.p-3 {
+        padding: 0;
+        padding-bottom: 0 !important;
+      }
+    }
 
-// reset app container padding
-#app > div > div > div.container-fluid.p-3 {
-  padding: 0;
-}
-
-// hide footer
-#app > div > div.text-center {
-  display: none;
-}
-
-// overwrite elements set by parent theme
-.app-page {
-  
-  ::before, ::after {
-    box-sizing: content-box;
+    // hide footer/citation
+    & > div.text-center {
+      display: none;
+    }
   }
 }
 

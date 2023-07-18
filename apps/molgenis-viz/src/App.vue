@@ -56,6 +56,7 @@ body {
 }
 
 .page-footer {
+  font-family: Arial, Helvetica, sans-serif;
   padding: 2em 0;
   .molgenis-citation {
     background-color: transparent;
