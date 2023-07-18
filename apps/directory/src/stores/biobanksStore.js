@@ -3,10 +3,12 @@ import { computed, ref } from "vue";
 import QueryEMX2 from "../functions/queryEMX2";
 import { useSettingsStore } from "./settingsStore";
 import { useCollectionStore } from "./collectionStore";
+import { useFiltersStore } from "./filtersStore";
 
 export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
   const collectionStore = useCollectionStore();
+  const filtersStore = useFiltersStore();
 
   const biobankReportColumns = settingsStore.config.biobankReportColumns;
   const biobankColumns = settingsStore.config.biobankColumns;
@@ -69,12 +71,14 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
   /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
   async function getBiobankCards() {
-    waitingForResponse.value = true;
-    if (biobankCards.value.length === 0) {
-      const biobankResult = await baseQuery.execute();
-      biobankCards.value = biobankResult.Biobanks;
+    if (!filtersStore.bookmarkWaitingForApplication) {
+      waitingForResponse.value = true;
+      if (biobankCards.value.length === 0) {
+        const biobankResult = await baseQuery.execute();
+        biobankCards.value = biobankResult.Biobanks;
+      }
+      waitingForResponse.value = false;
     }
-    waitingForResponse.value = false;
     return biobankCards.value;
   }
 
@@ -91,16 +95,20 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   }
 
   async function updateBiobankCards() {
-    waitingForResponse.value = true;
-    biobankCards.value = [];
-    const biobankResult = await baseQuery.execute();
+    if (!waitingForResponse.value) {
+      waitingForResponse.value = true;
+      biobankCards.value = [];
+      const biobankResult = await baseQuery.execute();
 
-    /** only show biobanks that have collections */
-    const foundBiobanks = biobankResult.Biobanks
-      ? biobankResult.Biobanks.filter((biobank) => biobank.collections)
-      : [];
-    biobankCards.value = foundBiobanks;
-    waitingForResponse.value = false;
+      /** only show biobanks that have collections */
+      const foundBiobanks = biobankResult.Biobanks
+        ? biobankResult.Biobanks.filter((biobank) => biobank.collections)
+        : [];
+      biobankCards.value = foundBiobanks;
+      waitingForResponse.value = false;
+
+      filtersStore.bookmarkWaitingForApplication = false;
+    }
   }
 
   const biobankCardsHaveResults = computed(() => {
