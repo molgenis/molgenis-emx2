@@ -11,11 +11,20 @@
         Welcome to the <strong>molgenis-viz</strong> library!
       </h2>
       <p>
-        We have developed and designed many components for use in MOLGENIS
-        applications. This allows us to create applications in a systematic way
-        while allowing for project-specific customisations (i.e., branding).
-        This app is built using the library itself to showcase the visualisation
-        components. Have a look around!
+        The <strong>molgenis-viz</strong> library contains D3-based
+        visualisation components and other layout components for use in MOLGENIS
+        applications. This allows us to standarise our custom applications while
+        allowing for project-specific requirements (e.g., branding, logos,
+        etc.).
+      </p>
+      <p>
+        The <strong>molgenis-viz</strong> demo application was built using the
+        library itself to showcase the visualisation components. There are few
+        visualisation components available and more on the way. Follow the links
+        below to view a demonstration of the components. The Data used in the
+        examples visualisations was sourced from the
+        <a href="https://ror.org">ROR Database</a> and is stored in the
+        Dashboard schema.
       </p>
     </PageSection>
     <PageSection
@@ -24,13 +33,6 @@
       aria-labelledby="components-title"
     >
       <h2 id="components-title">Visualisation Components</h2>
-      <p style="text-align: center">
-        We have several D3 visualisation components available and more on the
-        way. Follow the links below to view a demonstration of the components.
-        The Data used in the examples visualisations was sourced from the
-        <a href="https://ror.org">ROR Database</a> and is stored in the
-        Dashboard schema.
-      </p>
       <div class="link-container">
         <LinkCard :imageSrc="BarChartImage">
           <router-link :to="{ name: 'bar-chart' }">Bar Chart</router-link>
