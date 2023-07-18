@@ -45,6 +45,11 @@ export default defineConfig(({ command }) => ({
       "/api": { target: `${HOST}`, ...opts },
       "/apps": { target: `${HOST}`, ...opts },
       "/theme.css": { target: `${HOST}/${SCHEMA}`, ...opts },
+      '/plugin/app/molgenis-app-biobank-explorer/img/': {
+        secure: false,
+        rewrite: (path) => path.replace(/^\/plugin\/app\/molgenis-app-biobank-explorer/, ''), /** removes the part of the url, so this will go straight to /img in public folder */
+        target: 'http://localhost:5173'
+      }
     },
   },
 }));
