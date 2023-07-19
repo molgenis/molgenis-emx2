@@ -484,7 +484,8 @@ class OntologyManager:
         :param fmt: the format in which the list of terms is returned.
                     list, dict and DataFrame are supported
         """
-        query = Queries.list_ontology_terms(table)
+        _table = self.parse_table_name(table)
+        query = Queries.list_ontology_terms(_table)
 
         response = self.client.session.post(
             self.graphql_endpoint,
@@ -493,7 +494,7 @@ class OntologyManager:
 
         terms = {
             item.pop('name'): item
-            for item in response.json()['data'][table]
+            for item in response.json()['data'][_table]
         }
 
         if fmt == 'dict':
