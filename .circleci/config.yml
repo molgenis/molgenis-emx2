@@ -31,6 +31,10 @@ jobs:
     steps:
     - checkout
 
+    - setup_remote_docker:
+      version: 20.10.14
+      docker_layer_caching: true
+
     # Download and cache dependencies
     - restore_cache:
         keys:
@@ -65,7 +69,7 @@ jobs:
 
     # install additional software
     - run:
-        name: install docker kubectl and helm
+        name: install kubectl and helm
         command: sh ci/install_docker_helm_kubectl.sh
 
     - setup_remote_docker:
