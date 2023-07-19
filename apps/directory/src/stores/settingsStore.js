@@ -38,7 +38,13 @@ export const useSettingsStore = defineStore("settingsStore", () => {
       .select(["key", "value"])
       .execute();
 
-    return settingsResult;
+    const savedDirectoryConfig = settingsResult._settings.find(
+      (sr) => sr.key === "directory"
+    );
+
+    if (savedDirectoryConfig && savedDirectoryConfig.value) {
+      config.value = JSON.parse(decodeURI(savedDirectoryConfig.value));
+    }
   }
 
   async function getCurrentSession() {
@@ -57,14 +63,18 @@ export const useSettingsStore = defineStore("settingsStore", () => {
   });
 
   async function GetApplicationConfiguration() {
-    // todo, obviously.
-    const configResult = false;
-    if (configResult) {
-      config.value = configResult;
-    }
+    /** Fetch the latest config, if applicable */
+    await initializeConfig();
+    return config.value;
   }
-  async function SaveApplicationConfiguration() {
-    return Error("Not implemented");
+  async function SaveApplicationConfiguration(configuration) {
+    configUpdateStatus.value = 0;
+
+    const updateResult = await new QueryEMX2(
+      config.value.graphqlEndpoint
+    ).saveSetting("directory", configuration);
+
+    configUpdateStatus.value = updateResult.includes("success") ? 204 : 401;
   }
   async function UpdateLandingpage() {
     return Error("Not implemented");

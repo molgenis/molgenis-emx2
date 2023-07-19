@@ -218,6 +218,7 @@ export default {
       this.newAppConfig = this.appConfig;
     },
     save() {
+      this.statusClosed = false
       this.saveToDatabase(this.newAppConfig);
     },
     updateFilters(newConfig) {
@@ -305,7 +306,7 @@ export default {
       return this.settingsStore.configUpdateStatus;
     },
     showNotification() {
-      return this.configUpdateStatus !== 0 && !this.statusClosed;
+      return this.settingsStore.configUpdateStatus !== 0 && !this.statusClosed;
     },
     currentConfig() {
       return this.newAppConfig || JSON.parse(JSON.stringify(this.appConfig));
