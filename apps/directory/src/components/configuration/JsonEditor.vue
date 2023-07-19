@@ -1,5 +1,5 @@
 <template>
-  <div  @keyup.ctrl.f="format">
+  <div @keyup.ctrl.f="format">
     <div>
       <div ref="editor" class="editor" @keyup="dirty = true"></div>
     </div>
@@ -26,7 +26,7 @@ export default {
   data() {
     return {
       editor: {},
-      dirty: false
+      dirty: false,
     };
   },
   methods: {
@@ -45,10 +45,10 @@ export default {
     this.editor = monaco.editor.create(this.$refs.editor, {
       automaticLayout: true,
       value: this.config,
-      language: "json"
+      language: "json",
     });
 
-      const formatTimer = setTimeout(() => {
+    const formatTimer = setTimeout(() => {
       this.format();
       clearTimeout(formatTimer);
     }, 500);

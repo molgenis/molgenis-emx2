@@ -34,9 +34,13 @@
           <label v-if="!element.builtIn" class="ml-auto"
             ><input type="checkbox" @change="sync"
           /></label>
-          <button v-if="!element.builtIn" @click="editFilter(element.index)" class="edit-button">
+          <button
+            v-if="!element.builtIn"
+            @click="editFilter(element.index)"
+            class="edit-button"
+          >
             <span
-              class="fa-regular fa-pen-to-square  fa-lg"
+              class="fa-regular fa-pen-to-square fa-lg"
               aria-hidden="true"
             ></span>
           </button>
@@ -129,7 +133,7 @@ export default {
   bottom: 0.05rem;
   margin-left: 1rem;
   background: transparent;
-  border:none;
+  border: none;
 }
 
 .edit-button:hover {

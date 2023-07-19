@@ -1,6 +1,6 @@
 <template>
   <div
-    class="d-flex flex-column justify-content-center align-items-center"
+    class="landingpage-header d-flex flex-column justify-content-center align-items-center"
     :style="css.pageHeader.backgroundStyle"
   >
     <h1 class="mb-5 mt-5">
@@ -46,7 +46,7 @@ export default {
 </script>
 
 <style scoped>
-::v-deep ~ * {
+:deep(~ *) {
   width: 70%;
 }
 </style>

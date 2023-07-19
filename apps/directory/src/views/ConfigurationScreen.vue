@@ -218,7 +218,7 @@ export default {
       this.newAppConfig = this.appConfig;
     },
     save() {
-      this.statusClosed = false
+      this.statusClosed = false;
       this.saveToDatabase(this.newAppConfig);
     },
     updateFilters(newConfig) {

@@ -44,8 +44,9 @@ export default {
   methods: {
     closeAllDropdownButtons(event) {
       if (event.target.id) {
-        const allDropdownButtons =
-          document.querySelectorAll(".dropdown-button");
+        const allDropdownButtons = document.querySelectorAll(
+          ".dropdown-button"
+        );
 
         for (const dropdownButton of allDropdownButtons) {
           if (dropdownButton.id !== event.target.id) {

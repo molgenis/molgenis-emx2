@@ -15,7 +15,12 @@
       <landingpage :key="revision" editable @open="openModal" />
     </div>
 
-    <simple-modal :open="editorOpen" @save="save" @close="closeWithoutSaving">
+    <simple-modal
+      :open="editorOpen"
+      @save="save"
+      @close="closeWithoutSaving"
+      class="edit-modal"
+    >
       <div class="d-flex flex-column">
         <template v-if="section === 'landingpage-header'">
           <label>
@@ -351,7 +356,7 @@ export default {
       this.editorOpen = false;
     },
     closeWithoutSaving(section) {
-      const originalConfig = JSON.parse(this.originalConfig);
+      const originalConfig = JSON.parse(JSON.stringify(this.originalConfig));
 
       switch (section) {
         case "landinpage-header": {
@@ -387,11 +392,11 @@ textarea {
   margin-left: 1rem;
 }
 
-::v-deep input,
-::v-deep textarea {
+:deep(.edit-modal input),
+:deep(.edit-modal textarea) {
   min-width: 75vw;
 }
-::v-deep textarea {
+:deep(.edit-modal textarea) {
   min-height: 15vh;
 }
 
