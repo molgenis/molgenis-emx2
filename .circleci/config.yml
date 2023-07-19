@@ -30,10 +30,9 @@ jobs:
 
     steps:
     - checkout
-
     - setup_remote_docker:
-      version: 20.10.14
-      docker_layer_caching: true
+        version: 20.10.14
+        docker_layer_caching: true
 
     # Download and cache dependencies
     - restore_cache:
