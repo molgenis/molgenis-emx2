@@ -60,7 +60,7 @@
 
 <script setup>
 import BackgroundGradient from "./components/BackgroundGradient.vue";
-import { hash } from "./utils/fingerprint.js";
+import { hash } from ".fingerprint.js";
 const config = useRuntimeConfig();
 
 let themeFilename = "styles";

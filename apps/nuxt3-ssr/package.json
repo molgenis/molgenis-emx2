@@ -6,7 +6,7 @@
     "prepare": "nuxt prepare",
     "build": "node custom-build.js",
     "test": "vitest",
-    "dev": "nuxt dev",
+    "dev": "node custom-dev.js",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
