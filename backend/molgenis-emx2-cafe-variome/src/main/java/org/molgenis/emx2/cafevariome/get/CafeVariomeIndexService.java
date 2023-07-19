@@ -1,17 +1,12 @@
 package org.molgenis.emx2.cafevariome.get;
 
-import static org.molgenis.emx2.beaconv2.endpoints.individuals.QueryIndividuals.queryIndividuals;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.beaconv2.common.OntologyTerm;
-import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSets;
-import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSetsItem;
 import spark.Request;
 
 public class CafeVariomeIndexService {
@@ -25,24 +20,41 @@ public class CafeVariomeIndexService {
     IndexResponse indexResponse = new IndexResponse();
     indexResponse.setSource_id("1");
 
-    List<IndividualsResultSets> individualsResultSets = queryIndividuals(tables);
-    Map<String, String> sexDisplayNames = new HashMap<>();
-    for (IndividualsResultSets individuals : individualsResultSets) {
-      for (IndividualsResultSetsItem individual : individuals.getResults()) {
-        OntologyTerm sex = individual.getSex();
-        sexDisplayNames.put(sex.URI, sex.getLabel());
+    Map<String, List> attributeValues = new HashMap<>();
+    Map<String, String> attributesDisplayNames = new HashMap<>();
+    Map<Object, Object> valueDisplayNames = new HashMap<>();
+
+    for (Table t : tables) {
+      List<Row> rows = t.getSchema().retrieveSql("Select * from \"" + t.getName() + "\"");
+      for (Row row : rows) {
+        for (String colName : row.getColumnNames()) {
+          if (colName.endsWith("_TEXT_SEARCH_COLUMN")) {
+            continue;
+          }
+          Column column = Column.column(colName);
+          Object value = row.get(column);
+          if (value != null) {
+            if (!attributeValues.containsKey(colName) && !valueDisplayNames.containsKey(value)) {
+              attributeValues.put(colName, new ArrayList<>());
+              attributesDisplayNames.put(colName, colName);
+            }
+            if (!valueDisplayNames.containsKey(value)) {
+              attributeValues.get(colName).add(value);
+              valueDisplayNames.put(value, value);
+            }
+          }
+        }
       }
     }
 
-    Map<String, String> attributeDisplayNames = new HashMap<>();
-    attributeDisplayNames.put("sex", "Gender at birth");
+    Map<String, Object[]> attributeValuesPrim = new HashMap<>();
+    for (String key : attributeValues.keySet()) {
+      attributeValuesPrim.put(key, attributeValues.get(key).toArray(new Object[0]));
+    }
 
-    Map<String, String[]> attributes_values = new HashMap<>();
-    attributes_values.put("sex", sexDisplayNames.keySet().toArray(new String[0]));
-
-    indexResponse.setAttributes_values(attributes_values);
-    indexResponse.setValues_display_names(sexDisplayNames);
-    indexResponse.setAttributes_display_names(attributeDisplayNames);
+    indexResponse.setAttributes_values(attributeValuesPrim);
+    indexResponse.setValues_display_names(valueDisplayNames);
+    indexResponse.setAttributes_display_names(attributesDisplayNames);
 
     return indexResponse;
   }
