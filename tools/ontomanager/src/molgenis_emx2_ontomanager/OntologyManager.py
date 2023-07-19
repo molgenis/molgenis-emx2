@@ -492,10 +492,19 @@ class OntologyManager:
             json={"query": query}
         )
 
-        terms = {
-            item.pop('name'): item
-            for item in response.json()['data'][_table]
-        }
+        if response.status_code != 200:
+            log.error(f"Error {response.status_code}: {response.json()['errors'][0]['message']}")
+            terms = {}
+
+        # If response is okay, but response data is empty, continue with empty 'terms' dictionary
+        try:
+            terms = {
+                item.pop('name'): item
+                for item in response.json()['data'][_table]
+            }
+        except KeyError:
+            log.debug(f"No terms in ontology table '{table}'.")
+            terms = {}
 
         if fmt == 'dict':
             return terms
