@@ -7,10 +7,12 @@ export async function applyFiltersToQuery(
 ) {
   baseQuery.resetAllFilters();
   const activeFilters = Object.keys(filters);
+
   if (activeFilters.length === 0) return baseQuery;
 
   for (const filterKey of activeFilters) {
     const filterDetail = facetDetails[filterKey];
+
     const filterValue = filters[filterKey];
 
     switch (filterDetail.component) {
@@ -78,8 +80,8 @@ export async function applyFiltersToQuery(
                 baseQuery.filter(column).equals(value);
               }
             } else {
-              baseQuery.where(column).like(values);
-              baseQuery.filter(column).like(values);
+              baseQuery.where(column).in(values);
+              baseQuery.filter(column).in(values);
             }
           } else {
             if (typeof values[0] === "boolean") {
@@ -88,8 +90,8 @@ export async function applyFiltersToQuery(
                 baseQuery.orFilter(column).equals(value);
               }
             } else {
-              baseQuery.orWhere(column).orLike(values);
-              baseQuery.orFilter(column).orLike(values);
+              baseQuery.orWhere(column).in(values);
+              baseQuery.filter(column).in(values);
             }
           }
         }
@@ -97,11 +99,10 @@ export async function applyFiltersToQuery(
       }
       case "OntologyFilter": {
         const values = filterValue.map((fv) => fv.code);
-        baseQuery.where(filterDetail.applyToColumn).orLike(values);
+        baseQuery.where(filterDetail.applyToColumn).in(values);
         break;
       }
     }
   }
-  console.log(baseQuery.getQuery());
   return baseQuery;
 }

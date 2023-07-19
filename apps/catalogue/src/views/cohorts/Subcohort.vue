@@ -20,9 +20,9 @@
         :isClickable="false"
         :columns="[
           { name: 'ageGroup', label: 'Age group' },
-          { name: 'N_total', label: 'N total' },
-          { name: 'N_female', label: 'N female' },
-          { name: 'N_male', label: 'N male' },
+          { name: 'nTotal', label: 'nTotal' },
+          { name: 'nFemale', label: 'nFemale' },
+          { name: 'nMale', label: 'nMale' },
         ]"
         :rows="quantitativeInformation"
       ></table-display>

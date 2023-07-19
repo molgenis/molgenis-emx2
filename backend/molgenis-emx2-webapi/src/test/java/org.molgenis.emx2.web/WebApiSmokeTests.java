@@ -1,7 +1,8 @@
 package org.molgenis.emx2.web;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
-import static io.restassured.RestAssured.*;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +31,6 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Tag;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
@@ -56,7 +56,7 @@ public class WebApiSmokeTests {
 
   @BeforeAll
   public static void before() throws Exception {
-
+    // FIXME: beforeAll fails under windows
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
 

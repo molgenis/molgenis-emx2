@@ -136,36 +136,40 @@ export const ontologyFilterOptions = (filterFacet) => {
       ];
 
       if (!cachedOptions.length) {
-        new queryEMX2("graphql")
-          .table(sourceTable)
-          .select(selection)
-          .orderBy(sourceTable, sortColumn, sortDirection)
-          .execute()
-          .then((response) => {
-            const onlyParents = response[sourceTable].filter(
-              (row) => !row.parent
-            );
-            const itemsSplitByOntology = {};
+        /** make it query after all the others, saves 50% of initial load */
+        const waitAfterBiobanks = setTimeout(() => {
+          new queryEMX2("graphql")
+            .table(sourceTable)
+            .select(selection)
+            .orderBy(sourceTable, sortColumn, sortDirection)
+            .execute()
+            .then((response) => {
+              const onlyParents = response[sourceTable].filter(
+                (row) => !row.parent
+              );
+              const itemsSplitByOntology = {};
 
-            for (const ontologyItem of onlyParents) {
-              for (const ontologyId of ontologyIdentifiers) {
-                if (
-                  ontologyItem.name
-                    .toLowerCase()
-                    .includes(ontologyId.toLowerCase())
-                ) {
-                  if (!itemsSplitByOntology[ontologyId]) {
-                    itemsSplitByOntology[ontologyId] = [ontologyItem];
-                  } else {
-                    itemsSplitByOntology[ontologyId].push(ontologyItem);
+              for (const ontologyItem of onlyParents) {
+                for (const ontologyId of ontologyIdentifiers) {
+                  if (
+                    ontologyItem.name
+                      .toLowerCase()
+                      .includes(ontologyId.toLowerCase())
+                  ) {
+                    if (!itemsSplitByOntology[ontologyId]) {
+                      itemsSplitByOntology[ontologyId] = [ontologyItem];
+                    } else {
+                      itemsSplitByOntology[ontologyId].push(ontologyItem);
+                    }
                   }
                 }
-              }
 
-              cache(facetIdentifier, itemsSplitByOntology);
-              resolve(itemsSplitByOntology);
-            }
-          });
+                cache(facetIdentifier, itemsSplitByOntology);
+                resolve(itemsSplitByOntology);
+              }
+            });
+          clearTimeout(waitAfterBiobanks);
+        }, 1000);
       } else {
         resolve(cachedOptions);
       }

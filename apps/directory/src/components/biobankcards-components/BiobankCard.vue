@@ -38,7 +38,7 @@
                     v-for="quality of biobankQualities"
                     :key="quality.label"
                   >
-                    <table>
+                    <table v-if="getQualityInfo(quality.label)">
                       <tbody>
                         <th class="pr-3">
                           {{ getQualityInfo(quality.label).label }}

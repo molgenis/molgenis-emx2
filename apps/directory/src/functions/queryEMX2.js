@@ -286,18 +286,26 @@ class QueryEMX2 {
     this._createFilter(operator, value);
     return this;
   }
+
+  /** Text, String, Url, Int, Bool, Datetime Filter */
+  in(value) {
+    /** custom type, to make it into a bracket type query: { like: ["red", "green"] } */
+    const operator = "in";
+    this._createFilter(operator, value);
+    return this;
+  }
+
   /** Text, String, Url, Int, Bool, Datetime Filter */
   notEquals(value) {
     const operator = "not_equals";
-
     this._createFilter(operator, value);
     return this;
   }
 
   /** Text, String, Url, Filter */
   orLike(value) {
-    const operator =
-      "orLike"; /** custom type, to make it into a bracket type query: { like: ["red", "green"] } */
+    /** custom type, to make it into a bracket type query: { like: ["red", "green"] } */
+    const operator = "orLike";
     return this._createFilter(operator, value);
   }
 
@@ -466,6 +474,11 @@ ${root}${rootModifier} {\n`;
       if (operator === "orLike") {
         graphqlValue = `["${valueArray.join('", "')}"]`;
         operator = "like"; /** set it to the correct operator for graphQl */
+      }
+
+      if (operator === "in") {
+        graphqlValue = `["${valueArray.join('", "')}"]`;
+        operator = "equals";
       }
 
       /** most inner part of the query e.g. 'like: "red" */
