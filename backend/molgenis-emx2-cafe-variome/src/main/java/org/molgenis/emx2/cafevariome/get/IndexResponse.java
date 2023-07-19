@@ -13,13 +13,13 @@ public class IndexResponse {
   private String source_id;
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
-  private Map<String, String[]> attributes_values;
+  private Map<String, Object[]> attributes_values;
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
   private Map<String, String> attributes_display_names;
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
-  private Map<String, String> values_display_names;
+  private Map<Object, Object> values_display_names;
 
   public String getSource_id() {
     return source_id;
@@ -29,11 +29,11 @@ public class IndexResponse {
     this.source_id = source_id;
   }
 
-  public Map<String, String[]> getAttributes_values() {
+  public Map<String, Object[]> getAttributes_values() {
     return attributes_values;
   }
 
-  public void setAttributes_values(Map<String, String[]> attributes_values) {
+  public void setAttributes_values(Map<String, Object[]> attributes_values) {
     this.attributes_values = attributes_values;
   }
 
@@ -45,11 +45,11 @@ public class IndexResponse {
     this.attributes_display_names = attributes_display_names;
   }
 
-  public Map<String, String> getValues_display_names() {
+  public Map<Object, Object> getValues_display_names() {
     return values_display_names;
   }
 
-  public void setValues_display_names(Map<String, String> values_display_names) {
+  public void setValues_display_names(Map<Object, Object> values_display_names) {
     this.values_display_names = values_display_names;
   }
 }
