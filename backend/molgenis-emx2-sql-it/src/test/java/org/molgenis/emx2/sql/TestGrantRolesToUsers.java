@@ -9,6 +9,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.StopWatch;
@@ -22,6 +23,7 @@ public class TestGrantRolesToUsers {
   }
 
   @Test
+  @Tag("windowsFail")
   public void testGrantRevokeMembership() {
 
     Schema schema = database.dropCreateSchema("testGrantRevokeMembership");
@@ -192,6 +194,7 @@ public class TestGrantRolesToUsers {
   }
 
   @Test
+  @Tag("windowsFail")
   public void testRole() {
     try {
       Schema schema = database.dropCreateSchema("testRole");

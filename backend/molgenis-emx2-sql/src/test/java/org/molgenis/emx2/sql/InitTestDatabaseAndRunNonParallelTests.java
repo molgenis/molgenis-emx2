@@ -32,6 +32,7 @@ class InitTestDatabaseAndRunNonParallelTests {
 
   @Test
   @Tag("slow")
+  @Tag("windowsFail")
   void testMigration2() {
     SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
     database.dropCreateSchema("TestMigrations");

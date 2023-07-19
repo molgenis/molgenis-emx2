@@ -113,17 +113,16 @@
 <script>
 import { ref } from "vue";
 import { useRoute } from "vue-router";
-import { useBiobanksStore } from "../stores/biobanksStore";
-import { useSettingsStore } from "../stores/settingsStore";
 import { Spinner } from "../../../molgenis-components";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
 import CollectionSelector from "../components/checkout-components/CollectionSelector.vue";
+import ViewGenerator from "../components/generators/ViewGenerator.vue";
 import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
-import ReportTitle from "../components/report-components/ReportTitle.vue";
+import CollapseComponent from "../components/report-components/CollapseComponent.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
-import CollapseComponent from "../components/report-components/CollapseComponent.vue";
-import ViewGenerator from "../components/generators/ViewGenerator.vue";
+import ReportTitle from "../components/report-components/ReportTitle.vue";
+import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
 import {
   getBiobankDetails,
   getCollectionDetails,
@@ -131,8 +130,9 @@ import {
   mapNetworkInfo,
   mapObjArray,
 } from "../functions/viewmodelMapper";
-import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
+import { useBiobanksStore } from "../stores/biobanksStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
+import { useSettingsStore } from "../stores/settingsStore";
 
 export default {
   name: "biobank-report-card",

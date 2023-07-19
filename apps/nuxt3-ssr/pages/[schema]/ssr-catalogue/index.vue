@@ -19,6 +19,9 @@ const { data, pending, error, refresh } = await useFetch(
             numberOfParticipantsWithSamples 
           }
         }
+        Subcohorts_agg {
+          count
+        }
         Networks_agg { 
           count
         }
@@ -44,6 +47,8 @@ const { data, pending, error, refresh } = await useFetch(
           "CATALOGUE_LANDING_SAMPLES_TEXT"
           "CATALOGUE_LANDING_DESIGN_LABEL"
           "CATALOGUE_LANDING_DESIGN_TEXT"
+          "CATALOGUE_LANDING_SUBCOHORTS_LABEL"
+          "CATALOGUE_LANDING_SUBCOHORTS_TEXT"
         ]){ 
           key
           value 
@@ -163,7 +168,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           getSettingValue(
             "CATALOGUE_LANDING_PARTICIPANTS_TEXT",
             data.data._settings
-          ) || "The cumulative number of participants of all datasets combined."
+          ) || "The cumulative number of participants of all (sub)cohorts combined."
         }}
       </LandingCardSecondary>
 
@@ -186,7 +191,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
             "CATALOGUE_LANDING_SAMPLES_TEXT",
             data.data._settings
           ) ||
-          "The cumulative number of participants with samples collected of all datasets combined."
+          "The cumulative number of participants with samples collected of all (sub)cohorts combined"
         }}
       </LandingCardSecondary>
 
@@ -211,6 +216,25 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           ) || "Percentage of longitudinal datasets. The remaining datasets are"
         }}
         cross-sectional.
+      </LandingCardSecondary>
+
+      <LandingCardSecondary icon="viewTable">
+        <b>
+          {{ data.data.Subcohorts_agg.count }}
+          {{
+            getSettingValue(
+              "CATALOGUE_LANDING_SUBCOHORTS_LABEL",
+              data.data._settings
+            ) || "Subcohorts"
+          }}
+        </b>
+        <br />
+        {{
+          getSettingValue(
+            "CATALOGUE_LANDING_SUBCOHORTS_TEXT",
+            data.data._settings
+          ) || "The total number of subcohorts included"
+        }}
       </LandingCardSecondary>
     </div>
   </LayoutsLandingPage>

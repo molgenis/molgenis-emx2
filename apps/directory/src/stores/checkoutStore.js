@@ -1,8 +1,12 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
+import { createBookmark } from "../functions/bookmarkMapper";
+import { useFiltersStore } from "./filtersStore";
 
 export const useCheckoutStore = defineStore("checkoutStore", () => {
+  const filtersStore = useFiltersStore();
   const checkoutValid = ref(false);
+  const cartUpdated = ref(false);
 
   let selectedCollections = ref({});
 
@@ -18,7 +22,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   });
 
   function addCollectionsToSelection({ biobank, collections, bookmark }) {
-    // checkoutValid.value = false;
+    checkoutValid.value = false;
     const biobankIdentifier = biobank.label || biobank.name;
     const currentSelectionForBiobank =
       selectedCollections.value[biobankIdentifier];
@@ -39,8 +43,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     // commit('SetSearchHistory', getters.getHumanReadableString)
 
     if (bookmark) {
-      // checkoutValid.value = true;
-      //   createBookmark(state.filters, state.selectedCollections)
+      checkoutValid.value = true;
+      createBookmark(filtersStore.filters, selectedCollections.value);
+    } else {
+      /** we should not refresh on a cart update, so track this */
+      cartUpdated.value = true;
     }
 
     return { collections, bookmark };
@@ -76,9 +83,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     }
 
     if (bookmark) {
-      // TODO: figure out how this is impacted on other screens besides the biobankcard view.
       checkoutValid.value = true;
-      // createBookmark(state.filters, state.selectedCollections)
+      createBookmark(filtersStore.filters, selectedCollections.value);
+    } else {
+      /** we should not refresh on a cart update, so track this */
+      cartUpdated.value = true;
     }
   }
 
@@ -88,13 +97,14 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     selectedCollections.value = {};
 
     if (bookmark) {
-      // TODO: figure out how this is impacted on other screens besides the biobankcard view.
       checkoutValid.value = true;
-      // createBookmark(state.filters, state.selectedCollections)
+      createBookmark(filtersStore.filters, selectedCollections.value);
     }
   }
 
   return {
+    checkoutValid,
+    cartUpdated,
     selectedCollections,
     collectionSelectionCount,
     addCollectionsToSelection,
