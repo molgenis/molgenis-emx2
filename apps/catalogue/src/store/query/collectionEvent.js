@@ -38,9 +38,7 @@ export default gql`
       subcohorts {
         name
       }
-      coreVariables {
-        name
-      }
+      coreVariables
     }
   }
 `;
