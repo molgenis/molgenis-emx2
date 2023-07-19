@@ -484,6 +484,9 @@ class OntologyManager:
         :param fmt: the format in which the list of terms is returned.
                     list, dict and DataFrame are supported
         """
+
+        if table not in self.ontology_tables:
+            raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
         _table = self.parse_table_name(table)
         query = Queries.list_ontology_terms(_table)
 
