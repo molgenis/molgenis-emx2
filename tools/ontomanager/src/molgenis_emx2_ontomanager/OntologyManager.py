@@ -272,9 +272,9 @@ class OntologyManager:
     def _update_term(self, ontology_table: str, old: str, new: str):
         log.info(f"Renaming in term '{old}' to '{new}' in table {ontology_table}.")
 
-        if old not in self.__list_ontology_terms(ontology_table).keys():
+        if old not in self.list_ontology_terms(ontology_table).keys():
             raise NoSuchNameException(f"Name '{old}' not found in table '{ontology_table}'.")
-        if new not in self.__list_ontology_terms(ontology_table).keys():
+        if new not in self.list_ontology_terms(ontology_table).keys():
             raise NoSuchNameException(f"Name '{new}' not found in table '{ontology_table}'.")
 
         updater = self.Updater(self, ontology_table, old, new)
@@ -317,7 +317,7 @@ class OntologyManager:
         query = Queries.delete(_table)
         variables = {"pkey": {'name': _term}}
 
-        terms_data = self.__list_ontology_terms(table)
+        terms_data = self.list_ontology_terms(table)
         if _term not in terms_data.keys():
             raise NoSuchNameException(f"Name '{_term}' not found in table '{table}'.")
 
@@ -478,9 +478,11 @@ class OntologyManager:
 
         return _response
 
-    def __list_ontology_terms(self, table: str) -> dict:
+    def list_ontology_terms(self, table: str, fmt: str = 'dict') -> list | dict | pd.DataFrame:
         """Returns a list of the terms in the specified ontology.
         :param table: the name of the table from which the terms are requested.
+        :param fmt: the format in which the list of terms is returned.
+                    list, dict and DataFrame are supported
         """
         query = Queries.list_ontology_terms(table)
 
@@ -488,10 +490,19 @@ class OntologyManager:
             self.graphql_endpoint,
             json={"query": query}
         )
+
         terms = {
             item.pop('name'): item
             for item in response.json()['data'][table]
         }
+
+        if fmt == 'dict':
+            return terms
+        elif fmt == 'list':
+            return list(terms.keys())
+        elif fmt == 'DataFrame':
+            terms_df = pd.DataFrame.from_dict(terms, orient='index')
+            return terms_df
         return terms
 
     def __list_ontology_tables(self) -> list:
