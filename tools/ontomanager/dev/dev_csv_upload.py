@@ -42,6 +42,10 @@ def dev_csv_upload(url: str = None, username: str = None, password: str = None):
     countries = pd.read_csv('data/Countries.csv')
     update_df = pd.read_csv('data/update.csv')
 
+    print(manager.ontology_tables)
+    server_countries = manager.list_ontology_terms('Countries', fmt='DataFrame')
+    print(server_countries)
+
     # Add the terms from the countries table to the Countries ontology table on the server
     # try:
     #     manager.add(table='Countries', data=countries)
