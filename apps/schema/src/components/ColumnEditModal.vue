@@ -463,9 +463,12 @@ export default {
       this.loading = true;
       if (this.column.refSchema) {
         this.client = Client.newClient(this.column.refSchema, this.$axios);
-        const schema = await this.client.fetchSchemaMetaData((error) => {
-          this.error = error;
-        });
+        const useCache = false;
+        const schema = await this.client
+          .fetchSchemaMetaData(useCache)
+          .catch((e) => {
+            this.error = e;
+          });
         this.refSchema = schema;
       } else {
         this.refSchema = {};
