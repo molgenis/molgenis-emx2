@@ -9,6 +9,8 @@ import static org.molgenis.emx2.cafevariome.post.request.parser.ORDOQueryParser.
 import static org.molgenis.emx2.cafevariome.post.request.parser.RequiredQueryParser.getRequiredQueryFromRequest;
 
 import java.util.Map;
+import org.molgenis.emx2.cafevariome.post.jsonrequest.JsonQuery;
+import org.molgenis.emx2.cafevariome.post.jsonrequest.parser.JsonHPOQueryParser;
 import org.molgenis.emx2.cafevariome.post.request.query.EAVQuery;
 import org.molgenis.emx2.cafevariome.post.request.query.HPOQuery;
 import org.molgenis.emx2.cafevariome.post.request.query.ORDOQuery;
@@ -42,6 +44,28 @@ public class Query {
       System.out.println(queryParam + " = " + request.get(queryParam));
     }
     System.out.println("--");
+  }
+
+  /**
+   * @param request
+   * @throws Exception
+   */
+  public Query(JsonQuery request) throws Exception {
+    // TODO
+    // this.requiredQuery = getRequiredQueryFromRequest(request);
+
+    if (JsonHPOQueryParser.hasHPOParams(request)) {
+      this.hpoQuery = JsonHPOQueryParser.getHPOQueryFromRequest(request);
+    }
+
+    // TODO
+    //    if (hasORDOParams(request)) {
+    //      this.ordoQuery = getORDOQueryFromRequest(request);
+    //    }
+    //    if (hasEAVParams(request)) {
+    //      this.eavQuery = getEAVQueryFromRequest(request);
+    //    }
+
   }
 
   @Override

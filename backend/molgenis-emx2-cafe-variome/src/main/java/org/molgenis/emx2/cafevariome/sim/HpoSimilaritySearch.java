@@ -5,7 +5,7 @@ import static org.molgenis.emx2.semantics.graphgenome.RetrieveRefSeq.httpGet;
 import java.util.*;
 
 public class HpoSimilaritySearch {
-  
+
   // output is grouped per input term: because 'minimum number of matched term' is based on this
   public static Map<String, Set<String>> refineHPOSearchTerms(
       int depth, double sim, String... hpoTerms) throws Exception {
@@ -39,7 +39,8 @@ public class HpoSimilaritySearch {
 
     // step 4:  query individuals
     // for each original input term, use the refined terms, and report matched individuals
-    // then merge the results, counting how many original terms matched an individual, that is the 'minimum number of matched term'
+    // then merge the results, counting how many original terms matched an individual, that is the
+    // 'minimum number of matched term'
 
   }
 }

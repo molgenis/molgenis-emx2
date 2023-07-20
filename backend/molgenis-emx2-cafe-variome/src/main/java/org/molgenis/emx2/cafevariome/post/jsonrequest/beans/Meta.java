@@ -7,8 +7,7 @@ public class Meta {
 
   private MetaRequest request;
   private String apiVersion;
-  private Requires requires;
-  private Query query;
+  private MetaComponents components;
 
   public MetaRequest getRequest() {
     return request;
@@ -26,19 +25,24 @@ public class Meta {
     this.apiVersion = apiVersion;
   }
 
-  public Requires getRequires() {
-    return requires;
+  public MetaComponents getComponents() {
+    return components;
   }
 
-  public void setRequires(Requires requires) {
-    this.requires = requires;
+  public void setComponents(MetaComponents components) {
+    this.components = components;
   }
 
-  public Query getQuery() {
-    return query;
-  }
-
-  public void setQuery(Query query) {
-    this.query = query;
+  @Override
+  public String toString() {
+    return "Meta{"
+        + "request="
+        + request
+        + ", apiVersion='"
+        + apiVersion
+        + '\''
+        + ", components="
+        + components
+        + '}';
   }
 }

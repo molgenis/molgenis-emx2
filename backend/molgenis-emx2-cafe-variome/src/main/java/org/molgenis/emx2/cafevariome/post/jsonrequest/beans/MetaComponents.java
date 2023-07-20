@@ -5,13 +5,18 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class MetaComponents {
 
-	private MetaComponentsQueryIdentification queryIdentification;
+  private MetaComponentsQueryIdentification queryIdentification;
 
-	public MetaComponentsQueryIdentification getQueryIdentification() {
-		return queryIdentification;
-	}
+  public MetaComponentsQueryIdentification getQueryIdentification() {
+    return queryIdentification;
+  }
 
-	public void setQueryIdentification(MetaComponentsQueryIdentification queryIdentification) {
-		this.queryIdentification = queryIdentification;
-	}
+  public void setQueryIdentification(MetaComponentsQueryIdentification queryIdentification) {
+    this.queryIdentification = queryIdentification;
+  }
+
+  @Override
+  public String toString() {
+    return "MetaComponents{" + "queryIdentification=" + queryIdentification + '}';
+  }
 }
