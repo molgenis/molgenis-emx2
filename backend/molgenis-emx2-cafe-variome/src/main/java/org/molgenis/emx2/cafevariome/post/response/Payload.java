@@ -6,6 +6,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Payload {
 
+  public Payload() {
+    this.subjects = new String[] {};
+    this.attributes = new String[] {};
+  }
+
   @JsonInclude(JsonInclude.Include.ALWAYS)
   private String[] subjects;
 

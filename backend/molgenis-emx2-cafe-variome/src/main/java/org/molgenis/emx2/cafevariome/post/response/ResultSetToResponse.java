@@ -51,6 +51,7 @@ public class ResultSetToResponse {
         source.setRecord_count(resultSet.getResultsCount());
       } else {
         queryResult.setCount(0);
+        queryResult.setPayload(new Payload());
         sources.put(schemaName, queryResult);
         source.setRecord_count(0);
       }
