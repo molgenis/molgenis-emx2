@@ -7,7 +7,7 @@
     />
     <PageSection aria-labelledby="welcome-title">
       <h2 id="welcome-title">ERN ReCONNET registry Documents</h2>
-      <MessageBox type="info">
+      <MessageBox>
         <p>This page is under construction.</p>
       </MessageBox>
     </PageSection>
