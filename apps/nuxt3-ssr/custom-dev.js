@@ -31,3 +31,5 @@ shell.exec(
   `tailwindcss -c ./tailwind.config.umcg.cjs -i ${location}main.css -o ${location}styles.umcg.css --watch`,
   { async: true }
 );
+
+shell.exec("nuxt dev");

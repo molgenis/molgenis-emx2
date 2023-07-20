@@ -19,7 +19,7 @@ fs.readdir(location, (err, files) => {
 
 var fingerPrint = Date.now().toString(36);
 fs.writeFileSync(
-  "./utils/fingerprint.js",
+  ".fingerprint.js",
   "export const hash = '" + fingerPrint + "';"
 );
 
