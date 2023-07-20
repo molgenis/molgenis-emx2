@@ -80,6 +80,8 @@ subprojects {
 
 
     task build(type: YarnTask, dependsOn: format) {
+        // add more heap ram
+        run.doFirst { environment 'NODE_OPTIONS', "--max-old-space-size=4096" }
         // force build order: molgenis-components > ...apps
         if (project.name != 'molgenis-components') {
             dependsOn ":apps:molgenis-components:build"
