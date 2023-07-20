@@ -41,8 +41,7 @@ const router = createRouter({
         ),
       beforeEnter: async (to, from, next) => {
         const settingsStore = useSettingsStore();
-        const currentSession = await settingsStore.getCurrentSession()
-        if (currentSession.roles.includes("Manager")) {
+        if (settingsStore.showSettings) {
           next();
         } else next("/");
       },

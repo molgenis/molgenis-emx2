@@ -52,21 +52,6 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     session.value = newSession;
   }
 
-  async function getSessionInformation() {
-    const sessionResult = await new QueryEMX2(config.value.graphqlEndpoint)
-      .table("_session")
-      .select(["email", "roles"])
-      .execute();
-    session.value = { ...sessionResult._session };
-  }
-
-  async function getCurrentSession() {
-    if (!Object.keys(session.value).length) {
-      await getSessionInformation();
-    }
-    return session.value;
-  }
-
   const showSettings = computed(() => {
     return session.value.roles?.includes("Manager");
   });
@@ -96,7 +81,6 @@ export const useSettingsStore = defineStore("settingsStore", () => {
   return {
     config,
     currentPage,
-    getCurrentSession,
     initializeConfig,
     UpdateConfig,
     GetApplicationConfiguration,
