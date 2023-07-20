@@ -4,7 +4,12 @@ import { DocumentNode } from "graphql";
 const props = defineProps<{
   title: string;
   description?: string;
-  headers: { id: string; label: string; singleLine?: boolean }[];
+  headers: {
+    id: string;
+    label: string;
+    singleLine?: boolean;
+    orderByColumn?: string;
+  }[];
   type: string;
   query: DocumentNode;
   filter?: object;
@@ -79,7 +84,10 @@ function setActiveSideModal(value: string) {
           name="sort-by"
           class="h-14 border border-gray-400 pb-2 pt-6 pl-6 pr-12 rounded-full appearance-none hover:bg-gray-100 hover:cursor-pointer bg-none"
         >
-          <option v-for="header in headers" :value="header.id">
+          <option
+            v-for="header in headers"
+            :value="header.orderByColumn || header.id"
+          >
             {{ header.label }}
           </option>
         </select>

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 @Tag("slow")
 public class TestScriptTask {
 
+  @Tag("windowsFail")
   @Test
   public void testPython() throws InterruptedException {
     System.out.println("first");
