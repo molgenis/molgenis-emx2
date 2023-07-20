@@ -21,6 +21,7 @@
     "molgenis-components": "*",
     "pinia": "2.0.33",
     "vue": "3.2.47",
+    "vue-gtag": "2.0.1",
     "vue-router": "4.1.6"
   },
   "devDependencies": {
