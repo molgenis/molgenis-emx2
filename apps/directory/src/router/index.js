@@ -1,8 +1,10 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import AboutView from "../views/AboutView.vue";
+import Landingpage from "../views/Landingpage.vue";
 import BiobankReport from "../views/BiobankReport.vue";
 import NetworkReport from "../views/NetworkReport.vue";
+import { useSettingsStore } from "../stores/settingsStore";
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -34,22 +36,31 @@ const router = createRouter({
     {
       path: "/configuration",
       component: () =>
-        // import(
-        //   /* webpackChunkName: "configuration-screen" */ "../views/ConfigTest.vue"
-        // ),
         import(
           /* webpackChunkName: "configuration-screen" */ "../views/ConfigurationScreen.vue"
         ),
-      // todo check
-      // beforeEnter: async (to, from, next) => {
-      //   const response = await api.get('/app-ui-context')
-      //   if (response.roles.includes('ROLE_SU')) { next() } else next('/')
-      // }
+      beforeEnter: async (to, from, next) => {
+        const settingsStore = useSettingsStore();
+        const currentSession = await settingsStore.getCurrentSession()
+        if (currentSession.roles.includes("Manager")) {
+          next();
+        } else next("/");
+      },
     },
     {
       path: "/",
-      name: "home",
-      component: HomeView,
+      component: Landingpage,
+      beforeEnter: async (to, from, next) => {
+        const settingsStore = useSettingsStore();
+        if (
+          settingsStore.config.landingpage.enabled &&
+          !Object.keys(to.query).length
+        ) {
+          next();
+        } else {
+          next({ path: "/catalogue", query: to.query });
+        }
+      },
     },
   ],
 });

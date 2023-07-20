@@ -47,16 +47,29 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     }
   }
 
+  /** for when user logs-in / out */
+  function setSessionInformation(newSession) {
+    session.value = newSession;
+  }
+
+  async function getSessionInformation() {
+    const sessionResult = await new QueryEMX2(config.value.graphqlEndpoint)
+      .table("_session")
+      .select(["email", "roles"])
+      .execute();
+    session.value = { ...sessionResult._session };
+  }
+
   async function getCurrentSession() {
     if (!Object.keys(session.value).length) {
-      const sessionResult = await new QueryEMX2(config.value.graphqlEndpoint)
-        .table("_session")
-        .select(["email", "roles"])
-        .execute();
-      session.value = { ...sessionResult._session };
+      await getSessionInformation();
     }
     return session.value;
   }
+
+  const showSettings = computed(() => {
+    return session.value.roles?.includes("Manager");
+  });
 
   const uiText = computed(() => {
     return config.value.i18n[config.value.language];
@@ -86,6 +99,8 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     getCurrentSession,
     initializeConfig,
     GetApplicationConfiguration,
+    setSessionInformation,
+    showSettings,
     SaveApplicationConfiguration,
     UpdateLandingpage,
     configUpdateStatus,

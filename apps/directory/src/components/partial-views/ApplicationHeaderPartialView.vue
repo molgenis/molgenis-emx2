@@ -7,8 +7,8 @@
         </div>
       </div>
       <div class="col-4 d-flex justify-content-end">
-        <!-- v-if="showSettings" -->
         <router-link
+          v-if="showSettings"
           class="btn btn-light border mr-2 align-self-start"
           to="/configuration"
         >
@@ -103,6 +103,9 @@ export default {
         (filterFacet) =>
           filterFacet.showFacet && filterFacet.component === "ToggleFilter"
       );
+    },
+    showSettings() {
+      return this.settingsStore.showSettings;
     },
   },
   methods: {
