@@ -3,7 +3,7 @@
     <div class="footer-container width-full">
       <div class="footer-content width-medium">
         <div class="footer-column footer-links">
-          <p><strong>ERN-Skin</strong></p>
+          <p><strong>ERN ReCONNET</strong></p>
           <UnorderedList listType="none">
             <li><router-link :to="{name: 'home'}">Home</router-link></li>
             <li><router-link :to="{name: 'about-us'}">About Us</router-link></li>
@@ -15,7 +15,7 @@
         <div class="footer-column footer-links">
           <p><strong>For Members</strong></p>
           <UnorderedList listType="none">
-            <li><a href="/login">Sign in</a></li>
+            <li><a href="#">Sign in</a></li>
             <!-- more links here -->
           </UnorderedList>
         </div>
@@ -23,11 +23,10 @@
           <UnorderedList listType="none">
             <li id="project-logo-link">
               <router-link :to="{ name: 'home' }"> 
-                <img :src="ProjectLogo" alt="ERN-Skin" class="ern-skin-logo" />
+                <img :src="ErnLogo" alt="ERN-RECONNET registry" class="ern-logo" />
               </router-link>
             </li>
             <li class="eu-logos">
-              <img :src="ErnLogo" class="logo ern-logo" />
               <img :src="FundingLogo" class="logo funding-logo" alt="funded by the European Union" />
             </li>
             <li>
@@ -46,9 +45,8 @@
 
 <script setup>
 import { PageFooter, UnorderedList } from 'molgenis-viz';
-import ProjectLogo from "../assets/ern-reconnet-logo.png";
+import ErnLogo from "../assets/ern-reconnet-logo.png";
 import MolgenisLogo from "../assets/molgenis-logo-blue-text.png";
-import ErnLogo from "../assets/ern-reconnet-header.jpg";
 import FundingLogo from "../assets/ern-funded-by-eu.svg";
 </script>
 
@@ -57,8 +55,7 @@ import FundingLogo from "../assets/ern-funded-by-eu.svg";
   background-color: $gray-050;
   
   .footer-container {
-    color: $gray-050;
-    background-color: $blue-900;
+    background-color: $gray-050;
   }
   
   .footer-content {
@@ -91,8 +88,7 @@ import FundingLogo from "../assets/ern-funded-by-eu.svg";
   .page-footer-meta-links {
     box-sizing: padding-box;
     padding: 0.2em;
-    // background-color: $brand-red-orange;
-    
+
     a {
       @include textTransform;
       text-decoration: none;
