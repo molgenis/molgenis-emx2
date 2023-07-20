@@ -1,4 +1,3 @@
-import {fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
@@ -12,15 +11,25 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         additionalData: `
-          @import "../../molgenis-viz/src/styles/heightwidth.scss";
-          @import "../../molgenis-viz/src/styles/mixins.scss";
-          @import "../../molgenis-viz/src/styles/padding.scss";
           @import "../../molgenis-viz/src/styles/palettes.scss";
-          @import "../../molgenis-viz/src/styles/resets.scss";
-          @import "../../molgenis-viz/src/styles/textPosition.scss";
-          @import "../../molgenis-viz/src/styles/variables.scss";
+          @import "../../molgenis-viz/src/styles/mixins.scss";
           @import "./src/styles/index.scss";
         `
+      }
+    }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        assetFileNames: (assetInfo) => {
+          const extension = assetInfo.name.split('.').pop()
+          if (/png|jpg|svg/.test(extension)) {
+            return `img/[name].[hash][extname]`
+          }
+          return `${extension}/[name].[hash][extname]`
+        },
+        chunkFileNames: 'js/[name].[hash].js',
+        entryFileNames: 'js/[name].[hash].js'
       }
     }
   }
