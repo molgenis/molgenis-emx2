@@ -18,25 +18,25 @@ const router = createRouter({
       path: "/about-us",
       component: AboutPage,
       meta: {
-        title: "About Us"
-      }
+        title: "About Us",
+      },
     },
     {
       name: "documents",
       path: "/documents",
       component: DocumentsPage,
       meta: {
-        title: "Documents"
-      }
+        title: "Documents",
+      },
     },
     {
       name: "dashboard",
       path: "/dashboard",
       component: DashboardPage,
       meta: {
-        title: "Dashboard"
-      }
-    }
+        title: "Dashboard",
+      },
+    },
   ],
   scrollBehavior() {
     return {
