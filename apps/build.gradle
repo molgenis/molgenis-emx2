@@ -96,6 +96,14 @@ subprojects {
             outputs.dir('dist')
             outputs.dir('gen-docs')
             outputs.dir('showCase')
+        } else if(project.name == 'molgenis-viz') {
+            inputs.file('package.json')
+            inputs.files(fileTree('src'))
+            inputs.files(fileTree('lib'))
+            inputs.file('vite.config.js')
+            inputs.file('vuese.config.js')
+            outputs.dir('dist')
+            outputs.dir('showCase')
         } else if (project.name == 'nuxt3-ssr') {
             inputs.file('package.json')
             inputs.files(fileTree('assets'))
@@ -159,7 +167,7 @@ subprojects {
         } else {
             dependsOn build
         }
-        if (project.name == 'molgenis-components') {
+        if (project.name == 'molgenis-components' || project.name == 'molgenis-viz') {
             from "showCase"
             inputs.dir("showCase")
         } else {
