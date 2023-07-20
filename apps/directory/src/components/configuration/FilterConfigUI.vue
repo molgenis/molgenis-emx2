@@ -60,9 +60,13 @@ export default {
   },
   props: {
     config: {
-      type: Object,
+      type: String,
       required: () => true,
     },
+    hasUpdated: {
+      type: Number,
+      required: false
+    }
   },
   data() {
     return {
@@ -76,6 +80,9 @@ export default {
     config() {
       this.setData();
     },
+    hasUpdated() {
+      this.filterIndex = -1;
+    }
   },
   methods: {
     dragStart() {
@@ -83,14 +90,15 @@ export default {
       this.editFilter(-1);
     },
     setData() {
-      if (this.config && Object.keys(this.config).length) {
+      if (this.config && this.config.length) {
         /** add index here because vue sortable doesnt expose indexes */
-        const copyOfConfig = JSON.parse(JSON.stringify(this.config));
-        copyOfConfig.filterFacets.forEach((element, index) => {
+        const appConfig = JSON.parse(this.config);
+
+        appConfig.filterFacets.forEach((element, index) => {
           element.index = index;
         });
 
-        this.appConfig = JSON.parse(JSON.stringify(copyOfConfig));
+        this.appConfig = appConfig;
       }
     },
     sync() {
@@ -98,7 +106,8 @@ export default {
         element.index = index;
       });
       this.draggable = false;
-      this.$emit("update", this.appConfig);
+      this.$emit("update", JSON.stringify(this.appConfig));
+      this.editFilter(-1);
     },
     editFilter(index) {
       /** reset when toggled */

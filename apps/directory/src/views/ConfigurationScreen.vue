@@ -38,23 +38,25 @@
     <div v-if="editorType === 'ui'" class="row px-5 pb-3">
       <div class="col-6">
         <FilterConfigUI
-          :config="config"
+          :config="currentConfig"
+          :hasUpdated="configUpdateStatus"
           @update="updateFilters"
           @add="addFilter"
           @edit="setFilterEditIndex"
         />
       </div>
       <div class="col-6" v-if="filterEditMode">
-        <h3>
-          {{ config.filterFacets[this.filterIndex].label }} filter configuration
-        </h3>
+        <h3>{{ getFacetTitle(this.filterIndex) }} filter configuration</h3>
         <filter-editor
           :key="filterIndex"
           class="filter-editor"
-          :value="config.filterFacets[this.filterIndex]"
-          @input="applyChanges"
+          :config="currentConfig"
+          :filterIndex="this.filterIndex"
+          :title="getFacetTitle(this.filterIndex)"
+          @filterUpdate="applyChanges"
           @delete="deleteFilter"
         />
+
         <small>
           <pre class="code-help">
 {
@@ -155,9 +157,7 @@
             <span>You have unsaved changes</span>
           </div>
         </div>
-        <small class="mt-4 float-right"
-          >To format your file press ctrl + f</small
-        >
+        <small class="mt-4 float-right">To format your file press ctrl + f</small>
       </div>
     </div>
   </div>
@@ -171,6 +171,7 @@ import JsonEditor from "../components/configuration/JsonEditor.vue";
 import LandingpageEditor from "../components/configuration/LandingpageEditor.vue";
 import { filterTemplate } from "../filter-config/facetConfigurator";
 import { useSettingsStore } from "../stores/settingsStore";
+import { toRaw } from "vue";
 
 export default {
   setup() {
@@ -187,7 +188,6 @@ export default {
   data() {
     return {
       editor: {},
-      config: {},
       statusClosed: true,
       dirty: false,
       undoFilterSort: 0,
@@ -199,23 +199,23 @@ export default {
     };
   },
   methods: {
+    getFacetTitle(index) {
+      return JSON.parse(this.currentConfig).filterFacets[index].facetTitle;
+    },
     switchView(view) {
       this.editorType = view;
     },
-    applyChanges(filterObject) {
-      this.dirty = true;
-      this.config.filterFacets[this.filterIndex] = filterObject;
-      this.syncCurrentConfigState();
+
+    applyChanges(changesToSave) {
+      this.newAppConfig = changesToSave;
+      this.saveToDatabase(changesToSave);
+      this.filterIndex = -1;
     },
     deleteFilter() {
-      this.dirty = true;
-      this.config.filterFacets.splice(this.filterIndex, 1);
+      const newConfig = this.copyConfig();
+      newConfig.filterFacets.splice(this.filterIndex, 1);
       this.filterIndex = -1;
-      this.syncCurrentConfigState();
-    },
-    syncCurrentConfigState() {
-      /** apply changes to the json editor */
-      this.newAppConfig = this.appConfig;
+      this.saveToDatabase(newConfig);
     },
     save() {
       this.statusClosed = false;
@@ -245,7 +245,7 @@ export default {
       }
     },
     saveToDatabase(newConfiguration) {
-      this.checkJSONStructure(newConfiguration);
+      this.checkJSONStructure(toRaw(newConfiguration));
       if (!this.jsonError) {
         this.settingsStore.SaveApplicationConfiguration(newConfiguration);
         this.dirty = false;
@@ -254,8 +254,6 @@ export default {
     cancel() {
       this.dirty = false;
       this.newAppConfig = "";
-
-      this.config = Object.assign({}, JSON.parse(this.appConfig));
       this.editor.getModel().setValue(this.appConfig);
       this.filterIndex = -1;
     },
@@ -292,9 +290,11 @@ export default {
     },
     addFilter() {
       this.dirty = true;
-      const filterCount = this.config.filterFacets.length;
-      this.config.filterFacets.push(filterTemplate);
-      this.syncCurrentConfigState();
+      const filterCount = this.currentFilterConfig.filterFacets.length;
+
+      const newConfig =
+        this.currentFilterConfig.filterFacets.push(filterTemplate);
+      this.newAppConfig = JSON.stringify(newConfig);
       this.filterIndex = filterCount;
     },
   },
@@ -309,7 +309,7 @@ export default {
       return this.settingsStore.configUpdateStatus !== 0 && !this.statusClosed;
     },
     currentConfig() {
-      return this.newAppConfig || JSON.parse(JSON.stringify(this.appConfig));
+      return this.newAppConfig || this.appConfig;
     },
     newConfig() {
       return this.uploadedAppConfig;
@@ -324,6 +324,7 @@ export default {
   },
   watch: {
     configUpdateStatus(newStatus) {
+      this.statusClosed = false;
       if (newStatus !== 0) {
         const timer = setTimeout(() => {
           this.statusClosed = true;
@@ -337,7 +338,6 @@ export default {
   },
   async mounted() {
     await this.settingsStore.GetApplicationConfiguration();
-    this.config = JSON.parse(this.appConfig);
   },
 };
 </script>

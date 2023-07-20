@@ -15,6 +15,7 @@
 
 <script>
 import * as monaco from "monaco-editor";
+import { toRaw } from "vue";
 
 export default {
   props: {
@@ -34,7 +35,8 @@ export default {
       this.editor.getAction("editor.action.formatDocument").run();
     },
     save() {
-      const changesToSave = this.editor.getValue();
+      /** doesnt work with proxy, so that is where toRaw comes in */
+      const changesToSave = toRaw(this.editor).getValue();
       this.$emit("save", changesToSave);
     },
     cancel() {
