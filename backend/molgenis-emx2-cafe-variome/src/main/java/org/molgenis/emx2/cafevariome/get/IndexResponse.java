@@ -10,9 +10,6 @@ public class IndexResponse {
   public IndexResponse() {}
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
-  private String source_id;
-
-  @JsonInclude(JsonInclude.Include.ALWAYS)
   private Map<String, Object[]> attributes_values;
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
@@ -20,14 +17,6 @@ public class IndexResponse {
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
   private Map<Object, Object> values_display_names;
-
-  public String getSource_id() {
-    return source_id;
-  }
-
-  public void setSource_id(String source_id) {
-    this.source_id = source_id;
-  }
 
   public Map<String, Object[]> getAttributes_values() {
     return attributes_values;

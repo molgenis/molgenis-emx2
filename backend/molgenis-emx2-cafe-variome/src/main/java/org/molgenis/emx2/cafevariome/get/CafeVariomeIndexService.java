@@ -16,7 +16,6 @@ public class CafeVariomeIndexService {
 
   public static IndexResponse index(Request request, List<Table> tables) throws Exception {
     IndexResponse indexResponse = new IndexResponse();
-    indexResponse.setSource_id("1");
 
     Map<String, List> attributeValues = new HashMap<>();
     Map<String, String> attributesDisplayNames = new HashMap<>();
