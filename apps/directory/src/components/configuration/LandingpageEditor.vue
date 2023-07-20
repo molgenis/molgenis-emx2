@@ -351,7 +351,7 @@ export default {
       this.editorOpen = true;
     },
     save() {
-      this.settingsStore.UpdateLandingpage(this.newConfig);
+      this.settingsStore.UpdateConfig(this.newConfig);
       this.$emit("save", JSON.stringify(this.newConfig));
       this.editorOpen = false;
     },

@@ -52,6 +52,7 @@ const router = createRouter({
       component: Landingpage,
       beforeEnter: async (to, from, next) => {
         const settingsStore = useSettingsStore();
+        await settingsStore.initializeConfig();
         if (
           settingsStore.config.landingpage.enabled &&
           !Object.keys(to.query).length

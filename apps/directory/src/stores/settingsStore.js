@@ -89,8 +89,8 @@ export const useSettingsStore = defineStore("settingsStore", () => {
 
     configUpdateStatus.value = updateResult.includes("success") ? 204 : 401;
   }
-  async function UpdateLandingpage() {
-    return Error("Not implemented");
+  async function UpdateConfig(newConfig) {
+    config.value = newConfig;
   }
 
   return {
@@ -98,11 +98,11 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     currentPage,
     getCurrentSession,
     initializeConfig,
+    UpdateConfig,
     GetApplicationConfiguration,
     setSessionInformation,
     showSettings,
     SaveApplicationConfiguration,
-    UpdateLandingpage,
     configUpdateStatus,
     uiText,
   };

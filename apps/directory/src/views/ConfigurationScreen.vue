@@ -337,9 +337,7 @@ export default {
   },
   async mounted() {
     await this.settingsStore.GetApplicationConfiguration();
-
     this.config = JSON.parse(this.appConfig);
-    this.settingsStore.UpdateLandingpage(this.config);
   },
 };
 </script>

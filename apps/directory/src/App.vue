@@ -36,7 +36,6 @@ watch(
 onMounted(async () => {
   const settingsStore = useSettingsStore();
   await settingsStore.initializeConfig();
-  await settingsStore.getSessionInformation();
 });
 </script>
 

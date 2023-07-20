@@ -46,7 +46,7 @@ export default {
 </script>
 
 <style scoped>
-:deep(~ *) {
+.landingpage-header:deep(> *) {
   width: 70%;
 }
 </style>
