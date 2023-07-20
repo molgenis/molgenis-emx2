@@ -72,7 +72,8 @@ public class GroupPathMapper {
         InputStream in = GroupPathMapper.class.getResourceAsStream(request.pathInfo());
         response.header(
             "Content-Type", MimeType.fromResource(new ClassPathResource(request.pathInfo())));
-        return new String(ByteStreams.toByteArray(in));
+        response.raw().getOutputStream().write(ByteStreams.toByteArray(in));
+        return "";
       } catch (Exception e) {
         response.status(404);
         return "File not found: " + request.pathInfo();

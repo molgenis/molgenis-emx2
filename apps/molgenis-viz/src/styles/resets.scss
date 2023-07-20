@@ -1,0 +1,32 @@
+// reset styles set by parent theme
+#app {
+  // remove parent container background color
+  & > div {
+    background-color: #ffffff !important;
+
+    // reset padding & overwrite inline styles
+    & > div {
+      div.container-fluid.p-3 {
+        padding: 0 !important;
+        padding-bottom: 0 !important;
+      }
+    }
+
+    // hide footer/citation
+    & > div.text-center {
+      display: none;
+    }
+  }
+}
+
+// set visually hidden class to be used throughout the app(s)
+.visually-hidden {
+  position: absolute;
+  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+  clip: rect(1px, 1px, 1px, 1px);
+  overflow: hidden;
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  white-space: nowrap;
+}
