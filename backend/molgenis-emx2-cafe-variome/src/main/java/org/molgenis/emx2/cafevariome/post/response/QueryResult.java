@@ -12,7 +12,7 @@ public class QueryResult {
   @JsonInclude(JsonInclude.Include.ALWAYS)
   private int count;
 
-  // @JsonInclude(JsonInclude.Include.ALWAYS)
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private Payload payload;
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
