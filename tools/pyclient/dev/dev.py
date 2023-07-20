@@ -2,7 +2,7 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo
 # CREATED: 2023-05-22
-# MODIFIED: 2023-07-03
+# MODIFIED: 2023-07-20
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: **see below**
@@ -10,19 +10,21 @@
 # the `src` directory.
 #///////////////////////////////////////////////////////////////////////////////
 
-from molgenis_emx2_pyclient.client2 import Client
+from src.molgenis_emx2_pyclient.client import Client
 import pandas as pd
 
 
 # connect and sign in
 db = Client('https://emx2.dev.molgenis.org/')
-db.signin('','')
+db.signin('admin','admin')
 
 # get data
 data = db.get(schema = '', table='') # run without specifying target
 data = db.get(schema = 'pet store', table='') # run without specifying table
 data = db.get(schema = 'pet store', table='Pet') # get Pets
 data
+
+data = db.get(schema = 'pet store', table='Pet', asDataFrame=True) # get Pets
 
 #///////////////////////////////////////////////////////////////////////////////
 
@@ -57,8 +59,8 @@ data
 
 # drop records
 tagsToRemove = [{'name': row['name']} for row in newTags if row['name'] == 'canis']
-db.delete(schema='pet store', table='Tag', data=tagsToRemove)
 db.delete(schema='pet store', table='Pet', data=newPets)
+db.delete(schema='pet store', table='Tag', data=tagsToRemove)
 
 #///////////////////////////////////////
 
@@ -73,5 +75,9 @@ pd.DataFrame(newPets).to_csv('dev/demodata/Pet.csv', index=False)
 db.add(schema='pet store', table='Tag', file='dev/demodata/Tag.csv')
 db.add(schema='pet store', table='Pet', file='dev/demodata/Pet.csv')
 
-db.delete(schema='pet store', table='Tag', file='dev/demodata/Tag.csv')
 db.delete(schema='pet store', table='Pet', file='dev/demodata/Pet.csv')
+db.delete(schema='pet store', table='Tag', file='dev/demodata/Tag.csv')
+
+
+# sign out
+db.signout()

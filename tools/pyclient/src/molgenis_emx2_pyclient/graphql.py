@@ -45,3 +45,17 @@ class graphql:
                 }
             }
         """
+
+    @staticmethod
+    def listSchemas():
+        """List Schemas
+        View all available schemas
+        """
+        return """
+            {
+                _schemas {
+                    name
+                    description
+                }
+            }
+        """
