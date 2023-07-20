@@ -5,12 +5,14 @@ import static org.mockito.Mockito.*;
 
 import java.util.Collections;
 import java.util.List;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
+@Tag("slow")
 public class CatalogueSiteMapTest {
 
   @Test

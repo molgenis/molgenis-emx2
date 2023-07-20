@@ -4,7 +4,6 @@ import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.utils.generator.IdGenerator;
@@ -18,73 +17,69 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  static Map<String, Object> validateAndGetVisibleValuesAsMap(
-      Row row, TableMetadata tableMetadata, Collection<Column> updateColumns) {
-
-    // we create a graph representation of the row, using identifiers
-    Map<String, Object> graph = convertRowToMap(tableMetadata, row);
-    Set<String> colNames =
-        updateColumns.stream()
-            .map(
-                c ->
-                    // oldName is also used for references so we can know the underlying column name
-                    c.getOldName() != null ? c.getOldName() : c.getName())
-            .collect(Collectors.toSet());
-    // only validate columns for which we have data
-    Set<Column> validationColumns =
-        tableMetadata.getColumns().stream()
-            .filter(c2 -> colNames.contains(c2.getName()))
-            .collect(Collectors.toSet());
-
-    // we null all invisible columns
-    for (Column c : validationColumns) {
-      if (!columnIsVisible(c, graph)) {
-        graph.put(c.getName(), null);
-      }
+  public static List<Row> applyValidationAndComputed(List<Column> columns, List<Row> rows) {
+    for (Row row : rows) {
+      applyValidationAndComputed(columns, row);
     }
+    return rows;
+  }
 
-    // then we validate
-    for (Column c : validationColumns) {
-      checkValidation(c, graph);
-    }
-
-    // if passed validation we gonna create update record
-    Map<String, Object> values = new LinkedHashMap<>();
-    for (Column c : updateColumns) {
-      // we get role from environment
+  public static void applyValidationAndComputed(List<Column> columns, Row row) {
+    Map<String, Object> graph = convertRowToMap(columns, row);
+    for (Column c : columns.stream().filter(c -> !c.isHeading()).toList()) {
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
-        values.put(c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
-      }
-      // autoid field
-      else if (AUTO_ID.equals(c.getColumnType())) {
-        // do we use a template containing ${mg_autoid} for pre/postfixing ?
-        if (c.getComputed() != null && row.isNull(c.getName(), c.getPrimitiveColumnType())) {
-          values.put(
-              c.getName(),
-              c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, idGenerator.generateId()));
-        }
-        // otherwise simply put the id
-        else if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
-          values.put(c.getName(), idGenerator.generateId());
+        row.setString(
+            c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
+      } else if (AUTO_ID.equals(c.getColumnType())) {
+        applyAutoid(c, row);
+      } else if (c.getComputed() != null) {
+        row.set(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
+      } else if (columnIsVisible(c, graph)) {
+        checkRequired(c, row);
+        checkValidation(c, graph);
+      } else {
+        if (c.isReference()) {
+          for (Reference ref : c.getReferences()) {
+            row.clear(ref.getName());
+          }
         } else {
-          values.put(c.getName(), getTypedValue(c, row));
+          row.clear(c.getName());
         }
-      }
-      // compute field, might depend on update values therefor run always on insert/update
-      else if (c.getComputed() != null) {
-        values.put(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
-      }
-      // otherwise, unless invisible
-      else if (columnIsVisible(
-          c.getOldName() != null ? tableMetadata.getColumn(c.getOldName()) : c, graph)) {
-        values.put(c.getName(), getTypedValue(c, row));
-      }
-      // invisible columns will be in updatedColumns so set to null
-      else {
-        values.put(c.getName(), null);
       }
     }
-    return values;
+  }
+
+  private static void applyAutoid(Column c, Row row) {
+    if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
+      // do we use a template containing ${mg_autoid} for pre/postfixing ?
+      if (c.getComputed() != null) {
+        row.set(
+            c.getName(),
+            c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, idGenerator.generateId()));
+      }
+      // otherwise simply put the id
+      else row.set(c.getName(), idGenerator.generateId());
+    }
+  }
+
+  private static void checkRequired(Column c, Row row) {
+    if (!row.isDraft()
+        && c.getComputed() == null
+        && !AUTO_ID.equals(c.getColumnType())
+        && c.isRequired()) {
+
+      if (c.isReference()) {
+        for (Reference r : c.getReferences()) {
+          if (row.isNull(r.getName(), r.getPrimitiveType())) {
+            throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
+          }
+        }
+      } else {
+        if (row.isNull(c.getName(), c.getColumnType())) {
+          throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
+        }
+      }
+    }
   }
 
   private static boolean columnIsVisible(Column column, Map values) {
@@ -188,9 +183,9 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  static Map<String, Object> convertRowToMap(TableMetadata tableMetadata, Row row) {
+  static Map<String, Object> convertRowToMap(List<Column> columns, Row row) {
     Map<String, Object> map = new LinkedHashMap<>();
-    for (Column c : tableMetadata.getColumns()) {
+    for (Column c : columns) {
       if (c.isReference()) {
         map.put(c.getIdentifier(), getRefFromRow(row, c));
       } else if (c.isFile()) {

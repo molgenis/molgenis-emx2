@@ -16,9 +16,9 @@
     "vue-router": "4.1.6"
   },
   "devDependencies": {
-    "vite": "4.1.4",
+    "vite": "4.3.9",
     "@vitejs/plugin-vue": "4.1.0",
-    "prettier": "2.8.7"
+    "prettier": "2.8.8"
   },
   "browserslist": [
     "> 1%",

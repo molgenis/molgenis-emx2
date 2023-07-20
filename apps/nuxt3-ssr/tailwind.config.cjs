@@ -215,9 +215,11 @@ module.exports = {
       borderRadius: {
         "3px": "3px",
         "50px": "50px",
+        "textarea-input": "20px",
         "search-input": "9999px",
         "search-button": "9999px",
         pagination: "9999px",
+        landing: "50px"
       },
       opacity: {
         "background-gradient": 100,

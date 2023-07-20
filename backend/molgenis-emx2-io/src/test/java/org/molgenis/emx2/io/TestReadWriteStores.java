@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
@@ -21,6 +22,7 @@ import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.io.tablestore.*;
 import org.molgenis.emx2.utils.StopWatch;
 
+@Tag("slow")
 public class TestReadWriteStores {
   @Test
   public void testCsvDirectoryStore() throws IOException {

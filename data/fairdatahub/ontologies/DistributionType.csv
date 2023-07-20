@@ -1,0 +1,3 @@
+name,definition,codesystem,code,ontologyTermURI
+File,digital file,STATO,0000002,http://purl.obolibrary.org/obo/STATO_0000002
+Table,database table,SIO,000754,http://semanticscience.org/resource/SIO_000754

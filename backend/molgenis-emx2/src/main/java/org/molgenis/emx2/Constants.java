@@ -77,11 +77,11 @@ public class Constants {
 
   // RFC 5322, see http://emailregex.com/
   protected static final String EMAIL_REGEX =
-      "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]"
-          + "+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\""
+      "(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]"
+          + "+(?:\\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|\""
           + "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")"
-          + "@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.)"
-          + "{3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\"
+          + "@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.)"
+          + "{3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\"
           + "[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
   // thank you to
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
@@ -99,6 +99,8 @@ public class Constants {
   public static final String IS_PRIVACY_POLICY_ENABLED = "isPrivacyPolicyEnabled";
   public static final String COMPUTED_AUTOID_TOKEN = "${mg_autoid}";
   public static final String SYSTEM_SCHEMA = "_SYSTEM_";
+
+  public static final String CONTACT_RECIPIENTS_QUERY_SETTING_KEY = "contactRecipientsQuery";
 
   private Constants() {
     // hide constructor

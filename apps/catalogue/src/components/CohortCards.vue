@@ -43,10 +43,10 @@
                   <td>
                     <span
                       class="font-weight-bold mr-2 mb-2 badge bade-lg badge-primary"
-                      v-for="design in cohort.design"
+                      v-if="cohort.design"
                       :key="design"
                     >
-                      {{ design }}
+                      {{ cohort.design.name }}
                     </span>
                   </td>
                 </tr>
@@ -67,7 +67,7 @@
                   <td v-if="cohort.numberOfParticipants">
                     {{ Number(cohort.numberOfParticipants).toLocaleString() }}
                   </td>
-                  <td v-else>N/A</td>
+                  <td v-else></td>
                 </tr>
                 <tr>
                   <td><label>Countries:</label></td>
@@ -85,16 +85,38 @@
                 <tr>
                   <td>Institution:</td>
                   <td>
-                    <div v-if="cohort.institution">
-                      {{ cohort.organisations.map((o) => o.id).join(", ") }}
-                    </div>
-                    <span v-else>N/A</span>
+                    <span v-if="cohort.leadOrganisation">
+                      {{ cohort.leadOrganisation.map((o) => o.id).join(", ") }}
+                    </span>
+                    <span
+                      v-if="
+                        cohort.leadOrganisation &&
+                        cohort.additionalOrganisations
+                      "
+                      >,
+                    </span>
+                    <span v-if="cohort.additionalOrganisations">
+                      {{
+                        cohort.additionalOrganisations
+                          .map((o) => o.id)
+                          .join(", ")
+                      }}
+                    </span>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <a :href="cohort.website" target="__blank">website</a>&nbsp;
-                    <a :href="'mailto:' + cohort.contactEmail">email</a>
+                    <a
+                      v-if="cohort.website"
+                      :href="cohort.website"
+                      target="__blank"
+                      >website</a
+                    >&nbsp;
+                    <a
+                      v-if="cohort.contactEmail"
+                      :href="'mailto:' + cohort.contactEmail"
+                      >email</a
+                    >
                   </td>
                 </tr>
               </table>
@@ -143,7 +165,7 @@ export default {
     this.client = Client.newClient();
     const resp = await this.client.fetchTableData(this.table, {
       filter: this.graphqlFilter,
-      orderBy: this.orderBy,
+      orderby: this.orderBy,
     });
     this.cohorts = resp[this.table] ? resp[this.table] : [];
     this.count = resp[this.table + "_agg"].count;

@@ -15,11 +15,11 @@
     "graphql-request": "5.2.0",
     "vue": "3.2.47",
     "vue-router": "4.1.6",
-    "vue3-colorpicker": "2.1.2",
+    "vue3-colorpicker": "2.1.4",
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
-    "vite": "4.3.8",
+    "vite": "4.3.9",
     "@vitejs/plugin-vue": "4.2.3",
     "prettier": "2.8.8"
   },

@@ -2,11 +2,11 @@
 
 plugins {
     id "base"
-    id "com.github.node-gradle.node" version "3.5.1"
+    id "com.github.node-gradle.node" version "3.6.0"
 }
 
 def nodeSpec = {
-    version = '18.16.0'
+    version = '19.9.0'
     yarnVersion = '1.22.19'
     npmVersion = "9.5.1"
     download = true

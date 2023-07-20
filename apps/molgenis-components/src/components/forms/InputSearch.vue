@@ -53,7 +53,7 @@ export default {
   data() {
     return {
       timeout: null,
-      debouncedInput: this.value,
+      debouncedInput: this.modelValue,
     };
   },
   computed: {
