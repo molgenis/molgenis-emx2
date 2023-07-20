@@ -83,6 +83,9 @@ subprojects {
         // force build order: molgenis-components > ...apps
         if (project.name != 'molgenis-components') {
             dependsOn ":apps:molgenis-components:build"
+            if(project.name != 'molgenis-viz') {
+                dependsOn ":apps:molgenis-viz:build"
+            }
         }
 
         // set input out out put for each app type
