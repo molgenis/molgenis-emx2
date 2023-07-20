@@ -7,6 +7,7 @@ import requests
 
 from . import utils as utils
 from . import graphql_queries as queries
+from .exceptions import NoSuchSchemaException
 
 log = logging.getLogger(__name__)
 
@@ -24,8 +25,11 @@ class Client:
         self.api_graphql = self.url + "/apps/central/graphql"
         self.signin_status = 'unknown'
 
+        self.schemas: list = []
+
         self.session = requests.Session()
 
+        # Sign in when user credentials are supplied
         if username is not None and password is not None:
             self.sign_in(username, password)
 
@@ -78,6 +82,8 @@ class Client:
             print(f"Unable to sign into {self.url} as {username}")
             self.signin_status = 'failed'
 
+        self.schemas = self.list_schemas()
+
     def sign_out(self):
         """Signs the client out of the EMX2 server."""
         response = self.session.post(
@@ -93,7 +99,7 @@ class Client:
             print(f"Unable to sign out of {self.url}.")
             print(message)
 
-    def list_databases(self):
+    def list_schemas(self):
         """List the databases present on the server."""
         query = queries.list_schemas()
 
@@ -146,6 +152,10 @@ class Client:
         :rtype: str
         """
         import_data = self._prep_data_or_file(file=file, data=data)
+
+        if schema not in self.schemas:
+            raise NoSuchSchemaException(f"Schema '{schema}' not found on server.")
+
         response = self.session.post(
             url=f"{self.url}/{schema}/api/csv/{table}",
             headers={'Content-Type': 'text/csv'},
@@ -174,6 +184,10 @@ class Client:
         :rtype: str
         """
         import_data = self._prep_data_or_file(file=file, data=data)
+
+        if schema not in self.schemas:
+            raise NoSuchSchemaException(f"Schema '{schema}' not found on server.")
+
         response = self.session.delete(
             url=f"{self.url}/{schema}/api/csv/{table}",
             headers={'Content-Type': 'text/csv'},
@@ -203,6 +217,9 @@ class Client:
         """
         if not bool(schema) or not bool(table):
             print("Incomplete table location. Enter a schema and table.")
+
+        if schema not in self.schemas:
+            raise NoSuchSchemaException(f"Schema '{schema}' not found on server.")
         
         response = self.session.get(url=f"{self.url}/{schema}/api/csv/{table}")
         

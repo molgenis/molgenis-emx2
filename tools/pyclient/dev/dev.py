@@ -10,16 +10,17 @@
 # the `src` directory.
 #///////////////////////////////////////////////////////////////////////////////
 
-from src.molgenis_emx2_pyclient.client import Client
 import pandas as pd
 
+from tools.pyclient.src.molgenis_emx2_pyclient import Client
 
 # connect and sign in
 db = Client('https://emx2.dev.molgenis.org/')
-db.signin('admin','admin')
+db.sign_in('admin', 'admin')
+
 
 # get data
-data = db.get(schema = '', table='') # run without specifying target
+data = db.get(schema='', table='') # run without specifying target
 data = db.get(schema = 'pet store', table='') # run without specifying table
 data = db.get(schema = 'pet store', table='Pet') # get Pets
 data
@@ -80,4 +81,4 @@ db.delete(schema='pet store', table='Tag', file='dev/demodata/Tag.csv')
 
 
 # sign out
-db.signout()
+db.sign_out()
