@@ -43,7 +43,10 @@
           <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
         </LinkCard>
         <LinkCard id="quicklink-signin">
-          <a href="#">Sign in</a>
+          <button class="toggle" @click="updateShowSigninForm">
+            <span>Sign in</span>
+          </button>
+          <MolgenisSignin v-if="showSigninForm" @cancel="updateShowSigninForm"/>
         </LinkCard>
       </div>
     </PageSection>
@@ -84,15 +87,36 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
+import { MolgenisSignin } from "molgenis-components";
 import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
+
 import ProjectBannerImage from "../assets/ern-reconnet-header.jpg";
 import AboutImage from "../assets/ern-reconnet-about-header.jpg";
 import DocumentsImage from "../assets/ern-reconnet-docs-header.jpg";
+
+
+let showSigninForm = ref(false);
+
+function updateShowSigninForm() {
+  showSigninForm.value = !showSigninForm.value
+}
+
 </script>
 
 <style lang="scss">
 .quick-links {
   background-color: $gray-100;
+  
+  .toggle {
+    background: none;
+    border: none;
+    color: $blue-900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: bold;
+    font-size: 14pt;
+  }
 
   .quicklink-cards {
     display: flex;
@@ -125,9 +149,6 @@ import DocumentsImage from "../assets/ern-reconnet-docs-header.jpg";
 
       &:nth-child(4) {
         background-color: $blue-200;
-        a {
-          color: $blue-900;
-        }
       }
     }
   }
