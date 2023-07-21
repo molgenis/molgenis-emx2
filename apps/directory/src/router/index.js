@@ -39,8 +39,9 @@ const router = createRouter({
         import(
           /* webpackChunkName: "configuration-screen" */ "../views/ConfigurationScreen.vue"
         ),
-      beforeEnter: async (to, from, next) => {
+      beforeEnter: (to, from, next) => {
         const settingsStore = useSettingsStore();
+        console.log(settingsStore.showSettings, '<< debugline')
         if (settingsStore.showSettings) {
           next();
         } else next("/");

@@ -27,6 +27,34 @@
       </button>
     </nav>
 
+    <div class="top-notification">
+      <div v-show="showNotification">
+        <div
+          v-if="configUpdateStatus === 204"
+          class="alert alert-success m-0 mr-3"
+          role="alert"
+          @click="statusClosed = true"
+        >
+          <span>Configuration saved!</span>
+        </div>
+        <div
+          v-else
+          class="alert alert-warning m-0"
+          role="alert"
+          @click="statusClosed = true"
+        >
+          <span
+            >We could not save the configuration, make sure you are logged in
+            with sufficient rights.</span
+          >
+        </div>
+      </div>
+
+      <div v-if="dirty" class="alert alert-warning m-0" role="alert">
+        <span>You have unsaved changes</span>
+      </div>
+    </div>
+
     <div class="row">
       <div v-if="jsonError" class="alert alert-danger ml-5" role="alert">
         <span>{{ jsonError }}</span>
@@ -85,6 +113,7 @@
     <json-editor
       :config="currentConfig"
       @save="saveFromEditor"
+      @cancel="switchView('ui')"
       v-if="editorType === 'editor'"
     />
 
@@ -102,7 +131,7 @@
       <landingpage-editor
         :currentConfig="currentConfig"
         @save="saveLandingpage"
-        @cancel="switchView('editor')"
+        @cancel="switchView('ui')"
       />
     </div>
     <!-- standard button bar -->
@@ -153,11 +182,13 @@
             </div>
           </div>
 
-          <div v-show="dirty" class="alert alert-warning m-0" role="alert">
+          <div v-if="dirty" class="alert alert-warning m-0" role="alert">
             <span>You have unsaved changes</span>
           </div>
         </div>
-        <small class="mt-4 float-right">To format your file press ctrl + f</small>
+        <small class="mt-4 float-right"
+          >To format your file press ctrl + f</small
+        >
       </div>
     </div>
   </div>
@@ -226,10 +257,11 @@ export default {
       this.newAppConfig = newConfig;
     },
     saveFromEditor(changesToSave) {
+      this.dirty = true;
+
       this.newAppConfig = changesToSave;
       this.saveToDatabase(changesToSave);
-
-      this.switchView("editor");
+      this.switchView("ui");
     },
     saveLandingpage(changesToSave) {
       this.newAppConfig = changesToSave;
@@ -306,7 +338,7 @@ export default {
       return this.settingsStore.configUpdateStatus;
     },
     showNotification() {
-      return this.settingsStore.configUpdateStatus !== 0 && !this.statusClosed;
+      return this.configUpdateStatus > 0 && !this.statusClosed;
     },
     currentConfig() {
       return this.newAppConfig || this.appConfig;
@@ -343,6 +375,11 @@ export default {
 </script>
 
 <style scoped>
+.top-notification {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .code-help {
   margin-top: 4rem;
 }
