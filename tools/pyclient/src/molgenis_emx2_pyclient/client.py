@@ -82,6 +82,7 @@ class Client:
             print(f"Unable to sign into {self.url} as {username}")
             self.signin_status = 'failed'
 
+        self.username = username
         self.schemas = self.list_schemas()
 
     def sign_out(self):
@@ -98,6 +99,17 @@ class Client:
         else:
             print(f"Unable to sign out of {self.url}.")
             print(message)
+            
+    def status(self):
+        """View client information"""
+        schemas = '\n\t'.join(self.schemas)
+        message = (
+          f"Host: {self.url}\n"
+          f"User: {self.username}\n"
+          f"Status: {'Signed in' if self.signin_status == 'success' else 'Logged out'}\n"
+          f"Schemas: \n\t{schemas}\n"
+        )
+        print(message)
 
     def list_schemas(self):
         """List the databases present on the server."""

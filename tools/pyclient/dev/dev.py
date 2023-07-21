@@ -2,12 +2,11 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo
 # CREATED: 2023-05-22
-# MODIFIED: 2023-07-20
+# MODIFIED: 2023-07-21
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
-# PACKAGES: **see below**
-# COMMENTS: Designed to interact with the PetStore schema. Runs if you `cd` into
-# the `src` directory.
+# PACKAGES: pandas
+# COMMENTS: Designed to interact with the schema "pet store".
 #///////////////////////////////////////////////////////////////////////////////
 
 import pandas as pd
@@ -16,8 +15,10 @@ from tools.pyclient.src.molgenis_emx2_pyclient import Client
 
 # connect and sign in
 db = Client('https://emx2.dev.molgenis.org/')
-db.sign_in('admin', 'admin')
+db.sign_in('', '')
 
+# check status
+db.status()
 
 # get data
 data = db.get(schema='', table='') # run without specifying target
@@ -25,7 +26,7 @@ data = db.get(schema = 'pet store', table='') # run without specifying table
 data = db.get(schema = 'pet store', table='Pet') # get Pets
 data
 
-data = db.get(schema = 'pet store', table='Pet', asDataFrame=True) # get Pets
+data = db.get(schema = 'pet store', table='Pet', as_df=True) # get Pets
 
 #///////////////////////////////////////////////////////////////////////////////
 
