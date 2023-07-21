@@ -16,6 +16,7 @@ export default {
     enablePlugin(tagId) {
       setOptions({
         config: { id: tagId },
+        pageTrackerScreenviewEnabled: true,
       });
 
       bootstrap().then((gtag) => {
