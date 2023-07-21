@@ -44,9 +44,9 @@ def read_file(file: str):
 def parse_csv_export(content: str) -> pd.DataFrame:
     """Parses response from a csv file endpoint.
     
-    @param content: csv-string returned from the csv-file endpoint
-    @type content: string
-    @returns: list of dictionaries in dataframe format
-    @rtype: pd.DataFrame
+    :param content: csv-string returned from the csv-file endpoint
+    :type content: string
+    :returns: list of dictionaries in dataframe format
+    :rtype: pd.DataFrame
     """
     return pd.read_csv(io.StringIO(content), sep=',')
