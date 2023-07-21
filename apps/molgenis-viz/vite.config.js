@@ -59,6 +59,11 @@ export default defineConfig(({ command, mode }) => {
               globals: {
                 vue: "Vue",
               },
+              assetFileNames: (assetInfo) => {
+                if (assetInfo.name === 'style.css') {
+                  return 'molgenis-viz.css'
+                }
+              }
             }
           }
         }
