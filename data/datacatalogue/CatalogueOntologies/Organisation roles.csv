@@ -1,6 +1,6 @@
 order,name,code,parent,ontologyTermURI,definition
 1,Data holder,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029954/terms/200000029942,
 2,Data provider,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029954/terms/200000029943,
-3,Researcher,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029954/terms/200000029944,
+3,Research,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029954/terms/200000029944,
 4,Surveillance,,,,
 5,Other,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029954/terms/200000031060,
