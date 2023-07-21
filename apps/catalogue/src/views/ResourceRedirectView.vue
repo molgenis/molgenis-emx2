@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { Client } from "molgenis-components";
+import { Client, convertToPascalCase } from "molgenis-components";
 
 /** will forward from Resource to specific details view, e.g. Databanks-details, based on mg_tableclass */
 export default {
@@ -26,7 +26,7 @@ export default {
     resourceData() {
       if (this.resourceData) {
         this.$router.replace({
-          name: this.resource + "-details",
+          name: convertToPascalCase(this.resource) + "-details",
           params: { id: this.id },
         });
       }

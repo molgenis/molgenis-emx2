@@ -60,7 +60,7 @@
 
 <script setup>
 import BackgroundGradient from "./components/BackgroundGradient.vue";
-import { hash } from "./utils/fingerprint.js";
+import { hash } from ".fingerprint.js";
 const config = useRuntimeConfig();
 
 let themeFilename = "styles";
@@ -82,8 +82,8 @@ useHead({
   ],
   titleTemplate: (titleChunk) => {
     return titleChunk
-      ? `${titleChunk} | ${config.siteTitle}`
-      : `${config.siteTitle}`;
+      ? `${titleChunk} | ${config.public.siteTitle}`
+      : `${config.public.siteTitle}`;
   },
 });
 </script>

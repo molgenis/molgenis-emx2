@@ -140,6 +140,7 @@
           :modelValue="limit"
           :options="[10, 20, 50, 100]"
           :clear="false"
+          :required="true"
           @update:modelValue="setLimit($event)"
           class="mb-0"
         />
@@ -253,6 +254,7 @@
                 @add="handleRowAction('add')"
                 class="d-inline p-0"
               />
+              <slot name="rowcolheader" />
             </template>
             <template v-slot:colheader="slotProps">
               <IconAction
@@ -290,6 +292,13 @@
                     getPrimaryKey(slotProps.row, tableMetadata)
                   )
                 "
+              />
+              <!--@slot Use this to add values or actions buttons to each row -->
+              <slot
+                name="rowheader"
+                :row="slotProps.row"
+                :metadata="tableMetadata"
+                :rowkey="getPrimaryKey(slotProps.row, tableMetadata)"
               />
             </template>
           </TableMolgenis>
@@ -497,7 +506,7 @@ export default {
     },
     showLimit: {
       type: Number,
-      default: 20,
+      default: 10,
     },
     urlConditions: {
       type: Object,

@@ -82,9 +82,10 @@ RWE resources,,population coverage,text,,,,,,,,,Estimated percentage of the popu
 RWE resources,,population not covered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) ",EMA,,
 RWE resources,,quantantitative information,refback,,,,Quantitative information,,resource,,,Numerical summaries describing data bank population,EMA,,
 Data resources,,contents,heading,,,,,,,,,Data model and contents,,,
+Extended resources,,datasets,refback,,,,Datasets,,resource,,,,,,
+RWE resources,,mappings to data models,refback,,,,Dataset mappings,,source,,,overview of dataset mappings available,,,
 RWE resources,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected,EMA,Databanks,areasOfInformation
 RWE resources,,quality of life other,text,,,,,,,,,"If other, specify additional quality of life measures",EMA,,
-RWE resources,,mappings to data models,refback,,,,Dataset mappings,,source,,,overview of dataset mappings available,,,
 RWE resources,,cause of death code other,text,,,,,,,,,"If 'other,' what cause of death vocabulary is used?",EMA,,
 RWE resources,,indication vocabulary other,text,,,,,,,,,"If 'other,' what indication for use vocabulary is used?",EMA,,
 RWE resources,,genetic data vocabulary other,text,,,,,,,,,"If 'other,' what genetic data vocabulary is used?",EMA,,
@@ -109,7 +110,7 @@ Databanks,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person
 Databanks,,identifier description,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level",,Databanks,identifierDescription
 RWE resources,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are either: currently available between data sources in the data source (when pre-linked = yes); linkages that are possible when using the data source,EMA,,
 RWE resources,,linkage possibility,bool,,,,,,,,,Can this data source be linked to other data sources?,EMA,,
-RWE resources,,linked data sources,refback,,,,Linked data sources,,main datasource,,,List of databanks that are linked in this datasource,EMA,RWE resources,databanks
+RWE resources,,linked resources,refback,,,,Linked resources,,main resource,,,List of resources that are linked into this main resource,EMA,RWE resources,databanks
 Cohorts,,release type,ontology,,,CatalogueOntologies,Release types,,,,,Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis,,,
 Cohorts,,release description,text,,,,,,,,,Description of the release cycle of this resource,,,
 Cohorts,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource,,,
@@ -220,15 +221,15 @@ Resource organisations,,is data access provider,ontology_array,,,CatalogueOntolo
 Resource organisations,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",,DAPs,populationSubsetOther
 Resource organisations,,reason access other,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source",,DAPs,reasonAccessOther
 Resource organisations,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",,,processTime
-Linked data sources,,,,,,,,,,,,Links between datasource and databank,EMA,,
-Linked data sources,,main datasource,ref,1,,,RWE resources,,,,,,EMA,DatasourceDatabanks,datasource
-Linked data sources,,linked datasource,ref,1,,,RWE resources,,,,,,EMA,DatasourceDatabanks,databank
-Linked data sources,,other linked data source,text,,,,,,,,,"If other linked data source, enter the name of the data source",EMA,,
-Linked data sources,,linkage strategy,ontology,,,CatalogueOntologies,Linkage strategies,,,,,The linkage method that was used to link data banks. One entry per data bank,EMA,DatasourceDatabanks,linkageStrategy
-Linked data sources,,linkage variable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank",EMA,DatasourceDatabanks,linkageVariable
-Linked data sources,,linkage variable unique,bool,,,,,,,,,"If a single variable is used to link a data bank to others, is the variable a unique identifier? One entry per data bank",,DatasourceDatabanks,linkageVariableUnique
-Linked data sources,,linkage completeness,text,,,,,,,,,Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words),EMA,DatasourceDatabanks,linkageCompleteness
-Linked data sources,,pre linked,bool,,,,,,,,,Does the data source constitute of linked data sources?,EMA,,
+Linked resources,,,,,,,,,,,,Links between datasource and databank,EMA,,
+Linked resources,,main resource,ref,1,,,RWE resources,,,,,,EMA,DatasourceDatabanks,datasource
+Linked resources,,linked resource,ref,1,,,RWE resources,,,,,,EMA,DatasourceDatabanks,databank
+Linked resources,,other linked resource,text,,,,,,,,,"If other linked data source, enter the name of the data source",EMA,,
+Linked resources,,linkage strategy,ontology,,,CatalogueOntologies,Linkage strategies,,,,,The linkage method that was used to link data banks. One entry per data bank,EMA,DatasourceDatabanks,linkageStrategy
+Linked resources,,linkage variable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank",EMA,DatasourceDatabanks,linkageVariable
+Linked resources,,linkage variable unique,bool,,,,,,,,,"If a single variable is used to link a data bank to others, is the variable a unique identifier? One entry per data bank",,DatasourceDatabanks,linkageVariableUnique
+Linked resources,,linkage completeness,text,,,,,,,,,Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words),EMA,DatasourceDatabanks,linkageCompleteness
+Linked resources,,pre linked,bool,,,,,,,,,Does the data source constitute of linked data sources?,EMA,,
 Quantitative information,,,,,,,,,,,,Quantitative information on the resource,EMA,,
 Quantitative information,,resource,ref,1,,,Extended resources,,,,,,EMA,PopulationSizes,databank
 Quantitative information,,age group,ontology,1,,CatalogueOntologies,Age groups,,,,,Select the relevant age group for this quantitative information,EMA,PopulationSizes,ageband
@@ -277,7 +278,6 @@ Networks,,databanks,ref_array,,,,Databanks,,,,,,,,
 Networks,,cohorts,ref_array,,,,Cohorts,,,,,,,,
 Networks,,models,ref_array,,,,Models,,,,,The common data model(s) used by this network,,,
 Networks,,studies,refback,,,,Studies,,networks,,,,EMA,,
-Extended resources,,datasets,refback,,,,Datasets,,resource,,,,,,
 Studies,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements,EMA,,
 Studies,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only",EMA,,
 Studies,,date of signing funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned",EMA,,

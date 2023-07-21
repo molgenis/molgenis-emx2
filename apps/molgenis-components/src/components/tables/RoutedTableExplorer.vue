@@ -22,7 +22,19 @@
       :showOrder="getOrder()"
       :locale="locale"
       @rowClick="$emit('rowClick', $event)"
-    />
+    >
+      <template v-slot:rowcolheader>
+        <slot name="rowcolheader" />
+      </template>
+      <template v-slot:rowheader="slotProps">
+        <slot
+          name="rowheader"
+          :row="slotProps.row"
+          :metadata="slotProps.metadata"
+          :rowkey="slotProps.rowkey"
+        />
+      </template>
+    </TableExplorer>
   </div>
 </template>
 

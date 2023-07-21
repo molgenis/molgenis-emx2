@@ -40,7 +40,6 @@
 <style scoped>
 .modal {
   height: 100%;
-  overflow: scroll;
   background-color: rgba(205, 205, 205, 0.5);
   max-width: 100vw;
 }

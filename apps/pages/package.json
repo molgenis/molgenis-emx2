@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "vite lint",
-    "format": "prettier src  --write --config ../.prettierrc.js"
+    "format": "prettier src  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "dependencies": {
     "@vueup/vue-quill": "^1.0.0",
@@ -17,8 +18,8 @@
     "vue-router": "4.1.6"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.2.1",
-    "vite": "4.1.4",
+    "@vitejs/plugin-vue": "4.2.3",
+    "vite": "4.3.9",
     "prettier": "2.8.8"
   },
   "browserslist": [

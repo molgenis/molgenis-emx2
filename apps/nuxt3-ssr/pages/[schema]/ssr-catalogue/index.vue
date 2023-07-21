@@ -9,6 +9,9 @@ const { data, pending, error, refresh } = await useFetch(
     method: "POST",
     body: {
       query: `{
+        Variables_agg {
+          count
+        }
         Cohorts_agg { 
           count
           sum {
@@ -16,13 +19,37 @@ const { data, pending, error, refresh } = await useFetch(
             numberOfParticipantsWithSamples 
           }
         }
+        Subcohorts_agg {
+          count
+        }
+        Networks_agg { 
+          count
+        }
         Cohorts_groupBy {
           count 
           design {
             name
           }
         }
-        _settings (keys: ["NOTICE_SETTING_KEY" "CATALOGUE_LANDING_TITLE" "CATALOGUE_LANDING_DESCRIPTION"]){ 
+        _settings (keys: [
+          "NOTICE_SETTING_KEY"
+          "CATALOGUE_LANDING_TITLE" 
+          "CATALOGUE_LANDING_DESCRIPTION" 
+          "CATALOGUE_LANDING_COHORTS_CTA"
+          "CATALOGUE_LANDING_COHORTS_TEXT"
+          "CATALOGUE_LANDING_NETWORKS_CTA"
+          "CATALOGUE_LANDING_NETWORKS_TEXT"
+          "CATALOGUE_LANDING_VARIABLES_CTA"
+          "CATALOGUE_LANDING_VARIABLES_TEXT"
+          "CATALOGUE_LANDING_PARTICIPANTS_LABEL"
+          "CATALOGUE_LANDING_PARTICIPANTS_TEXT"
+          "CATALOGUE_LANDING_SAMPLES_LABEL"
+          "CATALOGUE_LANDING_SAMPLES_TEXT"
+          "CATALOGUE_LANDING_DESIGN_LABEL"
+          "CATALOGUE_LANDING_DESIGN_TEXT"
+          "CATALOGUE_LANDING_SUBCOHORTS_LABEL"
+          "CATALOGUE_LANDING_SUBCOHORTS_TEXT"
+        ]){ 
           key
           value 
         }
@@ -53,7 +80,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 <template>
   <LayoutsLandingPage class="w-10/12 pt-8">
     <PageHeader
-      class="mx-auto lg:w-7/12"
+      class="mx-auto lg:w-7/12 text-center"
       :title="
         getSettingValue('CATALOGUE_LANDING_TITLE', data.data._settings) ||
         'European Networks Health Data & Cohort Catalogue.'
@@ -65,13 +92,58 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     ></PageHeader>
 
     <div
-      class="bg-white shadow-primary justify-around flex flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0"
+      class="bg-white relative justify-around flex flex-col md:flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0 rounded-t-3px rounded-b-landing shadow-primary"
     >
       <LandingCardPrimary
+        image="image-link"
         title="Cohorts"
-        description="A complete overview of all cohorts and biobanks within the UMCG."
+        :description="
+          getSettingValue(
+            'CATALOGUE_LANDING_COHORTS_TEXT',
+            data.data._settings
+          ) || 'A complete overview of all cohorts and biobanks.'
+        "
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
+        "
         :count="data.data.Cohorts_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
+      />
+      <LandingCardPrimary
+        v-if="!config.public.cohortOnly"
+        image="image-diagram"
+        title="Networks"
+        :description="
+          getSettingValue(
+            'CATALOGUE_LANDING_NETWORKS_TEXT',
+            data.data._settings
+          ) ||
+          'Collaborations of multiple institutions and/or cohorts with a common objective.'
+        "
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', data.data._settings)
+        "
+        :count="data.data.Networks_agg.count"
+        :link="`/${route.params.schema}/ssr-catalogue/networks/`"
+      />
+      <LandingCardPrimary
+        v-if="!config.public.cohortOnly"
+        image="image-diagram-2"
+        title="Variables"
+        :description="
+          getSettingValue(
+            'CATALOGUE_LANDING_VARIABLES_TEXT',
+            data.data._settings
+          ) || 'A complete overview of available variables.'
+        "
+        :callToAction="
+          getSettingValue(
+            'CATALOGUE_LANDING_VARIABLES_CTA',
+            data.data._settings
+          )
+        "
+        :count="data.data.Variables_agg.count"
+        :link="`/${route.params.schema}/ssr-catalogue/variables/`"
       />
     </div>
 
@@ -79,32 +151,91 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
       class="justify-around flex flex-col md:flex-row pt-5 pb-5 lg:pb-10 lg:px-0"
     >
       <LandingCardSecondary icon="people">
-        <b> {{ data.data.Cohorts_agg.sum.numberOfParticipants }} Participants</b
-        ><br />The cumulative number of participants of all datasets combined.
+        <b>
+          {{
+            new Intl.NumberFormat("nl-NL").format(
+              data.data.Cohorts_agg.sum.numberOfParticipants
+            )
+          }}
+          {{
+            getSettingValue(
+              "CATALOGUE_LANDING_PARTICIPANTS_LABEL",
+              data.data._settings
+            ) || "Participants"
+          }}
+        </b>
+        <br />{{
+          getSettingValue(
+            "CATALOGUE_LANDING_PARTICIPANTS_TEXT",
+            data.data._settings
+          ) ||
+          "The cumulative number of participants of all (sub)cohorts combined."
+        }}
       </LandingCardSecondary>
 
       <LandingCardSecondary icon="colorize">
         <b
           >{{
-            data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
+            new Intl.NumberFormat("nl-NL").format(
+              data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
+            )
           }}
-          Samples</b
+          {{
+            getSettingValue(
+              "CATALOGUE_LANDING_SAMPLES_LABEL",
+              data.data._settings
+            ) || "Samples"
+          }}</b
         >
-        <br />The cumulative number of participants with samples collected of
-        all datasets combined.
+        <br />{{
+          getSettingValue(
+            "CATALOGUE_LANDING_SAMPLES_TEXT",
+            data.data._settings
+          ) ||
+          "The cumulative number of participants with samples collected of all (sub)cohorts combined"
+        }}
       </LandingCardSecondary>
 
       <LandingCardSecondary icon="schedule">
         <b
-          >Longitudinal
+          >{{
+            getSettingValue(
+              "CATALOGUE_LANDING_DESIGN_LABEL",
+              data.data._settings
+            ) || "Longitudinal"
+          }}
           {{
             percentageLongitudinal(
               data.data.Cohorts_groupBy,
               data.data.Cohorts_agg.count
             )
           }}%</b
-        ><br />Percentage of longitudinal datasets. The remaining datasets are
+        ><br />{{
+          getSettingValue(
+            "CATALOGUE_LANDING_DESIGN_TEXT",
+            data.data._settings
+          ) || "Percentage of longitudinal datasets. The remaining datasets are"
+        }}
         cross-sectional.
+      </LandingCardSecondary>
+
+      <LandingCardSecondary icon="viewTable">
+        <b>
+          {{ data.data.Subcohorts_agg.count }}
+          {{
+            getSettingValue(
+              "CATALOGUE_LANDING_SUBCOHORTS_LABEL",
+              data.data._settings
+            ) || "Subcohorts"
+          }}
+        </b>
+        <br />
+        {{
+          getSettingValue(
+            "CATALOGUE_LANDING_SUBCOHORTS_TEXT",
+            data.data._settings
+          ) || "The total number of subcohorts included"
+        }}
       </LandingCardSecondary>
     </div>
   </LayoutsLandingPage>

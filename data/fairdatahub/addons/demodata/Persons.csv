@@ -1,0 +1,3 @@
+identifier,fullName,alternativeIdentifier,firstName,middleInitials,lastName,email,primaryOrganisation
+Person01,John Michael Doe,JMD1,John,M,Doe,john@doe.org,UMCG
+MinPerson02,,,,,,,

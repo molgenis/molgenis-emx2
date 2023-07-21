@@ -2,6 +2,7 @@ import { IColumn } from "../Interfaces/IColumn";
 import { IRow } from "../Interfaces/IRow";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
 import constants from "./constants";
+import Client from "../client/client";
 
 const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } =
   constants;
@@ -58,6 +59,52 @@ export function getPrimaryKey(
       },
       {}
     );
+  }
+}
+
+export async function convertRowToPrimaryKey(
+  row: IRow,
+  tableName: string,
+  schemaName: string
+): Promise<Record<string, any>> {
+  const client = Client.newClient(schemaName);
+  const tableMetadata = await client.fetchTableMetaData(tableName);
+  if (!tableMetadata?.columns) {
+    throw new Error("Empty columns in metadata");
+  } else {
+    return await tableMetadata.columns.reduce(
+      async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
+        let accum: IRow = await accumPromise;
+        const cellValue = row[column.id];
+        if (column.key === 1 && cellValue) {
+          accum[column.id] = await getKeyValue(
+            cellValue,
+            column,
+            column.refSchema || schemaName
+          );
+        }
+        return accum;
+      },
+      Promise.resolve({})
+    );
+  }
+}
+
+async function getKeyValue(
+  cellValue: any,
+  column: IColumn,
+  schemaName: string
+) {
+  if (typeof cellValue === "string") {
+    return cellValue;
+  } else {
+    if (column.refTable) {
+      return await convertRowToPrimaryKey(
+        cellValue,
+        column.refTable,
+        schemaName
+      );
+    }
   }
 }
 
@@ -142,7 +189,7 @@ export function convertToPascalCase(string: string): string {
 
 export function getLocalizedLabel(
   tableOrColumnMetadata: ITableMetaData | IColumn,
-  locale: string | undefined
+  locale?: string
 ): string {
   let label;
   if (tableOrColumnMetadata?.labels) {
@@ -184,15 +231,29 @@ export function applyJsTemplate(
     // @ts-ignore
     return new Function(...names, "return `" + labelTemplate + "`;")(...vals);
   } catch (err: any) {
-    return (
+    // The template is not working, lets try and fail gracefully
+    console.log(
       err.message +
-      " we got keys:" +
-      JSON.stringify(names) +
-      " vals:" +
-      JSON.stringify(vals) +
-      " and template: " +
-      labelTemplate
+        " we got keys:" +
+        JSON.stringify(names) +
+        " vals:" +
+        JSON.stringify(vals) +
+        " and template: " +
+        labelTemplate
     );
+
+    if (object.hasOwnProperty("primaryKey")) {
+      return flattenObject(object.primaryKey);
+    }
+
+    if (object.hasOwnProperty("name")) {
+      return object.name;
+    }
+
+    if (object.hasOwnProperty("id")) {
+      return object.id;
+    }
+    return flattenObject(object);
   }
 }
 

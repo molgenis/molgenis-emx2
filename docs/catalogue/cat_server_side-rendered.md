@@ -40,9 +40,67 @@ Description text or subtitle shown on
 "Browse and manage metadata for data resources, such as cohorts, registries, biobanks, and multi-center collaborations thereof such as networks, common data models and studies."
 
 
+### Landing page cta (call to action) labels
+
+#### keys
+```CATALOGUE_LANDING_COHORTS_CTA```
+
+```CATALOGUE_LANDING_NETWORKS_CTA```
+
+```CATALOGUE_LANDING_VARIABLES_CTA```
 
 
+#### description
+The label shown on landing CTA element for each of the main sections
 
+#### default
+"Cohorts", "Networks", "Variables" 
+
+### Landing page primary cards  text
+
+#### keys
+```CATALOGUE_LANDING_COHORTS_TEXT```
+
+```CATALOGUE_LANDING_NETWORKS_TEXT```
+
+```CATALOGUE_LANDING_VARIABLES_TEXT```
+
+#### default
+- CATALOGUE_LANDING_COHORTS_TEXT: *A complete overview of all cohorts and biobanks.*
+- CATALOGUE_LANDING_NETWORKS_TEXT: *Collaborations of multiple institutions and/or cohorts with a common objective.*
+- CATALOGUE_LANDING_VARIABLES_TEXT: *A complete overview of available variables.*
+
+### Landing page info cards (secondary landing card) labels and text
+
+#### keys
+```CATALOGUE_LANDING_PARTICIPANTS_LABEL```
+
+```CATALOGUE_LANDING_PARTICIPANTS_TEXT```
+
+```CATALOGUE_LANDING_SAMPLES_LABEL```
+
+```CATALOGUE_LANDING_SAMPLES_TEXT```
+
+```CATALOGUE_LANDING_DESIGN_LABEL```
+
+```CATALOGUE_LANDING_DESIGN_TEXT```
+
+```CATALOGUE_LANDING_SUBCOHORTS_LABEL```
+
+```CATALOGUE_LANDING_SUBCOHORTS_TEXT```
+
+
+#### default
+- CATALOGUE_LANDING_PARTICIPANTS_LABEL: *Participants*
+- CATALOGUE_LANDING_PARTICIPANTS_TEXT: *The cumulative number of participants of all datasets combined.*
+- CATALOGUE_LANDING_SAMPLES_LABEL: *Samples*
+- CATALOGUE_LANDING_SAMPLES_TEXT: *The cumulative number of participants with samples collected of
+        all datasets combined.*
+- CATALOGUE_LANDING_DESIGN_LABEL: *Longitudinal*
+- CATALOGUE_LANDING_DESIGN_TEXT: *Percentage of longitudinal datasets. The remaining datasets are
+        cross-sectional*
+- CATALOGUE_LANDING_SUBCOHORTS_LABEL: *Subcohorts*
+- CATALOGUE_LANDING_SUBCOHORTS_TEXT: *The total number of subcohorts included*
 
 
 

@@ -1,6 +1,6 @@
 <script setup>
 import BackgroundGradient from "./components/BackgroundGradient.vue";
-import { hash } from "./utils/fingerprint.js";
+import { hash } from ".fingerprint.js";
 
 defineProps(["error"]);
 
@@ -19,8 +19,8 @@ useHead({
   link: [{ rel: "stylesheet", type: "text/css", href: styleHref }],
   titleTemplate: (titleChunk) => {
     return titleChunk
-      ? `${titleChunk} | ${config.siteTitle}`
-      : `${config.siteTitle}`;
+      ? `${titleChunk} | ${config.public.siteTitle}`
+      : `${config.public.siteTitle}`;
   },
 });
 </script>

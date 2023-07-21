@@ -10,8 +10,8 @@ public class FAIRDataHubLoader extends AbstractDataLoader {
 
     // create Beacon v2 + FAIR Data Point schema (which will create tables in ontology schema)
     createSchema(schema, "fairdatahub/beaconv2/molgenis.csv");
-    createSchema(schema, "fairdatahub/fairdatapoint/molgenis.csv");
     createSchema(schema, "fairdatahub/addons/molgenis.csv");
+    createSchema(schema, "fairdatahub/fairdatapoint/molgenis.csv");
 
     // load ontologies
     MolgenisIO.fromClasspathDirectory("fairdatahub/ontologies", schema, false);
