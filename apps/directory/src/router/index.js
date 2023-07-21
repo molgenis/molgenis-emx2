@@ -4,6 +4,7 @@ import AboutView from "../views/AboutView.vue";
 import Landingpage from "../views/Landingpage.vue";
 import BiobankReport from "../views/BiobankReport.vue";
 import NetworkReport from "../views/NetworkReport.vue";
+import ConfigurationScreen from "../views/ConfigurationScreen.vue";
 import { useSettingsStore } from "../stores/settingsStore";
 
 const router = createRouter({
@@ -35,9 +36,10 @@ const router = createRouter({
     { path: "/network/:id", name: "networkdetails", component: NetworkReport },
     {
       path: "/configuration",
-      component: () => import("../views/ConfigurationScreen.vue"),
-      beforeEnter: (to, from, next) => {
+      component: ConfigurationScreen,
+      beforeEnter: async (to, from, next) => {
         const settingsStore = useSettingsStore();
+        await settingsStore.initializeConfig();
         if (settingsStore.showSettings) {
           next();
         } else next("/");
