@@ -35,13 +35,9 @@ const router = createRouter({
     { path: "/network/:id", name: "networkdetails", component: NetworkReport },
     {
       path: "/configuration",
-      component: () =>
-        import(
-          /* webpackChunkName: "configuration-screen" */ "../views/ConfigurationScreen.vue"
-        ),
+      component: () => import("../views/ConfigurationScreen.vue"),
       beforeEnter: (to, from, next) => {
         const settingsStore = useSettingsStore();
-        console.log(settingsStore.showSettings, '<< debugline')
         if (settingsStore.showSettings) {
           next();
         } else next("/");
