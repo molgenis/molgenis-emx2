@@ -13,6 +13,7 @@
     "nuxt3-ssr",
     "molgenis-components",
     "molgenis-viz",
+    "ern-reconnet",
     "helloworld",
     "reports",
     "tasks",
