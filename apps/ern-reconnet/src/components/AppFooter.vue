@@ -20,15 +20,6 @@
         </div>
         <div class="footer-column footer-links">
           <p><strong>For Members</strong></p>
-          <UnorderedList listType="none">
-            <li>
-              <button class="toggle" @click="updateShowSigninForm">
-                <span>Sign in</span>
-              </button>
-              <MolgenisSignin v-if="showSigninForm" @cancel="updateShowSigninForm"/>
-            </li>
-            <!-- more links here -->
-          </UnorderedList>
         </div>
         <div class="footer-column footer-logos">
           <UnorderedList listType="none">
@@ -70,21 +61,10 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { MolgenisSignin } from "molgenis-components";
 import { PageFooter, UnorderedList } from "molgenis-viz";
-
 import ErnLogo from "../assets/ern-reconnet-logo.png";
 import MolgenisLogo from "../assets/molgenis-logo-blue-text.png";
 import FundingLogo from "../assets/ern-funded-by-eu.svg";
-
-let showSigninForm = ref(false);
-
-function updateShowSigninForm() {
-  showSigninForm.value = !showSigninForm.value
-}
-
-
 </script>
 
 <style lang="scss">
