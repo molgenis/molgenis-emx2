@@ -35,7 +35,7 @@
 34,Clinical data,,,,
 35,Disease data,,Does the data source collect information on a specific disease?,Clinical data,
 36,Diagnostic codes included,,"Is information on diagnostic codes or medical events included, select all vocabulary items that apply",Clinical data,
-37,Diagnostic codes vocabulary,,,,
+37,Diagnostic codes vocabulary,,,Clinical data,
 38,Diagnostic codes vocabulary: ICD-9,ICD-9,,Diagnostic codes vocabulary,
 39,Diagnostic codes vocabulary: ICD-10,ICD-10,,Diagnostic codes vocabulary,
 40,Diagnostic codes vocabulary: ICD,ICD,,Diagnostic codes vocabulary,
