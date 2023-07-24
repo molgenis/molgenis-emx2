@@ -33,7 +33,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   let filterFacets = ref({});
   const facetDetailsDictionary = ref({});
 
-  let filtersReadyToRender = ref(false)
+  let filtersReadyToRender = ref(false);
 
   watch(
     () => settingsStore.configurationFetched,
@@ -44,7 +44,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   );
 
   const facetDetails = computed(() => {
-    if (!Object.keys(facetDetailsDictionary.value).length && settingsStore.configurationFetched)
+    if (
+      !Object.keys(facetDetailsDictionary.value).length &&
+      settingsStore.configurationFetched
+    )
       /** extract the components types so we can use that in adding the correct query parts */
       filterFacets.value.forEach((filterFacet) => {
         facetDetailsDictionary.value[filterFacet.facetIdentifier] = {
@@ -271,8 +274,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       const filterOptionsToAdd = value.filter(
         (newValue) => !existingValues.includes(newValue.name)
       );
-      filters.value[filterName] =
-        filters.value[filterName].concat(filterOptionsToAdd);
+      filters.value[filterName] = filters.value[filterName].concat(
+        filterOptionsToAdd
+      );
     } else {
       filters.value[filterName] = value;
     }
@@ -423,6 +427,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filtersReady,
     bookmarkWaitingForApplication,
     filterTriggeredBookmark,
-    filtersReadyToRender
+    filtersReadyToRender,
   };
 });

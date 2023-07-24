@@ -22,7 +22,7 @@
 
 <script>
 import * as monaco from "monaco-editor";
-import { toRaw } from 'vue';
+import { toRaw } from "vue";
 
 export default {
   props: {
@@ -42,7 +42,9 @@ export default {
   },
   methods: {
     save() {
-      const changesToSave = toRaw(this.diffEditor).getModifiedEditor().getValue();
+      const changesToSave = toRaw(this.diffEditor)
+        .getModifiedEditor()
+        .getValue();
       this.$emit("save", changesToSave);
     },
     cancel() {

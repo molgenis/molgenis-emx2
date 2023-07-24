@@ -117,7 +117,7 @@
     <!-- Advanced Editor -->
     <json-editor
       :config="currentConfig"
-      @dirty="(d) => dirty = d"
+      @dirty="(d) => (dirty = d)"
       @save="saveFromEditor"
       @cancel="cancel"
       @diff="showDiffEditor"
@@ -257,8 +257,8 @@ export default {
       this.newAppConfig = changesToSave;
       this.saveToDatabase(changesToSave);
 
-      if(editor && editor === 'diff') {
-        this.switchView("editor")
+      if (editor && editor === "diff") {
+        this.switchView("editor");
       }
     },
     saveLandingpage(changesToSave) {
@@ -293,8 +293,9 @@ export default {
       this.dirty = true;
       const filterCount = this.currentFilterConfig.filterFacets.length;
 
-      const newConfig =
-        this.currentFilterConfig.filterFacets.push(filterTemplate);
+      const newConfig = this.currentFilterConfig.filterFacets.push(
+        filterTemplate
+      );
       this.newAppConfig = JSON.stringify(newConfig);
       this.filterIndex = filterCount;
     },

@@ -73,8 +73,7 @@ export function createFilters(filters) {
         facet.negotiatorRequestString /** the part that will be send to the negotiator as to indicate what it is */,
       builtIn:
         facet.builtIn /** if this filter should be ignored for dropdown filters generation */,
-      showFacet:
-        facet.showFacet/** if this filter should be shown at all */,
+      showFacet: facet.showFacet /** if this filter should be shown at all */,
       adaptive:
         facet.adaptive ||
         false /** if the filters options should react on search results */,
