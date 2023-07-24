@@ -5,7 +5,7 @@
       <div class="d-flex justify-content-between flex-wrap">
         <small class="d-inline-block"
           >Rearrange the filters by dragging and dropping. Unchecking a filter
-          means it will be shown under <i>More filters</i> by default.</small
+          means it will hidden.</small
         >
         <button @click="emitAdd" class="btn btn-info mt-2">
           Add new filter

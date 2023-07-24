@@ -74,7 +74,7 @@ export function createFilters(filters) {
       builtIn:
         facet.builtIn /** if this filter should be ignored for dropdown filters generation */,
       showFacet:
-        facet.showFacet || true /** if this filter should be shown at all */,
+        facet.showFacet/** if this filter should be shown at all */,
       adaptive:
         facet.adaptive ||
         false /** if the filters options should react on search results */,
