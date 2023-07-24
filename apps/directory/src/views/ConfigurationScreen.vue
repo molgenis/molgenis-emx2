@@ -63,7 +63,7 @@
 
     <a href="" ref="download" class="hidden"></a>
 
-    <div v-if="editorType === 'ui'" class="row px-5 pb-3">
+    <div v-if="editorType === 'ui'" class="row px-5 pb-3" :key="filterIndex">
       <div class="col-6">
         <FilterConfigUI
           :config="currentConfig"
@@ -237,12 +237,6 @@ export default {
       this.saveToDatabase(changesToSave);
       this.filterIndex = -1;
     },
-    deleteFilter() {
-      const newConfig = this.copyConfig();
-      newConfig.filterFacets.splice(this.filterIndex, 1);
-      this.filterIndex = -1;
-      this.saveToDatabase(newConfig);
-    },
     save() {
       this.statusClosed = false;
       this.saveToDatabase(this.newAppConfig);
@@ -291,13 +285,18 @@ export default {
     },
     addFilter() {
       this.dirty = true;
-      const filterCount = this.currentFilterConfig.filterFacets.length;
+      const config = JSON.parse(this.currentConfig);
 
-      const newConfig = this.currentFilterConfig.filterFacets.push(
-        filterTemplate
-      );
+      config.filterFacets.unshift(filterTemplate);
+      this.newAppConfig = JSON.stringify(config);
+      this.filterIndex = 0;
+    },
+    deleteFilter() {
+      const newConfig = JSON.parse(this.currentConfig);
+      newConfig.filterFacets.splice(this.filterIndex, 1);
       this.newAppConfig = JSON.stringify(newConfig);
-      this.filterIndex = filterCount;
+      this.filterIndex = -1;
+      this.saveToDatabase(newConfig);
     },
   },
   computed: {

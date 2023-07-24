@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <div class="row filterbar p-2">
+    <div class="row filterbar p-2" v-if="filtersReady">
       <ButtonDropdown
         :id="filter.facetIdentifier"
         v-for="filter in filtersToRender"
@@ -110,6 +110,9 @@ export default {
     },
     showSettings() {
       return this.settingsStore.showSettings;
+    },
+    filtersReady() {
+      return this.filtersStore.filtersReadyToRender;
     },
   },
   methods: {
