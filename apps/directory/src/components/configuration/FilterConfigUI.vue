@@ -126,6 +126,7 @@ export default {
       this.$emit("edit", index);
     },
     emitAdd() {
+      this.filterIndex = -1;
       this.$emit("add");
     },
   },

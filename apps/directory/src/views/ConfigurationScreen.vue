@@ -284,7 +284,6 @@ export default {
       this.filterIndex = newIndex;
     },
     addFilter() {
-      this.filterIndex = -1;
       this.dirty = true;
       const config = JSON.parse(this.currentConfig);
 
