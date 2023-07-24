@@ -63,7 +63,7 @@ const initialLandingpage = {
   css: {
     pageHeader: {
       backgroundStyle:
-        'background: url("https://pixabay.com/illustrations/bacteria-illness-virus-infection-163711/");background-size: cover;height: 30rem;width: 75%;border-radius: 1rem; color: #fff;text-align: center;',
+        'background: url("https://github.com/molgenis/molgenis-app-biobank-explorer/blob/master/public/img/bacteria.jpg?raw=true");background-size: cover;height: 30rem;width: 75%;border-radius: 1rem; color: #fff;text-align: center;',
       linkStyle: "color: #fff;",
     },
     searchBar: {
@@ -80,7 +80,7 @@ const initialLandingpage = {
     },
     biobankSpotlight: {
       backgroundStyle:
-        "background: url('https://www.pexels.com/photo/close-up-of-microscope-256262/');background-size: cover;height: 30rem;width: 50%;border-radius: 1rem; color: #fff;",
+        "background: url('https://github.com/molgenis/molgenis-app-biobank-explorer/blob/1ac7a9f26e28e4d19a7e1ca6bab1e549188ea803/public/img/microscope.jpg?raw=true');background-size: cover;height: 30rem;width: 50%;border-radius: 1rem; color: #fff;",
       buttonClasses: "btn-primary",
       buttonStyle: "",
     },
