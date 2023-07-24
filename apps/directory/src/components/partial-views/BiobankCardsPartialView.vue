@@ -70,16 +70,18 @@ export default {
   watch: {
     biobanksShown() {
       this.calculateCardWidth();
-    }
+    },
   },
   methods: {
     calculateCardWidth() {
-      const mainView =
-        document.getElementsByClassName("main-view")[0].clientWidth;
+      const mainviewElements = document.getElementsByClassName("main-view");
+
+      if (!mainviewElements || !mainviewElements.length) return;
+
+      const mainView = mainviewElements[0].clientWidth;
 
       if (this.biobanksShown.length === 1) {
         this.cardWidth = mainView;
-
       } else {
         const cardWidthPixels = 25 * 16;
 
