@@ -32,7 +32,7 @@
             >Rearranging this has no effect in the application.</small
           >
           <label v-if="!element.builtIn" class="ml-auto"
-            ><input type="checkbox" @change="sync"
+            ><input type="checkbox" :checked="element.showFacet" @change="(e) => updateVisibility(e, element.index)"
           /></label>
           <button
             v-if="!element.builtIn"
@@ -100,6 +100,10 @@ export default {
 
         this.appConfig = appConfig;
       }
+    },
+    updateVisibility(event, filterIndex) {
+      this.appConfig.filterFacets[filterIndex].showFacet = event.target.checked;
+       this.$emit("update", JSON.stringify(this.appConfig));
     },
     sync() {
       this.appConfig.filterFacets.forEach((element, index) => {

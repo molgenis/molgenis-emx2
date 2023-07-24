@@ -17,6 +17,8 @@ export const useSettingsStore = defineStore("settingsStore", () => {
 
   const currentPage = ref(1);
 
+  let configurationFetched = ref(false);
+
   let config = ref({
     language: "en",
     graphqlEndpoint: "graphql",
@@ -45,6 +47,8 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     if (savedDirectoryConfig && savedDirectoryConfig.value) {
       config.value = JSON.parse(decodeURI(savedDirectoryConfig.value));
     }
+
+    configurationFetched.value = true;
   }
 
   /** for when user logs-in / out */
@@ -80,6 +84,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
 
   return {
     config,
+    configurationFetched,
     currentPage,
     initializeConfig,
     UpdateConfig,

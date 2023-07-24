@@ -91,6 +91,8 @@ export default {
       return this.filtersStore.hasActiveFilters;
     },
     filtersToRender() {
+      if (!this.filtersStore.filtersReadyToRender) return [];
+
       return this.filtersStore.filterFacets.filter(
         (filterFacet) =>
           filterFacet.showFacet &&
@@ -99,6 +101,8 @@ export default {
       );
     },
     toggleFiltersToRender() {
+      if (!this.filtersStore.filtersReadyToRender) return [];
+
       return this.filtersStore.filterFacets.filter(
         (filterFacet) =>
           filterFacet.showFacet && filterFacet.component === "ToggleFilter"

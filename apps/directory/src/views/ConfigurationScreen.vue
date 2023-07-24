@@ -25,35 +25,35 @@
       >
         Landingpage
       </button>
-    </nav>
 
-    <div class="top-notification">
-      <div v-show="showNotification">
-        <div
-          v-if="configUpdateStatus === 204"
-          class="alert alert-success m-0 mr-3"
-          role="alert"
-          @click="statusClosed = true"
-        >
-          <span>Configuration saved!</span>
-        </div>
-        <div
-          v-else
-          class="alert alert-warning m-0"
-          role="alert"
-          @click="statusClosed = true"
-        >
-          <span
-            >We could not save the configuration, make sure you are logged in
-            with sufficient rights.</span
+      <div class="top-notification ml-auto">
+        <div v-show="showNotification">
+          <div
+            v-if="configUpdateStatus === 204"
+            class="alert alert-success m-0 mr-3"
+            role="alert"
+            @click="statusClosed = true"
           >
+            <span>Configuration saved!</span>
+          </div>
+          <div
+            v-else
+            class="alert alert-warning m-0"
+            role="alert"
+            @click="statusClosed = true"
+          >
+            <span
+              >We could not save the configuration, make sure you are logged in
+              with sufficient rights.</span
+            >
+          </div>
+        </div>
+
+        <div v-if="dirty" class="alert alert-warning m-0" role="alert">
+          <span>You have unsaved changes</span>
         </div>
       </div>
-
-      <div v-if="dirty" class="alert alert-warning m-0" role="alert">
-        <span>You have unsaved changes</span>
-      </div>
-    </div>
+    </nav>
 
     <div class="row">
       <div v-if="jsonError" class="alert alert-danger ml-5" role="alert">
@@ -186,9 +186,7 @@
             <span>You have unsaved changes</span>
           </div>
         </div>
-        <small
-          v-if="filterIndex !== -1"
-          class="mt-4 float-right"
+        <small v-if="filterIndex !== -1" class="mt-4 float-right"
           >To format your file press ctrl + f</small
         >
       </div>
@@ -379,6 +377,12 @@ export default {
   justify-content: flex-end;
 }
 
+.top-notification > .alert {
+  border-radius: 0;
+  margin-right: 1px !important;
+  max-height: calc(3rem - 2px);
+}
+
 .code-help {
   margin-top: 4rem;
 }
@@ -387,7 +391,8 @@ export default {
 }
 
 .navbar {
-  min-height: 3rem;
+  height: 3rem;
+  max-height: 3rem;
   padding-left: 2rem;
 }
 
