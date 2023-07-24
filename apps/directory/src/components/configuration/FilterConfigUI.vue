@@ -7,10 +7,6 @@
           >Rearrange the filters by dragging and dropping. Unchecking a filter
           means it will hidden.</small
         >
-        <button @click="emitAdd" class="btn btn-info mt-2">
-          Add new filter
-          <span class="fa fa-plus fa-lg ml-1" aria-hidden="true"></span>
-        </button>
       </div>
     </div>
 
@@ -32,7 +28,10 @@
             >Rearranging this has no effect in the application.</small
           >
           <label v-if="!element.builtIn" class="ml-auto"
-            ><input type="checkbox" :checked="element.showFacet" @change="(e) => updateVisibility(e, element.index)"
+            ><input
+              type="checkbox"
+              :checked="element.showFacet"
+              @change="(e) => updateVisibility(e, element.index)"
           /></label>
           <button
             v-if="!element.builtIn"
@@ -47,6 +46,10 @@
         </div>
       </template>
     </draggable>
+    <button @click="emitAdd" class="btn btn-info mt-2">
+      Add new filter
+      <span class="fa fa-plus fa-lg ml-1" aria-hidden="true"></span>
+    </button>
   </div>
 </template>
 
@@ -65,8 +68,8 @@ export default {
     },
     hasUpdated: {
       type: Number,
-      required: false
-    }
+      required: false,
+    },
   },
   data() {
     return {
@@ -82,7 +85,7 @@ export default {
     },
     hasUpdated() {
       this.filterIndex = -1;
-    }
+    },
   },
   methods: {
     dragStart() {
@@ -103,7 +106,7 @@ export default {
     },
     updateVisibility(event, filterIndex) {
       this.appConfig.filterFacets[filterIndex].showFacet = event.target.checked;
-       this.$emit("update", JSON.stringify(this.appConfig));
+      this.$emit("update", JSON.stringify(this.appConfig));
     },
     sync() {
       this.appConfig.filterFacets.forEach((element, index) => {

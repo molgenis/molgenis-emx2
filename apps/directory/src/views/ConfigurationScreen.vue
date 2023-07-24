@@ -30,7 +30,7 @@
         <div v-show="showNotification">
           <div
             v-if="configUpdateStatus === 204"
-            class="alert alert-success m-0 mr-3"
+            class="alert alert-success m-0"
             role="alert"
             @click="statusClosed = true"
           >
@@ -75,6 +75,11 @@
       </div>
       <div class="col-6" v-if="filterEditMode">
         <h3>{{ getFacetTitle(this.filterIndex) }} filter configuration</h3>
+        <div class="editor-alignment">
+          <small v-if="filterIndex !== -1"
+            >To format your file press ctrl + f</small
+          >
+        </div>
         <filter-editor
           :key="filterIndex"
           class="filter-editor"
@@ -112,17 +117,19 @@
     <!-- Advanced Editor -->
     <json-editor
       :config="currentConfig"
+      @dirty="(d) => dirty = d"
       @save="saveFromEditor"
-      @cancel="switchView('ui')"
+      @cancel="cancel"
+      @diff="showDiffEditor"
       v-if="editorType === 'editor'"
     />
 
     <!-- Diff editor -->
     <diff-editor
       v-if="editorType === 'diff'"
-      :currentConfig="currentConfig"
+      :currentConfig="diffAppConfig"
       :newConfig="uploadedAppConfig"
-      @save="saveFromEditor"
+      @save="(changesToSave) => saveFromEditor(changesToSave, 'diff')"
       @cancel="switchView('editor')"
     />
 
@@ -131,32 +138,18 @@
       <landingpage-editor
         :currentConfig="currentConfig"
         @save="saveLandingpage"
-        @cancel="switchView('ui')"
+        @cancel="cancel"
       />
     </div>
     <!-- standard button bar -->
-    <div v-if="editorType === 'ui'" class="row px-5 pb-5">
-      <div class="col pl-0">
+    <div v-if="editorType === 'ui'" class="row mt-3 px-5 pb-5">
+      <div class="col">
         <button class="btn btn-primary mr-3 save-button" @click="save">
           Save configuration
         </button>
         <button v-if="dirty" class="btn btn-dark mr-3" @click="cancel">
           Cancel
         </button>
-
-        <button class="btn btn-outline-dark mr-3" @click="download">
-          Download config
-        </button>
-        <button class="btn btn-outline-dark" @click="upload">
-          Upload config
-        </button>
-
-        <input
-          type="file"
-          id="file-selector"
-          accept=".json"
-          @change="processUpload"
-        />
       </div>
       <div>
         <div class="row">
@@ -186,9 +179,6 @@
             <span>You have unsaved changes</span>
           </div>
         </div>
-        <small v-if="filterIndex !== -1" class="mt-4 float-right"
-          >To format your file press ctrl + f</small
-        >
       </div>
     </div>
   </div>
@@ -224,9 +214,10 @@ export default {
       undoFilterSort: 0,
       editorType: "ui", // ui / editor / diff
       newAppConfig: "",
-      uploadedAppConfig: "",
       jsonError: "",
       filterIndex: -1,
+      uploadedAppConfig: "",
+      diffAppConfig: "",
     };
   },
   methods: {
@@ -236,7 +227,11 @@ export default {
     switchView(view) {
       this.editorType = view;
     },
-
+    showDiffEditor(diff) {
+      this.diffAppConfig = diff.currentAppConfig;
+      this.uploadedAppConfig = diff.uploadedAppConfig;
+      this.switchView("diff");
+    },
     applyChanges(changesToSave) {
       this.newAppConfig = changesToSave;
       this.saveToDatabase(changesToSave);
@@ -256,12 +251,15 @@ export default {
       this.dirty = true;
       this.newAppConfig = newConfig;
     },
-    saveFromEditor(changesToSave) {
+    saveFromEditor(changesToSave, editor) {
       this.dirty = true;
 
       this.newAppConfig = changesToSave;
       this.saveToDatabase(changesToSave);
-      this.switchView("ui");
+
+      if(editor && editor === 'diff') {
+        this.switchView("editor")
+      }
     },
     saveLandingpage(changesToSave) {
       this.newAppConfig = changesToSave;
@@ -286,36 +284,7 @@ export default {
     cancel() {
       this.dirty = false;
       this.newAppConfig = "";
-      this.editor.getModel().setValue(this.appConfig);
       this.filterIndex = -1;
-    },
-    download() {
-      const file = new Blob([this.newAppConfig || this.appConfig], {
-        type: "json",
-      });
-      const a = document.createElement("a");
-      const url = URL.createObjectURL(file);
-      a.href = url;
-      a.download = `${window.location.host}-config.json`;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function () {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      }, 0);
-    },
-    upload() {
-      const fileInput = document.getElementById("file-selector");
-      fileInput.click();
-    },
-    async processUpload(event) {
-      const reader = new FileReader();
-      reader.addEventListener("load", (event) => {
-        this.uploadedAppConfig = atob(event.target.result.split(",")[1]);
-
-        this.switchView("diff");
-      });
-      reader.readAsDataURL(event.target.files[0]);
     },
     setFilterEditIndex(newIndex) {
       this.filterIndex = newIndex;
@@ -396,16 +365,13 @@ export default {
   padding-left: 2rem;
 }
 
-#file-selector {
-  display: none;
-}
 :deep(.original-in-monaco-diff-editor .view-lines),
 :deep(.original-in-monaco-diff-editor .margin-view-overlays) {
   background-color: #eaeaea;
 }
 
 .filter-editor {
-  margin-top: 3.1rem;
+  margin-top: 0.75rem;
   height: 40%;
   width: 100%;
   border: 1px solid black;
