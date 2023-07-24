@@ -39,14 +39,8 @@
         <LinkCard id="quicklink-documents" :imageSrc="DocumentsImage">
           <router-link :to="{ name: 'documents' }">Documents</router-link>
         </LinkCard>
-        <LinkCard id="quicklink-dashboard">
+        <LinkCard id="quicklink-dashboard" :imageSrc="DashboardImage">
           <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
-        </LinkCard>
-        <LinkCard id="quicklink-signin">
-          <button class="toggle" @click="updateShowSigninForm">
-            <span>Sign in</span>
-          </button>
-          <MolgenisSignin v-if="showSigninForm" @cancel="updateShowSigninForm"/>
         </LinkCard>
       </div>
     </PageSection>
@@ -87,21 +81,11 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { MolgenisSignin } from "molgenis-components";
 import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
-
 import ProjectBannerImage from "../assets/ern-reconnet-header.jpg";
 import AboutImage from "../assets/ern-reconnet-about-header.jpg";
 import DocumentsImage from "../assets/ern-reconnet-docs-header.jpg";
-
-
-let showSigninForm = ref(false);
-
-function updateShowSigninForm() {
-  showSigninForm.value = !showSigninForm.value
-}
-
+import DashboardImage from "../assets/ern-reconnet-dashboard-header.jpg"
 </script>
 
 <style lang="scss">
@@ -126,7 +110,7 @@ function updateShowSigninForm() {
     flex-wrap: wrap;
 
     .link-card {
-      height: 8em;
+      height: 10em;
       flex-grow: 1;
 
       &:nth-child(1) {
@@ -144,11 +128,10 @@ function updateShowSigninForm() {
       }
 
       &:nth-child(3) {
-        background-color: $blue-500;
-      }
-
-      &:nth-child(4) {
-        background-color: $blue-200;
+        .card-background-filter {
+          background-color: $blue-green-800;
+          opacity: 0.6;
+        }
       }
     }
   }
