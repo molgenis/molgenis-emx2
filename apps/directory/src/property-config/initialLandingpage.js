@@ -63,7 +63,7 @@ const initialLandingpage = {
   css: {
     pageHeader: {
       backgroundStyle:
-        'background: url("/public_html/apps/directory/img/bacteria.jpg");background-size: cover;height: 30rem;width: 75%;border-radius: 1rem; color: #fff;text-align: center;',
+        'background: url("https://pixabay.com/illustrations/bacteria-illness-virus-infection-163711/");background-size: cover;height: 30rem;width: 75%;border-radius: 1rem; color: #fff;text-align: center;',
       linkStyle: "color: #fff;",
     },
     searchBar: {
@@ -80,7 +80,7 @@ const initialLandingpage = {
     },
     biobankSpotlight: {
       backgroundStyle:
-        "background: url('/public_html/apps/directory/img/microscope.jpg');background-size: cover;height: 30rem;width: 50%;border-radius: 1rem; color: #fff;",
+        "background: url('https://www.pexels.com/photo/close-up-of-microscope-256262/');background-size: cover;height: 30rem;width: 50%;border-radius: 1rem; color: #fff;",
       buttonClasses: "btn-primary",
       buttonStyle: "",
     },
