@@ -43,7 +43,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     );
 
     if (savedDirectoryConfig && savedDirectoryConfig.value) {
-      config = JSON.parse(decodeURI(savedDirectoryConfig.value));
+      config.value = JSON.parse(decodeURI(savedDirectoryConfig.value));
     }
   }
 

@@ -135,7 +135,7 @@
       />
     </div>
     <!-- standard button bar -->
-    <div v-if="currentView === 'ui'" class="row px-5 pb-5">
+    <div v-if="editorType === 'ui'" class="row px-5 pb-5">
       <div class="col pl-0">
         <button class="btn btn-primary mr-3 save-button" @click="save">
           Save configuration
@@ -186,7 +186,9 @@
             <span>You have unsaved changes</span>
           </div>
         </div>
-        <small class="mt-4 float-right"
+        <small
+          v-if="filterIndex !== -1"
+          class="mt-4 float-right"
           >To format your file press ctrl + f</small
         >
       </div>
@@ -331,9 +333,6 @@ export default {
     },
   },
   computed: {
-    currentView() {
-      return this.editorType;
-    },
     configUpdateStatus() {
       return this.settingsStore.configUpdateStatus;
     },

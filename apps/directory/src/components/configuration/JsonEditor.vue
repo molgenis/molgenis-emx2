@@ -5,10 +5,15 @@
     </div>
 
     <div class="row px-5 py-5">
-      <button class="btn btn-primary mr-3 save-button" @click="save">
-        Save changes
-      </button>
-      <button class="btn btn-dark mr-3" @click="cancel">Cancel</button>
+      <div>
+        <button class="btn btn-primary mr-3 save-button" @click="save">
+          Save changes
+        </button>
+        <button class="btn btn-dark mr-3" @click="cancel">Cancel</button>
+      </div>
+      <small v-if="filterIndex !== -1" class="ml-auto"
+        >To format your file press ctrl + f</small
+      >
     </div>
   </div>
 </template>
