@@ -1,16 +1,25 @@
 order,name,code,parent,ontologyTermURI
 1,Educational Institution,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000075
-2,Patient organisation/association,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000077
-3,Hospital/Clinic/Other health care facility,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000078
-4,Laboratory/Research/Testing facility,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000079
-5,Pharmaceutical company,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000081
-6,Non-Pharmaceutical company,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000082
-7,Pharmaceutical association/federation,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000083
-8,Regulatory Authority,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000084
-9,EU Institution/Body/Agency,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000086
-10,Non EU Institution/Body/Agency,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000087
-11,EEA National Competent authority,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000088
-12,Non-EEA National Competent authority,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000089
-13,Not-for-profit,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000091
-14,Healthcare payer,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000031041
-15,Other,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000031058
+2,Academic institution,,Educational Institution,
+3,University,,Educational Institution,
+4,Research centre,,,
+5,Patient organisation/association,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000077
+6,Hospital/Clinic/Other health care facility,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000078
+7,Academic medical centre,,Hospital/Clinic/Other health care facility,
+8,Teaching hospital,,Hospital/Clinic/Other health care facility,
+9,Laboratory/Research/Testing facility,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000079
+10,Company,,,
+11,Pharmaceutical company,,Company,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000081
+12,Non-Pharmaceutical company,,Company,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000082
+13,SME,,Company,
+14,Pharmaceutical association/federation,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000083
+15,Regulatory Authority,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000084
+16,EU Institution/Body/Agency,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000086
+17,Non EU Institution/Body/Agency,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000087
+18,EEA National Competent authority,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000088
+19,Non-EEA National Competent authority,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000089
+20,Not-for-profit,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000000091
+21,Healthcare payer,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000031041
+22,Government agency,,,
+23,Private organisation,,,
+24,Other,,,https://spor.ema.europa.eu/rmswi/#/lists/200000000015/terms/200000031058
