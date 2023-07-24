@@ -4,6 +4,7 @@
 
 <script>
 import { setOptions, bootstrap } from "vue-gtag";
+import { pageview } from "vue-gtag";
 export default {
   name: "GTag",
   props: {
@@ -16,12 +17,17 @@ export default {
     enablePlugin(tagId) {
       setOptions({
         config: { id: tagId },
-        pageTrackerScreenviewEnabled: true,
       });
 
-      bootstrap().then((gtag) => {
-        console.log("start analytics for tagId: " + tagId);
-      });
+      bootstrap().then(() =>
+        console.log("start analytics for tagId: " + tagId)
+      );
+
+      if (this.$router) {
+        this.$router.afterEach((to) => {
+          pageview(to.fullPath);
+        });
+      }
     },
   },
   async mounted() {
