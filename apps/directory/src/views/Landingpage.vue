@@ -1,74 +1,74 @@
 <template>
   <main>
-    <section class="d-flex justify-content-center">
-      <landingpage-header
-        :header-text="pageHeader"
-        :linkText="gotoCatalogue"
-        :css="landingpageCss"
-      >
-        <landingpage-search
-          :buttonText="search.buttonText"
-          :ariaLabel="search.ariaLabel"
-          :searchPlaceholder="search.searchPlaceholder"
+      <section class="d-flex justify-content-center">
+        <landingpage-header
+          :header-text="pageHeader"
+          :linkText="gotoCatalogue"
           :css="landingpageCss"
-        />
+        >
+          <landingpage-search
+            :buttonText="search.buttonText"
+            :ariaLabel="search.ariaLabel"
+            :searchPlaceholder="search.searchPlaceholder"
+            :css="landingpageCss"
+          />
+          <button
+            class="edit-button header-section"
+            @click="$emit('open', 'landingpage-header')"
+            v-if="editable"
+          >
+            Edit
+          </button>
+        </landingpage-header>
+      </section>
+      <section
+        class="d-flex justify-content-between mx-5 my-5 cta-container w-75 mx-auto"
+      >
         <button
-          class="edit-button header-section"
-          @click="$emit('open', 'landingpage-header')"
+          class="edit-button cta-section"
+          @click="$emit('open', 'landingpage-ctas')"
           v-if="editable"
         >
           Edit
         </button>
-      </landingpage-header>
-    </section>
-    <section
-      class="d-flex justify-content-between mx-5 my-5 cta-container w-75 mx-auto"
-    >
-      <button
-        class="edit-button cta-section"
-        @click="$emit('open', 'landingpage-ctas')"
-        v-if="editable"
-      >
-        Edit
-      </button>
-      <landingpage-call-to-action
-        :key="index + cta.ctaText"
-        v-for="(cta, index) in callToActions"
-        :ctaUrl="cta.ctaUrl"
-        :ctaText="cta.ctaText"
-        :bodyHtml="cta.bodyHtml"
-        :css="landingpageCss"
-      />
-    </section>
-    <section class="d-flex justify-content-between mx-auto mb-5 w-75">
-      <landingpage-biobank-spotlight
-        :headerText="biobankSpotlight.header"
-        :biobankName="biobankSpotlight.biobankName"
-        :biobankId="biobankSpotlight.biobankId"
-        :bodyHtml="biobankSpotlight.bodyHtml"
-        :buttonText="biobankSpotlight.buttonText"
-        :css="landingpageCss"
-      />
-      <button
-        class="edit-button biobank-spotlight-section"
-        @click="$emit('open', 'landingpage-biobank-spotlight')"
-        v-if="editable"
-      >
-        Edit
-      </button>
-      <landingpage-collection-spotlight
-        :headerText="collectionSpotlight.header"
-        :collections="collectionSpotlight.collections"
-        :css="landingpageCss"
-      />
-      <button
-        class="edit-button collection-spotlight-section"
-        @click="$emit('open', 'landingpage-collection-spotlight')"
-        v-if="editable"
-      >
-        Edit
-      </button>
-    </section>
+        <landingpage-call-to-action
+          :key="index + cta.ctaText"
+          v-for="(cta, index) in callToActions"
+          :ctaUrl="cta.ctaUrl"
+          :ctaText="cta.ctaText"
+          :bodyHtml="cta.bodyHtml"
+          :css="landingpageCss"
+        />
+      </section>
+      <section class="d-flex justify-content-between mx-auto mb-5 w-75">
+        <landingpage-biobank-spotlight
+          :headerText="biobankSpotlight.header"
+          :biobankName="biobankSpotlight.biobankName"
+          :biobankId="biobankSpotlight.biobankId"
+          :bodyHtml="biobankSpotlight.bodyHtml"
+          :buttonText="biobankSpotlight.buttonText"
+          :css="landingpageCss"
+        />
+        <button
+          class="edit-button biobank-spotlight-section"
+          @click="$emit('open', 'landingpage-biobank-spotlight')"
+          v-if="editable"
+        >
+          Edit
+        </button>
+        <landingpage-collection-spotlight
+          :headerText="collectionSpotlight.header"
+          :collections="collectionSpotlight.collections"
+          :css="landingpageCss"
+        />
+        <button
+          class="edit-button collection-spotlight-section"
+          @click="$emit('open', 'landingpage-collection-spotlight')"
+          v-if="editable"
+        >
+          Edit
+        </button>
+      </section>
   </main>
 </template>
 
@@ -81,7 +81,7 @@ import LandingpageSearch from "../components/landingpage-components/LandingpageS
 import { useSettingsStore } from "../stores/settingsStore";
 
 export default {
-  setup() {
+   setup() {
     const settingsStore = useSettingsStore();
 
     return { settingsStore };
@@ -102,7 +102,9 @@ export default {
   },
   computed: {
     landingpage() {
-      return this.settingsStore.config.landingpage;
+      if (this.settingsStore.configurationFetched) {
+        return this.settingsStore.config.landingpage;
+      } else return this.settingsStore.config;
     },
     pageHeader() {
       return this.landingpage.page_header;
