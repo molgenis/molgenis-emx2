@@ -141,7 +141,7 @@ export default {
     },
     sendRequest() {
       this.cartVisible = false;
-      //todo: this.SendToNegotiator();
+      this.checkoutStore.sendToNegotiator();
     },
   },
   watch: {
@@ -188,7 +188,8 @@ export default {
     },
   },
   async beforeMount() {
-    this.commercialAvailableCollections = await this.collectionStore.getCommercialAvailableCollections();
+    this.commercialAvailableCollections =
+      await this.collectionStore.getCommercialAvailableCollections();
   },
 };
 </script>
