@@ -1,6 +1,0 @@
-order,name,label,code,parent,ontologyTermURI,definition
-1,EU RMP category 1 (imposed as condition of marketing authorisation),,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030186/terms/200000030187,
-2,EU RMP category 2 (specific obligation of marketing authorisation),,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030186/terms/200000030188,
-3,EU RMP category 3 (required),,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030186/terms/200000030189,
-4,Non-EU RMP only,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030186/terms/200000030190,
-5,Not applicable,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030186/terms/200000032242,
