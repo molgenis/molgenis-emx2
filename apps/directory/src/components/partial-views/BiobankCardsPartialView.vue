@@ -92,7 +92,7 @@ export default {
           cardsShown++;
         }
 
-        const cardWidth = mainView / cardsShown - (cardsShown === 2 ? 16 : 22);
+        const cardWidth = mainView / cardsShown - (cardsShown === 2 ? 17 : 22);
 
         this.cardWidth = cardWidth;
       }
