@@ -1,6 +1,6 @@
 ﻿id,name,type,lead organisation,contact,website,publications,data use conditions,description,countries,inclusion criteria,start year,end year,number of participants,number of participants with samples,supplementary information,funding statement,keywords,design paper,release description,acknowledgements,design,collection type
-TestCohort,My test cohort,Population cohort,UMCG,Morris Swertz,http://molgenis.org,10.1093/ije/dys064,not-for-profit organizations and not-for-profit use,Just a test,Netherlands (the),"Children,Mothers,Partners",2021,2021,1,1,here suppl info,No funding,Test,,we release monthly,"all MOLGENIS volunteers, sponsors and coworkers",Longitudinal,Prospective
-ALSPAC,Avon Longitudinal Study of Parents and Children,Population cohort,UOB,"ALSPAC General enquiries,ALSPAC Data enquiries,ALSPAC Lab enquiries",http://www.bristol.ac.uk/alspac/,10.1093/ije/dys064,not-for-profit organizations and not-for-profit use,"Based at the University of Bristol, the Avon Longitudinal Study of Parents and Children (ALSPAC), also known as Children of the 90s, is a world-leading birth cohort study.
+TestCohort,My test cohort,Population cohort,UMCG,Morris Swertz,http://molgenis.org,10.1093/ije/dys064,"""not for profit, non commercial use only""",Just a test,Netherlands (the),"Children,Mothers,Partners",2021,2021,1,1,here suppl info,No funding,Test,,we release monthly,"all MOLGENIS volunteers, sponsors and coworkers",Longitudinal,Prospective
+ALSPAC,Avon Longitudinal Study of Parents and Children,Population cohort,UOB,"ALSPAC General enquiries,ALSPAC Data enquiries,ALSPAC Lab enquiries",http://www.bristol.ac.uk/alspac/,10.1093/ije/dys064,"""not for profit, non commercial use only""","Based at the University of Bristol, the Avon Longitudinal Study of Parents and Children (ALSPAC), also known as Children of the 90s, is a world-leading birth cohort study.
 
 Between April 1991 and December 1992 we recruited more than 14,000 pregnant women into the study and these women (some of whom had two pregnancies or multiple births during the recruitment period), the children arising from the pregnancy, and their partners have been followed up intensively over two decades.
 
@@ -12,5 +12,5 @@ In addition, you are expected to acknowledge the grant(s) which supported the co
 BIB,Born in Bradford,Birth cohort,BRI,BIB team,https://borninbradford.nhs.uk/,,,,,,,,,,,,,,,,,
 GECKO,The Groningen Expert Center for Kids with Obesity Drenthe cohort,Birth cohort,UMCG,Eva Corpeleijn,https://www.rug.nl/research/portal/datasets/gecko-drenthe-cohort(3e14f7ca-a55d-41d9-9803-19302aa4ea87).html,,,,,,,,,,,,,,,,,
 Gen R,The Generation R Study,Population cohort,ERASMUS,Vincent Jaddoe,https://generationr.nl/,,,,,,,,,,,,,,,,,
-NFBC86,The Northern Finland Birth Cohort Study 1986,Population cohort,UOULU,Minna Ruddock,www.oulu.fi/nfbc,,,,,,,,,,,,,,,,,
+NFBC86,The Northern Finland Birth Cohort Study 1986,Population cohort,UOULU,Minna Ruddock,https://www.oulu.fi/nfbc,,,,,,,,,,,,,,,,,
 MoBa,"The Norwegian Mother, Father and Child Cohort Study",Population cohort,NIPH,Per Minor Magnus,https://www.fhi.no/en/studies/moba/,,,,,,,,,,,,,,,,,

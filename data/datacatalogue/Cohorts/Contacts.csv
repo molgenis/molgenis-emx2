@@ -1,4 +1,4 @@
-resource,contributionType,first name,last name,institution,department,email,address,homepage,orcid,researchgate,linkedin,twitter,about
+resource,role,first name,last name,organisation,department,email,address,homepage,orcid,researchgate,linkedin,twitter,about
 ALSPAC,,Nic,Timpson,UOB,,n.j.timpson@bristol.ac.uk,,,0000-0002-7141-9189,,,,
 LongITools,,Sylvain,Sebert,UOULU,,Sylvain.Sebert@oulu.fi,,,0000-0001-6681-6983,,,,
 LongITools,,Teija,Juola,UOULU,,Teija.Juola@oulu.fi,,,,,,,
