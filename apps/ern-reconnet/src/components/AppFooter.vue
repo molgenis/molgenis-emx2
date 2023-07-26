@@ -89,13 +89,14 @@ import FundingLogo from "../assets/ern-funded-by-eu.svg";
 
   .footer-links {
     flex-grow: 2;
-    
+
     .toggle {
       background: none;
       border: none;
     }
 
-    a, .toggle {
+    a,
+    .toggle {
       @include textTransform;
       text-decoration: none;
       padding-bottom: 2px;

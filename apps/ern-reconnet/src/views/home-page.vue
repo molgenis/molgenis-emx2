@@ -85,13 +85,13 @@ import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
 import ProjectBannerImage from "../assets/ern-reconnet-header.jpg";
 import AboutImage from "../assets/ern-reconnet-about-header.jpg";
 import DocumentsImage from "../assets/ern-reconnet-docs-header.jpg";
-import DashboardImage from "../assets/ern-reconnet-dashboard-header.jpg"
+import DashboardImage from "../assets/ern-reconnet-dashboard-header.jpg";
 </script>
 
 <style lang="scss">
 .quick-links {
   background-color: $gray-100;
-  
+
   .toggle {
     background: none;
     border: none;
