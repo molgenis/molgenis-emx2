@@ -17,7 +17,8 @@
     "helloworld",
     "reports",
     "tasks",
-    "gportal"
+    "gportal",
+    "fdhub"
   ]
 }
 
