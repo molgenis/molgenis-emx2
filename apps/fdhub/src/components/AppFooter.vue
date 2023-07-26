@@ -4,9 +4,11 @@
       <div class="footer-content width-medium">
         <div class="footer-column footer-links">
           <p><strong>Tools</strong></p>
-          <UnorderedList listType="none">            
+          <UnorderedList listType="none">
             <li>
-              <router-link :to="{ name: 'organisations' }">Organisation Manager</router-link>
+              <router-link :to="{ name: 'organisations' }"
+                >Organisation Manager</router-link
+              >
             </li>
             <!-- more links here -->
           </UnorderedList>
@@ -15,7 +17,9 @@
           <p><strong>About</strong></p>
           <UnorderedList listType="none">
             <li>
-              <a href="https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/fairdatapoint/molgenis.csv">
+              <a
+                href="https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/fairdatapoint/molgenis.csv"
+              >
                 View Schema
               </a>
             </li>
@@ -71,13 +75,14 @@ import MolgenisLogo from "../assets/molgenis-logo-blue-text.png";
 
   .footer-links {
     flex-grow: 2;
-    
+
     .toggle {
       background: none;
       border: none;
     }
 
-    a, .toggle {
+    a,
+    .toggle {
       @include textTransform;
       text-decoration: none;
       padding-bottom: 2px;

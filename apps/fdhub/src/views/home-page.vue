@@ -8,7 +8,11 @@
     />
     <PageSection aria-labelledby="welcome-title" :verticalPadding="2">
       <h2 id="welcome-title">Welcome to the FairDataHub data manager</h2>
-      <p>The purpose of this site is to interact with the data model and add new records to the ontology tables. To get started, follow one of the links below.</p>
+      <p>
+        The purpose of this site is to interact with the data model and add new
+        records to the ontology tables. To get started, follow one of the links
+        below.
+      </p>
     </PageSection>
     <PageSection
       class="quick-links"
@@ -20,11 +24,12 @@
       <h2 class="visually-hidden" id="quicklinks-card-title">quick links</h2>
       <div class="quicklink-cards">
         <LinkCard id="quicklinks-about">
-          <router-link :to="{ name: 'organisations' }">Organisations</router-link>
+          <router-link :to="{ name: 'organisations' }"
+            >Organisations</router-link
+          >
         </LinkCard>
       </div>
     </PageSection>
-    
   </Page>
 </template>
 
@@ -36,7 +41,7 @@ import ProjectBannerImage from "../assets/app-page-header.jpg";
 <style lang="scss">
 .quick-links {
   background-color: $gray-100;
-  
+
   .toggle {
     background: none;
     border: none;
