@@ -6,6 +6,8 @@ import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.IS_NOT_NULL;
+import static org.molgenis.emx2.Operator.IS_NULL;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -193,5 +195,35 @@ public class TestQuery {
     assertEquals("Kwik,Kwek,Kwak,Donald,Katrien", orderdbyRefDefaultOrder);
     assertEquals("Kwik,Kwek,Kwak,Donald,Katrien", orderdbyRefAsc);
     assertEquals("Donald,Katrien,Kwik,Kwek,Kwak", orderdbyRefDesc);
+  }
+
+  @Test
+  void isNullQuery() {
+    final String isNull =
+        schema
+            .getTable(PERSON)
+            .select(s("First_Name"))
+            .where(f("Mother", IS_NULL))
+            .retrieveRows()
+            .stream()
+            .map(r -> r.getString("First_Name"))
+            .collect(Collectors.joining(","));
+
+    assertEquals("Donald,Katrien", isNull);
+  }
+
+  @Test
+  void isNotNullQuery() {
+    final String isNull =
+        schema
+            .getTable(PERSON)
+            .select(s("First_Name"))
+            .where(f("Mother", IS_NOT_NULL))
+            .retrieveRows()
+            .stream()
+            .map(r -> r.getString("First_Name"))
+            .collect(Collectors.joining(","));
+
+    assertEquals("Kwik,Kwek,Kwak", isNull);
   }
 }
