@@ -8,12 +8,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp.EJP_VP_IndividualsQuery;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.beaconv2.responses.BeaconFilteringTermsResponse;
 import spark.Request;
 import spark.Response;
 
@@ -40,6 +40,7 @@ public class BeaconApi {
     get("/api/beacon/cohorts", BeaconApi::getCohorts);
     get("/api/beacon/individuals", BeaconApi::getIndividuals);
     get("/api/beacon/runs", BeaconApi::getRuns);
+    get("/api/beacon/filtering_terms", BeaconApi::getFilteringTerms);
 
     post("/api/beacon/individuals", BeaconApi::queryIndividuals_EJP_VP);
 
@@ -86,13 +87,10 @@ public class BeaconApi {
     return getWriter().writeValueAsString(new EntryTypes());
   }
 
-  private static String getFilteringTerms(Request request, Response response)
-      throws JsonProcessingException {
+  private static String getFilteringTerms(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
-    String skip = request.queryParams("skip");
-    String limit = request.queryParams("limit");
-    // TODO handle skip and limit
-    return getWriter().writeValueAsString(new BeaconFilteringTermsResponse());
+    Database database = sessionManager.getSession(request).getDatabase();
+    return getWriter().writeValueAsString(new FilteringTerms(request, database));
   }
 
   private static String getDatasets(Request request, Response response) throws Exception {

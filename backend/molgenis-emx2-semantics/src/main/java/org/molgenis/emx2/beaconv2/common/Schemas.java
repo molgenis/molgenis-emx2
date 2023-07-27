@@ -12,4 +12,8 @@ public class Schemas {
   public Schemas(String entityType) {
     this.entityType = entityType;
   }
+  // "beacon-dataset-v2.0.0" schema for FilteringTerms?
+  public Schemas(String entityType, String schema) {
+    this.entityType = entityType;
+  }
 }
