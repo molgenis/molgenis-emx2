@@ -23,7 +23,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     language: "en",
     graphqlEndpoint: "graphql",
     negotiatorType: "eric-negotiator",
-    negotiatorUrl: "http://negotiator-dev.bbmri-eric.eu/",
+    negotiatorUrl: "https://negotiator-dev.bbmri-eric.eu/directory/create_query",
     biobankColumns: initialBiobankColumns,
     biobankReportColumns: initialBiobankReportColumns,
     collectionColumns: initialCollectionColumns,
