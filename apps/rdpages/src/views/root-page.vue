@@ -1,9 +1,10 @@
 <template>
   <Page>
     <PageHeader
-      title="Rare Disease apps"
+      title="Rare Disease Applications"
       subtitle="Sitemap"
-      imageSrc="/sitemap-header.jpg"
+      imageSrc="sitemap-header.jpg"
+      titlePositionX="center"
     />
     <PageSection aria-labelledby="sitemap-title" :verticalPadding="2">
       <h2 id="sitemap-title">Sitemap</h2>

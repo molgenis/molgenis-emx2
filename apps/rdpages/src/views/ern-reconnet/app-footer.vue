@@ -6,19 +6,19 @@
           <p><strong>ERN ReCONNET</strong></p>
           <UnorderedList listType="none">
             <li>
-              <router-link :to="{ name: 'ern-reconnet-home' }"
-                >Home</router-link
-              >
+              <router-link :to="{ name: 'ern-reconnet-home' }">
+                Home
+              </router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'ern-reconnet-about' }"
-                >About Us</router-link
-              >
+              <router-link :to="{ name: 'ern-reconnet-about' }">
+                About Us
+              </router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'ern-reconnet-dashboard' }"
-                >Dashboard</router-link
-              >
+              <router-link :to="{ name: 'ern-reconnet-dashboard' }">
+                Dashboard
+              </router-link>
             </li>
             <!-- more links here -->
           </UnorderedList>
@@ -29,9 +29,9 @@
         <div class="footer-column footer-logos">
           <UnorderedList listType="none">
             <li id="project-logo-link">
-              <router-link :to="{ name: 'ern-reconnet' }">
+              <router-link :to="{ name: 'ern-reconnet-home' }">
                 <img
-                  src="/ern-reconnet-logo.png"
+                  src="ern-reconnet/ern-reconnet-logo.png"
                   alt="ERN-RECONNET registry"
                   class="ern-logo"
                 />
@@ -39,7 +39,7 @@
             </li>
             <li class="eu-logos">
               <img
-                src="/ern-funded-by-eu.svg"
+                src="ern/ern-funded-by-eu.svg"
                 class="logo funding-logo"
                 alt="funded by the European Union"
               />
@@ -51,7 +51,7 @@
                 >
                 <li>
                   <img
-                    src="/molgenis-logo-blue-text.png"
+                    src="molgenis-logo-blue-text.png"
                     class="molgenis-logo"
                     alt="molgenis open source data platform"
                   />

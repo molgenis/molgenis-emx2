@@ -3,7 +3,7 @@
     <PageHeader
       title="GDI Portal"
       subtitle="Search for data and request access"
-      imageSrc="/gportal-header.jpg"
+      imageSrc="gportal/gportal-header.jpg"
     />
     <PageSection aria-labelledby="get-started-title" :verticalPadding="2">
       <h2 id="get-started-title">Get Started</h2>

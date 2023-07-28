@@ -4,7 +4,7 @@
       class="app-page-header"
       title="ERN ReCONNET"
       subtitle="European Reference Network on Rare and Complex Connective Tissue and Musculoskeletal Diseases"
-      imageSrc="/ern-reconnet-header.jpg"
+      imageSrc="ern-reconnet/ern-reconnet-header.jpg"
     />
     <PageSection aria-labelledby="welcome-title" :verticalPadding="2">
       <h2 id="welcome-title">Welcome to the ERN ReCONNET registry!</h2>

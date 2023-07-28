@@ -4,7 +4,7 @@
       class="app-page-header"
       title="FairDataHub"
       subtitle="FAIR DataHub Tools"
-      imageSrc="/fdhub-header.jpg"
+      imageSrc="fdhub/fdhub-header.jpg"
     />
     <PageSection aria-labelledby="welcome-title" :verticalPadding="2">
       <h2 id="welcome-title">Welcome to the FairDataHub data manager</h2>

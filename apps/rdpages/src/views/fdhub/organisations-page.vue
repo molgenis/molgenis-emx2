@@ -3,7 +3,7 @@
     <PageHeader
       title="FDHub"
       subtitle="Find and add new organisations"
-      imageSrc="/fdhub-header.jpg"
+      imageSrc="fdhub/fdhub-header.jpg"
     />
     <PageSection aria-labelledby="welcome-title" :verticalPadding="2">
       <h2 id="welcome-title">ERN ReCONNET registry Documents</h2>

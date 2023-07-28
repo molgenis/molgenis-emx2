@@ -3,7 +3,7 @@
     <PageHeader
       title="ERN ReCONNET"
       subtitle="European Reference Network on Rare and Complex Connective Tissue and Musculoskeletal Diseases"
-      imageSrc="/ern-reconnet-header.jpg"
+      imageSrc="ern-reconnet/ern-reconnet-header.jpg"
     />
     <PageSection aria-labelledby="welcome-title">
       <h2 id="welcome-title">ERN ReCONNET registry dashboard</h2>

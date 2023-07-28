@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [vue()],
   base: "",
   server: {
-    proxy: require("../dev-proxy.config"),
+    proxy: require("../dev-proxy.config")
   },
   css: {
     preprocessorOptions: {
