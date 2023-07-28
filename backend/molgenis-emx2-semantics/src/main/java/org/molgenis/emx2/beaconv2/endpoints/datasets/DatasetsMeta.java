@@ -7,7 +7,7 @@ import org.molgenis.emx2.beaconv2.common.Meta;
 public class DatasetsMeta extends Meta {
 
   private String returnedGranularity = "record";
-  private ReceivedRequestSummary receivedRequestSummary = new ReceivedRequestSummary();
+  private ReceivedRequestSummary receivedRequestSummary = new ReceivedRequestSummary("datasets");
 
   public DatasetsMeta(String $schema, String entityType) {
     super($schema, entityType);

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 public class Schemas {
 
   private String entityType;
-  private String schema = "beacon-info-v2.0.0-draft.4"; // TODO make static? but not allowed
+  private String schema = "beacon-info-v2.0.0"; // TODO make static? but not allowed
 
   public Schemas(String entityType) {
     this.entityType = entityType;

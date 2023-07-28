@@ -5,6 +5,7 @@ import static spark.Spark.get;
 import static spark.Spark.post;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -59,15 +60,16 @@ public class BeaconApi {
     //    post("/:schema/api/beacon/datasets/:table", BeaconApi::postDatasetsForTable);
   }
 
-  private static String getInfo(Request req, Response response) throws JsonProcessingException {
+  private static String getInfo(Request request, Response response)
+      throws JsonProcessingException, URISyntaxException {
     response.type(APPLICATION_JSON_MIME_TYPE);
-    return getWriter().writeValueAsString(new Info());
+    return getWriter().writeValueAsString(new Info(request));
   }
 
   private static String getServiceInfo(Request request, Response response)
-      throws JsonProcessingException {
+      throws JsonProcessingException, URISyntaxException {
     response.type(APPLICATION_JSON_MIME_TYPE);
-    return getWriter().writeValueAsString(new Info());
+    return getWriter().writeValueAsString(new Info(request));
   }
 
   private static Object getConfiguration(Request request, Response response)
