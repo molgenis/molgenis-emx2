@@ -123,6 +123,29 @@ class QueryEMX2 {
     return this._schemaTablesInformation;
   }
 
+  async saveSetting(key, value) {
+    const valueToUpload =
+      typeof value === "string" ? value : JSON.stringify(value);
+
+    const result = await request(
+      this.graphqlUrl,
+      `
+      mutation{
+        change(
+            settings: {
+              key: "${key}",
+              value: "${encodeURI(valueToUpload)}"
+            }
+        ){
+            message
+        }
+    }
+      `
+    );
+
+    return result.change.message;
+  }
+
   /** returns the columns with adjusted names so it can directly be used to query. */
   async getColumnsForTable(tableName) {
     await this.getSchemaTablesInformation();
