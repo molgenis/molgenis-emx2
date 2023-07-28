@@ -313,7 +313,10 @@ public class TestGraphqSchemaFields {
       execute("{Pet(filter:{name:{equals:\"spike\"}}){name,tags(orderby:{blaat:ASC}){name}}}");
       fail("should fail");
     } catch (MolgenisException e) {
-      assertTrue(e.getMessage().contains("Validation error of type WrongType: argument 'orderby'"));
+      assertTrue(
+          e.getMessage()
+              .contains(
+                  "Validation error (WrongType@[Pet/tags]) : argument 'orderby' with value 'ObjectValue{objectFields=[ObjectField{name='blaat', value=EnumValue{name='ASC'}}]}' contains a field not in 'Tagorderby': 'blaat'"));
     }
   }
 
