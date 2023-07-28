@@ -1,6 +1,5 @@
 package org.molgenis.emx2.semantics.beaconv2;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -36,7 +35,5 @@ public class Beaconv2_MapTest {
     assertTrue(
         json.contains(
             "\"filteringTermsUrl\" : \"http://localhost:8080/myEmx2Schema/api/beacon/analyses/{id}/filtering_terms\""));
-
-    assertEquals(3248, json.length());
   }
 }

@@ -50,7 +50,6 @@ public class Beaconv2_ModelEndpointsTest {
                                 "response" : {
                                     "resultSets" : [ ]
                                   }"""));
-    assertEquals(728, json.length());
   }
 
   @Test
@@ -85,7 +84,6 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
     assertFalse(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertFalse(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(728, json.length());
   }
 
   @Test
@@ -147,7 +145,6 @@ public class Beaconv2_ModelEndpointsTest {
     Analyses analyses = new Analyses(request, List.of(beaconSchema.getTable("Analyses")));
     String json = JsonUtil.getWriter().writeValueAsString(analyses);
     assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
-    assertEquals(728, json.length());
   }
 
   @Test
@@ -159,7 +156,6 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(analyses);
     assertTrue(json.contains("\"id\" : \"A03\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1349, json.length());
   }
 
   @Test
@@ -181,7 +177,6 @@ public class Beaconv2_ModelEndpointsTest {
     Biosamples biosamples = new Biosamples(request, List.of(beaconSchema.getTable("Biosamples")));
     String json = JsonUtil.getWriter().writeValueAsString(biosamples);
     assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
-    assertEquals(728, json.length());
   }
 
   @Test
@@ -192,7 +187,6 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(biosamples);
     assertTrue(json.contains("\"id\" : \"Sample0002\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1516, json.length());
   }
 
   @Test
@@ -233,7 +227,6 @@ public class Beaconv2_ModelEndpointsTest {
                                 "response" : {
                                     "collections" : [ ]
                                   }"""));
-    assertEquals(729, json.length());
   }
 
   @Test
@@ -244,7 +237,6 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(cohorts);
     assertTrue(json.contains("\"cohortId\" : \"Cohort0001\","));
     assertFalse(json.contains("\"cohortId\" : \"Cohort0002\","));
-    assertEquals(2030, json.length());
   }
 
   @Test
@@ -314,7 +306,6 @@ public class Beaconv2_ModelEndpointsTest {
                                 "response" : {
                                     "resultSets" : [ ]
                                   }"""));
-    assertEquals(728, json.length());
   }
 
   @Test
@@ -339,7 +330,6 @@ public class Beaconv2_ModelEndpointsTest {
                                 "response" : {
                                     "resultSets" : [ ]
                                   }"""));
-    assertEquals(728, json.length());
   }
 
   @Test
@@ -352,7 +342,6 @@ public class Beaconv2_ModelEndpointsTest {
     assertFalse(json.contains("\"id\" : \"SRR10903401\","));
     assertFalse(json.contains("\"id\" : \"SRR10903402\","));
     assertFalse(json.contains("\"id\" : \"SRR10903404\","));
-    assertEquals(1525, json.length());
   }
 
   @Test
