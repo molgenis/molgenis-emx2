@@ -37,6 +37,21 @@ public class Beaconv2_ModelEndpointsTest {
   }
 
   @Test
+  public void testFilteringTerms() throws Exception {
+    Request request = mock(Request.class);
+    FilteringTerms filteringTerms = new FilteringTerms(request, database);
+    String json = JsonUtil.getWriter().writeValueAsString(filteringTerms);
+    assertTrue(json.contains("\"entityType\" : \"filteringterms\""));
+    assertTrue(json.contains("\"filteringTerms\" : ["));
+    assertTrue(json.contains("\"type\" : \"STRING\","));
+    assertTrue(json.contains("\"id\" : \"accrualPeriodicity\","));
+    assertTrue(json.contains("\"scope\" : \"Individuals\""));
+    assertTrue(json.contains("\"type\" : \"ONTOLOGY\","));
+    assertTrue(json.contains("\"id\" : \"reference sample\","));
+    assertTrue(json.contains("\"label\" : \"reference sample\","));
+  }
+
+  @Test
   public void testGenomicVariants_NoParams() throws Exception {
     Request request = mock(Request.class);
     GenomicVariants genomicVariations =
