@@ -111,6 +111,81 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     }
   }
 
+  function getPresentFilterOptions(facetIdentifier) {
+    const { applyToColumn, adaptive } =
+      filtersStore.facetDetails[facetIdentifier];
+
+    if (!biobankCards.value.length || !adaptive) return [];
+
+    let columnPath = applyToColumn;
+    if (!Array.isArray(applyToColumn)) {
+      columnPath = [applyToColumn];
+    }
+
+    let valuesKnown;
+
+    for (const path of columnPath) {
+      const pathParts = path.split(".");
+
+      if (pathParts[0] === "collections") {
+        const collectionsFromBiobanks = biobankCards.value.flatMap(
+          (biobank) => biobank.collections
+        );
+
+        if (collectionsFromBiobanks.length === 0) break;
+
+        const valuesPresent = collectionsFromBiobanks.map((collection) => {
+          if (collection) {
+            switch (pathParts.length) {
+              case 2:
+                return collection[pathParts[1]];
+              case 3:
+                if (!collection[pathParts[1]]) return;
+                return collection[pathParts[1]][pathParts[2]];
+              case 4:
+                if (!collection[pathParts[1]] || !collection[pathParts[2]]) return;
+                return collection[pathParts[1]][pathParts[2]][pathParts[3]];
+            }
+          }
+        });
+        if (!valuesKnown) {
+          valuesKnown = [...new Set(valuesPresent)].filter((uv) => uv);
+        } else {
+          valuesKnown = [...new Set(valuesPresent.concat(valuesKnown))].filter(
+            (uv) => uv
+          );
+        }
+      } else {
+        const valuesPresent = biobankCards.value.map((biobank) => {
+          switch (pathParts.length) {
+            case 1:
+              return biobank[pathParts[0]];
+            case 2:
+              if (!biobank[pathParts[0]]) return;
+              return biobank[pathParts[0]][pathParts[1]];
+            case 3:
+              if (!biobank[pathParts[0]] || !biobank[pathParts[1]]) return;
+              return biobank[pathParts[0]][pathParts[1]][pathParts[2]];
+            case 4:
+              if (!biobank[pathParts[0]] || !biobank[pathParts[1]] ||  !biobank[pathParts[2]]) return;
+              return biobank[pathParts[0]][pathParts[1]][pathParts[2]][
+                pathParts[3]
+              ];
+          }
+        });
+
+        if (!valuesKnown) {
+          valuesKnown = [...new Set(valuesPresent)].filter((uv) => uv);
+        } else {
+          valuesKnown = [...new Set(valuesPresent.concat(valuesKnown))].filter(
+            (uv) => uv
+          );
+        }
+      }
+    }
+    return valuesKnown;
+  }
+
   const biobankCardsHaveResults = computed(() => {
     return !waitingForResponse.value && biobankCards.value.length > 0;
   });
@@ -140,6 +215,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     updateBiobankCards,
     getBiobankCards,
     getBiobank,
+    getPresentFilterOptions,
     waiting: waitingForResponse,
     biobankCardsHaveResults,
     biobankCardsBiobankCount,

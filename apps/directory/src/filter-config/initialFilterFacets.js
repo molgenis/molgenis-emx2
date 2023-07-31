@@ -23,7 +23,7 @@ export const initialFilterFacets = [
     removeOptions: [],
     showMatchTypeSelector: false,
     negotiatorRequestString: "Countries:",
-    adaptive: false,
+    adaptive: true,
     sortColumn: "label",
     sortDirection: "asc",
     showFacet: true,
@@ -38,7 +38,7 @@ export const initialFilterFacets = [
     removeOptions: ["other"],
     showMatchTypeSelector: false,
     negotiatorRequestString: "Collection type(s):",
-    adaptive: false, // todo: set to true
+    adaptive: true,
     sortColumn: "label",
     sortDirection: "asc",
     showFacet: true,
@@ -53,7 +53,7 @@ export const initialFilterFacets = [
     removeOptions: ["other"],
     showMatchTypeSelector: false,
     negotiatorRequestString: "Categories:",
-    adaptive: false, // todo: set to true
+    adaptive: true,
     sortColumn: "label",
     sortDirection: "asc",
     showFacet: true,
@@ -68,7 +68,7 @@ export const initialFilterFacets = [
     removeOptions: ["other"],
     showMatchTypeSelector: false,
     negotiatorRequestString: "Material type(s):",
-    adaptive: false, // todo: set to true
+    adaptive: true,
     sortColumn: "label",
     sortDirection: "asc",
     showFacet: true,
