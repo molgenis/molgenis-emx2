@@ -30,7 +30,6 @@ public class InfoResponse {
     this.apiVersion = "v2.0.0";
     this.environment = BeaconEnvironment.test;
     this.organization = new Organization();
-    ;
     this.description =
         "This MOLGENIS EMX2 Beacon v2 at "
             + host
@@ -42,5 +41,53 @@ public class InfoResponse {
     this.createDateTime = dtf.format(LocalDateTime.now());
     this.updateDateTime = dtf.format(LocalDateTime.now());
     this.datasets = new String[] {};
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getApiVersion() {
+    return apiVersion;
+  }
+
+  public BeaconEnvironment getEnvironment() {
+    return environment;
+  }
+
+  public Organization getOrganization() {
+    return organization;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public String getVersion() {
+    return version;
+  }
+
+  public String getWelcomeUrl() {
+    return welcomeUrl;
+  }
+
+  public String getAlternativeUrl() {
+    return alternativeUrl;
+  }
+
+  public String getCreateDateTime() {
+    return createDateTime;
+  }
+
+  public String getUpdateDateTime() {
+    return updateDateTime;
+  }
+
+  public String[] getDatasets() {
+    return datasets;
   }
 }

@@ -66,12 +66,6 @@ public class BeaconApi {
     return getWriter().writeValueAsString(new Info(request));
   }
 
-  private static String getServiceInfo(Request request, Response response)
-      throws JsonProcessingException, URISyntaxException {
-    response.type(APPLICATION_JSON_MIME_TYPE);
-    return getWriter().writeValueAsString(new Info(request));
-  }
-
   private static Object getConfiguration(Request request, Response response)
       throws JsonProcessingException {
     response.type(APPLICATION_JSON_MIME_TYPE);
@@ -92,7 +86,7 @@ public class BeaconApi {
   private static String getFilteringTerms(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
     Database database = sessionManager.getSession(request).getDatabase();
-    return getWriter().writeValueAsString(new FilteringTerms(request, database));
+    return getWriter().writeValueAsString(new FilteringTerms(database));
   }
 
   private static String getDatasets(Request request, Response response) throws Exception {

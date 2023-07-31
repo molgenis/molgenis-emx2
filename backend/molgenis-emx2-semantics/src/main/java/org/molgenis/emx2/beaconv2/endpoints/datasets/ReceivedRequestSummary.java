@@ -27,12 +27,43 @@ public class ReceivedRequestSummary {
     this.apiVersion = "v2.0.0";
     this.requestedGranularity = "record";
     this.pagination = new Pagination();
-    ;
     this.requestedSchemas = Arrays.asList(new Schemas(reqSchemas)).toArray(Schemas[]::new);
     this.filters = new Filter[] {};
     this.requestParameters = new BeaconRequestParameters();
     this.requestParameters.empty();
     includeResultsetResponses = "HIT";
     this.testMode = false;
+  }
+
+  public String getApiVersion() {
+    return apiVersion;
+  }
+
+  public String getRequestedGranularity() {
+    return requestedGranularity;
+  }
+
+  public Pagination getPagination() {
+    return pagination;
+  }
+
+  public Schemas[] getRequestedSchemas() {
+    return requestedSchemas;
+  }
+
+  public BeaconRequestParameters getRequestParameters() {
+    return requestParameters;
+  }
+
+  public String getIncludeResultsetResponses() {
+    return includeResultsetResponses;
+  }
+
+  public boolean isTestMode() {
+    return testMode;
+  }
+
+  public Filter[] getFilters() {
+    return filters;
   }
 }

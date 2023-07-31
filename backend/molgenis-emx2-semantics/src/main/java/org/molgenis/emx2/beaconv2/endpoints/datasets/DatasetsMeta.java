@@ -6,10 +6,22 @@ import org.molgenis.emx2.beaconv2.common.Meta;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class DatasetsMeta extends Meta {
 
-  private String returnedGranularity = "record";
-  private ReceivedRequestSummary receivedRequestSummary = new ReceivedRequestSummary("datasets");
+  private String returnedGranularity;
+  private ReceivedRequestSummary receivedRequestSummary;
 
   public DatasetsMeta(String $schema, String entityType) {
     super($schema, entityType);
+    this.returnedGranularity = "record";
+    this.receivedRequestSummary = new ReceivedRequestSummary("datasets");
+  }
+
+  @Override
+  public String getReturnedGranularity() {
+    return returnedGranularity;
+  }
+
+  @Override
+  public ReceivedRequestSummary getReceivedRequestSummary() {
+    return receivedRequestSummary;
   }
 }

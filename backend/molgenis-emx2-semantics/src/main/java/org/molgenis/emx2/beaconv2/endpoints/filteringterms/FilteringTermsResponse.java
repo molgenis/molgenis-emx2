@@ -7,7 +7,6 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.TableMetadata;
-import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class FilteringTermsResponse {
@@ -15,7 +14,7 @@ public class FilteringTermsResponse {
   @JsonInclude(JsonInclude.Include.ALWAYS)
   private FilteringTerm[] filteringTerms;
 
-  public FilteringTermsResponse(Request request, Database database) throws Exception {
+  public FilteringTermsResponse(Database database) {
     this.filteringTerms = new FilteringTerm[] {};
 
     List<String> tableNames =
@@ -27,9 +26,6 @@ public class FilteringTermsResponse {
             "GenomicVariations",
             "Individuals",
             "Runs");
-
-    // scope -> id/label ->
-    // Map<String, Map<String, List>> attributeValues = new HashMap<>();
 
     Set<FilteringTerm> filteringTermsSet = new HashSet<>();
 
@@ -47,7 +43,7 @@ public class FilteringTermsResponse {
               filteringTermsSet.add(filteringTerm);
             }
           }
-          // FIXME not a streaming implementation, could cause problem for big data sets ?
+          // fix me: not a streaming implementation, could cause problem for big data sets ?
           List<Row> rows =
               database
                   .getSchema(schemaName)
@@ -64,14 +60,14 @@ public class FilteringTermsResponse {
               if (value != null) {
                 if (columnPerRow.isRefArray()) {
                   for (String valSplit : splitStringIgnoreQuotedCommas(value)) {
-                    // TODO: for ontologies, get the URI with an extra query as the 'id' value
+                    // to do: for ontologies, get the URI with an extra query as the 'id' value
                     FilteringTerm filteringTerm =
                         new FilteringTerm(
                             columnPerRow.getColumnType().name(), valSplit, valSplit, tableToQuery);
                     filteringTermsSet.add(filteringTerm);
                   }
                 } else {
-                  // TODO: for ontologies, get the URI with an extra query as the 'id' value
+                  // to do: for ontologies, get the URI with an extra query as the 'id' value
                   FilteringTerm filteringTerm =
                       new FilteringTerm(
                           columnPerRow.getColumnType().name(), value, value, tableToQuery);
@@ -88,7 +84,7 @@ public class FilteringTermsResponse {
   }
 
   public static List<String> splitStringIgnoreQuotedCommas(String input) {
-    List<String> tokens = new ArrayList<String>();
+    List<String> tokens = new ArrayList<>();
     int startPosition = 0;
     boolean isInQuotes = false;
     for (int currentPosition = 0; currentPosition < input.length(); currentPosition++) {
@@ -115,5 +111,9 @@ public class FilteringTermsResponse {
       tokens.add(lastToken);
     }
     return tokens;
+  }
+
+  public FilteringTerm[] getFilteringTerms() {
+    return filteringTerms;
   }
 }

@@ -37,9 +37,9 @@ public class Beaconv2_ModelEndpointsTest {
   }
 
   @Test
-  public void testFilteringTerms() throws Exception {
+  void testFilteringTerms() throws Exception {
     Request request = mock(Request.class);
-    FilteringTerms filteringTerms = new FilteringTerms(request, database);
+    FilteringTerms filteringTerms = new FilteringTerms(database);
     String json = JsonUtil.getWriter().writeValueAsString(filteringTerms);
     assertTrue(json.contains("\"entityType\" : \"filteringterms\""));
     assertTrue(json.contains("\"filteringTerms\" : ["));
