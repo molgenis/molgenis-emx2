@@ -108,7 +108,7 @@ const initialCollectionColumns = [
       "url",
       "withdrawn",
       "parent_collection.id",
-      "parent_collection.name"
+      "parent_collection.name",
     ],
   },
 ];

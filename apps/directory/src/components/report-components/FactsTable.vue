@@ -279,8 +279,7 @@ export default {
       if (e.target.checked) {
         this.splitByColumn.push(columnName);
       } else {
-
-        const newArray = this.splitByColumn.filter(sbc => sbc !== columnName)
+        const newArray = this.splitByColumn.filter((sbc) => sbc !== columnName);
         this.splitByColumn = newArray;
       }
     },

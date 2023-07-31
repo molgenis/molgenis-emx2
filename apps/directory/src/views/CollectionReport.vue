@@ -120,9 +120,7 @@ const collectionsPromise = collectionStore
   .getCollectionReport(route.params.id)
   .then((result) => {
     collection.value = result.Collections.length ? result.Collections[0] : {};
-    facts.value = result.CollectionFacts.length
-      ? result.CollectionFacts
-      : {};
+    facts.value = result.CollectionFacts.length ? result.CollectionFacts : {};
   });
 const qualitiesPromise = qualitiesStore.getQualityStandardInformation();
 Promise.all([qualitiesPromise, collectionsPromise]).then(() => {

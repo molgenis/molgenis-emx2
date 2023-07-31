@@ -74,16 +74,14 @@ export const useCollectionStore = defineStore("collectionStore", () => {
         .select("id")
         .where("commercial_use")
         .equals(true);
-      const commercialAvailableCollectionsResponse =
-        await commercialCollectionQuery.execute();
+      const commercialAvailableCollectionsResponse = await commercialCollectionQuery.execute();
       if (
         commercialAvailableCollectionsResponse.Collections &&
         commercialAvailableCollectionsResponse.Collections.length
       ) {
-        commercialAvailableCollections.value =
-          commercialAvailableCollectionsResponse.Collections.map(
-            (collection) => collection.id
-          );
+        commercialAvailableCollections.value = commercialAvailableCollectionsResponse.Collections.map(
+          (collection) => collection.id
+        );
       }
     }
 
@@ -116,7 +114,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
       .like(id);
 
     const factResults = await factQuery.execute();
-    reportResults.CollectionFacts = factResults.CollectionFacts
+    reportResults.CollectionFacts = factResults.CollectionFacts;
     return reportResults;
   }
 
