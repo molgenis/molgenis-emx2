@@ -74,14 +74,16 @@ export const useCollectionStore = defineStore("collectionStore", () => {
         .select("id")
         .where("commercial_use")
         .equals(true);
-      const commercialAvailableCollectionsResponse = await commercialCollectionQuery.execute();
+      const commercialAvailableCollectionsResponse =
+        await commercialCollectionQuery.execute();
       if (
         commercialAvailableCollectionsResponse.Collections &&
         commercialAvailableCollectionsResponse.Collections.length
       ) {
-        commercialAvailableCollections.value = commercialAvailableCollectionsResponse.Collections.map(
-          (collection) => collection.id
-        );
+        commercialAvailableCollections.value =
+          commercialAvailableCollectionsResponse.Collections.map(
+            (collection) => collection.id
+          );
       }
     }
 
@@ -95,7 +97,27 @@ export const useCollectionStore = defineStore("collectionStore", () => {
       .orderBy("Collections", "id", "asc")
       .where("id")
       .like(id);
-    return await collectionReportQuery.execute();
+
+    const reportResults = await collectionReportQuery.execute();
+
+    const factQuery = new QueryEMX2(graphqlEndpoint)
+      .table("CollectionFacts")
+      .select([
+        "id",
+        "number_of_samples",
+        "number_of_donors",
+        "sample_type.label",
+        "sex.label",
+        "age_range.label",
+        "disease.label",
+        "disease.name",
+      ])
+      .where("id")
+      .like(id);
+
+    const factResults = await factQuery.execute();
+    reportResults.CollectionFacts = factResults.CollectionFacts
+    return reportResults;
   }
 
   return {
