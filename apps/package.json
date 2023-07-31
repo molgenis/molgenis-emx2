@@ -10,7 +10,6 @@
     "updownload",
     "pages",
     "graphql-playground",
-    "nuxt3-ssr",
     "molgenis-components",
     "molgenis-viz",
     "ern-reconnet",
@@ -18,6 +17,8 @@
     "reports",
     "tasks",
     "gportal"
-  ]
+  ],
+  "devDependencies": {
+    "shelljs": "0.8.5"
+  }
 }
-

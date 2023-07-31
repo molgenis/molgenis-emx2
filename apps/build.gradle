@@ -24,8 +24,7 @@ subprojects {
         with nodeSpec
     }
 
-    //disable yarn_install, only parent should run install in yarn workspaces
-    yarn_install.enabled = false;
+    yarn_install.enabled = true;
     yarnSetup.dependsOn parent.yarnSetup
     npmSetup.dependsOn parent.npmSetup
     nodeSetup.dependsOn parent.nodeSetup
