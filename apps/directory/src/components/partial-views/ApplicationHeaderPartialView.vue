@@ -95,7 +95,8 @@ export default {
   },
   computed: {
     optionsPresent() {
-      return (facetIdentifier) => this.biobanksStore.getPresentFilterOptions(facetIdentifier);
+      return (facetIdentifier) =>
+        this.biobanksStore.getPresentFilterOptions(facetIdentifier);
     },
     hasActiveFilters() {
       return this.filtersStore.hasActiveFilters;

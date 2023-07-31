@@ -112,8 +112,9 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   }
 
   function getPresentFilterOptions(facetIdentifier) {
-    const { applyToColumn, adaptive } =
-      filtersStore.facetDetails[facetIdentifier];
+    const { applyToColumn, adaptive } = filtersStore.facetDetails[
+      facetIdentifier
+    ];
 
     if (!biobankCards.value.length || !adaptive) return [];
 
@@ -143,7 +144,8 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
                 if (!collection[pathParts[1]]) return;
                 return collection[pathParts[1]][pathParts[2]];
               case 4:
-                if (!collection[pathParts[1]] || !collection[pathParts[2]]) return;
+                if (!collection[pathParts[1]] || !collection[pathParts[2]])
+                  return;
                 return collection[pathParts[1]][pathParts[2]][pathParts[3]];
             }
           }
@@ -167,7 +169,12 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
               if (!biobank[pathParts[0]] || !biobank[pathParts[1]]) return;
               return biobank[pathParts[0]][pathParts[1]][pathParts[2]];
             case 4:
-              if (!biobank[pathParts[0]] || !biobank[pathParts[1]] ||  !biobank[pathParts[2]]) return;
+              if (
+                !biobank[pathParts[0]] ||
+                !biobank[pathParts[1]] ||
+                !biobank[pathParts[2]]
+              )
+                return;
               return biobank[pathParts[0]][pathParts[1]][pathParts[2]][
                 pathParts[3]
               ];
