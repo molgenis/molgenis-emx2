@@ -38,9 +38,8 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
         (cf) => !currentIds.includes(cf.value)
       );
 
-      selectedCollections.value[
-        biobankIdentifier
-      ] = currentSelectionForBiobank.concat(newCollections);
+      selectedCollections.value[biobankIdentifier] =
+        currentSelectionForBiobank.concat(newCollections);
     } else {
       selectedCollections.value[biobankIdentifier] = collections;
     }
@@ -79,9 +78,8 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       }
 
       if (collectionSelectionForBiobank.length) {
-        selectedCollections.value[
-          biobankIdentifier
-        ] = collectionSelectionForBiobank;
+        selectedCollections.value[biobankIdentifier] =
+          collectionSelectionForBiobank;
       } else {
         delete selectedCollections.value[biobankIdentifier];
       }
@@ -171,6 +169,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     fetch(negotiatorUrl, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ URL, humanReadable, collections }),
     })
       .then((response) => {
