@@ -49,4 +49,4 @@ var <- mrg[,c(""ChildID"", ""prepreg_dia"",""prnbpgdm"")]
 var$preg_dia <- NA
 var$preg_dia <- as.factor(ifelse((var$prnbpgdm==""Yes"" | var$prepreg_dia==2 | var$prepreg_dia==3), 1,
                              ifelse(var$prnbpgdm==""No"", 0, NA)))"
-ALSPAC,followup1,,EUChildNetworkCDM,core,age,nza,,
+ALSPAC,followup1,,EUChildNetworkCDM,core,age,na,,

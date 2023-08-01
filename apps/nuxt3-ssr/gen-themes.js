@@ -19,7 +19,7 @@ fs.readdir(location, (err, files) => {
 
 // write empty fingerprint file for development
 fs.writeFileSync(
-  "./utils/fingerprint.js",
+  ".fingerprint.js",
   "export const hash = '';"
 );
 

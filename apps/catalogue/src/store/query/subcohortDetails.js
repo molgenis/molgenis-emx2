@@ -48,9 +48,9 @@ export default gql`
         ageGroup {
           name
         }
-        N_female
-        N_male
-        N_total
+        nFemale
+        nMale
+        nTotal
       }
     }
   }

@@ -1,8 +1,8 @@
-name
-human medicinal product
-veterinary medicinal product
-herbal medicinal product
-medical device
-disease/health condition
-medical procedure
-other
+order,name,code,parent,ontologyTermURI,definition
+1,Human medicinal product,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030171/terms/200000030173,
+2,Veterinary medicinal product,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030171/terms/200000030174,
+3,Herbal medicinal product,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030171/terms/200000030175,
+4,Medical device,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030171/terms/200000030176,
+5,Disease /health condition,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030171/terms/200000030177,
+6,Medical procedure,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030171/terms/200000030185,
+7,Other,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030171/terms/200000031046,

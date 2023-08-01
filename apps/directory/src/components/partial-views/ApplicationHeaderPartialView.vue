@@ -7,11 +7,19 @@
         </div>
       </div>
       <div class="col-4 d-flex justify-content-end">
+        <router-link
+          v-if="showSettings"
+          class="btn btn-light border mr-2 align-self-start"
+          to="/configuration"
+        >
+          <span class="mr-2">Settings</span>
+          <span class="fa-solid fa-gear" />
+        </router-link>
         <check-out :bookmark="true" />
       </div>
     </div>
 
-    <div class="row filterbar p-2">
+    <div class="row filterbar p-2" v-if="filtersReady">
       <ButtonDropdown
         :id="filter.facetIdentifier"
         v-for="filter in filtersToRender"
@@ -83,6 +91,8 @@ export default {
       return this.filtersStore.hasActiveFilters;
     },
     filtersToRender() {
+      if (!this.filtersStore.filtersReadyToRender) return [];
+
       return this.filtersStore.filterFacets.filter(
         (filterFacet) =>
           filterFacet.showFacet &&
@@ -91,10 +101,18 @@ export default {
       );
     },
     toggleFiltersToRender() {
+      if (!this.filtersStore.filtersReadyToRender) return [];
+
       return this.filtersStore.filterFacets.filter(
         (filterFacet) =>
           filterFacet.showFacet && filterFacet.component === "ToggleFilter"
       );
+    },
+    showSettings() {
+      return this.settingsStore.showSettings;
+    },
+    filtersReady() {
+      return this.filtersStore.filtersReadyToRender;
     },
   },
   methods: {

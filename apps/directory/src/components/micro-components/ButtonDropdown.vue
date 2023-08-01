@@ -103,7 +103,7 @@ details.align-right > *:not(summary) {
   position: absolute;
   top: 2.6rem;
   width: inherit;
-
+  z-index: 9000;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
 }
 
