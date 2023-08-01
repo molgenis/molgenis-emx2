@@ -35,7 +35,14 @@
             {{ filterSelectionCount(filter.facetIdentifier) }}</span
           >
         </template>
-        <component :is="filter.component" v-bind="filter"> </component>
+        <component
+          :is="filter.component"
+          v-bind="filter"
+          @click="currentFilter = filter.facetIdentifier"
+          :currentlyActive="currentFilter === filter.facetIdentifier"
+          :optionsFilter="optionsPresent(filter.facetIdentifier)"
+        >
+        </component>
       </ButtonDropdown>
 
       <toggle-filter
@@ -70,13 +77,15 @@ import ButtonDropdown from "../micro-components/ButtonDropdown.vue";
 /** */
 
 import CheckOut from "../checkout-components/CheckOut.vue";
+import { useBiobanksStore } from "../../stores/biobanksStore";
 
 export default {
   setup() {
+    const biobanksStore = useBiobanksStore();
     const settingsStore = useSettingsStore();
     const filtersStore = useFiltersStore();
     const checkoutStore = useCheckoutStore();
-    return { settingsStore, filtersStore, checkoutStore };
+    return { biobanksStore, settingsStore, filtersStore, checkoutStore };
   },
   components: {
     SearchFilter,
@@ -86,7 +95,16 @@ export default {
     ToggleFilter,
     CheckOut,
   },
+  data() {
+    return {
+      currentFilter: "",
+    };
+  },
   computed: {
+    optionsPresent() {
+      return (facetIdentifier) =>
+        this.biobanksStore.getPresentFilterOptions(facetIdentifier);
+    },
     hasActiveFilters() {
       return this.filtersStore.hasActiveFilters;
     },
