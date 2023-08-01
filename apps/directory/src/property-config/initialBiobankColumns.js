@@ -51,6 +51,7 @@ export const initialBiobankColumns = [
       "network.id",
       "url",
       "withdrawn",
+      "collections.materials.name"
     ],
   },
 ];

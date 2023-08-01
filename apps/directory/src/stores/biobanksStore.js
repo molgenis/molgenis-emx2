@@ -4,6 +4,8 @@ import QueryEMX2 from "../functions/queryEMX2";
 import { useSettingsStore } from "./settingsStore";
 import { useCollectionStore } from "./collectionStore";
 import { useFiltersStore } from "./filtersStore";
+import { getPropertyByPath } from "../functions/getPropertyByPath";
+import { extractValue } from "../functions/extractValue";
 
 export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
@@ -112,9 +114,8 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   }
 
   function getPresentFilterOptions(facetIdentifier) {
-    const { applyToColumn, adaptive } = filtersStore.facetDetails[
-      facetIdentifier
-    ];
+    const { applyToColumn, adaptive } =
+      filtersStore.facetDetails[facetIdentifier];
 
     if (!biobankCards.value.length || !adaptive) return [];
 
@@ -129,68 +130,40 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       const pathParts = path.split(".");
 
       if (pathParts[0] === "collections") {
+        pathParts.shift(); /** removing 'collections' */
+        const finalProperty = pathParts.pop();
+
         const collectionsFromBiobanks = biobankCards.value.flatMap(
           (biobank) => biobank.collections
         );
 
         if (collectionsFromBiobanks.length === 0) break;
 
-        const valuesPresent = collectionsFromBiobanks.map((collection) => {
-          if (collection) {
-            switch (pathParts.length) {
-              case 2:
-                return collection[pathParts[1]];
-              case 3:
-                if (!collection[pathParts[1]]) return;
-                return collection[pathParts[1]][pathParts[2]];
-              case 4:
-                if (!collection[pathParts[1]] || !collection[pathParts[2]])
-                  return;
-                return collection[pathParts[1]][pathParts[2]][pathParts[3]];
-            }
-          }
+        let valuesPresent = collectionsFromBiobanks.flatMap((collection) => {
+          return extractValue(getPropertyByPath(collection, pathParts), finalProperty);
         });
+
+        
+
         if (!valuesKnown) {
-          valuesKnown = [...new Set(valuesPresent)].filter((uv) => uv);
+          valuesKnown = valuesPresent.filter((uv) => uv);
         } else {
-          valuesKnown = [...new Set(valuesPresent.concat(valuesKnown))].filter(
-            (uv) => uv
-          );
+          valuesKnown = valuesPresent.concat(valuesKnown).filter((uv) => uv);
         }
       } else {
+        const finalProperty = pathParts.pop();
         const valuesPresent = biobankCards.value.map((biobank) => {
-          switch (pathParts.length) {
-            case 1:
-              return biobank[pathParts[0]];
-            case 2:
-              if (!biobank[pathParts[0]]) return;
-              return biobank[pathParts[0]][pathParts[1]];
-            case 3:
-              if (!biobank[pathParts[0]] || !biobank[pathParts[1]]) return;
-              return biobank[pathParts[0]][pathParts[1]][pathParts[2]];
-            case 4:
-              if (
-                !biobank[pathParts[0]] ||
-                !biobank[pathParts[1]] ||
-                !biobank[pathParts[2]]
-              )
-                return;
-              return biobank[pathParts[0]][pathParts[1]][pathParts[2]][
-                pathParts[3]
-              ];
-          }
+          return extractValue(getPropertyByPath(biobank, pathParts), finalProperty);
         });
 
         if (!valuesKnown) {
-          valuesKnown = [...new Set(valuesPresent)].filter((uv) => uv);
+          valuesKnown = valuesPresent.filter((uv) => uv);
         } else {
-          valuesKnown = [...new Set(valuesPresent.concat(valuesKnown))].filter(
-            (uv) => uv
-          );
+          valuesKnown = valuesPresent.concat(valuesKnown).filter((uv) => uv);
         }
       }
     }
-    return valuesKnown;
+    return [...new Set(valuesKnown)];
   }
 
   const biobankCardsHaveResults = computed(() => {
