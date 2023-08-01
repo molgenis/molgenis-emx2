@@ -56,7 +56,7 @@ export async function applyFiltersToQuery(
           .orFilter("collections.diagnosis_available.definition")
           .like(filterValue);
 
-          /** cant search in the searchbox on any filter that is set to 'adaptive' because the items will not show. */
+        /** cant search in the searchbox on any filter that is set to 'adaptive' because the items will not show. */
         break;
       }
       case "ToggleFilter":

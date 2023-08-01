@@ -38,6 +38,8 @@
         <component
           :is="filter.component"
           v-bind="filter"
+          @click="currentFilter = filter.facetIdentifier"
+          :currentlyActive="currentFilter === filter.facetIdentifier"
           :optionsFilter="optionsPresent(filter.facetIdentifier)"
         >
         </component>
@@ -92,6 +94,11 @@ export default {
     OntologyFilter,
     ToggleFilter,
     CheckOut,
+  },
+  data() {
+    return {
+      currentFilter: "",
+    };
   },
   computed: {
     optionsPresent() {
