@@ -8,7 +8,7 @@ import initialBiobankReportColumns from "../property-config/initialBiobankReport
 import initialLandingpage from "../property-config/initialLandingpage";
 import QueryEMX2 from "../functions/queryEMX2";
 /**
- * Settings store is where all the configuration of the application is handled.
+ * Settings store is where all the configuration of the application is handled. 
  * This means that user config from the database is merged with the defaults here.
  */
 export const useSettingsStore = defineStore("settingsStore", () => {
