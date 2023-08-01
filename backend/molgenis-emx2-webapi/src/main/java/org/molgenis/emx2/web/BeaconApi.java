@@ -134,7 +134,7 @@ public class BeaconApi {
 
   private static String getRuns(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
-    List<Table> tables = getTableFromAllSchemas("Runs", request);
+    List<Table> tables = getTableFromAllSchemas("SequencingRuns", request);
     return getWriter().writeValueAsString(new Runs(request, tables));
   }
 
