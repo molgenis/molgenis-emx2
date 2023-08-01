@@ -167,7 +167,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     const humanReadable = getHumanReadableString();
     const negotiatorUrl = settingsStore.config.negotiatorUrl;
 
-    const nToken = ''
+    const nToken = "";
 
     fetch(negotiatorUrl, {
       method: "POST",
@@ -175,7 +175,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     })
       .then((response) => {
         if (response.redirected) {
-// fetch location from header '/login.xhtml'
+          // fetch location from header '/login.xhtml'
 
           window.location.href = response.url;
         }
