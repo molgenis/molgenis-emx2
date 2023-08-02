@@ -102,7 +102,11 @@
         </tr>
         <tr class="filter-bar">
           <th>
-            <select @change="filter('sample_type', $event)" v-model="sampleFilter" class="w-100">
+            <select
+              @change="filter('sample_type', $event)"
+              v-model="sampleFilter"
+              class="w-100"
+            >
               <option value="all">All</option>
               <option
                 v-for="material of materialtypeOptions"
@@ -503,10 +507,10 @@ tr td:not(:first-child) {
 
 .facts-header th {
   border-bottom: none;
+  white-space: nowrap;
 }
 
 .filter-bar th {
   border-top: none;
-  white-space: nowrap;
 }
 </style>
