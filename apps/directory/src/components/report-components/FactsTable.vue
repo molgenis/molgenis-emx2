@@ -102,7 +102,7 @@
         </tr>
         <tr class="filter-bar">
           <th>
-            <select @change="filter('sample_type', $event)" class="w-100">
+            <select @change="filter('sample_type', $event)" v-model="sampleFilter" class="w-100">
               <option value="all">All</option>
               <option
                 v-for="material of materialtypeOptions"
@@ -114,7 +114,7 @@
             </select>
           </th>
           <th>
-            <select @change="filter('sex', $event)">
+            <select @change="filter('sex', $event)" v-model="sexFilter">
               <option value="all">All</option>
               <option v-for="sex of sexOptions" :key="sex" :value="sex">
                 {{ sex }}
@@ -123,7 +123,7 @@
           </th>
 
           <th>
-            <select @change="filter('age_range', $event)">
+            <select @change="filter('age_range', $event)" v-model="ageFilter">
               <option value="all">All</option>
               <option
                 v-for="ageRange of ageRangeOptions"
@@ -135,7 +135,7 @@
             </select>
           </th>
           <th>
-            <select @change="filter('disease', $event)">
+            <select @change="filter('disease', $event)" v-model="diseaseFilter">
               <option value="all">All</option>
               <option
                 v-for="disease of diseaseOptions"
@@ -184,6 +184,10 @@ export default {
       sortAsc: false,
       tableVersion: 0,
       filters: [],
+      sampleFilter: "all",
+      sexFilter: "all",
+      ageFilter: "all",
+      diseaseFilter: "all",
       /** these columns are all the critearia that the rows should be split on. */
       splitByColumn: ["sample_type", "sex", "age_range", "disease"],
       splittableColumns: [
@@ -275,6 +279,11 @@ export default {
         const newArray = this.splitByColumn.filter((sbc) => sbc !== columnName);
         this.splitByColumn = newArray;
       }
+      this.sampleFilter = "all";
+      this.sexFilter = "all";
+      this.ageFilter = "all";
+      this.diseaseFilter = "all";
+      this.filters = [];
       this.collapseRows();
     },
     hasAFactToShow(fact) {
@@ -498,5 +507,6 @@ tr td:not(:first-child) {
 
 .filter-bar th {
   border-top: none;
+  white-space: nowrap;
 }
 </style>
