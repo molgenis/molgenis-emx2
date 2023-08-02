@@ -24,7 +24,7 @@ const router = createRouter({
     {
       path: "/collection/:id",
       name: "collectiondetails",
-      component: CollectionReport
+      component: CollectionReport,
     },
     {
       path: "/biobank/:id",

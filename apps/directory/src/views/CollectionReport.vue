@@ -9,7 +9,6 @@
     </div>
 
     <div
-      class="hello"
       v-if="loaded && collectionDataAvailable && bioschemasJsonld"
       v-html="bioschemasJsonld"
     />
@@ -80,7 +79,7 @@
             </div>
             <!-- facts data -->
             <div class="row" v-if="facts && facts.length > 0">
-              <facts-table :attribute="facts"></facts-table>
+              <facts-table class="w-100 px-3" :attribute="facts"></facts-table>
             </div>
           </div>
         </div>
@@ -120,7 +119,10 @@ const collectionsPromise = collectionStore
   .getCollectionReport(route.params.id)
   .then((result) => {
     collection.value = result.Collections.length ? result.Collections[0] : {};
-    facts.value = result.CollectionFacts && result.CollectionFacts.length ? result.CollectionFacts : {};
+    facts.value =
+      result.CollectionFacts && result.CollectionFacts.length
+        ? result.CollectionFacts
+        : {};
   });
 const qualitiesPromise = qualitiesStore.getQualityStandardInformation();
 Promise.all([qualitiesPromise, collectionsPromise]).then(() => {

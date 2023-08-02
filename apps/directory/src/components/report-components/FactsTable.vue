@@ -107,24 +107,18 @@
               <option
                 v-for="material of materialtypeOptions"
                 :key="material"
-                :value="renderValue(material)"
+                :value="material"
               >
-                {{ renderValue(material) }}
+                {{ material }}
               </option>
-              <option value="Unknown">Unknown</option>
             </select>
           </th>
           <th>
             <select @change="filter('sex', $event)">
               <option value="all">All</option>
-              <option
-                v-for="sex of sexOptions"
-                :key="sex"
-                :value="renderValue(sex)"
-              >
-                {{ renderValue(sex) }}
+              <option v-for="sex of sexOptions" :key="sex" :value="sex">
+                {{ sex }}
               </option>
-              <option value="Unknown">Unknown</option>
             </select>
           </th>
 
@@ -134,11 +128,10 @@
               <option
                 v-for="ageRange of ageRangeOptions"
                 :key="ageRange"
-                :value="renderValue(ageRange)"
+                :value="ageRange"
               >
-                {{ renderValue(ageRange) }}
+                {{ ageRange }}
               </option>
-              <option value="Unknown">Unknown</option>
             </select>
           </th>
           <th>
@@ -147,11 +140,10 @@
               <option
                 v-for="disease of diseaseOptions"
                 :key="disease"
-                :value="renderValue(disease)"
+                :value="disease"
               >
-                {{ renderValue(disease) }}
+                {{ disease }}
               </option>
-              <option value="Unknown">Unknown</option>
             </select>
           </th>
           <th></th>
@@ -162,15 +154,15 @@
         <template v-for="fact of factsTable">
           <tr :key="fact.id" v-if="hasAFactToShow(fact)">
             <th scope="row" class="pr-1 align-top">
-              {{ renderValue(fact.sample_type, "label") }}
+              {{ fact.sample_type }}
             </th>
-            <td>{{ renderValue(fact.sex) }}</td>
-            <td>{{ renderValue(fact.age_range) }}</td>
-            <td :title="renderValue(fact.disease_name)">
-              {{ renderValue(fact.disease) }}
+            <td>{{ fact.sex }}</td>
+            <td>{{ fact.age_range }}</td>
+            <td :title="fact.disease_name">
+              {{ fact.disease }}
             </td>
-            <td>{{ renderValue(fact.number_of_donors) }}</td>
-            <td>{{ renderSamplesValue(fact.number_of_samples) }}</td>
+            <td>{{ fact.number_of_donors }}</td>
+            <td>{{ fact.number_of_samples }}</td>
           </tr>
         </template>
       </tbody>
@@ -216,28 +208,34 @@ export default {
     materialtypeOptions() {
       return [
         ...new Set(
-          this.attribute.map((attr) => attr.sample_type?.label).filter((l) => l)
+          this.facts
+            .map((fact) => fact.sample_type)
+            .sort((a, b) => a.localeCompare(b))
         ),
       ];
     },
     sexOptions() {
       return [
         ...new Set(
-          this.attribute.map((attr) => attr.sex?.label).filter((l) => l)
+          this.facts.map((fact) => fact.sex).sort((a, b) => a.localeCompare(b))
         ),
       ];
     },
     ageRangeOptions() {
       return [
         ...new Set(
-          this.attribute.map((attr) => attr.age_range?.label).filter((l) => l)
+          this.facts
+            .map((fact) => fact.age_range)
+            .sort((a, b) => a.localeCompare(b))
         ),
       ];
     },
     diseaseOptions() {
       return [
         ...new Set(
-          this.attribute.map((attr) => attr.disease?.label).filter((l) => l)
+          this.facts
+            .map((fact) => fact.disease)
+            .sort((a, b) => a.localeCompare(b))
         ),
       ];
     },
@@ -337,22 +335,6 @@ export default {
       /** if we do not key this, then it will break */
       this.tableVersion = this.tableVersion + 1;
     },
-    renderValue(value) {
-      if (Array.isArray(value)) {
-        return value.join(", ");
-      } else return value;
-    },
-    renderSamplesValue(value) {
-      if (!value) return "Unknown";
-
-      if (Array.isArray(value)) {
-        const sum = value.reduce(
-          (prev, next) => parseInt(prev) + parseInt(next)
-        );
-        return sum;
-      } else return value;
-    },
-
     getValue(object, propertyString) {
       const trail = propertyString.split(".");
       const trailLength = trail.length;
@@ -443,7 +425,15 @@ export default {
                 }
               } else {
                 if (collapsedFact[column] !== fact[column]) {
-                  collapsedFact[column] = [collapsedFact[column], fact[column]];
+                  if (isNaN(collapsedFact[column]) && isNaN(fact[column])) {
+                    collapsedFact[column] = [
+                      collapsedFact[column],
+                      fact[column],
+                    ];
+                  } else {
+                    collapsedFact[column] =
+                      collapsedFact[column] + fact[column];
+                  }
                 }
               }
             }
@@ -452,6 +442,15 @@ export default {
         collapsedFact.number_of_donors = "Available";
         collapsedFacts.push(collapsedFact);
       }
+
+      collapsedFacts.forEach((fact) => {
+        for (const prop in fact) {
+          if (Array.isArray(fact[prop])) {
+            fact[prop] = fact[prop].join(", ");
+          }
+        }
+      });
+
       this.facts = collapsedFacts;
     },
     factsData() {
