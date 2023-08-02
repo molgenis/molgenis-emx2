@@ -174,12 +174,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       },
       body: JSON.stringify({ URL, humanReadable, collections }),
     })
-      .then((response) => {
-        if (response.redirected) {
-          // fetch location from header '/login.xhtml'
-
-          window.location.href = response.url;
-        }
+      .then(async (response) => {
+        const body = await response.json();
+        window.location.href = body.redirect_uri;
       })
       .catch(function (err) {
         console.info(err + " url: " + negotiatorUrl);
