@@ -63,7 +63,10 @@ const client: IClient = {
             table.externalSchema === schemaNameCache
         );
       },
-      fetchTableData: async (tableId: string, properties: IQueryMetaData) => {
+      fetchTableData: async (
+        tableId: string,
+        properties: IQueryMetaData = {}
+      ) => {
         if (schemaMetaData === null) {
           schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
           if (schemaMetaData && !schemaNameCache) {
@@ -83,7 +86,7 @@ const client: IClient = {
       },
       fetchTableDataValues: async (
         tableName: string,
-        properties: IQueryMetaData
+        properties: IQueryMetaData = {}
       ) => {
         const tableId = convertToPascalCase(tableName);
         if (schemaMetaData === null) {
@@ -352,10 +355,10 @@ const fetchTableData = async (
   expandLevel: number = 2
 ) => {
   const tableId = convertToPascalCase(tableName);
-  const limit = properties?.limit ? properties.limit : 20;
-  const offset = properties?.offset ? properties.offset : 0;
+  const limit = properties.limit ? properties.limit : 20;
+  const offset = properties.offset ? properties.offset : 0;
 
-  const search = properties?.searchTerms
+  const search = properties.searchTerms
     ? ',search:"' + properties.searchTerms.trim() + '"'
     : "";
 
@@ -375,8 +378,8 @@ const fetchTableData = async (
           }
         }`;
 
-  const filter = properties?.filter ? properties.filter : {};
-  const orderby = properties?.orderby ? properties.orderby : {};
+  const filter = properties.filter ? properties.filter : {};
+  const orderby = properties.orderby ? properties.orderby : {};
   const resp = await axios
     .post(graphqlURL(schemaName), {
       query: tableDataQuery,
