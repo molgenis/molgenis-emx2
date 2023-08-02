@@ -212,11 +212,6 @@ export default {
       ],
     };
   },
-  watch: {
-    splitByColumn() {
-      this.collapseRows();
-    },
-  },
   computed: {
     materialtypeOptions() {
       return [
@@ -282,6 +277,7 @@ export default {
         const newArray = this.splitByColumn.filter((sbc) => sbc !== columnName);
         this.splitByColumn = newArray;
       }
+      this.collapseRows();
     },
     hasAFactToShow(fact) {
       const hasSamples =
