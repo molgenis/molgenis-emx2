@@ -12,6 +12,39 @@
         <AppHeader />
       </slot>
       <main class="mb-auto">
+        <BottomModal
+          :show="showCookieWall"
+          :full-screen="false"
+          button-alignment="right"
+        >
+          <section
+            class="bg-white py-9 lg:px-12.5 px-4 text-gray-900 xl:rounded-3px"
+          >
+            <h2 class="mb-5 uppercase text-heading-4xl font-display">
+              Cookies 🍪🍪🍪
+            </h2>
+            <div class="mb-5 prose max-w-none">
+              We use cookies and similar technologies to enhance your browsing
+              experience, analyze website traffic, and personalize content. By
+              clicking "Accept," you consent to the use of cookies.
+            </div>
+            <div class="mb-5 prose max-w-none">
+              We value your privacy and are committed to protecting your
+              personal information. Our use of cookies is solely for improving
+              your experience on our website and ensuring its functionality. We
+              do not sell or share your data with third parties.
+            </div>
+            <div class="flex gap-2">
+              <Button @click="setAnalyticsCookie(true)" type="secondary"
+                >Accept</Button
+              >
+              <Button @click="setAnalyticsCookie(false)" type="tertiary"
+                >Reject</Button
+              >
+            </div>
+          </section>
+        </BottomModal>
+
         <slot>
           <NuxtPage />
         </slot>
@@ -58,10 +91,27 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import BackgroundGradient from "./components/BackgroundGradient.vue";
 import { hash } from ".fingerprint.js";
+
 const config = useRuntimeConfig();
+
+const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics");
+console.log("isAnalyticsAllowedCookie: ", isAnalyticsAllowedCookie.value);
+
+const showCookieWall = ref(
+  !!(config.public.analyticsKey && isAnalyticsAllowedCookie.value === undefined)
+);
+console.log("showCookieWall: ", showCookieWall.value);
+
+function setAnalyticsCookie(value: boolean) {
+  isAnalyticsAllowedCookie.value = value.toString();
+  showCookieWall.value = false;
+  if (value === true) {
+    window.location.reload();
+  }
+}
 
 let themeFilename = "styles";
 if (config.public.emx2Theme) {
@@ -85,5 +135,15 @@ useHead({
       ? `${titleChunk} | ${config.public.siteTitle}`
       : `${config.public.siteTitle}`;
   },
+  script:
+    config.public.analyticsKey && isAnalyticsAllowedCookie.value
+      ? [
+          {
+            src: `https://siteimproveanalytics.com/js/siteanalyze_${config.public.analyticsKey}.js`,
+            async: true,
+            tagPosition: "bodyClose",
+          },
+        ]
+      : [],
 });
 </script>
