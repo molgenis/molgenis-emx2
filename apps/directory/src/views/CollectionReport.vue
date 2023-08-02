@@ -9,7 +9,6 @@
     </div>
 
     <div
-      class="hello"
       v-if="loaded && collectionDataAvailable && bioschemasJsonld"
       v-html="bioschemasJsonld"
     />
@@ -75,16 +74,13 @@
                   :collection="collection"
                 />
               </div>
-
               <!-- Right side card -->
               <collection-report-info-card :info="info" />
             </div>
             <!-- facts data -->
-            <!-- <div
-              class="row"
-              v-if="factsData && Object.keys(factsData).length > 0">
-              <facts-table :attribute="factsData"></facts-table>
-            </div> -->
+            <div class="row" v-if="facts && facts.length > 0">
+              <facts-table class="w-100 px-3" :attribute="facts"></facts-table>
+            </div>
           </div>
         </div>
       </div>
@@ -107,12 +103,14 @@ import { collectionReportInformation } from "../functions/viewmodelMapper";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
 import { useSettingsStore } from "../stores/settingsStore";
+import FactsTable from "../components/report-components/FactsTable.vue";
 
 const settingsStore = useSettingsStore();
 const collectionStore = useCollectionStore();
 const qualitiesStore = useQualitiesStore();
 
 const collection = ref({});
+const facts = ref({});
 const route = useRoute();
 
 let loaded = ref(false);
@@ -121,6 +119,10 @@ const collectionsPromise = collectionStore
   .getCollectionReport(route.params.id)
   .then((result) => {
     collection.value = result.Collections.length ? result.Collections[0] : {};
+    facts.value =
+      result.CollectionFacts && result.CollectionFacts.length
+        ? result.CollectionFacts
+        : {};
   });
 const qualitiesPromise = qualitiesStore.getQualityStandardInformation();
 Promise.all([qualitiesPromise, collectionsPromise]).then(() => {
@@ -152,10 +154,6 @@ function wrapBioschema(schemaData) {
     schemaData
   )}<\/script>`;
 }
-// factsData() {
-//   // TODO rework this so that facts are stand-alone, this is a workaround because @ReportCollectionDetails
-//   return { value: this.collection.facts };
-// }
 </script>
 
 <style scoped>

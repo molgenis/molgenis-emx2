@@ -69,6 +69,13 @@ questions:
     required: false
     default: ""
     group: "Provisioning"
+  - variable: ssrCatalogue.environment.analyticsKey
+    label: ssr catalogue analytics key
+    description: "Key for analytics call"
+    type: string
+    required: false
+    default: ""
+    group: "Provisioning"
   - variable: oidc.enabled
     label: OIDC enabled
     description: "Enabled OIDC"

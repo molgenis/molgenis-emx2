@@ -1,1 +1,270 @@
 id,collection,sex,age_range,sample_type,disease,number_of_samples,number_of_donors,last_update,national_node,withdrawn
+bbmri-eric:ID:DE_biobank1:collection:coll1:facts:1,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Adult,PERIPHERAL_BLOOD_CELLS,,567,234,2023-08-02,DE,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4018,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C18,8,8,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-67,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),SALIVA,,8,8,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4019,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),NASAL_SWAB,urn:miriam:icd:C18,33,8,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-66,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),SALIVA,,32,30,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4016,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,NASAL_SWAB,urn:miriam:icd:C19,4,1,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-65,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Middle-aged,SALIVA,,84,76,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4017,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,NASAL_SWAB,,3,1,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-64,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,SALIVA,,101,96,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-63,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Young Adult,SALIVA,,33,33,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-62,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),PLASMA,,16,8,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-61,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),PLASMA,,157,51,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-60,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Middle-aged,PLASMA,,316,120,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-69,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,SALIVA,,90,89,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-68,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Young Adult,SALIVA,,29,28,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-170,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (65-79 years),URINE,,118,91,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-172,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Infant,WHOLE_BLOOD,,1,1,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-171,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (>80 years),URINE,,17,17,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-174,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Young Adult,WHOLE_BLOOD,,10,9,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-173,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adolescent,WHOLE_BLOOD,,8,7,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-176,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adult,WHOLE_BLOOD,,52,45,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-70,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Middle-aged,SALIVA,,85,76,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4011,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C18,4,4,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-175,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Child,WHOLE_BLOOD,,21,19,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-178,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (65-79 years),WHOLE_BLOOD,,2,2,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-177,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Middle-aged,WHOLE_BLOOD,,37,33,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4014,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,NASAL_SWAB,urn:miriam:icd:C20,10,3,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4015,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C19,1,1,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-179,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,,SERUM,,386,348,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4012,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,NASAL_SWAB,urn:miriam:icd:C18,13,4,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4013,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C20,3,3,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4029,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),NASAL_SWAB,urn:miriam:icd:C18,102,24,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-56,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adolescent,PLASMA,,3,3,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-8,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adolescent,SERUM,,3,3,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-55,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),PLASMA,,25,12,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-9,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Young Adult,SERUM,,34,33,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4027,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,,PERIPHERAL_BLOOD_CELLS,,3,1,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-54,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),PLASMA,,104,42,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-6,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),SERUM,,50,41,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4028,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C18,32,24,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-53,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Middle-aged,PLASMA,,239,110,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-7,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),SERUM,,12,12,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-52,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,PLASMA,,259,129,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-51,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Child,PLASMA,,4,4,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-50,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Young Adult,PLASMA,,76,38,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-59,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,PLASMA,,237,119,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-58,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Child,PLASMA,,9,9,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-57,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Young Adult,PLASMA,,65,32,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-161,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adult,NASAL_SWAB,,30,27,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-160,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Young Adult,NASAL_SWAB,,6,6,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-163,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (65-79 years),NASAL_SWAB,,55,40,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-162,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Middle-aged,NASAL_SWAB,,75,58,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4021,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),NASAL_SWAB,urn:miriam:icd:C20,19,6,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-165,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adolescent,URINE,,6,6,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4022,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),,urn:miriam:icd:C18,9,2,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-164,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (>80 years),NASAL_SWAB,,5,5,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-1,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adolescent,SERUM,,4,4,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-167,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Child,URINE,,7,7,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4020,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C20,6,6,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-166,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Young Adult,URINE,,73,70,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4025,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C20,25,18,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-169,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Middle-aged,URINE,,273,224,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-4,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,SERUM,,144,135,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4026,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),NASAL_SWAB,urn:miriam:icd:C20,72,18,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-168,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adult,URINE,,251,237,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-5,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Middle-aged,SERUM,,127,111,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4023,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C18,26,22,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-2,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Young Adult,SERUM,,42,40,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4024,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),NASAL_SWAB,urn:miriam:icd:C18,75,22,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-3,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Child,SERUM,,7,7,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-45,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,PLASMA,,107,101,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-44,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Young Adult,PLASMA,,31,30,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4038,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),NASAL_SWAB,urn:miriam:icd:C20,76,11,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-43,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),PLASMA,,12,12,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4039,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C18,12,7,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-42,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),PLASMA,,50,41,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-41,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Middle-aged,PLASMA,,113,97,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-40,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,PLASMA,,119,110,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-49,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adolescent,PLASMA,,3,3,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-48,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),PLASMA,,8,8,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-47,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),PLASMA,,75,49,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-46,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Middle-aged,PLASMA,,151,108,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-150,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Child,PLASMA,,13,13,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-152,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Middle-aged,PLASMA,,555,230,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-151,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adult,PLASMA,,496,248,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4032,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),,urn:miriam:icd:C19,4,1,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-154,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (>80 years),PLASMA,,41,20,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4033,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C18,30,16,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-153,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (65-79 years),PLASMA,,261,93,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4030,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C20,29,20,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-156,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adult,SALIVA,,191,185,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4031,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),NASAL_SWAB,urn:miriam:icd:C20,100,20,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-155,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Young Adult,SALIVA,,62,61,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4036,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),NASAL_SWAB,urn:miriam:icd:C19,41,8,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-158,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (65-79 years),SALIVA,,61,56,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4037,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C20,15,11,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-157,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Middle-aged,SALIVA,,169,152,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4034,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),NASAL_SWAB,urn:miriam:icd:C18,98,16,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4035,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C19,16,8,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-159,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (>80 years),SALIVA,,13,13,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-34,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Young Adult,PERIPHERAL_BLOOD_CELLS,,31,30,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-33,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),PERIPHERAL_BLOOD_CELLS,,12,12,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4049,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),NASAL_SWAB,urn:miriam:icd:C18,152,28,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-32,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,,48,39,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-31,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Middle-aged,PERIPHERAL_BLOOD_CELLS,,110,95,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-30,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,PERIPHERAL_BLOOD_CELLS,,116,107,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-39,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Young Adult,PLASMA,,35,33,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-38,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),PERIPHERAL_BLOOD_CELLS,,8,8,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-37,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,,75,48,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-36,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Middle-aged,PERIPHERAL_BLOOD_CELLS,,149,107,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-35,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,PERIPHERAL_BLOOD_CELLS,,104,99,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4040,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,NASAL_SWAB,urn:miriam:icd:C18,40,7,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-141,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,,123,87,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-140,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Middle-aged,PERIPHERAL_BLOOD_CELLS,,259,202,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4043,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,,PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C19,7,2,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-143,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Young Adult,PLASMA,,66,63,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4044,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C18,33,21,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-142,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (>80 years),PERIPHERAL_BLOOD_CELLS,,20,20,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4041,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C20,5,3,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-145,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Middle-aged,PLASMA,,264,205,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4042,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,NASAL_SWAB,urn:miriam:icd:C20,19,3,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-144,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adult,PLASMA,,226,211,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4047,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,NASAL_SWAB,urn:miriam:icd:C20,56,12,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-147,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (>80 years),PLASMA,,20,20,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-26,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Middle-aged,DNA,,166,124,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4048,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C18,44,28,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-146,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (65-79 years),PLASMA,,125,90,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4045,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,NASAL_SWAB,urn:miriam:icd:C18,121,21,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-149,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Young Adult,PLASMA,,141,70,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4046,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C20,14,12,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-148,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adolescent,PLASMA,,6,6,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-23,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Young Adult,DNA,,34,33,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-139,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adult,PERIPHERAL_BLOOD_CELLS,,220,206,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-22,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adolescent,DNA,,3,3,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-21,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),DNA,,12,12,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-20,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),DNA,,49,40,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-212,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,,SALIVA,,496,465,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-211,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,,PLASMA,,1513,676,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-210,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,,PLASMA,,701,586,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-29,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Young Adult,PERIPHERAL_BLOOD_CELLS,,36,34,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-28,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),DNA,,8,8,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-27,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),DNA,,77,51,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-215,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,,WHOLE_BLOOD,,131,116,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-214,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,,URINE,,745,648,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-25,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,DNA,,124,118,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-213,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,,NASAL_SWAB,,171,136,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-24,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Child,DNA,,8,7,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-130,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (>80 years),SERUM,,20,20,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-132,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Young Adult,DNA,,76,73,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-131,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adolescent,DNA,,7,7,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-134,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adult,DNA,,263,248,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-133,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Child,DNA,,14,13,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-136,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (65-79 years),DNA,,126,91,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-135,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Middle-aged,DNA,,294,237,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-138,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Young Adult,PERIPHERAL_BLOOD_CELLS,,67,64,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-137,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (>80 years),DNA,,20,20,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-129,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (65-79 years),SERUM,,127,93,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-12,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Middle-aged,SERUM,,165,123,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-128,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Middle-aged,SERUM,,292,234,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-11,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,SERUM,,128,122,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-10,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Child,SERUM,,9,9,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-201,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Young Adult,,,577,74,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-200,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adolescent,,,34,7,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-19,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Middle-aged,DNA,,128,113,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-18,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,DNA,,139,130,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-17,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Child,DNA,,6,6,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-205,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (65-79 years),,,998,94,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-16,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Young Adult,DNA,,42,40,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-204,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Middle-aged,,,2218,240,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-15,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adolescent,DNA,,4,4,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-203,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adult,,,2001,258,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-14,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),SERUM,,8,8,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-202,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Child,,,71,19,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-13,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),SERUM,,77,52,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-209,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,,PERIPHERAL_BLOOD_CELLS,,689,576,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-208,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,,DNA,,800,685,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-207,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,,SERUM,,810,697,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-206,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (>80 years),,,156,20,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-121,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Middle-aged,,,1252,125,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-120,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,,,947,122,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-123,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),,,60,8,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-122,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),,,601,52,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-125,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Young Adult,SERUM,,76,73,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-124,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adolescent,SERUM,,7,7,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-127,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Adult,SERUM,,272,257,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-126,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Child,SERUM,,16,16,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-118,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Young Adult,,,263,33,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-117,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adolescent,,,15,3,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-119,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Child,,,42,11,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-110,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Young Adult,,,314,41,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-112,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,,,1054,136,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-111,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Child,,,29,8,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-114,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),,,397,42,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-113,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Middle-aged,,,966,115,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-116,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Infant,,,1,1,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-115,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),,,96,12,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-109,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adolescent,,,19,4,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test1-199,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Infant,,,1,1,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-108,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),WHOLE_BLOOD,,2,2,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-107,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Middle-aged,WHOLE_BLOOD,,19,17,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-106,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,WHOLE_BLOOD,,24,20,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-105,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Child,WHOLE_BLOOD,,11,11,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-104,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Young Adult,WHOLE_BLOOD,,4,3,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-103,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adolescent,WHOLE_BLOOD,,3,3,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-102,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Infant,WHOLE_BLOOD,,1,1,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-101,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Middle-aged,WHOLE_BLOOD,,18,16,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-100,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,WHOLE_BLOOD,,28,25,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4050,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C19,24,15,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4051,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),NASAL_SWAB,urn:miriam:icd:C19,71,15,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4054,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C18,31,21,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4055,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),NASAL_SWAB,urn:miriam:icd:C18,81,21,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4052,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C20,24,16,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4053,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),NASAL_SWAB,urn:miriam:icd:C20,71,16,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4058,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,,Aged (65-79 years),NASAL_SWAB,urn:miriam:icd:C20,1,1,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4059,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C18,9,5,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4056,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C20,16,13,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4057,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),NASAL_SWAB,urn:miriam:icd:C20,67,13,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-99,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Child,WHOLE_BLOOD,,10,8,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-98,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Young Adult,WHOLE_BLOOD,,6,6,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-97,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adolescent,WHOLE_BLOOD,,5,4,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-96,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),URINE,,6,6,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-95,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),URINE,,69,49,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-94,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Middle-aged,URINE,,150,116,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-93,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,URINE,,118,113,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4061,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),PERIPHERAL_BLOOD_CELLS,urn:miriam:icd:C20,9,7,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4062,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),NASAL_SWAB,urn:miriam:icd:C20,31,7,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4060,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),NASAL_SWAB,urn:miriam:icd:C18,33,5,2023-08-02,PL,false
+bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test4063,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),NASAL_SWAB,,9,2,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-89,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),URINE,,11,11,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-88,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),URINE,,49,42,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-87,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Middle-aged,URINE,,123,108,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-86,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,URINE,,133,124,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-85,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Child,URINE,,2,2,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-84,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Young Adult,URINE,,40,38,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-83,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adolescent,URINE,,3,3,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-82,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),NASAL_SWAB,,1,1,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-190,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,,SALIVA,,238,223,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-192,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,,NASAL_SWAB,,109,78,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-191,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,,NASAL_SWAB,,62,58,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-194,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,,URINE,,384,323,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-193,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,,URINE,,361,325,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-196,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,,WHOLE_BLOOD,,64,57,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-195,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,,WHOLE_BLOOD,,67,59,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-198,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,,,,3181,354,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-92,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Child,URINE,,5,5,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-197,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,,,,2875,355,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-91,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Young Adult,URINE,,33,32,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-90,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adolescent,URINE,,3,3,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-78,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Young Adult,NASAL_SWAB,,2,2,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-77,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (>80 years),NASAL_SWAB,,4,4,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-76,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Aged (65-79 years),NASAL_SWAB,,15,13,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-75,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Middle-aged,NASAL_SWAB,,24,22,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-74,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Adult,NASAL_SWAB,,15,15,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-73,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,Young Adult,NASAL_SWAB,,4,4,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-72,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (>80 years),SALIVA,,5,5,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-71,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),SALIVA,,29,26,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-79,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Adult,NASAL_SWAB,,15,12,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-181,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,,DNA,,380,342,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-180,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,,SERUM,,424,349,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-183,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,,PERIPHERAL_BLOOD_CELLS,,322,285,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-182,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,,DNA,,420,343,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-185,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,,PLASMA,,329,291,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-184,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,,PERIPHERAL_BLOOD_CELLS,,367,291,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-187,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,,PLASMA,,710,335,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-81,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Aged (65-79 years),NASAL_SWAB,,40,27,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-186,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,,PLASMA,,372,295,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test3-80,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,Middle-aged,NASAL_SWAB,,51,36,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-189,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,FEMALE,,SALIVA,,258,242,2023-08-02,PL,false
+bbmri-eric:ID:PL_michael_TEST:collection:test2-188,bbmri-eric:ID:PL_ANDRZEJ_TEST:collection:test,MALE,,PLASMA,,803,341,2023-08-02,PL,false
