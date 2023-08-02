@@ -1,9 +1,9 @@
-id;title_before_name;first_name;last_name;title_after_name;email;phone;address;zip;city;country;role;biobanks;collections;networks;national_node;withdrawn
-bbmri-eric:contactID:NL_person1;prof.;Person;Biobank2;;person@biobank2.nl;;;;;NL;Head and contact person of biobank2;;;;NL;FALSE
-bbmri-eric:contactID:EU_network;;EU;network Person;;contact@network.eu;;;;;EU;;;;;EU;FALSE
-bbmri-eric:contactID:contact_bb1;;Contact;Biobank1;;contact@bb1.de;;;;;DE;Contact person;;;;DE;FALSE
-bbmri-eric:contactID:network1;;Contact;Network1;;contact@network1.de;;;;;DE;Network1 contact;;;;DE;FALSE
-bbmri-eric:contactID:DE_head_bb1;Prof.;Head;Biobank1;;head@bb1.de;;;;;DE;Head of biobank;;;;DE;FALSE
-bbmri-eric:contactID:DE_collection1;;John;of collection1;;persons@collection1.de;;;;;DE;;;;;DE;FALSE
-bbmri-eric:contactID:head_coll2;;Head;Collection2;;head@collection2.nl;;;;;NL;Head of the collection;;;;NL;FALSE
-bbmri-eric:contactID:PL_7NN6S;;Andrzej;Strug;;andrzej.strug@gumed.edu.pl;;;;;PL;;;;;PL;FALSE
+id,title_before_name,first_name,last_name,title_after_name,email,phone,address,zip,city,country,role,national_node,withdrawn
+bbmri-eric:contactID:NL_person1,prof.,Person,Biobank2,,person@biobank2.nl,,,,,NL,Head and contact person of biobank2,NL,false
+bbmri-eric:contactID:EU_network,,EU,network Person,,contact@network.eu,,,,,EU,,EU,false
+bbmri-eric:contactID:contact_bb1,,Contact,Biobank1,,contact@bb1.de,,,,,DE,Contact person,DE,false
+bbmri-eric:contactID:network1,,Contact,Network1,,contact@network1.de,,,,,DE,Network1 contact,DE,false
+bbmri-eric:contactID:DE_head_bb1,Prof.,Head,Biobank1,,head@bb1.de,,,,,DE,Head of biobank,DE,false
+bbmri-eric:contactID:DE_collection1,,John,of collection1,,persons@collection1.de,,,,,DE,,DE,false
+bbmri-eric:contactID:head_coll2,,Head,Collection2,,head@collection2.nl,,,,,NL,Head of the collection,NL,false
+bbmri-eric:contactID:PL_7NN6S,,Andrzej,Strug,,andrzej.strug@gumed.edu.pl,,,,,PL,,PL,false
