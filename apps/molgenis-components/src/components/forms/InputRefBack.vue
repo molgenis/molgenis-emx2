@@ -36,35 +36,24 @@
           :table="tableName"
           :schemaName="schemaName"
           :visible-columns="visibleColumnNames"
-          :refTablePrimaryKeyObject="
-            getPrimaryKey(slotProps.row, tableMetadata)
-          "
+          :refTablePrimaryKeyObject="slotProps.rowkey"
           @close="reload"
-          @edit="
-            handleRowAction('edit', getPrimaryKey(slotProps.row, tableMetadata))
-          "
+          @edit="handleRowAction('edit', slotProps.rowkey)"
         />
         <RowButton
           v-if="canEdit"
           type="clone"
           :table="tableName"
           :schemaName="schemaName"
-          :pkey="getPrimaryKey(slotProps.row, tableMetadata)"
+          :pkey="slotProps.rowkey"
           :visible-columns="visibleColumnNames"
           :default-value="defaultValue"
-          @clone="
-            handleRowAction(
-              'clone',
-              getPrimaryKey(slotProps.row, tableMetadata)
-            )
-          "
+          @clone="handleRowAction('clone', slotProps.rowkey)"
         />
         <RowButton
           v-if="canEdit"
           type="delete"
-          @delete="
-            handleDeleteRowRequest(getPrimaryKey(slotProps.row, tableMetadata))
-          "
+          @delete="handleDeleteRowRequest(slotProps.rowkey)"
         />
       </template>
     </TableMolgenis>
@@ -109,7 +98,7 @@ import MessageWarning from "./MessageWarning.vue";
 import MessageError from "./MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import ConfirmModal from "./ConfirmModal.vue";
-import { getPrimaryKey, convertToCamelCase } from "../utils";
+import { convertToCamelCase } from "../utils";
 
 export default {
   name: "InputRefBack",
@@ -195,7 +184,6 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey,
     async reload() {
       this.isLoading = true;
       this.data = await this.client.fetchTableDataValues(this.tableName, {
