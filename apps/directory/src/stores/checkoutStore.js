@@ -10,6 +10,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   const checkoutValid = ref(false);
   const cartUpdated = ref(false);
 
+  const searchHistory = ref([]);
+  const nToken = ref("");
+
   const biobankIdDictionary = ref({});
 
   let selectedCollections = ref({});
@@ -165,14 +168,18 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     const humanReadable = getHumanReadableString();
     const negotiatorUrl = settingsStore.config.negotiatorUrl;
 
-    const nToken = "";
+    const payload = { URL, humanReadable, collections }
+
+    if(nToken.value) {
+      payload.nToken = nToken.value
+    }
 
     fetch(negotiatorUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ URL, humanReadable, collections }),
+      body: JSON.stringify(payload),
     })
       .then(async (response) => {
         const body = await response.json();
@@ -184,6 +191,8 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   }
 
   return {
+    nToken,
+    searchHistory,
     checkoutValid,
     cartUpdated,
     sendToNegotiator,

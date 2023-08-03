@@ -19,7 +19,8 @@ watch(
   (newQuery) => {
     if (newQuery && Object.keys(newQuery).length) {
       const remainingKeys = Object.keys(newQuery).filter(
-        (key) => key !== "cart"
+        (key) => key !== "cart" 
+        // && key !== 'nToken'
       );
       /** if we only have a cart we do not need to wait for the filters to be applied before updating the biobankcards. */
       if (remainingKeys.length > 0) {

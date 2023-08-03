@@ -68,6 +68,12 @@ export default {
     },
   },
   watch: {
+    /** on hydrating the state we can have a race condition where biobanks gets queried too soon. */
+    "filtersStore.bookmarkWaitingForApplication"() {
+      if (this.biobanksShown.length === 0) {
+        this.biobanksStore.getBiobankCards();
+      }
+    },
     biobanksShown() {
       this.calculateCardWidth();
     },

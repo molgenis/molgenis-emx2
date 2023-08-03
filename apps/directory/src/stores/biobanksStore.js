@@ -79,7 +79,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       }
       waitingForResponse.value = false;
     }
-    return biobankCards.value;
   }
 
   async function getBiobank(id) {
