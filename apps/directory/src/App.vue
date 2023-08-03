@@ -1,3 +1,9 @@
+<template>
+  <Molgenis v-model="session">
+    <RouterView @click="closeAllDropdownButtons" />
+  </Molgenis>
+</template>
+
 <script setup>
 import { Molgenis } from "molgenis-components";
 import { computed, onMounted, watch } from "vue";
@@ -37,13 +43,23 @@ onMounted(async () => {
   const settingsStore = useSettingsStore();
   await settingsStore.initializeConfig();
 });
+
+function closeAllDropdownButtons(event) {
+  const allDropdownButtons = document.querySelectorAll(".dropdown-button");
+  if (event.target.id) {
+    for (const dropdownButton of allDropdownButtons) {
+      if (dropdownButton.id !== event.target.id) {
+        dropdownButton.removeAttribute("open");
+      }
+    }
+  } else {
+    for (const dropdownButton of allDropdownButtons) {
+      dropdownButton.removeAttribute("open");
+    }
+  }
+}
 </script>
 
-<template>
-  <molgenis v-model="session">
-    <RouterView @click="closeAllDropdownButtons" />
-  </molgenis>
-</template>
 <script>
 export default {
   data() {
@@ -57,22 +73,6 @@ export default {
       settingsStore.setSessionInformation(sessionState);
     },
   },
-  methods: {
-    closeAllDropdownButtons(event) {
-      const allDropdownButtons = document.querySelectorAll(".dropdown-button");
-      if (event.target.id) {
-        for (const dropdownButton of allDropdownButtons) {
-          if (dropdownButton.id !== event.target.id) {
-            dropdownButton.removeAttribute("open");
-          }
-        }
-      } else {
-        for (const dropdownButton of allDropdownButtons) {
-          dropdownButton.removeAttribute("open");
-        }
-      }
-    },
-  },
 };
 </script>
 
@@ -80,5 +80,9 @@ export default {
 /* removing the built-in nav because it conflicts */
 nav[aria-label="breadcrumb"]:not(.directory-nav) {
   display: none;
+}
+ol.breadcrumb {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
 }
 </style>

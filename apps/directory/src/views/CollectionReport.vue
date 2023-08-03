@@ -21,36 +21,14 @@
     <div class="container-fluid" v-if="loaded && collectionDataAvailable">
       <div class="row">
         <div class="col my-3 shadow-sm d-flex p-2 align-items-center bg-white">
-          <breadcrumb>
-            <ol class="breadcrumb my-1">
-              <li class="breadcrumb-item">
-                <router-link to="/catalogue" title="Back to the catalogue">
-                  {{ uiText["home"] }}
-                </router-link>
-              </li>
-              <li class="breadcrumb-item">
-                <router-link
-                  :to="'/biobank/' + collection.biobank.id"
-                  :title="'Go to biobank ' + collection.biobank.name"
-                >
-                  {{ collection.biobank.name }}
-                </router-link>
-              </li>
-              <li class="breadcrumb-item" v-if="info.parentCollection">
-                <router-link
-                  :to="'/collection/' + info.parentCollection.id"
-                  :title="
-                    'Go to parent collection ' + info.parentCollection.name
-                  "
-                >
-                  {{ info.parentCollection.name }}
-                </router-link>
-              </li>
-              <li class="breadcrumb-item active text-dark" aria-current="page">
-                {{ collection.name }}
-              </li>
-            </ol>
-          </breadcrumb>
+          <Breadcrumb
+            class="directory-nav"
+            :crumbs="{
+              [uiText['home']]: '/',
+              [collection.biobank.name]: `/biobank/${collection.biobank.id}`,
+              [collection.name]: '/',
+            }"
+          />
           <check-out
             v-if="collection"
             class="ml-auto"
@@ -92,9 +70,8 @@
 <script setup>
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
-import { Spinner } from "../../../molgenis-components";
+import { Breadcrumb, Spinner } from "../../../molgenis-components";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
-import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
 import CollectionReportInfoCard from "../components/report-components/CollectionReportInfoCard.vue";
 import ReportCollectionDetails from "../components/report-components/ReportCollectionDetails.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
