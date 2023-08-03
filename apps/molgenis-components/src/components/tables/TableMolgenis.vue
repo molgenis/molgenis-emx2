@@ -157,7 +157,7 @@ export default {
       }
     },
     async convertRowToPrimaryKey(row) {
-      await this.client.convertRowToPrimaryKey(
+      return await this.client.convertRowToPrimaryKey(
         row,
         this.tableName || this.tableMetadata?.name
       );
@@ -188,8 +188,8 @@ export default {
         });
       }
     },
-    onRowClick(row) {
-      const key = this.convertRowToPrimaryKey(row);
+    async onRowClick(row) {
+      const key = await this.convertRowToPrimaryKey(row);
       if (this.showSelect) {
         //deep copy
         let update = Array.isArray(this.selection)
@@ -208,6 +208,7 @@ export default {
           update.push(key);
           this.$emit("select", key);
         }
+        console.log("table molgenis edit selection, key: ", key);
         this.$emit("update:selection", update);
       } else {
         this.$emit("rowClick", key);
