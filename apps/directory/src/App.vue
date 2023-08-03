@@ -1,16 +1,17 @@
 <template>
-  <Molgenis>
+  <Molgenis v-model="session">
     <RouterView @click="closeAllDropdownButtons" />
   </Molgenis>
 </template>
 
 <script setup>
 import { Molgenis } from "molgenis-components";
-import { computed, watch } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { applyBookmark } from "./functions/bookmarkMapper";
 import { useRoute } from "vue-router";
 import { useFiltersStore } from "./stores/filtersStore";
 import { useCheckoutStore } from "./stores/checkoutStore";
+import { useSettingsStore } from "./stores/settingsStore";
 
 const route = useRoute();
 
@@ -38,16 +39,41 @@ watch(
   },
   { immediate: true, deep: true }
 );
+onMounted(async () => {
+  const settingsStore = useSettingsStore();
+  await settingsStore.initializeConfig();
+});
 
 function closeAllDropdownButtons(event) {
   const allDropdownButtons = document.querySelectorAll(".dropdown-button");
-
-  for (const dropdownButton of allDropdownButtons) {
-    if (dropdownButton.id !== event.target.id) {
+  if (event.target.id) {
+    for (const dropdownButton of allDropdownButtons) {
+      if (dropdownButton.id !== event.target.id) {
+        dropdownButton.removeAttribute("open");
+      }
+    }
+  } else {
+    for (const dropdownButton of allDropdownButtons) {
       dropdownButton.removeAttribute("open");
     }
   }
 }
+</script>
+
+<script>
+export default {
+  data() {
+    return {
+      session: {},
+    };
+  },
+  watch: {
+    session(sessionState) {
+      const settingsStore = useSettingsStore();
+      settingsStore.setSessionInformation(sessionState);
+    },
+  },
+};
 </script>
 
 <style>

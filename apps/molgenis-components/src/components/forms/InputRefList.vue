@@ -273,7 +273,7 @@ export default {
           v-model="filterValue"
           tableName="Pet"
           description="Filter by name"
-          :filter="{ category: { name: { equals: 'pooky' } } }"
+          :filter="{ category: { name: { equals: 'dog' } } }"
           schemaName="pet store"
           :canEdit="canEdit"
           refLabel="${name}"

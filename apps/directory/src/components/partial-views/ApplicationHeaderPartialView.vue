@@ -7,11 +7,19 @@
         </div>
       </div>
       <div class="col-4 d-flex justify-content-end">
+        <router-link
+          v-if="showSettings"
+          class="btn btn-light border mr-2 align-self-start"
+          to="/configuration"
+        >
+          <span class="mr-2">Settings</span>
+          <span class="fa-solid fa-gear" />
+        </router-link>
         <check-out :bookmark="true" />
       </div>
     </div>
 
-    <div class="row filterbar p-2">
+    <div class="row filterbar p-2" v-if="filtersReady">
       <ButtonDropdown
         :id="filter.facetIdentifier"
         v-for="filter in filtersToRender"
@@ -27,7 +35,14 @@
             {{ filterSelectionCount(filter.facetIdentifier) }}</span
           >
         </template>
-        <component :is="filter.component" v-bind="filter"> </component>
+        <component
+          :is="filter.component"
+          v-bind="filter"
+          @click="currentFilter = filter.facetIdentifier"
+          :currentlyActive="currentFilter === filter.facetIdentifier"
+          :optionsFilter="optionsPresent(filter.facetIdentifier)"
+        >
+        </component>
       </ButtonDropdown>
 
       <toggle-filter
@@ -62,13 +77,15 @@ import ButtonDropdown from "../micro-components/ButtonDropdown.vue";
 /** */
 
 import CheckOut from "../checkout-components/CheckOut.vue";
+import { useBiobanksStore } from "../../stores/biobanksStore";
 
 export default {
   setup() {
+    const biobanksStore = useBiobanksStore();
     const settingsStore = useSettingsStore();
     const filtersStore = useFiltersStore();
     const checkoutStore = useCheckoutStore();
-    return { settingsStore, filtersStore, checkoutStore };
+    return { biobanksStore, settingsStore, filtersStore, checkoutStore };
   },
   components: {
     SearchFilter,
@@ -78,11 +95,22 @@ export default {
     ToggleFilter,
     CheckOut,
   },
+  data() {
+    return {
+      currentFilter: "",
+    };
+  },
   computed: {
+    optionsPresent() {
+      return (facetIdentifier) =>
+        this.biobanksStore.getPresentFilterOptions(facetIdentifier);
+    },
     hasActiveFilters() {
       return this.filtersStore.hasActiveFilters;
     },
     filtersToRender() {
+      if (!this.filtersStore.filtersReadyToRender) return [];
+
       return this.filtersStore.filterFacets.filter(
         (filterFacet) =>
           filterFacet.showFacet &&
@@ -91,10 +119,18 @@ export default {
       );
     },
     toggleFiltersToRender() {
+      if (!this.filtersStore.filtersReadyToRender) return [];
+
       return this.filtersStore.filterFacets.filter(
         (filterFacet) =>
           filterFacet.showFacet && filterFacet.component === "ToggleFilter"
       );
+    },
+    showSettings() {
+      return this.settingsStore.showSettings;
+    },
+    filtersReady() {
+      return this.filtersStore.filtersReadyToRender;
     },
   },
   methods: {

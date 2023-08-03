@@ -5,7 +5,7 @@
         'border border-secondary': biobankInSelection,
         'back-side': showCollections,
       },
-      fullSize ? 'biobank-card-large' : 'biobank-card',
+      'biobank-card',
     ]"
   >
     <section class="d-flex flex-column align-items-center">
@@ -339,10 +339,6 @@ export default {
 
 .biobank-card {
   width: 25rem;
-}
-
-.biobank-card-large {
-  width: 90%;
 }
 
 .biobank-card > header,

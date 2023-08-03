@@ -206,10 +206,15 @@
             @click="$emit('rowClick', $event)"
             @reload="reload"
             @edit="
-              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+              handleRowAction(
+                'edit',
+                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+              )
             "
             @delete="
-              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+              handleDeleteRowRequest(
+                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+              )
             "
           />
           <RecordCards
@@ -223,10 +228,15 @@
             @click="$emit('rowClick', $event)"
             @reload="reload"
             @edit="
-              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+              handleRowAction(
+                'edit',
+                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+              )
             "
             @delete="
-              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+              handleDeleteRowRequest(
+                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+              )
             "
           />
           <TableMolgenis
@@ -270,7 +280,11 @@
                 @edit="
                   handleRowAction(
                     'edit',
-                    getPrimaryKey(slotProps.row, tableMetadata)
+                    convertRowToPrimaryKey(
+                      slotProps.row,
+                      tableMetadata.name,
+                      schemaName
+                    )
                   )
                 "
               />
@@ -280,7 +294,11 @@
                 @clone="
                   handleRowAction(
                     'clone',
-                    getPrimaryKey(slotProps.row, tableMetadata)
+                    convertRowToPrimaryKey(
+                      slotProps.row,
+                      tableMetadata.name,
+                      schemaName
+                    )
                   )
                 "
               />
@@ -289,7 +307,11 @@
                 type="delete"
                 @delete="
                   handleDeleteRowRequest(
-                    getPrimaryKey(slotProps.row, tableMetadata)
+                    convertRowToPrimaryKey(
+                      slotProps.row,
+                      tableMetadata.name,
+                      schemaName
+                    )
                   )
                 "
               />
@@ -298,7 +320,13 @@
                 name="rowheader"
                 :row="slotProps.row"
                 :metadata="tableMetadata"
-                :rowkey="getPrimaryKey(slotProps.row, tableMetadata)"
+                :rowkey="
+                  convertRowToPrimaryKey(
+                    slotProps.row,
+                    tableMetadata.name,
+                    schemaName
+                  )
+                "
               />
             </template>
           </TableMolgenis>
@@ -382,10 +410,10 @@ import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
 import {
   convertToPascalCase,
+  convertRowToPrimaryKey,
   deepClone,
   getLocalizedDescription,
   getLocalizedLabel,
-  getPrimaryKey,
   isRefType,
 } from "../utils";
 import AggregateTable from "./AggregateTable.vue";
@@ -567,23 +595,23 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey,
+    convertRowToPrimaryKey,
     setSearchTerms(newSearchValue) {
       this.searchTerms = newSearchValue;
       this.$emit("searchTerms", newSearchValue);
       this.reload();
     },
-    handleRowAction(type, key) {
+    async handleRowAction(type, key) {
       this.editMode = type;
-      this.editRowPrimaryKey = key;
+      this.editRowPrimaryKey = await key;
       this.isEditModalShown = true;
     },
     handleModalClose() {
       this.isEditModalShown = false;
       this.reload();
     },
-    handleDeleteRowRequest(key) {
-      this.editRowPrimaryKey = key;
+    async handleDeleteRowRequest(key) {
+      this.editRowPrimaryKey = await key;
       this.isDeleteModalShown = true;
     },
     async handleExecuteDelete() {

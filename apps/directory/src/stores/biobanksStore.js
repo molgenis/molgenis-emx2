@@ -4,6 +4,8 @@ import QueryEMX2 from "../functions/queryEMX2";
 import { useSettingsStore } from "./settingsStore";
 import { useCollectionStore } from "./collectionStore";
 import { useFiltersStore } from "./filtersStore";
+import { getPropertyByPath } from "../functions/getPropertyByPath";
+import { extractValue } from "../functions/extractValue";
 
 export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
@@ -111,6 +113,64 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     }
   }
 
+  function getPresentFilterOptions(facetIdentifier) {
+    const { applyToColumn, adaptive } = filtersStore.facetDetails[
+      facetIdentifier
+    ];
+
+    if (!biobankCards.value.length || !adaptive) return [];
+
+    let columnPath = applyToColumn;
+    if (!Array.isArray(applyToColumn)) {
+      columnPath = [applyToColumn];
+    }
+
+    let valuesKnown;
+
+    for (const path of columnPath) {
+      const pathParts = path.split(".");
+
+      if (pathParts[0] === "collections") {
+        pathParts.shift(); /** removing 'collections' */
+        const finalProperty = pathParts.pop();
+
+        const collectionsFromBiobanks = biobankCards.value.flatMap(
+          (biobank) => biobank.collections
+        );
+
+        if (collectionsFromBiobanks.length === 0) break;
+
+        let valuesPresent = collectionsFromBiobanks.flatMap((collection) => {
+          return extractValue(
+            getPropertyByPath(collection, pathParts),
+            finalProperty
+          );
+        });
+
+        if (!valuesKnown) {
+          valuesKnown = valuesPresent.filter((uv) => uv);
+        } else {
+          valuesKnown = valuesPresent.concat(valuesKnown).filter((uv) => uv);
+        }
+      } else {
+        const finalProperty = pathParts.pop();
+        const valuesPresent = biobankCards.value.map((biobank) => {
+          return extractValue(
+            getPropertyByPath(biobank, pathParts),
+            finalProperty
+          );
+        });
+
+        if (!valuesKnown) {
+          valuesKnown = valuesPresent.filter((uv) => uv);
+        } else {
+          valuesKnown = valuesPresent.concat(valuesKnown).filter((uv) => uv);
+        }
+      }
+    }
+    return [...new Set(valuesKnown)];
+  }
+
   const biobankCardsHaveResults = computed(() => {
     return !waitingForResponse.value && biobankCards.value.length > 0;
   });
@@ -140,6 +200,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     updateBiobankCards,
     getBiobankCards,
     getBiobank,
+    getPresentFilterOptions,
     waiting: waitingForResponse,
     biobankCardsHaveResults,
     biobankCardsBiobankCount,

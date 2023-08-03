@@ -19,7 +19,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <div class="main-view">
     <application-header-partial-view />
     <biobank-cards-partial-view />
   </div>
@@ -36,6 +36,13 @@ export default {
 </script>
 
 <style>
+.main-view {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 70%;
+}
+
 .non-commercial .fa-times {
   font-size: 1em;
 }

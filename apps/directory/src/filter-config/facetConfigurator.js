@@ -20,6 +20,8 @@ export const filterTemplate = {
   filterLabelAttribute: "name",
   removeOptions: [],
   customOptions: [] /** an array with objects that substitute calling the database for options, { text: labelToShow, value: valueToFilterOn } */,
+  ontologyIdentifiers: [],
+  trueOption: undefined /** use this in combination with a toggle filter */,
   showMatchTypeSelector: true,
   negotiatorRequestString: "New Filter:",
   adaptive: false,
@@ -56,7 +58,9 @@ export function createFilters(filters) {
         ...facet,
         facetIdentifier: getFacetIdentifier(facet),
       }) /** uses the removeOptions array provided in the configuration */,
-      ontologyIdentifiers: facet.ontologyIdentifiers || [],
+      ontologyIdentifiers:
+        facet.ontologyIdentifiers ||
+        [] /** for use when you have multiple ontologies in a single table, e.g. orhpa and icd */,
       trueOption: facet.trueOption /** use this for a togglefilter */,
       filters:
         filters[facet.name] || [] /** adds the currently active options */,
@@ -69,8 +73,7 @@ export function createFilters(filters) {
         facet.negotiatorRequestString /** the part that will be send to the negotiator as to indicate what it is */,
       builtIn:
         facet.builtIn /** if this filter should be ignored for dropdown filters generation */,
-      showFacet:
-        facet.showFacet || true /** if this filter should be shown at all */,
+      showFacet: facet.showFacet /** if this filter should be shown at all */,
       adaptive:
         facet.adaptive ||
         false /** if the filters options should react on search results */,
