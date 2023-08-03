@@ -47,12 +47,12 @@ public class FAIRDataPointDistribution {
     String formatParam = request.params("format");
 
     if (schemaParam == null || distributionParam == null || formatParam == null) {
-      throw new Exception(
+      throw new IllegalArgumentException(
           "You must provide 3 parameters: schema, distribution (or file), and format");
     }
 
     if (database.getSchema(schemaParam) == null) {
-      throw new Exception("Schema unknown.");
+      throw new IllegalArgumentException("Schema unknown.");
     }
 
     // 'distribution' must either refer to the name of existing and visible 'Distribution' by a
@@ -63,9 +63,9 @@ public class FAIRDataPointDistribution {
         queryDistribution(schemaObj, "files:{identifier", distributionParam);
 
     if (distrByName.size() == 0 && distrByFile.size() == 0) {
-      throw new Exception("No such distribution or file therein available in schema");
+      throw new IllegalArgumentException("No such distribution or file therein available in schema");
     } else if (distrByName.size() > 0 && distrByFile.size() > 0) {
-      throw new Exception(
+      throw new IllegalStateException(
           "Cannot resolve distribution because it is ambiguous: file name equal to a table name. Please resolve this issue.");
     }
 
@@ -82,10 +82,10 @@ public class FAIRDataPointDistribution {
     if (refersToTable) {
       formatParam = formatParam.toLowerCase();
       if (!FORMATS.contains(formatParam)) {
-        throw new Exception("Format unknown. Use any of: " + FORMATS);
+        throw new IllegalArgumentException("Format unknown. Use any of: " + FORMATS);
       }
       if (database.getSchema(schemaParam).getTable(distributionParam) == null) {
-        throw new Exception("Table unknown.");
+        throw new IllegalArgumentException("Table unknown.");
       }
     }
 

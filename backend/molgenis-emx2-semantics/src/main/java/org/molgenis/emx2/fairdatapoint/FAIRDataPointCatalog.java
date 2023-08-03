@@ -88,7 +88,7 @@ public class FAIRDataPointCatalog {
   public FAIRDataPointCatalog(Request request, Table fdpCatalogTable) throws Exception {
 
     if (fdpCatalogTable == null) {
-      throw new Exception("No such catalog available in schema");
+      throw new IllegalArgumentException("No such catalog available in schema");
     }
 
     String id = request.params("id");
@@ -96,10 +96,10 @@ public class FAIRDataPointCatalog {
 
     List<Map<String, Object>> catalogsFromJSON = getFDPCatalogRecords(schema, id);
     if (catalogsFromJSON == null) {
-      throw new Exception("catalogsFromJSON is null");
+      throw new IllegalArgumentException("catalogsFromJSON is null");
     }
     if (catalogsFromJSON.size() != 1) {
-      throw new Exception(
+      throw new IllegalArgumentException(
           "Expected to find exactly 1 catalog but found " + catalogsFromJSON.size());
     }
     Map catalogFromJSON = catalogsFromJSON.get(0);

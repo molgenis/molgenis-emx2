@@ -55,17 +55,17 @@ public class FAIRDataPointDataset {
   /** Create and get resulting FDP */
   public String getResult() throws Exception {
     if (fdpDataseTable == null) {
-      throw new Exception("No such dataset available in schema");
+      throw new IllegalArgumentException("No such dataset available in schema");
     }
 
     String id = request.params("id");
     Schema schema = fdpDataseTable.getSchema();
     List<Map<String, Object>> datasetsFromJSON = queryDataset(schema, "id", id);
     if (datasetsFromJSON == null) {
-      throw new Exception("datasetsFromJSON is null");
+      throw new IllegalArgumentException("datasetsFromJSON is null");
     }
     if (datasetsFromJSON.size() != 1) {
-      throw new Exception("Bad number of dataset results");
+      throw new IllegalArgumentException("Bad number of dataset results");
     }
     Map<String, Object> datasetFromJSON = datasetsFromJSON.get(0);
 
@@ -107,7 +107,7 @@ public class FAIRDataPointDataset {
       if (type.get("name").equals("Table")) {
         String distributionName = (String) distribution.get("name");
         if (!schema.getTableNames().contains(distributionName)) {
-          throw new Exception(
+          throw new IllegalArgumentException(
               "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your Dataset matches a table name (from the same schema) you want to publish.");
         }
         for (String format : FORMATS) {
@@ -138,7 +138,7 @@ public class FAIRDataPointDataset {
       } else {
         List<Map> files = (List<Map>) distribution.get("files");
         if (files == null) {
-          throw new Exception("No files specified for distribution of type File");
+          throw new IllegalArgumentException("No files specified for distribution of type File");
         }
         for (Map m : files) {
           String format = (String) ((Map) m.get("format")).get("name");
