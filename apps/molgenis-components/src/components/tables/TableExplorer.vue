@@ -241,6 +241,7 @@
           />
           <TableMolgenis
             v-if="view == View.TABLE"
+            :schemaName="schemaName"
             :selection="selectedItems"
             @update:selection="selectedItems = $event"
             :columns="columns"

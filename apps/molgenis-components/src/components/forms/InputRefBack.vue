@@ -3,6 +3,7 @@
     <Spinner v-if="isLoading" />
     <TableMolgenis
       v-else-if="refTablePrimaryKeyObject"
+      :schemaName="schemaName"
       :data="data"
       :columns="visibleColumns"
       :table-metadata="tableMetadata"

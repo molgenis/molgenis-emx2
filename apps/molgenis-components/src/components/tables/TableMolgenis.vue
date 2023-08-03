@@ -59,7 +59,7 @@
                 name="rowheader"
                 :row="row"
                 :metadata="tableMetadata"
-                :rowkey="getPrimaryKey(row, tableMetadata)"
+                :rowkey="convertRowToPrimaryKey(row)"
               />
             </div>
             <i v-if="row.mg_draft" class="fas fa-user-edit">draft</i>
@@ -105,11 +105,8 @@ th {
 </style>
 
 <script>
-/**
- * Table that uses MOLGENIS metadata format to configure itself. Provide 'metadata' and 'data' and your table is ready.
- * Can be used without backend to configure a table. Note, columns can be dragged.
- */
-import { deepClone, deepEqual, getPrimaryKey, isRefType } from "../utils";
+import Client from "../../client/client";
+import { deepClone, deepEqual, isRefType } from "../utils";
 import DataDisplayCell from "./DataDisplayCell.vue";
 
 export default {
@@ -121,8 +118,16 @@ export default {
     columns: { type: Array, default: () => [] },
     /** not two way binded, table metadata */
     tableMetadata: { type: Object, required: false },
+    /** if tableMetadata is not supplied table name should be set */
+    tableName: { type: String, required: false },
     data: { type: Array, default: () => [] },
     showSelect: { type: Boolean, default: false },
+    schemaName: { type: String, required: true },
+  },
+  data() {
+    return {
+      client: Client.newClient(this.schemaName),
+    };
   },
   computed: {
     countColumns() {
@@ -151,11 +156,14 @@ export default {
         }
       }
     },
-    getPrimaryKey(row) {
-      return getPrimaryKey(row, this.tableMetadata);
+    async convertRowToPrimaryKey(row) {
+      await this.client.convertRowToPrimaryKey(
+        row,
+        this.tableName || this.tableMetadata?.name
+      );
     },
     isSelected(row) {
-      let key = this.getPrimaryKey(row);
+      let key = this.convertRowToPrimaryKey(row);
       let found = false;
       if (Array.isArray(this.selection)) {
         this.selection.forEach((s) => {
@@ -181,7 +189,7 @@ export default {
       }
     },
     onRowClick(row) {
-      const key = this.getPrimaryKey(row);
+      const key = this.convertRowToPrimaryKey(row);
       if (this.showSelect) {
         //deep copy
         let update = Array.isArray(this.selection)
@@ -215,28 +223,17 @@ export default {
 <docs>
 <template>
   <div>
-    <demo-item id="table-molgenis" label="Table Molgenis">
-      <label class="font-italic">Local sample data</label>
-      <table-molgenis
-          :selection.sync="selected"
-          :columns.sync="columns"
-          :data="data"
-          @select="click"
-          @deselect="click"
-          @click="click"
-      >
-        <template v-slot:header>columns</template>
-        <template v-slot:rowheader="slotProps"> some row content</template>
-      </table-molgenis>
+    <DemoItem id="table-molgenis" label="Table Molgenis">
       <label class="font-italic">Remote Pet data</label>
       <table-molgenis v-if="remoteTableData"
                       :selection.sync="remoteSelected"
                       :columns.sync="remoteColumns"
                       :data="remoteTableData"
+                      tableName="Pet"
+                      schemaName="pet store"
                       @click="click"
       />
-      <table-molgenis id="table-molgenis-empty" label="Empty Table Molgenis"/>
-    </demo-item>
+    </DemoItem>
     <DemoItem>
       <label class="font-italic">Example without data</label>
       <table-molgenis
@@ -244,6 +241,8 @@ export default {
           @deselect="click"
           @click="click"
           :data="[]"
+          tableName="Pet"
+          schemaName="pet store"
           :columns.sync="columns"
       />
     </DemoItem>
@@ -254,6 +253,8 @@ export default {
           @deselect="click"
           @click="click"
           :data="[]"
+          tableName="Pet"
+          schemaName="pet store"
       />
     </DemoItem>
   </div>

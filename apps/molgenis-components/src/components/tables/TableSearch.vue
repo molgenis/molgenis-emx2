@@ -16,6 +16,7 @@
       <Spinner v-if="loading" />
       <div v-else>
         <TableMolgenis
+          :schemaName="schemaName"
           :selection="selection"
           :tableMetadata="tableMetadata"
           :columns="columnsVisible"

@@ -41,27 +41,6 @@ export function flattenObject(object: Record<string, any>): string {
   }
 }
 
-export function getPrimaryKey(
-  row: IRow,
-  tableMetadata: ITableMetaData
-): Record<string, any> | null {
-  //we only have pkey when the record has been saved
-  if (!row["mg_insertedOn"] || !tableMetadata?.columns) {
-    return null;
-  } else {
-    return tableMetadata.columns.reduce(
-      (accum: Record<string, any>, column: IColumn) => {
-        const cellValue = row[column.id];
-        if (column.key === 1 && cellValue) {
-          accum[column.id] = cellValue;
-        }
-        return accum;
-      },
-      {}
-    );
-  }
-}
-
 export async function convertRowToPrimaryKey(
   row: IRow,
   tableName: string,
