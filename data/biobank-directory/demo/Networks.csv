@@ -1,4 +1,4 @@
 id,name,acronym,description,location,latitude,longitude,also_known,url,juridical_person,contact,parent_network,common_network_elements,national_node,withdrawn
-bbmri-eric:networkID:DE_network1,Network1 Germany,n1,Network1,,,,,https://network1@network.com,,bbmri-eric:contactID:network1,,"focus, sops, sample_access_policy, image_access_policy, image_mta, url",DE,FALSE
-bbmri-eric:networkID:DE_nw_coll1,Network of collection1,nw_coll1,The network of collection1 in Germany,,,,,,,bbmri-eric:contactID:network1,,"focus, data_access_policy, mta, image_mta, representation, url",DE,FALSE
-bbmri-eric:networkID:EU_network,EU network,eu_n,,,,,,,,bbmri-eric:contactID:EU_network,,"charter, sops, data_access_policy, sample_access_policy, mta, image_access_policy, image_mta, representation, url",EU,FALSE
+bbmri-eric:networkID:DE_network1,Network1 Germany,n1,Network1,,,,,https://network1@network.com,,bbmri-eric:contactID:network1,,"focus,sops,sample_access_policy,image_access_policy,image_mta,url",DE,false
+bbmri-eric:networkID:DE_nw_coll1,Network of collection1,nw_coll1,The network of collection1 in Germany,,,,,,,bbmri-eric:contactID:network1,,"focus,data_access_policy,mta,image_mta,representation,url",DE,false
+bbmri-eric:networkID:EU_network,EU network,eu_n,,,,,,,,bbmri-eric:contactID:EU_network,,"charter,sops,data_access_policy,sample_access_policy,mta,image_access_policy,image_mta,representation,url",EU,false

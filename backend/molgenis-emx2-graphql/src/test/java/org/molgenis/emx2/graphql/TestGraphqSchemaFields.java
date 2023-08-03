@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
@@ -126,6 +127,7 @@ public class TestGraphqSchemaFields {
         execute("{_schema{tables{settings{key,value}}}}").at("/_schema/tables/2/settings").size());
   }
 
+  @Tag("windowsFail")
   @Test
   public void testTableQueries() throws IOException {
     // simple
@@ -311,7 +313,10 @@ public class TestGraphqSchemaFields {
       execute("{Pet(filter:{name:{equals:\"spike\"}}){name,tags(orderby:{blaat:ASC}){name}}}");
       fail("should fail");
     } catch (MolgenisException e) {
-      assertTrue(e.getMessage().contains("Validation error of type WrongType: argument 'orderby'"));
+      assertTrue(
+          e.getMessage()
+              .contains(
+                  "Validation error (WrongType@[Pet/tags]) : argument 'orderby' with value 'ObjectValue{objectFields=[ObjectField{name='blaat', value=EnumValue{name='ASC'}}]}' contains a field not in 'Tagorderby': 'blaat'"));
     }
   }
 

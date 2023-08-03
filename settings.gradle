@@ -43,24 +43,11 @@ nyx {
     }
     changelog {
         path = "CHANGELOG.md"
-	template = "changelog-notes.tpl"
+	    template = "changelog-notes.tpl"
         sections = [
                 'Added' : '^feat$',
                 'Fixed' : '^fix$',
         ]
-    }
-    commitMessageConventions {
-        enabled = [ 'conventionalCommits' ]
-        items {
-            conventionalCommits {
-                expression = '(?m)^(?<type>[a-zA-Z0-9_]+)(!)?(\\\\((?<scope>[a-z ]+)\\\\))?:( (?<title>.+))$(?s).*'
-                bumpExpressions {
-                    major = '(?s)(?m)^[a-zA-Z0-9_]+(!|.*^(BREAKING( |-)CHANGE: )).*'
-                    minor = '(?s)(?m)^feat(?!!|.*^(BREAKING( |-)CHANGE: )).*'
-                    patch = '(?s)(?m)^fix(?!!|.*^(BREAKING( |-)CHANGE: )).*'
-                }
-            }
-        }
     }
 }
 
@@ -68,6 +55,7 @@ rootProject.name = 'emx2'
 include(':apps')
 include(':apps:central')
 include(':apps:catalogue')
+include(':apps:directory')
 include(':apps:settings')
 include(':apps:schema')
 include(':apps:updownload')
@@ -79,6 +67,9 @@ include(':apps:helloworld')
 include(':apps:molgenis-components')
 include(':apps:reports')
 include(':apps:tasks')
+include(':apps:molgenis-viz')
+include(':apps:gportal')
+include(':apps:ern-reconnet')
 include(':docs')
 include(':backend:molgenis-emx2')
 include(':backend:molgenis-emx2-datamodels')
@@ -90,7 +81,5 @@ include(':backend:molgenis-emx2-graphql')
 include(':backend:molgenis-emx2-run')
 include(':backend:molgenis-emx2-tasks')
 include(':backend:molgenis-emx2-semantics')
-include('backend:molgenis-emx2-email')
+include(':backend:molgenis-emx2-email')
 include(':tools:pyclient')
-
-

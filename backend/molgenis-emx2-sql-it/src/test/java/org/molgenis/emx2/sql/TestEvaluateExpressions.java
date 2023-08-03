@@ -10,6 +10,7 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
@@ -108,6 +109,7 @@ public class TestEvaluateExpressions {
     applyValidationAndComputed(tableMetadata.getColumns(), new Row());
   }
 
+  @Tag("windowsFail")
   @Test
   public void testCheckValidationInvalidExpression() {
     String validation = "this is very invalid";

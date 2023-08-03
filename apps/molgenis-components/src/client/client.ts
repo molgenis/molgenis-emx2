@@ -12,6 +12,9 @@ import { IClient, INewClient } from "./IClient";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { columnNames } from "./queryBuilder";
 
+// application wide cache for schema meta data
+const schemaCache = new Map<string, ISchemaMetaData>();
+
 export { request };
 const client: IClient = {
   newClient: (schemaName?: string, externalAxios?: Axios): INewClient => {
@@ -29,18 +32,27 @@ const client: IClient = {
       deleteAllTableData: async (tableName: string) => {
         return deleteAllTableData(tableName, schemaNameCache);
       },
-      fetchSchemaMetaData: async () => {
-        schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
+      fetchSchemaMetaData: async (useCache: boolean = true) => {
+        schemaMetaData = await fetchSchemaMetaData(
+          myAxios,
+          schemaNameCache,
+          useCache
+        );
         if (!schemaNameCache) {
           schemaNameCache = schemaMetaData.name;
         }
         return deepClone(schemaMetaData);
       },
       fetchTableMetaData: async (
-        tableName: string
+        tableName: string,
+        useCache: boolean = true
       ): Promise<ITableMetaData> => {
         if (schemaMetaData === null) {
-          schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
+          schemaMetaData = await fetchSchemaMetaData(
+            myAxios,
+            schemaNameCache,
+            useCache
+          );
           if (schemaMetaData && !schemaNameCache) {
             schemaNameCache = schemaMetaData.name;
           }
@@ -51,7 +63,10 @@ const client: IClient = {
             table.externalSchema === schemaNameCache
         );
       },
-      fetchTableData: async (tableId: string, properties: IQueryMetaData) => {
+      fetchTableData: async (
+        tableId: string,
+        properties: IQueryMetaData = {}
+      ) => {
         if (schemaMetaData === null) {
           schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
           if (schemaMetaData && !schemaNameCache) {
@@ -71,7 +86,7 @@ const client: IClient = {
       },
       fetchTableDataValues: async (
         tableName: string,
-        properties: IQueryMetaData
+        properties: IQueryMetaData = {}
       ) => {
         const tableId = convertToPascalCase(tableName);
         if (schemaMetaData === null) {
@@ -211,6 +226,9 @@ const client: IClient = {
           console.error(e);
         });
       },
+      clearCache: () => {
+        schemaCache.clear();
+      },
     };
   },
 };
@@ -310,11 +328,16 @@ const deleteAllTableData = (tableName: string, schemaName: string) => {
 
 const fetchSchemaMetaData = async (
   axios: Axios,
-  schemaName: string
+  schemaName: string,
+  useCache: boolean = true
 ): Promise<ISchemaMetaData> => {
+  if (useCache && schemaCache.has(schemaName)) {
+    return schemaCache.get(schemaName) as ISchemaMetaData;
+  }
   return await axios
     .post(graphqlURL(schemaName), { query: metaDataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
+      schemaCache.set(schemaName, result.data.data._schema);
       return result.data.data._schema;
     })
     .catch((error: AxiosError) => {

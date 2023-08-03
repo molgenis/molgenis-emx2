@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.FAIRDataHubLoader;
@@ -22,6 +23,7 @@ import spark.Request;
  * invalidate the overarching FDP Catalog, which must have 1+ datasets. But since this is a 'dataset
  * problem', we leave it at that level.
  */
+@Tag("slow")
 public class FAIRDataPointBadDistributionInDatasetTest {
 
   static Database database;

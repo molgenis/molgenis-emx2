@@ -1,7 +1,7 @@
-name
-Data originator
-Data provider
-Data holder
-Research
-Surveillance
-Other
+order,name,code,parent,ontologyTermURI,definition
+,Data originator,,,,
+,Data holder,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029954/terms/200000029942,
+,Data provider,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029954/terms/200000029943,
+,Researcher,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029954/terms/200000029944,
+,Surveillance,,,,
+,Other,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029954/terms/200000031060,

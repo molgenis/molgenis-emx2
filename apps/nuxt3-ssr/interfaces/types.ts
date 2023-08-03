@@ -173,3 +173,27 @@ interface IFilter extends IBaseFilter {
   searchTables?: string[];
   search?: string;
 }
+
+interface IFormField {
+  name: string;
+  label: string;
+  fieldValue: string; // value is taken by vue reactivity
+  inputType: "string" | "textarea";
+  hasError?: boolean;
+  message?: string;
+}
+
+interface IContactFormData {
+  recipientsFilter: string;
+  subject: string;
+  body: string;
+}
+
+export enum INotificationType {
+  light,
+  dark,
+  success,
+  error,
+  warning,
+  info,
+}

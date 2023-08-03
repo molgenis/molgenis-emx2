@@ -7,6 +7,7 @@ import static org.molgenis.emx2.datamodels.DataCatalogueLoader.CATALOGUE_ONTOLOG
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.molgenis.emx2.Database;
@@ -14,6 +15,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
+@Tag("slow")
 public class TestLoaders {
   public static final String COHORT_STAGING = "CohortStaging";
   public static final String NETWORK_STAGING = "NetworkStaging";
@@ -39,7 +41,7 @@ public class TestLoaders {
   public void test1FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
-    assertEquals(40, fairDataHubSchema.getTableNames().size());
+    assertEquals(62, fairDataHubSchema.getTableNames().size());
   }
 
   @Test

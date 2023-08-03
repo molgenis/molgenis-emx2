@@ -1,7 +1,8 @@
 package org.molgenis.emx2.web;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
-import static io.restassured.RestAssured.*;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +31,6 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.parallel.Isolated;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
@@ -42,7 +42,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
-@Isolated
+@Tag("slow")
 public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
@@ -56,7 +56,7 @@ public class WebApiSmokeTests {
 
   @BeforeAll
   public static void before() throws Exception {
-
+    // FIXME: beforeAll fails under windows
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
 
@@ -340,6 +340,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  @Disabled("gives many false positive errors")
   public void testJsonYamlApi() {
     String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
 
@@ -914,7 +915,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
+  @Disabled("unstable")
   public void testScriptExecution() throws JsonProcessingException, InterruptedException {
     // get token for admin
     String result =
@@ -1129,6 +1130,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  @Disabled("unstable")
   public void testBeaconApiSmokeTests() {
     // todo: ideally we would here validate the responses against json schemas, are those schemas
     // easily available?

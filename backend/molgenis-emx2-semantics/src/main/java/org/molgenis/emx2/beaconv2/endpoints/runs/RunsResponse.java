@@ -37,37 +37,44 @@ public class RunsResponse {
       GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
       ExecutionResult executionResult =
           grapql.execute(
-              "{Runs"
+              "{SequencingRuns"
                   + (idForQuery != null ? "(filter:{id: {equals:\"" + idForQuery + "\"}})" : "")
                   + "{"
                   + "id,"
-                  + "biosampleId,"
-                  + "individualId,"
+                  + "biosampleId{id},"
+                  + "individualId{id},"
                   + "runDate,"
                   + "librarySource{name,codesystem,code},"
                   + "librarySelection,"
-                  + "libraryStrategy,"
+                  + "libraryStrategy{name,codesystem,code},"
                   + "libraryLayout,"
-                  + "platform,"
+                  + "platform{name,codesystem,code},"
                   + "platformModel{name,codesystem,code}"
                   + "}}");
 
       Map<String, Object> result = executionResult.toSpecification();
       List<Map<String, Object>> runsListFromJSON =
-          (List<Map<String, Object>>) ((HashMap<String, Object>) result.get("data")).get("Runs");
+          (List<Map<String, Object>>)
+              ((HashMap<String, Object>) result.get("data")).get("SequencingRuns");
 
       if (runsListFromJSON != null) {
         for (Map map : runsListFromJSON) {
           RunsResultSetsItem runsItem = new RunsResultSetsItem();
           runsItem.setId(TypeUtils.toString(map.get("id")));
-          runsItem.setBiosampleId(TypeUtils.toString(map.get("biosampleId")));
-          runsItem.setIndividualId(TypeUtils.toString(map.get("individualId")));
+          Map biosample = (Map) map.get("biosampleId");
+          if (biosample != null) {
+            runsItem.setBiosampleId(TypeUtils.toString(biosample.get("id")));
+          }
+          Map indv = (Map) map.get("individualId");
+          if (indv != null) {
+            runsItem.setIndividualId(TypeUtils.toString(indv.get("id")));
+          }
           runsItem.setRunDate(TypeUtils.toString(map.get("runDate")));
           runsItem.setLibrarySource(mapToOntologyTerm((Map) map.get("librarySource")));
           runsItem.setLibrarySelection(TypeUtils.toString(map.get("librarySelection")));
-          runsItem.setLibraryStrategy(TypeUtils.toString(map.get("libraryStrategy")));
+          runsItem.setLibraryStrategy(mapToOntologyTerm((Map) map.get("libraryStrategy")));
           runsItem.setLibraryLayout(TypeUtils.toString(map.get("libraryLayout")));
-          runsItem.setPlatform(TypeUtils.toString(map.get("platform")));
+          runsItem.setPlatform(mapToOntologyTerm((Map) map.get("platform")));
           runsItem.setPlatformModel(mapToOntologyTerm((Map) map.get("platformModel")));
           runsItemList.add(runsItem);
         }

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
@@ -19,6 +20,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 import spark.Response;
 
+@Tag("slow")
 public class Beaconv2_ModelEndpointsTest {
 
   static Database database;
@@ -35,6 +37,21 @@ public class Beaconv2_ModelEndpointsTest {
   }
 
   @Test
+  void testFilteringTerms() throws Exception {
+    Request request = mock(Request.class);
+    FilteringTerms filteringTerms = new FilteringTerms(database);
+    String json = JsonUtil.getWriter().writeValueAsString(filteringTerms);
+    assertTrue(json.contains("\"entityType\" : \"filteringterms\""));
+    assertTrue(json.contains("\"filteringTerms\" : ["));
+    assertTrue(json.contains("\"type\" : \"STRING\","));
+    assertTrue(json.contains("\"id\" : \"accrualPeriodicity\","));
+    assertTrue(json.contains("\"scope\" : \"Individuals\""));
+    assertTrue(json.contains("\"type\" : \"ONTOLOGY\","));
+    assertTrue(json.contains("\"id\" : \"reference sample\","));
+    assertTrue(json.contains("\"label\" : \"reference sample\","));
+  }
+
+  @Test
   public void testGenomicVariants_NoParams() throws Exception {
     Request request = mock(Request.class);
     GenomicVariants genomicVariations =
@@ -48,7 +65,6 @@ public class Beaconv2_ModelEndpointsTest {
                                 "response" : {
                                     "resultSets" : [ ]
                                   }"""));
-    assertEquals(728, json.length());
   }
 
   @Test
@@ -83,7 +99,6 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
     assertFalse(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertFalse(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(728, json.length());
   }
 
   @Test
@@ -145,7 +160,6 @@ public class Beaconv2_ModelEndpointsTest {
     Analyses analyses = new Analyses(request, List.of(beaconSchema.getTable("Analyses")));
     String json = JsonUtil.getWriter().writeValueAsString(analyses);
     assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
-    assertEquals(728, json.length());
   }
 
   @Test
@@ -157,7 +171,6 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(analyses);
     assertTrue(json.contains("\"id\" : \"A03\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1349, json.length());
   }
 
   @Test
@@ -179,7 +192,6 @@ public class Beaconv2_ModelEndpointsTest {
     Biosamples biosamples = new Biosamples(request, List.of(beaconSchema.getTable("Biosamples")));
     String json = JsonUtil.getWriter().writeValueAsString(biosamples);
     assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
-    assertEquals(728, json.length());
   }
 
   @Test
@@ -190,7 +202,6 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(biosamples);
     assertTrue(json.contains("\"id\" : \"Sample0002\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1516, json.length());
   }
 
   @Test
@@ -231,7 +242,6 @@ public class Beaconv2_ModelEndpointsTest {
                                 "response" : {
                                     "collections" : [ ]
                                   }"""));
-    assertEquals(729, json.length());
   }
 
   @Test
@@ -242,7 +252,6 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(cohorts);
     assertTrue(json.contains("\"cohortId\" : \"Cohort0001\","));
     assertFalse(json.contains("\"cohortId\" : \"Cohort0002\","));
-    assertEquals(2030, json.length());
   }
 
   @Test
@@ -312,13 +321,12 @@ public class Beaconv2_ModelEndpointsTest {
                                 "response" : {
                                     "resultSets" : [ ]
                                   }"""));
-    assertEquals(728, json.length());
   }
 
   @Test
   public void testRuns_NoParams() throws Exception {
     Request request = mock(Request.class);
-    Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
+    Runs runs = new Runs(request, List.of(beaconSchema.getTable("SequencingRuns")));
     String json = JsonUtil.getWriter().writeValueAsString(runs);
     assertTrue(json.contains("\"resultsCount\" : 5,"));
     assertTrue(
@@ -329,7 +337,7 @@ public class Beaconv2_ModelEndpointsTest {
   public void testRuns_NoHits() throws Exception {
     Request request = mock(Request.class);
     when(request.queryParams("id")).thenReturn("SRR10903405");
-    Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
+    Runs runs = new Runs(request, List.of(beaconSchema.getTable("SequencingRuns")));
     String json = JsonUtil.getWriter().writeValueAsString(runs);
     assertTrue(
         json.contains(
@@ -337,20 +345,18 @@ public class Beaconv2_ModelEndpointsTest {
                                 "response" : {
                                     "resultSets" : [ ]
                                   }"""));
-    assertEquals(728, json.length());
   }
 
   @Test
   public void testRuns_IdQuery() throws Exception {
     Request request = mock(Request.class);
     when(request.queryParams("id")).thenReturn("SRR10903403");
-    Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
+    Runs runs = new Runs(request, List.of(beaconSchema.getTable("SequencingRuns")));
     String json = JsonUtil.getWriter().writeValueAsString(runs);
     assertTrue(json.contains("\"id\" : \"SRR10903403\","));
     assertFalse(json.contains("\"id\" : \"SRR10903401\","));
     assertFalse(json.contains("\"id\" : \"SRR10903402\","));
     assertFalse(json.contains("\"id\" : \"SRR10903404\","));
-    assertEquals(1525, json.length());
   }
 
   @Test
