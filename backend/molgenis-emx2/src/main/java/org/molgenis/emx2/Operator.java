@@ -7,6 +7,9 @@ public enum Operator {
   // equality
   EQUALS("equals", "Uses '=' operator. In case of arrays '= ANY'"),
   NOT_EQUALS("not_equals", "Uses != operator. In case of array 'NOT (= ANY)'"),
+  // null
+  IS_NULL("is_null", "Uses IS NULL operator"),
+  IS_NOT_NULL("is_not_null", "Uses IS NOT NULL operator"),
   // ordinal
   BETWEEN("between", "Uses BETWEEN operator"),
   NOT_BETWEEN("not_between", "Uses NOT BETWEEN operator"),

@@ -2,7 +2,6 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
-import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
@@ -140,7 +139,7 @@ public class SqlQuery extends QueryBean {
 
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn select : selection.getSubselect()) {
-      Column column = getColumnByName(table, select.getColumn());
+      Column column = table.getColumnByName(select.getColumn());
       String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
       if (column.isFile()) {
         // check what they want to get, contents, mimetype, size and/or extension
@@ -387,7 +386,7 @@ public class SqlQuery extends QueryBean {
         } else if (TRIGRAM_SEARCH.equals(f.getOperator())) {
           conditions.add(jsonSearchConditions(table, TypeUtils.toStringArray(f.getValues())));
         } else {
-          Column c = getColumnByName(table, f.getColumn());
+          Column c = table.getColumnByName(f.getColumn());
           if (c.isReference()) {
             SelectConditionStep<org.jooq.Record> subQuery =
                 jsonFilterQuery(
@@ -510,9 +509,9 @@ public class SqlQuery extends QueryBean {
     for (SelectColumn select : selection.getSubselect()) {
       Column column =
           select.getColumn().endsWith("_agg") || select.getColumn().endsWith("_groupBy")
-              ? getColumnByName(
-                  table, select.getColumn().replace("_agg", "").replace("_groupBy", ""))
-              : getColumnByName(table, select.getColumn());
+              ? table.getColumnByName(
+                  select.getColumn().replace("_agg", "").replace("_groupBy", ""))
+              : table.getColumnByName(select.getColumn());
 
       // add the fields, using subselects for references
       if (column.isFile()) {
@@ -608,7 +607,7 @@ public class SqlQuery extends QueryBean {
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
         List<JSONEntry<?>> result = new ArrayList<>();
         for (SelectColumn sub : field.getSubselect()) {
-          Column c = getColumnByName(table, sub.getColumn());
+          Column c = table.getColumnByName(sub.getColumn());
           switch (field.getColumn()) {
             case MAX_FIELD -> result.add(
                 key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
@@ -667,7 +666,7 @@ public class SqlQuery extends QueryBean {
       if (COUNT_FIELD.equals(field.getColumn())) {
         selectFields.add(field("COUNT(*)"));
       } else {
-        Column c = getColumnByName(table, field.getColumn());
+        Column c = table.getColumnByName(field.getColumn());
         List<Field> subselectFields = new ArrayList<>();
         // need pkey to allow for joining of the subqueries
         subselectFields.addAll(
@@ -780,7 +779,7 @@ public class SqlQuery extends QueryBean {
         if (OR.equals(filter.getOperator()) || AND.equals(filter.getOperator())) {
           join = refJoins(table, tableAlias, join, filter, selection, aliasList);
         } else {
-          Column column = getColumnByName(table, filter.getColumn());
+          Column column = table.getColumnByName(filter.getColumn());
           if (column.isReference() && !filter.getSubfilters().isEmpty()) {
             String subAlias = tableAlias + "-" + column.getName();
             if (!aliasList.contains(subAlias)) {
@@ -807,7 +806,7 @@ public class SqlQuery extends QueryBean {
     if (selection != null) {
       for (SelectColumn select : selection.getSubselect()) {
         // then do same as above
-        Column column = getColumnByName(table, select.getColumn());
+        Column column = table.getColumnByName(select.getColumn());
         if (column.isReference()) {
           String subAlias = tableAlias + "-" + column.getName();
           // only join if subselection extists
@@ -949,7 +948,7 @@ public class SqlQuery extends QueryBean {
                   .map(f -> whereConditionsFilter(table, tableAlias, f))
                   .toList()));
     } else {
-      Column column = getColumnByName(table, filters.getColumn());
+      Column column = table.getColumnByName(filters.getColumn());
       if (!filters.getSubfilters().isEmpty()) {
         for (Filter subfilter : filters.getSubfilters()) {
           if (column.isReference()) {
@@ -984,7 +983,14 @@ public class SqlQuery extends QueryBean {
       ColumnType type,
       org.molgenis.emx2.Operator operator,
       Object[] values) {
-    Name name = name(alias(tableAlias), columnName);
+    final Name name = name(alias(tableAlias), columnName);
+
+    if (IS_NULL.equals(operator)) {
+      return field(name).isNull();
+    } else if (IS_NOT_NULL.equals(operator)) {
+      return field(name).isNotNull();
+    }
+
     switch (type) {
       case TEXT, STRING, FILE:
         return whereConditionText(name, operator, toStringArray(values));
@@ -1249,40 +1255,5 @@ public class SqlQuery extends QueryBean {
       query = (SelectConditionStep) query.offset(select.getOffset());
     }
     return (SelectJoinStep<org.jooq.Record>) query;
-  }
-
-  private static Column getColumnByName(TableMetadata table, String columnName) {
-    // is search?
-    if (TEXT_SEARCH_COLUMN_NAME.equals(columnName)) {
-      return new Column(table, searchColumnName(table.getTableName()));
-    }
-    // is scalar column
-    Column column = table.getColumn(columnName);
-    if (column == null) {
-      // is reference?
-      for (Column c : table.getColumns()) {
-        for (Reference ref : c.getReferences()) {
-          // can also request composite reference columns, can only be used on row level queries
-          if (ref.getName().equals(columnName)) {
-            return new Column(table, columnName, true).setType(ref.getPrimitiveType());
-          }
-        }
-      }
-      // is file?
-      for (Column c : table.getColumns()) {
-        if (c.isFile()
-            && columnName.startsWith(c.getName())
-            && (columnName.equals(c.getName())
-                || columnName.endsWith("_mimetype")
-                || columnName.endsWith("_extension")
-                || columnName.endsWith("_size")
-                || columnName.endsWith("_contents"))) {
-          return new Column(table, columnName);
-        }
-      }
-      throw new MolgenisException(
-          "Query failed: Column '" + columnName + "' is unknown in table " + table.getTableName());
-    }
-    return column;
   }
 }

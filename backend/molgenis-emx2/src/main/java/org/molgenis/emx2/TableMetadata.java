@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
@@ -544,5 +545,41 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   public TableMetadata setTableType(TableType tableType) {
     this.tableType = tableType;
     return this;
+  }
+
+  public Column getColumnByName(String columnName) {
+    // is search?
+    if (TEXT_SEARCH_COLUMN_NAME.equals(columnName)) {
+      return new Column(this, this.tableName + TEXT_SEARCH_COLUMN_NAME);
+    }
+    // is scalar column
+    Column column = this.getColumn(columnName);
+    if (column != null) {
+      return column;
+    }
+
+    // is reference?
+    for (Column c : this.getColumns()) {
+      for (Reference ref : c.getReferences()) {
+        // can also request composite reference columns, can only be used on row level queries
+        if (ref.getName().equals(columnName)) {
+          return new Column(this, columnName, true).setType(ref.getPrimitiveType());
+        }
+      }
+    }
+    // is file?
+    for (Column c : this.getColumns()) {
+      if (c.isFile()
+          && columnName.startsWith(c.getName())
+          && (columnName.equals(c.getName())
+              || columnName.endsWith("_mimetype")
+              || columnName.endsWith("_extension")
+              || columnName.endsWith("_size")
+              || columnName.endsWith("_contents"))) {
+        return new Column(this, columnName);
+      }
+    }
+    throw new MolgenisException(
+        "Query failed: Column '" + columnName + "' is unknown in table " + this.getTableName());
   }
 }
