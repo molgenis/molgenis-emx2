@@ -1,0 +1,4 @@
+name,definition,codesystem,code,ontologyTermURI
+"Recontacting for additional sampling","Willingness to be recontacted to collect additional material or data from the patient.","FG","0000744","https://w3id.org/fair-genomes/resource/FG_0000744"
+"Recontacting for incidental findings","Willingness to be recontacted when new knowledge regarding incidental findings becomes available to benefit the patient.","FG","0000745","https://w3id.org/fair-genomes/resource/FG_0000745"
+"Recontacting for diagnostic question","Willingness to be recontacted when new knowledge regarding the diagnostic question becomes available to benefit the patient.","FG","0000746","https://w3id.org/fair-genomes/resource/FG_0000746"
