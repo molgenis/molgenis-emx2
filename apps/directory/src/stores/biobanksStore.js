@@ -111,7 +111,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   }
 
   const biobankCardsHaveResults = computed(() => {
-    return !waitingForResponse.value && biobankCards.value.length > 0;
+    return !waitingForResponse.value &&  biobankCards.value && biobankCards.value.length > 0;
   });
 
   const biobankCardsBiobankCount = computed(() => {

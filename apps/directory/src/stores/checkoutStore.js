@@ -28,6 +28,23 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     return collectionCount;
   });
 
+  function setSearchHistory(history) {
+    if (history === "") {
+      history = "No filters used.";
+    }
+
+    /** only add if this is a different query than before */
+    if (
+      searchHistory.value.length &&
+      !searchHistory.value[searchHistory.value.length - 1] !== history
+    ) {
+      searchHistory.value.push(history);
+    } else {
+      /** we can safely write history here. */
+      searchHistory.value.push(history);
+    }
+  }
+
   function addCollectionsToSelection({ biobank, collections, bookmark }) {
     checkoutValid.value = false;
     const biobankIdentifier = biobank.label || biobank.name;
@@ -41,13 +58,23 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
         (cf) => !currentIds.includes(cf.value)
       );
 
+      setSearchHistory(
+        `Selected ${newCollections
+          .map((nc) => nc.label)
+          .join(", ")} from ${biobankIdentifier}`
+      );
+
       selectedCollections.value[biobankIdentifier] =
         currentSelectionForBiobank.concat(newCollections);
     } else {
       selectedCollections.value[biobankIdentifier] = collections;
-    }
 
-    // commit('SetSearchHistory', getters.getHumanReadableString)
+      setSearchHistory(
+        `Selected ${collections
+          .map((nc) => nc.label)
+          .join(", ")} from ${biobankIdentifier}`
+      );
+    }
 
     if (bookmark) {
       checkoutValid.value = true;
@@ -150,6 +177,17 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     );
   }
 
+  function createHistoryJournal() {
+    let journal = "";
+
+    for (let i = 0, length = searchHistory.value.length; i < length; i++) {
+      journal += `#${i + 1}: ${searchHistory.value[i]}\r\n`;
+    }
+    return (
+      ". User actions taken: " + journal.substring(0, journal.length - 2)
+    ); /** remove the last \r\n */
+  }
+
   function sendToNegotiator() {
     const collections = [];
 
@@ -165,13 +203,13 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       }
     }
     const URL = window.location.href.replace(/&nToken=\w{32}/, "");
-    const humanReadable = getHumanReadableString();
+    const humanReadable = getHumanReadableString() + createHistoryJournal();
     const negotiatorUrl = settingsStore.config.negotiatorUrl;
 
-    const payload = { URL, humanReadable, collections }
+    const payload = { URL, humanReadable, collections };
 
-    if(nToken.value) {
-      payload.nToken = nToken.value
+    if (nToken.value) {
+      payload.nToken = nToken.value;
     }
 
     fetch(negotiatorUrl, {
@@ -192,6 +230,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
   return {
     nToken,
+    setSearchHistory,
     searchHistory,
     checkoutValid,
     cartUpdated,

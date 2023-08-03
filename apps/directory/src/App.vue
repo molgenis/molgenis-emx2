@@ -16,16 +16,24 @@ const checkoutStore = useCheckoutStore();
 
 watch(
   query,
-  (newQuery) => {
+  (newQuery, oldQuery) => {
     if (newQuery && Object.keys(newQuery).length) {
       const remainingKeys = Object.keys(newQuery).filter(
-        (key) => key !== "cart" 
+        (key) => key !== "cart"
         // && key !== 'nToken'
       );
       /** if we only have a cart we do not need to wait for the filters to be applied before updating the biobankcards. */
       if (remainingKeys.length > 0) {
         filtersStore.bookmarkWaitingForApplication = true;
       }
+    } else if (
+      oldQuery &&
+      Object.keys(oldQuery).length > 0 &&
+      newQuery &&
+      Object.keys(newQuery).length === 0
+    ) {
+      filtersStore.clearAllFilters();
+      applyBookmark(newQuery);
     }
 
     if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
