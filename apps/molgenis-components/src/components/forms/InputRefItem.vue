@@ -31,7 +31,6 @@ export default {
   data() {
     return {
       rowKey: "",
-      isSelected: this.rowKey?.name === this.selection?.name,
     };
   },
   computed: {
