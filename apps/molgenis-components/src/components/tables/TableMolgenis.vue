@@ -208,7 +208,6 @@ export default {
           update.push(key);
           this.$emit("select", key);
         }
-        console.log("table molgenis edit selection, key: ", key);
         this.$emit("update:selection", update);
       } else {
         this.$emit("rowClick", key);
