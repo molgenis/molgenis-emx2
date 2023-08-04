@@ -30,51 +30,51 @@ subprojects {
     nodeSetup.dependsOn parent.nodeSetup
 
     task format(type: YarnTask, dependsOn: parent.yarn_install) {
-//        args = ['run', 'format']
-//        if (project.name == 'nuxt3-ssr') {
-//            outputs.dir('components')
-//            outputs.dir('composables')
-//            outputs.dir('gql')
-//            outputs.dir('interfaces')
-//            outputs.dir('pages')
-//            outputs.dir('plugins')
-//            outputs.dir('utils')
-//            inputs.files(fileTree('components'))
-//            inputs.files(fileTree('composables'))
-//            inputs.files(fileTree('gql'))
-//            inputs.files(fileTree('interfaces'))
-//            inputs.files(fileTree('pages'))
-//            inputs.files(fileTree('plugins'))
-//            inputs.files(fileTree('utils'))
-//        } else {
-//            inputs.files(fileTree('src'))
-//            outputs.dir('src')
-//        }
-//        outputs.cacheIf { true }
+       args = ['run', 'format']
+       if (project.name == 'nuxt3-ssr') {
+           outputs.dir('components')
+           outputs.dir('composables')
+           outputs.dir('gql')
+           outputs.dir('interfaces')
+           outputs.dir('pages')
+           outputs.dir('plugins')
+           outputs.dir('utils')
+           inputs.files(fileTree('components'))
+           inputs.files(fileTree('composables'))
+           inputs.files(fileTree('gql'))
+           inputs.files(fileTree('interfaces'))
+           inputs.files(fileTree('pages'))
+           inputs.files(fileTree('plugins'))
+           inputs.files(fileTree('utils'))
+       } else {
+           inputs.files(fileTree('src'))
+           outputs.dir('src')
+       }
+       outputs.cacheIf { true }
     }
 
     task checkFormat(type: YarnTask, dependsOn: parent.yarn_install) {
-//        args = ['run', 'format']
-//        if (project.name == 'nuxt3-ssr') {
-//            outputs.dir('components')
-//            outputs.dir('composables')
-//            outputs.dir('gql')
-//            outputs.dir('interfaces')
-//            outputs.dir('pages')
-//            outputs.dir('plugins')
-//            outputs.dir('utils')
-//            inputs.files(fileTree('components'))
-//            inputs.files(fileTree('composables'))
-//            inputs.files(fileTree('gql'))
-//            inputs.files(fileTree('interfaces'))
-//            inputs.files(fileTree('pages'))
-//            inputs.files(fileTree('plugins'))
-//            inputs.files(fileTree('utils'))
-//        } else {
-//            inputs.files(fileTree('src'))
-//            outputs.dir('src')
-//        }
-//        outputs.cacheIf { true }
+       args = ['run', 'format']
+       if (project.name == 'nuxt3-ssr') {
+           outputs.dir('components')
+           outputs.dir('composables')
+           outputs.dir('gql')
+           outputs.dir('interfaces')
+           outputs.dir('pages')
+           outputs.dir('plugins')
+           outputs.dir('utils')
+           inputs.files(fileTree('components'))
+           inputs.files(fileTree('composables'))
+           inputs.files(fileTree('gql'))
+           inputs.files(fileTree('interfaces'))
+           inputs.files(fileTree('pages'))
+           inputs.files(fileTree('plugins'))
+           inputs.files(fileTree('utils'))
+       } else {
+           inputs.files(fileTree('src'))
+           outputs.dir('src')
+       }
+       outputs.cacheIf { true }
     }
 
 
