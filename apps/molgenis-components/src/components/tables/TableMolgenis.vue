@@ -13,7 +13,7 @@
           </span>
         </th>
         <th
-          v-for="col in columnsWithoutMeta"
+          v-for="col in dataColumns"
           :key="col.name + col.showColumn"
           scope="col"
           class="column-drag-header"
@@ -31,56 +31,32 @@
 
       <tbody>
         <tr v-if="data && !data.length">
-          <td :colspan="columnsWithoutMeta.length + 1" class="alert-warning">
+          <td :colspan="dataColumns.length + 1" class="alert-warning">
             No results found
           </td>
         </tr>
-        <tr
-          v-else
-          v-for="(row, idx) in data"
-          :key="idx + JSON.stringify(row) + isSelected(row)"
-          :class="
-            (isSelected(row) ? 'table-primary' : 'table-hover') +
-            (row['mg_draft'] ? 'alert alert-warning' : '')
-          "
-        >
-          <td v-if="hasColheader">
-            <div style="display: flex">
-              <div v-if="showSelect" class="form-check form-check-inline mr-1">
-                <input
-                  type="checkbox"
-                  class="form-check-input position-static"
-                  :checked="isSelected(row)"
-                  @click="onRowClick(row)"
-                />
-              </div>
-              <!--@slot Use this to add values or actions buttons to each row -->
+        <template v-else v-for="row in data">
+          <TableRow
+            :row="row"
+            :columns="dataColumns"
+            :tableName="tableName || tableMetadata.name"
+            :client="client"
+            :showSelect="showSelect"
+            :selection="selection"
+            @cellClick="$emit('cellClick', $event)"
+            @rowClick="$emit('rowClick', $event)"
+            @select="onRowSelect"
+            @deselect="onRowDeselect"
+          >
+            <template v-slot:rowheader="slotProps">
               <slot
                 name="rowheader"
-                :row="row"
-                :metadata="tableMetadata"
-                :rowkey="convertRowToPrimaryKey(row)"
+                :row="slotProps.row"
+                :rowKey="slotProps.rowKey"
               />
-            </div>
-            <i v-if="row.mg_draft" class="fas fa-user-edit">draft</i>
-          </td>
-
-          <td
-            v-for="col in columnsWithoutMeta"
-            :key="idx + col.name + isSelected(row)"
-            style="cursor: pointer"
-            :style="col.showColumn ? '' : 'display: none'"
-            @click="
-              {
-                onRowClick(row);
-                onCellClick(row, col);
-              }
-            "
-            :class="{ refType: isRefType(col.columnType) }"
-          >
-            <data-display-cell :data="row[col.id]" :metaData="col" />
-          </td>
-        </tr>
+            </template>
+          </TableRow>
+        </template>
       </tbody>
     </table>
   </div>
@@ -106,11 +82,11 @@ th {
 
 <script>
 import Client from "../../client/client";
-import { deepClone, deepEqual, isRefType } from "../utils";
-import DataDisplayCell from "./DataDisplayCell.vue";
+import TableRow from "./TableRow.vue";
+import { toRaw } from "vue";
 
 export default {
-  components: { DataDisplayCell },
+  components: { TableRow },
   props: {
     /** selection, two-way binded*/
     selection: { type: Array, required: false },
@@ -130,92 +106,43 @@ export default {
     };
   },
   computed: {
-    countColumns() {
-      return this.columnsWithoutMeta.filter((c) => c.showColumn).length;
-    },
-    columnsWithoutMeta() {
-      return this.columns
-        ? this.columns.filter((column) => column.columnType !== "HEADING")
-        : [];
+    dataColumns() {
+      const columnsWithoutHeaders = this.columns.filter(
+        (column) => column.columnType !== "HEADING"
+      );
+
+      return columnsWithoutHeaders.map((column) => {
+        if (column.showColumn == undefined) {
+          column.showColumn = true;
+        }
+        return column;
+      });
     },
   },
   methods: {
     hasColheader() {
-      return (
-        this.showSelect || !!this.$slots.colheader || !!this.$slots.rowheader
-      );
+      return this.showSelect || Boolean(this.$slots.colheader);
     },
-    initShowColumn() {
-      if (this.columns) {
-        let update = this.columns;
-        for (var key in update) {
-          if (update[key].showColumn == undefined) {
-            update[key].showColumn = true;
-            this.$emit("update:columns", update);
-          }
-        }
-      }
-    },
-    async convertRowToPrimaryKey(row) {
-      return await this.client.convertRowToPrimaryKey(
-        row,
-        this.tableName || this.tableMetadata?.name
-      );
-    },
-    isSelected(row) {
-      let key = this.convertRowToPrimaryKey(row);
-      let found = false;
-      if (Array.isArray(this.selection)) {
-        this.selection.forEach((s) => {
-          if (s != null && this.deepEqual(key, s)) {
-            found = true;
-          }
-        });
-      }
-      return found;
-    },
-    isRefType,
-    deepEqual,
     onColumnClick(column) {
       this.$emit("column-click", column);
     },
-    onCellClick(row, column) {
-      const value = row[column.id];
-      if (value) {
-        this.$emit("cellClick", {
-          cellValue: deepClone(value),
-          column: deepClone(column),
-        });
-      }
+    onRowSelect(rowKey) {
+      this.$emit("select", rowKey);
+      this.$emit("update:selection", [...toRaw(this.selection), rowKey]);
     },
-    async onRowClick(row) {
-      const key = await this.convertRowToPrimaryKey(row);
-      if (this.showSelect) {
-        //deep copy
-        let update = Array.isArray(this.selection)
-          ? deepClone(this.selection)
-          : [];
-        if (this.isSelected(row)) {
-          /** when a row is deselected */
-          update = update.filter(
-            (item) =>
-              JSON.stringify(item, Object.keys(item).sort()) !==
-              JSON.stringify(key, Object.keys(key).sort())
-          );
-          this.$emit("deselect", key);
-        } else {
-          /** when a row is selected */
-          update.push(key);
-          this.$emit("select", key);
-        }
-        this.$emit("update:selection", update);
-      } else {
-        this.$emit("rowClick", key);
-      }
+    onRowDeselect(rowKey) {
+      const sortedRowKeyAsString = JSON.stringify(
+        rowKey,
+        Object.keys(rowKey).sort()
+      );
+      const deleteIndex = this.selection
+        .map((selectionItem) =>
+          JSON.stringify(selectionItem, Object.keys(selectionItem).sort())
+        )
+        .findIndex((selectionItem) => selectionItem === sortedRowKeyAsString);
+      this.$emit("deselect", rowKey);
+      this.$emit("update:selection", this.selection.toSpliced(deleteIndex, 1));
     },
-  },
-  created() {
-    this.initShowColumn();
   },
 };
 </script>
@@ -225,33 +152,38 @@ export default {
   <div>
     <DemoItem id="table-molgenis" label="Table Molgenis">
       <label class="font-italic">Remote Pet data</label>
-      <table-molgenis v-if="remoteTableData"
-                      :selection.sync="remoteSelected"
-                      :columns.sync="remoteColumns"
-                      :data="remoteTableData"
-                      tableName="Pet"
-                      schemaName="pet store"
-                      @click="click"
+        <div class="border-bottom mb-3 p-2">
+      <h5>synced demo props: </h5>
+      <div>
+        <label for="canSelect" class="pr-1">can select: </label>
+        <input type="checkbox" id="canSelect" v-model="canSelect">
+      </div>
+      <div v-show="canSelect">
+      {{ selection }}
+      </div>
+    </div>
+      <table-molgenis 
+        v-if="remoteTableData"
+        v-model:selection="selection"
+        v-model:columns="columns"
+        :data="remoteTableData"
+        tableName="Pet"
+        schemaName="pet store"
+        :showSelect="canSelect"
       />
     </DemoItem>
     <DemoItem>
       <label class="font-italic">Example without data</label>
       <table-molgenis
-          @select="click"
-          @deselect="click"
-          @click="click"
           :data="[]"
           tableName="Pet"
           schemaName="pet store"
-          :columns.sync="columns"
+          v-model:columns="columns"
       />
     </DemoItem>
     <DemoItem>
       <label class="font-italic">Example without data and columns</label>
       <table-molgenis
-          @select="click"
-          @deselect="click"
-          @click="click"
           :data="[]"
           tableName="Pet"
           schemaName="pet store"
@@ -266,56 +198,19 @@ import Client from "../../../src/client/client.ts";
 export default {
   data() {
     return {
-      selected: [],
-      columns: [
-        { id: "col1", name: "col1", columnType: "STRING", key: 1 },
-        {
-          id: "ref1",
-          name: "ref1",
-          columnType: "REF",
-          refColumns: ["firstName", "lastName"],
-        },
-        {
-          id: "ref_arr1",
-          name: "ref_arr1",
-          columnType: "REF_ARRAY",
-          refColumns: ["firstName", "lastName"],
-        },
-      ],
-      data: [
-        {
-          col1: "row1",
-          ref1: { firstName: "katrien", lastName: "duck" },
-          ref_arr1: [
-            { firstName: "kwik", lastName: "duck" },
-            {
-              firstName: "kwek",
-              lastName: "duck",
-            },
-            { firstName: "kwak", lastName: "duck" },
-          ],
-        },
-        {
-          col1: "row2",
-        },
-      ],
-      remoteSelected: [],
-      remoteColumns: [],
+      selection: [],
+      columns: [],
       remoteTableData: null,
+      canSelect: false,
     };
-  },
-  methods: {
-    click(value) {
-      alert("click " + JSON.stringify(value));
-    },
   },
   async mounted() {
     const client = Client.newClient("pet store", this.$axios);
-    const remoteMetaData = await client.fetchSchemaMetaData();
-    const petColumns = remoteMetaData.tables.find(
+    const metaData = await client.fetchSchemaMetaData();
+    const petColumns = metaData.tables.find(
       (t) => t.name === "Pet"
     ).columns;
-    this.remoteColumns = petColumns.filter((c) => !c.name.startsWith("mg_"));
+    this.columns = petColumns.filter((c) => !c.name.startsWith("mg_"));
     this.remoteTableData = (await client.fetchTableData("Pet")).Pet;
   },
 };

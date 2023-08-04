@@ -36,7 +36,7 @@
             @deselect="deselect(selectIdx)"
           >
             <template v-slot:rowheader="slotProps">
-              <ButtonAction @click="select(slotProps.rowkey)">
+              <ButtonAction @click="select(slotProps.rowKey)">
                 Select
               </ButtonAction>
             </template>

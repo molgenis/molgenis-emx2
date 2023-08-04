@@ -31,7 +31,7 @@
           name="rowheader"
           :row="slotProps.row"
           :metadata="slotProps.metadata"
-          :rowkey="slotProps.rowkey"
+          :rowKey="slotProps.rowKey"
         />
       </template>
     </TableExplorer>

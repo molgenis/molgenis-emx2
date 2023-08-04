@@ -29,7 +29,7 @@
           name="rowheader"
           :row="slotProps.row"
           :metadata="tableMetadata"
-          :rowkey="slotProps.rowkey"
+          :rowKey="slotProps.rowKey"
         />
         <RowButton
           v-if="canEdit"
@@ -37,24 +37,24 @@
           :table="tableName"
           :schemaName="schemaName"
           :visible-columns="visibleColumnNames"
-          :refTablePrimaryKeyObject="slotProps.rowkey"
+          :refTablePrimaryKeyObject="slotProps.rowKey"
           @close="reload"
-          @edit="handleRowAction('edit', slotProps.rowkey)"
+          @edit="handleRowAction('edit', slotProps.rowKey)"
         />
         <RowButton
           v-if="canEdit"
           type="clone"
           :table="tableName"
           :schemaName="schemaName"
-          :pkey="slotProps.rowkey"
+          :pkey="slotProps.rowKey"
           :visible-columns="visibleColumnNames"
           :default-value="defaultValue"
-          @clone="handleRowAction('clone', slotProps.rowkey)"
+          @clone="handleRowAction('clone', slotProps.rowKey)"
         />
         <RowButton
           v-if="canEdit"
           type="delete"
-          @delete="handleDeleteRowRequest(slotProps.rowkey)"
+          @delete="handleDeleteRowRequest(slotProps.rowKey)"
         />
       </template>
     </TableMolgenis>
