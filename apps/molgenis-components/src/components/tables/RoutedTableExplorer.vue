@@ -261,8 +261,8 @@ export default {
     {{ schema }}  
      
       <routed-table-explorer
-        :key="my-table-explorer"
-        :id="dynamicId"
+        id="my-table-explorer"
+        :key="dynamicKey"
         :tableName="table"
         :schemaName="schema"
         :canEdit="canEdit"
@@ -281,7 +281,7 @@ export default {
       }
     },
     computed: {
-      dynamicId() {
+      dynamicKey() {
         return "my-table-explorer" + this.schema + "_" + this.table
       },
      
