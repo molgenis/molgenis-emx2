@@ -223,7 +223,7 @@ export default {
     <table-search
         id="my-search-table"
         v-model:selection="selected"
-        v-model::columns="columns"
+        v-model:columns="columns"
         :lookupTableName="'Pet'"
         schemaName="pet store"
         :canEdit="canEdit"
