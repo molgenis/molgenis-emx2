@@ -36,11 +36,8 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     /** only add if this is a different query than before */
     if (
       searchHistory.value.length &&
-      !searchHistory.value[searchHistory.value.length - 1] !== history
+      searchHistory.value[searchHistory.value.length - 1] !== history
     ) {
-      searchHistory.value.push(history);
-    } else {
-      /** we can safely write history here. */
       searchHistory.value.push(history);
     }
   }
@@ -64,9 +61,8 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
           .join(", ")} from ${biobankIdentifier}`
       );
 
-      selectedCollections.value[
-        biobankIdentifier
-      ] = currentSelectionForBiobank.concat(newCollections);
+      selectedCollections.value[biobankIdentifier] =
+        currentSelectionForBiobank.concat(newCollections);
     } else {
       selectedCollections.value[biobankIdentifier] = collections;
 
@@ -109,9 +105,8 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       }
 
       if (collectionSelectionForBiobank.length) {
-        selectedCollections.value[
-          biobankIdentifier
-        ] = collectionSelectionForBiobank;
+        selectedCollections.value[biobankIdentifier] =
+          collectionSelectionForBiobank;
       } else {
         delete selectedCollections.value[biobankIdentifier];
       }
