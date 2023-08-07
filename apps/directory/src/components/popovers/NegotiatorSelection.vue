@@ -141,7 +141,7 @@ export default {
     },
     sendRequest() {
       this.cartVisible = false;
-      //todo: this.SendToNegotiator();
+      this.checkoutStore.sendToNegotiator();
     },
   },
   watch: {

@@ -68,10 +68,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return facetDetails[facetIdentifier].filterValueAttribute;
   }
 
-  function resetFilters() {
-    this.baseQuery.resetFilters();
-  }
-
   const hasActiveFilters = computed(() => {
     return Object.keys(filters.value).length > 0;
   });
@@ -383,8 +379,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       value.length === 0
     ) {
       delete filters.value[filterName];
+      checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
     } else {
       filters.value[filterName] = value;
+
+      checkoutStore.setSearchHistory(
+        `${filterName} filtered on ${value.map((v) => v.text).join(", ")}`
+      );
     }
   }
 
@@ -409,7 +410,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   return {
     facetDetails,
-    resetFilters,
     updateFilter,
     clearAllFilters,
     updateOntologyFilter,

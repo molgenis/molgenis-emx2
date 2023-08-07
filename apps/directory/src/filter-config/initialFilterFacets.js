@@ -137,7 +137,7 @@ export const initialFilterFacets = [
   {
     facetTitle: "search",
     component: "StringFilter",
-    humanReadableString: "Text search is",
+    negotiatorRequestString: "Text search is",
     builtIn: true /** search should not be generated */,
   },
 ];
