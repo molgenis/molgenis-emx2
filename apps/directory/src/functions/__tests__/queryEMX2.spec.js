@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { queryEMX2 } from "molgenis-components";
+import { QueryEMX2 } from "molgenis-components";
 
 describe("QueryEMX2 Interface", () => {
   it("can create a simple query on the biobanks table", () => {
@@ -77,7 +77,7 @@ Biobanks {
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: { name: { like: "UMC" } } }) {
+Biobanks(filter: { _and: [ { name: { like: "UMC" } } ] }) {
     id,
     name
   }
@@ -94,7 +94,7 @@ Biobanks(filter: { _and: { name: { like: "UMC" } } }) {
       .getQuery();
 
     expect(query).toEqual(`{
-Biobanks(filter: { _or: [{ country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } }] }) {
+Biobanks(filter: { _or: [ { country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } } ] }) {
     id,
     name
   }
@@ -112,7 +112,7 @@ Biobanks(filter: { _or: [{ country: { name: { like: "DE" } } }, { collections: {
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: [{ name: { like: "Dresden" } }, { country: { name: { equals: "DE" } } }] }) {
+Biobanks(filter: { _and: [ { name: { like: "Dresden" } }, { country: { name: { equals: "DE" } } } ] }) {
     id,
     name
   }
@@ -130,7 +130,7 @@ Biobanks(filter: { _and: [{ name: { like: "Dresden" } }, { country: { name: { eq
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: { collections: { id: { like: "eric" }, name: { like: "Lifelines" } } } }) {
+Biobanks(filter: { _and: [ { collections: { id: { like: "eric" } } }, { collections: { name: { like: "Lifelines" } } } ] }) {
     id,
     name
   }
@@ -147,7 +147,7 @@ Biobanks(filter: { _and: { collections: { id: { like: "eric" }, name: { like: "L
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(limit: 100, filter: { _and: { name: { like: "UMC" } } }) {
+Biobanks(limit: 100, filter: { _and: [ { name: { like: "UMC" } } ] }) {
     id,
     name
   }
@@ -165,7 +165,7 @@ Biobanks(limit: 100, filter: { _and: { name: { like: "UMC" } } }) {
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(limit: 100, orderby: { name: ASC }, filter: { _and: { name: { like: "UMC" } } }) {
+Biobanks(limit: 100, orderby: { name: ASC }, filter: { _and: [ { name: { like: "UMC" } } ] }) {
     id,
     name
   }
@@ -181,7 +181,7 @@ Biobanks(limit: 100, orderby: { name: ASC }, filter: { _and: { name: { like: "UM
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: { name: { like: ["UMC", "Dresden"] } } }) {
+Biobanks(filter: { _and: [ { name: { like: "UMC" } }, { name: { like: "Dresden" } } ] }) {
     id,
     name
   }
@@ -199,7 +199,7 @@ Biobanks(filter: { _and: { name: { like: ["UMC", "Dresden"] } } }) {
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: { name: { like: "Dresden" } }, _or: { country: { name: { like: "DE" } } } }) {
+Biobanks(filter: { _and: [ { name: { like: "Dresden" } } ], _or: [ { country: { name: { like: "DE" } } } ] }) {
     id,
     name
   }
@@ -219,7 +219,7 @@ Biobanks(filter: { _and: { name: { like: "Dresden" } }, _or: { country: { name: 
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: { name: { like: "Dresden" } }, _or: [{ country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } }] }) {
+Biobanks(filter: { _and: [ { name: { like: "Dresden" } } ], _or: [ { country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } } ] }) {
     id,
     name
   }
@@ -241,7 +241,7 @@ Biobanks(filter: { _and: { name: { like: "Dresden" } }, _or: [{ country: { name:
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: { name: { like: "Dresden" } }, _or: [{ country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } }, { collections: { materials: { name: { like: "covid" } } } }] }) {
+Biobanks(filter: { _and: [ { name: { like: "Dresden" } } ], _or: [ { country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } }, { collections: { materials: { name: { like: "covid" } } } } ] }) {
     id,
     name
   }
@@ -278,7 +278,7 @@ Biobanks {
 Biobanks {
     id,
     name,
-    collections(filter: { _and: { name: { like: "cardiovascular" } } }) {
+    collections(filter: { _and: [ { name: { like: "cardiovascular" } } ] }) {
         id,
         name
     }
@@ -356,7 +356,7 @@ NestedExample {
     const query = new QueryEMX2("graphql")
       .table("NestedExample")
       .select(selection)
-      .filter("layerC", "name")
+      .filter("layerC.name")
       .like("nameOfC")
       .getQuery();
 
@@ -370,7 +370,7 @@ NestedExample {
         layerB {
             id,
             name,
-            layerC(filter: { _and: { name: { like: "nameOfC" } } }) {
+            layerC(filter: { _and: [ { name: { like: "nameOfC" } } ] }) {
                 id,
                 name
             }
