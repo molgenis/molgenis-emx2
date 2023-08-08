@@ -426,7 +426,7 @@ export default {
       const client = this.$Client.newClient(this.schemaName);
       const tableMetaData = await client.fetchTableMetaData(this.tableName);
       const rowData = await client.fetchTableDataValues(this.tableName, {});
-      this.demoKey = this.demoMode === "insert" ? null : this.$utils.getPrimaryKey(rowData[0], tableMetaData);
+      this.demoKey = this.demoMode === "insert" ? null : await client.convertRowToPrimaryKey(rowData[0], this.tableName);
       const settings = await client.fetchSettings();
       if(this.loadFromBackend) {
            this.useChapters =

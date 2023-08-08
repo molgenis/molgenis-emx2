@@ -38,9 +38,10 @@ export default {
     EmailDisplay,
   },
   methods: {
+    applyJsTemplate,
     getValue(col, row) {
       return this.getLabel(col)
-        ? applyJsTemplate(row[col.id], getLabel(col))
+        ? applyJsTemplate(row[col.id], this.getLabel(col))
         : row[col.id];
     },
     getLabel(col) {

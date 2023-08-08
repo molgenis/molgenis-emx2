@@ -241,6 +241,7 @@
           />
           <TableMolgenis
             v-if="view == View.TABLE"
+            :schemaName="schemaName"
             :selection="selectedItems"
             @update:selection="selectedItems = $event"
             :columns="columns"
@@ -320,7 +321,7 @@
                 name="rowheader"
                 :row="slotProps.row"
                 :metadata="tableMetadata"
-                :rowkey="
+                :rowKey="
                   convertRowToPrimaryKey(
                     slotProps.row,
                     tableMetadata.name,

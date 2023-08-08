@@ -229,6 +229,9 @@ const client: IClient = {
       clearCache: () => {
         schemaCache.clear();
       },
+      convertRowToPrimaryKey: async (row: IRow, tableName: string) => {
+        return convertRowToPrimaryKey(row, tableName, schemaNameCache);
+      },
     };
   },
 };
