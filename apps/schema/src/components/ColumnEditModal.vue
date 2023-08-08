@@ -250,21 +250,21 @@
 
 <script>
 import {
-  LayoutForm,
-  InputText,
-  InputTextLocalized,
-  InputString,
-  InputBoolean,
-  InputSelect,
-  IconAction,
-  LayoutModal,
   ButtonAction,
-  MessageWarning,
-  MessageError,
   ButtonAlt,
   Client,
-  Spinner,
+  IconAction,
+  InputBoolean,
+  InputSelect,
+  InputString,
+  InputText,
+  InputTextLocalized,
+  LayoutForm,
+  LayoutModal,
+  MessageError,
+  MessageWarning,
   RowEdit,
+  Spinner,
   deepClone,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
@@ -462,7 +462,7 @@ export default {
       this.error = undefined;
       this.loading = true;
       if (this.column.refSchema) {
-        this.client = Client.newClient(this.column.refSchema, this.$axios);
+        this.client = Client.newClient(this.column.refSchema);
         const schema = await this.client.fetchSchemaMetaData().catch((e) => {
           this.error = e;
         });
