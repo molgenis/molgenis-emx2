@@ -11,8 +11,6 @@ import { IColumn } from "../Interfaces/IColumn";
 
 // application wide cache for schema meta data
 const schemaCache = new Map<string, ISchemaMetaData>();
-let hitCount = 0;
-let missCount = 0;
 
 export { request };
 const client: IClient = {
@@ -28,14 +26,13 @@ const client: IClient = {
       deleteAllTableData: async (tableName: string) => {
         return deleteAllTableData(tableName, schemaName);
       },
-      fetchSchemaMetaData: async (useCache: boolean = true) => {
-        return fetchSchemaMetaData(myAxios, schemaName, useCache);
+      fetchSchemaMetaData: async () => {
+        return fetchSchemaMetaData(myAxios, schemaName);
       },
       fetchTableMetaData: async (
-        tableName: string,
-        useCache: boolean = true
+        tableName: string
       ): Promise<ITableMetaData> => {
-        const schema = await fetchSchemaMetaData(myAxios, schemaName, useCache);
+        const schema = await fetchSchemaMetaData(myAxios, schemaName);
         return deepClone(schema).tables.find(
           (table: ITableMetaData) =>
             table.id === convertToPascalCase(tableName) &&
@@ -267,22 +264,11 @@ const deleteAllTableData = (tableName: string, schemaName?: string) => {
 
 const fetchSchemaMetaData = async (
   axios: Axios,
-  schemaName?: string,
-  useCache: boolean = true
+  schemaName?: string
 ): Promise<ISchemaMetaData> => {
-  if (schemaName && useCache && schemaCache.has(schemaName)) {
-    hitCount++;
-    console.log(
-      "schemaCache hit: " + schemaName + " hits: " + hitCount,
-      "misses: " + missCount
-    );
+  if (schemaName && schemaCache.has(schemaName)) {
     return schemaCache.get(schemaName) as ISchemaMetaData;
   }
-  missCount++;
-  console.log(
-    "schemaCache mis: " + schemaName + " hits: " + hitCount,
-    "misses: " + missCount
-  );
   return await axios
     .post(graphqlURL(schemaName), { query: metaDataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
@@ -406,8 +392,7 @@ async function convertRowToPrimaryKey(
   myAxios: Axios,
   row: IRow,
   tableName: string,
-  schemaName?: string,
-  useCache: boolean = true
+  schemaName?: string
 ): Promise<Record<string, any>> {
   async function getKeyValue(
     cellValue: any,
@@ -422,14 +407,13 @@ async function convertRowToPrimaryKey(
           myAxios,
           cellValue,
           column.refTable,
-          schemaName,
-          useCache
+          schemaName
         );
       }
     }
   }
 
-  const schema = await fetchSchemaMetaData(myAxios, schemaName, useCache);
+  const schema = await fetchSchemaMetaData(myAxios, schemaName);
   const tableMetadata = schema.tables.find(
     (table: ITableMetaData) =>
       table.id === convertToPascalCase(tableName) &&
