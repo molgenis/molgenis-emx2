@@ -119,3 +119,30 @@ details.align-right > *:not(summary) {
   border-radius: 4px;
 }
 </style>
+
+
+<docs>
+<template>
+<demo-item>
+<HtmlDropdown
+  :button-text="'Html Dropdown'"
+  :active="false"
+  >
+  <template v-slot:counter>
+    <span class="badge badge-light border mr-2 ml-1">
+      10
+    </span>
+  </template>
+  <div class="d-flex flex-column pr-3 pl-1">
+    <label><input type="checkbox" class="mr-1">Option 1</label>
+    <label><input type="checkbox" class="mr-1">Option 2</label>
+    <label><input type="checkbox" class="mr-1">Option 3</label>
+    <label><input type="checkbox" class="mr-1">Option 4</label>
+    <label><input type="checkbox" class="mr-1">Option 5</label>
+  </div>
+</HtmlDropdown>
+
+</demo-item>
+  
+</template>
+</docs>

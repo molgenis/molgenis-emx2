@@ -1,5 +1,6 @@
 import Client from "../src/client/client.ts";
 import { request } from "../src/client/client.ts";
+import QueryEMX2 from "../src/queryEmx2/queryEmx2.js";
 
 //account
 import MolgenisAccount from "../src/components/account/MolgenisAccount.vue";
@@ -33,6 +34,7 @@ import ButtonAction from "../src/components/forms/ButtonAction.vue";
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
 import ButtonDanger from "../src/components/forms/ButtonDanger.vue";
 import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
+import HtmlDropdown from "../src/components/forms/HtmlDropdown.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import ConfirmModal from "../src/components/forms/ConfirmModal.vue";
@@ -173,6 +175,7 @@ export {
   FormGroup,
   FormInput,
   FormMolgenis,
+  HtmlDropdown,
   IconAction,
   IconBar,
   IconDanger,
@@ -243,6 +246,7 @@ export {
   MolgenisSession,
   MolgenisSignin,
   MolgenisSignup,
+  QueryEMX2,
   ReadMore,
   ShowHide,
   ShowMore,
