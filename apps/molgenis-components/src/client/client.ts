@@ -161,7 +161,11 @@ const client: IClient = {
         schemaCache.clear();
       },
       convertRowToPrimaryKey: async (row: IRow, tableName: string) => {
+<<<<<<< HEAD
         return convertRowToPrimaryKey(myAxios, row, tableName, schemaName);
+=======
+        return convertRowToPrimaryKey(row, tableName, schemaNameCache);
+>>>>>>> master
       },
     };
   },

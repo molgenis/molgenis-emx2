@@ -34,7 +34,7 @@
     "click-outside-vue3": "4.0.1",
     "cross-env": "7.0.3",
     "vue": "3.2.47",
-    "vue-flatpickr-component": "11.0.2",
+    "vue-flatpickr-component": "11.0.3",
     "vue3-cookies": "^1.0.6",
     "vuedraggable": "4.1.0"
   },

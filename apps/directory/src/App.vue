@@ -1,3 +1,9 @@
+<template>
+  <Molgenis v-model="session">
+    <RouterView @click="closeAllDropdownButtons" />
+  </Molgenis>
+</template>
+
 <script setup>
 import { Molgenis } from "molgenis-components";
 import { computed, onMounted, watch } from "vue";
@@ -16,7 +22,7 @@ const checkoutStore = useCheckoutStore();
 
 watch(
   query,
-  (newQuery) => {
+  (newQuery, oldQuery) => {
     if (newQuery && Object.keys(newQuery).length) {
       const remainingKeys = Object.keys(newQuery).filter(
         (key) => key !== "cart"
@@ -25,6 +31,14 @@ watch(
       if (remainingKeys.length > 0) {
         filtersStore.bookmarkWaitingForApplication = true;
       }
+    } else if (
+      oldQuery &&
+      Object.keys(oldQuery).length > 0 &&
+      newQuery &&
+      Object.keys(newQuery).length === 0
+    ) {
+      filtersStore.clearAllFilters();
+      applyBookmark(newQuery);
     }
 
     if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
@@ -37,13 +51,23 @@ onMounted(async () => {
   const settingsStore = useSettingsStore();
   await settingsStore.initializeConfig();
 });
+
+function closeAllDropdownButtons(event) {
+  const allDropdownButtons = document.querySelectorAll(".dropdown-button");
+  if (event.target.id) {
+    for (const dropdownButton of allDropdownButtons) {
+      if (dropdownButton.id !== event.target.id) {
+        dropdownButton.removeAttribute("open");
+      }
+    }
+  } else {
+    for (const dropdownButton of allDropdownButtons) {
+      dropdownButton.removeAttribute("open");
+    }
+  }
+}
 </script>
 
-<template>
-  <molgenis v-model="session">
-    <RouterView @click="closeAllDropdownButtons" />
-  </molgenis>
-</template>
 <script>
 export default {
   data() {
@@ -57,22 +81,6 @@ export default {
       settingsStore.setSessionInformation(sessionState);
     },
   },
-  methods: {
-    closeAllDropdownButtons(event) {
-      const allDropdownButtons = document.querySelectorAll(".dropdown-button");
-      if (event.target.id) {
-        for (const dropdownButton of allDropdownButtons) {
-          if (dropdownButton.id !== event.target.id) {
-            dropdownButton.removeAttribute("open");
-          }
-        }
-      } else {
-        for (const dropdownButton of allDropdownButtons) {
-          dropdownButton.removeAttribute("open");
-        }
-      }
-    },
-  },
 };
 </script>
 
@@ -80,5 +88,9 @@ export default {
 /* removing the built-in nav because it conflicts */
 nav[aria-label="breadcrumb"]:not(.directory-nav) {
   display: none;
+}
+ol.breadcrumb {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
 }
 </style>

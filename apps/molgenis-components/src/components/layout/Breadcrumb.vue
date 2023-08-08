@@ -14,7 +14,7 @@
             <i
               class="text-primary dropdown-toggle dropdown-toggle-split pr-0"
               @click="toggleDropdown"
-            ></i>
+            />
             <div class="dropdown-menu" :class="{ show: showDropdown }">
               <a
                 v-for="(url, label, index) in dropdown"
@@ -36,9 +36,9 @@
 export default {
   name: "Breadcrumb",
   props: {
-    /* list of crumbs, array of  {'label':'url'} */
+    /* list of crumbs, map of  {'label':'url'} */
     crumbs: Object,
-    /* list of dropdown, array of  {'label':'url'} */
+    /* list of dropdown, map of  {'label':'url'} */
     dropdown: Object,
   },
   data() {

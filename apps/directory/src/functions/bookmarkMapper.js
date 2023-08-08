@@ -7,6 +7,7 @@ let bookmarkApplied = false;
 
 function setBookmark(bookmark) {
   bookmarkApplied = true;
+
   router.push({
     name: router.currentRoute.name,
     query: bookmark,
@@ -36,9 +37,9 @@ export async function applyBookmark(watchedQuery) {
   if (!query || !Object.keys(query).length > 0) return;
 
   /**  negotiator token */
-  // if (query.nToken) {
-  //   state.nToken = query.nToken
-  // }
+  if (query.nToken) {
+    checkoutStore.nToken = query.nToken;
+  }
 
   if (query.cart) {
     const decoded = decodeURIComponent(query.cart);
@@ -58,9 +59,11 @@ export async function applyBookmark(watchedQuery) {
     }
 
     /** add the beginning of history if from a link-back url */
-    // if (state.searchHistory.length === 0) {
-    //     state.searchHistory.push('Starting with a preselected list of collections')
-    // }
+    if (checkoutStore.searchHistory.length === 0) {
+      checkoutStore.searchHistory.push(
+        "Starting with a preselected list of collections"
+      );
+    }
   }
 
   /** we load the filters, grab the names, so we can loop over it to map the selections */
@@ -103,6 +106,8 @@ export async function applyBookmark(watchedQuery) {
       }
     }
   }
+
+  filtersStore.bookmarkWaitingForApplication = false;
 }
 export function createBookmark(filters, collectionCart) {
   const filtersStore = useFiltersStore();

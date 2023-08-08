@@ -1,0 +1,8 @@
+name,definition,codesystem,code,ontologyTermURI
+"Helicos platform","Helicos platform","GENEPIO","0002682","http://purl.obolibrary.org/obo/GENEPIO_0002682"
+"Ion Torrent platform","Ion Torrent platform","GENEPIO","0002683","http://purl.obolibrary.org/obo/GENEPIO_0002683"
+"SOLiD sequening platform","SOLiD sequening platform","GENEPIO","0002684","http://purl.obolibrary.org/obo/GENEPIO_0002684"
+"Illumina platform","Illumina platform","GENEPIO","0001923","http://purl.obolibrary.org/obo/GENEPIO_0001923"
+"Complete Genomics platform","Complete Genomics platform","GENEPIO","0001924","http://purl.obolibrary.org/obo/GENEPIO_0001924"
+"Roche LS454 platform","Roche LS454 platform","GENEPIO","0001926","http://purl.obolibrary.org/obo/GENEPIO_0001926"
+"PacBio platform","PacBio platform","GENEPIO","0001927","http://purl.obolibrary.org/obo/GENEPIO_0001927"
