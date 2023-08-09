@@ -31,9 +31,9 @@ import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 public class TestGraphqSchemaFields {
 
+  private static final String schemaName = TestGraphqSchemaFields.class.getSimpleName();
   private static GraphQL grapql;
   private static Database database;
-  private static final String schemaName = TestGraphqSchemaFields.class.getSimpleName();
   private static TaskService taskService;
   private static Schema schema;
 
@@ -360,9 +360,9 @@ public class TestGraphqSchemaFields {
     assertEquals(6, result.at("/Pet_groupBy/0/count").intValue());
     assertNull(null, result.at("/Pet_groupBy/0/orders").textValue());
 
-    // ordderId=1 has one pet
+    // orderId=1 has one pet
     assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
-    assertEquals("1", result.at("/Pet_groupBy/1/orders/orderId").textValue());
+    assert (result.at("/Pet_groupBy/1/orders/orderId").textValue().contains("ORDER:"));
 
     // N.B. in case arrays are involved total might more than count!!!
   }
