@@ -241,6 +241,7 @@
           />
           <TableMolgenis
             v-if="view == View.TABLE"
+            :schemaName="schemaName"
             :selection="selectedItems"
             @update:selection="selectedItems = $event"
             :columns="columns"
@@ -320,7 +321,13 @@
                 name="rowheader"
                 :row="slotProps.row"
                 :metadata="tableMetadata"
-                :rowkey="getPrimaryKey(slotProps.row, tableMetadata)"
+                :rowKey="
+                  convertRowToPrimaryKey(
+                    slotProps.row,
+                    tableMetadata.name,
+                    schemaName
+                  )
+                "
               />
             </template>
           </TableMolgenis>
@@ -408,7 +415,6 @@ import {
   deepClone,
   getLocalizedDescription,
   getLocalizedLabel,
-  getPrimaryKey,
   isRefType,
 } from "../utils";
 import AggregateTable from "./AggregateTable.vue";
@@ -591,7 +597,6 @@ export default {
   },
   methods: {
     convertRowToPrimaryKey,
-    getPrimaryKey,
     setSearchTerms(newSearchValue) {
       this.searchTerms = newSearchValue;
       this.$emit("searchTerms", newSearchValue);

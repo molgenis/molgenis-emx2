@@ -16,6 +16,7 @@
       <Spinner v-if="loading" />
       <div v-else>
         <TableMolgenis
+          :schemaName="schemaName"
           :selection="selection"
           :tableMetadata="tableMetadata"
           :columns="columnsVisible"
@@ -39,7 +40,7 @@
               class="d-inline p-0"
             />
           </template>
-          <template v-slot:colheader="slotProps">
+          <template v-slot:colheader>
             <slot
               name="colheader"
               v-bind="$props"
@@ -53,14 +54,14 @@
               name="rowheader"
               :row="slotProps.row"
               :metadata="tableMetadata"
-              :rowkey="slotProps.rowkey"
+              :rowKey="slotProps.rowKey"
             />
             <RowButtonEdit
               v-if="canEdit"
               :id="'row-button-edit-' + lookupTableName"
               :tableName="lookupTableName"
               :schemaName="schemaName"
-              :pkey="slotProps.rowkey"
+              :pkey="slotProps.rowKey"
               @close="loadData"
               class="text-left"
             />
@@ -69,7 +70,7 @@
               :id="'row-button-del-' + lookupTableName"
               :tableName="lookupTableName"
               :schemaName="schemaName"
-              :pkey="slotProps.rowkey"
+              :pkey="slotProps.rowKey"
               @close="loadData"
             />
           </template>
@@ -211,18 +212,22 @@ export default {
         <label for="canEdit" class="pr-1">can edit: </label>
         <input type="checkbox" id="canEdit" v-model="canEdit">
       </div>
+      <div>
+        <label for="canSelect" class="pr-1">can select: </label>
+        <input type="checkbox" id="canSelect" v-model="canSelect">
+      </div>
+      <div v-show="canSelect">
+      {{ selected }}
+      </div>
     </div>
     <table-search
         id="my-search-table"
-        :selection.sync="selected"
-        :columns.sync="columns"
+        v-model:selection="selected"
+        v-model:columns="columns"
         :lookupTableName="'Pet'"
-        :showSelect="false"
         schemaName="pet store"
         :canEdit="canEdit"
-        @select="click"
-        @deselect="click"
-        @click="click"
+        :showSelect="canSelect"
     >
     </table-search>
   </demo-item>
@@ -252,12 +257,8 @@ export default {
         remoteColumns: [],
         remoteTableData: null,
         canEdit: false,
+        canSelect: false,
       };
-    },
-    methods: {
-      click(value) {
-        alert('click ' + JSON.stringify(value));
-      },
     },
   };
 </script>

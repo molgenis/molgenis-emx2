@@ -21,6 +21,7 @@ const config = {
       emx2Theme: "",
       emx2Logo: "",
       siteTitle: "Data Catalogue",
+      analyticsKey: "",
       cohortOnly: false,
     },
   },

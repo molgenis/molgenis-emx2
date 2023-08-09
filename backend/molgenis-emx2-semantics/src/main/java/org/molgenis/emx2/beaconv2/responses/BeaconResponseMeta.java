@@ -24,9 +24,7 @@ public class BeaconResponseMeta {
     this.returnedGranularity = granularity;
     this.receivedRequestSummary = receivedRequest;
     this.returnedSchemas =
-        new SchemasPerEntity[] {
-          new SchemasPerEntity(entityType, "ga4gh-beacon-individual-v2.0.0-draft.4")
-        };
+        new SchemasPerEntity[] {new SchemasPerEntity(entityType, "ga4gh-beacon-individual-v2.0.0")};
   }
 
   public static class ReceivedRequestSummary {

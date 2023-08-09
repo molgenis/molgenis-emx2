@@ -56,7 +56,7 @@ const initialCollectionColumns = [
   { label: "Sex:", column: { sex: ["label"] }, type: "array" },
   {
     label: "Materials:",
-    column: { materials: ["label", "ontologyTermURI", "code"] },
+    column: { materials: ["name", "label", "ontologyTermURI", "code"] },
     type: "array",
     showOnBiobankCard: true,
   },
