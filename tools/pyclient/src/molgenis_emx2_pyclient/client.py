@@ -1,13 +1,13 @@
 
 import logging
-import sys
 
 import pandas as pd
 import requests
 
-from . import utils as utils
 from . import graphql_queries as queries
-from .exceptions import NoSuchSchemaException
+from . import utils as utils
+from .exceptions import NoSuchSchemaException, ServiceUnavailableError, SigninError, ServerNotFoundError, \
+    PyclientException, NoSuchTableException
 
 log = logging.getLogger(__name__)
 
@@ -23,9 +23,9 @@ class Client:
         """
         self.url = utils.parse_url(url)
         self.api_graphql = self.url + "/apps/central/graphql"
-        self.signin_status = 'unknown'
 
-        self.schemas: list = []
+        self.username = username
+        self.signin_status = 'unknown'
 
         self.session = requests.Session()
 
@@ -44,15 +44,7 @@ class Client:
         :param password: the password corresponding to this username.
         :type username: str
         """
-        query = """
-          mutation($email:String, $password: String) {
-            signin(email: $email, password: $password) {
-              status
-              message
-            }
-          }
-        """
-
+        query = queries.sign_in()
         variables = {'email': username, 'password': password}
 
         response = self.session.post(
@@ -60,30 +52,37 @@ class Client:
             json={'query': query, 'variables': variables}
         )
 
+        if response.status_code == 404:
+            raise ServerNotFoundError(f"Server '{self.url}' could not be found. "
+                                      f"Ensure the spelling of the url is correct.")
         if response.status_code == 503:
-            print(f"Server '{self.url}' not available.")
-            self.session.close()
-            sys.exit()
+            raise ServiceUnavailableError(f"Server '{self.url}' not available. "
+                                          f"Try again later.")
+        if response.status_code != 200:
+            raise PyclientException(f"Server '{self.url}' could not be reached due to a connection problem."
+                                    f"\nStatus code: {response.status_code}. Reason: '{response.reason}'.")
 
         response_json: dict = response.json().get('data', {}).get('signin', {})
         
         if response_json.get('status') == 'SUCCESS':
+            self.signin_status = 'success'
             message = f"Success: Signed into {self.url} as {username}." 
             log.info(message)
             print(message)
-            self.signin_status = 'success'
         elif response_json.get('status') == 'FAILED':
-            message = f"Error: Unable to sign into {self.url} as {username}.\n{response_json.get('message')}"
+            self.signin_status = 'failed'
+            message = f"Error: Unable to sign into {self.url} as {username}." \
+                      f"\n{response_json.get('message')}"
             log.error(message)
-            print(message)
-            self.signin_status = 'failed'
+            raise SigninError(message)
         else:
-            log.error(f"Error: sign in failed, exiting. Sign in status: {response_json.get('status')}")
-            print(f"Unable to sign into {self.url} as {username}")
             self.signin_status = 'failed'
+            message = f"Error: Unable to sign into {self.url} as {username}." \
+                      f"\n{response_json.get('message')}"
+            log.error(message)
+            raise SigninError(message)
 
         self.username = username
-        self.schemas = self.list_schemas()
 
     def sign_out(self):
         """Signs the client out of the EMX2 server."""
@@ -100,6 +99,7 @@ class Client:
             print(f"Unable to sign out of {self.url}.")
             print(message)
             
+    @property
     def status(self):
         """View client information"""
         schemas = '\n\t'.join(self.schemas)
@@ -109,9 +109,10 @@ class Client:
           f"Status: {'Signed in' if self.signin_status == 'success' else 'Logged out'}\n"
           f"Schemas: \n\t{schemas}\n"
         )
-        print(message)
+        return message
 
-    def list_schemas(self):
+    @property
+    def schemas(self):
         """List the databases present on the server."""
         query = queries.list_schemas()
 
@@ -227,19 +228,25 @@ class Client:
         :returns: list of dictionaries, status message or data frame
         :rtype: list | pd.DataFrame
         """
-        if not bool(schema) or not bool(table):
-            print("Incomplete table location. Enter a schema and table.")
-
         if schema not in self.schemas:
             raise NoSuchSchemaException(f"Schema '{schema}' not found on server.")
-        
+
+        response = self.session.post(
+            url=f"{self.url}/{schema}/graphql",
+            json={'query': queries.list_tables()}
+        )
+        schema_tables = [tab['name'] for tab in
+                         response.json().get('data').get('_schema').get('tables')]
+        if table not in schema_tables:
+            raise NoSuchTableException(f"Table '{table}' not found in schema '{schema}'.")
+
         response = self.session.get(url=f"{self.url}/{schema}/api/csv/{table}")
-        
-        if response.status_code == 200:
-            data = utils.parse_csv_export(content=response.text)
-            return data if as_df else data.to_dict('records')
-        elif response.status_code == 404:
-            log.error(f"Failed to retrieve data from '{schema}::{table}'.")
-        else:
-            errors = '\n'.join([err['message'] for err in response.json().get('errors')])
-            log.error(f"Failed to retrieve data from {schema}::{table}\n{errors}")
+
+        if response.status_code != 200:
+            message = f"Failed to retrieve data from '{schema}::{table}'." \
+                      f"\nStatus code: {response.status_code}."
+            log.error(message)
+            raise PyclientException(message)
+
+        data = utils.parse_csv_export(content=response.text)
+        return data if as_df else data.to_dict('records')

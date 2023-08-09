@@ -22,7 +22,7 @@ def sign_in():
     ```
     """
     return """
-        mutation($email:String, $password: String) {
+        mutation($email: String, $password: String) {
             signin(email: $email, password: $password) {
                 status
                 message
@@ -45,13 +45,25 @@ def sign_out():
 
 
 def list_schemas():
-    """GraphQL query to view all available schemas.
-    """
+    """GraphQL query to view all available schemas."""
     return """
         {
             _schemas {
                 name
                 description
             }
+        }
+    """
+
+
+def list_tables():
+    """GraphQL query to list the tables in a schema."""
+    return """
+        {
+          _schema {
+            tables {
+              name
+            }
+          }
         }
     """

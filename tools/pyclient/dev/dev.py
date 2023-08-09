@@ -15,7 +15,7 @@ import pandas as pd
 from dotenv import load_dotenv
 
 from tools.pyclient.src.molgenis_emx2_pyclient import Client
-from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import NoSuchSchemaException
+from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
 
 
 def main():
@@ -29,7 +29,7 @@ def main():
     client.sign_in(username, password)
 
     # Check sign in status
-    client.status()
+    print(client.status)
 
     # Get data
     try:
@@ -40,7 +40,7 @@ def main():
     try:
         data = client.get(schema='pet store', table='')  # run without specifying table
         print(data)
-    except NoSuchSchemaException as e:
+    except NoSuchTableException as e:
         print(e)
     try:
         data = client.get(schema='pet store', table='Pet')  # get Pets
