@@ -8,7 +8,7 @@ Enable analytics for a schema by adding the following setting via the setting in
 
 key: `ANALYTICS_ID`
 
-value `G-XXXXXXXXXX` ( add your METINGS-ID )
+value `G-XXXXXXXXXX` ( add your MEASUREMENT-ID )
 
 When the ANALYTICS_ID setting has a non-empty value, the user will be asked to accept the  analytics terms and conditions.
 
