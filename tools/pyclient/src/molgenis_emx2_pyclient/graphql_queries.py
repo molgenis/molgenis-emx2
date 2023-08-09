@@ -67,3 +67,18 @@ def list_tables():
           }
         }
     """
+
+
+def version_number():
+    """GraphQL query to retrieve the server's version number."""
+    return (
+        """
+        {
+          _manifest {
+            ImplementationVersion
+            SpecificationVersion
+            DatabaseVersion
+          }
+        }
+        """
+    )

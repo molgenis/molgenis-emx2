@@ -67,18 +67,18 @@ class Client:
         
         if response_json.get('status') == 'SUCCESS':
             self.signin_status = 'success'
-            message = f"Success: Signed into {self.url} as {username}." 
+            message = f"Success: Signed in to {self.url} as {username}."
             log.info(message)
             print(message)
         elif response_json.get('status') == 'FAILED':
             self.signin_status = 'failed'
-            message = f"Error: Unable to sign into {self.url} as {username}." \
+            message = f"Error: Unable to sign in to {self.url} as {username}." \
                       f"\n{response_json.get('message')}"
             log.error(message)
             raise SigninError(message)
         else:
             self.signin_status = 'failed'
-            message = f"Error: Unable to sign into {self.url} as {username}." \
+            message = f"Error: Unable to sign in to {self.url} as {username}." \
                       f"\n{response_json.get('message')}"
             log.error(message)
             raise SigninError(message)
@@ -109,6 +109,7 @@ class Client:
           f"User: {self.username}\n"
           f"Status: {'Signed in' if self.signin_status == 'success' else 'Logged out'}\n"
           f"Schemas: \n\t{schemas}\n"
+          f"Version: {self.version}\n"
         )
         return message
 
@@ -272,3 +273,12 @@ class Client:
         schema_tables = [tab['name'] for tab in
                          response.json().get('data').get('_schema').get('tables')]
         return table in schema_tables
+
+    @property
+    def version(self):
+        query = queries.version_number()
+        response = self.session.post(
+            url=self.api_graphql,
+            json={'query': query}
+        )
+        return response.json().get('data').get('_manifest').get('SpecificationVersion')
