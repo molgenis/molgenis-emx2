@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,tableName_old,columnName_old
-Version,,,,,,,,,,,,3.5,EMA,,
+Version,,,,,,,,,,,,3.6,EMA,,
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",EMA,,
 Organisations,Resources,,,,,,,,,,,Research departments and research groups,EMA,,
 Extended resources,Resources,,,,,,,,,,,,EMA,,
@@ -72,15 +72,15 @@ Cohorts,,start year,int,,,,,,,,,Year when first data was collected,,,
 Cohorts,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing,,,
 Networks,,start year,int,,,,,,,,,Year when the network was created,,,
 Networks,,end year,int,,,,,,,,,Year when the network ended,,,
-Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource,,,
 RWE resources,,population entry,ontology_array,,,CatalogueOntologies,Population entry,,,,,Select the possible causes / events that trigger the registration of a person in the data source,EMA,Databanks,populationEntry
 RWE resources,,population entry other,text,,,,,,,,,"If other, specify the causes of entry to the underlying population",EMA,Databanks,populationEntryOther
 RWE resources,,population exit,ontology_array,,,CatalogueOntologies,Population exit,,,,,Select the possible causes / events that trigger the de-registration of a person in the data source,EMA,Databanks,populationExit
 RWE resources,,population exit other,text,,,,,,,,,"If other, specify the causes of exit from the underlying population",EMA,Databanks,populationExitOther
-RWE resources,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",,,
+Data resources,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",,,
 RWE resources,,population coverage,text,,,,,,,,,Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.,EMA,,
 RWE resources,,population not covered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) ",EMA,,
 RWE resources,,quantantitative information,refback,,,,Quantitative information,,resource,,,Numerical summaries describing data bank population,EMA,,
+Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource,,,
 Data resources,,contents,heading,,,,,,,,,Data model and contents,,,
 Extended resources,,datasets,refback,,,,Datasets,,resource,,,,,,
 RWE resources,,mappings to data models,refback,,,,Dataset mappings,,source,,,overview of dataset mappings available,,,
