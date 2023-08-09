@@ -74,6 +74,7 @@ article {
 <docs>
 <template>
   <demo-item>
+   <div><small><i>Used in the directory app.</i></small></div>
     <button class="btn btn-primary" @click="toggle()">Click me for a simple modal</button>
     <SimpleModal id="simple-modal" :open="show">
         <p>Contents goes here</p>

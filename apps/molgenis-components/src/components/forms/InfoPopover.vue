@@ -193,3 +193,20 @@ export default {
   border-color: transparent transparent transparent var(--dark);
 }
 </style>
+
+<docs>
+<template>
+<demo-item>
+   <div><small><i>Used in the directory app.</i></small></div>
+    <InfoPopover
+    faIcon="fa-regular fa-circle-check"
+    textColor="text-success"
+    class="ml-1 certificate-icon"
+    popover-placement="right"
+    >
+    I am an info popover.
+    </InfoPopover>
+  </demo-item>
+</template>
+
+</docs>

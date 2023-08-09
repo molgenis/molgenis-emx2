@@ -75,7 +75,9 @@ import InputSelect from "../src/components/forms/InputSelect.vue";
 import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputText from "../src/components/forms/InputText.vue";
+import InfoPopover from "../src/components/forms/InfoPopover.vue";
 import LocaleSwitch from "../src/components/account/LocaleSwitch.vue";
+import TooltipComponent from "../src/components/forms/TooltipComponent.vue";
 import Tooltip from "../src/components/forms/Tooltip.vue";
 
 import MessageError from "../src/components/forms/MessageError.vue";
@@ -171,6 +173,7 @@ export {
   ButtonSubmit,
   Client,
   ConfirmModal,
+  DataDisplayCell,
   EditModal,
   FileDisplay,
   FormGroup,
@@ -210,6 +213,7 @@ export {
   InputSelectInplace,
   InputString,
   InputText,
+  InfoPopover,
   LocaleSwitch,
   MessageError,
   MessageSuccess,
@@ -224,9 +228,9 @@ export {
   LayoutForm,
   LayoutModal,
   Molgenis,
+  Pagination,
   Spinner,
   VueTemplate,
-  DataDisplayCell,
   AggregateTable,
   RoutedTableExplorer,
   TableExplorer,
@@ -240,6 +244,7 @@ export {
   TaskManager,
   TaskList,
   TextDisplay,
+  TooltipComponent,
   Tooltip,
   MolgenisAccount,
   MolgenisFooter,
@@ -253,7 +258,6 @@ export {
   ShowMore,
   SimpleModal,
   StringDisplay,
-  Pagination,
   RowButton,
   ListDisplay,
   ObjectDisplay,

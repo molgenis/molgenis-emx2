@@ -604,7 +604,7 @@ the following function are available:
   - equals(value)
   - in(value) / orLike(value)
     /** custom type, to make it into a bracket type query: { like: ["red", "green"] } */
- - like(value) {
+ - like(value)
  - notLike(value) 
  - triagramSearch(value) 
  - textSearch(value)

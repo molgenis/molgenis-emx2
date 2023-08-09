@@ -120,10 +120,10 @@ details.align-right > *:not(summary) {
 }
 </style>
 
-
 <docs>
 <template>
 <demo-item>
+<div><small><i>Used in the directory app.</i></small></div>
 <HtmlDropdown
   :button-text="'Html Dropdown'"
   :active="false"

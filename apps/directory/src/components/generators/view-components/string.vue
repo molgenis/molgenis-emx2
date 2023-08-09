@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import TooltipComponent from "../../popovers/TooltipComponent.vue";
+import { TooltipComponent } from "molgenis-components";
 
 export default {
   components: {
