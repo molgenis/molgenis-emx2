@@ -2,7 +2,7 @@
   "private": true,
   "workspaces": [
     "catalogue",
-    "catalogue3",
+    "directory",
     "settings",
     "central",
     "schema",
@@ -12,8 +12,12 @@
     "graphql-playground",
     "nuxt3-ssr",
     "molgenis-components",
+    "molgenis-viz",
+    "ern-reconnet",
     "helloworld",
-    "reports"
-   ]
+    "reports",
+    "tasks",
+    "gportal"
+  ]
 }
 

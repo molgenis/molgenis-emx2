@@ -10,14 +10,16 @@ We use:
     * ```gradle build``` => builds all
     * ```gradle clean``` => removes all build artifacts
     * ```gradle run``` => launches the app
-    * ```gradle test``` => runs the tests.
+    * ```gradle test``` => runs all tests.
+    * ```gradle testFast``` => runs tests excluding those marged using @Tag("slow").
+
 * [Semantic Release](https://github.com/semantic-release/semantic-release) where commit message determines
   major.minor.patch release
     * ```fix(component): message``` => results in patch+1 release
     * ```feat(component): message``` => results in minor+1 release
     * ```BREAKING CHANGE: message``` => results in major+1 release
-    * ```chore(component): message``` => relates to build process, does not result in release.
-    * ```chore(component): message``` => relates to build process, does not result in release.
+    * ```build(component): message``` => relates to build process, does not result in release.
+    * ```chore(component): message``` => relates to other boring stuff.
     * Other non-release commands: perf, refactor, test, style, docs.
 * [github flow](https://guides.github.com/introduction/flow/) which means every pull/merge to master will result in
   release if indicated in commit message

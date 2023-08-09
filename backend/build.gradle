@@ -1,7 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
-    id "com.diffplug.spotless" version "6.16.0" apply false
+    id "com.diffplug.spotless" version "6.19.0" apply false
 }
 
 repositories {
@@ -30,18 +30,23 @@ subprojects {
     }
     compileJava.dependsOn 'spotlessApply'
 
+    task format {
+        dependsOn spotlessApply
+    }
+
     /* default dependencies for all projects*/
     dependencies {
         implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
-        implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.20.0'
-        implementation 'org.jooq:jooq:3.18.0'
+        implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0'
+        implementation 'org.jooq:jooq:3.17.8'
         implementation 'com.zaxxer:HikariCP:5.0.1'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.14.2'
-        implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
-        implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
-        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.14.2'
-        implementation 'com.graphql-java:graphql-java:16.2'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.15.2'
+        implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+        implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+        implementation 'com.graphql-java:graphql-java:21.0'
+        implementation 'com.graphql-java:graphql-java-extended-scalars:20.2'
         implementation 'com.sparkjava:spark-core:2.9.4'
         implementation 'org.pac4j:pac4j-core:5.4.5'
         implementation 'org.pac4j:pac4j-oidc:5.4.5'
@@ -51,10 +56,16 @@ subprojects {
         implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
 
         //also used outside test
-        implementation 'junit:junit:4.13.2'
+        implementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
         testImplementation 'org.mockito:mockito-core:5.1.1'
+        //allows to set environment variables in test
+        testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
     }
 
+    jacoco {
+        toolVersion = "0.8.10"
+    }
     jacocoTestReport {
         reports {
             xml.enabled true
@@ -84,8 +95,44 @@ subprojects {
         //don't cache database init
         test.outputs.upToDateWhen { false }
     }
+
     test {
-        maxParallelForks = Runtime.runtime.availableProcessors() / 2
+        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
+        useJUnitPlatform ()
+        failFast true
+        testLogging {
+            events "passed", "skipped", "failed" //, "standardOut", "standardError"
+
+            showExceptions true
+            exceptionFormat "full"
+            showCauses true
+            showStackTraces true
+
+            showStandardStreams = false
+        }
+    }
+    tasks.register('testFast', Test)  {
+        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
+        useJUnitPlatform {
+            excludeTags "slow"
+        }
+        failFast true
+        testLogging {
+            events "passed", "skipped", "failed" //, "standardOut", "standardError"
+
+            showExceptions true
+            exceptionFormat "full"
+            showCauses true
+            showStackTraces true
+
+            showStandardStreams = false
+        }
+    }
+    tasks.register('testWindows', Test)  {
+        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
+        useJUnitPlatform {
+            excludeTags "windowsFail"
+        }
         failFast true
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"

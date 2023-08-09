@@ -3,12 +3,12 @@
     <MessageError>
       {{ graphqlError }}<br />
       sourceCollection: {{ this.sourceCollection }}<br />
-      sourceTable: {{ this.sourceTable }}<br />
+      sourceDataset: {{ this.sourceDataset }}<br />
       targetVariable: {{ this.targetVariable }}<br />
       targetResource:
       {{ this.targetResource }}<br />
-      targetTable:
-      {{ this.targetTable }}
+      targetDataset:
+      {{ this.targetDataset }}
     </MessageError>
   </div>
   <div v-else>
@@ -46,8 +46,8 @@
               <dd>{{ targetResource }}</dd>
               <dt>Version</dt>
               <dd>{{ targetRelease.version }}</dd>
-              <dt>Table</dt>
-              <dd>{{ targetTable }}</dd>
+              <dt>Dataset</dt>
+              <dd>{{ targetDataset }}</dd>
               <dt>Variable</dt>
               <dd>{{ targetVariable }}</dd>
             </dl>
@@ -59,13 +59,15 @@
               <dd>{{ sourceCollection }}</dd>
               <dt>Version</dt>
               <dd>{{ sourceRelease.version }}</dd>
-              <dt>Table</dt>
-              <dd>{{ sourceTable }}</dd>
+              <dt>Dataset</dt>
+              <dd>{{ sourceDataset }}</dd>
               <dt>Variable</dt>
               <dd>
                 {{
                   harmonisation.sourceVariables
-                    ? harmonisation.sourceVariables.map((v) => v.name).join(",")
+                    ? harmonisation.sourceVariables
+                        .map((v) => v.name)
+                        .join(", ")
                     : "N/A"
                 }}
               </dd>
@@ -83,23 +85,21 @@
         </div>
         <span
           v-if="
-            harmonisation.targetVariable.table &&
-            harmonisation.targetVariable.table.harmonisations
+            harmonisation.targetVariable.dataset &&
+            harmonisation.targetVariable.dataset.mappings
           "
         >
-          <h5>Table harmonisation</h5>
+          <h5>Dataset mappings</h5>
           <div>
             <table>
               <thead>
                 <tr>
-                  <th scope="col">Source table</th>
+                  <th scope="col">Source dataset</th>
                   <th scope="col">Description of mapping</th>
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="h in harmonisation.targetVariable.table.harmonisations"
-                >
+                <tr v-for="h in harmonisation.targetVariable.dataset.mappings">
                   <td>{{ h.sourceTable.name }}</td>
                   <td>{{ h.description }}</td>
                 </tr>
@@ -137,11 +137,11 @@ export default {
   components: { LayoutModal, MessageError, ButtonAction },
   props: {
     sourceCollection: String,
-    sourceTable: String,
+    sourceDataset: String,
     sourceVersion: String,
     targetVariable: String,
     targetResource: String,
-    targetTable: String,
+    targetDataset: String,
     targetVersion: String,
     match: String,
     compact: {
@@ -159,29 +159,19 @@ export default {
   methods: {
     reload() {
       let filter = {
-        sourceRelease: {
-          resource: { pid: { equals: this.sourceCollection } },
-          version: { equals: this.sourceVersion },
-        },
-        sourceTable: {
-          name: { equals: this.sourceTable },
-        },
-        targetRelease: {
-          resource: { pid: { equals: this.targetResource } },
-          version: {
-            equals: this.targetVersion,
-          },
+        sourceDataset: {
+          name: { equals: this.sourceDataset },
         },
         targetVariable: {
           name: { equals: this.targetVariable },
-          table: {
-            name: { equals: this.targetTable },
+          dataset: {
+            name: { equals: this.targetDataset },
           },
         },
       };
       request(
         "graphql",
-        `query VariableHarmonisations($filter:VariableHarmonisationsFilter){VariableHarmonisations(filter:$filter){match{name},targetVariable{name,table{harmonisations{sourceTable{name}description}}},sourceVariables{name,description,format{name}},syntax,description}}`,
+        `query VariableHarmonisations($filter:VariableHarmonisationsFilter){VariableHarmonisations(filter:$filter){match{name},targetVariable{name,dataset{mappings{sourceDataset{name}description}}},sourceVariables{name,description,format{name}},syntax,description}}`,
         {
           filter: filter,
         }

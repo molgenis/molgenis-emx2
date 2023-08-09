@@ -42,14 +42,13 @@ export default {
   props: {
     name: String,
     network: String,
-    version: String,
     variable: Object,
   },
   computed: {
     resourceListSorted() {
       if (this.variable.mappings) {
         return this.variable.mappings
-          .map((m) => m.fromTable.dataDictionary.resource.pid)
+          .map((m) => m.sourceDataset.resource.id)
           .sort();
       } else {
         return [];

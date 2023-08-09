@@ -9,6 +9,7 @@ import axios from "axios";
 import VueScrollTo from "vue-scrollto";
 import Client from "./client/client";
 import * as utils from "./components/utils";
+import constants from "./components/constants";
 
 //load the components
 const components = import.meta.globEager("./components/**/*.vue");
@@ -49,6 +50,8 @@ app.config.globalProperties.$axios = axios;
 app.config.globalProperties.$Client = Client;
 app.config.globalProperties.$utils = utils;
 app.config.globalProperties.$docsMap = docsMap;
+app.config.globalProperties.window = window;
+app.config.globalProperties.$constants = constants;
 
 //add directives
 app.directive("scroll-to", VueScrollTo);

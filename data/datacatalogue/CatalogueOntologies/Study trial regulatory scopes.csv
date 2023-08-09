@@ -1,0 +1,5 @@
+order,name,code,parent,ontologyTermURI,definition
+1,Pre-authorisation clinical trial,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030411/terms/200000030419,
+2,Post-authorisation interventional clinical trial,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030411/terms/200000030420,
+3,Post-authorisation low-interventional clinical trial,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030411/terms/200000030421,
+4,Clinical trial not subject to marketing authorisation,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030411/terms/200000030422,

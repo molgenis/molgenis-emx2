@@ -1,0 +1,10 @@
+#!/bin/sh
+# this pre-commit hook will check format.
+# from https://medium.com/@mmessell/apply-spotless-formatting-with-git-pre-commit-hook-1c484ea68c34
+#
+# you can install this hook easily via ./gradlew installPreCommitGitFormatCheckHook
+
+echo '[git hook] executing gradle spotlessCheck and checkFormat before commit'
+
+# run the spotlessCheck and checkFormat tasks with the gradle wrapper
+./gradlew spotlessCheck checkFormat

@@ -13,7 +13,7 @@
           </span>
         </th>
         <th
-          v-for="col in columnsWithoutMeta"
+          v-for="col in dataColumns"
           :key="col.name + col.showColumn"
           scope="col"
           class="column-drag-header"
@@ -31,53 +31,32 @@
 
       <tbody>
         <tr v-if="data && !data.length">
-          <td :colspan="columnsWithoutMeta.length + 1" class="alert-warning">
+          <td :colspan="dataColumns.length + 1" class="alert-warning">
             No results found
           </td>
         </tr>
-        <tr
-          v-else
-          v-for="(row, idx) in data"
-          :key="idx + JSON.stringify(row) + isSelected(row)"
-          :class="
-            (isSelected(row) ? 'table-primary' : 'table-hover') +
-            (row['mg_draft'] ? 'alert alert-warning' : '')
-          "
-        >
-          <td v-if="hasColheader">
-            <div style="display: flex">
-              <div v-if="showSelect" class="form-check form-check-inline mr-1">
-                <input
-                  type="checkbox"
-                  class="form-check-input position-static"
-                  :checked="isSelected(row)"
-                  @click="onRowClick(row)"
-                />
-              </div>
-              <!--@slot Use this to add values or actions buttons to each row -->
+        <template v-else v-for="row in data">
+          <TableRow
+            :row="row"
+            :columns="dataColumns"
+            :tableName="tableName || tableMetadata.name"
+            :client="client"
+            :showSelect="showSelect"
+            :selection="selection"
+            @cellClick="$emit('cellClick', $event)"
+            @rowClick="$emit('rowClick', $event)"
+            @select="onRowSelect"
+            @deselect="onRowDeselect"
+          >
+            <template v-slot:rowheader="slotProps">
               <slot
                 name="rowheader"
-                :row="row"
-                :metadata="tableMetadata"
-                :rowkey="getPrimaryKey(row, tableMetadata)"
+                :row="slotProps.row"
+                :rowKey="slotProps.rowKey"
               />
-            </div>
-            <i v-if="row.mg_draft" class="fas fa-user-edit">draft</i>
-          </td>
-
-          <td
-            v-for="col in columnsWithoutMeta"
-            :key="idx + col.name + isSelected(row)"
-            style="cursor: pointer"
-            :style="col.showColumn ? '' : 'display: none'"
-            @click="onRowClick(row)"
-          >
-            <data-display-cell
-              :data="row[col.id]"
-              :metaData="col"
-            ></data-display-cell>
-          </td>
-        </tr>
+            </template>
+          </TableRow>
+        </template>
       </tbody>
     </table>
   </div>
@@ -92,21 +71,22 @@ th {
   cursor: grab;
 }
 
-.column-drag-header:hover .column-remove {
-  visibility: visible;
+.table .refType {
+  color: var(--primary);
+}
+.table .refType:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  text-decoration: underline;
 }
 </style>
 
 <script>
-/**
- * Table that uses MOLGENIS metadata format to configure itself. Provide 'metadata' and 'data' and your table is ready.
- * Can be used without backend to configure a table. Note, columns can be dragged.
- */
-import DataDisplayCell from "./DataDisplayCell.vue";
-import { getPrimaryKey } from "../utils";
+import Client from "../../client/client";
+import TableRow from "./TableRow.vue";
+import { toRaw } from "vue";
 
 export default {
-  components: { DataDisplayCell },
+  components: { TableRow },
   props: {
     /** selection, two-way binded*/
     selection: { type: Array, required: false },
@@ -114,103 +94,55 @@ export default {
     columns: { type: Array, default: () => [] },
     /** not two way binded, table metadata */
     tableMetadata: { type: Object, required: false },
+    /** if tableMetadata is not supplied table name should be set */
+    tableName: { type: String, required: false },
     data: { type: Array, default: () => [] },
     showSelect: { type: Boolean, default: false },
+    schemaName: { type: String, required: true },
+  },
+  data() {
+    return {
+      client: Client.newClient(this.schemaName),
+    };
   },
   computed: {
-    countColumns() {
-      return this.columnsWithoutMeta.filter((c) => c.showColumn).length;
-    },
-    columnsWithoutMeta() {
-      return this.columns
-        ? this.columns.filter((column) => column.columnType !== "HEADING")
-        : [];
+    dataColumns() {
+      const columnsWithoutHeaders = this.columns.filter(
+        (column) => column.columnType !== "HEADING"
+      );
+
+      return columnsWithoutHeaders.map((column) => {
+        if (column.showColumn == undefined) {
+          column.showColumn = true;
+        }
+        return column;
+      });
     },
   },
   methods: {
     hasColheader() {
-      return (
-        this.showSelect || !!this.$slots.colheader || !!this.$slots.rowheader
-      );
-    },
-    initShowColumn() {
-      if (this.columns) {
-        let update = this.columns;
-        for (var key in update) {
-          if (update[key].showColumn == undefined) {
-            update[key].showColumn = true;
-            this.$emit("update:columns", update);
-          }
-        }
-      }
-    },
-    getPrimaryKey(row) {
-      return getPrimaryKey(row, this.tableMetadata);
-    },
-    isSelected(row) {
-      let key = this.getPrimaryKey(row);
-      let found = false;
-      if (Array.isArray(this.selection)) {
-        this.selection.forEach((s) => {
-          if (s != null && this.deepEqual(key, s)) {
-            found = true;
-          }
-        });
-      }
-      return found;
-    },
-    /** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
-    deepEqual(object1, object2) {
-      const keys1 = Object.keys(object1);
-      const keys2 = Object.keys(object2);
-      if (keys1.length !== keys2.length) {
-        return false;
-      }
-      for (const key of keys1) {
-        const val1 = object1[key];
-        const val2 = object2[key];
-        const areObjects = this.isObject(val1) && this.isObject(val2);
-        if (
-          (areObjects && !this.deepEqual(val1, val2)) ||
-          (!areObjects && val1 !== val2)
-        ) {
-          return false;
-        }
-      }
-      return true;
-    },
-    isObject(object) {
-      return object != null && typeof object === "object";
+      return this.showSelect || Boolean(this.$slots.colheader);
     },
     onColumnClick(column) {
       this.$emit("column-click", column);
     },
-    onRowClick(row) {
-      const key = this.getPrimaryKey(row);
-      if (this.showSelect) {
-        //deep copy
-        let update = JSON.parse(JSON.stringify(this.selection));
-        if (this.isSelected(row)) {
-          /** when a row is deselected */
-          update = update.filter(
-            (item) =>
-              JSON.stringify(item, Object.keys(item).sort()) !==
-              JSON.stringify(key, Object.keys(key).sort())
-          );
-          this.$emit("deselect", key);
-        } else {
-          /** when a row is selected */
-          update.push(key);
-          this.$emit("select", key);
-        }
-        this.$emit("update:selection", update);
-      } else {
-        this.$emit("rowClick", key);
-      }
+    onRowSelect(rowKey) {
+      this.$emit("select", rowKey);
+      this.$emit("update:selection", [...toRaw(this.selection), rowKey]);
     },
-  },
-  created() {
-    this.initShowColumn();
+    onRowDeselect(rowKey) {
+      const sortedRowKeyAsString = JSON.stringify(
+        rowKey,
+        Object.keys(rowKey).sort()
+      );
+      const deleteIndex = this.selection
+        .map((selectionItem) =>
+          JSON.stringify(selectionItem, Object.keys(selectionItem).sort())
+        )
+        .findIndex((selectionItem) => selectionItem === sortedRowKeyAsString);
+      this.$emit("deselect", rowKey);
+      this.$emit("update:selection", this.selection.toSpliced(deleteIndex, 1));
+    },
   },
 };
 </script>
@@ -218,45 +150,43 @@ export default {
 <docs>
 <template>
   <div>
-    <demo-item id="table-molgenis" label="Table Molgenis">
-      <label class="font-italic">Local sample data</label>
-      <table-molgenis
-          :selection.sync="selected"
-          :columns.sync="columns"
-          :data="data"
-          @select="click"
-          @deselect="click"
-          @click="click"
-      >
-        <template v-slot:header>columns</template>
-        <template v-slot:rowheader="slotProps"> some row content</template>
-      </table-molgenis>
+    <DemoItem id="table-molgenis" label="Table Molgenis">
       <label class="font-italic">Remote Pet data</label>
-      <table-molgenis v-if="remoteTableData"
-                      :selection.sync="remoteSelected"
-                      :columns.sync="remoteColumns"
-                      :data="remoteTableData"
-                      @click="click"
+        <div class="border-bottom mb-3 p-2">
+      <h5>synced demo props: </h5>
+      <div>
+        <label for="canSelect" class="pr-1">can select: </label>
+        <input type="checkbox" id="canSelect" v-model="canSelect">
+      </div>
+      <div v-show="canSelect">
+      {{ selection }}
+      </div>
+    </div>
+      <table-molgenis 
+        v-if="remoteTableData"
+        v-model:selection="selection"
+        v-model:columns="columns"
+        :data="remoteTableData"
+        tableName="Pet"
+        schemaName="pet store"
+        :showSelect="canSelect"
       />
-      <table-molgenis id="table-molgenis-empty" label="Empty Table Molgenis"/>
-    </demo-item>
+    </DemoItem>
     <DemoItem>
       <label class="font-italic">Example without data</label>
       <table-molgenis
-          @select="click"
-          @deselect="click"
-          @click="click"
           :data="[]"
-          :columns.sync="columns"
+          tableName="Pet"
+          schemaName="pet store"
+          v-model:columns="columns"
       />
     </DemoItem>
     <DemoItem>
       <label class="font-italic">Example without data and columns</label>
       <table-molgenis
-          @select="click"
-          @deselect="click"
-          @click="click"
           :data="[]"
+          tableName="Pet"
+          schemaName="pet store"
       />
     </DemoItem>
   </div>
@@ -268,56 +198,19 @@ import Client from "../../../src/client/client.ts";
 export default {
   data() {
     return {
-      selected: [],
-      columns: [
-        { id: "col1", name: "col1", columnType: "STRING", key: 1 },
-        {
-          id: "ref1",
-          name: "ref1",
-          columnType: "REF",
-          refColumns: ["firstName", "lastName"],
-        },
-        {
-          id: "ref_arr1",
-          name: "ref_arr1",
-          columnType: "REF_ARRAY",
-          refColumns: ["firstName", "lastName"],
-        },
-      ],
-      data: [
-        {
-          col1: "row1",
-          ref1: { firstName: "katrien", lastName: "duck" },
-          ref_arr1: [
-            { firstName: "kwik", lastName: "duck" },
-            {
-              firstName: "kwek",
-              lastName: "duck",
-            },
-            { firstName: "kwak", lastName: "duck" },
-          ],
-        },
-        {
-          col1: "row2",
-        },
-      ],
-      remoteSelected: [],
-      remoteColumns: [],
+      selection: [],
+      columns: [],
       remoteTableData: null,
+      canSelect: false,
     };
-  },
-  methods: {
-    click(value) {
-      alert("click " + JSON.stringify(value));
-    },
   },
   async mounted() {
     const client = Client.newClient("pet store", this.$axios);
-    const remoteMetaData = await client.fetchSchemaMetaData();
-    const petColumns = remoteMetaData.tables.find(
+    const metaData = await client.fetchSchemaMetaData();
+    const petColumns = metaData.tables.find(
       (t) => t.name === "Pet"
     ).columns;
-    this.remoteColumns = petColumns.filter((c) => !c.name.startsWith("mg_"));
+    this.columns = petColumns.filter((c) => !c.name.startsWith("mg_"));
     this.remoteTableData = (await client.fetchTableData("Pet")).Pet;
   },
 };

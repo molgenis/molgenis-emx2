@@ -18,7 +18,7 @@ public class GenomicVariants {
 
   public GenomicVariants(Request request, List<Table> genomicVariantTables) throws Exception {
     this.meta = new DatasetsMeta("../beaconDatasetResponse.json", "datasets");
-    this.response = new GenomicVariantsResponse(request, genomicVariantTables);
     this.responseSummary = new ResponseSummary();
+    this.response = new GenomicVariantsResponse(request, genomicVariantTables);
   }
 }

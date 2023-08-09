@@ -1,7 +1,19 @@
 package org.molgenis.emx2.sql;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
+
+import java.util.List;
+import java.util.Map;
+
 import static graphql.Assert.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.*;
@@ -9,21 +21,10 @@ import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
-import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
-
 public class TestCompositeForeignKeys {
   private Database database;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
 

@@ -1,6 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.REF;
@@ -10,8 +10,9 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import java.util.stream.Collectors;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.StopWatch;
 
@@ -20,7 +21,7 @@ public class TestQuery {
   static Schema schema;
   static final String PERSON = "Person";
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
 
@@ -145,5 +146,52 @@ public class TestQuery {
 
     assertEquals(1, rows.size());
     assertEquals((Integer) 2, rows.get(0).getInteger("Mother-ID"));
+  }
+
+  @Test
+  void orderByRefColumnAsc() {
+    final String unorderd =
+        schema
+            .getTable(PERSON)
+            .select(s("ID"), s("First_Name"), s("Last_Name"))
+            .retrieveRows()
+            .stream()
+            .map(r -> r.getString("First_Name"))
+            .collect(Collectors.joining(","));
+
+    final String orderdbyRefDefaultOrder =
+        schema
+            .getTable(PERSON)
+            .select(s("ID"), s("First_Name"), s("Last_Name"))
+            .orderBy("Mother")
+            .retrieveRows()
+            .stream()
+            .map(r -> r.getString("First_Name"))
+            .collect(Collectors.joining(","));
+
+    final String orderdbyRefAsc =
+        schema
+            .getTable(PERSON)
+            .select(s("ID"), s("First_Name"), s("Last_Name"))
+            .orderBy("Mother", Order.ASC)
+            .retrieveRows()
+            .stream()
+            .map(r -> r.getString("First_Name"))
+            .collect(Collectors.joining(","));
+
+    final String orderdbyRefDesc =
+        schema
+            .getTable(PERSON)
+            .select(s("ID"), s("First_Name"), s("Last_Name"))
+            .orderBy("Mother", Order.DESC)
+            .retrieveRows()
+            .stream()
+            .map(r -> r.getString("First_Name"))
+            .collect(Collectors.joining(","));
+
+    assertEquals("Donald,Katrien,Kwik,Kwek,Kwak", unorderd);
+    assertEquals("Kwik,Kwek,Kwak,Donald,Katrien", orderdbyRefDefaultOrder);
+    assertEquals("Kwik,Kwek,Kwak,Donald,Katrien", orderdbyRefAsc);
+    assertEquals("Donald,Katrien,Kwik,Kwek,Kwak", orderdbyRefDesc);
   }
 }

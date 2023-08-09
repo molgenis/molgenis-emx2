@@ -1,0 +1,5 @@
+name,label,definition
+F,Female,female
+M,Male,male
+U,Unknown,a proper value is applicable but not known
+UD,Undifferentiated,"undifferentiated, the gender could not be uniquely identified such as hermaphrodite"

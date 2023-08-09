@@ -12,9 +12,9 @@ public class RunsResultSetsItem {
   private String runDate;
   private OntologyTerm librarySource;
   private String librarySelection;
-  private String libraryStrategy;
+  private OntologyTerm libraryStrategy;
   private String libraryLayout;
-  private String platform;
+  private OntologyTerm platform;
   private OntologyTerm platformModel;
 
   public void setId(String id) {
@@ -41,7 +41,7 @@ public class RunsResultSetsItem {
     this.librarySelection = librarySelection;
   }
 
-  public void setLibraryStrategy(String libraryStrategy) {
+  public void setLibraryStrategy(OntologyTerm libraryStrategy) {
     this.libraryStrategy = libraryStrategy;
   }
 
@@ -49,7 +49,7 @@ public class RunsResultSetsItem {
     this.libraryLayout = libraryLayout;
   }
 
-  public void setPlatform(String platform) {
+  public void setPlatform(OntologyTerm platform) {
     this.platform = platform;
   }
 

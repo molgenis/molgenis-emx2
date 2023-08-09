@@ -176,7 +176,9 @@ module.exports = {
 
         "search-filter-title": theme("colors.white"),
         "search-filter-expand": theme("colors.yellow.500"),
+        "search-filter-expand-mobile": theme("colors.blue.800"),
         "search-filter-group-title": theme("colors.white"),
+        "search-filter-group-title-mobile": theme("colors.black"),
         "search-filter-group-checkbox": theme("colors.yellow.500"),
         "search-filter-group-toggle": theme("colors.white"),
 
@@ -206,15 +208,18 @@ module.exports = {
         "menu-active": theme("colors.blue.500"),
         "search-button": theme("colors.white"),
         "search-input": theme("colors.white"),
+        "search-input-mobile": theme("colors.gray.100"),
 
         pagination: "transparent",
       }),
       borderRadius: {
         "3px": "3px",
         "50px": "50px",
+        "textarea-input": "20px",
         "search-input": "9999px",
         "search-button": "9999px",
         pagination: "9999px",
+        landing: "50px"
       },
       opacity: {
         "background-gradient": 100,

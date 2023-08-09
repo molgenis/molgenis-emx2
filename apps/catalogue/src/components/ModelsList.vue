@@ -1,8 +1,8 @@
 <template>
   <ul v-if="models">
-    <li v-for="d in models" :key="d.pid">
-      <RouterLink :to="{ name: 'model', params: { pid: d.pid } }"
-        >{{ d.pid }} - {{ d.name }}
+    <li v-for="d in models" :key="d.id">
+      <RouterLink :to="{ name: 'model', params: { id: d.id } }"
+        >{{ d.id }} - {{ d.name }}
         <OntologyTerms
           :terms="d.type"
           :inline="true"

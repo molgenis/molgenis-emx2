@@ -22,8 +22,9 @@ public class SqlSchema implements Schema {
   public SqlTable getTable(String name) {
     SqlTableMetadata tableMetadata = getMetadata().getTableMetadata(name);
     if (tableMetadata == null) return null;
-    if (tableMetadata.exists()) return new SqlTable(db, tableMetadata);
-    else return null;
+    if (tableMetadata.exists()) {
+      return new SqlTable(db, tableMetadata, db.getTableListener(getName(), name));
+    } else return null;
   }
 
   @Override
@@ -32,7 +33,9 @@ public class SqlSchema implements Schema {
     sortTableByDependency(tableMetadata);
     List<Table> result = new ArrayList<>();
     for (TableMetadata tm : tableMetadata) {
-      result.add(new SqlTable(db, (SqlTableMetadata) tm));
+      result.add(
+          new SqlTable(
+              db, (SqlTableMetadata) tm, db.getTableListener(getName(), tm.getTableName())));
     }
     return result;
   }
@@ -139,8 +142,13 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<Row> retrieveSql(String sql) {
+    return retrieveSql(sql, Map.of());
+  }
+
+  @Override
+  public List<Row> retrieveSql(String sql, Map<String, ?> parameters) {
     if (getRoles().contains("Viewer")) {
-      return new SqlRawQueryForSchema(this).executeSql(sql);
+      return new SqlRawQueryForSchema(this).executeSql(sql, parameters);
     } else {
       throw new MolgenisException("No view permissions on this schema");
     }
@@ -379,8 +387,10 @@ public class SqlSchema implements Schema {
       }
     }
 
-    // finally update settings
-    targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
+    // finally, update settings if changes are provided
+    if (!mergeSchema.getSettings().isEmpty()) {
+      targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
+    }
   }
 
   public String getName() {
@@ -395,6 +405,19 @@ public class SqlSchema implements Schema {
   @Override
   public Integer getChangesCount() {
     return metadata.getChangesCount();
+  }
+
+  @Override
+  public String getSettingValue(String key) {
+    String setting = metadata.getSetting(key);
+    if (setting == null) {
+      throw new MolgenisException("Setting " + key + " not found");
+    }
+    return setting;
+  }
+
+  public boolean hasSetting(String key) {
+    return metadata.getSetting(key) != null;
   }
 
   public DSLContext getJooq() {

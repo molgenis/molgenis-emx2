@@ -4,6 +4,8 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 10;
 
+useHead({ title: "Cohorts" });
+
 const currentPage = ref(1);
 if (route.query?.page) {
   const queryPageNumber = Number(route.query?.page);
@@ -12,7 +14,7 @@ if (route.query?.page) {
 }
 let offset = computed(() => (currentPage.value - 1) * pageSize);
 
-let filters = reactive([
+let filters: IFilter[] = reactive([
   {
     title: "Search in cohorts",
     columnType: "_SEARCH",
@@ -22,7 +24,7 @@ let filters = reactive([
   },
   {
     title: "Areas of information",
-    refTable: "AreasOfInformation",
+    refTable: "AreasOfInformationCohorts",
     columnName: "areasOfInformation",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
@@ -52,6 +54,20 @@ let filters = reactive([
     filterTable: "collectionEvents",
     conditions: [],
   },
+  {
+    title: "Cohort Types",
+    refTable: "ResourceTypes",
+    columnName: "type",
+    columnType: "ONTOLOGY",
+    conditions: [],
+  },
+  {
+    title: "Design",
+    refTable: "CohortDesigns",
+    columnName: "design",
+    columnType: "ONTOLOGY",
+    conditions: [],
+  },
 ]);
 
 let search = computed(() => {
@@ -62,8 +78,8 @@ let search = computed(() => {
 const query = computed(() => {
   return `
   query Cohorts($filter:CohortsFilter, $orderby:Cohortsorderby){
-    Cohorts(limit: ${pageSize} offset: ${offset.value} search:"${search.value}" filter:$filter  orderby:$orderby) {
-      pid
+    Cohorts(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+      id
       name
       acronym
       description
@@ -77,12 +93,12 @@ const query = computed(() => {
       design {
           name
       }
-      institution {
+      leadOrganisation {
           name
           acronym
       }
     }
-    Cohorts_agg (filter:$filter, search:"${search.value}"){
+    Cohorts_agg (filter:$filter){
         count
     }
   }
@@ -91,48 +107,7 @@ const query = computed(() => {
 
 const orderby = { acronym: "ASC" };
 
-function buildFilterVariables() {
-  const filtersVariables = filters.reduce<
-    Record<string, Record<string, object | string>>
-  >((accum, filter) => {
-    if (filter.filterTable && filter?.conditions?.length) {
-      if (!accum[filter.filterTable]) {
-        accum[filter.filterTable] = {};
-      }
-      accum[filter.filterTable][filter.columnName] = {
-        equals: filter.conditions,
-      };
-    }
-
-    return accum;
-  }, {});
-
-  return filtersVariables;
-}
-
-const filter = computed(() => {
-  // build the active filters
-  const filterVariables = buildFilterVariables();
-
-  // append search to the sub tables if set
-  const searchTables = filters.find(
-    (f) => f.columnType === "_SEARCH"
-  )?.searchTables;
-
-  if (searchTables) {
-    searchTables.forEach((searchTable) => {
-      if (search.value) {
-        if (Object.keys(filterVariables).includes(searchTable)) {
-          filterVariables[searchTable]["_search"] = search.value;
-        } else {
-          filterVariables[searchTable] = { _search: search.value };
-        }
-      }
-    });
-  }
-
-  return filterVariables;
-});
+const filter = computed(() => buildQueryFilter(filters, search.value));
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
@@ -175,7 +150,7 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <SearchFilter title="Filters" :filters="filters" />
+      <FilterSidebar title="Filters" :filters="filters" />
     </template>
     <template #main>
       <SearchResults>
@@ -213,7 +188,11 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
                 class="flex xl:hidden"
                 v-model:activeName="activeName"
               >
-                <SearchFilter title="Filters" :filters="filters" />
+                <FilterSidebar
+                  title="Filters"
+                  :filters="filters"
+                  :mobileDisplay="true"
+                />
               </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>

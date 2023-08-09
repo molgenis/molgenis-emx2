@@ -5,6 +5,7 @@
     @update:modelValue="onUpdateCondition"
     :tableName="tableName"
     :schemaName="schemaName"
+    :refLabel="refLabel"
   />
 </template>
 
@@ -12,7 +13,7 @@
 import InputRefList from "../forms/InputRefList.vue";
 
 export default {
-  name: "InputRefListFilter",
+  name: "RefListFilter",
   components: { InputRefList },
   props: {
     id: {
@@ -28,6 +29,10 @@ export default {
       type: String,
     },
     tableName: {
+      type: String,
+      required: true,
+    },
+    refLabel: {
       type: String,
       required: true,
     },

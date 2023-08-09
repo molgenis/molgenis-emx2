@@ -34,7 +34,7 @@ module.exports = {
       },
       backgroundColor: ({ theme }) => ({
         "button-primary": "#FF7D00",
-        "button-primary-hover": "#FF7D00",
+        "button-primary-hover": "#ffffff",
         "button-secondary": "#FF7D00",
         "button-secondary-hover": "#ff6a00",
         "button-tertiary": "#003183",
@@ -64,7 +64,7 @@ module.exports = {
       },
       textColor: ({ theme }) => ({
         "button-primary": "#FFFFFF",
-        "button-primary-hover": "#FFFFFF",
+        "button-primary-hover": "#FF7D00",
         "button-secondary": "#FFFFFF",
         "button-secondary-hover": "#FFFFFF",
         "button-tertiary": "#FFFFFF",
@@ -134,6 +134,7 @@ module.exports = {
         "search-input": "3px",
         "search-button": "0px 3px 3px 0px",
         pagination: "3px",
+        landing: "3px",
       },
       opacity: {
         "background-gradient": 0,

@@ -93,6 +93,8 @@ import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
+import Tab from "../src/components/layout/Tab.vue";
+import Tabs from "../src/components/layout/Tabs.vue";
 import VueTemplate from "../src/components/layout/VueTemplate.vue";
 
 //tables
@@ -133,6 +135,8 @@ import {
   convertToPascalCase,
   getLocalizedDescription,
   getLocalizedLabel,
+  flattenObject,
+  applyJsTemplate,
 } from "../src/components/utils";
 import constants, { privacyConstants } from "../src/components/constants";
 
@@ -227,6 +231,8 @@ export {
   TableStickyHeaders,
   SubTask,
   Task,
+  Tab,
+  Tabs,
   TaskManager,
   TaskList,
   TextDisplay,
@@ -254,4 +260,6 @@ export {
   convertToCamelCase,
   getLocalizedDescription,
   getLocalizedLabel,
+  flattenObject,
+  applyJsTemplate,
 };

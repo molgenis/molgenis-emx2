@@ -1,16 +1,45 @@
-import { describe, assert, test } from "vitest";
+import { describe, assert, test, expect, vi } from "vitest";
 import constants from "./constants";
-import { deepClone, flattenObject, isNumericKey } from "./utils";
+import {
+  convertRowToPrimaryKey,
+  deepClone,
+  deepEqual,
+  flattenObject,
+  isNumericKey,
+  isRefType,
+} from "./utils";
+import { contactsMetadata, resourcesMetadata } from "./mockDatasets";
 
-const {
-  CODE_0,
-  CODE_9,
-  CODE_BACKSPACE,
-  CODE_MINUS,
-  CODE_DELETE,
-  MIN_LONG,
-  MAX_LONG,
-} = constants;
+vi.mock("../client/client", () => {
+  // For use with convertRowToPrimaryKey
+  return {
+    default: {
+      newClient: () => ({
+        fetchTableMetaData: (tableName: string) => {
+          if (tableName === "Resources") return resourcesMetadata;
+          else if (tableName === "Contacts") return contactsMetadata;
+          else return {};
+        },
+      }),
+    },
+  };
+});
+
+const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_MINUS, CODE_DELETE } = constants;
+
+describe("isRefType", () => {
+  test("it should return true for REF, REF_ARRAY, REFBACK, ONTOLOGY, and ONTOLOGY_ARRAY types", () => {
+    assert.isTrue(isRefType("REF"));
+    assert.isTrue(isRefType("REF_ARRAY"));
+    assert.isTrue(isRefType("REFBACK"));
+    assert.isTrue(isRefType("ONTOLOGY"));
+    assert.isTrue(isRefType("ONTOLOGY_ARRAY"));
+  });
+
+  test("it should return false for other types", () => {
+    assert.isFalse(isRefType("SOME_OTHER_TYPE"));
+  });
+});
 
 describe("isNumericKey", () => {
   test("code is CODE_0 (48)", () => {
@@ -18,7 +47,7 @@ describe("isNumericKey", () => {
     assert.isTrue(isNumericKey(keyboardEvent));
   });
 
-  test("code is between CODE_0 and CODE_9", () => {
+  test("code is between CODE_0 (48) and CODE_9 (57)", () => {
     const keyboardEvent = { which: 50 } as KeyboardEvent;
     assert.isTrue(isNumericKey(keyboardEvent));
   });
@@ -38,7 +67,7 @@ describe("isNumericKey", () => {
     assert.isTrue(isNumericKey(keyboardEvent));
   });
 
-  test("code is not numerical of input modification", () => {
+  test("code is not numerical or input modification", () => {
     const keyboardEvent = { which: CODE_MINUS } as KeyboardEvent;
     assert.isFalse(isNumericKey(keyboardEvent));
   });
@@ -66,14 +95,88 @@ describe("flattenObject", () => {
     assert.deepEqual(expectedResult, result);
   });
 });
+describe("deepClone", () => {
+  test("it should make a clone of the input", () => {
+    const input = {
+      foo: "hello",
+      bar: "world",
+    };
 
-test("deepClone", () => {
-  const input = {
-    foo: "hello",
-    bar: "world",
-  };
+    const output = deepClone(input);
 
-  const output = deepClone(input);
+    assert.deepEqual(output, input, "matches original");
+  });
+});
 
-  assert.deepEqual(output, input, "matches original");
+describe("deepEqual", () => {
+  test("it should return true if 2 objects are equal", () => {
+    const object1 = { id: "someId", some: "property" };
+    const object2 = { id: "someId", some: "property" };
+    assert.isTrue(deepEqual(object1, object2));
+  });
+
+  test("it should return true if 2 complex objects are equal", () => {
+    const object1 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop" },
+    };
+    const object2 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop" },
+    };
+    assert.isTrue(deepEqual(object1, object2));
+  });
+
+  test("it should return false if 2 complex objects are not  equal", () => {
+    const object1 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop" },
+    };
+    const object2 = {
+      id: "someId",
+      some: "property",
+      innerObject: { another: "prop", additional: "but it has more" },
+    };
+    assert.isFalse(deepEqual(object1, object2));
+  });
+});
+
+describe("convertRowToPrimaryKey", () => {
+  test("it should convert a IRow object to only its primaryKey", async () => {
+    const row = {
+      resource: {
+        id: "TEST",
+        name: "TEST Study",
+        description: "TEST description",
+        mg_tableclass: "Catalogue.Cohorts",
+      },
+      firstName: "Jan",
+      lastName: "Modal",
+      email: "Jan@modal.nl",
+      orcid: "0000-0000-0000-0000",
+      photo: {},
+      mg_draft: false,
+    };
+    const expectedPrimaryKey = {
+      resource: {
+        id: "TEST",
+      },
+      firstName: "Jan",
+      lastName: "Modal",
+    };
+    expect(await convertRowToPrimaryKey(row, "Contacts", "")).toStrictEqual(
+      expectedPrimaryKey
+    );
+  });
+
+  test("it should fail if there is not metadata found", async () => {
+    try {
+      await convertRowToPrimaryKey({}, "Unknown table", "");
+    } catch (error) {
+      expect((error as Error).message).toBe("Empty columns in metadata");
+    }
+  });
 });

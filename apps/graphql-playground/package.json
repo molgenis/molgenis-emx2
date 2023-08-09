@@ -6,14 +6,15 @@
     "graphql-playground-react": "1.7.28"
   },
   "devDependencies": {
-    "vite": "3.2.5",
-    "prettier": "2.8.4"
+    "vite": "4.3.9",
+    "prettier": "2.8.8"
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "format": "prettier src  --write --config ../.prettierrc.js"
+    "format": "prettier src --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src --check --config ../.prettierrc.js"
   },
   "browserslist": {
     "production": [

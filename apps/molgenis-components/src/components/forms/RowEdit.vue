@@ -4,25 +4,26 @@
       v-for="column in columnsWithoutMeta.filter(showColumn)"
       :key="JSON.stringify(column)"
       :id="`${id}-${column.name}`"
-      v-model="internalValues[column.id]"
+      :modelValue="internalValues[column.id]"
       :columnType="column.columnType"
       :description="getColumnDescription(column)"
       :errorMessage="errorPerColumn[column.id]"
       :label="getColumnLabel(column)"
       :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
-      :pkey="getPrimaryKey(internalValues, tableMetaData)"
+      :pkey="primaryKey"
       :readonly="
         column.readonly ||
         (pkey && column.key === 1 && !clone) ||
         (column.computed !== undefined && column.computed.trim() != '')
       "
       :refBack="column.refBack"
-      :refTablePrimaryKeyObject="getPrimaryKey(internalValues, tableMetaData)"
+      :refTablePrimaryKeyObject="primaryKey"
       :refLabel="column.refLabel ? column.refLabel : column.refLabelDefault"
       :required="column.required"
       :tableName="column.refTable"
       :canEdit="canEdit"
       :filter="refLinkFilter(column)"
+      @update:modelValue="handleModelValueUpdate($event, column.id)"
     />
   </div>
 </template>
@@ -30,21 +31,22 @@
 <script>
 import FormInput from "./FormInput.vue";
 import constants from "../constants.js";
+import Client from "../../client/client.ts";
 import {
-  getPrimaryKey,
   deepClone,
   convertToCamelCase,
   getLocalizedLabel,
   getLocalizedDescription,
 } from "../utils";
-const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
+
+const { AUTO_ID } = constants;
 
 export default {
   name: "RowEdit",
   data: function () {
     return {
+      client: Client.newClient(this.schemaMetaData.name),
       internalValues: deepClone(this.modelValue),
-      errorPerColumn: {},
     };
   },
   props: {
@@ -75,6 +77,7 @@ export default {
       required: false,
     },
     // visibleColumns:  visible columns, useful if you only want to allow partial edit (column of object)
+    // examples ['name','description']
     visibleColumns: {
       type: Array,
       required: false,
@@ -98,16 +101,26 @@ export default {
       type: String,
       default: () => "en",
     },
+    errorPerColumn: {
+      type: Object,
+      default: () => ({}),
+    },
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "errorsInForm"],
   components: {
     FormInput,
   },
   computed: {
+    async primaryKey() {
+      return this.client.convertRowToPrimaryKey(
+        this.internalValues,
+        this.tableName
+      );
+    },
     columnsWithoutMeta() {
       return this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
-            (column) => !column.name?.startsWith("mg_")
+            (column) => !column.id?.startsWith("mg_")
           )
         : [];
     },
@@ -125,7 +138,6 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey,
     getColumnLabel(column) {
       return getLocalizedLabel(column, this.locale);
     },
@@ -133,16 +145,18 @@ export default {
       return getLocalizedDescription(column, this.locale);
     },
     showColumn(column) {
-      if (column.reflink) {
+      if (column.columnType === AUTO_ID) {
+        return this.pkey;
+      } else if (column.reflink) {
         return this.internalValues[convertToCamelCase(column.refLink)];
       } else {
-        const isColumnVisible = Array.isArray(this.visibleColumns)
-          ? this.visibleColumns.find((col) => col.name === column.name)
+        const isColumnVisible = this.visibleColumns
+          ? this.visibleColumns.includes(column.id)
           : true;
         return (
           isColumnVisible &&
           this.visible(column.visible, column.id) &&
-          column.name !== "mg_tableclass"
+          column.id !== "mg_tableclass"
         );
       }
     },
@@ -164,29 +178,9 @@ export default {
         return true;
       }
     },
-    validateTable() {
-      this.tableMetaData?.columns
-        ?.filter((column) => {
-          if (this.visibleColumns) {
-            return this.visibleColumns.find(
-              (visibleColumn) => column.name === visibleColumn.name
-            );
-          } else {
-            return true;
-          }
-        })
-        .forEach((column) => {
-          this.errorPerColumn[column.id] = getColumnError(
-            column,
-            this.internalValues,
-            this.tableMetaData
-          );
-        });
-    },
     applyComputed() {
-      //apply computed
       this.tableMetaData.columns.forEach((c) => {
-        if (c.computed) {
+        if (c.computed && c.columnType !== AUTO_ID) {
           try {
             this.internalValues[c.id] = executeExpression(
               c.computed,
@@ -228,22 +222,19 @@ export default {
         return filter;
       }
     },
+    handleModelValueUpdate(event, columnId) {
+      this.internalValues[columnId] = event;
+      this.onValuesUpdate();
+    },
+    onValuesUpdate() {
+      this.applyComputed();
+      this.$emit("update:modelValue", this.internalValues);
+    },
   },
   watch: {
-    internalValues: {
-      handler() {
-        //clean up errors
-        this.errorPerColumn = {};
-        this.validateTable();
-        this.applyComputed();
-        this.$emit("update:modelValue", this.internalValues);
-      },
-      deep: true,
-    },
     tableMetaData: {
       handler() {
-        this.validateTable();
-        this.applyComputed();
+        this.onValuesUpdate();
       },
       deep: true,
     },
@@ -252,113 +243,9 @@ export default {
     if (this.defaultValue) {
       this.internalValues = deepClone(this.defaultValue);
     }
-    this.validateTable();
-    this.applyComputed();
+    this.onValuesUpdate();
   },
 };
-
-function getColumnError(column, values, tableMetaData) {
-  const value = values[column.id];
-  const isInvalidNumber = typeof value === "number" && isNaN(value);
-  const missesValue = value === undefined || value === null || value === "";
-  const type = column.columnType;
-
-  if (column.required && (missesValue || isInvalidNumber)) {
-    return column.name + " is required ";
-  }
-  if (missesValue) {
-    return undefined;
-  }
-  if (type === "EMAIL" && !isValidEmail(value)) {
-    return "Invalid email address";
-  }
-  if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
-    return "Invalid email address";
-  }
-  if (type === "HYPERLINK" && !isValidHyperlink(value)) {
-    return "Invalid hyperlink";
-  }
-  if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
-    return "Invalid hyperlink";
-  }
-  if (column.validation) {
-    return getColumnValidationError(column, values, tableMetaData);
-  }
-  if (isRefLinkWithoutOverlap(column, tableMetaData, values)) {
-    return `value should match your selection in column '${column.refLink}' `;
-  }
-
-  return undefined;
-}
-
-function getColumnValidationError(column, values, tableMetaData) {
-  try {
-    //use the keys as variables
-    const result = executeExpression(column.validation, values, tableMetaData);
-    if (result === false) {
-      return `Applying validation rule returned error: ${column.validation}`;
-    } else if (result === true || result === undefined) {
-      return undefined;
-    } else {
-      return `Applying validation rule returned error: ${result}`;
-    }
-  } catch (error) {
-    return `Invalid validation expression '${column.validation}', reason: ${error}`;
-  }
-}
-
-function executeExpression(expression, values, tableMetaData) {
-  //make sure all columns have keys to prevent reference errors
-  const copy = deepClone(values);
-  tableMetaData.columns.forEach((c) => {
-    if (!copy.hasOwnProperty(c.id)) {
-      copy[c.id] = null;
-    }
-  });
-
-  const func = new Function(
-    Object.keys(copy),
-    `return eval('${expression.replaceAll("'", '"')}');`
-  );
-  return func(...Object.values(copy));
-}
-
-function isRefLinkWithoutOverlap(column, tableMetaData, values) {
-  if (!column.refLink) {
-    return false;
-  }
-  const columnRefLink = column.refLink;
-  const refLinkId = convertToCamelCase(columnRefLink);
-
-  const value = values[column.id];
-  const refValue = values[refLinkId];
-
-  if (typeof value === "string" && typeof refValue === "string") {
-    return value && refValue && value !== refValue;
-  } else {
-    return (
-      value &&
-      refValue &&
-      !JSON.stringify(value).includes(JSON.stringify(refValue))
-    );
-  }
-}
-
-function isValidHyperlink(value) {
-  return HYPERLINK_REGEX.test(String(value).toLowerCase());
-}
-
-function containsInvalidHyperlink(hyperlinks) {
-  return hyperlinks.find((hyperlink) => !this.isValidHyperlink(hyperlink));
-}
-
-function isValidEmail(value) {
-  return EMAIL_REGEX.test(String(value).toLowerCase());
-}
-
-function containsInvalidEmail(emails) {
-  return emails.find((email) => !this.isValidEmail(email));
-}
 </script>
 
 <docs>
@@ -402,7 +289,7 @@ function containsInvalidEmail(emails) {
 </template>
 <script>
   export default {
-    data: function() {
+    data: function () {
       return {
         showRowEdit: true,
         locale: 'en',

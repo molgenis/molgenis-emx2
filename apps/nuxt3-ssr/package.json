@@ -5,31 +5,43 @@
   "scripts": {
     "prepare": "nuxt prepare",
     "build": "node custom-build.js",
-    "dev": "nuxt dev",
+    "test": "vitest",
+    "dev": "node custom-dev.js",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "format": "prettier components composables gql interfaces pages plugins utils  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier components composables gql interfaces pages plugins utils  --check --config ../.prettierrc.js",
     "tailwind": "node gen-themes.js",
     "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./assets/icons -o ./assets/minified-icons --config ./svgo.config.js && node ./scripts/create_vue_components_from_icons.js"
   },
   "devDependencies": {
-    "@nuxt/image-edge": "^1.0.0-27809804.194d2d6",
-    "@nuxt/vite-builder": "3.2.3",
+    "@nuxt/image-edge": "1.0.0-rc.1-28143901.afe4120",
+    "@nuxt/test-utils": "3.6.3",
+    "@nuxt/vite-builder": "3.6.3",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.8",
-    "autoprefixer": "^10.4.13",
+    "@types/node": "16.10.0",
+    "@vitejs/plugin-vue": "4.1.0",
+    "@vue/test-utils": "2.4.0",
+    "autoprefixer": "10.4.14",
     "graphql-tag": "2.12.6",
-    "nuxt": "3.2.3",
-    "nuxt-proxy": "^0.4.0",
-    "postcss": "^8.4.19",
-    "postcss-custom-properties": "^13.0.0",
-    "prettier": "2.8.4",
+    "jsdom": "21.1.2",
+    "nuxt": "3.6.3",
+    "nuxt-proxy": "0.4.1",
+    "postcss": "8.4.24",
+    "postcss-custom-properties": "13.2.0",
+    "prettier": "2.8.8",
     "shelljs": "^0.8.5",
     "svgo": "2.8.0",
-    "tailwindcss": "^3.2.4"
+    "tailwindcss": "3.3.2",
+    "vitest": "^0.30.1"
   },
   "dependencies": {
-    "floating-vue": "^2.0.0-beta.20"
+    "@unhead/vue": "1.1.30",
+    "floating-vue": "^2.0.0-beta.20",
+    "node-fetch-native": "1.2.0",
+    "vite": "4.0.5",
+    "vue": "3.3.4"
   }
 }

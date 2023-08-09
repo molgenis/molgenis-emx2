@@ -1,0 +1,7 @@
+id,title,hasVersion,description,publisher,language,license,themeTaxonomy
+catalogId01,catalogTitle01,catalogHasVersion01,catalogDescription01,catalogPublisher01,"English,Dutch",https://www.gnu.org/licenses/lgpl-3.0.rdf,http://purl.obolibrary.org/obo/NCIT_C71899
+catalogId02,catalogTitle02,catalogHasVersion02,catalogDescription02,catalogPublisher02,"English,French",https://www.gnu.org/licenses/lgpl-3.0.rdf,http://semanticscience.org/resource/SIO_001241
+minCatId03,minCatTitle03,,,minCatPublisher03,,https://www.gnu.org/licenses/lgpl-3.0.rdf,http://purl.obolibrary.org/obo/PATO_0002123
+minFileCatId04,minCatTitle04,,,minCatPublisher04,,https://www.gnu.org/licenses/lgpl-3.0.rdf,http://purl.obolibrary.org/obo/PATO_0002123
+mixedCatId05,mixedCatTitle05,,,mixedCatPublisher05,,https://www.gnu.org/licenses/lgpl-3.0.rdf,http://purl.obolibrary.org/obo/PATO_0002123
+catWithoutDatasetsId06,catWithoutDatasetsTitle06,,,catWithoutDatasetsPublisher06,,https://www.gnu.org/licenses/lgpl-3.0.rdf,http://purl.obolibrary.org/obo/PATO_0002123

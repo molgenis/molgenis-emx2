@@ -47,10 +47,11 @@ export default {
       .conditions;
   },
   resources: (state) => state.resources,
+  cohorts: (state) => state.cohorts,
   /**
    * @returns Grid like object o[x][y], where;
    *  x = variableName,
-   *  y = cohortPid
+   *  y = cohortId
    *  and cell value is match status
    *
    * @example
@@ -69,7 +70,7 @@ export default {
       if (!harmonizationGrid[varName]) {
         harmonizationGrid[varName] = {};
       }
-      const mappedCohort = mapping.fromTable.dataDictionary.resource.pid;
+      const mappedCohort = mapping.fromTable.dataDictionary.resource.id;
       harmonizationGrid[varName][mappedCohort] = mapping.match.name; // aka the cell value
     });
 
