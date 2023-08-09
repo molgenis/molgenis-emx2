@@ -93,6 +93,7 @@ import Molgenis from "../src/components/layout/Molgenis.vue";
 import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
 import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
+import SimpleModal from "../src/components/layout/SimpleModal.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
 import Tab from "../src/components/layout/Tab.vue";
@@ -250,6 +251,7 @@ export {
   ReadMore,
   ShowHide,
   ShowMore,
+  SimpleModal,
   StringDisplay,
   Pagination,
   RowButton,

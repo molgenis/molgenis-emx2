@@ -42,6 +42,7 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 dialog[open]:not(dialog[open="false"]) {
   position: fixed;
@@ -69,3 +70,37 @@ article {
   border-radius: 4px;
 }
 </style>
+
+<docs>
+<template>
+  <demo-item>
+    <button class="btn btn-primary" @click="toggle()">Click me for a simple modal</button>
+    <SimpleModal id="simple-modal" :open="show">
+        <p>Contents goes here</p>
+        <template v-slot:modal-footer>
+            <button class="btn btn-primary" @click="toggle()">Ok</button>
+        </template>
+    </SimpleModal>
+  </demo-item>
+</template>
+
+<script>
+  export default {
+    data: function () {
+      return {
+        showSimpleModal: false
+      };
+    },
+    computed: {
+        show() {
+            return this.showSimpleModal
+        }
+    },
+    methods: {
+      toggle() {
+        this.showSimpleModal = !this.showSimpleModal;
+      }
+    }
+  };
+</script>
+</docs>
