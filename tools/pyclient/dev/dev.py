@@ -7,7 +7,9 @@
 # STATUS: ongoing
 # PACKAGES: pandas
 # COMMENTS: Designed to interact with the schema "pet store".
-#           Create a file called '.env'
+#           Create a file called '.env' that specify the username and password:
+#           MG_USERNAME = blabla
+#           MG_PASSWORD = blabla123
 # ///////////////////////////////////////////////////////////////////////////////
 import os
 
@@ -31,27 +33,28 @@ def main():
     # Check sign in status
     print(client.status)
 
-    # Get data
+    # Retrieve data from a table in a schema on the server using the 'get' method
+    # Passing non-existing schema name yields a NoSuchSchemaException
     try:
         data = client.get(schema='', table='')  # run without specifying target
         print(data)
     except NoSuchSchemaException as e:
         print(e)
+
+    # Passing table name not on the schema yields a NoSuchTableException
     try:
         data = client.get(schema='pet store', table='')  # run without specifying table
         print(data)
     except NoSuchTableException as e:
         print(e)
-    try:
-        data = client.get(schema='pet store', table='Pet')  # get Pets
-        print(data)
-    except NoSuchSchemaException as e:
-        print(e)
-    try:
-        data = client.get(schema='pet store', table='Pet', as_df=True)  # get Pets
-        print(data)
-    except NoSuchSchemaException as e:
-        print(e)
+
+    # Retrieving data from table Pet as a list
+    data = client.get(schema='pet store', table='Pet')  # get Pets
+    print(data)
+
+    # Retrieving data from table Pet as a pandas DataFrame
+    data = client.get(schema='pet store', table='Pet', as_df=True)  # get Pets
+    print(data)
 
     # ///////////////////////////////////////////////////////////////////////////////
 
@@ -80,8 +83,10 @@ def main():
     client.add(schema='pet store', table='Pet', data=new_pets)
 
     # Retrieve records
-    data = client.get(schema='pet store', table='Pet')
-    print(data)
+    tags_data = client.get(schema='pet store', table='Tag', as_df=True)
+    print(tags_data)
+    pets_data = client.get(schema='pet store', table='Pet', as_df=True)
+    print(pets_data)
 
     # Drop records
     tags_to_remove = [{'name': row['name']} for row in new_tags if row['name'] == 'canis']
@@ -94,15 +99,15 @@ def main():
     # Check import via the `file` parameter
 
     # Save datasets
-    pd.DataFrame(new_tags).to_csv('dev/demodata/Tag.csv', index=False)
-    pd.DataFrame(new_pets).to_csv('dev/demodata/Pet.csv', index=False)
+    pd.DataFrame(new_tags).to_csv('demodata/Tag.csv', index=False)
+    pd.DataFrame(new_pets).to_csv('demodata/Pet.csv', index=False)
 
     # Import files
-    client.add(schema='pet store', table='Tag', file='dev/demodata/Tag.csv')
-    client.add(schema='pet store', table='Pet', file='dev/demodata/Pet.csv')
+    client.add(schema='pet store', table='Tag', file='demodata/Tag.csv')
+    client.add(schema='pet store', table='Pet', file='demodata/Pet.csv')
 
-    client.delete(schema='pet store', table='Pet', file='dev/demodata/Pet.csv')
-    client.delete(schema='pet store', table='Tag', file='dev/demodata/Tag.csv')
+    client.delete(schema='pet store', table='Pet', file='demodata/Pet.csv')
+    client.delete(schema='pet store', table='Tag', file='demodata/Tag.csv')
 
     # Sign out
     client.sign_out()

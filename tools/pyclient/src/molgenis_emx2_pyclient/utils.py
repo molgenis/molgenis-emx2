@@ -1,5 +1,4 @@
 import csv
-import io
 
 import pandas as pd
 
@@ -18,35 +17,16 @@ def parse_url(url: str) -> str:
     
     return host
 
-
-def to_csv(data: list) -> None:
-    """Prepares dataset (i.e., recordset) into csv format for import into EMX2.
-
-    :param data: data to import into EMX2 (list of dictionaries)
-    :type data: list
-    :returns: nothing
-    :rtype: NoneType
-    """
-    pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_ALL, encoding='UTF-8')
-
    
-def read_file(file: str):
+def read_file(file_path: str) -> str:
     """Reads and imports data from a file.
     
-    @param file: path to a data file
+    :param file_path: path to a data file
+    :type file_path: str
+    :returns: data in string format
+    :rtype: str
     """
-    with open(file, 'rb') as stream:
+    with open(file_path, 'r') as stream:
         data = stream.read()
         stream.close()
     return data
-   
-
-def parse_csv_export(content: str) -> pd.DataFrame:
-    """Parses response from a csv file endpoint.
-    
-    :param content: csv-string returned from the csv-file endpoint
-    :type content: string
-    :returns: list of dictionaries in dataframe format
-    :rtype: pd.DataFrame
-    """
-    return pd.read_csv(io.StringIO(content), sep=',')

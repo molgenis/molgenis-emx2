@@ -1,4 +1,5 @@
-
+import csv
+import io
 import logging
 
 import pandas as pd
@@ -129,25 +130,25 @@ class Client:
         return database_names
     
     @staticmethod
-    def _prep_data_or_file(file: str = None, data: list = None) -> pd.DataFrame:
+    def _prep_data_or_file(file_path: str = None, data: list = None) -> str:
         """Prepares the data from memory or loaded from disk for addition or deletion action.
 
-        :param file: path to the file to be prepared
-        :type file: str
+        :param file_path: path to the file to be prepared
+        :type file_path: str
         :param data: data to be prepared
         :type data: list
 
         :returns: prepared data in dataframe format
         :rtype: pd.DataFrame
         """
-        if not bool(file) and not bool(data):
-            print('No data to import. Specify a file location or a dataset.')
+        if file_path is None and data is None:
+            print("No data to import. Specify a file location or a dataset.")
         
-        if bool(file):
-            return utils.read_file(file=file)
+        if file_path is not None:
+            return utils.read_file(file_path=file_path)
           
-        if bool(data):
-            return utils.to_csv(data=data)
+        if data is not None:
+            return pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
     
     def add(self, schema: str, table: str, file: str = None, data: list = None):
         """Imports or updates records in a table of a named schema.
@@ -164,10 +165,13 @@ class Client:
         :returns: status message or response
         :rtype: str
         """
-        import_data = self._prep_data_or_file(file=file, data=data)
+        import_data = self._prep_data_or_file(file_path=file, data=data)
 
         if schema not in self.schemas:
             raise NoSuchSchemaException(f"Schema '{schema}' not found on server.")
+
+        if not self._table_in_schema(table, schema):
+            raise NoSuchTableException(f"Table '{table}' not found in schema '{schema}'.")
 
         response = self.session.post(
             url=f"{self.url}/{schema}/api/csv/{table}",
@@ -196,10 +200,13 @@ class Client:
         :returns: status message or response
         :rtype: str
         """
-        import_data = self._prep_data_or_file(file=file, data=data)
+        import_data = self._prep_data_or_file(file_path=file, data=data)
 
         if schema not in self.schemas:
             raise NoSuchSchemaException(f"Schema '{schema}' not found on server.")
+
+        if not self._table_in_schema(table, schema):
+            raise NoSuchTableException(f"Table '{table}' not found in schema '{schema}'.")
 
         response = self.session.delete(
             url=f"{self.url}/{schema}/api/csv/{table}",
@@ -231,13 +238,7 @@ class Client:
         if schema not in self.schemas:
             raise NoSuchSchemaException(f"Schema '{schema}' not found on server.")
 
-        response = self.session.post(
-            url=f"{self.url}/{schema}/graphql",
-            json={'query': queries.list_tables()}
-        )
-        schema_tables = [tab['name'] for tab in
-                         response.json().get('data').get('_schema').get('tables')]
-        if table not in schema_tables:
+        if not self._table_in_schema(table, schema):
             raise NoSuchTableException(f"Table '{table}' not found in schema '{schema}'.")
 
         response = self.session.get(url=f"{self.url}/{schema}/api/csv/{table}")
@@ -248,5 +249,26 @@ class Client:
             log.error(message)
             raise PyclientException(message)
 
-        data = utils.parse_csv_export(content=response.text)
-        return data if as_df else data.to_dict('records')
+        response_data = pd.read_csv(io.BytesIO(response.content))
+
+        if not as_df:
+            return response_data.to_dict('records')
+        return response_data
+
+    def _table_in_schema(self, table: str, schema: str) -> bool:
+        """Checks whether the requested table is present in the schema.
+
+        :param table: the name of the table
+        :type table: str
+        :param schema: the name of the schema
+        :type schema: str
+        :returns: boolean indicating whether table is present
+        :rtype: bool
+        """
+        response = self.session.post(
+            url=f"{self.url}/{schema}/graphql",
+            json={'query': queries.list_tables()}
+        )
+        schema_tables = [tab['name'] for tab in
+                         response.json().get('data').get('_schema').get('tables')]
+        return table in schema_tables
