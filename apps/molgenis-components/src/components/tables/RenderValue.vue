@@ -1,6 +1,6 @@
 <template>
   <span v-if="row[col.id] && Array.isArray(row[col.id])">
-    <span v-for="(val, idx) in row[col.id]" :key="idx" class="pryarn-1">
+    <span v-for="(val, idx) in row[col.id]" :key="idx" class="pr-1">
       <HyperlinkDisplay
         v-if="col.columnType === 'HYPERLINK_ARRAY'"
         :data="val"
