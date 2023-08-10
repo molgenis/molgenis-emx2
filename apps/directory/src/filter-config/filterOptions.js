@@ -1,5 +1,5 @@
 /* istanbul ignore file */
-import queryEMX2 from "../functions/queryEMX2";
+import { QueryEMX2 } from "molgenis-components";
 import { useFiltersStore } from "../stores/filtersStore";
 
 /** Async so we can fire and forget for performance. */
@@ -64,7 +64,7 @@ export const genericFilterOptions = (filterFacet) => {
       const selection = [filterLabelAttribute, filterValueAttribute];
 
       if (!cachedOptions.length) {
-        new queryEMX2("graphql")
+        new QueryEMX2("graphql")
           .table(sourceTable)
           .select(selection)
           .orderBy(sourceTable, sortColumn, sortDirection)
@@ -138,7 +138,7 @@ export const ontologyFilterOptions = (filterFacet) => {
       if (!cachedOptions.length) {
         /** make it query after all the others, saves 50% of initial load */
         const waitAfterBiobanks = setTimeout(() => {
-          new queryEMX2("graphql")
+          new QueryEMX2("graphql")
             .table(sourceTable)
             .select(selection)
             .orderBy(sourceTable, sortColumn, sortDirection)

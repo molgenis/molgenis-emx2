@@ -20,7 +20,7 @@
     </div>
 
     <div class="row filterbar p-2" v-if="filtersReady">
-      <ButtonDropdown
+      <HtmlDropdown
         :id="filter.facetIdentifier"
         v-for="filter in filtersToRender"
         :key="filter.facetIdentifier"
@@ -43,7 +43,7 @@
           :optionsFilter="optionsPresent(filter.facetIdentifier)"
         >
         </component>
-      </ButtonDropdown>
+      </HtmlDropdown>
 
       <toggle-filter
         v-for="toggleFilter of toggleFiltersToRender"
@@ -73,7 +73,7 @@ import SearchFilter from "../filters/SearchFilter.vue";
 import CheckboxFilter from "../filters/CheckboxFilter.vue";
 import OntologyFilter from "../filters/OntologyFilter.vue";
 import ToggleFilter from "../filters/ToggleFilter.vue";
-import ButtonDropdown from "../micro-components/ButtonDropdown.vue";
+import { HtmlDropdown } from "molgenis-components";
 /** */
 
 import CheckOut from "../checkout-components/CheckOut.vue";
@@ -89,7 +89,7 @@ export default {
   },
   components: {
     SearchFilter,
-    ButtonDropdown,
+    HtmlDropdown,
     CheckboxFilter,
     OntologyFilter,
     ToggleFilter,

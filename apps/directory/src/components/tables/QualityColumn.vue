@@ -59,7 +59,8 @@
 </template>
 
 <script>
-import InfoPopover from "../popovers/InfoPopover.vue";
+import { InfoPopover } from "molgenis-components";
+
 export default {
   components: { InfoPopover },
   name: "quality-column",

@@ -1,5 +1,6 @@
 import Client from "../src/client/client.ts";
 import { request } from "../src/client/client.ts";
+import QueryEMX2 from "../src/queryEmx2/queryEmx2.js";
 
 //account
 import MolgenisAccount from "../src/components/account/MolgenisAccount.vue";
@@ -33,6 +34,7 @@ import ButtonAction from "../src/components/forms/ButtonAction.vue";
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
 import ButtonDanger from "../src/components/forms/ButtonDanger.vue";
 import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
+import HtmlDropdown from "../src/components/forms/HtmlDropdown.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import ConfirmModal from "../src/components/forms/ConfirmModal.vue";
@@ -73,7 +75,9 @@ import InputSelect from "../src/components/forms/InputSelect.vue";
 import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputText from "../src/components/forms/InputText.vue";
+import InfoPopover from "../src/components/forms/InfoPopover.vue";
 import LocaleSwitch from "../src/components/account/LocaleSwitch.vue";
+import TooltipComponent from "../src/components/forms/TooltipComponent.vue";
 import Tooltip from "../src/components/forms/Tooltip.vue";
 
 import MessageError from "../src/components/forms/MessageError.vue";
@@ -91,6 +95,7 @@ import Molgenis from "../src/components/layout/Molgenis.vue";
 import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
 import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
+import SimpleModal from "../src/components/layout/SimpleModal.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
 import Tab from "../src/components/layout/Tab.vue";
@@ -168,11 +173,13 @@ export {
   ButtonSubmit,
   Client,
   ConfirmModal,
+  DataDisplayCell,
   EditModal,
   FileDisplay,
   FormGroup,
   FormInput,
   FormMolgenis,
+  HtmlDropdown,
   IconAction,
   IconBar,
   IconDanger,
@@ -206,6 +213,7 @@ export {
   InputSelectInplace,
   InputString,
   InputText,
+  InfoPopover,
   LocaleSwitch,
   MessageError,
   MessageSuccess,
@@ -220,9 +228,9 @@ export {
   LayoutForm,
   LayoutModal,
   Molgenis,
+  Pagination,
   Spinner,
   VueTemplate,
-  DataDisplayCell,
   AggregateTable,
   RoutedTableExplorer,
   TableExplorer,
@@ -236,6 +244,7 @@ export {
   TaskManager,
   TaskList,
   TextDisplay,
+  TooltipComponent,
   Tooltip,
   MolgenisAccount,
   MolgenisFooter,
@@ -243,11 +252,12 @@ export {
   MolgenisSession,
   MolgenisSignin,
   MolgenisSignup,
+  QueryEMX2,
   ReadMore,
   ShowHide,
   ShowMore,
+  SimpleModal,
   StringDisplay,
-  Pagination,
   RowButton,
   ListDisplay,
   ObjectDisplay,
