@@ -24,20 +24,16 @@
         </span>
         <VueTemplate v-if="template" :template="template" :row="row" />
         <dl v-else>
-          <div v-for="col in columns" :key="col.id">
-            <dt
-              v-if="col.showColumn && row[col.id] && col.id != 'mg_tableclass'"
-              class="pr-3"
-            >
-              {{ col.name }}
-            </dt>
-            <dd
-              class="pl-3"
-              v-if="col.showColumn && row[col.id] && col.id != 'mg_tableclass'"
-            >
-              <RenderValue :col="col" :row="row" />
-            </dd>
-          </div>
+          <template v-for="col in columns" :key="col.id">
+            <template v-if="showItem(row, col)">
+              <dt v-if="showItem(row, col)" class="pr-3">
+                {{ col.name }}
+              </dt>
+              <dd class="pl-3" v-if="showItem(row, col)">
+                <RenderValue :col="col" :row="row" />
+              </dd>
+            </template>
+          </template>
         </dl>
       </div>
     </div>
@@ -90,6 +86,9 @@ export default {
         .filter((c) => c.key == 1)
         .map((c) => (result[c.name] = row[c.name]));
       return result;
+    },
+    showItem(row, col) {
+      return col.showColumn && row[col.id] && col.id != "mg_tableclass";
     },
   },
 };
