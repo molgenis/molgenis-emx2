@@ -26,7 +26,7 @@
         <dl v-else>
           <template v-for="col in columns" :key="col.id">
             <template v-if="showItem(row, col)">
-              <dt v-if="showItem(row, col)" class="pr-3">
+              <dt v-if="showItem(row, col)" class="pr-3 pb-1">
                 {{ col.name }}
               </dt>
               <dd class="pl-3" v-if="showItem(row, col)">
@@ -50,6 +50,7 @@ dt {
   float: left;
   width: 35%;
   text-align: right;
+  clear: both;
 }
 
 dd {
