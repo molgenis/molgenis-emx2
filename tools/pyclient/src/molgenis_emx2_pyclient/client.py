@@ -23,7 +23,7 @@ class Client:
         The object starts a network session and logs in to the server using the login credentials.
         """
         self.url = utils.parse_url(url)
-        self.api_graphql = self.url + "/apps/central/graphql"
+        self.api_graphql = self.url + "/api/graphql"
 
         self.username = username
         self.signin_status = 'unknown'
@@ -49,7 +49,7 @@ class Client:
         variables = {'email': username, 'password': password}
 
         response = self.session.post(
-            url=f'{self.url}/apps/central/graphql',
+            url=self.api_graphql,
             json={'query': query, 'variables': variables}
         )
 
@@ -119,7 +119,7 @@ class Client:
         query = queries.list_schemas()
 
         response = self.session.post(
-            url=f'{self.url}/apps/central/graphql',
+            url=self.api_graphql,
             json={'query': query}
         )
 
