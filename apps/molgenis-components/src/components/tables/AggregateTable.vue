@@ -1,7 +1,7 @@
 <template>
   <div>
     <Spinner v-if="loading" class="m-3" />
-    <div v-else-if="!refColumns.length" class="alert alert-warning">
+    <div v-else-if="!refColumnNames.length" class="alert alert-warning">
       Not enough input to create an aggregate table
     </div>
 
@@ -23,7 +23,7 @@
                 id="aggregate-column-select"
                 v-model="selectedColumn"
                 @update:modelValue="fetchData"
-                :options="refColumns"
+                :options="refColumnNames"
                 required
               />
             </td>
@@ -43,7 +43,7 @@
                 id="aggregate-row-select"
                 v-model="selectedRow"
                 @update:modelValue="fetchData"
-                :options="refColumns"
+                :options="refColumnNames"
                 required
               />
             </td>
@@ -89,12 +89,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import TableStickyHeaders from "./TableStickyHeaders.vue";
-import IAggregateData from "./IAggregateData";
+import { IColumn } from "../../Interfaces/IColumn";
 import Client from "../../client/client";
 import InputSelect from "../forms/InputSelect.vue";
-import { IColumn } from "../../Interfaces/IColumn";
 import { convertToCamelCase } from "../utils";
+import IAggregateData from "./IAggregateData";
+import TableStickyHeaders from "./TableStickyHeaders.vue";
 
 export default defineComponent({
   name: "AggregateTable",
@@ -125,7 +125,7 @@ export default defineComponent({
     return {
       selectedColumn: "",
       selectedRow: "",
-      refColumns: [] as string[],
+      refColumnNames: [] as string[],
       loading: true,
       rows: [] as string[],
       columns: [] as string[],
@@ -145,14 +145,8 @@ export default defineComponent({
       const responseData = await client
         .fetchAggregateData(
           this.tableName,
-          {
-            name: convertToCamelCase(this.selectedColumn),
-            column: "name",
-          },
-          {
-            name: convertToCamelCase(this.selectedRow),
-            column: "name",
-          },
+          getRefColumnColumn(this.selectedColumn, this.allColumns as IColumn[]),
+          getRefColumnColumn(this.selectedRow, this.allColumns as IColumn[]),
           this.graphqlFilter
         )
         .catch((error) => {
@@ -190,17 +184,17 @@ export default defineComponent({
   },
   created() {
     if (this.allColumns.length > 0) {
-      this.refColumns = getRefTypeColumns(this.allColumns as IColumn[]);
-      if (this.refColumns?.length > 0) {
-        this.selectedColumn = this.refColumns[0];
-        this.selectedRow = this.refColumns[1] || this.refColumns[0];
+      this.refColumnNames = getRefTypeColumnNames(this.allColumns as IColumn[]);
+      if (this.refColumnNames?.length > 0) {
+        this.selectedColumn = this.refColumnNames[0];
+        this.selectedRow = this.refColumnNames[1] || this.refColumnNames[0];
       }
     }
     this.fetchData();
   },
 });
 
-function getRefTypeColumns(columns: IColumn[]): string[] {
+function getRefTypeColumnNames(columns: IColumn[]): string[] {
   return columns
     .filter((column: IColumn) => isRefType(column))
     .map((column: IColumn) => column.name);
@@ -211,6 +205,19 @@ function isRefType(column: IColumn): boolean {
     column.columnType.startsWith("REF") ||
     column.columnType.startsWith("ONTOLOGY")
   );
+}
+
+function getRefColumnColumn(
+  columnName: string,
+  columns: IColumn[]
+): { name: string; column: string } {
+  const currentColumn = columns.find((column) => column.name === columnName);
+  //TODO make less hacky
+  return {
+    name: currentColumn?.id || "",
+    column:
+      currentColumn?.refLabelDefault?.replace("${", "").replace("}", "") || "",
+  };
 }
 </script>
 
@@ -242,19 +249,30 @@ export default {
       allColumns: [
         {
           name: "name",
+          id: "name",
           columnType: "STRING",
+          key: 1,
         },
         {
           name: "category bla",
+          id: "categoryBla",
           columnType: "REF",
+          refTable: "Category",
+          refLabelDefault: "${name}"
         },
         {
           name: "tags",
+          id: "tags",
           columnType: "ONTOLOGY_ARRAY",
+          refLabelDefault: "${name}"
         },
         {
           name: "orders",
+          id: "orders",
           columnType: "REFBACK",
+          refBack: "pet",
+          refTable: "Order",
+          refLabelDefault: "${orderId}"
         },
       ],
       graphqlFilter: { name: { like: ["pooky"] } },
