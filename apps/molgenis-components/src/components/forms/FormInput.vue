@@ -447,6 +447,7 @@ export default {
             :defaultValue="{ name: 'spike' }"
             :schemaName="schemaName"
             v-model="refValue"
+            refLabel="${name}"
         />
       </div>
       <div>You selected: {{ JSON.stringify(refValue, null, 2) }}</div>
@@ -461,6 +462,7 @@ export default {
             :defaultValue="[{ name: 'spike' }]"
             :schemaName="schemaName"
             v-model="refValueArray"
+            refLabel="${name}"
         />
       </div>
       <div>You selected: {{ JSON.stringify(refValueArray, null, 2) }}</div>

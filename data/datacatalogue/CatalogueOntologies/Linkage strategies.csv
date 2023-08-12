@@ -1,5 +1,5 @@
-name
-Deterministic
-Probabilistic
-Combination
-Other
+order,name,code,parent,ontologyTermURI,definition
+1,Deterministic,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030161/terms/200000030162,
+2,Probabilistic,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030161/terms/200000030163,
+3,Combination,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030161/terms/200000030164,
+4,Other,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030161/terms/200000031064,

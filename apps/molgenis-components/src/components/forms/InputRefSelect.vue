@@ -36,7 +36,7 @@
             @deselect="deselect(selectIdx)"
           >
             <template v-slot:rowheader="slotProps">
-              <ButtonAction @click="select(slotProps.rowkey)">
+              <ButtonAction @click="select(slotProps.rowKey)">
                 Select
               </ButtonAction>
             </template>
@@ -103,9 +103,9 @@ export default {
   },
   methods: {
     applyJsTemplate,
-    select(event) {
+    async select(event) {
       this.showSelect = false;
-      this.$emit("update:modelValue", event);
+      this.$emit("update:modelValue", await event);
     },
   },
 };
@@ -122,6 +122,7 @@ export default {
           v-model="value1"
           tableName="Pet"
           schemaName="pet store"
+          refLabel="${name}"
       />
       Selection: {{ value1 }}
     </div>
@@ -133,6 +134,7 @@ export default {
           v-model="value2"
           tableName="Pet"
           schemaName="pet store"
+          refLabel="${name}"
       />
       Selection: {{ value2 }}
     </div>
@@ -145,6 +147,7 @@ export default {
           tableName="Pet"
           :filter="{category:{name: {equals:'dog'}}}"
           schemaName="pet store"
+          refLabel="${name}"
       />
       Selection: {{ value3 }}
     </div>

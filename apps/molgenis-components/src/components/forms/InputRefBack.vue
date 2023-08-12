@@ -3,6 +3,7 @@
     <Spinner v-if="isLoading" />
     <TableMolgenis
       v-else-if="refTablePrimaryKeyObject"
+      :schemaName="schemaName"
       :data="data"
       :columns="visibleColumns"
       :table-metadata="tableMetadata"
@@ -28,7 +29,7 @@
           name="rowheader"
           :row="slotProps.row"
           :metadata="tableMetadata"
-          :rowkey="slotProps.rowkey"
+          :rowKey="slotProps.rowKey"
         />
         <RowButton
           v-if="canEdit"
@@ -36,35 +37,24 @@
           :table="tableName"
           :schemaName="schemaName"
           :visible-columns="visibleColumnNames"
-          :refTablePrimaryKeyObject="
-            getPrimaryKey(slotProps.row, tableMetadata)
-          "
+          :refTablePrimaryKeyObject="slotProps.rowKey"
           @close="reload"
-          @edit="
-            handleRowAction('edit', getPrimaryKey(slotProps.row, tableMetadata))
-          "
+          @edit="handleRowAction('edit', slotProps.rowKey)"
         />
         <RowButton
           v-if="canEdit"
           type="clone"
           :table="tableName"
           :schemaName="schemaName"
-          :pkey="getPrimaryKey(slotProps.row, tableMetadata)"
+          :pkey="slotProps.rowKey"
           :visible-columns="visibleColumnNames"
           :default-value="defaultValue"
-          @clone="
-            handleRowAction(
-              'clone',
-              getPrimaryKey(slotProps.row, tableMetadata)
-            )
-          "
+          @clone="handleRowAction('clone', slotProps.rowKey)"
         />
         <RowButton
           v-if="canEdit"
           type="delete"
-          @delete="
-            handleDeleteRowRequest(getPrimaryKey(slotProps.row, tableMetadata))
-          "
+          @delete="handleDeleteRowRequest(slotProps.rowKey)"
         />
       </template>
     </TableMolgenis>
@@ -109,7 +99,7 @@ import MessageWarning from "./MessageWarning.vue";
 import MessageError from "./MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import ConfirmModal from "./ConfirmModal.vue";
-import { getPrimaryKey, convertToCamelCase } from "../utils";
+import { convertToCamelCase } from "../utils";
 
 export default {
   name: "InputRefBack",
@@ -195,7 +185,6 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey,
     async reload() {
       this.isLoading = true;
       this.data = await this.client.fetchTableDataValues(this.tableName, {

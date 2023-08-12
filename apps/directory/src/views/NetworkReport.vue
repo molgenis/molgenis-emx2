@@ -9,18 +9,13 @@
     <div v-else class="container-fluid">
       <div class="row">
         <div class="col my-3 shadow-sm d-flex p-2 align-items-center bg-white">
-          <Breadcrumb>
-            <ol class="breadcrumb my-1">
-              <li class="breadcrumb-item">
-                <router-link to="/catalogue" title="Back to the catalogue">
-                  {{ uiText["home"] }}
-                </router-link>
-              </li>
-              <li class="breadcrumb-item active text-dark" aria-current="page">
-                {{ network.name }}
-              </li>
-            </ol>
-          </Breadcrumb>
+          <Breadcrumb
+            class="directory-nav"
+            :crumbs="{
+              [uiText['home']]: '/',
+              [network.name]: '/',
+            }"
+          />
         </div>
       </div>
 
@@ -115,11 +110,10 @@
 </template>
 
 <script setup>
-import { Spinner, Tab, Tabs } from "molgenis-components";
+import { Breadcrumb, Spinner, Tab, Tabs } from "molgenis-components";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
-import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ReportDescription from "../components/report-components/ReportDescription.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
