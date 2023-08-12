@@ -22,7 +22,6 @@
                 class="mb-0"
                 id="aggregate-column-select"
                 v-model="selectedColumn"
-                @update:modelValue="fetchData"
                 :options="refColumns"
                 required
               />
@@ -42,7 +41,6 @@
                 class="mb-2"
                 id="aggregate-row-select"
                 v-model="selectedRow"
-                @update:modelValue="fetchData"
                 :options="refColumns"
                 required
               />
@@ -194,7 +192,15 @@ export default defineComponent({
       }
     },
   },
-  created() {
+  watch: {
+    selectedColumn() {
+      this.fetchData();
+    },
+    selectedRow() {
+      this.fetchData();
+    },
+  },
+  mounted() {
     this.client = Client.newClient(this.schemaName);
     if (this.allColumns.length > 0) {
       this.refColumns = getRefTypeColumns(
