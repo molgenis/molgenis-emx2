@@ -285,14 +285,14 @@ export default {
     data() {
       return {
         canEdit: false,
-        canView: true,
+        canView: false,
         schema: "pet store",
         table: "Pet"
       }
     },
     computed: {
       dynamicKey() {
-        return "my-table-explorer" + this.schema + "_" + this.table
+        return "my-table-explorer" + this.schema + "_" + this.table +"_"+this.canView
       },
      
     },

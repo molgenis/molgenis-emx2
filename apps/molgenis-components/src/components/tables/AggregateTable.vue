@@ -145,7 +145,6 @@ export default defineComponent({
       this.rows = [];
       this.columns = [];
       this.aggregateData = {};
-      const client = Client.newClient(this.schemaName);
       const responseData = await this.client
         .fetchAggregateData(
           this.tableName,
@@ -191,6 +190,19 @@ export default defineComponent({
         this.rows.push(row);
       }
     },
+    initialize() {
+      if (this.allColumns.length > 0) {
+        this.refColumns = getRefTypeColumns(
+          this.allColumns as IColumn[],
+          this.canView
+        );
+      }
+      if (this.refColumns?.length > 0) {
+        this.selectedColumn = this.refColumns[0];
+        this.selectedRow = this.refColumns[1] || this.refColumns[0];
+        this.fetchData();
+      }
+    },
   },
   watch: {
     selectedColumn() {
@@ -199,30 +211,24 @@ export default defineComponent({
     selectedRow() {
       this.fetchData();
     },
+    allColumns() {
+      this.initialize();
+    },
   },
   mounted() {
     this.client = Client.newClient(this.schemaName);
-    if (this.allColumns.length > 0) {
-      this.refColumns = getRefTypeColumns(
-        this.allColumns as IColumn[],
-        this.canView
-      );
-    }
-    if (this.refColumns?.length > 0) {
-      this.selectedColumn = this.refColumns[0];
-      this.selectedRow = this.refColumns[1] || this.refColumns[0];
-    }
-    this.fetchData();
+    this.initialize();
   },
 });
 
 function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
   return columns
-    .filter(
-      (column: IColumn) =>
+    .filter((column: IColumn) => {
+      return (
         (column.columnType.startsWith("REF") && canView) ||
         column.columnType.startsWith("ONTOLOGY")
-    )
+      );
+    })
     .map((column: IColumn) => column.name);
 }
 </script>
