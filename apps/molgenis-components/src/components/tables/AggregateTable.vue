@@ -22,6 +22,7 @@
                 class="mb-0"
                 id="aggregate-column-select"
                 v-model="selectedColumn"
+                @update:modelValue="fetchData"
                 :options="refColumns"
                 required
               />
@@ -41,6 +42,7 @@
                 class="mb-2"
                 id="aggregate-row-select"
                 v-model="selectedRow"
+                @update:modelValue="fetchData"
                 :options="refColumns"
                 required
               />
@@ -93,6 +95,7 @@ import Client from "../../client/client";
 import InputSelect from "../forms/InputSelect.vue";
 import { IColumn } from "../../Interfaces/IColumn";
 import { convertToCamelCase } from "../utils";
+import { INewClient } from "../../client/IClient";
 
 export default defineComponent({
   name: "AggregateTable",
@@ -128,12 +131,13 @@ export default defineComponent({
       selectedColumn: "",
       selectedRow: "",
       refColumns: [] as string[],
-      loading: true,
+      loading: false,
       rows: [] as string[],
       columns: [] as string[],
       aggregateData: {} as IAggregateData,
       noResults: false,
       errorMessage: undefined,
+      client: {} as INewClient,
     };
   },
   methods: {
@@ -144,7 +148,7 @@ export default defineComponent({
       this.columns = [];
       this.aggregateData = {};
       const client = Client.newClient(this.schemaName);
-      const responseData = await client
+      const responseData = await this.client
         .fetchAggregateData(
           this.tableName,
           {
@@ -190,26 +194,19 @@ export default defineComponent({
       }
     },
   },
-  watch: {
-    selectedColumn() {
-      this.fetchData();
-    },
-    selectedRow() {
-      this.fetchData();
-    },
-    allColumns() {
-      if (this.allColumns.length > 0) {
-        this.refColumns = getRefTypeColumns(
-          this.allColumns as IColumn[],
-          this.canView
-        );
-      }
-      if (this.refColumns?.length > 0) {
-        this.selectedColumn = this.refColumns[0];
-        this.selectedRow = this.refColumns[1] || this.refColumns[0];
-      }
-      this.fetchData();
-    },
+  created() {
+    this.client = Client.newClient(this.schemaName);
+    if (this.allColumns.length > 0) {
+      this.refColumns = getRefTypeColumns(
+        this.allColumns as IColumn[],
+        this.canView
+      );
+    }
+    if (this.refColumns?.length > 0) {
+      this.selectedColumn = this.refColumns[0];
+      this.selectedRow = this.refColumns[1] || this.refColumns[0];
+    }
+    this.fetchData();
   },
 });
 

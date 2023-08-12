@@ -252,7 +252,10 @@ export default {
      <label for="routed-table-explorer-can-edit">Can edit</label>
      <input class="ml-1" id='routed-table-explorer-can-edit' type="checkbox" v-model="canEdit" />
     </div>
-
+    <div>
+      <label for="routed-table-explorer-can-edit">Can view</label>
+      <input class="ml-1" id='routed-table-explorer-can-view' type="checkbox" v-model="canView" />
+    </div>
     <div>
      <label for="routed-table-explorer-schema">Schema</label>
      <input class="ml-1" id='routed-table-explorer-schema' v-model="schema" />
@@ -271,6 +274,7 @@ export default {
         :tableName="table"
         :schemaName="schema"
         :canEdit="canEdit"
+        :canView="canView"
       />
     </div>
   </div>
@@ -281,6 +285,7 @@ export default {
     data() {
       return {
         canEdit: false,
+        canView: true,
         schema: "pet store",
         table: "Pet"
       }
