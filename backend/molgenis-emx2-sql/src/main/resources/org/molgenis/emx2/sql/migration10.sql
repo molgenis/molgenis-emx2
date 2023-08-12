@@ -8,6 +8,7 @@ FOR schemaname IN SELECT schema_name FROM information_schema.schemata WHERE sche
     BEGIN
         EXECUTE 'CREATE ROLE "MG_ROLE_' || schemaname || '/Aggregator"';
         EXECUTE 'GRANT USAGE ON SCHEMA "' || schemaname || '" TO "MG_ROLE_' || schemaname || '/Aggregator"';
+        EXECUTE 'GRANT "MG_ROLE_' || schemaname || '/Aggregator" TO "MG_ROLE_' || schemaname || '/Viewer"';
         FOR tablename IN SELECT table_name FROM information_schema.tables WHERE table_schema = schemaname LOOP
         BEGIN
             EXECUTE 'GRANT SELECT ON "' || schemaname || '"."' || tablename || '" TO "MG_ROLE_' || schemaname || '/Aggregator"';

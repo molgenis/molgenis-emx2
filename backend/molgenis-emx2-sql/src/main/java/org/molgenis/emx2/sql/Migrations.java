@@ -81,7 +81,7 @@ public class Migrations {
                 tdb, "migration9.sql", "update row level policy for schema metadata");
 
           if (version < 10)
-            executeMigrationFile(tdb, "migration10.sql", "add Aggregate rol for each schema");
+            executeMigrationFile(tdb, "migration10.sql", "add Aggregate role for each schema");
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
