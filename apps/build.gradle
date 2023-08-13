@@ -55,7 +55,8 @@ subprojects {
     }
 
     task checkFormat(type: YarnTask, dependsOn: parent.yarn_install) {
-        args = ['run', 'format']
+        onlyIf {!format.enabled}
+        args = ['run', 'format', '--check']
         if (project.name == 'nuxt3-ssr') {
             inputs.files(fileTree('components'))
             inputs.files(fileTree('composables'))
