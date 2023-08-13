@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17.0.7_7-jdk-focal
+FROM eclipse-temurin:17.0.8_7-jdk-focal
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar
 EXPOSE 8080
