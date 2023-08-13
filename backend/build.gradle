@@ -68,7 +68,9 @@ subprojects {
     }
     jacocoTestReport {
         reports {
-            xml.enabled true
+            xml.required = true
+            csv.required = false
+            html.required = false
         }
     }
 
@@ -148,15 +150,16 @@ subprojects {
 }
 
 /* generate java test coverage report*/
+test.dependsOn subprojects.test
 task jacocoMergedReport(type: JacocoReport) {
-    dependsOn = subprojects.test
+    dependsOn test
     additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     classDirectories.setFrom files(subprojects.sourceSets.main.output)
     executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/test.exec')
     reports {
-        xml.enabled true
-        csv.enabled false
-        html.enabled false
+        xml.required = true
+        csv.required = false
+        html.required = false
     }
 }
