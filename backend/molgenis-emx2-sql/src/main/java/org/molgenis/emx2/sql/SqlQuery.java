@@ -593,7 +593,7 @@ public class SqlQuery extends QueryBean {
       }
     }
     return field((jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
-        .as(select.getColumn());
+        .as(column.getIdentifier());
   }
 
   private Field<?> jsonAggregateSelect(
