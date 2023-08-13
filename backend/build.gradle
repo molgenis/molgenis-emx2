@@ -68,7 +68,9 @@ subprojects {
     }
     jacocoTestReport {
         reports {
-            xml.enabled true
+            xml.required = true
+            csv.required = false
+            html.required = false
         }
     }
 
@@ -155,8 +157,8 @@ task jacocoMergedReport(type: JacocoReport) {
     classDirectories.setFrom files(subprojects.sourceSets.main.output)
     executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/test.exec')
     reports {
-        xml.enabled true
-        csv.enabled false
-        html.enabled false
+        xml.required = true
+        csv.required = false
+        html.required = false
     }
 }
