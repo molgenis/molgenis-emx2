@@ -52,7 +52,7 @@ const isShowingMobileMoreText = computed(() => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/ssr-catalogue/cohorts/${cohort.pid}`"
+            :to="`/${schema}/ssr-catalogue/cohorts/${cohort.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ cohort?.acronym || cohort?.name }}
@@ -71,7 +71,7 @@ const isShowingMobileMoreText = computed(() => {
           class="text-blue-500 xl:justify-end"
         />
         -->
-        <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${cohort.pid}`">
+        <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${cohort.id}`">
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"

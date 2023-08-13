@@ -1,0 +1,168 @@
+tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,validation,visible,computed,semantics,label,description
+ContactPersonsNationalNodes,,,,,,,,,,,,,,,,,Contact persons of the National Nodes
+NationalNodes,,,,,,,,,,,,,,,,,All National Nodes
+Persons,,,,,,,,,,,,,,,,,"Information on the contact persons of a biobank, collection of network, like name, address and e-mail address"
+AlsoKnownIn,,,,,,,,,,,,,,,,,"Network, biobank or collection also exists in …"
+Networks,,,,,,,,,,,,,,,,,"Description of the biobank networks, like name, contact information and all kinds of common agreements (access policies, charters, sops)"
+Biobanks,,,,,,,,,,,,,,,,,"Description of the biobank organisation, like name, location, network, contact persons, collaboration opportunities and quality assessments"
+Collections,,,,,,,,,,,,,,,,,"Description of the data and samples collected within a biobank, collections may be divided in sub-collections"
+QualityInfoCollections,,,,,,,,,,,,,,,,,Collection Quality Information
+CollectionFacts,,,,,,,,,,,,,,,,,Collection Facts table
+QualityInfoBiobanks,,,,,,,,,,,,,,,,,Biobank Quality Information
+AlsoKnownIn,,,id,,1,true,,,,,,,,,,id,Unique ID
+AlsoKnownIn,,,name_system,,,true,,,,,,,,,,Name of the System,"Name of the source in which the biobank, collection or network also exists"
+AlsoKnownIn,,,pid,,,,,,,,,,,,,Persistent Identifier,"Persistent Identifier of the biobank, collection or network in the other source"
+AlsoKnownIn,,,url,hyperlink,,true,,,,,,,,,,URL,"Link to the biobank, collection or network in the other source"
+AlsoKnownIn,,,national_node,ref,,true,,NationalNodes,,,${name},,,,,National Node,"The biobank, collection or network where this also known in refers to originates from this national node"
+AlsoKnownIn,,,withdrawn,bool,,true,,,,,,,,,,Withdrawn,"The biobank, collection or network where this also known in refers to is withdrawn from the Directory"
+AlsoKnownIn,,,label,,,true,,,,,,,,name_system,,Label,"Name of the source in which the biobank, collection or network also exists"
+Biobanks,,,id,,1,true,,,,,,,,,,Id,"Unique biobank ID within BBMRI-ERIC based on MIABIS 2.0 standard (ISO 3166-1 alpha-2 + underscore + biobank national ID or name), prefixed with bbmri-eric:ID: string - MIABIS-2.0-01."
+Biobanks,,,pid,,2,,,,,,,,,,,PID,Persistent Identifier
+Biobanks,,,name,,,true,,,,,,,,,,Name,Biobank name according to MIABIS 2.0 - MIABIS-2.0-03.
+Biobanks,,,acronym,,,,,,,,,,,,,Acronym,Biobank acronym - MIABIS-2.0-02.
+Biobanks,,,description,text,,,,,,,,,,,,Description,Biobank description - MIABIS-2.0-08.
+Biobanks,,,url,hyperlink,,,,,,,,,,,,URL,Biobank URL - MIABIS-2.0-04.
+Biobanks,,,location,,,,,,,,,,,,,Location,The city where the biobank is located
+Biobanks,,,country,ontology,,true,,Countries,,,${label},,,,,Country,Country hosting the biobank according to MIABIS 2.0 - MIABIS-2.0-06.
+Biobanks,,,latitude,,,,,,,,,,,,,Latitude,"Latitude of the biobank in the WGS84 system (the one used by GPS), positive is northern hemisphere."
+Biobanks,,,longitude,,,,,,,,,,,,,Longitude,"Longitude of the biobank in the WGS84 system (the one used by GPS), positive is to the East of Greenwich."
+Biobanks,,,head,ref,,,,Persons,,,${first_name} ${last_name},,,,,Head of biobank,Person in charge of the collection.
+Biobanks,,,contact,ref,,,,Persons,,,${first_name} ${last_name},,,,,Contact,Reference to a contact ID.
+Biobanks,,,juridical_person,,,true,,,,,,,,,,Juridical person,Juristic person of a biobank according to MIABIS 2.0 - MIABIS-2.0-05.
+Biobanks,,,network,ref_array,,,,Networks,,,${name},,,,,Networks,"Reference to a biobank network ID, to which the biobank belongs; this attribute can also be used for biobank network, where it refers to the superior biobank network)."
+Biobanks,,,also_known,ref_array,,,,AlsoKnownIn,,,${name_system},,,,,Also known in,Biobank also exists in …
+Biobanks,,,collections,refback,,,,Collections,,biobank,,,,,,Collections,Collections belonging to this biobank
+Biobanks,,,capabilities,ontology_array,,,,Capabilities,,,${label},,,,,Capabilities provided,Capabilities that the biobank organisation can offer to a researcher
+Biobanks,,,quality,refback,,,,QualityInfoBiobanks,,biobank,,,,,,Quality,
+Biobanks,,,collaboration_commercial,bool,,,,,,,,,,,,Collaboration commercial,Biobank/collection can be used for collaboration with commercial partners.
+Biobanks,,,collaboration_non_for_profit,bool,,,,,,,,,,,,Collaboration non for profit,Biobank/collection can be used for collaboration with non-for-profit partners.
+Biobanks,,,national_node,ref,,true,,NationalNodes,,,${description},,,,,National node,This biobank originates from this national node
+Biobanks,,,withdrawn,bool,,true,,,,,,,,,,Withdrawn,This biobank is withdrawn from the Directory
+CollectionFacts,,,id,,1,true,,,,,,,,,,id,Unique ID of the fact
+CollectionFacts,,,collection,ref,,true,,Collections,,,${name},,,,,Collection ID,ID of the collection
+CollectionFacts,,,sex,ontology,,,,SexTypes,,,${label},,,,,Sex,"The sex of the individuals in the fact. Can be one of the following values: Male, Female, Unknown, Undifferrentiated, Not applicable"
+CollectionFacts,,,age_range,ontology,,,,AgeRanges,,,${label},,,,,Age Range,Age range of the sample donors at time of sample donation
+CollectionFacts,,,sample_type,ontology,,,,MaterialTypes,,,${label},,,,,Sample Type,"The biospecimen saved from a biological entity for propagation e.g. testing, diagnostics, treatment or research purposes."
+CollectionFacts,,,disease,ontology,,,,DiseaseTypes,,,${label},,,,,Disease,"The disease or disease category of main interest in the fact, if any. (Structured attribute)"
+CollectionFacts,,,number_of_samples,int,,,,,,,,,,,,NumberOfSamples,Number of Samples
+CollectionFacts,,,number_of_donors,int,,,,,,,,,,,,NumberOfDonors,Number of Donors
+CollectionFacts,,,last_update,date,,true,,,,,,,,,,Date of Last Update,The date the fact information was last updated in the source system
+CollectionFacts,,,national_node,ref,,true,,NationalNodes,,,${description},,,,,National Node,The collection this fact belongs to originates from this national node
+CollectionFacts,,,withdrawn,bool,,true,,,,,,,,,,Withdrawn,The collection this fact belongs to is withdrawn from the Directory
+Collections,,,descriptives,heading,,,,,,,,,,,,Descriptives,Collection Descriptives
+Collections,,,id,,1,true,,,,,,,,,,Id,"Unique collection ID within BBMRI-ERIC based on MIABIS 2.0 standard, constructed from biobankID prefix + :collection: + local collection ID string - MIABIS-2.0-01."
+Collections,,,name,,,true,,,,,,,,,,Name,Collection name according to MIABIS 2.0 - MIABIS-2.0-03.
+Collections,,,acronym,,,,,,,,,,,,,Acronym,Collection acronym according to MIABIS 2.0 - MIABIS-2.0-02.
+Collections,,,description,text,,,,,,,,,,,,Description,Collection description according to MIABIS 2.0 - MIABIS-2.0-08.
+Collections,,,url,hyperlink,,,,,,,,,,,,URL,Collections URL - MIABIS-2.0-04.
+Collections,,,location,,,,,,,,,,,,,Location,The city where the collection is located
+Collections,,,country,ontology,,true,,Countries,,,${label},,,,,Country,Country according to MIABIS 2.0 - MIABIS-2.0-07-H.
+Collections,,,latitude,,,,,,,,,,,,,Latitude,"Latitude of the biobank in the WGS84 system (the one used by GPS), positive is northern hemisphere."
+Collections,,,longitude,,,,,,,,,,,,,Longitude,"Longitude of the biobank in the WGS84 system (the one used by GPS), positive is to the East of Greenwich."
+Collections,,,head,ref,,,,Persons,,,${first_name} ${last_name},,,,,Head of collection,Person in charge of the collection.
+Collections,,,contact,ref,,,,Persons,,,${first_name} ${last_name},,,,,Contact,Reference to a contact ID.
+Collections,,,national_node,ref,,true,,NationalNodes,,,${description},,,,,National node,The collection originates from this national node
+Collections,,,withdrawn,bool,,true,,,,,,,,,,Withdrawn,This collection is withdrawn from the Directory
+Collections,,,belongs_to,heading,,,,,,,,,,,,Belongs to,Collection belongs to…
+Collections,,,parent_collection,ref,,,,Collections,,,${name},parent_collection != id,,,,Parent collection,"Reference to a collection ID, refers to the superior collection."
+Collections,,,sub_collections,refback,,,,Collections,,parent_collection,,,,,,Sub collections,Sub Collections
+Collections,,,biobank,ref,,true,,Biobanks,,,${name},,,,,Biobank,"Reference to a biobank ID, to which the collection belongs."
+Collections,,,biobank_label,,,true,,,,,,,,,,Biobank label,Name of the Biobank
+Collections,,,network,ref_array,,,,Networks,,,${name},,,,,Network,"Reference to a biobank network ID, to which the collection or biobank belongs; this attribute can also be used for biobank network, where it refers to the superior biobank network)."
+Collections,,,combined_network,ref_array,,,,Networks,,,${name},,,,,Combined_network,"Reference to one or more network IDs, to which the collection belongs directly or indirectly (i.e., either the collection is explicitly marked as part of the network or its biobank is)."
+Collections,,,also_known,ref_array,,,,AlsoKnownIn,,,${name_system},,,,,Also known in,Collection also exists in …
+Collections,,,characteristics,heading,,,,,,,,,,,,Characteristics,Characteristics
+Collections,,,type,ontology_array,,true,,CollectionTypes,,,${label},,,,,Type,Type(s) of collection - MIABIS-2.0-19.
+Collections,,,data_categories,ontology_array,,true,,DataCategories,,,${label},,,,,Data categories,The data categories from which data is available. Can be several values MIABIS-2.0-3
+Collections,,,order_of_magnitude,ontology,,true,,SampleSizes,,,${label},,,,,Order of magnitude,Size of the collection measured as 10n samples.
+Collections,,,size,int,,,,,,,,,,,,Size,Exact size of the collection to the given date.
+Collections,,,categories,ontology_array,,,,Categories,,,${label},,,,,Categories,Collection Categories
+Collections,,,timestamp,datetime,,,,,,,,,,,,Timestamp,"Date to which the size of the collection was valid, format: yyyy-mm-ddThh:mm:ss+nnnn, e.g. 2016-11-15T09:53:13+0100."
+Collections,,,donor_data,heading,,,,,,,,,,,,Donor data,Donor Data
+Collections,,,number_of_donors,int,,,,,,,,,,,,Number of donors,Number of donors from who sample(s) were taken
+Collections,,,order_of_magnitude_donors,ontology,,,,SampleSizes,,,${label},,,,,Order of magnitude donors,Size of the collection donor measured as 10n samples.
+Collections,,,sex,ontology_array,,,,SexTypes,,,${label},,,,,Sex,The sex of the individuals in the sample collection. - MIABIS-2.0-09.
+Collections,,,diagnosis_available,ontology_array,,,,DiseaseTypes,,,${label},,,,,Diagnosis available,"Diagnosis available in the collection, with the ontology prefix, possibly using * and ? wildcards, and prefix notation to denote diagnosis nomenclature - so far urn:miriam:icd: prefix for ICD-10, and urn:miriam:snomedct: prefix for SNOMED CT (examples being urn:miriam:icd:C*, urn:miriam:snomedct:25*) - MIABIS-2.0-17, adapted."
+Collections,,,age_low,int,,,,,,,,,,,,Age low,Age of youngest sample donor at time of sample donation - MIABIS-2.0-10.
+Collections,,,age_high,int,,,,,,,${label},,,,,Age high,Age of oldest sample donor at time of sample donation - MIABIS-2.0-11.
+Collections,,,age_unit,ontology_array,,,,AgeUnits,,,,,,,,Age unit,"Unit defining Age Low and Age High. Can be one of the following values: years, months, weeks, days - MIABIS-2.0-08."
+Collections,,,facts,refback,,,,CollectionFacts,,collection,,,,,,Facts,Facts
+Collections,,,sample_data,heading,,,,,,,,,,,,Sample data,Sample Data
+Collections,,,materials,ontology_array,,,,MaterialTypes,,,${label},,,,,Materials,Collection contains material(s) of this/these type(s) (MIABIS-2.0-14).
+Collections,,,storage_temperatures,ontology_array,,,,StorageTemperatureTypes,,,${label},,,,,Storage temperatures,Sample storage temperature(s) - SPREC 2.0 (MIABIS-2.0-15).
+Collections,,,imaging_data,heading,,,,,,,,,,,,Imaging data,Imaging Data
+Collections,,,body_part_examined,ontology_array,,,,BodyParts,,,${label},,,,,Body part examined,The examined body part(s).
+Collections,,,imaging_modality,ontology_array,,,,ImagingModalities,,,${label},,,,,Imaging modality,The imaging modality/modalities.
+Collections,,,image_dataset_type,ontology_array,,,,ImageDatasetTypes,,,${label},,,,,Image dataset type,Type(s) of the imaging dataset.
+Collections,,,policies,heading,,,,,,,,,,,,Policies,Policies
+Collections,,,collaboration_commercial,bool,,,,,,,,,,,,Collaboration commercial,Biobank/collection can be used for collaboration with commercial partners.
+Collections,,,collaboration_non_for_profit,bool,,,,,,,,,,,,Collaboration non for profit,Biobank/collection can be used for collaboration with non-for-profit partners.
+Collections,,,data_use,ontology_array,,,,DataUseOntologies,,,${label},,,,,Data use,Data Use Ontology (DUO)
+Collections,,,commercial_use,bool,,,,,,,,,,,,Available for commercial use,Can commercial users request access to samples and/or data
+Collections,,,access_fee,ontology_array,,,,AccessTypes,,,${label},,,,,Fee-based access to,"Denotes whether access to samples, data or images may be obtained on fee-based basis."
+Collections,,,access_joint_project,ontology_array,,,,AccessTypes,,,${label},,,,,Access via join projects to,"Denotes whether access to samples, data or images may be obtained on joint project basis."
+Collections,,,access_description,text,,,,,,,,,,,,Access description,Short description of Access Rules.
+Collections,,,access_uri,hyperlink,,,,,,,,,,,,Access uri,URI describing the Access Policy.
+Collections,,,sop,ontology_array,,,,SOPs,,,${label},,,,,PD/SOP,Availability of Process Descriptions (PDs) and/or Standard Operating Procedures (SOPs)
+Collections,,,quality,refback,,,,QualityInfoCollections,,collection,,,,,,Quality,Quality Information
+Collections,,,combined_quality,ontology_array,,,,AssessmentLevels,,,${label},,,,,Combined quality,"Reference to one or more assessment levels, to which the collection belongs directly or indirectly (i.e., either the collection is explicitly marked with this assessment level or its biobank is)."
+ContactPersonsNationalNodes,,,id,,1,true,,,,,,,,,,id,Unique ID
+ContactPersonsNationalNodes,,,first_name,,,,,,,,,,,,,First name,First name of the contact person
+ContactPersonsNationalNodes,,,last_name,,,,,,,,,,,,,Last name,Last name of the contact person
+ContactPersonsNationalNodes,,,email,email,,true,,,,,,,,,,Email,Email address
+ContactPersonsNationalNodes,,,role,,,true,,,,,,,,,,Contact Role,Role of the contact person
+NationalNodes,,,id,,1,true,,,,,,,,,,id,Unique national node ID (in most of the cases two letter country code)
+NationalNodes,,,description,,,true,,,,,,,,,,description,Full name of the National Node
+NationalNodes,,,dns,hyperlink,,,,,,,,,,,,External DNS,In case data needs to be staged from an external server
+NationalNodes,,,contact_persons,ref_array,,,,ContactPersonsNationalNodes,,,${first_name} ${last_name},,,,,Contact Persons,The contact person(s) with their roles
+NationalNodes,,,data_refresh,ontology,,true,,DataRefreshTypes,,,${label},,,,,Data Refresh,How is the data updated?
+NationalNodes,,,date_start,date,,,,,,,,,,,,Date Start,Date the national node is included in the Directory
+NationalNodes,,,date_end,date,,,,,,,,,,,,Date End,Date the national node is no longer included the Directory
+Networks,,,id,,1,true,,,,,,,,,,id,"Unique ID of a biobank network within BBMRI-ERIC based on MIABIS 2.0 standard (ISO 3166-1 alpha-2 +underscore + biobank national ID or name), prefixed with bbmri-eric:networkID: string; if biobank network is on European or higher level, EU_ prefix is to be used instead of country prefix."
+Networks,,,name,,,true,,,,,,,,,,Name,Biobank network name.
+Networks,,,acronym,,,,,,,,,,,,,Acronym,Biobank network acronym.
+Networks,,,description,text,,,,,,,,,,,,Description,Biobank network description.
+Networks,,,location,,,,,,,,,,,,,Location,The city where the network is located
+Networks,,,latitude,,,,,,,,,,,,,Latitude,"Latitude of the biobank in the WGS84 system (the one used by GPS), positive is northern hemisphere."
+Networks,,,longitude,,,,,,,,,,,,,Longitude,"Longitude of the biobank in the WGS84 system (the one used by GPS), positive is to the East of Greenwich."
+Networks,,,also_known,ref_array,,,,AlsoKnownIn,,,{$name_system},,,,,Also known in,This network is also known in
+Networks,,,url,hyperlink,,,,,,,,,,,,URL,Biobank network URL.
+Networks,,,juridical_person,,,,,,,,,,,,,Juridical person,Juristic person of a biobank network to MIABIS 2.0 - MIABIS-2.0-05.
+Networks,,,contact,ref,,true,,Persons,,,${first_name} ${last_name},,,,,Contact,Reference to a contact ID.
+Networks,,,parent_network,ref_array,,,,Networks,,,${name},,,,,Parent network,"Reference to a biobank network ID, refers to the superior biobank network."
+Networks,,,common_network_elements,ontology_array,,,,CommonNetworkElements,,,${label},,,,,Common Network Elements,Selection of elements that are the same for all biobanks/collections within the network
+Networks,,,national_node,ref,,true,,NationalNodes,,,${description},,,,,National node,The network originates from this national node
+Networks,,,withdrawn,bool,,true,,,,,,,,,,Withdrawn,This network is withdrawn from the Directory
+Persons,,,id,,1,true,,,,,,,,,,id,"Contact identifier, prefixed with bbmri-eric:contactID:"
+Persons,,,title_before_name,,,,,,,,,,,,,Title before Name,"title_before_name, value ""prof. mr."""
+Persons,,,first_name,,,,,,,,,,,,,First Name,First name according to MIABIS 2.0 - MIABIS-2.0-07-A.
+Persons,,,last_name,,,,,,,,,,,,,Last Name,Last name according to MIABIS 2.0 - MIABIS-2.0-07-B.
+Persons,,,title_after_name,,,,,,,,,,,,,Title after Name,"value after name, value ""Bsc."""
+Persons,,,email,email,,true,,,,,,,,,,Email,Email according to MIABIS 2.0 - MIABIS-2.0-07-D.
+Persons,,,phone,,,,,,,,,,,,,Phone,Phone number according to MIABIS 2.0 including international prefix (+99999999999 form with no spaces) compliant also to E.123 norm - MIABIS-2.0-07-C.
+Persons,,,address,,,,,,,,,,,,,Address,Address according to MIABIS 2.0 - MIABIS-2.0-07-E.
+Persons,,,zip,,,,,,,,,,,,,Zip,ZIP or Postal code according to MIABIS 2.0 - MIABIS-2.0-07-F.
+Persons,,,city,,,,,,,,,,,,,City,City according to MIABIS 2.0 - MIABIS-2.0-07-G.
+Persons,,,country,ontology,,true,,Countries,,,${label},,,,,Country,Country according to MIABIS 2.0 - MIABIS-2.0-07-H.
+Persons,,,role,text,,,,,,,,,,,,Role,Official role of the person.
+Persons,,,biobanks,refback,,,,Biobanks,,contact,,,,,,Biobanks,
+Persons,,,collections,refback,,,,Collections,,contact,,,,,,Collections,
+Persons,,,networks,refback,,,,Networks,,contact,,,,,,Networks,
+Persons,,,national_node,ref,,true,,NationalNodes,,,${description},,,,,National Node,The person originates from this national node
+Persons,,,withdrawn,bool,,true,,,,,,,,,,Withdrawn,This person is withdrawn from the Directory
+QualityInfoBiobanks,,,id,auto_id,1,true,,,,,,,,,,id,
+QualityInfoBiobanks,,,biobank,ref,,true,,Biobanks,,,${name},,,,,Biobank,
+QualityInfoBiobanks,,,quality_standard,ontology,,true,,OperationalStandards,,,${label},,,,,Quality standard,
+QualityInfoBiobanks,,,assess_level_bio,ontology,,true,,AssessmentLevels,,,${label},,,,,Assessment level,
+QualityInfoBiobanks,,,certification_number,,,,,,,,,,,,,Certification Number,
+QualityInfoBiobanks,,,certification_report,hyperlink,,,,,,,,,,,,Certification Report,
+QualityInfoBiobanks,,,certification_image_link,hyperlink,,,,,,,,,,,,Certification Image,
+QualityInfoBiobanks,,,label,,,,,,,,,,,quality_standard.name,,Label,
+QualityInfoCollections,,,id,auto_id,1,true,,,,,,,,,,id,
+QualityInfoCollections,,,collection,ref,,true,,Collections,,,${name},,,,,Collection,
+QualityInfoCollections,,,quality_standard,ontology,,true,,LaboratoryStandards,,,${label},,,,,Quality standard,
+QualityInfoCollections,,,assess_level_col,ontology,,true,,AssessmentLevels,,,${label},,,,,Assessment level,
+QualityInfoCollections,,,certification_number,,,,,,,,,,,,,Certification Number,
+QualityInfoCollections,,,certification_report,hyperlink,,,,,,,,,,,,Certification Report,
+QualityInfoCollections,,,certification_image_link,hyperlink,,,,,,,,,,,,Certification Image,
+QualityInfoCollections,,,label,,,,,,,,,,,quality_standard.name,,Label,

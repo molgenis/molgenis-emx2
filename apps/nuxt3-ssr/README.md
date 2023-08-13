@@ -57,3 +57,17 @@ For example during development
 EMX2_THEME=umcg yarn dev
 ```
 
+##### icons
+
+All icons are rendered via the BaseIcon component. 
+Additional SVG's can be downloaded from https://fonts.google.com/icons or https://www.flaticon.com/authors/special/lineal ( more illustrative set)
+Downloaded svg's should be added to the assets/icons folder.
+Icons are transformed using the ```yarn parse-icons``` command ( during development)
+The parse-icons command uses the sgvo module to clean the icons and the runs a custom node script to transform the icons to vue components
+Icon components are the stored in the /global/icons folder.
+
+##### feature flags
+
+The following feature flag(s) are used to toggle certain app features via the runtime config
+
+- ```cohortOnly```  boolean when set to true the networks part is hidden ( see docker file for passing flag via container)

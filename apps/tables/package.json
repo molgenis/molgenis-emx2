@@ -6,19 +6,20 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "format": "prettier src  --write --config ../.prettierrc.js"
+    "format": "prettier src  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --write --config ../.prettierrc.js"
   },
   "dependencies": {
-    "core-js": "3.28.0",
-    "graphql-request": "5.1.0",
+    "core-js": "3.29.1",
+    "graphql-request": "5.2.0",
     "molgenis-components": "*",
     "vue": "3.2.47",
     "vue-router": "4.1.6"
   },
   "devDependencies": {
-    "vite": "3.2.5",
-    "@vitejs/plugin-vue": "3.2.0",
-    "prettier": "2.8.4"
+    "vite": "4.3.9",
+    "@vitejs/plugin-vue": "4.2.3",
+    "prettier": "2.8.8"
   },
   "browserslist": [
     "> 1%",

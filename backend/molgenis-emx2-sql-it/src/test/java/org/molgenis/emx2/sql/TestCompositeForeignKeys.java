@@ -1,7 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static graphql.Assert.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.*;
@@ -9,9 +9,12 @@ import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -20,7 +23,7 @@ import org.molgenis.emx2.Table;
 public class TestCompositeForeignKeys {
   private Database database;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
 
@@ -29,7 +32,7 @@ public class TestCompositeForeignKeys {
   }
 
   @Test
-  public void testCompositeRef() {
+  public void testCompositeRef() throws JsonProcessingException {
     Schema schema =
         database.dropCreateSchema(TestCompositeForeignKeys.class.getSimpleName() + "Ref");
 
@@ -199,10 +202,45 @@ public class TestCompositeForeignKeys {
             s("uncle", s("firstName"), s("lastName")))
         .orderBy("nephew")
         .retrieveJSON();
+
+    // test group by ref
+    // Kwik = Katrien
+    // Kwek, Kwak = Donald
+    // Mickey = Kwik
+    ObjectMapper mapper = new ObjectMapper();
+    Map<String, List<Map<String, Object>>> map =
+        mapper.readValue(
+            p.groupBy()
+                .select(s("count"), s("uncle", s("firstName"), s("lastName")))
+                .retrieveJSON(),
+            Map.class);
+    assertEquals(2, map.get("Person_groupBy").get(0).get("count"));
+    assertEquals(
+        "Donald",
+        ((Map<String, String>) map.get("Person_groupBy").get(0).get("uncle")).get("firstName"));
+    assertEquals(1, map.get("Person_groupBy").get(1).get("count"));
+    assertEquals(
+        "Katrien",
+        ((Map<String, String>) map.get("Person_groupBy").get(1).get("uncle")).get("firstName"));
+
+    // test group by refback
+    map =
+        mapper.readValue(
+            p.groupBy()
+                .select(s("count"), s("nephew", s("firstName"), s("lastName")))
+                .retrieveJSON(),
+            Map.class);
+    // kwik,kwek,kwak don't have nephew
+    assertEquals(3, map.get("Person_groupBy").get(0).get("count"));
+    // kwak is nephew to one uncle
+    assertEquals(1, map.get("Person_groupBy").get(1).get("count"));
+    assertEquals(
+        "Kwak",
+        ((Map<String, String>) map.get("Person_groupBy").get(1).get("nephew")).get("firstName"));
   }
 
   @Test
-  public void testCompositeRefArray() {
+  public void testCompositeRefArray() throws JsonProcessingException {
     Schema schema =
         database.dropCreateSchema(TestCompositeForeignKeys.class.getSimpleName() + "RefArray");
 
@@ -307,15 +345,41 @@ public class TestCompositeForeignKeys {
             s("uncles", s("firstName"), s("lastName")))
         .orderBy("uncles")
         .retrieveJSON();
-  }
 
-  //  @Test
-  //  public void testCompositeRefArrayWithInheritance() {
-  //
-  //    String schemaName = TestCompositeForeignKeys.class.getSimpleName() +
-  // "RefArrayWithInheritance";
-  //    Schema schema = database.dropCreateSchema(schemaName);
-  //
-  //    schema.create(table("AllVariables"));
-  //  }
+    // test group by ref_array
+    // kwik = Micky, Donald
+    // Kwok = Donald
+    // so mickey has 1 newphew, and donald 2
+    ObjectMapper mapper = new ObjectMapper();
+    Map<String, List<Map<String, Object>>> map =
+        mapper.readValue(
+            p.groupBy()
+                .select(s("count"), s("uncles", s("firstName"), s("lastName")))
+                .retrieveJSON(),
+            Map.class);
+    assertEquals(2, map.get("Person_groupBy").get(1).get("count"));
+    assertEquals(
+        "Donald",
+        ((Map<String, String>) map.get("Person_groupBy").get(1).get("uncles")).get("firstName"));
+    assertEquals(1, map.get("Person_groupBy").get(2).get("count"));
+    assertEquals(
+        "Mickey",
+        ((Map<String, String>) map.get("Person_groupBy").get(2).get("uncles")).get("firstName"));
+
+    // and kwik = 2 uncles, and kwok = 1 uncles
+    map =
+        mapper.readValue(
+            p.groupBy()
+                .select(s("count"), s("cousins", s("firstName"), s("lastName")))
+                .retrieveJSON(),
+            Map.class);
+    assertEquals(2, map.get("Person_groupBy").get(1).get("count"));
+    assertEquals(
+        "Kwik",
+        ((Map<String, String>) map.get("Person_groupBy").get(1).get("cousins")).get("firstName"));
+    assertEquals(1, map.get("Person_groupBy").get(2).get("count"));
+    assertEquals(
+        "Kwok",
+        ((Map<String, String>) map.get("Person_groupBy").get(2).get("cousins")).get("firstName"));
+  }
 }

@@ -1,13 +1,13 @@
 <template>
   <span v-if="row[col.id] && Array.isArray(row[col.id])">
-    <span v-for="(val, idx) in row[col.id]" :key="idx">
+    <span v-for="(val, idx) in row[col.id]" :key="idx" class="pr-1">
       <HyperlinkDisplay
         v-if="col.columnType === 'HYPERLINK_ARRAY'"
         :data="val"
       />
       <EmailDisplay v-else-if="col.columnType === 'EMAIL_ARRAY'" :data="val" />
       <span v-else>
-        {{ getLabel(col) ? applyJsTemplate(getLabel(col), val) : val }}
+        {{ getRefLabel(col) ? applyJsTemplate(val, getRefLabel(col)) : val }}
       </span>
     </span>
   </span>
@@ -17,6 +17,11 @@
       :data="row[col.id]"
     />
     <EmailDisplay v-else-if="col.columnType === 'EMAIL'" :data="row[col.id]" />
+    <FileDisplay
+      v-else-if="col.columnType === 'FILE'"
+      :data="row[col.id]"
+      :metaData="col"
+    />
     <span v-else>
       {{ getValue(col, row) }}
     </span>
@@ -26,6 +31,8 @@
 <script>
 import HyperlinkDisplay from "./cellTypes/HyperlinkDisplay.vue";
 import EmailDisplay from "./cellTypes/EmailDisplay.vue";
+import FileDisplay from "./cellTypes/FileDisplay.vue";
+import { applyJsTemplate } from "../utils";
 
 export default {
   props: {
@@ -35,32 +42,17 @@ export default {
   components: {
     HyperlinkDisplay,
     EmailDisplay,
+    FileDisplay,
   },
   methods: {
+    applyJsTemplate,
     getValue(col, row) {
-      return this.getLabel(col)
-        ? this.applyJsTemplate(getLabel(col), row[col.id])
+      return this.getRefLabel(col)
+        ? applyJsTemplate(row[col.id], this.getRefLabel(col))
         : row[col.id];
     },
-    getLabel(col) {
+    getRefLabel(col) {
       return col.refLabel ? col.refLabel : col.refLabelDefault;
-    },
-    applyJsTemplate(template, object) {
-      const names = Object.keys(object);
-      const vals = Object.values(object);
-      try {
-        return new Function(...names, "return `" + template + "`;")(...vals);
-      } catch (err) {
-        return (
-          err.message +
-          " we got keys:" +
-          JSON.stringify(names) +
-          " vals:" +
-          JSON.stringify(vals) +
-          " and template: " +
-          template
-        );
-      }
     },
   },
 };

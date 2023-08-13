@@ -28,10 +28,10 @@
                 class="rotated-text text-nowrap"
                 scope="col"
                 v-for="resource in resources"
-                :key="resource.pid"
+                :key="resource.id"
               >
                 <div>
-                  <span class="table-label">{{ resource.pid }}</span>
+                  <span class="table-label">{{ resource.id }}</span>
                 </div>
               </th>
             </tr>
@@ -43,8 +43,8 @@
               </th>
               <harmonization-cell
                 v-for="resource in resources"
-                :key="resource.pid"
-                :status="getMatchStatus(variable, resource.pid)"
+                :key="resource.id"
+                :status="getMatchStatus(variable, resource.id)"
               />
             </tr>
             <tr
@@ -57,8 +57,8 @@
 
               <harmonization-cell
                 v-for="resource in resources"
-                :key="resource.pid"
-                :status="getMatchStatus(repeatedVariable, resource.pid)"
+                :key="resource.id"
+                :status="getMatchStatus(repeatedVariable, resource.id)"
               />
             </tr>
           </tbody>
@@ -72,6 +72,8 @@
 import VariableDetails from "../components/VariableDetails.vue";
 import { fetchResources } from "../store/repository/resourceRepository";
 import HarmonizationCell from "../components/harmonization/HarmonizationCell.vue";
+import gql from "graphql-tag";
+import { request } from "graphql-request";
 
 export default {
   name: "SingleVarDetailsView",
@@ -93,7 +95,7 @@ export default {
         return "unmapped"; // not mapped
       }
       const resourceMapping = variable.mappings.find((mapping) => {
-        return mapping.fromDataDictionary.resource.pid === resourceName;
+        return mapping.source.id === resourceName;
       });
       if (!resourceMapping) {
         return "unmapped"; // not mapped
@@ -110,9 +112,26 @@ export default {
           return "unmapped";
       }
     },
+    async fetchNetworkResources(networkId) {
+      const query = gql`
+        query Networks($id: [String]) {
+          Networks(filter: { id: { equals: $id } }) {
+            cohorts {
+              id
+            }
+          }
+        }
+      `;
+      const variables = { id: networkId };
+
+      const resp = await request("graphql", query, variables);
+      return resp?.Networks[0]?.cohorts;
+    },
   },
-  async created() {
-    this.resources = await fetchResources();
+  async mounted() {
+    this.resources = await (this.network
+      ? this.fetchNetworkResources(this.network)
+      : fetchResources());
   },
 };
 </script>

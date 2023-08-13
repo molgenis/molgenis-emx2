@@ -1,255 +1,242 @@
 <script setup lang="ts">
 const route = useRoute();
-const router = useRouter();
 const config = useRuntimeConfig();
-const pageSize = 10;
 
-const currentPage = ref(1);
-if (route.query?.page) {
-  const queryPageNumber = Number(route.query?.page);
-  currentPage.value =
-    typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1;
-}
-let offset = computed(() => (currentPage.value - 1) * pageSize);
-
-let filters = reactive([
+const { data, pending, error, refresh } = await useFetch(
+  `/${route.params.schema}/catalogue/graphql`,
   {
-    title: "Search in cohorts",
-    columnType: "_SEARCH",
-    search: "",
-    searchTables: ["collectionEvents", "subcohorts"],
-    initialCollapsed: false,
-  },
-  {
-    title: "Areas of information",
-    refTable: "AreasOfInformation",
-    columnName: "areasOfInformation",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
-  },
-  {
-    title: "Data categories",
-    refTable: "DataCategories",
-    columnName: "dataCategories",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
-  },
-  {
-    title: "Population age groups",
-    refTable: "AgeGroups",
-    columnName: "ageGroups",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
-  },
-  {
-    title: "Sample categories",
-    refTable: "SampleCategories",
-    columnName: "sampleCategories",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
-  },
-]);
-
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
-});
-
-const query = computed(() => {
-  return `
-  query Cohorts($filter:CohortsFilter, $orderby:Cohortsorderby){
-    Cohorts(limit: ${pageSize} offset: ${offset.value} search:"${search.value}" filter:$filter  orderby:$orderby) {
-      pid
-      name
-      acronym
-      description
-      keywords
-      numberOfParticipants
-      startYear
-      endYear
-      type {
-          name
-      }
-      design {
-          name
-      }
-      institution {
-          name
-          acronym
-      }
-    }
-    Cohorts_agg (filter:$filter, search:"${search.value}"){
-        count
-    }
-  }
-  `;
-});
-
-const orderby = { acronym: "ASC" };
-
-function buildFilterVariables() {
-  const filtersVariables = filters.reduce<
-    Record<string, Record<string, object | string>>
-  >((accum, filter) => {
-    if (filter.filterTable && filter?.conditions?.length) {
-      if (!accum[filter.filterTable]) {
-        accum[filter.filterTable] = {};
-      }
-      accum[filter.filterTable][filter.columnName] = {
-        equals: filter.conditions,
-      };
-    }
-
-    return accum;
-  }, {});
-
-  return filtersVariables;
-}
-
-const filter = computed(() => {
-  // build the active filters
-  const filterVariables = buildFilterVariables();
-
-  // append search to the sub tables if set
-  const searchTables = filters.find(
-    (f) => f.columnType === "_SEARCH"
-  )?.searchTables;
-
-  if (searchTables) {
-    searchTables.forEach((searchTable) => {
-      if (search.value) {
-        if (Object.keys(filterVariables).includes(searchTable)) {
-          filterVariables[searchTable]["_search"] = search.value;
-        } else {
-          filterVariables[searchTable] = { _search: search.value };
+    baseURL: config.public.apiBase,
+    method: "POST",
+    body: {
+      query: `{
+        Variables_agg {
+          count
         }
-      }
-    });
+        Cohorts_agg { 
+          count
+          sum {
+            numberOfParticipants
+            numberOfParticipantsWithSamples 
+          }
+        }
+        Subcohorts_agg {
+          count
+        }
+        Networks_agg { 
+          count
+        }
+        Cohorts_groupBy {
+          count 
+          design {
+            name
+          }
+        }
+        _settings (keys: [
+          "NOTICE_SETTING_KEY"
+          "CATALOGUE_LANDING_TITLE" 
+          "CATALOGUE_LANDING_DESCRIPTION" 
+          "CATALOGUE_LANDING_COHORTS_CTA"
+          "CATALOGUE_LANDING_COHORTS_TEXT"
+          "CATALOGUE_LANDING_NETWORKS_CTA"
+          "CATALOGUE_LANDING_NETWORKS_TEXT"
+          "CATALOGUE_LANDING_VARIABLES_CTA"
+          "CATALOGUE_LANDING_VARIABLES_TEXT"
+          "CATALOGUE_LANDING_PARTICIPANTS_LABEL"
+          "CATALOGUE_LANDING_PARTICIPANTS_TEXT"
+          "CATALOGUE_LANDING_SAMPLES_LABEL"
+          "CATALOGUE_LANDING_SAMPLES_TEXT"
+          "CATALOGUE_LANDING_DESIGN_LABEL"
+          "CATALOGUE_LANDING_DESIGN_TEXT"
+          "CATALOGUE_LANDING_SUBCOHORTS_LABEL"
+          "CATALOGUE_LANDING_SUBCOHORTS_TEXT"
+        ]){ 
+          key
+          value 
+        }
+      }`,
+    },
   }
+);
 
-  return filterVariables;
-});
-
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
-const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
-  key: `cohorts-${offset.value}`,
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: {
-    query,
-    variables: { orderby, filter },
-  },
-});
-
-function setCurrentPage(pageNumber: number) {
-  router.push({ path: route.path, query: { page: pageNumber } });
-  currentPage.value = pageNumber;
-}
-
-watch(filters, () => {
-  setCurrentPage(1);
-});
-
-let activeName = ref("detailed");
-
-const NOTICE_SETTING_KEY = "CATALOGUE_NOTICE";
-const underConstructionNotice = ref();
-
-fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
-  const setting = resp.data["_settings"].find(
-    (setting: { key: string; value: string }) => {
-      return setting.key === NOTICE_SETTING_KEY;
-    }
+function percentageLongitudinal(
+  cohortsGroupBy: { count: number; design: { name: string } }[],
+  total: number
+) {
+  const nLongitudinal = cohortsGroupBy.reduce(
+    (accum, group) =>
+      group?.design?.name === "Longitudinal" ? accum + group.count : accum,
+    0
   );
 
-  if (setting) {
-    underConstructionNotice.value = setting.value;
-  }
-});
+  return Math.round((nLongitudinal / total) * 100);
+}
+
+function getSettingValue(settingKey: string, settings: ISetting[]) {
+  return settings.find((setting: { key: string; value: string }) => {
+    return setting.key === settingKey;
+  })?.value;
+}
 </script>
-
 <template>
-  <LayoutsSearchPage>
-    <template #side>
-      <SearchFilter title="Filters" :filters="filters" />
-    </template>
-    <template #main>
-      <SearchResults>
-        <template #header>
-          <!-- <NavigationIconsMobile :link="" /> -->
-          <PageHeader
-            title="Cohorts"
-            description="Group of individuals sharing a defining demographic characteristic."
-            icon="image-link"
-          >
-            <template #suffix>
-              <div
-                v-if="underConstructionNotice"
-                class="mt-1 mb-5 text-left bg-yellow-200 rounded-lg text-black py-5 px-5 flex"
-              >
-                <BaseIcon
-                  name="info"
-                  :width="55"
-                  class="hidden md:block mr-3"
-                />
-                <div class="inline-block">{{ underConstructionNotice }}</div>
-              </div>
+  <LayoutsLandingPage class="w-10/12 pt-8">
+    <PageHeader
+      class="mx-auto lg:w-7/12 text-center"
+      :title="
+        getSettingValue('CATALOGUE_LANDING_TITLE', data.data._settings) ||
+        'European Networks Health Data & Cohort Catalogue.'
+      "
+      :description="
+        getSettingValue('CATALOGUE_LANDING_DESCRIPTION', data.data._settings) ||
+        'Browse and manage metadata for data resources, such as cohorts, registries, biobanks, and multi-center collaborations thereof such as networks, common data models and studies.'
+      "
+    ></PageHeader>
 
-              <SearchResultsViewTabs
-                class="hidden xl:flex"
-                buttonLeftLabel="Detailed"
-                buttonLeftName="detailed"
-                buttonLeftIcon="view-normal"
-                buttonRightLabel="Compact"
-                buttonRightName="compact"
-                buttonRightIcon="view-compact"
-                v-model:activeName="activeName"
-              />
-              <SearchResultsViewTabsMobile
-                class="flex xl:hidden"
-                v-model:activeName="activeName"
-              >
-                <SearchFilter title="Filters" :filters="filters" />
-              </SearchResultsViewTabsMobile>
-            </template>
-          </PageHeader>
-        </template>
+    <div
+      class="bg-white relative justify-around flex flex-col md:flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0 rounded-t-3px rounded-b-landing shadow-primary"
+    >
+      <LandingCardPrimary
+        image="image-link"
+        title="Cohorts"
+        :description="
+          getSettingValue(
+            'CATALOGUE_LANDING_COHORTS_TEXT',
+            data.data._settings
+          ) || 'A complete overview of all cohorts and biobanks.'
+        "
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
+        "
+        :count="data.data.Cohorts_agg.count"
+        :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
+      />
+      <LandingCardPrimary
+        v-if="!config.public.cohortOnly"
+        image="image-diagram"
+        title="Networks"
+        :description="
+          getSettingValue(
+            'CATALOGUE_LANDING_NETWORKS_TEXT',
+            data.data._settings
+          ) ||
+          'Collaborations of multiple institutions and/or cohorts with a common objective.'
+        "
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', data.data._settings)
+        "
+        :count="data.data.Networks_agg.count"
+        :link="`/${route.params.schema}/ssr-catalogue/networks/`"
+      />
+      <LandingCardPrimary
+        v-if="!config.public.cohortOnly"
+        image="image-diagram-2"
+        title="Variables"
+        :description="
+          getSettingValue(
+            'CATALOGUE_LANDING_VARIABLES_TEXT',
+            data.data._settings
+          ) || 'A complete overview of available variables.'
+        "
+        :callToAction="
+          getSettingValue(
+            'CATALOGUE_LANDING_VARIABLES_CTA',
+            data.data._settings
+          )
+        "
+        :count="data.data.Variables_agg.count"
+        :link="`/${route.params.schema}/ssr-catalogue/variables/`"
+      />
+    </div>
 
-        <template #search-results>
-          <FilterWell :filters="filters"></FilterWell>
-          <SearchResultsList>
-            <CardList v-if="data?.data?.Cohorts?.length > 0">
-              <CardListItem
-                v-for="cohort in data?.data?.Cohorts"
-                :key="cohort.name"
-              >
-                <CohortCard
-                  :cohort="cohort"
-                  :schema="route.params.schema"
-                  :compact="activeName !== 'detailed'"
-                />
-              </CardListItem>
-            </CardList>
-            <div v-else class="flex justify-center pt-3">
-              <span class="py-15 text-blue-500">
-                No Cohorts found with current filters
-              </span>
-            </div>
-          </SearchResultsList>
-        </template>
+    <div
+      class="justify-around flex flex-col md:flex-row pt-5 pb-5 lg:pb-10 lg:px-0"
+    >
+      <LandingCardSecondary icon="people">
+        <b>
+          {{
+            new Intl.NumberFormat("nl-NL").format(
+              data.data.Cohorts_agg.sum.numberOfParticipants
+            )
+          }}
+          {{
+            getSettingValue(
+              "CATALOGUE_LANDING_PARTICIPANTS_LABEL",
+              data.data._settings
+            ) || "Participants"
+          }}
+        </b>
+        <br />{{
+          getSettingValue(
+            "CATALOGUE_LANDING_PARTICIPANTS_TEXT",
+            data.data._settings
+          ) ||
+          "The cumulative number of participants of all (sub)cohorts combined."
+        }}
+      </LandingCardSecondary>
 
-        <template v-if="data?.data?.Cohorts?.length > 0" #pagination>
-          <Pagination
-            :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
-            @update="setCurrentPage($event)"
-          />
-        </template>
-      </SearchResults>
-    </template>
-  </LayoutsSearchPage>
+      <LandingCardSecondary icon="colorize">
+        <b
+          >{{
+            new Intl.NumberFormat("nl-NL").format(
+              data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
+            )
+          }}
+          {{
+            getSettingValue(
+              "CATALOGUE_LANDING_SAMPLES_LABEL",
+              data.data._settings
+            ) || "Samples"
+          }}</b
+        >
+        <br />{{
+          getSettingValue(
+            "CATALOGUE_LANDING_SAMPLES_TEXT",
+            data.data._settings
+          ) ||
+          "The cumulative number of participants with samples collected of all (sub)cohorts combined"
+        }}
+      </LandingCardSecondary>
+
+      <LandingCardSecondary icon="schedule">
+        <b
+          >{{
+            getSettingValue(
+              "CATALOGUE_LANDING_DESIGN_LABEL",
+              data.data._settings
+            ) || "Longitudinal"
+          }}
+          {{
+            percentageLongitudinal(
+              data.data.Cohorts_groupBy,
+              data.data.Cohorts_agg.count
+            )
+          }}%</b
+        ><br />{{
+          getSettingValue(
+            "CATALOGUE_LANDING_DESIGN_TEXT",
+            data.data._settings
+          ) || "Percentage of longitudinal datasets. The remaining datasets are"
+        }}
+        cross-sectional.
+      </LandingCardSecondary>
+
+      <LandingCardSecondary icon="viewTable">
+        <b>
+          {{ data.data.Subcohorts_agg.count }}
+          {{
+            getSettingValue(
+              "CATALOGUE_LANDING_SUBCOHORTS_LABEL",
+              data.data._settings
+            ) || "Subcohorts"
+          }}
+        </b>
+        <br />
+        {{
+          getSettingValue(
+            "CATALOGUE_LANDING_SUBCOHORTS_TEXT",
+            data.data._settings
+          ) || "The total number of subcohorts included"
+        }}
+      </LandingCardSecondary>
+    </div>
+  </LayoutsLandingPage>
 </template>

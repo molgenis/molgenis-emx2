@@ -1,4 +1,5 @@
 import { request } from "graphql-request";
+
 let dataCache = {};
 let queryCache = {};
 
@@ -15,9 +16,7 @@ const fetchById = async (query, type, variables) => {
       await request("graphql", queryCache[query].default, variables).catch(
         (e) => {
           console.error(
-            `Error fetching data for ${type} (pid: ${JSON.stringify(
-              variables
-            )})`
+            `Error fetching data for ${type} (id: ${JSON.stringify(variables)})`
           );
           console.error(e);
         }

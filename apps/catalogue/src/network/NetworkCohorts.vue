@@ -1,5 +1,5 @@
 <template>
-  <CohortCards table="Cohorts" :network="network" :orderBy="{ pid: 'ASC' }" />
+  <CohortCards table="Cohorts" :network="network" :orderBy="{ id: 'ASC' }" />
 </template>
 
 <script>

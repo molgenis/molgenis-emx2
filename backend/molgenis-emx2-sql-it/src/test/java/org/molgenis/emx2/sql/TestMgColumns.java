@@ -1,14 +1,13 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -17,7 +16,7 @@ import org.molgenis.emx2.Table;
 public class TestMgColumns {
   private static Schema schema;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     Database database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(TestMgColumns.class.getSimpleName());
@@ -47,8 +46,8 @@ public class TestMgColumns {
     }
 
     // verify
-    Assert.assertEquals(1, t.retrieveRows().size());
-    Assert.assertEquals("somevalue2", t.retrieveRows().get(0).getString("notrequired"));
+    assertEquals(1, t.retrieveRows().size());
+    assertEquals("somevalue2", t.retrieveRows().get(0).getString("notrequired"));
 
     // to make sure also test with subclass
     t = schema.create(table("MgDraftSuper", column("id").setPkey()));
@@ -77,27 +76,27 @@ public class TestMgColumns {
 
     t.insert(row("id", 1));
     Row r = t.retrieveRows().get(0);
-    Assert.assertNotNull(r.getDateTime(MG_INSERTEDON));
-    Assert.assertEquals(r.getDateTime(MG_INSERTEDON), r.getDateTime(MG_UPDATEDON));
-    Assert.assertNotNull(r.getString(MG_INSERTEDBY));
-    Assert.assertEquals(r.getString(MG_UPDATEDBY), r.getString(MG_INSERTEDBY));
+    assertNotNull(r.getDateTime(MG_INSERTEDON));
+    assertEquals(r.getDateTime(MG_INSERTEDON), r.getDateTime(MG_UPDATEDON));
+    assertNotNull(r.getString(MG_INSERTEDBY));
+    assertEquals(r.getString(MG_UPDATEDBY), r.getString(MG_INSERTEDBY));
 
     t.update(r);
     r = t.retrieveRows().get(0);
-    Assert.assertTrue(r.getDateTime(MG_INSERTEDON).compareTo(r.getDateTime(MG_UPDATEDON)) < 0);
+    assertTrue(r.getDateTime(MG_INSERTEDON).compareTo(r.getDateTime(MG_UPDATEDON)) < 0);
 
     // to make sure also test with subclass
     t = schema.create(table("UpdatedOnSub").setInherit("UpdatedOn"));
 
     t.insert(row("id", 2));
     r = t.retrieveRows().get(0);
-    Assert.assertNotNull(r.getDateTime(MG_INSERTEDON));
-    Assert.assertEquals(r.getDateTime(MG_INSERTEDON), r.getDateTime(MG_UPDATEDON));
-    Assert.assertNotNull(r.getString(MG_INSERTEDBY));
-    Assert.assertEquals(r.getString(MG_UPDATEDBY), r.getString(MG_INSERTEDBY));
+    assertNotNull(r.getDateTime(MG_INSERTEDON));
+    assertEquals(r.getDateTime(MG_INSERTEDON), r.getDateTime(MG_UPDATEDON));
+    assertNotNull(r.getString(MG_INSERTEDBY));
+    assertEquals(r.getString(MG_UPDATEDBY), r.getString(MG_INSERTEDBY));
 
     t.update(r);
     r = t.retrieveRows().get(0);
-    Assert.assertTrue(r.getDateTime(MG_INSERTEDON).compareTo(r.getDateTime(MG_UPDATEDON)) < 0);
+    assertTrue(r.getDateTime(MG_INSERTEDON).compareTo(r.getDateTime(MG_UPDATEDON)) < 0);
   }
 }

@@ -1,8 +1,8 @@
 <template>
   <ul v-if="databanks">
-    <li v-for="d in databanks" :key="d.pid">
-      <RouterLink :to="{ name: 'databank', params: { pid: d.pid } }"
-        >{{ d.pid }} - {{ d.name }}
+    <li v-for="d in databanks" :key="d.id">
+      <RouterLink :to="{ name: 'databank', params: { id: d.id } }"
+        >{{ d.id }} - {{ d.name }}
         <OntologyTerms
           :terms="d.type"
           :inline="true"

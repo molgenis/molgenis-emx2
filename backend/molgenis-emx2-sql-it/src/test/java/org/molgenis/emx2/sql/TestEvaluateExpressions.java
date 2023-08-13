@@ -1,16 +1,17 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 import static org.molgenis.emx2.sql.SqlTypeUtils.checkValidation;
-import static org.molgenis.emx2.sql.SqlTypeUtils.validateAndGetVisibleValuesAsMap;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestEvaluateExpressions {
@@ -18,7 +19,7 @@ public class TestEvaluateExpressions {
   private static Database db;
   private static Schema schema;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestEvaluateExpressions.class.getSimpleName());
@@ -105,16 +106,16 @@ public class TestEvaluateExpressions {
   public void testCheckValidationSuccess() {
     String validation = "true && true";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
-    validateAndGetVisibleValuesAsMap(new Row(), tableMetadata, tableMetadata.getColumns());
+    applyValidationAndComputed(tableMetadata.getColumns(), new Row());
   }
 
+  @Tag("windowsFail")
   @Test
   public void testCheckValidationInvalidExpression() {
     String validation = "this is very invalid";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
     try {
-      validateAndGetVisibleValuesAsMap(
-          new Row("name", "test"), tableMetadata, tableMetadata.getColumns());
+      applyValidationAndComputed(tableMetadata.getColumns(), new Row("name", "test"));
     } catch (MolgenisException exception) {
       assertEquals(
           "script failed: SyntaxError: Unnamed:1:5 Expected ; but found is\n"
@@ -129,8 +130,7 @@ public class TestEvaluateExpressions {
     String validation = "false";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
     try {
-      validateAndGetVisibleValuesAsMap(
-          new Row("name", "test"), tableMetadata, tableMetadata.getColumns());
+      applyValidationAndComputed(tableMetadata.getColumns(), new Row("name", "test"));
     } catch (MolgenisException exception) {
       assertEquals("Validation error on column 'name': false.", exception.getMessage());
     }

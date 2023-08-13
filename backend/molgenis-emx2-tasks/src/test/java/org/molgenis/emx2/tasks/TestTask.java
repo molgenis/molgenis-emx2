@@ -1,8 +1,11 @@
 package org.molgenis.emx2.tasks;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+@Tag("slow")
 public class TestTask {
 
   @Test
@@ -14,7 +17,7 @@ public class TestTask {
     System.out.println("Starting ...");
 
     // purge doesn't change
-    Assert.assertEquals(1, taskService.getJobIds().size());
+    assertEquals(1, taskService.getJobIds().size());
 
     while (!TaskStatus.COMPLETED.equals(taskService.getTask(id).getStatus())) {
       Thread.sleep(50);
@@ -23,11 +26,11 @@ public class TestTask {
     System.out.println("Completed ...");
     System.out.println(task);
 
-    Assert.assertEquals(1, taskService.getJobIds().size());
+    assertEquals(1, taskService.getJobIds().size());
 
     // purge after complete removes
     taskService.removeOlderThan(0);
-    Assert.assertEquals(0, taskService.getJobIds().size());
+    assertEquals(0, taskService.getJobIds().size());
 
     taskService.shutdown();
   }

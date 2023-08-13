@@ -218,10 +218,8 @@ class SqlSchemaMetadataExecutor {
         db.getJooq().execute("DROP ROLE {0}", name(getRolePrefix(schemaName) + role));
       }
       MetadataUtils.deleteSchema(db.getJooq(), schemaName);
-    } catch (MolgenisException me) {
-      throw new MolgenisException("Drop schema failed", me);
-    } catch (DataAccessException dae) {
-      throw new SqlMolgenisException("Drop schema failed", dae);
+    } catch (Exception e) {
+      throw new SqlMolgenisException("Drop schema failed", e);
     }
   }
 }

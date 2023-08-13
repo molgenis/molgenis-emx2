@@ -112,7 +112,7 @@ public class GraphqlApi {
       }
     }
     if (executionResult.getErrors().size() > 0) {
-      throw new MolgenisException("Error", executionResult.getErrors().get(0).getMessage());
+      throw new MolgenisException(executionResult.getErrors().get(0).getMessage());
     }
 
     if (logger.isInfoEnabled())

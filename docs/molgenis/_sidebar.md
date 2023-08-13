@@ -11,7 +11,9 @@
     - [Up/download](use_updownload.md)
     - [Permissions](use_permissions.md)
     - [Settings](use_database_settings.md)
+    - [Scripts/Jobs](use_scripts_jobs.md)
     - [Linked data](semantics.md)
+    - [Using APIs](use_usingapis.md)
     - [Admin](use_global_settings.md)
 - **Installation guide**
     - [Run as java service](run_java.md)
@@ -24,6 +26,7 @@
     - [Architecture](dev_architecture.md)
     - [GraphQL](dev_graphql.md)
     - [Batch API](dev_batchapi.md)
+    - [Message API](dev_messageapi.md)
     - [FAIR Data Point](dev_fairdatapoint.md)
     - [Beacon v2](dev_beaconv2.md)
     - [RDF](dev_rdf.md)

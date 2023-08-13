@@ -1,20 +1,20 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
-import static org.molgenis.emx2.web.MolgenisWebservice.getSchemaNames;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp.EJP_VP_IndividualsQuery;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.beaconv2.responses.BeaconFilteringTermsResponse;
 import spark.Request;
 import spark.Response;
 
@@ -41,6 +41,7 @@ public class BeaconApi {
     get("/api/beacon/cohorts", BeaconApi::getCohorts);
     get("/api/beacon/individuals", BeaconApi::getIndividuals);
     get("/api/beacon/runs", BeaconApi::getRuns);
+    get("/api/beacon/filtering_terms", BeaconApi::getFilteringTerms);
 
     post("/api/beacon/individuals", BeaconApi::queryIndividuals_EJP_VP);
 
@@ -59,15 +60,10 @@ public class BeaconApi {
     //    post("/:schema/api/beacon/datasets/:table", BeaconApi::postDatasetsForTable);
   }
 
-  private static String getInfo(Request req, Response response) throws JsonProcessingException {
+  private static String getInfo(Request request, Response response)
+      throws JsonProcessingException, URISyntaxException {
     response.type(APPLICATION_JSON_MIME_TYPE);
-    return getWriter().writeValueAsString(new Info());
-  }
-
-  private static String getServiceInfo(Request request, Response response)
-      throws JsonProcessingException {
-    response.type(APPLICATION_JSON_MIME_TYPE);
-    return getWriter().writeValueAsString(new Info());
+    return getWriter().writeValueAsString(new Info(request));
   }
 
   private static Object getConfiguration(Request request, Response response)
@@ -87,24 +83,21 @@ public class BeaconApi {
     return getWriter().writeValueAsString(new EntryTypes());
   }
 
-  private static String getFilteringTerms(Request request, Response response)
-      throws JsonProcessingException {
+  private static String getFilteringTerms(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
-    String skip = request.queryParams("skip");
-    String limit = request.queryParams("limit");
-    // TODO handle skip and limit
-    return getWriter().writeValueAsString(new BeaconFilteringTermsResponse());
+    Database database = sessionManager.getSession(request).getDatabase();
+    return getWriter().writeValueAsString(new FilteringTerms(database));
   }
 
-  private static String getDatasets(Request request, Response response)
-      throws JsonProcessingException {
+  private static String getDatasets(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
     String skip = request.queryParams("skip");
     String limit = request.queryParams("limit");
 
     // TODO pass request to response to set limits, offsets etc
     // result should be BeaconBooleanResponse, BeaconCountResponse or BeaconCollectionResponse
-    return getWriter().writeValueAsString(new Datasets(request, getSchemaNames(request)));
+    List<Table> tables = getTableFromAllSchemas("Dataset", request);
+    return getWriter().writeValueAsString(new Datasets(request, tables));
   }
 
   private static String getAnalyses(Request request, Response response) throws Exception {
@@ -141,7 +134,7 @@ public class BeaconApi {
 
   private static String getRuns(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
-    List<Table> tables = getTableFromAllSchemas("Runs", request);
+    List<Table> tables = getTableFromAllSchemas("SequencingRuns", request);
     return getWriter().writeValueAsString(new Runs(request, tables));
   }
 

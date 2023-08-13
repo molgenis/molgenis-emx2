@@ -140,6 +140,7 @@
           :modelValue="limit"
           :options="[10, 20, 50, 100]"
           :clear="false"
+          :required="true"
           @update:modelValue="setLimit($event)"
           class="mb-0"
         />
@@ -205,10 +206,15 @@
             @click="$emit('rowClick', $event)"
             @reload="reload"
             @edit="
-              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+              handleRowAction(
+                'edit',
+                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+              )
             "
             @delete="
-              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+              handleDeleteRowRequest(
+                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+              )
             "
           />
           <RecordCards
@@ -222,14 +228,20 @@
             @click="$emit('rowClick', $event)"
             @reload="reload"
             @edit="
-              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+              handleRowAction(
+                'edit',
+                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+              )
             "
             @delete="
-              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+              handleDeleteRowRequest(
+                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+              )
             "
           />
           <TableMolgenis
             v-if="view == View.TABLE"
+            :schemaName="schemaName"
             :selection="selectedItems"
             @update:selection="selectedItems = $event"
             :columns="columns"
@@ -239,6 +251,7 @@
             :showSelect="showSelect"
             @column-click="onColumnClick"
             @rowClick="$emit('rowClick', $event)"
+            @cellClick="handleCellClick"
           >
             <template v-slot:header>
               <label>{{ count }} records found</label>
@@ -252,6 +265,7 @@
                 @add="handleRowAction('add')"
                 class="d-inline p-0"
               />
+              <slot name="rowcolheader" />
             </template>
             <template v-slot:colheader="slotProps">
               <IconAction
@@ -267,7 +281,11 @@
                 @edit="
                   handleRowAction(
                     'edit',
-                    getPrimaryKey(slotProps.row, tableMetadata)
+                    convertRowToPrimaryKey(
+                      slotProps.row,
+                      tableMetadata.name,
+                      schemaName
+                    )
                   )
                 "
               />
@@ -277,7 +295,11 @@
                 @clone="
                   handleRowAction(
                     'clone',
-                    getPrimaryKey(slotProps.row, tableMetadata)
+                    convertRowToPrimaryKey(
+                      slotProps.row,
+                      tableMetadata.name,
+                      schemaName
+                    )
                   )
                 "
               />
@@ -286,7 +308,24 @@
                 type="delete"
                 @delete="
                   handleDeleteRowRequest(
-                    getPrimaryKey(slotProps.row, tableMetadata)
+                    convertRowToPrimaryKey(
+                      slotProps.row,
+                      tableMetadata.name,
+                      schemaName
+                    )
+                  )
+                "
+              />
+              <!--@slot Use this to add values or actions buttons to each row -->
+              <slot
+                name="rowheader"
+                :row="slotProps.row"
+                :metadata="tableMetadata"
+                :rowKey="
+                  convertRowToPrimaryKey(
+                    slotProps.row,
+                    tableMetadata.name,
+                    schemaName
                   )
                 "
               />
@@ -337,6 +376,14 @@
         }}'?
       </p>
     </ConfirmModal>
+    <RefSideModal
+      v-if="refSideModalProps"
+      :column="refSideModalProps.column"
+      :rows="refSideModalProps.rows"
+      :schema="this.schemaName"
+      @onClose="refSideModalProps = undefined"
+      :showDataOwner="canManage"
+    />
   </div>
 </template>
 
@@ -349,33 +396,35 @@
 
 <script>
 import Client from "../../client/client.ts";
-import {
-  deepClone,
-  getPrimaryKey,
-  convertToPascalCase,
-  getLocalizedDescription,
-  getLocalizedLabel,
-} from "../utils";
-import ShowHide from "./ShowHide.vue";
-import Pagination from "./Pagination.vue";
+import FilterSidebar from "../filters/FilterSidebar.vue";
+import FilterWells from "../filters/FilterWells.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
+import ConfirmModal from "../forms/ConfirmModal.vue";
+import EditModal from "../forms/EditModal.vue";
 import IconAction from "../forms/IconAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputSearch from "../forms/InputSearch.vue";
 import InputSelect from "../forms/InputSelect.vue";
-import SelectionBox from "./SelectionBox.vue";
-import Spinner from "../layout/Spinner.vue";
-import TableMolgenis from "./TableMolgenis.vue";
-import FilterSidebar from "../filters/FilterSidebar.vue";
-import FilterWells from "../filters/FilterWells.vue";
-import RecordCards from "./RecordCards.vue";
-import TableSettings from "./TableSettings.vue";
-import EditModal from "../forms/EditModal.vue";
-import ConfirmModal from "../forms/ConfirmModal.vue";
-import RowButton from "../tables/RowButton.vue";
 import MessageError from "../forms/MessageError.vue";
+import Spinner from "../layout/Spinner.vue";
+import RowButton from "../tables/RowButton.vue";
+import {
+  convertToPascalCase,
+  convertRowToPrimaryKey,
+  deepClone,
+  getLocalizedDescription,
+  getLocalizedLabel,
+  isRefType,
+} from "../utils";
 import AggregateTable from "./AggregateTable.vue";
+import Pagination from "./Pagination.vue";
+import RecordCards from "./RecordCards.vue";
+import RefSideModal from "./RefSideModal.vue";
+import SelectionBox from "./SelectionBox.vue";
+import ShowHide from "./ShowHide.vue";
+import TableMolgenis from "./TableMolgenis.vue";
+import TableSettings from "./TableSettings.vue";
 
 const View = {
   TABLE: "table",
@@ -423,6 +472,7 @@ export default {
     EditModal,
     ConfirmModal,
     AggregateTable,
+    RefSideModal,
   },
   data() {
     return {
@@ -447,6 +497,7 @@ export default {
       selectedItems: [],
       tableMetadata: null,
       view: this.showView,
+      refSideModalProps: undefined,
     };
   },
   props: {
@@ -484,7 +535,7 @@ export default {
     },
     showLimit: {
       type: Number,
-      default: 20,
+      default: 10,
     },
     urlConditions: {
       type: Object,
@@ -545,23 +596,23 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey,
+    convertRowToPrimaryKey,
     setSearchTerms(newSearchValue) {
       this.searchTerms = newSearchValue;
       this.$emit("searchTerms", newSearchValue);
       this.reload();
     },
-    handleRowAction(type, key) {
+    async handleRowAction(type, key) {
       this.editMode = type;
-      this.editRowPrimaryKey = key;
+      this.editRowPrimaryKey = await key;
       this.isEditModalShown = true;
     },
     handleModalClose() {
       this.isEditModalShown = false;
       this.reload();
     },
-    handleDeleteRowRequest(key) {
-      this.editRowPrimaryKey = key;
+    async handleDeleteRowRequest(key) {
+      this.editRowPrimaryKey = await key;
       this.isDeleteModalShown = true;
     },
     async handleExecuteDelete() {
@@ -576,10 +627,20 @@ export default {
     async handelExecuteDeleteAll() {
       this.isDeleteAllModalShown = false;
       const resp = await this.client
-        .deleteAllTableData(this.tableId)
+        .deleteAllTableData(this.tableMetadata.name)
         .catch(this.handleError);
       if (resp) {
         this.reload();
+      }
+    },
+    handleCellClick(event) {
+      const { column, cellValue } = event;
+      const rowsInRefTable = [cellValue].flat();
+      if (isRefType(column?.columnType)) {
+        this.refSideModalProps = {
+          column,
+          rows: rowsInRefTable,
+        };
       }
     },
     setView(button) {
@@ -854,7 +915,7 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
   export default {
     data() {
       return {
-        showColumns: ['name'],
+        showColumns: [],
         showFilters: ['name'],
         urlConditions: {"name": "pooky,spike"},
         page: 1,

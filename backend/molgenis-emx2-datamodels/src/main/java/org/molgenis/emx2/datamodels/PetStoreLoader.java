@@ -7,7 +7,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
+public class PetStoreLoader extends AbstractDataLoader {
 
   public static final String CATEGORY = "Category";
   public static final String TAG = "Tag";
@@ -49,7 +49,7 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
 
     schema.create(
         table(ORDER)
-            .add(column(ORDER_ID).setPkey())
+            .add(column(ORDER_ID).setPkey().setType(AUTO_ID).setComputed("ORDER:${mg_autoid}"))
             .add(column("pet").setType(REF).setRefTable(PET))
             .add(
                 column(QUANTITY)
@@ -80,7 +80,7 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
   }
 
   @Override
-  public void load(Schema schema, boolean includeDemoData) {
+  void loadInternalImplementation(Schema schema, boolean includeDemoData) {
     schema.migrate(getSchemaMetadata());
     if (includeDemoData) {
       loadExampleData(schema);
@@ -184,14 +184,12 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
         .getTable(ORDER)
         .insert(
             new Row()
-                .set(ORDER_ID, "1")
                 .set("pet", "pooky")
                 .set(QUANTITY, 1l)
                 .set(PRICE, 9.99)
                 .set(COMPLETE, true)
                 .set(STATUS, "delivered"),
             new Row()
-                .set(ORDER_ID, "2")
                 .set("pet", "spike")
                 .set(PRICE, 14.99)
                 .set(QUANTITY, 7l)
@@ -209,6 +207,8 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
 
     schema
         .getMetadata()
-        .setSetting("reports", "[{\"id\":0, \"sql\":\"select * from \\\"Pet\\\"\"}]");
+        .setSetting(
+            "reports",
+            "[{\"id\":0,\"name\":\"pet report\",\"sql\":\"select * from \\\"Pet\\\"\"},{\"id\":1,\"name\":\"pet report with parameters\",\"sql\":\"select * from \\\"Pet\\\" p where p.name=ANY(${name:string_array})\"}]");
   }
 }

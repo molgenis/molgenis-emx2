@@ -18,6 +18,7 @@
         <tr
           v-for="(row, idx) in refBackData"
           :key="idx + JSON.stringify(Object.keys(row))"
+          @click.prevent
         >
           <td
             v-for="col in visibleColumns.filter(
@@ -26,17 +27,22 @@
             :key="idx + col.name"
             style="cursor: pointer"
           >
+            <div v-if="col.key === 1">
+              <a href="" @click="handleRowClick(row)">{{
+                renderValue(row, col)[0]
+              }}</a>
+            </div>
             <div
-              v-if="
+              v-else-if="
                 'REF' === col.columnType ||
-                ('REFBACK' === col.columnType && !Array.isArray(row[col.name]))
+                ('REFBACK' === col.columnType && !Array.isArray(row[col.id]))
               "
             >
               <RouterLink
-                v-if="row[col.name]"
+                v-if="row[col.id]"
                 :to="{
-                  name: col.refTable + '-details',
-                  params: routeParams(col, row[col.name]),
+                  name: convertToPascalCase(col.refTable) + '-details',
+                  params: routeParams(col, row[col.id]),
                 }"
               >
                 {{ renderValue(row, col)[0] }}
@@ -52,7 +58,7 @@
                 <RouterLink
                   v-if="val"
                   :to="{
-                    name: col.refTable + '-details',
+                    name: convertToPascalCase(col.refTable) + '-details',
                     params: routeParams(col, val),
                   }"
                 >
@@ -85,8 +91,15 @@
 </template>
 
 <script>
-import { Spinner, ReadMore } from "molgenis-components";
-import { Client } from "molgenis-components";
+import {
+  Spinner,
+  ReadMore,
+  Client,
+  convertToCamelCase,
+  convertToPascalCase,
+  flattenObject,
+  applyJsTemplate,
+} from "molgenis-components";
 
 export default {
   components: {
@@ -111,14 +124,31 @@ export default {
     };
   },
   methods: {
+    convertToPascalCase,
+    handleRowClick(row) {
+      //good guessing the parameters :-)
+      this.$router.push({
+        name: convertToPascalCase(this.table) + "-details",
+        params: {
+          id: row.id ? row.id : this.pkey.id,
+          resource: row.id ? row.id : this.pkey.id,
+          name: row.name,
+        },
+      });
+    },
     routeParams(column, value) {
-      if (column.name === "tables") {
+      if (column.name === "datasets") {
         let result = {
-          pid: value.dataDictionary.resource.pid,
-          version: value.dataDictionary.version,
+          resource: value.resource.id,
           name: value.name,
         };
         return result;
+      } else if (column.name === "contacts") {
+        return {
+          resource: value.resource.id,
+          firstName: value.firstName,
+          lastName: value.lastName,
+        };
       } else {
         return value;
       }
@@ -127,7 +157,7 @@ export default {
       this.$emit("click", value);
     },
     renderValue(row, col) {
-      if (row[col.name] === undefined) {
+      if (row[col.id] === undefined) {
         return [];
       }
       if (
@@ -135,63 +165,33 @@ export default {
         col.columnType == "REFBACK" ||
         col.columnType == "ONTOLOGY_ARRAY"
       ) {
-        return row[col.name].map((v) => {
+        return row[col.id].map((v) => {
           if (col.name === "tables") {
             //hack, ideally we start setting refLabel in configuration!
             return v.name;
           } else if (col.refLabel) {
-            return this.applyJsTemplate(col.refLabel, v);
+            return applyJsTemplate(v, col.refLabel);
           } else {
-            return this.flattenObject(v);
+            return flattenObject(v);
           }
         });
       } else if (col.columnType == "REF" || col.columnType == "ONTOLOGY") {
         if (col.refLabel) {
-          return [this.applyJsTemplate(col.refLabel, row[col.name])];
+          return [applyJsTemplate(row[col.id], col.refLabel)];
         } else {
-          return [this.flattenObject(row[col.name])];
+          return [flattenObject(row[col.id])];
         }
       } else if (col.columnType.includes("ARRAY")) {
-        return row[col.name];
+        return row[col.id];
       } else {
-        return [row[col.name]];
+        return [row[col.id]];
       }
-    },
-    applyJsTemplate(template, object) {
-      const names = Object.keys(object);
-      const vals = Object.values(object);
-      try {
-        return new Function(...names, "return `" + template + "`;")(...vals);
-      } catch (err) {
-        return (
-          err.message +
-          " we got keys:" +
-          JSON.stringify(names) +
-          " vals:" +
-          JSON.stringify(vals) +
-          " and template: " +
-          template
-        );
-      }
-    },
-    flattenObject(object) {
-      let result = "";
-      Object.keys(object).forEach((key) => {
-        if (object[key] === null) {
-          //nothing
-        } else if (typeof object[key] === "object") {
-          result += this.flattenObject(object[key]);
-        } else {
-          result += "." + object[key];
-        }
-      });
-      return result.replace(/^\./, "");
     },
   },
   computed: {
     graphqlFilter() {
       var result = new Object();
-      result[this.refBack] = {
+      result[convertToCamelCase(this.refBack)] = {
         equals: this.pkey,
       };
       return result;

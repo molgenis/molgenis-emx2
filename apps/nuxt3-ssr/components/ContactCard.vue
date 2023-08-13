@@ -1,7 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  contact: IContact;
-  contributionDescription?: string;
+  contact: IContributor;
 }>();
 </script>
 
@@ -19,17 +18,18 @@ defineProps<{
   -->
     <div class="flex items-start justify-center flex-col h-full">
       <span class="font-bold block">
-        <span class="font-bold block" v-if="contact?.title">
-          {{ contact?.title.name }}
+        <span class="font-bold" v-if="contact?.title">
+          {{ contact?.title.name }}&nbsp;
         </span>
-        <span v-if="contact?.initials"> {{ contact?.initials }} </span>
+        <span v-if="contact?.initials">{{ contact?.initials }}</span>
         <span v-if="contact?.firstName && contact?.initials">
           ({{ contact?.firstName }})
         </span>
         <span v-else-if="contact?.firstName">
           {{ contact?.firstName }}&nbsp;</span
         >
-        <span v-if="contact?.surname"> {{ contact?.surname }} </span>
+        <span v-if="contact?.prefix"> {{ contact?.prefix }}&nbsp;</span>
+        <span v-if="contact?.lastName"> {{ contact?.lastName }} </span>
       </span>
       <a
         class="text-blue-500 block hover:underline"
@@ -38,11 +38,8 @@ defineProps<{
       >
         {{ contact?.email }}
       </a>
-      <div v-if="contributionDescription" class="mt-3">
-        <p>{{ contributionDescription }}</p>
-      </div>
-      <div v-if="contact?.department" class="mt-3">
-        <p>{{ contact?.department }}</p>
+      <div v-if="contact.roleDescription" class="mt-3">
+        <p>{{ contact.roleDescription }}</p>
       </div>
     </div>
   </li>

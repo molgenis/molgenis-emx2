@@ -1,6 +1,27 @@
 <script setup lang="ts">
+import { INotificationType } from "~/interfaces/types";
+const props = withDefaults(
+  defineProps<{
+    slideInRight?: boolean;
+    fullScreen?: boolean;
+    show: boolean;
+    buttonAlignment?: "left" | "center" | "right";
+    includeFooter?: boolean;
+    type?: INotificationType;
+  }>(),
+  {
+    slideInRight: false,
+    fullScreen: true,
+    buttonAlignment: "center",
+    includeFooter: true,
+    type: INotificationType.info,
+  }
+);
+
+const emit = defineEmits(["close"]);
+
 const preAnimation = () => {
-  if (slideInRight) {
+  if (props.slideInRight) {
     document.body.classList.add("v-popper_right");
   }
 };
@@ -13,29 +34,23 @@ const onHide = () => {
   document.body.classList.remove("no-scroll");
   setTimeout(() => {
     document.body.classList.remove("v-popper_right");
+    emit("close");
   }, 150);
-  emit("close");
 };
 
-const { slideInRight, fullScreen, buttonAlignment } = withDefaults(
-  defineProps<{
-    slideInRight?: boolean;
-    fullScreen?: boolean;
-    show?: boolean;
-    buttonAlignment?: "left" | "center" | "right";
-  }>(),
-  {
-    slideInRight: false,
-    fullScreen: true,
-    show: undefined,
-    buttonAlignment: "center",
+watch(
+  () => toRefs(props),
+  (newValue, oldValue) => {
+    if (oldValue != newValue && !newValue.show.value) {
+      onHide();
+    }
   }
 );
 
-const emit = defineEmits(["close"]);
-
-const roundedClass = slideInRight ? "rounded-l-50px right-0" : "rounded-r-50px";
-const fullScreenClass = fullScreen
+const roundedClass = props.slideInRight
+  ? "rounded-l-50px right-0"
+  : "rounded-r-50px";
+const fullScreenClass = props.fullScreen
   ? "w-[95vw]"
   : "lg:w-[33vw] md:w-[50vw] w-[95vw]";
 const buttonAlignmentSet = {
@@ -43,7 +58,24 @@ const buttonAlignmentSet = {
   center: "justify-around",
   right: "justify-left",
 };
-const buttonAlignmentClass = buttonAlignmentSet[buttonAlignment];
+const buttonAlignmentClass = buttonAlignmentSet[props.buttonAlignment];
+
+const bgClass = computed(() => {
+  switch (props.type) {
+    case INotificationType.light:
+      return "bg-white";
+    case INotificationType.dark:
+      return "bg-black";
+    case INotificationType.success:
+      return "bg-green-500";
+    case INotificationType.error:
+      return "bg-red-500";
+    case INotificationType.warning:
+      return "bg-yellow-500";
+    case INotificationType.info:
+      return "bg-blue-500";
+  }
+});
 </script>
 
 <template>
@@ -57,20 +89,25 @@ const buttonAlignmentClass = buttonAlignmentSet[buttonAlignment];
     <slot name="button"></slot>
     <template #popper="{ hide }">
       <div
-        :class="`fixed top-8 bottom-8 bg-white overflow-hidden ${roundedClass} ${fullScreenClass}`"
+        :class="`fixed top-8 calc-remaining-max-height overflow-hidden ${bgClass} ${roundedClass} ${fullScreenClass}`"
       >
-        <div class="h-full overflow-auto">
-          <button @click="hide()" class="absolute top-7 right-8">
-            <BaseIcon name="cross" />
-          </button>
+        <div>
+          <div>
+            <button @click="hide()" class="absolute top-7 right-7 z-10">
+              <BaseIcon name="cross" />
+            </button>
 
-          <slot></slot>
-        </div>
-        <div class="absolute inset-x-0 bottom-0">
-          <div
-            :class="`flex items-center ${buttonAlignmentClass} px-6 bg-blue-500 h-19`"
-          >
-            <slot name="footer"></slot>
+            <div class="overflow-auto calc-remaining-max-height">
+              <slot></slot>
+            </div>
+          </div>
+
+          <div v-if="includeFooter" class="absolute inset-x-0 bottom-0">
+            <div
+              :class="`flex items-center ${buttonAlignmentClass} px-6 bg-modal-footer h-19`"
+            >
+              <slot name="footer"></slot>
+            </div>
           </div>
         </div>
       </div>
@@ -79,6 +116,10 @@ const buttonAlignmentClass = buttonAlignmentSet[buttonAlignment];
 </template>
 
 <style>
+.calc-remaining-max-height {
+  max-height: calc(100vh - 4rem);
+}
+
 .v-popper--theme-dropdown .v-popper__inner {
   background: none;
   border-radius: 0;

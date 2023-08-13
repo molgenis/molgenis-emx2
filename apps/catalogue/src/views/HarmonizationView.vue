@@ -1,6 +1,6 @@
 <template>
   <div class="mt-3">
-    <template v-if="variables.length && resources.length">
+    <template v-if="variables.length && cohorts.length">
       <table class="table table-bordered table-sm">
         <caption>
           <span
@@ -18,84 +18,75 @@
             <th
               class="rotated-text text-nowrap"
               scope="col"
-              v-for="resource in resourcesWithoutModels"
-              :key="resource.pid"
+              v-for="cohort in cohortsInThisNetwork"
+              :key="cohort.id"
             >
               <div>
-                <span class="table-label">{{ resource.pid }}</span>
+                <span class="table-label">{{ cohort.id }}</span>
               </div>
             </th>
           </tr>
         </thead>
         <tbody>
-          <template v-for="variable in variablePage" :key="variable.name">
+          <template v-for="variable in variables" :key="variable.name">
             <harmonization-row
               :variable="variable"
-              :resources="resourcesWithoutModels"
+              :resources="cohortsInThisNetwork"
             />
           </template>
         </tbody>
       </table>
-      <p v-if="pageSize < variables.length">
-        <span class="mg-btn-align text-muted">
-          {{ pageSize }} of {{ variables.length }} matching variables</span
-        >
-        <button
-          class="btn btn-link"
-          v-if="variables.length"
-          @click="fetchNextPage"
-        >
-          Load more
-        </button>
+      <p v-if="isLoading" class="text-center font-italic pt-3">
+        <Spinner />
+        Fetching variable data..
       </p>
+      <button
+        class="btn btn-link mt-2 mb-3"
+        v-else-if="showMoreVisible"
+        @click="fetchAdditionalVariables"
+      >
+        Show more variables
+      </button>
     </template>
-    <div v-else>
-      <Spinner />
-    </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions, mapState } from "vuex";
 import HarmonizationRow from "./HarmonizationRow.vue";
 import { Spinner } from "molgenis-components";
-
-const INITIAL_PAGE_SIZE = 10;
 
 export default {
   name: "HarmonizationView",
   components: { HarmonizationRow, Spinner },
-  data() {
-    return {
-      pageSize: INITIAL_PAGE_SIZE,
-    };
+  props: {
+    network: String,
   },
   computed: {
-    ...mapGetters(["resources", "variables"]),
-    variablePage() {
-      return this.variables.slice(0, this.pageSize);
+    ...mapGetters(["cohorts", "variables", "variableCount"]),
+    ...mapState(["isLoading"]),
+    showMoreVisible() {
+      return this.variables.length < this.variableCount;
     },
-    resourcesWithoutModels() {
-      return this.resources.filter(
-        (r) =>
-          !r.mg_tableclass.endsWith("Models") &&
-          !r.mg_tableclass.endsWith("Networks")
+    cohortsInThisNetwork() {
+      return this.cohorts.filter(
+        (c) =>
+          this.network === null ||
+          c.networks?.some((n) => {
+            return n.id === this.network;
+          })
       );
     },
   },
   methods: {
-    ...mapActions(["fetchResources"]),
-    fetchNextPage() {
-      this.pageSize += 10;
-    },
-  },
-  watch: {
-    variables() {
-      this.pageSize = INITIAL_PAGE_SIZE;
+    ...mapActions(["fetchCohorts", "fetchAdditionalVariables"]),
+    async handleVariableDetailsRequest(variable) {
+      const result = await this.fetchVariableDetails(variable);
+      variable.variableDetails = result;
     },
   },
   async mounted() {
-    await this.fetchResources();
+    await this.fetchCohorts();
   },
 };
 </script>

@@ -13,6 +13,7 @@
         :columnType="filter.columnType"
         :tableName="filter.refTable"
         :schemaName="filter.refSchema ? filter.refSchema : schemaName"
+        :refLabel="filter.refLabel ? filter.refLabel : filter.refLabelDefault"
       />
     </FilterContainer>
   </div>
@@ -85,7 +86,7 @@ export default {
             pkey: true,
             columnType: "STRING",
             showFilter: true,
-            conditions: ["test123"]
+            conditions: ["test123"],
           },
           {
             name: "pets",
@@ -144,6 +145,7 @@ export default {
             showFilter: true,
             conditions: [],
             refTable: "Order",
+            refLabel: "${orderId}"
           },
         ],
       };
