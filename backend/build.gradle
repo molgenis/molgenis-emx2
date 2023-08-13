@@ -150,8 +150,9 @@ subprojects {
 }
 
 /* generate java test coverage report*/
+test.dependsOn subprojects.test
 task jacocoMergedReport(type: JacocoReport) {
-    dependsOn = subprojects.test
+    dependsOn test
     additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     classDirectories.setFrom files(subprojects.sourceSets.main.output)
