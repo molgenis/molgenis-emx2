@@ -55,15 +55,9 @@ subprojects {
     }
 
     task checkFormat(type: YarnTask, dependsOn: parent.yarn_install) {
-        args = ['run', 'format']
+        onlyIf {!format.enabled}
+        args = ['run', 'format', '--check']
         if (project.name == 'nuxt3-ssr') {
-            outputs.dir('components')
-            outputs.dir('composables')
-            outputs.dir('gql')
-            outputs.dir('interfaces')
-            outputs.dir('pages')
-            outputs.dir('plugins')
-            outputs.dir('utils')
             inputs.files(fileTree('components'))
             inputs.files(fileTree('composables'))
             inputs.files(fileTree('gql'))
@@ -73,9 +67,7 @@ subprojects {
             inputs.files(fileTree('utils'))
         } else {
             inputs.files(fileTree('src'))
-            outputs.dir('src')
         }
-        outputs.cacheIf { true }
     }
 
 
