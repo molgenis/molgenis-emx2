@@ -432,20 +432,20 @@
   dependencies:
     mime "^3.0.0"
 
-"@csstools/cascade-layer-name-parser@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/@csstools/cascade-layer-name-parser/-/cascade-layer-name-parser-1.0.2.tgz"
-  integrity sha512-xm7Mgwej/wBfLoK0K5LfntmPJzoULayl1XZY9JYgQgT29JiqNw++sLnx95u5y9zCihblzkyaRYJrsRMhIBzRdg==
+"@csstools/cascade-layer-name-parser@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/@csstools/cascade-layer-name-parser/-/cascade-layer-name-parser-1.0.4.tgz"
+  integrity sha512-zXMGsJetbLoXe+gjEES07MEGjL0Uy3hMxmnGtVBrRpVKr5KV9OgCB09zr/vLrsEtoVQTgJFewxaU8IYSAE4tjg==
 
-"@csstools/css-parser-algorithms@^2.1.1":
+"@csstools/css-parser-algorithms@^2.3.1":
+  version "2.3.1"
+  resolved "https://registry.npmjs.org/@csstools/css-parser-algorithms/-/css-parser-algorithms-2.3.1.tgz"
+  integrity sha512-xrvsmVUtefWMWQsGgFffqWSK03pZ1vfDki4IVIIUxxDKnGBzqNgv0A7SB1oXtVNEkcVO8xi1ZrTL29HhSu5kGA==
+
+"@csstools/css-tokenizer@^2.2.0":
   version "2.2.0"
-  resolved "https://registry.npmjs.org/@csstools/css-parser-algorithms/-/css-parser-algorithms-2.2.0.tgz"
-  integrity sha512-9BoQ/jSrPq4vv3b9jjLW+PNNv56KlDH5JMx5yASSNrCtvq70FCNZUjXRvbCeR9hYj9ZyhURtqpU/RFIgg6kiOw==
-
-"@csstools/css-tokenizer@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.npmjs.org/@csstools/css-tokenizer/-/css-tokenizer-2.1.1.tgz"
-  integrity sha512-GbrTj2Z8MCTUv+52GE0RbFGM527xuXZ0Xa5g0Z+YN573uveS4G0qi6WNOMyz3yrFM/jaILTTwJ0+umx81EzqfA==
+  resolved "https://registry.npmjs.org/@csstools/css-tokenizer/-/css-tokenizer-2.2.0.tgz"
+  integrity sha512-wErmsWCbsmig8sQKkM6pFhr/oPha1bHfvxsUY5CYSQxwyhA9Ulrs8EqCgClhg4Tgg2XapVstGqSVcz0xOYizZA==
 
 "@emotion/is-prop-valid@^0.8.1":
   version "0.8.8"
@@ -9734,14 +9734,14 @@ postcss-convert-values@^6.0.0:
     browserslist "^4.21.4"
     postcss-value-parser "^4.2.0"
 
-postcss-custom-properties@13.2.0:
-  version "13.2.0"
-  resolved "https://registry.npmjs.org/postcss-custom-properties/-/postcss-custom-properties-13.2.0.tgz"
-  integrity sha512-UYiPqbqmVayyv56y0mtGhvUKZClflwE9cTTmPaqEX8fOVjVwsotqKGYtJXSLxrJLwf9tt7ka+Luyh1ZAOhGHWA==
+postcss-custom-properties@13.3.0:
+  version "13.3.0"
+  resolved "https://registry.npmjs.org/postcss-custom-properties/-/postcss-custom-properties-13.3.0.tgz"
+  integrity sha512-q4VgtIKSy5+KcUvQ0WxTjDy9DZjQ5VCXAZ9+tT9+aPMbA0z6s2t1nMw0QHszru1ib5ElkXl9JUpYYU37VVUs7g==
   dependencies:
-    "@csstools/cascade-layer-name-parser" "^1.0.2"
-    "@csstools/css-parser-algorithms" "^2.1.1"
-    "@csstools/css-tokenizer" "^2.1.1"
+    "@csstools/cascade-layer-name-parser" "^1.0.4"
+    "@csstools/css-parser-algorithms" "^2.3.1"
+    "@csstools/css-tokenizer" "^2.2.0"
     postcss-value-parser "^4.2.0"
 
 postcss-discard-comments@^6.0.0:
@@ -10924,9 +10924,9 @@ sass@1.63.3:
     source-map-js ">=0.6.2 <2.0.0"
 
 sass@^1.63.5:
-  version "1.63.5"
-  resolved "https://registry.npmjs.org/sass/-/sass-1.63.5.tgz"
-  integrity sha512-Q6c5gs482oezdAp+0fWF9cRisvpy7yfYb64knID0OE8AnMgtkluRPfpGMFjeD4/+M4+6QpJZCU6JRSxbjiktkg==
+  version "1.65.1"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.65.1.tgz#8f283b0c26335a88246a448d22e1342ba2ea1432"
+  integrity sha512-9DINwtHmA41SEd36eVPQ9BJKpn7eKDQmUHmpI0y5Zv2Rcorrh0zS+cFrt050hdNbmmCNKTW3hV5mWfuegNRsEA==
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
     immutable "^4.0.0"

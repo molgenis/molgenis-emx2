@@ -30,7 +30,7 @@
     "nuxt": "3.6.5",
     "nuxt-proxy": "0.4.1",
     "postcss": "8.4.27",
-    "postcss-custom-properties": "13.2.0",
+    "postcss-custom-properties": "13.3.0",
     "prettier": "2.8.8",
     "shelljs": "^0.8.5",
     "svgo": "2.8.0",
