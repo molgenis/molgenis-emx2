@@ -10,13 +10,14 @@
       <input
         class="form-control"
         :class="{ 'is-invalid': errorMessage }"
-        @click="showSelect = true"
-        @focus="showSelect = true"
+        @click="showSelect = true && !this.readonly"
+        @focus="showSelect = true && !this.readonly"
         :value="applyJsTemplate(modelValue, refLabel)"
+        :readonly="readonly"
       />
       <template v-slot:append>
         <button
-          v-if="modelValue"
+          v-if="modelValue && !this.readonly"
           @click="$emit('update:modelValue', null)"
           class="btn btn-outline-primary"
           type="button"
@@ -126,6 +127,20 @@ export default {
       />
       Selection: {{ value1 }}
     </div>
+
+    <div>
+      <label for="input-ref-select-1">Example readonly </label>
+      <InputRefSelect
+          id="input-ref-select-1b"
+          v-model="value1"
+          tableName="Pet"
+          schemaName="pet store"
+          refLabel="${name}"
+          :readonly="true"
+      />
+      Selection: {{ value1 }}
+    </div>
+
 
     <label for="input-ref-select-2" class="mt-3">Example with default value</label>
     <div>

@@ -48,7 +48,7 @@
           :schemaName="schemaName"
           :pkey="slotProps.rowKey"
           :visible-columns="visibleColumnNames"
-          :default-value="defaultValue"
+          @close="reload"
           @clone="handleRowAction('clone', slotProps.rowKey)"
         />
         <RowButton
@@ -99,7 +99,7 @@ import MessageWarning from "./MessageWarning.vue";
 import MessageError from "./MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import ConfirmModal from "./ConfirmModal.vue";
-import { convertToCamelCase } from "../utils";
+import { convertToCamelCase, deepEqual } from "../utils";
 
 export default {
   name: "InputRefBack",
@@ -156,14 +156,10 @@ export default {
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
       graphqlError: null,
+      defaultValue: null,
     };
   },
   computed: {
-    defaultValue() {
-      var result = new Object();
-      result[this.refBack] = this.refTablePrimaryKeyObject;
-      return result;
-    },
     graphqlFilter() {
       var result = new Object();
       result[convertToCamelCase(this.refBack)] = {
@@ -207,12 +203,14 @@ export default {
     },
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
-      const resp = await this.client
+      await this.client
         .deleteRow(this.editRowPrimaryKey, this.tableName)
-        .catch(this.handleError);
-      if (resp) {
-        this.reload();
-      }
+        .catch(this.handleError)
+        .then(this.reload());
+      let newValue = this.modelValue.filter(
+        (v) => !deepEqual(v, this.editRowPrimaryKey)
+      );
+      this.$emit("update:modelValue", newValue);
     },
     handleError(error) {
       if (Array.isArray(error?.response?.data?.errors)) {
@@ -229,6 +227,9 @@ export default {
     this.tableMetadata = await this.client
       .fetchTableMetaData(this.tableName)
       .catch((error) => (this.errorMessage = error.message));
+    this.defaultValue = new Object();
+    this.defaultValue[convertToCamelCase(this.refBack)] = await this
+      .refTablePrimaryKeyObject;
     await this.reload();
   },
 };
