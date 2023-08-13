@@ -11199,10 +11199,10 @@ sass@1.63.3:
     immutable "^4.0.0"
     source-map-js ">=0.6.2 <2.0.0"
 
-sass@^1.63.5:
-  version "1.63.5"
-  resolved "https://registry.npmjs.org/sass/-/sass-1.63.5.tgz"
-  integrity sha512-Q6c5gs482oezdAp+0fWF9cRisvpy7yfYb64knID0OE8AnMgtkluRPfpGMFjeD4/+M4+6QpJZCU6JRSxbjiktkg==
+sass@^1.65.1:
+  version "1.65.1"
+  resolved "https://registry.npmjs.org/sass/-/sass-1.65.1.tgz"
+  integrity sha512-9DINwtHmA41SEd36eVPQ9BJKpn7eKDQmUHmpI0y5Zv2Rcorrh0zS+cFrt050hdNbmmCNKTW3hV5mWfuegNRsEA==
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
     immutable "^4.0.0"
