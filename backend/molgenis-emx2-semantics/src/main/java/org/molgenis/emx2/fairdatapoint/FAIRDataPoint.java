@@ -91,7 +91,7 @@ public class FAIRDataPoint {
   public String getResult() throws Exception {
     // get all Catalog records from all of the supplied tables
     if (schemas.length == 0) {
-      throw new Exception("No data available");
+      throw new Exception("No catalogs available");
     }
 
     Map<String, List<Map<String, Object>>> allCatalogFromJSON =

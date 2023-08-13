@@ -67,7 +67,7 @@ public class FormatMimeTypes {
         mediaType = "https://www.iana.org/assignments/media-types/application/trig";
         break;
       default:
-        throw new Exception("MIME Type could not be assigned");
+        throw new IllegalArgumentException("MIME Type could not be assigned");
     }
     return mediaType;
   }

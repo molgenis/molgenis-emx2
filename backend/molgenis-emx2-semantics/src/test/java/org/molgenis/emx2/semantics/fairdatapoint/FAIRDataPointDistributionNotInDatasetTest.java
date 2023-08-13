@@ -65,7 +65,7 @@ public class FAIRDataPointDistributionNotInDatasetTest {
             () -> {
               new FAIRDataPointDistribution(finalRequest2, database);
             });
-    String expectedMessage2 = "Distribution or file therein not found";
+    String expectedMessage2 = "No such distribution or file therein available in schema";
     String actualMessage2 = exception2.getMessage();
     assertTrue(actualMessage2.contains(expectedMessage2));
   }
