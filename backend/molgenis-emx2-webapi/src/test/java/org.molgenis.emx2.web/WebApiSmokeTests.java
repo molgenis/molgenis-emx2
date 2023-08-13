@@ -65,10 +65,6 @@ public class WebApiSmokeTests {
         // disable because of parallism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
         .execute(() -> RunMolgenisEmx2.main(new String[] {}));
 
-    // wait until started, is this worth it or should we go back to simply
-    // 'MolgenisWebservice.start(port)'?
-    Thread.sleep(5000);
-
     // set default rest assured settings
     RestAssured.port = PORT;
     RestAssured.baseURI = "http://localhost";
