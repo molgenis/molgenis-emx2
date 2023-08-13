@@ -6,7 +6,7 @@ export interface ITableMetaData {
   id: string;
   name: string;
   tableType: string;
-  columns?: IColumn[];
+  columns: IColumn[];
   descriptions?: ILocale[];
   externalSchema: string;
   labels?: ILocale[];

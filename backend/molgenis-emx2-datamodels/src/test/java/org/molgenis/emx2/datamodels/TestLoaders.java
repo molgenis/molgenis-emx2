@@ -7,6 +7,7 @@ import static org.molgenis.emx2.datamodels.DataCatalogueLoader.CATALOGUE_ONTOLOG
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.molgenis.emx2.Database;
@@ -14,10 +15,13 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
+@Tag("slow")
 public class TestLoaders {
   public static final String COHORT_STAGING = "CohortStaging";
   public static final String NETWORK_STAGING = "NetworkStaging";
   public static final String FAIR_DATA_HUB_TEST = "FAIRDataHubTest";
+  public static final String DIRECTORY_TEST = "DirectoryTest";
+
   static Database database;
 
   @BeforeAll
@@ -30,13 +34,14 @@ public class TestLoaders {
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
+    database.dropSchemaIfExists(DIRECTORY_TEST);
   }
 
   @Test
   public void test1FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
-    assertEquals(36, fairDataHubSchema.getTableNames().size());
+    assertEquals(62, fairDataHubSchema.getTableNames().size());
   }
 
   @Test
@@ -58,5 +63,12 @@ public class TestLoaders {
     Schema networkStaging = database.createSchema(NETWORK_STAGING);
     AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING.install(networkStaging, true);
     assertEquals(16, networkStaging.getTableNames().size());
+  }
+
+  @Test
+  public void test9DirectoryLoader() {
+    Schema networkStaging = database.createSchema(DIRECTORY_TEST);
+    AvailableDataModels.BIOBANK_DIRECTORY.install(networkStaging, true);
+    assertEquals(33, networkStaging.getTableNames().size());
   }
 }

@@ -31,7 +31,11 @@ export interface INewClient {
     tableName: string,
     properties: IQueryMetaData
   ) => Promise<any>;
-  fetchRowData: (tableName: string, rowId: IRow) => Promise<any>;
+  fetchRowData: (
+    tableName: string,
+    rowId: IRow,
+    expandLevel?: number
+  ) => Promise<any>;
   fetchAggregateData: (
     tableName: string,
     selectedColumn: { name: string; column: string },
@@ -42,4 +46,9 @@ export interface INewClient {
   fetchSettingValue: (name: string) => Promise<any>;
   saveSetting: (key: string, value: any) => Promise<any>;
   saveTableSettings: (settings: ISetting[]) => Promise<any>;
+  clearCache: () => void;
+  convertRowToPrimaryKey: (
+    row: IRow,
+    tableName: string
+  ) => Promise<Record<string, any>>;
 }

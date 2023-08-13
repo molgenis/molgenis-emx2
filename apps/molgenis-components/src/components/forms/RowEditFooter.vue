@@ -12,12 +12,14 @@
       <slot></slot>
       <ButtonAlt @click="$emit('cancel')"> Close</ButtonAlt>
       <Tooltip
-        name="disabled-save-tooltip"
-        :value="saveDisabledMessage ? saveDisabledMessage : ''"
+        name="disabled-draft-tooltip"
+        :value="saveDraftDisabledMessage ? saveDraftDisabledMessage : ''"
+        placement="bottom"
       >
         <ButtonOutline
           @click="$emit('saveDraft')"
-          :disabled="Boolean(saveDisabledMessage)"
+          :disabled="Boolean(saveDraftDisabledMessage)"
+          class="mr-2 pr-3"
         >
           Save draft
         </ButtonOutline>
@@ -25,6 +27,7 @@
       <Tooltip
         name="disabled-save-tooltip"
         :value="saveDisabledMessage ? saveDisabledMessage : ''"
+        placement="bottom"
       >
         <ButtonAction
           @click="$emit('save')"
@@ -48,16 +51,22 @@ import { toRefs } from "vue";
 
 const props = withDefaults(
   defineProps<{
-    tableName: string;
+    tableName?: string;
     successMessage?: string;
     errorMessage?: string;
+    saveDraftDisabledMessage?: string;
     saveDisabledMessage?: string;
   }>(),
   { tableName: "" }
 );
 
-const { tableName, successMessage, errorMessage, saveDisabledMessage } =
-  toRefs(props);
+const {
+  tableName,
+  successMessage,
+  errorMessage,
+  saveDraftDisabledMessage,
+  saveDisabledMessage,
+} = toRefs(props);
 </script>
 
 <docs>
@@ -84,8 +93,12 @@ const { tableName, successMessage, errorMessage, saveDisabledMessage } =
       <RowEditFooter id="sample-error-msg" errorMessage="We have a problem" />
     </DemoItem>
      <DemoItem>
-      <label for="sample-error-msg">With disabled tooltip</label>
+      <label for="sample-error-msg">With disabled save tooltip</label>
       <RowEditFooter id="sample-error-msg" :saveDisabledMessage="'Disabled because it\'s an example'" />
+    </DemoItem>
+    <DemoItem>
+      <label for="sample-error-msg">With disabled draft tooltip</label>
+      <RowEditFooter id="sample-error-msg2" :saveDraftDisabledMessage="'Draft disabled because it\'s an example'" />
     </DemoItem>
   </div>
 </template>

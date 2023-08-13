@@ -1,5 +1,10 @@
 <template>
-  <div class="table-responsive">
+  <div class="table-responsive" v-if="rows.length > 0">
+    <span class="float-right"
+      >download variable and mapping definitions as:
+      <a :href="downloadMappingsZipUrl">Zip file</a> or
+      <a :href="downloadMappingsExcelUrl">Excel file</a></span
+    >
     <table class="table table-sm bg-white table-bordered table-hover">
       <thead>
         <th>name</th>
@@ -19,7 +24,7 @@
             >
           </a>
         </td>
-        <td>{{ row.linkedResource?.type?.map((t) => t.name).join(",") }}</td>
+        <td>{{ row.linkedResource?.type?.map((t) => t.name).join(", ") }}</td>
         <td>{{ row.linkedResource?.linkageStrategy?.name }}</td>
         <td>{{ row.linkedResource?.linkageDescription?.name }}</td>
         <td>{{ row.linkedResource?.linkageVariable }}</td>
@@ -53,6 +58,18 @@ export default {
       return {
         mainResource: { equals: this.metaData.primaryTableKey },
       };
+    },
+    downloadMappingsZipUrl() {
+      return (
+        "../api/reports/zip?id=0,1,2,3&resources=" +
+        this.rows.map((row) => row.linkedResource.id).join(", ")
+      );
+    },
+    downloadMappingsExcelUrl() {
+      return (
+        "../api/reports/excel?id=0,1,2,3&resources=" +
+        this.rows.map((row) => row.linkedResource.id).join(", ")
+      );
     },
   },
   methods: {

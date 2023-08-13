@@ -6,6 +6,7 @@ import static org.molgenis.emx2.web.CsvApi.getDownloadRows;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
+import static org.molgenis.emx2.web.ZipApi.generateReportsToStore;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
@@ -40,6 +41,10 @@ public class ExcelApi {
     // table level operations
     final String tablePath = ":schema/api/excel/:table"; // NOSONAR
     get(tablePath, ExcelApi::getExcelTable);
+
+    // report operations
+    final String reportPath = "/:schema/api/reports/excel"; // NOSONAR
+    get(reportPath, ExcelApi::getExcelReport);
   }
 
   static Object postExcel(Request request, Response response) throws IOException, ServletException {
@@ -108,6 +113,20 @@ public class ExcelApi {
               + table.getName()
               + System.currentTimeMillis()
               + ".xlsx");
+      outputStream.write(Files.readAllBytes(excelFile));
+      return "Export success";
+    }
+  }
+
+  static String getExcelReport(Request request, Response response) throws IOException {
+    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
+    tempDir.toFile().deleteOnExit();
+    try (OutputStream outputStream = response.raw().getOutputStream()) {
+      Path excelFile = tempDir.resolve("download.xlsx");
+      TableStore excelStore = new TableStoreForXlsxFile(excelFile);
+      generateReportsToStore(request, excelStore);
+      response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      response.header("Content-Disposition", "attachment; filename=report.xlsx");
       outputStream.write(Files.readAllBytes(excelFile));
       return "Export success";
     }

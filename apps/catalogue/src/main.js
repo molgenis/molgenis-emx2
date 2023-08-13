@@ -24,6 +24,7 @@ import NetworkVariables from "./network/NetworkVariables.vue";
 import NetworkCohorts from "./network/NetworkCohorts.vue";
 import NetworkDetails from "./network/NetworkDetails.vue";
 import HomeView from "./views/HomeView.vue";
+import SearchAllResources from "./views/SearchAllResources.vue";
 
 import "molgenis-components/dist/style.css";
 
@@ -42,6 +43,11 @@ const router = createRouter({
       path: "/search",
       props: (route) => ({ resourceType: route.query.type }),
       component: SearchResourceView,
+    },
+    {
+      name: "search2",
+      path: "/search2",
+      component: SearchAllResources,
     },
     {
       name: "Cohorts",

@@ -191,9 +191,6 @@ let tocItems = computed(() => {
     { label: "Description", id: "Description" },
     { label: "General design", id: "GeneralDesign" },
   ];
-  if (cohort?.documentation) {
-    tableOffContents.push({ label: "Attached files", id: "Files" });
-  }
   if (cohort?.contacts) {
     tableOffContents.push({
       label: "Contact & contributors",
@@ -242,6 +239,10 @@ let tocItems = computed(() => {
     });
   }
 
+  if (cohort?.documentation) {
+    tableOffContents.push({ label: "Attached files", id: "Files" });
+  }
+
   return tableOffContents;
 });
 
@@ -288,6 +289,8 @@ let fundingAndAcknowledgementItems = computed(() => {
 });
 
 useHead({ title: cohort?.acronym || cohort?.name });
+
+const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
 </script>
 <template>
   <LayoutsDetailPage>
@@ -322,6 +325,8 @@ useHead({ title: cohort?.acronym || cohort?.name });
           :image="cohort?.logo?.url"
           :link="cohort?.website"
           :contact="cohort?.contactEmail"
+          :contact-name="cohort?.name"
+          :contact-message-filter="messageFilter"
         />
         <ContentBlockDescription
           id="Description"
@@ -334,12 +339,6 @@ useHead({ title: cohort?.acronym || cohort?.name });
           title="General Design"
           :description="cohort?.designDescription"
           :cohort="cohort"
-        />
-        <ContentBlockAttachedFiles
-          v-if="cohort?.documentation?.length"
-          id="Files"
-          title="Attached Files"
-          :documents="cohort.documentation"
         />
 
         <ContentBlockContact
@@ -389,7 +388,11 @@ useHead({ title: cohort?.acronym || cohort?.name });
             { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description', singleLine: true },
             { id: 'numberOfParticipants', label: 'Participants' },
-            { id: 'startAndEndYear', label: 'Start end year' },
+            {
+              id: 'startAndEndYear',
+              label: 'Start end year',
+              orderByColumn: 'startYear',
+            },
           ]"
           type="CollectionEvents"
           :query="collectionEventsQuery"
@@ -436,6 +439,13 @@ useHead({ title: cohort?.acronym || cohort?.name });
         >
           <DefinitionList :items="fundingAndAcknowledgementItems" />
         </ContentBlock>
+
+        <ContentBlockAttachedFiles
+          v-if="cohort?.documentation?.length"
+          id="Files"
+          title="Attached Files"
+          :documents="cohort.documentation"
+        />
       </ContentBlocks> </template
     >f
   </LayoutsDetailPage>

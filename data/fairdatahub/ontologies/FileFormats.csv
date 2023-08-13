@@ -267,7 +267,6 @@ FASTA-HTML,FASTA-HTML,EDAM,format_2310,http://edamontology.org/format_2310
 EMBL-HTML,EMBL-HTML,EDAM,format_2311,http://edamontology.org/format_2311
 Textual format,Textual format,EDAM,format_2330,http://edamontology.org/format_2330
 XML,XML,EDAM,format_2332,http://edamontology.org/format_2332
-Binary format,Binary format,EDAM,format_2333,http://edamontology.org/format_2333
 binary format,binary format,EDAM,format_2333,http://edamontology.org/format_2333
 Format (by type of data),Format (by type of data),EDAM,format_2350,http://edamontology.org/format_2350
 BioXSD (XML),BioXSD (XML),EDAM,format_2352,http://edamontology.org/format_2352
@@ -527,15 +526,12 @@ MathML 2.0,MathML 2.0,SWO,SWO_3000074,http://www.ebi.ac.uk/swo/data/SWO_3000074
 FieldML,FieldML,SWO,SWO_3000075,http://www.ebi.ac.uk/swo/data/SWO_3000075
 .mgf,.mgf,SWO,SWO_3000083,http://www.ebi.ac.uk/swo/data/SWO_3000083
 pdbml,pdbml,EDAM,format_1478,http://edamontology.org/format_1478
-PDBML,PDBML,EDAM,format_1478,http://edamontology.org/format_1478
 taverna workflow format,taverna workflow format,EDAM,format_1665,http://edamontology.org/format_1665
-Taverna workflow format,Taverna workflow format,EDAM,format_1665,http://edamontology.org/format_1665
 Nexus format,Nexus format,EDAM,format_1912,http://edamontology.org/format_1912
 Alignment format,Alignment format,EDAM,format_1921,http://edamontology.org/format_1921
 .fastq,.fastq,EDAM,format_1930,http://edamontology.org/format_1930
 FASTQ,FASTQ,EDAM,format_1930,http://edamontology.org/format_1930
 html,html,EDAM,format_2331,http://edamontology.org/format_2331
-HTML,HTML,EDAM,format_2331,http://edamontology.org/format_2331
 BAM,BAM,EDAM,format_2572,http://edamontology.org/format_2572
 .sam,.sam,EDAM,format_2573,http://edamontology.org/format_2573
 SAM,SAM,EDAM,format_2573,http://edamontology.org/format_2573
@@ -548,9 +544,7 @@ RDF-XML,RDF-XML,SWO,SWO_3000007,http://www.ebi.ac.uk/swo/data/SWO_3000007
 OWL-XML,OWL-XML,SWO,SWO_3000038,http://www.ebi.ac.uk/swo/data/SWO_3000038
 OWL2-XML,OWL2-XML,SWO,SWO_3000039,http://www.ebi.ac.uk/swo/data/SWO_3000039
 ASCII format,ASCII format,SWO,SWO_3000042,http://www.ebi.ac.uk/swo/data/SWO_3000042
-Plain text file format,Plain text file format,SWO,SWO_3000043,http://www.ebi.ac.uk/swo/data/SWO_3000043
 plain text file format,plain text file format,SWO,SWO_3000043,http://www.ebi.ac.uk/swo/data/SWO_3000043
-Tab delimited file format,Tab delimited file format,SWO,SWO_3000046,http://www.ebi.ac.uk/swo/data/SWO_3000046
 tab delimited file format,tab delimited file format,SWO,SWO_3000046,http://www.ebi.ac.uk/swo/data/SWO_3000046
 SIF,SIF,SWO,SWO_3000049,http://www.ebi.ac.uk/swo/data/SWO_3000049
 XGMML,XGMML,SWO,SWO_3000051,http://www.ebi.ac.uk/swo/data/SWO_3000051

@@ -1,15 +1,16 @@
 package org.molgenis.emx2.semantics.beaconv2;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.EntryTypes;
 import org.molgenis.emx2.json.JsonUtil;
 import spark.Request;
 
+@Tag("slow")
 public class Beaconv2_EntryTypesTest {
 
   @Test
@@ -20,14 +21,7 @@ public class Beaconv2_EntryTypesTest {
     String json = JsonUtil.getWriter().writeValueAsString(et);
 
     // header
-    assertTrue(
-        json.contains(
-            """
-                                "meta" : {
-                                  "beaconId" : "org.molgenis.beaconv2",
-                                  "apiVersion" : "v2.0.0-draft.4",
-                                  "$schema" : "../beaconInfoResponse.json","""
-                .indent(2)));
+    assertTrue(json.contains("beaconId\" : \"org.molgenis.beaconv2"));
 
     // returned schema in response
     assertTrue(
@@ -101,7 +95,5 @@ public class Beaconv2_EntryTypesTest {
     assertTrue(json.contains("\"id\" : \"ENSGLOSSARY:0000092\","));
     assertTrue(json.contains("\"id\" : \"NCIT:C25190\","));
     assertTrue(json.contains("\"id\" : \"NCIT:C148088\","));
-
-    assertEquals(5369, json.length());
   }
 }

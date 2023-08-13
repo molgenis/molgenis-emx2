@@ -29,7 +29,9 @@
           showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
         "
       >
+        <Spinner v-if="loading" />
         <div
+          v-else
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           v-for="(row, index) in data"
@@ -39,7 +41,7 @@
             :id="`${id}-${row.name}`"
             :name="id"
             type="checkbox"
-            :value="getPrimaryKey(row, tableMetaData)"
+            :value="row.primaryKey"
             v-model="selection"
             @change="emitSelection"
             class="form-check-input"
@@ -83,13 +85,18 @@
 
 <script>
 import Client from "../../client/client.ts";
+import Spinner from "../layout/Spinner.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
 import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import FilterWell from "../filters/FilterWell.vue";
-import { convertToPascalCase, getPrimaryKey, applyJsTemplate } from "../utils";
+import {
+  convertToPascalCase,
+  convertRowToPrimaryKey,
+  applyJsTemplate,
+} from "../utils";
 
 export default {
   extends: BaseInput,
@@ -101,6 +108,7 @@ export default {
       selection: this.modelValue,
       count: 0,
       tableMetaData: null,
+      loading: false,
     };
   },
   components: {
@@ -109,6 +117,7 @@ export default {
     LayoutModal,
     FormGroup,
     ButtonAlt,
+    Spinner,
   },
   props: {
     schemaName: {
@@ -116,6 +125,7 @@ export default {
       required: false,
     },
     filter: Object,
+    orderby: Object,
     multipleColumns: Boolean,
     maxNum: { type: Number, default: 11 },
     tableName: {
@@ -148,7 +158,6 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey,
     applyJsTemplate,
     deselect(key) {
       this.selection.splice(key, 1);
@@ -169,15 +178,30 @@ export default {
       this.showSelect = false;
     },
     async loadOptions() {
+      this.loading = true;
       const options = {
         limit: this.maxNum,
       };
       if (this.filter) {
         options["filter"] = this.filter;
       }
+      if (this.orderby) {
+        options["orderby"] = this.orderby;
+      }
       const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
       this.count = response[this.tableId + "_agg"].count;
+
+      await Promise.all(
+        this.data.map(async (row) => {
+          row.primaryKey = await convertRowToPrimaryKey(
+            row,
+            this.tableId,
+            this.schemaName
+          );
+        })
+      ).then(() => (this.loading = false));
+      this.$emit("optionsLoaded", this.data);
     },
   },
   watch: {
@@ -185,7 +209,9 @@ export default {
       this.selection = this.modelValue;
     },
     filter() {
-      this.loadOptions();
+      if (!this.loading) {
+        this.loadOptions();
+      }
     },
   },
   async created() {
@@ -222,6 +248,7 @@ export default {
           description="Standard input"
           schemaName="pet store"
           :canEdit="canEdit"
+          refLabel="${name}"
       />
       Selection: {{ value }}
     </DemoItem>
@@ -235,6 +262,7 @@ export default {
           :defaultValue="defaultValue"
           schemaName="pet store"
           :canEdit="canEdit"
+          refLabel="${name}"
       />
       Selection: {{ defaultValue }}
     </DemoItem>
@@ -245,9 +273,10 @@ export default {
           v-model="filterValue"
           tableName="Pet"
           description="Filter by name"
-          :filter="{ category: { name: { equals: 'pooky' } } }"
+          :filter="{ category: { name: { equals: 'dog' } } }"
           schemaName="pet store"
           :canEdit="canEdit"
+          refLabel="${name}"
       />
       Selection: {{ filterValue }}
     </DemoItem>
@@ -261,6 +290,8 @@ export default {
           schemaName="pet store"
           multipleColumns
           :canEdit="canEdit"
+          refLabel="${name}"
+
       />
       Selection: {{ multiColumnValue }}
     </DemoItem>

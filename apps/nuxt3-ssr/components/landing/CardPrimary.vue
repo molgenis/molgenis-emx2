@@ -1,11 +1,16 @@
 <script setup lang="ts">
-defineProps<{
+interface Props {
   title: string;
   description: string;
+  callToAction?: string;
   count: number;
   link: string;
   image: string;
-}>();
+}
+
+withDefaults(defineProps<Props>(), {
+  callToAction: "",
+});
 </script>
 <template>
   <div class="flex flex-col items-center max-w-sm">
@@ -47,7 +52,7 @@ defineProps<{
     </p>
 
     <NuxtLink class="md:block hidden" :to="link">
-      <Button :label="title" type="primary" size="medium" />
+      <Button :label="callToAction || title" type="primary" size="medium" />
     </NuxtLink>
   </div>
 </template>

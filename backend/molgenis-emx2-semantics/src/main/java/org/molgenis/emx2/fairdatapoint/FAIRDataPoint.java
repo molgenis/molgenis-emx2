@@ -89,7 +89,7 @@ public class FAIRDataPoint {
    * @throws Exception
    */
   public String getResult() throws Exception {
-    // get all FDP_Catalog records from all of the supplied tables
+    // get all Catalog records from all of the supplied tables
     if (schemas.length == 0) {
       throw new Exception("No data available");
     }

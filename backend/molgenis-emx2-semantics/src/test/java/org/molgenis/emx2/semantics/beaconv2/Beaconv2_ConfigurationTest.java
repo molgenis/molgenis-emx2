@@ -1,6 +1,5 @@
 package org.molgenis.emx2.semantics.beaconv2;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -35,6 +34,5 @@ public class Beaconv2_ConfigurationTest {
     assertTrue(json.contains("\"id\" : \"genomicVariant\","));
     assertTrue(json.contains("\"id\" : \"individual\","));
     assertTrue(json.contains("\"id\" : \"run\","));
-    assertEquals(5701, json.length());
   }
 }

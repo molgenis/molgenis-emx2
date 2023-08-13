@@ -1,5 +1,6 @@
 package org.molgenis.emx2.graphql;
 
+import static graphql.scalars.ExtendedScalars.GraphQLLong;
 import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
@@ -193,7 +194,7 @@ public class GraphqlTableFieldFactory {
             tableBuilder.field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(id)
-                    .type(GraphQLList.list(Scalars.GraphQLBigDecimal)));
+                    .type(GraphQLList.list(Scalars.GraphQLFloat)));
             break;
           case INT:
             tableBuilder.field(
@@ -209,7 +210,12 @@ public class GraphqlTableFieldFactory {
             tableBuilder.field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(id)
-                    .type(createTableObjectType(col.getRefTable())));
+                    .type(createTableObjectType(col.getRefTable()))
+                    .argument(
+                        GraphQLArgument.newArgument()
+                            .name(GraphqlConstants.FILTER_ARGUMENT)
+                            .type(getTableFilterInputType(col.getRefTable()))
+                            .build()));
             break;
           case REF_ARRAY:
           case REFBACK:
@@ -269,7 +275,7 @@ public class GraphqlTableFieldFactory {
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
       for (Column column : table.getColumns()) {
         // for now only 'ref' types. We might want to have truncating actions for the other types.
-        if (column.isRef() || column.isRefArray()) {
+        if (column.isReference()) {
           groupByBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(column.getIdentifier())
@@ -435,7 +441,7 @@ public class GraphqlTableFieldFactory {
       case INT, INT_ARRAY:
         return Scalars.GraphQLInt;
       case LONG, LONG_ARRAY:
-        return Scalars.GraphQLLong;
+        return GraphQLLong;
       case DECIMAL, DECIMAL_ARRAY:
         return Scalars.GraphQLFloat;
       case DATE,
@@ -820,12 +826,12 @@ public class GraphqlTableFieldFactory {
       case FILE -> GraphqlCustomTypes.GraphQLFileUpload;
       case BOOL -> Scalars.GraphQLBoolean;
       case INT -> Scalars.GraphQLInt;
-      case LONG -> Scalars.GraphQLLong; // NOSONAR
+      case LONG -> GraphQLLong;
       case DECIMAL -> Scalars.GraphQLFloat;
       case UUID, STRING, TEXT, DATE, DATETIME -> Scalars.GraphQLString;
       case BOOL_ARRAY -> GraphQLList.list(Scalars.GraphQLBoolean);
       case INT_ARRAY -> GraphQLList.list(Scalars.GraphQLInt);
-      case LONG_ARRAY -> GraphQLList.list(Scalars.GraphQLLong); // NOSONAR
+      case LONG_ARRAY -> GraphQLList.list(GraphQLLong);
       case DECIMAL_ARRAY -> GraphQLList.list(Scalars.GraphQLFloat);
       case STRING_ARRAY,
           TEXT_ARRAY,

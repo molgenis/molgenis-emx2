@@ -68,12 +68,15 @@ import { computed, defineEmits, ref, toRefs } from "vue";
 import { IColumn } from "../../Interfaces/IColumn";
 import { IRow } from "../../Interfaces/IRow";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
-import { getPrimaryKey, isRefType } from "../utils";
+import { isRefType } from "../utils";
 import DataDisplayCell from "./DataDisplayCell.vue";
 import ObjectDisplay from "./cellTypes/ObjectDisplay.vue";
+import Client from "../../client/client";
 
 const props = defineProps<{
   reference: IRow;
+  tableId?: string;
+  schema?: string;
   showDataOwner?: boolean;
   startsCollapsed?: boolean;
 }>();
@@ -91,9 +94,14 @@ const emit = defineEmits<{
 
 let filteredRow = computed(() => getFilteredRow(reference.value));
 let canCollapse = computed(() => Object.keys(filteredRow.value).length > 5);
-let primaryKey = computed(() =>
-  getPrimaryKey(reference.value, reference.value.metadata)
-);
+const primaryKey = ref({});
+
+if (props.tableId && props.schema) {
+  const client = Client.newClient(props.schema);
+  client.convertRowToPrimaryKey(reference.value, props.tableId).then((res) => {
+    primaryKey.value = res;
+  });
+}
 
 let collapsed = ref(startsCollapsed.value && canCollapse.value);
 

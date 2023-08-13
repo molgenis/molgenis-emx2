@@ -3,8 +3,10 @@ package org.molgenis.emx2.semantics.fairdatapoint;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.formatToMediaType;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
@@ -16,6 +18,7 @@ import org.molgenis.emx2.fairdatapoint.FAIRDataPointDistribution;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 
+@Tag("slow")
 public class FAIRDataPointTest {
 
   static Database database;
@@ -76,7 +79,7 @@ public class FAIRDataPointTest {
         .thenReturn("http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId01");
     when(request.params("id")).thenReturn("catalogId01");
     FAIRDataPointCatalog fairDataPointCatalog =
-        new FAIRDataPointCatalog(request, fairDataHubSchemas[0].getTable("FDP_Catalog"));
+        new FAIRDataPointCatalog(request, fairDataHubSchemas[0].getTable("Catalog"));
     String result = fairDataPointCatalog.getResult();
     assertTrue(
         result.contains(
@@ -95,7 +98,7 @@ public class FAIRDataPointTest {
         .thenReturn("http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId01");
     when(request.params("id")).thenReturn("datasetId01");
     FAIRDataPointDataset fairDataPointDataset =
-        new FAIRDataPointDataset(request, fairDataHubSchemas[0].getTable("FDP_Dataset"));
+        new FAIRDataPointDataset(request, fairDataHubSchemas[0].getTable("Dataset"));
     fairDataPointDataset.setIssued("2022-09-19T11:57:06");
     fairDataPointDataset.setModified("2022-09-19T11:57:07");
     String result = fairDataPointDataset.getResult();
@@ -126,7 +129,7 @@ public class FAIRDataPointTest {
     when(request.url())
         .thenReturn("http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl");
     when(request.params("schema")).thenReturn("fairDataHub_nr1");
-    when(request.params("table")).thenReturn("Analyses");
+    when(request.params("distribution")).thenReturn("Analyses");
     when(request.params("format")).thenReturn("ttl");
     FAIRDataPointDistribution fairDataPointDistribution =
         new FAIRDataPointDistribution(request, database);
@@ -157,7 +160,7 @@ public class FAIRDataPointTest {
     when(request.url())
         .thenReturn("http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl");
     when(request.params("schema")).thenReturn("fairDataHub_nr1");
-    when(request.params("table")).thenReturn("Analyses");
+    when(request.params("distribution")).thenReturn("Analyses");
     testFormatToMediaType(request, "csv");
     testFormatToMediaType(request, "jsonld");
     testFormatToMediaType(request, "rdf-jsonld");
@@ -178,6 +181,6 @@ public class FAIRDataPointTest {
     FAIRDataPointDistribution fairDataPointDistribution =
         new FAIRDataPointDistribution(request, database);
     String result = fairDataPointDistribution.getResult();
-    assertTrue(result.contains(FAIRDataPointDistribution.formatToMediaType(format)));
+    assertTrue(result.contains(formatToMediaType(format)));
   }
 }

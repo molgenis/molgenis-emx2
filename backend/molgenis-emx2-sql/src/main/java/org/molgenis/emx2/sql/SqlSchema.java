@@ -142,8 +142,13 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<Row> retrieveSql(String sql) {
+    return retrieveSql(sql, Map.of());
+  }
+
+  @Override
+  public List<Row> retrieveSql(String sql, Map<String, ?> parameters) {
     if (getRoles().contains("Viewer")) {
-      return new SqlRawQueryForSchema(this).executeSql(sql);
+      return new SqlRawQueryForSchema(this).executeSql(sql, parameters);
     } else {
       throw new MolgenisException("No view permissions on this schema");
     }
@@ -397,6 +402,19 @@ public class SqlSchema implements Schema {
   @Override
   public Integer getChangesCount() {
     return metadata.getChangesCount();
+  }
+
+  @Override
+  public String getSettingValue(String key) {
+    String setting = metadata.getSetting(key);
+    if (setting == null) {
+      throw new MolgenisException("Setting " + key + " not found");
+    }
+    return setting;
+  }
+
+  public boolean hasSetting(String key) {
+    return metadata.getSetting(key) != null;
   }
 
   public DSLContext getJooq() {
