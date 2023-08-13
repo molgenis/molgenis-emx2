@@ -306,7 +306,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public Column getColumn(String name) {
     if (columns.containsKey(name)) return new Column(this, columns.get(name));
-    if (inherit != null) {
+    if (getInheritedTable() != null) {
       Column c = getInheritedTable().getColumn(name);
       if (c != null) return new Column(c.getTable(), c);
     }
@@ -315,8 +315,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public TableMetadata add(Column... column) {
     for (Column c : column) {
-      if (getInherit() != null
-          && getInheritedTable() != null
+      if (getInheritedTable() != null
           && getInheritedTable().getColumn(c.getName()) != null
           && !c.isPrimaryKey()) {
         throw new MolgenisException(
@@ -374,7 +373,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public TableMetadata getInheritedTable() {
     if (inherit != null && getSchema() != null) {
-      if (getImportSchema() != null) {
+      if (getImportSchema() != null && getSchema().getDatabase() != null) {
         if (getSchema().getDatabase().getSchema(getImportSchema()) == null) {
           throw new MolgenisException(
               "Cannot find schema '"
