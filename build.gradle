@@ -90,7 +90,7 @@ docker {
     name imageName
     tags tagName, 'latest'
     files shadowJar.archiveFile.get()
-    buildArgs(['JAR_FILE': shadowJar.name])
+    buildArgs(['JAR_FILE': shadowJar.archiveFile.get().asFile.name])
 }
 tasks.dockerPrepare.dependsOn(shadowJar)
 
