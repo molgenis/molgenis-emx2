@@ -2,10 +2,10 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2023-08-07
+# MODIFIED: 2023-08-14
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
-# PACKAGES: pandas
+# PACKAGES: pandas, python-dotenv
 # COMMENTS: Designed to interact with the schema "pet store".
 #           Create a file called '.env' that specify the username and password:
 #           MG_USERNAME = blabla
@@ -28,7 +28,7 @@ def main():
 
     # Connect to the server and sign in
     client = Client('https://emx2.dev.molgenis.org/')
-    client.sign_in(username, password)
+    client.signin(username, password)
 
     # Check sign in status
     print(client.status)
@@ -79,8 +79,8 @@ def main():
     }]
 
     # Import new data
-    client.add(schema='pet store', table='Tag', data=new_tags)
-    client.add(schema='pet store', table='Pet', data=new_pets)
+    client.save(schema='pet store', table='Tag', data=new_tags)
+    client.save(schema='pet store', table='Pet', data=new_pets)
 
     # Retrieve records
     tags_data = client.get(schema='pet store', table='Tag', as_df=True)
@@ -103,14 +103,14 @@ def main():
     pd.DataFrame(new_pets).to_csv('demodata/Pet.csv', index=False)
 
     # Import files
-    client.add(schema='pet store', table='Tag', file='demodata/Tag.csv')
-    client.add(schema='pet store', table='Pet', file='demodata/Pet.csv')
+    client.save(schema='pet store', table='Tag', file='demodata/Tag.csv')
+    client.save(schema='pet store', table='Pet', file='demodata/Pet.csv')
 
     client.delete(schema='pet store', table='Pet', file='demodata/Pet.csv')
     client.delete(schema='pet store', table='Tag', file='demodata/Tag.csv')
 
     # Sign out
-    client.sign_out()
+    client.signout()
 
 
 if __name__ == '__main__':

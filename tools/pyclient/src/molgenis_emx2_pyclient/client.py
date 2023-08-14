@@ -17,27 +17,21 @@ class Client:
     """
     Use the Client object to log in to a Molgenis server and perform operations on the server.
     """
-    def __init__(self, url: str, username: str = None, password: str = None) -> None:
+    def __init__(self, url: str) -> None:
         """
-        A Client class instances is created with a server url, username and password.
-        The object starts a network session and logs in to the server using the login credentials.
+        A Client class instances is created with a server url.
         """
         self.url = utils.parse_url(url)
         self.api_graphql = self.url + "/api/graphql"
 
-        self.username = username
         self.signin_status = 'unknown'
 
         self.session = requests.Session()
 
-        # Sign in when user credentials are supplied
-        if username is not None and password is not None:
-            self.sign_in(username, password)
-
     def __str__(self):
         return self.url
 
-    def sign_in(self, username: str, password: str):
+    def signin(self, username: str, password: str):
         """Signs in to Molgenis and retrieves session cookie.
 
         :param username: the username or email address for an account on this server
@@ -45,8 +39,10 @@ class Client:
         :param password: the password corresponding to this username.
         :type username: str
         """
-        query = queries.sign_in()
+        query = queries.signin()
         variables = {'email': username, 'password': password}
+
+        self.username = username
 
         response = self.session.post(
             url=self.api_graphql,
@@ -85,11 +81,11 @@ class Client:
 
         self.username = username
 
-    def sign_out(self):
+    def signout(self):
         """Signs the client out of the EMX2 server."""
         response = self.session.post(
             url=self.api_graphql,
-            json={'query': queries.sign_out()}
+            json={'query': queries.signout()}
         )        
         
         status = response.json().get('data', {}).get('signout', {}).get('status')
@@ -151,7 +147,7 @@ class Client:
         if data is not None:
             return pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
     
-    def add(self, schema: str, table: str, file: str = None, data: list = None):
+    def save(self, schema: str, table: str, file: str = None, data: list = None):
         """Imports or updates records in a table of a named schema.
         
         :param schema: name of a schema

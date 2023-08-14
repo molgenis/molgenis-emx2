@@ -4,7 +4,7 @@ on an EMX2 server by the Molgenis EMX2 Python client.
 """
 
 
-def sign_in():
+def signin():
     """
     GraphQL mutation to sign in to an EMX2 molgenis instance. Function must include
     username and password in the posted data.
@@ -32,7 +32,7 @@ def sign_in():
     """
 
 
-def sign_out():
+def signout():
     """GraphQL mutation to sign out and close the session."""
     return """
         mutation {
