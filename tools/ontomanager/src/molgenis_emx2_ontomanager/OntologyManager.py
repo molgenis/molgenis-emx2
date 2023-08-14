@@ -384,11 +384,10 @@ class OntologyManager:
             """
             tb_dict = dict()
 
-            # tb_pkeys = [col for (col, col_values) in tb_values['columns'].items() if col_values.get('key') == 1]
-
             tb_pkeys = [
                 (col if col_vals.get('columnType') != 'REF'
-                 else col + ' {' + (", ".join(c for (c, v) in self.manager.schema[self.database][col_vals['refTable']]['columns'].items()
+                 else col + ' {' + (", ".join(self.__parse_column_name(c)
+                                              for (c, v) in self.manager.schema[self.database][col_vals['refTable']]['columns'].items()
                                               if v.get('key') == 1)) + '}')
                 for (col, col_vals) in tb_values['columns'].items() if col_vals.get('key') == 1
             ]
@@ -449,6 +448,16 @@ class OntologyManager:
                 log.info(f"Successfully updated term in column '{self.column}'"
                          f" of table '{self.table}' on database '{self.database}' in {len(column_values)} rows.")
                 return column_values_updated
+
+        @staticmethod
+        def __parse_column_name(col_name: str):
+            """Parses the column name for use in a query, requiring no spaces
+            and capitalized words beyond the first word,
+            e.g. 'external identifier type' -> 'externalIdentifierType'
+            """
+            if ' ' not in col_name:
+                return col_name
+            return col_name.split(' ')[0] + "".join(word[0].upper() + word[1:] for word in col_name.split(' ')[1:])
 
     def __perform_query(self, query: str, variables: dict, action: str) -> Response:
         """Perform the query using the query and variables supplied."""
