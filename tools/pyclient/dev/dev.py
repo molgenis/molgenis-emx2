@@ -11,6 +11,7 @@
 #           MG_USERNAME = blabla
 #           MG_PASSWORD = blabla123
 # ///////////////////////////////////////////////////////////////////////////////
+import logging
 import os
 
 import pandas as pd
@@ -21,6 +22,11 @@ from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import NoSuchSchemaExc
 
 
 def main():
+    # Set up the logger
+    logging.basicConfig(level='INFO')
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
     # Load the login details into the environment
     load_dotenv()
     username = os.environ.get('MG_USERNAME')
@@ -33,6 +39,12 @@ def main():
 
     # Check sign in status
     print(client.status)
+
+    # Export the entire 'pet store' schema to a .xlsx file
+    # and export the 'Cohorts' table from schema 'catalogue' to a .csv file
+    client.export(schema='pet store', fmt='xlsx')
+    client.export(schema='pet store', fmt='csv')
+    client.export(schema='catalogue-demo', table='Cohorts', fmt='csv')
 
     # Retrieve data from a table in a schema on the server using the 'get' method
     # Passing non-existing schema name yields a NoSuchSchemaException
