@@ -2483,9 +2483,9 @@
     vue-template-compiler "^2.6.11"
 
 "@vueup/vue-quill@^1.0.0":
-  version "1.1.1"
-  resolved "https://registry.npmjs.org/@vueup/vue-quill/-/vue-quill-1.1.1.tgz"
-  integrity sha512-1INx+pr+AK/5SrfFwJIojO+VhYrv6ZHwaYCxO5Irp+vjpm/z4v8zLpUIA86ideX7cNA8Tai+nkrGlWKnAeM0RQ==
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@vueup/vue-quill/-/vue-quill-1.2.0.tgz#cd0d93559256d069f639723dd91c044e8162c72a"
+  integrity sha512-kd5QPSHMDpycklojPXno2Kw2JSiKMYduKYQckTm1RJoVDA557MnyUXgcuuDpry4HY/Rny9nGNcK+m3AHk94wag==
   dependencies:
     quill "^1.3.7"
     quill-delta "^4.2.2"
