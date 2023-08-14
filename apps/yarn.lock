@@ -2003,14 +2003,6 @@
   dependencies:
     "@types/node" "*"
 
-"@unhead/dom@1.1.30":
-  version "1.1.30"
-  resolved "https://registry.npmjs.org/@unhead/dom/-/dom-1.1.30.tgz"
-  integrity sha512-EvASOkk36lW5sRfIe+StCojpkPEExsQNt+cqcpdVr9iiRH54jziCDFxcLfjawc+jp4NO86KvmfHo86GIly3/SQ==
-  dependencies:
-    "@unhead/schema" "1.1.30"
-    "@unhead/shared" "1.1.30"
-
 "@unhead/dom@1.2.2":
   version "1.2.2"
   resolved "https://registry.npmjs.org/@unhead/dom/-/dom-1.2.2.tgz"
@@ -2018,6 +2010,14 @@
   dependencies:
     "@unhead/schema" "1.2.2"
     "@unhead/shared" "1.2.2"
+
+"@unhead/dom@1.3.3":
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/@unhead/dom/-/dom-1.3.3.tgz#db16c1266944b1ae1fe3451015d80c78a57422b2"
+  integrity sha512-lagqp2dAAE//WSe5WcCAkI19snMJrLcc0QBWLsFIUXhbKQOR3Y6gr4PeCqwIHGEggEIuAkvaDzJwRd5L/CtqvQ==
+  dependencies:
+    "@unhead/schema" "1.3.3"
+    "@unhead/shared" "1.3.3"
 
 "@unhead/schema@1.1.30":
   version "1.1.30"
@@ -2031,6 +2031,14 @@
   version "1.2.2"
   resolved "https://registry.npmjs.org/@unhead/schema/-/schema-1.2.2.tgz"
   integrity sha512-cGtNvadL76eGl7QxGjWHZxFqLv9a2VrmRpeEb1d7sm0cvnN0bWngdXDTdUyXzn7RVv/Um+/yae6eiT6A+pyQOw==
+  dependencies:
+    hookable "^5.5.3"
+    zhead "^2.0.10"
+
+"@unhead/schema@1.3.3":
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/@unhead/schema/-/schema-1.3.3.tgz#dc40b6e92c324bfd9f5524288f70bfb06993b6a3"
+  integrity sha512-5P3Aff/EM5Y4WnJBvvXQqB6CsBq3zdAiK+pf7m0ZXjerc5K5UqKomOtCZ0GXwr10mait7nbca5JaOUiMv2YWjg==
   dependencies:
     hookable "^5.5.3"
     zhead "^2.0.10"
@@ -2049,6 +2057,13 @@
   dependencies:
     "@unhead/schema" "1.2.2"
 
+"@unhead/shared@1.3.3":
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/@unhead/shared/-/shared-1.3.3.tgz#d7b7365034f7626880183b0baf94eb4e26eeec04"
+  integrity sha512-xcrcKJy/4xE/IFJ4TF43HtGLONfkoedihtV8oR/OKFeeL4DshioZ2X1pmLh7U+Mc+QR3cX027BngWVXaGFOOaw==
+  dependencies:
+    "@unhead/schema" "1.3.3"
+
 "@unhead/ssr@^1.1.30":
   version "1.1.30"
   resolved "https://registry.npmjs.org/@unhead/ssr/-/ssr-1.1.30.tgz"
@@ -2057,15 +2072,15 @@
     "@unhead/schema" "1.1.30"
     "@unhead/shared" "1.1.30"
 
-"@unhead/vue@1.1.30":
-  version "1.1.30"
-  resolved "https://registry.npmjs.org/@unhead/vue/-/vue-1.1.30.tgz"
-  integrity sha512-jWDfYDjiNj8a8GTQoYeJrpKisI7YKIWwuMP1IREKa4cx41oCsbCKUDjomjnpmdBcpqvb/Kw32Tm+EMcuE/CYkA==
+"@unhead/vue@1.3.3":
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/@unhead/vue/-/vue-1.3.3.tgz#6fb96db92f05ce6d10f1ca019acf35b9e6f2dd83"
+  integrity sha512-arkHRSsexQGLIC255w9zNfPs8gC1P3l4YHB1ZOa1E/30kiEhgq/Z1G3wHaegN0TfM6ODKnTMpxiOQr0mPIiZqQ==
   dependencies:
-    "@unhead/schema" "1.1.30"
-    "@unhead/shared" "1.1.30"
+    "@unhead/schema" "1.3.3"
+    "@unhead/shared" "1.3.3"
     hookable "^5.5.3"
-    unhead "1.1.30"
+    unhead "1.3.3"
 
 "@unhead/vue@^1.1.30":
   version "1.2.2"
@@ -12150,16 +12165,6 @@ unenv@^1.5.1:
     node-fetch-native "^1.2.0"
     pathe "^1.1.1"
 
-unhead@1.1.30:
-  version "1.1.30"
-  resolved "https://registry.npmjs.org/unhead/-/unhead-1.1.30.tgz"
-  integrity sha512-25N/P1GnnC8EYCDerzE0hl2nOdRqS1NOFh1STEyKWRo/Bi5dXn8Z2NTaqzkbr5ExJTZEAiDfZ+eALvMTmvlXlA==
-  dependencies:
-    "@unhead/dom" "1.1.30"
-    "@unhead/schema" "1.1.30"
-    "@unhead/shared" "1.1.30"
-    hookable "^5.5.3"
-
 unhead@1.2.2:
   version "1.2.2"
   resolved "https://registry.npmjs.org/unhead/-/unhead-1.2.2.tgz"
@@ -12168,6 +12173,16 @@ unhead@1.2.2:
     "@unhead/dom" "1.2.2"
     "@unhead/schema" "1.2.2"
     "@unhead/shared" "1.2.2"
+    hookable "^5.5.3"
+
+unhead@1.3.3:
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/unhead/-/unhead-1.3.3.tgz#3c9b9353ee4bb52971581d3c90f2eae21e738d7e"
+  integrity sha512-4lGYtrwqsvlw1Grkvyz9vV5H/1ttU/ApqXQwAPpQ4WX/S54QHZNNVD/DjqYR+7QEGkWHxyQgxYoqaeeE0pUlRw==
+  dependencies:
+    "@unhead/dom" "1.3.3"
+    "@unhead/schema" "1.3.3"
+    "@unhead/shared" "1.3.3"
     hookable "^5.5.3"
 
 unimport@^2.0.1:
