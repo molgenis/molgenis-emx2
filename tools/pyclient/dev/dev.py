@@ -28,6 +28,7 @@ def main():
 
     # Connect to the server and sign in
     client = Client('https://emx2.dev.molgenis.org/')
+    # client = Client('https://emx2.dev.molgenis.org/', schema='pet store')
     client.signin(username, password)
 
     # Check sign in status

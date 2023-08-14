@@ -16,8 +16,9 @@ log = logging.getLogger(__name__)
 class Client:
     """
     Use the Client object to log in to a Molgenis server and perform operations on the server.
+    Specify a default schema
     """
-    def __init__(self, url: str) -> None:
+    def __init__(self, url: str, schema: str = None) -> None:
         """
         A Client class instances is created with a server url.
         """
@@ -27,6 +28,8 @@ class Client:
         self.signin_status = 'unknown'
 
         self.session = requests.Session()
+        
+        self.default_schema = schema
 
     def __str__(self):
         return self.url
@@ -146,8 +149,19 @@ class Client:
           
         if data is not None:
             return pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
+
+    def _set_schema(self, schema: str):
+        """Returns the default schema or user-specified schema
+        
+        :param schema: name of a schema
+        :type schema: str
+        
+        :returns: a schema name
+        :rtype: str
+        """
+        return schema if schema else self.default_schema
     
-    def save(self, schema: str, table: str, file: str = None, data: list = None):
+    def save(self, schema: str = None, table: str = None, file: str = None, data: list = None):
         """Imports or updates records in a table of a named schema.
         
         :param schema: name of a schema
@@ -162,27 +176,29 @@ class Client:
         :returns: status message or response
         :rtype: str
         """
+        current_schema = self._set_schema(schema=schema)
+
+        if current_schema not in self.schemas:
+            raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
+
+        if not self._table_in_schema(table, current_schema):
+            raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
+
         import_data = self._prep_data_or_file(file_path=file, data=data)
-
-        if schema not in self.schemas:
-            raise NoSuchSchemaException(f"Schema '{schema}' not found on server.")
-
-        if not self._table_in_schema(table, schema):
-            raise NoSuchTableException(f"Table '{table}' not found in schema '{schema}'.")
-
+        
         response = self.session.post(
-            url=f"{self.url}/{schema}/api/csv/{table}",
+            url=f"{self.url}/{current_schema}/api/csv/{table}",
             headers={'Content-Type': 'text/csv'},
             data=import_data
         )
         
         if response.status_code == 200:
-            log.info(f"Imported data into {schema}::{table}.")
+            log.info(f"Imported data into {current_schema}::{table}.")
         else:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
-            log.error(f"Failed to import data into {schema}::{table}\n{errors}.")
+            log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
 
-    def delete(self, schema: str, table: str, file: str = None, data: list = None):
+    def delete(self, schema: str = None, table: str = None, file: str = None, data: list = None):
         """Deletes records from table.
         
         :param schema: name of a schema
@@ -197,27 +213,29 @@ class Client:
         :returns: status message or response
         :rtype: str
         """
+        current_schema = self._set_schema(schema=schema)
+
+        if current_schema not in self.schemas:
+            raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
+
+        if not self._table_in_schema(table, current_schema):
+            raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
+
         import_data = self._prep_data_or_file(file_path=file, data=data)
-
-        if schema not in self.schemas:
-            raise NoSuchSchemaException(f"Schema '{schema}' not found on server.")
-
-        if not self._table_in_schema(table, schema):
-            raise NoSuchTableException(f"Table '{table}' not found in schema '{schema}'.")
-
+        
         response = self.session.delete(
-            url=f"{self.url}/{schema}/api/csv/{table}",
+            url=f"{self.url}/{current_schema}/api/csv/{table}",
             headers={'Content-Type': 'text/csv'},
             data=import_data
         )
         
         if response.status_code == 200:
-            log.info(f"Deleted data from {schema}::{table}.")
+            log.info(f"Deleted data from {current_schema}::{table}.")
         else:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
-            log.error(f"Failed to delete data from {schema}::{table}\n{errors}.")
+            log.error(f"Failed to delete data from {current_schema}::{table}\n{errors}.")
     
-    def get(self, schema: str, table: str, as_df: bool = False) -> list | pd.DataFrame:
+    def get(self, schema: str = None, table: str = None, as_df: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a schema and returns as a list of dictionaries or as
         a pandas DataFrame (as pandas is used to parse the response).
         
@@ -232,16 +250,18 @@ class Client:
         :returns: list of dictionaries, status message or data frame
         :rtype: list | pd.DataFrame
         """
-        if schema not in self.schemas:
-            raise NoSuchSchemaException(f"Schema '{schema}' not found on server.")
+        current_schema = self._set_schema(schema=schema)
+        
+        if current_schema not in self.schemas:
+            raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
 
-        if not self._table_in_schema(table, schema):
-            raise NoSuchTableException(f"Table '{table}' not found in schema '{schema}'.")
+        if not self._table_in_schema(table, current_schema):
+            raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
 
-        response = self.session.get(url=f"{self.url}/{schema}/api/csv/{table}")
+        response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table}")
 
         if response.status_code != 200:
-            message = f"Failed to retrieve data from '{schema}::{table}'." \
+            message = f"Failed to retrieve data from '{current_schema}::{table}'." \
                       f"\nStatus code: {response.status_code}."
             log.error(message)
             raise PyclientException(message)
