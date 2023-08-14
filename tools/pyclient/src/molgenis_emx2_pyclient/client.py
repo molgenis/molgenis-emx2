@@ -302,51 +302,61 @@ class Client:
         )
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
-    def export(self, schema: str, table: str = None, fmt: OutputFormat = 'csv'):
-        """Export data from a schema to a file in the desired format."""
+    def export(self, schema: str = None, table: str = None, format: OutputFormat = 'csv'):
+        """Export data from a schema to a file in the desired format.
+        
+        :param schema: the name of the schema
+        :type schema: str
+        :param table: the name of the table
+        :type table: str
+        :param format: the export format of the schema and or table (csv or xlsx)
+        :type format: str
+        
+        """
+        current_schema = self._set_schema(schema=schema)
 
-        if schema not in self.schemas:
-            raise NoSuchSchemaException(f"Schema '{schema}' not found on server.")
+        if current_schema not in self.schemas:
+            raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
 
-        if table is not None and not self._table_in_schema(table, schema):
-            raise NoSuchTableException(f"Table '{table}' not found in schema '{schema}'.")
+        if table is not None and not self._table_in_schema(table, current_schema):
+            raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
 
-        if fmt == 'xlsx':
+        if format == 'xlsx':
             if table is None:
                 # Export the whole schema
-                url = f"{self.url}/{schema}/api/excel"
+                url = f"{self.url}/{current_schema}/api/excel"
                 response = self.session.get(url)
 
-                filename = f"{schema}.xlsx"
+                filename = f"{current_schema}.xlsx"
                 with open(filename, "wb") as f:
                     f.write(response.content)
-                log.info(f"Exported data from schema {schema} to '{filename}'.")
+                log.info(f"Exported data from schema {current_schema} to '{filename}'.")
             else:
                 # Export the single table
-                url = f"{self.url}/{schema}/api/excel/{table}"
+                url = f"{self.url}/{current_schema}/api/excel/{table}"
                 response = self.session.get(url)
 
                 filename = f"{table}.xlsx"
                 with open(filename, "wb") as f:
                     f.write(response.content)
-                log.info(f"Exported data from table {table} in schema {schema} to '{filename}'.")
+                log.info(f"Exported data from table {table} in schema {current_schema} to '{filename}'.")
 
-        if fmt == 'csv':
+        if format == 'csv':
             if table is None:
-                url = f"{self.url}/{schema}/api/zip"
+                url = f"{self.url}/{current_schema}/api/zip"
                 response = self.session.get(url)
 
-                filename = f"{schema}.zip"
+                filename = f"{current_schema}.zip"
                 with open(filename, "wb") as f:
                     f.write(response.content)
-                log.info(f"Exported data from schema {schema} to '{filename}'.")
+                log.info(f"Exported data from schema {current_schema} to '{filename}'.")
             else:
                 # Export the single table
-                url = f"{self.url}/{schema}/api/csv/{table}"
+                url = f"{self.url}/{current_schema}/api/csv/{table}"
                 response = self.session.get(url)
 
                 filename = f"{table}.csv"
                 with open(filename, "wb") as f:
                     f.write(response.content)
-                log.info(f"Exported data from table {table} in schema {schema} to '{filename}'.")
+                log.info(f"Exported data from table {table} in schema {current_schema} to '{filename}'.")
 

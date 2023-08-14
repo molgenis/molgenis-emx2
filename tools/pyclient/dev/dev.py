@@ -34,7 +34,6 @@ def main():
 
     # Connect to the server and sign in
     client = Client('https://emx2.dev.molgenis.org/')
-    # client = Client('https://emx2.dev.molgenis.org/', schema='pet store')
     client.signin(username, password)
 
     # Check sign in status
@@ -42,9 +41,16 @@ def main():
 
     # Export the entire 'pet store' schema to a .xlsx file
     # and export the 'Cohorts' table from schema 'catalogue' to a .csv file
-    client.export(schema='pet store', fmt='xlsx')
-    client.export(schema='pet store', fmt='csv')
-    client.export(schema='catalogue-demo', table='Cohorts', fmt='csv')
+    client.export(schema='pet store', format='xlsx')
+    client.export(schema='pet store', format='csv')
+    client.export(schema='catalogue-demo', table='Cohorts', format='csv')
+    
+    # connect to server with default schema
+    # client = Client('https://emx2.dev.molgenis.org/', schema='pet store')
+    # client.signin(username, password)
+    # client.export(format='csv')
+    # client.export(table='Pet', format='csv')
+    # client.export(table='Pet', format='xlsx')
 
     # Retrieve data from a table in a schema on the server using the 'get' method
     # Passing non-existing schema name yields a NoSuchSchemaException
