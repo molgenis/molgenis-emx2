@@ -558,6 +558,9 @@ class OntologyManager:
         if response.status_code == 404:
             raise InvalidDatabaseException(f"Invalid database name '{database}'.")
 
+        if response.status_code == 500:
+            raise ConnectionError(f"{response.status_code}: {response.content}")
+
         if len(response.json()['data']['_schema']) == 0:
             raise InvalidDatabaseException(f"No tables found in database '{database}'.")
 
