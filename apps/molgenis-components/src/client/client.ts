@@ -34,9 +34,7 @@ const client: IClient = {
       ): Promise<ITableMetaData> => {
         const schema = await fetchSchemaMetaData(myAxios, schemaName);
         return deepClone(schema).tables.find(
-          (table: ITableMetaData) =>
-            table.id === convertToPascalCase(tableName) &&
-            table.externalSchema === schemaName
+          (table: ITableMetaData) => table.id === convertToPascalCase(tableName)
         );
       },
       fetchTableData: async (

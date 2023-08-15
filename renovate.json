@@ -4,6 +4,12 @@
   ],
   "packageRules": [ 
     {
+      "groupName":"com.squareup.okhttp3",
+      "matchPackagePrefixes": [
+        "com.squareup.okhttp3"
+      ]
+    }
+    {
       "matchPackageNames": ["vue-router"],
       "allowedVersions": ">=3.5"
     },
