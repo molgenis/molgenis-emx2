@@ -305,7 +305,7 @@ class OntologyManager:
             if num_tries > MAX_TRIES:
                 raise ParentReferenceException(f"Could not delete terms '{','.join(parent_terms)}' due to terms'"
                                                f"reference to parent term.")
-            mutations = self._delete_list(table, parent_terms, num_tries+1, mutations=mutations)
+            mutations = self._delete_list(table, parent_terms, num_tries + 1, mutations=mutations)
         return mutations
 
     def _delete_term(self, table: str, term: str):
@@ -385,10 +385,12 @@ class OntologyManager:
             tb_dict = dict()
 
             tb_pkeys = [
-                (col if col_vals.get('columnType') != 'REF'
-                 else col + ' {' + (", ".join(self.__parse_column_name(c)
-                                              for (c, v) in self.manager.schema[self.database][col_vals['refTable']]['columns'].items()
-                                              if v.get('key') == 1)) + '}')
+                (self.__parse_column_name(col) if col_vals.get('columnType') != 'REF'
+                 else self.__parse_column_name(col) + ' {' + (", ".join(self.__parse_column_name(c)
+                                                                        for (c, v) in
+                                                                        self.manager.schema[self.database][
+                                                                            col_vals['refTable']]['columns'].items()
+                                                                        if v.get('key') == 1)) + '}')
                 for (col, col_vals) in tb_values['columns'].items() if col_vals.get('key') == 1
             ]
 
@@ -534,6 +536,8 @@ class OntologyManager:
             self.graphql_endpoint,
             json={"query": query}
         )
+        if response.status_code != 200:
+            raise OntomanagerException(f"Error: {response.status_code}, {response.reason}.")
         tables = [table['name'] for table in response.json()['data']['_schema']['tables']]
         return tables
 
@@ -568,7 +572,7 @@ class OntologyManager:
             raise InvalidDatabaseException(f"Invalid database name '{database}'.")
 
         if response.status_code == 500:
-            raise ConnectionError(f"{response.status_code}: {response.content}")
+            raise ConnectionError(f"{response.status_code}: {response.reason}.")
 
         if len(response.json()['data']['_schema']) == 0:
             raise InvalidDatabaseException(f"No tables found in database '{database}'.")
