@@ -8,7 +8,7 @@ import org.molgenis.emx2.sql.SqlDatabase;
 public class ErnCranioLoader extends AbstractDataLoader {
   
   @Override
-  void loadInternalImplementation(schema schema, boolean includeDemoData) {
+  void loadInternalImplementation(Schema schema, boolean includeDemoData) {
     createSchema(schema, 'ern-cranio/model/molgenis.csv');
     
     // load ontologies
