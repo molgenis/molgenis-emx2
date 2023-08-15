@@ -95,7 +95,7 @@ export default {
     </DemoItem>
     <DemoItem>
       <InputSelect
-          description="Default value"
+          description="With default value 'ape'"
           id="input-select-default"
           label="Default value set"
           v-model="defaultValue"
