@@ -133,7 +133,6 @@ export default {
         });
     },
     updateEmail(event) {
-      console.log(event);
       this.editMember["email"] = event.target.innerText;
     },
     updateMember() {
