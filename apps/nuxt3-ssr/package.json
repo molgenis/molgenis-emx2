@@ -38,7 +38,7 @@
     "vitest": "^0.30.1"
   },
   "dependencies": {
-    "@unhead/vue": "1.3.3",
+    "@unhead/vue": "1.3.4",
     "floating-vue": "^2.0.0-beta.20",
     "node-fetch-native": "1.2.0",
     "vite": "4.0.5",
