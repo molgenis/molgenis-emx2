@@ -10,8 +10,8 @@
       <input
         class="form-control"
         :class="{ 'is-invalid': errorMessage }"
-        @click="showSelect = true && !this.readonly"
-        @focus="showSelect = true && !this.readonly"
+        @click="showSelect = !this.readonly"
+        @focus="showSelect = !this.readonly"
         :value="applyJsTemplate(modelValue, refLabel)"
         :readonly="readonly"
       />
