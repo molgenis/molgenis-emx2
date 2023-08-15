@@ -22,8 +22,8 @@
                 class="mb-0"
                 id="aggregate-column-select"
                 v-model="selectedColumn"
-                :options="refColumns"
                 @update:modelValue="fetchData"
+                :options="refColumns"
                 required
               />
             </td>
@@ -42,8 +42,8 @@
                 class="mb-2"
                 id="aggregate-row-select"
                 v-model="selectedRow"
-                :options="refColumns"
                 @update:modelValue="fetchData"
+                :options="refColumns"
                 required
               />
             </td>
