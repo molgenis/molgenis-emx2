@@ -23,6 +23,7 @@
                 id="aggregate-column-select"
                 v-model="selectedColumn"
                 :options="refColumns"
+                @update:modelValue="fetchData"
                 required
               />
             </td>
@@ -42,6 +43,7 @@
                 id="aggregate-row-select"
                 v-model="selectedRow"
                 :options="refColumns"
+                @update:modelValue="fetchData"
                 required
               />
             </td>
@@ -205,12 +207,6 @@ export default defineComponent({
     },
   },
   watch: {
-    selectedColumn() {
-      this.fetchData();
-    },
-    selectedRow() {
-      this.fetchData();
-    },
     allColumns() {
       this.initialize();
     },
