@@ -29,6 +29,7 @@ class Client:
         self.api_graphql = self.url + "/api/graphql"
 
         self.signin_status = 'unknown'
+        self.username = None
 
         self.session = requests.Session()
         
@@ -302,15 +303,15 @@ class Client:
         )
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
-    def export(self, schema: str = None, table: str = None, format: OutputFormat = 'csv'):
+    def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv'):
         """Export data from a schema to a file in the desired format.
         
         :param schema: the name of the schema
         :type schema: str
         :param table: the name of the table
         :type table: str
-        :param format: the export format of the schema and or table (csv or xlsx)
-        :type format: str
+        :param fmt: the export format of the schema and or table (csv or xlsx)
+        :type fmt: str
         
         """
         current_schema = self._set_schema(schema=schema)
@@ -321,7 +322,7 @@ class Client:
         if table is not None and not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
 
-        if format == 'xlsx':
+        if fmt == 'xlsx':
             if table is None:
                 # Export the whole schema
                 url = f"{self.url}/{current_schema}/api/excel"
@@ -341,7 +342,7 @@ class Client:
                     f.write(response.content)
                 log.info(f"Exported data from table {table} in schema {current_schema} to '{filename}'.")
 
-        if format == 'csv':
+        if fmt == 'csv':
             if table is None:
                 url = f"{self.url}/{current_schema}/api/zip"
                 response = self.session.get(url)
@@ -359,4 +360,3 @@ class Client:
                 with open(filename, "wb") as f:
                     f.write(response.content)
                 log.info(f"Exported data from table {table} in schema {current_schema} to '{filename}'.")
-

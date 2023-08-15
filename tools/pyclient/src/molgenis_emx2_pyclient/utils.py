@@ -1,6 +1,6 @@
-import csv
-
-import pandas as pd
+"""
+Utility functions for the Molgenis EMX2 Pyclient package
+"""
 
 
 def parse_url(url: str) -> str:
