@@ -72,7 +72,7 @@
               <a :href="'../api/ttl'">ttl</a> /
               <a :href="'../api/jsonld'">jsonld</a>
             </p>
-            <div v-if="visibleTables?.length > 0" :key="tablesHash">
+            <div v-if="visibleTables?.length" :key="tablesHash">
               Export specific tables:
               <ul>
                 <li v-for="table in visibleTables" :key="table.name">
