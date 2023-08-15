@@ -369,7 +369,7 @@ class OntologyManager:
 
             for tb_name, tb_values in db_schema.items():
                 self.table = tb_name
-                if tb_values.get('externalSchema') != database:
+                if tb_values.get('externalSchema') == 'CatalogueOntologies':
                     continue
                 tb_dict = self.__update_table(tb_name, tb_values)
 
@@ -408,8 +408,9 @@ class OntologyManager:
         def __update_column(self, pkeys: list) -> list:
             """Update the values in the table column"""
             _table = self.manager.parse_table_name(self.table)
-            query = Queries.column_values(_table, self.column, pkeys)
-            variables = {'filter': {self.column: {'equals': {'name': self.old}}}}
+            _column = self.__parse_column_name(self.column)
+            query = Queries.column_values(_table, _column, pkeys)
+            variables = {'filter': {_column: {'equals': {'name': self.old}}}}
 
             response = self.manager.client.session.post(
                 f'{self.manager.client.url}/{self.database}/graphql',
@@ -426,7 +427,7 @@ class OntologyManager:
             column_values = response.json()['data'][_table]
             column_values_updated = [
                 {col: (col_val
-                       if col != self.column
+                       if col != _column
                        else (([{'name': (item['name'] if item['name'] != self.old else self.new)
                                 for item in col_val}]) if type(col_val) is list
                              else {'name': (col_val['name'] if col_val['name'] != self.old else self.new)}))

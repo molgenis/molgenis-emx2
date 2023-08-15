@@ -39,12 +39,6 @@ def dev_ontomanager(url: str = None, username: str = None, password: str = None)
 
     manager = OntologyManager(url, username, password)
 
-    # Add term 'UMCG register Utopia' to table 'External identifier types'
-    manager.add(table='External identifier types', name='UMCG register Utopia')
-
-    # Update references to 'UMCG register number' to 'UMCG register Utopia'
-    manager.update(table='External identifier types', old='UMCG register number', new='UMCG register Utopia')
-
     try:
         # manager.add(table='Countries', order=1000, name="Republic of Molgenia")
         manager.add(table='Countries', data={'name': 'Republic of Molgenia', 'order': 1000})
