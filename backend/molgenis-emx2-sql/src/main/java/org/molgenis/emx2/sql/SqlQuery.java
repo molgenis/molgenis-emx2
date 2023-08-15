@@ -8,10 +8,7 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.*;
 import org.jooq.Table;
@@ -593,7 +590,7 @@ public class SqlQuery extends QueryBean {
       }
     }
     return field((jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
-        .as(select.getColumn());
+        .as(column.getIdentifier());
   }
 
   private Field<?> jsonAggregateSelect(
@@ -671,7 +668,9 @@ public class SqlQuery extends QueryBean {
         selectFields.add(field("COUNT(*)"));
       } else {
         Column col = getColumnByName(table, field.getColumn());
-        List<Field> subselectFields = new ArrayList<>();
+        // composite keys might have overlapping underlying columns via 'refLink'
+        // therefore we use a Set here.
+        Set<Field> subselectFields = new HashSet<>();
 
         // need pkey to allow for joining of the subqueries
         table
@@ -684,7 +683,9 @@ public class SqlQuery extends QueryBean {
                         .forEach(
                             pkeyRef -> {
                               subselectFields.add(
-                                  field(name("pkey_" + convertToCamelCase(pkeyRef.getName()))));
+                                  pkeyRef
+                                      .getJooqField()
+                                      .as(name("pkey_" + convertToCamelCase(pkeyRef.getName()))));
                             });
                   } else {
                     subselectFields.add(
