@@ -8,7 +8,7 @@
         required
         :modelValue="module"
         @update:modelValue="updateDisplay"
-        :options="['Empty', 'Text', 'Graph']"
+        :options="['Empty', 'Text', 'Graph', 'Table', 'Aggregate']"
     /></span>
 
     <component
@@ -28,6 +28,8 @@ import { InputSelectInplace } from "molgenis-components";
 import EmptyDisplay from "./EmptyDisplay.vue";
 import TextDisplay from "./TextDisplay.vue";
 import GraphDisplay from "./GraphDisplay.vue";
+import AggregateDisplay from "./AggregateDisplay.vue";
+import TableDisplay from "./TableDisplay.vue";
 
 const props = defineProps({
   settings: Object,
@@ -50,9 +52,13 @@ function updateComponent(value) {
   emit("update", value);
 }
 function GetDisplay(display) {
-  return { Empty: EmptyDisplay, Text: TextDisplay, Graph: GraphDisplay }[
-    display
-  ];
+  return {
+    Empty: EmptyDisplay,
+    Text: TextDisplay,
+    Graph: GraphDisplay,
+    Aggregate: AggregateDisplay,
+    Table: TableDisplay,
+  }[display];
 }
 </script>
 
