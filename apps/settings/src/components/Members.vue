@@ -15,13 +15,17 @@
       <h5 class="card-title">Manage members</h5>
       <p>Use table below to add, edit or remove members</p>
       <form v-if="canEdit" class="form-inline">
-        <InputString
-          id="member-email"
-          class="mb-2 mr-sm-4"
-          v-model="editMember['email']"
-          placeholder="email address"
-          label="Email:"
-        />
+        <div class="form-group mb-2 mr-sm-4">
+          <label><b>Email:</b></label>
+          <span
+            id="member-email"
+            class="form-control"
+            style="min-width: 8rem"
+            @input="updateEmail"
+            placeholder="email address"
+            contenteditable
+          />
+        </div>
         <InputSelect
           id="member-role"
           class="mb-2 mr-sm-4"
@@ -127,6 +131,10 @@ export default {
         .finally(() => {
           this.loading = false;
         });
+    },
+    updateEmail(event) {
+      console.log(event);
+      this.editMember["email"] = event.target.innerText;
     },
     updateMember() {
       this.loading = true;
