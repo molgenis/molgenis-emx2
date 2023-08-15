@@ -554,10 +554,10 @@ class OntologyManager:
 
     def get_schema(self):
         """Get the schema for all databases on the server."""
-        schema = {
-            db: self.get_database_schema(db)
-            for db in self.list_databases()
-        }
+        schema = {}
+        for db in self.list_databases():
+            log.debug(f"Indexing schema '{db}'.")
+            schema.update({db: self.get_database_schema(db)})
         return schema
 
     def get_database_schema(self, database: str) -> dict:
