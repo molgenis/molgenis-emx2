@@ -57,11 +57,6 @@ export default {
   props: {
     options: { type: Array, required: true },
   },
-  created() {
-    if (this.required && this.options.length === 1) {
-      this.$emit("update:modelValue", this.options[0]);
-    }
-  },
 };
 </script>
 
@@ -71,7 +66,7 @@ export default {
     <DemoItem>
       <InputSelect
         description="Normal select input"
-        id="input-select"
+        id="input-select-normal"
         label="Animals"
         v-model="check"
         :options="['lion', 'ape', 'monkey']"
@@ -92,7 +87,7 @@ export default {
     <DemoItem>
       <InputSelect
         description="Empty select input"
-        id="input-select"
+        id="input-select-empty"
         label="No animals"
         v-model="check"
         :options="[]"
@@ -100,7 +95,16 @@ export default {
     </DemoItem>
     <DemoItem>
       <InputSelect
-        id="input-select"
+          description="Default value"
+          id="input-select-default"
+          label="Default value set"
+          v-model="defaultValue"
+          :options="['lion', 'ape', 'monkey']"
+      />
+    </DemoItem>
+    <DemoItem>
+      <InputSelect
+        id="input-select-readonly"
         label="Readonly"
         v-model="readonlyModel"
         :options="['lion', 'ape', 'monkey']"
@@ -117,6 +121,7 @@ export default {
       check: null,
       requiredCheck: null,
       empty: null,
+      defaultValue: 'ape',
       readonlyModel: 'lion'
     };
   },
