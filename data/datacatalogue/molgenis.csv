@@ -77,6 +77,8 @@ RWE resources,,population entry other,text,,,,,,,,,"If other, specify the causes
 RWE resources,,population exit,ontology_array,,,CatalogueOntologies,Population exit,,,,,Select the possible causes / events that trigger the de-registration of a person in the data source,EMA,Databanks,populationExit
 RWE resources,,population exit other,text,,,,,,,,,"If other, specify the causes of exit from the underlying population",EMA,Databanks,populationExitOther
 Data resources,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",,,
+Data resources,,population oncology topology,ontology_array,,,CatalogueOntologies,ICDO topologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.",,,
+Data resources,,population oncology morphology,ontology_array,,,CatalogueOntologies,ICDO morphologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.",,,
 RWE resources,,population coverage,text,,,,,,,,,Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.,EMA,,
 RWE resources,,population not covered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) ",EMA,,
 RWE resources,,quantantitative information,refback,,,,Quantitative information,,resource,,,Numerical summaries describing data bank population,EMA,,
