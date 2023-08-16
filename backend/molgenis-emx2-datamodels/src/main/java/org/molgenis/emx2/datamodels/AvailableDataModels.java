@@ -7,11 +7,11 @@ public enum AvailableDataModels {
   DATA_CATALOGUE_COHORT_STAGING(new DataCatalogueCohortStagingLoader()),
   DATA_CATALOGUE_NETWORK_STAGING(new DataCatalogueNetworkStagingLoader()),
   DATA_CATALOGUE(new DataCatalogueLoader()),
-  ERN_CRANIO(new ErnCranioLoader()),
   PET_STORE(new PetStoreLoader()),
   FAIR_DATA_HUB(new FAIRDataHubLoader()),
   RD3(new Rd3Loader()),
-  DASHBOARD(new DashboardLoader()),
+  ERN_DASHBOARD(new DashboardLoader()),
+  ERN_CRANIO(new ErnCranioLoader()),
   BIOBANK_DIRECTORY(new BiobankDirectoryLoader());
 
   private AbstractDataLoader installer;
