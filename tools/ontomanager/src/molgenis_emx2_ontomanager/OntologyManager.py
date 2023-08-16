@@ -1,11 +1,13 @@
 # OntologyManager.py
 
 import logging
+from time import sleep
 
 import numpy as np
 import pandas as pd
 from molgenis_emx2_pyclient.client import Client
 from requests import Response
+from tqdm import tqdm
 
 from .constants import ontology_columns
 from .exceptions import OntomanagerException, DuplicateKeyException, MissingPkeyException, NoSuchNameException, \
@@ -270,7 +272,7 @@ class OntologyManager:
         return results
 
     def _update_term(self, ontology_table: str, old: str, new: str):
-        log.info(f"Renaming in term '{old}' to '{new}' in table {ontology_table}.")
+        log.info(f"Updating term '{old}' to '{new}' in ontology table {ontology_table}.")
 
         if old not in self.list_ontology_terms(ontology_table).keys():
             raise NoSuchNameException(f"Name '{old}' not found in table '{ontology_table}'.")
@@ -371,7 +373,13 @@ class OntologyManager:
                 self.table = tb_name
                 if tb_values.get('externalSchema') == 'CatalogueOntologies':
                     continue
-                tb_dict = self.__update_table(tb_name, tb_values)
+                if tb_values.get('externalSchema') != database:
+                    try:
+                        tb_dict = self.__update_table(tb_name, tb_values)
+                    except NoSuchTableException:
+                        continue
+                else:
+                    tb_dict = self.__update_table(tb_name, tb_values)
 
                 if len(tb_dict.keys()) > 0:
                     db_dict.update({tb_name: tb_dict})
@@ -383,16 +391,7 @@ class OntologyManager:
             Update a data table in the database.
             """
             tb_dict = dict()
-
-            tb_pkeys = [
-                (self.__parse_column_name(col) if col_vals.get('columnType') != 'REF'
-                 else self.__parse_column_name(col) + ' {' + (", ".join(self.__parse_column_name(c)
-                                                                        for (c, v) in
-                                                                        self.manager.schema[self.database][
-                                                                            col_vals['refTable']]['columns'].items()
-                                                                        if v.get('key') == 1)) + '}')
-                for (col, col_vals) in tb_values['columns'].items() if col_vals.get('key') == 1
-            ]
+            tb_pkeys = self.__get_pkeys(tb_values['columns'])
 
             for col, col_values in tb_values['columns'].items():
                 self.column = col
@@ -418,10 +417,7 @@ class OntologyManager:
             )
 
             if response.status_code != 200:
-                log.debug(f"Error {response.status_code} in database {self.database}, table {self.table}, "
-                          f"column {self.column}.")
-                log.debug(response.text)
-                return []
+                raise NoSuchTableException(f"Table '{self.table}' not found on schema '{self.database}'.")
             if len(response.json()['data']) == 0:
                 return []
             column_values = response.json()['data'][_table]
@@ -448,8 +444,8 @@ class OntologyManager:
                 log.debug(response.status_code)
                 log.debug(response.text)
             else:
-                log.info(f"Successfully updated term in column '{self.column}'"
-                         f" of table '{self.table}' on database '{self.database}' in {len(column_values)} rows.")
+                log.info(f"Successfully updated term on '{self.database}::{self.table}' "
+                         f"in {len(column_values)} rows in column '{self.column}'.")
                 return column_values_updated
 
         @staticmethod
@@ -461,6 +457,23 @@ class OntologyManager:
             if ' ' not in col_name:
                 return col_name
             return col_name.split(' ')[0] + "".join(word[0].upper() + word[1:] for word in col_name.split(' ')[1:])
+
+        def __get_pkeys(self, columns: dict):
+            """Retrieve and parse primary keys among the columns in a table."""
+            tb_pkeys = []
+            for (col, col_vals) in columns.items():
+                if col_vals.get('key') != 1:
+                    continue
+                pkey = self.__parse_column_name(col)
+                if col_vals.get('columnType') == 'REF':
+                    sub_keys = []
+                    for (c, v) in self.manager.schema[self.database][col_vals['refTable']]['columns'].items():
+                        if v.get('key') != 1:
+                            continue
+                        sub_keys.append(self.__parse_column_name(c))
+                    pkey += '{' + ", ".join(sub_keys) + '}'
+                tb_pkeys.append(pkey)
+            return tb_pkeys
 
     def __perform_query(self, query: str, variables: dict, action: str) -> Response:
         """Perform the query using the query and variables supplied."""
@@ -555,9 +568,11 @@ class OntologyManager:
     def get_schema(self):
         """Get the schema for all databases on the server."""
         schema = {}
-        for db in self.list_databases():
-            log.debug(f"Indexing schema '{db}'.")
+        schemas = tqdm(self.list_databases())
+        for db in schemas:
+            schemas.set_description(f"Indexing schema {db:23}")
             schema.update({db: self.get_database_schema(db)})
+            sleep(0.1)
         return schema
 
     def get_database_schema(self, database: str) -> dict:
