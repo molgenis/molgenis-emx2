@@ -53,8 +53,8 @@ def dev_ontomanager(url: str = None, username: str = None, password: str = None)
     manager.update(table='Countries', old='Armadilland', new='Republic of Molgenia')
     manager.update(table='Countries', old='Republic of Molgenia', new='Netherlands (the)')
 
-    manager.delete(table='Countries', name="Armadilland")
-    manager.delete(table='Countries', name="Republic of Molgenia")
+    # manager.delete(table='Countries', name="Armadilland")
+    # manager.delete(table='Countries', name="Republic of Molgenia")
     manager.delete(table='Countries', names=["Armadilland", "Republic of Molgenia"])
 
 

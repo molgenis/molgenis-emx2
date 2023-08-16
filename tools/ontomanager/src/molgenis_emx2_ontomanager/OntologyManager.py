@@ -1,6 +1,7 @@
 # OntologyManager.py
-
+import json
 import logging
+import os.path
 from time import sleep
 
 import numpy as np
@@ -31,7 +32,8 @@ class OntologyManager:
         :param username: the username to sign in to the server
         :param password: the password that belongs to the username for this server
         """
-        self.client = Client(url=url, username=username, password=password)
+        self.client = Client(url=url)
+        self.client.signin(username=username, password=password)
         self.graphql_endpoint = f'{self.client.url}/CatalogueOntologies/graphql'
         self.ontology_tables = self.__list_ontology_tables()
         self.schema = self.get_schema()
@@ -565,14 +567,26 @@ class OntologyManager:
         databases = [db['name'] for db in response.json()['data']['_schemas']]
         return databases
 
-    def get_schema(self):
+    def get_schema(self, force_new: bool = False):
         """Get the schema for all databases on the server."""
+        schema_file = f"~{self.client.url.split('//')[-1]}-schema.json"
+        if not force_new:
+            if os.path.isfile(schema_file):
+                with open(schema_file, 'r') as f:
+                    schema = json.load(f)
+                log.debug(f"Read schema from file '{schema_file}'.")
+                return schema
+
         schema = {}
         schemas = tqdm(self.list_databases())
         for db in schemas:
             schemas.set_description(f"Indexing schema {db:23}")
             schema.update({db: self.get_database_schema(db)})
             sleep(0.1)
+
+        with open(schema_file, "w") as f:
+            json.dump(schema, f, indent=True)
+        log.debug(f"Saved schema to '{schema_file}'.")
         return schema
 
     def get_database_schema(self, database: str) -> dict:
