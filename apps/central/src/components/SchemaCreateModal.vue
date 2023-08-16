@@ -132,6 +132,7 @@ export default {
         "RD3",
         "DASHBOARD",
         "BIOBANK_DIRECTORY",
+        "DATA_CATALOGUE_NETWORK_MANAGEMENT",
       ],
       includeDemoData: false,
     };

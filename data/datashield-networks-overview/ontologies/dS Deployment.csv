@@ -1,0 +1,8 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,redhat,Red Hat,,,,,
+2,ubuntu,Ubuntu,,,,,
+3,k8,K8,,,,,
+4,centos,CentOS,,,,,
+5,coral,Coral,,,,,
+201,ubuntu-22,22,ubuntu-22,,,,
+202,ubuntu-22.04,22.04,ubuntu,,,,

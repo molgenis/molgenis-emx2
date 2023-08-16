@@ -1,0 +1,61 @@
+tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,validation,visible,computed,semantics,label,description
+dS Contacts,,,,,,,,,,,,,,,,,"Contact information of pi's, dm's and other technical support contacts"
+Version,,,,,,,,,,,,,,,,,0.9
+dS Servers,,,,,,,,,,,,,,,,,URL’s to DataSHIELD servers
+DataSHIELD Technical resources,,,,,,,,,,,,,,,,,Overview of the DataSHIELD Technical resources
+DataSHIELD Cohort resources,,,,,,,,,,,,,,,,,Overview of the DataSHIELD Cohorts resources
+DataSHIELD Network resources,,,,,,,,,,,,,,,,,Overview of the DataSHIELD Network resources
+DataSHIELD Cohort resources,,,DataSHIELD Cohorts Overview,heading,,,,,,,,,,,,,
+DataSHIELD Cohort resources,,,cohort,ref,1,true,catalogue,Cohorts,,,,,,,,,
+DataSHIELD Cohort resources,,,PI,ref_array,,,,dS Contacts,,,,,,,,Principal investigator,The principal investigator(s) of this cohort.
+DataSHIELD Cohort resources,,,DM,ref_array,,,,dS Contacts,,,,,,,,Data manager,The data manager(s) of this cohort
+DataSHIELD Cohort resources,,,TS infra,ref_array,,,,dS Contacts,,,,,,,,Technical support - Infrastructure,
+DataSHIELD Cohort resources,,,TS app,ref_array,,,,dS Contacts,,,,,,,,Technical support - Application level,
+DataSHIELD Cohort resources,,,institute,ref_array,,,catalogue,Organisations,,,,,,,,,
+DataSHIELD Cohort resources,,,notes,text,,,,,,,,,,,,,
+DataSHIELD Cohort resources,,,Networks,heading,,,,,,,,,,,,,
+DataSHIELD Cohort resources,,,networks,ref_array,,,catalogue,Networks,,,,,,,,Networks,In which networks does this cohort take part?
+DataSHIELD Cohort resources,,,Acties,heading,,,,,,,,,,,,Acties etc.,
+DataSHIELD Cohort resources,,,actie nodig,ontology,,,,extended bool,,,,,,,,Actie nodig?,
+DataSHIELD Cohort resources,,,actie,text,,,,,,,,,,,,Actie,
+DataSHIELD Cohort resources,,,staging area,ontology,,,,extended bool,,,,,,,,Staging area?,
+DataSHIELD Cohort resources,,,rich metadata complete,ontology,,,,extended bool,,,,,,,,Rich metadata complete?,
+DataSHIELD Cohort resources,,,source variables,ontology,,,,extended bool,,,,,,,,Source variables?,
+DataSHIELD Cohort resources,,,mappings,ontology,,,,extended bool,,,,,,,,Mappings,
+DataSHIELD Network resources,,,DataSHIELD Networks Overview,heading,,,,,,,,,,,,,
+DataSHIELD Network resources,,,network,ref,1,true,catalogue,Networks,,,,,,,,Network,
+DataSHIELD Network resources,,,server,ref,,,,dS Servers,,,,,,,,Server,
+DataSHIELD Network resources,,,horizon project,ontology,,,,Horizon projects,,,,,,,,Horizon project,
+DataSHIELD Network resources,,,main contact,ref_array,,,,dS Contacts,,,,,,,,Main contact,
+DataSHIELD Network resources,,,other contacts,ref_array,,,,dS Contacts,,,,,,,,Other contacts,
+DataSHIELD Network resources,,,notes,text,,,,,,,,,,,,Notes,
+DataSHIELD Network resources,,,Acties,heading,,,,,,,,,,,,Acties etc.,
+DataSHIELD Network resources,,,actie nodig,ontology,,,,extended bool,,,,,,,,Actie nodig?,
+DataSHIELD Network resources,,,actie,text,,,,,,,,,,,,Actie,
+DataSHIELD Network resources,,,staging area,ontology,,,,extended bool,,,,,,,,Staging area?,
+DataSHIELD Network resources,,,CDM,ontology,,,,extended bool,,,,,,,,,
+DataSHIELD Technical resources,,,DataSHIELD Technical Overview,heading,,,,,,,,,,,,,
+DataSHIELD Technical resources,,,cohort,ref,1,true,catalogue,Cohorts,,,,,,,,Cohort,
+DataSHIELD Technical resources,,,institute,ref,,,catalogue,Organisations,,,,,,,,Institute,
+DataSHIELD Technical resources,,,country,ref_array,,,CatalogueOntologies,Countries,,,,,,,,Country,
+DataSHIELD Technical resources,,,TS infra,ref_array,,,,dS Contacts,,,,,,,,Technical support - Infrastructure,
+DataSHIELD Technical resources,,,TS app,ref_array,,,,dS Contacts,,,,,,,,Technical support - Application level,
+DataSHIELD Technical resources,,,status,text,,,,,,,,,,,,Status,
+DataSHIELD Technical resources,,,followup,date,,,,,,,,,,,,Follow up,
+DataSHIELD Technical resources,,,DataSHIELD,heading,,,,,,,,,,,,,
+DataSHIELD Technical resources,,,server version,ontology,,,,dS Server version,,,,,,,,Server version,
+DataSHIELD Technical resources,,,server url,ref,,,,dS Servers,,,,,,,,Server url,
+DataSHIELD Technical resources,,,ds Packages,ontology_array,,,,ds Packages,,,,,,,,DataSHIELD packages,
+DataSHIELD Technical resources,,,firewalled,bool,,,,,,,,,,,,Firewalled,
+DataSHIELD Technical resources,,,blacklisting,,,,,,,,,,,,,Blacklisting,
+DataSHIELD Technical resources,,,deployment,ontology,,,,dS Deployment,,,,,,,,DataSHIELD deployment operating system,
+DataSHIELD Technical resources,,,storage gb,,,,,,,,,,,,,Storage GB,
+DataSHIELD Technical resources,,,ram gb,,,,,,,,,,,,,RAM GB,
+DataSHIELD Technical resources,,,Networks,heading,,,,,,,,,,,,,
+DataSHIELD Technical resources,,,networks,ref_array,,,catalogue,Networks,,,,,,,,Networks,In which networks does this cohort take part?
+DataSHIELD Technical resources,,,Notes,heading,,,,,,,,,,,,,
+DataSHIELD Technical resources,,,notes technical,text,,,,,,,,,,,,Technical notes,
+DataSHIELD Technical resources,,,notes other,text,,,,,,,,,,,,Other notes,
+dS Contacts,,,name,,1,true,,,,,,,,,,Contact’s name,
+dS Contacts,,,email address,email,2,true,,,,,,,,,,Contact’s email address,
+dS Servers,,,url,hyperlink,1,true,,,,,,,,,,,
