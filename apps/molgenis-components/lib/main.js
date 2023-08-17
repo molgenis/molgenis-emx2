@@ -53,6 +53,7 @@ import InputDate from "../src/components/forms/InputDate.vue";
 import InputDateTime from "../src/components/forms/InputDateTime.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
 import InputFile from "../src/components/forms/InputFile.vue";
+import InputEmail from "../src/components/forms/InputEmail.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
 import InputInt from "../src/components/forms/InputInt.vue";

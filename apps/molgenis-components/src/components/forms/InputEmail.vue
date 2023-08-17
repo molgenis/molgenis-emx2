@@ -15,12 +15,12 @@
         :ref="id"
         :name="name"
         :value="modelValue"
-        @input="$emit('update:modelValue', $event.target.value)"
+        @input="emit('update:modelValue', $event.target?.value)"
         type="text"
         class="form-control"
         :class="{ 'is-invalid': stringError }"
         :aria-describedby="id"
-        :placeholder="placeholderValue"
+        :placeholder="placeholder"
         :readonly="readonly"
       />
       <template v-slot:append>
@@ -30,47 +30,46 @@
   </FormGroup>
 </template>
 
-<script>
-import BaseInput from "./baseInputs/BaseInput.vue";
+<script setup lang="ts">
+import { computed } from "vue";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
+import BaseInputProps from "./baseInputs/BaseInputProps";
 
-export default {
-  name: "InputString",
-  components: { FormGroup, InputGroup },
-  extends: BaseInput,
-  props: {
-    stringLength: {
-      type: Number,
-      default: 255,
-    },
-    additionalValidValidationStrings: {
-      type: Array,
-      default: [],
-    },
+let props = defineProps({
+  ...BaseInputProps,
+  stringLength: {
+    type: Number,
+    default: 255,
   },
-  methods: {
-    validateEmail(email) {
-      return (
-        this.additionalValidValidationStrings.includes(email) ||
-        email?.match(
-          /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        )
-      );
-    },
+  additionalValidValidationStrings: {
+    type: Array,
+    default: [],
   },
-  computed: {
-    stringError() {
-      if (this.modelValue?.length > this.stringLength) {
-        return `Please limit to ${this.stringLength} characters.`;
-      } else if (!this.validateEmail(this.modelValue)) {
-        return `Please enter a valid email address`;
-      } else {
-        return this.errorMessage;
-      }
-    },
-  },
-};
+});
+
+const emit = defineEmits(["update:modelValue"]);
+
+function validateEmail(email: string) {
+  return (
+    props.additionalValidValidationStrings.includes(email) ||
+    email?.match(
+      /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    )
+  );
+}
+
+const stringError = computed(() => {
+  if (typeof props.modelValue === "string") {
+    if (props.modelValue.length > props.stringLength) {
+      return `Please limit to ${props.stringLength} characters.`;
+    } else if (!validateEmail(props.modelValue)) {
+      return `Please enter a valid email address`;
+    } else {
+      return props.errorMessage;
+    }
+  }
+});
 </script>
 
 <style scoped>
@@ -95,7 +94,7 @@ span:hover .hoverIcon {
       <InputEmail id="input-email2" v-model="value" :additionalValidValidationStrings="['user', 'admin', 'anonymous']"
                    description="validates email addresses with additional valid 'user', 'admin', 'anonymous' strings "/>
       <b>string length</b>
-      <InputEmail id="input-email5" v-model="value" :stringLength="4" label="maximum stringLength (4)"/>
+      <InputEmail id="input-email5" v-model="value" :stringLength="8" label="maximum stringLength (4)"/>
     </div>
   </template>
   <script>
