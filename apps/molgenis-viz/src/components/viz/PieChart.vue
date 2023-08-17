@@ -99,6 +99,13 @@ export default {
       default: "#3f454b",
     },
 
+    // If `true`, the pie chart will be rendered as a donut chart
+    // (i.e., with the center cut out).
+    asDonutChart: {
+      type: Boolean,
+      default: false,
+    },
+
     // If true, the chart will be aligned to the center of the parent
     // component. Otherwise, the chart will be left aligned.
     centerAlignChart: {
@@ -152,25 +159,31 @@ export default {
       );
     },
     pie() {
-      return d3
+      const pie = d3
         .pie()
         .sort(null)
         .value((value) => value[1]);
+      return this.asDonutChart ? pie.padAngle(1 / this.radius) : pie;
     },
     pieChartData() {
       return this.pie(Object.entries(this.chartData));
     },
     arcGenerator() {
-      return d3
-        .arc()
-        .innerRadius(0)
-        .outerRadius(this.radius * 0.7);
+      const arc = d3.arc().outerRadius(this.radius * 0.7);
+      return this.asDonutChart
+        ? arc.innerRadius(this.radius * 0.4)
+        : arc.innerRadius(0);
     },
     labelArcGenerator() {
-      return d3
-        .arc()
-        .innerRadius(this.radius * 0.8)
-        .outerRadius(this.radius * 0.8);
+      return this.asDonutChart
+        ? d3
+            .arc()
+            .innerRadius(this.radius - 1)
+            .outerRadius(this.radius - 1)
+        : d3
+            .arc()
+            .innerRadius(this.radius * 0.8)
+            .outerRadius(this.radius * 0.8);
     },
     colors() {
       if (!this.chartColors) {
@@ -202,14 +215,7 @@ export default {
     },
     setOffsetX(value) {
       const angle = value.startAngle + (value.endAngle - value.startAngle) / 2;
-      return angle < Math.PI ? "-1em" : "1em";
-    },
-    setPieChartData() {
-      const pie = d3
-        .pie()
-        .sort(null)
-        .value((value) => value[1]);
-      this.pieChartData = pie(Object.entries(this.chartData));
+      return angle < Math.PI ? "-1.1em" : "1.1em";
     },
     onMouseOver(value) {
       const selector = value.data[0];
@@ -252,9 +258,6 @@ export default {
       if (this.enableClicks) {
         slices.on("mouseover", (event, value) => this.onMouseOver(value));
         slices.on("mouseout", (event, value) => this.onMouseOut(value));
-      }
-
-      if (this.enableClicks) {
         slices.on("click", (event, value) => this.onClick(value));
       }
     },
@@ -343,9 +346,9 @@ export default {
         stroke-width: 1px;
         opacity: 0.7;
         cursor: pointer;
+        transition: all 250ms ease-in-out;
 
         &.slice-focused {
-          transition: 250ms;
           transform: scale(1.2);
         }
       }
