@@ -58,7 +58,7 @@ subprojects {
         //also used outside test
         implementation 'org.junit.jupiter:junit-jupiter:5.9.3'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
-        testImplementation 'org.mockito:mockito-core:5.1.1'
+        testImplementation 'org.mockito:mockito-core:5.4.0'
         //allows to set environment variables in test
         testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
     }
