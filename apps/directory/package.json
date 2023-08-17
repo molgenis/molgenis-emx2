@@ -19,7 +19,7 @@
     "graphql-request": "5.2.0",
     "molgenis-components": "*",
     "monaco-editor": "0.41.0",
-    "pinia": "2.0.33",
+    "pinia": "2.1.6",
     "vue": "3.2.47",
     "vue-router": "4.1.6",
     "vuedraggable": "^4.1.0"
