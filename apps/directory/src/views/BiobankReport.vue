@@ -19,7 +19,7 @@
           <Breadcrumb
             class="directory-nav"
             :crumbs="{
-              [uiText['home']]: '/',
+              [uiText['home']]: '../#/',
               [biobank.name]: '/',
             }"
           />

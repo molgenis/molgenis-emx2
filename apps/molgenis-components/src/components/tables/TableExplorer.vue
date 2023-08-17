@@ -855,6 +855,8 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
             "INT_ARRAY",
             "DATE",
             "DATE_ARRAY",
+            "DATETIME",
+            "DATETIME_ARRAY",
           ].includes(col.columnType)
         ) {
           filter[col.id] = {
