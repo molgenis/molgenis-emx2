@@ -1,0 +1,88 @@
+$ern-cranio-primary: #f3833b;
+$ern-cranio-primary-alt: hsl(23, 88%, 83%);
+
+.app-page,
+.page-footer {
+  font-size: 14pt;
+  font-family: Helvetica, sans-serif;
+
+  .page-header {
+    &.ern-header {
+      background-color: $ern-cranio-primary-alt;
+    }
+  }
+}
+
+.page-dashboard {
+  background-color: $gray-050;
+  
+  .dashboard {
+    display: grid;
+    box-sizing: border-box;
+    padding: 2em 0;
+    width: 90%;
+    margin: 0 auto;
+    grid-template-areas:
+      "Table"
+      "PieChart"
+      "Map";
+    gap: 2em;
+
+    .dashboard-box {
+      flex-grow: 1;
+      box-shadow: $box-shadow;
+      box-sizing: content-box;
+      border-radius: 6px;
+      background-color: $gray-000;
+
+      &.viz-map {
+       grid-area: Map; 
+       
+        h3 {
+          margin-top: 1em;
+          margin-left: 1em;
+        }
+      }
+
+      &.viz-table {
+        grid-area: Table;
+      }
+
+      &.viz-pie-chart {
+        grid-area: PieChart;
+      }
+      
+      &.viz-table, &.viz-pie-chart {
+        .dashboard-viz {
+          padding: 1em;
+        }
+      }
+    }
+
+    @media (min-width: 1182px) {
+      grid-template-areas:
+        "Table PieChart"
+        "Map Map";
+    }
+    
+    @media (min-width: 1524px) {
+      max-width: 60vw;
+    }
+  }
+}
+
+#dataProvidersMap + .d3-viz-legend {
+  top: auto;
+  bottom: 0;
+  box-shadow: 4px -2px 4px 2px hsla(0, 0%, 0%, 0.2);
+}
+
+#workstreamSummary {
+  
+  @media (min-width: 892px) {
+    .column-header-percent,
+    .column-percent {
+      text-align: right;
+    }
+  }
+}
