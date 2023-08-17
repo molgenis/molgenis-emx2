@@ -36,8 +36,8 @@
         title="Organistations by type"
         description="The following chart shows the number of organisations by type."
         :chartData="data"
-        xvar="value"
-        yvar="label"
+        xvar="count"
+        yvar="type"
         :chartMargins="{ left: 110, top: 10, right: 40, bottom: 60 }"
         :barPaddingInner="0.25"
         :barPaddingOuter="0.25"
@@ -55,6 +55,10 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { rollups } from "d3"
+
+const d3 = { rollups };
+
 import { fetchData, reverseSortData } from "../utils/utils.js";
 
 import Page from "../components/layouts/Page.vue";
@@ -63,7 +67,7 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import BarChart from "../components/viz/BarChart.vue";
-import headerImage from "../assets/bulkan-evcimen.jpg";
+import headerImage from "../assets/header-image.jpg";
 
 let loading = ref(true);
 let hasError = ref(false);
@@ -72,15 +76,9 @@ let selection = ref({});
 let data = ref([]);
 
 const query = `{
-  Statistics(filter: {component: {name: {equals: "organisations.by.type"}}}) {
-    id
-    label
-    value
-    valueOrder
-    component {
-      name
-      definition
-    }
+  Organisations {
+    name
+    organisationType
   }
 }`;
 
@@ -89,11 +87,12 @@ function updateClicked(value) {
 }
 
 onMounted(() => {
-  Promise.resolve(fetchData(query))
+  Promise.resolve(fetchData("/api/graphql",query))
     .then((response) => {
-      const organisations = response.data.Statistics;
-      data.value = reverseSortData(organisations, "value");
-      console.log(data.value);
+      const organisations = response.data.Organisations;
+      const summarized = d3.rollups(organisations, row => row.length, row => row.organisationType)
+        .map(group => new Object({ type: group[0], count: group[1] }));
+      data.value = reverseSortData(summarized, "count");
       loading.value = false;
     })
     .catch((error) => {

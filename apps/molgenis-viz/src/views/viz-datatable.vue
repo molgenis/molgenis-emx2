@@ -31,15 +31,16 @@
       </MessageBox>
       <Datatable
         v-else
-        tableId="summaryData"
+        tableId="institutionsTable"
         :data="data"
-        caption="Oldest universities by years since first established"
-        :columnOrder="['name', 'years']"
+        caption="All Groningen-based institutions in ROR"
+        :columnOrder="['name','city', 'iri']"
+        :renderHtml="true"
         @row-clicked="updateSelection"
       />
     </PageSection>
     <PageSection>
-      <p>Click a bar in the chart of above to display the row-level data</p>
+      <p>Click a row in the table of above to display the row-level data</p>
       <output class="output">
         {{ selection }}
       </output>
@@ -48,7 +49,7 @@
 </template>
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchData, reverseSortData, renameKey } from "../utils/utils.js";
+import { fetchData } from "../utils/utils.js";
 
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
@@ -56,7 +57,7 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import Datatable from "../components/viz/DataTable.vue";
-import headerImage from "../assets/ashley-byrd-unsplash.jpg";
+import headerImage from "../assets/table-header.jpg";
 
 let loading = ref(true);
 let hasError = ref(false);
@@ -65,15 +66,13 @@ let data = ref([]);
 let selection = ref({});
 
 const query = `{
-  Statistics(filter: { component: { name: { equals: "oldest.organisations" }}}) {
-    id
-    label
-    value
-    valueOrder
-    component {
-      name
-      definition
-    }
+  Organisations(
+    filter: { city: { equals: "Groningen" } }
+  ) {
+    name
+    city
+    country
+    ontologyTermURI
   }
 }`;
 
@@ -82,12 +81,12 @@ function updateSelection(value) {
 }
 
 onMounted(() => {
-  Promise.resolve(fetchData(query))
+  Promise.resolve(fetchData('/api/graphql',query))
     .then((response) => {
-      const organisations = response.data.Statistics;
-      renameKey(organisations, "value", "years");
-      renameKey(organisations, "label", "name");
-      data.value = reverseSortData(organisations, "years");
+      data.value = response.data.Organisations
+        .map(row => {
+          return {...row, iri: `<a href=${row.ontologyTermURI}>${row.ontologyTermURI}</a>`}
+        });
       loading.value = false;
     })
     .catch((error) => {

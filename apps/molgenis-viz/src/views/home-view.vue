@@ -37,16 +37,27 @@
         <LinkCard :imageSrc="BarChartImage">
           <router-link :to="{ name: 'bar-chart' }">Bar Chart</router-link>
         </LinkCard>
+        <LinkCard :imageSrc="LegendImage">
+          <router-link :to="{ name: 'chart-legend' }">Legends</router-link>
+        </LinkCard>
         <LinkCard :imageSrc="ColumnChartImage">
           <router-link :to="{ name: 'column-chart' }">Column Chart</router-link>
         </LinkCard>
-        <LinkCard :imageSrc="HighlightsImage">
-          <router-link :to="{ name: 'data-highlights' }"
-            >Data Highlights</router-link
-          >
-        </LinkCard>
         <LinkCard :imageSrc="DatatableImage">
           <router-link :to="{ name: 'datatable' }">Data Table</router-link>
+        </LinkCard>
+        <LinkCard :imageSrc="GaugeChartImage">
+          <router-link :to="{ name: 'gauge-chart' }">Gauge Chart</router-link>
+        </LinkCard>
+        <LinkCard :imageSrc="GroupedColumnChartImage">
+          <router-link :to="{ name: 'grouped-column-chart' }">
+            Grouped Column Chart
+          </router-link>
+        </LinkCard>
+        <LinkCard :imageSrc="HighlightsImage">
+          <router-link :to="{ name: 'data-highlights' }">
+            Data Highlights
+          </router-link>
         </LinkCard>
         <LinkCard :imageSrc="MapImage">
           <router-link :to="{ name: 'geo-mercator' }">GeoMercator</router-link>
@@ -54,8 +65,8 @@
         <LinkCard :imageSrc="PieChartImage">
           <router-link :to="{ name: 'pie-chart' }">Pie Chart</router-link>
         </LinkCard>
-        <LinkCard :imageSrc="LegendImage">
-          <router-link :to="{ name: 'chart-legend' }">Legends</router-link>
+        <LinkCard :imageSrc="ScatterPlotImage">
+          <router-link :to="{name: 'scatter-plot'}">Scatter Plot</router-link>
         </LinkCard>
       </div>
     </PageSection>
@@ -68,14 +79,18 @@ import PageHeader from "../components/layouts/PageHeader.vue";
 import PageSection from "../components/layouts/PageSection.vue";
 import LinkCard from "../components/display/LinkCard.vue";
 
-import headerImage from "../assets/joeyy-lee-unsplash.jpg";
-import BarChartImage from "../assets/bulkan-evcimen.jpg";
-import ColumnChartImage from "../assets/adrien-delforge-unsplash.jpg";
-import PieChartImage from "../assets/sheri-silver-unsplash.jpg";
-import MapImage from "../assets/t-h-chia-unsplash.jpg";
-import LegendImage from "../assets/studio-media-unsplash.jpg";
-import HighlightsImage from "../assets/ray-shrewsberry-unsplash.jpg";
-import DatatableImage from "../assets/ashley-byrd-unsplash.jpg";
+import headerImage from "../assets/header-image.jpg";
+import BarChartImage from "../assets/bar-chart-header.jpg";
+import ColumnChartImage from "../assets/column-chart-header.jpg";
+import DatatableImage from "../assets/table-header.jpg";
+import GaugeChartImage from "../assets/gauge-chart-header.jpg";
+import GroupedColumnChartImage from "../assets/grouped-column-chart-header.jpg";
+import HighlightsImage from "../assets/highlights-header.jpg";
+import LegendImage from "../assets/legend-header.jpg";
+import MapImage from "../assets/map-header.jpg";
+import PieChartImage from "../assets/pie-chart-header.jpg";
+import ScatterPlotImage from "../assets/scatter-plot-header.jpg"
+
 </script>
 
 <style lang="scss">

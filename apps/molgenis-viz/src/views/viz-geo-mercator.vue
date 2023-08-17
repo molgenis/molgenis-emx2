@@ -37,7 +37,7 @@
         :chartData="data"
         latitude="latitude"
         longitude="longitude"
-        groupingVariable="hasSubmittedData"
+        groupingVariable="status"
         :groupColorMappings="mapColorGroups"
         :legendData="mapColorGroups"
         :chartScale="6"
@@ -80,7 +80,7 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import GeoMercator from "../components/viz/GeoMercator.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
-import headerImage from "../assets/t-h-chia-unsplash.jpg";
+import headerImage from "../assets/map-header.jpg";
 
 let loading = ref(true);
 let hasError = ref(false);
@@ -114,12 +114,12 @@ const query = `{
 }`;
 
 onMounted(() => {
-  Promise.resolve(fetchData(query))
+  Promise.resolve(fetchData("/api/graphql", query))
     .then((response) => {
       const orgs = response.data.Organisations.map((row) => {
         return {
           ...row,
-          hasSubmittedData: row.providerInformation[0].hasSubmittedData
+          status: row.providerInformation[0].hasSubmittedData
             ? "Submitted"
             : "No Data",
         };

@@ -13,7 +13,7 @@
         </li>
       </Breadcrumbs>
     </PageSection>
-    <PageSection class="viz-section">
+    <PageSection>
       <h2>PieChart Component</h2>
       <p>
         The <strong>PieChart</strong> component is used to descriptives for
@@ -38,12 +38,13 @@
       </MessageBox>
       <PieChart
         v-else
-        chartId="sexByPenguin"
+        chartId="organisationsByType"
         title="Summary of organisation type"
         :description="`In total, ${total} organisations across the Netherlands and Belgium were selected. The following chart shows the breakdown of oganisations by type.`"
         :chartData="data"
         :enableClicks="true"
-        :chartHeight="200"
+        :chartHeight="250"
+        :asDonutChart="true"
         @slice-clicked="updateSelection"
       />
       <h3>Selected Item</h3>
@@ -58,8 +59,8 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { fetchData, asDataObject } from "../utils/utils.js";
-import { sum, format } from "d3";
-const d3 = { sum, format };
+import { sum, rollups } from "d3";
+const d3 = { sum, rollups };
 
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
@@ -67,25 +68,19 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import PieChart from "../components/viz/PieChart.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
-import headerImage from "../assets/sheri-silver-unsplash.jpg";
+import headerImage from "../assets/pie-chart-header.jpg";
 
 let loading = ref(true);
 let hasError = ref(false);
 let error = ref(null);
 let selection = ref({});
-let data = ref([]);
+let data = ref({});
 let total = ref(0);
 
 const query = `{
-  Statistics(filter: {component: {name: {equals: "organisations.by.type"}}}) {
-    id
-    label
-    value
-    valueOrder
-    component {
-      name
-      definition
-    }
+  Organisations {
+    name
+    organisationType
   }
 }`;
 
@@ -94,16 +89,15 @@ function updateSelection(value) {
 }
 
 onMounted(() => {
-  Promise.resolve(fetchData(query))
+  Promise.resolve(fetchData("/api/graphql", query))
     .then((response) => {
-      const format = d3.format(".2f");
-      const totalOrgs = d3.sum(response.data.Statistics, (row) => row.value);
-      const orgs = response.data.Statistics.map((row) => {
-        return { ...row, rate: format((row.value / totalOrgs) * 100) };
-      });
+      const rawdata = response.data.Organisations;
+      const size = rawdata.length;
+      const orgs = d3.rollups(rawdata, row => row.length, row=> row.organisationType)
+        .map(group => new Object({ type: group[0], percent: Math.round((group[1] / size) * 100) }));
 
-      total.value = totalOrgs;
-      data.value = asDataObject(orgs, "label", "rate");
+      total.value = size;
+      data.value = asDataObject(orgs, "type", "percent");
 
       loading.value = false;
     })
