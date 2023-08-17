@@ -52,6 +52,7 @@ Cohorts,,data access fee,bool,,,,,,,,,Does a fee apply to gain access to data of
 Data resources,,information,heading,,,,,,,,,Other information
 Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
 Extended resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
+Data resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?
 Extended resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
 Extended resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
 Extended resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent"
