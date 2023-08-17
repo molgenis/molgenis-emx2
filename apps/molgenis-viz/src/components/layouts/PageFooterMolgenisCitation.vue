@@ -22,7 +22,7 @@ const query = `{
 }`;
 
 onMounted(() => {
-  Promise.resolve(fetchData(query)).then((response) => {
+  Promise.resolve(fetchData("/api/graphql", query)).then((response) => {
     const data = response.data._manifest;
     version.value = data.SpecificationVersion;
   });
