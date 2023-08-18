@@ -41,8 +41,14 @@
         }"
         :enableClicks="true"
         :enableTooltip="true"
+        @point-clicked="updateSelection"
         v-else
       />
+    </PageSection>
+    <PageSection>
+      <output class="output">
+        {{ clicked }}
+      </output>
     </PageSection>
   </Page>
 </template>
@@ -85,6 +91,10 @@ const query = `{
     organisationType
   }
 }`;
+
+function updateSelection (value) {
+  clicked.value = value;
+}
 
 onMounted(() => {
   Promise.resolve(

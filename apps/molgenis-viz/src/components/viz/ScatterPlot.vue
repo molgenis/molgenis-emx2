@@ -49,7 +49,7 @@
                 "
                 @click="setClickedPoint(row)"
                 @mouseover="onPointMouseOver(row)"
-                @mouseleave="onPointMouseOut(row)"
+                @mouseleave="onPointMouseOut()"
               />
             </g>
           </g>
@@ -446,8 +446,7 @@ export default {
     },
     setClickedPoint(value) {
       if (this.enableClicks) {
-        this.points.style('cursor', 'pointer');
-        console.log(value)
+        this.$emit("point-clicked", value)
       }
     },
     onPointMouseOver (value) {
@@ -470,7 +469,7 @@ export default {
       
       this.tooltipPosition = `top: ${top}px;left: ${left}px;`
     },
-    onPointMouseOut (value) {
+    onPointMouseOut () {
       this.tooltipData = null;
     },
     renderChart() {
