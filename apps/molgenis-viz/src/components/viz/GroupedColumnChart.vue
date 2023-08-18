@@ -54,7 +54,7 @@
                 :dx="xSubAxis.bandwidth() / 2"
                 dy="-6px"
               >
-                {{ subgroup[xvar] }}: {{ subgroup[yvar] }}
+                {{ subgroup[yvar] }}
               </text>
             </g>
           </g>
