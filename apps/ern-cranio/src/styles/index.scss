@@ -8,20 +8,14 @@ $ern-cranio-primary-alt: hsl(23, 88%, 83%);
 
   .page-header {
     &.ern-header {
-      background-color: $ern-cranio-primary-alt;
+      background-color: $blue-green-400;
     }
   }
 }
 
-.page-dashboard {
-  background-color: $gray-050;
-  
-  .dashboard {
+#publicDashboard {
+  .dashboard-content {
     display: grid;
-    box-sizing: border-box;
-    padding: 2em 0;
-    width: 90%;
-    margin: 0 auto;
     grid-template-areas:
       "Table"
       "PieChart"
@@ -30,18 +24,21 @@ $ern-cranio-primary-alt: hsl(23, 88%, 83%);
 
     .dashboard-box {
       flex-grow: 1;
-      box-shadow: $box-shadow;
       box-sizing: content-box;
-      border-radius: 6px;
-      background-color: $gray-000;
 
       &.viz-map {
-       grid-area: Map; 
-       
+        grid-area: Map;
         h3 {
           margin-top: 1em;
           margin-left: 1em;
         }
+      }
+
+      caption,
+      h3 {
+        text-align: center;
+        font-size: 16pt;
+        padding: 0;
       }
 
       &.viz-table {
@@ -51,11 +48,10 @@ $ern-cranio-primary-alt: hsl(23, 88%, 83%);
       &.viz-pie-chart {
         grid-area: PieChart;
       }
-      
-      &.viz-table, &.viz-pie-chart {
-        .dashboard-viz {
-          padding: 1em;
-        }
+
+      &.viz-table,
+      &.viz-pie-chart {
+        padding: 1em;
       }
     }
 
@@ -64,7 +60,7 @@ $ern-cranio-primary-alt: hsl(23, 88%, 83%);
         "Table PieChart"
         "Map Map";
     }
-    
+
     @media (min-width: 1524px) {
       max-width: 60vw;
     }
@@ -78,7 +74,6 @@ $ern-cranio-primary-alt: hsl(23, 88%, 83%);
 }
 
 #workstreamSummary {
-  
   @media (min-width: 892px) {
     .column-header-percent,
     .column-percent {

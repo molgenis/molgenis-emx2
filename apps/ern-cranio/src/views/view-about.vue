@@ -6,6 +6,7 @@
       subtitle="About the ERN CRANIO registry"
       height="medium"
     />
+    <Breadcrumbs />
     <PageSection
       id="section-intro-title"
       aria-labelledby="section-intro-title"
@@ -69,27 +70,28 @@
 
 <script setup>
 import { Page, PageHeader, PageSection, DataTable } from "molgenis-viz";
+import Breadcrumbs from "../components/breadcrumbs.vue";
 
 const data = [
   {
     workstream: "Craniosynostosis",
-    "ERN CRANIO dataset manager": "Linda Gaillard"
+    "ERN CRANIO dataset manager": "Linda Gaillard",
   },
   {
     workstream: "Cleft lip and Palate",
-    "ERN CRANIO dataset manager": "Philip van der Goes & Victor van Roey"
+    "ERN CRANIO dataset manager": "Philip van der Goes & Victor van Roey",
   },
   {
     workstream: "Rare genetic deafness",
-    "ERN CRANIO dataset manager": "Philip van der Goes"
+    "ERN CRANIO dataset manager": "Philip van der Goes",
   },
   {
     workstream: "Craniofacial microsomia",
-    "ERN CRANIO dataset manager": "Linda Gaillard & Victor van Roey"
+    "ERN CRANIO dataset manager": "Linda Gaillard & Victor van Roey",
   },
   {
     workstream: "Orodental anomalies",
-    "ERN CRANIO dataset manager": "Philip van der Goes"
-  }
+    "ERN CRANIO dataset manager": "Philip van der Goes",
+  },
 ];
 </script>

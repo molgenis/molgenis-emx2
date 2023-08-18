@@ -6,6 +6,7 @@
       subtitle="Dashboard"
       height="medium"
     />
+    <Breadcrumbs />
     <PageSection
       id="section-intro-title"
       aria-labelledby="section-intro-title"
@@ -16,67 +17,63 @@
         <p>Unable to retrieve data: {{ error }}</p>
       </MessageBox>
     </PageSection>
-    <div class="dashboard" v-else>
-      <div class="dashboard-box viz-table">
-        <div class="dashboard-viz">
-          <DataTable
-            tableId="workstreamSummary"
-            caption="Percentage of patients by workstream"
-            :data="workstreamSummary"
-            :columnOrder="['workstream', 'percent']"
-          />
-        </div>
-      </div>
-      <div class="dashboard-box viz-pie-chart">
-        <div class="dashboard-viz">
-          <PieChart
-            chartId="sexAtBirth"
-            :chartData="sexAtBirth"
-            :chartHeight="225"
-            title="Sex at birth"
-          />
-        </div>
-      </div>
-      <div class="dashboard-box viz-map">
-        <div class="dashboard-viz">
-          <GeoMercator
-            chartId="dataProvidersMap"
-            title="Data Providers"
-            :geojson="geojson"
-            :chartData="providers"
-            rowId="code"
-            latitude="latitude"
-            longitude="longitude"
-            groupingVariable="hasSubmittedData"
-            :groupColorMappings="{
-              'Data Submitted': '#f1681d',
-              'No Data': '#f0f0f0'
-            }"
-            :tooltipTemplate="
-              row => {
-                return `
-                <p class='title'>${row.projectName}</p>
-                <p class='location'>${row.city}, ${row.country}</p>
-              `;
-              }
-            "
-            :enableLegendClicks="true"
-            :legendData="{
-              'Data Submitted': '#f1681d',
-              'No Data': '#f0f0f0'
-            }"
-            :pointRadius="7"
-            :mapColors="{
-              water: '#43abcc',
-              land: '#93dbab',
-              border: '#1f171a'
-            }"
-            :mapCenter="{ latitude: 13, longitude: 50 }"
-            :zoomLimits="[0.3, 10]"
-          />
-        </div>
-      </div>
-    </div>
+    <Dashboard id="publicDashboard" v-else>
+      <DashboardBox class="dashboard-box viz-table">
+        <DataTable
+          tableId="workstreamSummary"
+          caption="Percentage of patients by workstream"
+          :data="workstreamSummary"
+          :columnOrder="['workstream', 'percent']"
+        />
+      </DashboardBox>
+      <DashboardBox class="viz-pie-chart">
+        <PieChart
+          chartId="sexAtBirth"
+          :chartData="sexAtBirth"
+          :chartHeight="265"
+          :chartMargins="5"
+          title="Sex at birth"
+          :asDonutChart="true"
+        />
+      </DashboardBox>
+      <DashboardBox class="viz-map">
+        <GeoMercator
+          chartId="dataProvidersMap"
+          title="Data Providers"
+          :geojson="geojson"
+          :chartData="providers"
+          rowId="code"
+          latitude="latitude"
+          longitude="longitude"
+          groupingVariable="hasSubmittedData"
+          :groupColorMappings="{
+            'Data Submitted': '#f1681d',
+            'No Data': '#f0f0f0',
+          }"
+          :tooltipTemplate="
+            (row) => {
+              return `
+              <p class='title'>${row.name}</p>
+              <p class='location'>${row.city}, ${row.country}</p>
+            `;
+            }
+          "
+          :enableLegendClicks="true"
+          :legendData="{
+            'Data Submitted': '#f1681d',
+            'No Data': '#f0f0f0',
+          }"
+          :pointRadius="7"
+          :mapColors="{
+            water: '#43abcc',
+            land: '#93dbab',
+            border: '#1f171a',
+          }"
+          :mapCenter="{ latitude: 13, longitude: 50 }"
+          :zoomLimits="[0.3, 10]"
+        />
+      </DashboardBox>
+    </Dashboard>
   </Page>
 </template>
 
@@ -86,17 +83,21 @@ import {
   Page,
   PageHeader,
   PageSection,
+  Dashboard,
+  DashboardBox,
   MessageBox,
   GeoMercator,
   DataTable,
-  PieChart
+  PieChart,
 } from "molgenis-viz";
+
+import Breadcrumbs from "../components/breadcrumbs.vue";
 
 import {
   fetchData,
   subsetData,
   renameKey,
-  asDataObject
+  asDataObject,
 } from "$shared/utils/utils.js";
 
 import geojson from "$shared/data/world.geo.json";
@@ -119,7 +120,7 @@ const statsQuery = `
     }
   }
 }
-`
+`;
 
 const providersQuery = `
 {
@@ -135,47 +136,46 @@ const providersQuery = `
     }
   }
 }
-`
+`;
 
 function getDashboardData() {
   loading.value = true;
   Promise.all([
-    fetchData(providersQuery),
-    fetchData(statsQuery),
+    fetchData("/api/graphql", providersQuery),
+    fetchData("/api/graphql", statsQuery),
   ])
-    .then(response => {
+    .then((response) => {
       const organisations = response[0].data.Organisations;
-      providers.value = organisations.map(row => {
+      const stats = response[1].data.Components;
+
+      providers.value = organisations.map((row) => {
         return {
           ...row,
           hasSubmittedData: row.providerInformation[0].hasSubmittedData
             ? "Data Submitted"
-            : "No Data"
+            : "No Data",
         };
       });
 
-      
-      const stats = response[1].data.Components;
-      const workstream = subsetData(stats,"name","patients-by-workstream")[0].statistics
-        .map(row => {
-          return { ...row, value: `${Math.round(parseFloat(row.value) * 100)}%` };
-        });
-
-      renameKey(workstream, "label", "workstream");
-      renameKey(workstream, "value", "percent");
-      workstreamSummary.value = workstream;
-
-      const patientsSex = subsetData(
+      workstreamSummary.value = subsetData(
         stats,
         "name",
-        "patients-sex-at-birth"
-      )[0].statistics;
+        "patients-by-workstream"
+      )[0].statistics.map((row) => {
+        return { ...row, value: `${Math.round(parseFloat(row.value) * 100)}%` };
+      });
+
+      renameKey(workstreamSummary.value, "label", "workstream");
+      renameKey(workstreamSummary.value, "value", "percent");
+
+      const patientsSex = subsetData(stats, "name", "patients-sex-at-birth")[0]
+        .statistics;
       sexAtBirth.value = asDataObject(patientsSex, "label", "value");
     })
     .then(() => {
       loading.value = false;
     })
-    .catch(response => {
+    .catch((response) => {
       const err = JSON.parse(response.message);
       error.value = `${err.message} (${err.status})`;
     });
