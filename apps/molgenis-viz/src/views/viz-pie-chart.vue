@@ -93,8 +93,19 @@ onMounted(() => {
     .then((response) => {
       const rawdata = response.data.Organisations;
       const size = rawdata.length;
-      const orgs = d3.rollups(rawdata, row => row.length, row=> row.organisationType)
-        .map(group => new Object({ type: group[0], percent: Math.round((group[1] / size) * 100) }));
+      const orgs = d3
+        .rollups(
+          rawdata,
+          (row) => row.length,
+          (row) => row.organisationType
+        )
+        .map(
+          (group) =>
+            new Object({
+              type: group[0],
+              percent: Math.round((group[1] / size) * 100),
+            })
+        );
 
       total.value = size;
       data.value = asDataObject(orgs, "type", "percent");

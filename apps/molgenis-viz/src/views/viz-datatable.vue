@@ -34,7 +34,7 @@
         tableId="institutionsTable"
         :data="data"
         caption="All Groningen-based institutions in ROR"
-        :columnOrder="['name','city', 'iri']"
+        :columnOrder="['name', 'city', 'iri']"
         :renderHtml="true"
         @row-clicked="updateSelection"
       />
@@ -81,12 +81,14 @@ function updateSelection(value) {
 }
 
 onMounted(() => {
-  Promise.resolve(fetchData('/api/graphql',query))
+  Promise.resolve(fetchData("/api/graphql", query))
     .then((response) => {
-      data.value = response.data.Organisations
-        .map(row => {
-          return {...row, iri: `<a href=${row.ontologyTermURI}>${row.ontologyTermURI}</a>`}
-        });
+      data.value = response.data.Organisations.map((row) => {
+        return {
+          ...row,
+          iri: `<a href=${row.ontologyTermURI}>${row.ontologyTermURI}</a>`,
+        };
+      });
       loading.value = false;
     })
     .catch((error) => {

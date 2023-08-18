@@ -15,6 +15,8 @@ import InputLabel from '../src/components/forms/InputLabel.vue';
 import InputSearch from '../src/components/forms/InputSearch.vue';
 
 // layout components
+import Dashboard from "../src/components/layouts/Dashboard.vue";
+import DashboardBox from "../src/components/layouts/DashboardBox.vue";
 import Page from "../src/components/layouts/Page.vue";
 import PageFooter from "../src/components/layouts/PageFooter.vue";
 import PageFooterMeta from "../src/components/layouts/PageFooterMeta.vue";
@@ -51,6 +53,8 @@ export {
   MessageBox,
   MolgenisLogo,
   
+  Dashboard,
+  DashboardBox,
   Page,
   PageFooter,
   PageFooterMeta,

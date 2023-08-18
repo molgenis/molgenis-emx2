@@ -66,7 +66,7 @@
           <router-link :to="{ name: 'pie-chart' }">Pie Chart</router-link>
         </LinkCard>
         <LinkCard :imageSrc="ScatterPlotImage">
-          <router-link :to="{name: 'scatter-plot'}">Scatter Plot</router-link>
+          <router-link :to="{ name: 'scatter-plot' }">Scatter Plot</router-link>
         </LinkCard>
       </div>
     </PageSection>
@@ -89,8 +89,7 @@ import HighlightsImage from "../assets/highlights-header.jpg";
 import LegendImage from "../assets/legend-header.jpg";
 import MapImage from "../assets/map-header.jpg";
 import PieChartImage from "../assets/pie-chart-header.jpg";
-import ScatterPlotImage from "../assets/scatter-plot-header.jpg"
-
+import ScatterPlotImage from "../assets/scatter-plot-header.jpg";
 </script>
 
 <style lang="scss">

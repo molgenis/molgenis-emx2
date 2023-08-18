@@ -10,7 +10,7 @@ import GaugeChart from "../views/viz-gauge-chart.vue";
 import GeoMercator from "../views/viz-geo-mercator.vue";
 import GroupedColumnChart from "../views/viz-grouped-column-chart.vue";
 import PieChart from "../views/viz-pie-chart.vue";
-import ScatterPlot from "../views/viz-scatter-plot.vue"
+import ScatterPlot from "../views/viz-scatter-plot.vue";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -93,12 +93,12 @@ const router = createRouter({
       },
     },
     {
-      name: 'scatter-plot',
-      path: '/scatter-plot',
+      name: "scatter-plot",
+      path: "/scatter-plot",
       component: ScatterPlot,
       meta: {
-        title: 'Scatter Plot'
-      }
+        title: "Scatter Plot",
+      },
     },
   ],
   scrollBehavior() {

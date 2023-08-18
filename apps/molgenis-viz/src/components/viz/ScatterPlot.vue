@@ -74,14 +74,13 @@
           </text>
         </g>
       </svg>
-      <div 
+      <div
         v-if="enableTooltip && tooltipData"
         :id="`${chartId}-tooltip`"
         class="d3-viz-tooltip scatter-plot-tooltip"
         v-html="tooltipTemplate(tooltipData)"
         :style="tooltipPosition"
-        >
-      </div>
+      ></div>
     </div>
   </div>
 </template>
@@ -265,7 +264,7 @@ export default {
       // `false`
       default: true,
     },
-    
+
     // A function that controls the HTML content in the tooltip. The x and y
     // values are displayed by default, as well as the group (if defined).
     // However, you may specify the content in the body of the tooltip by defining
@@ -278,11 +277,11 @@ export default {
         const html = [
           `<p>${this.xvar}: ${row[this.xvar]}</p>`,
           `<p>${this.yvar}: ${row[this.yvar]}</p>`,
-        ]
+        ];
         if (this.group) {
-          html.push(`<p>${this.group}: ${row[this.group]}</p>`)
+          html.push(`<p>${this.group}: ${row[this.group]}</p>`);
         }
-        return html.join('');
+        return html.join("");
       },
     },
 
@@ -400,13 +399,15 @@ export default {
     palette() {
       if (this.group !== "") {
         let domain, range;
-        
+
         if (Object.keys(this.pointFillPalette).length) {
           domain = Object.keys(this.pointFillPalette);
-          range = Object.keys(this.pointFillPalette).map(key => this.pointFillPalette[key]);
+          range = Object.keys(this.pointFillPalette).map(
+            (key) => this.pointFillPalette[key]
+          );
         } else {
-          domain = [...new Set(this.chartData.map(row => row[this.group]))];
-          
+          domain = [...new Set(this.chartData.map((row) => row[this.group]))];
+
           // domains less than 2 do not exist in the color scheme
           if (domain.length < 3) {
             range = d3.schemePuBuGn[3].slice(1);
@@ -446,30 +447,30 @@ export default {
     },
     setClickedPoint(value) {
       if (this.enableClicks) {
-        this.$emit("point-clicked", value)
+        this.$emit("point-clicked", value);
       }
     },
-    onPointMouseOver (value) {
+    onPointMouseOver(value) {
       this.tooltipData = value;
-      
+
       const y = this.yAxis(value[this.yvar]);
       const x = this.xAxis(value[this.xvar]);
-      
+
       let top, left;
-      if (y >= (this.chartHeight * 0.6)) {
+      if (y >= this.chartHeight * 0.6) {
         top = y - 72;
       } else {
         top = y + 32;
       }
-      if (x >= (this.chartWidth * 0.6)) {
+      if (x >= this.chartWidth * 0.6) {
         left = x - 150;
       } else {
         left = x + 75;
       }
-      
-      this.tooltipPosition = `top: ${top}px;left: ${left}px;`
+
+      this.tooltipPosition = `top: ${top}px;left: ${left}px;`;
     },
-    onPointMouseOut () {
+    onPointMouseOut() {
       this.tooltipData = null;
     },
     renderChart() {
@@ -556,16 +557,15 @@ export default {
       }
     }
   }
-  
+
   .chart-container {
     position: relative;
-    
+
     .chart {
       display: block;
       margin: 0;
-      
     }
-    
+
     .d3-viz-tooltip {
       position: absolute;
       top: 0;
@@ -576,7 +576,7 @@ export default {
       box-shadow: 0 0 4px 2px $gray-transparent-400;
       border-radius: 3px;
       padding: 8px 12px;
-  
+
       p {
         font-size: 11pt;
         padding: 0;
@@ -584,6 +584,5 @@ export default {
       }
     }
   }
-  
 }
 </style>

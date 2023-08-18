@@ -57,7 +57,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { rollups } from "d3";
-const d3 = { rollups }
+const d3 = { rollups };
 
 import { fetchData } from "../utils/utils.js";
 
@@ -87,10 +87,15 @@ function updateClicked(value) {
 }
 
 onMounted(() => {
-  Promise.resolve(fetchData('/api/graphql', query))
+  Promise.resolve(fetchData("/api/graphql", query))
     .then((response) => {
-      data.value = d3.rollups(response.data.Organisations, row => row.length, row => row.organisationType)
-        .map(group => new Object({ type: group[0], count: group[1] }));
+      data.value = d3
+        .rollups(
+          response.data.Organisations,
+          (row) => row.length,
+          (row) => row.organisationType
+        )
+        .map((group) => new Object({ type: group[0], count: group[1] }));
       loading.value = false;
     })
     .catch((error) => {

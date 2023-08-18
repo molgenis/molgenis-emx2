@@ -81,10 +81,12 @@ const query = `{
 }`;
 
 onMounted(() => {
-  Promise.resolve(fetchData('/api/graphql',query))
+  Promise.resolve(fetchData("/api/graphql", query))
     .then((response) => {
       const organisations = response.data.Organisations;
-      const groups = [...new Set(organisations.map((row) => row.organisationType))];
+      const groups = [
+        ...new Set(organisations.map((row) => row.organisationType)),
+      ];
       const scheme = schemeGnBu[groups.length];
       const colors = {};
       groups.forEach((key, index) => (colors[key] = scheme[index]));

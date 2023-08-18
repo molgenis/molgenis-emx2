@@ -42,11 +42,11 @@
         :columnFillPalette="{
           Healthcare: '#b2e2e2',
           Education: '#66c2a4',
-          Facility: '#238b45'
+          Facility: '#238b45',
         }"
         xvar="organisationType"
         yvar="count"
-        :chartMargins="{left: 60, top: 10, right: 40, bottom: 80}"
+        :chartMargins="{ left: 60, top: 10, right: 40, bottom: 80 }"
         :enableClicks="true"
         @column-clicked="updateClicked"
       />
@@ -98,36 +98,45 @@ const query = `{
       hasSubmittedData
     }
   }
-}`
+}`;
 
 function unroll(rollup, keys, label = "value", p = {}) {
   return Array.from(rollup, ([key, value]) =>
     value instanceof Map
-      ? unroll(value, keys.slice(1), label, Object.assign({}, { ...p, [keys[0]]: key } ))
-      : Object.assign({}, { ...p, [keys[0]]: key, [label] : value })
+      ? unroll(
+          value,
+          keys.slice(1),
+          label,
+          Object.assign({}, { ...p, [keys[0]]: key })
+        )
+      : Object.assign({}, { ...p, [keys[0]]: key, [label]: value })
   ).flat();
 }
 
 onMounted(() => {
-  Promise.resolve(
-    fetchData('/api/graphql',query)
-  ).then(response => {
-    const data = response.data.Organisations;
-    const summarized = d3.rollup(data, row => row.length, row => row.country, row => row.organisationType); 
-    return unroll(summarized, ['country', 'organisationType'], 'count');
-  })
-  .then((result) => {
-    data.value = result;
-    loading.value = false;
-  })
-  .catch(error => {
-    const err = error.message;
-    loading.value = false;
-    hasError.value = true;
-    error.value = err;
-    throw new Error(error);
-  });
-})
+  Promise.resolve(fetchData("/api/graphql", query))
+    .then((response) => {
+      const data = response.data.Organisations;
+      const summarized = d3.rollup(
+        data,
+        (row) => row.length,
+        (row) => row.country,
+        (row) => row.organisationType
+      );
+      return unroll(summarized, ["country", "organisationType"], "count");
+    })
+    .then((result) => {
+      data.value = result;
+      loading.value = false;
+    })
+    .catch((error) => {
+      const err = error.message;
+      loading.value = false;
+      hasError.value = true;
+      error.value = err;
+      throw new Error(error);
+    });
+});
 </script>
 
 <style lang="scss">
