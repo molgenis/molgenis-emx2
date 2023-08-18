@@ -24,22 +24,23 @@
         <p>{{ error }}</p>
       </MessageBox>
       <ScatterPlot 
-        chartId="penguinSizeChart"
-        title="Body mass and flipper length"
-        :description="`The body mass (g) and flipper length (mm) are reported for ${data.length} observed penguins`"
+        chartId="organisationsScatterPlot"
+        title="Publication outpus by number of authors per institution and organisation type"
+        :description="`For the ${data.length} institutions in the Netherlands, the total number of publishing authors and publications are displayed for Healthcare and Education institutions.`"
         :chartData="data"
         group="organisationType"
-        xvar="longitude"
-        yvar="latitude"
-        xAxisLabel="Body Mass (g)"
-        yAxisLabel="Flipper Length (mm)"
+        xvar="authors"
+        yvar="publications"
+        xAxisLabel="Number of publishing authors"
+        yAxisLabel="Number of publications"
         :chartMargins="{
           top: 15,
           right: 25,
           bottom: 60,
           left: 60
         }"
-        :enableHover="false"
+        :enableClicks="true"
+        :enableTooltip="true"
         v-else
       />
     </PageSection>
@@ -48,6 +49,8 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+
+import { randomNormal } from "d3";
 
 import Page from '../components/layouts/Page.vue'
 import PageHeader from '../components/layouts/PageHeader.vue'
@@ -67,21 +70,37 @@ let clicked = ref({});
 
 const query = `{
   Organisations (
-    filter: { country: { equals: "Netherlands" } } 
+    filter: {
+      country: { equals: "Netherlands" },
+      _or: [
+        { organisationType: { equals: "Education" }}
+        { organisationType: { equals: "Healthcare" }}
+      ]
+    } 
   ) {
     name
     latitude
     longitude
+    country
     organisationType
   }
-}`
+}`;
 
 onMounted(() => {
   Promise.resolve(
     fetchData('/api/graphql', query)
   ).then(response => {
-    data.value = response.data.Organisations
-    loading.value = false
+    const size = response.data.Organisations.length;
+    const randPubsDist = Array.from({length: size}, randomNormal(400, 80));
+    const randAuthDist = Array.from({length: size}, randomNormal(250, 50));
+    const orgs = response.data.Organisations
+      .map((row,index) => Object.assign({}, {
+        ...row,
+        publications: Math.floor(randPubsDist[index]),
+        authors: Math.floor(randAuthDist[index])
+      }));
+    data.value = orgs;
+    loading.value = false;
   }).catch(error => {
     const err = error.message
     loading.value = false

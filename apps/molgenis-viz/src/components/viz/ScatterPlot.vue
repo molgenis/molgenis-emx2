@@ -9,81 +9,80 @@
       :enableClicks="enableLegendClicks"
       @legend-item-clicked="setLegendClicked"
     />
-    <svg
-      :id="chartId"
-      :class="svgClassNames"
-      width="100%"
-      height="100%"
-      :viewBox="viewBox"
-      preserveAspectRatio="xMinYMin"
-    >
-      <g
-        class="chart-area"
-        :transform="`translate(${chartMargins.left}, ${chartMargins.top})`"
+    <div class="chart-container">
+      <svg
+        :id="chartId"
+        :class="svgClassNames"
+        width="100%"
+        height="100%"
+        :viewBox="viewBox"
+        preserveAspectRatio="xMinYMin"
       >
-        <g class="chart-axes">
-          <g
-            class="chart-axis-x"
-            :transform="`translate(0,${heightMarginAdjusted})`"
-          ></g>
-          <g class="chart-axis-y"></g>
-        </g>
-        <g class="chart-points">
-          <g class="point-group" v-for="row in chartData">
-            <circle
-              class="point"
-              :data-group="group !== '' ? group : 'all'"
-              :data-xvar="row[xvar]"
-              :data-yvar="row[yvar]"
-              :cx="xAxis(row[xvar])"
-              :cy="yAxis(row[yvar])"
-              :r="pointRadius"
-              :fill="group !== '' ? palette(row[group]) : pointFill"
-              :style="
-                group !== ''
-                  ? `opacity: ${
-                      legendSelection.indexOf(row[group]) > -1 ? 0 : 1
-                    }`
-                  : ''
-              "
-            />
-            <text
-              class="point-label"
-              :x="xAxis(row[xvar])"
-              :y="yAxis(row[yvar])"
-              dx="6px"
-              style="opacity: 0"
-            >
-              <tspan class="point-xvar" dy="-12px">
-                {{ xvar }}: {{ row[xvar] }}
-              </tspan>
-              <tspan class="point-yvar" dy="-6px">
-                {{ yvar }}: {{ row[yvar] }}
-              </tspan>
-            </text>
+        <g
+          class="chart-area"
+          :transform="`translate(${chartMargins.left}, ${chartMargins.top})`"
+        >
+          <g class="chart-axes">
+            <g
+              class="chart-axis-x"
+              :transform="`translate(0,${heightMarginAdjusted})`"
+            ></g>
+            <g class="chart-axis-y"></g>
+          </g>
+          <g class="chart-points">
+            <g class="point-group" v-for="row in chartData">
+              <circle
+                class="point"
+                :data-group="group !== '' ? group : 'all'"
+                :data-xvar="row[xvar]"
+                :data-yvar="row[yvar]"
+                :cx="xAxis(row[xvar])"
+                :cy="yAxis(row[yvar])"
+                :r="pointRadius"
+                :fill="group !== '' ? palette(row[group]) : pointFill"
+                :style="
+                  group !== ''
+                    ? `opacity: ${
+                        legendSelection.indexOf(row[group]) > -1 ? 0 : 1
+                      }`
+                    : ''
+                "
+                @click="setClickedPoint(row)"
+                @mouseover="onPointMouseOver(row)"
+                @mouseleave="onPointMouseOut(row)"
+              />
+            </g>
           </g>
         </g>
-      </g>
-      <g class="chart-labels">
-        <text
-          :x="chartWidth / 2"
-          :y="chartHeight - chartMargins.bottom / 4.5"
-          :dx="(chartMargins.left - chartMargins.right) / 2"
-          class="chart-text chart-axis-title chart-axis-x"
-          v-if="xlabel"
+        <g class="chart-labels">
+          <text
+            :x="chartWidth / 2"
+            :y="chartHeight - chartMargins.bottom / 4.5"
+            :dx="(chartMargins.left - chartMargins.right) / 2"
+            class="chart-text chart-axis-title chart-axis-x"
+            v-if="xlabel"
+          >
+            {{ xlabel }}
+          </text>
+          <text
+            :x="-(chartHeight / 2.25)"
+            :y="chartMargins.left / 5.1"
+            class="chart-text chart-axis-title chart-axis-y"
+            v-if="ylabel"
+          >
+            {{ ylabel }}
+          </text>
+        </g>
+      </svg>
+      <div 
+        v-if="enableTooltip && tooltipData"
+        :id="`${chartId}-tooltip`"
+        class="d3-viz-tooltip scatter-plot-tooltip"
+        v-html="tooltipTemplate(tooltipData)"
+        :style="tooltipPosition"
         >
-          {{ xlabel }}
-        </text>
-        <text
-          :x="-(chartHeight / 2.25)"
-          :y="chartMargins.left / 5.1"
-          class="chart-text chart-axis-title chart-axis-y"
-          v-if="ylabel"
-        >
-          {{ ylabel }}
-        </text>
-      </g>
-    </svg>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -205,8 +204,8 @@ export default {
     // set the radius of the points
     pointRadius: {
       type: Number,
-      // `4`
-      default: 4,
+      // `5`
+      default: 5,
     },
 
     // Set the fill for all points
@@ -258,12 +257,33 @@ export default {
       default: false,
     },
 
-    // If `true`, hover events will be enabled for all points. When a point
-    // is hovered, the x and y values are displayed.
-    enableHover: {
+    // If `true`, tooltip events will be enabled for all points. When a point
+    // is hovered, the x and y values are display, as well as the group if
+    // defined
+    enableTooltip: {
       type: Boolean,
       // `false`
       default: true,
+    },
+    
+    // A function that controls the HTML content in the tooltip. The x and y
+    // values are displayed by default, as well as the group (if defined).
+    // However, you may specify the content in the body of the tooltip by defining
+    // a new function. Row-level data can be accessed by supplying `row` in the
+    // function. E.g., `(row) => { return ...}`.
+    tooltipTemplate: {
+      type: Function,
+      // `<p>x: ${row[this.yvar]}</p><p>y: ${row[this.xvar]}</p>`
+      default(row) {
+        const html = [
+          `<p>${this.xvar}: ${row[this.xvar]}</p>`,
+          `<p>${this.yvar}: ${row[this.yvar]}</p>`,
+        ]
+        if (this.group) {
+          html.push(`<p>${this.group}: ${row[this.group]}</p>`)
+        }
+        return html.join('');
+      },
     },
 
     // If `true` (default), a legend will be rendered in the below the chart only
@@ -297,6 +317,8 @@ export default {
     return {
       chartWidth: 675,
       legendSelection: [],
+      tooltipData: null,
+      tooltipPosition: null,
     };
   },
   computed: {
@@ -305,10 +327,7 @@ export default {
       if (this.title || this.description) {
         css.push("chart-has-context");
       }
-      // if (this.enableAnimation) {
-      //   css.push('column-animation-enabled')
-      // }
-      if (this.enableClicks || this.enableHover) {
+      if (this.enableClicks || this.enableTooltip) {
         css.push("point-events-enabled");
       }
       return css.join(" ");
@@ -380,15 +399,21 @@ export default {
     },
     palette() {
       if (this.group !== "") {
-        const domain = Object.keys(this.pointFillPalette).length
-          ? Object.keys(this.pointFillPalette)
-          : [...new Set(this.chartData.map((row) => row[this.group]))];
-
-        const range = Object.keys(this.pointFillPalette).length
-          ? Object.keys(this.pointFillPalette).map(
-              (key) => this.pointFillPalette[key]
-            )
-          : d3.schemePuBuGn[domain.length];
+        let domain, range;
+        
+        if (Object.keys(this.pointFillPalette).length) {
+          domain = Object.keys(this.pointFillPalette);
+          range = Object.keys(this.pointFillPalette).map(key => this.pointFillPalette[key]);
+        } else {
+          domain = [...new Set(this.chartData.map(row => row[this.group]))];
+          
+          // domains less than 2 do not exist in the color scheme
+          if (domain.length < 3) {
+            range = d3.schemePuBuGn[3].slice(1);
+          } else {
+            range = d3.schemePuBuGn[domain.length];
+          }
+        }
 
         return d3.scaleOrdinal().domain(domain).range(range).unknown("#ccc");
       }
@@ -419,25 +444,38 @@ export default {
     setLegendClicked(value) {
       this.legendSelection = value;
     },
-    setPointEvents() {
-      if (this.enableHover) {
-        this.points
-          .on("mouseover", this.onMouseOver)
-          .on("mouseout", this.onMouseOut);
+    setClickedPoint(value) {
+      if (this.enableClicks) {
+        this.points.style('cursor', 'pointer');
+        console.log(value)
       }
     },
-    onMouseOver(event) {
-      const text = event.target.nextSibling;
-      text.style.opacity = 1;
+    onPointMouseOver (value) {
+      this.tooltipData = value;
+      
+      const y = this.yAxis(value[this.yvar]);
+      const x = this.xAxis(value[this.xvar]);
+      
+      let top, left;
+      if (y >= (this.chartHeight * 0.6)) {
+        top = y - 72;
+      } else {
+        top = y + 32;
+      }
+      if (x >= (this.chartWidth * 0.6)) {
+        left = x - 150;
+      } else {
+        left = x + 75;
+      }
+      
+      this.tooltipPosition = `top: ${top}px;left: ${left}px;`
     },
-    onMouseOut(event) {
-      const text = event.target.nextSibling;
-      text.style.opacity = 0;
+    onPointMouseOut (value) {
+      this.tooltipData = null;
     },
     renderChart() {
       this.setChartDimensions();
       this.renderAxes();
-      this.setPointEvents();
     },
   },
   mounted() {
@@ -455,6 +493,8 @@ export default {
 
 <style lang="scss">
 .d3-scatter-plot {
+  position: relative;
+
   h3.chart-title {
     margin: 0;
     text-align: left;
@@ -517,5 +557,34 @@ export default {
       }
     }
   }
+  
+  .chart-container {
+    position: relative;
+    
+    .chart {
+      display: block;
+      margin: 0;
+      
+    }
+    
+    .d3-viz-tooltip {
+      position: absolute;
+      top: 0;
+      max-width: 300px;
+      z-index: 10;
+      color: $gray-700;
+      background-color: $gray-000;
+      box-shadow: 0 0 4px 2px $gray-transparent-400;
+      border-radius: 3px;
+      padding: 8px 12px;
+  
+      p {
+        font-size: 11pt;
+        padding: 0;
+        margin: 0;
+      }
+    }
+  }
+  
 }
 </style>
