@@ -8788,12 +8788,13 @@ node-releases@^2.0.13:
   resolved "https://registry.npmjs.org/node-releases/-/node-releases-2.0.13.tgz"
   integrity sha512-uYr7J37ae/ORWdZeQ1xxMJe3NtdmqMC/JZK+geofDrkLUApKRHPd18/TxtBOJ4A0/+uUIliorNrfYV6s1b02eQ==
 
-nomnoml@1.5.3:
-  version "1.5.3"
-  resolved "https://registry.npmjs.org/nomnoml/-/nomnoml-1.5.3.tgz"
-  integrity sha512-2LBKi3ygeYAC9l/wowgtBRxvQGuTryIczULVk2rFbWGUvs5aX68/sH+WgL95CschnSnxucTIv9L+3xScS71obQ==
+nomnoml@1.6.2, nomnoml@^1.5.3:
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/nomnoml/-/nomnoml-1.6.2.tgz#892d6b3b7f5d3bcc2f3cce46891c40e31e815e53"
+  integrity sha512-R3dA3FS8txilobpd2ZdnCuEwmXYYljxza2wR41YE/cIHMbt0eXsjlXHlAsD+F/fVe536f0WkAQ+VQFRC3hPZCA==
   dependencies:
     graphre "^0.1.3"
+    nomnoml "^1.5.3"
 
 nopt@^5.0.0:
   version "5.0.0"
