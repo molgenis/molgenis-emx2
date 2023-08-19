@@ -94,7 +94,7 @@ export default {
         const selectionEvent = this.isSelected ? "deselect" : "select";
         this.$emit(selectionEvent, toRaw(this.rowKey));
       } else {
-        this.$emit("rowClick", toRaw(this.rowKey)));
+        this.$emit("rowClick", toRaw(this.rowKey));
       }
     },
     hasRowheader() {
