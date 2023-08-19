@@ -98,7 +98,7 @@ export default {
     tableName: { type: String, required: false },
     data: { type: Array, default: () => [] },
     showSelect: { type: Boolean, default: false },
-    schemaName: { type: String, required: true },
+    schemaName: { type: String, required: false },
   },
   data() {
     return {

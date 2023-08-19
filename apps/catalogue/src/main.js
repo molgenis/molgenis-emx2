@@ -161,6 +161,12 @@ const router = createRouter({
       props: true,
     },
     {
+      name: "AllVariables-details",
+      path: "/all-variables/:resource/:dataset/:name",
+      redirect: { name: "Variables-details" },
+      props: true,
+    },
+    {
       name: "ExtendedResources-details",
       path: "/resources/:id",
       component: ResourceRedirectView,

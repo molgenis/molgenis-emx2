@@ -156,13 +156,11 @@ export default {
         this.$router.push({
           name: this.detailRouteName,
           params: {
-            toResource: row.toDataDictionary.resource.pid,
-            toVersion: row.toDataDictionary.version,
-            toTable: row.toTable.name,
-            toVariable: row.toVariable.name,
-            fromResource: row.fromDataDictionary.resource.pid,
-            fromVersion: row.fromDataDictionary.version,
-            fromTable: row.fromTable.name,
+            target: row.target.id,
+            targetDataset: row.targetDataset.name,
+            targetVariable: row.targetVariable.name,
+            source: row.source.id,
+            sourceDataset: row.sourceDataset.name,
           },
         });
       } else if (this.tableName == "Publications") {
