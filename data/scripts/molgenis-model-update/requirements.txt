@@ -1,5 +1,5 @@
 certifi==2023.7.22
-charset-normalizer==2.1.1
+charset-normalizer==3.2.0
 idna==3.4
 numpy==1.25.2
 pandas==1.5.3
