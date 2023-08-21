@@ -272,7 +272,9 @@ const fetchSchemaMetaData = async (
     .post(graphqlURL(schemaName), { query: metaDataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
       const schema = result.data.data._schema;
-      schemaCache.set(currentSchemaName, schema);
+      if(schemaName == null) {
+        schemaCache.set(currentSchemaName, schema);
+      }
       schemaCache.set(schema.name, schema);
       return deepClone(schema);
     })
