@@ -57,6 +57,8 @@ def dev_ontomanager(url: str = None, username: str = None, password: str = None)
     # manager.delete(table='Countries', name="Republic of Molgenia")
     manager.delete(table='Countries', names=["Armadilland", "Republic of Molgenia"])
 
+    manager.client.signout()
+
 
 if __name__ == '__main__':
     logging.basicConfig(level='DEBUG')

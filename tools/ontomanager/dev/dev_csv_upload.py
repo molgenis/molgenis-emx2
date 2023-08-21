@@ -61,6 +61,8 @@ def dev_csv_upload(url: str = None, username: str = None, password: str = None):
     deletions = manager.delete(table='Countries', names=countries['name'].tolist())
     print(deletions)
 
+    manager.client.signout()
+
 
 if __name__ == '__main__':
     logging.basicConfig(level='INFO')

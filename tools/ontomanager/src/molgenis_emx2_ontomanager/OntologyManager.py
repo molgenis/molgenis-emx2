@@ -2,6 +2,7 @@
 import json
 import logging
 import os.path
+import time
 from time import sleep
 
 import numpy as np
@@ -579,10 +580,13 @@ class OntologyManager:
 
         schema = {}
         schemas = tqdm(self.list_databases())
+        _loop_start = time.time()
         for db in schemas:
             schemas.set_description(f"Indexing schema {db:23}")
             schema.update({db: self.get_database_schema(db)})
             sleep(0.1)
+        _loop_length = (time.time() - _loop_start)
+        log.debug(f"Queried {len(schemas)} schemas in {round(_loop_length, 2)} seconds.")
 
         with open(schema_file, "w") as f:
             json.dump(schema, f, indent=True)

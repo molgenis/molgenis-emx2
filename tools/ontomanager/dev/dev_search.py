@@ -21,9 +21,6 @@ def dev_search(search_terms: list | str):
     """Function to demo search. Sign in to the server using the login details provided.
 
     :param search_terms: a string or list of strings
-    :param url: the url of the Molgenis EMX2 server
-    :param username: the username or email address of the user
-    :param password: the password for this username
     """
     load_dotenv()
 
@@ -42,6 +39,8 @@ def dev_search(search_terms: list | str):
     for st in search_terms:
         _table = manager.search(st, find_usage=True)
         results[st] = _table
+
+    manager.client.signout()
 
     return results
 
