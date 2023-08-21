@@ -2,7 +2,7 @@
   <RouterLink
     :to="{
       name: convertToPascalCase(metaData.refTable) + '-details',
-      params: convertToRouterParams,
+      params: routerParams,
     }"
     ><ObjectDisplay :data="data" :metaData="metaData" />
   </RouterLink>
@@ -29,7 +29,7 @@ export default {
     },
   },
   computed: {
-    convertToRouterParams() {
+    routerParams() {
       if (this.data) {
         const result = deepClone(this.data);
         Object.keys(result).forEach((key) => {
