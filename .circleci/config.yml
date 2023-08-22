@@ -88,7 +88,7 @@ jobs:
     - run:
         name: build, test, release
         command: |
-          ./gradlew build test shadowJar ci jacocoMergedReport release dockerPush helmPublishMainChart publishPyton --no-daemon
+          ./gradlew build test shadowJar ci jacocoMergedReport release dockerPush helmPublishMainChart publishPython --no-daemon
 
     - run:
         name: test e2e
