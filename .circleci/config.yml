@@ -86,9 +86,9 @@ jobs:
           git config url.https://.insteadOf git://
 
     - run:
-        name: build and test java
+        name: build, test, release
         command: |
-          ./gradlew shadowJar test ci dockerPush jacocoMergedReport --no-daemon
+          ./gradlew build test shadowJar ci jacocoMergedReport release dockerPush helmPublishMainChart publishPyton --no-daemon
 
     - run:
         name: test e2e
@@ -102,15 +102,15 @@ jobs:
     #    -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
     #    -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
     - run:
-        name: release, push docker, push python
+        name: push sonar
         command: |
           if [ "${CIRCLE_BRANCH}" = "master" ]; then
-            ./gradlew -s --no-daemon helmPublishMainChart sonar release publishPython \
+            ./gradlew -s --no-daemon sonar publishPython \
             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
           else
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            ./gradlew -s --no-daemon helmPublishMainChart sonar release publishPython \
+            ./gradlew -s --no-daemon sonar publishPython \
             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
             -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
