@@ -2,8 +2,19 @@
 #
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
-version: 2
+version: 2.1
+orbs:
+  win: circleci/windows@5.0
 jobs:
+  windows_build:
+    docker:
+    - image: eclipse-temurin:17-jdk-windowsservercore-ltsc2022
+    steps:
+      - checkout
+      - run:
+          name: build and test java
+          command: |
+              gradlew shadowJar --no-daemon
   build:
     docker:
     # specify the version you desire here
