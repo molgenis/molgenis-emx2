@@ -24,7 +24,7 @@ jobs:
 
     environment:
       # Customize the JVM maximum heap limit
-      JVM_OPTS: -Xmx6400m
+      JVM_OPTS: -Xmx12800m
       NODE_OPTIONS: "--max-old-space-size=4096"
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=8"
       TERM: dumb
@@ -88,7 +88,7 @@ jobs:
     - run:
         name: build and test java
         command: |
-          ./gradlew shadowJar --no-daemon
+          ./gradlew shadowJar test ci dockerPush jacocoMergedReport --no-daemon
 
     - run:
         name: test e2e
@@ -105,12 +105,12 @@ jobs:
         name: release, push docker, push python
         command: |
           if [ "${CIRCLE_BRANCH}" = "master" ]; then
-            ./gradlew -s test jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release publishPython \
+            ./gradlew -s --no-daemon helmPublishMainChart sonar release publishPython \
             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
           else
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            ./gradlew -s test jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release publishPython \
+            ./gradlew -s --no-daemon helmPublishMainChart sonar release publishPython \
             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
             -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
