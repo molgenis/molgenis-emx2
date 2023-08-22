@@ -8,6 +8,11 @@ orbs:
 jobs:
   build_windows:
     executor: win/default
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      NODE_OPTIONS: "--max-old-space-size=4096"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
     steps:
       - checkout
       - run:
