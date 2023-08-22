@@ -7,6 +7,7 @@ orbs:
   win: circleci/windows@5.0
 jobs:
   windows_build:
+    executor: win/default
     docker:
     - image: eclipse-temurin:17-jdk-windowsservercore-ltsc2022
     steps:
@@ -168,3 +169,8 @@ jobs:
             -d "channel=C02AZDG6QQ7" \
             -X POST https://slack.com/api/chat.postMessage
           fi
+workflows:
+  build_and_test:
+    jobs:
+    - build_windows
+    - build
