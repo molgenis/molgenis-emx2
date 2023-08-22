@@ -16,7 +16,7 @@ jobs:
       - run:
           name: build and test java
           command: |
-              gradlew shadowJar --no-daemon
+              ./gradlew shadowJar --no-daemon
   build_linux:
     docker:
     # specify the version you desire here
