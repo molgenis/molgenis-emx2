@@ -3,12 +3,16 @@
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
 version: 2.1
+orbs:
+  win: circleci/windows@5.0
 jobs:
   build_windows:
-    docker:
-    - image: eclipse-temurin:17-jdk-windowsservercore-ltsc2022
+    executor: win/default
     steps:
       - checkout
+      - run:
+          command: |
+            java -version
       - run:
           name: build and test java
           command: |
