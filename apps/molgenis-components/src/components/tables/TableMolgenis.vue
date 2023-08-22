@@ -1,10 +1,6 @@
-/* eslint-disable vue/no-unused-components */
 <template>
-  <div style="max-width: 100%" class="flex-grow-1">
-    <table
-      class="table table-sm bg-white table-bordered table-hover"
-      :class="{ 'table-hover': showSelect }"
-    >
+  <div style="overflow-x: scroll">
+    <table class="table table-sm bg-white table-bordered table-hover">
       <thead>
         <th slot="header" scope="col" style="width: 1px" v-if="hasColheader">
           <h6 class="mb-0 mt-2 d-inline">#</h6>
