@@ -6,7 +6,7 @@ version: 2.1
 orbs:
   win: circleci/windows@5.0
 jobs:
-  windows_build:
+  build_windows:
     executor: win/default
     docker:
     - image: eclipse-temurin:17-jdk-windowsservercore-ltsc2022
@@ -16,7 +16,7 @@ jobs:
           name: build and test java
           command: |
               gradlew shadowJar --no-daemon
-  build:
+  build_linux:
     docker:
     # specify the version you desire here
     - image: gradle:jdk17-jammy
@@ -170,7 +170,6 @@ jobs:
             -X POST https://slack.com/api/chat.postMessage
           fi
 workflows:
-  build_and_test:
+  build_all:
     jobs:
     - build_windows
-    - build
