@@ -14,7 +14,7 @@
     "molgenis-components": "*",
     "molgenis-viz": "*",
     "vue": "3.2.47",
-    "vue-router": "4.1.6"
+    "vue-router": "4.2.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
