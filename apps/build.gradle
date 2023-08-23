@@ -16,7 +16,6 @@ node {
     with nodeSpec
 }
 
-
 task format(type: YarnTask, dependsOn: yarn_install) {
     args = ['run', 'nx', 'format:write']
 }
@@ -24,6 +23,7 @@ task format(type: YarnTask, dependsOn: yarn_install) {
 task buildJavascript(type: YarnTask, dependsOn: format) {
     environment = ["NODE_OPTIONS":"--max-old-space-size=4096"]
     args = ['run', 'nx', 'run-many', '--target=build,build-showcase','--parallel=4']
+    outputs.upToDateWhen { false }
 }
 
 task cleanJavascript(type: YarnTask, dependsOn: yarn_install) {
@@ -31,26 +31,24 @@ task cleanJavascript(type: YarnTask, dependsOn: yarn_install) {
 }
 clean.dependsOn cleanJavascript
 
-/* copy the javascript files to the build folder */
+/* copy the javascript files to the build folder, nasty we have to manually set libs */
 task copyDistFiles(type: Copy, dependsOn: buildJavascript) {
    file("${project.projectDir}").eachDir { dir ->
-       if (new File(dir.name + "/showCase").exists()) {
+       if (dir.name == 'molgenis-components' || dir.name == 'molgenis-viz') {
            println dir.name + "/showCase"
-           inputs.dir(dir.name + "/showCase")
            copy {
-               from dir.name + "/showCase"
-               into "${project.buildDir}/resources/main/public_html/apps/" + dir.name
+               from dir.path + "/showCase"
+               into "${buildDir}/resources/main.public_html/apps/" + dir.name
            }
-       } else if(new File(dir.name + "/dist").exists()) {
-           println dir.name + "/dist"
-           inputs.dir(dir.name + "/showcase")
+       } else if(dir.name != ".gradle" && dir.name != 'build' && dir.name != 'node_modules') {
+           println dir.path + "/dist"
            copy {
                from dir.name + "/dist"
-               into "${project.buildDir}/resources/main/public_html/apps/" + dir.name
+               into "${buildDir}/resources/main/public_html/apps/" + dir.name
            }
        }
-       outputs.dir("${project.buildDir}/resources/main/public_html/apps/"+dir.name)
     }
+    outputs.upToDateWhen { false }
 }
 
 
@@ -74,3 +72,5 @@ artifacts {
         type "jar"
     }
 }
+
+
