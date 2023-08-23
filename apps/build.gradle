@@ -72,7 +72,7 @@ subprojects {
 
 
     task build(type: YarnTask, dependsOn: format) {
-        environment "NODE_OPTIONS" "--max-old-space-size=4096"
+        environment = ["NODE_OPTIONS":"--max-old-space-size=4096"]
 
          // force build order: molgenis-components > ...apps
         if (project.name != 'molgenis-components') {
