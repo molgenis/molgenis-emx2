@@ -20,6 +20,10 @@ task format(type: YarnTask, dependsOn: yarn_install) {
     args = ['run', 'nx', 'format:write']
 }
 
+task checkFormat(type: YarnTask, dependsOn: yarn_install) {
+    args = ['run', 'nx', 'format:check']
+}
+
 task buildJavascript(type: YarnTask, dependsOn: format) {
     environment = ["NODE_OPTIONS":"--max-old-space-size=4096"]
     args = ['run', 'nx', 'run-many', '--target=build,build-showcase','--parallel=4']
