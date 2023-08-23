@@ -22,7 +22,7 @@ log = logging.getLogger("OntologyManager")
 MAX_TRIES = 10
 
 
-class OntologyManager:
+class OntologyManager(Client):
     """Class that manages the actions."""
 
     def __init__(self, url: str, username: str, password: str):
@@ -33,15 +33,24 @@ class OntologyManager:
         :param username: the username to sign in to the server
         :param password: the password that belongs to the username for this server
         """
-        self.client = Client(url=url)
-        self.client.signin(username=username, password=password)
-        self.graphql_endpoint = f'{self.client.url}/CatalogueOntologies/graphql'
+        super().__init__(url=url, schema=None)
+        self.signin(username=username, password=password)
+        self.graphql_endpoint = f'{self.url}/CatalogueOntologies/graphql'
         self.ontology_tables = self.__list_ontology_tables()
         self.schema = self.get_schema()
 
-        if self.client.signin_status == 'failed':
-            self.client.session.close()
+        if self.signin_status == 'failed':
+            self.session.close()
             raise SigninError('Signing in failed. Exiting.')
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print("Exiting. Closing connection.")
+        self.signout()
+        print("Signout completed.")
+        self.session.close()
 
     def perform(self, action: str, table: str, **kwargs):
         """Select the method to perform and pass any keyword arguments"""
@@ -113,6 +122,7 @@ class OntologyManager:
         if table not in self.ontology_tables:
             raise NoSuchTableException(f"Table '{table}' not found in CatalogueOntologies.")
 
+        mutations = dict()
         if names:
             mutations = self._delete_list(table, names)
         if name:
@@ -132,7 +142,7 @@ class OntologyManager:
             _table = self.parse_table_name(tb)
             query = Queries.search_filter_query(_table)
 
-            response = self.client.session.post(
+            response = self.session.post(
                 url=self.graphql_endpoint,
                 json={'query': query, 'variables': variables}
             )
@@ -176,8 +186,8 @@ class OntologyManager:
                     query = Queries.column_values(_table, self.parse_column_name(col_name), tb_pkeys)
                     variables = {'filter': {self.parse_column_name(col_name): {'equals': {'name': term}}}}
 
-                    response = self.client.session.post(
-                        f'{self.client.url}/{db}/graphql',
+                    response = self.session.post(
+                        f'{self.url}/{db}/graphql',
                         json={'query': query, 'variables': variables}
                     )
                     if response.status_code != 200:
@@ -414,8 +424,8 @@ class OntologyManager:
             query = Queries.column_values(_table, _column, pkeys)
             variables = {'filter': {_column: {'equals': {'name': self.old}}}}
 
-            response = self.manager.client.session.post(
-                f'{self.manager.client.url}/{self.database}/graphql',
+            response = self.manager.session.post(
+                f'{self.manager.url}/{self.database}/graphql',
                 json={'query': query, 'variables': variables}
             )
 
@@ -437,8 +447,8 @@ class OntologyManager:
             query = Queries.upload_mutation(_table)
             variables = {'value': column_values_updated}
 
-            response = self.manager.client.session.post(
-                f'{self.manager.client.url}/{self.database}/graphql',
+            response = self.manager.session.post(
+                f'{self.manager.url}/{self.database}/graphql',
                 json={'query': query, 'variables': variables}
             )
 
@@ -481,7 +491,7 @@ class OntologyManager:
     def __perform_query(self, query: str, variables: dict, action: str) -> Response:
         """Perform the query using the query and variables supplied."""
 
-        _response = self.client.session.post(
+        _response = self.session.post(
             self.graphql_endpoint,
             json={"query": query, "variables": variables}
         )
@@ -518,7 +528,7 @@ class OntologyManager:
         _table = self.parse_table_name(table)
         query = Queries.list_ontology_terms(_table)
 
-        response = self.client.session.post(
+        response = self.session.post(
             self.graphql_endpoint,
             json={"query": query}
         )
@@ -549,7 +559,7 @@ class OntologyManager:
     def __list_ontology_tables(self) -> list:
         """Returns a list of ontology tables in the CatalogueOntologies database."""
         query = Queries.list_ontology_tables()
-        response = self.client.session.post(
+        response = self.session.post(
             self.graphql_endpoint,
             json={"query": query}
         )
@@ -561,8 +571,8 @@ class OntologyManager:
     def list_databases(self) -> list:
         """Returns a list of the databases on the server."""
         query = Queries.list_databases()
-        response = self.client.session.post(
-            url=f'{self.client.url}/apps/graphql',
+        response = self.session.post(
+            url=f'{self.url}/apps/graphql',
             json={"query": query}
         )
         databases = [db['name'] for db in response.json()['data']['_schemas']]
@@ -570,7 +580,7 @@ class OntologyManager:
 
     def get_schema(self, force_new: bool = False):
         """Get the schema for all databases on the server."""
-        schema_file = f"~{self.client.url.split('//')[-1]}-schema.json"
+        schema_file = f"~{self.url.split('//')[-1]}-schema.json"
         if not force_new:
             if os.path.isfile(schema_file):
                 with open(schema_file, 'r') as f:
@@ -598,8 +608,8 @@ class OntologyManager:
         :param database: the name of the database.
         """
         query = Queries.database_schema()
-        response = self.client.session.post(
-            url=f'{self.client.url}/{database}/graphql',
+        response = self.session.post(
+            url=f'{self.url}/{database}/graphql',
             json={"query": query}
         )
         if response.status_code == 404:

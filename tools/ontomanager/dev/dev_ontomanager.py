@@ -37,27 +37,27 @@ def dev_ontomanager(url: str = None, username: str = None, password: str = None)
     if password is None:
         password = os.environ.get('MG_PASSWORD')
 
-    manager = OntologyManager(url, username, password)
+    with OntologyManager(url, username, password) as manager:
 
-    try:
-        # manager.add(table='Countries', order=1000, name="Republic of Molgenia")
-        manager.add(table='Countries', data={'name': 'Republic of Molgenia', 'order': 1000})
-    except DuplicateKeyException as e:
-        logging.error(e)
-    try:
-        manager.add(table='Countries', name="Armadilland", parent="Republic of Molgenia")
-    except DuplicateKeyException as e:
-        logging.error(e)
+        try:
+            # manager.add(table='Countries', order=1000, name="Republic of Molgenia")
+            manager.add(table='Countries', data={'name': 'Republic of Molgenia', 'order': 1000})
+        except DuplicateKeyException as e:
+            logging.error(e)
+        try:
+            manager.add(table='Countries', name="Armadilland", parent="Republic of Molgenia")
+        except DuplicateKeyException as e:
+            logging.error(e)
 
-    manager.update(table='Countries', old='Netherlands (the)', new='Armadilland')
-    manager.update(table='Countries', old='Armadilland', new='Republic of Molgenia')
-    manager.update(table='Countries', old='Republic of Molgenia', new='Netherlands (the)')
+        # manager.update(table='Countries', old='Netherlands (the)', new='Armadilland')
+        # manager.update(table='Countries', old='Armadilland', new='Republic of Molgenia')
+        # manager.update(table='Countries', old='Republic of Molgenia', new='Netherlands (the)')
 
-    # manager.delete(table='Countries', name="Armadilland")
-    # manager.delete(table='Countries', name="Republic of Molgenia")
-    manager.delete(table='Countries', names=["Armadilland", "Republic of Molgenia"])
+        # manager.delete(table='Countries', name="Armadilland")
+        # manager.delete(table='Countries', name="Republic of Molgenia")
+        manager.delete(table='Countries', names=["Armadilland", "Republic of Molgenia"])
 
-    manager.client.signout()
+        # manager.signout()
 
 
 if __name__ == '__main__':
