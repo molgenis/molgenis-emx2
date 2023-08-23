@@ -18,6 +18,9 @@
     "reports",
     "tasks",
     "gportal"
-  ]
+  ],
+  "devDependencies": {
+    "nx": "16.7.3",
+    "nx-cloud": "latest"
+  }
 }
-
