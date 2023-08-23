@@ -23,40 +23,37 @@ task format(type: YarnTask, dependsOn: yarn_install) {
 task buildJavascript(type: YarnTask, dependsOn: format) {
     args = ['run', 'nx', 'run-many', '--target=build,build-showcase','--parallel=4']
 }
-build.dependsOn buildJavascript
 
 task cleanJavascript(type: YarnTask, dependsOn: yarn_install) {
     args = ['run', 'nx', 'reset']
 }
 clean.dependsOn cleanJavascript
 
-subprojects {
-    task copyDistFiles(type: Copy) {
-        dependsOn parent.build
-        if (project.name == 'molgenis-components' || project.name == 'molgenis-viz') {
-            from "showCase"
-            inputs.dir("showCase")
-        } else {
-            from "dist"
-            inputs.dir("dist")
-        }
-        into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-        outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
-        outputs.cacheIf { true }
-    }
-
-    clean.doLast {
-        project.delete(files("dist"))
-        project.delete(files("build"))
-        project.delete(files("node_modules"))
-        project.delete(files(".nuxt"))
-        project.delete(files(".output"))
-        project.delete(files("showCase"))
+/* copy the javascript files to the build folder */
+task copyDistFiles(type: Copy, dependsOn: buildJavascript) {
+   file("${project.projectDir}").eachDir { dir ->
+       if (new File(dir.name + "/showCase").exists()) {
+           println dir.name + "/showCase"
+           inputs.dir(dir.name + "/showCase")
+           copy {
+               from dir.name + "/showCase"
+               into "${project.buildDir}/resources/main/public_html/apps/" + dir.name
+           }
+       } else if(new File(dir.name + "/dist").exists()) {
+           println dir.name + "/dist"
+           inputs.dir(dir.name + "/showcase")
+           copy {
+               from dir.name + "/dist"
+               into "${project.buildDir}/resources/main/public_html/apps/" + dir.name
+           }
+       }
+       outputs.dir("${project.buildDir}/resources/main/public_html/apps/"+dir.name)
     }
 }
 
+
 /* convert build files into one apps.jar that we can use as a dependency in the java part */
-task createJar(type: Zip, dependsOn: subprojects.copyDistFiles) {
+task createJar(type: Zip, dependsOn: copyDistFiles) {
     archiveBaseName = 'molgenis-emx2-apps'
     archiveExtension = 'jar'
     destinationDirectory = file("${buildDir}/build/libs")
