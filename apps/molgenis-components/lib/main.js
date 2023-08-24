@@ -192,6 +192,7 @@ export {
   InputDate,
   InputDateTime,
   InputDecimal,
+  InputEmail,
   InputFile,
   InputGroup,
   InputInt,
