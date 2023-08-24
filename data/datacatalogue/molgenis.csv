@@ -67,7 +67,8 @@ Databanks,,underlying population,text,,,,,,,,,Provide a summary description of t
 Extended resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,EMA,,
 Data resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,EMA,Resources,regions
 Data resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.,EMA,Databanks,populationAgeGroups
-Cohorts,,inclusion criteria,text,,,,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource,,,
+Cohorts,,inclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource,,,
+Cohorts,,other inclusion criteria,text,,,,,,,,,Other inclusion criteria applied to the participants of this resource,,,
 Cohorts,,start year,int,,,,,,,,,Year when first data was collected,,,
 Cohorts,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing,,,
 Networks,,start year,int,,,,,,,,,Year when the network was created,,,

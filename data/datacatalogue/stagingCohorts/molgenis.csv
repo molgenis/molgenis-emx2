@@ -34,7 +34,8 @@ Data resources,,population age groups,ontology_array,,,CatalogueOntologies,Age g
 Data resources,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?
 Data resources,,population oncology topology,ontology_array,,,CatalogueOntologies,ICDO topologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications."
 Data resources,,population oncology morphology,ontology_array,,,CatalogueOntologies,ICDO morphologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications."
-Cohorts,,inclusion criteria,text,,,,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource
+Cohorts,,inclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource
+Cohorts,,other inclusion criteria,text,,,,,,,,,Other inclusion criteria applied to the participants of this resource
 Cohorts,,start year,int,,,,,,,,,Year when first data was collected
 Cohorts,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing
 Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource
