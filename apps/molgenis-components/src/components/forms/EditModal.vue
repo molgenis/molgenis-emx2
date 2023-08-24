@@ -252,7 +252,6 @@ export default {
           .updateDataRow(formData, this.tableName, this.schemaName)
           .catch(this.handleSaveError);
       } else {
-        console.log(formData);
         result = await this.client
           .insertDataRow(formData, this.tableName, this.schemaName)
           .catch(this.handleSaveError);
