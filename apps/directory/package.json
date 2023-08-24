@@ -21,7 +21,7 @@
     "monaco-editor": "0.41.0",
     "pinia": "2.0.33",
     "vue": "3.2.47",
-    "vue-router": "4.2.4",
+    "vue-router": "4.1.6",
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {

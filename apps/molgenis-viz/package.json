@@ -41,6 +41,6 @@
     "prettier": "2.8.8",
     "sass": "1.66.1",
     "vite": "4.3.9",
-    "vue-router": "4.2.4"
+    "vue-router": "4.1.6"
   }
 }
