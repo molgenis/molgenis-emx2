@@ -26,7 +26,6 @@ const selectedTitle = ref(tabTitles.value[0]);
 provide("selectedTitle", selectedTitle);
 
 function setTitle(newTitle: string) {
-  console.log(newTitle);
   selectedTitle.value = newTitle;
 }
 </script>

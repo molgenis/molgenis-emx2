@@ -94,6 +94,7 @@ import IAggregateData from "./IAggregateData";
 import Client from "../../client/client";
 import InputSelect from "../forms/InputSelect.vue";
 import { IColumn } from "../../Interfaces/IColumn";
+import { convertToCamelCase } from "../utils";
 
 export default defineComponent({
   name: "AggregateTable",
@@ -145,11 +146,11 @@ export default defineComponent({
         .fetchAggregateData(
           this.tableName,
           {
-            name: this.selectedColumn,
+            name: convertToCamelCase(this.selectedColumn),
             column: "name",
           },
           {
-            name: this.selectedRow,
+            name: convertToCamelCase(this.selectedRow),
             column: "name",
           },
           this.graphqlFilter
@@ -161,15 +162,17 @@ export default defineComponent({
         responseData[this.tableName + "_groupBy"].forEach((item: any) =>
           this.addItem(item)
         );
-        this.noResults = !Boolean(this.columns.length);
+        this.noResults = !this.columns.length;
       } else {
         this.noResults = true;
       }
       this.loading = false;
     },
     addItem(item: any) {
-      const column: string = item[this.selectedColumn].name || "not specified";
-      const row: string = item[this.selectedRow].name || "not specified";
+      const column: string =
+        item[convertToCamelCase(this.selectedColumn)].name || "not specified";
+      const row: string =
+        item[convertToCamelCase(this.selectedRow)].name || "not specified";
 
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
@@ -242,7 +245,7 @@ export default {
           columnType: "STRING",
         },
         {
-          name: "category",
+          name: "category bla",
           columnType: "REF",
         },
         {

@@ -166,6 +166,7 @@ export default {
     const resp = await this.client.fetchTableData(this.table, {
       filter: this.graphqlFilter,
       orderby: this.orderBy,
+      limit: this.limit,
     });
     this.cohorts = resp[this.table] ? resp[this.table] : [];
     this.count = resp[this.table + "_agg"].count;

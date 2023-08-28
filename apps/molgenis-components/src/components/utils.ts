@@ -41,27 +41,6 @@ export function flattenObject(object: Record<string, any>): string {
   }
 }
 
-export function getPrimaryKey(
-  row: IRow,
-  tableMetadata: ITableMetaData
-): Record<string, any> | null {
-  //we only have pkey when the record has been saved
-  if (!row["mg_insertedOn"] || !tableMetadata?.columns) {
-    return null;
-  } else {
-    return tableMetadata.columns.reduce(
-      (accum: Record<string, any>, column: IColumn) => {
-        const cellValue = row[column.id];
-        if (column.key === 1 && cellValue) {
-          accum[column.id] = cellValue;
-        }
-        return accum;
-      },
-      {}
-    );
-  }
-}
-
 export async function convertRowToPrimaryKey(
   row: IRow,
   tableName: string,
@@ -145,7 +124,7 @@ export function flipSign(value: string): string | null {
 const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
 
 export function getBigIntError(value: string): string | undefined {
-  if (value === "-" || isInvalidBigInt(value)) {
+  if (isInvalidBigInt(value)) {
     return BIG_INT_ERROR;
   } else {
     return undefined;
@@ -153,10 +132,12 @@ export function getBigIntError(value: string): string | undefined {
 }
 
 export function isInvalidBigInt(value: string): boolean {
-  return (
-    value !== null &&
-    (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
-  );
+  const isValidRegex = /^-?\d+$/;
+  if (Boolean(value) && isValidRegex.test(value)) {
+    return BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG);
+  } else {
+    return true;
+  }
 }
 
 export function convertToCamelCase(string: string): string {

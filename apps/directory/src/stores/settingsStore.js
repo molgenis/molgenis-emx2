@@ -6,7 +6,7 @@ import initialCollectionColumns from "../property-config/initialCollectionColumn
 import initialBiobankColumns from "../property-config/initialBiobankColumns";
 import initialBiobankReportColumns from "../property-config/initialBiobankReportColumns";
 import initialLandingpage from "../property-config/initialLandingpage";
-import QueryEMX2 from "../functions/queryEMX2";
+import { QueryEMX2 } from "molgenis-components";
 /**
  * Settings store is where all the configuration of the application is handled.
  * This means that user config from the database is merged with the defaults here.
@@ -23,6 +23,8 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     language: "en",
     graphqlEndpoint: "graphql",
     negotiatorType: "eric-negotiator",
+    negotiatorUrl:
+      "https://negotiator-dev.bbmri-eric.eu/api/directory/create_query",
     biobankColumns: initialBiobankColumns,
     biobankReportColumns: initialBiobankReportColumns,
     collectionColumns: initialCollectionColumns,

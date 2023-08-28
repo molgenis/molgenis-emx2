@@ -10,14 +10,14 @@
       :errorMessage="errorPerColumn[column.id]"
       :label="getColumnLabel(column)"
       :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
-      :pkey="getPrimaryKey(internalValues, tableMetaData)"
+      :pkey="primaryKey"
       :readonly="
         column.readonly ||
         (pkey && column.key === 1 && !clone) ||
         (column.computed !== undefined && column.computed.trim() != '')
       "
       :refBack="column.refBack"
-      :refTablePrimaryKeyObject="getPrimaryKey(internalValues, tableMetaData)"
+      :refTablePrimaryKeyObject="primaryKey"
       :refLabel="column.refLabel ? column.refLabel : column.refLabelDefault"
       :required="column.required"
       :tableName="column.refTable"
@@ -31,8 +31,8 @@
 <script>
 import FormInput from "./FormInput.vue";
 import constants from "../constants.js";
+import Client from "../../client/client.ts";
 import {
-  getPrimaryKey,
   deepClone,
   convertToCamelCase,
   getLocalizedLabel,
@@ -45,6 +45,7 @@ export default {
   name: "RowEdit",
   data: function () {
     return {
+      client: Client.newClient(this.schemaMetaData.name),
       internalValues: deepClone(this.modelValue),
     };
   },
@@ -110,6 +111,12 @@ export default {
     FormInput,
   },
   computed: {
+    async primaryKey() {
+      return this.client.convertRowToPrimaryKey(
+        this.internalValues,
+        this.tableName
+      );
+    },
     columnsWithoutMeta() {
       return this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
@@ -131,7 +138,6 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey,
     getColumnLabel(column) {
       return getLocalizedLabel(column, this.locale);
     },
