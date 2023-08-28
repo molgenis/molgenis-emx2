@@ -6,6 +6,7 @@ const cutoff = 250;
 const props = withDefaults(
   defineProps<{
     cohort: ICohort;
+    schema: string;
     compact?: boolean;
   }>(),
   {
