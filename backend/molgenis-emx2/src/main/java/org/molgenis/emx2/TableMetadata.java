@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
@@ -124,6 +125,10 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<Column> getColumns() {
+    return getColumns(false);
+  }
+
+  public List<Column> getColumns(boolean asCamelCase) {
     // we want to sort on position,
     // first external schema (because their positions local to that schema)
     // last we attach the 'meta
@@ -170,6 +175,13 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     finalResult.addAll(externalList);
     finalResult.addAll(internalList);
     finalResult.addAll(metaList);
+
+    if (asCamelCase) {
+      for (Column c : finalResult) {
+        c.setName(convertToCamelCase(c.getName()));
+      }
+    }
+
     return finalResult;
   }
 
@@ -178,10 +190,14 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<String> getPrimaryKeys() {
+    return getPrimaryKeys(false);
+  }
+
+  public List<String> getPrimaryKeys(boolean asCamelCase) {
     List<String> primaryKey = new ArrayList<>();
     for (Column c : getColumns()) {
       if (c.getKey() == 1) {
-        primaryKey.add(c.getName());
+        primaryKey.add(asCamelCase ? convertToCamelCase(c.getName()) : c.getName());
       }
     }
     return primaryKey;
