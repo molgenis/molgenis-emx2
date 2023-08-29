@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.*;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class FilteringTermsResponse {
@@ -103,7 +100,10 @@ public class FilteringTermsResponse {
     for (Column column : metadata.getColumns()) {
       if (!column.isReference() && !column.isOntology()) {
         FilteringTerm filteringTerm =
-            new FilteringTerm(column.getColumnType().name(), column.getName(), tableToQuery);
+            new FilteringTerm(
+                columnTypeToFilteringTermType(column.getColumnType()),
+                column.getName(),
+                tableToQuery);
         filteringTermsSet.add(filteringTerm);
       }
     }
@@ -150,7 +150,11 @@ public class FilteringTermsResponse {
     } else {
       // to do: for ontologies, get the URI with an extra query as the 'id' value
       FilteringTerm filteringTerm =
-          new FilteringTerm(columnPerRow.getColumnType().name(), value, value, tableToQuery);
+          new FilteringTerm(
+              columnTypeToFilteringTermType(columnPerRow.getColumnType()),
+              value,
+              value,
+              tableToQuery);
       filteringTermsSet.add(filteringTerm);
     }
   }
@@ -171,7 +175,11 @@ public class FilteringTermsResponse {
     for (String valSplit : splitStringIgnoreQuotedCommas(value)) {
       // to do: for ontologies, get the URI with an extra query as the 'id' value
       FilteringTerm filteringTerm =
-          new FilteringTerm(columnPerRow.getColumnType().name(), valSplit, valSplit, tableToQuery);
+          new FilteringTerm(
+              columnTypeToFilteringTermType(columnPerRow.getColumnType()),
+              valSplit,
+              valSplit,
+              tableToQuery);
       filteringTermsSet.add(filteringTerm);
     }
   }
@@ -210,6 +218,47 @@ public class FilteringTermsResponse {
       tokens.add(lastToken);
     }
     return tokens;
+  }
+
+  /**
+   * Notes on mapping choices:
+   * Bool is not alphanumeric, althought it could be?
+   * File, UUID and AUTO_ID are not meaningfully searchable
+   * JSONB perhaps?
+   * REF and REFBACK are not alphanumeric nor ontology
+   * HEADING should be ignored
+   *
+   * @param columnType
+   * @return
+   */
+  public String columnTypeToFilteringTermType(ColumnType columnType) {
+
+    switch (columnType) {
+      case ONTOLOGY:
+      case ONTOLOGY_ARRAY:
+        return "ontology";
+      case STRING:
+      case STRING_ARRAY:
+      case TEXT:
+      case TEXT_ARRAY:
+      case INT:
+      case INT_ARRAY:
+      case LONG:
+      case LONG_ARRAY:
+      case DECIMAL:
+      case DECIMAL_ARRAY:
+      case DATE:
+      case DATE_ARRAY:
+      case DATETIME:
+      case DATETIME_ARRAY:
+      case EMAIL:
+      case EMAIL_ARRAY:
+      case HYPERLINK:
+      case HYPERLINK_ARRAY:
+        return "alphanumeric";
+      default:
+        return "custom";
+    }
   }
 
   /**
