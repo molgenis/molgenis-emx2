@@ -48,7 +48,7 @@ public class TestLoaders {
   public void test2DataCatalogueLoader() {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     AvailableDataModels.DATA_CATALOGUE.install(dataCatalogue, true);
-    assertEquals(33, dataCatalogue.getTableNames().size());
+    assertEquals(32, dataCatalogue.getTableNames().size());
   }
 
   @Test
