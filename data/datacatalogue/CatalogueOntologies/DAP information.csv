@@ -13,7 +13,7 @@ order,name,label,code,parent,ontologyTermURI,definition
 ,Data originator,,,DAP reasons for access,,
 ,Research,,,DAP reasons for access,,
 ,Surveillance,,,DAP reasons for access,,
-,Other,,,DAP reasons for access,,
+,DAP reasons for access: Other,Other,,DAP reasons for access,,
 ,Fees,,,,,Are there fees for data access?
 ,Yes,,,Fees,,
 ,Fees: No,No,,Fees,,
@@ -30,4 +30,4 @@ order,name,label,code,parent,ontologyTermURI,definition
 ,Renal impaired,,,,Population subset,,
 ,Hepatic impaired,,,,Population subset,,
 ,Immunocompromised,,,,Population subset,,
-,Other,,,,Population subset,,
+,Population subset: Other,Other,,,Population subset,,
