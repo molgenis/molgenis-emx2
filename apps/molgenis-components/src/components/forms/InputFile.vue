@@ -77,6 +77,7 @@ export default {
       const target = event.target;
       if (target?.files) {
         this.filename = target.files[0]?.name;
+        console.log(this.filename);
         this.$emit("update:modelValue", target.files[0]);
       }
     },
