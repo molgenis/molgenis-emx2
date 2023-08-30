@@ -1,4 +1,4 @@
-interface ICohort {
+export interface ICohort {
   id: string;
   name: string;
   acronym?: string;

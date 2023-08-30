@@ -36,14 +36,20 @@ import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
 import BaseInputProps from "./baseInputs/BaseInputProps";
 
-interface InputProps extends BaseInputProps {
-  stringLength?: number;
-  additionalValidValidationStrings?: string[];
-  modelValue: string | null;
-}
-let props = withDefaults(defineProps<InputProps>(), {
-  additionalValidValidationStrings: () => [],
-  stringLength: 255,
+let props = defineProps({
+  ...BaseInputProps,
+  modelValue: {
+    type: String,
+    default: null,
+  },
+  stringLength: {
+    type: Number,
+    default: 255,
+  },
+  additionalValidValidationStrings: {
+    type: Array,
+    default: [],
+  },
 });
 
 const emit = defineEmits(["update:modelValue"]);

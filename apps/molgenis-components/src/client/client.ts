@@ -272,7 +272,7 @@ const fetchSchemaMetaData = async (
     .post(graphqlURL(schemaName), { query: metaDataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
       const schema = result.data.data._schema;
-      if(schemaName == null) {
+      if (schemaName == null) {
         schemaCache.set(currentSchemaName, schema);
       }
       schemaCache.set(schema.name, schema);

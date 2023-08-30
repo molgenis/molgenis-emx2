@@ -33,8 +33,7 @@
     "d3": "7.8.5",
     "graphql-request": "^6.1.0",
     "heroicons": "^2.0.18",
-    "vue": "3.2.47",
-    "molgenis-components": "*"
+    "vue": "3.2.47"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
@@ -42,6 +41,6 @@
     "prettier": "2.8.8",
     "sass": "1.66.1",
     "vite": "4.3.9",
-    "vue-router": "4.2.4"
+    "vue-router": "4.1.6"
   }
 }
