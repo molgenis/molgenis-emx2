@@ -28,8 +28,8 @@ watch(props.filters, (filters) => {
     :class="{ 'bg-sidebar-gradient': !mobileDisplay }"
   >
     <h2
-      class="p-5 uppercase font-display text-heading-3xl"
-      :class="`text-search-filter-title${mobileDisplay ? '-mobile' : ''}`"
+      v-if="!mobileDisplay"
+      class="p-5 uppercase font-display text-heading-3xl text-search-filter-title"
     >
       {{ title }}
     </h2>
