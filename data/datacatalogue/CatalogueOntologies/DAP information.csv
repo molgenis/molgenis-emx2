@@ -30,4 +30,4 @@ order,name,label,code,parent,ontologyTermURI,definition
 ,Renal impaired,,,,Population subset,,
 ,Hepatic impaired,,,,Population subset,,
 ,Immunocompromised,,,,Population subset,,
-,Population subset: Other,Other,,,Population subset,,
+,Population subset: Other,Other,,Population subset,,
