@@ -36,7 +36,7 @@
             :selection="modelValue"
             :errorMessage="errorMessage"
             @update:modelValue="select"
-          ></InputRefItem>
+          />
         </div>
         <ButtonAlt
           class="pl-0"
