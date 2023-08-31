@@ -159,13 +159,13 @@ Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of do
 Documentation,,description,text,,,,,,,,,Description of the document,
 Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation,EMA
 Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation,EMA
-Resource organisations,,,,,,,,,,,,Data access provider relationship where an organisation can provide access to (parts of) a resource,
-Resource organisations,,organisation,ref,1,TRUE,SharedStaging,Organisations,,,,,Group that provides access,
-Resource organisations,,resource,ref,1,TRUE,,Extended resources,,,,,Resource that is access or has experience with provided to,
-Resource organisations,,is data access provider,ontology_array,,,CatalogueOntologies,DAP information,,,,,"Description of data access levels, completenes, reason for access, fees, processTime",
-Resource organisations,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",
-Resource organisations,,reason access other,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source",
-Resource organisations,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",
+DAPs,,,,,,,,,,,,Data access provider relationship where an organisation can provide access to (parts of) a resource,
+DAPs,,organisation,ref,1,TRUE,SharedStaging,Organisations,,,,,Group that provides access,
+DAPs,,resource,ref,1,TRUE,,Extended resources,,,,,Resource that is access or has experience with provided to,
+DAPs,,is data access provider,ontology_array,,,CatalogueOntologies,DAP information,,,,,"Description of data access levels, data completeness, reason for access, fees and population subsets",
+DAPs,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",
+DAPs,,reason access other,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source",
+DAPs,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",
 Linked resources,,,,,,,,,,,,Links between datasource and databank,EMA
 Linked resources,,main resource,ref,1,,,RWE resources,,,,,,EMA
 Linked resources,,linked resource,ref,1,,,RWE resources,,,,,,EMA
