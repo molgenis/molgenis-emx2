@@ -114,7 +114,8 @@ subprojects {
             inputs.file('nuxt.config.ts')
             inputs.file('app.vue')
             inputs.file('router.options.ts')
-            inputs.file('tailwind.config.ts')
+            inputs.file('tailwind.config.cjs');
+            inputs.file('tailwind.config.umcg.cjs');
             outputs.dir('.nuxt')
             outputs.dir('.output')
         } else if (project.name == 'graphql-playground') {
