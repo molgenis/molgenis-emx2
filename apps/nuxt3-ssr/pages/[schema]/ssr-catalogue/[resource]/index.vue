@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { IFilter } from "~/interfaces/types";
+import { IFilter, ITableMetaData } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 const router = useRouter();
+
 const pageSize = 10;
 const resourceName: string = route.params.resource as string;
 const resourceType: string =
   resourceName.charAt(0).toUpperCase() + resourceName.slice(1);
 const resourceAgg: string = resourceType + "_agg";
+
+const metadata = await fetchMetadata();
+const tableMetaData = metadata.tables.find(
+  (t: ITableMetaData) => t.name === resourceType
+);
+const description = tableMetaData?.descriptions?.[0]?.value;
 
 let activeName = ref("detailed");
 let filters: IFilter[] = reactive([
@@ -85,7 +92,7 @@ const { data, pending, error, refresh } = await useFetch(
           <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader
             :title="resourceName"
-            description="Group of individuals sharing a defining demographic characteristic."
+            :description="description"
             icon="image-link"
           >
             <template #suffix>
