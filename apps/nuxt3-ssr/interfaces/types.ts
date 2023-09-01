@@ -1,3 +1,12 @@
+export interface IResource {
+  id: string;
+  pid: string;
+  acronym: string;
+  name: string;
+  website: string;
+  description: string;
+  contacts: IContributor[];
+}
 export interface ICohort {
   id: string;
   name: string;
@@ -164,7 +173,7 @@ interface ISearchFilter extends IBaseFilter {
   search?: string;
 }
 
-interface IFilter extends IBaseFilter {
+export interface IFilter extends IBaseFilter {
   columnType: "_SEARCH" | "ONTOLOGY" | "REF_ARRAY";
   refTable?: string;
   columnName?: string;
