@@ -1,4 +1,4 @@
-package org.molgenis.emx2.semantics.fairdatapoint;
+package org.molgenis.emx2.fairdatapoint;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.FAIRDataHubLoader;
-import org.molgenis.emx2.fairdatapoint.FAIRDataPointDistribution;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 

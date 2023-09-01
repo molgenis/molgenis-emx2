@@ -1,4 +1,4 @@
-package org.molgenis.emx2.semantics.fairdatapoint;
+package org.molgenis.emx2.fairdatapoint;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
-import org.molgenis.emx2.fairdatapoint.FAIRDataPoint;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 
