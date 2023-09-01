@@ -27,7 +27,6 @@ export default async (): Promise<ISchemaMetaData> => {
       },
     });
 
-    console.log(resp);
     const { data, error } = resp;
 
     if (error) {
