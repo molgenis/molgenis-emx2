@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.beaconv2.BeaconRoot;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -22,10 +23,13 @@ public class IndividualsResponse {
   private ObjectMapper mapper = new ObjectMapper();
 
   public IndividualsResponse(Request request, List<Table> tables) throws Exception {
+    String fileSql =
+        new String(BeaconRoot.class.getResourceAsStream("beacon_individuals.sql").readAllBytes());
+
     idForQuery = request.queryParams("id");
     for (Table t : tables) {
       Schema s = t.getSchema();
-      String results = s.retrieveSql(sql).get(0).getString("results");
+      String results = s.retrieveSql(fileSql).get(0).getString("results");
       resultSets.add(new GenericResultSet(idForQuery, mapper.readValue(results, List.class)));
     }
 
