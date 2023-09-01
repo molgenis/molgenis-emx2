@@ -77,7 +77,7 @@ public class FilteringTermsResponse {
     if (tableNamesInSchema.contains(tableToQuery)) {
       TableMetadata metadata = database.getSchema(schemaName).getTable(tableToQuery).getMetadata();
       addNonReferencingFilteringTerms(filteringTermsSet, tableToQuery, metadata);
-      // fix me: not a streaming implementation, could cause problem for big data sets ?
+      // FIXME only query distinct ontologies to save lots of overhead and also retrieve the labels etc
       List<Row> rows =
           database
               .getSchema(schemaName)
@@ -221,12 +221,9 @@ public class FilteringTermsResponse {
   }
 
   /**
-   * Notes on mapping choices:
-   * Bool is not alphanumeric, althought it could be?
-   * File, UUID and AUTO_ID are not meaningfully searchable
-   * JSONB perhaps?
-   * REF and REFBACK are not alphanumeric nor ontology
-   * HEADING should be ignored
+   * Notes on mapping choices: Bool is not alphanumeric, althought it could be? File, UUID and
+   * AUTO_ID are not meaningfully searchable. JSONB perhaps? REF and REFBACK are not alphanumeric
+   * nor ontology. HEADING should be ignored.
    *
    * @param columnType
    * @return
