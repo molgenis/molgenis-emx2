@@ -6,10 +6,11 @@ Instead of using individually measured genomes, the graph genome API converts a 
 The API reads its data from the _GenomicVariations_ table which represents Beacon v2 [Genomic Variations](https://docs.genomebeacons.org/schemas-md/genomicVariations_defaultSchema/).
 The easiest way to enable Beacon v2 in MOLGENIS EMX2 is by choosing 'FAIR_DATA_HUB' as a template for your database.
 
-Variants from this table are only usable by this API when it least these columns contain values:
+Variants in the _GenomicVariations_ table MUST have values for the following columns in order to be usable:
 - Gene identifier (`geneId`)
 - Genome assembly identifier (`position_assemblyId`)
 - Starting position (`position_start`)
+- Reference DNA bases (`referenceBases`)
 
 This API makes use of the [UCSC REST API](https://genome.ucsc.edu/goldenPath/help/api.html) to retrieves reference genomic sequences.
 If not internet connection is available, or the API is run in 'offline mode', the reference genomic sequence is replaced with repeats of N-bases.
@@ -30,7 +31,7 @@ A complete request could, for example, look like this:
 The resulting genome graph is returned in RDF Turtle format (TTL).
 A basic overview of the graph structure starts at the root node `EMX2`, the next level allows grouping sequences by gene, followed by upstream genome reference sequence of that gene:
 ```
-EMX2 <- graphgenome <- TERC <- TCACAAGCC
+EMX2 <- graphgenome <- TERC <- TTCACAAGCC
 ```
 
 The first variant reference and variant alternative is then connected to this upstream sequence:
@@ -63,6 +64,9 @@ The graph building algorithm can handle the following situations:
 However, the resulting graph in case of variants inside upstream indels is currently not a proper graph genome representation because the appended reference sequence is 'restarted' instead of recursive backtracking on previous nodes to split up indel reference notation to accomodate additional variation.
 A more powerful implementation would be needed to resolve this issue.
 
-Furthermore, multiple such indels at the same location will now crash the algorithm because backtracking cannot be done multiple times. This could be resolved by keeping breadcrumbs of all visited coordinates, and keep backtracking until the end position is again after start position.
+Furthermore, multiple such indels at the same location will now crash the algorithm because backtracking cannot be done multiple times.
+This could be resolved by keeping breadcrumbs of all visited coordinates, and keep backtracking until the end position is again after start position.
 
-Lastly, determining the optimal window to obtain a piece of reference genome sequence from UCSC is currently not optimal. Ideally, both correctly provided start and end positions of variants should be used. But end positions are not always provided. Using earliest and last start position combined with longest observed variant reference base length works better, but has a risk of adding more sequence than needed, e.g. with a huge deletion at the start of a gene - its length added to the last start location to form a window. Ideally, a combination of available information should be used instead.
+Lastly, end coordinates in the API are determined by a combination variant `position_start` and `referenceBases` instead of `position_end` which is not always provided.
+However, now a full sequence of `referenceBases` must be provided which might be problematic for huge structural variants.
+Ideally, `position_end` is also considered combined with the currently used information.
