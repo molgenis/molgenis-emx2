@@ -110,7 +110,7 @@ class TransformDataStaging(Transform):
         if self.database_type in ['cohort', 'cohort_UMCG']:
             self.cohorts()
 
-    def cohort(self):
+    def cohorts(self):
         """Rename columns in cohorts
         """
         df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')

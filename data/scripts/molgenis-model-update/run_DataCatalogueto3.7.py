@@ -1,8 +1,8 @@
 from decouple import config
 from util.client import Session
-from update.update_3_x import Transform
-from update.update_3_x import TransformDataCatalogue
-from update.update_3_x import TransformDataStaging
+from update.update_3_7 import Transform
+from update.update_3_7 import TransformDataCatalogue
+from update.update_3_7 import TransformDataStaging
 from util.zip_handling import Zip
 
 # Data model details
