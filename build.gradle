@@ -15,7 +15,12 @@ plugins {
 }
 
 allprojects {
-    version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
+    if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version) {
+        version = rootProject.nyxState.releaseScope.previousVersion + "-SNAPSHOT"
+    }
+    else {
+        version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
+    }
 }
 println "Corrected version checking for optional snapshot: " + rootProject.version
 
