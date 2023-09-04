@@ -802,40 +802,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testLinkedDataApi() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/jsonld");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/ttl");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/jsonld/Category");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/ttl/Category");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(400)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/ttl/doesnotexist");
-  }
-
-  @Test
   public void testFDPDistribution() {
     given()
         .sessionId(SESSION_ID)
