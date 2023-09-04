@@ -172,7 +172,7 @@ import {
 } from "../../functions/viewmodelMapper";
 import ViewGenerator from "../generators/ViewGenerator.vue";
 import CollectionSelector from "../checkout-components/CollectionSelector.vue";
-import InfoPopover from "../popovers/InfoPopover.vue";
+import { InfoPopover } from "molgenis-components";
 import MatchesOn from "../biobankcards-components/MatchesOn.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useQualitiesStore } from "../../stores/qualitiesStore";

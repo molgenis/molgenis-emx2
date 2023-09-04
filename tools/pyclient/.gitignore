@@ -133,3 +133,5 @@ dmypy.json
 
 # Mac os
 .DS_Store
+
+molgenis_emx2_client.egg-info

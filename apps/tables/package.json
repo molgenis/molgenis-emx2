@@ -10,7 +10,7 @@
     "checkFormat": "prettier src  --write --config ../.prettierrc.js"
   },
   "dependencies": {
-    "core-js": "3.29.1",
+    "core-js": "3.32.1",
     "graphql-request": "5.2.0",
     "molgenis-components": "*",
     "vue": "3.2.47",

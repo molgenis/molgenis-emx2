@@ -6,7 +6,7 @@ import { useBiobanksStore } from "./biobanksStore";
 import { useSettingsStore } from "./settingsStore";
 import { useCheckoutStore } from "./checkoutStore";
 import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
-import QueryEMX2 from "../functions/queryEMX2";
+import { QueryEMX2 } from "molgenis-components";
 import { convertArrayToChunks } from "../functions/arrayUtilities";
 
 export const useFiltersStore = defineStore("filtersStore", () => {

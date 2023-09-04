@@ -6,7 +6,7 @@ import initialCollectionColumns from "../property-config/initialCollectionColumn
 import initialBiobankColumns from "../property-config/initialBiobankColumns";
 import initialBiobankReportColumns from "../property-config/initialBiobankReportColumns";
 import initialLandingpage from "../property-config/initialLandingpage";
-import QueryEMX2 from "../functions/queryEMX2";
+import { QueryEMX2 } from "molgenis-components";
 /**
  * Settings store is where all the configuration of the application is handled.
  * This means that user config from the database is merged with the defaults here.

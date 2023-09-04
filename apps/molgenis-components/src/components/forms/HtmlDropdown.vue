@@ -1,11 +1,15 @@
 <template>
-  <details class="dropdown-button p-0" :class="buttonstateClass">
+  <details
+    class="dropdown-button p-0"
+    :class="buttonstateClass"
+    ref="HtmlDropdownMain"
+  >
     <summary>
       {{ buttonText }}
       <slot name="counter"></slot>
       <span class="fa-solid fa-caret-down"></span>
     </summary>
-    <div>
+    <div v-click-outside="closeSelf">
       <div class="dropdown bg-white" :class="containerstateClass" @click.stop>
         <slot />
       </div>
@@ -15,7 +19,12 @@
 </template>
 
 <script>
+import vClickOutside from "click-outside-vue3";
+
 export default {
+  directives: {
+    clickOutside: vClickOutside.directive,
+  },
   props: {
     buttonText: {
       type: String,
@@ -29,7 +38,7 @@ export default {
   },
   methods: {
     closeSelf(event) {
-      event.target.parentElement.parentElement.removeAttribute("open");
+      this.$refs.HtmlDropdownMain.removeAttribute("open");
     },
   },
   computed: {
@@ -119,3 +128,30 @@ details.align-right > *:not(summary) {
   border-radius: 4px;
 }
 </style>
+
+<docs>
+<template>
+<demo-item>
+<div><small><i>Used in the directory app.</i></small></div>
+<HtmlDropdown
+  :button-text="'Html Dropdown'"
+  :active="false"
+  >
+  <template v-slot:counter>
+    <span class="badge badge-light border mr-2 ml-1">
+      10
+    </span>
+  </template>
+  <div class="d-flex flex-column pr-3 pl-1">
+    <label><input type="checkbox" class="mr-1">Option 1</label>
+    <label><input type="checkbox" class="mr-1">Option 2</label>
+    <label><input type="checkbox" class="mr-1">Option 3</label>
+    <label><input type="checkbox" class="mr-1">Option 4</label>
+    <label><input type="checkbox" class="mr-1">Option 5</label>
+  </div>
+</HtmlDropdown>
+
+</demo-item>
+  
+</template>
+</docs>

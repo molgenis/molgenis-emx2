@@ -39,3 +39,14 @@ export default {
   border-radius: 4px;
 }
 </style>
+
+<docs>
+<template>
+  <demo-item>
+    <div><small><i>Used in the directory app.</i></small></div>
+    <TooltipComponent :text="'I am a tooltip component that wraps round an element'">
+     <div >Hover me!</div>
+    </TooltipComponent>
+  </demo-item>
+</template>
+</docs>

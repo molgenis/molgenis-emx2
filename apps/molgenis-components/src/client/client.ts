@@ -34,9 +34,7 @@ const client: IClient = {
       ): Promise<ITableMetaData> => {
         const schema = await fetchSchemaMetaData(myAxios, schemaName);
         return deepClone(schema).tables.find(
-          (table: ITableMetaData) =>
-            table.id === convertToPascalCase(tableName) &&
-            table.externalSchema === schemaName
+          (table: ITableMetaData) => table.id === convertToPascalCase(tableName)
         );
       },
       fetchTableData: async (
@@ -266,13 +264,17 @@ const fetchSchemaMetaData = async (
   axios: Axios,
   schemaName?: string
 ): Promise<ISchemaMetaData> => {
-  if (schemaName && schemaCache.has(schemaName)) {
-    return schemaCache.get(schemaName) as ISchemaMetaData;
+  const currentSchemaName = schemaName ? schemaName : "CACHE_OF_CURRENT_SCHEMA";
+  if (schemaCache.has(currentSchemaName)) {
+    return schemaCache.get(currentSchemaName) as ISchemaMetaData;
   }
   return await axios
     .post(graphqlURL(schemaName), { query: metaDataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
       const schema = result.data.data._schema;
+      if (schemaName == null) {
+        schemaCache.set(currentSchemaName, schema);
+      }
       schemaCache.set(schema.name, schema);
       return deepClone(schema);
     })

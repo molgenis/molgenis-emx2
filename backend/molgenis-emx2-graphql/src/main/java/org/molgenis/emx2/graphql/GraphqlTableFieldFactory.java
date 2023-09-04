@@ -275,7 +275,7 @@ public class GraphqlTableFieldFactory {
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
       for (Column column : table.getColumns()) {
         // for now only 'ref' types. We might want to have truncating actions for the other types.
-        if (column.isRef() || column.isRefArray()) {
+        if (column.isReference()) {
           groupByBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(column.getIdentifier())

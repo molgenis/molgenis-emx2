@@ -4,6 +4,7 @@ export interface IColumn {
   columnType: string;
   id: string;
   name: string;
+  computed?: string;
   conditions?: string[];
   descriptions?: ILocale[];
   key?: number;
