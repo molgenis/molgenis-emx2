@@ -15,14 +15,7 @@ plugins {
 }
 
 allprojects {
-    if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version ||
-        //temporarily also compare to 'v' because we are remove this prefix
-        rootProject.nyxState.releaseScope.previousVersion == "v" + rootProject.version ) {
-        version = rootProject.nyxState.releaseScope.previousVersion + "-SNAPSHOT"
-    }
-    else {
-        version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
-    }
+    version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
 }
 println "Corrected version checking for optional snapshot: " + rootProject.version
 

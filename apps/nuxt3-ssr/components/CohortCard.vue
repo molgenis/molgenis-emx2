@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed } from "vue";
-
-const mobileShowMoreText = ref(false);
-const mobileShowMoreTextLength = 250;
+import type { ICohort } from "~/interfaces/types";
+let truncate = ref(true);
+const cutoff = 250;
 
 const props = withDefaults(
   defineProps<{
@@ -35,14 +34,6 @@ const headerClasses = computed(() => {
 
 const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
-});
-
-const isShowingMobileMoreText = computed(() => {
-  return (
-    mobileShowMoreText.value ||
-    (props.cohort?.description &&
-      props.cohort?.description?.length < mobileShowMoreTextLength)
-  );
 });
 </script>
 
@@ -85,21 +76,18 @@ const isShowingMobileMoreText = computed(() => {
         {{ cohort?.description }}
       </p>
 
-      <p class="text-body-base mt-5 block xl:hidden">
+      <p v-if="cohort?.description" class="text-body-base mt-5 block xl:hidden">
         {{
-          isShowingMobileMoreText
-            ? cohort?.description
-            : `${cohort?.description?.substring(
-                0,
-                mobileShowMoreTextLength
-              )}...`
+          truncate
+            ? `${cohort?.description?.substring(0, cutoff)}...`
+            : cohort?.description
         }}
       </p>
 
       <button
-        v-if="!isShowingMobileMoreText"
+        v-if="truncate && cohort?.description?.length > cutoff"
         class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
-        @click="mobileShowMoreText = true"
+        @click="truncate = false"
       >
         Read more
       </button>
