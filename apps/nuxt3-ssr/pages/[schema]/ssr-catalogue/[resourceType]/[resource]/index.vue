@@ -4,32 +4,28 @@ import { IResource } from "interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 
-const query = computed(() => {
-  return `
-  query ${resourceType}($filter:${resourceType}Filter, $orderby:${resourceType}orderby){
-    ${resourceType}(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+const resourceName: string = route.params.resourceType as string;
+const resourceType: string =
+  resourceName.charAt(0).toUpperCase() + resourceName.slice(1);
+
+const query = gql`
+  query ${resourceType}($id: String) {
+    ${resourceType}( filter: { id: { equals: [$id] } } ) {
       id
       name
       acronym
       description
     }
-    ${resourceType}_agg (filter:$filter){
-        count
-    }
-  }
-  `;
-});
+  }`;
 
-
-const variables = { name: route.params.resource };
-let variable: IResource;
+let resource: IResource;
 
 const { data, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
   {
     baseURL: config.public.apiBase,
     method: "POST",
-    body: { query, variables },
+    body: { query, variables: { id: route.params.resource } },
   }
 );
 
@@ -39,27 +35,26 @@ watch(data, setData, {
 });
 
 function setData(data: any) {
-  variable = data?.data?.Variables[0];
-  variable.nRepeats = data?.data?.RepeatedVariables_agg.count;
+  resource = data?.data?.[resourceType][0];
 }
 
 let tocItems = reactive([
   { label: "Description", id: "description" },
   { label: "Harmonization status", id: "harmonization-per-cohort" },
 ]);
+
+let crumbs: Record<string, string> = {
+  Home: `/${route.params.schema}/ssr-catalogue`,
+};
+crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${resourceName}`;
 </script>
 
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader :title="variable?.name" :description="variable?.label">
+      <PageHeader :title="resource?.name" :description="resource?.label">
         <template #prefix>
-          <BreadCrumbs
-            :crumbs="{
-              Home: `/${route.params.schema}/ssr-catalogue`,
-              Variables: `/${route.params.schema}/ssr-catalogue/variables`,
-            }"
-          />
+          <BreadCrumbs :crumbs="crumbs" />
         </template>
         <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />
@@ -67,41 +62,41 @@ let tocItems = reactive([
       </PageHeader>
     </template>
     <template #side>
-      <SideNavigation :title="variable?.name" :items="tocItems" />
+      <SideNavigation :title="resource?.name" :items="tocItems" />
     </template>
     <template #main>
-      <ContentBlocks v-if="variable">
+      <ContentBlocks v-if="resource">
         <ContentBlock
           id="description"
           title="Description"
-          :description="variable?.description"
+          :description="resource?.description"
         >
-          <DefinitionList
+          <!-- <DefinitionList
             :items="[
               {
                 label: 'Unit',
-                content: variable?.unit?.name,
+                content: resource?.unit?.name,
               },
               {
                 label: 'Format',
-                content: variable?.format?.name,
+                content: resource?.format?.name,
               },
               {
                 label: 'N repeats',
-                content: variable?.nRepeats > 0 ? variable?.nRepeats : 'None',
+                content: resource?.nRepeats > 0 ? resource?.nRepeats : 'None',
               },
             ]"
-          >
-          </DefinitionList>
+          > 
+          </DefinitionList> -->
         </ContentBlock>
-        <ContentBlock
+        <!-- <ContentBlock
           id="harmonization-per-cohort"
           title="Harmonization status per Cohort"
           description="Overview of the harmonization status per Cohort"
         >
           <div class="grid grid-cols-3 gap-4">
             <div
-              v-for="mapping in variable?.mappings"
+              v-for="mapping in resource?.mappings"
               class="inline-flex gap-1 group text-icon text-breadcrumb-arrow"
             >
               <BaseIcon name="completed" :width="24" class="text-green-500" />
@@ -114,7 +109,7 @@ let tocItems = reactive([
               </NuxtLink>
             </div>
           </div>
-        </ContentBlock>
+        </ContentBlock> -->
       </ContentBlocks>
     </template>
   </LayoutsDetailPage>
