@@ -21,6 +21,32 @@ println "Corrected version checking for optional snapshot: " + rootProject.versi
 
 nyxPublish.dependsOn assemble
 
+task dumpSomeDiagnostics() {
+    dependsOn nyxInfer
+    doLast {
+        println "DEBUG -- nyxState: "
+        println "bump: " + project.nyxState.bump
+        println "directory: " + project.nyxState.directory.getAbsolutePath()
+        println "scheme: " + project.nyxState.scheme.toString()
+        println "timestamp: " + Long.valueOf(project.nyxState.timestamp).toString()
+        println "version: " + project.nyxState.version
+        println "branch: " + project.nyxState.branch
+        println "coreVersion: " + project.nyxState.coreVersion
+        println "latestVersion: " + project.nyxState.latestVersion
+        println "newRelease: " + project.nyxState.newRelease
+        println "newVersion: " + project.nyxState.newVersion
+//        println project.nyxState.versionBuildMetadata
+//        println project.nyxState.versionMajorNumber
+//        println project.nyxState.versionMajorNumber
+//        println project.nyxState.versionPatchNumber
+//        println project.nyxState.versionPreReleaseIdentifier
+//        println project.nyxState.versionRange
+//        println project.nyxState.currentVersion
+//        println project.nyxState.previousVersion
+//        println project.nyxState.primeVersion
+    }
+}
+
 targetCompatibility = "17"
 sourceCompatibility = "17"
 
