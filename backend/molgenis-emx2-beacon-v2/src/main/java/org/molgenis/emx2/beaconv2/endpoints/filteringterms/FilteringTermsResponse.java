@@ -76,35 +76,63 @@ public class FilteringTermsResponse {
       Collection<String> tableNamesInSchema) {
     if (tableNamesInSchema.contains(tableToQuery)) {
       TableMetadata metadata = database.getSchema(schemaName).getTable(tableToQuery).getMetadata();
-      addNonReferencingFilteringTerms(filteringTermsSet, tableToQuery, metadata);
-      // FIXME only query distinct ontologies to save lots of overhead and also retrieve the labels etc
-      List<Row> rows =
-          database
-              .getSchema(schemaName)
-              .retrieveSql("Select distinct * from \"" + tableToQuery + "\"");
-      for (Row row : rows) {
-        getFilteringTermsFromRow(filteringTermsSet, tableToQuery, metadata, row);
-      }
-    }
-  }
+      for (Column column : metadata.getColumns()) {
+        if (column.getColumnType().isAtomicType()) {
+          System.out.println("column.getColumnType() " + column.getColumnType() + " is atomic!");
+          FilteringTerm filteringTerm =
+              new FilteringTerm(
+                  columnTypeToFilteringTermType(column.getColumnType()),
+                  column.getName(),
+                  tableToQuery);
+          filteringTermsSet.add(filteringTerm);
+        } else if (column.isOntology()) {
+          System.out.println("column.getColumnType() " + column.getColumnType() + " is ontology!");
+          List<Row> rows = null;
+          if (column.isArray()) {
+            rows =
+                database
+                    .getSchema(schemaName)
+                    .retrieveSql(
+                        "SELECT DISTINCT(name,codesystem,code) FROM \""
+                            + tableToQuery
+                            + "\" INNER JOIN \""
+                            + column.getRefTableName()
+                            + "\" ON \""
+                            + column.getRefTableName()
+                            + "\".\"name\" = ANY(\""
+                            + column.getName()
+                            + "\")");
+          } else {
+            rows =
+                database
+                    .getSchema(schemaName)
+                    .retrieveSql(
+                        "SELECT DISTINCT(name,codesystem,code) FROM \""
+                            + tableToQuery
+                            + "\" INNER JOIN \""
+                            + column.getRefTableName()
+                            + "\" ON \""
+                            + column.getRefTableName()
+                            + "\".\"name\" = \""
+                            + column.getName()
+                            + "\"");
+          }
 
-  /**
-   * Add any non-referencing columns (i.e. String, Integer) as filtering terms as-is
-   *
-   * @param filteringTermsSet
-   * @param tableToQuery
-   * @param metadata
-   */
-  private void addNonReferencingFilteringTerms(
-      Set<FilteringTerm> filteringTermsSet, String tableToQuery, TableMetadata metadata) {
-    for (Column column : metadata.getColumns()) {
-      if (!column.isReference() && !column.isOntology()) {
-        FilteringTerm filteringTerm =
-            new FilteringTerm(
-                columnTypeToFilteringTermType(column.getColumnType()),
-                column.getName(),
-                tableToQuery);
-        filteringTermsSet.add(filteringTerm);
+          for (Row row : rows) {
+            System.out.println("ROW = " + row);
+            System.out.println("get v0 = " + row.get("v0"));
+            System.out.println("get v1 = " + row.getString("v1"));
+            System.out.println("get v2 = " + row.getString("v2"));
+
+            getFilteringTermsFromRow(filteringTermsSet, tableToQuery, metadata, row);
+          }
+        } else {
+
+          System.out.println(
+              "column.getColumnType() "
+                  + column.getColumnType()
+                  + " is NOT atomic and NOT ontology!");
+        }
       }
     }
   }
