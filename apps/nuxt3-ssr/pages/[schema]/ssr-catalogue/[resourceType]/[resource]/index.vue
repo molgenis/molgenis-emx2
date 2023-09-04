@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
-import { IResource } from "interfaces/types";
+import { IResource, ITableMetaData } from "interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -8,13 +8,25 @@ const resourceName: string = route.params.resourceType as string;
 const resourceType: string =
   resourceName.charAt(0).toUpperCase() + resourceName.slice(1);
 
+const metadata = await fetchMetadata();
+const tableMetaData = metadata.tables.find(
+  (t: ITableMetaData) => t.name === resourceType
+);
+const fields = tableMetaData?.columns
+  ?.filter(
+    (c) =>
+      c.columnType === "STRING" ||
+      c.columnType === "TEXT" ||
+      c.columnType === undefined
+  )
+  ?.filter((c) => !c.id.startsWith("mg_"));
+const fieldNames = fields?.map((f) => f.id);
+const queryFields = fieldNames?.join(" ");
+
 const query = gql`
   query ${resourceType}($id: String) {
     ${resourceType}( filter: { id: { equals: [$id] } } ) {
-      id
-      name
-      acronym
-      description
+      ${queryFields}
     }
   }`;
 
@@ -65,6 +77,11 @@ crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${resourceName}`;
       <SideNavigation :title="resource?.name" :items="tocItems" />
     </template>
     <template #main>
+      <!-- {{ tableMetaData?.columns }}
+      
+        {{ fieldNames }} -->
+
+      <div>{{ resource }}</div>
       <ContentBlocks v-if="resource">
         <ContentBlock
           id="description"
