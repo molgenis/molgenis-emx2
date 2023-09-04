@@ -5,7 +5,7 @@ const route = useRoute();
 const router = useRouter();
 
 const pageSize = 10;
-const resourceName: string = route.params.resource as string;
+const resourceName: string = route.params.resourceType as string;
 const resourceType: string =
   resourceName.charAt(0).toUpperCase() + resourceName.slice(1);
 const resourceAgg: string = resourceType + "_agg";
