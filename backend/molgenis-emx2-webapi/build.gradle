@@ -5,6 +5,9 @@ dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-datamodels')
     implementation project(':backend:molgenis-emx2-semantics')
+    implementation project(':backend:molgenis-emx2-beacon-v2')
+    implementation project(':backend:molgenis-emx2-graphgenome')
+    implementation project(':backend:molgenis-emx2-fairdatapoint')
     implementation project(':backend:molgenis-emx2-tasks')
     implementation project(':backend:molgenis-emx2-email')
     implementation 'com.sparkjava:spark-core:2.9.4'
