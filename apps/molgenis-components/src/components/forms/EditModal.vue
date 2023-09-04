@@ -34,9 +34,9 @@
             <div class="mb-1">
               <b>Chapters</b>
             </div>
-            <div v-for="(heading, index) in pageHeadings">
+            <div v-for="(chapter, index) in columnsSplitByHeadings">
               <Tooltip
-                :name="`chapter-${heading}-error-tooltip`"
+                :name="`chapter-${chapter[0]}-error-tooltip`"
                 :value="
                   chapterStyleAndErrors[index].errorFields.length
                     ? `errors in:\n${chapterStyleAndErrors[index].errorFields}`
@@ -51,7 +51,7 @@
                   @click="setCurrentPage(index + 1)"
                   :style="chapterStyleAndErrors[index].style"
                 >
-                  {{ heading }}
+                  {{ chapter[0] }}
                 </button>
               </Tooltip>
             </div>
@@ -199,12 +199,17 @@ export default {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
     },
     columnsSplitByHeadings(): string[][] {
-      return splitColumnNamesByHeadings(
+      const columnsSplitByHeadings = splitColumnNamesByHeadings(
         filterVisibleColumns(
           this.tableMetaData?.columns || [],
           this.visibleColumns as string[]
         )
       );
+      const bla = columnsSplitByHeadings.filter(
+        (chapter: string[]) => chapter.length > 1
+      );
+      console.log(this.visibleColumns);
+      return bla;
     },
     chapterStyleAndErrors(): IChapterInfo[] {
       return this.columnsSplitByHeadings.map((page: string[]): IChapterInfo => {
