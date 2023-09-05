@@ -4,6 +4,11 @@ import CranioHome from "../views/view-home.vue";
 import AboutPage from "../views/view-about.vue";
 import PublicDashboardPage from "../views/view-public-dashboard.vue";
 
+import ProviderHome from "../views/provider-app.vue";
+import ProviderOverview from "../views/provider-overview.vue";
+import ProviderCleftLipPalate from "../views/provider-cleft-lip-palate.vue";
+import ProviderCraniosynostosis from "../views/provider-craniosynostosis.vue";
+
 // For new routes, use the property `meta` to define the document title
 // E.g., {..., meta: {title: 'My Page'}}
 const project = "ERN CRANIO";
@@ -33,6 +38,47 @@ const router = createRouter({
         title: "Dashboard",
         breadcrumbs: [{ name: "dashboard", label: "Dashboard" }],
       },
+    },
+    { 
+      name: 'providers',
+      path: '/providers/:provider',
+      component: ProviderHome,
+      children: [
+        {
+          name: 'provider-home',
+          path: '',
+          component: ProviderOverview,
+          meta: {
+            title: "Center Overview"
+          },
+          params: {
+            provider: true
+          }
+        },
+        {
+          name: 'provider-cranio',
+          path: '/providers/:provider/craniosynostosis',
+          component: ProviderCraniosynostosis,
+          meta: {
+            title: 'Craniosynostosis'
+          },
+          params: {
+            provider: true
+          }
+        },
+        {
+          name: 'provider-clp',
+          path: '/providers/:provider/clp',
+          component: ProviderCleftLipPalate,
+          meta: {
+            title: 'Cleft lip and palate'
+          },
+          params: {
+            provider: true
+          }
+        },
+        
+      ]
     },
   ],
   scrollBehavior(to, from, savedPosition) {

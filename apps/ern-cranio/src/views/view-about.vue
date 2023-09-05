@@ -11,6 +11,7 @@
       id="section-intro-title"
       aria-labelledby="section-intro-title"
       :verticalPadding="2"
+      :horizontalPadding="0"
     >
       <h2 id="section-intro-title">ERN CRANIO registry</h2>
       <p>
