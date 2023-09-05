@@ -1096,7 +1096,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testRedirectOnJSONLDEndpoint() {
+  void testRedirectOnJSONLDEndpoint() {
     given()
         .sessionId(SESSION_ID)
         .redirects()
@@ -1119,7 +1119,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testRedirectOnTTLEndpoint() {
+  void testRedirectOnTTLEndpoint() {
     given()
         .sessionId(SESSION_ID)
         .redirects()
