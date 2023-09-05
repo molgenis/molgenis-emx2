@@ -3,12 +3,13 @@ $ern-cranio-primary-alt: hsl(23, 88%, 83%);
 
 .app-page,
 .page-footer {
-  font-size: 14pt;
+  font-size: 12pt;
   font-family: Helvetica, sans-serif;
 
   .page-header {
     &.ern-header {
-      background-color: $blue-green-400;
+      background-color: $gray-050;
+      height: 21em;
     }
   }
 }
