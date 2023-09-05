@@ -1,6 +1,6 @@
 <template>
-  <div class="breadcrumbs-container">
-    <nav class="breadcrumbs">
+  <div class="breadcrumbs-container page-section">
+    <nav class="breadcrumbs page-section-content width-medium">
       <ul>
         <li v-for="crumb in breadcrumbs">
           <router-link :to="{ name: crumb.name }" v-if="crumb.name === 'home'">

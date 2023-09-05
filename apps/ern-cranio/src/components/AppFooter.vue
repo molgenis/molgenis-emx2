@@ -16,6 +16,16 @@
         <div class="footer-column footer-links">
           <p><strong>For Members</strong></p>
           <UnorderedList listType="none">
+            <!-- <li>
+              <router-link
+                :to="{
+                  name: 'healthcare-providers',
+                  params: {provider: }
+                }"
+              >
+                Healthcare Providers
+              </router-link>
+            </li> -->
             <!-- more links here -->
           </UnorderedList>
         </div>
