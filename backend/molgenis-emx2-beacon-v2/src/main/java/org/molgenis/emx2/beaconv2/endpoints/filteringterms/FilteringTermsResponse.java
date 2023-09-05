@@ -88,7 +88,7 @@ public class FilteringTermsResponse {
                 database
                     .getSchema(schemaName)
                     .retrieveSql(
-                        "SELECT DISTINCT(name,codesystem,code) FROM \""
+                        "SELECT DISTINCT name,codesystem,code FROM \""
                             + tableToQuery
                             + "\" INNER JOIN \""
                             + column.getRefTableName()
@@ -102,7 +102,7 @@ public class FilteringTermsResponse {
                 database
                     .getSchema(schemaName)
                     .retrieveSql(
-                        "SELECT DISTINCT(name,codesystem,code) FROM \""
+                        "SELECT DISTINCT name,codesystem,code FROM \""
                             + tableToQuery
                             + "\" INNER JOIN \""
                             + column.getRefTableName()
@@ -114,12 +114,11 @@ public class FilteringTermsResponse {
           }
 
           for (Row row : rows) {
-            List<String> rowData = parseRow(row);
             FilteringTerm filteringTerm =
                 new FilteringTerm(
                     "ontology",
-                    rowData.get(1) + "_" + rowData.get(2),
-                    rowData.get(0),
+                    row.getString("codesystem") + "_" + row.getString("code"),
+                    row.getString("name"),
                     tableToQuery);
             filteringTermsSet.add(filteringTerm);
           }
@@ -129,28 +128,6 @@ public class FilteringTermsResponse {
         }
       }
     }
-  }
-
-  /**
-   * Helper function to parse raw data into list (e.g. ROW(row='+-----+---------+----+ |v0 |v1 |v2 |
-   * +-----+---------+----+ |Dutch|HANCESTRO|0320| +-----+---------+----+' ) into {Dutch,
-   * HANCESTRO,0320})
-   *
-   * @param row
-   * @return
-   */
-  public List<String> parseRow(Row row) {
-    List<String> result = new ArrayList<>();
-    String[] splitRow = row.toString().split("\n");
-    String rowData = splitRow[3];
-    String[] splitValues = rowData.split("\\|");
-    for (String value : splitValues) {
-      String trimmedValue = value.trim();
-      if (!trimmedValue.isBlank()) {
-        result.add(trimmedValue);
-      }
-    }
-    return result;
   }
 
   /**
