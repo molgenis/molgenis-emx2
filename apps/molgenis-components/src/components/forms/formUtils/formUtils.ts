@@ -175,11 +175,28 @@ export function getPageHeadings(tableMetadata: ITableMetaData): string[] {
 export function filterVisibleColumns(
   columns: IColumn[],
   visibleColumns: string[] | null
-) {
+): IColumn[] {
   if (!visibleColumns) {
     return columns;
   } else {
     return columns.filter((column) => visibleColumns.includes(column.id));
+  }
+}
+
+export function isColumnVisible(
+  column: IColumn,
+  values: Record<string, any>,
+  tableMetadata: ITableMetaData
+): boolean {
+  const expression = column.visible;
+  if (expression) {
+    try {
+      return executeExpression(expression, values, tableMetadata);
+    } catch (error) {
+      throw `Invalid visibility expression, reason: ${error}`;
+    }
+  } else {
+    return true;
   }
 }
 

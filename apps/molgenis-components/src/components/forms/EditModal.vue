@@ -94,6 +94,7 @@
 </template>
 
 <script lang="ts">
+import { IColumn } from "../../Interfaces/IColumn";
 import { ISchemaMetaData } from "../../Interfaces/IMetaData";
 import { IRow } from "../../Interfaces/IRow";
 import { ISetting } from "../../Interfaces/ISetting";
@@ -107,6 +108,7 @@ import ButtonAction from "./ButtonAction.vue";
 import RowEdit from "./RowEdit.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import Tooltip from "./Tooltip.vue";
+import { isColumnVisible } from "./formUtils/formUtils";
 import {
   filterVisibleColumns,
   getChapterStyle,
@@ -199,17 +201,24 @@ export default {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
     },
     columnsSplitByHeadings(): string[][] {
-      const columnsSplitByHeadings = splitColumnNamesByHeadings(
-        filterVisibleColumns(
-          this.tableMetaData?.columns || [],
-          this.visibleColumns as string[]
-        )
+      const filteredByVisibilityFilters = filterVisibleColumns(
+        this.tableMetaData?.columns || [],
+        this.visibleColumns as string[]
       );
-      const bla = columnsSplitByHeadings.filter(
+      const filteredByVisibilityExpressions =
+        filteredByVisibilityFilters.filter((column: IColumn) => {
+          return isColumnVisible(column, this.rowData, this.tableMetaData);
+        });
+      const withoutMetadataColumns = filteredByVisibilityExpressions.filter(
+        (column: IColumn) => !column.id.startsWith("mg_")
+      );
+      const splitByHeadings = splitColumnNamesByHeadings(
+        withoutMetadataColumns
+      );
+      const filteredEmptyHeadings = splitByHeadings.filter(
         (chapter: string[]) => chapter.length > 1
       );
-      console.log(this.visibleColumns);
-      return bla;
+      return filteredEmptyHeadings;
     },
     chapterStyleAndErrors(): IChapterInfo[] {
       return this.columnsSplitByHeadings.map((page: string[]): IChapterInfo => {
@@ -347,21 +356,29 @@ interface IChapterInfo {
 </style>
 
 <docs>
-  <template>
+<template>
   <DemoItem label="Edit Modal">
-  <p>This component can be used in chapter mode split the form into multiple chapter based on headings.</p>
-  <div class="mt-2 mb-3">
-    Use the "isChaptersEnabled" schema setting to switch mode.
-    <div class="font-weight-bold">isChaptersEnabled: 
-      <input :disabled="loadFromBackend" type="checkbox" id="checkbox" v-model="useChapters" />
-    </div>
-    <div class="font-weight-bold">load from backend: 
-      <input type="checkbox" id="checkbox" v-model="loadFromBackend" />
+    <p>
+      This component can be used in chapter mode split the form into multiple
+      chapter based on headings.
+    </p>
+    <div class="mt-2 mb-3">
+      Use the "isChaptersEnabled" schema setting to switch mode.
+      <div class="font-weight-bold">
+        isChaptersEnabled:
+        <input
+          :disabled="loadFromBackend"
+          type="checkbox"
+          id="checkbox"
+          v-model="useChapters"
+        />
+      </div>
+      <div class="font-weight-bold">
+        load from backend:
+        <input type="checkbox" id="checkbox" v-model="loadFromBackend" />
+      </div>
     </div>
 
-
-  </div>
-  
     <button class="btn btn-primary" @click="isModalShown = !isModalShown">
       Show {{ demoMode }} {{ tableName }}
     </button>
@@ -420,34 +437,37 @@ export default {
       demoKey: null, // empty in case of insert
       isModalShown: false,
       useChapters: true,
-      loadFromBackend: false
+      loadFromBackend: false,
     };
   },
   methods: {
     async reload() {
       const client = this.$Client.newClient(this.schemaName);
-      const tableMetaData = await client.fetchTableMetaData(this.tableName);
       const rowData = await client.fetchTableDataValues(this.tableName, {});
-      this.demoKey = this.demoMode === "insert" ? null : await client.convertRowToPrimaryKey(rowData[0], this.tableName);
+      this.demoKey =
+        this.demoMode === "insert"
+          ? null
+          : await client.convertRowToPrimaryKey(rowData[0], this.tableName);
       const settings = await client.fetchSettings();
-      if(this.loadFromBackend) {
-           this.useChapters =
-        settings.find((item) => item.key === this.$constants.IS_CHAPTERS_ENABLED_FIELD_NAME)?.value !==
-        "false";
+      if (this.loadFromBackend) {
+        this.useChapters =
+          settings.find(
+            (item) =>
+              item.key === this.$constants.IS_CHAPTERS_ENABLED_FIELD_NAME
+          )?.value !== "false";
       }
-   
-    }
+    },
   },
   watch: {
     demoMode() {
       this.reload();
     },
-    useChapters () {
+    useChapters() {
       this.reload();
     },
-    loadFromBackend () {
+    loadFromBackend() {
       this.reload();
-    }
+    },
   },
   mounted() {
     this.reload();
