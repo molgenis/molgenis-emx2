@@ -112,8 +112,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    
+    // If `true`, hover events will be enabled for all slices. A hover event
+    // will highlight the hovered slice by increasing the font size of the
+    // labels and increasing the size of the slice. The slice will return
+    // the default state when it is no longer hovered.
+    enableHoverEvents: {
+      type: Boolean,
+      // `true`
+      default: true
+    },
 
-    // If `true`, click events will be enabled for all bars. When a bar is
+    // If `true`, click events will be enabled for all slices. When a slice is
     // clicked, the row-level data for that bar will be emitted.
     // To access the data, use the event `@slice-clicked=...`
     enableClicks: {
@@ -142,6 +152,10 @@ export default {
         css.push("chart-center-aligned");
       }
 
+      if (this.enableHoverEvents) {
+        css.push("slice-hover-enabled");
+      }
+      
       if (this.enableClicks) {
         css.push("slice-clicks-enabled");
       }
@@ -255,9 +269,12 @@ export default {
         .attr("data-group", (value) => value.data[0])
         .attr("fill", (value) => this.colors[value.data[0]]);
 
-      if (this.enableClicks) {
+      if (this.enableHoverEvents) {
         slices.on("mouseover", (event, value) => this.onMouseOver(value));
         slices.on("mouseout", (event, value) => this.onMouseOut(value));
+      }
+        
+      if (this.enableClicks) {
         slices.on("click", (event, value) => this.onClick(value));
       }
     },
@@ -345,7 +362,7 @@ export default {
       .slice {
         stroke-width: 1px;
         opacity: 0.7;
-        cursor: pointer;
+        cursor: default;
         transition: all 250ms ease-in-out;
 
         &.slice-focused {
@@ -380,7 +397,7 @@ export default {
       }
     }
 
-    &.slice-clicks-enabled {
+    &.slice-clicks-enabled, .slice-hover-enabled {
       .slice {
         cursor: pointer;
       }
