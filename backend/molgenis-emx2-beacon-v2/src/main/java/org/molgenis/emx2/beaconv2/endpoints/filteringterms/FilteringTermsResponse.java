@@ -77,17 +77,12 @@ public class FilteringTermsResponse {
     if (tableNamesInSchema.contains(tableToQuery)) {
       TableMetadata metadata = database.getSchema(schemaName).getTable(tableToQuery).getMetadata();
       for (Column column : metadata.getColumns()) {
-        if (column.getColumnType().isAtomicType()) {
-          System.out.println("column.getColumnType() " + column.getColumnType() + " is atomic!");
+        if (column.getColumnType().isAtomicType() && !column.getIdentifier().startsWith("mg_")) {
           FilteringTerm filteringTerm =
-              new FilteringTerm(
-                  columnTypeToFilteringTermType(column.getColumnType()),
-                  column.getName(),
-                  tableToQuery);
+              new FilteringTerm("alphanumeric", column.getName(), tableToQuery);
           filteringTermsSet.add(filteringTerm);
         } else if (column.isOntology()) {
-          System.out.println("column.getColumnType() " + column.getColumnType() + " is ontology!");
-          List<Row> rows = null;
+          List<Row> rows;
           if (column.isArray()) {
             rows =
                 database
@@ -119,175 +114,47 @@ public class FilteringTermsResponse {
           }
 
           for (Row row : rows) {
-            System.out.println("ROW = " + row);
-            System.out.println("get v0 = " + row.get("v0"));
-            System.out.println("get v1 = " + row.getString("v1"));
-            System.out.println("get v2 = " + row.getString("v2"));
-
-            getFilteringTermsFromRow(filteringTermsSet, tableToQuery, metadata, row);
+            List<String> rowData = parseRow(row);
+            FilteringTerm filteringTerm =
+                new FilteringTerm(
+                    "ontology",
+                    rowData.get(1) + "_" + rowData.get(2),
+                    rowData.get(0),
+                    tableToQuery);
+            filteringTermsSet.add(filteringTerm);
           }
         } else {
-
-          System.out.println(
-              "column.getColumnType() "
-                  + column.getColumnType()
-                  + " is NOT atomic and NOT ontology!");
+          // ignore any non-atomic, non-ontology fields, which are headings, files and regular
+          // (non-ontological) references
         }
       }
     }
   }
 
   /**
-   * Check referencing columns of a row for non-null values and add as filtering term
+   * Helper function to parse raw data into list (e.g. ROW(row='+-----+---------+----+ |v0 |v1 |v2 |
+   * +-----+---------+----+ |Dutch|HANCESTRO|0320| +-----+---------+----+' ) into {Dutch,
+   * HANCESTRO,0320})
    *
-   * @param filteringTermsSet
-   * @param tableToQuery
-   * @param metadata
    * @param row
-   */
-  private void getFilteringTermsFromRow(
-      Set<FilteringTerm> filteringTermsSet, String tableToQuery, TableMetadata metadata, Row row) {
-    for (Column columnPerRow : metadata.getColumns()) {
-      if (columnPerRow.isPrimaryKey()
-          || (!columnPerRow.isReference() && !columnPerRow.isOntology())) {
-        continue;
-      }
-      String colName = columnPerRow.getName();
-      String value = row.getString(colName);
-      if (value != null) {
-        addValueAsFilteringTerm(filteringTermsSet, tableToQuery, columnPerRow, value);
-      }
-    }
-  }
-
-  /**
-   * Check if referencing value is an array and add as filtering term accordingly
-   *
-   * @param filteringTermsSet
-   * @param tableToQuery
-   * @param columnPerRow
-   * @param value
-   */
-  private void addValueAsFilteringTerm(
-      Set<FilteringTerm> filteringTermsSet,
-      String tableToQuery,
-      Column columnPerRow,
-      String value) {
-    if (columnPerRow.isRefArray()) {
-      addValueArrayAsFilteringTerm(filteringTermsSet, tableToQuery, columnPerRow, value);
-    } else {
-      // to do: for ontologies, get the URI with an extra query as the 'id' value
-      FilteringTerm filteringTerm =
-          new FilteringTerm(
-              columnTypeToFilteringTermType(columnPerRow.getColumnType()),
-              value,
-              value,
-              tableToQuery);
-      filteringTermsSet.add(filteringTerm);
-    }
-  }
-
-  /**
-   * Add array of referencing values as filtering terms by performing a smart CSV-aware split
-   *
-   * @param filteringTermsSet
-   * @param tableToQuery
-   * @param columnPerRow
-   * @param value
-   */
-  private void addValueArrayAsFilteringTerm(
-      Set<FilteringTerm> filteringTermsSet,
-      String tableToQuery,
-      Column columnPerRow,
-      String value) {
-    for (String valSplit : splitStringIgnoreQuotedCommas(value)) {
-      // to do: for ontologies, get the URI with an extra query as the 'id' value
-      FilteringTerm filteringTerm =
-          new FilteringTerm(
-              columnTypeToFilteringTermType(columnPerRow.getColumnType()),
-              valSplit,
-              valSplit,
-              tableToQuery);
-      filteringTermsSet.add(filteringTerm);
-    }
-  }
-
-  /**
-   * Helper function to perform smart CSV-aware split of input String representing a value array
-   *
-   * @param input
    * @return
    */
-  public List<String> splitStringIgnoreQuotedCommas(String input) {
-    List<String> tokens = new ArrayList<>();
-    int startPosition = 0;
-    boolean isInQuotes = false;
-    for (int currentPosition = 0; currentPosition < input.length(); currentPosition++) {
-      if (input.charAt(currentPosition) == '\"') {
-        isInQuotes = !isInQuotes;
-      } else if (input.charAt(currentPosition) == ',' && !isInQuotes) {
-        String token = input.substring(startPosition, currentPosition);
-        token =
-            token.startsWith("\"") && token.endsWith("\"")
-                ? token.substring(1, token.length() - 1)
-                : token;
-        tokens.add(token);
-        startPosition = currentPosition + 1;
+  public List<String> parseRow(Row row) {
+    List<String> result = new ArrayList<>();
+    String[] splitRow = row.toString().split("\n");
+    String rowData = splitRow[3];
+    String[] splitValues = rowData.split("\\|");
+    for (String value : splitValues) {
+      String trimmedValue = value.trim();
+      if (!trimmedValue.isBlank()) {
+        result.add(trimmedValue);
       }
     }
-    String lastToken = input.substring(startPosition);
-    if (lastToken.equals(",")) {
-      tokens.add("");
-    } else {
-      lastToken =
-          lastToken.startsWith("\"") && lastToken.endsWith("\"")
-              ? lastToken.substring(1, lastToken.length() - 1)
-              : lastToken;
-      tokens.add(lastToken);
-    }
-    return tokens;
+    return result;
   }
 
   /**
-   * Notes on mapping choices: Bool is not alphanumeric, althought it could be? File, UUID and
-   * AUTO_ID are not meaningfully searchable. JSONB perhaps? REF and REFBACK are not alphanumeric
-   * nor ontology. HEADING should be ignored.
-   *
-   * @param columnType
-   * @return
-   */
-  public String columnTypeToFilteringTermType(ColumnType columnType) {
-
-    switch (columnType) {
-      case ONTOLOGY:
-      case ONTOLOGY_ARRAY:
-        return "ontology";
-      case STRING:
-      case STRING_ARRAY:
-      case TEXT:
-      case TEXT_ARRAY:
-      case INT:
-      case INT_ARRAY:
-      case LONG:
-      case LONG_ARRAY:
-      case DECIMAL:
-      case DECIMAL_ARRAY:
-      case DATE:
-      case DATE_ARRAY:
-      case DATETIME:
-      case DATETIME_ARRAY:
-      case EMAIL:
-      case EMAIL_ARRAY:
-      case HYPERLINK:
-      case HYPERLINK_ARRAY:
-        return "alphanumeric";
-      default:
-        return "custom";
-    }
-  }
-
-  /**
-   * Getter
+   * Getter for filteringTerms
    *
    * @return
    */
