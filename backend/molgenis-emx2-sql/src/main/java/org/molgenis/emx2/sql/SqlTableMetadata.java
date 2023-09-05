@@ -87,7 +87,8 @@ class SqlTableMetadata extends TableMetadata {
   private static void checkNoColumnWithSameIdentifierExists(
       SqlTableMetadata existingTableMetadata, Column column) {
     for (Column existingColumn : existingTableMetadata.getColumns()) {
-      if (existingColumn.getIdentifier().equals(column.getIdentifier())) {
+      if (!column.getName().equals(MG_TABLECLASS)
+          && existingColumn.getIdentifier().equals(column.getIdentifier())) {
         throw new MolgenisException(
             String.format(
                 "Cannot add/alter because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
