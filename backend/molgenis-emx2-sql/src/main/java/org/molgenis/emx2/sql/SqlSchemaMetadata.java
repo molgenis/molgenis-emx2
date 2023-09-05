@@ -251,6 +251,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static SqlSchemaMetadata renameTableTransaction(
       Database db, String schemaName, String tableName, String newName) {
     SqlSchemaMetadata sm = (SqlSchemaMetadata) db.getSchema(schemaName).getMetadata();
+    validateTableIdentifierIsUnique(sm, new TableMetadata(newName));
     SqlTableMetadata tm = sm.getTableMetadata(tableName);
     tm.alterName(newName);
     sm.tables.remove(tableName);
