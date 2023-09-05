@@ -6,7 +6,7 @@ import static org.eclipse.rdf4j.model.vocabulary.XSD.*;
 import static org.eclipse.rdf4j.model.vocabulary.XSD.LONG;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.beaconv2.common.QueryHelper.selectColumns;
+import static org.molgenis.emx2.semantics.QueryHelper.selectColumns;
 import static org.molgenis.emx2.semantics.rdf.ColumnTypeToXSDDataType.columnTypeToXSD;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
 

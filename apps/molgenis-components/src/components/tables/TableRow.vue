@@ -67,7 +67,11 @@ export default {
     isSelected() {
       return Boolean(
         this.selection?.find((selectionItem) => {
-          return selectionItem && deepEqual(selectionItem, this.rowKey);
+          return (
+            selectionItem &&
+            this.rowKey &&
+            deepEqual(selectionItem, this.rowKey)
+          );
         })
       );
     },

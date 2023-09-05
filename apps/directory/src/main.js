@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import VueGtag from "vue-gtag";
 
 import App from "./App.vue";
 import router from "./router";
@@ -23,5 +24,6 @@ export const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
+app.use(VueGtag, { bootstrap: false }, router);
 
 app.mount("#app");
