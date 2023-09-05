@@ -1096,6 +1096,52 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  public void testRedirectOnJSONLDEndpoint() {
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("/pet store/api/rdf?format=jsonld"))
+        .when()
+        .get("/pet store/api/jsonld");
+
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("/pet store/api/rdf/Pet?format=jsonld"))
+        .when()
+        .get("/pet store/api/jsonld/Pet");
+  }
+
+  @Test
+  public void testRedirectOnTTLEndpoint() {
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("/pet store/api/rdf?format=ttl"))
+        .when()
+        .get("/pet store/api/ttl");
+
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("/pet store/api/rdf/Pet?format=ttl"))
+        .when()
+        .get("/pet store/api/ttl/Pet");
+  }
+
+  @Test
   @Disabled("unstable")
   public void testBeaconApiSmokeTests() {
     // todo: ideally we would here validate the responses against json schemas, are those schemas
