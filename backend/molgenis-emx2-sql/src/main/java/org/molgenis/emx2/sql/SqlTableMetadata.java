@@ -38,6 +38,7 @@ class SqlTableMetadata extends TableMetadata {
     // first per-column actions, then multi-column action such as composite keys/refs
     int position = MetadataUtils.getMaxPosition(tm.getJooq(), schemaName) + 1;
     for (Column c : column) {
+      checkNoColumnWithSameIdentifierExists(tm, c);
       long start = System.currentTimeMillis();
       if (tm.getLocalColumn(c.getName()) != null) {
         tm.alterColumn(c);
@@ -81,6 +82,18 @@ class SqlTableMetadata extends TableMetadata {
       }
     }
     return tm;
+  }
+
+  private static void checkNoColumnWithSameIdentifierExists(
+      SqlTableMetadata existingTableMetadata, Column column) {
+    for (Column existingColumn : existingTableMetadata.getColumns()) {
+      if (existingColumn.getIdentifier().equals(column.getIdentifier())) {
+        throw new MolgenisException(
+            String.format(
+                "Cannot add/alter because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
+                column.getName(), existingColumn.getTableName(), column.getIdentifier()));
+      }
+    }
   }
 
   @Override

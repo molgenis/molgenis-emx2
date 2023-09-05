@@ -119,6 +119,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
               tableList.addAll(List.of(tables));
               if (tableList.size() > 1) sortTableByDependency(tableList);
               for (TableMetadata table : tableList) {
+                validateTableIdentifierIsUnique(sm, table);
                 SqlTableMetadata result = null;
                 if (TableType.ONTOLOGIES.equals(table.getTableType())) {
                   result =
@@ -136,6 +137,17 @@ public class SqlSchemaMetadata extends SchemaMetadata {
             });
     getDatabase().getListener().schemaChanged(getName());
     return this;
+  }
+
+  private static void validateTableIdentifierIsUnique(SqlSchemaMetadata sm, TableMetadata table) {
+    for (TableMetadata existingTable : sm.getTables()) {
+      if (existingTable.getIdentifier().equals(table.getIdentifier())) {
+        throw new MolgenisException(
+            String.format(
+                "Cannot add/alter because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
+                table.getTableName(), existingTable.getTableName(), table.getIdentifier()));
+      }
+    }
   }
 
   @Override
