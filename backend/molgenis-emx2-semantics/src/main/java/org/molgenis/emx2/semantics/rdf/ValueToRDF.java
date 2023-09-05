@@ -34,7 +34,7 @@ public class ValueToRDF {
       String schemaContext)
       throws Exception {
     Map<String, Column> columnMap = new HashMap<>();
-    for (Column c : table.getMetadata().getColumns(true)) {
+    for (Column c : table.getMetadata().getColumns()) {
       columnMap.put(c.getName(), c);
     }
     String tableContext = schemaContext + "/" + table.getName();
@@ -54,7 +54,7 @@ public class ValueToRDF {
     for (Map<String, Object> row : data) {
 
       String pkValue =
-          table.getMetadata().getPrimaryKeys(true).stream()
+          table.getMetadata().getPrimaryKeys().stream()
               .map(primaryKey -> row.get(primaryKey).toString())
               .collect(Collectors.joining("-"));
       IRI rowContext = encodedIRI(schemaContext + "/" + table.getName() + "/" + pkValue);
