@@ -286,13 +286,14 @@ export default {
       this.rowErrors = getRowErrors(this.tableMetaData, this.rowData);
       this.saveDisabledMessage = getSaveDisabledMessage(this.rowErrors);
     },
-    getHeadingLabel(headingId: string) {
+    getHeadingLabel(headingName: string) {
       const column = this.tableMetaData.columns.find(
-        (column) => column.id === headingId
+        (column) => column.name === headingName
+        //TODO change to id when merging with chapter visibility PR
       );
       return (
-        column?.labels?.find((label) => label.locale === this.locale) ||
-        headingId
+        column?.labels?.find((label) => label.locale === this.locale)?.value ||
+        headingName
       );
     },
   },
