@@ -1,0 +1,401 @@
+﻿order,name,code,parent,ontologyTermURI
+1,LIP,C00,,http://codes.iarc.fr/topography/C00
+2,External upper lip,C00.0,LIP,http://codes.iarc.fr/topography/C00.0
+3,External lower lip,C00.1,LIP,http://codes.iarc.fr/topography/C00.1
+4,"External lip, NOS",C00.2,LIP,http://codes.iarc.fr/topography/C00.2
+5,Mucosa of upper lip,C00.3,LIP,http://codes.iarc.fr/topography/C00.3
+6,Mucosa of lower lip,C00.4,LIP,http://codes.iarc.fr/topography/C00.4
+7,"Mucosa of lip, NOS",C00.5,LIP,http://codes.iarc.fr/topography/C00.5
+8,Commissure of lip,C00.6,LIP,http://codes.iarc.fr/topography/C00.6
+9,Overlapping lesion of lip,C00.8,LIP,http://codes.iarc.fr/topography/C00.8
+10,"Lip, NOS",C00.9,LIP,http://codes.iarc.fr/topography/C00.9
+11,BASE OF TONGUE,C01,,http://codes.iarc.fr/topography/C01
+12,"Base of tongue, NOS",C01.9,BASE OF TONGUE,http://codes.iarc.fr/topography/C01.9
+13,OTHER AND UNSPECIFIED PARTS OF TONGUE,C02,,http://codes.iarc.fr/topography/C02
+14,"Dorsal surface of tongue, NOS",C02.0,OTHER AND UNSPECIFIED PARTS OF TONGUE,http://codes.iarc.fr/topography/C02.0
+15,Border of tongue,C02.1,OTHER AND UNSPECIFIED PARTS OF TONGUE,http://codes.iarc.fr/topography/C02.1
+16,"Ventral surface of tongue, NOS",C02.2,OTHER AND UNSPECIFIED PARTS OF TONGUE,http://codes.iarc.fr/topography/C02.2
+17,"Anterior 2/3 of tongue, NOS",C02.3,OTHER AND UNSPECIFIED PARTS OF TONGUE,http://codes.iarc.fr/topography/C02.3
+18,Lingual tonsil,C02.4,OTHER AND UNSPECIFIED PARTS OF TONGUE,http://codes.iarc.fr/topography/C02.4
+19,Overlapping lesion of tongue,C02.8,OTHER AND UNSPECIFIED PARTS OF TONGUE,http://codes.iarc.fr/topography/C02.8
+20,"Tongue, NOS",C02.9,OTHER AND UNSPECIFIED PARTS OF TONGUE,http://codes.iarc.fr/topography/C02.9
+21,GUM,C03,,http://codes.iarc.fr/topography/C03
+22,Upper gum,C03.0,GUM,http://codes.iarc.fr/topography/C03.0
+23,Lower gum,C03.1,GUM,http://codes.iarc.fr/topography/C03.1
+24,"Gum, NOS",C03.9,GUM,http://codes.iarc.fr/topography/C03.9
+25,FLOOR OF MOUTH,C04,,http://codes.iarc.fr/topography/C04
+26,Anterior floor of mouth,C04.0,FLOOR OF MOUTH,http://codes.iarc.fr/topography/C04.0
+27,Lateral floor of mouth,C04.1,FLOOR OF MOUTH,http://codes.iarc.fr/topography/C04.1
+28,Overlapping lesion of floor of mouth,C04.8,FLOOR OF MOUTH,http://codes.iarc.fr/topography/C04.8
+29,"Floor of mouth, NOS",C04.9,FLOOR OF MOUTH,http://codes.iarc.fr/topography/C04.9
+30,PALATE,C05,,http://codes.iarc.fr/topography/C05
+31,Hard palate,C05.0,PALATE,http://codes.iarc.fr/topography/C05.0
+32,"Soft palate, NOS",C05.1,PALATE,http://codes.iarc.fr/topography/C05.1
+33,Uvula,C05.2,PALATE,http://codes.iarc.fr/topography/C05.2
+34,Overlapping lesion of palate,C05.8,PALATE,http://codes.iarc.fr/topography/C05.8
+35,"Palate, NOS",C05.9,PALATE,http://codes.iarc.fr/topography/C05.9
+36,OTHER AND UNSPECIFIED PARTS OF MOUTH,C06,,http://codes.iarc.fr/topography/C06
+37,Cheek mucosa,C06.0,OTHER AND UNSPECIFIED PARTS OF MOUTH,http://codes.iarc.fr/topography/C06.0
+38,Vestibule of mouth,C06.1,OTHER AND UNSPECIFIED PARTS OF MOUTH,http://codes.iarc.fr/topography/C06.1
+39,Retromolar area,C06.2,OTHER AND UNSPECIFIED PARTS OF MOUTH,http://codes.iarc.fr/topography/C06.2
+40,Overlapping lesion of other and unspecified parts of mouth,C06.8,OTHER AND UNSPECIFIED PARTS OF MOUTH,http://codes.iarc.fr/topography/C06.8
+41,"Mouth, NOS",C06.9,OTHER AND UNSPECIFIED PARTS OF MOUTH,http://codes.iarc.fr/topography/C06.9
+42,PAROTID GLAND,C07,,http://codes.iarc.fr/topography/C07
+43,Parotid gland,C07.9,PAROTID GLAND,http://codes.iarc.fr/topography/C07.9
+44,OTHER AND UNSPECIFIED MAJOR SALIVARY GLANDS,C08,,http://codes.iarc.fr/topography/C08
+45,Submandibular gland,C08.0,OTHER AND UNSPECIFIED MAJOR SALIVARY GLANDS,http://codes.iarc.fr/topography/C08.0
+46,Sublingual gland,C08.1,OTHER AND UNSPECIFIED MAJOR SALIVARY GLANDS,http://codes.iarc.fr/topography/C08.1
+47,Overlapping lesion of major salivary glands,C08.8,OTHER AND UNSPECIFIED MAJOR SALIVARY GLANDS,http://codes.iarc.fr/topography/C08.8
+48,"Major salivary gland, NOS",C08.9,OTHER AND UNSPECIFIED MAJOR SALIVARY GLANDS,http://codes.iarc.fr/topography/C08.9
+49,TONSIL,C09,,http://codes.iarc.fr/topography/C09
+50,Tonsillar fossa,C09.0,TONSIL,http://codes.iarc.fr/topography/C09.0
+51,Tonsillar pillar,C09.1,TONSIL,http://codes.iarc.fr/topography/C09.1
+52,Overlapping lesion of tonsil,C09.8,TONSIL,http://codes.iarc.fr/topography/C09.8
+53,"Tonsil, NOS",C09.9,TONSIL,http://codes.iarc.fr/topography/C09.9
+54,OROPHARYNX,C10,,http://codes.iarc.fr/topography/C10
+55,Vallecula,C10.0,OROPHARYNX,http://codes.iarc.fr/topography/C10.0
+56,Anterior surface of epiglottis,C10.1,OROPHARYNX,http://codes.iarc.fr/topography/C10.1
+57,Lateral wall of oropharynx,C10.2,OROPHARYNX,http://codes.iarc.fr/topography/C10.2
+58,Posterior wall of oropharynx,C10.3,OROPHARYNX,http://codes.iarc.fr/topography/C10.3
+59,Branchial cleft,C10.4,OROPHARYNX,http://codes.iarc.fr/topography/C10.4
+60,Overlapping lesion of oropharynx,C10.8,OROPHARYNX,http://codes.iarc.fr/topography/C10.8
+61,"Oropharynx, NOS",C10.9,OROPHARYNX,http://codes.iarc.fr/topography/C10.9
+62,NASOPHARYNX,C11,,http://codes.iarc.fr/topography/C11
+63,Superior wall of nasopharynx,C11.0,NASOPHARYNX,http://codes.iarc.fr/topography/C11.0
+64,Posterior wall of nasopharynx,C11.1,NASOPHARYNX,http://codes.iarc.fr/topography/C11.1
+65,Lateral wall of nasopharynx,C11.2,NASOPHARYNX,http://codes.iarc.fr/topography/C11.2
+66,Anterior wall of nasopharynx,C11.3,NASOPHARYNX,http://codes.iarc.fr/topography/C11.3
+67,Overlapping lesion of nasopharynx,C11.8,NASOPHARYNX,http://codes.iarc.fr/topography/C11.8
+68,"Nasopharynx, NOS",C11.9,NASOPHARYNX,http://codes.iarc.fr/topography/C11.9
+69,PYRIFORM SINUS,C12,,http://codes.iarc.fr/topography/C12
+70,Pyriform sinus,C12.9,PYRIFORM SINUS,http://codes.iarc.fr/topography/C12.9
+71,HYPOPHARYNX,C13,,http://codes.iarc.fr/topography/C13
+72,Postcricoid region,C13.0,HYPOPHARYNX,http://codes.iarc.fr/topography/C13.0
+73,Hypopharyngeal aspect of aryepiglottic fold,C13.1,HYPOPHARYNX,http://codes.iarc.fr/topography/C13.1
+74,Posterior wall of hypopharynx,C13.2,HYPOPHARYNX,http://codes.iarc.fr/topography/C13.2
+75,Overlapping lesion of hypopharynx,C13.8,HYPOPHARYNX,http://codes.iarc.fr/topography/C13.8
+76,"Hypopharynx, NOS",C13.9,HYPOPHARYNX,http://codes.iarc.fr/topography/C13.9
+77,"OTHER AND ILL-DEFINED SITES IN LIP, ORAL CAVITY AND PHARYNX",C14,,http://codes.iarc.fr/topography/C14
+78,"Pharynx, NOS",C14.0,"OTHER AND ILL-DEFINED SITES IN LIP, ORAL CAVITY AND PHARYNX",http://codes.iarc.fr/topography/C14.0
+79,Waldeyer ring,C14.2,"OTHER AND ILL-DEFINED SITES IN LIP, ORAL CAVITY AND PHARYNX",http://codes.iarc.fr/topography/C14.2
+80,"Overlapping lesion of lip, oral cavity and pharynx",C14.8,"OTHER AND ILL-DEFINED SITES IN LIP, ORAL CAVITY AND PHARYNX",http://codes.iarc.fr/topography/C14.8
+81,ESOPHAGUS,C15,,http://codes.iarc.fr/topography/C15
+82,Cervical esophagus,C15.0,ESOPHAGUS,http://codes.iarc.fr/topography/C15.0
+83,Thoracic esophagus,C15.1,ESOPHAGUS,http://codes.iarc.fr/topography/C15.1
+84,Abdominal esophagus,C15.2,ESOPHAGUS,http://codes.iarc.fr/topography/C15.2
+85,Upper third of esophagus,C15.3,ESOPHAGUS,http://codes.iarc.fr/topography/C15.3
+86,Middle third of esophagus,C15.4,ESOPHAGUS,http://codes.iarc.fr/topography/C15.4
+87,Lower third of esophagus,C15.5,ESOPHAGUS,http://codes.iarc.fr/topography/C15.5
+88,Overlapping lesion of esophagus,C15.8,ESOPHAGUS,http://codes.iarc.fr/topography/C15.8
+89,"Esophagus, NOS",C15.9,ESOPHAGUS,http://codes.iarc.fr/topography/C15.9
+90,STOMACH,C16,,http://codes.iarc.fr/topography/C16
+91,"Cardia, NOS",C16.0,STOMACH,http://codes.iarc.fr/topography/C16.0
+92,Fundus of stomach,C16.1,STOMACH,http://codes.iarc.fr/topography/C16.1
+93,Body of stomach,C16.2,STOMACH,http://codes.iarc.fr/topography/C16.2
+94,Gastric antrum,C16.3,STOMACH,http://codes.iarc.fr/topography/C16.3
+95,Pylorus,C16.4,STOMACH,http://codes.iarc.fr/topography/C16.4
+96,"Lesser curvature of stomach, NOS",C16.5,STOMACH,http://codes.iarc.fr/topography/C16.5
+97,"Greater curvature of stomach, NOS",C16.6,STOMACH,http://codes.iarc.fr/topography/C16.6
+98,Overlapping lesion of stomach,C16.8,STOMACH,http://codes.iarc.fr/topography/C16.8
+99,"Stomach, NOS",C16.9,STOMACH,http://codes.iarc.fr/topography/C16.9
+100,SMALL INTESTINE,C17,,http://codes.iarc.fr/topography/C17
+101,Duodenum,C17.0,SMALL INTESTINE,http://codes.iarc.fr/topography/C17.0
+102,Jejunum,C17.1,SMALL INTESTINE,http://codes.iarc.fr/topography/C17.1
+103,Ileum,C17.2,SMALL INTESTINE,http://codes.iarc.fr/topography/C17.2
+104,Meckel diverticulum,C17.3,SMALL INTESTINE,http://codes.iarc.fr/topography/C17.3
+105,Overlapping lesion of smallintestine,C17.8,SMALL INTESTINE,http://codes.iarc.fr/topography/C17.8
+106,"Small intestine, NOS",C17.9,SMALL INTESTINE,http://codes.iarc.fr/topography/C17.9
+107,COLON,C18,,http://codes.iarc.fr/topography/C18
+108,Cecum,C18.0,COLON,http://codes.iarc.fr/topography/C18.0
+109,Appendix,C18.1,COLON,http://codes.iarc.fr/topography/C18.1
+110,Ascending colon,C18.2,COLON,http://codes.iarc.fr/topography/C18.2
+111,Hepatic flexure of colon,C18.3,COLON,http://codes.iarc.fr/topography/C18.3
+112,Transverse colon,C18.4,COLON,http://codes.iarc.fr/topography/C18.4
+113,Splenic flexure of colon,C18.5,COLON,http://codes.iarc.fr/topography/C18.5
+114,Descending colon,C18.6,COLON,http://codes.iarc.fr/topography/C18.6
+115,Sigmoid colon,C18.7,COLON,http://codes.iarc.fr/topography/C18.7
+116,Overlapping lesion of colon,C18.8,COLON,http://codes.iarc.fr/topography/C18.8
+117,"Colon, NOS",C18.9,COLON,http://codes.iarc.fr/topography/C18.9
+118,RECTOSIGMOID JUNCTION,C19,,http://codes.iarc.fr/topography/C19
+119,Rectosigmoid junction,C19.9,RECTOSIGMOID JUNCTION,http://codes.iarc.fr/topography/C19.9
+120,RECTUM,C20,,http://codes.iarc.fr/topography/C20
+121,"Rectum, NOS",C20.9,RECTUM,http://codes.iarc.fr/topography/C20.9
+122,ANUS AND ANAL CANAL,C21,,http://codes.iarc.fr/topography/C21
+123,"Anus, NOS",C21.0,ANUS AND ANAL CANAL,http://codes.iarc.fr/topography/C21.0
+124,Anal canal,C21.1,ANUS AND ANAL CANAL,http://codes.iarc.fr/topography/C21.1
+125,Cloacogenic zone,C21.2,ANUS AND ANAL CANAL,http://codes.iarc.fr/topography/C21.2
+126,"Overlapping lesion of rectum, anus and anal canal",C21.8,ANUS AND ANAL CANAL,http://codes.iarc.fr/topography/C21.8
+127,LIVER AND INTRAHEPATIC BILE DUCTS,C22,,http://codes.iarc.fr/topography/C22
+128,Liver,C22.0,LIVER AND INTRAHEPATIC BILE DUCTS,http://codes.iarc.fr/topography/C22.0
+129,Intrahepatic bile duct,C22.1,LIVER AND INTRAHEPATIC BILE DUCTS,http://codes.iarc.fr/topography/C22.1
+130,GALLBLADDER,C23,,http://codes.iarc.fr/topography/C23
+131,Gallbladder,C23.9,GALLBLADDER,http://codes.iarc.fr/topography/C23.9
+132,OTHER AND UNSPECIFIED PARTS OF BILIARY TRACT,C24,,http://codes.iarc.fr/topography/C24
+133,Extrahepatic bile duct,C24.0,OTHER AND UNSPECIFIED PARTS OF BILIARY TRACT,http://codes.iarc.fr/topography/C24.0
+134,Ampulla of Vater,C24.1,OTHER AND UNSPECIFIED PARTS OF BILIARY TRACT,http://codes.iarc.fr/topography/C24.1
+135,Overlapping lesion of biliary tract Note:,C24.8,OTHER AND UNSPECIFIED PARTS OF BILIARY TRACT,http://codes.iarc.fr/topography/C24.8
+136,"Biliary tract, NOS",C24.9,OTHER AND UNSPECIFIED PARTS OF BILIARY TRACT,http://codes.iarc.fr/topography/C24.9
+137,PANCREAS,C25,,http://codes.iarc.fr/topography/C25
+138,Head of pancreas,C25.0,PANCREAS,http://codes.iarc.fr/topography/C25.0
+139,Body of pancreas,C25.1,PANCREAS,http://codes.iarc.fr/topography/C25.1
+140,Tail of pancreas,C25.2,PANCREAS,http://codes.iarc.fr/topography/C25.2
+141,Pancreatic duct,C25.3,PANCREAS,http://codes.iarc.fr/topography/C25.3
+142,Islets of Langerhans,C25.4,PANCREAS,http://codes.iarc.fr/topography/C25.4
+143,Other specified parts of pancreas,C25.7,PANCREAS,http://codes.iarc.fr/topography/C25.7
+144,Overlapping lesion of pancreas,C25.8,PANCREAS,http://codes.iarc.fr/topography/C25.8
+145,"Pancreas, NOS",C25.9,PANCREAS,http://codes.iarc.fr/topography/C25.9
+146,OTHER AND ILL-DEFINED DIGESTIVE ORGANS,C26,,http://codes.iarc.fr/topography/C26
+147,"Intestinal tract, NOS",C26.0,OTHER AND ILL-DEFINED DIGESTIVE ORGANS,http://codes.iarc.fr/topography/C26.0
+148,Overlapping lesion of digestive system,C26.8,OTHER AND ILL-DEFINED DIGESTIVE ORGANS,http://codes.iarc.fr/topography/C26.8
+149,"Gastrointestinal tract, NOS",C26.9,OTHER AND ILL-DEFINED DIGESTIVE ORGANS,http://codes.iarc.fr/topography/C26.9
+150,NASAL CAVITY AND MIDDLE EAR,C30,,http://codes.iarc.fr/topography/C30
+151,Nasal cavity,C30.0,NASAL CAVITY AND MIDDLE EAR,http://codes.iarc.fr/topography/C30.0
+152,Middle ear,C30.1,NASAL CAVITY AND MIDDLE EAR,http://codes.iarc.fr/topography/C30.1
+153,ACCESSORY SINUSES,C31,,http://codes.iarc.fr/topography/C31
+154,Maxillary sinus,C31.0,ACCESSORY SINUSES,http://codes.iarc.fr/topography/C31.0
+155,Ethmoid sinus,C31.1,ACCESSORY SINUSES,http://codes.iarc.fr/topography/C31.1
+156,Frontal sinus,C31.2,ACCESSORY SINUSES,http://codes.iarc.fr/topography/C31.2
+157,Sphenoid sinus,C31.3,ACCESSORY SINUSES,http://codes.iarc.fr/topography/C31.3
+158,Overlapping lesion of accessory sinuses,C31.8,ACCESSORY SINUSES,http://codes.iarc.fr/topography/C31.8
+159,"Accessory sinus, NOS",C31.9,ACCESSORY SINUSES,http://codes.iarc.fr/topography/C31.9
+160,LARYNX,C32,,http://codes.iarc.fr/topography/C32
+161,Glottis,C32.0,LARYNX,http://codes.iarc.fr/topography/C32.0
+162,Supraglottis,C32.1,LARYNX,http://codes.iarc.fr/topography/C32.1
+163,Subglottis,C32.2,LARYNX,http://codes.iarc.fr/topography/C32.2
+164,Laryngeal cartilage,C32.3,LARYNX,http://codes.iarc.fr/topography/C32.3
+165,Overlapping lesion of larynx,C32.8,LARYNX,http://codes.iarc.fr/topography/C32.8
+166,"Larynx, NOS",C32.9,LARYNX,http://codes.iarc.fr/topography/C32.9
+167,TRACHEA,C33,,http://codes.iarc.fr/topography/C33
+168,Trachea,C33.9,TRACHEA,http://codes.iarc.fr/topography/C33.9
+169,BRONCHUS AND LUNG,C34,,http://codes.iarc.fr/topography/C34
+170,Main bronchus,C34.0,BRONCHUS AND LUNG,http://codes.iarc.fr/topography/C34.0
+171,"Upper lobe, lung",C34.1,BRONCHUS AND LUNG,http://codes.iarc.fr/topography/C34.1
+172,"Middle lobe, lung",C34.2,BRONCHUS AND LUNG,http://codes.iarc.fr/topography/C34.2
+173,"Lower lobe, lung",C34.3,BRONCHUS AND LUNG,http://codes.iarc.fr/topography/C34.3
+174,Overlapping lesion of lung,C34.8,BRONCHUS AND LUNG,http://codes.iarc.fr/topography/C34.8
+175,"Lung, NOS",C34.9,BRONCHUS AND LUNG,http://codes.iarc.fr/topography/C34.9
+176,THYMUS,C37,,http://codes.iarc.fr/topography/C37
+177,Thymus,C37.9,THYMUS,http://codes.iarc.fr/topography/C37.9
+178,"HEART, MEDIASTINUM, AND PLEURA",C38,,http://codes.iarc.fr/topography/C38
+179,Heart,C38.0,"HEART, MEDIASTINUM, AND PLEURA",http://codes.iarc.fr/topography/C38.0
+180,Anterior mediastinum,C38.1,"HEART, MEDIASTINUM, AND PLEURA",http://codes.iarc.fr/topography/C38.1
+181,Posterior mediastinum,C38.2,"HEART, MEDIASTINUM, AND PLEURA",http://codes.iarc.fr/topography/C38.2
+182,"Mediastinum, NOS",C38.3,"HEART, MEDIASTINUM, AND PLEURA",http://codes.iarc.fr/topography/C38.3
+183,"Pleura, NOS",C38.4,"HEART, MEDIASTINUM, AND PLEURA",http://codes.iarc.fr/topography/C38.4
+184,"Overlapping lesion of heart, mediastinum and pleura",C38.8,"HEART, MEDIASTINUM, AND PLEURA",http://codes.iarc.fr/topography/C38.8
+185,OTHER AND ILL-DEFINED SITES WITHIN RESPIRATORY SYSTEM AND INTRATHORACIC ORGANS,C39,,http://codes.iarc.fr/topography/C39
+186,"Upper respiratory tract, NOS",C39.0,OTHER AND ILL-DEFINED SITES WITHIN RESPIRATORY SYSTEM AND INTRATHORACIC ORGANS,http://codes.iarc.fr/topography/C39.0
+187,Overlapping lesion of respiratory system and intrathoracic organs,C39.8,OTHER AND ILL-DEFINED SITES WITHIN RESPIRATORY SYSTEM AND INTRATHORACIC ORGANS,http://codes.iarc.fr/topography/C39.8
+188,Ill-defined sites within respiratory system,C39.9,OTHER AND ILL-DEFINED SITES WITHIN RESPIRATORY SYSTEM AND INTRATHORACIC ORGANS,http://codes.iarc.fr/topography/C39.9
+189,"BONES, JOINTS AND ARTICULAR CARTILAGE OF LIMBS",C40,,http://codes.iarc.fr/topography/C40
+190,"Long bones of upper limb, scapula and associated joints",C40.0,"BONES, JOINTS AND ARTICULAR CARTILAGE OF LIMBS",http://codes.iarc.fr/topography/C40.0
+191,Short bones of upper limb and associated joints,C40.1,"BONES, JOINTS AND ARTICULAR CARTILAGE OF LIMBS",http://codes.iarc.fr/topography/C40.1
+192,Long bones of lower limb and associated joints,C40.2,"BONES, JOINTS AND ARTICULAR CARTILAGE OF LIMBS",http://codes.iarc.fr/topography/C40.2
+193,Short bones of lower limb and associated joints,C40.3,"BONES, JOINTS AND ARTICULAR CARTILAGE OF LIMBS",http://codes.iarc.fr/topography/C40.3
+194,"Overlapping lesion of bones, joints and articular cartilage of limbs",C40.8,"BONES, JOINTS AND ARTICULAR CARTILAGE OF LIMBS",http://codes.iarc.fr/topography/C40.8
+195,"Bone of limb, NOS",C40.9,"BONES, JOINTS AND ARTICULAR CARTILAGE OF LIMBS",http://codes.iarc.fr/topography/C40.9
+196,"BONES, JOINTS AND ARTICULAR CARTILAGE OF OTHER AND UNSPECIFIED SITES",C41,,http://codes.iarc.fr/topography/C41
+197,Bones of skull and face and associated joints,C41.0,"BONES, JOINTS AND ARTICULAR CARTILAGE OF OTHER AND UNSPECIFIED SITES",http://codes.iarc.fr/topography/C41.0
+198,Mandible,C41.1,"BONES, JOINTS AND ARTICULAR CARTILAGE OF OTHER AND UNSPECIFIED SITES",http://codes.iarc.fr/topography/C41.1
+199,Vertebral column,C41.2,"BONES, JOINTS AND ARTICULAR CARTILAGE OF OTHER AND UNSPECIFIED SITES",http://codes.iarc.fr/topography/C41.2
+200,"Rib, sternum, clavicle and associated joints",C41.3,"BONES, JOINTS AND ARTICULAR CARTILAGE OF OTHER AND UNSPECIFIED SITES",http://codes.iarc.fr/topography/C41.3
+201,"Pelvic bones, sacrum, coccyx and associated joints",C41.4,"BONES, JOINTS AND ARTICULAR CARTILAGE OF OTHER AND UNSPECIFIED SITES",http://codes.iarc.fr/topography/C41.4
+202,"Overlapping lesion of bones, joints and articular cartilage",C41.8,"BONES, JOINTS AND ARTICULAR CARTILAGE OF OTHER AND UNSPECIFIED SITES",http://codes.iarc.fr/topography/C41.8
+203,"Bone, NOS",C41.9,"BONES, JOINTS AND ARTICULAR CARTILAGE OF OTHER AND UNSPECIFIED SITES",http://codes.iarc.fr/topography/C41.9
+204,HEMATOPOIETIC AND RETICULOENDOTHELIAL SYSTEMS,C42,,http://codes.iarc.fr/topography/C42
+205,Blood,C42.0,HEMATOPOIETIC AND RETICULOENDOTHELIAL SYSTEMS,http://codes.iarc.fr/topography/C42.0
+206,Bone marrow,C42.1,HEMATOPOIETIC AND RETICULOENDOTHELIAL SYSTEMS,http://codes.iarc.fr/topography/C42.1
+207,Spleen,C42.2,HEMATOPOIETIC AND RETICULOENDOTHELIAL SYSTEMS,http://codes.iarc.fr/topography/C42.2
+208,"Reticuloendothelial system,NOS",C42.3,HEMATOPOIETIC AND RETICULOENDOTHELIAL SYSTEMS,http://codes.iarc.fr/topography/C42.3
+209,"Hematopoietic system, NOS",C42.4,HEMATOPOIETIC AND RETICULOENDOTHELIAL SYSTEMS,http://codes.iarc.fr/topography/C42.4
+210,SKIN,C44,,http://codes.iarc.fr/topography/C44
+211,"Skin of lip, NOS",C44.0,SKIN,http://codes.iarc.fr/topography/C44.0
+212,Eyelid,C44.1,SKIN,http://codes.iarc.fr/topography/C44.1
+213,External ear,C44.2,SKIN,http://codes.iarc.fr/topography/C44.2
+214,Skin of other and unspecified parts of face,C44.3,SKIN,http://codes.iarc.fr/topography/C44.3
+215,Skin of scalp and neck,C44.4,SKIN,http://codes.iarc.fr/topography/C44.4
+216,Skin of trunk,C44.5,SKIN,http://codes.iarc.fr/topography/C44.5
+217,Skin of upper limb and shoulder,C44.6,SKIN,http://codes.iarc.fr/topography/C44.6
+218,Skin of lower limb and hip,C44.7,SKIN,http://codes.iarc.fr/topography/C44.7
+219,Overlapping lesion of skin,C44.8,SKIN,http://codes.iarc.fr/topography/C44.8
+220,"Skin, NOS",C44.9,SKIN,http://codes.iarc.fr/topography/C44.9
+221,PERIPHERAL NERVES AND AUTONOMIC NERVOUS SYSTEM,C47,,http://codes.iarc.fr/topography/C47
+222,"Peripheral nerves and autonomic nervous system of head, face, and neck",C47.0,PERIPHERAL NERVES AND AUTONOMIC NERVOUS SYSTEM,http://codes.iarc.fr/topography/C47.0
+223,Peripheral nerves and autonomic nervous system of upper limb and shoulder,C47.1,PERIPHERAL NERVES AND AUTONOMIC NERVOUS SYSTEM,http://codes.iarc.fr/topography/C47.1
+224,Peripheral nerves and autonomic nervous system of lower limband hip,C47.2,PERIPHERAL NERVES AND AUTONOMIC NERVOUS SYSTEM,http://codes.iarc.fr/topography/C47.2
+225,Peripheral nerves and autonomic nervous system of thorax,C47.3,PERIPHERAL NERVES AND AUTONOMIC NERVOUS SYSTEM,http://codes.iarc.fr/topography/C47.3
+226,Peripheral nerves and autonomic nervous system of abdomen,C47.4,PERIPHERAL NERVES AND AUTONOMIC NERVOUS SYSTEM,http://codes.iarc.fr/topography/C47.4
+227,Peripheral nerves and autonomic nervous system of pelvis,C47.5,PERIPHERAL NERVES AND AUTONOMIC NERVOUS SYSTEM,http://codes.iarc.fr/topography/C47.5
+228,"Peripheral nerves and autonomic nervous system of trunk, NOS",C47.6,PERIPHERAL NERVES AND AUTONOMIC NERVOUS SYSTEM,http://codes.iarc.fr/topography/C47.6
+229,Overlapping lesion of peripheral nerves and autonomic nervous system,C47.8,PERIPHERAL NERVES AND AUTONOMIC NERVOUS SYSTEM,http://codes.iarc.fr/topography/C47.8
+230,"Autonomic nervous system, NOS",C47.9,PERIPHERAL NERVES AND AUTONOMIC NERVOUS SYSTEM,http://codes.iarc.fr/topography/C47.9
+231,RETROPERITONEUM AND PERITONEUM,C48,,http://codes.iarc.fr/topography/C48
+232,Retroperitoneum,C48.0,RETROPERITONEUM AND PERITONEUM,http://codes.iarc.fr/topography/C48.0
+233,Specified parts of peritoneum,C48.1,RETROPERITONEUM AND PERITONEUM,http://codes.iarc.fr/topography/C48.1
+234,"Peritoneum, NOS",C48.2,RETROPERITONEUM AND PERITONEUM,http://codes.iarc.fr/topography/C48.2
+235,Overlapping lesion of retroperitoneum and peritoneum,C48.8,RETROPERITONEUM AND PERITONEUM,http://codes.iarc.fr/topography/C48.8
+236,"CONNECTIVE, SUBCUTANEOUS AND OTHER SOFT TISSUES",C49,,http://codes.iarc.fr/topography/C49
+237,"Connective, subcutaneous and other soft tissues of head, face, and neck",C49.0,"CONNECTIVE, SUBCUTANEOUS AND OTHER SOFT TISSUES",http://codes.iarc.fr/topography/C49.0
+238,"Connective, subcutaneous and other soft tissues of upper limb and shoulder",C49.1,"CONNECTIVE, SUBCUTANEOUS AND OTHER SOFT TISSUES",http://codes.iarc.fr/topography/C49.1
+239,"Connective, subcutaneous and other soft tissues of lower limb and hip",C49.2,"CONNECTIVE, SUBCUTANEOUS AND OTHER SOFT TISSUES",http://codes.iarc.fr/topography/C49.2
+240,"Connective, subcutaneous and other soft tissues of thorax",C49.3,"CONNECTIVE, SUBCUTANEOUS AND OTHER SOFT TISSUES",http://codes.iarc.fr/topography/C49.3
+241,"Connective, subcutaneous and other soft tissues of abdomen",C49.4,"CONNECTIVE, SUBCUTANEOUS AND OTHER SOFT TISSUES",http://codes.iarc.fr/topography/C49.4
+242,"Connective, subcutaneous and other soft tissues of pelvis",C49.5,"CONNECTIVE, SUBCUTANEOUS AND OTHER SOFT TISSUES",http://codes.iarc.fr/topography/C49.5
+243,"Connective, subcutaneous and other soft tissues of trunk NOS",C49.6,"CONNECTIVE, SUBCUTANEOUS AND OTHER SOFT TISSUES",http://codes.iarc.fr/topography/C49.6
+244,"Overlapping lesion of connective, subcutaneous and other soft tissues",C49.8,"CONNECTIVE, SUBCUTANEOUS AND OTHER SOFT TISSUES",http://codes.iarc.fr/topography/C49.8
+245,"Connective, subcutaneous and other soft tissues, NOS",C49.9,"CONNECTIVE, SUBCUTANEOUS AND OTHER SOFT TISSUES",http://codes.iarc.fr/topography/C49.9
+246,BREAST,C50,,http://codes.iarc.fr/topography/C50
+247,Nipple,C50.0,BREAST,http://codes.iarc.fr/topography/C50.0
+248,Central portion of breast,C50.1,BREAST,http://codes.iarc.fr/topography/C50.1
+249,Upper-inner quadrant of breast,C50.2,BREAST,http://codes.iarc.fr/topography/C50.2
+250,Lower-inner quadrant of breast,C50.3,BREAST,http://codes.iarc.fr/topography/C50.3
+251,Upper-outer quadrant of breast,C50.4,BREAST,http://codes.iarc.fr/topography/C50.4
+252,Lower-outer quadrant of breast,C50.5,BREAST,http://codes.iarc.fr/topography/C50.5
+253,Axillary tail of breast,C50.6,BREAST,http://codes.iarc.fr/topography/C50.6
+254,Overlapping lesion of breast,C50.8,BREAST,http://codes.iarc.fr/topography/C50.8
+255,"Breast, NOS",C50.9,BREAST,http://codes.iarc.fr/topography/C50.9
+256,VULVA,C51,,http://codes.iarc.fr/topography/C51
+257,Labium majus,C51.0,VULVA,http://codes.iarc.fr/topography/C51.0
+258,Labium minus,C51.1,VULVA,http://codes.iarc.fr/topography/C51.1
+259,Clitoris,C51.2,VULVA,http://codes.iarc.fr/topography/C51.2
+260,Overlapping lesion of vulva,C51.8,VULVA,http://codes.iarc.fr/topography/C51.8
+261,"Vulva, NOS",C51.9,VULVA,http://codes.iarc.fr/topography/C51.9
+262,VAGINA,C52,,http://codes.iarc.fr/topography/C52
+263,"Vagina, NOS",C52.9,VAGINA,http://codes.iarc.fr/topography/C52.9
+264,CERVIX UTERI,C53,,http://codes.iarc.fr/topography/C53
+265,Endocervix,C53.0,CERVIX UTERI,http://codes.iarc.fr/topography/C53.0
+266,Exocervix,C53.1,CERVIX UTERI,http://codes.iarc.fr/topography/C53.1
+267,Overlapping lesion of cervix uteri,C53.8,CERVIX UTERI,http://codes.iarc.fr/topography/C53.8
+268,Cervix uteri,C53.9,CERVIX UTERI,http://codes.iarc.fr/topography/C53.9
+269,CORPUS UTERI,C54,,http://codes.iarc.fr/topography/C54
+270,Isthmus uteri,C54.0,CORPUS UTERI,http://codes.iarc.fr/topography/C54.0
+271,Endometrium,C54.1,CORPUS UTERI,http://codes.iarc.fr/topography/C54.1
+272,Myometrium,C54.2,CORPUS UTERI,http://codes.iarc.fr/topography/C54.2
+273,Fundus uteri,C54.3,CORPUS UTERI,http://codes.iarc.fr/topography/C54.3
+274,Overlapping lesion of corpus uteri,C54.8,CORPUS UTERI,http://codes.iarc.fr/topography/C54.8
+275,Corpus uteri,C54.9,CORPUS UTERI,http://codes.iarc.fr/topography/C54.9
+276,"UTERUS, NOS",C55,,http://codes.iarc.fr/topography/C55
+277,"Uterus, NOS",C55.9,"UTERUS, NOS",http://codes.iarc.fr/topography/C55.9
+278,OVARY,C56,,http://codes.iarc.fr/topography/C56
+279,Ovary,C56.9,OVARY,http://codes.iarc.fr/topography/C56.9
+280,OTHER AND UNSPECIFIED FEMALE GENITAL ORGANS,C57,,http://codes.iarc.fr/topography/C57
+281,Fallopian tube,C57.0,OTHER AND UNSPECIFIED FEMALE GENITAL ORGANS,http://codes.iarc.fr/topography/C57.0
+282,Broad ligament,C57.1,OTHER AND UNSPECIFIED FEMALE GENITAL ORGANS,http://codes.iarc.fr/topography/C57.1
+283,Round ligament,C57.2,OTHER AND UNSPECIFIED FEMALE GENITAL ORGANS,http://codes.iarc.fr/topography/C57.2
+284,Parametrium,C57.3,OTHER AND UNSPECIFIED FEMALE GENITAL ORGANS,http://codes.iarc.fr/topography/C57.3
+285,Uterine adnexa,C57.4,OTHER AND UNSPECIFIED FEMALE GENITAL ORGANS,http://codes.iarc.fr/topography/C57.4
+286,Other specified parts of female genital organs,C57.7,OTHER AND UNSPECIFIED FEMALE GENITAL ORGANS,http://codes.iarc.fr/topography/C57.7
+287,Overlapping lesion of female genital organs,C57.8,OTHER AND UNSPECIFIED FEMALE GENITAL ORGANS,http://codes.iarc.fr/topography/C57.8
+288,"Female genital tract, NOS",C57.9,OTHER AND UNSPECIFIED FEMALE GENITAL ORGANS,http://codes.iarc.fr/topography/C57.9
+289,PLACENTA,C58,,http://codes.iarc.fr/topography/C58
+290,Placenta,C58.9,PLACENTA,http://codes.iarc.fr/topography/C58.9
+291,PENIS,C60,,http://codes.iarc.fr/topography/C60
+292,Prepuce,C60.0,PENIS,http://codes.iarc.fr/topography/C60.0
+293,Glans penis,C60.1,PENIS,http://codes.iarc.fr/topography/C60.1
+294,Body of penis,C60.2,PENIS,http://codes.iarc.fr/topography/C60.2
+295,Overlapping lesion of penis,C60.8,PENIS,http://codes.iarc.fr/topography/C60.8
+296,"Penis, NOS",C60.9,PENIS,http://codes.iarc.fr/topography/C60.9
+297,PROSTATE GLAND,C61,,http://codes.iarc.fr/topography/C61
+298,Prostate gland,C61.9,PROSTATE GLAND,http://codes.iarc.fr/topography/C61.9
+299,TESTIS,C62,,http://codes.iarc.fr/topography/C62
+300,Undescended testis,C62.0,TESTIS,http://codes.iarc.fr/topography/C62.0
+301,Descended testis,C62.1,TESTIS,http://codes.iarc.fr/topography/C62.1
+302,"Testis, NOS",C62.9,TESTIS,http://codes.iarc.fr/topography/C62.9
+303,OTHER AND UNSPECIFIED MALE GENITAL ORGANS,C63,,http://codes.iarc.fr/topography/C63
+304,Epididymis,C63.0,OTHER AND UNSPECIFIED MALE GENITAL ORGANS,http://codes.iarc.fr/topography/C63.0
+305,Spermatic cord,C63.1,OTHER AND UNSPECIFIED MALE GENITAL ORGANS,http://codes.iarc.fr/topography/C63.1
+306,"Scrotum, NOS",C63.2,OTHER AND UNSPECIFIED MALE GENITAL ORGANS,http://codes.iarc.fr/topography/C63.2
+307,Other specified parts of male genital organs,C63.7,OTHER AND UNSPECIFIED MALE GENITAL ORGANS,http://codes.iarc.fr/topography/C63.7
+308,Overlapping lesion of male genital organs Note:,C63.8,OTHER AND UNSPECIFIED MALE GENITAL ORGANS,http://codes.iarc.fr/topography/C63.8
+309,"Male genital organs, NOS",C63.9,OTHER AND UNSPECIFIED MALE GENITAL ORGANS,http://codes.iarc.fr/topography/C63.9
+310,KIDNEY,C64,,http://codes.iarc.fr/topography/C64
+311,"Kidney, NOS",C64.9,KIDNEY,http://codes.iarc.fr/topography/C64.9
+312,RENAL PELVIS,C65,,http://codes.iarc.fr/topography/C65
+313,Renal pelvis,C65.9,RENAL PELVIS,http://codes.iarc.fr/topography/C65.9
+314,URETER,C66,,http://codes.iarc.fr/topography/C66
+315,Ureter,C66.9,URETER,http://codes.iarc.fr/topography/C66.9
+316,BLADDER,C67,,http://codes.iarc.fr/topography/C67
+317,Trigone of bladder,C67.0,BLADDER,http://codes.iarc.fr/topography/C67.0
+318,Dome of bladder,C67.1,BLADDER,http://codes.iarc.fr/topography/C67.1
+319,Lateral wall of bladder,C67.2,BLADDER,http://codes.iarc.fr/topography/C67.2
+320,Anterior wall of bladder,C67.3,BLADDER,http://codes.iarc.fr/topography/C67.3
+321,Posterior wall of bladder,C67.4,BLADDER,http://codes.iarc.fr/topography/C67.4
+322,Bladder neck,C67.5,BLADDER,http://codes.iarc.fr/topography/C67.5
+323,Ureteric orifice,C67.6,BLADDER,http://codes.iarc.fr/topography/C67.6
+324,Urachus,C67.7,BLADDER,http://codes.iarc.fr/topography/C67.7
+325,Overlapping lesion of bladder,C67.8,BLADDER,http://codes.iarc.fr/topography/C67.8
+326,"Bladder, NOS",C67.9,BLADDER,http://codes.iarc.fr/topography/C67.9
+327,OTHER AND UNSPECIFIED URINARY ORGANS,C68,,http://codes.iarc.fr/topography/C68
+328,Urethra,C68.0,OTHER AND UNSPECIFIED URINARY ORGANS,http://codes.iarc.fr/topography/C68.0
+329,Paraurethral gland,C68.1,OTHER AND UNSPECIFIED URINARY ORGANS,http://codes.iarc.fr/topography/C68.1
+330,Overlapping lesion of urinary organs,C68.8,OTHER AND UNSPECIFIED URINARY ORGANS,http://codes.iarc.fr/topography/C68.8
+331,"Urinary system, NOS",C68.9,OTHER AND UNSPECIFIED URINARY ORGANS,http://codes.iarc.fr/topography/C68.9
+332,EYE AND ADNEXA,C69,,http://codes.iarc.fr/topography/C69
+333,Conjunctiva,C69.0,EYE AND ADNEXA,http://codes.iarc.fr/topography/C69.0
+334,"Cornea, NOS",C69.1,EYE AND ADNEXA,http://codes.iarc.fr/topography/C69.1
+335,Retina,C69.2,EYE AND ADNEXA,http://codes.iarc.fr/topography/C69.2
+336,Choroid,C69.3,EYE AND ADNEXA,http://codes.iarc.fr/topography/C69.3
+337,Ciliary body,C69.4,EYE AND ADNEXA,http://codes.iarc.fr/topography/C69.4
+338,Lacrimal gland,C69.5,EYE AND ADNEXA,http://codes.iarc.fr/topography/C69.5
+339,"Orbit, NOS",C69.6,EYE AND ADNEXA,http://codes.iarc.fr/topography/C69.6
+340,Overlapping lesion of eye and adnexa,C69.8,EYE AND ADNEXA,http://codes.iarc.fr/topography/C69.8
+341,"Eye, NOS",C69.9,EYE AND ADNEXA,http://codes.iarc.fr/topography/C69.9
+342,MENINGES,C70,,http://codes.iarc.fr/topography/C70
+343,Cerebral meninges,C70.0,MENINGES,http://codes.iarc.fr/topography/C70.0
+344,Spinal meninges,C70.1,MENINGES,http://codes.iarc.fr/topography/C70.1
+345,"Meninges, NOS",C70.9,MENINGES,http://codes.iarc.fr/topography/C70.9
+346,BRAIN,C71,,http://codes.iarc.fr/topography/C71
+347,Cerebrum,C71.0,BRAIN,http://codes.iarc.fr/topography/C71.0
+348,Frontal lobe,C71.1,BRAIN,http://codes.iarc.fr/topography/C71.1
+349,Temporal lobe,C71.2,BRAIN,http://codes.iarc.fr/topography/C71.2
+350,Parietal lobe,C71.3,BRAIN,http://codes.iarc.fr/topography/C71.3
+351,Occipital lobe,C71.4,BRAIN,http://codes.iarc.fr/topography/C71.4
+352,"Ventricle, NOS",C71.5,BRAIN,http://codes.iarc.fr/topography/C71.5
+353,"Cerebellum, NOS",C71.6,BRAIN,http://codes.iarc.fr/topography/C71.6
+354,Brain stem,C71.7,BRAIN,http://codes.iarc.fr/topography/C71.7
+355,Overlapping lesion of brain,C71.8,BRAIN,http://codes.iarc.fr/topography/C71.8
+356,"Brain, NOS",C71.9,BRAIN,http://codes.iarc.fr/topography/C71.9
+357,"SPINAL CORD, CRANIAL NERVES, AND OTHER PARTS OF CENTRAL NERVOUS SYSTEM",C72,,http://codes.iarc.fr/topography/C72
+358,Spinal cord,C72.0,"SPINAL CORD, CRANIAL NERVES, AND OTHER PARTS OF CENTRAL NERVOUS SYSTEM",http://codes.iarc.fr/topography/C72.0
+359,Cauda equina,C72.1,"SPINAL CORD, CRANIAL NERVES, AND OTHER PARTS OF CENTRAL NERVOUS SYSTEM",http://codes.iarc.fr/topography/C72.1
+360,Olfactory nerve,C72.2,"SPINAL CORD, CRANIAL NERVES, AND OTHER PARTS OF CENTRAL NERVOUS SYSTEM",http://codes.iarc.fr/topography/C72.2
+361,Optic nerve,C72.3,"SPINAL CORD, CRANIAL NERVES, AND OTHER PARTS OF CENTRAL NERVOUS SYSTEM",http://codes.iarc.fr/topography/C72.3
+362,Acoustic nerve,C72.4,"SPINAL CORD, CRANIAL NERVES, AND OTHER PARTS OF CENTRAL NERVOUS SYSTEM",http://codes.iarc.fr/topography/C72.4
+363,"Cranial nerve, NOS",C72.5,"SPINAL CORD, CRANIAL NERVES, AND OTHER PARTS OF CENTRAL NERVOUS SYSTEM",http://codes.iarc.fr/topography/C72.5
+364,Overlapping lesion of brain and central nervous system,C72.8,"SPINAL CORD, CRANIAL NERVES, AND OTHER PARTS OF CENTRAL NERVOUS SYSTEM",http://codes.iarc.fr/topography/C72.8
+365,"Nervous system, NOS",C72.9,"SPINAL CORD, CRANIAL NERVES, AND OTHER PARTS OF CENTRAL NERVOUS SYSTEM",http://codes.iarc.fr/topography/C72.9
+366,THYROID GLAND,C73,,http://codes.iarc.fr/topography/C73
+367,Thyroid gland,C73.9,THYROID GLAND,http://codes.iarc.fr/topography/C73.9
+368,ADRENAL GLAND,C74,,http://codes.iarc.fr/topography/C74
+369,Cortex of adrenal gland,C74.0,ADRENAL GLAND,http://codes.iarc.fr/topography/C74.0
+370,Medulla of adrenal gland,C74.1,ADRENAL GLAND,http://codes.iarc.fr/topography/C74.1
+371,"Adrenal gland, NOS",C74.9,ADRENAL GLAND,http://codes.iarc.fr/topography/C74.9
+372,OTHER ENDOCRINE GLANDS AND RELATED STRUCTURES,C75,,http://codes.iarc.fr/topography/C75
+373,Parathyroid gland,C75.0,OTHER ENDOCRINE GLANDS AND RELATED STRUCTURES,http://codes.iarc.fr/topography/C75.0
+374,Pituitary gland,C75.1,OTHER ENDOCRINE GLANDS AND RELATED STRUCTURES,http://codes.iarc.fr/topography/C75.1
+375,Craniopharyngeal duct,C75.2,OTHER ENDOCRINE GLANDS AND RELATED STRUCTURES,http://codes.iarc.fr/topography/C75.2
+376,Pineal gland,C75.3,OTHER ENDOCRINE GLANDS AND RELATED STRUCTURES,http://codes.iarc.fr/topography/C75.3
+377,Carotid body,C75.4,OTHER ENDOCRINE GLANDS AND RELATED STRUCTURES,http://codes.iarc.fr/topography/C75.4
+378,Aortic body and other paraganglia,C75.5,OTHER ENDOCRINE GLANDS AND RELATED STRUCTURES,http://codes.iarc.fr/topography/C75.5
+379,Overlapping lesion of endocrine glands and related structures,C75.8,OTHER ENDOCRINE GLANDS AND RELATED STRUCTURES,http://codes.iarc.fr/topography/C75.8
+380,"Endocrine gland, NOS",C75.9,OTHER ENDOCRINE GLANDS AND RELATED STRUCTURES,http://codes.iarc.fr/topography/C75.9
+381,OTHER AND ILL-DEFINED SITES,C76,,http://codes.iarc.fr/topography/C76
+382,"Head, face or neck, NOS",C76.0,OTHER AND ILL-DEFINED SITES,http://codes.iarc.fr/topography/C76.0
+383,"Thorax, NOS",C76.1,OTHER AND ILL-DEFINED SITES,http://codes.iarc.fr/topography/C76.1
+384,"Abdomen, NOS",C76.2,OTHER AND ILL-DEFINED SITES,http://codes.iarc.fr/topography/C76.2
+385,"Pelvis, NOS",C76.3,OTHER AND ILL-DEFINED SITES,http://codes.iarc.fr/topography/C76.3
+386,"Upper limb, NOS",C76.4,OTHER AND ILL-DEFINED SITES,http://codes.iarc.fr/topography/C76.4
+387,"Lower limb, NOS",C76.5,OTHER AND ILL-DEFINED SITES,http://codes.iarc.fr/topography/C76.5
+388,Other ill-defined sites,C76.7,OTHER AND ILL-DEFINED SITES,http://codes.iarc.fr/topography/C76.7
+389,Overlapping lesion of ill-defined sites,C76.8,OTHER AND ILL-DEFINED SITES,http://codes.iarc.fr/topography/C76.8
+390,LYMPH NODES,C77,,http://codes.iarc.fr/topography/C77
+391,"Lymph nodes of head, face and neck",C77.0,LYMPH NODES,http://codes.iarc.fr/topography/C77.0
+392,Intrathoracic lymph nodes,C77.1,LYMPH NODES,http://codes.iarc.fr/topography/C77.1
+393,Intra-abdominal lymph nodes,C77.2,LYMPH NODES,http://codes.iarc.fr/topography/C77.2
+394,Lymph nodes of axilla or arm,C77.3,LYMPH NODES,http://codes.iarc.fr/topography/C77.3
+395,Lymph nodes of inguinal region or leg,C77.4,LYMPH NODES,http://codes.iarc.fr/topography/C77.4
+396,Pelvic lymph nodes,C77.5,LYMPH NODES,http://codes.iarc.fr/topography/C77.5
+397,Lymph nodes of multiple regions,C77.8,LYMPH NODES,http://codes.iarc.fr/topography/C77.8
+398,"Lymph node, NOS",C77.9,LYMPH NODES,http://codes.iarc.fr/topography/C77.9
+399,UNKNOWN PRIMARY SITE,C80,,http://codes.iarc.fr/topography/C80
+400,Unknown primary site,C80.9,UNKNOWN PRIMARY SITE,http://codes.iarc.fr/topography/C80.9
