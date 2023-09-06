@@ -112,7 +112,6 @@ import { isColumnVisible } from "./formUtils/formUtils";
 import {
   filterVisibleColumns,
   getChapterStyle,
-  getPageHeadings,
   getRowErrors,
   getSaveDisabledMessage,
   removeKeyColumns,
@@ -193,9 +192,6 @@ export default {
       if (this.tableMetaData) {
         return getLocalizedLabel(this.tableMetaData);
       }
-    },
-    pageHeadings() {
-      return getPageHeadings(this.tableMetaData);
     },
     titlePrefix() {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
