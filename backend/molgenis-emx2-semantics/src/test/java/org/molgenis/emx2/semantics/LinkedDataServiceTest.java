@@ -1,7 +1,5 @@
 package org.molgenis.emx2.semantics;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -11,23 +9,19 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.io.MolgenisIO;
-import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-import org.molgenis.emx2.utils.StopWatch;
 
 @Tag("slow")
 public class LinkedDataServiceTest {
 
   static Database database;
-  static Schema fdpSchema;
+
   static Schema patientSchema;
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    fdpSchema = database.dropCreateSchema("fdpTest");
     patientSchema = database.dropCreateSchema("patientTest");
   }
 
@@ -44,38 +38,5 @@ public class LinkedDataServiceTest {
     sw = new StringWriter();
     LinkedDataService.getTtlForSchema(patientSchema, new PrintWriter(sw));
     System.out.println("result\r" + sw.getBuffer().toString());
-  }
-
-  @Test
-  public void testFairDataPointsFDP() {
-    StopWatch.print("begin");
-
-    ClassLoader classLoader = getClass().getClassLoader();
-    Path file = new File(classLoader.getResource("fdp.xlsx").getFile()).toPath();
-    MolgenisIO.importFromExcelFile(file, fdpSchema, true);
-
-    LinkedDataServiceTest.fdpSchema = database.getSchema("fdpTest");
-
-    // anyway, here goes the generation
-    StringWriter sw = new StringWriter();
-    LinkedDataService.getJsonLdForSchema(LinkedDataServiceTest.fdpSchema, new PrintWriter(sw));
-    System.out.println("result\r" + sw.getBuffer().toString());
-
-    assertEquals(2, LinkedDataServiceTest.fdpSchema.getTableNames().size());
-
-    sw = new StringWriter();
-    LinkedDataService.getTtlForSchema(LinkedDataServiceTest.fdpSchema, new PrintWriter(sw));
-    System.out.println(sw.toString());
-  }
-
-  private void runImportProcedure(TableStoreForXlsxFile store, SchemaMetadata cohortSchema) {
-    fdpSchema.migrate(cohortSchema);
-
-    StopWatch.print("creation of tables complete, now starting import data");
-
-    for (String tableName : fdpSchema.getTableNames()) {
-      if (store.containsTable(tableName))
-        fdpSchema.getTable(tableName).update(store.readTable(tableName)); // actually upsert
-    }
   }
 }

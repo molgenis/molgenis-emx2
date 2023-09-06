@@ -47,4 +47,8 @@ export interface INewClient {
   saveSetting: (key: string, value: any) => Promise<any>;
   saveTableSettings: (settings: ISetting[]) => Promise<any>;
   clearCache: () => void;
+  convertRowToPrimaryKey: (
+    row: IRow,
+    tableName: string
+  ) => Promise<Record<string, any>>;
 }

@@ -590,7 +590,7 @@ public class SqlQuery extends QueryBean {
       }
     }
     return field((jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
-        .as(select.getColumn());
+        .as(column.getIdentifier());
   }
 
   private Field<?> jsonAggregateSelect(
@@ -667,20 +667,44 @@ public class SqlQuery extends QueryBean {
       if (COUNT_FIELD.equals(field.getColumn())) {
         selectFields.add(field("COUNT(*)"));
       } else {
-        Column c = getColumnByName(table, field.getColumn());
-        List<Field> subselectFields = new ArrayList<>();
+        Column col = getColumnByName(table, field.getColumn());
+        // composite keys might have overlapping underlying columns via 'refLink'
+        // therefore we use a Set here.
+        Set<Field> subselectFields = new HashSet<>();
+
         // need pkey to allow for joining of the subqueries
-        subselectFields.addAll(
-            table.getPrimaryKeyFields().stream()
-                .map(f -> f.as(name("pkey_" + f.getName())))
-                .collect(Collectors.toList()));
-        selectFields.add(c.getJooqField().as(c.getIdentifier()));
+        table
+            .getPrimaryKeyColumns()
+            .forEach(
+                pkey -> {
+                  if (pkey.isReference()) {
+                    // use reference element to cover composite keys if applicable
+                    pkey.getReferences()
+                        .forEach(
+                            pkeyRef -> {
+                              subselectFields.add(
+                                  pkeyRef
+                                      .getJooqField()
+                                      .as(name("pkey_" + convertToCamelCase(pkeyRef.getName()))));
+                            });
+                  } else {
+                    subselectFields.add(
+                        pkey.getJooqField().as(name("pkey_" + pkey.getIdentifier())));
+                  }
+                });
+
+        if (col.isReference() && col.getReferences().size() > 1) {
+          selectFields.add(field(col.getIdentifier()));
+        } else {
+          selectFields.add(col.getJooqField().as(col.getIdentifier()));
+        }
+
         // in case of 'ref' we subselect
-        if (c.isRef()) {
+        if (col.isRef()) {
           subselectFields.add(
               jsonSubselect(
-                      (SqlTableMetadata) c.getRefTable(),
-                      c,
+                      (SqlTableMetadata) col.getRefTable(),
+                      col,
                       tableAlias,
                       field,
                       field.getFilter(),
@@ -688,28 +712,28 @@ public class SqlQuery extends QueryBean {
                   .as(name(field.getColumn())));
         }
         // in case of ref_array we must unnest the values
-        else if (c.isRefArray()) {
+        else if (col.isRefArray() || col.isRefback()) {
           subselectFields.add(
               // coalesce to also return the nulls
               field(
                       "jsonb_array_elements(coalesce(({0}),'[{}]'::jsonb))",
                       jsonSubselect(
-                          (SqlTableMetadata) c.getRefTable(),
-                          c,
+                          (SqlTableMetadata) col.getRefTable(),
+                          col,
                           tableAlias,
                           field,
                           field.getFilter(),
                           new String[0]))
-                  .as(name(c.getName()))
+                  .as(name(col.getName()))
                   .as(name(field.getColumn())));
         }
         // todo decide if we want to support non-ref types for group by. E.g date (group by year of
         // date)
         // if array we unnest
-        else if (c.getColumnType().isArray()) {
-          subselectFields.add(field("unnest({0})", c.getJooqField()).as(c.getJooqField()));
+        else if (col.getColumnType().isArray()) {
+          subselectFields.add(field("unnest({0})", col.getJooqField()).as(col.getJooqField()));
         } else {
-          subselectFields.add(c.getJooqField());
+          subselectFields.add(col.getJooqField());
         }
         if (condition != null) {
           subQuery.add(
@@ -721,7 +745,7 @@ public class SqlQuery extends QueryBean {
               jooq.select(subselectFields)
                   .from(tableWithInheritanceJoin(table).as(alias(tableAlias))));
         }
-        groupByFields.add(field(name(c.getName())));
+        groupByFields.add(field(name(col.getName())));
       }
     }
 

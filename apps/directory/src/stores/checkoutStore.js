@@ -1,12 +1,19 @@
 import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+import { computed, ref, toRaw } from "vue";
 import { createBookmark } from "../functions/bookmarkMapper";
 import { useFiltersStore } from "./filtersStore";
+import { useSettingsStore } from "./settingsStore";
 
 export const useCheckoutStore = defineStore("checkoutStore", () => {
   const filtersStore = useFiltersStore();
+  const settingsStore = useSettingsStore();
   const checkoutValid = ref(false);
   const cartUpdated = ref(false);
+
+  const searchHistory = ref([]);
+  const nToken = ref("");
+
+  const biobankIdDictionary = ref({});
 
   let selectedCollections = ref({});
 
@@ -21,9 +28,24 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     return collectionCount;
   });
 
+  function setSearchHistory(history) {
+    if (history === "") {
+      history = "No filters used.";
+    }
+
+    /** only add if this is a different query than before */
+    if (
+      searchHistory.value.length &&
+      searchHistory.value[searchHistory.value.length - 1] !== history
+    ) {
+      searchHistory.value.push(history);
+    }
+  }
+
   function addCollectionsToSelection({ biobank, collections, bookmark }) {
     checkoutValid.value = false;
     const biobankIdentifier = biobank.label || biobank.name;
+    biobankIdDictionary.value[biobankIdentifier] = biobank.id;
     const currentSelectionForBiobank =
       selectedCollections.value[biobankIdentifier];
 
@@ -33,14 +55,24 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
         (cf) => !currentIds.includes(cf.value)
       );
 
+      setSearchHistory(
+        `Selected ${newCollections
+          .map((nc) => nc.label)
+          .join(", ")} from ${biobankIdentifier}`
+      );
+
       selectedCollections.value[
         biobankIdentifier
       ] = currentSelectionForBiobank.concat(newCollections);
     } else {
       selectedCollections.value[biobankIdentifier] = collections;
-    }
 
-    // commit('SetSearchHistory', getters.getHumanReadableString)
+      setSearchHistory(
+        `Selected ${collections
+          .map((nc) => nc.label)
+          .join(", ")} from ${biobankIdentifier}`
+      );
+    }
 
     if (bookmark) {
       checkoutValid.value = true;
@@ -102,9 +134,106 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     }
   }
 
+  function getHumanReadableString() {
+    const activeFilterNames = Object.keys(filtersStore.filters);
+
+    if (!activeFilterNames) return;
+
+    let humanReadableString = "";
+    const additionText = " and ";
+    const humanReadableStart = {};
+
+    /** Get all the filterdefinitions for current active filters and make a dictionary name: humanreadable */
+    filtersStore.filterFacets
+      .filter((fd) => activeFilterNames.includes(fd.facetIdentifier))
+      .forEach((filterDefinition) => {
+        humanReadableStart[filterDefinition.facetIdentifier] =
+          filterDefinition.negotiatorRequestString;
+      });
+
+    for (const [filterName, filterValue] of Object.entries(
+      filtersStore.filters
+    )) {
+      if (!filterValue) continue;
+
+      humanReadableString += humanReadableStart[filterName];
+
+      if (filterName === "search") {
+        humanReadableString += ` ${filterValue}`;
+      } else {
+        humanReadableString += ` ${filterValue
+          .map((fv) => fv.text)
+          .join(", ")}`;
+      }
+      humanReadableString += additionText;
+    }
+
+    if (humanReadableString === "") return humanReadableString;
+
+    return humanReadableString.substring(
+      0,
+      humanReadableString.length - additionText.length
+    );
+  }
+
+  function createHistoryJournal() {
+    let journal = "";
+
+    for (let i = 0, length = searchHistory.value.length; i < length; i++) {
+      journal += `#${i + 1}: ${searchHistory.value[i]}\r\n`;
+    }
+    return (
+      ". User actions taken: " + journal.substring(0, journal.length - 2)
+    ); /** remove the last \r\n */
+  }
+
+  function sendToNegotiator() {
+    const collections = [];
+
+    for (const biobank in selectedCollections.value) {
+      const collectionSelection = selectedCollections.value[biobank];
+      for (const collection of collectionSelection) {
+        collections.push(
+          toRaw({
+            collectionID: collection.value,
+            biobankID: biobankIdDictionary.value[biobank],
+          })
+        );
+      }
+    }
+    const URL = window.location.href.replace(/&nToken=\w{32}/, "");
+    const humanReadable = getHumanReadableString() + createHistoryJournal();
+    const negotiatorUrl = settingsStore.config.negotiatorUrl;
+
+    const payload = { URL, humanReadable, collections };
+
+    if (nToken.value) {
+      payload.nToken = nToken.value;
+    }
+
+    fetch(negotiatorUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    })
+      .then(async (response) => {
+        const body = await response.json();
+        window.location.href = body.redirect_uri;
+      })
+      .catch(function (err) {
+        console.info(err + " url: " + negotiatorUrl);
+      });
+  }
+
   return {
+    nToken,
+    setSearchHistory,
+    searchHistory,
     checkoutValid,
     cartUpdated,
+    sendToNegotiator,
     selectedCollections,
     collectionSelectionCount,
     addCollectionsToSelection,

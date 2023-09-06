@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import QueryEMX2 from "../functions/queryEMX2";
+import { QueryEMX2 } from "molgenis-components";
 import { useSettingsStore } from "./settingsStore";
 import { useCollectionStore } from "./collectionStore";
 import { useFiltersStore } from "./filtersStore";
@@ -81,7 +81,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       }
       waitingForResponse.value = false;
     }
-    return biobankCards.value;
   }
 
   async function getBiobank(id) {
@@ -172,7 +171,11 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   }
 
   const biobankCardsHaveResults = computed(() => {
-    return !waitingForResponse.value && biobankCards.value.length > 0;
+    return (
+      !waitingForResponse.value &&
+      biobankCards.value &&
+      biobankCards.value.length > 0
+    );
   });
 
   const biobankCardsBiobankCount = computed(() => {

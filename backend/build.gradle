@@ -1,7 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
-    id "com.diffplug.spotless" version "6.19.0" apply false
+    id "com.diffplug.spotless" version "6.20.0" apply false
 }
 
 repositories {
@@ -38,7 +38,7 @@ subprojects {
     dependencies {
         implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
         implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0'
-        implementation 'org.jooq:jooq:3.17.8'
+        implementation 'org.jooq:jooq:3.18.6'
         implementation 'com.zaxxer:HikariCP:5.0.1'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.15.2'
@@ -52,13 +52,13 @@ subprojects {
         implementation 'org.pac4j:pac4j-oidc:5.4.5'
         implementation 'org.pac4j:pac4j-http:5.4.5'
         implementation 'org.pac4j:spark-pac4j:5.0.0'
-        implementation 'org.javers:javers-core:6.11.0'
+        implementation 'org.javers:javers-core:6.14.0'
         implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
 
         //also used outside test
-        implementation 'org.junit.jupiter:junit-jupiter:5.9.3'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
-        testImplementation 'org.mockito:mockito-core:5.1.1'
+        implementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+        testImplementation 'org.mockito:mockito-core:5.4.0'
         //allows to set environment variables in test
         testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
     }
@@ -68,7 +68,9 @@ subprojects {
     }
     jacocoTestReport {
         reports {
-            xml.enabled true
+            xml.required = true
+            csv.required = false
+            html.required = false
         }
     }
 
@@ -148,15 +150,16 @@ subprojects {
 }
 
 /* generate java test coverage report*/
+test.dependsOn subprojects.test
 task jacocoMergedReport(type: JacocoReport) {
-    dependsOn = subprojects.test
+    dependsOn test
     additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     classDirectories.setFrom files(subprojects.sourceSets.main.output)
     executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/test.exec')
     reports {
-        xml.enabled true
-        csv.enabled false
-        html.enabled false
+        xml.required = true
+        csv.required = false
+        html.required = false
     }
 }

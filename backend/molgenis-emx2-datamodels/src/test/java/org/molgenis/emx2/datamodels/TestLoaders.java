@@ -1,6 +1,7 @@
 package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.DATA_CATALOGUE;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.SHARED_STAGING;
 import static org.molgenis.emx2.datamodels.DataCatalogueLoader.CATALOGUE_ONTOLOGIES;
@@ -49,6 +50,13 @@ public class TestLoaders {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     AvailableDataModels.DATA_CATALOGUE.install(dataCatalogue, true);
     assertEquals(32, dataCatalogue.getTableNames().size());
+
+    // test composite pkey having refs that are linked via refLink
+    dataCatalogue
+        .getTable("Variables")
+        .groupBy()
+        .select(s("count"), s("resource", s("name")), s("dataset", s("name")))
+        .retrieveJSON();
   }
 
   @Test

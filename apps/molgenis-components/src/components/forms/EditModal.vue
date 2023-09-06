@@ -95,6 +95,7 @@
 
 <script lang="ts">
 import { ISchemaMetaData } from "../../Interfaces/IMetaData";
+import { IRow } from "../../Interfaces/IRow";
 import { ISetting } from "../../Interfaces/ISetting";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { INewClient } from "../../client/IClient";
@@ -324,10 +325,6 @@ interface IChapterInfo {
 </script>
 
 <style scoped>
->>> .modal-body.bg-light {
-  overflow: hidden;
-}
-
 .chapter-menu {
   padding: 1rem;
   margin: -1rem -1rem -1rem 1rem;
@@ -426,7 +423,7 @@ export default {
       const client = this.$Client.newClient(this.schemaName);
       const tableMetaData = await client.fetchTableMetaData(this.tableName);
       const rowData = await client.fetchTableDataValues(this.tableName, {});
-      this.demoKey = this.demoMode === "insert" ? null : this.$utils.getPrimaryKey(rowData[0], tableMetaData);
+      this.demoKey = this.demoMode === "insert" ? null : await client.convertRowToPrimaryKey(rowData[0], this.tableName);
       const settings = await client.fetchSettings();
       if(this.loadFromBackend) {
            this.useChapters =

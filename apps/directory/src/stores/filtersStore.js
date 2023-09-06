@@ -6,7 +6,7 @@ import { useBiobanksStore } from "./biobanksStore";
 import { useSettingsStore } from "./settingsStore";
 import { useCheckoutStore } from "./checkoutStore";
 import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
-import QueryEMX2 from "../functions/queryEMX2";
+import { QueryEMX2 } from "molgenis-components";
 import { convertArrayToChunks } from "../functions/arrayUtilities";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
@@ -66,10 +66,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function getValuePropertyForFacet(facetIdentifier) {
     return facetDetails[facetIdentifier].filterValueAttribute;
-  }
-
-  function resetFilters() {
-    this.baseQuery.resetFilters();
   }
 
   const hasActiveFilters = computed(() => {
@@ -383,8 +379,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       value.length === 0
     ) {
       delete filters.value[filterName];
+      checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
     } else {
       filters.value[filterName] = value;
+
+      checkoutStore.setSearchHistory(
+        `${filterName} filtered on ${value.map((v) => v.text).join(", ")}`
+      );
     }
   }
 
@@ -409,7 +410,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   return {
     facetDetails,
-    resetFilters,
     updateFilter,
     clearAllFilters,
     updateOntologyFilter,

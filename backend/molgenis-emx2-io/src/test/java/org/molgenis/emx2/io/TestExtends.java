@@ -19,11 +19,13 @@ public class TestExtends {
 
   static Database database;
   static Schema schema;
+  static Schema schema2;
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(TestExtends.class.getSimpleName());
+    database.dropSchemaIfExists(TestExtends.class.getSimpleName() + "2");
+    database.dropSchemaIfExists(TestExtends.class.getSimpleName());
   }
 
   @Test
@@ -32,7 +34,8 @@ public class TestExtends {
     // therefore mix the columns in one list, then order should stick (both import/export
     // consistent)
 
-    String schema1 =
+    schema = database.createSchema(TestExtends.class.getSimpleName());
+    String schemaDef1 =
         """
                         tableName,tableExtends,columnName,key,description
                         shape,,,,root class is shape that has general properties
@@ -44,7 +47,7 @@ public class TestExtends {
                         shape,,description,,all shapes have description, should be last column in all shapes in this schema""";
 
     // load in memory
-    SchemaMetadata sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(schema1)));
+    SchemaMetadata sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(schemaDef1)));
     validate1(sm);
 
     // load into system
@@ -64,8 +67,8 @@ public class TestExtends {
     validate1(schema.getMetadata());
 
     // now, to make it really difficult, we add a second schema expanding on the first
-    schema = database.dropCreateSchema(schema.getName() + "2");
-    String schema2 =
+    schema2 = database.dropCreateSchema(schema.getName() + "2");
+    String schemaDef2 =
         """
                         tableName,tableExtends,refSchema,columnName,key,description
                         myshape,shape,TestExtends,,,root class is shape in the other schema
@@ -79,8 +82,8 @@ public class TestExtends {
                         rectangle,,,height,,,
                         myshape,,,author,,,all my shapes also have author as last column""";
 
-    sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(schema2)));
-    schema.migrate(sm);
+    sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(schemaDef2)));
+    schema2.migrate(sm);
     validate2(sm);
   }
 
