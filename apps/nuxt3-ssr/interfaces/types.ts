@@ -6,6 +6,7 @@ export interface IResource {
   website: string;
   description: string;
   contacts: IContributor[];
+  logo?: IUrlObject;
 }
 export interface ICohort {
   id: string;

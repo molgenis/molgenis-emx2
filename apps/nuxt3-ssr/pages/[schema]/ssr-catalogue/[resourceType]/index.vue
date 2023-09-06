@@ -54,6 +54,12 @@ const query = computed(() => {
       name
       acronym
       description
+      logo {
+        id
+        size
+        extension
+        url
+      }
     }
     ${resourceType}_agg (filter:$filter){
         count
