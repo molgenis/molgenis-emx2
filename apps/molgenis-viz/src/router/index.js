@@ -6,7 +6,7 @@ import ChartLegend from "../views/viz-chart-legend.vue";
 import ColumnChart from "../views/viz-column-chart.vue";
 import DataHighlights from "../views/viz-data-highlights.vue";
 import Datatable from "../views/viz-datatable.vue";
-import GaugeChart from "../views/viz-gauge-chart.vue";
+import ProgressCharts from "../views/viz-progress-charts.vue";
 import GeoMercator from "../views/viz-geo-mercator.vue";
 import GroupedColumnChart from "../views/viz-grouped-column-chart.vue";
 import PieChart from "../views/viz-pie-chart.vue";
@@ -61,11 +61,11 @@ const router = createRouter({
       },
     },
     {
-      name: "gauge-chart",
-      path: "/gauge-chart",
-      component: GaugeChart,
+      name: "progress-charts",
+      path: "/progress-charts",
+      component: ProgressCharts,
       meta: {
-        title: "Gauge Chart",
+        title: "Progress Charts",
       },
     },
     {

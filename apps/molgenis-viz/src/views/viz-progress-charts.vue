@@ -1,15 +1,15 @@
 <template>
   <Page>
     <PageHeader
-      title="RD-Components"
-      subtitle="Gauge Chart Example"
+      title="molgenis-viz"
+      subtitle="Progress Charts"
       :imageSrc="headerImage"
       height="large"
     />
     <PageSection :verticalPadding="0">
       <Breadcrumbs>
         <li>
-          <router-link :to="{ name: 'gauge-chart' }">Gauge Chart</router-link>
+          <router-link :to="{ name: 'progress-charts' }">Progress Charts</router-link>
         </li>
       </Breadcrumbs>
     </PageSection>
@@ -49,32 +49,43 @@
         />
       </div>
     </PageSection>
+    <PageSection>
+      <h2>Progress Meter</h2>
+      <p><strong>Gauge Charts</strong> can be useful, but it is better to simplify the display visualisation. The <strong>ProgressMeter</strong> is a better way to display how much progress has been made. The outline shows the total possible value, and the filled in region shows how much progress has been made.</p>
+      <ProgressMeter
+        chartId="progressBar"
+        title="Cases Completed"
+        :value="32"
+        :totalValue="81"
+        :barHeight="30"
+      />
+    </PageSection>
   </Page>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
 import PageSection from "../components/layouts/PageSection.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import GaugeChart from "../components/viz/GaugeChart.vue";
+import ProgressMeter from "../components/viz/ProgressMeter.vue";
 
 import headerImage from "../assets/gauge-chart-header.jpg";
 
 let data = ref([]);
-
-onMounted(() => {
-  data.value = ["Control", "Experimental"].map((group) => {
-    const value = Math.random();
-    return {
-      id: `Gauge${group}`,
-      group: group,
-      percent: value,
-    };
-  });
+data.value = ["Control", "Experimental"].map((group) => {
+  const value = Math.random();
+  return {
+    id: `Gauge${group}`,
+    group: group,
+    percent: value,
+    value: Math.round(value * 100)
+  };
 });
+
 </script>
 
 <style lang="scss">

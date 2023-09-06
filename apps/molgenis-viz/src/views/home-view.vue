@@ -46,9 +46,6 @@
         <LinkCard :imageSrc="DatatableImage">
           <router-link :to="{ name: 'datatable' }">Data Table</router-link>
         </LinkCard>
-        <LinkCard :imageSrc="GaugeChartImage">
-          <router-link :to="{ name: 'gauge-chart' }">Gauge Chart</router-link>
-        </LinkCard>
         <LinkCard :imageSrc="GroupedColumnChartImage">
           <router-link :to="{ name: 'grouped-column-chart' }">
             Grouped Column Chart
@@ -67,6 +64,9 @@
         </LinkCard>
         <LinkCard :imageSrc="ScatterPlotImage">
           <router-link :to="{ name: 'scatter-plot' }">Scatter Plot</router-link>
+        </LinkCard>
+        <LinkCard :imageSrc="GaugeChartImage">
+          <router-link :to="{ name: 'progress-charts' }">Progress Charts</router-link>
         </LinkCard>
       </div>
     </PageSection>

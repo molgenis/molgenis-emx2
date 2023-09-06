@@ -36,6 +36,7 @@ import GaugeChart from "../src/components/viz/GaugeChart.vue";
 import GeoMercator from "../src/components/viz/GeoMercator.vue";
 import GroupedColumnChart from "../src/components/viz/GroupedColumnChart.vue";
 import PieChart from '../src/components/viz/PieChart.vue';
+import ProgressMeter from "../src/components/viz/ProgressMeter.vue";
 import ScatterPlot from "../src/components/viz/ScatterPlot.vue";
 
 // data
@@ -75,6 +76,7 @@ export {
   GroupedColumnChart,
   PieChart,
   ScatterPlot,
+  ProgressMeter,
   
   WorldGeoJson,
 
