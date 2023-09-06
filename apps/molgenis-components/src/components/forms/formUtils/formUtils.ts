@@ -158,20 +158,6 @@ export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
   return filterObject(rowData, (key) => !keyColumnsNames?.includes(key));
 }
 
-export function getPageHeadings(tableMetadata: ITableMetaData): string[] {
-  const columns: IColumn[] = tableMetadata?.columns
-    ? tableMetadata?.columns
-    : [];
-  const headings: string[] = columns
-    .filter((column) => column.columnType === HEADING)
-    .map((column) => column.name);
-  if (columns[0].columnType === HEADING) {
-    return headings;
-  } else {
-    return ["First chapter"].concat(headings);
-  }
-}
-
 export function filterVisibleColumns(
   columns: IColumn[],
   visibleColumns: string[] | null
