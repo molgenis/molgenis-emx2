@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,tableName_old,columnName_old
-Version,,,,,,,,,,,,3.6,EMA,,
+Version,,,,,,,,,,,,3.7,EMA,,
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",EMA,,
 Organisations,Resources,,,,,,,,,,,Research departments and research groups,EMA,,
 Extended resources,Resources,,,,,,,,,,,,EMA,,
@@ -218,13 +218,6 @@ Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of do
 Documentation,,description,text,,,,,,,,,Description of the document,,,
 Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation,EMA,,
 Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation,EMA,,
-Resource organisations,,,,,,,,,,,,Data access provider relationship where an organisation can provide access to (parts of) a resource,,,
-Resource organisations,,organisation,ref,1,TRUE,,Organisations,,,,,Group that provides access,,,
-Resource organisations,,resource,ref,1,TRUE,,Extended resources,,,,,Resource that is access or has experience with provided to,,DAPs,resource
-Resource organisations,,is data access provider,ontology_array,,,CatalogueOntologies,DAP information,,,,,"Description of data access levels, completenes, reason for access, fees, processTime",,,
-Resource organisations,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",,DAPs,populationSubsetOther
-Resource organisations,,reason access other,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source",,DAPs,reasonAccessOther
-Resource organisations,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",,,processTime
 Linked resources,,,,,,,,,,,,Links between datasource and databank,EMA,,
 Linked resources,,main resource,ref,1,,,RWE resources,,,,,,EMA,DatasourceDatabanks,datasource
 Linked resources,,linked resource,ref,1,,,RWE resources,,,,,,EMA,DatasourceDatabanks,databank
@@ -434,12 +427,7 @@ External identifiers,,external identifier type other,text,,,,,,,,,"If other, ent
 DAPs,,,,,,,,,,,,Data access provider relationship where an institution can provide access to (parts of) a resource,,,
 DAPs,,organisation,ref,1,TRUE,,Organisations,,,,,Institution that provides access,,,
 DAPs,,resource,ref,1,TRUE,,Resources,,,,,Resource that is access or has experience with provided to,,,
-DAPs,,population subset,ontology_array,,,CatalogueOntologies,Population subsets,,,,,"If the institution can only access a subset, which subsets can it access",,,
 DAPs,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",,,
-DAPs,,access level,ontology,,,CatalogueOntologies,DAPs access levels,,,,,Can the institution access individual level data or only aggregate level data (where individual level data refer to individual records and aggregate level data refer to summary tables)?,,,
-DAPs,,access completeness,ontology,,,CatalogueOntologies,DAPs access completeness,,,,,Can the institution access the whole data source or only an extract of the data source?,,,
-DAPs,,reason access,ontology,,,CatalogueOntologies,DAPs reasons for access,,,,,What is the reason for being able to access (an extract of) the data source?,,,
-DAPs,,reason access other,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source",,,
-DAPs,,access permission,ontology,,,CatalogueOntologies,DAPs access permissions,,,,,"Is permission required for your institute to access data source (e.g., from a data controller)?",,,
+DAPs,,is data access provider,ontology_array,,,CatalogueOntologies,DAP information,,,,,"Description of population subset, data access levels, completeness, reason for access",,,
+DAPs,,reason access other,text,,,,,,,,,"If reason access is 'other', reason for being able to access (an extract of) the data source",,,
 DAPs,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",,,
-DAPs,,fees,bool,,,,,,,,,Are there fees for data access?,,,
