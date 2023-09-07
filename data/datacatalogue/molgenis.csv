@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,tableName_old,columnName_old
-Version,,,,,,,,,,,,3.5,EMA,,
+Version,,,,,,,,,,,,3.7,EMA,,
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",EMA,,
 Organisations,Resources,,,,,,,,,,,Research departments and research groups,EMA,,
 Extended resources,Resources,,,,,,,,,,,,EMA,,
@@ -67,20 +67,23 @@ Databanks,,underlying population,text,,,,,,,,,Provide a summary description of t
 Extended resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,EMA,,
 Data resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,EMA,Resources,regions
 Data resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.,EMA,Databanks,populationAgeGroups
-Cohorts,,inclusion criteria,text,,,,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource,,,
+Cohorts,,inclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource,,,
+Cohorts,,other inclusion criteria,text,,,,,,,,,Other inclusion criteria applied to the participants of this resource,,,
 Cohorts,,start year,int,,,,,,,,,Year when first data was collected,,,
 Cohorts,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing,,,
 Networks,,start year,int,,,,,,,,,Year when the network was created,,,
 Networks,,end year,int,,,,,,,,,Year when the network ended,,,
-Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource,,,
 RWE resources,,population entry,ontology_array,,,CatalogueOntologies,Population entry,,,,,Select the possible causes / events that trigger the registration of a person in the data source,EMA,Databanks,populationEntry
 RWE resources,,population entry other,text,,,,,,,,,"If other, specify the causes of entry to the underlying population",EMA,Databanks,populationEntryOther
 RWE resources,,population exit,ontology_array,,,CatalogueOntologies,Population exit,,,,,Select the possible causes / events that trigger the de-registration of a person in the data source,EMA,Databanks,populationExit
 RWE resources,,population exit other,text,,,,,,,,,"If other, specify the causes of exit from the underlying population",EMA,Databanks,populationExitOther
-RWE resources,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",,,
+Data resources,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",,,
+Data resources,,population oncology topology,ontology_array,,,CatalogueOntologies,ICDO topologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.",,,
+Data resources,,population oncology morphology,ontology_array,,,CatalogueOntologies,ICDO morphologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.",,,
 RWE resources,,population coverage,text,,,,,,,,,Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.,EMA,,
 RWE resources,,population not covered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) ",EMA,,
 RWE resources,,quantantitative information,refback,,,,Quantitative information,,resource,,,Numerical summaries describing data bank population,EMA,,
+Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource,,,
 Data resources,,contents,heading,,,,,,,,,Data model and contents,,,
 Extended resources,,datasets,refback,,,,Datasets,,resource,,,,,,
 RWE resources,,mappings to data models,refback,,,,Dataset mappings,,source,,,overview of dataset mappings available,,,
@@ -167,6 +170,7 @@ Databanks,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vo
 Data resources,,information,heading,,,,,,,,,Other information,,,
 Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource,,,
 Extended resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,EMA,,
+Data resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?,,,
 RWE resources,,funding sources,ontology_array,,,CatalogueOntologies,Funding types,,,,,Specify the main financial support sources for the data source in the last 3 years. Select all that apply,EMA,,
 Studies,,funding scheme,ontology_array,,,CatalogueOntologies,Study funding,,,,,The source of funding for the study. Select all that apply,EMA,,
 Extended resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,EMA,,
@@ -214,13 +218,6 @@ Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of do
 Documentation,,description,text,,,,,,,,,Description of the document,,,
 Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation,EMA,,
 Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation,EMA,,
-Resource organisations,,,,,,,,,,,,Data access provider relationship where an organisation can provide access to (parts of) a resource,,,
-Resource organisations,,organisation,ref,1,TRUE,,Organisations,,,,,Group that provides access,,,
-Resource organisations,,resource,ref,1,TRUE,,Extended resources,,,,,Resource that is access or has experience with provided to,,DAPs,resource
-Resource organisations,,is data access provider,ontology_array,,,CatalogueOntologies,DAP information,,,,,"Description of data access levels, completenes, reason for access, fees, processTime",,,
-Resource organisations,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",,DAPs,populationSubsetOther
-Resource organisations,,reason access other,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source",,DAPs,reasonAccessOther
-Resource organisations,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",,,processTime
 Linked resources,,,,,,,,,,,,Links between datasource and databank,EMA,,
 Linked resources,,main resource,ref,1,,,RWE resources,,,,,,EMA,DatasourceDatabanks,datasource
 Linked resources,,linked resource,ref,1,,,RWE resources,,,,,,EMA,DatasourceDatabanks,databank
@@ -430,12 +427,7 @@ External identifiers,,external identifier type other,text,,,,,,,,,"If other, ent
 DAPs,,,,,,,,,,,,Data access provider relationship where an institution can provide access to (parts of) a resource,,,
 DAPs,,organisation,ref,1,TRUE,,Organisations,,,,,Institution that provides access,,,
 DAPs,,resource,ref,1,TRUE,,Resources,,,,,Resource that is access or has experience with provided to,,,
-DAPs,,population subset,ontology_array,,,CatalogueOntologies,Population subsets,,,,,"If the institution can only access a subset, which subsets can it access",,,
 DAPs,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",,,
-DAPs,,access level,ontology,,,CatalogueOntologies,DAPs access levels,,,,,Can the institution access individual level data or only aggregate level data (where individual level data refer to individual records and aggregate level data refer to summary tables)?,,,
-DAPs,,access completeness,ontology,,,CatalogueOntologies,DAPs access completeness,,,,,Can the institution access the whole data source or only an extract of the data source?,,,
-DAPs,,reason access,ontology,,,CatalogueOntologies,DAPs reasons for access,,,,,What is the reason for being able to access (an extract of) the data source?,,,
-DAPs,,reason access other,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source",,,
-DAPs,,access permission,ontology,,,CatalogueOntologies,DAPs access permissions,,,,,"Is permission required for your institute to access data source (e.g., from a data controller)?",,,
+DAPs,,is data access provider,ontology_array,,,CatalogueOntologies,DAP information,,,,,"Description of population subset, data access levels, completeness, reason for access",,,
+DAPs,,reason access other,text,,,,,,,,,"If reason access is 'other', reason for being able to access (an extract of) the data source",,,
 DAPs,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",,,
-DAPs,,fees,bool,,,,,,,,,Are there fees for data access?,,,

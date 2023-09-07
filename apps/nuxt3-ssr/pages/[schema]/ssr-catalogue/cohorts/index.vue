@@ -184,10 +184,7 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
                 buttonRightIcon="view-compact"
                 v-model:activeName="activeName"
               />
-              <SearchResultsViewTabsMobile
-                class="flex xl:hidden"
-                v-model:activeName="activeName"
-              >
+              <SearchResultsViewTabsMobile class="flex xl:hidden">
                 <FilterSidebar
                   title="Filters"
                   :filters="filters"
