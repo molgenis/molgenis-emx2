@@ -8,6 +8,8 @@ import ProviderHome from "../views/provider-app.vue";
 import ProviderOverview from "../views/provider-overview.vue";
 import ProviderCleftLipPalate from "../views/provider-cleft-lip-palate.vue";
 import ProviderCraniosynostosis from "../views/provider-craniosynostosis.vue";
+import ProviderGeneticDeafness from "../views/provider-genetic-deafness.vue";
+import ProviderLarnyxcleft from "../views/provider-larnyxcleft.vue";
 
 // For new routes, use the property `meta` to define the document title
 // E.g., {..., meta: {title: 'My Page'}}
@@ -39,46 +41,67 @@ const router = createRouter({
         breadcrumbs: [{ name: "dashboard", label: "Dashboard" }],
       },
     },
-    { 
-      name: 'providers',
-      path: '/providers/:provider',
+    {
+      name: "providers",
+      path: "/providers/:provider",
       component: ProviderHome,
       children: [
         {
-          name: 'provider-home',
-          path: '',
+          name: "provider-home",
+          path: "/providers/:provider",
           component: ProviderOverview,
           meta: {
-            title: "Center Overview"
+            title: "Center Overview",
           },
           params: {
-            provider: true
-          }
+            provider: true,
+          },
         },
         {
-          name: 'provider-cranio',
-          path: '/providers/:provider/craniosynostosis',
+          name: "provider-cranio",
+          path: "/providers/:provider/craniosynostosis",
           component: ProviderCraniosynostosis,
           meta: {
-            title: 'Craniosynostosis'
+            title: "Craniosynostosis",
           },
           params: {
-            provider: true
-          }
+            provider: true,
+          },
         },
         {
-          name: 'provider-clp',
-          path: '/providers/:provider/clp',
+          name: "provider-clp",
+          path: "/providers/:provider/clp",
           component: ProviderCleftLipPalate,
           meta: {
-            title: 'Cleft lip and palate'
+            title: "Cleft lip and palate",
           },
           params: {
-            provider: true
-          }
+            provider: true,
+          },
         },
-        
-      ]
+        {
+          name: "provider-genetic-deafness",
+          path: "/providers/:provider/genetic-deafness",
+          component: ProviderGeneticDeafness,
+          meta: {
+            title: "Genetic Deafness",
+          },
+          params: {
+            provider: true,
+          },
+        },
+        {
+          name: "provider-larnyxcleft",
+          path: "/providers/:provider/larnyxcleft",
+          component: ProviderLarnyxcleft,
+          meta: {
+            title: "Larnyxcleft",
+          },
+          params: {
+            provider: true,
+          },
+        },
+      ],
     },
   ],
   scrollBehavior(to, from, savedPosition) {

@@ -16,16 +16,17 @@
         <div class="footer-column footer-links">
           <p><strong>For Members</strong></p>
           <UnorderedList listType="none">
-            <!-- <li>
+            <li>
               <router-link
                 :to="{
-                  name: 'healthcare-providers',
-                  params: {provider: }
+                  name: 'providers',
+                  params: { provider: organization.id },
                 }"
               >
-                Healthcare Providers
+                {{ organization.name }}
+                Dashboard
               </router-link>
-            </li> -->
+            </li>
             <!-- more links here -->
           </UnorderedList>
         </div>
@@ -62,7 +63,15 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
 import { PageFooter, UnorderedList } from "molgenis-viz";
+
+const props = defineProps({
+  organization: {
+    type: Object,
+    required: true,
+  },
+});
 </script>
 
 <style lang="scss">
