@@ -3,82 +3,13 @@ $ern-cranio-primary-alt: hsl(23, 88%, 83%);
 
 .app-page,
 .page-footer {
-  font-size: 12pt;
+  font-size: 14pt;
   font-family: Helvetica, sans-serif;
 
   .page-header {
     &.ern-header {
       background-color: $gray-050;
       height: 21em;
-    }
-  }
-}
-
-#publicDashboard {
-  .dashboard-content {
-    display: grid;
-    grid-template-areas:
-      "Table"
-      "PieChart"
-      "Map";
-    gap: 2em;
-
-    .dashboard-box {
-      flex-grow: 1;
-      box-sizing: content-box;
-
-      &.viz-map {
-        grid-area: Map;
-        h3 {
-          margin-top: 1em;
-          margin-left: 1em;
-        }
-      }
-
-      caption,
-      h3 {
-        text-align: center;
-        font-size: 16pt;
-        padding: 0;
-      }
-
-      &.viz-table {
-        grid-area: Table;
-      }
-
-      &.viz-pie-chart {
-        grid-area: PieChart;
-      }
-
-      &.viz-table,
-      &.viz-pie-chart {
-        padding: 1em;
-      }
-    }
-
-    @media (min-width: 1182px) {
-      grid-template-areas:
-        "Table PieChart"
-        "Map Map";
-    }
-
-    @media (min-width: 1524px) {
-      max-width: 60vw;
-    }
-  }
-}
-
-#dataProvidersMap + .d3-viz-legend {
-  top: auto;
-  bottom: 0;
-  box-shadow: 4px -2px 4px 2px hsla(0, 0%, 0%, 0.2);
-}
-
-#workstreamSummary {
-  @media (min-width: 892px) {
-    .column-header-percent,
-    .column-percent {
-      text-align: right;
     }
   }
 }

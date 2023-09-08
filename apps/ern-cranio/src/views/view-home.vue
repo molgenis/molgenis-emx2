@@ -55,9 +55,6 @@
         the understanding and treatment of these conditions. It will also
         facilitate research and lead to better care for these patients.
       </p>
-    </PageSection>
-    <PageSection aria-labelledby="contact-section-title" :verticalPadding="2">
-      <h2 id="contact-section-title">Contact</h2>
       <p>
         In case of any questions regarding the ERN CRANIO registry, please email
         to:
@@ -80,7 +77,7 @@ import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
   flex-wrap: wrap;
 
   .link-card {
-    height: 7em;
+    height: 9em;
     flex-grow: 1;
 
     &:nth-child(1) {

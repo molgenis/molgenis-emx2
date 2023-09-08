@@ -1,5 +1,5 @@
 <template>
-  <div id="provider-overview" class="provider-visualizations">
+  <ProviderDashboard id="provider-overview" class="provider-visualizations">
     <DashboardBox id="provider-overview-welcome">
       <h2>Welcome, {{ user }}!</h2>
       <p>
@@ -52,13 +52,14 @@
         :chartScale="0.95"
       />
     </DashboardBox>
-  </div>
+  </ProviderDashboard>
 </template>
 
 <script setup>
 import { ref } from "vue";
 import { UserGroupIcon, TrophyIcon } from "@heroicons/vue/24/outline";
 import { DashboardBox, PieChart } from "molgenis-viz";
+import ProviderDashboard from "../components/ProviderDashboard.vue";
 
 const props = defineProps({
   user: String,
@@ -98,17 +99,6 @@ let sexAtBirth = ref({
 </script>
 
 <style lang="scss">
-.value-highlight {
-  h2 {
-    font-size: 16pt;
-    svg {
-      width: 21px;
-      margin-top: -2px;
-      margin-right: 8px;
-    }
-  }
-}
-
 #provider-overview {
   grid-template-areas:
     "header header"

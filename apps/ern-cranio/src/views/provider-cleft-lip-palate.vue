@@ -1,5 +1,5 @@
 <template>
-  <div id="provider-clp">
+  <ProviderDashboard id="provider-clp">
     <h2>Overview for your center</h2>
     <div class="provider-visualizations">
       <DashboardBox id="clp-patients-by-phenotype">
@@ -97,7 +97,7 @@
       </DashboardBox>
     </div>
     <h2>Overview "level 1" outcomes</h2>
-    <DashboardBox id="clp-outcome-cleft-q" class="mb-4">
+    <DashboardBox id="clp-outcome-cleft-q" class="mb-4 mt-4">
       <GroupedColumnChart
         chartId="clp-outcome-cleft-q-hcp-ern"
         title="Cleft-Q Outcomes after treatment"
@@ -114,7 +114,7 @@
         :chartHeight="250"
       />
     </DashboardBox>
-    <DashboardBox id="clp-outcome-cleft-q" class="mb-4">
+    <DashboardBox id="clp-outcome-cleft-q" class="mb-4 mt-4">
       <GroupedColumnChart
         chartId="clp-outcome-ics-hcp-ern"
         title="ICS Outcomes after treatment"
@@ -131,12 +131,50 @@
         :chartHeight="250"
       />
     </DashboardBox>
-  </div>
+    <h2>Overview of speech outcomes</h2>
+    <DashboardBox class="mt-4 mb-4">
+      <GroupedColumnChart
+        chartId="clp-outcome-speech-pcc"
+        title="PCC Scores after treatment"
+        :chartData="speechPccOutcomes"
+        group="category"
+        xvar="group"
+        yvar="value"
+        :yMax="20"
+        xAxisLabel="Age (yrs)"
+        :yTickValues="[0,5,10,15,20]"
+        :columnFillPalette="{
+          'Your Center': '#b2e2e2',
+          'ERN Average': '#66c2a4',
+        }"
+        :chartHeight="250"
+      />
+    </DashboardBox>
+    <DashboardBox class="mt-4 mb-4">
+      <GroupedColumnChart
+        chartId="clp-outcome-speech-vpc"
+        title="VPC Scores after treatment"
+        :chartData="speechVpcOutcomes"
+        group="category"
+        xvar="group"
+        yvar="value"
+        :yMax="20"
+        xAxisLabel="Age (yrs)"
+        :yTickValues="[0,5,10,15,20]"
+        :columnFillPalette="{
+          'Your Center': '#b2e2e2',
+          'ERN Average': '#66c2a4',
+        }"
+        :chartHeight="250"
+      />
+    </DashboardBox>
+  </ProviderDashboard>
 </template>
 
 <script setup>
 import { ref } from "vue";
 import { DashboardBox, PieChart, ProgressMeter, ColumnChart, GroupedColumnChart } from "molgenis-viz";
+import ProviderDashboard from "../components/ProviderDashboard.vue";
 
 const props = defineProps({
   user: String,
@@ -207,6 +245,22 @@ let icsOutcomes = ref(
   ['Speech', 'Lip', 'Jaw', 'Social', 'School'].map(value => {
     return ['Your Center', 'ERN Average'].map(group => {
       return {group: group, category: value, value: randomInt(1,100)()};
+    })
+  }).flat()
+);
+
+let speechPccOutcomes = ref(
+  ['3', '5-6', '8-12', '18+'].map(value => {
+    return ['Your Center', 'ERN Average'].map(group => {
+      return {group: group, category: value, value: randomInt(1,20)()};
+    })
+  }).flat()
+);
+
+let speechVpcOutcomes = ref(
+  ['3', '5-6', '8-12', '18+'].map(value => {
+    return ['Your Center', 'ERN Average'].map(group => {
+      return {group: group, category: value, value: randomInt(1,20)()};
     })
   }).flat()
 );

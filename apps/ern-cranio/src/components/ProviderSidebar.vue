@@ -6,7 +6,7 @@
         <li>
           <router-link
             :to="{
-              name: 'provider-home',
+              name: 'provider-overview',
               params: { id: organization.id },
             }"
             @click="onClick"

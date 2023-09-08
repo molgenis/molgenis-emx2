@@ -1,5 +1,9 @@
 <template>
-  <div id="providerCraniosynostosis" class="dashboard-content">
-    <h2>Craniosynostosis Dashboard</h2>
-  </div>
+  <ProviderDashboard id="providerCraniosynostosis">
+    <h2>Overview for all centers</h2>
+  </ProviderDashboard>
 </template>
+
+<script setup>
+import ProviderDashboard from "../components/ProviderDashboard.vue";
+</script>
