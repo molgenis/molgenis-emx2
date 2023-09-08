@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IFilter, ITableMetaData } from "~/interfaces/types";
+import { IFilter, ISchemaMetaData, ITableMetaData } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 const router = useRouter();
@@ -10,7 +10,20 @@ const resourceType: string =
   resourceName.charAt(0).toUpperCase() + resourceName.slice(1);
 const resourceAgg: string = resourceType + "_agg";
 
-const metadata = await fetchMetadata();
+const schemaName = route.params.schema.toString();
+const metadata = await fetchMetadata(schemaName);
+const externalSchemaNames: string[] = extractExternalSchemas(metadata);
+const externalSchemas = await Promise.all(
+  externalSchemaNames.map(fetchMetadata)
+);
+const schemas = externalSchemas.reduce(
+  (acc: Record<string, ISchemaMetaData>, schema) => {
+    acc[schema.name] = schema;
+    return acc;
+  },
+  { [schemaName]: metadata }
+);
+
 const tableMetaData = metadata.tables.find(
   (t: ITableMetaData) => t.name === resourceType
 );

@@ -1,5 +1,6 @@
 import { StorageSerializers, useSessionStorage } from "@vueuse/core";
-import { ISchemaMetaData } from "~/interfaces/types";
+
+import { IColumn, ISchemaMetaData, ITableMetaData } from "~/interfaces/types";
 import query from "~~/gql/metadata";
 
 if (query.loc?.source.body === undefined) {
@@ -7,19 +8,16 @@ if (query.loc?.source.body === undefined) {
 }
 const queryValue = query.loc?.source.body;
 
-export default async (): Promise<ISchemaMetaData> => {
-  const route = useRoute();
+export default async (schemaName: string): Promise<ISchemaMetaData> => {
   const config = useRuntimeConfig();
 
-  const schema = route.params.schema.toString();
-
   // Use sessionStorage to cache data
-  const cached = useSessionStorage<ISchemaMetaData>(schema, null, {
+  const cached = useSessionStorage<ISchemaMetaData>(schemaName, null, {
     serializer: StorageSerializers.object,
   });
 
   if (!cached.value) {
-    const resp = await $fetch(`/${schema}/catalogue/graphql`, {
+    const resp = await $fetch(`/${schemaName}/graphql`, {
       method: "POST",
       baseURL: config.public.apiBase,
       body: {
@@ -33,14 +31,14 @@ export default async (): Promise<ISchemaMetaData> => {
       console.log("handel error ");
       throw createError({
         ...error,
-        statusMessage: `Could not fetch metadata for schema ${schema}`,
+        statusMessage: `Could not fetch metadata for schema ${schemaName}`,
       });
     }
 
     // Update the cache
     cached.value = data._schema;
   } else {
-    console.log(`Getting value from cache for schema ${schema}`);
+    console.log(`Getting value from cache for schema ${schemaName}`);
   }
 
   return cached.value;

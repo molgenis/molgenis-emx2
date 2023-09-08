@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
-import { IResource, ITableMetaData } from "interfaces/types";
+import {
+  IColumn,
+  IResource,
+  ISchemaMetaData,
+  ITableMetaData,
+} from "interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -8,25 +13,29 @@ const resourceName: string = route.params.resourceType as string;
 const resourceType: string =
   resourceName.charAt(0).toUpperCase() + resourceName.slice(1);
 
-const metadata = await fetchMetadata();
+const schemaName = route.params.schema.toString();
+const metadata = await fetchMetadata(schemaName);
+const externalSchemaNames: string[] = extractExternalSchemas(metadata);
+const externalSchemas = await Promise.all(
+  externalSchemaNames.map(fetchMetadata)
+);
+const schemas = externalSchemas.reduce(
+  (acc: Record<string, ISchemaMetaData>, schema) => {
+    acc[schema.name] = schema;
+    return acc;
+  },
+  { [schemaName]: metadata }
+);
+
 const tableMetaData = metadata.tables.find(
   (t: ITableMetaData) => t.name === resourceType
 );
-const fields = tableMetaData?.columns
-  ?.filter(
-    (c) =>
-      c.columnType === "STRING" ||
-      c.columnType === "TEXT" ||
-      c.columnType === undefined
-  )
-  ?.filter((c) => !c.id.startsWith("mg_"));
-const fieldNames = fields?.map((f) => f.id);
-const queryFields = fieldNames?.join(" ");
+const fields = buildQueryFields(schemas, schemaName, resourceType);
 
 const query = gql`
   query ${resourceType}($id: String) {
     ${resourceType}( filter: { id: { equals: [$id] } } ) {
-      ${queryFields}
+      ${fields}
     }
   }`;
 
@@ -50,10 +59,11 @@ function setData(data: any) {
   resource = data?.data?.[resourceType][0];
 }
 
-let tocItems = reactive([
-  { label: "Description", id: "description" },
-  { label: "Harmonization status", id: "harmonization-per-cohort" },
-]);
+const headings = toHeadings(tableMetaData);
+const tocItems = headings.map((heading: IColumn) => ({
+  label: heading.name,
+  id: heading.id,
+}));
 
 let crumbs: Record<string, string> = {
   Home: `/${route.params.schema}/ssr-catalogue`,
