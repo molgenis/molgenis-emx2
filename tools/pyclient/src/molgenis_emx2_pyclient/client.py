@@ -38,6 +38,18 @@ class Client:
     def __str__(self):
         return self.url
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.signout()
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        self.signout()
+
     def signin(self, username: str, password: str):
         """Signs in to Molgenis and retrieves session cookie.
 
@@ -96,11 +108,11 @@ class Client:
         )        
         
         status = response.json().get('data', {}).get('signout', {}).get('status')
-        message = response.json().get('data', {}).get('signout', {}).get('message')
         if status == 'SUCCESS':
             print(f"Signed out of {self.url}")
         else:
             print(f"Unable to sign out of {self.url}.")
+            message = response.json().get('errors')[0].get('message')
             print(message)
             
     @property
