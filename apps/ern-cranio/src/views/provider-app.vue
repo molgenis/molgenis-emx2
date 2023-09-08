@@ -21,6 +21,7 @@ const props = defineProps({
   user: String,
   organization: Object,
 });
+
 </script>
 
 <style lang="scss">
@@ -36,6 +37,7 @@ const props = defineProps({
       gap: 2em;
       
     }
+
     .dashboard-box {
       box-sizing: content-box;
       padding: 1.3em;

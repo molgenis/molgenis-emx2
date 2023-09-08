@@ -7,7 +7,7 @@
           <router-link
             :to="{
               name: 'provider-home',
-              params: { provider: organization.id },
+              params: { id: organization.id },
             }"
             @click="onClick"
           >
@@ -18,7 +18,7 @@
           <router-link
             :to="{
               name: 'provider-cranio',
-              params: { provider: organization.id },
+              params: { id: organization.id },
             }"
             @click="onClick"
           >
@@ -29,7 +29,7 @@
           <router-link
             :to="{
               name: 'provider-clp',
-              params: { provider: organization.id },
+              params: { id: organization.id },
             }"
             @click="onClick"
           >
@@ -40,7 +40,7 @@
           <router-link
             :to="{
               name: 'provider-genetic-deafness',
-              params: { provider: organization.id },
+              params: { id: organization.id },
             }"
             @click="onClick"
           >
@@ -51,7 +51,7 @@
           <router-link
             :to="{
               name: 'provider-larnyxcleft',
-              params: { provider: organization.id },
+              params: { id: organization.id },
             }"
             @click="onClick"
           >

@@ -17,14 +17,8 @@
           <p><strong>For Members</strong></p>
           <UnorderedList listType="none">
             <li>
-              <router-link
-                :to="{
-                  name: 'providers',
-                  params: { provider: organization.id },
-                }"
-              >
-                {{ organization.name }}
-                Dashboard
+              <router-link :to="{ name: 'providers', params: { id: organization.id }}">
+                {{ organization.name }} Dashboard
               </router-link>
             </li>
             <!-- more links here -->

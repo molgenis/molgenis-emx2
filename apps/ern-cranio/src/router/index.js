@@ -43,62 +43,50 @@ const router = createRouter({
     },
     {
       name: "providers",
-      path: "/providers/:provider",
+      path: "/providers/:id",
       component: ProviderHome,
+      redirect: {
+        name: 'provider-overview'
+      },
       children: [
         {
-          name: "provider-home",
-          path: "/providers/:provider",
+          name: "provider-overview",
+          path: "",
           component: ProviderOverview,
           meta: {
             title: "Center Overview",
           },
-          params: {
-            provider: true,
-          },
         },
         {
           name: "provider-cranio",
-          path: "/providers/:provider/craniosynostosis",
+          path: "craniosynostosis",
           component: ProviderCraniosynostosis,
           meta: {
             title: "Craniosynostosis",
           },
-          params: {
-            provider: true,
-          },
         },
         {
           name: "provider-clp",
-          path: "/providers/:provider/clp",
+          path: "clp",
           component: ProviderCleftLipPalate,
           meta: {
             title: "Cleft lip and palate",
           },
-          params: {
-            provider: true,
-          },
         },
         {
           name: "provider-genetic-deafness",
-          path: "/providers/:provider/genetic-deafness",
+          path: "genetic-deafness",
           component: ProviderGeneticDeafness,
           meta: {
             title: "Genetic Deafness",
           },
-          params: {
-            provider: true,
-          },
         },
         {
           name: "provider-larnyxcleft",
-          path: "/providers/:provider/larnyxcleft",
+          path: "larnyxcleft",
           component: ProviderLarnyxcleft,
           meta: {
             title: "Larnyxcleft",
-          },
-          params: {
-            provider: true,
           },
         },
       ],
