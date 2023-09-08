@@ -4,57 +4,51 @@
     <nav>
       <ul class="navlinks">
         <li>
-          <router-link
-            :to="{
-              name: 'provider-overview',
-              params: { id: organization.id },
-            }"
-            @click="onClick"
-          >
-            Your center
+          <router-link :to="{ name: 'provider-overview', params: { id: organization.id } }">
+            Home
           </router-link>
         </li>
         <li>
-          <router-link
-            :to="{
-              name: 'provider-cranio',
-              params: { id: organization.id },
-            }"
-            @click="onClick"
-          >
-            Craniosynostosis
-          </router-link>
+          <Accordion id="cranio-nav" title="Craniosynostosis">
+            <p>All Centers</p>
+            <ul>
+              <li>
+                <router-link :to="{ name: 'provider-cranio', params: { id: organization.id } }">
+                  General overview
+                </router-link>
+              </li>
+              <li>Surgical Overview</li>
+            </ul>
+            <p>Your Center</p>
+            <ul>
+              <li>General overview</li>
+              <li>Surgical overview</li>
+            </ul>
+          </Accordion>
         </li>
         <li>
-          <router-link
-            :to="{
-              name: 'provider-clp',
-              params: { id: organization.id },
-            }"
-            @click="onClick"
-          >
-            Cleft lip and palate
-          </router-link>
+          <Accordion id="clp-nav" title="Cleft lip and palate">
+            <ul>
+              <li>
+                <router-link :to="{name: 'provider-clp-your-center', params: { id: organization.id } }" tabindex="0">
+                  Your center's overview
+                </router-link>
+              </li>
+              <li>
+                <router-link :to="{ name: 'provider-clp-all-centers', params: { id: organization.id} }">
+                  All centers
+                </router-link>
+              </li>
+            </ul>
+          </Accordion>
         </li>
         <li>
-          <router-link
-            :to="{
-              name: 'provider-genetic-deafness',
-              params: { id: organization.id },
-            }"
-            @click="onClick"
-          >
+          <router-link :to="{ name: 'provider-genetic-deafness', params: { id: organization.id } }">
             Genetic Deafness
           </router-link>
         </li>
         <li>
-          <router-link
-            :to="{
-              name: 'provider-larnyxcleft',
-              params: { id: organization.id },
-            }"
-            @click="onClick"
-          >
+          <router-link :to="{ name: 'provider-larnyxcleft', params: { id: organization.id } }">
             Larynxcleft
           </router-link>
         </li>
@@ -68,6 +62,7 @@
 </template>
 
 <script setup>
+import { Accordion } from "molgenis-viz";
 import { ButtonAction } from "molgenis-components";
 import { PlusCircleIcon } from "@heroicons/vue/24/outline";
 
@@ -76,50 +71,70 @@ const props = defineProps({
   organization: Object,
 });
 
-function onClick(event) {
-  document
-    .querySelectorAll(".navlinks li")
-    .forEach((elem) => elem.classList.remove("link-selected"));
-  const elem = event.target.parentNode;
-  elem.classList.add("link-selected");
-}
 </script>
 
 <style lang="scss">
 .sidebar {
   background-color: $gray-000;
   box-sizing: content-box;
-  padding: 2em;
+  padding: 2em 1.5em;
   box-shadow: $box-shadow;
   border-radius: 8px;
-  max-width: 300px;
 
   nav {
     padding: 0;
-    margin: 2em 0;
+    margin-top: 1em;
+    margin-bottom: 2.5em;
 
-    .navlinks {
+    ul,
+    ul li ul {
       list-style: none;
       padding: 0;
+      margin: 0;
       width: 100%;
-
-      li {
-        border-left: 5px solid transparent;
-        margin-bottom: 1em;
-        padding: 0.4em;
-        padding-left: 1.5em;
-
-        a {
-          color: currentColor;
-
-          &:hover,
-          &:focus {
-            color: var(--primary);
-          }
+    }
+    
+    .accordion {
+      margin: 0;
+      border: none;
+      
+      .accordion-heading {
+        padding: 0;
+        background-color: transparent;
+        
+        .toggle-label {
+          font-size: 14pt;
         }
+      }
+      .accordion-content { 
+        padding: 0;
+      }
+    }
+    
+    li {
+      margin: 0.6em 0;
+      border-left: 3px solid transparent;
+      padding-left: 1em;
+      
+      p {
+        @include textTransform(bold);
+        margin-top: 24px;
+        padding-left: 1.5em;
+        line-height: 1;
+        color: $gray-600;
+      }
+      
+      a {
+        color: currentColor;
 
-        &.link-selected {
-          border-left-color: var(--primary);
+        &:hover,
+        &:focus {
+          color: var(--primary);
+        }
+      }
+
+      &.link-selected {
+        border-left-color: var(--primary);
           a {
             color: var(--primary);
           }
@@ -127,16 +142,17 @@ function onClick(event) {
       }
     }
   }
-}
 
 #btnSubmitPatient {
   width: 100%;
-  padding: 0.7em;
+  padding: 0.6em;
+  @include textTransform;
 
   svg {
+    position: relative;
     width: 21px;
     margin-left: 4px;
-    margin-top: -2px;
+    margin-top: -4px;
     path {
       stroke-width: 2;
     }

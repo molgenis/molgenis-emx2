@@ -18,7 +18,7 @@
         <span>{{ totalPatientsSubmitted }} patients submitted</span>
       </h2>
       <p>
-        Your center submitted on average of
+        Your center submitted on average
         {{ avergagePatientsSubmitted }} patients per month.
       </p>
     </DashboardBox>
@@ -28,7 +28,7 @@
         <span>{{ currentCenterRanking }} in overall submitted patients</span>
       </h2>
       <p>
-        Patient's from your center account for {{ percentOfRegistry }}% of the
+        Patients from your center account for {{ percentOfRegistry }} of the
         registry.
       </p>
     </DashboardBox>
@@ -81,7 +81,7 @@ let currentCenterRanking = ref(
   rank === 1 ? "1st" : rank === 2 ? "2nd" : `${rank}th`
 );
 let percentOfRegistry = ref(
-  Math.round((totalPatientsSubmitted.value / 500) * 100)
+  Math.round((totalPatientsSubmitted.value / 500) * 100) + '%'
 );
 
 let patientsBySubregistry = ref({

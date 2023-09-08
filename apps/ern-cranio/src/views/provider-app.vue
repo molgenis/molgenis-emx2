@@ -28,28 +28,13 @@ const props = defineProps({
 .provider-dashboard-container {
   .dashboard-content {
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 350px 1fr;
     align-items: flex-start;
     justify-content: flex-start;
     
     .provider-visualizations {
       display: grid;
-      gap: 2em;
-      padding: 1em 0 0;
-    }
-    
-    h2 {
-      font-size: 16pt;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      font-weight: bold;
-      color: $gray-900;
-    }
-    
-    h3 {
-      font-size: 19pt;
-      color: $gray-700;
-      font-weight: 300;
+      gap: 2em; 
     }
 
     .dashboard-box {
@@ -58,7 +43,11 @@ const props = defineProps({
       
       &.value-highlight {
         h2 {
-          font-size: 12pt; 
+          font-weight: 400;
+          text-transform: none;
+          letter-spacing: normal;
+          font-size: 15pt;
+
           svg {
             width: 19px;
             margin-top: -2px;
@@ -73,7 +62,7 @@ const props = defineProps({
       h3,
       .d3-viz .chart-title,
       .d3-progress-meter .chart-title span {
-        font-size: 15pt;
+        font-size: 14pt;
         font-weight: 400;
       }
       
@@ -84,6 +73,9 @@ const props = defineProps({
       .d3-progress-meter {
         .chart-title {
           margin: 0;
+          span {
+            font-size: 14pt;
+          }
         }
 
         .chart {
