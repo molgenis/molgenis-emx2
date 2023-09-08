@@ -43,12 +43,14 @@ class Client:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.signout()
+        self.session.close()
 
     async def __aenter__(self):
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         self.signout()
+        self.session.close()
 
     def signin(self, username: str, password: str):
         """Signs in to Molgenis and retrieves session cookie.
