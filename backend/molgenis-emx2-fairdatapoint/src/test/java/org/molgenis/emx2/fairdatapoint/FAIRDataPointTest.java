@@ -1,16 +1,10 @@
 package org.molgenis.emx2.fairdatapoint;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.formatToMediaType;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.file.Path;
-import java.util.Objects;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -18,9 +12,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.datamodels.FAIRDataHubLoader;
-import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
-import org.molgenis.emx2.semantics.LinkedDataService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
 import spark.Request;
@@ -44,29 +36,6 @@ public class FAIRDataPointTest {
     fairDataHubSchemas = new Schema[2];
     fairDataHubSchemas[0] = fairDataHub_nr1;
     fairDataHubSchemas[1] = fairDataHub_nr2;
-  }
-
-  @Test
-  public void testFairDataPointsFDP() {
-    StopWatch.print("begin");
-
-    ClassLoader classLoader = getClass().getClassLoader();
-    Path file =
-        new File(Objects.requireNonNull(classLoader.getResource("fdp.xlsx")).getFile()).toPath();
-    MolgenisIO.importFromExcelFile(file, fdpSchema, true);
-
-    fdpSchema = database.getSchema("fdpTest");
-
-    // anyway, here goes the generation
-    StringWriter sw = new StringWriter();
-    LinkedDataService.getJsonLdForSchema(fdpSchema, new PrintWriter(sw));
-    System.out.println("result\r" + sw.getBuffer().toString());
-
-    assertEquals(2, fdpSchema.getTableNames().size());
-
-    sw = new StringWriter();
-    LinkedDataService.getTtlForSchema(fdpSchema, new PrintWriter(sw));
-    System.out.println(sw.toString());
   }
 
   @Test

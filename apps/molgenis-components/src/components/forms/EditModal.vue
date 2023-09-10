@@ -51,7 +51,7 @@
                   @click="setCurrentPage(index + 1)"
                   :style="chapterStyleAndErrors[index].style"
                 >
-                  {{ heading }}
+                  {{ getHeadingLabel(heading) }}
                 </button>
               </Tooltip>
             </div>
@@ -285,6 +285,16 @@ export default {
     checkForErrors() {
       this.rowErrors = getRowErrors(this.tableMetaData, this.rowData);
       this.saveDisabledMessage = getSaveDisabledMessage(this.rowErrors);
+    },
+    getHeadingLabel(headingName: string) {
+      const column = this.tableMetaData.columns.find(
+        (column) => column.name === headingName
+        //TODO change to id when merging with chapter visibility PR
+      );
+      return (
+        column?.labels?.find((label) => label.locale === this.locale)?.value ||
+        headingName
+      );
     },
   },
   async mounted() {
