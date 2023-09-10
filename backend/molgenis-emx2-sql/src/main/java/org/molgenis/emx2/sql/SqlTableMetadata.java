@@ -38,7 +38,7 @@ class SqlTableMetadata extends TableMetadata {
     // first per-column actions, then multi-column action such as composite keys/refs
     int position = MetadataUtils.getMaxPosition(tm.getJooq(), schemaName) + 1;
     for (Column c : column) {
-      checkNoColumnWithSameIdentifierExists(tm, c);
+      validateColumnIdentifierIsUnique(tm, c);
       long start = System.currentTimeMillis();
       if (tm.getLocalColumn(c.getName()) != null) {
         tm.alterColumn(c);
@@ -84,7 +84,7 @@ class SqlTableMetadata extends TableMetadata {
     return tm;
   }
 
-  private static void checkNoColumnWithSameIdentifierExists(
+  private static void validateColumnIdentifierIsUnique(
       SqlTableMetadata existingTableMetadata, Column column) {
     for (Column existingColumn : existingTableMetadata.getColumns()) {
       if (!column.getName().equals(MG_TABLECLASS)
@@ -92,7 +92,7 @@ class SqlTableMetadata extends TableMetadata {
         throw new MolgenisException(
             String.format(
                 "Cannot add/alter because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
-                column.getName(), existingColumn.getTableName(), column.getIdentifier()));
+                column.getName(), existingColumn.getName(), column.getIdentifier()));
       }
     }
   }
@@ -142,6 +142,9 @@ class SqlTableMetadata extends TableMetadata {
     if (column.getName().startsWith("mg_")) return this;
 
     Column oldColumn = getColumn(columnName);
+
+    validateColumnIdentifierIsUnique(this, column);
+
     if (oldColumn == null) {
       throw new MolgenisException(
           "Alter column failed: Column  '"

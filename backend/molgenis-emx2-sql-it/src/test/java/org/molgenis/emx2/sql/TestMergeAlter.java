@@ -257,7 +257,13 @@ public class TestMergeAlter {
   }
 
   @Test
-  public void testNamesCannotHaveSameIdentifiers() {
+  void testNamesCannotHaveSameIdentifiers() {
+
+    assertThrows(
+        MolgenisException.class,
+        () -> db.createSchema(TestMergeAlter.class.getSimpleName().toUpperCase()),
+        "shouln't be able to create schame with nanme that converts to same identifier");
+
     Table table = schema.create(table("my table", column("id").setPkey()));
     assertThrows(
         MolgenisException.class,
@@ -278,6 +284,11 @@ public class TestMergeAlter {
         MolgenisException.class,
         () -> table.getMetadata().add(column("Id")),
         "shouldn't be able to create column with name that converts to same identifier");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> table.getMetadata().alterColumn("id", column("Id")),
+        "shouldn't be able to rename column with name that converts to same identifier");
   }
 
   @Test
