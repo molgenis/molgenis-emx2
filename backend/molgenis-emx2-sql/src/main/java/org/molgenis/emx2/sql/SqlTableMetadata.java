@@ -88,10 +88,11 @@ class SqlTableMetadata extends TableMetadata {
       SqlTableMetadata existingTableMetadata, Column column) {
     for (Column existingColumn : existingTableMetadata.getColumns()) {
       if (!column.getName().equals(MG_TABLECLASS)
+          && !column.getName().equals(existingColumn.getName())
           && existingColumn.getIdentifier().equals(column.getIdentifier())) {
         throw new MolgenisException(
             String.format(
-                "Cannot add/alter column because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
+                "Cannot create/alter column because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
                 column.getName(), existingColumn.getName(), column.getIdentifier()));
       }
     }

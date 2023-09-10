@@ -144,7 +144,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       if (existingTable.getIdentifier().equals(table.getIdentifier())) {
         throw new MolgenisException(
             String.format(
-                "Cannot add/alter because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
+                "Cannot create/alter because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
                 table.getTableName(), existingTable.getTableName(), table.getIdentifier()));
       }
     }
