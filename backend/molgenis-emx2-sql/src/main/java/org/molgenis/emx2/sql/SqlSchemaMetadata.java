@@ -141,7 +141,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   private static void validateTableIdentifierIsUnique(SqlSchemaMetadata sm, TableMetadata table) {
     for (TableMetadata existingTable : sm.getTables()) {
-      if (existingTable.getIdentifier().equals(table.getIdentifier())) {
+      if (!existingTable.getTableName().equals(table.getTableName())
+          && existingTable.getIdentifier().equals(table.getIdentifier())) {
         throw new MolgenisException(
             String.format(
                 "Cannot create/alter because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",

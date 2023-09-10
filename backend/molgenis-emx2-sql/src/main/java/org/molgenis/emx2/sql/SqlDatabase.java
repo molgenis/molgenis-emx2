@@ -251,7 +251,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   private static void validateSchemaIdentifierIsUnique(SqlSchemaMetadata metadata, Database db) {
     for (String name : db.getSchemaNames()) {
-      if (metadata.getIdentifier().equals(new SchemaMetadata(name).getIdentifier())) {
+      if (!metadata.getName().equals(name)
+          && metadata.getIdentifier().equals(new SchemaMetadata(name).getIdentifier())) {
         throw new MolgenisException(
             String.format(
                 "Cannot create/alter schema because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
@@ -323,10 +324,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public Schema dropCreateSchema(String name, String description) {
     tx(
         db -> {
-          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
           if (getSchema(name) != null) {
             SqlSchemaMetadataExecutor.executeDropSchema((SqlDatabase) db, name);
           }
+          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
           executeCreateSchema((SqlDatabase) db, metadata);
           ((SqlDatabase) db).schemaCache.put(name, new SqlSchemaMetadata(db, metadata));
         });

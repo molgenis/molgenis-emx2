@@ -30,7 +30,7 @@ public class OntologyTableSemantics {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    Schema petStore = database.dropCreateSchema("petStore");
+    Schema petStore = database.dropCreateSchema("semanticPetStore");
     PetStoreLoader petStoreLoader = new PetStoreLoader();
     petStoreLoader.load(petStore, true);
     petStoreSchema = petStore;
@@ -40,7 +40,7 @@ public class OntologyTableSemantics {
   public void OntologyTableSemantics() {
     Request request = mock(Request.class);
     Response response = mock(Response.class);
-    when(request.url()).thenReturn("http://localhost:8080/petStore/api/fdp");
+    when(request.url()).thenReturn("http://localhost:8080/semanticPetStore/api/fdp");
     OutputStream outputStream = new ByteArrayOutputStream();
     RDFService.describeAsRDF(
         outputStream, request, response, RDF_API_LOCATION, null, null, null, petStoreSchema);
