@@ -81,7 +81,8 @@ function buildSections(
     (a.position || 0) - (b.position || 0);
   const isHeading = (meta: IColumn) => meta.columnType === "HEADING";
   const isNonSystemField = (meta: IColumn) => !meta.id.startsWith("mg_");
-  const hasFieldValue = (field: any) => field !== null && field !== undefined;
+  const hasFieldValue = (field: any) =>
+    field !== null && field !== undefined && field !== "" && !isEmpty(field);
 
   return tableMetaData.columns
     .filter(isNonSystemField)
