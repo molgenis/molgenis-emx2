@@ -2,7 +2,7 @@
 import { gql } from "graphql-request";
 import {
   IColumn,
-  IResource,
+  ISection,
   ISchemaMetaData,
   ITableMetaData,
 } from "interfaces/types";
@@ -27,9 +27,18 @@ const schemas = externalSchemas.reduce(
   { [schemaName]: metadata }
 );
 
-const tableMetaData = metadata.tables.find(
+const tableMetaDataFinderResult = metadata.tables.find(
   (t: ITableMetaData) => t.name === resourceType
 );
+
+const tableMetaData = computed(() => {
+  if (tableMetaDataFinderResult) {
+    return tableMetaDataFinderResult;
+  } else {
+    throw new Error(`Table metadata not found for ${resourceType}`);
+  }
+});
+
 const fields = buildQueryFields(schemas, schemaName, resourceType);
 
 const query = gql`
@@ -39,7 +48,9 @@ const query = gql`
     }
   }`;
 
-let resource: IResource;
+let resource: any;
+let sections: any;
+let tocItems: { label: string; id: string }[];
 
 const { data, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
@@ -57,13 +68,47 @@ watch(data, setData, {
 
 function setData(data: any) {
   resource = data?.data?.[resourceType][0];
+  sections = buildSections(tableMetaData.value, resource);
+  tocItems = buildTOC(sections);
 }
 
-const headings = toHeadings(tableMetaData);
-const tocItems = headings.map((heading: IColumn) => ({
-  label: heading.name,
-  id: heading.id,
-}));
+// Nest fields (data columns) withing sections (headings)
+function buildSections(
+  tableMetaData: ITableMetaData,
+  data: Record<string, any>
+) {
+  const comparePosition = (a: IColumn, b: IColumn) =>
+    (a.position || 0) - (b.position || 0);
+  const isHeading = (meta: IColumn) => meta.columnType === "HEADING";
+  const isNonSystemField = (meta: IColumn) => !meta.id.startsWith("mg_");
+
+  return tableMetaData.columns
+    .filter(isNonSystemField)
+    .sort(comparePosition)
+    .reduce((accum: ISection[], column: IColumn) => {
+      if (isHeading(column)) {
+        accum.push({ meta: column, fields: [] });
+      } else {
+        if (!accum.length) {
+          accum.push({ meta: column, fields: [] });
+        }
+        accum.at(-1)?.fields.push({
+          meta: { ...column },
+          value: data[column.id],
+        });
+      }
+      return accum;
+    }, []);
+}
+
+function buildTOC(sections: ISection[]) {
+  return sections.map((section) => ({
+    label: section.meta.descriptions
+      ? section.meta.descriptions[0].value
+      : section.meta.name,
+    id: section.meta.id,
+  }));
+}
 
 let crumbs: Record<string, string> = {
   Home: `/${route.params.schema}/ssr-catalogue`,
@@ -87,56 +132,35 @@ crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${resourceName}`;
       <SideNavigation :title="resource?.name" :items="tocItems" />
     </template>
     <template #main>
-      <!-- {{ tableMetaData?.columns }}
-      
-        {{ fieldNames }} -->
+      <!-- <div>{{ headings }}</div> -->
+      <hr />
 
       <div>{{ resource }}</div>
-      <ContentBlocks v-if="resource">
+
+      <hr />
+      <div>{{ sections }}</div>
+      <ContentBlocks>
+        <ContentBlockIntro
+          v-if="
+            resource?.logo?.url || resource?.website || resource?.contactEmail
+          "
+          :image="resource?.logo?.url"
+          :link="resource?.website"
+          :contact="resource?.contactEmail"
+        />
+
         <ContentBlock
+          v-if="resource?.description"
           id="description"
           title="Description"
           :description="resource?.description"
-        >
-          <!-- <DefinitionList
-            :items="[
-              {
-                label: 'Unit',
-                content: resource?.unit?.name,
-              },
-              {
-                label: 'Format',
-                content: resource?.format?.name,
-              },
-              {
-                label: 'N repeats',
-                content: resource?.nRepeats > 0 ? resource?.nRepeats : 'None',
-              },
-            ]"
-          > 
-          </DefinitionList> -->
-        </ContentBlock>
-        <!-- <ContentBlock
-          id="harmonization-per-cohort"
-          title="Harmonization status per Cohort"
-          description="Overview of the harmonization status per Cohort"
-        >
-          <div class="grid grid-cols-3 gap-4">
-            <div
-              v-for="mapping in resource?.mappings"
-              class="inline-flex gap-1 group text-icon text-breadcrumb-arrow"
-            >
-              <BaseIcon name="completed" :width="24" class="text-green-500" />
-              <NuxtLink
-                :to="`/${route.params.schema}/ssr-catalogue/cohorts/${mapping.source.id}`"
-              >
-                <span class="text-body-base text-blue-500 hover:underline">{{
-                  mapping.source.id
-                }}</span>
-              </NuxtLink>
-            </div>
-          </div>
-        </ContentBlock> -->
+        />
+
+        <!-- <ContentBlock :title="title" :description="description">
+          <DefinitionList
+            :items="generalDesign.filter((item) => item.content !== undefined)"
+          />
+          </ContentBlock> -->
       </ContentBlocks>
     </template>
   </LayoutsDetailPage>

@@ -252,3 +252,11 @@ export interface ISchemaMetaData {
   name: string;
   tables: ITableMetaData[];
 }
+
+export interface ISection {
+  meta: IColumn;
+  fields: {
+    meta: IColumn;
+    value: any;
+  }[];
+}
