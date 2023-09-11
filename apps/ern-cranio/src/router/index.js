@@ -9,11 +9,20 @@ import ProviderOverview from "../views/provider-overview.vue";
 
 
 // import ProviderCleftLipPalate from "../views/provider-cleft-lip-palate.vue";
+// import ProviderCraniosynostosis from "../views/provider-craniosynostosis.vue";
+
+// Craniosynostosis pages (id: `-cs-`)
+import ProviderCsApp from "../views/provider-cs-app.vue";
+import ProvidersCsAllGeneral from "../views/provider-cs-all-general.vue";
+import ProvidersCsAllSurgical from "../views/provider-cs-all-surgical.vue";
+import ProvidersCsCenterGeneral from "../views/provider-cs-center-overview.vue";
+import ProvidersCsCenterSurgical from "../views/provider-cs-center-surgical.vue";
+
+// cleft lip and palate pages (id: `-clp-`)
 import ProviderClpApp from "../views/provider-clp-app.vue";
 import ProviderClpYourCenter from "../views/provider-clp-your-center.vue";
 import ProviderClpAllCenters from "../views/provider-clp-all-centers.vue";
 
-import ProviderCraniosynostosis from "../views/provider-craniosynostosis.vue";
 import ProviderGeneticDeafness from "../views/provider-genetic-deafness.vue";
 import ProviderLarnyxcleft from "../views/provider-larnyxcleft.vue";
 
@@ -63,13 +72,49 @@ const router = createRouter({
             title: "Center Overview",
           },
         },
+        
+        // router-view for Craniosynostosis (`-cs-`)
         {
-          name: "provider-cranio",
+          name: "provider-cs",
           path: "craniosynostosis",
-          component: ProviderCraniosynostosis,
-          meta: {
-            title: "Craniosynostosis",
+          component: ProviderCsApp,
+          redirect: {
+            name: 'provider-cs-all-general'
           },
+          children: [
+            {
+              name: 'provider-cs-all-general',
+              path: 'all-centers-general',
+              component: ProvidersCsAllGeneral,
+              meta: {
+                title: 'All Center General Overview | Craniosynostosis | '
+              }
+            },
+            {
+              name: 'provider-cs-all-surgical',
+              path: 'all-centers-surgical',
+              component: ProvidersCsAllSurgical,
+              meta: {
+                title: 'All Center Surgical Overview | Craniosynostosis | '
+              }
+            },
+            {
+              name: "provider-cs-center-overview",
+              path: "center-general",
+              component: ProvidersCsCenterGeneral,
+              meta: {
+                title: "Your Center General Overview | Craniosynostosis | "
+              }
+            },
+            {
+              name: "provider-cs-center-surgical",
+              path: "center-surgical",
+              component: ProvidersCsCenterSurgical,
+              meta: {
+                title: "Your center surgical overview | Craniosynostosis"
+              }
+            }
+          ]
         },
         
         // router-view for Cleft Lip and Palate (ie., -clp-)

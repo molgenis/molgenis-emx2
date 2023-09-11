@@ -13,16 +13,28 @@
             <p>All Centers</p>
             <ul>
               <li>
-                <router-link :to="{ name: 'provider-cranio', params: { id: organization.id } }">
+                <router-link :to="{ name: 'provider-cs-all-general', params: { id: organization.id } }">
                   General overview
                 </router-link>
               </li>
-              <li>Surgical Overview</li>
+              <li>
+                <router-link :to="{ name: 'provider-cs-all-surgical', params: { id: organization.id }}">
+                  Surgical Overview
+                </router-link>
+              </li>
             </ul>
             <p>Your Center</p>
             <ul>
-              <li>General overview</li>
-              <li>Surgical overview</li>
+              <li>
+                <router-link :to="{ name: 'provider-cs-center-overview', params: { id: organization.id }}">
+                  General overview
+                </router-link>
+              </li>
+              <li>
+                <router-link :to="{ name: 'provider-cs-center-surgical', params: { id: organization.id }}">
+                  Surgical overview
+                </router-link>
+              </li>
             </ul>
           </Accordion>
         </li>
@@ -30,7 +42,7 @@
           <Accordion id="clp-nav" title="Cleft lip and palate">
             <ul>
               <li>
-                <router-link :to="{name: 'provider-clp-your-center', params: { id: organization.id } }" tabindex="0">
+                <router-link :to="{name: 'provider-clp-your-center', params: { id: organization.id } }">
                   Your center's overview
                 </router-link>
               </li>
