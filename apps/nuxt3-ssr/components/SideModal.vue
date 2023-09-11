@@ -4,12 +4,13 @@ const props = withDefaults(
   defineProps<{
     slideInRight?: boolean;
     fullScreen?: boolean;
-    show: boolean;
+    show?: boolean;
     buttonAlignment?: "left" | "center" | "right";
     includeFooter?: boolean;
     type?: INotificationType;
   }>(),
   {
+    show: false,
     slideInRight: false,
     fullScreen: true,
     buttonAlignment: "center",
@@ -106,7 +107,7 @@ const bgClass = computed(() => {
             <div
               :class="`flex items-center ${buttonAlignmentClass} px-6 bg-modal-footer h-19`"
             >
-              <slot name="footer"></slot>
+              <slot name="footer" :hide="hide"></slot>
             </div>
           </div>
         </div>

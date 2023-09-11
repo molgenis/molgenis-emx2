@@ -39,10 +39,9 @@ clean.dependsOn cleanJavascript
 task copyDistFiles(type: Copy, dependsOn: buildJavascript) {
    file("${project.projectDir}").eachDir { dir ->
        if (dir.name == 'molgenis-components' || dir.name == 'molgenis-viz') {
-           println dir.name + "/showCase"
            copy {
                from dir.path + "/showCase"
-               into "${buildDir}/resources/main.public_html/apps/" + dir.name
+               into "${buildDir}/resources/main/public_html/apps/" + dir.name
            }
        } else if(dir.name != ".gradle" && dir.name != 'build' && dir.name != 'node_modules') {
            println dir.path + "/dist"
@@ -63,6 +62,7 @@ task createJar(type: Zip, dependsOn: copyDistFiles) {
     destinationDirectory = file("${buildDir}/build/libs")
     from('build/resources/main')
 }
+build.dependsOn createJar
 
 configurations {
     appResources

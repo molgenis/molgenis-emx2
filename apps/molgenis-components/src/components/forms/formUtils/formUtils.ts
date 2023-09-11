@@ -86,7 +86,7 @@ function getColumnValidationError(
   }
 }
 
-function executeExpression(
+export function executeExpression(
   expression: string,
   values: Record<string, any>,
   tableMetaData: ITableMetaData

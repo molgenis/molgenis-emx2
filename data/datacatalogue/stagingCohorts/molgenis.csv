@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,3.3
+Version,,,,,,,,,,,,3.6
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Extended resources,Resources,,,,,,,,,,,
 Data resources,Extended resources,,,,,,,,,,,Resources for data
@@ -31,7 +31,11 @@ Data resources,,number of participants with samples,int,,,,,,,,,Number of indivi
 Extended resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from
 Data resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from
 Data resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.
-Cohorts,,inclusion criteria,text,,,,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource
+Data resources,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?
+Data resources,,population oncology topology,ontology_array,,,CatalogueOntologies,ICDO topologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications."
+Data resources,,population oncology morphology,ontology_array,,,CatalogueOntologies,ICDO morphologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications."
+Cohorts,,inclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource
+Cohorts,,other inclusion criteria,text,,,,,,,,,Other inclusion criteria applied to the participants of this resource
 Cohorts,,start year,int,,,,,,,,,Year when first data was collected
 Cohorts,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing
 Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource
@@ -49,6 +53,7 @@ Cohorts,,data access fee,bool,,,,,,,,,Does a fee apply to gain access to data of
 Data resources,,information,heading,,,,,,,,,Other information
 Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
 Extended resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
+Data resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?
 Extended resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
 Extended resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
 Extended resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent"
