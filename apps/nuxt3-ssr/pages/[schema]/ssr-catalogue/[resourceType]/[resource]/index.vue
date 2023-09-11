@@ -81,6 +81,7 @@ function buildSections(
     (a.position || 0) - (b.position || 0);
   const isHeading = (meta: IColumn) => meta.columnType === "HEADING";
   const isNonSystemField = (meta: IColumn) => !meta.id.startsWith("mg_");
+  const hasFieldValue = (field: any) => field !== null && field !== undefined;
 
   return tableMetaData.columns
     .filter(isNonSystemField)
@@ -92,10 +93,12 @@ function buildSections(
         if (!accum.length) {
           accum.push({ meta: column, fields: [] });
         }
-        accum.at(-1)?.fields.push({
-          meta: { ...column },
-          value: data[column.id],
-        });
+        if (hasFieldValue(data[column.id])) {
+          accum.at(-1)?.fields.push({
+            meta: { ...column },
+            value: data[column.id],
+          });
+        }
       }
       return accum;
     }, []);
@@ -103,11 +106,15 @@ function buildSections(
 
 function buildTOC(sections: ISection[]) {
   return sections.map((section) => ({
-    label: section.meta.descriptions
-      ? section.meta.descriptions[0].value
-      : section.meta.name,
+    label: sectionTitle(section),
     id: section.meta.id,
   }));
+}
+
+function sectionTitle(section: ISection) {
+  return section.meta.descriptions
+    ? section.meta.descriptions[0].value
+    : section.meta.name;
 }
 
 let crumbs: Record<string, string> = {
@@ -132,13 +139,6 @@ crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${resourceName}`;
       <SideNavigation :title="resource?.name" :items="tocItems" />
     </template>
     <template #main>
-      <!-- <div>{{ headings }}</div> -->
-      <hr />
-
-      <div>{{ resource }}</div>
-
-      <hr />
-      <div>{{ sections }}</div>
       <ContentBlocks>
         <ContentBlockIntro
           v-if="
@@ -156,11 +156,17 @@ crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${resourceName}`;
           :description="resource?.description"
         />
 
-        <!-- <ContentBlock :title="title" :description="description">
-          <DefinitionList
-            :items="generalDesign.filter((item) => item.content !== undefined)"
-          />
-          </ContentBlock> -->
+        <ContentBlock
+          v-for="section in sections"
+          :title="sectionTitle(section)"
+        >
+          <ContentGenericItemList>
+            <ContentGenericItem
+              v-for="field in section.fields"
+              :field="field"
+            ></ContentGenericItem>
+          </ContentGenericItemList>
+        </ContentBlock>
       </ContentBlocks>
     </template>
   </LayoutsDetailPage>
