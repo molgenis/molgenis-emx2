@@ -38,6 +38,9 @@ public class ZipApi {
     // hide constructor
   }
 
+  static final String APPLICATION_ZIP_MIME_TYPE = "application/zip";
+  static final String CONTENT_DISPOSITION = "Content-Disposition";
+
   public static void create() {
     // schema level operations
     final String schemaPath = "/:schema/api/zip"; // NOSONAR
@@ -60,9 +63,9 @@ public class ZipApi {
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Schema schema = getSchema(request);
       String fileName = schema.getMetadata().getName() + System.currentTimeMillis() + ".zip";
-      // First set headers before stream blob.
-      response.type("application/zip");
-      response.header("Content-Disposition", "attachment; filename=" + fileName);
+
+      response.type(APPLICATION_ZIP_MIME_TYPE);
+      response.header(CONTENT_DISPOSITION, "attachment; filename=" + fileName);
 
       Path zipFile = tempDir.resolve("download.zip");
       MolgenisIO.toZipFile(zipFile, schema, includeSystemColumns);
@@ -131,8 +134,8 @@ public class ZipApi {
               + table.getName()
               + System.currentTimeMillis()
               + ".zip";
-      response.type("application/zip");
-      response.header("Content-Disposition", "attachment; filename=" + tableName);
+      response.type(APPLICATION_ZIP_MIME_TYPE);
+      response.header(CONTENT_DISPOSITION, "attachment; filename=" + tableName);
 
       Path zipFile = tempDir.resolve("download.zip");
       MolgenisIO.toZipFile(zipFile, table, includeSystemColumns);
@@ -151,8 +154,8 @@ public class ZipApi {
         Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT); // NOSONAR
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
-      response.type("application/zip");
-      response.header("Content-Disposition", "attachment; filename=reports.zip");
+      response.type(APPLICATION_ZIP_MIME_TYPE);
+      response.header(CONTENT_DISPOSITION, "attachment; filename=reports.zip");
 
       FileUtils.getTempFile("download", ".zip");
       Path zipFile = tempDir.resolve("download.zip");
