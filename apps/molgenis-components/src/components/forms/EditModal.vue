@@ -51,7 +51,7 @@
                   @click="setCurrentPage(index + 1)"
                   :style="chapterStyleAndErrors[index].style"
                 >
-                  {{ heading }}
+                  {{ getHeadingLabel(heading) }}
                 </button>
               </Tooltip>
             </div>
@@ -95,6 +95,7 @@
 
 <script lang="ts">
 import { ISchemaMetaData } from "../../Interfaces/IMetaData";
+import { IRow } from "../../Interfaces/IRow";
 import { ISetting } from "../../Interfaces/ISetting";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { INewClient } from "../../client/IClient";
@@ -285,6 +286,16 @@ export default {
       this.rowErrors = getRowErrors(this.tableMetaData, this.rowData);
       this.saveDisabledMessage = getSaveDisabledMessage(this.rowErrors);
     },
+    getHeadingLabel(headingName: string) {
+      const column = this.tableMetaData.columns.find(
+        (column) => column.name === headingName
+        //TODO change to id when merging with chapter visibility PR
+      );
+      return (
+        column?.labels?.find((label) => label.locale === this.locale)?.value ||
+        headingName
+      );
+    },
   },
   async mounted() {
     this.loaded = false;
@@ -324,10 +335,6 @@ interface IChapterInfo {
 </script>
 
 <style scoped>
->>> .modal-body.bg-light {
-  overflow: hidden;
-}
-
 .chapter-menu {
   padding: 1rem;
   margin: -1rem -1rem -1rem 1rem;
