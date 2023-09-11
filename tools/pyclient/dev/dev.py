@@ -2,7 +2,7 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2023-09-08
+# MODIFIED: 2023-09-11
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
@@ -128,9 +128,6 @@ async def main():
 
         client.delete(schema='pet store', table='Pet', file='demodata/Pet.csv')
         client.delete(schema='pet store', table='Tag', file='demodata/Tag.csv')
-
-        # Sign out
-        client.signout()
 
 
 if __name__ == '__main__':
