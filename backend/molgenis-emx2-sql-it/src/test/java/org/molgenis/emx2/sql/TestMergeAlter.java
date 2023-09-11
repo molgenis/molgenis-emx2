@@ -261,8 +261,8 @@ public class TestMergeAlter {
 
     assertThrows(
         MolgenisException.class,
-        () -> db.createSchema(TestMergeAlter.class.getSimpleName().toUpperCase()),
-        "shouln't be able to create schame with nanme that converts to same identifier");
+        () -> db.createSchema("Test Merge Alter"),
+        "shouln't be able to create schame with name that converts to same identifier");
 
     Table table = schema.create(table("my table", column("id").setPkey()));
     assertThrows(

@@ -249,7 +249,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return getSchema(name);
   }
 
-  private static void validateSchemaIdentifierIsUnique(SqlSchemaMetadata metadata, Database db) {
+  private static void validateSchemaIdentifierIsUnique(SchemaMetadata metadata, Database db) {
     for (String name : db.getSchemaNames()) {
       if (!metadata.getName().equals(name)
           && metadata.getIdentifier().equals(new SchemaMetadata(name).getIdentifier())) {
