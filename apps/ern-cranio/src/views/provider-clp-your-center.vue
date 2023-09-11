@@ -161,38 +161,6 @@ let softPalateClosureOutcomes = ref({
 });
 
 
-let cleftOutcomes = ref(
-  ['Speech', 'Lip', 'Jaw', 'Social', 'School'].map(value => {
-    return ['Your Center', 'ERN Average'].map(group => {
-      return {group: group, category: value, value: randomInt(1,100)()};
-    })
-  }).flat()
-);
-
-let icsOutcomes = ref(
-  ['Speech', 'Lip', 'Jaw', 'Social', 'School'].map(value => {
-    return ['Your Center', 'ERN Average'].map(group => {
-      return {group: group, category: value, value: randomInt(1,100)()};
-    })
-  }).flat()
-);
-
-let speechPccOutcomes = ref(
-  ['3', '5-6', '8-12', '18+'].map(value => {
-    return ['Your Center', 'ERN Average'].map(group => {
-      return {group: group, category: value, value: randomInt(1,20)()};
-    })
-  }).flat()
-);
-
-let speechVpcOutcomes = ref(
-  ['3', '5-6', '8-12', '18+'].map(value => {
-    return ['Your Center', 'ERN Average'].map(group => {
-      return {group: group, category: value, value: randomInt(1,20)()};
-    })
-  }).flat()
-);
-
 </script>
 
 <style lang="scss">

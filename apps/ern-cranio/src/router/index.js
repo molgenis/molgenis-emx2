@@ -76,7 +76,7 @@ const router = createRouter({
         // router-view for Craniosynostosis (`-cs-`)
         {
           name: "provider-cs",
-          path: "craniosynostosis",
+          path: "cs",
           component: ProviderCsApp,
           redirect: {
             name: 'provider-cs-all-general'

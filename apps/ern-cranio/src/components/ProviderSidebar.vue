@@ -159,6 +159,7 @@ const props = defineProps({
   width: 100%;
   padding: 0.6em;
   @include textTransform;
+  color: $gray-000;
 
   svg {
     position: relative;
