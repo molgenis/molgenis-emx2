@@ -1,6 +1,6 @@
 package org.molgenis.emx2.cafevariome.post.request.gql;
 
-import static org.molgenis.emx2.beaconv2.common.QueryHelper.finalizeFilter;
+import static org.molgenis.emx2.semantics.QueryHelper.finalizeFilter;
 
 import java.util.ArrayList;
 import java.util.List;

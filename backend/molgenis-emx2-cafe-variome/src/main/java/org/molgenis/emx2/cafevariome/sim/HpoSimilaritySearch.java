@@ -1,6 +1,6 @@
 package org.molgenis.emx2.cafevariome.sim;
 
-import static org.molgenis.emx2.semantics.graphgenome.RetrieveRefSeq.httpGet;
+import static org.molgenis.emx2.graphgenome.RetrieveRefSeq.httpGet;
 
 import java.util.*;
 
