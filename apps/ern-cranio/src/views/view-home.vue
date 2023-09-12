@@ -30,6 +30,11 @@
         <LinkCard id="quicklink-dashboard">
           <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
         </LinkCard>
+        <LinkCard id="quicklink-dashboard">
+          <router-link :to="{ name: 'providers', params: { id: organization.id }}">
+            {{ organization.name }} Dashboard
+          </router-link>
+        </LinkCard>
       </div>
     </PageSection>
     <PageSection aria-labelledby="about-section-title" :verticalPadding="2">
@@ -66,6 +71,12 @@
 
 <script setup>
 import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
+
+const props = defineProps({
+  user: String,
+  organization: Object,
+});
+
 </script>
 
 <style lang="scss">
