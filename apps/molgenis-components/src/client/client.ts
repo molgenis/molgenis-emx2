@@ -409,22 +409,22 @@ async function convertRowToPrimaryKey(
       Promise.resolve({})
     );
   }
-}
 
-async function getKeyValue(
-  cellValue: any,
-  column: IColumn,
-  schemaName: string
-) {
-  if (typeof cellValue === "string") {
-    return cellValue;
-  } else {
-    if (column.refTable) {
-      return await convertRowToPrimaryKey(
-        cellValue,
-        column.refTable,
-        schemaName
-      );
+  async function getKeyValue(
+    cellValue: any,
+    column: IColumn,
+    schemaName: string
+  ) {
+    if (typeof cellValue === "string") {
+      return cellValue;
+    } else {
+      if (column.refTable) {
+        return await convertRowToPrimaryKey(
+          cellValue,
+          column.refTable,
+          schemaName
+        );
+      }
     }
   }
 }
