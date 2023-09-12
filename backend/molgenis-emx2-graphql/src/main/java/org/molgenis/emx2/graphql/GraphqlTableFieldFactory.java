@@ -496,14 +496,11 @@ public class GraphqlTableFieldFactory {
           subFilters.add(
               or(
                   ((List<Map<String, Object>>) entry.getValue())
-                      .stream().map(v -> createKeyFilter(v)).collect(Collectors.toList())));
+                      .stream().map(v -> createKeyFilter(table, v)).collect(Collectors.toList())));
         }
       } else {
         // find column by escaped name
-        Optional<Column> optional =
-            table.getColumns().stream()
-                .filter(c -> c.getIdentifier().equals(entry.getKey()))
-                .findFirst();
+        Optional<Column> optional = findColumnById(table, entry.getKey());
         if (!optional.isPresent())
           throw new GraphqlException(
               "Graphql API error: Column "
@@ -531,13 +528,24 @@ public class GraphqlTableFieldFactory {
     return subFilters.toArray(new FilterBean[subFilters.size()]);
   }
 
-  private static Filter createKeyFilter(Map<String, Object> map) {
+  private static Filter createKeyFilter(TableMetadata tableMetadata, Map<String, Object> map) {
     List<Filter> result = new ArrayList<>();
     for (Map.Entry<String, Object> entry : map.entrySet()) {
+      Optional<Column> optional = findColumnById(tableMetadata, entry.getKey());
+      if (optional.isEmpty())
+        throw new GraphqlException(
+            "Graphql API error: Column "
+                + entry.getKey()
+                + " unknown in table "
+                + tableMetadata.getTableName());
+      Column column = optional.get();
       if (entry.getValue() instanceof Map) {
-        result.add(f(entry.getKey(), createKeyFilter((Map<String, Object>) entry.getValue())));
+        result.add(
+            f(
+                column.getName(),
+                createKeyFilter(column.getRefTable(), (Map<String, Object>) entry.getValue())));
       } else {
-        result.add(f(entry.getKey(), Operator.EQUALS, entry.getValue()));
+        result.add(f(column.getName(), Operator.EQUALS, entry.getValue()));
       }
     }
     return and(result);
@@ -612,7 +620,7 @@ public class GraphqlTableFieldFactory {
     return result.toArray(new SelectColumn[result.size()]);
   }
 
-  private Optional<Column> findColumnById(TableMetadata aTable, String id) {
+  private static Optional<Column> findColumnById(TableMetadata aTable, String id) {
     if (aTable != null) {
       return aTable.getColumns().stream()
           .filter(

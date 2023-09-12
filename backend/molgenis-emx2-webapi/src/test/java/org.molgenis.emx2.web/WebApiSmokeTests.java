@@ -1227,4 +1227,29 @@ public class WebApiSmokeTests {
     }
     return firstJob;
   }
+
+  @Test
+  public void graphqlEqualsKeyFilterShouldConvertIdentifiersToColumnNames() {
+    String graphql =
+        """
+  query {
+  Cohorts(filter: { contacts: { equals: { firstName:"Nic" , lastName:"Timpson"} } }) {
+    name
+    contacts {
+      firstName, lastName
+    }
+  }
+}
+""";
+
+    String result =
+        given()
+            .when()
+            .body("{\"query\":" + graphql + "}")
+            .post(CATALOGUE_DEMO + "/api/graphql")
+            .getBody()
+            .asString();
+
+    assertTrue(result.contains("Nic"));
+  }
 }
