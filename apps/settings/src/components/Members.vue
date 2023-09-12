@@ -15,13 +15,21 @@
       <h5 class="card-title">Manage members</h5>
       <p>Use table below to add, edit or remove members</p>
       <form v-if="canEdit" class="form-inline">
-        <InputString
+        <InputEmail
           id="member-email"
-          class="mb-2 mr-sm-4"
+          class="mb-2 mr-2 mr-sm-4 email-input"
           v-model="editMember['email']"
           placeholder="email address"
           label="Email:"
-        />
+          :additionalValidValidationStrings="['user', 'anonymous']"
+        >
+          <template v-slot:prepend>
+            <Info class="mr-1">
+              Enter valid user email address or use the specials group: 'user'
+              or 'anonymous'
+            </Info>
+          </template>
+        </InputEmail>
         <InputSelect
           id="member-role"
           class="mb-2 mr-sm-4"
@@ -56,10 +64,12 @@ import {
   ButtonAction,
   ButtonAlt,
   TableSimple,
+  Info,
   InputCheckbox,
   InputFile,
   InputSelect,
   InputString,
+  InputEmail,
   LayoutCard,
   MessageError,
   MessageSuccess,
@@ -77,8 +87,10 @@ export default {
     MessageSuccess,
     Spinner,
     LayoutCard,
+    Info,
     InputCheckbox,
     InputString,
+    InputEmail,
     InputSelect,
   },
   props: {
@@ -165,3 +177,15 @@ export default {
   },
 };
 </script>
+
+<style>
+.email-input input {
+  min-width: 20rem !important;
+}
+.email-input .text-danger {
+  margin-left: 0.5rem;
+}
+.email-input .input-group {
+  flex-wrap: nowrap;
+}
+</style>

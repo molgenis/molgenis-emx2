@@ -86,8 +86,8 @@ import { useCheckoutStore } from "../../stores/checkoutStore";
 import { useCollectionStore } from "../../stores/collectionStore";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { sortCollectionsByLabel } from "../../functions/sorting";
+import { SimpleModal } from "molgenis-components";
 
-import SimpleModal from "./SimpleModal.vue";
 export default {
   setup() {
     const settingsStore = useSettingsStore();
@@ -141,7 +141,7 @@ export default {
     },
     sendRequest() {
       this.cartVisible = false;
-      //todo: this.SendToNegotiator();
+      this.checkoutStore.sendToNegotiator();
     },
   },
   watch: {

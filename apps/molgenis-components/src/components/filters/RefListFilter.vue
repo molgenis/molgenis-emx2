@@ -13,7 +13,7 @@
 import InputRefList from "../forms/InputRefList.vue";
 
 export default {
-  name: "InputRefListFilter",
+  name: "RefListFilter",
   components: { InputRefList },
   props: {
     id: {

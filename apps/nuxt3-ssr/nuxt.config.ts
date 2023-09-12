@@ -14,6 +14,7 @@ const devProxy = {
 
 const config = {
   modules: ["nuxt-proxy", "@nuxt/image-edge"],
+  devtools: { enabled: false },
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side
     public: {
@@ -21,6 +22,7 @@ const config = {
       emx2Theme: "",
       emx2Logo: "",
       siteTitle: "Data Catalogue",
+      analyticsKey: "",
       cohortOnly: false,
     },
   },

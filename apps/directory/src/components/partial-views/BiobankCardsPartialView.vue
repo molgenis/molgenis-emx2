@@ -54,7 +54,8 @@ export default {
   },
   computed: {
     biobanksShown() {
-      if (this.biobanksStore.waiting) return [];
+      if (this.biobanksStore.waiting || !this.biobanksStore.biobankCards)
+        return [];
       return this.biobanksStore.biobankCards.slice(
         this.settingsStore.config.pageSize *
           (this.settingsStore.currentPage - 1),
@@ -68,6 +69,12 @@ export default {
     },
   },
   watch: {
+    /** on hydrating the state we can have a race condition where biobanks gets queried too soon. */
+    "filtersStore.bookmarkWaitingForApplication"() {
+      if (this.biobanksShown.length === 0) {
+        this.biobanksStore.getBiobankCards();
+      }
+    },
     biobanksShown() {
       this.calculateCardWidth();
     },

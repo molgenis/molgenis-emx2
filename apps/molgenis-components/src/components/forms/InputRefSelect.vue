@@ -10,13 +10,14 @@
       <input
         class="form-control"
         :class="{ 'is-invalid': errorMessage }"
-        @click="showSelect = true"
-        @focus="showSelect = true"
+        @click="showSelect = !this.readonly"
+        @focus="showSelect = !this.readonly"
         :value="applyJsTemplate(modelValue, refLabel)"
+        :readonly="readonly"
       />
       <template v-slot:append>
         <button
-          v-if="modelValue"
+          v-if="modelValue && !this.readonly"
           @click="$emit('update:modelValue', null)"
           class="btn btn-outline-primary"
           type="button"
@@ -36,7 +37,7 @@
             @deselect="deselect(selectIdx)"
           >
             <template v-slot:rowheader="slotProps">
-              <ButtonAction @click="select(slotProps.rowkey)">
+              <ButtonAction @click="select(slotProps.rowKey)">
                 Select
               </ButtonAction>
             </template>
@@ -103,9 +104,9 @@ export default {
   },
   methods: {
     applyJsTemplate,
-    select(event) {
+    async select(event) {
       this.showSelect = false;
-      this.$emit("update:modelValue", event);
+      this.$emit("update:modelValue", await event);
     },
   },
 };
@@ -122,9 +123,24 @@ export default {
           v-model="value1"
           tableName="Pet"
           schemaName="pet store"
+          refLabel="${name}"
       />
       Selection: {{ value1 }}
     </div>
+
+    <div>
+      <label for="input-ref-select-1">Example readonly </label>
+      <InputRefSelect
+          id="input-ref-select-1b"
+          v-model="value1"
+          tableName="Pet"
+          schemaName="pet store"
+          refLabel="${name}"
+          :readonly="true"
+      />
+      Selection: {{ value1 }}
+    </div>
+
 
     <label for="input-ref-select-2" class="mt-3">Example with default value</label>
     <div>
@@ -133,6 +149,7 @@ export default {
           v-model="value2"
           tableName="Pet"
           schemaName="pet store"
+          refLabel="${name}"
       />
       Selection: {{ value2 }}
     </div>
@@ -145,6 +162,7 @@ export default {
           tableName="Pet"
           :filter="{category:{name: {equals:'dog'}}}"
           schemaName="pet store"
+          refLabel="${name}"
       />
       Selection: {{ value3 }}
     </div>

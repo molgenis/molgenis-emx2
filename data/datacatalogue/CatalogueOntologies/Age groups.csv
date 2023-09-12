@@ -11,5 +11,5 @@ order,name,code,parent,ontologyTermURI,definition
 10,Adult (25-44 years),25-44 years,Adult (18+ years),,
 11,Middle-aged (45-64 years),45-64 years,Adult (18+ years),,
 12,Aged (65+ years),65+ years,Adult (18+ years),,
-13,Aged (65-79 years),65-79 years,Aged (65-79 years),,
-14,Aged (80+ years),80+ years,Aged (80+ years),,
+13,Aged (65-79 years),65-79 years,Aged (65+ years),,
+14,Aged (80+ years),80+ years,Aged (65+ years),,

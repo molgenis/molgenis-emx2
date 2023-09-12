@@ -309,7 +309,8 @@
 <script>
 import { useSettingsStore } from "../../stores/settingsStore";
 import Landingpage from "../../views/Landingpage.vue";
-import SimpleModal from "../popovers/SimpleModal.vue";
+import { SimpleModal } from "molgenis-components";
+
 export default {
   setup() {
     const settingsStore = useSettingsStore();

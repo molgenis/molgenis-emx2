@@ -31,9 +31,9 @@ import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 public class TestGraphqSchemaFields {
 
+  private static final String schemaName = TestGraphqSchemaFields.class.getSimpleName();
   private static GraphQL grapql;
   private static Database database;
-  private static final String schemaName = TestGraphqSchemaFields.class.getSimpleName();
   private static TaskService taskService;
   private static Schema schema;
 
@@ -313,7 +313,10 @@ public class TestGraphqSchemaFields {
       execute("{Pet(filter:{name:{equals:\"spike\"}}){name,tags(orderby:{blaat:ASC}){name}}}");
       fail("should fail");
     } catch (MolgenisException e) {
-      assertTrue(e.getMessage().contains("Validation error of type WrongType: argument 'orderby'"));
+      assertTrue(
+          e.getMessage()
+              .contains(
+                  "Validation error (WrongType@[Pet/tags]) : argument 'orderby' with value 'ObjectValue{objectFields=[ObjectField{name='blaat', value=EnumValue{name='ASC'}}]}' contains a field not in 'Tagorderby': 'blaat'"));
     }
   }
 
@@ -350,6 +353,16 @@ public class TestGraphqSchemaFields {
     assertEquals(1, result.at("/Pet_groupBy/2/count").intValue());
     assertEquals("ant", result.at("/Pet_groupBy/2/category/name").textValue());
     assertEquals("green", result.at("/Pet_groupBy/2/tags/name").textValue());
+
+    // also works on refback
+    result = execute("{Pet_groupBy {count,orders{orderId}}}");
+    // 6 pets without order
+    assertEquals(6, result.at("/Pet_groupBy/0/count").intValue());
+    assertNull(null, result.at("/Pet_groupBy/0/orders").textValue());
+
+    // orderId=1 has one pet
+    assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
+    assert (result.at("/Pet_groupBy/1/orders/orderId").textValue().contains("ORDER:"));
 
     // N.B. in case arrays are involved total might more than count!!!
   }

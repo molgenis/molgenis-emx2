@@ -31,7 +31,7 @@
           name="rowheader"
           :row="slotProps.row"
           :metadata="slotProps.metadata"
-          :rowkey="slotProps.rowkey"
+          :rowKey="slotProps.rowKey"
         />
       </template>
     </TableExplorer>
@@ -243,14 +243,50 @@ export default {
 <template>
   <div>
     <div class="border p-1 my-1">
-      <label>Read only example</label>
+    <div>
+     <label for="routed-table-explorer-can-edit">Can edit</label>
+     <input class="ml-1" id='routed-table-explorer-can-edit' type="checkbox" v-model="canEdit" />
+    </div>
+
+    <div>
+     <label for="routed-table-explorer-schema">Schema</label>
+     <input class="ml-1" id='routed-table-explorer-schema' v-model="schema" />
+    </div>
+
+    <div>
+     <label for="routed-table-explorer-table">Table</label>
+     <input class="ml-1" id='routed-table-explorer-table' v-model="table" />
+    </div>
+
+    {{ schema }}  
+     
       <routed-table-explorer
         id="my-table-explorer"
-        tableName="Pet"
-        schemaName="pet store"
+        :key="dynamicKey"
+        :tableName="table"
+        :schemaName="schema"
+        :canEdit="canEdit"
       />
     </div>
   </div>
 </template>
+
+<script>
+export default {
+    data() {
+      return {
+        canEdit: false,
+        schema: "pet store",
+        table: "Pet"
+      }
+    },
+    computed: {
+      dynamicKey() {
+        return "my-table-explorer" + this.schema + "_" + this.table
+      },
+     
+    },
+  }
+</script>
 
 </docs>

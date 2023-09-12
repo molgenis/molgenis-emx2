@@ -28,24 +28,15 @@
           v-for="(row, index) in data"
           :key="index"
         >
-          <input
-            :id="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
-            :name="id"
-            type="radio"
-            :value="getPrimaryKey(row, tableMetaData)"
-            :checked="isSelected(row)"
-            @change="
-              $emit('update:modelValue', getPrimaryKey(row, tableMetaData))
-            "
-            class="form-check-input"
-            :class="{ 'is-invalid': errorMessage }"
+          <InputRefItem
+            :id="id"
+            :row="row"
+            :tableName="tableName"
+            :client="client"
+            :selection="modelValue"
+            :errorMessage="errorMessage"
+            @update:modelValue="select"
           />
-          <label
-            class="form-check-label"
-            :for="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
-          >
-            {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
-          </label>
         </div>
         <ButtonAlt
           class="pl-0"
@@ -86,7 +77,8 @@ import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
-import { flattenObject, getPrimaryKey, convertToPascalCase } from "../utils";
+import InputRefItem from "./InputRefItem.vue";
+import { flattenObject, convertToPascalCase } from "../utils";
 
 export default {
   name: "InputRef",
@@ -96,6 +88,7 @@ export default {
     LayoutModal,
     FormGroup,
     ButtonAlt,
+    InputRefItem,
   },
   props: {
     schemaName: {
@@ -125,7 +118,6 @@ export default {
       showSelect: false,
       data: [],
       count: 0,
-      tableMetaData: null,
     };
   },
   computed: {
@@ -140,7 +132,6 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey,
     clearValue() {
       this.$emit("update:modelValue", null);
     },
@@ -153,12 +144,6 @@ export default {
     closeSelect() {
       this.loadOptions();
       this.showSelect = false;
-    },
-    isSelected(row) {
-      return (
-        this.getPrimaryKey(row, this.tableMetaData)?.name ===
-        (this.modelValue ? this.modelValue.name : "")
-      );
     },
     flattenObject,
     async loadOptions() {
@@ -180,7 +165,6 @@ export default {
   },
   async created() {
     this.client = Client.newClient(this.schemaName);
-    this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
     await this.loadOptions();
   },
 };
@@ -227,7 +211,7 @@ export default {
     <DemoItem>
       <InputRef
         id="input-ref-filter"
-        label="Ref input with pre set filter"
+        label="Ref input with pre set filter ( only cats)"
         v-model="filterValue"
         tableName="Pet"
         description="Filter by name"
@@ -236,10 +220,12 @@ export default {
         :canEdit="canEdit"
       />
       Selection: {{ filterValue }}
+      <br />
+      Filter: { category: { name: { equals: 'cat' } } }
     </DemoItem>
     <DemoItem>
       <InputRef
-        id="input-ref"
+        id="input-ref-multi-column"
         label="Ref input with multiple columns"
         v-model="multiColumnValue"
         tableName="Pet"
@@ -249,7 +235,7 @@ export default {
         :itemsPerColumn="3"
         :canEdit="canEdit"
       />
-      Selection: {{ value }}
+      Selection: {{ multiColumnValue }}
     </DemoItem>
   </div>
 </template>

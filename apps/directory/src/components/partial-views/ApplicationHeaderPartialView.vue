@@ -20,7 +20,7 @@
     </div>
 
     <div class="row filterbar p-2" v-if="filtersReady">
-      <ButtonDropdown
+      <HtmlDropdown
         :id="filter.facetIdentifier"
         v-for="filter in filtersToRender"
         :key="filter.facetIdentifier"
@@ -35,8 +35,15 @@
             {{ filterSelectionCount(filter.facetIdentifier) }}</span
           >
         </template>
-        <component :is="filter.component" v-bind="filter"> </component>
-      </ButtonDropdown>
+        <component
+          :is="filter.component"
+          v-bind="filter"
+          @click="currentFilter = filter.facetIdentifier"
+          :currentlyActive="currentFilter === filter.facetIdentifier"
+          :optionsFilter="optionsPresent(filter.facetIdentifier)"
+        >
+        </component>
+      </HtmlDropdown>
 
       <toggle-filter
         v-for="toggleFilter of toggleFiltersToRender"
@@ -66,27 +73,38 @@ import SearchFilter from "../filters/SearchFilter.vue";
 import CheckboxFilter from "../filters/CheckboxFilter.vue";
 import OntologyFilter from "../filters/OntologyFilter.vue";
 import ToggleFilter from "../filters/ToggleFilter.vue";
-import ButtonDropdown from "../micro-components/ButtonDropdown.vue";
+import { HtmlDropdown } from "molgenis-components";
 /** */
 
 import CheckOut from "../checkout-components/CheckOut.vue";
+import { useBiobanksStore } from "../../stores/biobanksStore";
 
 export default {
   setup() {
+    const biobanksStore = useBiobanksStore();
     const settingsStore = useSettingsStore();
     const filtersStore = useFiltersStore();
     const checkoutStore = useCheckoutStore();
-    return { settingsStore, filtersStore, checkoutStore };
+    return { biobanksStore, settingsStore, filtersStore, checkoutStore };
   },
   components: {
     SearchFilter,
-    ButtonDropdown,
+    HtmlDropdown,
     CheckboxFilter,
     OntologyFilter,
     ToggleFilter,
     CheckOut,
   },
+  data() {
+    return {
+      currentFilter: "",
+    };
+  },
   computed: {
+    optionsPresent() {
+      return (facetIdentifier) =>
+        this.biobanksStore.getPresentFilterOptions(facetIdentifier);
+    },
     hasActiveFilters() {
       return this.filtersStore.hasActiveFilters;
     },

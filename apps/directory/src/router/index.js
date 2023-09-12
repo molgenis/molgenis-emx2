@@ -4,6 +4,7 @@ import AboutView from "../views/AboutView.vue";
 import Landingpage from "../views/Landingpage.vue";
 import BiobankReport from "../views/BiobankReport.vue";
 import NetworkReport from "../views/NetworkReport.vue";
+import CollectionReport from "../views/CollectionReport.vue";
 import ConfigurationScreen from "../views/ConfigurationScreen.vue";
 import { useSettingsStore } from "../stores/settingsStore";
 
@@ -23,10 +24,7 @@ const router = createRouter({
     {
       path: "/collection/:id",
       name: "collectiondetails",
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import("../views/CollectionReport.vue"),
+      component: CollectionReport,
     },
     {
       path: "/biobank/:id",
