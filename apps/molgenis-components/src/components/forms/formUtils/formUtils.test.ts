@@ -4,7 +4,6 @@ import constants from "../../constants.js";
 import {
   filterVisibleColumns,
   getChapterStyle,
-  getPageHeadings,
   getRowErrors,
   getSaveDisabledMessage,
   removeKeyColumns,
@@ -271,30 +270,6 @@ describe("removeKeyColumns", () => {
     const rowData = { some: "Data", key: "primaryKey" };
     const result = removeKeyColumns(metaData, rowData);
     expect(result).toEqual({ some: "Data" });
-  });
-});
-
-describe("getPageHeadings", () => {
-  test("it should return the pageheadings if the first column is a heading", () => {
-    const metaData = {
-      columns: [
-        { name: "first heading", columnType: HEADING },
-        { name: "second heading", columnType: HEADING },
-      ],
-    } as ITableMetaData;
-    const result = getPageHeadings(metaData);
-    expect(result).to.deep.equal(["first heading", "second heading"]);
-  });
-
-  test("it should return the pageheadings with first header added if the first column isn't a heading", () => {
-    const metaData = {
-      columns: [
-        { name: "some input", columnType: "STRING" },
-        { name: "second heading", columnType: HEADING },
-      ],
-    } as ITableMetaData;
-    const result = getPageHeadings(metaData);
-    expect(result).to.deep.equal(["First chapter", "second heading"]);
   });
 });
 
