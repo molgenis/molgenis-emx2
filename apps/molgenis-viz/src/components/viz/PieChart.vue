@@ -59,6 +59,18 @@ export default {
         return Object.keys(object).length <= 7;
       },
     },
+    
+    // If true (default), values will be rendered with the labels
+    valuesAreShown: {
+      type: Boolean,
+      default: true
+    },
+    
+    // If true, labels will be generated with a percent sign.
+    valuesArePercents: {
+      type: Boolean,
+      default: true
+    },
 
     // set the height of the chart. Width is determined by the
     // dimensions of the parent container so that the chart is
@@ -308,20 +320,31 @@ export default {
         .style("text-anchor", this.setTextAnchor)
         .style("font-size", "11pt");
 
-      labels
+      const labelCategories = labels
         .append("tspan")
         .attr("class", "data-label")
         .attr("x", (value) => this.setLabelPosition(value)[0])
         .attr("data-group", (value) => value.data[0])
-        .text((value) => value.data[0]);
+        .text((value) => value.data[0])
+        .attr("dy", "0.25em");
 
-      labels
-        .append("tspan")
-        .attr("class", "data-value")
-        .attr("x", (value) => this.setLabelPosition(value)[0])
-        .attr("dy", "1.1em")
-        .attr("data-group", (value) => value.data[0])
-        .text((value) => `${value.data[1]}%`);
+      if (this.valuesAreShown) {
+        labelCategories.attr("dy", "0");
+        
+        labels
+          .append("tspan")
+          .attr("class", "data-value")
+          .attr("x", (value) => this.setLabelPosition(value)[0])
+          .attr("dy", "1.1em")
+          .attr("data-group", (value) => value.data[0])
+          .text((value) => {
+            const text = value.data[1];
+            if (this.valuesArePercents) {
+              return `${text}%`
+            }
+            return text
+          });
+      }
     },
     renderChart() {
       this.setChartDimensions();
