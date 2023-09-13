@@ -27,7 +27,7 @@ public class TestGrantRolesToUsers {
   public void testGrantRevokeMembership() {
 
     Schema schema = database.dropCreateSchema("testGrantRevokeMembership");
-    List first = Arrays.asList("Viewer", "Editor", "Manager", "Owner");
+    List first = Arrays.asList("Aggregator", "Viewer", "Editor", "Manager", "Owner");
     List second = schema.getRoles();
     assertTrue(
         first.size() == second.size() && first.containsAll(second) && second.containsAll(first));
@@ -213,7 +213,7 @@ public class TestGrantRolesToUsers {
       assertEquals(OWNER.toString(), schema.getRoleForUser("testadmin"));
 
       assertTrue(schema.getInheritedRolesForUser("testadmin").contains(OWNER.toString()));
-      assertEquals(4, schema.getInheritedRolesForUser("testadmin").size());
+      assertEquals(5, schema.getInheritedRolesForUser("testadmin").size());
 
       database.setActiveUser("testadmin");
       assertEquals(OWNER.toString(), schema.getRoleForActiveUser());

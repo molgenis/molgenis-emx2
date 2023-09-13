@@ -50,7 +50,10 @@ public class TestGraphqSchemaFields {
   public void testSession() throws IOException {
     try {
       database.setActiveUser(ANONYMOUS);
-      assertEquals(1, execute("{_session{email,roles}}").at("/_session/roles").size());
+      grapql =
+          new GraphqlApiFactory()
+              .createGraphqlForSchema(database.getSchema(schemaName), taskService);
+      assertEquals(2, execute("{_session{email,roles}}").at("/_session/roles").size());
       execute("mutation { signin(email: \"shopmanager\",password:\"shopmanager\") {message}}");
       grapql =
           new GraphqlApiFactory()
@@ -58,6 +61,9 @@ public class TestGraphqSchemaFields {
       assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));
     } finally {
       database.becomeAdmin();
+      grapql =
+          new GraphqlApiFactory()
+              .createGraphqlForSchema(database.getSchema(schemaName), taskService);
     }
   }
 
