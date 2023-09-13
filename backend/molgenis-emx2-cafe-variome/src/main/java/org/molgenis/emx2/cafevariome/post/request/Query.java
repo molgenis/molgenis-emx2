@@ -11,6 +11,7 @@ import static org.molgenis.emx2.cafevariome.post.request.parser.RequiredQueryPar
 import java.util.Map;
 import org.molgenis.emx2.cafevariome.post.jsonrequest.JsonQuery;
 import org.molgenis.emx2.cafevariome.post.jsonrequest.parser.JsonHPOQueryParser;
+import org.molgenis.emx2.cafevariome.post.jsonrequest.parser.JsonORDOQueryParser;
 import org.molgenis.emx2.cafevariome.post.request.query.EAVQuery;
 import org.molgenis.emx2.cafevariome.post.request.query.HPOQuery;
 import org.molgenis.emx2.cafevariome.post.request.query.ORDOQuery;
@@ -56,6 +57,9 @@ public class Query {
 
     if (JsonHPOQueryParser.hasHPOParams(request)) {
       this.hpoQuery = JsonHPOQueryParser.getHPOQueryFromRequest(request);
+    }
+    if (JsonORDOQueryParser.hasORDOParams(request)) {
+      this.ordoQuery = JsonORDOQueryParser.getORDOQueryFromRequest(request);
     }
 
     // TODO

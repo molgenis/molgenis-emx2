@@ -2,6 +2,7 @@ package org.molgenis.emx2.cafevariome.post;
 
 import static org.molgenis.emx2.beaconv2.endpoints.individuals.QueryIndividuals.queryIndividuals;
 import static org.molgenis.emx2.cafevariome.post.request.gql.Filters.makeHPOFilter;
+import static org.molgenis.emx2.cafevariome.post.request.gql.Filters.makeORDOFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -34,6 +35,9 @@ public class CafeVariomeQueryService {
     List<String> filters = new ArrayList<>();
     if (query.hasHPO()) {
       filters.addAll(makeHPOFilter(query.getHpoQuery()));
+    }
+    if (query.hasORDO()) {
+      filters.addAll(makeORDOFilter(query.getOrdoQuery()));
     }
     List<IndividualsResultSets> individualsResultSets =
         queryIndividuals(tables, filters.toArray(new String[0]));

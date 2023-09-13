@@ -9,8 +9,6 @@ import org.molgenis.emx2.cafevariome.post.request.query.ORDOQuery;
 
 public class Filters {
 
-  /// "{phenotypicFeatures: { featureType: { ontologyTermURI: {like:"
-
   public static List<String> makeHPOFilter(HPOQuery hpoQuery) throws Exception {
     List<String> result = new ArrayList<>();
     for (String hpoTerm : hpoQuery.getSearchTerms()) {
@@ -30,7 +28,17 @@ public class Filters {
 
   public static List<String> makeORDOFilter(ORDOQuery ordoQuery) throws Exception {
     List<String> result = new ArrayList<>();
-    // "{diseases: { diseaseCode: { ontologyTermURI: {like:"
+    String ordoTerm = ordoQuery.getSearchTerm();
+    if (ordoTerm.startsWith("ORPHA:")) {
+      ordoTerm = ordoTerm.replace("ORPHA:", "ORPHA_");
+    } else {
+      System.out.println("ordoTerm=" + ordoTerm);
+      throw new Exception("Expected input ORDO term to start with 'ORPHA:'");
+    }
+    String filter =
+            "{diseases: { diseaseCode: { ontologyTermURI: {like:\"" + ordoTerm + "\"";
+    filter = finalizeFilter(filter);
+    result.add(filter);
     return result;
   }
 }
