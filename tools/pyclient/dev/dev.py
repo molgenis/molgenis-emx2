@@ -2,7 +2,7 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2023-09-11
+# MODIFIED: 2023-09-13
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
@@ -76,14 +76,14 @@ async def main():
         data = client.get(table='Pet', as_df=True)  # get Pets
         print(data)
 
-    # ///////////////////////////////////////////////////////////////////////////////
+        # ///////////////////////////////////////////////////////////////////////////////
 
-    # ~ 1 ~
-    # Check Import Methods
+        # ~ 1 ~
+        # Check Import Methods
 
-    # ~ 1a ~
-    # Check import via the `data` parameters
-    # Add new record to the pet store with new tags
+        # ~ 1a ~
+        # Check import via the `data` parameters
+        # Add new record to the pet store with new tags
 
         new_tags = [
             {'name': 'brown', 'parent': 'colors'},
