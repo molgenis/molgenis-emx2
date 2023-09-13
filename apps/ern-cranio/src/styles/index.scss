@@ -3,7 +3,7 @@ $ern-cranio-primary-alt: hsl(23, 88%, 83%);
 
 .app-page,
 .page-footer {
-  font-size: 14pt;
+  font-size: 12pt;
   font-family: Helvetica, sans-serif;
 
   .page-header {
@@ -11,5 +11,29 @@ $ern-cranio-primary-alt: hsl(23, 88%, 83%);
       background-color: $gray-050;
       height: 21em;
     }
+  }
+  
+  .message-box {
+    .message-text {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      p {
+        margin: 0;
+      }
+    }
+  }
+  
+}
+
+.inputs {
+  display: block;
+  width: 100%;
+  
+  &.select {
+    background-color: transparent;
+    padding: 8px 12px;
+    border: 1px solid $gray-700;
+    box-shadow: inset 0px 0px 2px 2px $gray-100;
   }
 }

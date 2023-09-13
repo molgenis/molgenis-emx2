@@ -1,9 +1,14 @@
 <template>
-  <ProviderDashboard id="provider-clp">
+  <ProviderDashboard class="two-column-layout">
     <DashboardBox class="mb-4">
       <h2>General overview for all centers</h2>
-      <InputLabel  id="yearOfBirthFilter" label="Select by year of birth" />
-      <select id="yearOfBirthFilter">
+      <p>The following charts provides a general overview for all centers.</p>
+      <InputLabel
+        id="yearOfBirthFilter"
+        label="Year of birth"
+        description="Limit the results by year of birth"
+      />
+      <select class="inputs select" id="yearOfBirthFilter">
         <option value="all">All Patients</option>
         <option v-for="year in yearOfBirthOptions" :value="year">
           {{ year }}
@@ -54,7 +59,7 @@
           yvar="value"
           :yMax="100"
           :yTickValues="[0,25,50,75,100]"
-          :chartHeight="300"
+          :chartHeight="250"
         />
       </DashboardBox>
     </div>

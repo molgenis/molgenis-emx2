@@ -115,7 +115,7 @@ const props = defineProps({
         background-color: transparent;
         
         .toggle-label {
-          font-size: 14pt;
+          font-size: 12pt;
         }
       }
       .accordion-content { 

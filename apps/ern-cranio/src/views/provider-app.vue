@@ -36,6 +36,13 @@ const props = defineProps({
       display: grid;
       gap: 2em; 
     }
+    
+    .two-column-layout {
+      .provider-visualizations {
+        grid-template-columns: 1fr 1fr;
+        margin-bottom: 2em;
+      }
+    }
 
     .dashboard-box {
       box-sizing: content-box;

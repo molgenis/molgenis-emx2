@@ -1,5 +1,5 @@
 <template>
-  <ProviderDashboard id="provider-clp">
+  <ProviderDashboard class="two-column-layout">
     <h2>Overview for your center</h2>
     <div class="provider-visualizations">
       <DashboardBox id="clp-patients-by-phenotype">
@@ -162,12 +162,3 @@ let softPalateClosureOutcomes = ref({
 
 
 </script>
-
-<style lang="scss">
-#provider-clp {
-  .provider-visualizations {
-    grid-template-columns: 1fr 1fr;
-    margin-bottom: 2em;
-  }
-}
-</style>

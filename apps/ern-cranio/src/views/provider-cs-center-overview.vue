@@ -1,5 +1,5 @@
 <template>
-  <ProviderDashboard id="provider-clp">
+  <ProviderDashboard class="two-column-layout">
     <h2>General overview for your center</h2>
     
   </ProviderDashboard>

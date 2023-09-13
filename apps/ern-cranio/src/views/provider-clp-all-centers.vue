@@ -1,5 +1,5 @@
 <template>
-  <ProviderDashboard id="provider-clp">
+  <ProviderDashboard class="two-column-layout">
     <h2>Overview "level 1" outcomes</h2>
     <DashboardBox id="clp-outcome-cleft-q" class="mb-4 mt-4">
       <GroupedColumnChart
