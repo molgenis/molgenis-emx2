@@ -145,7 +145,7 @@ function buildRecordId(record: any) {
               >
                 <ResourceCard
                   :resource="resource"
-                  :schema="route.params.schema"
+                  :schema="schemaName"
                   :resource-name="resourceName"
                   :compact="activeName !== 'detailed'"
                   :resourceId="buildRecordId(resource)"
