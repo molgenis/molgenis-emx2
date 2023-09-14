@@ -85,7 +85,7 @@ let csTypes = ref({
   'Non-syndromic': 20,
   Familial: 15,
   Metabolic: 13,
-  iatrogenic: 7
+  Iatrogenic: 7
 });
 
 let affectedSuture = ref({

@@ -39,8 +39,14 @@ const props = defineProps({
     
     .two-column-layout {
       .provider-visualizations {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         margin-bottom: 2em;
+      }
+      
+      @media (min-width: 1236px) {
+        .provider-visualizations {
+          grid-template-columns: 1fr 1fr;
+        }
       }
     }
 

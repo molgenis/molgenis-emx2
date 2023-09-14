@@ -4,7 +4,7 @@
     <div class="provider-visualizations">
       <DashboardBox>
         <PieChart
-          chartId="cs-surgical-type-of-craniosynostosis"
+          chartId="cs-all-surgical-type-of-craniosynostosis"
           title="Type of craniosynostosis"
           :chartData="typeOfCraniosynostosis"
           :chartHeight="225"
@@ -14,7 +14,7 @@
       </DashboardBox>
       <DashboardBox>
         <PieChart
-          chartId="cs-surgical-affected-suture"
+          chartId="cs-all-surgical-affected-suture"
           title="Affected suture"
           :chartData="affectedSuture"
           :chartHeight="225"
@@ -27,18 +27,17 @@
     <div class="provider-visualizations">
       <DashboardBox>
         <PieChart
-          chartId="cs-surgical-type-of-surgery"
+          chartId="cs-all-surgical-type-of-surgery"
           title="Type of surgery"
           :chartData="typeOfSurgery"
           :chartHeight="225"
           :chartScale="0.95"
           :asDonutChart="true"
-          
         />
       </DashboardBox>
       <DashboardBox>
         <PieChart
-          chartId="cs-surgical-complications"
+          chartId="cs-all-surgical-complications"
           title="Complications"
           :chartData="complications"
           :chartColors="{
@@ -50,13 +49,38 @@
           :asDonutChart="true"
         />
       </DashboardBox>
+      <DashboardBox>
+        <PieChart
+          chartId="cs-all-surgical-interventions"
+          title="Surgical Interventions"
+          :chartData="surgicalInterventions"
+          :chartHeight="225"
+          :chartScale="0.95"
+          :asDonutChart="true"
+        />
+      </DashboardBox>
+      <DashboardBox>
+        <ColumnChart
+          chartId="cd-all-surgical-age-at-surgery"
+          title="Age at first surgery"
+          description="Number of patients by age (months)"
+          :chartData="ageAtSurgery"
+          xvar="age"
+          yvar="value"
+          xAxisLabel="Age (months)"
+          yAxisLabel="Number of patients"
+          :yMax="100"
+          :yTickValues="[0,25,50,75,100]"
+          :chartHeight="250"
+        />
+      </DashboardBox>
     </div>
   </ProviderDashboard>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { DashboardBox, PieChart } from "molgenis-viz";
+import { DashboardBox, PieChart, ColumnChart } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 
 const props = defineProps({
@@ -66,13 +90,24 @@ const props = defineProps({
 
 
 // create random datasets for demo purposes
+import { randomInt } from "d3";
 import { randomPercentages } from "../utils/devtools.js";
+
+function seq (start, stop, by) {
+  return Array.from({ length: (stop - start) / by + 1 }, (_, i) => start + i * by);
+}
 
 let typeOfSurgery = ref({});
 let complications = ref({});
-let surgicalInterventions = ref({})
+let surgicalInterventions = ref({});
+let ageAtSurgery = ref(seq(0, 14, 2).map(value => {
+    return {age: `${value}`, value: randomInt(1,100)()}
+}));
 
-function generatePieData() {
+function generateChartData() {
+  
+  // generate datasets (objects) for pie charts
+  
   typeOfSurgery.value = randomPercentages({
     labels: ['Vault', "Midface", 'Hydrocephalus', 'Aesthetic'],
     asObject: true
@@ -88,6 +123,10 @@ function generatePieData() {
     asObject: true
   })
   
+  // generate list of arrays for column chart
+  ageAtSurgery.value = seq(0, 14, 2).map(value => {
+    return {age: `${value}`, value: randomInt(1,100)()}
+  });
 }
 
 let typeOfCraniosynostosis = ref(
@@ -105,12 +144,12 @@ let affectedSuture = ref(
 )
 
 onMounted(() => {
-  generatePieData();
+  generateChartData();
 });
 
 
 function onClick() {
-  generatePieData();
+  generateChartData();
 }
 
 </script>
