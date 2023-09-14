@@ -1,6 +1,6 @@
 <template>
-  <ProviderDashboard id="provider-overview" class="provider-visualizations">
-    <DashboardBox id="provider-overview-welcome">
+  <ProviderDashboard>
+    <DashboardBox id="provider-overview-welcome" class="mb-4">
       <h2>Welcome, {{ user }}!</h2>
       <p>
         Welcome to {{ organization.name }}'s dashboard. These pages provide an
@@ -9,49 +9,51 @@
         today.
       </p>
     </DashboardBox>
-    <DashboardBox
-      id="provider-overview-patients-submitted"
-      class="value-highlight"
-    >
-      <h2>
-        <UserGroupIcon />
-        <span>{{ totalPatientsSubmitted }} patients submitted</span>
-      </h2>
-      <p>
-        Your center submitted on average
-        {{ avergagePatientsSubmitted }} patients per month.
-      </p>
-    </DashboardBox>
-    <DashboardBox id="provider-overview-current-rank" class="value-highlight">
-      <h2>
-        <TrophyIcon />
-        <span>{{ currentCenterRanking }} in overall submitted patients</span>
-      </h2>
-      <p>
-        Patients from your center account for {{ percentOfRegistry }} of the
-        registry.
-      </p>
-    </DashboardBox>
-    <DashboardBox id="provider-overview-patients-by-workstream">
-      <PieChart
-        chartId="patientsByWorkstream"
-        title="Patients submitted by workstream"
-        :chartData="patientsBySubregistry"
-        :chartHeight="pieChartHeight"
-        :asDonutChart="true"
-        :chartScale="0.95"
-      />
-    </DashboardBox>
-    <DashboardBox id="provider-overview-patients-by-sex-at-birth">
-      <PieChart
-        chartId="sexAtBirth"
-        title="Sex at birth"
-        :chartData="sexAtBirth"
-        :chartHeight="pieChartHeight"
-        :asDonutChart="true"
-        :chartScale="0.95"
-      />
-    </DashboardBox>
+    <DashboardChartLayout :columns="2">
+      <DashboardBox
+        id="provider-overview-patients-submitted"
+        class="value-highlight"
+      >
+        <h2>
+          <UserGroupIcon />
+          <span>{{ totalPatientsSubmitted }} patients submitted</span>
+        </h2>
+        <p>
+          Your center submitted on average
+          {{ avergagePatientsSubmitted }} patients per month.
+        </p>
+      </DashboardBox>
+      <DashboardBox id="provider-overview-current-rank" class="value-highlight">
+        <h2>
+          <TrophyIcon />
+          <span>{{ currentCenterRanking }} in overall submitted patients</span>
+        </h2>
+        <p>
+          Patients from your center account for {{ percentOfRegistry }} of the
+          registry.
+        </p>
+      </DashboardBox>
+      <DashboardBox id="provider-overview-patients-by-workstream">
+        <PieChart
+          chartId="patientsByWorkstream"
+          title="Patients submitted by workstream"
+          :chartData="patientsBySubregistry"
+          :chartHeight="pieChartHeight"
+          :asDonutChart="true"
+          :chartScale="0.95"
+        />
+      </DashboardBox>
+      <DashboardBox id="provider-overview-patients-by-sex-at-birth">
+        <PieChart
+          chartId="sexAtBirth"
+          title="Sex at birth"
+          :chartData="sexAtBirth"
+          :chartHeight="pieChartHeight"
+          :asDonutChart="true"
+          :chartScale="0.95"
+        />
+      </DashboardBox>
+    </DashboardChartLayout>
   </ProviderDashboard>
 </template>
 
@@ -60,6 +62,7 @@ import { ref } from "vue";
 import { UserGroupIcon, TrophyIcon } from "@heroicons/vue/24/outline";
 import { DashboardBox, PieChart } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
+import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
   user: String,
@@ -97,32 +100,3 @@ let sexAtBirth = ref({
   Undetermined: 15,
 });
 </script>
-
-<style lang="scss">
-#provider-overview {
-  grid-template-areas:
-    "header header"
-    "totalPatients providerRank"
-    "pieSubregistry pieSexAtBirth";
-}
-
-#provider-overview-welcome {
-  grid-area: header;
-}
-
-#provider-overview-patients-submitted {
-  grid-area: totalPatients;
-}
-
-#provider-overview-current-rank {
-  grid-area: providerRank;
-}
-
-#provider-overview-patients-by-workstream {
-  grid-area: pieSubregistry;
-}
-
-#provider-overview-patients-by-sex-at-birth {
-  grid-area: pieSexAtBirth;
-}
-</style>

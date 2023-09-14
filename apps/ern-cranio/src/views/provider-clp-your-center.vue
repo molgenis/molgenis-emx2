@@ -1,7 +1,7 @@
 <template>
-  <ProviderDashboard class="two-column-layout">
+  <ProviderDashboard>
     <h2>Overview for your center</h2>
-    <div class="provider-visualizations">
+    <DashboardChartLayout :columns="2">
       <DashboardBox id="clp-patients-by-phenotype">
           <PieChart
             chartId="patientsByPhenotype"
@@ -40,10 +40,10 @@
           :barHeight="25"
         />
       </DashboardBox>
-    </div>
+    </DashboardChartLayout>
     <h2>Surgical Overview for your center</h2>
     <h3>Lip closure overview</h3>
-    <div class="provider-visualizations">
+    <DashboardChartLayout>
       <DashboardBox id="clp-timing-of-lip-closure">
         <ColumnChart
           chartId="timingLipClosure"
@@ -68,9 +68,9 @@
           :asDonutChart="true"
         />
       </DashboardBox>
-    </div>
+    </DashboardChartLayout>
     <h3>Soft palate closure overview</h3>
-    <div class="provider-visualizations">
+    <DashboardChartLayout>
       <DashboardBox id="clp-soft-palate-closure">
         <ColumnChart
           chartId="softPalateClosure"
@@ -95,14 +95,15 @@
           :asDonutChart="true"
         />
       </DashboardBox>
-    </div>
+    </DashboardChartLayout>
   </ProviderDashboard>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { DashboardBox, PieChart, ProgressMeter, ColumnChart, GroupedColumnChart } from "molgenis-viz";
+import { DashboardBox, PieChart, ProgressMeter, ColumnChart } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
+import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
   user: String,

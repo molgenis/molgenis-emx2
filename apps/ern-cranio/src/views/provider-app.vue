@@ -32,24 +32,10 @@ const props = defineProps({
     align-items: flex-start;
     justify-content: flex-start;
     
-    .provider-visualizations {
-      display: grid;
-      gap: 2em; 
+    .dashboard-chart-layout {
+      margin-bottom: 2em;
     }
     
-    .two-column-layout {
-      .provider-visualizations {
-        grid-template-columns: 1fr;
-        margin-bottom: 2em;
-      }
-      
-      @media (min-width: 1236px) {
-        .provider-visualizations {
-          grid-template-columns: 1fr 1fr;
-        }
-      }
-    }
-
     .dashboard-box {
       box-sizing: content-box;
       padding: 1.3em;

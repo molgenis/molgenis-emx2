@@ -1,5 +1,5 @@
 <template>
-  <ProviderDashboard class="two-column-layout">
+  <ProviderDashboard>
     <DashboardBox class="mb-4">
       <h2>General overview for all centers</h2>
       <p>The following charts provides a general overview for all centers.</p>
@@ -15,7 +15,7 @@
         </option>
       </select>
     </DashboardBox>
-    <div class="provider-visualizations">
+    <DashboardChartLayout :columns="2">
       <DashboardBox id="type-of-craniosynostosis">
         <PieChart
           chartId="cs-types"
@@ -62,7 +62,7 @@
           :chartHeight="250"
         />
       </DashboardBox>
-    </div>
+    </DashboardChartLayout>
   </ProviderDashboard>
 </template>
 
@@ -70,6 +70,7 @@
 import { ref } from "vue";
 import { DashboardBox, PieChart, InputLabel, ColumnChart } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
+import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
   user: String,

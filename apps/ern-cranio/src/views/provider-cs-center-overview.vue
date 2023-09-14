@@ -1,5 +1,5 @@
 <template>
-  <ProviderDashboard class="two-column-layout">
+  <ProviderDashboard>
     <DashboardBox class="mb-4">
       <h2>General overview for your centers</h2>
       <p>The following charts provides a general overview for all centers.</p>
@@ -15,7 +15,7 @@
         </option>
       </select>
     </DashboardBox>
-    <div class="provider-visualizations">
+    <DashboardChartLayout :columns="2">
       <DashboardBox>
         <PieChart
           chartId="cs-center-type-of-craniosynostosis"
@@ -50,14 +50,15 @@
           :asDonutChart="true"
         />
       </DashboardBox>
-    </div>
+    </DashboardChartLayout>
   </ProviderDashboard>
 </template>
 
 <script setup>
 import { ref } from "vue";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
-import { DashboardBox, PieChart, ColumnChart, InputLabel } from "molgenis-viz";
+import { DashboardBox, PieChart, InputLabel } from "molgenis-viz";
+import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
   user: String,
@@ -66,7 +67,6 @@ const props = defineProps({
 
 
 // define random data
-import { randomInt } from "d3";
 let yearOfBirthOptions= ref(Array.from({length: 16}, (v,i) => 1980+i));
 
 let centerTypeOfCs = ref({

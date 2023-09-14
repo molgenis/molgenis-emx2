@@ -1,7 +1,7 @@
 <template>
-  <ProviderDashboard class="one-column-layout">
+  <ProviderDashboard>
     <h2>Surgical overview for your center</h2>
-    <div class="provider-visualizations">
+    <DashboardChartLayout :columns="2">
       <DashboardBox>
         <GroupedColumnChart
           chartId="cs-center-surgical-type-of-surgery-combined"
@@ -35,7 +35,7 @@
             'Your center': '#b2e2e2',
             'ERN': '#66c2a4',
           }"
-          :chartHeight="250"
+          :chartHeight="300"
         />
       </DashboardBox>
       <DashboardBox>
@@ -53,9 +53,10 @@
             'Your center': '#b2e2e2',
             'ERN': '#66c2a4',
           }"
-          :chartHeight="250"
+          :chartHeight="300"
         />
       </DashboardBox>
+      </DashboardChartLayout>
       <DashboardBox>
         <GroupedColumnChart
           chartId="cs-center-age-at-first-surgery-combined"
@@ -67,14 +68,15 @@
           :yMax="100"
           xAxisLabel="Age (months)"
           :yTickValues="[0,25,50,75,100]"
+          :columnPaddingInner="0.2"
+          :columnPaddingOuter="0.3"
           :columnFillPalette="{
             'Your center': '#b2e2e2',
             'ERN': '#66c2a4',
           }"
-          :chartHeight="250"
+          :chartHeight="325"
         />
-      </DashboardBox>
-    </div>
+    </DashboardBox>
   </ProviderDashboard>
 </template>
 
@@ -82,6 +84,7 @@
 import { ref } from "vue";
 import { DashboardBox, GroupedColumnChart } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
+import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
   user: String,

@@ -1,7 +1,7 @@
 <template>
-  <ProviderDashboard class="two-column-layout">
+  <ProviderDashboard>
     <h2>Surgical overview for all centers</h2>
-    <div class="provider-visualizations">
+    <DashboardChartLayout>
       <DashboardBox>
         <PieChart
           chartId="cs-all-surgical-type-of-craniosynostosis"
@@ -22,9 +22,9 @@
           :asDonutChart="true"
         />
       </DashboardBox>
-    </div>
+    </DashboardChartLayout>
     <h3>Overview of all surgical interventions</h3>
-    <div class="provider-visualizations">
+    <DashboardChartLayout>
       <DashboardBox>
         <PieChart
           chartId="cs-all-surgical-type-of-surgery"
@@ -74,7 +74,7 @@
           :chartHeight="250"
         />
       </DashboardBox>
-    </div>
+    </DashboardChartLayout>
   </ProviderDashboard>
 </template>
 
@@ -82,6 +82,7 @@
 import { ref, onMounted } from "vue";
 import { DashboardBox, PieChart, ColumnChart } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
+import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
   user: String,
