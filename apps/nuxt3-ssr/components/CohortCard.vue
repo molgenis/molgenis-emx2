@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ICohort } from "~/interfaces/types";
 let truncate = ref(true);
-const cutoff = 50;
+const cutoff = 250;
 
 const props = withDefaults(
   defineProps<{
