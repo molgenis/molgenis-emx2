@@ -12,14 +12,14 @@ import org.molgenis.emx2.Schema;
 public class SchemaToRDF {
   public static void describeSchema(
       ModelBuilder builder, Schema schema, String schemaContext, String rootContext) {
-    builder.add(schemaContext, RDFS.LABEL, schema.getName());
+    builder.add(schemaContext, RDFS.LABEL, schema.getIdentifier());
     builder.add(schemaContext, DCTERMS.IS_PART_OF, encodedIRI(rootContext));
     if (schema.getMetadata().getDescription() != null) {
       builder.add(schemaContext, DCTERMS.DESCRIPTION, schema.getMetadata().getDescription());
     }
     builder.add(schemaContext, RDF.TYPE, RDFS.CONTAINER);
-    for (String tableName : schema.getTableNames()) {
-      IRI tableContext = encodedIRI(schemaContext + "/" + tableName);
+    for (var table : schema.getTablesSorted()) {
+      IRI tableContext = encodedIRI(schemaContext + "/" + table.getIdentifier());
       builder.add(schemaContext, "http://www.w3.org/ns/ldp#contains", tableContext);
     }
   }

@@ -20,6 +20,8 @@ public interface Schema {
 
   Table getTable(String name);
 
+  Table getTableByIdentifier(String name);
+
   List<Table> getTablesSorted();
 
   void dropTable(String name);
@@ -69,4 +71,6 @@ public interface Schema {
   String getSettingValue(String key);
 
   boolean hasSetting(String emailHost);
+
+  String getIdentifier();
 }

@@ -35,9 +35,9 @@ public class ValueToRDF {
       throws Exception {
     Map<String, Column> columnMap = new HashMap<>();
     for (Column c : table.getMetadata().getColumns()) {
-      columnMap.put(c.getName(), c);
+      columnMap.put(c.getIdentifier(), c);
     }
-    String tableContext = schemaContext + "/" + table.getName();
+    String tableContext = schemaContext + "/" + table.getIdentifier();
     Query query = selectColumns(table);
     if (rowId != null) {
       // FIXME: how to support multiple PKs?
@@ -45,7 +45,7 @@ public class ValueToRDF {
     }
     String json = query.retrieveJSON();
     Map<String, List<Map<String, Object>>> jsonMap = jsonMapper.readValue(json, Map.class);
-    List<Map<String, Object>> data = jsonMap.get(table.getName());
+    List<Map<String, Object>> data = jsonMap.get(table.getIdentifier());
 
     if (data == null) {
       return;
@@ -57,7 +57,7 @@ public class ValueToRDF {
           table.getMetadata().getPrimaryKeys().stream()
               .map(primaryKey -> row.get(primaryKey).toString())
               .collect(Collectors.joining("-"));
-      IRI rowContext = encodedIRI(schemaContext + "/" + table.getName() + "/" + pkValue);
+      IRI rowContext = encodedIRI(schemaContext + "/" + table.getIdentifier() + "/" + pkValue);
 
       builder.add(rowContext, RDF.TYPE, encodedIRI(tableContext));
       // SIO:001187 = database row
@@ -118,16 +118,16 @@ public class ValueToRDF {
       TableMetadata tableMetadata = column.getRefTable();
       String primaryKey = tableMetadata.getPrimaryKeys().get(0);
       String pkValue = TypeUtils.toString(((Map) o).get(primaryKey));
-      return encodedIRI(schemaContext + "/" + tableMetadata.getTableName() + "/" + pkValue);
+      return encodedIRI(schemaContext + "/" + tableMetadata.getIdentifier() + "/" + pkValue);
     } else if (columnType.equals(ColumnType.FILE)) {
       Map map = ((Map) o);
       if (map.get("id") != null) {
         return encodedIRI(
             schemaContext
                 + "/api/file/"
-                + column.getTableName()
+                + column.getTable().getIdentifier()
                 + "/"
-                + column.getName()
+                + column.getIdentifier()
                 + "/"
                 + map.get("id"));
       } else {
@@ -139,26 +139,17 @@ public class ValueToRDF {
       if (o == null) {
         return null;
       }
-      switch (XSDType) {
-        case BOOLEAN:
-          return literal((boolean) o);
-        case DATE:
-          return literal(TypeUtils.toString(o), XSDType);
-        case DATETIME:
-          return literal(TypeUtils.toString(o).substring(0, 19), XSDType);
-        case DECIMAL:
-          return literal(fixDouble(o));
-        case STRING:
-          return literal(TypeUtils.toString(o));
-        case ANYURI:
-          return encodedIRI(TypeUtils.toString(o));
-        case INT:
-          return literal((int) o);
-        case LONG:
-          return literal(fixLong(o));
-        default:
-          throw new Exception("XSD type formatting not supported for: " + XSDType);
-      }
+      return switch (XSDType) {
+        case BOOLEAN -> literal((boolean) o);
+        case DATE -> literal(TypeUtils.toString(o), XSDType);
+        case DATETIME -> literal(TypeUtils.toString(o).substring(0, 19), XSDType);
+        case DECIMAL -> literal(fixDouble(o));
+        case STRING -> literal(TypeUtils.toString(o));
+        case ANYURI -> encodedIRI(TypeUtils.toString(o));
+        case INT -> literal((int) o);
+        case LONG -> literal(fixLong(o));
+        default -> throw new Exception("XSD type formatting not supported for: " + XSDType);
+      };
     }
   }
 

@@ -134,7 +134,8 @@ public class RDFService {
 
       for (int i = 0; i < schemas.length; i++) {
         Schema schema = schemas[i];
-        String schemaRdfApiContext = rdfService.getHost() + "/" + schema.getName() + rdfApiLocation;
+        String schemaRdfApiContext =
+            rdfService.getHost() + "/" + schema.getIdentifier() + rdfApiLocation;
         rdfService.getBuilder().setNamespace("emx" + i, schemaRdfApiContext + "/");
         describeSchema(rdfService.getBuilder(), schema, schemaRdfApiContext, rdfService.getHost());
         List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();

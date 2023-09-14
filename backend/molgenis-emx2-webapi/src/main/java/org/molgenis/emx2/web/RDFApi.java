@@ -1,10 +1,13 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.Constants.TABLE;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static spark.Spark.get;
 
 import java.io.*;
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.semantics.RDFService;
@@ -14,7 +17,7 @@ import spark.Request;
 import spark.Response;
 
 public class RDFApi {
-  private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
+  private static final Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
   private static MolgenisSessionManager sessionManager;
   public static final String RDF_API_LOCATION = "/api/rdf";
 
@@ -32,7 +35,7 @@ public class RDFApi {
 
   private static int rdfForDatabase(Request request, Response response) throws IOException {
     Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
-    String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
+    String[] schemaNamesArr = schemaNames.toArray(new String[0]);
     Schema[] schemas = new Schema[schemaNames.size()];
     for (int i = 0; i < schemas.length; i++) {
       schemas[i] = (sessionManager.getSession(request).getDatabase().getSchema(schemaNamesArr[i]));
@@ -46,7 +49,7 @@ public class RDFApi {
   }
 
   private static int rdfForSchema(Request request, Response response) throws IOException {
-    Schema schema = getSchema(request);
+    Schema schema = getSchemaByIdentifier(request);
     OutputStream outputStream = response.raw().getOutputStream();
     RDFService.describeAsRDF(
         outputStream, request, response, RDF_API_LOCATION, null, null, null, schema);
@@ -55,8 +58,40 @@ public class RDFApi {
     return 200;
   }
 
+  @NotNull
+  private static Schema getSchemaByIdentifier(final Request request) {
+    String schemaIdentifier = request.params(SCHEMA);
+    if (schemaIdentifier == null) {
+      logger.error(
+          "Schema identifier is unexpectedly null for schema path " + request.params(SCHEMA));
+      throw new MolgenisException(
+          "Schema identifier is unexpectedly null for schema path " + request.params(SCHEMA));
+    }
+    Schema schema =
+        sessionManager.getSession(request).getDatabase().getSchemaByIdentifier(schemaIdentifier);
+    if (schema == null) {
+      logger.error(
+          "Schema is unexpectedly null for schema "
+              + schemaIdentifier
+              + " ("
+              + request.params(SCHEMA)
+              + ")"
+              + " Database "
+              + sessionManager.getSession(request).getDatabase().getSchemaNames()
+              + " Session "
+              + sessionManager.getSession(request).getSessionUser());
+      throw new MolgenisException(
+          "Schema is unexpectedly null for schema "
+              + schemaIdentifier
+              + " ("
+              + request.params(SCHEMA)
+              + ")");
+    }
+    return schema;
+  }
+
   private static int rdfForTable(Request request, Response response) throws IOException {
-    Table table = getTable(request);
+    Table table = getTableByIdentifier(request);
     OutputStream outputStream = response.raw().getOutputStream();
     RDFService.describeAsRDF(
         outputStream, request, response, RDF_API_LOCATION, table, null, null, table.getSchema());
@@ -66,7 +101,7 @@ public class RDFApi {
   }
 
   private static int rdfForRow(Request request, Response response) throws IOException {
-    Table table = getTable(request);
+    Table table = getTableByIdentifier(request);
     String rowId = sanitize(request.params("row"));
     OutputStream outputStream = response.raw().getOutputStream();
     RDFService.describeAsRDF(
@@ -77,7 +112,7 @@ public class RDFApi {
   }
 
   private static int rdfForColumn(Request request, Response response) throws IOException {
-    Table table = getTable(request);
+    Table table = getTableByIdentifier(request);
     String columnName = sanitize(request.params("column"));
     OutputStream outputStream = response.raw().getOutputStream();
     RDFService.describeAsRDF(
@@ -92,5 +127,39 @@ public class RDFApi {
     outputStream.flush();
     outputStream.close();
     return 200;
+  }
+
+  private static Table getTableByIdentifier(final Request request) throws MolgenisException {
+    String schemaIdentifier = sanitize(request.params(SCHEMA));
+    if (schemaIdentifier == null) {
+      logger.error(
+          "Schema identifier is unexpectedly null for schema path " + request.params(SCHEMA));
+      throw new MolgenisException(
+          "Schema identifier is unexpectedly null for schema path " + request.params(SCHEMA));
+    }
+    Schema schema =
+        sessionManager.getSession(request).getDatabase().getSchemaByIdentifier(schemaIdentifier);
+    if (schema == null) {
+      logger.error(
+          "Schema is unexpectedly null for schema "
+              + schemaIdentifier
+              + " ("
+              + request.params(SCHEMA)
+              + ")"
+              + " Database "
+              + sessionManager.getSession(request).getDatabase()
+              + " Session "
+              + sessionManager.getSession(request));
+      throw new MolgenisException(
+          "Schema is unexpectedly null for schema "
+              + schemaIdentifier
+              + " ("
+              + request.params(SCHEMA)
+              + ")");
+    }
+    String tableIdentifier = sanitize(request.params(TABLE));
+    Table table = schema.getTableByIdentifier(tableIdentifier);
+    if (table == null) throw new MolgenisException("Table " + tableIdentifier + " unknown");
+    return table;
   }
 }

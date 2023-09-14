@@ -28,6 +28,18 @@ public class SqlSchema implements Schema {
   }
 
   @Override
+  public Table getTableByIdentifier(String name) {
+    var tableMetadata =
+        getMetadata().getTables().stream()
+            .filter(table -> table.getIdentifier().equals(name))
+            .findFirst();
+    if (tableMetadata.isPresent()) {
+      var tm = (SqlTableMetadata) tableMetadata.get();
+      return new SqlTable(db, tm, db.getTableListener(getName(), tm.getTableName()));
+    } else return null;
+  }
+
+  @Override
   public List<Table> getTablesSorted() {
     List<TableMetadata> tableMetadata = getMetadata().getTables();
     sortTableByDependency(tableMetadata);
@@ -392,6 +404,10 @@ public class SqlSchema implements Schema {
 
   public String getName() {
     return getMetadata().getName();
+  }
+
+  public String getIdentifier() {
+    return getMetadata().getIdentifier();
   }
 
   @Override

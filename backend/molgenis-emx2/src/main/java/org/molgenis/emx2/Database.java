@@ -25,11 +25,15 @@ public interface Database extends HasSettingsInterface<Database> {
 
   Collection<String> getSchemaNames();
 
+  Collection<String> getSchemaIdentifiers();
+
   Collection<SchemaInfo> getSchemaInfos();
 
   SchemaInfo getSchemaInfo(String schemaName);
 
   Schema getSchema(String name);
+
+  Schema getSchemaByIdentifier(String identifier);
 
   User addUser(String name);
 

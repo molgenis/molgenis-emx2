@@ -18,25 +18,25 @@ public class ColumnToRDF {
   // qb:AttributeProperty)
   public static void describeColumns(
       ModelBuilder builder, String columnName, Table table, String schemaContext) throws Exception {
-    String tableContext = schemaContext + "/" + table.getName();
+    String tableContext = schemaContext + "/" + table.getIdentifier();
     for (Column c : table.getMetadata().getColumns()) {
       // allow selecting one particular column by ignoring the rest
-      if (columnName != null && !c.getName().equals(columnName)) {
+      if (columnName != null && !c.getIdentifier().equals(columnName)) {
         continue;
       }
-      String columnContext = tableContext + "/column/" + c.getName();
+      String columnContext = tableContext + "/column/" + c.getIdentifier();
       // SIO:000757 = database column
       builder.add(columnContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_000757"));
       builder.add(columnContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#MeasureProperty"));
       if (c.isReference() || c.isOntology()) {
         builder.add(columnContext, RDF.TYPE, OWL.OBJECTPROPERTY);
         builder.add(
-            columnContext, RDFS.RANGE, encodedIRI(schemaContext + "/" + c.getRefTableName()));
+            columnContext, RDFS.RANGE, encodedIRI(schemaContext + "/" + c.getRefTableIdentifier()));
       } else {
         builder.add(columnContext, RDF.TYPE, OWL.DATATYPEPROPERTY);
         builder.add(columnContext, RDFS.RANGE, columnTypeToXSD(c.getColumnType()));
       }
-      builder.add(columnContext, RDFS.LABEL, c.getName());
+      builder.add(columnContext, RDFS.LABEL, c.getIdentifier());
       builder.add(columnContext, RDFS.DOMAIN, encodedIRI(tableContext));
       if (c.getSemantics() != null) {
         for (String columnSemantics : c.getSemantics()) {

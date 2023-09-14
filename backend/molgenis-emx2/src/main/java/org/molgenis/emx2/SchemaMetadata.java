@@ -73,6 +73,10 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     return this.tables.keySet();
   }
 
+  public Collection<String> getTableIdentifiers() {
+    return tables.values().stream().map(TableMetadata::getIdentifier).toList();
+  }
+
   public TableMetadata create(TableMetadata table) {
     if (tables.get(table.getTableName()) != null)
       throw new MolgenisException(

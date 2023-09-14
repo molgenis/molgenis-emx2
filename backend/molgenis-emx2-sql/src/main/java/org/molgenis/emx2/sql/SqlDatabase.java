@@ -5,6 +5,7 @@ import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.*;
@@ -17,6 +18,7 @@ import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.RandomString;
+import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -293,6 +295,25 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
+  public Schema getSchemaByIdentifier(String identifier) {
+    if (schemaCache.isEmpty()) {
+      for (var name : MetadataUtils.loadSchemaNames(this)) {
+        SqlSchemaMetadata metadata = new SqlSchemaMetadata(this, name);
+        if (metadata.exists()) {
+          SqlSchema schema = new SqlSchema(this, metadata);
+          schemaCache.put(name, metadata); // cache
+        }
+      }
+    }
+    for (var entry : schemaCache.entrySet()) {
+      if (convertToPascalCase(entry.getKey()).equals(identifier)) {
+        return new SqlSchema(this, entry.getValue());
+      }
+    }
+    return null;
+  }
+
+  @Override
   public void dropSchemaIfExists(String name) {
     if (getSchema(name) != null) {
       this.dropSchema(name);
@@ -340,6 +361,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       this.schemaNames = MetadataUtils.loadSchemaNames(this);
     }
     return List.copyOf(this.schemaNames);
+  }
+
+  @Override
+  public Collection<String> getSchemaIdentifiers() {
+    return getSchemaNames().stream().map(TypeUtils::convertToPascalCase).toList();
   }
 
   @Override

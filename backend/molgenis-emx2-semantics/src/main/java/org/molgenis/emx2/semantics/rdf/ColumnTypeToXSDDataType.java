@@ -5,57 +5,34 @@ import org.molgenis.emx2.ColumnType;
 
 public class ColumnTypeToXSDDataType {
   public static CoreDatatype.XSD columnTypeToXSD(ColumnType columnType) throws Exception {
-    switch (columnType) {
-      case BOOL:
-      case BOOL_ARRAY:
-        return CoreDatatype.XSD.BOOLEAN;
-
-      case DATE:
-      case DATE_ARRAY:
-        return CoreDatatype.XSD.DATE;
-
-      case DATETIME:
-      case DATETIME_ARRAY:
-        return CoreDatatype.XSD.DATETIME;
-
-      case DECIMAL:
-      case DECIMAL_ARRAY:
-        return CoreDatatype.XSD.DECIMAL;
-
-      case EMAIL:
-      case EMAIL_ARRAY:
-      case HEADING:
-      case JSONB:
-      case JSONB_ARRAY:
-      case STRING:
-      case STRING_ARRAY:
-      case TEXT:
-      case TEXT_ARRAY:
-      case UUID:
-      case UUID_ARRAY:
-      case AUTO_ID:
-        return CoreDatatype.XSD.STRING;
-
-      case FILE:
-      case HYPERLINK:
-      case HYPERLINK_ARRAY:
-      case ONTOLOGY:
-      case ONTOLOGY_ARRAY:
-      case REF:
-      case REF_ARRAY:
-      case REFBACK:
-        return CoreDatatype.XSD.ANYURI;
-
-      case INT:
-      case INT_ARRAY:
-        return CoreDatatype.XSD.INT;
-
-      case LONG:
-      case LONG_ARRAY:
-        return CoreDatatype.XSD.LONG;
-
-      default:
-        throw new Exception("ColumnType not mapped: " + columnType);
-    }
+    return switch (columnType) {
+      case BOOL, BOOL_ARRAY -> CoreDatatype.XSD.BOOLEAN;
+      case DATE, DATE_ARRAY -> CoreDatatype.XSD.DATE;
+      case DATETIME, DATETIME_ARRAY -> CoreDatatype.XSD.DATETIME;
+      case DECIMAL, DECIMAL_ARRAY -> CoreDatatype.XSD.DECIMAL;
+      case EMAIL,
+          EMAIL_ARRAY,
+          HEADING,
+          JSONB,
+          JSONB_ARRAY,
+          STRING,
+          STRING_ARRAY,
+          TEXT,
+          TEXT_ARRAY,
+          UUID,
+          UUID_ARRAY,
+          AUTO_ID -> CoreDatatype.XSD.STRING;
+      case FILE,
+          HYPERLINK,
+          HYPERLINK_ARRAY,
+          ONTOLOGY,
+          ONTOLOGY_ARRAY,
+          REF,
+          REF_ARRAY,
+          REFBACK -> CoreDatatype.XSD.ANYURI;
+      case INT, INT_ARRAY -> CoreDatatype.XSD.INT;
+      case LONG, LONG_ARRAY -> CoreDatatype.XSD.LONG;
+      default -> throw new Exception("ColumnType not mapped: " + columnType);
+    };
   }
 }

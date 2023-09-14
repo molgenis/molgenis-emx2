@@ -14,7 +14,7 @@ import org.molgenis.emx2.TableType;
 
 public class TableToRDF {
   public static void describeTable(ModelBuilder builder, Table table, String schemaContext) {
-    IRI tableContext = encodedIRI(schemaContext + "/" + table.getName());
+    IRI tableContext = encodedIRI(schemaContext + "/" + table.getIdentifier());
     builder.add(tableContext, RDF.TYPE, OWL.CLASS);
     builder.add(tableContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#DataSet"));
     // SIO:000754 = database table
@@ -33,7 +33,7 @@ public class TableToRDF {
           // which one entity makes note of attributes of one or more entities)
           tableContext, RDFS.ISDEFINEDBY, iri("http://semanticscience.org/resource/SIO_001055"));
     }
-    builder.add(tableContext, RDFS.LABEL, table.getName());
+    builder.add(tableContext, RDFS.LABEL, table.getIdentifier());
     if (table.getMetadata().getDescriptions() != null
         && table.getMetadata().getDescriptions().get("en") != null) {
       builder.add(
