@@ -17,13 +17,11 @@ const props = withDefaults(
 );
 
 const resourceIdPath = computed(() => {
-  if (Object.keys(props.resourceId).length === 1) {
-    return Object.values(props.resourceId)[0].toString();
-  } else {
-    Object.values(props.resourceId)[0].toString +
-      "?keys=" +
-      new URLSearchParams(props.resourceId).toString();
-  }
+  return (
+    Object.values(props.resourceId)[0] +
+    "?keys=" +
+    new URLSearchParams(props.resourceId).toString()
+  );
 });
 
 const articleClasses = computed(() => {
