@@ -28,7 +28,7 @@ const schemas = externalSchemas.reduce(
 );
 
 const tableMetaDataFinderResult = metadata.tables.find(
-  (t: ITableMetaData) => t.name === resourceType
+  (t: ITableMetaData) => t.id === resourceType
 );
 
 const tableMetaData = computed(() => {
@@ -142,6 +142,7 @@ crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${resourceName}`;
     <template #main>
       <ContentBlocks>
         <ContentBlockIntro
+          id="intro"
           v-if="
             resource?.logo?.url || resource?.website || resource?.contactEmail
           "
@@ -159,6 +160,7 @@ crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${resourceName}`;
 
         <ContentBlock
           v-for="section in sections"
+          :id="section.meta.id"
           :title="sectionTitle(section)"
         >
           <ContentGenericItemList>
