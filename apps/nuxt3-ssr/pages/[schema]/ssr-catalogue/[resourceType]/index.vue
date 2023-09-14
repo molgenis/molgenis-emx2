@@ -74,7 +74,7 @@ const query = computed(() => {
   }
   `;
 });
-const orderby = { acronym: "ASC" };
+const orderby = {};
 let search = computed(() => {
   // @ts-ignore
   return filters.find((f) => f.columnType === "_SEARCH").search;
