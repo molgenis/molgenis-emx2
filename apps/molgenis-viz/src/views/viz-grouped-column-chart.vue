@@ -56,6 +56,25 @@
         {{ clicked }}
       </output>
     </PageSection>
+    <PageSection>
+      <GroupedColumnChart
+        chartId="test-grouped-column-chart"
+        :chartData="[
+          {group: 'Group A', subgroup: 'Healthcare', value: 60},
+          {group: 'Group A', subgroup: 'Education', value: 55},
+          {group: 'Group A', subgroup: 'Facility', value: 25},
+          {group: 'Group B', subgroup: 'Healthcare', value: 3},
+          {group: 'Group B', subgroup: 'Education', value: 93},
+          {group: 'Group B', subgroup: 'Facility', value: 66},
+          {group: 'Group C', subgroup: 'Healthcare', value: 43},
+          {group: 'Group C', subgroup: 'Education', value: 57},
+          {group: 'Group C', subgroup: 'Facility', value: 49}
+        ]"
+        group="group"
+        xvar="subgroup"
+        yvar="value"
+      />
+    </PageSection>
   </Page>
 </template>
 

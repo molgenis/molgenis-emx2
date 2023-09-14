@@ -7,7 +7,7 @@
       :key="key"
     >
       <div class="checkbox-item" v-if="enableClicks">
-        <label :for="`cb-${key}`" class="item-label">
+        <label :for="`cb-${legendId}-${key}`" class="item-label">
           <svg
             class="item-marker"
             width="16"
@@ -20,7 +20,7 @@
           <span>{{ key }}</span>
         </label>
         <input
-          :id="`cb-${key}`"
+          :id="`cb-${legendId}-${key}`"
           class="legend-checkbox visually-hidden"
           type="checkbox"
           :data-group="key"
@@ -56,6 +56,13 @@
 export default {
   name: "ChartLegend",
   props: {
+    
+    // a unique ID for the legend
+    legendId: {
+      type: String,
+      required: true
+    },
+    
     // One or more key-value pairs
     data: {
       type: Object,
