@@ -8,13 +8,24 @@ import {
 } from "interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
-
 const resourceName: string = route.params.resourceType as string;
-const resourceType: string =
-  resourceName.charAt(0).toUpperCase() + resourceName.slice(1);
-
 const schemaName = route.params.schema.toString();
+
 const metadata = await fetchMetadata(schemaName);
+
+const tableMetaDataFinderResult = metadata.tables.find(
+  (t: ITableMetaData) =>
+    t.id.toLocaleLowerCase() === resourceName.toLocaleLowerCase()
+);
+
+const tableMetaData = computed(() => {
+  if (tableMetaDataFinderResult) {
+    return tableMetaDataFinderResult;
+  } else {
+    throw new Error(`Table metadata not found for ${resourceName}`);
+  }
+});
+const resourceType = tableMetaData.value.id;
 const externalSchemaNames: string[] = extractExternalSchemas(metadata);
 const externalSchemas = await Promise.all(
   externalSchemaNames.map(fetchMetadata)
@@ -26,18 +37,6 @@ const schemas = externalSchemas.reduce(
   },
   { [schemaName]: metadata }
 );
-
-const tableMetaDataFinderResult = metadata.tables.find(
-  (t: ITableMetaData) => t.id === resourceType
-);
-
-const tableMetaData = computed(() => {
-  if (tableMetaDataFinderResult) {
-    return tableMetaDataFinderResult;
-  } else {
-    throw new Error(`Table metadata not found for ${resourceType}`);
-  }
-});
 
 const fields = buildRecordDetailsQueryFields(schemas, schemaName, resourceType);
 

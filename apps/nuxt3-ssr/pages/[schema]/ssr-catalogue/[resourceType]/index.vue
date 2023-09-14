@@ -6,12 +6,26 @@ const router = useRouter();
 
 const pageSize = 10;
 const resourceName: string = route.params.resourceType as string;
-const resourceType: string =
-  resourceName.charAt(0).toUpperCase() + resourceName.slice(1);
-const resourceAgg: string = resourceType + "_agg";
-
 const schemaName = route.params.schema.toString();
 const metadata = await fetchMetadata(schemaName);
+
+const tableMetaDataFinderResult = metadata.tables.find(
+  (t: ITableMetaData) =>
+    t.id.toLocaleLowerCase() === resourceName.toLocaleLowerCase()
+);
+
+const tableMetaData = computed(() => {
+  if (tableMetaDataFinderResult) {
+    return tableMetaDataFinderResult;
+  } else {
+    throw new Error(`Table metadata not found for ${resourceName}`);
+  }
+});
+
+const resourceType = tableMetaData.value.id;
+
+const resourceAgg: string = resourceType + "_agg";
+
 const externalSchemaNames: string[] = extractExternalSchemas(metadata);
 const externalSchemas = await Promise.all(
   externalSchemaNames.map(fetchMetadata)
@@ -24,10 +38,7 @@ const schemas = externalSchemas.reduce(
   { [schemaName]: metadata }
 );
 
-const tableMetaData = metadata.tables.find(
-  (t: ITableMetaData) => t.name === resourceType
-);
-const description = tableMetaData?.descriptions?.[0]?.value;
+const description = tableMetaData.value?.descriptions?.[0]?.value;
 
 let activeName = ref("detailed");
 let filters: IFilter[] = reactive([
