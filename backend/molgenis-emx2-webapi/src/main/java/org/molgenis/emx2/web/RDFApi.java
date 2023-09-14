@@ -62,24 +62,12 @@ public class RDFApi {
   private static Schema getSchemaByIdentifier(final Request request) {
     String schemaIdentifier = request.params(SCHEMA);
     if (schemaIdentifier == null) {
-      logger.error(
-          "Schema identifier is unexpectedly null for schema path " + request.params(SCHEMA));
       throw new MolgenisException(
           "Schema identifier is unexpectedly null for schema path " + request.params(SCHEMA));
     }
     Schema schema =
         sessionManager.getSession(request).getDatabase().getSchemaByIdentifier(schemaIdentifier);
     if (schema == null) {
-      logger.error(
-          "Schema is unexpectedly null for schema "
-              + schemaIdentifier
-              + " ("
-              + request.params(SCHEMA)
-              + ")"
-              + " Database "
-              + sessionManager.getSession(request).getDatabase().getSchemaNames()
-              + " Session "
-              + sessionManager.getSession(request).getSessionUser());
       throw new MolgenisException(
           "Schema is unexpectedly null for schema "
               + schemaIdentifier
@@ -130,33 +118,7 @@ public class RDFApi {
   }
 
   private static Table getTableByIdentifier(final Request request) throws MolgenisException {
-    String schemaIdentifier = sanitize(request.params(SCHEMA));
-    if (schemaIdentifier == null) {
-      logger.error(
-          "Schema identifier is unexpectedly null for schema path " + request.params(SCHEMA));
-      throw new MolgenisException(
-          "Schema identifier is unexpectedly null for schema path " + request.params(SCHEMA));
-    }
-    Schema schema =
-        sessionManager.getSession(request).getDatabase().getSchemaByIdentifier(schemaIdentifier);
-    if (schema == null) {
-      logger.error(
-          "Schema is unexpectedly null for schema "
-              + schemaIdentifier
-              + " ("
-              + request.params(SCHEMA)
-              + ")"
-              + " Database "
-              + sessionManager.getSession(request).getDatabase()
-              + " Session "
-              + sessionManager.getSession(request));
-      throw new MolgenisException(
-          "Schema is unexpectedly null for schema "
-              + schemaIdentifier
-              + " ("
-              + request.params(SCHEMA)
-              + ")");
-    }
+    Schema schema = getSchemaByIdentifier(request);
     String tableIdentifier = sanitize(request.params(TABLE));
     Table table = schema.getTableByIdentifier(tableIdentifier);
     if (table == null) throw new MolgenisException("Table " + tableIdentifier + " unknown");

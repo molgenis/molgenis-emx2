@@ -23,8 +23,11 @@ import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ValueToRDF {
+  private static final Logger logger = LoggerFactory.getLogger(ValueToRDF.class);
 
   public static void describeValues(
       ObjectMapper jsonMapper,
@@ -41,6 +44,15 @@ public class ValueToRDF {
     Query query = selectColumns(table);
     if (rowId != null) {
       // FIXME: how to support multiple PKs?
+      if (table.getMetadata().getPrimaryKeyColumns().size() != 1) {
+        logger.error(
+            "Not a single primary key for table: "
+                + table.getIdentifier()
+                + " ("
+                + table.getIdentifier()
+                + ") Key(s): "
+                + String.join(", ", table.getMetadata().getPrimaryKeys()));
+      }
       query.where(f(table.getMetadata().getPrimaryKeyColumns().get(0).getName(), EQUALS, rowId));
     }
     String json = query.retrieveJSON();
@@ -52,13 +64,11 @@ public class ValueToRDF {
     }
 
     for (Map<String, Object> row : data) {
-
       String pkValue =
           table.getMetadata().getPrimaryKeys().stream()
-              .map(primaryKey -> row.get(primaryKey).toString())
+              .map(primaryKey -> row.get(TypeUtils.convertToCamelCase(primaryKey)).toString())
               .collect(Collectors.joining("-"));
       IRI rowContext = encodedIRI(schemaContext + "/" + table.getIdentifier() + "/" + pkValue);
-
       builder.add(rowContext, RDF.TYPE, encodedIRI(tableContext));
       // SIO:001187 = database row
       builder.add(rowContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_001187"));
