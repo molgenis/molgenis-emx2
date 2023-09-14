@@ -33,6 +33,7 @@ import java.util.Map;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
+import org.molgenis.emx2.datamodels.DataCatalogueLoader;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
@@ -59,6 +60,10 @@ public class WebApiSmokeTests {
     // FIXME: beforeAll fails under windows
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
+
+    Schema scst = db.dropCreateSchema("catalogue-demo-smoke");
+    DataCatalogueLoader dcl = new DataCatalogueLoader();
+    dcl.load(scst, true);
 
     // start web service for testing, including env variables
     withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
@@ -1246,7 +1251,7 @@ public class WebApiSmokeTests {
         given()
             .when()
             .body("{\"query\":" + graphql + "}")
-            .post(CATALOGUE_DEMO + "/api/graphql")
+            .post("catalogue-demo-smoke" + "/api/graphql")
             .getBody()
             .asString();
 
