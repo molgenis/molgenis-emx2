@@ -10,7 +10,8 @@ export const buildRecordDetailsQueryFields = (
 ): string => {
   const schemaMetaData = schemas[schemaName];
   const tableMetaData = schemaMetaData.tables.find(
-    (t: ITableMetaData) => t.id === tableId
+    (t: ITableMetaData) =>
+      t.id.toLocaleLowerCase() === tableId.toLocaleLowerCase()
   );
 
   const allColumns = tableMetaData?.columns;
@@ -22,8 +23,10 @@ export const buildRecordDetailsQueryFields = (
     const refTableMetaData = schemas[
       refColumn.refSchema || schemaName
     ].tables.find(
-      // @ts-ignore we know that refTable is not undefined
-      (t: ITableMetaData) => t.id === convertToPascalCase(refColumn.refTable)
+      (t: ITableMetaData) =>
+        t.id.toLocaleLowerCase() ===
+        // @ts-ignore we know that refTable is not undefined
+        convertToPascalCase(refColumn.refTable).toLocaleLowerCase()
     );
 
     const allRefColumns = refTableMetaData?.columns;
@@ -86,12 +89,13 @@ export const buildRecordListQueryFields = (
   const keyFields = buildKeyFields(tableId, schemaName, schemas);
 
   const tableMetaData = schemas[schemaName].tables.find(
-    (t: ITableMetaData) => t.id === tableId
+    (t: ITableMetaData) =>
+      t.id.toLocaleLowerCase() === tableId.toLocaleLowerCase()
   );
 
   if (tableMetaData === undefined) {
     throw new Error(
-      "tableMetaData is undefined for tableId " +
+      "buildRecordListQueryFields; tableMetaData is undefined for tableId " +
         tableId +
         " in schema " +
         schemaName
@@ -136,7 +140,8 @@ const buildKeyFields = (
 ) => {
   const schemaMetaData = schemas[schemaName];
   const tableMetaData = schemaMetaData.tables.find(
-    (t: ITableMetaData) => t.id === tableId
+    (t: ITableMetaData) =>
+      t.id.toLocaleLowerCase() === tableId.toLocaleLowerCase()
   );
 
   const keyFields = tableMetaData?.columns.reduce(
@@ -207,7 +212,8 @@ export const extractKeyFromRecord = (
 ) => {
   const schemaMetaData = schemas[schemaId];
   const tableMetaData = schemaMetaData.tables.find(
-    (t: ITableMetaData) => t.id === tableId
+    (t: ITableMetaData) =>
+      t.id.toLocaleLowerCase() === tableId.toLocaleLowerCase()
   );
 
   const key = tableMetaData?.columns.reduce((acc: any, column: IColumn) => {
