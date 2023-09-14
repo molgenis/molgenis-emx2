@@ -9,11 +9,22 @@ const props = withDefaults(
     schema: string;
     resourceName: string;
     compact?: boolean;
+    resourceId: Record<string, string>;
   }>(),
   {
     compact: false,
   }
 );
+
+const resourceIdPath = computed(() => {
+  if (Object.keys(props.resourceId).length === 1) {
+    return Object.values(props.resourceId)[0].toString();
+  } else {
+    Object.values(props.resourceId)[0].toString +
+      "?keys=" +
+      new URLSearchParams(props.resourceId).toString();
+  }
+});
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
@@ -56,7 +67,7 @@ const iconStarClasses = computed(() => {
           <div :class="titleContainerClasses" class="grow">
             <h2 class="min-w-[160px] mr-4 md:inline-block block">
               <NuxtLink
-                :to="`/${schema}/ssr-catalogue/${resourceName}/${resource.id}`"
+                :to="`/${schema}/ssr-catalogue/${resourceName}/${resourceIdPath}`"
                 class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
               >
                 {{ resource?.acronym || resource?.name }}

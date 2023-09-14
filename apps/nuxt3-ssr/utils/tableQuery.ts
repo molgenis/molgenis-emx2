@@ -84,7 +84,6 @@ export const buildRecordListQueryFields = (
   schemas: Record<string, ISchemaMetaData>
 ) => {
   const keyFields = buildKeyFields(tableId, schemaName, schemas);
-  console.log("keyFields", keyFields);
 
   const tableMetaData = schemas[schemaName].tables.find(
     (t: ITableMetaData) => t.id === tableId
@@ -211,10 +210,10 @@ export const extractKeyFromRecord = (
     (t: ITableMetaData) => t.id === tableId
   );
 
-  return tableMetaData?.columns.reduce((acc: any, column: IColumn) => {
-    if (column.key === 1 && record[column.name]) {
+  const key = tableMetaData?.columns.reduce((acc: any, column: IColumn) => {
+    if (column.key === 1 && record[column.id]) {
       if (isValueType(column)) {
-        acc[column.name] = record[column.name];
+        acc[column.id] = record[column.id];
       } else if (isRefType(column)) {
         if (!column.refTable) {
           throw new Error(
@@ -225,8 +224,8 @@ export const extractKeyFromRecord = (
               ""
           );
         } else {
-          acc[column.name] = extractKeyFromRecord(
-            record[column.name],
+          acc[column.id] = extractKeyFromRecord(
+            record[column.id],
             column.refTable,
             column.refSchema || schemaId,
             schemas
@@ -247,5 +246,6 @@ export const extractKeyFromRecord = (
       }
     }
     return acc;
-  });
+  }, {});
+  return key || {};
 };

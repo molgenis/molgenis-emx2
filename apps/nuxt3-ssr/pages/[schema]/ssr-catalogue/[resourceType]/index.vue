@@ -94,6 +94,10 @@ const { data, pending, error, refresh } = await useFetch(
     },
   }
 );
+
+function buildRecordId(record: any) {
+  return extractKeyFromRecord(record, resourceType, schemaName, schemas);
+}
 </script>
 <template>
   <LayoutsSearchPage>
@@ -144,6 +148,7 @@ const { data, pending, error, refresh } = await useFetch(
                   :schema="route.params.schema"
                   :resource-name="resourceName"
                   :compact="activeName !== 'detailed'"
+                  :resourceId="buildRecordId(resource)"
                 />
               </CardListItem>
             </CardList>
