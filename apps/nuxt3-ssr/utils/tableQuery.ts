@@ -3,7 +3,7 @@ import { convertToPascalCase } from "../../molgenis-components/src/components/ut
 
 const FILE_FRAGMENT = "{ id, size, extension, url }";
 
-export const buildQueryFields = (
+export const buildRecordDetailsQueryFields = (
   schemas: Record<string, ISchemaMetaData>,
   schemaName: string,
   tableId: string
@@ -15,7 +15,7 @@ export const buildQueryFields = (
 
   const allColumns = tableMetaData?.columns;
   const dataColumns = allColumns
-    ?.filter((c) => !c.id.startsWith("mg_"))
+    ?.filter((c) => !c.name.startsWith("mg_"))
     .filter((c) => c.columnType !== "HEADING");
 
   const refTableQueryFields = (refColumn: IColumn): string => {
@@ -78,6 +78,113 @@ export const buildQueryFields = (
   return queryFields;
 };
 
+export const buildRecordListQueryFields = (
+  tableId: string,
+  schemaName: string,
+  schemas: Record<string, ISchemaMetaData>
+) => {
+  const keyFields = buildKeyFields(tableId, schemaName, schemas);
+  console.log("keyFields", keyFields);
+
+  const tableMetaData = schemas[schemaName].tables.find(
+    (t: ITableMetaData) => t.id === tableId
+  );
+
+  if (tableMetaData === undefined) {
+    throw new Error(
+      "tableMetaData is undefined for tableId " +
+        tableId +
+        " in schema " +
+        schemaName
+    );
+  }
+
+  const typeFields = tableMetaData.columns.map((c) => c.id);
+
+  // suggested list fields that are part of this tableType
+  const additionalFields: any = [
+    "id",
+    "name",
+    "label",
+    "description",
+    "pid",
+    "acronym",
+    "logo",
+  ].filter((value) => typeFields.includes(value));
+
+  // Special case for logo, expand to include all fields
+  if (additionalFields[additionalFields.length - 1] === "logo") {
+    additionalFields.push(["id", "size", "extension", "url"]);
+  }
+
+  const queryFields = [...new Set([...keyFields, ...additionalFields])];
+
+  const fieldsString = queryFields.reduce((acc: string, field: any) => {
+    if (Array.isArray(field)) {
+      return (acc += " { " + field + " } ");
+    } else {
+      return (acc += " " + field);
+    }
+  }, "");
+
+  return fieldsString;
+};
+
+const buildKeyFields = (
+  tableId: string,
+  schemaName: string,
+  schemas: Record<string, ISchemaMetaData>
+) => {
+  const schemaMetaData = schemas[schemaName];
+  const tableMetaData = schemaMetaData.tables.find(
+    (t: ITableMetaData) => t.id === tableId
+  );
+
+  const keyFields = tableMetaData?.columns.reduce(
+    (acc: any, column: IColumn) => {
+      if (column.key === 1) {
+        if (isValueType(column)) {
+          acc.push(column.id);
+        } else if (isRefType(column)) {
+          if (!column.refTable) {
+            throw new Error(
+              "refTable is undefined for refColumn with id " +
+                column.id +
+                " in table " +
+                tableId +
+                ""
+            );
+          } else {
+            acc.push(column.id);
+            acc.push(
+              buildKeyFields(
+                column.refTable,
+                column.refSchema || schemaName,
+                schemas
+              )
+            );
+          }
+        } else if (isArrayType(column)) {
+          console.log(
+            "TODO: buildRecordListQueryFields, key column isArrayType, skip for now"
+          );
+        } else if (isFileType(column)) {
+          console.log(
+            "TODO: buildRecordListQueryFields, key column isFileType, skip for now"
+          );
+        } else {
+          console.log(
+            "TODO: buildRecordListQueryFields, key column is unknown type, skip for now"
+          );
+        }
+      }
+      return acc;
+    },
+    []
+  );
+  return keyFields || [];
+};
+
 export const extractExternalSchemas = (schemaMetaData: ISchemaMetaData) => {
   return [
     ...new Set(
@@ -91,4 +198,54 @@ export const extractExternalSchemas = (schemaMetaData: ISchemaMetaData) => {
       }, [])
     ),
   ];
+};
+
+export const extractKeyFromRecord = (
+  record: any,
+  tableId: string,
+  schemaId: string,
+  schemas: Record<string, ISchemaMetaData>
+) => {
+  const schemaMetaData = schemas[schemaId];
+  const tableMetaData = schemaMetaData.tables.find(
+    (t: ITableMetaData) => t.id === tableId
+  );
+
+  return tableMetaData?.columns.reduce((acc: any, column: IColumn) => {
+    if (column.key === 1 && record[column.name]) {
+      if (isValueType(column)) {
+        acc[column.name] = record[column.name];
+      } else if (isRefType(column)) {
+        if (!column.refTable) {
+          throw new Error(
+            "refTable is undefined for refColumn with id " +
+              column.id +
+              " in table " +
+              tableId +
+              ""
+          );
+        } else {
+          acc[column.name] = extractKeyFromRecord(
+            record[column.name],
+            column.refTable,
+            column.refSchema || schemaId,
+            schemas
+          );
+        }
+      } else if (isArrayType(column)) {
+        console.log(
+          "TODO: extractKeyFromRecord, key column isArrayType, skip for now"
+        );
+      } else if (isFileType(column)) {
+        console.log(
+          "TODO: extractKeyFromRecord, key column isFileType, skip for now"
+        );
+      } else {
+        console.log(
+          "TODO: extractKeyFromRecord, key column is unknown type, skip for now"
+        );
+      }
+    }
+    return acc;
+  });
 };

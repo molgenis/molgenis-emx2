@@ -59,20 +59,14 @@ watch(filters, () => {
 });
 
 // build resource query for cards
+
+const fields = buildRecordListQueryFields(resourceType, schemaName, schemas);
+
 const query = computed(() => {
   return `
   query ${resourceType}($filter:${resourceType}Filter, $orderby:${resourceType}orderby){
     ${resourceType}(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
-      id
-      name
-      acronym
-      description
-      logo {
-        id
-        size
-        extension
-        url
-      }
+      ${fields}
     }
     ${resourceType}_agg (filter:$filter){
         count
@@ -87,6 +81,7 @@ let search = computed(() => {
 });
 const filter = computed(() => buildQueryFilter(filters, search.value));
 
+console.log("query: ", query.value);
 const { data, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
   {
@@ -167,6 +162,7 @@ const { data, pending, error, refresh } = await useFetch(
             @update="setCurrentPage($event)"
           />
         </template>
+        {{ error }}
       </SearchResults>
     </template>
   </LayoutsSearchPage>

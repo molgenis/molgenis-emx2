@@ -1,3 +1,5 @@
+import { IColumn } from "interfaces/types";
+
 export const fieldTypes = () => {
   return [
     "BOOL",
@@ -41,4 +43,35 @@ export const isEmpty = (obj: object) => {
   }
 
   return true;
+};
+
+export const isValueType = (column: IColumn) => {
+  return (
+    column.columnType === "STRING" ||
+    column.columnType === "TEXT" ||
+    column.columnType === "EMAIL" ||
+    column.columnType === "HYPERLINK" ||
+    column.columnType === "UUID" ||
+    column.columnType === "DATE" ||
+    column.columnType === "DATETIME" ||
+    column.columnType === "INT" ||
+    column.columnType === "LONG" ||
+    column.columnType === "DECIMAL"
+  );
+};
+
+export const isRefType = (column: IColumn) => {
+  return (
+    column.columnType === "REF" ||
+    column.columnType === "REFBACK" ||
+    column.columnType === "ONTOLOGY"
+  );
+};
+
+export const isArrayType = (column: IColumn) => {
+  return column.columnType.endsWith("_ARRAY");
+};
+
+export const isFileType = (column: IColumn) => {
+  return column.columnType === "FILE";
 };

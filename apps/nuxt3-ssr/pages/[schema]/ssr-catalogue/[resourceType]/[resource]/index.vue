@@ -39,7 +39,7 @@ const tableMetaData = computed(() => {
   }
 });
 
-const fields = buildQueryFields(schemas, schemaName, resourceType);
+const fields = buildRecordDetailsQueryFields(schemas, schemaName, resourceType);
 
 const query = gql`
   query ${resourceType}($id: String) {
