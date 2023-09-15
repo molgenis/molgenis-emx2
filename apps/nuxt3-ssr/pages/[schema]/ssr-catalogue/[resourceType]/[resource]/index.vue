@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { LocationQueryValue } from ".nuxt/vue-router";
 import { gql } from "graphql-request";
 import {
   IColumn,
@@ -10,7 +11,6 @@ const config = useRuntimeConfig();
 const route = useRoute();
 const resourceName: string = route.params.resourceType as string;
 const schemaName = route.params.schema.toString();
-
 const metadata = await fetchMetadata(schemaName);
 
 const tableMetaDataFinderResult = metadata.tables.find(
@@ -40,9 +40,13 @@ const schemas = externalSchemas.reduce(
 
 const fields = buildRecordDetailsQueryFields(schemas, schemaName, resourceType);
 
+const keys = route.query.keys;
+const keysObject = locationQueryValueToObject(keys);
+const filter = buildFilterFromKeysObject(keysObject);
+
 const query = gql`
-  query ${resourceType}($id: String) {
-    ${resourceType}( filter: { id: { equals: [$id] } } ) {
+  query ${resourceType}($filter: ${resourceType}Filter) {
+    ${resourceType}( filter: $filter  ) {
       ${fields}
     }
   }`;
@@ -56,9 +60,11 @@ const { data, pending, error, refresh } = await useFetch(
   {
     baseURL: config.public.apiBase,
     method: "POST",
-    body: { query, variables: { id: route.params.resource } },
+    body: { query, variables: { filter: filter } },
   }
 );
+
+console.log(query);
 
 watch(data, setData, {
   deep: true,

@@ -255,3 +255,13 @@ export const extractKeyFromRecord = (
   }, {});
   return key || {};
 };
+
+export const buildFilterFromKeysObject = (keys: Record<string, string>) => {
+  return Object.entries(keys).reduce(
+    (acc: Record<string, object>, [key, value]: [string, string]) => {
+      acc[key] = { equals: [value] };
+      return acc;
+    },
+    {}
+  );
+};
