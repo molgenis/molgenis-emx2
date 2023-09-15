@@ -1,11 +1,10 @@
 package org.molgenis.emx2.cafevariome.post.jsonrequest.parser;
 
-import org.molgenis.emx2.cafevariome.post.jsonrequest.JsonQuery;
-import org.molgenis.emx2.cafevariome.post.request.query.HPOQuery;
-import org.molgenis.emx2.cafevariome.post.request.query.ORDOQuery;
-
 import static org.molgenis.emx2.cafevariome.post.jsonrequest.parser.JsonHPOQueryParser.stringProvided;
 import static org.molgenis.emx2.cafevariome.post.jsonrequest.parser.JsonHPOQueryParser.stringsInArrayProvided;
+
+import org.molgenis.emx2.cafevariome.post.jsonrequest.JsonQuery;
+import org.molgenis.emx2.cafevariome.post.request.query.ORDOQuery;
 
 public class JsonORDOQueryParser {
 
@@ -57,8 +56,7 @@ public class JsonORDOQueryParser {
     int s = Integer.parseInt(request.getQuery().getComponents().getOrdo()[0].getS());
     boolean HPO = Boolean.parseBoolean(request.getQuery().getComponents().getOrdo()[0].getHPO());
     String[] termsSplit = request.getQuery().getComponents().getOrdo()[0].getId();
-    if(termsSplit.length > 1)
-    {
+    if (termsSplit.length > 1) {
       throw new Exception("More than 1 ID term in ORDO query is currently unsupported");
     }
     ORDOQuery ordoQuery = new ORDOQuery();
@@ -68,5 +66,4 @@ public class JsonORDOQueryParser {
     ordoQuery.setSearchTerm(termsSplit[0]);
     return ordoQuery;
   }
-
 }

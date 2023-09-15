@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.molgenis.emx2.cafevariome.post.request.query.HPOQuery;
 import org.molgenis.emx2.cafevariome.post.request.query.ORDOQuery;
+import org.molgenis.emx2.cafevariome.post.request.query.ReactomeQuery;
 
 public class Filters {
 
@@ -35,10 +36,15 @@ public class Filters {
       System.out.println("ordoTerm=" + ordoTerm);
       throw new Exception("Expected input ORDO term to start with 'ORPHA:'");
     }
-    String filter =
-            "{diseases: { diseaseCode: { ontologyTermURI: {like:\"" + ordoTerm + "\"";
+    String filter = "{diseases: { diseaseCode: { ontologyTermURI: {like:\"" + ordoTerm + "\"";
     filter = finalizeFilter(filter);
     result.add(filter);
+    return result;
+  }
+
+  public static List<String> makeReactomeFilter(ReactomeQuery reactomeQuery) throws Exception {
+    List<String> result = new ArrayList<>();
+
     return result;
   }
 }

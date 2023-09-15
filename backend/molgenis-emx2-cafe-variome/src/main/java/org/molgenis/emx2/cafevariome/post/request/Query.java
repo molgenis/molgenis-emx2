@@ -12,10 +12,8 @@ import java.util.Map;
 import org.molgenis.emx2.cafevariome.post.jsonrequest.JsonQuery;
 import org.molgenis.emx2.cafevariome.post.jsonrequest.parser.JsonHPOQueryParser;
 import org.molgenis.emx2.cafevariome.post.jsonrequest.parser.JsonORDOQueryParser;
-import org.molgenis.emx2.cafevariome.post.request.query.EAVQuery;
-import org.molgenis.emx2.cafevariome.post.request.query.HPOQuery;
-import org.molgenis.emx2.cafevariome.post.request.query.ORDOQuery;
-import org.molgenis.emx2.cafevariome.post.request.query.RequiredQuery;
+import org.molgenis.emx2.cafevariome.post.jsonrequest.parser.JsonReactomeQueryParser;
+import org.molgenis.emx2.cafevariome.post.request.query.*;
 
 public class Query {
 
@@ -23,6 +21,7 @@ public class Query {
   private HPOQuery hpoQuery;
   private EAVQuery eavQuery;
   private ORDOQuery ordoQuery;
+  private ReactomeQuery reactomeQuery;
 
   /**
    * @param request
@@ -61,6 +60,9 @@ public class Query {
     if (JsonORDOQueryParser.hasORDOParams(request)) {
       this.ordoQuery = JsonORDOQueryParser.getORDOQueryFromRequest(request);
     }
+    if (JsonReactomeQueryParser.hasReactomeParams(request)) {
+      this.reactomeQuery = JsonReactomeQueryParser.getReactomeQueryFromRequest(request);
+    }
 
     // TODO
     //    if (hasORDOParams(request)) {
@@ -94,6 +96,10 @@ public class Query {
     return ordoQuery != null;
   }
 
+  public boolean hasReactome() {
+    return reactomeQuery != null;
+  }
+
   public boolean hasEAV() {
     return eavQuery != null;
   }
@@ -108,6 +114,10 @@ public class Query {
 
   public HPOQuery getHpoQuery() {
     return hpoQuery;
+  }
+
+  public ReactomeQuery getReactomeQuery() {
+    return reactomeQuery;
   }
 
   public void setHpoQuery(HPOQuery hpoQuery) {
