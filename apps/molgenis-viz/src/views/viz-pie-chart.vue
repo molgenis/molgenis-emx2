@@ -36,7 +36,7 @@
       <MessageBox v-else-if="!loading && hasError" type="error">
         <p>{{ error }}</p>
       </MessageBox>
-      <PieChart
+      <PieChart2
         v-else
         chartId="organisationsByType"
         title="Summary of organisation type"
@@ -67,6 +67,7 @@ import PageHeader from "../components/layouts/PageHeader.vue";
 import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import PieChart from "../components/viz/PieChart.vue";
+import PieChart2 from "../components/viz/PieChart2.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import headerImage from "../assets/pie-chart-header.jpg";
 
@@ -105,7 +106,10 @@ onMounted(() => {
               type: group[0],
               percent: Math.round((group[1] / size) * 100),
             })
-        );
+        )
+        .sort((a,b) => {
+          return a.percent < b.percent;
+        })
 
       total.value = size;
       data.value = asDataObject(orgs, "type", "percent");
