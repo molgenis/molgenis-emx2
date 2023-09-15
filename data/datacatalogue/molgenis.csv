@@ -375,9 +375,9 @@ Repeated variables,All variables,,,,,,,,,,,Definition of a repeated sourceVariab
 Repeated variables,,is repeat of,ref,,TRUE,,Variables,resource,,,,reference to the definition of the sourceVariable that is being repeated,,,
 Mappings,,,,,,,,,,,,"Mapping from collected datasets to standard/harmonized datasets, optionally including ETL syntaxes",EMA,,
 Mappings,,source,ref,1,TRUE,,Extended resources,,,,,Data source that is being mapped to a (common) data model,EMA,,
-Mappings,,source version,string,,TRUE,,,,,,,version of the datasource that is being mapped,EMA,,
+Mappings,,source version,string,,,,,,,,,version of the datasource that is being mapped,EMA,,
 Mappings,,target,ref,1,TRUE,,Models,,,,,model being mapped to,EMA,,
-Mappings,,target version,string,,TRUE,,,,,,,version of the model being mapped to,EMA,,
+Mappings,,target version,string,,,,,,,,,version of the model being mapped to,EMA,,
 Mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,"Mapping from collected datasets to standard/harmonized datasets, optionally including ETL syntaxes",EMA,,
 Mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months",EMA,,
 Dataset mappings,,source,ref,1,TRUE,,Extended resources,,,,,datasource being mapped from,,TableMappings,fromDataDictionary
