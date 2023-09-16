@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.NameMapper;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
@@ -44,17 +45,22 @@ public class TableStoreForCsvInMemory implements TableStore {
 
   @Override
   public Iterable<Row> readTable(String name) {
+    return this.readTable(name, null);
+  }
+
+  @Override
+  public Iterable<Row> readTable(String name, NameMapper mapper) {
     if (!store.containsKey(name))
       throw new MolgenisException(
           "Import failed: Table not found. File with name " + name + " doesn't exist");
     Reader reader = new BufferedReader(new StringReader(store.get(name)));
 
-    return CsvTableReader.read(reader);
+    return CsvTableReader.read(reader, mapper);
   }
 
   @Override
-  public void processTable(String name, RowProcessor processor) {
-    processor.process(readTable(name).iterator(), this);
+  public void processTable(String name, NameMapper mapper, RowProcessor processor) {
+    processor.process(readTable(name, mapper).iterator(), this);
   }
 
   @Override

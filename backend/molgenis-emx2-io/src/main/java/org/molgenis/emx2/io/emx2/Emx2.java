@@ -40,7 +40,7 @@ public class Emx2 {
     int columnPosition = 0;
 
     for (Row r : rows) {
-      String tableName = r.getString(TABLE_NAME);
+      String tableName = sanitize(r.getString(TABLE_NAME));
       if (tableName == null) {
         throw new MolgenisException(
             "Parsing of sheet molgenis failed: Required column "
@@ -55,7 +55,7 @@ public class Emx2 {
 
       // load table metadata, this is when columnName is empty
       if (r.getString(COLUMN_NAME) == null) {
-        schema.getTableMetadata(tableName).setInherit(r.getString(TABLE_EXTENDS));
+        schema.getTableMetadata(tableName).setInherit(sanitize(r.getString(TABLE_EXTENDS)));
         schema.getTableMetadata(tableName).setImportSchema(r.getString(REF_SCHEMA));
         schema.getTableMetadata(tableName).setSemantics(r.getStringArray(SEMANTICS, false));
         if (r.getString(TABLE_TYPE) != null) {
@@ -97,14 +97,14 @@ public class Emx2 {
                     + lineNo);
           }
 
-          Column column = column(r.getString(COLUMN_NAME));
+          Column column = column(sanitize(r.getString(COLUMN_NAME)));
           if (r.notNull(COLUMN_TYPE))
             column.setType(ColumnType.valueOf(r.getString(COLUMN_TYPE).toUpperCase().trim()));
           if (r.notNull(KEY)) column.setKey(r.getInteger(KEY));
           if (r.notNull(REF_SCHEMA)) column.setRefSchema(r.getString(REF_SCHEMA));
-          if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
-          if (r.notNull(REF_LINK)) column.setRefLink(r.getString(REF_LINK));
-          if (r.notNull(REF_BACK)) column.setRefBack(r.getString(REF_BACK));
+          if (r.notNull(REF_TABLE)) column.setRefTable(sanitize(r.getString(REF_TABLE)));
+          if (r.notNull(REF_LINK)) column.setRefLink(sanitize(r.getString(REF_LINK)));
+          if (r.notNull(REF_BACK)) column.setRefBack(sanitize(r.getString(REF_BACK)));
           if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
           if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
           // description i18n
@@ -278,5 +278,29 @@ public class Emx2 {
       }
     }
     return result;
+  }
+
+  public static String sanitize(String value) {
+    // main purpose is to remove spaces because not allowed in names, and also to make nice
+    // camelCase or PascalCase (we don't touch first character to not destroy existing names)
+    if (value != null) {
+      String[] words = value.split("\\s+");
+      StringBuilder result = new StringBuilder();
+      for (int i = 0; i < words.length; i++) {
+        if (i == 0) {
+          result.append(words[i]);
+        } else {
+          // all other words have first letter character case
+          result.append(words[i].substring(0, 1).toUpperCase());
+
+          if (words[i].length() > 1) {
+            result.append(words[i].substring(1));
+          }
+        }
+      }
+      return result.toString().trim();
+    } else {
+      return null;
+    }
   }
 }

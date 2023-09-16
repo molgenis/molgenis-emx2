@@ -2,6 +2,7 @@ dependencies {
     implementation 'org.simpleflatmapper:sfm-csv:8.2.3'
     implementation 'com.monitorjbl:xlsx-streamer:2.2.0'
     implementation 'org.apache.commons:commons-lang3:3.13.0'
+    implementation 'io.github.classgraph:classgraph:4.8.162'
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-tasks')
     testImplementation project(':backend:molgenis-emx2-sql')

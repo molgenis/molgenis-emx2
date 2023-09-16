@@ -9,21 +9,21 @@ public class TestRows {
   public void test1() {
 
     try {
-      new Row(1, 2);
+      new Row("a", 2, 3, 4);
       fail("should fail because column names must be string");
     } catch (MolgenisException e) {
       System.out.println("Error correct: " + e.getMessage());
     }
 
     try {
-      new Row(true, 2);
+      new Row("a", 2, true, 2);
       fail("should fail because column names must be string");
     } catch (MolgenisException e) {
       System.out.println("Error correct: " + e.getMessage());
     }
 
     try {
-      new Row(true, 2, 3);
+      new Row("a", 2, 3);
       fail("should fail because name value pairs must be even number of parameters");
     } catch (MolgenisException e) {
       System.out.println("Error correct: " + e.getMessage());

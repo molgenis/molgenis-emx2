@@ -29,7 +29,7 @@ public class FAIRDataPointTest {
     database = TestDatabaseFactory.getTestDatabase();
     fdpSchema = database.dropCreateSchema("fdpTest");
     Schema fairDataHub_nr1 = database.dropCreateSchema("fairDataHub_nr1");
-    Schema fairDataHub_nr2 = database.dropCreateSchema("fairDataHub_nr2 with a whitespace");
+    Schema fairDataHub_nr2 = database.dropCreateSchema("fairDataHub_nr2");
     FAIRDataHubLoader fairDataHubLoader = new FAIRDataHubLoader();
     fairDataHubLoader.load(fairDataHub_nr1, true);
     fairDataHubLoader.load(fairDataHub_nr2, true);
@@ -61,16 +61,13 @@ public class FAIRDataPointTest {
         result.contains(
             "<http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId02>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/minCatId03>,"));
     assertTrue(
-        result.contains(
-            "<http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/catalogId01>,"));
+        result.contains("<http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId01>,"));
 
     assertTrue(
-        result.contains(
-            "<http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/catalogId02>,"));
+        result.contains("<http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId02>,"));
 
     assertTrue(
-        result.contains(
-            "<http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/minCatId03>"));
+        result.contains("<http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/minCatId03>"));
   }
 
   @Test
@@ -192,7 +189,7 @@ public class FAIRDataPointTest {
 
     for (String tableName : fdpSchema.getTableNames()) {
       if (store.containsTable(tableName))
-        fdpSchema.getTable(tableName).update(store.readTable(tableName)); // actually upsert
+        fdpSchema.getTable(tableName).update(store.readTable(tableName, null)); // actually upsert
     }
   }
 }

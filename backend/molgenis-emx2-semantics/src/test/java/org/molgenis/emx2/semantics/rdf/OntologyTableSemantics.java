@@ -61,7 +61,8 @@ public class OntologyTableSemantics {
                 new InputStreamReader(
                     FAIRDataHubLoader.class
                         .getClassLoader()
-                        .getResourceAsStream("OntologyTableSemanticsTestFile.csv"))));
+                        .getResourceAsStream("OntologyTableSemanticsTestFile.csv")),
+                null));
     petStoreSchema.migrate(metadata);
 
     outputStream = new ByteArrayOutputStream();

@@ -32,7 +32,7 @@ public class ImportMetadataTask extends Task {
           || store.containsTable("molgenis_members")) {
 
         if (store.containsTable(MOLGENIS)) {
-          schema.migrate(Emx2.fromRowList(store.readTable(MOLGENIS)));
+          schema.migrate(Emx2.fromRowList(store.readTable(MOLGENIS, null)));
           this.addSubTask("Loaded tables and columns from 'molgenis' sheet").complete();
         } else {
           this.addSubTask("Metadata loading skipped: 'molgenis' sheet not included in the file")

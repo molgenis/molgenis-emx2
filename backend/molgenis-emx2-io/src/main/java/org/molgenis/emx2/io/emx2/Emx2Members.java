@@ -32,7 +32,7 @@ public class Emx2Members {
   public static int inputRoles(TableStore store, Schema schema) {
     int count = 0;
     if (store.containsTable(ROLES_TABLE)) {
-      for (Row row : store.readTable(ROLES_TABLE)) {
+      for (Row row : store.readTable(ROLES_TABLE, null)) {
         count++;
         schema.addMember(row.getString(USER), row.getString(ROLE));
       }

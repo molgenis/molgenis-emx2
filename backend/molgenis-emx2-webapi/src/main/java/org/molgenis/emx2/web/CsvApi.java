@@ -131,7 +131,7 @@ public class CsvApi {
   }
 
   private static Iterable<Row> getRowList(Request request) {
-    return CsvTableReader.read(new StringReader(request.body()));
+    return CsvTableReader.read(new StringReader(request.body()), null);
   }
 
   private static String tableDelete(Request request, Response response) {

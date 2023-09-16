@@ -2,8 +2,6 @@ package org.molgenis.emx2.semantics.rdf;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.eclipse.rdf4j.model.vocabulary.XSD.*;
-import static org.eclipse.rdf4j.model.vocabulary.XSD.LONG;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.semantics.QueryHelper.selectColumns;

@@ -187,11 +187,11 @@ public class SqlTypeUtils extends TypeUtils {
     Map<String, Object> map = new LinkedHashMap<>();
     for (Column c : columns) {
       if (c.isReference()) {
-        map.put(c.getIdentifier(), getRefFromRow(row, c));
+        map.put(c.getName(), getRefFromRow(row, c));
       } else if (c.isFile()) {
         // skip file
       } else {
-        map.put(c.getIdentifier(), row.get(c));
+        map.put(c.getName(), row.get(c));
       }
     }
     return map;
@@ -222,7 +222,7 @@ public class SqlTypeUtils extends TypeUtils {
       for (Reference ref : c.getReferences()) {
         if (!ref.isOverlapping()) {
           List<String> path = new ArrayList();
-          path.add(c.getIdentifier());
+          path.add(c.getName());
           path.addAll(ref.getPath());
           putMap(result, ref.getPath(), row.get(ref.getName(), ref.getPrimitiveType()));
         }

@@ -46,7 +46,7 @@ public class Emx2Settings {
   public static void inputSettings(TableStore store, Schema schema) {
     int row = 1;
     if (store.containsTable(Constants.SETTINGS_TABLE)) {
-      for (Row setting : store.readTable(Constants.SETTINGS_TABLE)) {
+      for (Row setting : store.readTable(Constants.SETTINGS_TABLE, null)) {
         String tableName = setting.getString(TABLE);
         if (tableName != null) {
           Table table = schema.getTable(tableName);

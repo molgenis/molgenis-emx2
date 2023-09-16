@@ -422,46 +422,46 @@ public class TypeUtils {
     }
   }
 
-  public static String convertToCamelCase(String value) {
-    // main purpose is to remove spaces because not allowed in identifiers
-    if (value != null) {
-      String[] words = value.split("\\s+");
-      StringBuilder result = new StringBuilder();
-      for (int i = 0; i < words.length; i++) {
-        if (i == 0) {
-          // first character is lowercase, we don't touch other characters
-          result.append(words[i].substring(0, 1).toLowerCase());
-        } else {
-          // all other words have first letter character case
-          result.append(words[i].substring(0, 1).toUpperCase());
-        }
-        if (words[i].length() > 1) {
-          result.append(words[i].substring(1));
-        }
-      }
-      return result.toString().trim();
-    } else {
-      return null;
-    }
-  }
+  //  public static String convertToCamelCase(String value) {
+  //    // main purpose is to remove spaces because not allowed in identifiers
+  //    if (value != null) {
+  //      String[] words = value.split("\\s+");
+  //      StringBuilder result = new StringBuilder();
+  //      for (int i = 0; i < words.length; i++) {
+  //        if (i == 0) {
+  //          // first character is lowercase, we don't touch other characters
+  //          result.append(words[i].substring(0, 1).toLowerCase());
+  //        } else {
+  //          // all other words have first letter character case
+  //          result.append(words[i].substring(0, 1).toUpperCase());
+  //        }
+  //        if (words[i].length() > 1) {
+  //          result.append(words[i].substring(1));
+  //        }
+  //      }
+  //      return result.toString().trim();
+  //    } else {
+  //      return null;
+  //    }
+  //  }
 
-  public static String convertToPascalCase(String value) {
-    // main purpose is to remove spaces because not allowed in identifiers
-    if (value != null) {
-      String[] words = value.split("\\s+");
-      StringBuilder result = new StringBuilder();
-      for (int i = 0; i < words.length; i++) {
-        // all other words have first character uppercase, other characters not touched
-        result.append(words[i].substring(0, 1).toUpperCase());
-        if (words[i].length() > 1) {
-          result.append(words[i].substring(1));
-        }
-      }
-      return result.toString().trim();
-    } else {
-      return null;
-    }
-  }
+  //  public static String convertToPascalCase(String value) {
+  //    // main purpose is to remove spaces because not allowed in identifiers
+  //    if (value != null) {
+  //      String[] words = value.split("\\s+");
+  //      StringBuilder result = new StringBuilder();
+  //      for (int i = 0; i < words.length; i++) {
+  //        // all other words have first character uppercase, other characters not touched
+  //        result.append(words[i].substring(0, 1).toUpperCase());
+  //        if (words[i].length() > 1) {
+  //          result.append(words[i].substring(1));
+  //        }
+  //      }
+  //      return result.toString().trim();
+  //    } else {
+  //      return null;
+  //    }
+  //  }
 
   public static boolean isNull(Object value, ColumnType type) {
     Object typedValue = getTypedValue(value, type);

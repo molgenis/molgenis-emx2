@@ -19,6 +19,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 public class TestImportExportAllExamples {
 
   static Database db;
+  static String prefix = "allExamples";
 
   @BeforeAll
   public static void setup() {
@@ -27,35 +28,35 @@ public class TestImportExportAllExamples {
 
   @Test
   public void testArrayTypeTestExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("1");
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "1");
     ArrayTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
   public void testRefAndRefArrayExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("4");
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "4");
     RefAndRefArrayTestExample.createRefAndRefArrayTestExample(schema1);
     executeCompare(schema1);
   }
 
   @Test
   public void testSimpleTypeTestExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("5");
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "5");
     SimpleTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
   public void testProductComponentPartsExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("6");
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "6");
     ProductComponentPartsExample.create(schema1);
     executeCompare(schema1);
   }
 
   @Test
   public void testPetStoreExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("7");
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "7");
     schema1.create(
         new PetStoreLoader().getSchemaMetadata().getTables().toArray(new TableMetadata[0]));
     executeCompare(schema1);

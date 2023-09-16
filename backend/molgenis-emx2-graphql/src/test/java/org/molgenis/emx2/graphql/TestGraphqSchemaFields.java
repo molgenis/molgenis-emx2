@@ -2,14 +2,10 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
-import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
-import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -374,78 +370,6 @@ public class TestGraphqSchemaFields {
   }
 
   @Test
-  public void testGroupByWithSpaces() throws IOException {
-    // rename column 'category' to 'category_test' and 'tag' to 'tag test' and 'name' to 'name test'
-    Column newCategory = schema.getTable("Pet").getMetadata().getColumn("category");
-    newCategory.setName("category test");
-    Column newTags = schema.getTable("Pet").getMetadata().getColumn("tags");
-    newTags.setName("tags test");
-    Column newCategoryName = schema.getTable("Category").getMetadata().getColumn("name");
-    newCategoryName.setName("name test");
-    Column newTagName = schema.getTable("Tag").getMetadata().getColumn("name");
-    newTagName.setName("name test");
-    schema.getTable("Pet").getMetadata().alterColumn("category", newCategory);
-    schema.getTable("Pet").getMetadata().alterColumn("tags", newTags);
-    schema.getTable("Category").getMetadata().alterColumn("name", newCategoryName);
-    schema.getTable("Tag").getMetadata().alterColumn("name", newTagName);
-
-    // refresh graphql
-    grapql =
-        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
-
-    // refs
-    JsonNode result = execute("{Pet_groupBy{count,tagsTest{nameTest}}}");
-    // 1 red
-    assertEquals(null, result.at("/Pet_groupBy/0/tagsTest/nameTest").textValue());
-    assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
-    // 1 green
-    assertEquals("blue", result.at("/Pet_groupBy/1/tagsTest/nameTest").asText());
-    assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
-    // 1 with no tags
-    assertEquals("green", result.at("/Pet_groupBy/2/tagsTest/nameTest").textValue());
-    assertEquals(3, result.at("/Pet_groupBy/2/count").intValue());
-
-    result = execute("{Pet_groupBy{count,categoryTest{nameTest}}}");
-    assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
-    assertEquals("ant", result.at("/Pet_groupBy/0/categoryTest/nameTest").textValue());
-    assertEquals("bird", result.at("/Pet_groupBy/1/categoryTest/nameTest").textValue());
-
-    // currently doensn't contain cat because somehow 'null' are not included
-    result = execute("{Pet_groupBy{count,tagsTest{nameTest},categoryTest{nameTest}}}");
-    // 1 <untagged> cat
-    assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
-    assertEquals("cat", result.at("/Pet_groupBy/0/categoryTest/nameTest").textValue());
-    assertEquals(null, result.at("/Pet_groupBy/0/tagsTest/nameTest").textValue());
-    // 1 blue mouse
-    assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
-    assertEquals("mouse", result.at("/Pet_groupBy/1/categoryTest/nameTest").textValue());
-    assertEquals("blue", result.at("/Pet_groupBy/1/tagsTest/nameTest").textValue());
-    // 1 green ant
-    assertEquals(1, result.at("/Pet_groupBy/2/count").intValue());
-    assertEquals("ant", result.at("/Pet_groupBy/2/categoryTest/nameTest").textValue());
-    assertEquals("green", result.at("/Pet_groupBy/2/tagsTest/nameTest").textValue());
-
-    // N.B. in case arrays are involved total might more than count!!!
-
-    // undo rename column with spaces for any other test
-    newCategory = schema.getTable("Pet").getMetadata().getColumn("category test");
-    newCategory.setName("category");
-    newTags = schema.getTable("Pet").getMetadata().getColumn("tags test");
-    newTags.setName("tags");
-    newCategoryName = schema.getTable("Category").getMetadata().getColumn("name test");
-    newCategoryName.setName("name");
-    newTagName = schema.getTable("Tag").getMetadata().getColumn("name test");
-    newTagName.setName("name");
-    schema.getTable("Pet").getMetadata().alterColumn("category test", newCategory);
-    schema.getTable("Pet").getMetadata().alterColumn("tags test", newTags);
-    schema.getTable("Category").getMetadata().alterColumn("name test", newCategoryName);
-    schema.getTable("Tag").getMetadata().alterColumn("name test", newTagName);
-    // refresh graphql
-    grapql =
-        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
-  }
-
-  @Test
   public void testSchemaQueries() throws IOException {
     assertEquals(schemaName, execute("{_schema{name}}").at("/_schema/name").textValue());
   }
@@ -568,94 +492,6 @@ public class TestGraphqSchemaFields {
             .getColumn("test2")
             .getComputed());
     execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
-  }
-
-  @Test
-  public void testNamesWithSpaces() throws IOException {
-    try {
-      Schema myschema = database.dropCreateSchema("testNamesWithSpaces");
-
-      // test escaping
-      assertEquals("firstName", convertToCamelCase("First name"));
-      assertEquals("firstName", convertToCamelCase("First  name"));
-      assertEquals("first_name", convertToCamelCase("first_name"));
-
-      assertEquals("FirstName", convertToPascalCase("first name"));
-      assertEquals("FirstName", convertToPascalCase("first  name"));
-      assertEquals("First_name", convertToPascalCase("first_name"));
-
-      System.out.println(convertToCamelCase("Person details"));
-
-      myschema.create(
-          table(
-              "Person details",
-              column("First name").setPkey(),
-              column("Last_name").setPkey(),
-              column("some number").setType(ColumnType.INT)),
-          table(
-              "Some",
-              column("id").setPkey(),
-              column("person").setType(REF).setRefTable("Person details"),
-              column("persons").setType(REF_ARRAY).setRefTable("Person details")));
-
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
-      execute(
-          "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\",someNumber: 6}){message}}");
-
-      int count = execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue();
-
-      // insert should increase count
-      execute(
-          "mutation{insert(PersonDetails:{firstName:\"blaatb\",last_name:\"blaatb2\"}){message}}");
-      assertEquals(
-          count + 1,
-          execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue());
-
-      // order by should work with spaces
-      assertEquals(
-          "blaata",
-          execute("{PersonDetails(orderby:{firstName:ASC}){firstName}}")
-              .at("/PersonDetails/0/firstName")
-              .asText());
-
-      assertEquals(
-          "blaatb",
-          execute("{PersonDetails(orderby:{firstName:DESC}){firstName}}")
-              .at("/PersonDetails/0/firstName")
-              .asText());
-
-      // order by should work with underscore
-      assertEquals(
-          "blaata2",
-          execute("{PersonDetails(orderby:{last_name:ASC}){last_name}}")
-              .at("/PersonDetails/0/last_name")
-              .asText());
-
-      assertEquals(
-          "blaatb2",
-          execute("{PersonDetails(orderby:{last_name:DESC}){last_name}}")
-              .at("/PersonDetails/0/last_name")
-              .asText());
-
-      // aggregates should be working with spaces too
-      JsonNode agg =
-          execute(
-              "{PersonDetails_agg{sum{someNumber}avg{someNumber}min{someNumber}max{someNumber}}}");
-      assertEquals(6, agg.at("/PersonDetails_agg/sum/someNumber").asInt());
-      assertEquals(6, agg.at("/PersonDetails_agg/avg/someNumber").asInt());
-      assertEquals(6, agg.at("/PersonDetails_agg/min/someNumber").asInt());
-      assertEquals(6, agg.at("/PersonDetails_agg/max/someNumber").asInt());
-
-      // delete
-      execute(
-          "mutation{delete(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\"}){message}}");
-      assertEquals(
-          count, execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue());
-
-      // reset
-    } finally {
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
-    }
   }
 
   @Test

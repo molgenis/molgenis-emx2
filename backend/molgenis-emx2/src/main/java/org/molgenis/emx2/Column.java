@@ -83,11 +83,11 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   private String validateName(String columnName, boolean skipValidation) {
-    if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
+    if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_]*")) {
       throw new MolgenisException(
           "Invalid column name '"
               + columnName
-              + "': Column must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
+              + "': Column must start with a letter, followed by letters, underscores, or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
     }
     if (!skipValidation && (columnName.contains("_ ") || columnName.contains(" _"))) {
       throw new MolgenisException(
@@ -144,10 +144,6 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return columnName;
   }
 
-  public String getIdentifier() {
-    return convertToCamelCase(getName());
-  }
-
   public Column setName(String columnName) {
     this.columnName = columnName;
     return this;
@@ -167,10 +163,6 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public String getRefTableName() {
     return this.refTable;
-  }
-
-  public String getRefTableIdentifier() {
-    return convertToPascalCase(this.getRefTableName());
   }
 
   public TableMetadata getRefTable() {
@@ -419,7 +411,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
             type = getArrayType(type);
           }
           List<String> path = ref.getPath();
-          path.add(0, keyPart.getIdentifier());
+          path.add(0, keyPart.getName());
           String name = null;
           if (refLink != null) {
             for (Reference overlap : refLink.getReferences()) {
@@ -472,7 +464,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
                 getRefTableName(),
                 keyPart.getName(),
                 keyPart.isRequired() || this.isRequired(),
-                new ArrayList<>(List.of(keyPart.getIdentifier()))));
+                new ArrayList<>(List.of(keyPart.getName()))));
       }
     }
 

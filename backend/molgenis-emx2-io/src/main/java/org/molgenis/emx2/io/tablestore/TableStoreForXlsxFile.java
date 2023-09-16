@@ -15,6 +15,7 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.NameMapper;
 import org.molgenis.emx2.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,6 +173,11 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public List<Row> readTable(String name) {
+    return readTable(name, null);
+  }
+
+  @Override
+  public List<Row> readTable(String name, NameMapper mapper) {
     if (this.cache == null) {
       this.cache();
     }
@@ -179,12 +185,12 @@ public class TableStoreForXlsxFile implements TableStore {
       throw new MolgenisException(
           "Import failed: Table with name " + name + " not found in Excel file");
     }
-    return this.cache.get(name);
+    return this.cache.get(name).stream().map(row -> new Row(row, mapper)).toList();
   }
 
   @Override
-  public void processTable(String name, RowProcessor processor) {
-    processor.process(readTable(name).iterator(), this);
+  public void processTable(String name, NameMapper mapper, RowProcessor processor) {
+    processor.process(readTable(name, mapper).iterator(), this);
   }
 
   private Row convertRow(

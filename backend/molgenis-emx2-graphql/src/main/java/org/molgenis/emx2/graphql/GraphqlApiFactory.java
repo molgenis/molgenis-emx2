@@ -25,23 +25,22 @@ public class GraphqlApiFactory {
     for (Map<String, Object> object : map) {
       Row row = new Row();
       for (Column column : metadata.getColumns()) {
-        if (object.containsKey(column.getIdentifier())) {
+        if (object.containsKey(column.getName())) {
           if (column.isRef()) {
-            convertRefToRow((Map<String, Object>) object.get(column.getIdentifier()), row, column);
+            convertRefToRow((Map<String, Object>) object.get(column.getName()), row, column);
           } else if (column.isReference()) {
             // REFBACK, REF_ARRAY
             convertRefArrayToRow(
-                (List<Map<String, Object>>) object.get(column.getIdentifier()), row, column);
+                (List<Map<String, Object>>) object.get(column.getName()), row, column);
           } else if (column.isFile()) {
-            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(column.getIdentifier());
+            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(column.getName());
             if (bfw == null || !bfw.isSkip()) {
               // also necessary in case of 'null' to ensure all file metadata fields are made empty
               // skip is used when use submitted only metadata (that they received in query)
-              row.setBinary(
-                  column.getName(), (BinaryFileWrapper) object.get(column.getIdentifier()));
+              row.setBinary(column.getName(), (BinaryFileWrapper) object.get(column.getName()));
             }
           } else {
-            row.set(column.getName(), object.get(column.getIdentifier()));
+            row.set(column.getName(), object.get(column.getName()));
           }
         }
       }

@@ -40,8 +40,8 @@ public class RunMolgenisEmx2 {
         db -> {
           db.becomeAdmin();
 
-          if (db.getSchema("pet store") == null) {
-            Schema schema = db.createSchema("pet store");
+          if (db.getSchema("petStore") == null) {
+            Schema schema = db.createSchema("petStore");
             new PetStoreLoader().load(schema, true);
           }
 
