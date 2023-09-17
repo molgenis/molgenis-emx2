@@ -10,6 +10,8 @@ import java.time.temporal.TemporalAccessor;
 import java.util.*;
 import java.util.function.IntFunction;
 import java.util.function.UnaryOperator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jooq.DataType;
@@ -422,46 +424,91 @@ public class TypeUtils {
     }
   }
 
-  //  public static String convertToCamelCase(String value) {
-  //    // main purpose is to remove spaces because not allowed in identifiers
-  //    if (value != null) {
-  //      String[] words = value.split("\\s+");
-  //      StringBuilder result = new StringBuilder();
-  //      for (int i = 0; i < words.length; i++) {
-  //        if (i == 0) {
-  //          // first character is lowercase, we don't touch other characters
-  //          result.append(words[i].substring(0, 1).toLowerCase());
-  //        } else {
-  //          // all other words have first letter character case
-  //          result.append(words[i].substring(0, 1).toUpperCase());
-  //        }
-  //        if (words[i].length() > 1) {
-  //          result.append(words[i].substring(1));
-  //        }
-  //      }
-  //      return result.toString().trim();
-  //    } else {
-  //      return null;
-  //    }
-  //  }
+  public static String convertToCamelCase(String value) {
+    // main purpose is to remove spaces because not allowed in identifiers
+    if (value != null) {
+      String[] words = value.split("\\s+");
+      StringBuilder result = new StringBuilder();
+      for (int i = 0; i < words.length; i++) {
+        if (i == 0) {
+          // first character is lowercase, we don't touch other characters
+          result.append(words[i].substring(0, 1).toLowerCase());
+        } else {
+          // all other words have first letter character case
+          result.append(words[i].substring(0, 1).toUpperCase());
+        }
+        if (words[i].length() > 1) {
+          result.append(words[i].substring(1));
+        }
+      }
+      return result.toString().trim();
+    } else {
+      return null;
+    }
+  }
 
-  //  public static String convertToPascalCase(String value) {
-  //    // main purpose is to remove spaces because not allowed in identifiers
-  //    if (value != null) {
-  //      String[] words = value.split("\\s+");
-  //      StringBuilder result = new StringBuilder();
-  //      for (int i = 0; i < words.length; i++) {
-  //        // all other words have first character uppercase, other characters not touched
-  //        result.append(words[i].substring(0, 1).toUpperCase());
-  //        if (words[i].length() > 1) {
-  //          result.append(words[i].substring(1));
-  //        }
-  //      }
-  //      return result.toString().trim();
-  //    } else {
-  //      return null;
-  //    }
-  //  }
+  public static String convertToPascalCase(String value) {
+    // main purpose is to remove spaces because not allowed in identifiers
+    if (value != null) {
+      String[] words = value.split("\\s+");
+      StringBuilder result = new StringBuilder();
+      for (int i = 0; i < words.length; i++) {
+        // all other words have first character uppercase, other characters not touched
+        result.append(words[i].substring(0, 1).toUpperCase());
+        if (words[i].length() > 1) {
+          result.append(words[i].substring(1));
+        }
+      }
+      return result.toString().trim();
+    } else {
+      return null;
+    }
+  }
+
+  private static String capitalizeFirst(String word) {
+    if (word.length() == 1) {
+      return word.substring(0, 1).toUpperCase();
+    } else {
+      return word.substring(0, 1).toUpperCase() + word.substring(1);
+    }
+  }
+
+  private static String lowerCaseFirst(String word) {
+    return word.substring(0, 1).toLowerCase() + word.substring(1);
+  }
+
+  private static Pattern WORD_FINDER = Pattern.compile("(([A-Z]?[a-z0-9]+)|([A-Za-z0-9]))");
+
+  public static String convertToTitleCase(String value) {
+    if (value == null) return null;
+    if (value.length() == 0) return value;
+
+    // split on aA lowercase to uppercase edges
+    Matcher matcher = WORD_FINDER.matcher(value);
+    List<String> result = new ArrayList<>();
+    String previousResult = null;
+    while (matcher.find()) {
+      String current = capitalizeFirst(matcher.group(0));
+      if (previousResult == null) {
+        result.add(capitalizeFirst(current));
+        previousResult = current;
+      } else {
+        if (previousResult.length() == 1) {
+          int i = result.size() - 1;
+          // range of uppercase letters become words on their own
+          result.set(i, result.get(i).toUpperCase() + current.substring(0, 1).toUpperCase());
+          if (current.length() > 1) {
+            current = current.substring(1);
+            result.add(current);
+          }
+        } else {
+          result.add(lowerCaseFirst(current));
+        }
+        previousResult = current;
+      }
+    }
+    return String.join(" ", result);
+  }
 
   public static boolean isNull(Object value, ColumnType type) {
     Object typedValue = getTypedValue(value, type);

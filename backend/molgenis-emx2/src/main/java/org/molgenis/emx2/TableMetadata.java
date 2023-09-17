@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.utils.TypeUtils.convertToTitleCase;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -108,6 +109,17 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public String getTableName() {
     return tableName;
+  }
+
+  @Override
+  public Map<String, String> getLabels() {
+    Map<String, String> result = super.getLabels();
+    if (result.size() == 0) {
+      // default label is derived
+      return new TreeMap<>(Map.of("en", convertToTitleCase(getTableName())));
+    } else {
+      return super.getLabels();
+    }
   }
 
   public SchemaMetadata getSchema() {

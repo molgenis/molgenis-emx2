@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
+import static org.molgenis.emx2.utils.TypeUtils.convertToTitleCase;
 
 import java.util.*;
 import org.jooq.*;
@@ -336,6 +337,8 @@ public class MetadataUtils {
   }
 
   protected static void saveTableMetadata(DSLContext jooq, TableMetadata table) {
+    // check default labels
+    Map<String, String> labels = stripDefaultLabels(table.getLabels(), table.getTableName());
     try {
       jooq.insertInto(TABLE_METADATA)
           .columns(
@@ -351,7 +354,7 @@ public class MetadataUtils {
           .values(
               table.getSchema().getName(),
               table.getTableName(),
-              table.getLabels(),
+              labels,
               table.getInherit(),
               table.getImportSchema(),
               table.getDescriptions(),
@@ -360,7 +363,7 @@ public class MetadataUtils {
               table.getSettings())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
-          .set(TABLE_LABEL, table.getLabels())
+          .set(TABLE_LABEL, labels)
           .set(TABLE_INHERITS, table.getInherit())
           .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
           .set(TABLE_DESCRIPTION, table.getDescriptions())
@@ -371,6 +374,13 @@ public class MetadataUtils {
     } catch (Exception e) {
       throw new SqlMolgenisException("save of table metadata failed", e);
     }
+  }
+
+  private static Map<String, String> stripDefaultLabels(Map<String, String> labels, String name) {
+    if (labels.size() == 1 && convertToTitleCase(name).equals(labels.get("en"))) {
+      labels = new TreeMap<>();
+    }
+    return labels;
   }
 
   protected static void alterTableName(DSLContext jooq, TableMetadata table, String newName) {
@@ -479,6 +489,7 @@ public class MetadataUtils {
   protected static void saveColumnMetadata(DSLContext jooq, Column column) {
     String refSchema =
         column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
+    Map<String, String> labels = stripDefaultLabels(column.getLabels(), column.getName());
     jooq.insertInto(COLUMN_METADATA)
         .columns(
             TABLE_SCHEMA,
@@ -506,7 +517,7 @@ public class MetadataUtils {
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
             column.getName(),
-            column.getLabels(),
+            labels,
             Objects.toString(column.getColumnType(), null),
             column.getKey(),
             column.getPosition(),
@@ -526,7 +537,7 @@ public class MetadataUtils {
             column.getVisible())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
-        .set(COLUMN_LABEL, column.getLabels())
+        .set(COLUMN_LABEL, labels)
         .set(COLUMN_TYPE, Objects.toString(column.getColumnType(), null))
         .set(COLUMN_KEY, column.getKey())
         .set(COLUMN_POSITION, column.getPosition())

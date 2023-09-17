@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.utils.TypeUtils.convertToTitleCase;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -69,5 +70,18 @@ public class TestTypeUtils {
     assertEquals(
         TypeUtils.toDateTime("2023-02-24T12:08:23.46378"),
         LocalDateTime.of(2023, 02, 24, 12, 8, 23, 463780000));
+  }
+
+  @Test
+  void testConvertToTitleCase() {
+    assertEquals("Table1", convertToTitleCase("table1"));
+    assertEquals("Table 1", convertToTitleCase("table_1"));
+    assertEquals("Table 1abc", convertToTitleCase("table_1abc"));
+    assertEquals("Table a1abc", convertToTitleCase("tableA1abc"));
+    assertEquals("Variable mappings", convertToTitleCase("variableMappings"));
+    assertEquals("Variable mappings", convertToTitleCase("VariableMappings"));
+    assertEquals("VCF tools", convertToTitleCase("VCFtools"));
+    assertEquals("My VCF tools", convertToTitleCase("myVCFtools"));
+    assertEquals("My VCF tools", convertToTitleCase("myVCFtools"));
   }
 }

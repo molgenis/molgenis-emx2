@@ -138,10 +138,6 @@ public class GraphqlSchemaFieldFactory {
                   .type(GraphQLList.list(outputLanguageValueType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.ID)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
                   .name(DESCRIPTIONS)
                   .type(GraphQLList.list(outputLanguageValueType)))
           .field(
@@ -227,10 +223,6 @@ public class GraphqlSchemaFieldFactory {
                   .type(GraphQLList.list(outputLanguageValueType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.ID)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.EXTERNAL_SCHEMA)
                   .type(Scalars.GraphQLString))
           .field(
@@ -300,10 +292,6 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(LABELS)
                   .type(GraphQLList.list(inputLanguageValueType)))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.ID)
-                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(COLUMN_TYPE)
@@ -395,10 +383,6 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(LABELS)
                   .type(GraphQLList.list(inputLanguageValueType)))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.ID)
-                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(OLD_NAME)
