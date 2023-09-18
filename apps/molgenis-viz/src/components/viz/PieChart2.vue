@@ -9,8 +9,11 @@
       :legendId="chartId"
       :data="colors"
       :stackLegend="stackLegend"
-      :enableClicks="enableLegendClicks"
+      :enableClicks="false"
+      :enableHovering="enableLegendHovering"
       @legend-item-clicked="setLegendClicked"
+      @legend-item-mouseover="onMouseOver"
+      @legend-item-mouseout="onMouseOut"
     />
     <svg
       :id="chartId"
@@ -48,7 +51,7 @@ import { validateNumRange } from "../../utils/utils.js";
 //
 // @group VISUALISATIONS
 export default {
-  name: "PieChart",
+  name: "PieChart2",
   props: {
     // A unique ID for the chart
     chartId: {
@@ -163,10 +166,20 @@ export default {
       // `true`
       default: true,
     },
+    
+    
     // If `true`, all legend items will be stacked (i.e., vertically arranged).
     stackLegend: {
       type: Boolean,
       default: false,
+    },
+    
+    legendPosition: {
+      type: String,
+      default: 'top',
+      validator: (value) => {
+        return ['top','bottom'].indexOf(value) < 0;
+      }
     },
 
     // If `true`, click events will be enabled for legend groups. This allows
@@ -175,6 +188,14 @@ export default {
       type: Boolean,
       default: true,
     },
+    
+    // If `true`, hover events will be enabled for legend items. This allows you
+    // to extract the value of the hovered slice.
+    enableLegendHovering: {
+      type: Boolean,
+      // `false`
+      default: false
+    }
   },
   emits: ["slice-clicked"],
   components: {
@@ -280,40 +301,12 @@ export default {
       return angle < Math.PI ? "-1.1em" : "1.1em";
     },
     onMouseOver(value) {
-      const selector = value.data[0];
-      const slice = this.chartArea.select(
-        `.slice[data-group="${selector}"]`
-      );
-      
-      const text = this.chartArea.select(
-        `.pie-label-text[data-group="${selector}"]`
-      );
-      
-      const line = this.chartArea.select(
-        `polyline.pie-label-line[data-group="${selector}"]`
-      )
-      
-      line.style("opacity", '1');
-      text.style("opacity", 1);
+      const slice = this.chartArea.select(`.slice[data-group="${value}"]`);
       slice.node().classList.add("slice-focused");
-      text.node().classList.add("text-focused");
     },
     onMouseOut(value) {
-      const selector = value.data[0];
-      const slice = this.chartArea.select(
-        `path.slice[data-group="${selector}"]`
-      );
-      const text = this.chartArea.select(
-        `text.pie-label-text[data-group="${selector}"]`
-      );
-      const line = this.chartArea.select(
-        `polyline.pie-label-line[data-group="${selector}"]`
-      )
-      
-      line.style("opacity", 0);
+      const slice = this.chartArea.select(`path.slice[data-group="${value}"]`);
       slice.node().classList.remove("slice-focused");
-      text.style("opacity", 0);
-      text.node().classList.remove("text-focused");
     },
     onClick(value) {
       const data = {};
@@ -334,8 +327,8 @@ export default {
         .attr("fill", (value) => this.colors[value.data[0]]);
 
       if (this.enableHoverEvents) {
-        slices.on("mouseover", (event, value) => this.onMouseOver(value));
-        slices.on("mouseout", (event, value) => this.onMouseOut(value));
+        slices.on("mouseover", (event, value) => this.onMouseOver(value.data[0]));
+        slices.on("mouseout", (event, value) => this.onMouseOut(value.data[0]));
       }
         
       if (this.enableClicks) {
@@ -360,8 +353,7 @@ export default {
             value.startAngle + (value.endAngle - value.startAngle) / 2;
           labelPosition[0] = this.radius * 0.95 * (angle < Math.PI ? 1 : -1);
           return [centroid, outerCircleCentroid, labelPosition];
-        })
-        .style("opacity", 0);
+        });
 
       const labels = pieLabels
         .selectAll("slice-labels")
@@ -381,34 +373,7 @@ export default {
             return `${text}%`;
           }
           return text;
-        })
-        .style("opacity", 0);
-
-      // const labelCategories = labels
-      //   .append("tspan")
-      //   .attr("class", "data-label")
-      //   .attr("x", (value) => this.setLabelPosition(value)[0])
-      //   .attr("data-group", (value) => value.data[0])
-      //   .text((value) => value.data[0])
-      //   .attr("dy", "0.25em");
-
-      // if (this.valuesAreShown) {
-      //   labelCategories.attr("dy", "0");
-        
-      //   labels
-      //     .append("tspan")
-      //     .attr("class", "data-value")
-      //     .attr("x", (value) => this.setLabelPosition(value)[0])
-      //     .attr("dy", "1.1em")
-      //     .attr("data-group", (value) => value.data[0])
-      //     .text((value) => {
-      //       const text = value.data[1];
-      //       if (this.valuesArePercents) {
-      //         return `${text}%`
-      //       }
-      //       return text
-      //     });
-      // }
+        });
     },
     setLegendClicked(value) {
       this.legendSelection = value;
@@ -436,6 +401,8 @@ export default {
 .d3-pie-chart {
   
   .chart-context {
+    margin-bottom: 0.5em;
+    
     h3.chart-title {
       margin: 0;
       text-align: left;
@@ -466,27 +433,6 @@ export default {
       .pie-label-line {
         fill: none;
         stroke-width: 1px;
-      }
-
-      .pie-label-text {
-        .data-label {
-          font-size: 11pt;
-        }
-
-        .data-value {
-          font-size: 11pt;
-        }
-
-        &.text-focused {
-          .data-label {
-            font-size: 13pt;
-            font-weight: bold;
-          }
-
-          .data-value {
-            font-size: 13pt;
-          }
-        }
       }
     }
 
