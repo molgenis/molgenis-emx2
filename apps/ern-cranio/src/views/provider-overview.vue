@@ -40,16 +40,18 @@
           :chartData="patientsBySubregistry"
           :chartHeight="pieChartHeight"
           :asDonutChart="true"
-          :chartScale="0.95"
+          :chartScale="0.99"
         />
       </DashboardBox>
       <DashboardBox id="provider-overview-patients-by-sex-at-birth">
-        <PieChart
+        <PieChart2
           chartId="sexAtBirth"
           title="Sex at birth"
           :chartData="sexAtBirth"
           :chartHeight="pieChartHeight"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
           :chartScale="0.95"
         />
       </DashboardBox>
@@ -60,7 +62,7 @@
 <script setup>
 import { ref } from "vue";
 import { UserGroupIcon, TrophyIcon } from "@heroicons/vue/24/outline";
-import { DashboardBox, PieChart } from "molgenis-viz";
+import { DashboardBox, PieChart, PieChart2 } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
