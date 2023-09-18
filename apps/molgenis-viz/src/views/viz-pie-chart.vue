@@ -43,6 +43,7 @@
         :description="`In total, ${total} organisations across the Netherlands and Belgium were selected. The following chart shows the breakdown of oganisations by type.`"
         :chartData="data"
         :enableClicks="true"
+        :enableLegendHovering="true"
         :chartHeight="250"
         :asDonutChart="true"
         @slice-clicked="updateSelection"
