@@ -29,7 +29,13 @@
           @change="emitSelection"
         />
       </div>
-      <div class="text-item" v-else>
+      <div
+        class="text-item"
+        :data-value="key"
+        @mouseover="emitMouseOver(key)"
+        @mouseout="emitMouseOut(key)"
+        v-else
+      >
         <svg
           class="item-marker"
           width="16"
@@ -74,16 +80,29 @@ export default {
       default: true,
     },
 
-    // If `true`, click events will be enabled for all bars. When a bar is
-    // clicked, the row-level data for that bar will be emitted.
-    // To access the data, use the event `@barClicked=>(value) => ...`
+    // If `true`, click events will be enabled for all labels. When a label is
+    // clicked, the row-level data for that label will be emitted.
+    // To access the data, use the event `@legend-item-clicked=(value) => ...`
     enableClicks: {
       type: Boolean,
       // `false`
       default: false,
     },
+    
+    // If `true`, mouseover event will be enabled for all labels. When a label is
+    // clicked, the row-level data for that item will be emitted.
+    // To access the data, use the event `legend-item-hovered=(value)=>...`
+    enableHovering: {
+      type: Boolean,
+      // `false`
+      default: false,
+    }
   },
-  emits: ["legend-item-clicked"],
+  emits: [
+    "legend-item-clicked",
+    "legend-item-mouseover",
+    "legend-item-mouseout",
+  ],
   data() {
     return {
       selection: [],
@@ -95,6 +114,16 @@ export default {
       parent.classList.toggle("checkbox-clicked");
       this.$emit("legend-item-clicked", this.selection);
     },
+    emitMouseOver(value) {
+      if (this.enableHovering) {
+        this.$emit('legend-item-mouseover', value);
+      }
+    },
+    emitMouseOut(value) {
+      if (this.enableHovering) {
+        this.$emit('legend-item-mouseout', value);
+      }
+    }
   },
   computed: {
     classNames() {
@@ -136,6 +165,10 @@ export default {
       width: 16px;
       margin-right: 6px;
     }
+  }
+  
+  .legend-item {
+    cursor: default;
   }
 
   &.legend-horizontal {
