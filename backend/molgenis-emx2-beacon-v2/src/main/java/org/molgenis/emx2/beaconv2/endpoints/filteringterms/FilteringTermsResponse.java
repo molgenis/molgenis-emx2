@@ -76,50 +76,53 @@ public class FilteringTermsResponse {
       Collection<String> tableNamesInSchema) {
     if (tableNamesInSchema.contains(tableToQuery)) {
       TableMetadata metadata = database.getSchema(schemaName).getTable(tableToQuery).getMetadata();
-      for (Column column : metadata.getColumns()) {
+      // todo: now extended columns are ignored because make the query super complicated
+      for (Column column : metadata.getLocalColumns()) {
         if (column.getColumnType().isAtomicType() && !column.getIdentifier().startsWith("mg_")) {
           FilteringTerm filteringTerm =
               new FilteringTerm("alphanumeric", column.getName(), tableToQuery);
           filteringTermsSet.add(filteringTerm);
         } else if (column.isOntology()) {
+          String schema = metadata.getSchemaName();
+          String refSchema = column.getRefTable().getSchemaName();
           List<Row> rows;
-          if (column.isArray()) {
-            rows =
-                database
-                    .getSchema(schemaName)
-                    .retrieveSql(
-                        "SELECT DISTINCT name,codesystem,code FROM \""
-                            + tableToQuery
-                            + "\" INNER JOIN \""
-                            + column.getRefTableName()
-                            + "\" ON \""
-                            + column.getRefTableName()
-                            + "\".\"name\" = ANY(\""
-                            + column.getName()
-                            + "\")");
-          } else {
-            rows =
-                database
-                    .getSchema(schemaName)
-                    .retrieveSql(
-                        "SELECT DISTINCT name,codesystem,code FROM \""
-                            + tableToQuery
-                            + "\" INNER JOIN \""
-                            + column.getRefTableName()
-                            + "\" ON \""
-                            + column.getRefTableName()
-                            + "\".\"name\" = \""
-                            + column.getName()
-                            + "\"");
-          }
-
+          String q =
+              "SELECT DISTINCT name,codesystem,code FROM \""
+                  + schema
+                  + "\".\""
+                  + tableToQuery
+                  + "\" INNER JOIN \""
+                  + refSchema
+                  + "\".\""
+                  + column.getRefTableName()
+                  + "\" ON \""
+                  + refSchema
+                  + "\".\""
+                  + column.getRefTableName()
+                  + (column.isArray()
+                      ? "\".\"name\" = ANY(\""
+                          + schema
+                          + "\".\""
+                          + tableToQuery
+                          + "\".\""
+                          + column.getName()
+                          + "\")"
+                      : "\".\"name\" = \""
+                          + schema
+                          + "\".\""
+                          + tableToQuery
+                          + "\".\""
+                          + column.getName()
+                          + "\"");
+          rows = database.getSchema(schemaName).retrieveSql(q);
           for (Row row : rows) {
+            String codesystem = row.getString("codesystem");
+            codesystem = codesystem == null || codesystem.isBlank() ? "NULL" : codesystem;
+            String code = row.getString("code");
+            code = code == null || code.isBlank() ? "NULL" : code;
             FilteringTerm filteringTerm =
                 new FilteringTerm(
-                    "ontology",
-                    row.getString("codesystem") + "_" + row.getString("code"),
-                    row.getString("name"),
-                    tableToQuery);
+                    "ontology", codesystem + "_" + code, row.getString("name"), tableToQuery);
             filteringTermsSet.add(filteringTerm);
           }
         } else {
