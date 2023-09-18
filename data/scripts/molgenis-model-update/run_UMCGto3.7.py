@@ -102,9 +102,9 @@ for cohort in COHORTS:
 
     # transform data from cohorts
     print('Transform data from ' + cohort)
-    transform_data = TransformDataStaging(cohort, 'cohort')
+    transform_data = TransformDataStaging(cohort, 'cohort_UMCG')
     zip_handling = Zip(cohort)
-    update_general = Transform(cohort, 'cohort')
+    update_general = Transform(cohort, 'cohort_UMCG')
 
     zip_handling.remove_unzipped_data()
     zip_handling.unzip_data()
