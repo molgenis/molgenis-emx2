@@ -10,6 +10,7 @@ import ProgressCharts from "../views/viz-progress-charts.vue";
 import GeoMercator from "../views/viz-geo-mercator.vue";
 import GroupedColumnChart from "../views/viz-grouped-column-chart.vue";
 import PieChart from "../views/viz-pie-chart.vue";
+import PieChart2 from "../views/viz-pie-chart-2.vue";
 import ScatterPlot from "../views/viz-scatter-plot.vue";
 
 const router = createRouter({
@@ -90,6 +91,14 @@ const router = createRouter({
       component: PieChart,
       meta: {
         title: "Pie Chart",
+      },
+    },
+    {
+      name: "pie-chart-2",
+      path: "/pie-chart-2",
+      component: PieChart2,
+      meta: {
+        title: "Pie Chart 2",
       },
     },
     {

@@ -127,7 +127,7 @@ export default {
   },
   computed: {
     classNames() {
-      const css = ["legend"];
+      const css = ["chart-legend"];
       if (!this.stackLegend) {
         css.push("legend-horizontal");
       }
@@ -141,7 +141,7 @@ export default {
 </script>
 
 <style lang="scss">
-.legend {
+.chart-legend {
   list-style: none;
   padding: 0;
   margin: 0;

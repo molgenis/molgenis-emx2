@@ -36,16 +36,18 @@
       <MessageBox v-else-if="!loading && hasError" type="error">
         <p>{{ error }}</p>
       </MessageBox>
-      <PieChart
+      <PieChart2
         v-else
-        chartId="organisationsByType"
+        chartId="organisationsByType2"
         title="Summary of organisation type"
         :description="`In total, ${total} organisations across the Netherlands and Belgium were selected. The following chart shows the breakdown of oganisations by type.`"
         :chartData="data"
         :enableClicks="true"
+        :enableLegendHovering="true"
         :chartHeight="250"
         :asDonutChart="true"
         @slice-clicked="updateSelection"
+        legend-position="bottom"
       />
       <h3>Selected Item</h3>
       <p>Click a slice in the chart of above to display the row-level data</p>
@@ -66,7 +68,7 @@ import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
 import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
-import PieChart from "../components/viz/PieChart.vue";
+import PieChart2 from "../components/viz/PieChart2.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import headerImage from "../assets/pie-chart-header.jpg";
 

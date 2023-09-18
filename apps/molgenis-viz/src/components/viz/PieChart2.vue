@@ -1,5 +1,5 @@
 <template>
-  <div class="d3-viz d3-pie-chart">
+  <div :class="parentClassNames">
     <div class="chart-context" v-if="title || description">
       <h3 v-if="title" class="chart-title">{{ title }}</h3>
       <p v-if="description" class="chart-description">{{ description }}</p>
@@ -60,7 +60,10 @@ export default {
     },
 
     // A title that describes the chart
-    title: String,
+    title: {
+      type: String,
+      required: true
+    },
 
     // Additional information to display below the title
     description: String,
@@ -178,7 +181,7 @@ export default {
       type: String,
       default: 'top',
       validator: (value) => {
-        return ['top','bottom'].indexOf(value) < 0;
+        return ['top','bottom'].includes(value);
       }
     },
 
@@ -210,6 +213,11 @@ export default {
   computed: {
     svg() {
       return d3.select(`#${this.chartId}`);
+    },
+    parentClassNames () {
+      const css = ['d3-viz', 'd3-pie'];
+      css.push(`legend-position-${this.legendPosition}`);
+      return css.join(' ')
     },
     svgClassNames() {
       const css = ["chart"];
@@ -398,10 +406,35 @@ export default {
 </script>
 
 <style lang="scss">
-.d3-pie-chart {
+.d3-pie {
+  display: grid;
+  gap: 0.1em;
+  
+  .legend {
+    grid-area: legend;
+  }
+  
+  &.legend-position-top {
+    grid-template-areas:
+      "context"
+      "legend"
+      "chart";
+      
+  }
+  
+  &.legend-position-bottom {
+    grid-template-areas: 
+      "context"
+      "chart"
+      "legend";
+      
+      .chart-legend {
+        justify-content: center;
+      }
+  }
   
   .chart-context {
-    margin-bottom: 0.5em;
+    grid-area: context;
     
     h3.chart-title {
       margin: 0;
@@ -416,7 +449,7 @@ export default {
 
   .chart {
     display: block;
-    margin: 0;
+    grid-area: chart;
 
     .chart-area {
       .slice {
@@ -440,10 +473,6 @@ export default {
       .slice {
         cursor: pointer;
       }
-    }
-
-    &.chart-has-context {
-      margin-top: 12px;
     }
   }
 }
