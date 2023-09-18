@@ -1,0 +1,1034 @@
+﻿order,name,code,ontologyTermURI
+1,"Neoplasm, benign",8000/0,http://codes.iarc.fr/code/2302
+2,"Neoplasm, uncertain whether benign or malignant",8000/1,http://codes.iarc.fr/code/2307
+3,"Neoplasm, malignant",8000/3,http://codes.iarc.fr/code/2313
+4,"Neoplasm, metastatic",8000/6,http://codes.iarc.fr/code/2318
+5,"Neoplasm, malignant, uncertain whether primary or metastatic",8000/9,http://codes.iarc.fr/code/2320
+6,"Tumor cells, benign",8001/0,http://codes.iarc.fr/code/2321
+7,"Tumor cells, uncertain whether benign or malignant",8001/1,http://codes.iarc.fr/code/2323
+8,"Tumor cells, malignant",8001/3,http://codes.iarc.fr/code/2324
+9,"Malignant tumor, small cell type",8002/3,http://codes.iarc.fr/code/2325
+10,"Malignant tumor, giant cell type",8003/3,http://codes.iarc.fr/code/2326
+11,"Malignant tumor, spindle cell type",8004/3,http://codes.iarc.fr/code/2328
+12,"Clear cell tumor, NOS",8005/0,http://codes.iarc.fr/code/2329
+13,"Malignant tumor, clear cell type",8005/3,http://codes.iarc.fr/code/2330
+14,"Epithelial tumor, benign",8010/0,http://codes.iarc.fr/code/2331
+15,"Carcinoma in situ, NOS",8010/2,http://codes.iarc.fr/code/2333
+16,"Carcinoma, NOS",8010/3,http://codes.iarc.fr/code/2335
+17,"Carcinoma, metastatic, NOS",8010/6,http://codes.iarc.fr/code/2337
+18,Carcinomatosis,8010/9,http://codes.iarc.fr/code/2338
+19,"Epithelioma, benign",8011/0,http://codes.iarc.fr/code/2339
+20,"Epithelioma, malignant",8011/3,http://codes.iarc.fr/code/2341
+21,"Large cell carcinoma, NOS",8012/3,http://codes.iarc.fr/code/2342
+22,Large cell neuroendocrine carcinoma,8013/3,http://codes.iarc.fr/code/2343
+23,Large cell carcinoma with rhabdoid phenotype,8014/3,http://codes.iarc.fr/code/2344
+24,Glassy cell carcinoma,8015/3,http://codes.iarc.fr/code/2345
+25,"Carcinoma, undifferentiated, NOS",8020/3,http://codes.iarc.fr/code/2346
+26,"Carcinoma, anaplastic, NOS",8021/3,http://codes.iarc.fr/code/2347
+27,Pleomorphic carcinoma,8022/3,http://codes.iarc.fr/code/2348
+28,Giant cell and spindle cell carcinoma,8030/3,http://codes.iarc.fr/code/2349
+29,Giant cell carcinoma,8031/3,http://codes.iarc.fr/code/2350
+30,"Spindle cell carcinoma, NOS",8032/3,http://codes.iarc.fr/code/2351
+31,Pseudosarcomatous carcinoma,8033/3,http://codes.iarc.fr/code/2353
+32,Polygonal cell carcinoma,8034/3,http://codes.iarc.fr/code/2354
+33,Carcinoma with osteoclast-like giant cells,8035/3,http://codes.iarc.fr/code/2355
+34,"Tumorlet, benign",8040/0,http://codes.iarc.fr/code/2356
+35,"Tumorlet, NOS",8040/1,http://codes.iarc.fr/code/2357
+36,"Small cell carcinoma, NOS",8041/3,http://codes.iarc.fr/code/2361
+37,Oat cell carcinoma,8042/3,http://codes.iarc.fr/code/2362
+38,"Small cell carcinoma, fusiform cell",8043/3,http://codes.iarc.fr/code/2363
+39,"Small cell carcinoma, intermediate cell",8044/3,http://codes.iarc.fr/code/2364
+40,Combined small cell carcinoma,8045/3,http://codes.iarc.fr/code/2369
+41,Non-small cell carcinoma,8046/3,http://codes.iarc.fr/code/2370
+42,"Papilloma, NOS",8050/0,http://codes.iarc.fr/code/2371
+43,Papillary carcinoma in situ,8050/2,http://codes.iarc.fr/code/2372
+44,"Papillary carcinoma, NOS",8050/3,http://codes.iarc.fr/code/2373
+45,Verrucous papilloma,8051/0,http://codes.iarc.fr/code/2374
+46,"Verrucous carcinoma, NOS",8051/3,http://codes.iarc.fr/code/2379
+47,"Squamous cell papilloma, NOS",8052/0,http://codes.iarc.fr/code/2382
+48,"Papillary squamous cell carcinoma, non-invasive",8052/2,http://codes.iarc.fr/code/2384
+49,Papillary squamous cell carcinoma,8052/3,http://codes.iarc.fr/code/2386
+50,"Squamous cell papilloma, inverted",8053/0,http://codes.iarc.fr/code/2387
+51,Squamous papillomatosis,8060/0,http://codes.iarc.fr/code/2389
+52,"Squamous cell carcinoma in situ, NOS",8070/2,http://codes.iarc.fr/code/2393
+53,"Squamous cell carcinoma, NOS",8070/3,http://codes.iarc.fr/code/2397
+54,"Squamous cell carcinoma, metastatic, NOS",8070/6,http://codes.iarc.fr/code/2398
+55,"Squamous cell carcinoma, keratinizing, NOS",8071/3,http://codes.iarc.fr/code/2401
+56,"Squamous cell carcinoma, large cell, nonkeratinizing, NOS",8072/3,http://codes.iarc.fr/code/2404
+57,"Squamous cell carcinoma, small cell, nonkeratinizing",8073/3,http://codes.iarc.fr/code/2406
+58,"Squamous cell carcinoma, spindle cell",8074/3,http://codes.iarc.fr/code/2409
+59,"Squamous cell carcinoma, adenoid",8075/3,http://codes.iarc.fr/code/4324
+60,Squamous cell carcinoma in situ with questionable stromal invasion,8076/2,http://codes.iarc.fr/code/2411
+61,"Squamous cell carcinoma, microinvasive",8076/3,http://codes.iarc.fr/code/2412
+62,"Squamous intraepithelial neoplasia, grade III",8077/2,http://codes.iarc.fr/code/4583
+63,Squamous cell carcinoma with horn formation,8078/3,http://codes.iarc.fr/code/2423
+64,Queyrat erythroplasia,8080/2,http://codes.iarc.fr/code/2424
+65,Bowen disease,8081/2,http://codes.iarc.fr/code/2426
+66,Lymphoepithelial carcinoma,8082/3,http://codes.iarc.fr/code/2430
+67,Basaloid squamous cell carcinoma,8083/3,http://codes.iarc.fr/code/2431
+68,"Squamous cell carcinoma, clear cell type",8084/3,http://codes.iarc.fr/code/2432
+69,Basal cell tumor,8090/1,http://codes.iarc.fr/code/2433
+70,"Basal cell carcinoma, NOS",8090/3,http://codes.iarc.fr/code/4328
+71,Multifocal superficial basal cell carcinoma,8091/3,http://codes.iarc.fr/code/2435
+72,"Infiltrating basal cell carcinoma, NOS",8092/3,http://codes.iarc.fr/code/2440
+73,"Basal cell carcinoma, fibroepithelial",8093/3,http://codes.iarc.fr/code/2445
+74,Basosquamous carcinoma,8094/3,http://codes.iarc.fr/code/2447
+75,Metatypical carcinoma,8095/3,http://codes.iarc.fr/code/2448
+76,Intraepidermal epithelioma of Jadassohn,8096/0,http://codes.iarc.fr/code/2449
+77,"Basal cell carcinoma, nodular",8097/3,http://codes.iarc.fr/code/2451
+78,Adenoid basal carcinoma,8098/3,http://codes.iarc.fr/code/2452
+79,Trichoepithelioma,8100/0,http://codes.iarc.fr/code/2455
+80,Trichofolliculoma,8101/0,http://codes.iarc.fr/code/2456
+81,Trichilemmoma,8102/0,http://codes.iarc.fr/code/2457
+82,Trichilemmocarcinoma,8102/3,http://codes.iarc.fr/code/2459
+83,Pilar tumor,8103/0,http://codes.iarc.fr/code/2462
+84,"Pilomatrixoma, NOS",8110/0,http://codes.iarc.fr/code/2465
+85,Pilomatrix carcinoma,8110/3,http://codes.iarc.fr/code/2469
+86,"Transitional cell papilloma, benign",8120/0,http://codes.iarc.fr/code/2471
+87,"Urothelial papilloma, NOS",8120/1,http://codes.iarc.fr/code/2474
+88,Transitional cell carcinoma in situ,8120/2,http://codes.iarc.fr/code/2476
+89,"Transitional cell carcinoma, NOS",8120/3,http://codes.iarc.fr/code/2479
+90,"Schneiderian papilloma, NOS",8121/0,http://codes.iarc.fr/code/2485
+91,"Transitional cell papilloma, inverted, NOS",8121/1,http://codes.iarc.fr/code/2491
+92,Schneiderian carcinoma,8121/3,http://codes.iarc.fr/code/2493
+93,"Transitional cell carcinoma, spindle cell",8122/3,http://codes.iarc.fr/code/2495
+94,Basaloid carcinoma,8123/3,http://codes.iarc.fr/code/2496
+95,Cloacogenic carcinoma,8124/3,http://codes.iarc.fr/code/2497
+96,Papillary transitional cell neoplasm of low malignant potential,8130/1,http://codes.iarc.fr/code/2499
+97,"Papillary transitional cell carcinoma, non-invasive",8130/2,http://codes.iarc.fr/code/2501
+98,Papillary transitional cell carcinoma,8130/3,http://codes.iarc.fr/code/2503
+99,"Transitional cell carcinoma, micropapillary",8131/3,http://codes.iarc.fr/code/2504
+100,"Adenoma, NOS",8140/0,http://codes.iarc.fr/code/2505
+101,Atypical adenoma,8140/1,http://codes.iarc.fr/code/2507
+102,"Adenocarcinoma in situ, NOS",8140/2,http://codes.iarc.fr/code/2508
+103,"Adenocarcinoma, NOS",8140/3,http://codes.iarc.fr/code/2509
+104,"Adenocarcinoma, metastatic, NOS",8140/6,http://codes.iarc.fr/code/2510
+105,Scirrhous adenocarcinoma,8141/3,http://codes.iarc.fr/code/2513
+106,Linitis plastica,8142/3,http://codes.iarc.fr/code/2514
+107,Superficial spreading adenocarcinoma,8143/3,http://codes.iarc.fr/code/2515
+108,"Adenocarcinoma, intestinal type",8144/3,http://codes.iarc.fr/code/2517
+109,"Carcinoma, diffuse type",8145/3,http://codes.iarc.fr/code/2519
+110,Monomorphic adenoma,8146/0,http://codes.iarc.fr/code/2520
+111,Basal cell adenoma,8147/0,http://codes.iarc.fr/code/2521
+112,Basal cell adenocarcinoma,8147/3,http://codes.iarc.fr/code/2522
+113,"Glandular intraepithelial neoplasia, grade III",8148/2,http://codes.iarc.fr/code/4591
+114,Canalicular adenoma,8149/0,http://codes.iarc.fr/code/2526
+115,Islet cell adenoma,8150/0,http://codes.iarc.fr/code/4593
+116,"Islet cell tumor, NOS",8150/1,http://codes.iarc.fr/code/4594
+117,Islet cell carcinoma,8150/3,http://codes.iarc.fr/code/4596
+118,"Insulinoma, NOS",8151/0,http://codes.iarc.fr/code/2535
+119,"Insulinoma, malignant",8151/3,http://codes.iarc.fr/code/2537
+120,"Glucagonoma, NOS",8152/1,http://codes.iarc.fr/code/4601
+121,"Glucagonoma, malignant",8152/3,http://codes.iarc.fr/code/2558
+122,"Gastrinoma, NOS",8153/1,http://codes.iarc.fr/code/2544
+123,"Gastrinoma, malignant",8153/3,http://codes.iarc.fr/code/2547
+124,Mixed islet cell and exocrine adenocarcinoma,8154/3,http://codes.iarc.fr/code/4762
+125,"Vipoma, NOS",8155/1,http://codes.iarc.fr/code/2551
+126,"Vipoma, malignant",8155/3,http://codes.iarc.fr/code/2552
+127,"Somatostatinoma, NOS",8156/1,http://codes.iarc.fr/code/2554
+128,"Somatostatinoma, malignant",8156/3,http://codes.iarc.fr/code/2556
+129,"Enteroglucagonoma, NOS",8157/1,
+130,"Enteroglucagonoma, malignant",8157/3,
+131,Bile duct adenoma,8160/0,http://codes.iarc.fr/code/2560
+132,Cholangiocarcinoma,8160/3,http://codes.iarc.fr/code/2563
+133,Bile duct cystadenoma,8161/0,http://codes.iarc.fr/code/2564
+134,Bile duct cystadenocarcinoma,8161/3,http://codes.iarc.fr/code/2565
+135,Klatskin tumor,8162/3,http://codes.iarc.fr/code/2566
+136,Liver cell adenoma,8170/0,http://codes.iarc.fr/code/2569
+137,"Hepatocellular carcinoma, NOS",8170/3,http://codes.iarc.fr/code/2574
+138,"Hepatocellular carcinoma, fibrolamellar",8171/3,http://codes.iarc.fr/code/2575
+139,"Hepatocellular carcinoma, scirrhous",8172/3,http://codes.iarc.fr/code/2577
+140,"Hepatocellular carcinoma, spindle cell variant",8173/3,http://codes.iarc.fr/code/2579
+141,"Hepatocellular carcinoma, clear cell type",8174/3,http://codes.iarc.fr/code/2580
+142,"Hepatocellular carcinoma, pleomorphic type",8175/3,http://codes.iarc.fr/code/2581
+143,Combined hepatocellular carcinoma and cholangiocarcinoma,8180/3,http://codes.iarc.fr/code/2584
+144,Trabecular adenoma,8190/0,http://codes.iarc.fr/code/2585
+145,Trabecular adenocarcinoma,8190/3,http://codes.iarc.fr/code/2587
+146,Embryonal adenoma,8191/0,http://codes.iarc.fr/code/2588
+147,Eccrine dermal cylindroma,8200/0,http://codes.iarc.fr/code/2591
+148,Adenoid cystic carcinoma,8200/3,http://codes.iarc.fr/code/2596
+149,Cribriform carcinoma in situ,8201/2,http://codes.iarc.fr/code/2598
+150,"Cribriform carcinoma, NOS",8201/3,http://codes.iarc.fr/code/4613
+151,Microcystic adenoma,8202/0,http://codes.iarc.fr/code/2601
+152,Lactating adenoma,8204/0,http://codes.iarc.fr/code/2602
+153,"Adenomatous polyp, NOS",8210/0,http://codes.iarc.fr/code/2604
+154,Adenocarcinoma in situ in adenomatous polyp,8210/2,http://codes.iarc.fr/code/2610
+155,Adenocarcinoma in adenomatous polyp,8210/3,http://codes.iarc.fr/code/2616
+156,"Tubular adenoma, NOS",8211/0,http://codes.iarc.fr/code/2617
+157,Tubular adenocarcinoma,8211/3,http://codes.iarc.fr/code/2619
+158,Flat adenoma,8212/0,http://codes.iarc.fr/code/2620
+159,Serrated adenoma,8213/0,http://codes.iarc.fr/code/4617
+160,Parietal cell carcinoma,8214/3,http://codes.iarc.fr/code/2624
+161,Adenocarcinoma of anal glands,8215/3,http://codes.iarc.fr/code/2626
+162,Adenomatous polyposis coli,8220/0,http://codes.iarc.fr/code/2629
+163,Adenocarcinoma in adenomatous polyposis coli,8220/3,http://codes.iarc.fr/code/2630
+164,Multiple adenomatous polyps,8221/0,http://codes.iarc.fr/code/2631
+165,Adenocarcinoma in multiple adenomatous polyps,8221/3,http://codes.iarc.fr/code/2632
+166,"Ductal carcinoma in situ, solid type",8230/2,http://codes.iarc.fr/code/2634
+167,"Solid carcinoma, NOS",8230/3,http://codes.iarc.fr/code/2637
+168,Carcinoma simplex,8231/3,http://codes.iarc.fr/code/2638
+169,Carcinoid tumor of uncertain malignant potential,8240/1,http://codes.iarc.fr/code/2643
+170,"Carcinoid tumor, NOS",8240/3,http://codes.iarc.fr/code/4621
+171,Enterochromaffin cell carcinoid,8241/3,http://codes.iarc.fr/code/2652
+172,"Enterochromaffin-like cell carcinoid, NOS",8242/1,http://codes.iarc.fr/code/2654
+173,"Enterochromaffin-like cell tumor, malignant",8242/3,http://codes.iarc.fr/code/2656
+174,Goblet cell carcinoid,8243/3,http://codes.iarc.fr/code/2659
+175,Composite carcinoid,8244/3,http://codes.iarc.fr/code/4763
+176,Tubular carcinoid,8245/1,http://codes.iarc.fr/code/2663
+177,Adenocarcinoid tumor,8245/3,http://codes.iarc.fr/code/2664
+178,"Neuroendocrine carcinoma, NOS",8246/3,http://codes.iarc.fr/code/2665
+179,Merkel cell carcinoma,8247/3,http://codes.iarc.fr/code/2668
+180,Apudoma,8248/1,http://codes.iarc.fr/code/2669
+181,Atypical carcinoid tumor,8249/3,http://codes.iarc.fr/code/4625
+182,Pulmonary adenomatosis,8250/1,http://codes.iarc.fr/code/2671
+183,"Bronchiolo-alveolar adenocarcinoma, NOS",8250/3,http://codes.iarc.fr/code/2676
+184,Alveolar adenoma,8251/0,http://codes.iarc.fr/code/2677
+185,Alveolar adenocarcinoma,8251/3,http://codes.iarc.fr/code/2679
+186,"Bronchiolo-alveolar carcinoma, non- mucinous",8252/3,http://codes.iarc.fr/code/2682
+187,"Bronchiolo-alveolar carcinoma, mucinous",8253/3,http://codes.iarc.fr/code/2684
+188,"Bronchiolo-alveolar carcinoma, mixed mucinous and non-mucinous",8254/3,http://codes.iarc.fr/code/2688
+189,Adenocarcinoma with mixed subtypes,8255/3,http://codes.iarc.fr/code/2690
+190,"Papillary adenoma, NOS",8260/0,http://codes.iarc.fr/code/2692
+191,"Papillary adenocarcinoma, NOS",8260/3,http://codes.iarc.fr/code/2695
+192,"Villous adenoma, NOS",8261/0,http://codes.iarc.fr/code/2697
+193,Adenocarcinoma in situ in villous adenoma,8261/2,http://codes.iarc.fr/code/2698
+194,Adenocarcinoma in villous adenoma,8261/3,http://codes.iarc.fr/code/2699
+195,Villous adenocarcinoma,8262/3,http://codes.iarc.fr/code/2700
+196,"Tubulovillous adenoma, NOS",8263/0,http://codes.iarc.fr/code/4626
+197,Adenocarcinoma in situ in tubulovillous adenoma,8263/2,http://codes.iarc.fr/code/2704
+198,Adenocarcinoma in tubulovillous adenoma,8263/3,http://codes.iarc.fr/code/2707
+199,"Papillomatosis, glandular",8264/0,http://codes.iarc.fr/code/2709
+200,Micropapillary carcinoma,8265/3,
+201,Chromophobe adenoma,8270/0,http://codes.iarc.fr/code/2710
+202,Chromophobe carcinoma,8270/3,http://codes.iarc.fr/code/2712
+203,Prolactinoma,8271/0,http://codes.iarc.fr/code/2713
+204,"Pituitary adenoma, NOS",8272/0,http://codes.iarc.fr/code/2714
+205,"Pituitary carcinoma, NOS",8272/3,http://codes.iarc.fr/code/2715
+206,Acidophil adenoma,8280/0,http://codes.iarc.fr/code/2717
+207,Acidophil carcinoma,8280/3,http://codes.iarc.fr/code/2721
+208,Mixed acidophil-basophil adenoma,8281/0,http://codes.iarc.fr/code/2722
+209,Mixed acidophil-basophil carcinoma,8281/3,http://codes.iarc.fr/code/2723
+210,Oxyphilic adenoma,8290/0,http://codes.iarc.fr/code/4628
+211,Oxyphilic adenocarcinoma,8290/3,http://codes.iarc.fr/code/2734
+212,Basophil adenoma,8300/0,http://codes.iarc.fr/code/2736
+213,Basophil carcinoma,8300/3,http://codes.iarc.fr/code/2739
+214,Clear cell adenoma,8310/0,http://codes.iarc.fr/code/2740
+215,"Clear cell adenocarcinoma, NOS",8310/3,http://codes.iarc.fr/code/4330
+216,Hypernephroid tumor,8311/1,http://codes.iarc.fr/code/2743
+217,"Renal cell carcinoma, NOS",8312/3,http://codes.iarc.fr/code/2747
+218,Clear cell adenofibroma,8313/0,http://codes.iarc.fr/code/2749
+219,Clear cell adenofibroma of borderline malignancy,8313/1,http://codes.iarc.fr/code/2751
+220,Clear cell adenocarcinofibroma,8313/3,http://codes.iarc.fr/code/2753
+221,Lipid-rich carcinoma,8314/3,http://codes.iarc.fr/code/2754
+222,Glycogen-rich carcinoma,8315/3,http://codes.iarc.fr/code/2755
+223,Cyst-associated renal cell carcinoma,8316/3,http://codes.iarc.fr/code/2756
+224,"Renal cell carcinoma, chromophobe type",8317/3,http://codes.iarc.fr/code/2758
+225,"Renal cell carcinoma, sarcomatoid",8318/3,http://codes.iarc.fr/code/2760
+226,Collecting duct carcinoma,8319/3,http://codes.iarc.fr/code/2763
+227,Granular cell carcinoma,8320/3,http://codes.iarc.fr/code/2765
+228,Chief cell adenoma,8321/0,http://codes.iarc.fr/code/2766
+229,Water-clear cell adenoma,8322/0,http://codes.iarc.fr/code/2767
+230,Water-clear cell adenocarcinoma,8322/3,http://codes.iarc.fr/code/2769
+231,Mixed cell adenoma,8323/0,http://codes.iarc.fr/code/2770
+232,Mixed cell adenocarcinoma,8323/3,http://codes.iarc.fr/code/2771
+233,Lipoadenoma,8324/0,http://codes.iarc.fr/code/2773
+234,Metanephric adenoma,8325/0,http://codes.iarc.fr/code/2774
+235,Follicular adenoma,8330/0,http://codes.iarc.fr/code/2775
+236,Atypical follicular adenoma,8330/1,http://codes.iarc.fr/code/2776
+237,"Follicular adenocarcinoma, NOS",8330/3,http://codes.iarc.fr/code/2778
+238,"Follicular adenocarcinoma, well differentiated",8331/3,http://codes.iarc.fr/code/2780
+239,"Follicular adenocarcinoma, trabecular",8332/3,http://codes.iarc.fr/code/2784
+240,"Microfollicular adenoma, NOS",8333/0,http://codes.iarc.fr/code/2786
+241,Fetal adenocarcinoma,8333/3,http://codes.iarc.fr/code/2787
+242,Macrofollicular adenoma,8334/0,http://codes.iarc.fr/code/2789
+243,"Follicular carcinoma, minimally invasive",8335/3,http://codes.iarc.fr/code/2791
+244,Hyalinizing trabecular adenoma,8336/0,http://codes.iarc.fr/code/2792
+245,Insular carcinoma,8337/3,http://codes.iarc.fr/code/2793
+246,"Papillary carcinoma, follicular variant",8340/3,http://codes.iarc.fr/code/2797
+247,Papillary microcarcinoma,8341/3,http://codes.iarc.fr/code/2798
+248,"Papillary carcinoma, oxyphilic cell",8342/3,http://codes.iarc.fr/code/2799
+249,"Papillary carcinoma, encapsulated",8343/3,http://codes.iarc.fr/code/2800
+250,"Papillary carcinoma, columnar cell",8344/3,http://codes.iarc.fr/code/2802
+251,Medullary carcinoma with amyloid stroma,8345/3,http://codes.iarc.fr/code/2805
+252,Mixed medullary-follicular carcinoma,8346/3,http://codes.iarc.fr/code/2806
+253,Mixed medullary-papillary carcinoma,8347/3,http://codes.iarc.fr/code/2807
+254,Nonencapsulated sclerosing carcinoma,8350/3,http://codes.iarc.fr/code/2811
+255,Multiple endocrine adenomas,8360/1,http://codes.iarc.fr/code/2813
+256,Juxtaglomerular tumor,8361/0,http://codes.iarc.fr/code/2815
+257,"Adrenal cortical adenoma, NOS",8370/0,http://codes.iarc.fr/code/2818
+258,Adrenal cortical carcinoma,8370/3,http://codes.iarc.fr/code/2821
+259,"Adrenal cortical adenoma, compact cell",8371/0,http://codes.iarc.fr/code/2822
+260,"Adrenal cortical adenoma, pigmented",8372/0,http://codes.iarc.fr/code/2825
+261,"Adrenal cortical adenoma, clear cell",8373/0,http://codes.iarc.fr/code/2826
+262,"Adrenal cortical adenoma, glomerulosa cell",8374/0,http://codes.iarc.fr/code/2827
+263,"Adrenal cortical adenoma, mixed cell",8375/0,http://codes.iarc.fr/code/2828
+264,"Endometrioid adenoma, NOS",8380/0,http://codes.iarc.fr/code/2830
+265,"Endometrioid adenoma, borderline malignancy",8380/1,http://codes.iarc.fr/code/2834
+266,"Endometrioid adenocarcinoma, NOS",8380/3,http://codes.iarc.fr/code/2837
+267,"Endometrioid adenofibroma, NOS",8381/0,http://codes.iarc.fr/code/2839
+268,"Endometrioid adenofibroma, borderline malignancy",8381/1,http://codes.iarc.fr/code/2841
+269,"Endometrioid adenofibroma, malignant",8381/3,http://codes.iarc.fr/code/2843
+270,"Endometrioid adenocarcinoma, secretory variant",8382/3,http://codes.iarc.fr/code/2844
+271,"Endometrioid adenocarcinoma, ciliated cell variant",8383/3,http://codes.iarc.fr/code/2845
+272,"Adenocarcinoma, endocervical type",8384/3,http://codes.iarc.fr/code/2846
+273,Skin appendage adenoma,8390/0,http://codes.iarc.fr/code/2849
+274,Skin appendage carcinoma,8390/3,http://codes.iarc.fr/code/2851
+275,Follicular fibroma,8391/0,http://codes.iarc.fr/code/2855
+276,Syringofibroadenoma,8392/0,http://codes.iarc.fr/code/2856
+277,Sweat gland adenoma,8400/0,http://codes.iarc.fr/code/2860
+278,"Sweat gland tumor, NOS",8400/1,http://codes.iarc.fr/code/2861
+279,Sweat gland adenocarcinoma,8400/3,http://codes.iarc.fr/code/2864
+280,Apocrine adenoma,8401/0,http://codes.iarc.fr/code/2866
+281,Apocrine adenocarcinoma,8401/3,http://codes.iarc.fr/code/2867
+282,Nodular hidradenoma,8402/0,http://codes.iarc.fr/code/2870
+283,"Nodular hidradenoma, malignant",8402/3,http://codes.iarc.fr/code/2872
+284,Eccrine spiradenoma,8403/0,http://codes.iarc.fr/code/2874
+285,Malignant eccrine spiradenoma,8403/3,http://codes.iarc.fr/code/2875
+286,Hidrocystoma,8404/0,http://codes.iarc.fr/code/2877
+287,Papillary hidradenoma,8405/0,http://codes.iarc.fr/code/2879
+288,Papillary syringadenoma,8406/0,http://codes.iarc.fr/code/2882
+289,"Syringoma, NOS",8407/0,http://codes.iarc.fr/code/2883
+290,Sclerosing sweat duct carcinoma,8407/3,http://codes.iarc.fr/code/2886
+291,Eccrine papillary adenoma,8408/0,http://codes.iarc.fr/code/2887
+292,Aggressive digital papillary adenoma,8408/1,http://codes.iarc.fr/code/2888
+293,Eccrine papillary adenocarcinoma,8408/3,http://codes.iarc.fr/code/2890
+294,Eccrine poroma,8409/0,http://codes.iarc.fr/code/2891
+295,"Eccrine poroma, malignant",8409/3,http://codes.iarc.fr/code/2893
+296,Sebaceous adenoma,8410/0,http://codes.iarc.fr/code/4332
+297,Sebaceous adenocarcinoma,8410/3,http://codes.iarc.fr/code/2895
+298,Eccrine adenocarcinoma,8413/3,http://codes.iarc.fr/code/2896
+299,Ceruminous adenoma,8420/0,http://codes.iarc.fr/code/2897
+300,Ceruminous adenocarcinoma,8420/3,http://codes.iarc.fr/code/2899
+301,Mucoepidermoid tumor,8430/1,http://codes.iarc.fr/code/2900
+302,Mucoepidermoid carcinoma,8430/3,http://codes.iarc.fr/code/2901
+303,"Cystadenoma, NOS",8440/0,http://codes.iarc.fr/code/2903
+304,"Cystadenocarcinoma, NOS",8440/3,http://codes.iarc.fr/code/2904
+305,"Serous cystadenoma, NOS",8441/0,http://codes.iarc.fr/code/2907
+306,"Serous cystadenocarcinoma, NOS",8441/3,http://codes.iarc.fr/code/2910
+307,"Serous cystadenoma, borderline malignancy",8442/1,http://codes.iarc.fr/code/2913
+308,Clear cell cystadenoma,8443/0,http://codes.iarc.fr/code/2914
+309,Clear cell cystic tumor of borderline malignancy,8444/1,http://codes.iarc.fr/code/2916
+310,"Papillary cystadenoma, NOS",8450/0,http://codes.iarc.fr/code/2917
+311,"Papillary cystadenocarcinoma, NOS",8450/3,http://codes.iarc.fr/code/2919
+312,"Papillary cystadenoma, borderline malignancy",8451/1,http://codes.iarc.fr/code/2920
+313,Solid pseudopapillary tumor,8452/1,http://codes.iarc.fr/code/2924
+314,Solid pseudopapillary carcinoma,8452/3,http://codes.iarc.fr/code/2925
+315,Intraductal papillary-mucinous adenoma,8453/0,http://codes.iarc.fr/code/4632
+316,Intraductal papillary-mucinous tumor with moderate dysplasia,8453/1,
+317,"Intraductal papillary-mucinous carcinoma, non-invasive",8453/2,http://codes.iarc.fr/code/4633
+318,"Intraductal papillary-mucinous carcinoma, invasive",8453/3,http://codes.iarc.fr/code/4634
+319,Cystic tumor of atrio-ventricular node,8454/0,http://codes.iarc.fr/code/2930
+320,"Papillary serous cystadenoma, NOS",8460/0,http://codes.iarc.fr/code/2931
+321,Papillary serous cystadenocarcinoma,8460/3,http://codes.iarc.fr/code/2934
+322,Serous surface papilloma,8461/0,http://codes.iarc.fr/code/2935
+323,Serous surface papillary carcinoma,8461/3,http://codes.iarc.fr/code/2937
+324,Serous papillary cystic tumor of borderline malignancy,8462/1,http://codes.iarc.fr/code/2941
+325,Serous surface papillary tumor of borderline malignancy,8463/1,http://codes.iarc.fr/code/2942
+326,"Mucinous cystadenoma, NOS",8470/0,http://codes.iarc.fr/code/4640
+327,Mucinous cystic tumor with moderate dysplasia,8470/1,
+328,"Mucinous cystadenocarcinoma, non-invasive",8470/2,http://codes.iarc.fr/code/4643
+329,"Mucinous cystadenocarcinoma, NOS",8470/3,http://codes.iarc.fr/code/4645
+330,"Papillary mucinous cystadenoma, NOS",8471/0,http://codes.iarc.fr/code/2952
+331,Papillary mucinous cystadenocarcinoma,8471/3,http://codes.iarc.fr/code/2954
+332,Mucinous cystic tumor of borderline malignancy,8472/1,http://codes.iarc.fr/code/2959
+333,"Papillary mucinous cystadenoma, borderline malignancy",8473/1,http://codes.iarc.fr/code/2962
+334,Mucinous adenoma,8480/0,http://codes.iarc.fr/code/2963
+335,Mucinous adenocarcinoma,8480/3,http://codes.iarc.fr/code/2974
+336,Pseudomyxoma peritonei,8480/6,http://codes.iarc.fr/code/2975
+337,Mucin-producing adenocarcinoma,8481/3,http://codes.iarc.fr/code/2979
+338,"Mucinous adenocarcinoma, endocervical type",8482/3,http://codes.iarc.fr/code/2980
+339,Signet ring cell carcinoma,8490/3,http://codes.iarc.fr/code/4647
+340,Metastatic signet ring cell carcinoma,8490/6,http://codes.iarc.fr/code/2984
+341,"Intraductal carcinoma, noninfiltrating, NOS",8500/2,http://codes.iarc.fr/code/2991
+342,"Infiltrating duct carcinoma, NOS",8500/3,http://codes.iarc.fr/code/2997
+343,"Comedocarcinoma, noninfiltrating",8501/2,http://codes.iarc.fr/code/3000
+344,"Comedocarcinoma, NOS",8501/3,http://codes.iarc.fr/code/3001
+345,Secretory carcinoma of breast,8502/3,http://codes.iarc.fr/code/3003
+346,Intraductal papilloma,8503/0,http://codes.iarc.fr/code/4654
+347,Noninfiltrating intraductal papillary adenocarcinoma,8503/2,http://codes.iarc.fr/code/4663
+348,Intraductal papillary adenocarcinoma with invasion,8503/3,http://codes.iarc.fr/code/4665
+349,Intracystic papillary adenoma,8504/0,http://codes.iarc.fr/code/3017
+350,Noninfiltrating intracystic carcinoma,8504/2,http://codes.iarc.fr/code/3018
+351,"Intracystic carcinoma, NOS",8504/3,http://codes.iarc.fr/code/3020
+352,"Intraductal papillomatosis, NOS",8505/0,http://codes.iarc.fr/code/3022
+353,Adenoma of nipple,8506/0,http://codes.iarc.fr/code/3024
+354,Intraductal micropapillary carcinoma,8507/2,http://codes.iarc.fr/code/3027
+355,Cystic hypersecretory carcinoma,8508/3,http://codes.iarc.fr/code/3028
+356,"Medullary carcinoma, NOS",8510/3,http://codes.iarc.fr/code/3030
+357,Medullary carcinoma with lymphoid stroma,8512/3,http://codes.iarc.fr/code/3031
+358,Atypical medullary carcinoma,8513/3,http://codes.iarc.fr/code/3032
+359,"Duct carcinoma, desmoplastic type",8514/3,http://codes.iarc.fr/code/3033
+360,"Lobular carcinoma in situ, NOS",8520/2,http://codes.iarc.fr/code/3036
+361,"Lobular carcinoma, NOS",8520/3,http://codes.iarc.fr/code/3039
+362,Infiltrating ductular carcinoma,8521/3,http://codes.iarc.fr/code/3040
+363,Intraductal carcinoma and lobular carcinoma in situ,8522/2,http://codes.iarc.fr/code/3041
+364,Infiltrating duct and lobular carcinoma,8522/3,http://codes.iarc.fr/code/3046
+365,Infiltrating duct mixed with other types of carcinoma,8523/3,http://codes.iarc.fr/code/3051
+366,Infiltrating lobular mixed with other types of carcinoma,8524/3,http://codes.iarc.fr/code/3052
+367,Polymorphous low grade adenocarcinoma,8525/3,http://codes.iarc.fr/code/3054
+368,Inflammatory carcinoma,8530/3,http://codes.iarc.fr/code/3056
+369,"Paget disease, mammary",8540/3,http://codes.iarc.fr/code/3058
+370,Paget disease and infiltrating duct carcinoma of breast,8541/3,http://codes.iarc.fr/code/3059
+371,"Paget disease, extramammary",8542/3,http://codes.iarc.fr/code/3060
+372,Paget disease and intraductal carcinoma of breast,8543/3,http://codes.iarc.fr/code/3061
+373,Acinar cell adenoma,8550/0,http://codes.iarc.fr/code/4335
+374,Acinar cell tumor,8550/1,http://codes.iarc.fr/code/3063
+375,Acinar cell carcinoma,8550/3,http://codes.iarc.fr/code/3067
+376,Acinar cell cystadenocarcinoma,8551/3,http://codes.iarc.fr/code/3068
+377,Mixed squamous cell and glandular papilloma,8560/0,http://codes.iarc.fr/code/3069
+378,Adenosquamous carcinoma,8560/3,http://codes.iarc.fr/code/3072
+379,Adenolymphoma,8561/0,http://codes.iarc.fr/code/3075
+380,Epithelial-myoepithelial carcinoma,8562/3,http://codes.iarc.fr/code/3076
+381,Adenocarcinoma with squamous metaplasia,8570/3,http://codes.iarc.fr/code/3078
+382,Adenocarcinoma with cartilaginous and osseous metaplasia,8571/3,http://codes.iarc.fr/code/3081
+383,Adenocarcinoma with spindle cell metaplasia,8572/3,http://codes.iarc.fr/code/3082
+384,Adenocarcinoma with apocrine metaplasia,8573/3,http://codes.iarc.fr/code/3084
+385,Adenocarcinoma with neuroendocrine differentiation,8574/3,http://codes.iarc.fr/code/3086
+386,"Metaplastic carcinoma, NOS",8575/3,http://codes.iarc.fr/code/3087
+387,Hepatoid adenocarcinoma,8576/3,http://codes.iarc.fr/code/3089
+388,"Thymoma, benign",8580/0,http://codes.iarc.fr/code/3090
+389,"Thymoma, NOS",8580/1,http://codes.iarc.fr/code/3091
+390,"Thymoma, malignant, NOS",8580/3,http://codes.iarc.fr/code/3092
+391,"Thymoma, type A, NOS",8581/1,http://codes.iarc.fr/code/3095
+392,"Thymoma, type A, malignant",8581/3,http://codes.iarc.fr/code/3098
+393,"Thymoma, type AB, NOS",8582/1,http://codes.iarc.fr/code/3100
+394,"Thymoma, type AB, malignant",8582/3,http://codes.iarc.fr/code/3102
+395,"Thymoma, type B1, NOS",8583/1,http://codes.iarc.fr/code/3107
+396,"Thymoma, type B1, malignant",8583/3,http://codes.iarc.fr/code/3112
+397,"Thymoma, type B2, NOS",8584/1,http://codes.iarc.fr/code/3114
+398,"Thymoma, type B2, malignant",8584/3,http://codes.iarc.fr/code/3116
+399,"Thymoma, type B3, NOS",8585/1,http://codes.iarc.fr/code/3119
+400,"Thymoma, type B3, malignant",8585/3,http://codes.iarc.fr/code/3123
+401,"Thymic carcinoma, NOS",8586/3,http://codes.iarc.fr/code/3125
+402,Ectopic hamartomatous thymoma,8587/0,http://codes.iarc.fr/code/3126
+403,Spindle epithelial tumor with thymus-like element,8588/3,http://codes.iarc.fr/code/3129
+404,Carcinoma showing thymus-like element,8589/3,http://codes.iarc.fr/code/3132
+405,"Sex cord-gonadal stromal tumor, NOS",8590/1,http://codes.iarc.fr/code/3137
+406,"Sex cord-gonadal stromal tumor, incompletely differentiated",8591/1,http://codes.iarc.fr/code/3138
+407,"Sex cord-gonadal stromal tumor, mixed forms",8592/1,http://codes.iarc.fr/code/3139
+408,Stromal tumor with minor sex cord elements,8593/1,http://codes.iarc.fr/code/3140
+409,"Thecoma, NOS",8600/0,http://codes.iarc.fr/code/3142
+410,"Thecoma, malignant",8600/3,http://codes.iarc.fr/code/3143
+411,"Thecoma, luteinized",8601/0,http://codes.iarc.fr/code/3144
+412,Sclerosing stromal tumor,8602/0,http://codes.iarc.fr/code/3145
+413,"Luteoma, NOS",8610/0,http://codes.iarc.fr/code/3147
+414,"Granulosa cell tumor, adult type",8620/1,http://codes.iarc.fr/code/3149
+415,"Granulosa cell tumor, malignant",8620/3,http://codes.iarc.fr/code/3152
+416,Granulosa cell-theca cell tumor,8621/1,http://codes.iarc.fr/code/3154
+417,"Granulosa cell tumor, juvenile",8622/1,http://codes.iarc.fr/code/3155
+418,Sex cord tumor with annular tubules,8623/1,http://codes.iarc.fr/code/3156
+419,"Androblastoma, benign",8630/0,http://codes.iarc.fr/code/3158
+420,"Androblastoma, NOS",8630/1,http://codes.iarc.fr/code/3160
+421,"Androblastoma, malignant",8630/3,http://codes.iarc.fr/code/3162
+422,"Sertoli-Leydig cell tumor, well differentiated",8631/0,http://codes.iarc.fr/code/3163
+423,Sertoli-Leydig cell tumor of intermediate differentiation,8631/1,http://codes.iarc.fr/code/3165
+424,"Sertoli-Leydig cell tumor, poorly differentiated",8631/3,http://codes.iarc.fr/code/3167
+425,Gynandroblastoma,8632/1,http://codes.iarc.fr/code/3168
+426,"Sertoli-Leydig cell tumor, retiform",8633/1,http://codes.iarc.fr/code/3169
+427,"Sertoli-Leydig cell tumor, intermediate differentiation, with heterologous elements",8634/1,http://codes.iarc.fr/code/3171
+428,"Sertoli-Leydig cell tumor, poorly differentiated, with heterologous elements",8634/3,http://codes.iarc.fr/code/3172
+429,"Sertoli cell tumor, NOS",8640/1,http://codes.iarc.fr/code/3173
+430,Sertoli cell carcinoma,8640/3,http://codes.iarc.fr/code/3178
+431,Sertoli cell tumor with lipid storage,8641/0,http://codes.iarc.fr/code/3182
+432,Large cell calcifying Sertoli cell tumor,8642/1,http://codes.iarc.fr/code/3183
+433,"Leydig cell tumor, benign",8650/0,http://codes.iarc.fr/code/3185
+434,"Leydig cell tumor, NOS",8650/1,http://codes.iarc.fr/code/3187
+435,"Leydig cell tumor, malignant",8650/3,http://codes.iarc.fr/code/3189
+436,Hilus cell tumor,8660/0,http://codes.iarc.fr/code/3191
+437,Lipid cell tumor of ovary,8670/0,http://codes.iarc.fr/code/3195
+438,"Steroid cell tumor, malignant",8670/3,http://codes.iarc.fr/code/3196
+439,Adrenal rest tumor,8671/0,http://codes.iarc.fr/code/3197
+440,"Paraganglioma, benign",8680/0,http://codes.iarc.fr/code/3198
+441,"Paraganglioma, NOS",8680/1,http://codes.iarc.fr/code/3199
+442,"Paraganglioma, malignant",8680/3,http://codes.iarc.fr/code/3200
+443,Sympathetic paraganglioma,8681/1,http://codes.iarc.fr/code/3201
+444,Parasympathetic paraganglioma,8682/1,http://codes.iarc.fr/code/3202
+445,Gangliocytic paraganglioma,8683/0,http://codes.iarc.fr/code/3203
+446,"Glomus jugulare tumor, NOS",8690/1,http://codes.iarc.fr/code/3206
+447,Aortic body tumor,8691/1,http://codes.iarc.fr/code/3209
+448,Carotid body tumor,8692/1,http://codes.iarc.fr/code/3211
+449,"Extra-adrenal paraganglioma, NOS",8693/1,http://codes.iarc.fr/code/3214
+450,"Extra-adrenal paraganglioma, malignant",8693/3,http://codes.iarc.fr/code/3216
+451,"Pheochromocytoma, NOS",8700/0,http://codes.iarc.fr/code/3221
+452,"Pheochromocytoma, malignant",8700/3,http://codes.iarc.fr/code/3224
+453,Glomangiosarcoma,8710/3,http://codes.iarc.fr/code/3226
+454,"Glomus tumor, NOS",8711/0,http://codes.iarc.fr/code/3227
+455,"Glomus tumor, malignant",8711/3,http://codes.iarc.fr/code/3228
+456,Glomangioma,8712/0,http://codes.iarc.fr/code/3229
+457,Glomangiomyoma,8713/0,http://codes.iarc.fr/code/3230
+458,"Pigmented nevus, NOS",8720/0,http://codes.iarc.fr/code/3234
+459,Melanoma in situ,8720/2,http://codes.iarc.fr/code/3235
+460,"Malignant melanoma, NOS",8720/3,http://codes.iarc.fr/code/3237
+461,Nodular melanoma,8721/3,http://codes.iarc.fr/code/3238
+462,Balloon cell nevus,8722/0,http://codes.iarc.fr/code/3239
+463,Balloon cell melanoma,8722/3,http://codes.iarc.fr/code/3240
+464,Halo nevus,8723/0,http://codes.iarc.fr/code/3242
+465,"Malignant melanoma, regressing",8723/3,http://codes.iarc.fr/code/3243
+466,Neuronevus,8725/0,http://codes.iarc.fr/code/3244
+467,Magnocellular nevus,8726/0,http://codes.iarc.fr/code/3247
+468,Dysplastic nevus,8727/0,http://codes.iarc.fr/code/3248
+469,Diffuse melanocytosis,8728/0,http://codes.iarc.fr/code/3249
+470,Meningeal melanocytoma,8728/1,http://codes.iarc.fr/code/3250
+471,Meningeal melanomatosis,8728/3,http://codes.iarc.fr/code/3251
+472,Nonpigmented nevus,8730/0,http://codes.iarc.fr/code/3253
+473,Amelanotic melanoma,8730/3,http://codes.iarc.fr/code/3254
+474,"Junctional nevus, NOS",8740/0,http://codes.iarc.fr/code/3257
+475,Malignant melanoma in junctional nevus,8740/3,http://codes.iarc.fr/code/3258
+476,"Precancerous melanosis, NOS",8741/2,http://codes.iarc.fr/code/3259
+477,Malignant melanoma in precancerous melanosis,8741/3,http://codes.iarc.fr/code/3260
+478,Lentigo maligna,8742/2,http://codes.iarc.fr/code/3262
+479,Lentigo maligna melanoma,8742/3,http://codes.iarc.fr/code/3264
+480,Superficial spreading melanoma,8743/3,http://codes.iarc.fr/code/3265
+481,"Acral lentiginous melanoma, malignant",8744/3,http://codes.iarc.fr/code/3266
+482,"Desmoplastic melanoma, malignant",8745/3,http://codes.iarc.fr/code/3269
+483,Mucosal lentiginous melanoma,8746/3,http://codes.iarc.fr/code/3270
+484,Intradermal nevus,8750/0,http://codes.iarc.fr/code/3272
+485,Compound nevus,8760/0,http://codes.iarc.fr/code/3274
+486,Small congenital nevus,8761/0,http://codes.iarc.fr/code/3275
+487,"Giant pigmented nevus, NOS",8761/1,http://codes.iarc.fr/code/3277
+488,Malignant melanoma in giant pigmented nevus,8761/3,http://codes.iarc.fr/code/3279
+489,Proliferative dermal lesion in congenital nevus,8762/1,http://codes.iarc.fr/code/3280
+490,Epithelioid and spindle cell nevus,8770/0,http://codes.iarc.fr/code/4340
+491,Mixed epithelioid and spindle cell melanoma,8770/3,http://codes.iarc.fr/code/3281
+492,Epithelioid cell nevus,8771/0,http://codes.iarc.fr/code/3282
+493,Epithelioid cell melanoma,8771/3,http://codes.iarc.fr/code/3283
+494,"Spindle cell nevus, NOS",8772/0,http://codes.iarc.fr/code/3284
+495,"Spindle cell melanoma, NOS",8772/3,http://codes.iarc.fr/code/3285
+496,"Spindle cell melanoma, type A",8773/3,http://codes.iarc.fr/code/3286
+497,"Spindle cell melanoma, type B",8774/3,http://codes.iarc.fr/code/3287
+498,"Blue nevus, NOS",8780/0,http://codes.iarc.fr/code/3289
+499,"Blue nevus, malignant",8780/3,http://codes.iarc.fr/code/3290
+500,Cellular blue nevus,8790/0,http://codes.iarc.fr/code/3291
+501,"Soft tissue tumor, benign",8800/0,http://codes.iarc.fr/code/3292
+502,"Sarcoma, NOS",8800/3,http://codes.iarc.fr/code/3296
+503,"Sarcomatosis, NOS",8800/9,http://codes.iarc.fr/code/3297
+504,Spindle cell sarcoma,8801/3,http://codes.iarc.fr/code/3298
+505,Giant cell sarcoma,8802/3,http://codes.iarc.fr/code/3300
+506,Small cell sarcoma,8803/3,http://codes.iarc.fr/code/3302
+507,Epithelioid sarcoma,8804/3,http://codes.iarc.fr/code/3304
+508,Undifferentiated sarcoma,8805/3,http://codes.iarc.fr/code/3305
+509,Desmoplastic small round cell tumor,8806/3,http://codes.iarc.fr/code/3306
+510,"Fibroma, NOS",8810/0,http://codes.iarc.fr/code/3307
+511,Cellular fibroma,8810/1,http://codes.iarc.fr/code/3308
+512,"Fibrosarcoma, NOS",8810/3,http://codes.iarc.fr/code/3309
+513,Fibromyxoma,8811/0,http://codes.iarc.fr/code/4667
+514,Fibromyxosarcoma,8811/3,http://codes.iarc.fr/code/3313
+515,Periosteal fibroma,8812/0,http://codes.iarc.fr/code/3314
+516,Periosteal fibrosarcoma,8812/3,http://codes.iarc.fr/code/3316
+517,Fascial fibroma,8813/0,http://codes.iarc.fr/code/3317
+518,Fascial fibrosarcoma,8813/3,http://codes.iarc.fr/code/3318
+519,Infantile fibrosarcoma,8814/3,http://codes.iarc.fr/code/3320
+520,Solitary fibrous tumor,8815/0,http://codes.iarc.fr/code/3322
+521,"Solitary fibrous tumor, malignant",8815/3,http://codes.iarc.fr/code/3323
+522,Elastofibroma,8820/0,http://codes.iarc.fr/code/3324
+523,Aggressive fibromatosis,8821/1,http://codes.iarc.fr/code/4344
+524,Abdominal fibromatosis,8822/1,http://codes.iarc.fr/code/3328
+525,Desmoplastic fibroma,8823/0,http://codes.iarc.fr/code/3329
+526,Myofibroma,8824/0,http://codes.iarc.fr/code/3330
+527,Myofibromatosis,8824/1,http://codes.iarc.fr/code/3333
+528,Myofibroblastoma,8825/0,http://codes.iarc.fr/code/3334
+529,"Myofibroblastic tumor, NOS",8825/1,http://codes.iarc.fr/code/3336
+530,Angiomyofibroblastoma,8826/0,http://codes.iarc.fr/code/3337
+531,"Myofibroblastic tumor, peribronchial",8827/1,http://codes.iarc.fr/code/3339
+532,Benign fibrous histiocytoma,8830/0,http://codes.iarc.fr/code/3343
+533,Atypical fibrous histiocytoma,8830/1,http://codes.iarc.fr/code/3345
+534,Malignant fibrous histiocytoma,8830/3,http://codes.iarc.fr/code/3347
+535,"Histiocytoma, NOS",8831/0,http://codes.iarc.fr/code/3351
+536,"Dermatofibroma, NOS",8832/0,http://codes.iarc.fr/code/3356
+537,"Dermatofibrosarcoma, NOS",8832/3,http://codes.iarc.fr/code/3358
+538,Pigmented dermatofibrosarcoma protuberans,8833/3,http://codes.iarc.fr/code/3360
+539,Giant cell fibroblastoma,8834/1,http://codes.iarc.fr/code/3361
+540,Plexiform fibrohistiocytic tumor,8835/1,http://codes.iarc.fr/code/3362
+541,Angiomatoid fibrous histiocytoma,8836/1,http://codes.iarc.fr/code/3363
+542,"Myxoma, NOS",8840/0,http://codes.iarc.fr/code/3364
+543,Myxosarcoma,8840/3,http://codes.iarc.fr/code/3365
+544,Angiomyxoma,8841/1,http://codes.iarc.fr/code/3367
+545,Ossifying fibromyxoid tumor,8842/0,http://codes.iarc.fr/code/3368
+546,"Lipoma, NOS",8850/0,http://codes.iarc.fr/code/3369
+547,Atypical lipoma/j,8850/1,http://codes.iarc.fr/code/3372
+548,"Liposarcoma, NOS",8850/3,http://codes.iarc.fr/code/3374
+549,Fibrolipoma,8851/0,http://codes.iarc.fr/code/3375
+550,"Liposarcoma, well differentiated",8851/3,http://codes.iarc.fr/code/3380
+551,Fibromyxolipoma,8852/0,http://codes.iarc.fr/code/3382
+552,Myxoid liposarcoma,8852/3,http://codes.iarc.fr/code/3384
+553,Round cell liposarcoma,8853/3,http://codes.iarc.fr/code/3385
+554,Pleomorphic lipoma,8854/0,http://codes.iarc.fr/code/3386
+555,Pleomorphic liposarcoma,8854/3,http://codes.iarc.fr/code/3387
+556,Mixed liposarcoma,8855/3,http://codes.iarc.fr/code/3388
+557,Intramuscular lipoma,8856/0,http://codes.iarc.fr/code/3391
+558,Spindle cell lipoma,8857/0,http://codes.iarc.fr/code/3392
+559,Fibroblastic liposarcoma,8857/3,http://codes.iarc.fr/code/3393
+560,Dedifferentiated liposarcoma,8858/3,http://codes.iarc.fr/code/3394
+561,Angiomyolipoma,8860/0,http://codes.iarc.fr/code/3395
+562,"Angiolipoma, NOS",8861/0,http://codes.iarc.fr/code/3396
+563,Chondroid lipoma,8862/0,http://codes.iarc.fr/code/3397
+564,Myelolipoma,8870/0,http://codes.iarc.fr/code/3398
+565,Hibernoma,8880/0,http://codes.iarc.fr/code/3401
+566,Lipoblastomatosis,8881/0,http://codes.iarc.fr/code/3405
+567,"Leiomyoma, NOS",8890/0,http://codes.iarc.fr/code/3411
+568,"Leiomyomatosis, NOS",8890/1,http://codes.iarc.fr/code/3413
+569,"Leiomyosarcoma, NOS",8890/3,http://codes.iarc.fr/code/3414
+570,Epithelioid leiomyoma,8891/0,http://codes.iarc.fr/code/3416
+571,Epithelioid leiomyosarcoma,8891/3,http://codes.iarc.fr/code/3417
+572,Cellular leiomyoma,8892/0,http://codes.iarc.fr/code/3418
+573,Bizarre leiomyoma,8893/0,http://codes.iarc.fr/code/3422
+574,Angiomyoma,8894/0,http://codes.iarc.fr/code/3425
+575,Angiomyosarcoma,8894/3,http://codes.iarc.fr/code/3426
+576,Myoma,8895/0,http://codes.iarc.fr/code/3427
+577,Myosarcoma,8895/3,http://codes.iarc.fr/code/3428
+578,Myxoid leiomyosarcoma,8896/3,http://codes.iarc.fr/code/3429
+579,Smooth muscle tumor of uncertain malignant potential,8897/1,http://codes.iarc.fr/code/3431
+580,Metastasizing leiomyoma,8898/1,http://codes.iarc.fr/code/3432
+581,"Rhabdomyoma, NOS",8900/0,http://codes.iarc.fr/code/3433
+582,"Rhabdomyosarcoma, NOS",8900/3,http://codes.iarc.fr/code/3435
+583,"Pleomorphic rhabdomyosarcoma, adult type",8901/3,http://codes.iarc.fr/code/3437
+584,Mixed type rhabdomyosarcoma,8902/3,http://codes.iarc.fr/code/3439
+585,Fetal rhabdomyoma,8903/0,http://codes.iarc.fr/code/3440
+586,Adult rhabdomyoma,8904/0,http://codes.iarc.fr/code/3442
+587,Genital rhabdomyoma,8905/0,http://codes.iarc.fr/code/3443
+588,"Embryonal rhabdomyosarcoma, NOS",8910/3,http://codes.iarc.fr/code/3447
+589,Spindle cell rhabdomyosarcoma,8912/3,http://codes.iarc.fr/code/3448
+590,Alveolar rhabdomyosarcoma,8920/3,http://codes.iarc.fr/code/3449
+591,Rhabdomyosarcoma with ganglionic differentiation,8921/3,http://codes.iarc.fr/code/3451
+592,Endometrial stromal nodule,8930/0,http://codes.iarc.fr/code/3452
+593,"Endometrial stromal sarcoma, NOS",8930/3,http://codes.iarc.fr/code/3455
+594,"Endometrial stromal sarcoma, low grade",8931/3,http://codes.iarc.fr/code/3460
+595,Adenomyoma,8932/0,http://codes.iarc.fr/code/3462
+596,Adenosarcoma,8933/3,http://codes.iarc.fr/code/3463
+597,Carcinofibroma,8934/3,http://codes.iarc.fr/code/3464
+598,"Stromal tumor, benign",8935/0,http://codes.iarc.fr/code/3465
+599,"Stromal tumor, NOS",8935/1,http://codes.iarc.fr/code/3466
+600,"Stromal sarcoma, NOS",8935/3,http://codes.iarc.fr/code/3467
+601,"Gastrointestinal stromal tumor, benign",8936/0,http://codes.iarc.fr/code/3469
+602,"Gastrointestinal stromal tumor, NOS",8936/1,http://codes.iarc.fr/code/3475
+603,Gastrointestinal stromal sarcoma,8936/3,http://codes.iarc.fr/code/3478
+604,Pleomorphic adenoma,8940/0,http://codes.iarc.fr/code/3482
+605,"Mixed tumor, malignant, NOS",8940/3,http://codes.iarc.fr/code/3485
+606,Carcinoma in pleomorphic adenoma,8941/3,http://codes.iarc.fr/code/3486
+607,Mullerian mixed tumor,8950/3,http://codes.iarc.fr/code/3487
+608,Mesodermal mixed tumor,8951/3,http://codes.iarc.fr/code/3488
+609,Benign cystic nephroma,8959/0,http://codes.iarc.fr/code/3489
+610,Cystic partially differentiated nephroblastoma,8959/1,http://codes.iarc.fr/code/3490
+611,Malignant cystic nephroma,8959/3,http://codes.iarc.fr/code/3492
+612,Mesoblastic nephroma,8960/1,http://codes.iarc.fr/code/3493
+613,"Nephroblastoma, NOS",8960/3,http://codes.iarc.fr/code/3496
+614,Malignant rhabdoid tumor,8963/3,http://codes.iarc.fr/code/3499
+615,Clear cell sarcoma of kidney,8964/3,http://codes.iarc.fr/code/3500
+616,Nephrogenic adenofibroma,8965/0,http://codes.iarc.fr/code/3501
+617,Renomedullary interstitial cell tumor,8966/0,http://codes.iarc.fr/code/3503
+618,Ossifying renal tumor,8967/0,http://codes.iarc.fr/code/3504
+619,Hepatoblastoma,8970/3,http://codes.iarc.fr/code/4669
+620,Pancreatoblastoma,8971/3,http://codes.iarc.fr/code/3507
+621,Pulmonary blastoma,8972/3,http://codes.iarc.fr/code/3509
+622,Pleuropulmonary blastoma,8973/3,http://codes.iarc.fr/code/3510
+623,Sialoblastoma,8974/1,http://codes.iarc.fr/code/3511
+624,"Carcinosarcoma, NOS",8980/3,http://codes.iarc.fr/code/3512
+625,"Carcinosarcoma, embryonal",8981/3,http://codes.iarc.fr/code/3513
+626,Myoepithelioma,8982/0,http://codes.iarc.fr/code/3516
+627,Malignant myoepithelioma,8982/3,http://codes.iarc.fr/code/3518
+628,Adenomyoepithelioma,8983/0,http://codes.iarc.fr/code/3519
+629,"Mesenchymoma, benign",8990/0,http://codes.iarc.fr/code/3520
+630,"Mesenchymoma, NOS",8990/1,http://codes.iarc.fr/code/3522
+631,"Mesenchymoma, malignant",8990/3,http://codes.iarc.fr/code/3524
+632,Embryonal sarcoma,8991/3,http://codes.iarc.fr/code/3525
+633,"Brenner tumor, NOS",9000/0,http://codes.iarc.fr/code/3526
+634,"Brenner tumor, borderline malignancy",9000/1,http://codes.iarc.fr/code/3528
+635,"Brenner tumor, malignant",9000/3,http://codes.iarc.fr/code/3529
+636,"Fibroadenoma, NOS",9010/0,http://codes.iarc.fr/code/3530
+637,Intracanalicular fibroadenoma,9011/0,http://codes.iarc.fr/code/3531
+638,Pericanalicular fibroadenoma,9012/0,http://codes.iarc.fr/code/3532
+639,"Adenofibroma, NOS",9013/0,http://codes.iarc.fr/code/3535
+640,"Serous adenofibroma, NOS",9014/0,http://codes.iarc.fr/code/3537
+641,Serous adenofibroma of borderline malignancy,9014/1,http://codes.iarc.fr/code/3539
+642,Serous adenocarcinofibroma,9014/3,http://codes.iarc.fr/code/3543
+643,"Mucinous adenofibroma, NOS",9015/0,http://codes.iarc.fr/code/3545
+644,Mucinous adenofibroma of borderline malignancy,9015/1,http://codes.iarc.fr/code/3547
+645,Mucinous adenocarcinofibroma,9015/3,http://codes.iarc.fr/code/3551
+646,Giant fibroadenoma,9016/0,http://codes.iarc.fr/code/3552
+647,"Phyllodes tumor, benign",9020/0,http://codes.iarc.fr/code/3554
+648,"Phyllodes tumor, borderline",9020/1,http://codes.iarc.fr/code/3557
+649,"Phyllodes tumor, malignant",9020/3,http://codes.iarc.fr/code/3559
+650,Juvenile fibroadenoma,9030/0,http://codes.iarc.fr/code/3560
+651,"Synovioma, benign",9040/0,http://codes.iarc.fr/code/3561
+652,"Synovial sarcoma, NOS",9040/3,http://codes.iarc.fr/code/3564
+653,"Synovial sarcoma, spindle cell",9041/3,http://codes.iarc.fr/code/3566
+654,"Synovial sarcoma, epithelioid cell",9042/3,http://codes.iarc.fr/code/3567
+655,"Synovial sarcoma, biphasic",9043/3,http://codes.iarc.fr/code/3568
+656,"Clear cell sarcoma, NOS",9044/3,http://codes.iarc.fr/code/3571
+657,"Mesothelioma, benign",9050/0,http://codes.iarc.fr/code/3572
+658,"Mesothelioma, malignant",9050/3,http://codes.iarc.fr/code/3574
+659,"Fibrous mesothelioma, benign",9051/0,http://codes.iarc.fr/code/3575
+660,"Fibrous mesothelioma, malignant",9051/3,http://codes.iarc.fr/code/3580
+661,"Epithelioid mesothelioma, benign",9052/0,http://codes.iarc.fr/code/4346
+662,"Epithelioid mesothelioma, malignant",9052/3,http://codes.iarc.fr/code/3583
+663,"Mesothelioma, biphasic, malignant",9053/3,http://codes.iarc.fr/code/3585
+664,"Adenomatoid tumor, NOS",9054/0,http://codes.iarc.fr/code/3586
+665,"Multicystic mesothelioma, benign",9055/0,http://codes.iarc.fr/code/3588
+666,"Cystic mesothelioma, NOS",9055/1,http://codes.iarc.fr/code/3589
+667,Dysgerminoma,9060/3,http://codes.iarc.fr/code/3590
+668,"Seminoma, NOS",9061/3,http://codes.iarc.fr/code/3591
+669,"Seminoma, anaplastic",9062/3,http://codes.iarc.fr/code/3593
+670,Spermatocytic seminoma,9063/3,http://codes.iarc.fr/code/3595
+671,Intratubular malignant germ cells,9064/2,http://codes.iarc.fr/code/3597
+672,Germinoma,9064/3,http://codes.iarc.fr/code/3599
+673,"Germ cell tumor, nonseminomatous",9065/3,http://codes.iarc.fr/code/3600
+674,"Embryonal carcinoma, NOS",9070/3,http://codes.iarc.fr/code/3602
+675,Yolk sac tumor,9071/3,http://codes.iarc.fr/code/3608
+676,Polyembryoma,9072/3,http://codes.iarc.fr/code/3610
+677,Gonadoblastoma,9073/1,http://codes.iarc.fr/code/3612
+678,"Teratoma, benign",9080/0,http://codes.iarc.fr/code/3618
+679,"Teratoma, NOS",9080/1,http://codes.iarc.fr/code/3620
+680,"Teratoma, malignant, NOS",9080/3,http://codes.iarc.fr/code/3625
+681,Teratocarcinoma,9081/3,http://codes.iarc.fr/code/3627
+682,"Malignant teratoma, undifferentiated",9082/3,http://codes.iarc.fr/code/3629
+683,"Malignant teratoma, intermediate",9083/3,http://codes.iarc.fr/code/3630
+684,"Dermoid cyst, NOS",9084/0,http://codes.iarc.fr/code/3632
+685,Teratoma with malignant transformation,9084/3,http://codes.iarc.fr/code/3635
+686,Mixed germ cell tumor,9085/3,http://codes.iarc.fr/code/4347
+687,"Struma ovarii, NOS",9090/0,http://codes.iarc.fr/code/3637
+688,"Struma ovarii, malignant",9090/3,http://codes.iarc.fr/code/3638
+689,Strumal carcinoid,9091/1,http://codes.iarc.fr/code/3640
+690,"Hydatidiform mole, NOS",9100/0,http://codes.iarc.fr/code/3643
+691,Invasive hydatidiform mole,9100/1,http://codes.iarc.fr/code/3648
+692,"Choriocarcinoma, NOS",9100/3,http://codes.iarc.fr/code/3651
+693,Choriocarcinoma combined with other germ cell elements,9101/3,http://codes.iarc.fr/code/3654
+694,"Malignant teratoma, trophoblastic",9102/3,http://codes.iarc.fr/code/3655
+695,Partial hydatidiform mole,9103/0,http://codes.iarc.fr/code/3656
+696,Placental site trophoblastic tumor,9104/1,http://codes.iarc.fr/code/3657
+697,"Trophoblastic tumor, epithelioid",9105/3,http://codes.iarc.fr/code/3658
+698,"Mesonephroma, benign",9110/0,http://codes.iarc.fr/code/3661
+699,"Mesonephric tumor, NOS",9110/1,http://codes.iarc.fr/code/3663
+700,"Mesonephroma, malignant",9110/3,http://codes.iarc.fr/code/3667
+701,"Hemangioma, NOS",9120/0,http://codes.iarc.fr/code/3670
+702,Hemangiosarcoma,9120/3,http://codes.iarc.fr/code/3672
+703,Cavernous hemangioma,9121/0,http://codes.iarc.fr/code/3673
+704,Venous hemangioma,9122/0,http://codes.iarc.fr/code/3674
+705,Racemose hemangioma,9123/0,http://codes.iarc.fr/code/3676
+706,Kupffer cell sarcoma,9124/3,http://codes.iarc.fr/code/3677
+707,Epithelioid hemangioma,9125/0,http://codes.iarc.fr/code/3679
+708,"Hemangioendothelioma, benign",9130/0,http://codes.iarc.fr/code/3680
+709,"Hemangioendothelioma, NOS",9130/1,http://codes.iarc.fr/code/3683
+710,"Hemangioendothelioma, malignant",9130/3,http://codes.iarc.fr/code/3685
+711,Capillary hemangioma,9131/0,http://codes.iarc.fr/code/3690
+712,Intramuscular hemangioma,9132/0,http://codes.iarc.fr/code/3691
+713,"Epithelioid hemangioendothelioma, NOS",9133/1,http://codes.iarc.fr/code/3692
+714,"Epithelioid hemangioendothelioma, malignant",9133/3,http://codes.iarc.fr/code/3694
+715,Endovascular papillary angioendothelioma,9135/1,http://codes.iarc.fr/code/3695
+716,Spindle cell hemangioendothelioma,9136/1,http://codes.iarc.fr/code/3698
+717,Kaposi sarcoma,9140/3,http://codes.iarc.fr/code/3700
+718,Angiokeratoma,9141/0,http://codes.iarc.fr/code/3701
+719,Verrucous keratotic hemangioma,9142/0,http://codes.iarc.fr/code/3702
+720,"Hemangiopericytoma, benign",9150/0,http://codes.iarc.fr/code/3703
+721,"Hemangiopericytoma, NOS",9150/1,http://codes.iarc.fr/code/3705
+722,"Hemangiopericytoma, malignant",9150/3,http://codes.iarc.fr/code/3706
+723,"Angiofibroma, NOS",9160/0,http://codes.iarc.fr/code/4355
+724,Acquired tufted hemangioma,9161/0,http://codes.iarc.fr/code/3707
+725,Hemangioblastoma,9161/1,http://codes.iarc.fr/code/3709
+726,"Lymphangioma, NOS",9170/0,http://codes.iarc.fr/code/4349
+727,Lymphangiosarcoma,9170/3,http://codes.iarc.fr/code/3712
+728,Capillary lymphangioma,9171/0,http://codes.iarc.fr/code/3713
+729,Cavernous lymphangioma,9172/0,http://codes.iarc.fr/code/3714
+730,Cystic lymphangioma,9173/0,http://codes.iarc.fr/code/3717
+731,Lymphangiomyoma,9174/0,http://codes.iarc.fr/code/3718
+732,Lymphangiomyomatosis,9174/1,http://codes.iarc.fr/code/3720
+733,Hemolymphangioma,9175/0,http://codes.iarc.fr/code/3721
+734,"Osteoma, NOS",9180/0,http://codes.iarc.fr/code/3722
+735,"Osteosarcoma, NOS",9180/3,http://codes.iarc.fr/code/3726
+736,Chondroblastic osteosarcoma,9181/3,http://codes.iarc.fr/code/3727
+737,Fibroblastic osteosarcoma,9182/3,http://codes.iarc.fr/code/3729
+738,Telangiectatic osteosarcoma,9183/3,http://codes.iarc.fr/code/3730
+739,Osteosarcoma in Paget disease of bone,9184/3,http://codes.iarc.fr/code/3731
+740,Small cell osteosarcoma,9185/3,http://codes.iarc.fr/code/3733
+741,Central osteosarcoma,9186/3,http://codes.iarc.fr/code/3736
+742,Intraosseous well differentiated osteosarcoma,9187/3,http://codes.iarc.fr/code/3738
+743,"Osteoid osteoma, NOS",9191/0,http://codes.iarc.fr/code/3739
+744,Parosteal osteosarcoma,9192/3,http://codes.iarc.fr/code/3741
+745,Periosteal osteosarcoma,9193/3,http://codes.iarc.fr/code/3742
+746,High grade surface osteosarcoma,9194/3,http://codes.iarc.fr/code/3743
+747,Intracortical osteosarcoma,9195/3,http://codes.iarc.fr/code/3744
+748,"Osteoblastoma, NOS",9200/0,http://codes.iarc.fr/code/3746
+749,Aggressive osteoblastoma,9200/1,http://codes.iarc.fr/code/3747
+750,Osteochondroma,9210/0,http://codes.iarc.fr/code/3751
+751,"Osteochondromatosis, NOS",9210/1,http://codes.iarc.fr/code/3753
+752,"Chondroma, NOS",9220/0,http://codes.iarc.fr/code/3755
+753,"Chondromatosis, NOS",9220/1,http://codes.iarc.fr/code/3756
+754,"Chondrosarcoma, NOS",9220/3,http://codes.iarc.fr/code/3758
+755,Juxtacortical chondroma,9221/0,http://codes.iarc.fr/code/3760
+756,Juxtacortical chondrosarcoma,9221/3,http://codes.iarc.fr/code/3762
+757,"Chondroblastoma, NOS",9230/0,http://codes.iarc.fr/code/3765
+758,"Chondroblastoma, malignant",9230/3,http://codes.iarc.fr/code/3766
+759,Myxoid chondrosarcoma,9231/3,http://codes.iarc.fr/code/3767
+760,Mesenchymal chondrosarcoma,9240/3,http://codes.iarc.fr/code/3768
+761,Chondromyxoid fibroma,9241/0,http://codes.iarc.fr/code/3769
+762,Clear cell chondrosarcoma,9242/3,http://codes.iarc.fr/code/3770
+763,Dedifferentiated chondrosarcoma,9243/3,http://codes.iarc.fr/code/3771
+764,"Giant cell tumor of bone, NOS",9250/1,http://codes.iarc.fr/code/3773
+765,"Giant cell tumor of bone, malignant",9250/3,http://codes.iarc.fr/code/3776
+766,"Giant cell tumor of soft parts, NOS",9251/1,http://codes.iarc.fr/code/3777
+767,Malignant giant cell tumor of soft parts,9251/3,http://codes.iarc.fr/code/3778
+768,Tenosynovial giant cell tumor,9252/0,http://codes.iarc.fr/code/3781
+769,Malignant tenosynovial giant cell tumor,9252/3,http://codes.iarc.fr/code/3783
+770,Ewing sarcoma,9260/3,http://codes.iarc.fr/code/3785
+771,Adamantinoma of long bones,9261/3,http://codes.iarc.fr/code/3787
+772,Ossifying fibroma,9262/0,http://codes.iarc.fr/code/3790
+773,"Odontogenic tumor, benign",9270/0,http://codes.iarc.fr/code/3791
+774,"Odontogenic tumor, NOS",9270/1,http://codes.iarc.fr/code/3792
+775,"Odontogenic tumor, malignant",9270/3,http://codes.iarc.fr/code/3797
+776,Ameloblastic fibrodentinoma,9271/0,http://codes.iarc.fr/code/3799
+777,"Cementoma, NOS",9272/0,http://codes.iarc.fr/code/3802
+778,"Cementoblastoma, benign",9273/0,http://codes.iarc.fr/code/3803
+779,Cementifying fibroma,9274/0,http://codes.iarc.fr/code/3805
+780,Gigantiform cementoma,9275/0,http://codes.iarc.fr/code/3807
+781,"Odontoma, NOS",9280/0,http://codes.iarc.fr/code/3808
+782,Compound odontoma,9281/0,http://codes.iarc.fr/code/3809
+783,Complex odontoma,9282/0,http://codes.iarc.fr/code/3810
+784,Ameloblastic fibro-odontoma,9290/0,http://codes.iarc.fr/code/3812
+785,Ameloblastic odontosarcoma,9290/3,http://codes.iarc.fr/code/3815
+786,Adenomatoid odontogenic tumor,9300/0,http://codes.iarc.fr/code/3817
+787,Calcifying odontogenic cyst,9301/0,http://codes.iarc.fr/code/3818
+788,Odontogenic ghost cell tumor,9302/0,http://codes.iarc.fr/code/3819
+789,"Ameloblastoma, NOS",9310/0,http://codes.iarc.fr/code/3821
+790,"Ameloblastoma, malignant",9310/3,http://codes.iarc.fr/code/3823
+791,Odontoameloblastoma,9311/0,http://codes.iarc.fr/code/3824
+792,Squamous odontogenic tumor,9312/0,http://codes.iarc.fr/code/3825
+793,Odontogenic myxoma,9320/0,http://codes.iarc.fr/code/3826
+794,Central odontogenic fibroma,9321/0,http://codes.iarc.fr/code/3829
+795,Peripheral odontogenic fibroma,9322/0,http://codes.iarc.fr/code/3830
+796,Ameloblastic fibroma,9330/0,http://codes.iarc.fr/code/3831
+797,Ameloblastic fibrosarcoma,9330/3,http://codes.iarc.fr/code/3834
+798,Calcifying epithelial odontogenic tumor,9340/0,http://codes.iarc.fr/code/3836
+799,Clear cell odontogenic tumor,9341/1,http://codes.iarc.fr/code/3837
+800,Odontogenic carcinosarcoma,9342/3,http://codes.iarc.fr/code/3838
+801,Craniopharyngioma,9350/1,http://codes.iarc.fr/code/3840
+802,"Craniopharyngioma, adamantinomatous",9351/1,http://codes.iarc.fr/code/3841
+803,"Craniopharyngioma, papillary",9352/1,http://codes.iarc.fr/code/3842
+804,Pinealoma,9360/1,http://codes.iarc.fr/code/3843
+805,Pineocytoma,9361/1,http://codes.iarc.fr/code/3844
+806,Pineoblastoma,9362/3,http://codes.iarc.fr/code/4360
+807,Melanotic neuroectodermal tumor,9363/0,http://codes.iarc.fr/code/3848
+808,Peripheral neuroectodermal tumor,9364/3,http://codes.iarc.fr/code/3852
+809,Askin tumor,9365/3,http://codes.iarc.fr/code/3853
+810,"Chordoma, NOS",9370/3,http://codes.iarc.fr/code/3854
+811,Chondroid chordoma,9371/3,http://codes.iarc.fr/code/3855
+812,Dedifferentiated chordoma,9372/3,http://codes.iarc.fr/code/3856
+813,Parachordoma,9373/0,http://codes.iarc.fr/code/3857
+814,"Glioma, malignant",9380/3,http://codes.iarc.fr/code/3859
+815,Gliomatosis cerebri,9381/3,http://codes.iarc.fr/code/3860
+816,Mixed glioma,9382/3,http://codes.iarc.fr/code/4363
+817,Subependymoma,9383/1,http://codes.iarc.fr/code/3864
+818,Subependymal giant cell astrocytoma,9384/1,http://codes.iarc.fr/code/3865
+819,"Choroid plexus papilloma, NOS",9390/0,http://codes.iarc.fr/code/3866
+820,Atypical choroid plexus papilloma,9390/1,http://codes.iarc.fr/code/3867
+821,Choroid plexus carcinoma,9390/3,http://codes.iarc.fr/code/3870
+822,"Ependymoma, NOS",9391/3,http://codes.iarc.fr/code/4366
+823,"Ependymoma, anaplastic",9392/3,http://codes.iarc.fr/code/3874
+824,Papillary ependymoma,9393/3,http://codes.iarc.fr/code/3875
+825,Myxopapillary ependymoma,9394/1,http://codes.iarc.fr/code/3876
+826,"Astrocytoma, NOS",9400/3,http://codes.iarc.fr/code/3883
+827,"Astrocytoma, anaplastic",9401/3,http://codes.iarc.fr/code/3884
+828,Protoplasmic astrocytoma,9410/3,http://codes.iarc.fr/code/3885
+829,Gemistocytic astrocytoma,9411/3,http://codes.iarc.fr/code/3887
+830,Desmoplastic infantile astrocytoma,9412/1,http://codes.iarc.fr/code/3889
+831,Dysembryoplastic neuroepithelial tumor,9413/0,http://codes.iarc.fr/code/3890
+832,Fibrillary astrocytoma,9420/3,http://codes.iarc.fr/code/3892
+833,Pilocytic astrocytoma,9421/1,http://codes.iarc.fr/code/3896
+834,Polar spongioblastoma,9423/3,http://codes.iarc.fr/code/3899
+835,Pleomorphic xanthoastrocytoma,9424/3,http://codes.iarc.fr/code/3900
+836,Astroblastoma,9430/3,http://codes.iarc.fr/code/3901
+837,"Glioblastoma, NOS",9440/3,http://codes.iarc.fr/code/3904
+838,Giant cell glioblastoma,9441/3,http://codes.iarc.fr/code/3906
+839,Gliofibroma,9442/1,http://codes.iarc.fr/code/3907
+840,Gliosarcoma,9442/3,http://codes.iarc.fr/code/3909
+841,Chordoid glioma,9444/1,http://codes.iarc.fr/code/3911
+842,"Oligodendroglioma, NOS",9450/3,http://codes.iarc.fr/code/3912
+843,"Oligodendroglioma, anaplastic",9451/3,http://codes.iarc.fr/code/3913
+844,Oligodendroblastoma,9460/3,http://codes.iarc.fr/code/3914
+845,"Medulloblastoma, NOS",9470/3,http://codes.iarc.fr/code/3916
+846,Desmoplastic nodular medulloblastoma,9471/3,http://codes.iarc.fr/code/4675
+847,Medullomyoblastoma,9472/3,http://codes.iarc.fr/code/3917
+848,"Primitive neuroectodermal tumor, NOS",9473/3,http://codes.iarc.fr/code/4374
+849,Large cell medulloblastoma,9474/3,http://codes.iarc.fr/code/4676
+850,"Cerebellar sarcoma, NOS",9480/3,http://codes.iarc.fr/code/3919
+851,Ganglioneuroma,9490/0,http://codes.iarc.fr/code/3920
+852,Ganglioneuroblastoma,9490/3,http://codes.iarc.fr/code/3921
+853,Ganglioneuromatosis,9491/0,http://codes.iarc.fr/code/3922
+854,Gangliocytoma,9492/0,http://codes.iarc.fr/code/3923
+855,Dysplastic gangliocytoma of cerebellum (Lhermitte-Duclos),9493/0,http://codes.iarc.fr/code/3924
+856,"Neuroblastoma, NOS",9500/3,http://codes.iarc.fr/code/3927
+857,"Medulloepithelioma, benign",9501/0,http://codes.iarc.fr/code/3929
+858,"Medulloepithelioma, NOS",9501/3,http://codes.iarc.fr/code/3931
+859,"Teratoid medulloepithelioma, benign",9502/0,http://codes.iarc.fr/code/3932
+860,Teratoid medulloepithelioma,9502/3,http://codes.iarc.fr/code/3933
+861,"Neuroepithelioma, NOS",9503/3,http://codes.iarc.fr/code/3934
+862,Spongioneuroblastoma,9504/3,http://codes.iarc.fr/code/3935
+863,"Ganglioglioma, NOS",9505/1,http://codes.iarc.fr/code/3938
+864,"Ganglioglioma, anaplastic",9505/3,http://codes.iarc.fr/code/3939
+865,Central neurocytoma,9506/1,http://codes.iarc.fr/code/4677
+866,Pacinian tumor,9507/0,http://codes.iarc.fr/code/3940
+867,Atypical teratoid/rhabdoid tumor,9508/3,http://codes.iarc.fr/code/3941
+868,Retinocytoma,9510/0,http://codes.iarc.fr/code/3942
+869,"Retinoblastoma, NOS",9510/3,http://codes.iarc.fr/code/3943
+870,"Retinoblastoma, differentiated",9511/3,http://codes.iarc.fr/code/3944
+871,"Retinoblastoma, undifferentiated",9512/3,http://codes.iarc.fr/code/3945
+872,"Retinoblastoma, diffuse",9513/3,http://codes.iarc.fr/code/3946
+873,"Retinoblastoma, spontaneously regressed",9514/1,http://codes.iarc.fr/code/3947
+874,Olfactory neurogenic tumor,9520/3,http://codes.iarc.fr/code/3948
+875,Olfactory neurocytoma,9521/3,http://codes.iarc.fr/code/3950
+876,Olfactory neuroblastoma,9522/3,http://codes.iarc.fr/code/3952
+877,Olfactory neuroepithelioma,9523/3,http://codes.iarc.fr/code/3954
+878,"Meningioma, NOS",9530/0,http://codes.iarc.fr/code/4385
+879,"Meningiomatosis, NOS",9530/1,http://codes.iarc.fr/code/3957
+880,"Meningioma, malignant",9530/3,http://codes.iarc.fr/code/3962
+881,Meningothelial meningioma,9531/0,http://codes.iarc.fr/code/3965
+882,Fibrous meningioma,9532/0,http://codes.iarc.fr/code/3967
+883,Psammomatous meningioma,9533/0,http://codes.iarc.fr/code/3968
+884,Angiomatous meningioma,9534/0,http://codes.iarc.fr/code/3969
+885,Hemangioblastic meningioma,9535/0,http://codes.iarc.fr/code/3971
+886,Transitional meningioma,9537/0,http://codes.iarc.fr/code/3973
+887,Clear cell meningioma,9538/1,http://codes.iarc.fr/code/4387
+888,Papillary meningioma,9538/3,http://codes.iarc.fr/code/4389
+889,Atypical meningioma,9539/1,http://codes.iarc.fr/code/3974
+890,Meningeal sarcomatosis,9539/3,http://codes.iarc.fr/code/3975
+891,"Neurofibroma, NOS",9540/0,http://codes.iarc.fr/code/3976
+892,"Neurofibromatosis, NOS",9540/1,http://codes.iarc.fr/code/3980
+893,Malignant peripheral nerve sheath tumor,9540/3,http://codes.iarc.fr/code/4001
+894,Melanotic neurofibroma,9541/0,http://codes.iarc.fr/code/4002
+895,Plexiform neurofibroma,9550/0,http://codes.iarc.fr/code/4004
+896,"Neurilemoma, NOS",9560/0,http://codes.iarc.fr/code/4015
+897,Neurinomatosis,9560/1,http://codes.iarc.fr/code/4016
+898,"Neurilemoma, malignant",9560/3,http://codes.iarc.fr/code/4019
+899,Malignant peripheral nerve sheath tumor with rhabdomyoblastic differentiation,9561/3,http://codes.iarc.fr/code/4023
+900,Neurothekeoma,9562/0,http://codes.iarc.fr/code/4025
+901,"Neuroma, NOS",9570/0,http://codes.iarc.fr/code/4026
+902,"Perineurioma, NOS",9571/0,http://codes.iarc.fr/code/4029
+903,"Perineurioma, malignant",9571/3,http://codes.iarc.fr/code/4031
+904,"Granular cell tumor, NOS",9580/0,http://codes.iarc.fr/code/4033
+905,"Granular cell tumor, malignant",9580/3,http://codes.iarc.fr/code/4035
+906,Alveolar soft part sarcoma,9581/3,http://codes.iarc.fr/code/4036
+907,Granular cell tumor of the sellar region,9582/0,http://codes.iarc.fr/code/4037
+908,"Malignant lymphoma, NOS",9590/3,http://codes.iarc.fr/code/4040
+909,"Malignant lymphoma, non-Hodgkin, NOS",9591/3,http://codes.iarc.fr/code/4682
+910,Composite Hodgkin and non-Hodgkin lymphoma,9596/3,http://codes.iarc.fr/code/4683
+911,"Hodgkin lymphoma, NOS",9650/3,http://codes.iarc.fr/code/4044
+912,"Hodgkin lymphoma, lymphocyte-rich",9651/3,http://codes.iarc.fr/code/4049
+913,"Hodgkin lymphoma, mixed cellularity, NOS",9652/3,http://codes.iarc.fr/code/4051
+914,"Hodgkin lymphoma, lymphocyte depletion, NOS",9653/3,http://codes.iarc.fr/code/4053
+915,"Hodgkin lymphoma, lymphocyte depletion, diffuse fibrosis",9654/3,http://codes.iarc.fr/code/4399
+916,"Hodgkin lymphoma, lymphocyte depletion, reticular",9655/3,http://codes.iarc.fr/code/4401
+917,"Hodgkin lymphoma, nodular lymphocyte predominance",9659/3,http://codes.iarc.fr/code/4057
+918,Hodgkin granuloma,9661/3,http://codes.iarc.fr/code/4058
+919,Hodgkin sarcoma,9662/3,http://codes.iarc.fr/code/4059
+920,"Hodgkin lymphoma, nodular sclerosis, NOS",9663/3,http://codes.iarc.fr/code/4062
+921,"Hodgkin lymphoma, nodular sclerosis, cellular phase",9664/3,http://codes.iarc.fr/code/4403
+922,"Hodgkin lymphoma, nodular sclerosis, grade 1",9665/3,http://codes.iarc.fr/code/4407
+923,"Hodgkin lymphoma, nodular sclerosis, grade 2",9667/3,http://codes.iarc.fr/code/4411
+924,"Malignant lymphoma, small B lymphocytic, NOS",9670/3,http://codes.iarc.fr/code/4070
+925,"Malignant lymphoma, lymphoplasmacytic",9671/3,http://codes.iarc.fr/code/4075
+926,Mantle cell lymphoma,9673/3,http://codes.iarc.fr/code/4080
+927,"Malignant lymphoma, mixed small and large cell, diffuse",9675/3,http://codes.iarc.fr/code/4085
+928,Primary effusion lymphoma,9678/3,http://codes.iarc.fr/code/4086
+929,Mediastinal large B-cell lymphoma,9679/3,http://codes.iarc.fr/code/4088
+930,"Malignant lymphoma, large B-cell, diffuse, NOS",9680/3,http://codes.iarc.fr/code/4689
+931,"Malignant lymphoma, large B-cell, diffuse, immunoblastic, NOS",9684/3,http://codes.iarc.fr/code/4441
+932,"Burkitt lymphoma, NOS",9687/3,http://codes.iarc.fr/code/4093
+933,Splenic marginal zone B-cell lymphoma,9689/3,http://codes.iarc.fr/code/4096
+934,"Follicular lymphoma, NOS",9690/3,http://codes.iarc.fr/code/4103
+935,"Follicular lymphoma, grade 2",9691/3,http://codes.iarc.fr/code/4118
+936,"Follicular lymphoma, grade 1",9695/3,http://codes.iarc.fr/code/4122
+937,"Follicular lymphoma, grade 3",9698/3,http://codes.iarc.fr/code/4691
+938,"Marginal zone B-cell lymphoma, NOS",9699/3,http://codes.iarc.fr/code/4113
+939,Mycosis fungoides,9700/3,http://codes.iarc.fr/code/4132
+940,Sezary syndrome,9701/3,http://codes.iarc.fr/code/4134
+941,"Mature T-cell lymphoma, NOS",9702/3,http://codes.iarc.fr/code/4692
+942,Angioimmunoblastic T-cell lymphoma,9705/3,http://codes.iarc.fr/code/4137
+943,Subcutaneous panniculitis-like T-cell lymphoma,9708/3,http://codes.iarc.fr/code/4138
+944,"Cutaneous T-cell lymphoma, NOS",9709/3,http://codes.iarc.fr/code/4694
+945,"Anaplastic large cell lymphoma, T cell and Null cell type",9714/3,http://codes.iarc.fr/code/4695
+946,Hepatosplenic (gamma-delta) cell lymphoma,9716/3,http://codes.iarc.fr/code/4696
+947,Intestinal T-cell lymphoma,9717/3,http://codes.iarc.fr/code/4144
+948,Primary cutaneous CD30+ T-cell lymphoproliferative disorder,9718/3,http://codes.iarc.fr/code/4459
+949,"NK/T-cell lymphoma, nasal and nasal-type",9719/3,http://codes.iarc.fr/code/4697
+950,"Precursor cell lymphoblastic lymphoma, NOS",9727/3,http://codes.iarc.fr/code/4702
+951,Precursor B-cell lymphoblastic lymphoma,9728/3,http://codes.iarc.fr/code/4464
+952,Precursor T-cell lymphoblastic lymphoma,9729/3,http://codes.iarc.fr/code/4465
+953,"Plasmacytoma, NOS",9731/3,http://codes.iarc.fr/code/4155
+954,Multiple myeloma,9732/3,http://codes.iarc.fr/code/4159
+955,Plasma cell leukemia,9733/3,http://codes.iarc.fr/code/4161
+956,"Plasmacytoma, extramedullary (not occurring in bone)",9734/3,http://codes.iarc.fr/code/4703
+957,"Mastocytoma, NOS",9740/1,http://codes.iarc.fr/code/4710
+958,Mast cell sarcoma,9740/3,http://codes.iarc.fr/code/4165
+959,Malignant mastocytosis,9741/3,http://codes.iarc.fr/code/4714
+960,Mast cell leukemia,9742/3,http://codes.iarc.fr/code/4168
+961,Malignant histiocytosis,9750/3,http://codes.iarc.fr/code/4469
+962,"Langerhans cell histiocytosis, NOS",9751/1,http://codes.iarc.fr/code/4472
+963,"Langerhans cell histiocytosis, unifocal",9752/1,http://codes.iarc.fr/code/4476
+964,"Langerhans cell histiocytosis, multifocal",9753/1,http://codes.iarc.fr/code/4479
+965,"Langerhans cell histiocytosis, disseminated",9754/3,http://codes.iarc.fr/code/4484
+966,Histiocytic sarcoma,9755/3,http://codes.iarc.fr/code/4486
+967,Langerhans cell sarcoma,9756/3,http://codes.iarc.fr/code/4169
+968,Interdigitating dendritic cell sarcoma,9757/3,http://codes.iarc.fr/code/4715
+969,Follicular dendritic cell sarcoma,9758/3,http://codes.iarc.fr/code/4171
+970,"Immunoproliferative disease, NOS",9760/3,http://codes.iarc.fr/code/4172
+971,Waldenstrom macroglobulinemia,9761/3,http://codes.iarc.fr/code/4173
+972,"Heavy chain disease, NOS",9762/3,http://codes.iarc.fr/code/4494
+973,Immunoproliferative small intestinal disease,9764/3,http://codes.iarc.fr/code/4175
+974,Monoclonal gammopathy of undetermined significance,9765/1,http://codes.iarc.fr/code/4178
+975,Angiocentric immunoproliferative lesion,9766/1,http://codes.iarc.fr/code/4180
+976,Angioimmunoblastic lymphadenopathy (AIC),9767/1,http://codes.iarc.fr/code/4181
+977,T-gamma lymphoproliferative disease,9768/1,http://codes.iarc.fr/code/4182
+978,Immunoglobulin deposition disease,9769/1,http://codes.iarc.fr/code/4185
+979,"Leukemia, NOS",9800/3,http://codes.iarc.fr/code/4498
+980,"Acute leukemia, NOS",9801/3,http://codes.iarc.fr/code/4189
+981,Acute biphenotypic leukemia,9805/3,http://codes.iarc.fr/code/4501
+982,"Lymphoid leukemia, NOS",9820/3,http://codes.iarc.fr/code/4511
+983,B-cell chronic lymphocytic leukemia/small lymphocytic lymphoma,9823/3,http://codes.iarc.fr/code/4194
+984,Burkitt cell leukemia,9826/3,http://codes.iarc.fr/code/4517
+985,Adult T-cell leukemia/lymphoma (HTLV-1 positive),9827/3,http://codes.iarc.fr/code/4198
+986,T-cell large granular lymphocytic leukemia,9831/3,http://codes.iarc.fr/code/4518
+987,"Prolymphocytic leukemia, NOS",9832/3,http://codes.iarc.fr/code/4199
+988,"Prolymphocytic leukemia, B-cell type",9833/3,http://codes.iarc.fr/code/4200
+989,"Prolymphocytic leukemia, T-cell type",9834/3,http://codes.iarc.fr/code/4201
+990,"Precursor cell lymphoblastic leukemia, NOS",9835/3,http://codes.iarc.fr/code/4213
+991,Precursor B-cell lymphoblastic leukemia,9836/3,http://codes.iarc.fr/code/4528
+992,Precursor T-cell lymphoblastic leukemia,9837/3,http://codes.iarc.fr/code/4730
+993,"Acute myeloid leukemia, M6 type",9840/3,http://codes.iarc.fr/code/4224
+994,"Myeloid leukemia, NOS",9860/3,http://codes.iarc.fr/code/4550
+995,"Acute myeloid leukemia, NOS",9861/3,http://codes.iarc.fr/code/4732
+996,"Chronic myeloid leukemia, NOS",9863/3,http://codes.iarc.fr/code/4559
+997,Acute promyelocytic leukemia,9866/3,http://codes.iarc.fr/code/4230
+998,Acute myelomonocytic leukemia,9867/3,http://codes.iarc.fr/code/4233
+999,Acute basophilic leukemia,9870/3,http://codes.iarc.fr/code/4234
+1000,Acute myeloid leukemia with abnormal marrow eosinophils,9871/3,http://codes.iarc.fr/code/4240
+1001,"Acute myeloid leukemia, minimal differentiation",9872/3,http://codes.iarc.fr/code/4243
+1002,Acute myeloid leukemia without maturation,9873/3,http://codes.iarc.fr/code/4245
+1003,Acute myeloid leukemia with maturation,9874/3,http://codes.iarc.fr/code/4247
+1004,"Chronic myelogenous leukemia, BCR/ABL positive",9875/3,http://codes.iarc.fr/code/4253
+1005,"Atypical chronic myeloid leukemia, BCR/ABL negative",9876/3,http://codes.iarc.fr/code/4560
+1006,Acute monocytic leukemia,9891/3,http://codes.iarc.fr/code/4735
+1007,Acute myeloid leukemia with multilineage dysplasia,9895/3,http://codes.iarc.fr/code/4736
+1008,"Acute myeloid leukemia, t(8",9896/3,http://codes.iarc.fr/code/4737
+1009,"Acute myeloid leukemia, 11q23 abnormalities",9897/3,http://codes.iarc.fr/code/4738
+1010,Acute megakaryoblastic leukemia,9910/3,http://codes.iarc.fr/code/4269
+1011,"Therapy-related acute myeloid leukemia, NOS",9920/3,http://codes.iarc.fr/code/4742
+1012,Myeloid sarcoma,9930/3,http://codes.iarc.fr/code/4272
+1013,Acute panmyelosis with myelofibrosis,9931/3,http://codes.iarc.fr/code/4277
+1014,Hairy cell leukemia,9940/3,http://codes.iarc.fr/code/4280
+1015,"Chronic myelomonocytic leukemia, NOS",9945/3,http://codes.iarc.fr/code/4567
+1016,Juvenile myelomonocytic leukemia,9946/3,http://codes.iarc.fr/code/4282
+1017,Aggressive NK-cell leukemia,9948/3,http://codes.iarc.fr/code/4283
+1018,Polycythemia vera,9950/3,http://codes.iarc.fr/code/4287
+1019,"Chronic myeloproliferative disease, NOS",9960/3,http://codes.iarc.fr/code/4743
+1020,Myelosclerosis with myeloid metaplasia,9961/3,http://codes.iarc.fr/code/4744
+1021,Essential thrombocythemia,9962/3,http://codes.iarc.fr/code/4299
+1022,Chronic neutrophilic leukemia,9963/3,http://codes.iarc.fr/code/4300
+1023,Hypereosinophilic syndrome,9964/3,http://codes.iarc.fr/code/4302
+1024,"Lymphoproliferative disorder, NOS",9970/1,http://codes.iarc.fr/code/4304
+1025,"Myeloproliferative disease, NOS",9975/1,
+1026,Refractory anemia,9980/3,http://codes.iarc.fr/code/4307
+1027,Refractory anemia with sideroblasts,9982/3,http://codes.iarc.fr/code/4753
+1028,Refractory anemia with excess blasts,9983/3,http://codes.iarc.fr/code/4311
+1029,Refractory anemia with excess blasts in transformation,9984/3,http://codes.iarc.fr/code/4313
+1030,Refractory cytopenia with multilineage dysplasia,9985/3,http://codes.iarc.fr/code/4754
+1031,Myelodysplastic syndrome with 5q deletion (5q-) syndrome,9986/3,http://codes.iarc.fr/code/4755
+1032,"Therapy-related myelodysplastic syndrome, NOS",9987/3,http://codes.iarc.fr/code/4318
+1033,"Myelodysplastic syndrome, NOS",9989/3,http://codes.iarc.fr/code/4756

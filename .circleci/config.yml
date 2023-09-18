@@ -31,6 +31,11 @@ jobs:
     steps:
     - checkout
 
+    - run:
+        name: make sure we have all tags
+        command: |
+          git fetch --all --tags
+
     # Download and cache dependencies
     - restore_cache:
         keys:
@@ -87,7 +92,7 @@ jobs:
     - run:
         name: build and test java
         command: |
-          ./gradlew shadowJar --no-daemon
+          ./gradlew test --no-daemon
 
     - run:
         name: test e2e
@@ -104,12 +109,12 @@ jobs:
         name: release, push docker, push python
         command: |
           if [ "${CIRCLE_BRANCH}" = "master" ]; then
-            ./gradlew -s test jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release publishPython \
+            ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release publishPython \
             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
           else
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            ./gradlew -s test jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release publishPython \
+            ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release publishPython \
             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
             -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
