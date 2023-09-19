@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class RunMolgenisEmx2 {
 
-  public static final String CATALOGUE_DEMO = "catalogue-demo";
+  public static final String CATALOGUE_DEMO = "catalogue_demo";
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
 
   public static final boolean INCLUDE_CATALOGUE_DEMO =

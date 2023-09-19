@@ -377,8 +377,8 @@ public class MetadataUtils {
   }
 
   private static Map<String, String> stripDefaultLabels(Map<String, String> labels, String name) {
-    if (labels.size() == 1 && convertToTitleCase(name).equals(labels.get("en"))) {
-      labels = new TreeMap<>();
+    if (labels.get("en") == null && convertToTitleCase(name).equals(labels.get("en"))) {
+      labels.remove("en");
     }
     return labels;
   }

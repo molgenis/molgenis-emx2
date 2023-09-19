@@ -45,7 +45,7 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   private String validateSchemaName(String name) {
     if (name == null || name.isEmpty())
       throw new MolgenisException("Create schema failed: Schema name was null or empty");
-    if (!name.matches("[a-zA-Z_-][a-zA-Z0-9_-]*")) {
+    if (!name.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
       throw new MolgenisException("Invalid schema name '" + name + SCHEMA_NAME_MESSAGE);
     }
     if (name.equalsIgnoreCase(OIDC_LOGIN_PATH) || name.equalsIgnoreCase(OIDC_CALLBACK_PATH))

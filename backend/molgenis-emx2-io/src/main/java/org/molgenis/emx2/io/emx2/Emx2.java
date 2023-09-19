@@ -206,7 +206,8 @@ public class Emx2 {
     List<Row> result = new ArrayList<>();
     for (TableMetadata t : tables) {
       Map<String, String> labels = t.getLabels();
-      if (labels.size() == 1 && labels.get("en").equals(convertToTitleCase(t.getTableName()))) {
+      if (labels.get("en") != null
+          && labels.get("en").equals(convertToTitleCase(t.getTableName()))) {
         labels = new TreeMap<>();
       }
       Row row = new Row();
@@ -248,7 +249,7 @@ public class Emx2 {
     for (Column c : columns) {
       if (!c.getName().startsWith("mg_")) {
         Map<String, String> labels = c.getLabels();
-        if (labels.size() == 1 && labels.get("en").equals(convertToTitleCase(c.getName()))) {
+        if (labels.get("en") != null && labels.get("en").equals(convertToTitleCase(c.getName()))) {
           labels = new TreeMap<>();
         }
         Row row = new Row();
