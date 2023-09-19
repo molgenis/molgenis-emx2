@@ -97,7 +97,7 @@ export default {
     sections() {
       const comparePosition = (a, b) => a.position < b.position;
       const isHeading = (meta) => meta.columnType === "HEADING";
-      const isNonSystemField = (meta) => !meta.id.startsWith("mg_");
+      const isNonSystemField = (meta) => !meta.name.startsWith("mg_");
 
       return this.tableMetadata.columns
         .filter(isNonSystemField)
@@ -112,7 +112,7 @@ export default {
             }
             accum.at(-1).fields.push({
               meta: { ...item, primaryTableKey: this.primaryTableKey },
-              value: this.resourceData[item.id],
+              value: this.resourceData[item.name],
             });
           }
           return accum;
