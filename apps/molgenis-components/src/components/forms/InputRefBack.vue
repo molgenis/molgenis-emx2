@@ -251,7 +251,7 @@ export default {
           tableName="Order"
           refBack="pet"
           :refTablePrimaryKeyObject=null
-          schemaName="pet store"
+          schemaName="petStore"
       />
     </div>
 
@@ -265,7 +265,7 @@ export default {
           tableName="Order"
           refBack="pet"
           :refTablePrimaryKeyObject="{name:'spike'}"
-          schemaName="pet store"
+          schemaName="petStore"
       />
     </div>
 
@@ -278,7 +278,7 @@ export default {
           tableName="Order"
           refBack="pet"
           :refTablePrimaryKeyObject="{name:'spike'}"
-          schemaName="pet store"
+          schemaName="petStore"
       />
     </div>
   </div>

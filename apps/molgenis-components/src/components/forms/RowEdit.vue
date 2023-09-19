@@ -304,7 +304,7 @@ export default {
         },
         schemaMetadata: {},
         rowData: {},
-        schemaName: 'pet store',
+        schemaName: 'petStore',
       };
     },
     watch: {

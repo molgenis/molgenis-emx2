@@ -11,7 +11,7 @@ describe("columnNames", () => {
   test("it should return the pet columns expanded, children are not expanded, expect primary keys", () => {
     const expectedResult =
       " name category { name } tags { name } weight orders { orderId }";
-    const result = columnNames("pet`store", "Pet", metaData, EXPAND_ONE);
+    const result = columnNames("petStore", "Pet", metaData, EXPAND_ONE);
     assert.equal(result, expectedResult);
   });
   //expand 2
@@ -54,7 +54,7 @@ const metaData: ISchemaMetaData = {
       name: "Category",
       tableType: "DATA",
       id: "Category",
-      externalSchema: "pet store",
+      externalSchema: "petStore",
       columns: [
         {
           name: "name",
@@ -68,7 +68,7 @@ const metaData: ISchemaMetaData = {
       name: "Order",
       tableType: "DATA",
       id: "Order",
-      externalSchema: "pet store",
+      externalSchema: "petStore",
       columns: [
         {
           name: "orderId",
@@ -95,7 +95,7 @@ const metaData: ISchemaMetaData = {
           value: "My pet store example table",
         },
       ],
-      externalSchema: "pet store",
+      externalSchema: "petStore",
       columns: [
         {
           name: "name",
@@ -144,11 +144,10 @@ const metaData: ISchemaMetaData = {
     {
       name: "Tag",
       tableType: "ONTOLOGIES",
-      externalSchema: "pet store",
+      externalSchema: "petStore",
       columns: [
         {
           name: "order",
-          id: "order",
           columnType: "INT",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C42680"],
           descriptions: [
@@ -160,7 +159,6 @@ const metaData: ISchemaMetaData = {
         },
         {
           name: "name",
-          id: "name",
           columnType: "STRING",
           key: 1,
           required: true,
@@ -175,7 +173,6 @@ const metaData: ISchemaMetaData = {
         },
         {
           name: "label",
-          id: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
           descriptions: [
@@ -189,7 +186,6 @@ const metaData: ISchemaMetaData = {
         },
         {
           name: "parent",
-          id: "parent",
           columnType: "REF",
           refTable: "Tag",
           refLabelDefault: "${name}",
@@ -205,7 +201,6 @@ const metaData: ISchemaMetaData = {
 
         {
           name: "children",
-          id: "children",
           columnType: "REFBACK",
           refTable: "Tag",
           refLabelDefault: "${name}",
@@ -225,12 +220,10 @@ const metaData: ISchemaMetaData = {
     {
       name: "User",
       tableType: "DATA",
-      id: "User",
-      externalSchema: "pet store",
+      externalSchema: "petStore",
       columns: [
         {
           name: "username",
-          id: "username",
           columnType: "STRING",
           key: 1,
           required: true,
@@ -243,19 +236,16 @@ const metaData: ISchemaMetaData = {
         },
         {
           name: "lastName",
-          id: "lastName",
           columnType: "STRING",
           position: 2,
         },
         {
           name: "picture",
-          id: "picture",
           columnType: "FILE",
           position: 3,
         },
         {
           name: "pets",
-          id: "pets",
           columnType: "REF_ARRAY",
           refTable: "Pet",
           refLabelDefault: "${name}",

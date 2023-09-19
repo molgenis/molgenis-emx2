@@ -115,7 +115,7 @@ export default {
           id : "3955978b18024de4bad8fcf8e2d49b59",
           size : 107,
           extension : "csv",
-          url : "/pet store/api/file/User/picture/3955978b18024de4bad8fcf8e2d49b59"
+          url : "/petStore/api/file/User/picture/3955978b18024de4bad8fcf8e2d49b59"
         }
       };
     }

@@ -142,6 +142,6 @@ function errorHandler(error: AxiosError) {
 <script setup lang="ts">
 import { ref } from "vue";
 let showModal = ref(false);
-const column = { refTable: "Pet", name: "orders", refSchema: "pet store" };
+const column = { refTable: "Pet", name: "orders", refSchema: "petStore" };
 </script>
 </docs>

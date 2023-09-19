@@ -82,7 +82,7 @@ export default {
     logo: String,
     /** session information, so we can check role permissions */
     session: Object,
-    /** prefix for relative href. Will default to schema name, i.e. first directory in path, e.g. "/pet store/ */
+    /** prefix for relative href. Will default to schema name, i.e. first directory in path, e.g. "/petStore/ */
     baseURL: {
       type: String,
       default: () => {

@@ -232,14 +232,14 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
     <label>AggregateTable</label>
     <AggregateTable
       tableName="Pet"
-      schemaName="pet store"
+      schemaName="petStore"
       :allColumns="allColumns"
       :minimumValue="1"
     />
     <label>AggregateTable with filters set</label>
     <AggregateTable
       tableName="Pet"
-      schemaName="pet store"
+      schemaName="petStore"
       :allColumns="allColumns"
       :minimumValue="1"
       :graphqlFilter="graphqlFilter"

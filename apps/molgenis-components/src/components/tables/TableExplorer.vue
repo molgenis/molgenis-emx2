@@ -676,7 +676,7 @@ export default {
     onColumnClick(column) {
       const oldOrderByColumn = this.orderByColumn;
       let order = this.order;
-      if (oldOrderByColumn !== column.id) {
+      if (oldOrderByColumn !== column.name) {
         order = "ASC";
       } else if (order === "ASC") {
         order = "DESC";
@@ -684,10 +684,10 @@ export default {
         order = "ASC";
       }
       this.order = order;
-      this.orderByColumn = column.id;
+      this.orderByColumn = column.name;
       this.$emit("updateShowOrder", {
         direction: order,
-        column: column.id,
+        column: column.name,
       });
       this.reload();
     },
@@ -908,7 +908,7 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
       <table-explorer
         id="my-table-explorer"
         tableName="Pet"
-        schemaName="pet store"
+        schemaName="petStore"
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"

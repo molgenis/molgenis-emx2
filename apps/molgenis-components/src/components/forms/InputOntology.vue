@@ -577,7 +577,7 @@ export default {
           description="please choose your options in tree below"
           v-model="value3"
           tableName="Tag"
-          schemaName="pet store"
+          schemaName="petStore"
       />
       <div>You selected: {{ value3 }}</div>
     </demo-item>
@@ -591,7 +591,7 @@ export default {
           v-model="value4"
           :isMultiSelect="true"
           tableName="Tag"
-          schemaName="pet store"
+          schemaName="petStore"
       />
       <div>You selected: {{ value4 }}</div>
     </demo-item>

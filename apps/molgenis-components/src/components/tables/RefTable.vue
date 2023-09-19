@@ -122,7 +122,7 @@ function metadataOfCell(key: string | number): IColumn {
   const metadata = reference.value.metadata;
   if (isMetadata(metadata) && metadata.columns) {
     return (
-      metadata.columns.find((column) => column.id === key) || ({} as IColumn)
+      metadata.columns.find((column) => column.name === key) || ({} as IColumn)
     );
   } else {
     throw "Error: Metadata for RefTable not found";
@@ -138,7 +138,7 @@ function isMetadata(
 function onCellClick(cellName: string): void {
   const refTableRow: IRow = reference.value;
   const refColumn = refTableRow.metadata.columns?.find((column: IColumn) => {
-    return column.id === cellName;
+    return column.name === cellName;
   });
 
   if (refColumn && isRefType(refColumn.columnType)) {

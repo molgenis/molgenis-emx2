@@ -67,10 +67,10 @@ export default {
   <demo-item>
     <div class="row">
       <div class="col-4">
-        <FilterSidebar :filters="filters" schemaName="pet store" @updateFilters="onUpdate"/>
+        <FilterSidebar :filters="filters" schemaName="petStore" @updateFilters="onUpdate"/>
       </div>
       <div class="col-8">
-        <FilterWells :filters="filters" schemaName="pet store" @updateFilters="onUpdate"/>
+        <FilterWells :filters="filters" schemaName="petStore" @updateFilters="onUpdate"/>
         <pre>{{ filters }}</pre>
       </div>
     </div>

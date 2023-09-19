@@ -221,7 +221,7 @@ export default {
         v-model:selection="selected"
         v-model:columns="columns"
         :lookupTableName="'Pet'"
-        schemaName="pet store"
+        schemaName="petStore"
         :canEdit="canEdit"
         :showSelect="canSelect"
     >

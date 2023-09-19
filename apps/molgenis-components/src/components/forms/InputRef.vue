@@ -190,7 +190,7 @@ export default {
         v-model="value"
         tableName="Pet"
         description="Standard input"
-        schemaName="pet store"
+        schemaName="petStore"
         :canEdit="canEdit"
       />
       Selection: {{ value }}
@@ -203,7 +203,7 @@ export default {
         tableName="Pet"
         description="This is a default value"
         :defaultValue="defaultValue"
-        schemaName="pet store"
+        schemaName="petStore"
         :canEdit="canEdit"
       />
       Selection: {{ defaultValue }}
@@ -216,7 +216,7 @@ export default {
         tableName="Pet"
         description="Filter by name"
         :filter="{ category: { name: { equals: 'cat' } } }"
-        schemaName="pet store"
+        schemaName="petStore"
         :canEdit="canEdit"
       />
       Selection: {{ filterValue }}
@@ -230,7 +230,7 @@ export default {
         v-model="multiColumnValue"
         tableName="Pet"
         description="This is a multi column input"
-        schemaName="pet store"
+        schemaName="petStore"
         multipleColumns
         :itemsPerColumn="3"
         :canEdit="canEdit"

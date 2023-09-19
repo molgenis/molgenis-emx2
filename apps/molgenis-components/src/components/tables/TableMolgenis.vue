@@ -164,7 +164,7 @@ export default {
         v-model:columns="columns"
         :data="remoteTableData"
         tableName="Pet"
-        schemaName="pet store"
+        schemaName="petStore"
         :showSelect="canSelect"
       />
     </DemoItem>
@@ -173,7 +173,7 @@ export default {
       <table-molgenis
           :data="[]"
           tableName="Pet"
-          schemaName="pet store"
+          schemaName="petStore"
           v-model:columns="columns"
       />
     </DemoItem>
@@ -182,7 +182,7 @@ export default {
       <table-molgenis
           :data="[]"
           tableName="Pet"
-          schemaName="pet store"
+          schemaName="petStore"
       />
     </DemoItem>
   </div>
@@ -201,7 +201,7 @@ export default {
     };
   },
   async mounted() {
-    const client = Client.newClient("pet store");
+    const client = Client.newClient("petStore");
     const metaData = await client.fetchSchemaMetaData();
     const petColumns = metaData.tables.find(
       (t) => t.name === "Pet"

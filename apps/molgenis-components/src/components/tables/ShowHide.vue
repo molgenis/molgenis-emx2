@@ -146,7 +146,7 @@ export default {
     },
   },
   mounted: async function () {
-    const client = this.$Client.newClient("pet store");
+    const client = this.$Client.newClient("petStore");
     const tableMetaData = await client.fetchTableMetaData("Pet");
     this.columns = tableMetaData.columns;
   },

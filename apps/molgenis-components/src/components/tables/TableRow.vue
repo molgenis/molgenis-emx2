@@ -85,7 +85,7 @@ export default {
       this.$emit("column-click", column);
     },
     onCellClick(column) {
-      const value = this.row[column.id];
+      const value = this.row[column.name];
       if (value) {
         this.$emit("cellClick", {
           cellValue: deepClone(value),
