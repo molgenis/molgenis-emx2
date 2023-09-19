@@ -168,7 +168,6 @@ _schema {
       value
     },
     tableType,
-    id,
     descriptions {
       locale,
       value
@@ -181,7 +180,6 @@ _schema {
         locale,
         value
       },
-      id,
       columnType,
       key,
       refTable,

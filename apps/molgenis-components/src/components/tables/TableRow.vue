@@ -34,7 +34,7 @@
       "
       :class="{ refType: isRefType(col.columnType) }"
     >
-      <data-display-cell :data="row[col.id]" :metaData="col" />
+      <data-display-cell :data="row[col.name]" :metaData="col" />
     </td>
   </tr>
 </template>

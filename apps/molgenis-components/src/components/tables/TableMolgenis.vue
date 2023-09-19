@@ -15,13 +15,14 @@
           class="column-drag-header"
           :style="col.showColumn ? '' : 'display: none'"
         >
-          <h6
+          <h6yarn
+            dev
             class="mb-0 align-text-bottom text-nowrap"
             @click="onColumnClick(col)"
           >
-            {{ col.name }}
+            {{ getLocalizedLabel(col, locale) }}
             <slot name="colheader" :col="col" />
-          </h6>
+          </h6yarn>
         </th>
       </thead>
 
@@ -79,6 +80,7 @@ th {
 <script>
 import Client from "../../client/client";
 import TableRow from "./TableRow.vue";
+import { getLocalizedLabel } from "../utils";
 import { toRaw } from "vue";
 
 export default {
@@ -95,6 +97,7 @@ export default {
     data: { type: Array, default: () => [] },
     showSelect: { type: Boolean, default: false },
     schemaName: { type: String, required: true },
+    locale: { type: String, default: "en" },
   },
   data() {
     return {
@@ -138,6 +141,9 @@ export default {
         .findIndex((selectionItem) => selectionItem === sortedRowKeyAsString);
       this.$emit("deselect", rowKey);
       this.$emit("update:selection", this.selection.toSpliced(deleteIndex, 1));
+    },
+    getLocalizedLabel(column) {
+      return getLocalizedLabel(column, this.locale);
     },
   },
 };
