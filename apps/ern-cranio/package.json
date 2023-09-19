@@ -7,7 +7,8 @@
     "build": "vite build",
     "serve": "vite preview",
     "format": "prettier src  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js",
+    "compress": "imageoptim public/**/**"
   },
   "dependencies": {
     "@heroicons/vue": "^2.0.18",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
+    "imageoptim-cli": "^3.1.7",
     "prettier": "2.8.8",
     "vite": "4.3.9"
   },
