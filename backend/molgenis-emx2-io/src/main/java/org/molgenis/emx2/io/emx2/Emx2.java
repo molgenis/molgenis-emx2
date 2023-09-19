@@ -3,6 +3,7 @@ package org.molgenis.emx2.io.emx2;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.utils.TypeUtils.convertToTitleCase;
 
 import java.util.*;
 import org.molgenis.emx2.*;
@@ -204,7 +205,10 @@ public class Emx2 {
 
     List<Row> result = new ArrayList<>();
     for (TableMetadata t : tables) {
-
+      Map<String, String> labels = t.getLabels();
+      if (labels.size() == 1 && labels.get("en").equals(convertToTitleCase(t.getTableName()))) {
+        labels = new TreeMap<>();
+      }
       Row row = new Row();
       // set null columns to ensure sensible order
       row.setString(TABLE_NAME, t.getTableName());
@@ -222,7 +226,7 @@ public class Emx2 {
       row.setString(VISIBLE, null);
       row.setString(COMPUTED, null);
       if (t.getSemantics() != null) row.setStringArray(SEMANTICS, t.getSemantics());
-      for (Map.Entry<String, String> entry : t.getLabels().entrySet()) {
+      for (Map.Entry<String, String> entry : labels.entrySet()) {
         if (entry.getKey().equals("en")) {
           row.set(LABEL, entry.getValue());
         } else {
@@ -243,6 +247,10 @@ public class Emx2 {
     // output the columns
     for (Column c : columns) {
       if (!c.getName().startsWith("mg_")) {
+        Map<String, String> labels = c.getLabels();
+        if (labels.size() == 1 && labels.get("en").equals(convertToTitleCase(c.getName()))) {
+          labels = new TreeMap<>();
+        }
         Row row = new Row();
         row.setString(TABLE_NAME, c.getTableName());
         row.setString(COLUMN_NAME, c.getName());
@@ -267,7 +275,7 @@ public class Emx2 {
         if (c.getComputed() != null) row.set(COMPUTED, c.getComputed());
         if (c.getVisible() != null) row.set(VISIBLE, c.getVisible());
         if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
-        for (Map.Entry<String, String> label : c.getLabels().entrySet()) {
+        for (Map.Entry<String, String> label : labels.entrySet()) {
           if (label.getKey().equals("en")) {
             row.set(LABEL, label.getValue());
           } else {
