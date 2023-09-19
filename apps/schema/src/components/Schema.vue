@@ -227,7 +227,6 @@ export default {
               }
               semantics
               columns {
-                id
                 name
                 labels {
                   locale
