@@ -36,8 +36,8 @@
 
 <script>
 import ChartLegend from "./ChartLegend.vue";
-import { select, selectAll, scaleOrdinal, pie, arc, schemeBlues } from "d3";
-const d3 = { select, selectAll, scaleOrdinal, pie, arc, schemeBlues };
+import { select, selectAll, scaleOrdinal, pie, arc, schemeBlues, sort } from "d3";
+const d3 = { select, selectAll, scaleOrdinal, pie, arc, schemeBlues, sort };
 
 import { validateNumRange } from "../../utils/utils.js";
 
@@ -281,7 +281,7 @@ export default {
         const autoColors = {};
         const length = Object.keys(this.chartData).length;
         const palette = d3.scaleOrdinal(d3.schemeBlues[length]);
-        Object.keys(this.chartData).forEach((key, index) => {
+        Object.keys(this.chartData).sort().forEach((key, index) => {
           autoColors[key] = palette(index);
         });
         return autoColors;
