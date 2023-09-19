@@ -23,13 +23,14 @@ You can describe basic columns using:
 
 ### tableName
 
-Will be the name of the table. Must start with one of a-zAZ followed by zero or more of \_a-zAZ1-3. Maximum length 31 characters. If you leave columnName empty
-then all other settings will apply to the table instead of the column.
+Will be the name of the table. Must start with one of a-zAZ followed by zero or more of a-zA-Z0-9_. Maximum length 31 characters. If you leave columnName empty
+then all other settings will apply to the table instead of the column. N.B. in the user interface a user friendly label is generated converting 'camelCase' into 'Sentence case'. E.g.
+'variableMappings' becomes 'Variable mappings' and 'VCFtools' becomes 'VCF tools'.
 
 ### columnName
 
-Will be the name of the column. Must be unique per tableName. Must start with one of a-zAZ followed by zero or more of \_ a-zAZ1-3. Maximum length 31
-characters. Default value: empty
+Will be the name of the column. Must be unique per tableName. Must start with one of a-zA-Z followed by zero or more of a-zA-Z0-9_. Maximum length 31
+characters. Default value: empty. Also columnName will be shown in user interface using friendly Sentence case, see tableName.
 
 ### columnType
 
