@@ -35,11 +35,11 @@
             <div
               v-else-if="
                 'REF' === col.columnType ||
-                ('REFBACK' === col.columnType && !Array.isArray(row[col.id]))
+                ('REFBACK' === col.columnType && !Array.isArray(row[col.name]))
               "
             >
               <RouterLink
-                v-if="row[col.id]"
+                v-if="row[col.name]"
                 :to="{
                   name: col.refTable + '-details',
                   params: routeParams(col, row[col.name]),
@@ -154,7 +154,7 @@ export default {
       this.$emit("click", value);
     },
     renderValue(row, col) {
-      if (row[col.id] === undefined) {
+      if (row[col.name] === undefined) {
         return [];
       }
       if (
@@ -162,7 +162,7 @@ export default {
         col.columnType == "REFBACK" ||
         col.columnType == "ONTOLOGY_ARRAY"
       ) {
-        return row[col.id].map((v) => {
+        return row[col.name].map((v) => {
           if (col.name === "tables") {
             //hack, ideally we start setting refLabel in configuration!
             return v.name;
@@ -174,14 +174,14 @@ export default {
         });
       } else if (col.columnType == "REF" || col.columnType == "ONTOLOGY") {
         if (col.refLabel) {
-          return [applyJsTemplate(row[col.id], col.refLabel)];
+          return [applyJsTemplate(row[col.name], col.refLabel)];
         } else {
-          return [flattenObject(row[col.id])];
+          return [flattenObject(row[col.name])];
         }
       } else if (col.columnType.includes("ARRAY")) {
-        return row[col.id];
+        return row[col.name];
       } else {
-        return [row[col.id]];
+        return [row[col.name]];
       }
     },
   },

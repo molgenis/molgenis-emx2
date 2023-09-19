@@ -288,7 +288,7 @@
             </template>
             <template v-slot:colheader="slotProps">
               <IconAction
-                v-if="slotProps.col && orderByColumn === slotProps.col.id"
+                v-if="slotProps.col && orderByColumn === slotProps.col.name"
                 :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
                 class="d-inline p-0"
               />
@@ -845,14 +845,14 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
           col.columnType.startsWith("STRING") ||
           col.columnType.startsWith("TEXT")
         ) {
-          filter[col.id] = { like: conditions };
+          filter[col.name] = { like: conditions };
         } else if (col.columnType.startsWith("BOOL")) {
-          filter[col.id] = { equals: conditions };
+          filter[col.name] = { equals: conditions };
         } else if (
           col.columnType.startsWith("REF") ||
           col.columnType.startsWith("ONTOLOGY")
         ) {
-          filter[col.id] = { equals: conditions };
+          filter[col.name] = { equals: conditions };
         } else if (
           [
             "LONG",
@@ -867,7 +867,7 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
             "DATETIME_ARRAY",
           ].includes(col.columnType)
         ) {
-          filter[col.id] = {
+          filter[col.name] = {
             between: conditions.flat(),
           };
         } else {

@@ -3,7 +3,7 @@
     <FilterContainer
       v-for="(filter, index) in visibleFilters"
       :key="filter.name"
-      :title="filter.name"
+      :title="getLocalizedLabel(filter)"
       :conditions="filter.conditions"
     >
       <FilterInput
@@ -28,6 +28,7 @@
 <script>
 import FilterContainer from "./FilterContainer.vue";
 import FilterInput from "./FilterInput.vue";
+import { getLocalizedLabel } from "../utils";
 
 export default {
   name: "FilterSidebar",
@@ -44,6 +45,10 @@ export default {
       type: String,
       required: false,
     },
+    locale: {
+      type: String,
+      default: "en",
+    },
   },
   computed: {
     visibleFilters() {
@@ -57,6 +62,9 @@ export default {
       let newFilters = [...this.visibleFilters];
       newFilters[index].conditions = newConditions;
       this.$emit("updateFilters", newFilters);
+    },
+    getLocalizedLabel(filter) {
+      return getLocalizedLabel(filter, this.locale);
     },
   },
 };

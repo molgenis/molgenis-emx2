@@ -123,8 +123,8 @@ export default {
     },
     primaryTableKey() {
       return this.tableMetadata.columns.reduce((accum, col) => {
-        if (col.key == 1 && this.resourceData[col.id]) {
-          accum[col.id] = this.resourceData[col.id];
+        if (col.key == 1 && this.resourceData[col.name]) {
+          accum[col.name] = this.resourceData[col.name];
         }
         return accum;
       }, {});
