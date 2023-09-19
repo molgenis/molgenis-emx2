@@ -32,8 +32,6 @@ const page = ref(null);
 
 let loading = ref(false);
 let userData = ref({});
-let user = ref("David");
-
 const query = `{
   Users (
     filter: {

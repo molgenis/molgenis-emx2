@@ -3,40 +3,46 @@
     <h2>Surgical overview for all centers</h2>
     <DashboardChartLayout>
       <DashboardBox>
-        <PieChart
+        <PieChart2
           chartId="cs-all-surgical-type-of-craniosynostosis"
           title="Type of craniosynostosis"
           :chartData="typeOfCraniosynostosis"
-          :chartHeight="225"
-          :chartScale="0.95"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartHeight="200"
+          :chartScale="0.9"
         />
       </DashboardBox>
       <DashboardBox>
-        <PieChart
+        <PieChart2
           chartId="cs-all-surgical-affected-suture"
           title="Affected suture"
           :chartData="affectedSuture"
-          :chartHeight="225"
-          :chartScale="0.95"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartHeight="200"
+          :chartScale="0.9"
         />
       </DashboardBox>
     </DashboardChartLayout>
     <h3>Overview of all surgical interventions</h3>
     <DashboardChartLayout>
       <DashboardBox>
-        <PieChart
+        <PieChart2
           chartId="cs-all-surgical-type-of-surgery"
           title="Type of surgery"
           :chartData="typeOfSurgery"
-          :chartHeight="225"
-          :chartScale="0.95"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartHeight="200"
+          :chartScale="0.9"
         />
       </DashboardBox>
       <DashboardBox>
-        <PieChart
+        <PieChart2
           chartId="cs-all-surgical-complications"
           title="Complications"
           :chartData="complications"
@@ -44,19 +50,23 @@
             'Complications': '#426fab',
             'No complications': '#f3f4ff'
           }"
-          :chartHeight="225"
-          :chartScale="0.95"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartHeight="200"
+          :chartScale="0.9"
         />
       </DashboardBox>
       <DashboardBox>
-        <PieChart
+        <PieChart2
           chartId="cs-all-surgical-interventions"
           title="Surgical Interventions"
           :chartData="surgicalInterventions"
-          :chartHeight="225"
-          :chartScale="0.95"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartHeight="200"
+          :chartScale="0.9"
         />
       </DashboardBox>
       <DashboardBox>
@@ -79,16 +89,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { DashboardBox, PieChart, ColumnChart } from "molgenis-viz";
+import { ref } from "vue";
+import { DashboardBox, PieChart2, ColumnChart } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
-
-const props = defineProps({
-  user: String,
-  organization: Object
-})
-
 
 // create random datasets for demo purposes
 import { randomInt } from "d3";
@@ -98,59 +102,45 @@ function seq (start, stop, by) {
   return Array.from({ length: (stop - start) / by + 1 }, (_, i) => start + i * by);
 }
 
-let typeOfSurgery = ref({});
-let complications = ref({});
-let surgicalInterventions = ref({});
+
 let ageAtSurgery = ref(seq(0, 14, 2).map(value => {
     return {age: `${value}`, value: randomInt(1,100)()}
 }));
 
-function generateChartData() {
-  
-  // generate datasets (objects) for pie charts
-  
-  typeOfSurgery.value = randomPercentages({
-    labels: ['Vault', "Midface", 'Hydrocephalus', 'Aesthetic'],
-    asObject: true
-  })
-  
-  complications.value = randomPercentages({
-    labels: ['Complications', 'No complications'],
-    asObject: true
-  });
-  
-  surgicalInterventions.value = randomPercentages({
-    labels: ['Single', 'Unwanted', 'Additional'],
-    asObject: true
-  })
-  
-  // generate list of arrays for column chart
-  ageAtSurgery.value = seq(0, 14, 2).map(value => {
-    return {age: `${value}`, value: randomInt(1,100)()}
-  });
-}
+let typeOfCraniosynostosis = ref({
+  'Non-syndromic': 35,
+  Syndromic: 34,
+  Familial: 16,
+  Metabolic: 15,
+});
 
-let typeOfCraniosynostosis = ref(
+let typeOfSurgery = ref({
+    Vault: 29,
+    Midface: 27,
+    Hydrocephalus: 23,
+    Aesthetic: 21,
+});
+
+let affectedSuture = ref({
+  Sagittal: 30,
+  Metopic: 20,
+  Unicoronal: 18,
+  Unilambdoid: 15,
+  Frontosphenoidal: 10,
+  Multiple: 7
+});
+
+let complications = ref(
   randomPercentages({
-    labels: ['Non-syndromic', 'Syndromic', 'Familial', 'Metabolic'],
+    labels: ['Complications', 'No complications'],
     asObject: true
   })
 );
 
-let affectedSuture = ref(
+let surgicalInterventions = ref(
   randomPercentages({
-    labels: ['Sagittal','Metopic', 'Unicoronal', 'Unilambdoid', 'Frontosphenoidal', 'Multiple'],
+    labels: ['Single', 'Unwanted', 'Additional'],
     asObject: true
   })
-)
-
-onMounted(() => {
-  generateChartData();
-});
-
-
-function onClick() {
-  generateChartData();
-}
-
+);
 </script>

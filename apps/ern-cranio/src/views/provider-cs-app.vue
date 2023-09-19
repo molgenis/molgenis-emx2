@@ -1,11 +1,3 @@
 <template>
-  <router-view :user="user" :organization="organization"></router-view>
+  <router-view></router-view>
 </template>
-
-<script setup>
-const props = defineProps({
-  user: String,
-  organization: Object,
-});
-</script>
-  

@@ -3,23 +3,27 @@
     <h2>Overview for your center</h2>
     <DashboardChartLayout :columns="2">
       <DashboardBox id="clp-patients-by-phenotype">
-          <PieChart
-            chartId="patientsByPhenotype"
-            title="Patients by phenotype"
-            :chartData="patientsByPhenotype"
-            :chartHeight="225"
-            :chartScale="0.95"
-            :asDonutChart="true"
-          />
+        <PieChart2
+          chartId="patientsByPhenotype"
+          title="Patients by phenotype"
+          :chartData="patientsByPhenotype"
+          :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartHeight="200"
+          :chartScale="0.9"
+        />
       </DashboardBox>
       <DashboardBox id="clp-patients-by-surgical-outcome">
-        <PieChart
+        <PieChart2
           chartId="patientsByOutcome"
           title="Patients by surgical outcome"
           :chartData="patientsBySurgicalOutcome"
-          :chartHeight="225"
-          :chartScale="0.95"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartHeight="200"
+          :chartScale="0.9"
         />
       </DashboardBox>
       <DashboardBox id="clp-cleft-q-completed">
@@ -59,13 +63,15 @@
         />
       </DashboardBox>
       <DashboardBox>
-        <PieChart
+        <PieChart2
           chartId="lipClosureOutcomes"
           title="Lip closure surgical outcomes"
           :chartData="lipClosureOutcomes"
-          :chartHeight="250"
-          :chartScale="0.9"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartHeight="200"
+          :chartScale="0.9"
         />
       </DashboardBox>
     </DashboardChartLayout>
@@ -86,13 +92,15 @@
         />
       </DashboardBox>
       <DashboardBox>
-        <PieChart
+        <PieChart2
           chartId="softPalateClosureOutcomes"
           title="Soft Palate surgical outcomes"
           :chartData="softPalateClosureOutcomes"
-          :chartHeight="250"
-          :chartScale="0.9"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartHeight="200"
+          :chartScale="0.9"
         />
       </DashboardBox>
     </DashboardChartLayout>
@@ -101,7 +109,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { DashboardBox, PieChart, ProgressMeter, ColumnChart } from "molgenis-viz";
+import { DashboardBox, PieChart2, ProgressMeter, ColumnChart } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 

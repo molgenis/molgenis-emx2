@@ -17,27 +17,31 @@
     </DashboardBox>
     <DashboardChartLayout :columns="2">
       <DashboardBox id="type-of-craniosynostosis">
-        <PieChart
+        <PieChart2
           chartId="cs-types"
           title="Type of craniosynostosis"
           :chartData="csTypes"
-          :chartHeight="225"
-          :chartScale="0.95"
+          :chartHeight="200"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartScale="0.9"
         />
       </DashboardBox>
       <DashboardBox>
-        <PieChart
+        <PieChart2
           chartId="cs-affected-sutures"
           title="Affected Suture"
           :chartData="affectedSuture"
-          :chartHeight="225"
-          :chartScale="0.95"
+          :chartHeight="200"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartScale="0.9"
         />
       </DashboardBox>
       <DashboardBox>
-        <PieChart
+        <PieChart2
           chartId="geneticDiagnosisAvailability"
           title="Genetic Diagnosis"
           :chartData="geneticDiagnosis"
@@ -45,9 +49,11 @@
             Available: '#426fab',
             'Not Available': '#f3f4ff'
           }"
-          :chartHeight="225"
-          :chartScale="0.95"
+          :chartHeight="200"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartScale="0.85"
         />
       </DashboardBox>
       <DashboardBox>
@@ -68,7 +74,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { DashboardBox, PieChart, InputLabel, ColumnChart } from "molgenis-viz";
+import { DashboardBox, PieChart2, InputLabel, ColumnChart } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 

@@ -3,7 +3,7 @@
     <DashboardBox id="provider-overview-welcome" class="mb-4">
       <h2>Welcome, {{ userName }}!</h2>
       <p>
-        Welcome to {{ orgName }}'s dashboard. These pages provide an
+        Welcome to <strong>{{ orgName }}'s</strong> dashboard. These pages provide an
         overview of the patients you have submitted to relavent subregistries.
         On the current page, you will find a snapshot of your center as of
         today.
@@ -34,13 +34,15 @@
         </p>
       </DashboardBox>
       <DashboardBox id="provider-overview-patients-by-workstream">
-        <PieChart
+        <PieChart2
           chartId="patientsByWorkstream"
           title="Patients submitted by workstream"
           :chartData="patientsBySubregistry"
-          :chartHeight="pieChartHeight"
+          :chartHeight="215"
           :asDonutChart="true"
-          :chartScale="0.99"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartScale="0.85"
         />
       </DashboardBox>
       <DashboardBox id="provider-overview-patients-by-sex-at-birth">
@@ -48,11 +50,11 @@
           chartId="sexAtBirth"
           title="Sex at birth"
           :chartData="sexAtBirth"
-          :chartHeight="pieChartHeight"
+          :chartHeight="215"
           :asDonutChart="true"
           :enableLegendHovering="true"
           legendPosition="bottom"
-          :chartScale="0.95"
+          :chartScale="0.85"
         />
       </DashboardBox>
     </DashboardChartLayout>
@@ -62,14 +64,12 @@
 <script setup>
 import { ref } from "vue";
 import { UserGroupIcon, TrophyIcon } from "@heroicons/vue/24/outline";
-import { DashboardBox, PieChart, PieChart2 } from "molgenis-viz";
+import { DashboardBox,PieChart2 } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 import viewProps from "../data/props";
 const props = defineProps(viewProps);
-
-let pieChartHeight = ref(250);
 
 import { randomInt } from "d3";
 

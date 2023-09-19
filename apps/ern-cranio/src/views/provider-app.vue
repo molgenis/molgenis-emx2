@@ -3,7 +3,7 @@
     <PageHeader
       title="ERN CRANIO Registry"
       :subtitle="`${orgName}`"
-      imageSrc="example-provider-header.jpg"
+      :imageSrc="orgImageUrl"
       height="large"
     />
     <Dashboard class="provider-dashboard-container">

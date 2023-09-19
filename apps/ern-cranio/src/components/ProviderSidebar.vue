@@ -127,11 +127,11 @@ const props = defineProps(viewProps);
       padding-left: 1em;
       
       p {
-        @include textTransform(bold);
+        @include textTransform;
         margin-top: 24px;
-        padding-left: 1.5em;
+        padding-left: 1.4em;
         line-height: 1;
-        color: $gray-600;
+        color: $gray-400;
       }
       
       a {

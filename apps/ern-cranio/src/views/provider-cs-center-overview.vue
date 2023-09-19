@@ -17,27 +17,31 @@
     </DashboardBox>
     <DashboardChartLayout :columns="2">
       <DashboardBox>
-        <PieChart
+        <PieChart2
           chartId="cs-center-type-of-craniosynostosis"
           title="Type of craniosynostosis"
           :chartData="centerTypeOfCs"
-          :chartHeight="225"
-          :chartScale="0.95"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartHeight="200"
+          :chartScale="0.9"
         />
       </DashboardBox>
       <DashboardBox>
-        <PieChart
+        <PieChart2
           chartId="cs-center-affect-suture"
           title="Affected Suture"
           :chartData="centerAffectedSuture"
-          :chartHeight="225"
-          :chartScale="0.95"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartHeight="200"
+          :chartScale="0.9"
         />
       </DashboardBox>
       <DashboardBox>
-        <PieChart
+        <PieChart2
           chartId="cs-center-gentic-diagnosis"
           title="Genetic Diagnosis"
           :chartData="centerGeneticDiagnosis"
@@ -45,9 +49,11 @@
             Available: '#426fab',
             'Not Available': '#f3f4ff'
           }"
-          :chartHeight="225"
-          :chartScale="0.95"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :chartHeight="200"
+          :chartScale="0.9"
         />
       </DashboardBox>
     </DashboardChartLayout>
@@ -57,14 +63,13 @@
 <script setup>
 import { ref } from "vue";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
-import { DashboardBox, PieChart, InputLabel } from "molgenis-viz";
+import { DashboardBox, PieChart2, InputLabel } from "molgenis-viz";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
   user: String,
   organization: Object
 })
-
 
 // define random data
 let yearOfBirthOptions= ref(Array.from({length: 16}, (v,i) => 1980+i));
