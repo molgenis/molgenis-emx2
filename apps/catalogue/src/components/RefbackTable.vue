@@ -41,8 +41,8 @@
               <RouterLink
                 v-if="row[col.id]"
                 :to="{
-                  name: convertToPascalCase(col.refTable) + '-details',
-                  params: routeParams(col, row[col.id]),
+                  name: col.refTable + '-details',
+                  params: routeParams(col, row[col.name]),
                 }"
               >
                 {{ renderValue(row, col)[0] }}
@@ -58,7 +58,7 @@
                 <RouterLink
                   v-if="val"
                   :to="{
-                    name: convertToPascalCase(col.refTable) + '-details',
+                    name: col.refTable + '-details',
                     params: routeParams(col, val),
                   }"
                 >
@@ -95,8 +95,6 @@ import {
   Spinner,
   ReadMore,
   Client,
-  convertToCamelCase,
-  convertToPascalCase,
   flattenObject,
   applyJsTemplate,
 } from "molgenis-components";
@@ -124,11 +122,10 @@ export default {
     };
   },
   methods: {
-    convertToPascalCase,
     handleRowClick(row) {
       //good guessing the parameters :-)
       this.$router.push({
-        name: convertToPascalCase(this.table) + "-details",
+        name: this.table + "-details",
         params: {
           id: row.id ? row.id : this.pkey.id,
           resource: row.id ? row.id : this.pkey.id,
@@ -191,7 +188,7 @@ export default {
   computed: {
     graphqlFilter() {
       var result = new Object();
-      result[convertToCamelCase(this.refBack)] = {
+      result[this.refBack] = {
         equals: this.pkey,
       };
       return result;

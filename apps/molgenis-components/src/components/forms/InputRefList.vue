@@ -92,11 +92,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import FilterWell from "../filters/FilterWell.vue";
-import {
-  convertToPascalCase,
-  convertRowToPrimaryKey,
-  applyJsTemplate,
-} from "../utils";
+import { convertRowToPrimaryKey, applyJsTemplate } from "../utils";
 
 export default {
   extends: BaseInput,
@@ -146,9 +142,6 @@ export default {
     },
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     title() {
       return "Select " + this.tableName;
     },
@@ -188,15 +181,18 @@ export default {
       if (this.orderby) {
         options["orderby"] = this.orderby;
       }
-      const response = await this.client.fetchTableData(this.tableId, options);
-      this.data = response[this.tableId];
-      this.count = response[this.tableId + "_agg"].count;
+      const response = await this.client.fetchTableData(
+        this.tableName,
+        options
+      );
+      this.data = response[this.tableName];
+      this.count = response[this.tableName + "_agg"].count;
 
       await Promise.all(
         this.data.map(async (row) => {
           row.primaryKey = await convertRowToPrimaryKey(
             row,
-            this.tableId,
+            this.tableName,
             this.schemaName
           );
         })

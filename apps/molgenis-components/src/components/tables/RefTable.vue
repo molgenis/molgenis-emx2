@@ -75,7 +75,7 @@ import Client from "../../client/client";
 
 const props = defineProps<{
   reference: IRow;
-  tableId?: string;
+  tableName?: string;
   schema?: string;
   showDataOwner?: boolean;
   startsCollapsed?: boolean;
@@ -96,11 +96,13 @@ let filteredRow = computed(() => getFilteredRow(reference.value));
 let canCollapse = computed(() => Object.keys(filteredRow.value).length > 5);
 const primaryKey = ref({});
 
-if (props.tableId && props.schema) {
+if (props.tableName && props.schema) {
   const client = Client.newClient(props.schema);
-  client.convertRowToPrimaryKey(reference.value, props.tableId).then((res) => {
-    primaryKey.value = res;
-  });
+  client
+    .convertRowToPrimaryKey(reference.value, props.tableName)
+    .then((res) => {
+      primaryKey.value = res;
+    });
 }
 
 let collapsed = ref(startsCollapsed.value && canCollapse.value);

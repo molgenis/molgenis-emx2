@@ -17,7 +17,7 @@
           :reference="queryResult"
           :showDataOwner="showDataOwner"
           :startsCollapsed="queryResults.length > 1"
-          :tableId="column.refTable"
+          :tableName="column.refTable"
           :schema="column.refSchema || props.schema"
           @ref-cell-clicked="handleRefCellClicked"
         />
@@ -74,26 +74,30 @@ watch([column, rows], () => {
   }
 });
 
-async function updateData(activeSchema: string, rows: IRow[], tableId: string) {
+async function updateData(
+  activeSchema: string,
+  rows: IRow[],
+  tableName: string
+) {
   errorMessage.value = "";
   loading.value = true;
-  queryResults.value = await getRowData(activeSchema, rows, tableId);
+  queryResults.value = await getRowData(activeSchema, rows, tableName);
   loading.value = false;
 }
 
 async function getRowData(
   activeSchema: string,
   rowKeys: IRow[],
-  tableId: string
+  tableName: string
 ): Promise<IRow[]> {
   let newQueryResults: IRow[] = [];
   const client = Client.newClient(activeSchema);
-  const metadata = await client.fetchTableMetaData(tableId);
+  const metadata = await client.fetchTableMetaData(tableName);
   for (const row of rowKeys) {
     const externalSchemaClient = Client.newClient(metadata.externalSchema);
     const expandLevel = 2;
     const queryResult = await externalSchemaClient
-      .fetchRowData(tableId, row, expandLevel)
+      .fetchRowData(tableName, row, expandLevel)
       .catch(errorHandler);
     queryResult.metadata = metadata;
     newQueryResults.push(queryResult);
@@ -108,13 +112,12 @@ async function handleRefCellClicked({
   refColumn: IColumn;
   refTableRow: IRow;
 }): Promise<void> {
-  const refTableId = refColumn.refTable;
   const activeSchema =
     refColumn.refSchema || column.value.refSchema || props.schema;
-  if (refTableId && activeSchema) {
-    const clickedCellPrimaryKeys = [refTableRow[refColumn.id]].flat();
+  if (refColumn.refTable && activeSchema) {
+    const clickedCellPrimaryKeys = [refTableRow[refColumn.name]].flat();
     localColumnName.value = refColumn.name;
-    updateData(activeSchema, clickedCellPrimaryKeys, refTableId);
+    updateData(activeSchema, clickedCellPrimaryKeys, refColumn.refTable);
   } else {
     errorMessage.value = "Failed to load reference data";
   }

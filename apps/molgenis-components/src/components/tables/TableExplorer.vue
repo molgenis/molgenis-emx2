@@ -40,13 +40,13 @@
             <div>
               <div>
                 <span class="fixed-width">zip</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableId"
+                <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableName"
                   >all rows</ButtonAlt
                 >
               </div>
               <div>
                 <span class="fixed-width">csv</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableId"
+                <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableName"
                   >all rows</ButtonAlt
                 >
                 <span v-if="Object.keys(graphqlFilter).length > 0">
@@ -56,7 +56,7 @@
                       '/' +
                       schemaName +
                       '/api/csv/' +
-                      tableId +
+                      tableName +
                       '?filter=' +
                       JSON.stringify(graphqlFilter)
                     "
@@ -67,7 +67,7 @@
               </div>
               <div>
                 <span class="fixed-width">excel</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableId"
+                <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableName"
                   >all rows</ButtonAlt
                 >
                 <span v-if="Object.keys(graphqlFilter).length > 0">
@@ -77,7 +77,7 @@
                       '/' +
                       schemaName +
                       '/api/excel/' +
-                      tableId +
+                      tableName +
                       '?filter=' +
                       JSON.stringify(graphqlFilter)
                     "
@@ -90,7 +90,11 @@
                 <span class="fixed-width">jsonld</span>
                 <ButtonAlt
                   :href="
-                    '/' + schemaName + '/api/rdf/' + tableId + '?format=jsonld'
+                    '/' +
+                    schemaName +
+                    '/api/rdf/' +
+                    tableName +
+                    '?format=jsonld'
                   "
                 >
                   all rows
@@ -100,7 +104,7 @@
                 <span class="fixed-width">ttl</span>
                 <ButtonAlt
                   :href="
-                    '/' + schemaName + '/api/rdf/' + tableId + '?format=ttl'
+                    '/' + schemaName + '/api/rdf/' + tableName + '?format=ttl'
                   "
                 >
                   all rows
@@ -425,7 +429,6 @@ import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
 import {
-  convertToPascalCase,
   convertRowToPrimaryKey,
   deepClone,
   getLocalizedDescription,
@@ -586,9 +589,6 @@ export default {
     },
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     localizedLabel() {
       return getLocalizedLabel(this.tableMetadata, this.locale);
     },
@@ -637,7 +637,7 @@ export default {
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
       const resp = await this.client
-        .deleteRow(this.editRowPrimaryKey, this.tableId)
+        .deleteRow(this.editRowPrimaryKey, this.tableName)
         .catch(this.handleError);
       if (resp) {
         this.reload();
@@ -781,8 +781,8 @@ export default {
           orderby: orderBy,
         })
         .catch(this.handleError);
-      this.dataRows = dataResponse[this.tableId];
-      this.count = dataResponse[this.tableId + "_agg"]["count"];
+      this.dataRows = dataResponse[this.tableName];
+      this.count = dataResponse[this.tableName + "_agg"]["count"];
       this.loading = false;
     },
   },

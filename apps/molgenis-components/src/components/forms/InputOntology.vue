@@ -113,7 +113,6 @@ import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "click-outside-vue3";
-import { convertToPascalCase } from "../utils.ts";
 import Spinner from "../layout/Spinner.vue";
 
 /**
@@ -180,9 +179,6 @@ export default {
     };
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     rootTerms() {
       if (this.terms) {
         let result = Object.values(this.terms).filter(
@@ -516,7 +512,7 @@ export default {
       const client = Client.newClient(this.schemaName);
       this.data = (
         await client.fetchTableData(this.tableName, { limit: this.limit || 20 })
-      )[this.tableId];
+      )[this.tableName];
     }
   },
   created() {

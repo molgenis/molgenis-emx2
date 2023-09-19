@@ -2,7 +2,7 @@ import { IColumn } from "../../../Interfaces/IColumn";
 import { IRow } from "../../../Interfaces/IRow";
 import { ITableMetaData } from "../../../Interfaces/ITableMetaData";
 import constants from "../../constants.js";
-import { deepClone, convertToCamelCase, filterObject } from "../../utils";
+import { deepClone, filterObject } from "../../utils";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID, HEADING } = constants;
 
@@ -113,11 +113,8 @@ function isRefLinkWithoutOverlap(column: IColumn, values: Record<string, any>) {
   if (!column.refLink) {
     return false;
   }
-  const columnRefLink = column.refLink;
-  const refLinkId = convertToCamelCase(columnRefLink);
-
-  const value = values[column.id];
-  const refValue = values[refLinkId];
+  const value = values[column.name];
+  const refValue = values[column.refLink];
 
   if (typeof value === "string" && typeof refValue === "string") {
     return value && refValue && value !== refValue;

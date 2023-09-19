@@ -54,9 +54,9 @@ export async function convertRowToPrimaryKey(
     return await tableMetadata.columns.reduce(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
         let accum: IRow = await accumPromise;
-        const cellValue = row[column.id];
+        const cellValue = row[column.name];
         if (column.key === 1 && cellValue) {
-          accum[column.id] = await getKeyValue(
+          accum[column.name] = await getKeyValue(
             cellValue,
             column,
             column.refSchema || schemaName
@@ -138,34 +138,6 @@ export function isInvalidBigInt(value: string): boolean {
   } else {
     return true;
   }
-}
-
-export function convertToCamelCase(string: string): string {
-  const words = string.trim().split(/\s+/);
-  let result = "";
-  words.forEach((word: string, index: number) => {
-    if (index === 0) {
-      result += word.charAt(0).toLowerCase();
-    } else {
-      result += word.charAt(0).toUpperCase();
-    }
-    if (word.length > 1) {
-      result += word.slice(1);
-    }
-  });
-  return result;
-}
-
-export function convertToPascalCase(string: string): string {
-  const words = string.trim().split(/\s+/);
-  let result = "";
-  words.forEach((word: string) => {
-    result += word.charAt(0).toUpperCase();
-    if (word.length > 1) {
-      result += word.slice(1);
-    }
-  });
-  return result;
 }
 
 export function getLocalizedLabel(

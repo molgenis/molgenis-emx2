@@ -78,7 +78,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import InputRefItem from "./InputRefItem.vue";
-import { flattenObject, convertToPascalCase } from "../utils";
+import { flattenObject } from "../utils";
 
 export default {
   name: "InputRef",
@@ -121,9 +121,6 @@ export default {
     };
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     title() {
       return "Select " + this.tableName;
     },
@@ -153,9 +150,12 @@ export default {
       if (this.filter) {
         options.filter = this.filter;
       }
-      const response = await this.client.fetchTableData(this.tableId, options);
-      this.data = response[this.tableId];
-      this.count = response[this.tableId + "_agg"].count;
+      const response = await this.client.fetchTableData(
+        this.tableName,
+        options
+      );
+      this.data = response[this.tableName];
+      this.count = response[this.tableName + "_agg"].count;
     },
   },
   watch: {
