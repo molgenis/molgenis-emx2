@@ -4,7 +4,7 @@
     <nav>
       <ul class="navlinks">
         <li>
-          <router-link :to="{ name: 'provider-overview', params: { id: organization.id } }">
+          <router-link :to="{ name: 'provider-overview', params: { id: orgId } }">
             Home
           </router-link>
         </li>
@@ -13,12 +13,12 @@
             <p>All Centers</p>
             <ul>
               <li>
-                <router-link :to="{ name: 'provider-cs-all-general', params: { id: organization.id } }">
+                <router-link :to="{ name: 'provider-cs-all-general', params: { id: orgId } }">
                   General overview
                 </router-link>
               </li>
               <li>
-                <router-link :to="{ name: 'provider-cs-all-surgical', params: { id: organization.id }}">
+                <router-link :to="{ name: 'provider-cs-all-surgical', params: { id: orgId }}">
                   Surgical Overview
                 </router-link>
               </li>
@@ -26,12 +26,12 @@
             <p>Your Center</p>
             <ul>
               <li>
-                <router-link :to="{ name: 'provider-cs-center-overview', params: { id: organization.id }}">
+                <router-link :to="{ name: 'provider-cs-center-overview', params: { id: orgId }}">
                   General overview
                 </router-link>
               </li>
               <li>
-                <router-link :to="{ name: 'provider-cs-center-surgical', params: { id: organization.id }}">
+                <router-link :to="{ name: 'provider-cs-center-surgical', params: { id: orgId }}">
                   Surgical overview
                 </router-link>
               </li>
@@ -42,12 +42,12 @@
           <Accordion id="clp-nav" title="Cleft lip and palate">
             <ul>
               <li>
-                <router-link :to="{name: 'provider-clp-your-center', params: { id: organization.id } }">
+                <router-link :to="{name: 'provider-clp-your-center', params: { id: orgId } }">
                   Your center's overview
                 </router-link>
               </li>
               <li>
-                <router-link :to="{ name: 'provider-clp-all-centers', params: { id: organization.id} }">
+                <router-link :to="{ name: 'provider-clp-all-centers', params: { id: orgId} }">
                   All centers
                 </router-link>
               </li>
@@ -55,12 +55,12 @@
           </Accordion>
         </li>
         <li>
-          <router-link :to="{ name: 'provider-genetic-deafness', params: { id: organization.id } }">
+          <router-link :to="{ name: 'provider-genetic-deafness', params: { id: orgId } }">
             Genetic Deafness
           </router-link>
         </li>
         <li>
-          <router-link :to="{ name: 'provider-larnyxcleft', params: { id: organization.id } }">
+          <router-link :to="{ name: 'provider-larnyxcleft', params: { id: orgId } }">
             Larynxcleft
           </router-link>
         </li>
@@ -78,10 +78,8 @@ import { Accordion } from "molgenis-viz";
 import { ButtonAction } from "molgenis-components";
 import { PlusCircleIcon } from "@heroicons/vue/24/outline";
 
-const props = defineProps({
-  user: String,
-  organization: Object,
-});
+import viewProps from "../data/props";
+const props = defineProps(viewProps);
 
 </script>
 

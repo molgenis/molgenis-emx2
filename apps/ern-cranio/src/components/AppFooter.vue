@@ -17,8 +17,8 @@
           <p><strong>For Members</strong></p>
           <UnorderedList listType="none">
             <li>
-              <router-link :to="{ name: 'providers', params: { id: organization.id }}">
-                {{ organization.name }} Dashboard
+              <router-link :to="{ name: 'providers', params: { id: orgId }}">
+                {{ orgName }} Dashboard
               </router-link>
             </li>
             <!-- more links here -->
@@ -57,15 +57,9 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
 import { PageFooter, UnorderedList } from "molgenis-viz";
-
-const props = defineProps({
-  organization: {
-    type: Object,
-    required: true,
-  },
-});
+import viewProps from "../data/props";
+const props = defineProps(viewProps);
 </script>
 
 <style lang="scss">

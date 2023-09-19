@@ -1,9 +1,9 @@
 <template>
   <ProviderDashboard>
     <DashboardBox id="provider-overview-welcome" class="mb-4">
-      <h2>Welcome, {{ user }}!</h2>
+      <h2>Welcome, {{ userName }}!</h2>
       <p>
-        Welcome to {{ organization.name }}'s dashboard. These pages provide an
+        Welcome to {{ orgName }}'s dashboard. These pages provide an
         overview of the patients you have submitted to relavent subregistries.
         On the current page, you will find a snapshot of your center as of
         today.
@@ -66,10 +66,8 @@ import { DashboardBox, PieChart, PieChart2 } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
-const props = defineProps({
-  user: String,
-  organization: Object,
-});
+import viewProps from "../data/props";
+const props = defineProps(viewProps);
 
 let pieChartHeight = ref(250);
 

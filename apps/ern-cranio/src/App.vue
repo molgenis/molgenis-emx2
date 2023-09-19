@@ -1,63 +1,74 @@
 <template>
   <Molgenis id="__top" v-model="session">
-    <router-view
+    <div v-if="userData.orgId">
+      <router-view
       :session="session"
       :page="page"
-      :user="user"
-      :organization="org"
-    />
-    <AppFooter :organization="org" />
+      :userName="userData.name"
+      :orgId="userData.orgId"
+      :orgName="userData.orgName"
+      :orgImageUrl="userData.orgImageUrl"
+      />
+      <AppFooter
+        :userName="userData.name"
+        :orgId="userData.orgId"
+        :orgName="userData.orgName"
+        :orgImageUrl="userData.orgImageUrl"
+      />
+    </div>
+    <LoadingScreen message="Please wait..." v-else/>
   </Molgenis>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onBeforeMount } from "vue";
 import { Molgenis } from "molgenis-components";
+import { LoadingScreen } from "molgenis-viz";
 import AppFooter from "./components/AppFooter.vue";
 import { fetchData } from "../../molgenis-viz/src/utils/utils";
 
 const session = ref(null);
 const page = ref(null);
 
-const org = ref({
-  id: "umcg",
-  name: "UMCG",
-  label: "University Medical Centre Groningen",
-});
+let loading = ref(false);
+let userData = ref({});
+let user = ref("David");
 
-
-const userData = ref({})
-const user = ref("David");
 const query = `{
   Users (
     filter: {
-      name: { equals: "${user.value}" }
+      definition: { equals: "live" }
     }
   ) {
     name
-    parent {
+    organisation {
       name
-      label
+      providerInformation {
+        providerIdentifier
+      }
+      imageUrl
     }
   }
 }`
 
-function flattenNestedObject(obj, targetKey) {
-  Object.keys(obj).map(key => {
-    if (key === targetKey) {
-      Object.keys(obj[targetKey]).map(subKey => {
-        Object.assign(obj, { [`${targetKey}_${subKey}`]: obj[key][subKey] })
-      })
-    }
-  })
-}
-
-onMounted(() => {
+onBeforeMount(() => {
   Promise.resolve(fetchData('/api/graphql', query))
   .then(response => {
-    const userAccount = response.data.Users[0];
-    flattenNestedObject(userAccount, 'parent')
-    userData.value = userAccount
+    const data = response.data.Users[0];
+    data.orgId = data.organisation.providerInformation[0].providerIdentifier;
+    data.orgName = data.organisation.name
+    data.orgImageUrl = data.organisation.imageUrl
+    delete data.organisation
+    userData.value = data;
+  })
+  .then(() => {
+    if (Object.keys(userData.value).length === 4) {
+      loading.value = false;
+    } else {
+      throw new Error('data not defined', userData)
+    }
+  }).catch(error => {
+    throw new Error(error);
   })
 })
 

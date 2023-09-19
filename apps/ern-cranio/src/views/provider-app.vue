@@ -2,13 +2,24 @@
   <Page>
     <PageHeader
       title="ERN CRANIO Registry"
-      :subtitle="`${organization.label}`"
+      :subtitle="`${orgName}`"
       imageSrc="example-provider-header.jpg"
       height="large"
     />
     <Dashboard class="provider-dashboard-container">
-      <ProviderSidebar :user="user" :organization="organization" />
-      <router-view :user="user" :organization="organization"></router-view>
+      <ProviderSidebar
+        :userName="userName"
+        :orgId="orgId"
+        :orgName="orgName"
+        :orgImageUrl="orgImageUrl"
+      />
+      <router-view
+        :userName="userName"
+        :orgId="orgId"
+        :orgName="orgName"
+        :orgImageUrl="orgImageUrl"
+      >
+      </router-view>
     </Dashboard>
   </Page>
 </template>
@@ -17,10 +28,8 @@
 import { Page, PageHeader, Dashboard } from "molgenis-viz";
 import ProviderSidebar from "../components/ProviderSidebar.vue";
 
-const props = defineProps({
-  user: String,
-  organization: Object,
-});
+import viewProps from "../data/props";
+const props = defineProps(viewProps);
 
 </script>
 

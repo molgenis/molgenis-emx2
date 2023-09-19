@@ -26,3 +26,6 @@ organisations,ONTOLOGIES,,latitude,decimal,,,,,NCIT_C68642 http://purl.obolibrar
 organisations,ONTOLOGIES,,longitude,decimal,,,,,NCIT_C68643 http://purl.obolibrary.org/obo/NCIT_C68643,An imaginary great circle on the surface of a heavenly body passing through the poles at right angles to the equator.
 organisations,ONTOLOGIES,,organisationType,string,,,,,http://purl.obolibrary.org/obo/NCIT_C25284,Something distinguishable as an identifiable class based on common qualities
 organisations,ONTOLOGIES,,providerInformation,refback,,,dataproviders,organisation,http://purl.obolibrary.org/obo/OBI_0000947,
+organisations,ONTOLOGIES,,imageUrl,string,,,,,http://purl.obolibrary.org/obo/NCIT_C95829,A URL-formatted web address for a set of images stored together.
+users,ONTOLOGIES,,,,,,,,,
+users,ONTOLOGIES,,organisation,ref,,,organisations,,,

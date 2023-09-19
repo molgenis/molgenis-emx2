@@ -21,3 +21,4 @@ export async function getSessionInfo () {
   return response.json();
   
 }
+
