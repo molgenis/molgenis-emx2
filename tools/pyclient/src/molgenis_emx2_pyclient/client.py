@@ -1,6 +1,7 @@
 import csv
 import io
 import logging
+from functools import cached_property
 from typing import TypeAlias, Literal
 
 import pandas as pd
@@ -140,7 +141,7 @@ class Client:
         )
         return message
 
-    @property
+    @cached_property
     def schemas(self):
         """List the databases present on the server."""
         query = queries.list_schemas()
