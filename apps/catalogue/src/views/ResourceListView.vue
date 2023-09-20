@@ -8,6 +8,7 @@
       :initialSearchTerms="searchTerm"
       :canEdit="canEdit"
       :canManage="canManage"
+      :canView="true"
       @rowClick="openDetailView"
       @searchTerms="onSearchTermUpdate"
     />
