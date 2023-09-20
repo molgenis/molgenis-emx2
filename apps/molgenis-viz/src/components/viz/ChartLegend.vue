@@ -169,6 +169,11 @@ export default {
   
   .legend-item {
     cursor: default;
+
+    &:hover {
+      cursor: pointer;
+    }
+
   }
 
   &.legend-horizontal {

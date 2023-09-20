@@ -80,12 +80,14 @@ export default {
     // If true (default), values will be rendered with the labels
     valuesAreShown: {
       type: Boolean,
+      // `true`
       default: true
     },
     
-    // If true, labels will be generated with a percent sign.
+    // If true (default), labels will be generated with a percent sign.
     valuesArePercents: {
       type: Boolean,
+      // `true`
       default: true
     },
 
@@ -118,6 +120,7 @@ export default {
     // If colors are not defined, a default palette will be chosen for you.
     chartColors: {
       type: Object,
+      // `{}`
       default: null,
     },
 
@@ -132,6 +135,7 @@ export default {
     // (i.e., with the center cut out).
     asDonutChart: {
       type: Boolean,
+      // `false`
       default: false,
     },
 
@@ -139,6 +143,7 @@ export default {
     // component. Otherwise, the chart will be left aligned.
     centerAlignChart: {
       type: Boolean,
+      // `false`
       default: false,
     },
     
@@ -148,8 +153,8 @@ export default {
     // the default state when it is no longer hovered.
     enableHoverEvents: {
       type: Boolean,
-      // `true`
-      default: true
+      // `false`
+      default: false
     },
 
     // If `true`, click events will be enabled for all slices. When a slice is
@@ -158,7 +163,7 @@ export default {
     enableClicks: {
       type: Boolean,
       // `false`
-      default: true,
+      default: false,
     },
     
     // If `true` (default), a legend will be rendered in the below the chart.
@@ -174,14 +179,20 @@ export default {
     // If `true`, all legend items will be stacked (i.e., vertically arranged).
     stackLegend: {
       type: Boolean,
+      // `false`
       default: false,
     },
     
+    
+    // If the legend is enabled, you can specify the arrangement of the pie chart,
+    // the legend, and the chart context (title and description). Options are
+    // 'top', 'bottom', 'right', 'left'
     legendPosition: {
       type: String,
+      // `top`
       default: 'top',
       validator: (value) => {
-        return ['top','bottom'].includes(value);
+        return ['bottom', 'left', 'right', 'top'].includes(value);
       }
     },
 
@@ -189,7 +200,7 @@ export default {
     // you to toggle chart elements when a group is clicked.
     enableLegendClicks: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     
     // If `true`, hover events will be enabled for legend items. This allows you
@@ -319,6 +330,7 @@ export default {
     onClick(value) {
       const data = {};
       data[value.data[0]] = value.data[1];
+      // When segement is clicked, the underlying data (category and value) is returned
       this.$emit("slice-clicked", data);
     },
     drawSlices() {
@@ -414,14 +426,6 @@ export default {
     grid-area: legend;
   }
   
-  &.legend-position-top {
-    grid-template-areas:
-      "context"
-      "legend"
-      "chart";
-      
-  }
-  
   &.legend-position-bottom {
     grid-template-areas: 
       "context"
@@ -431,6 +435,25 @@ export default {
       .chart-legend {
         justify-content: center;
       }
+  }
+  
+  &.legend-position-left {
+    grid-template-areas: 
+      "context context"
+      "legend chart";
+  }
+  
+  &.legend-position-right {
+    grid-template-areas: 
+      "context context"
+      "chart legend";
+  }
+  
+  &.legend-position-top {
+    grid-template-areas:
+      "context"
+      "legend"
+      "chart";   
   }
   
   .chart-context {
