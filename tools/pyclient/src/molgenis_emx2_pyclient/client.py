@@ -45,8 +45,6 @@ class Client:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type or exc_val or exc_tb:
-            print(exc_type, exc_val, exc_tb, sep="\n")
         self.signout()
         self.session.close()
 
@@ -55,8 +53,6 @@ class Client:
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        if exc_type or exc_val or exc_tb:
-            print(exc_type, exc_val, exc_tb, sep="\n")
         self.signout()
         self.session.close()
 
@@ -126,8 +122,9 @@ class Client:
         else:
             print(f"Unable to sign out of {self.url}.")
             message = response.json().get('errors')[0].get('message')
-            print(message)
-            
+            if "Field 'signout' in type 'Save' is undefined" in message:
+                print(f"User {self.username} was not signed in.")
+
     @property
     def status(self):
         """View client information"""
