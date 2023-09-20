@@ -66,10 +66,9 @@
         </li>
       </ul>
     </nav>
-    <ButtonAction id="btnSubmitPatient">
+    <p id="btnSubmitPatient">
       <span>Submit patient</span>
-      <PlusCircleIcon />
-    </ButtonAction>
+    </p>
   </aside>
 </template>
 
@@ -137,7 +136,7 @@ const props = defineProps(viewProps);
       p {
         @include textTransform;
         margin-top: 24px;
-        padding-left: 1.75em;
+        padding-left: 1.5em;
         color: $gray-400;
       }
       
@@ -146,14 +145,14 @@ const props = defineProps(viewProps);
 
         &:hover,
         &:focus {
-          color: var(--primary);
+          color: $ern-cranio-primary;
         }
       }
 
       &.link-selected {
-        border-left-color: var(--primary);
+        border-left-color: $ern-cranio-primary;
           a {
-            color: var(--primary);
+            color: $ern-cranio-primary;
           }
         }
       }
@@ -161,10 +160,8 @@ const props = defineProps(viewProps);
   }
 
 #btnSubmitPatient {
-  width: 100%;
-  padding: 0.6em;
+  @include buttonLink;
   @include textTransform;
-  color: $gray-000;
 
   svg {
     position: relative;
