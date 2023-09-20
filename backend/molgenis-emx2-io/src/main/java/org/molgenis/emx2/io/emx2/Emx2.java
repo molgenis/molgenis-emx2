@@ -29,6 +29,7 @@ public class Emx2 {
   private static final String SEMANTICS = "semantics";
   private static final String COLUMN_POSITION = "position";
   private static final String TABLE_TYPE = "tableType";
+  private static final String PROFILES = "profiles";
 
   private Emx2() {
     // hidden
@@ -58,6 +59,7 @@ public class Emx2 {
         schema.getTableMetadata(tableName).setInherit(r.getString(TABLE_EXTENDS));
         schema.getTableMetadata(tableName).setImportSchema(r.getString(REF_SCHEMA));
         schema.getTableMetadata(tableName).setSemantics(r.getStringArray(SEMANTICS, false));
+        schema.getTableMetadata(tableName).setProfiles(r.getStringArray(PROFILES, false));
         if (r.getString(TABLE_TYPE) != null) {
           schema
               .getTableMetadata(tableName)
@@ -118,6 +120,7 @@ public class Emx2 {
           if (r.notNull(VISIBLE)) column.setVisible(r.getString(VISIBLE));
           if (r.notNull(COMPUTED)) column.setComputed(r.getString(COMPUTED));
           if (r.notNull(SEMANTICS)) column.setSemantics(r.getStringArray(SEMANTICS));
+          if (r.notNull(PROFILES)) column.setProfiles(r.getStringArray(PROFILES));
           if (r.notNull(REF_JS_TEMPLATE)) column.setRefLabel(r.getString(REF_JS_TEMPLATE));
           if (r.notNull(COLUMN_POSITION)) column.setPosition(r.getInteger(COLUMN_POSITION));
           else
@@ -174,7 +177,8 @@ public class Emx2 {
             VALIDATION,
             VISIBLE,
             COMPUTED,
-            SEMANTICS));
+            SEMANTICS,
+            PROFILES));
     // add label locales that are used
     schema
         .getLocales()
@@ -222,6 +226,7 @@ public class Emx2 {
       row.setString(VISIBLE, null);
       row.setString(COMPUTED, null);
       if (t.getSemantics() != null) row.setStringArray(SEMANTICS, t.getSemantics());
+      if (t.getProfiles() != null) row.setStringArray(PROFILES, t.getProfiles());
       for (Map.Entry<String, String> entry : t.getLabels().entrySet()) {
         if (entry.getKey().equals("en")) {
           row.set(LABEL, entry.getValue());
@@ -267,6 +272,7 @@ public class Emx2 {
         if (c.getComputed() != null) row.set(COMPUTED, c.getComputed());
         if (c.getVisible() != null) row.set(VISIBLE, c.getVisible());
         if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
+        if (c.getProfiles() != null) row.set(PROFILES, c.getProfiles());
         for (Map.Entry<String, String> label : c.getLabels().entrySet()) {
           if (label.getKey().equals("en")) {
             row.set(LABEL, label.getValue());

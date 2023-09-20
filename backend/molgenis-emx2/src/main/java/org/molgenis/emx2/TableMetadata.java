@@ -32,6 +32,10 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private String oldName;
   // use to classify the table, influences display, import, export, etc
   private TableType tableType = TableType.DATA;
+  // table semantics, typically an ontology URI
+  private String[] semantics = null;
+  // profiles to which this table belongs
+  private String[] profiles;
 
   public String[] getSemantics() {
     return semantics;
@@ -42,7 +46,14 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return this;
   }
 
-  private String[] semantics = null;
+  public String[] getProfiles() {
+    return profiles;
+  }
+
+  public TableMetadata setProfiles(String... profiles) {
+    this.profiles = profiles;
+    return this;
+  }
 
   public TableMetadata(String tableName) {
     this.tableName = validateName(tableName);
@@ -103,6 +114,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       this.inherit = metadata.getInherit();
       this.importSchema = metadata.getImportSchema();
       this.semantics = metadata.getSemantics();
+      this.profiles = metadata.getProfiles();
       this.tableType = metadata.getTableType();
     }
   }
