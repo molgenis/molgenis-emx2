@@ -52,9 +52,9 @@ const links = [
           </NuxtLink>
         </div>
       </div>
-      <div :class="[compact ? 'col-span-11' : 'col-span-9']">
-        <header :class="headerClasses" class="flex">
-          <div :class="titleContainerClasses" class="grow">
+      <div :class="[compact ? 'col-span-11 flex ' : 'col-span-9']">
+        <header :class="headerClasses" class="flex grow">
+          <div :class="titleContainerClasses" class="">
             <h2 class="min-w-[160px] mr-4 md:inline-block block">
               <NuxtLink
                 :to="`/${schema}/ssr-catalogue/networks/${network.id}`"
@@ -64,7 +64,7 @@ const links = [
               </NuxtLink>
             </h2>
           </div>
-          <div class="flex">
+          <div class="flex justify-end items-center grow">
             <!--
         <IconButton
           icon="star"

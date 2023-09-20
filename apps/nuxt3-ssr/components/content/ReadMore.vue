@@ -22,7 +22,7 @@ let truncate = ref(true);
 
   <button
     v-if="truncate && text && text.length > cutoff"
-    class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
+    class="my-5 text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
     @click="truncate = false"
   >
     Read more
