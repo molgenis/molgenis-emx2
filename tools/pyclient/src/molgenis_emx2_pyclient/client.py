@@ -9,7 +9,7 @@ import requests
 from . import graphql_queries as queries
 from . import utils as utils
 from .exceptions import NoSuchSchemaException, ServiceUnavailableError, SigninError, ServerNotFoundError, \
-    PyclientException, NoSuchTableException
+    PyclientException, NoSuchTableException, NoContextManagerException
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
@@ -25,6 +25,7 @@ class Client:
         """
         A Client class instances is created with a server url.
         """
+        self._as_context_manager = False
         self.url = utils.parse_url(url)
         self.api_graphql = self.url + "/api/graphql"
 
@@ -38,6 +39,26 @@ class Client:
     def __str__(self):
         return self.url
 
+    def __enter__(self):
+        self._as_context_manager = True
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type or exc_val or exc_tb:
+            print(exc_type, exc_val, exc_tb, sep="\n")
+        self.signout()
+        self.session.close()
+
+    async def __aenter__(self):
+        self._as_context_manager = True
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if exc_type or exc_val or exc_tb:
+            print(exc_type, exc_val, exc_tb, sep="\n")
+        self.signout()
+        self.session.close()
+
     def signin(self, username: str, password: str):
         """Signs in to Molgenis and retrieves session cookie.
 
@@ -46,6 +67,9 @@ class Client:
         :param password: the password corresponding to this username.
         :type username: str
         """
+        if not self._as_context_manager:
+            raise NoContextManagerException("Ensure the Client is called as a context manager,\n"
+                                            "e.g. `with Client(url) as client:`")
         query = queries.signin()
         variables = {'email': username, 'password': password}
 
@@ -96,11 +120,11 @@ class Client:
         )        
         
         status = response.json().get('data', {}).get('signout', {}).get('status')
-        message = response.json().get('data', {}).get('signout', {}).get('message')
         if status == 'SUCCESS':
             print(f"Signed out of {self.url}")
         else:
             print(f"Unable to sign out of {self.url}.")
+            message = response.json().get('errors')[0].get('message')
             print(message)
             
     @property

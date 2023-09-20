@@ -256,6 +256,18 @@ export default {
             ? this.cohort.populationAgeGroups.map((pag) => pag.name)
             : [],
         },
+        {
+          label: "Tumor location",
+          value: this.cohort.populationOncologyTopology
+            ? this.cohort.populationOncologyTopology.map((pag) => pag.name)
+            : [],
+        },
+        {
+          label: "Tumor morphology",
+          value: this.cohort.populationOncologyMorphology
+            ? this.cohort.populationOncologyMorphology.map((pag) => pag.name)
+            : [],
+        },
       ];
     },
     partners() {
