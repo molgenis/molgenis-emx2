@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { INetwork } from "~/interfaces/types";
 import { computed } from "vue";
 
 const props = withDefaults(
@@ -33,9 +34,18 @@ const iconStarClasses = computed(() => {
 });
 
 const links = [
-  { title: "Network", url: "#" },
-  { title: "Cohorts", url: "#" },
-  { title: "Variables", url: "#" },
+  {
+    title: "Network",
+    url: `/${props.schema}/ssr-catalogue/networks/${props.network.id}`,
+  },
+  {
+    title: "Cohorts",
+    url: `/${props.schema}/ssr-catalogue/networks/${props.network.id}#cohorts`,
+  },
+  {
+    title: "Variables",
+    url: `/${props.schema}/ssr-catalogue/networks/${props.network.id}#variables`,
+  },
 ];
 </script>
 
