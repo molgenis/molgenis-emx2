@@ -1,0 +1,5 @@
+---
+name: FAIR Data Hub
+description: The FAIR life science and omics model
+datamodels: cohorts.csv, studies.csv, individuals.csv, variants.csv
+profiles: DCAT, Beacon v2, FAIR Genomes
