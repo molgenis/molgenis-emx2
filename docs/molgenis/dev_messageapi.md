@@ -44,6 +44,8 @@ query Resources($filter:ResourcesFilter){
  }
 ```
 
+***BBC option***
+To receive a copy of the message create a setting with key: ```contactBccAddress``` and a valid email address as value.
 ## Sending email
 
 Configurable settings
