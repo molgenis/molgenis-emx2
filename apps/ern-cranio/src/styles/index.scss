@@ -1,15 +1,59 @@
 $ern-cranio-primary: #f3833b;
 $ern-cranio-primary-alt: hsl(23, 88%, 83%);
 
+@mixin buttonLink($width: 100%) {
+  display: block;
+  width: $width;
+  padding: 0.6em 0;
+  background-color: none;
+  text-align: center;
+  background-color: $ern-cranio-primary;
+  color: $gray-000;
+  border-radius: 32pt;
+}
+
 .app-page,
 .page-footer {
-  font-size: 12pt;
   font-family: Helvetica, sans-serif;
 
   .page-header {
+    height: 15em;
+    
     &.ern-header {
-      background-color: $gray-050;
       height: 21em;
+      
+      .header-content {
+        .header-title {
+          color: $gray-800;
+          font-size: 18pt;
+        }
+        .header-subtitle {
+          color: $gray-900;
+        }
+      }
+      
+      .background-image-filter {
+        background-color: $ern-cranio-primary-alt;
+        opacity: 0.1;
+      }
+    }
+  }
+  
+  .page-section {
+    &.section-bg-light-blue {
+      background-color: $blue-050;
+    }
+    
+    &.section-text-center {
+      text-align: center;
+    }
+    
+    a {
+      &.button-link {
+        @include buttonLink(300px);
+        margin: 0 auto;
+        margin-top: 1em;
+      }
     }
   }
   
@@ -35,5 +79,95 @@ $ern-cranio-primary-alt: hsl(23, 88%, 83%);
     padding: 8px 12px;
     border: 1px solid $gray-700;
     box-shadow: inset 0px 0px 2px 2px $gray-100;
+  }
+}
+
+.quicklink-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2em;
+
+  .link-card {
+    flex-grow: 1;
+    background-color: $gray-000;
+    color: currentColor;
+    border-radius: 12pt;
+    text-align: center;
+    
+    svg {
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 1.5em;
+      $size: 26pt;
+      height: $size;
+      width: $size;
+      
+      * {
+        stroke: $ern-cranio-primary;
+      }
+    }
+    
+    h3 {
+      font-size: 13pt;
+    }
+
+    p {
+      margin: 0;
+      color: $gray-600;
+      font-size: 13pt;
+    }
+    
+    a {
+      margin-top: 1em;
+      @include buttonLink;
+      font-size: 10pt;
+    }
+  }
+}
+
+.provider-dashboard-container {
+  font-size: 13pt; 
+
+  .dashboard-content {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    align-items: flex-start;
+    justify-content: flex-start;
+    
+    .dashboard-chart-layout {
+      margin-bottom: 2em;
+    }
+    
+    .dashboard-box {
+      box-sizing: content-box;
+      padding: 1.3em;
+      
+      h3,
+      .d3-viz .chart-title,
+      .d3-progress-meter .chart-title span {
+        font-size: 14pt;
+        font-weight: 400;
+      }
+      
+      p {
+        margin-bottom: 0;
+      }
+      
+      .d3-progress-meter {
+        .chart-title {
+          margin: 0;
+          span {
+            font-size: 14pt;
+          }
+        }
+
+        .chart {
+          margin: 0;
+        }
+      }
+    }
   }
 }

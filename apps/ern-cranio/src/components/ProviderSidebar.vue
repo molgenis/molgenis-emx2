@@ -95,6 +95,8 @@ const props = defineProps(viewProps);
     padding: 0;
     margin-top: 1em;
     margin-bottom: 2.5em;
+    
+    $link-font-size: 12pt;
 
     ul,
     ul li ul {
@@ -113,7 +115,7 @@ const props = defineProps(viewProps);
         background-color: transparent;
         
         .toggle-label {
-          font-size: 12pt;
+          font-size: $link-font-size;
         }
       }
       .accordion-content { 
@@ -126,11 +128,16 @@ const props = defineProps(viewProps);
       border-left: 3px solid transparent;
       padding-left: 1em;
       
+      a, p {
+        font-size: $link-font-size;
+        margin: 0;
+        line-height: 1;
+      }
+      
       p {
         @include textTransform;
         margin-top: 24px;
-        padding-left: 1.4em;
-        line-height: 1;
+        padding-left: 1.75em;
         color: $gray-400;
       }
       

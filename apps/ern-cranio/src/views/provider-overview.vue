@@ -10,33 +10,27 @@
       </p>
     </DashboardBox>
     <DashboardChartLayout :columns="2">
-      <DashboardBox
-        id="provider-overview-patients-submitted"
-        class="value-highlight"
+      <DashboardBox id="provider-overview-patients-submitted" class="center-showcase">
+      <ValueShowcase 
+        :title="`${ totalPatientsSubmitted } patients submitted`"
+        :description="`Your center has submitted on average ${ avergagePatientsSubmitted } patients per month`"
       >
-        <h2>
-          <UserGroupIcon />
-          <span>{{ totalPatientsSubmitted }} patients submitted</span>
-        </h2>
-        <p>
-          Your center submitted on average
-          {{ avergagePatientsSubmitted }} patients per month.
-        </p>
+        <UserGroupIcon />
+      </ValueShowcase>
       </DashboardBox>
-      <DashboardBox id="provider-overview-current-rank" class="value-highlight">
-        <h2>
+      <DashboardBox id="provider-overview-current-rank" class="center-showcase">
+        <ValueShowcase
+          :title="`${ currentCenterRanking } in overall submitted patients`"
+          :description="`Patients from your center account for ${ percentOfRegistry } of the
+          registry.`"
+        >
           <TrophyIcon />
-          <span>{{ currentCenterRanking }} in overall submitted patients</span>
-        </h2>
-        <p>
-          Patients from your center account for {{ percentOfRegistry }} of the
-          registry.
-        </p>
+        </ValueShowcase>
       </DashboardBox>
       <DashboardBox id="provider-overview-patients-by-workstream">
         <PieChart2
           chartId="patientsByWorkstream"
-          title="Patients submitted by workstream"
+          title="Patients by workstream"
           :chartData="patientsBySubregistry"
           :chartHeight="215"
           :asDonutChart="true"
@@ -65,8 +59,10 @@
 import { ref } from "vue";
 import { UserGroupIcon, TrophyIcon } from "@heroicons/vue/24/outline";
 import { DashboardBox,PieChart2 } from "molgenis-viz";
+
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
+import ValueShowcase from "../components/ValueShowcase.vue";
 
 import viewProps from "../data/props";
 const props = defineProps(viewProps);

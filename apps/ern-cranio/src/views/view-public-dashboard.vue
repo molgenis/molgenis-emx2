@@ -4,7 +4,7 @@
       class="ern-header"
       title="ERN CRANIO"
       subtitle="Dashboard"
-      height="medium"
+      imageSrc="banner-diagnoses.jpg"
     />
     <Breadcrumbs />
     <PageSection
@@ -29,10 +29,10 @@
       <DashboardBox class="viz-pie-chart">
         <PieChart
           chartId="sexAtBirth"
-          :chartData="sexAtBirth"
-          :chartHeight="265"
-          :chartMargins="5"
           title="Sex at birth"
+          :chartData="sexAtBirth"
+          :chartHeight="230"
+          :chartMargins="0"
           :asDonutChart="true"
         />
       </DashboardBox>

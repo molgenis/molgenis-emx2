@@ -18,7 +18,7 @@
           <UnorderedList listType="none">
             <li>
               <router-link :to="{ name: 'providers', params: { id: orgId }}">
-                {{ orgName }} Dashboard
+                Member Sign in
               </router-link>
             </li>
             <!-- more links here -->

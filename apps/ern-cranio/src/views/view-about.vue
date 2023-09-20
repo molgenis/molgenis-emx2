@@ -4,7 +4,7 @@
       class="ern-header"
       title="ERN CRANIO"
       subtitle="About the ERN CRANIO registry"
-      height="medium"
+      imageSrc="banner-diagnoses.jpg"
     />
     <Breadcrumbs />
     <PageSection

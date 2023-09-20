@@ -4,7 +4,6 @@
       title="ERN CRANIO Registry"
       :subtitle="`${orgName}`"
       :imageSrc="orgImageUrl"
-      height="large"
     />
     <Dashboard class="provider-dashboard-container">
       <ProviderSidebar
@@ -32,65 +31,3 @@ import viewProps from "../data/props";
 const props = defineProps(viewProps);
 
 </script>
-
-<style lang="scss">
-.provider-dashboard-container {
-  .dashboard-content {
-    display: grid;
-    grid-template-columns: 350px 1fr;
-    align-items: flex-start;
-    justify-content: flex-start;
-    
-    .dashboard-chart-layout {
-      margin-bottom: 2em;
-    }
-    
-    .dashboard-box {
-      box-sizing: content-box;
-      padding: 1.3em;
-      
-      &.value-highlight {
-        h2 {
-          font-weight: 400;
-          text-transform: none;
-          letter-spacing: normal;
-          font-size: 15pt;
-
-          svg {
-            width: 19px;
-            margin-top: -2px;
-            margin-right: 8px;
-          }
-        }
-        p {
-          margin: 0;
-        }
-      }
-      
-      h3,
-      .d3-viz .chart-title,
-      .d3-progress-meter .chart-title span {
-        font-size: 14pt;
-        font-weight: 400;
-      }
-      
-      p {
-        margin-bottom: 0;
-      }
-      
-      .d3-progress-meter {
-        .chart-title {
-          margin: 0;
-          span {
-            font-size: 14pt;
-          }
-        }
-
-        .chart {
-          margin: 0;
-        }
-      }
-    }
-  }
-}
-</style>
