@@ -51,7 +51,8 @@ const query = gql`
         title
         doi
       }
-      inclusionCriteria
+      inclusionCriteria ${loadGql(ontologyFragment)}
+      otherInclusionCriteria
       additionalOrganisations {
         id
         acronym
@@ -314,7 +315,7 @@ const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
     </template>
     <template #side>
       <SideNavigation
-        :title="cohort.acronym"
+        :title="cohort?.acronym"
         :image="cohort?.logo?.url"
         :items="tocItems"
       />

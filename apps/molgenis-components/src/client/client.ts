@@ -1,4 +1,5 @@
-import axios, { Axios, AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import { IColumn } from "../Interfaces/IColumn";
 import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
@@ -7,32 +8,29 @@ import { convertToPascalCase, deepClone } from "../components/utils";
 import { IClient, INewClient } from "./IClient";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { columnNames } from "./queryBuilder";
-import { IColumn } from "../Interfaces/IColumn";
 
 // application wide cache for schema meta data
 const schemaCache = new Map<string, ISchemaMetaData>();
 
 export { request };
 const client: IClient = {
-  newClient: (schemaName?: string, externalAxios?: Axios): INewClient => {
-    const myAxios = externalAxios || axios;
-
+  newClient: (schemaName?: string): INewClient => {
     return {
       insertDataRow,
       updateDataRow,
       deleteRow: async (rowKey: IRow, tableName: string) => {
-        return deleteRow(myAxios, rowKey, tableName, schemaName);
+        return deleteRow(rowKey, tableName, schemaName);
       },
       deleteAllTableData: async (tableName: string) => {
         return deleteAllTableData(tableName, schemaName);
       },
       fetchSchemaMetaData: async () => {
-        return fetchSchemaMetaData(myAxios, schemaName);
+        return fetchSchemaMetaData(schemaName);
       },
       fetchTableMetaData: async (
         tableName: string
       ): Promise<ITableMetaData> => {
-        const schema = await fetchSchemaMetaData(myAxios, schemaName);
+        const schema = await fetchSchemaMetaData(schemaName);
         return deepClone(schema).tables.find(
           (table: ITableMetaData) => table.id === convertToPascalCase(tableName)
         );
@@ -41,20 +39,19 @@ const client: IClient = {
         tableId: string,
         properties: IQueryMetaData = {}
       ) => {
-        const schemaMetaData = await fetchSchemaMetaData(myAxios, schemaName);
-        return fetchTableData(tableId, properties, schemaMetaData, myAxios);
+        const schemaMetaData = await fetchSchemaMetaData(schemaName);
+        return fetchTableData(tableId, properties, schemaMetaData);
       },
       fetchTableDataValues: async (
         tableName: string,
         properties: IQueryMetaData = {}
       ) => {
-        const schemaMetaData = await fetchSchemaMetaData(myAxios, schemaName);
+        const schemaMetaData = await fetchSchemaMetaData(schemaName);
         const tableId = convertToPascalCase(tableName);
         const dataResp = await fetchTableData(
           tableId,
           properties,
-          schemaMetaData,
-          myAxios
+          schemaMetaData
         );
         return dataResp[tableId];
       },
@@ -64,7 +61,7 @@ const client: IClient = {
         expandLevel: number = 1
       ) => {
         const tableId = convertToPascalCase(tableName);
-        const schemaMetaData = await fetchSchemaMetaData(myAxios, schemaName);
+        const schemaMetaData = await fetchSchemaMetaData(schemaName);
         const tableMetaData = schemaMetaData.tables.find(
           (table) =>
             table.id === tableId && table.externalSchema === schemaMetaData.name
@@ -82,7 +79,6 @@ const client: IClient = {
               filter,
             },
             schemaMetaData,
-            myAxios,
             expandLevel
           )
         )[tableId];
@@ -156,7 +152,7 @@ const client: IClient = {
         schemaCache.clear();
       },
       convertRowToPrimaryKey: async (row: IRow, tableName: string) => {
-        return convertRowToPrimaryKey(myAxios, row, tableName, schemaName);
+        return convertRowToPrimaryKey(row, tableName, schemaName);
       },
     };
   },
@@ -242,15 +238,10 @@ const updateDataRow = (
   return axios.post(graphqlURL(schemaName), formData);
 };
 
-const deleteRow = async (
-  myAxios: Axios,
-  row: IRow,
-  tableName: string,
-  schemaName?: string
-) => {
+const deleteRow = async (row: IRow, tableName: string, schemaName?: string) => {
   const tableId = convertToPascalCase(tableName);
   const query = `mutation delete($pkey:[${tableId}Input]){delete(${tableId}:$pkey){message}}`;
-  const key = await convertRowToPrimaryKey(myAxios, row, tableName, schemaName);
+  const key = await convertRowToPrimaryKey(row, tableName, schemaName);
   const variables = { pkey: [key] };
   return axios.post(graphqlURL(schemaName), { query, variables });
 };
@@ -261,7 +252,6 @@ const deleteAllTableData = (tableName: string, schemaName?: string) => {
 };
 
 const fetchSchemaMetaData = async (
-  axios: Axios,
   schemaName?: string
 ): Promise<ISchemaMetaData> => {
   const currentSchemaName = schemaName ? schemaName : "CACHE_OF_CURRENT_SCHEMA";
@@ -288,7 +278,6 @@ const fetchTableData = async (
   tableName: string,
   properties: IQueryMetaData,
   metaData: ISchemaMetaData,
-  axios: Axios,
   expandLevel: number = 2
 ) => {
   const tableId = convertToPascalCase(tableName);
@@ -391,31 +380,11 @@ const toFormData = (rowData: IRow) => {
 };
 
 async function convertRowToPrimaryKey(
-  myAxios: Axios,
   row: IRow,
   tableName: string,
   schemaName?: string
 ): Promise<Record<string, any>> {
-  async function getKeyValue(
-    cellValue: any,
-    column: IColumn,
-    schemaName: string
-  ) {
-    if (typeof cellValue === "string") {
-      return cellValue;
-    } else {
-      if (column.refTable) {
-        return await convertRowToPrimaryKey(
-          myAxios,
-          cellValue,
-          column.refTable,
-          schemaName
-        );
-      }
-    }
-  }
-
-  const schema = await fetchSchemaMetaData(myAxios, schemaName);
+  const schema = await fetchSchemaMetaData(schemaName);
   const tableMetadata = schema.tables.find(
     (table: ITableMetaData) =>
       table.id === convertToPascalCase(tableName) &&
@@ -439,5 +408,23 @@ async function convertRowToPrimaryKey(
       },
       Promise.resolve({})
     );
+  }
+
+  async function getKeyValue(
+    cellValue: any,
+    column: IColumn,
+    schemaName: string
+  ) {
+    if (typeof cellValue === "string") {
+      return cellValue;
+    } else {
+      if (column.refTable) {
+        return await convertRowToPrimaryKey(
+          cellValue,
+          column.refTable,
+          schemaName
+        );
+      }
+    }
   }
 }
