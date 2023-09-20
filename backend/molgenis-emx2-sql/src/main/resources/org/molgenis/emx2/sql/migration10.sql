@@ -4,7 +4,7 @@ DECLARE
 schemaname name;
 tablename name;
 BEGIN
-FOR schemaname IN SELECT schema_name FROM information_schema.schemata WHERE schema_name <> 'MOLGENIS' AND schema_name <> 'information_schema' AND schema_name <> 'pg_catalog' AND schema_name <> 'public' AND schema_name <> 'pg_toast' LOOP
+FOR schemaname IN SELECT schema_name FROM information_schema.schemata WHERE schema_name <> 'MOLGENIS' AND schema_name <> 'information_schema' AND schema_name <> 'pg_catalog' AND schema_name <> 'public' AND schema_name <> 'pg_toast' AND schema_name NOT LIKE 'pg_%' LOOP
     BEGIN
         EXECUTE 'CREATE ROLE "MG_ROLE_' || schemaname || '/Aggregator"';
         EXECUTE 'GRANT USAGE ON SCHEMA "' || schemaname || '" TO "MG_ROLE_' || schemaname || '/Aggregator"';

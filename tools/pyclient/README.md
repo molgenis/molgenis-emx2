@@ -6,13 +6,33 @@ pip install molgenis_emx2_pyclient
 
 ## How to use
 
-Within your Python project import the class Client and use it to sign in
+Within your Python project import the class Client and use it as a context manager
 
 ```py
 from molgenis_emx2_pyclient import Client
 
-client = Client('https://example.molgeniscloud.org')
-client.signin('username', 'password')
+username = 'username'
+password = '...'
+
+with Client('https://example.molgeniscloud.org') as client:
+    client.signin(username, password)
+
+    # Retrieve signin information
+    print(client.status)
+    """ Output:
+    Host: https://example.molgeniscloud.org
+    Status: Signed in
+    Schemas:
+        CatalogueOntologies
+        catalogue
+        ExampleSchema
+        ...
+    Version: v8.214.1
+    """
+    
+    # Retrieve data from a table on a schema
+    data = client.get(schema='ExampleSchame', table='Cohorts')
+
 ```
 
 ## Development
