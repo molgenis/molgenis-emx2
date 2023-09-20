@@ -1,0 +1,1 @@
+from tools.staging_migrator.src.molgenis_emx2_staging_migrator.migrator import StagingMigrator
