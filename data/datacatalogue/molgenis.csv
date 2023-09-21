@@ -295,6 +295,7 @@ Studies,,quality marks,ontology_array,,,CatalogueOntologies,Study quality marks,
 Studies,,number of data sources,,,,,,,,,,Total number of data sources included in the study,EMA
 Studies,,medicines studied INN codes,ontology_array,,,CatalogueOntologies,INN,,,,,INN codes of medicines studied,EMA
 Studies,,medicines studied ATC codes,ontology_array,,,CatalogueOntologies,ATC,,,,,ATC codes of medicines studied,EMA
+Studies,,medicines studies brands,ontology_array,,,CatalogueOntologies,Medicine brand names,,,,,Brand names of the medicines studied,EMA
 Studies,,medicines studied other,text,,,,,,,,,If the medicinal product information (e.g. brand name or active substance or ATC code) does not appear in the available look-ups please enter it here,EMA
 Studies,,medical conditions studied,ontology_array,,,CatalogueOntologies,MedDRA,,,,,Codes of the medical conditions studied,EMA
 Studies,,medical conditions studied other,text,,,,,,,,,Codes of the medical conditions studied,EMA
