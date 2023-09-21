@@ -94,7 +94,7 @@ console.log("query: ", query.value);
 const { data, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
   {
-    key: `cohorts-${offset.value}`,
+    key: `${resourceName}-list-${offset.value}`,
     baseURL: config.public.apiBase,
     method: "POST",
     body: {
