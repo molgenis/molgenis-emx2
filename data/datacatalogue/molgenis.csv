@@ -423,7 +423,7 @@ External identifiers,,external identifier type other,text,,,,,,,,,"If other, ent
 DAPs,,,,,,,,,,,,Data access provider relationship where an institution can provide access to (parts of) a resource,
 DAPs,,organisation,ref,1,TRUE,,Organisations,,,,,Institution that provides access,
 DAPs,,resource,ref,1,TRUE,,Resources,,,,,Resource that is access or has experience with provided to,
-DAPs,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",
 DAPs,,is data access provider,ontology_array,,,CatalogueOntologies,DAP information,,,,,"Description of population subset, data access levels, completeness, reason for access",
 DAPs,,reason access other,text,,,,,,,,,"If reason access is 'other', reason for being able to access (an extract of) the data source",
+DAPs,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",
 DAPs,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",
