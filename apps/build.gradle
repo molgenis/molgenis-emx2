@@ -26,7 +26,7 @@ task checkFormat(type: YarnTask, dependsOn: yarn_install) {
 
 task buildJavascript(type: YarnTask, dependsOn: format) {
     environment = ["NODE_OPTIONS":"--max-old-space-size=4096"]
-    args = ['run', 'nx', 'run-many', '--target=build,build-showcase','--parallel=4','--verbose']
+    args = ['run', 'nx', 'run-many', '--target=build,build-showcase',"--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}",'--verbose']
     outputs.upToDateWhen { false }
 }
 
