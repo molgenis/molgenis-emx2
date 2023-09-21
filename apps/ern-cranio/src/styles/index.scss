@@ -37,6 +37,7 @@
     a {
       &.button-link {
         @include buttonLink(300px);
+        @include textTransform(bold);
         margin: 0 auto;
         margin-top: 1em;
       }

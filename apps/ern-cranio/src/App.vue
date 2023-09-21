@@ -26,12 +26,14 @@
   </Molgenis>
 </template>
 
+
 <script setup>
 import { ref, onMounted } from "vue";
+import { postQuery } from "./utils/utils";
+
 import { Molgenis } from "molgenis-components";
 import { LoadingScreen, MessageBox } from "molgenis-viz";
 import AppFooter from "./components/AppFooter.vue";
-import { fetchData } from "../../molgenis-viz/src/utils/utils";
 
 const session = ref(null);
 const page = ref(null);
@@ -40,56 +42,46 @@ let loading = ref(false);
 let errorMessage = ref(false);
 let userData = ref({});
 
-// for test purposes only
-const queryUsers = `{
-  Users (
-    filter: {
-      definition: { equals: "live" }
-    }
-  ) {
-    name
-    organisation {
-      name
-      providerInformation {
-        providerIdentifier
+async function getUserData () {
+  const result = await postQuery(
+    'api/graphql',
+    `{
+      Users (
+        filter: {
+          definition: { equals: "live" }
+        }
+      ) {
+        name
+        organisation {
+          name
+          providerInformation {
+            providerIdentifier
+          }
+          imageUrl
+        }
       }
-      imageUrl
-    }
-  }
-}`
-
-function setBaseApiUrl() {
-  const host = window.location.hostname || "";
-  if (host !== "localhost") {
-    const path = window.location.pathname.split("/").filter(value => value !== "")[0];
-    return `/${path}/api/graphql`
-  }
-  return '/api/graphql';
+    }`
+  )
+  
+  return result.data.Users
 }
 
-let apiEndpoint = ref(setBaseApiUrl());
-
+async function loadData() {
+  const userResult = await getUserData();
+  const users = userResult[0];
+  users.orgId = users.organisation.providerInformation[0].providerIdentifier;
+  users.orgName = users.organisation.name;
+  users.orgImageUrl = users.organisation.imageUrl;
+  delete users.organisation;
+  userData.value = users;
+}
 
 onMounted(() => {
-  Promise.resolve(fetchData(apiEndpoint.value, queryUsers))
-  .then(response => {
-    const data = response.data.Users[0];
-    data.orgId = data.organisation.providerInformation[0].providerIdentifier;
-    data.orgName = data.organisation.name;
-    data.orgImageUrl = data.organisation.imageUrl;
-    delete data.organisation;
-    userData.value = data;
-  })
-  .then(() => {
-    if (Object.keys(userData.value).length === 4) {
-      loading.value = false;
-    } else {
-      throw new Error('data not defined', userData);
-    }
-  }).catch(error => {
+  try {
+    loadData();
+  } catch (error) {
     errorMessage.value = error;
-    throw new Error(error);
-  })
-})
+  }
+});
 
 </script>
