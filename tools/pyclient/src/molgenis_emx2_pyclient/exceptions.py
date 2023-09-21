@@ -31,3 +31,7 @@ class ServerNotFoundError(PyclientException):
 
 class ServiceUnavailableError(PyclientException):
     """Thrown when a server is not available for handling a request."""
+
+
+class NoContextManagerException(PyclientException):
+    """Thrown when sign in is attempted outside a context manager."""

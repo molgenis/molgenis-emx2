@@ -8,6 +8,7 @@ Currently we have as standard roles:
   columns (i.e. change the schema)
 * editor - context: schema. Has permission to insert, update, delete rows in tables. Can NOT change schema.
 * viewer - context: schema. Has permission to view data.
+* aggregator - context: schema. Has permission to count table rows (unless <10), and to view ontology data
 
 ## Users can get roles in a schema
 

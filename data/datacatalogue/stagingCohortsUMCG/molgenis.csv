@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
 Publications,,,,,,,,,,,,Publications following bibtex format
-Version,,,,,,,,,,,,3.3
+Version,,,,,,,,,,,,3.7
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Extended resources,Resources,,,,,,,,,,,
 Data resources,Extended resources,,,,,,,,,,,
@@ -36,7 +36,8 @@ Data resources,,number of participants with samples,int,,,,,,,,,Number of indivi
 Extended resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from
 Data resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from
 Data resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups of the participants of this resource
-Cohorts,,inclusion criteria,text,,,,,,,,,Inclusion criteria applied to the participants of this resource
+Cohorts,,inclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource
+Cohorts,,inclusion criteria other,text,,,,,,,,,Other inclusion criteria applied to the participants of this resource
 Cohorts,,start year,int,,,,,,,,,Year when first data was collected (retrospectively)
 Cohorts,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing
 Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource
@@ -52,6 +53,7 @@ Cohorts,,release description,text,,,,,,,,,Description of the release cycle of th
 Cohorts,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource
 Data resources,,other information,heading,,,,,,,,,Other information
 Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
+Data resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?
 Extended resources,,documentation,refback,,,,Documentation,,resource,,,List of documentation available for this resource
 Extended resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
 Extended resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource

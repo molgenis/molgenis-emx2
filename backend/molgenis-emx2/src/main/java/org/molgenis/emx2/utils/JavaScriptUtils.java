@@ -35,7 +35,8 @@ public class JavaScriptUtils {
       for (Map.Entry<String, Object> entry : values.entrySet()) {
         bindings.putMember(entry.getKey(), entry.getValue());
       }
-      return context.eval("js", script).toString();
+      String scriptWithFixedRegex = script.replace("\\\\", "\\");
+      return context.eval("js", scriptWithFixedRegex).toString();
     } catch (Exception e) {
       throw new MolgenisException("script failed: " + e.getMessage());
     }
