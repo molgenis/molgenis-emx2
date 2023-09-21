@@ -44,7 +44,8 @@ export interface ICohort {
     title: string;
     doi: string;
   }[];
-  inclusionCriteria?: string;
+  inclusionCriteria?: IOntologyNode[];
+  otherInclusionCriteria?: string;
   collectionEvents: ICollectionEvent[];
   additionalOrganisations: IPartner[];
   contacts: IContributor[];

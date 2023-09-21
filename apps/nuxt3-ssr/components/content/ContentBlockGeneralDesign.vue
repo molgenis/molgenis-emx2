@@ -89,7 +89,7 @@ function setData() {
     },
     {
       label: "Inclusion criteria",
-      content: cohort?.inclusionCriteria,
+      content: cohort?.otherInclusionCriteria,
     },
     {
       label: "Marker paper",

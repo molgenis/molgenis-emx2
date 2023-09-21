@@ -51,7 +51,8 @@ const query = gql`
         title
         doi
       }
-      inclusionCriteria
+      inclusionCriteria ${loadGql(ontologyFragment)}
+      otherInclusionCriteria
       additionalOrganisations {
         id
         acronym
