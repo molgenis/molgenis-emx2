@@ -18,10 +18,7 @@ fs.readdir(location, (err, files) => {
 });
 
 // write empty fingerprint file for development
-fs.writeFileSync(
-  ".fingerprint.js",
-  "export const hash = '';"
-);
+fs.writeFileSync(".fingerprint.js", "export const hash = '';");
 
 shell.exec(
   `tailwindcss -c ./tailwind.config.cjs -i ${location}main.css -o ${location}styles.css --watch`,

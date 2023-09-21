@@ -22,24 +22,23 @@ let conf = {
           @import "src/styles/resets.scss";
           @import "src/styles/textPosition.scss";
           @import "src/styles/variables.scss";
-        `
-      }
-    }
-  }
+        `,
+      },
+    },
+  },
 };
 
 export default defineConfig(({ command, mode }) => {
-  require('dotenv').config({ path: `./.env` });
-  
-  if (command === 'serve') {
+  require("dotenv").config({ path: `./.env` });
+
+  if (command === "serve") {
     return {
       ...conf,
       server: {
-        proxy: require("../dev-proxy.config")
+        proxy: require("../dev-proxy.config"),
       },
-    }
+    };
   } else {
-
     if (command === "build" && mode === "lib") {
       return {
         ...conf,
@@ -58,13 +57,13 @@ export default defineConfig(({ command, mode }) => {
               // for externalized deps
               globals: {
                 vue: "Vue",
-              }
-            }
-          }
-        }
-      }
+              },
+            },
+          },
+        },
+      };
     }
-    
+
     if (command === "build" && mode == "app") {
       return {
         ...conf,
@@ -72,18 +71,18 @@ export default defineConfig(({ command, mode }) => {
           rollupOptions: {
             output: {
               assetFileNames: (assetInfo) => {
-                const extension = assetInfo.name.split('.').pop()
+                const extension = assetInfo.name.split(".").pop();
                 if (/png|jpg|svg/.test(extension)) {
-                  return `img/[name].[hash][extname]`
+                  return `img/[name].[hash][extname]`;
                 }
-                return `${extension}/dashboard.[hash][extname]`
+                return `${extension}/dashboard.[hash][extname]`;
               },
-              chunkFileNames: 'js/[name].[hash].js',
-              entryFileNames: 'js/[name].[hash].js'
-            }
-          }
-        }
-      }
+              chunkFileNames: "js/[name].[hash].js",
+              entryFileNames: "js/[name].[hash].js",
+            },
+          },
+        },
+      };
     }
   }
-})
+});
