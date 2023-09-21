@@ -49,7 +49,8 @@ fs.readdir(moveFrom, function (err, files) {
 
       var toPath = path.join(moveTo, newFileName);
 
-      const newFile = `<template>
+      const newFile =
+`<template>
   ${data} 
 </template>`;
 

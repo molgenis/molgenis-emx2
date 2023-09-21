@@ -1,6 +1,6 @@
 {
-  "schema": [
-    "https://emx2.dev.molgenis.org/CatalogueOntologies/catalogue/graphql",
-    "https://emx2.dev.molgenis.org/catalogue/catalogue/graphql"
-  ]
+    "schema": [
+        "https://emx2.dev.molgenis.org/CatalogueOntologies/catalogue/graphql",
+        "https://emx2.dev.molgenis.org/catalogue/catalogue/graphql"
+    ]
 }

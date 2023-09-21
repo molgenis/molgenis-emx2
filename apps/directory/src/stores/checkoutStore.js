@@ -61,8 +61,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
           .join(", ")} from ${biobankIdentifier}`
       );
 
-      selectedCollections.value[biobankIdentifier] =
-        currentSelectionForBiobank.concat(newCollections);
+      selectedCollections.value[
+        biobankIdentifier
+      ] = currentSelectionForBiobank.concat(newCollections);
     } else {
       selectedCollections.value[biobankIdentifier] = collections;
 
@@ -105,8 +106,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       }
 
       if (collectionSelectionForBiobank.length) {
-        selectedCollections.value[biobankIdentifier] =
-          collectionSelectionForBiobank;
+        selectedCollections.value[
+          biobankIdentifier
+        ] = collectionSelectionForBiobank;
       } else {
         delete selectedCollections.value[biobankIdentifier];
       }

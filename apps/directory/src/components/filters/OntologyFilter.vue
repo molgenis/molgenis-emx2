@@ -74,8 +74,8 @@ export default {
     return {
       ontologyQuery: "",
       resolvedOptions: {},
-      selectedOntology:
-        this.ontologyIdentifiers[0] /** we start with the top one */,
+      selectedOntology: this
+        .ontologyIdentifiers[0] /** we start with the top one */,
     };
   },
   computed: {

@@ -270,8 +270,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       const filterOptionsToAdd = value.filter(
         (newValue) => !existingValues.includes(newValue.name)
       );
-      filters.value[filterName] =
-        filters.value[filterName].concat(filterOptionsToAdd);
+      filters.value[filterName] = filters.value[filterName].concat(
+        filterOptionsToAdd
+      );
     } else {
       filters.value[filterName] = value;
     }

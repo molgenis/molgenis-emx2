@@ -19,8 +19,7 @@ export const filterTemplate = {
   filterValueAttribute: "id",
   filterLabelAttribute: "name",
   removeOptions: [],
-  customOptions:
-    [] /** an array with objects that substitute calling the database for options, { text: labelToShow, value: valueToFilterOn } */,
+  customOptions: [] /** an array with objects that substitute calling the database for options, { text: labelToShow, value: valueToFilterOn } */,
   ontologyIdentifiers: [],
   trueOption: undefined /** use this in combination with a toggle filter */,
   showMatchTypeSelector: true,
