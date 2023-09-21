@@ -72,30 +72,25 @@ const iconStarClasses = computed(() => {
     </header>
 
     <div v-if="!compact">
-      <template v-if="cohort.description">
-        <p class="text-body-base my-5 xl:block hidden">
-          {{ cohort.description }}
-        </p>
+      <p class="text-body-base my-5 xl:block hidden">
+        {{ cohort?.description }}
+      </p>
 
-        <p
-          v-if="cohort.description"
-          class="text-body-base mt-5 block xl:hidden"
-        >
-          {{
-            truncate
-              ? `${cohort.description?.substring(0, cutoff)}...`
-              : cohort.description
-          }}
-        </p>
+      <p v-if="cohort?.description" class="text-body-base mt-5 block xl:hidden">
+        {{
+          truncate
+            ? `${cohort?.description?.substring(0, cutoff)}...`
+            : cohort?.description
+        }}
+      </p>
 
-        <button
-          v-if="truncate && cohort.description?.length > cutoff"
-          class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
-          @click="truncate = false"
-        >
-          Read more
-        </button>
-      </template>
+      <button
+        v-if="truncate && cohort?.description?.length > cutoff"
+        class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
+        @click="truncate = false"
+      >
+        Read more
+      </button>
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>
