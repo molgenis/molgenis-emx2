@@ -4,4 +4,5 @@ module.exports = {
   bracketSpacing: true,
   arrowParens: "always",
   semi: true,
+  endOfLine: "lf",
 };
