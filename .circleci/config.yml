@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
     # specify the version you desire here
-    - image: molgenis/molgenis-emx2-ci:1.0.0
+    - image: molgenis/molgenis-emx2-ci:1.1.0
     - image: postgres:14-alpine
       environment:
         POSTGRES_USER: postgres

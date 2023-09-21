@@ -7,7 +7,7 @@ To publish the docker:
 
 ```
 docker login
-docker buildx build --platform linux/amd64  -t molgenis/molgenis-emx2-ci:1.0.0 -t molgenis/molgenis-emx2-ci:latest .
+docker buildx build --platform linux/amd64  -t molgenis/molgenis-emx2-ci:1.1.0 -t molgenis/molgenis-emx2-ci:latest .
 docker push molgenis/molgenis-emx2-ci --all-tags
 ```
 
