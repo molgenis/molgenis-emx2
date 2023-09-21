@@ -41,10 +41,22 @@ const page = ref(null);
 let loading = ref(false);
 let errorMessage = ref(false);
 let userData = ref({});
+let baseApiUrl = ref(null);
 
-async function getUserData () {
+function setBaseApiUrl() {
+  const path = window.location.pathname
+  if (path !== "/") {
+    const schema = path.split("/").filter(value => value != "")
+    baseApiUrl.value = `/${schema}/api/graphql`
+  }
+  baseApiUrl.value = '/api/graphql';
+}
+
+setBaseApiUrl();
+
+async function getUserData (url) {
   const result = await postQuery(
-    'api/graphql',
+    url,
     `{
       Users (
         filter: {
@@ -66,19 +78,21 @@ async function getUserData () {
   return result.data.Users
 }
 
-async function loadData() {
-  const userResult = await getUserData();
+async function loadData(url) {
+  const userResult = await getUserData(url);
+  
   const users = userResult[0];
   users.orgId = users.organisation.providerInformation[0].providerIdentifier;
   users.orgName = users.organisation.name;
   users.orgImageUrl = users.organisation.imageUrl;
   delete users.organisation;
+  
   userData.value = users;
 }
 
 onMounted(() => {
   try {
-    loadData();
+    loadData(baseApiUrl.value);
   } catch (error) {
     errorMessage.value = error;
   }
