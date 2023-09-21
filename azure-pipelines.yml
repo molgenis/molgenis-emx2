@@ -23,6 +23,8 @@ services:
 
 steps:
 - script: |
+    git fetch --all --tags
+- script: |
     sudo apt-get update &&  sudo apt-get install postgresql-client python3 python3-venv -y
   displayName: postgresql client python3
 - script: |

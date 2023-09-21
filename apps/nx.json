@@ -8,6 +8,9 @@
       }
     }
   },
+  "affected": {
+    "defaultBase": "master"
+  },
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"]

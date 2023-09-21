@@ -29,7 +29,6 @@
     "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "dependencies": {
-    "molgenis-components": "*",
     "@heroicons/vue": "2.0.18",
     "d3": "7.8.5",
     "graphql-request": "^6.1.0",
