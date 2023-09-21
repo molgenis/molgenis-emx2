@@ -42,18 +42,21 @@
       }
     }
   }
-  
-  .message-box {
-    .message-text {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      p {
-        margin: 0;
-      }
+} 
+.message-box {
+  .message-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    p {
+      margin: 0;
     }
   }
-  
+}
+
+.message-box-container {
+  max-width: 90%;
+  margin: 0 auto;
 }
 
 .inputs {
