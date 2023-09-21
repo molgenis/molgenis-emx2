@@ -2,9 +2,6 @@
   "tasksRunnerOptions": {
     "default": {
       "options": {
-        "accessToken": "Y2Y0YmJjM2UtYTBjNy00YmMzLWIyZDItMmM2ZGU4YzBiOTgyfHJlYWQtd3JpdGU="
-      },
-      "options": {
         "cacheableOperations": ["build", "format", "build-showcase", "test"]
       }
     }
