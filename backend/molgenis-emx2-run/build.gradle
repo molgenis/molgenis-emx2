@@ -1,5 +1,5 @@
 dependencies {
-    implementation project(':apps') //fat jar with all js/html in resources/main/public_html
+    implementation project(':frontend') //fat jar with all js/html in resources/main/public_html
     implementation project(':docs') //jar with docs
 
     implementation project(':backend:molgenis-emx2-webapi') //all apis
