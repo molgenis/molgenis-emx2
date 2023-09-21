@@ -212,8 +212,8 @@ Documentation,,description,text,,,,,,,,,Description of the document,
 Documentation,,url,hyperlink,,,,,,,,,Hyperlink to the source of the documentation,EMA
 Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation,EMA
 Linked resources,,,,,,,,,,,,Links between datasource and databank,EMA
-Linked resources,,main resource,ref,1,,,RWE resources,,,,,,EMA
-Linked resources,,linked resource,ref,1,,,RWE resources,,,,,,EMA
+Linked resources,,main resource,ref,1,TRUE,,RWE resources,,,,,,EMA
+Linked resources,,linked resource,ref,1,TRUE,,RWE resources,,,,,,EMA
 Linked resources,,other linked resource,,1,,,,,,,,"if other linked data source, enter the name of the data source (default = not applicable)",EMA
 Linked resources,,linkage strategy,ontology,,,CatalogueOntologies,Linkage strategies,,,,,The linkage method that was used to link data banks. One entry per data bank,EMA
 Linked resources,,linkage variable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank",EMA
