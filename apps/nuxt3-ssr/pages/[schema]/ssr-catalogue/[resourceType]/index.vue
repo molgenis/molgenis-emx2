@@ -9,17 +9,15 @@ const resourceName: string = route.params.resourceType as string;
 const schemaName = route.params.schema.toString();
 const metadata = await fetchMetadata(schemaName);
 
-const tableMetaDataFinderResult = metadata.tables.find(
-  (t: ITableMetaData) =>
-    t.id.toLocaleLowerCase() === resourceName.toLocaleLowerCase()
-);
-
 const tableMetaData = computed(() => {
-  if (tableMetaDataFinderResult) {
-    return tableMetaDataFinderResult;
-  } else {
-    throw new Error(`Table metadata not found for ${resourceName}`);
+  const result = metadata.tables.find(
+    (t: ITableMetaData) =>
+      t.id.toLocaleLowerCase() === resourceName.toLocaleLowerCase()
+  );
+  if (!result) {
+    throw new Error(`Table ${resourceName} not found in schema ${schemaName}`);
   }
+  return result;
 });
 
 const resourceType = tableMetaData.value.id;
