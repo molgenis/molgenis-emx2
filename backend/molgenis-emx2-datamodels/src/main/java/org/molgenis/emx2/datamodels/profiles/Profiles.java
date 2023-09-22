@@ -8,13 +8,18 @@ public class Profiles {
 
   /*
   Variables mapped to the YAML file
+  FIXME: is it possible to directly load CSV into Lists using a mapper?
    */
   public String name;
   public String description;
   public String datamodels;
   public String profiles;
+  public String dataPartOfModelFolder;
+  public String optionalDemoDataFolder;
   public List<String> datamodelsList;
   public List<String> profilesList;
+  public List<String> dataPartOfModelFolderList;
+  public List<String> optionalDemoDataFolderList;
 
   @Override
   public String toString() {
@@ -25,10 +30,14 @@ public class Profiles {
         + ", description='"
         + description
         + '\''
-        + ", datamodels="
+        + ", datamodelsList="
         + datamodelsList
-        + ", profiles="
+        + ", profilesList="
         + profilesList
+        + ", dataPartOfModelFolderList="
+        + dataPartOfModelFolderList
+        + ", optionalDemoDataFolderList="
+        + optionalDemoDataFolderList
         + '}';
   }
 }
