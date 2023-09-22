@@ -5,13 +5,16 @@ import pathlib
 from typing import TypeAlias, Literal
 
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException
+
 from tools.pyclient.src.molgenis_emx2_pyclient import Client
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.SyncTables import TablesToDelete, TablesToSync
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.constants import BASE_DIR
+from tools.staging_migrator.src.molgenis_emx2_staging_migrator.utils import delete_staging_from_catalogue
 
 log = logging.getLogger(__name__)
 
 SchemaType: TypeAlias = Literal['source', 'target']
+
 
 class StagingMigrator(Client):
     """
@@ -36,9 +39,16 @@ class StagingMigrator(Client):
         # Download the target catalogue for upload in case of an error during execution
         self._download_schema(schema=catalogue, schema_type='target', include_system_columns=False)
 
-        # Database name needs to be identical to cohort PID
+        # Gather the tables to delete from the target and the tables to sync to the target catalogue
         tables_to_delete = TablesToDelete.COHORT_STAGING_TO_DATA_CATALOGUE_ZIP
         tables_to_sync = TablesToSync.COHORT_STAGING_TO_DATA_CATALOGUE_ZIP
+
+        # Delete the source tables from the target database
+        self._delete_staging_from_catalogue(staging_area, catalogue, tables_to_delete)
+
+        # Filter and download the staging area tables
+
+        # Upload the staging area tables to the catalogue
 
     def _download_schema(self, schema: str, schema_type: SchemaType, include_system_columns: bool = True):
         """Download target schema as zip, save in case upload fails."""
@@ -55,3 +65,6 @@ class StagingMigrator(Client):
             log.info(f'Downloaded target schema to "{filename}".')
         else:
             log.error('Error: download failed')
+
+    def _delete_staging_from_catalogue(self, staging_area: str, catalogue: str, tables_to_delete: str):
+        return delete_staging_from_catalogue(self.url, self.session, staging_area, catalogue, tables_to_delete)
