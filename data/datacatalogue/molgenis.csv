@@ -170,8 +170,8 @@ RWE resources,,cdms other,text,,,,,,,,,"If not in list above, give the name of c
 Databanks,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",,Databanks,ETLstandardVocabularies
 Databanks,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",,Databanks,ETLstandardVocabulariesOther
 Data resources,,information,heading,,,,,,,,,Other information,,,
-Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource,,,
-Extended resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,EMA,,
+Data resources,,design paper,refback,,,,Publications,,resource,,,Publication(s) that describe(s) the design of this resource,,,
+Extended resources,,publications,refback,,,,Publications,,resource,,,Other publication(s) about this resource,EMA,,
 Data resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?,,,
 RWE resources,,funding sources,ontology_array,,,CatalogueOntologies,Funding types,,,,,Specify the main financial support sources for the data source in the last 3 years. Select all that apply,EMA,,
 Studies,,funding scheme,ontology_array,,,CatalogueOntologies,Study funding,,,,,The source of funding for the study. Select all that apply,EMA,,
@@ -214,7 +214,7 @@ Documentation,,file,file,,,,,,,,,Optional file attachment containing the documen
 Linked resources,,,,,,,,,,,,Links between datasource and databank,EMA,,
 Linked resources,,main resource,ref,1,TRUE,,RWE resources,,,,,,EMA,DatasourceDatabanks,datasource
 Linked resources,,linked resource,ref,1,TRUE,,RWE resources,,,,,,EMA,DatasourceDatabanks,databank
-Linked resources,,other linked resource,,1,,,,,,,,"if other linked data source, enter the name of the data source (default = not applicable)",EMA,,
+Linked resources,,other linked resource,,1,TRUE,,,,,,,"if other linked data source, enter the name of the data source (default = not applicable)",EMA,,
 Linked resources,,linkage strategy,ontology,,,CatalogueOntologies,Linkage strategies,,,,,The linkage method that was used to link data banks. One entry per data bank,EMA,DatasourceDatabanks,linkageStrategy
 Linked resources,,linkage variable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank",EMA,DatasourceDatabanks,linkageVariable
 Linked resources,,linkage variable unique,bool,,,,,,,,,"If a single variable is used to link a data bank to others, is the variable a unique identifier? One entry per data bank",,DatasourceDatabanks,linkageVariableUnique
@@ -372,7 +372,7 @@ Mappings,,source,ref,1,TRUE,,Extended resources,,,,,Data source that is being ma
 Mappings,,source version,string,,,,,,,,,version of the datasource that is being mapped,EMA,,
 Mappings,,target,ref,1,TRUE,,Models,,,,,model being mapped to,EMA,,
 Mappings,,target version,string,,,,,,,,,version of the model being mapped to,EMA,,
-Mappings,,cdms other,,1,,,,,,,,"if cdm is not under targets, which cdm was mapped to? (default = not applicable)",EMA,,
+Mappings,,cdms other,,1,TRUE,,,,,,,"if cdm is not under targets, which cdm was mapped to? (default = not applicable)",EMA,,
 Mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,"Mapping from collected datasets to standard/harmonized datasets, optionally including ETL syntaxes",EMA,,
 Mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months",EMA,,
 Mappings,,ETL specification url,hyperlink,,,,,,,,,Link to ETL specification documentation,EMA,,
