@@ -43,7 +43,12 @@ import ScatterPlot from "../src/components/viz/ScatterPlot.vue";
 // data
 import WorldGeoJson from "../src/data/world.geo.json"
 
+// utils
+import { asDataObject, flattenData, renameKey, sortData, reverseSortData } from "../src/utils/utils.js";
+
 export {
+  
+  // display components
   Accordion,
   ActionLink,
   ButtonSearch,
@@ -55,6 +60,7 @@ export {
   MessageBox,
   MolgenisLogo,
   
+  // visualisations
   Dashboard,
   DashboardBox,
   Page,
@@ -67,6 +73,7 @@ export {
   PageSection,
   UnorderedList,
   
+  // visualisations
   BarChart,
   ChartLegend,
   ColumnChart,
@@ -80,6 +87,14 @@ export {
   ScatterPlot,
   ProgressMeter,
   
+  // datasets
   WorldGeoJson,
+  
+  // utils
+  asDataObject,
+  flattenData,
+  renameKey,
+  sortData,
+  reverseSortData
 
 };
