@@ -17,9 +17,7 @@
           <p><strong>For Members</strong></p>
           <UnorderedList listType="none">
             <li>
-              <router-link :to="{ name: 'providers', params: { id: orgId } }">
-                Member Sign in
-              </router-link>
+              <a href="/apps/central/#/admin">Sign in</a>
             </li>
             <!-- more links here -->
           </UnorderedList>
@@ -58,8 +56,6 @@
 
 <script setup>
 import { PageFooter, UnorderedList } from "molgenis-viz";
-import viewProps from "../data/props";
-const props = defineProps(viewProps);
 </script>
 
 <style lang="scss">

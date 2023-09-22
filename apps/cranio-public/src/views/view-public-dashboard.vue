@@ -7,11 +7,12 @@
       imageSrc="banner-diagnoses.jpg"
     />
     <Breadcrumbs />
+    <LoadingScreen v-if="loading && !error"/>
     <PageSection
       id="section-intro-title"
       aria-labelledby="section-intro-title"
       :verticalPadding="2"
-      v-if="error"
+      v-else-if="!loading && error"
     >
       <MessageBox type="error">
         <p>Unable to retrieve data: {{ error }}</p>
@@ -27,20 +28,21 @@
         />
       </DashboardBox>
       <DashboardBox class="viz-pie-chart">
-        <PieChart
-          chartId="sexAtBirth"
-          title="Sex at birth"
+        <PieChart2 
+          chartId="cranio-sex-at-birth"
+          title="Patients by sex at birth"
           :chartData="sexAtBirth"
-          :chartHeight="230"
-          :chartMargins="0"
           :asDonutChart="true"
+          :enableLegendHovering="true"
+          :chartHeight="250"
+          legendPosition="bottom"
         />
       </DashboardBox>
       <DashboardBox class="viz-map">
         <GeoMercator
           chartId="dataProvidersMap"
           title="Data Providers"
-          :geojson="geojson"
+          :geojson="WorldGeoJson"
           :chartData="providers"
           rowId="code"
           latitude="latitude"
@@ -85,103 +87,99 @@ import {
   PageSection,
   Dashboard,
   DashboardBox,
+  LoadingScreen,
   MessageBox,
+  WorldGeoJson,
   GeoMercator,
   DataTable,
-  PieChart,
+  PieChart2,
+  asDataObject,
+  renameKey
 } from "molgenis-viz";
 
 import Breadcrumbs from "../components/breadcrumbs.vue";
-
-import {
-  fetchData,
-  subsetData,
-  renameKey,
-  asDataObject,
-} from "$shared/utils/utils.js";
-
-import geojson from "$shared/data/world.geo.json";
+import { postQuery } from "../utils/utils";
 
 let loading = ref(true);
 let error = ref(false);
+let stats = ref([]);
 let providers = ref([]);
 let workstreamSummary = ref([]);
-let sexAtBirth = ref([]);
+let sexAtBirth = ref({});
 
-const statsQuery = `
-{
-  Components {
-    name
-    statistics {
-      id
-      value
-      label
-      valueOrder
+async function getStatsByComponent () {
+  const response = await postQuery(
+    '/api/graphql',
+    `{
+      Components {
+        name
+        statistics {
+          id
+          value
+          label
+          valueOrder
+        }
+      }
+    }`
+  );
+  
+  const data = await response.data.Components;
+  return data;
+}
+
+async function getOrganisations () {
+  const response = await postQuery(
+    "/api/graphql",
+    `{
+      Organisations {
+        name
+        city
+        country
+        latitude
+        longitude
+        providerInformation {
+          providerIdentifier
+          hasSubmittedData
+        }
+      }
+    }`
+  )
+  
+  const data = await response.data.Organisations.map(row => {
+    return {
+      ...row,
+      hasSubmittedData: row.providerInformation[0].hasSubmittedData
+        ? 'Data Submitted'
+        : "No Data"
     }
-  }
-}
-`;
-
-const providersQuery = `
-{
-  Organisations {
-    name
-    city
-    country
-    latitude
-    longitude
-    providerInformation {
-      providerIdentifier
-      hasSubmittedData
-    }
-  }
-}
-`;
-
-function getDashboardData() {
-  loading.value = true;
-  Promise.all([
-    fetchData("/api/graphql", providersQuery),
-    fetchData("/api/graphql", statsQuery),
-  ])
-    .then((response) => {
-      const organisations = response[0].data.Organisations;
-      const stats = response[1].data.Components;
-
-      providers.value = organisations.map((row) => {
-        return {
-          ...row,
-          hasSubmittedData: row.providerInformation[0].hasSubmittedData
-            ? "Data Submitted"
-            : "No Data",
-        };
-      });
-
-      workstreamSummary.value = subsetData(
-        stats,
-        "name",
-        "patients-by-workstream"
-      )[0].statistics.map((row) => {
-        return { ...row, value: `${Math.round(parseFloat(row.value) * 100)}%` };
-      });
-
-      renameKey(workstreamSummary.value, "label", "workstream");
-      renameKey(workstreamSummary.value, "value", "percent");
-
-      const patientsSex = subsetData(stats, "name", "patients-sex-at-birth")[0]
-        .statistics;
-      sexAtBirth.value = asDataObject(patientsSex, "label", "value");
-    })
-    .then(() => {
-      loading.value = false;
-    })
-    .catch((response) => {
-      const err = JSON.parse(response.message);
-      error.value = `${err.message} (${err.status})`;
-    });
+  });
+  return data
 }
 
-onMounted(() => getDashboardData());
+async function loadData() {
+  stats.value = await getStatsByComponent();
+  providers.value = await getOrganisations();
+}
+
+onMounted(() => {
+  
+  Promise.resolve(loadData())
+  .then(() => {
+    const workstreamComponent = stats.value.filter(row => row.name === "patients-by-workstream")[0];
+    workstreamSummary.value = workstreamComponent.statistics
+      .map(row => {
+        return { ...row, value: `${Math.round(parseFloat(row.value) * 100)}%` }
+      })
+    renameKey(workstreamSummary.value, 'label', 'workstream');
+    renameKey(workstreamSummary.value, 'value', 'percent');
+      
+    const sexAtBirthComponent = stats.value.filter(row => row.name === "patients-sex-at-birth")[0];
+    sexAtBirth.value = asDataObject(sexAtBirthComponent.statistics, 'label', 'value');
+  })
+  .then(() => loading.value = false)
+  .catch(err => error.value = err);
+})
+
 </script>
 
 <style lang="scss">

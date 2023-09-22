@@ -37,17 +37,15 @@
         </LinkCard>
         <LinkCard id="quicklink-dashboard">
           <BuildingOffice2Icon />
-          <h3>For Healthcare Providers</h3>
-          <p>View information about your center.</p>
-          <router-link :to="{ name: 'providers', params: { id: orgId } }">
-            Sign in
-          </router-link>
+          <h3>Healthcare Provider Login</h3>
+          <p>View more information about your center</p>
+          <a href="/apps/central/#/admin">Sign in</a>
         </LinkCard>
       </div>
     </PageSection>
     <PageSection
       aria-labelledby="contact-section-title"
-      :verticalPadding="3"
+      :verticalPadding="2"
       class="section-text-center"
     >
       <h2 id="contact-section-title">Contact</h2>
@@ -70,14 +68,4 @@ import {
   BuildingOffice2Icon,
 } from "@heroicons/vue/24/outline";
 
-const props = defineProps({
-  orgId: {
-    type: String,
-    required: true,
-  },
-  orgName: {
-    type: String,
-    required: true,
-  },
-});
 </script>
