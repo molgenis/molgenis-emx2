@@ -37,8 +37,8 @@ def delete_staging_from_catalogue(url, session: requests.Session,
             continue
 
         table_query = Queries
-        # TODO create folder with GraphQL queries
-        # TODO create util function that loads queries on demand
+        # TODO move function back to class
+        # TODO Generate queries based on table schema with primary keys
 
 
 def get_staging_cohort_id(url, session, staging_area) -> str | None:

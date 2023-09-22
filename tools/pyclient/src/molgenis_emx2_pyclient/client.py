@@ -158,6 +158,32 @@ class Client:
         database_names = [db['name'] for db in databases]
 
         return database_names
+
+    def _schema_schema(self, schema: str) -> dict:
+        """Queries the schema of a schema"""
+        query = """
+        {
+          _schema {
+            tables {
+              name
+              externalSchema
+              inherit
+              tableType
+              columns {
+                name 
+                required
+                key
+                columnType 
+                refSchema
+                refTable
+              }      
+            }
+          }
+        }"""
+        schema_url = f"{self.url}/{schema}/graphql"
+        response = self.session.post(url=schema_url, json={"query": query})
+        tables: dict = response.json().get('data').get('_schema').get('tables')
+        return tables
     
     @staticmethod
     def _prep_data_or_file(file_path: str = None, data: list = None) -> str:

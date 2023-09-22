@@ -40,8 +40,9 @@ class StagingMigrator(Client):
         self._download_schema(schema=catalogue, schema_type='target', include_system_columns=False)
 
         # Gather the tables to delete from the target and the tables to sync to the target catalogue
-        tables_to_delete = TablesToDelete.COHORT_STAGING_TO_DATA_CATALOGUE_ZIP
-        tables_to_sync = TablesToSync.COHORT_STAGING_TO_DATA_CATALOGUE_ZIP
+        tables_to_delete = self._find_cohort_references(catalogue)
+        # tables_to_delete = TablesToDelete.COHORT_STAGING_TO_DATA_CATALOGUE_ZIP
+        # tables_to_sync = TablesToSync.COHORT_STAGING_TO_DATA_CATALOGUE_ZIP
 
         # Delete the source tables from the target database
         self._delete_staging_from_catalogue(staging_area, catalogue, tables_to_delete)
@@ -66,5 +67,21 @@ class StagingMigrator(Client):
         else:
             log.error('Error: download failed')
 
-    def _delete_staging_from_catalogue(self, staging_area: str, catalogue: str, tables_to_delete: str):
+    def _delete_staging_from_catalogue(self, staging_area: str, catalogue: str, tables_to_delete: dict):
         return delete_staging_from_catalogue(self.url, self.session, staging_area, catalogue, tables_to_delete)
+
+    def _find_cohort_references(self, schema: str) -> dict:
+        """Finds the references in the target catalogue to the Cohorts table."""
+        schema_schema = self._schema_schema(schema)
+
+        cohort_inheritance = ['Cohorts', 'Data resources', 'Extended resources']
+        cohort_references = dict()
+        for t_values in schema_schema:
+            table_references = []
+            for column in t_values['columns']:
+                if column.get('columnType') in ['REF', 'REF_ARRAY']:
+                    if column.get('refTable') in cohort_inheritance and column['name'] != 'target':
+                        table_references.append(column['name'])
+            if len(table_references) > 0:
+                cohort_references.update({t_values['name']: table_references[0]})
+        return cohort_references
