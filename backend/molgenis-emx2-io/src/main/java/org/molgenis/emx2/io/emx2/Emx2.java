@@ -242,7 +242,7 @@ public class Emx2 {
 
     // output the columns
     for (Column c : columns) {
-      if (!c.getName().startsWith("mg_")) {
+      if (!c.isSystemColumn()) {
         Row row = new Row();
         row.setString(TABLE_NAME, c.getTableName());
         row.setString(COLUMN_NAME, c.getName());
