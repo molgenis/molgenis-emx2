@@ -1,0 +1,10 @@
+query Partners($filter: PartnersFilter) {
+  Partners(filter: $filter) {
+    resource {
+      pid
+    }
+    institution {
+      pid
+    }
+  }
+}

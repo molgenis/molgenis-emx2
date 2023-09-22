@@ -1,0 +1,20 @@
+query TargetVariables($filter: TargetVariablesFilter) {
+  TargetVariables(filter: $filter) {
+    dataDictionary {
+      resource {
+        pid
+      }
+      version
+    }
+    table {
+      dataDictionary {
+        resource {
+          pid
+        }
+        version
+      }
+      name
+    }
+    name
+  }
+}

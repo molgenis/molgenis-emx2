@@ -1,0 +1,22 @@
+query DatasetMappings($filter: DatasetMappingsFilter) {
+  DatasetMappings(filter: $filter) {
+    source{
+      id
+    }
+    sourceDataset {
+      resource {
+        id
+      }
+      name
+    }
+    target {
+      id
+    }
+    targetDataset {
+      resource {
+        id
+      }
+      name
+    }
+  }
+}

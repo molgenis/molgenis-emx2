@@ -1,0 +1,12 @@
+query Contacts($filter: ContactsFilter) {
+  Contacts(filter: $filter) {
+    resource {
+      id
+    }
+    firstName
+    lastName
+    role {
+      name
+    }
+  }
+}

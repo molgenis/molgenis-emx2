@@ -1,0 +1,8 @@
+query Datasets($filter: DatasetsFilter) {
+  Datasets(filter: $filter) {
+   resource{
+    id
+  }
+  name
+ }
+}

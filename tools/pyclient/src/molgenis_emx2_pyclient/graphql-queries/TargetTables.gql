@@ -1,0 +1,11 @@
+query TargetTables($filter: TargetTablesFilter) {
+  TargetTables(filter: $filter) {
+    dataDictionary {
+      resource {
+        pid
+      }
+      version
+    }
+    name
+  }
+}

@@ -1,0 +1,8 @@
+query CollectionEvents($filter: CollectionEventsFilter) {
+  CollectionEvents(filter: $filter) {
+    resource {
+      id
+    }
+    name
+  }
+}

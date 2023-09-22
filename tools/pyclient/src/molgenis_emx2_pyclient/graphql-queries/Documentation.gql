@@ -1,0 +1,8 @@
+query Documentation($filter: DocumentationFilter) {
+  Documentation(filter: $filter) {
+    resource {
+      id
+    }
+    name
+  }
+}

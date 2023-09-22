@@ -1,0 +1,6 @@
+query DataResources($filter: DataResourcesFilter) {
+  DataResources(filter: $filter) {
+    id
+    name
+ }
+}

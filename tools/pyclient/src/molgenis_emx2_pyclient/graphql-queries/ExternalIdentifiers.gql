@@ -1,0 +1,8 @@
+query ExternalIdentifiers($filter: ExternalIdentifiersFilter) {
+  ExternalIdentifiers(filter: $filter) {
+    resource {
+      id
+    }
+    identifier
+  }
+}
