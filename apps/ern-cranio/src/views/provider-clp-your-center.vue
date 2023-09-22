@@ -27,13 +27,13 @@
         />
       </DashboardBox>
       <DashboardBox id="clp-cleft-q-completed">
-          <ProgressMeter
-            chartId="cleftQCompleted"
-            title="Cleft-Q Completed"
-            :value="qCompleted"
-            :totalValue="qTotal"
-            :barHeight="25"
-          />
+        <ProgressMeter
+          chartId="cleftQCompleted"
+          title="Cleft-Q Completed"
+          :value="qCompleted"
+          :totalValue="qTotal"
+          :barHeight="25"
+        />
       </DashboardBox>
       <DashboardBox id="clp-ics-completed">
         <ProgressMeter
@@ -109,14 +109,19 @@
 
 <script setup>
 import { ref } from "vue";
-import { DashboardBox, PieChart2, ProgressMeter, ColumnChart } from "molgenis-viz";
+import {
+  DashboardBox,
+  PieChart2,
+  ProgressMeter,
+  ColumnChart,
+} from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
   user: String,
-  organization: Object
-})
+  organization: Object,
+});
 
 // generate random data for display purposes
 import { randomInt } from "d3";
@@ -168,6 +173,4 @@ let softPalateClosureOutcomes = ref({
   Incidents: 10,
   Successful: 40,
 });
-
-
 </script>

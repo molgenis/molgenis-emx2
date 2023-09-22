@@ -3,25 +3,28 @@
     <DashboardBox id="provider-overview-welcome" class="mb-4">
       <h2>Welcome, {{ userName }}!</h2>
       <p>
-        Welcome to <strong>{{ orgName }}'s</strong> dashboard. These pages provide an
-        overview of the patients you have submitted to relavent subregistries.
-        On the current page, you will find a snapshot of your center as of
-        today.
+        Welcome to <strong>{{ orgName }}'s</strong> dashboard. These pages
+        provide an overview of the patients you have submitted to relavent
+        subregistries. On the current page, you will find a snapshot of your
+        center as of today.
       </p>
     </DashboardBox>
     <DashboardChartLayout :columns="2">
-      <DashboardBox id="provider-overview-patients-submitted" class="center-showcase">
-      <ValueShowcase 
-        :title="`${ totalPatientsSubmitted } patients submitted`"
-        :description="`Your center has submitted on average ${ avergagePatientsSubmitted } patients per month`"
+      <DashboardBox
+        id="provider-overview-patients-submitted"
+        class="center-showcase"
       >
-        <UserGroupIcon />
-      </ValueShowcase>
+        <ValueShowcase
+          :title="`${totalPatientsSubmitted} patients submitted`"
+          :description="`Your center has submitted on average ${avergagePatientsSubmitted} patients per month`"
+        >
+          <UserGroupIcon />
+        </ValueShowcase>
       </DashboardBox>
       <DashboardBox id="provider-overview-current-rank" class="center-showcase">
         <ValueShowcase
-          :title="`${ currentCenterRanking } in overall submitted patients`"
-          :description="`Patients from your center account for ${ percentOfRegistry } of the
+          :title="`${currentCenterRanking} in overall submitted patients`"
+          :description="`Patients from your center account for ${percentOfRegistry} of the
           registry.`"
         >
           <TrophyIcon />
@@ -58,7 +61,7 @@
 <script setup>
 import { ref } from "vue";
 import { UserGroupIcon, TrophyIcon } from "@heroicons/vue/24/outline";
-import { DashboardBox,PieChart2 } from "molgenis-viz";
+import { DashboardBox, PieChart2 } from "molgenis-viz";
 
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
@@ -80,7 +83,7 @@ let currentCenterRanking = ref(
   rank === 1 ? "1st" : rank === 2 ? "2nd" : `${rank}th`
 );
 let percentOfRegistry = ref(
-  Math.round((totalPatientsSubmitted.value / 500) * 100) + '%'
+  Math.round((totalPatientsSubmitted.value / 500) * 100) + "%"
 );
 
 let patientsBySubregistry = ref({

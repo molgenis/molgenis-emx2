@@ -253,5 +253,4 @@ onMounted(() => getDashboardData());
     }
   }
 }
-
 </style>

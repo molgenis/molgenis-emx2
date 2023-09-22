@@ -47,7 +47,7 @@
           :chartData="centerGeneticDiagnosis"
           :chartColors="{
             Available: '#426fab',
-            'Not Available': '#f3f4ff'
+            'Not Available': '#f3f4ff',
           }"
           :asDonutChart="true"
           :enableLegendHovering="true"
@@ -68,18 +68,18 @@ import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
   user: String,
-  organization: Object
-})
+  organization: Object,
+});
 
 // define random data
-let yearOfBirthOptions= ref(Array.from({length: 16}, (v,i) => 1980+i));
+let yearOfBirthOptions = ref(Array.from({ length: 16 }, (v, i) => 1980 + i));
 
 let centerTypeOfCs = ref({
   Syndromic: 45,
-  'Non-syndromic': 20,
+  "Non-syndromic": 20,
   Familial: 15,
   Metabolic: 13,
-  Iatrogenic: 7
+  Iatrogenic: 7,
 });
 
 let centerAffectedSuture = ref({
@@ -88,13 +88,11 @@ let centerAffectedSuture = ref({
   Unicoronal: 13,
   Unilambdoid: 13,
   Frontosphenoidal: 13,
-  Multiple: 12
+  Multiple: 12,
 });
 
 let centerGeneticDiagnosis = ref({
   Available: 60,
-  'Not Available': 40,
+  "Not Available": 40,
 });
-
-
 </script>

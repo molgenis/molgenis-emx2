@@ -47,7 +47,7 @@
           :chartData="geneticDiagnosis"
           :chartColors="{
             Available: '#426fab',
-            'Not Available': '#f3f4ff'
+            'Not Available': '#f3f4ff',
           }"
           :chartHeight="200"
           :asDonutChart="true"
@@ -64,7 +64,7 @@
           xvar="country"
           yvar="value"
           :yMax="100"
-          :yTickValues="[0,25,50,75,100]"
+          :yTickValues="[0, 25, 50, 75, 100]"
           :chartHeight="250"
         />
       </DashboardBox>
@@ -80,19 +80,19 @@ import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
   user: String,
-  organization: Object
-})
+  organization: Object,
+});
 
 import { randomInt } from "d3";
 
-let yearOfBirthOptions= ref(Array.from({length: 16}, (v,i) => 1980+i));
+let yearOfBirthOptions = ref(Array.from({ length: 16 }, (v, i) => 1980 + i));
 
 let csTypes = ref({
   Syndromic: 45,
-  'Non-syndromic': 20,
+  "Non-syndromic": 20,
   Familial: 15,
   Metabolic: 13,
-  Iatrogenic: 7
+  Iatrogenic: 7,
 });
 
 let affectedSuture = ref({
@@ -101,22 +101,20 @@ let affectedSuture = ref({
   Unicoronal: 13,
   Unilambdoid: 13,
   Frontosphenoidal: 13,
-  Multiple: 12
+  Multiple: 12,
 });
-
 
 let geneticDiagnosis = ref({
   Available: 60,
-  'Not Available': 40,
+  "Not Available": 40,
 });
 
 let countryOfResidence = ref([
-  { country: 'NL', value: randomInt(10, 100)()},
-  { country: 'FR', value: randomInt(10, 100)()},
-  { country: 'GE', value: randomInt(10, 100)()},
-  { country: 'ES', value: randomInt(10, 100)()},
-  { country: 'PO', value: randomInt(10, 100)()},
-  { country: 'SE', value: randomInt(10, 100)()},
+  { country: "NL", value: randomInt(10, 100)() },
+  { country: "FR", value: randomInt(10, 100)() },
+  { country: "GE", value: randomInt(10, 100)() },
+  { country: "ES", value: randomInt(10, 100)() },
+  { country: "PO", value: randomInt(10, 100)() },
+  { country: "SE", value: randomInt(10, 100)() },
 ]);
-
 </script>

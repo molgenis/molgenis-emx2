@@ -16,7 +16,11 @@
         on patients' quality of life.
       </p>
     </PageSection>
-    <PageSection aria-labelledby="quicklinks-card-title" :verticalPadding="3" class="section-bg-light-blue">
+    <PageSection
+      aria-labelledby="quicklinks-card-title"
+      :verticalPadding="3"
+      class="section-bg-light-blue"
+    >
       <h2 class="visually-hidden" id="quicklinks-card-title">quick links</h2>
       <div class="quicklink-cards">
         <LinkCard id="quicklinks-about">
@@ -35,17 +39,24 @@
           <BuildingOffice2Icon />
           <h3>For Healthcare Providers</h3>
           <p>View information about your center.</p>
-          <router-link :to="{ name: 'providers', params: { id: orgId }}">
+          <router-link :to="{ name: 'providers', params: { id: orgId } }">
             Sign in
           </router-link>
         </LinkCard>
       </div>
     </PageSection>
-    <PageSection aria-labelledby="contact-section-title" :verticalPadding="3" class="section-text-center">
+    <PageSection
+      aria-labelledby="contact-section-title"
+      :verticalPadding="3"
+      class="section-text-center"
+    >
       <h2 id="contact-section-title">Contact</h2>
       <p>
-        In case of any questions regarding the ERN CRANIO registry, please send us an email.
-        <a href="mailto:ern-cranio@erasmusmc.nl" class="button-link">Contact Us</a>.
+        In case of any questions regarding the ERN CRANIO registry, please send
+        us an email.
+        <a href="mailto:ern-cranio@erasmusmc.nl" class="button-link"
+          >Contact Us</a
+        >.
       </p>
     </PageSection>
   </Page>
@@ -53,17 +64,20 @@
 
 <script setup>
 import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
-import { InformationCircleIcon, PresentationChartLineIcon, BuildingOffice2Icon } from "@heroicons/vue/24/outline"
+import {
+  InformationCircleIcon,
+  PresentationChartLineIcon,
+  BuildingOffice2Icon,
+} from "@heroicons/vue/24/outline";
 
 const props = defineProps({
   orgId: {
     type: String,
-    required: true
+    required: true,
   },
   orgName: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
-
 </script>
