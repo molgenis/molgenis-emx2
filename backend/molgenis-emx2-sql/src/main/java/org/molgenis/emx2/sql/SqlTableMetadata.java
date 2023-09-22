@@ -140,7 +140,7 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public TableMetadata alterColumn(String columnName, Column column) {
     // ignore mg_ columns
-    if (column.getName().startsWith("mg_")) return this;
+    if (column.isSystemColumn()) return this;
 
     Column oldColumn = getColumn(columnName);
 

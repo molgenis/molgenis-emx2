@@ -134,7 +134,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     if (getInheritedTable() != null) {
       // we create copies so we don't need worry on changes
       for (Column col : getInheritedTable().getColumns()) {
-        if (col.getName().startsWith("mg_")) {
+        if (col.isSystemColumn()) {
           meta.put(col.getName(), new Column(getInheritedTable(), col));
           // sorting of external schema is seperate from internal schema
         } else if (!Objects.equals(col.getTable().getSchemaName(), getSchemaName())) {
@@ -148,7 +148,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     // ignore primary key from child class because that is same as in inheritedTable
     for (Column col : getLocalColumns()) {
       if (!internal.containsKey(col.getName()) && !external.containsKey(col.getName())) {
-        if (col.getName().startsWith("mg_")) {
+        if (col.isSystemColumn()) {
           meta.put(col.getName(), new Column(col.getTable(), col));
           // sorting of external schema is seperate from internal schema
         } else {
@@ -260,16 +260,14 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     List<Column> columnList =
         new ArrayList<>(
             columns.values().stream()
-                .filter(c -> !c.getName().startsWith("mg_"))
+                .filter(c -> !c.isSystemColumn())
                 .collect(Collectors.toList()));
     Collections.sort(columnList);
 
     // add meta behind non-meta
     List<Column> metaList =
         new ArrayList<>(
-            columns.values().stream()
-                .filter(c -> c.getName().startsWith("mg_"))
-                .collect(Collectors.toList()));
+            columns.values().stream().filter(c -> c.isSystemColumn()).collect(Collectors.toList()));
     columnList.addAll(metaList);
 
     for (Column c : columnList) {
@@ -545,9 +543,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<Column> getColumnsWithoutMetadata() {
-    return getColumns().stream()
-        .filter(c -> !c.getName().startsWith("mg_"))
-        .collect(Collectors.toList());
+    return getColumns().stream().filter(c -> !c.isSystemColumn()).collect(Collectors.toList());
   }
 
   public TableType getTableType() {
