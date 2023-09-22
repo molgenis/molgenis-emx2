@@ -30,8 +30,17 @@ yarn serve
 ```
 
 To create a new app
-
 * use ```vue create [name]```
 * add to apps/package.json 'workspaces' so it can be used as dependency
 * copy a vue.config.js from another app to have the proxy.
-* add to settings.gradle so it is added to the build process
+
+To create a new library
+* use ```vue create [name]```
+* add to apps/package.json 'workspaces' so it can be used as dependency
+* copy a vue.config.js from another app to have the proxy.
+* look at molgenis-components how to include a showCase
+* in build.gradle add the package showCase to the buildJavascript task
+
+
+We use [nx](https://nx.dev/recipes/adopting-nx/adding-to-monorepo) to build all (also when using gradle)
+* to build all in 'apps' use command ```yarn nx run-many --target=build,build-showcase```
