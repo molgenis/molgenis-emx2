@@ -191,7 +191,6 @@ export default {
               this.internalValues,
               this.tableMetaData as ITableMetaData
             );
-            this.$emit("update:modelValue", this.internalValues);
           } catch (error) {
             this.errorPerColumn[column.id] = "Computation failed: " + error;
           }
