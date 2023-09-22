@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Operator.*;
 
 public class Constants {
 
+  public static final String SYS_COLUMN_NAME_PREFIX = "mg_";
   public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE_";
   public static final String MG_ROLE_PREFIX = "MG_ROLE_";
   public static final String MG_USER_PREFIX = "MG_USER_";
