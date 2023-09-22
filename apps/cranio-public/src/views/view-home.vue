@@ -39,7 +39,7 @@
           <BuildingOffice2Icon />
           <h3>Healthcare Provider Login</h3>
           <p>View more information about your center</p>
-          <a href="/apps/central/#/admin">Sign in</a>
+          <router-link :to="{ name: 'providers' }">View Providers</router-link>
         </LinkCard>
       </div>
     </PageSection>

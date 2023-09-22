@@ -3,6 +3,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import CranioHome from "../views/view-home.vue";
 import AboutPage from "../views/view-about.vue";
 import PublicDashboardPage from "../views/view-public-dashboard.vue";
+import ProvidersPage from "../views/view-providers.vue";
 
 // For new routes, use the property `meta` to define the document title
 // E.g., {..., meta: {title: 'My Page'}}
@@ -34,6 +35,15 @@ const router = createRouter({
         breadcrumbs: [{ name: "dashboard", label: "Dashboard" }],
       },
     },
+    {
+      name: "providers",
+      path: "/providers",
+      component: ProvidersPage,
+      meta: {
+        title: "Providers",
+        breadcrumbs: [{ name: "dashboard", label: "Dashboard" }],
+      }
+    }
   ],
   scrollBehavior(to, from, savedPosition) {
     return savedPosition || { top: 0, left: 0 };
