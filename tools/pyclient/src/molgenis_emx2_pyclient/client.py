@@ -27,7 +27,7 @@ class Client:
         A Client class instances is created with a server url.
         """
         self._as_context_manager = False
-        self.url = utils.parse_url(url)
+        self._url = utils.parse_url(url)
         self.api_graphql = self.url + "/api/graphql"
 
         self.signin_status = 'unknown'
@@ -124,6 +124,10 @@ class Client:
             message = response.json().get('errors')[0].get('message')
             if "Field 'signout' in type 'Save' is undefined" in message:
                 print(f"User {self.username} was not signed in.")
+
+    @property
+    def url(self):
+        return self._url
 
     @property
     def status(self):
