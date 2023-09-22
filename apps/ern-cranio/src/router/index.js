@@ -7,9 +7,7 @@ import PublicDashboardPage from "../views/view-public-dashboard.vue";
 import ProviderHome from "../views/provider-app.vue";
 import ProviderOverview from "../views/provider-overview.vue";
 
-
-// import ProviderCleftLipPalate from "../views/provider-cleft-lip-palate.vue";
-// import ProviderCraniosynostosis from "../views/provider-craniosynostosis.vue";
+import View404 from "../views/404.vue";
 
 // Craniosynostosis pages (id: `-cs-`)
 import ProviderCsApp from "../views/provider-cs-app.vue";
@@ -61,7 +59,7 @@ const router = createRouter({
       path: "/providers/:id",
       component: ProviderHome,
       redirect: {
-        name: 'provider-overview'
+        name: "provider-overview",
       },
       children: [
         {
@@ -72,75 +70,75 @@ const router = createRouter({
             title: "Center Overview",
           },
         },
-        
+
         // router-view for Craniosynostosis (`-cs-`)
         {
           name: "provider-cs",
           path: "cs",
           component: ProviderCsApp,
           redirect: {
-            name: 'provider-cs-all-general'
+            name: "provider-cs-all-general",
           },
           children: [
             {
-              name: 'provider-cs-all-general',
-              path: 'all-centers-general',
+              name: "provider-cs-all-general",
+              path: "all-centers-general",
               component: ProvidersCsAllGeneral,
               meta: {
-                title: 'All Center General Overview | Craniosynostosis | '
-              }
+                title: "All Center General Overview | Craniosynostosis | ",
+              },
             },
             {
-              name: 'provider-cs-all-surgical',
-              path: 'all-centers-surgical',
+              name: "provider-cs-all-surgical",
+              path: "all-centers-surgical",
               component: ProvidersCsAllSurgical,
               meta: {
-                title: 'All Center Surgical Overview | Craniosynostosis | '
-              }
+                title: "All Center Surgical Overview | Craniosynostosis | ",
+              },
             },
             {
               name: "provider-cs-center-overview",
               path: "center-general",
               component: ProvidersCsCenterGeneral,
               meta: {
-                title: "Your Center General Overview | Craniosynostosis | "
-              }
+                title: "Your Center General Overview | Craniosynostosis | ",
+              },
             },
             {
               name: "provider-cs-center-surgical",
               path: "center-surgical",
               component: ProvidersCsCenterSurgical,
               meta: {
-                title: "Your center surgical overview | Craniosynostosis"
-              }
-            }
-          ]
+                title: "Your center surgical overview | Craniosynostosis",
+              },
+            },
+          ],
         },
-        
+
         // router-view for Cleft Lip and Palate (ie., -clp-)
         {
           name: "provider-clp",
           path: "clp",
           component: ProviderClpApp,
-          redirect: { name: 'provider-clp-your-center' },
+          redirect: { name: "provider-clp-your-center" },
           children: [
             {
-              name: 'provider-clp-your-center',
-              path: 'center',
+              name: "provider-clp-your-center",
+              path: "center",
               component: ProviderClpYourCenter,
               meta: {
-                title: 'Your Center | Cleft Lip and Palate | '
-              }
+                title: "Your Center | Cleft Lip and Palate | ",
+              },
             },
             {
-              name: 'provider-clp-all-centers',
-              path: 'all-centers',
+              name: "provider-clp-all-centers",
+              path: "all-centers",
               component: ProviderClpAllCenters,
               meta: {
-                title: 'All Centers | Cleft Lip and Palate | '
-              }
-            }
-          ]
+                title: "All Centers | Cleft Lip and Palate | ",
+              },
+            },
+          ],
         },
         {
           name: "provider-genetic-deafness",

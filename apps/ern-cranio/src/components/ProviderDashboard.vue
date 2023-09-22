@@ -13,13 +13,12 @@ const path = ref(route.currentRoute.value.href);
 
 onMounted(() => {
   const links = document.querySelectorAll(".navlinks li a");
-  links.forEach(link => {
-    if (link.getAttribute('href') === path.value) {
-      link.parentElement.classList.add('link-selected');
+  links.forEach((link) => {
+    if (link.getAttribute("href") === path.value) {
+      link.parentElement.classList.add("link-selected");
     } else {
-      link.parentElement.classList.remove('link-selected');
+      link.parentElement.classList.remove("link-selected");
     }
   });
 });
-
 </script>

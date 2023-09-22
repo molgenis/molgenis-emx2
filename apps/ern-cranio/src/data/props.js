@@ -1,18 +1,14 @@
 export default {
-  userName: {
+  providerId: {
     type: String,
-    required: true
+    required: true,
   },
-  orgId: {
+  providerName: {
     type: String,
-    required: true
+    required: true,
   },
-  orgName: {
+  providerImageUrl: {
     type: String,
-    required: true
+    required: true,
   },
-  orgImageUrl: {
-    type: String,
-    required: true
-  }
-}
+};

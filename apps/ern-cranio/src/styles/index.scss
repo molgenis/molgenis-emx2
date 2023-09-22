@@ -4,10 +4,10 @@
 
   .page-header {
     height: 15em;
-    
+
     &.ern-header {
       height: 21em;
-      
+
       .header-content {
         .header-title {
           color: $gray-800;
@@ -17,23 +17,23 @@
           color: $gray-900;
         }
       }
-      
+
       .background-image-filter {
         background-color: $ern-cranio-primary-alt;
         opacity: 0.1;
       }
     }
   }
-  
+
   .page-section {
     &.section-bg-light-blue {
       background-color: $blue-050;
     }
-    
+
     &.section-text-center {
       text-align: center;
     }
-    
+
     a {
       &.button-link {
         @include buttonLink(300px);
@@ -43,7 +43,7 @@
       }
     }
   }
-} 
+}
 .message-box {
   .message-text {
     display: flex;
@@ -51,6 +51,10 @@
     align-items: center;
     p {
       margin: 0;
+    }
+
+    a {
+      text-decoration: underline;
     }
   }
 }
@@ -63,7 +67,7 @@
 .inputs {
   display: block;
   width: 100%;
-  
+
   &.select {
     background-color: transparent;
     padding: 0.8em 1em;
@@ -86,7 +90,7 @@
     color: currentColor;
     border-radius: 12pt;
     text-align: center;
-    
+
     svg {
       display: block;
       margin: 0 auto;
@@ -94,12 +98,12 @@
       $size: 26pt;
       height: $size;
       width: $size;
-      
+
       * {
         stroke: $ern-cranio-primary;
       }
     }
-    
+
     h3 {
       font-size: 13pt;
     }
@@ -109,7 +113,7 @@
       color: $gray-600;
       font-size: 13pt;
     }
-    
+
     a {
       margin-top: 1em;
       @include buttonLink;
@@ -119,33 +123,33 @@
 }
 
 .provider-dashboard-container {
-  font-size: 13pt; 
+  font-size: 13pt;
 
   .dashboard-content {
     display: grid;
     grid-template-columns: 350px 1fr;
     align-items: flex-start;
     justify-content: flex-start;
-    
+
     .dashboard-chart-layout {
       margin-bottom: 2em;
     }
-    
+
     .dashboard-box {
       box-sizing: content-box;
       padding: 1.3em;
-      
+
       h3,
       .d3-viz .chart-title,
       .d3-progress-meter .chart-title span {
         font-size: 14pt;
         font-weight: 400;
       }
-      
+
       p {
         margin-bottom: 0;
       }
-      
+
       .d3-progress-meter {
         .chart-title {
           margin: 0;

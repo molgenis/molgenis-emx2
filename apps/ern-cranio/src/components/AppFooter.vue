@@ -17,7 +17,7 @@
           <p><strong>For Members</strong></p>
           <UnorderedList listType="none">
             <li>
-              <router-link :to="{ name: 'providers', params: { id: orgId }}">
+              <router-link :to="{ name: 'providers', params: { id: orgId } }">
                 Member Sign in
               </router-link>
             </li>
