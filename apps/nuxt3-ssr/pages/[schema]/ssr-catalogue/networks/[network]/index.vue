@@ -44,9 +44,17 @@ const query = gql`
       models {
         id
       }
-    }
-    Cohorts_agg(filter: { networks: { id: { equals: [$id] } } }) {
-      count
+      cohorts_agg{count}
+      cohorts {
+        id, name, type {name}, description
+      }
+      dataSources_agg{count}
+      dataSources {
+        id, name, type {name}, description
+      }
+      databanks {
+        id, name, type {name}  description
+      }
     }
   }
 `;
@@ -141,7 +149,7 @@ let tocItems = computed(() => {
     });
   }
 
-  if (networkData.value.data.Cohorts_agg.count > 0) {
+  if (network?.cohorts_agg.count > 0) {
     tableOffContents.push({ label: "Cohorts", id: "cohorts" });
   }
 
@@ -326,7 +334,7 @@ useHead({ title: network?.acronym || network?.name });
         </ContentBlock>
 
         <TableContent
-          v-if="networkData.data.Cohorts_agg.count > 0"
+          v-if="network.cohorts_agg?.count > 0"
           id="cohorts"
           title="Cohorts"
           description="A list of cohorts you can explore."
@@ -341,7 +349,26 @@ useHead({ title: network?.acronym || network?.name });
           :rowMapper="cohortMapper"
           v-slot="slotProps"
         >
-          <CohortDisplay :id="slotProps.id" />
+          {{ slotProps }}
+        </TableContent>
+
+        <TableContent
+          v-if="network.dataSources_agg?.count > 0"
+          id="databanks"
+          title="Data sources"
+          description="A list of cohorts you can explore."
+          :headers="[
+            { id: 'name', label: 'Name', singleLine: true },
+            { id: 'design', label: 'Design' },
+            { id: 'numberOfParticipants', label: 'Number of participants' },
+          ]"
+          type="Cohorts"
+          :query="cohortsQuery"
+          :filter="{ networks: { id: { equals: network.id } } }"
+          :rowMapper="cohortMapper"
+          v-slot="slotProps"
+        >
+          {{ slotProps }}
         </TableContent>
 
         <TableContent

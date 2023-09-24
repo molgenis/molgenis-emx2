@@ -1,4 +1,4 @@
-<script setup lang="ts"></script>
+<script setup type="ts"></script>
 <template>
   <CohortDetails />
 </template>

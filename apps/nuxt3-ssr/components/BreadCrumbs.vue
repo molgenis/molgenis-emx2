@@ -5,6 +5,10 @@ defineProps({
     type: Object,
     required: true,
   },
+  current: {
+    type: String,
+    required: false,
+  },
 });
 </script>
 
@@ -32,6 +36,13 @@ defineProps({
       >
         <BaseIcon name="caret-right" :width="12" />
       </span>
+    </template>
+    <template v-if="current">
+      <BaseIcon
+        name="caret-right"
+        :width="12"
+        class="text-breadcrumb-arrow"
+      /><a class="text-breadcrumb"> {{ current }}</a>
     </template>
   </nav>
 </template>

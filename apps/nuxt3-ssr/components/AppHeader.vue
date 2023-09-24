@@ -5,10 +5,11 @@ if (useRoute) {
   schema = useRoute().params.schema;
 }
 const menu = [
-  { label: "Cohorts", link: `/${schema}/ssr-catalogue/cohorts` },
   config.public.cohortOnly
     ? undefined
-    : { label: "Networks", link: `/${schema}/ssr-catalogue/networks` },
+    : { label: "Catalogues", link: `/${schema}/ssr-catalogue/catalogues` },
+  { label: "Cohorts", link: `/${schema}/ssr-catalogue/cohorts` },
+  { label: "Databanks", link: `/${schema}/ssr-catalogue/databanks` },
   config.public.cohortOnly
     ? undefined
     : { label: "Variables", link: `/${schema}/ssr-catalogue/variables` },

@@ -88,28 +88,7 @@ const isShowingMobileMoreText = computed(() => {
         </header>
 
         <div v-if="!compact">
-          <p class="text-body-base my-5 xl:block hidden">
-            {{ network?.description }}
-          </p>
-
-          <p class="text-body-base mt-5 block xl:hidden">
-            {{
-              isShowingMobileMoreText
-                ? network?.description
-                : `${network?.description?.substring(
-                    0,
-                    mobileShowMoreTextLength
-                  )}...`
-            }}
-          </p>
-
-          <button
-            v-if="!isShowingMobileMoreText"
-            class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
-            @click="mobileShowMoreText = true"
-          >
-            Read more
-          </button>
+          <Truncate :value="network.description" />
         </div>
       </div>
     </div>

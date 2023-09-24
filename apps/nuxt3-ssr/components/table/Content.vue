@@ -28,7 +28,6 @@ let orderby = {
 
 const rows = ref([]);
 const count = ref(0);
-
 async function fetchRows() {
   const resp = await fetchGql(props.query, {
     ...props.filter,
@@ -36,7 +35,6 @@ async function fetchRows() {
     offset: offset.value,
     orderby,
   }).catch((e) => console.log(e));
-
   rows.value = resp.data[props.type]?.map(props.rowMapper);
   count.value = resp.data[`${props.type}_agg`].count;
 }
@@ -63,6 +61,7 @@ function setActiveSideModal(value: string) {
 
 <template>
   <ContentBlock :title="title" :description="description">
+    {{ rows }}
     <ButtonGroup
       v-if="count > pageSize || primaryActionPath"
       class="flex mb-5 flex-wrap"
