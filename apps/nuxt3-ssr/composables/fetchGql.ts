@@ -6,11 +6,9 @@ export const fetchGql = (
   schemaName?: string
 ) => {
   const queryValue = typeof query !== "string" ? loadGql(query) : query;
-
   let body: { query: string; variables?: object } = {
     query: queryValue,
   };
-
   if (variables) {
     body.variables = variables;
   }
@@ -22,5 +20,9 @@ export const fetchGql = (
     method: "POST",
     baseURL: config.public.apiBase,
     body,
+  }).catch((e) => {
+    console.log(e);
+    console.log(queryValue);
+    throw e;
   });
 };

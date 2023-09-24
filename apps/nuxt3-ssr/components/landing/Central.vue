@@ -83,7 +83,7 @@ function percentageLongitudinal(
       />
       <LandingCardPrimary
         image="patient-list"
-        title="Data sources"
+        title="Resources"
         description="Search in all resources: cohorts, biobanks and databanks"
         :count="data.data.DataResources_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"

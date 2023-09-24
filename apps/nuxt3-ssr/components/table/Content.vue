@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ContentBlockSubpopulations from "components/content/ContentBlockSubpopulations.vue";
 import { DocumentNode } from "graphql";
 
 const props = defineProps<{
@@ -26,8 +27,8 @@ let orderby = {
   [orderByColumn.value]: "ASC",
 };
 
-const rows = ref([]);
-const count = ref(0);
+let rows = ref([]);
+let count = ref(0);
 async function fetchRows() {
   const resp = await fetchGql(props.query, {
     ...props.filter,
@@ -35,11 +36,11 @@ async function fetchRows() {
     offset: offset.value,
     orderby,
   }).catch((e) => console.log(e));
-  rows.value = resp.data[props.type]?.map(props.rowMapper);
   count.value = resp.data[`${props.type}_agg`].count;
+  rows.value = resp.data[props.type]?.map(props.rowMapper);
 }
 
-fetchRows();
+await fetchRows();
 
 watch(orderByColumn, () => {
   orderby = {
@@ -61,7 +62,6 @@ function setActiveSideModal(value: string) {
 
 <template>
   <ContentBlock :title="title" :description="description">
-    {{ rows }}
     <ButtonGroup
       v-if="count > pageSize || primaryActionPath"
       class="flex mb-5 flex-wrap"

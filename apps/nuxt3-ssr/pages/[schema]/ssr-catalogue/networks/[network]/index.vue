@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
 import cohortsQuery from "~~/gql/cohorts";
+import datasourcesQuery from "~~/gql/datasources";
 import variablesQuery from "~~/gql/variables";
 import fileFragment from "~~/gql/fragments/file";
 const config = useRuntimeConfig();
@@ -213,6 +214,23 @@ function cohortMapper(cohort: {
   };
 }
 
+function dataSourcesMapper(dataSource: {
+  id: string;
+  acronym: string;
+  name: string;
+  numberOfParticipants: string;
+  type: { name: string };
+}) {
+  return {
+    id: dataSource.id,
+    name: dataSource.name,
+    type: dataSource.type?.name,
+    numberOfParticipants: dataSource.numberOfParticipants,
+    _renderComponent: "DataSourceDisplay",
+    _path: `/${route.params.schema}/ssr-catalogue/datasources/${dataSource.id}`,
+  };
+}
+
 function variableMapper(variable: {
   name: string;
   label: string;
@@ -337,7 +355,7 @@ useHead({ title: network?.acronym || network?.name });
           v-if="network.cohorts_agg?.count > 0"
           id="cohorts"
           title="Cohorts"
-          description="A list of cohorts you can explore."
+          description="Cohort studies connected in this network"
           :headers="[
             { id: 'name', label: 'Name', singleLine: true },
             { id: 'design', label: 'Design' },
@@ -354,18 +372,18 @@ useHead({ title: network?.acronym || network?.name });
 
         <TableContent
           v-if="network.dataSources_agg?.count > 0"
-          id="databanks"
+          id="datasources"
           title="Data sources"
-          description="A list of cohorts you can explore."
+          description="Datasources connected in this network"
           :headers="[
             { id: 'name', label: 'Name', singleLine: true },
-            { id: 'design', label: 'Design' },
+            { id: 'type', label: 'type' },
             { id: 'numberOfParticipants', label: 'Number of participants' },
           ]"
-          type="Cohorts"
-          :query="cohortsQuery"
-          :filter="{ networks: { id: { equals: network.id } } }"
-          :rowMapper="cohortMapper"
+          type="DataSources"
+          :query="datasourcesQuery"
+          :filter="{ id: network.id }"
+          :rowMapper="dataSourcesMapper"
           v-slot="slotProps"
         >
           {{ slotProps }}
