@@ -1,3 +1,3 @@
 <template>
-  <NetworkDetails />
+  <DataSourceList />
 </template>

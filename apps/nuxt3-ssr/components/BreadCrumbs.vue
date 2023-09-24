@@ -3,7 +3,8 @@
 defineProps({
   crumbs: {
     type: Object,
-    required: true,
+    default: [],
+    required: false,
   },
   current: {
     type: String,
@@ -39,6 +40,7 @@ defineProps({
     </template>
     <template v-if="current">
       <BaseIcon
+        v-if="Object.keys(crumbs).length > 0"
         name="caret-right"
         :width="12"
         class="text-breadcrumb-arrow"

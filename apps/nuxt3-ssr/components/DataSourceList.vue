@@ -4,7 +4,7 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 10;
 
-useHead({ title: "Cohorts" });
+useHead({ title: "Data sources" });
 
 const currentPage = ref(1);
 if (route.query?.page) {
@@ -16,24 +16,15 @@ let offset = computed(() => (currentPage.value - 1) * pageSize);
 
 let filters: IFilter[] = reactive([
   {
-    title: "Search in cohorts",
+    title: "Search in datasources",
     columnType: "_SEARCH",
     search: "",
-    searchTables: ["collectionEvents", "subcohorts"],
     initialCollapsed: false,
   },
   {
     title: "Areas of information",
     refTable: "AreasOfInformationCohorts",
     columnName: "areasOfInformation",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
-  },
-  {
-    title: "Data categories",
-    refTable: "DataCategories",
-    columnName: "dataCategories",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
@@ -47,24 +38,9 @@ let filters: IFilter[] = reactive([
     conditions: [],
   },
   {
-    title: "Sample categories",
-    refTable: "SampleCategories",
-    columnName: "sampleCategories",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
-  },
-  {
     title: "Cohort Types",
     refTable: "ResourceTypes",
     columnName: "type",
-    columnType: "ONTOLOGY",
-    conditions: [],
-  },
-  {
-    title: "Design",
-    refTable: "CohortDesigns",
-    columnName: "design",
     columnType: "ONTOLOGY",
     conditions: [],
   },
@@ -77,28 +53,16 @@ let search = computed(() => {
 
 const query = computed(() => {
   return `
-  query Cohorts($filter:CohortsFilter, $orderby:Cohortsorderby){
-    Cohorts(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+  query DataSources($filter:DataSourcesFilter, $orderby:DataSourcesorderby){
+    DataSources(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
       name
       acronym
       description
       keywords
       numberOfParticipants
-      startYear
-      endYear
-      type {
-          name
-      }
-      design {
-          name
-      }
-      leadOrganisation {
-          name
-          acronym
-      }
     }
-    Cohorts_agg (filter:$filter){
+    DataSources_agg (filter:$filter){
         count
     }
   }
@@ -112,6 +76,7 @@ const filter = computed(() => {
   if (route.params.catalogue) {
     result._and["networks"] = { id: { equals: route.params.catalogue } };
   }
+  console.log(result);
   return result;
 });
 
@@ -125,6 +90,10 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
     variables: { orderby, filter },
   },
 });
+if (error) {
+  console.log(error);
+  console.log(query);
+}
 
 function setCurrentPage(pageNumber: number) {
   router.push({ path: route.path, query: { page: pageNumber } });
@@ -171,7 +140,7 @@ if (route.params.catalogue) {
         <template #header>
           <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader
-            title="Cohorts"
+            title="Data sources"
             description="Group of individuals sharing a defining demographic characteristic."
           >
             <template #prefix>

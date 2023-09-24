@@ -14,6 +14,7 @@ const route = useRoute();
 const query = gql`
   query Cohorts($id: String) {
     Cohorts(filter: { id: { equals: [$id] } }) {
+      id
       acronym
       name
       description
@@ -302,7 +303,7 @@ const crumbs: any = {};
 if (route.params.catalogue) {
   crumbs[
     route.params.catalogue
-  ] = `/${route.params.schema}/ssr-catalogue/cat/${route.params.catalogue}`;
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
   crumbs[
     "Cohorts"
   ] = `/${route.params.schema}/ssr-catalogue/cohorts/cat/${route.params.catalogue}/cohorts`;

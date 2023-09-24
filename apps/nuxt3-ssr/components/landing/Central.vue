@@ -79,7 +79,7 @@ function percentageLongitudinal(
         title="Catalogues"
         description="Browse selected resources per network, topic, study or organisation."
         :count="data.data.Networks_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/networks/`"
+        :link="`/${route.params.schema}/ssr-catalogue/catalogues`"
       />
       <LandingCardPrimary
         image="patient-list"

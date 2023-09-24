@@ -2,6 +2,7 @@
 <script setup lang="ts">
 defineProps<{
   link: string;
+  image?: string;
 }>();
 
 const config = useRuntimeConfig();
@@ -16,8 +17,14 @@ if (logoFileName) {
 <template>
   <NuxtLink :to="link" class="block">
     <span class="sr-only">Go to home</span>
-    <i v-if="svg" v-html="svg"></i>
-
+    <img
+      v-if="image"
+      :src="image"
+      width="200"
+      height="50"
+      style="background-color: white"
+    />
+    <i v-else-if="svg" v-html="svg"></i>
     <img
       v-else
       class="w-50px h-auto"

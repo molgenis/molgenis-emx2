@@ -13,14 +13,14 @@ const truncate = ref(true);
     {{ truncate ? `${value?.substring(0, cutoff)}...` : value }}
     <button
       v-if="truncate && value?.length > cutoff"
-      class="text-blue-500 underline hover:bg-blue-50 italic"
+      class="underline italic"
       @click="truncate = false"
     >
       read more
     </button>
     <button
       v-if="!truncate && value?.length > cutoff"
-      class="text-blue-500 underline hover:bg-blue-50 italic"
+      class="underline italic"
       @click="truncate = true"
     >
       read less

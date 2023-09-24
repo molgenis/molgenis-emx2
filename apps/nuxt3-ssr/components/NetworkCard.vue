@@ -49,7 +49,7 @@ const isShowingMobileMoreText = computed(() => {
     <div class="grid grid-cols-12 gap-6">
       <div class="col-span-3">
         <div class="items-center flex h-full w-full justify-center">
-          <NuxtLink :to="`/${schema}/ssr-catalogue/networks/${network.id}`">
+          <NuxtLink :to="`/${schema}/ssr-catalogue/${network.id}`">
             <img :src="network?.logo?.url" />
           </NuxtLink>
         </div>
@@ -59,7 +59,7 @@ const isShowingMobileMoreText = computed(() => {
           <div :class="titleContainerClasses" class="grow">
             <h2 class="min-w-[160px] mr-4 md:inline-block block">
               <NuxtLink
-                :to="`/${schema}/ssr-catalogue/networks/${network.id}`"
+                :to="`/${schema}/ssr-catalogue/${network.id}`"
                 class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
               >
                 {{ network?.acronym || network?.name }}
@@ -78,7 +78,7 @@ const isShowingMobileMoreText = computed(() => {
           class="text-blue-500 xl:justify-end"
         />
         -->
-            <NuxtLink :to="`/${schema}/ssr-catalogue/networks/${network.id}`">
+            <NuxtLink :to="`/${schema}/ssr-catalogue/${network.id}`">
               <IconButton
                 icon="arrow-right"
                 class="text-blue-500 hidden xl:flex xl:justify-end"

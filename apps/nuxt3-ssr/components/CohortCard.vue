@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const route = useRoute();
 import type { ICohort } from "~/interfaces/types";
 let truncate = ref(true);
 const cutoff = 250;
@@ -8,6 +9,7 @@ const props = withDefaults(
     cohort: ICohort;
     schema: string;
     compact?: boolean;
+    catalogue?: string;
   }>(),
   {
     compact: false,
@@ -35,6 +37,10 @@ const headerClasses = computed(() => {
 const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
 });
+
+let url = props.catalogue
+  ? `/${props.schema}/ssr-catalogue/${props.catalogue}/cohorts/${props.cohort.id}`
+  : `/${props.schema}/ssr-catalogue/cohorts/${props.cohort.id}`;
 </script>
 
 <template>
@@ -43,7 +49,7 @@ const iconStarClasses = computed(() => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/ssr-catalogue/cohorts/${cohort.id}`"
+            :to="url"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ cohort?.acronym || cohort?.name }}
