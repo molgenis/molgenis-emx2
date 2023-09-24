@@ -112,7 +112,7 @@ RWE resources,,linkage,heading,,,,,,,,,Data linkage,,,
 Databanks,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?,,Databanks,hasIdentifier
 Databanks,,identifier description,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level",,Databanks,identifierDescription
 Data resources,,prelinked,bool,,,,,,,,,Is the data from this data source linked to other data sources?,EMA,,
-RWE resources,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are either currently available between data sources in the data source (when pre-linked = yes),EMA,,
+RWE resources,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are currently available between data sources in the data source (when pre-linked = yes),EMA,,
 RWE resources,,linkage possibility,bool,,,,,,,,,Can this data source be linked to other data sources?,EMA,,
 Data resources,,linkage possibility description,text,,,,,,,,,Can the data from this data source be linked to other data sources?,EMA,,
 RWE resources,,linked resources,refback,,,,Linked resources,,main resource,,,List of resources that are or can be linked to this main resource,EMA,RWE resources,databanks
