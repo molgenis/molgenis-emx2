@@ -93,6 +93,10 @@ is used as the primary key in the user interface, upload and API. Other key>1 ca
 
 When required=TRUE then values in this column must be filled. When required=FALSE then this column can be left empty. Default value: FALSE.
 
+### defaultValue
+
+Using 'defaultValue' you can set a default value for a column.
+
 ### label,label:en,label:fr etc
 
 Using label you can change the labels in forms. Typically useful for data capture and surveys. Using :suffix you can give labels for multiple languages, e.g.
