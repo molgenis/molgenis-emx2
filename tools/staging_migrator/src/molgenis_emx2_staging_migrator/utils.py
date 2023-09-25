@@ -3,42 +3,9 @@ Utility functions for the StagingMigrator class.
 """
 import logging
 
-import requests
-
-
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.graphql_queries import Queries
 
-
 log = logging.getLogger(__name__)
-
-
-def delete_staging_from_catalogue(url, session: requests.Session,
-                                  staging_area: str,
-                                  catalogue: str,
-                                  tables_to_delete: dict):
-    """
-    Prepares the staging area by deleting data from tables
-    that are later synchronized from the staging area.
-    """
-    source_cohort_id = get_staging_cohort_id(url, session, staging_area)
-    
-    for t_name, t_type in tables_to_delete.items():
-        if t_type == 'resource':
-            variables = {"filter": {"resource": {"equals": [{"id": source_cohort_id}]}}}
-        elif t_type == 'mappings':
-            variables = {"filter": {"source": {"equals": [{"id": source_cohort_id}]}}}
-        elif t_type == 'variables':
-            variables = {"filter": {"resource": {"equals": [{"id": source_cohort_id}]}}}
-        elif t_type == 'id':
-            variables = {"filter": {"equals": [{"id": source_cohort_id}]}}
-        elif t_type == 'subcohort':
-            variables = {"filter": {"subcohort": {"resource": {"equals": [{"id": source_cohort_id}]}}}}
-        else:
-            continue
-
-        table_query = Queries
-        # TODO move function back to class
-        # TODO Generate queries based on table schema with primary keys
 
 
 def get_staging_cohort_id(url, session, staging_area) -> str | None:
@@ -63,3 +30,41 @@ def get_staging_cohort_id(url, session, staging_area) -> str | None:
         return None
 
     return response['Cohorts'][0]['id']
+
+
+def table_to_pascal(_table: str) -> str:
+    """Converts a table name to Pascal case format for use in
+    GraphQL queries, e.g. 'Variable mappings' -> 'VariableMappings'.
+    """
+    return "".join(word.capitalize() for word in _table.split(' '))
+
+
+def prepare_pkey(schema: dict, table_name: str, col_name: str | list = None) -> str | list | dict:
+    """Prepares a primary key by adding a reference to a table if necessary."""
+    if not col_name:
+        # Return the primary keys of a table if no column name is specified
+        return [col['name'] for col in schema[table_name]['columns'] if col.get('key') == 1]
+    col_data, = [col for col in schema[table_name]['columns'] if col['name'] == col_name]
+    if not col_data.get('columnType') in ['REF', 'REF_ARRAY']:
+        return col_name
+    if col_data.get('columnType') == 'REF':
+        ref_keys = prepare_pkey(schema, col_data.get('refTable'))
+        ref_cols = [prepare_pkey(schema, col_data['refTable'], rk) for rk in ref_keys]
+        return {col_name: ref_cols}
+
+
+def query_columns_string(column: str | list | dict, indent: int) -> str:
+    """Constructs a query string based on the level of indentation requested."""
+    if isinstance(column, str):
+        return_val = f"{indent*' '}{column}"
+        return return_val
+    if isinstance(column, list):
+        return_val = "\n".join(query_columns_string(item, indent=indent) for item in column)
+        return return_val
+    if isinstance(column, dict):
+        col = list(column.keys())[0]
+        vals = list(column.values())[0]
+        return_val = (f"{indent*' '}{col} {{\n"
+                      f"{query_columns_string(vals, indent=indent+2)}\n"
+                      f"{indent*' '}}}")
+        return return_val
