@@ -1,22 +1,27 @@
 <script setup lang="ts">
-const route = useRoute();
-import type { ICohort } from "~/interfaces/types";
 let truncate = ref(true);
 const cutoff = 250;
 
 const props = withDefaults(
   defineProps<{
-    cohort: ICohort;
+    resource: any;
     schema: string;
+    resourceName: string;
     compact?: boolean;
-    catalogue?: string;
+    resourceId: Record<string, string>;
   }>(),
   {
     compact: false,
   }
 );
 
-const startEndYear = filters.startEndYear;
+const resourceIdPath = computed(() => {
+  return (
+    Object.values(props.resourceId)[0] +
+    "?keys=" +
+    new URLSearchParams(props.resourceId).toString()
+  );
+});
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
@@ -37,10 +42,6 @@ const headerClasses = computed(() => {
 const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
 });
-
-let url = props.catalogue
-  ? `/${props.schema}/ssr-catalogue/${props.catalogue}/cohorts/${props.cohort.id}`
-  : `/${props.schema}/ssr-catalogue/cohorts/${props.cohort.id}`;
 </script>
 
 <template>
@@ -49,26 +50,28 @@ let url = props.catalogue
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="url"
+            :to="`/${schema}/ssr-catalogue/${resourceName}/${resourceIdPath}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
-            {{ cohort?.acronym || cohort?.name }}
+            {{ resource?.acronym || resource?.name }}
           </NuxtLink>
         </h2>
 
         <span :class="subtitleClasses" class="mr-4 text-body-base">
-          {{ cohort?.acronym ? cohort?.name : "" }}
+          {{ resource?.acronym ? resource?.name : "" }}
         </span>
       </div>
       <div class="flex">
         <!--
-        <IconButton
-          icon="star"
-          :class="iconStarClasses"
-          class="text-blue-500 xl:justify-end"
-        />
-        -->
-        <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${cohort.id}`">
+            <IconButton
+              icon="star"
+              :class="iconStarClasses"
+              class="text-blue-500 xl:justify-end"
+            />
+            -->
+        <NuxtLink
+          :to="`/${schema}/ssr-catalogue/${resourceName}/${resourceIdPath}`"
+        >
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"
@@ -78,28 +81,52 @@ let url = props.catalogue
     </header>
 
     <div v-if="!compact">
-      <ContentReadMore :text="cohort.description" :cutoff="cutoff" />
+      <template v-if="resource.description">
+        <p class="text-body-base my-5 xl:block hidden">
+          {{ resource?.description }}
+        </p>
 
-      <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
+        <p
+          v-if="resource?.description"
+          class="text-body-base mt-5 block xl:hidden"
+        >
+          {{
+            truncate
+              ? `${resource?.description?.substring(0, cutoff)}...`
+              : resource?.description
+          }}
+        </p>
+
+        <button
+          v-if="truncate && resource?.description?.length > cutoff"
+          class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
+          @click="truncate = false"
+        >
+          Read more
+        </button>
+      </template>
+
+      <!-- TODO think about generic way to add additional context -->
+      <!-- <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>
           <dt class="flex-auto block text-gray-600">Type</dt>
-          <dd>{{ cohort?.type?.map((type) => type.name).join(",") }}</dd>
+          <dd>{{ resource?.type?.map((type) => type.name).join(",") }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Design</dt>
-          <dd>{{ cohort?.design?.name }}</dd>
+          <dd>{{ resource?.design?.name }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Participants</dt>
-          <dd>{{ cohort?.numberOfParticipants }}</dd>
+          <dd>{{ resource?.numberOfParticipants }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Duration</dt>
           <dd>
-            {{ startEndYear(cohort?.startYear, cohort?.endYear) }}
+            {{ startEndYear(resource?.startYear, resource?.endYear) }}
           </dd>
         </div>
-      </dl>
+      </dl> -->
     </div>
   </article>
 </template>

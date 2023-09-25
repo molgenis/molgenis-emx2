@@ -13,7 +13,7 @@ defineProps<{
       {{ title }}
     </h2>
     <div class="mb-5 prose max-w-none" v-if="description">
-      <Truncate :value="description" />
+      <ContentReadMore :value="description" />
     </div>
     <slot></slot>
   </section>

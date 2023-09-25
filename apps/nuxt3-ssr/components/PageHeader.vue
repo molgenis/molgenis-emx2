@@ -35,7 +35,7 @@ defineProps({
         </div>
       </div>
       <p v-if="description" class="mt-1 mb-0 text-center lg:mb-5 text-body-lg">
-        <Truncate :value="description" />
+        <ContentReadMore :text="description" />
       </p>
     </div>
     <slot name="suffix"></slot>

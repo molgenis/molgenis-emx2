@@ -320,7 +320,12 @@ if (route.params.catalogue) {
         :description="cohort?.acronym ? cohort?.name : ''"
       >
         <template #prefix>
-          <BreadCrumbs :crumbs="crumbs" :current="cohort.id" />
+          <BreadCrumbs
+            :crumbs="{
+              Home: `/${route.params.schema}/ssr-catalogue`,
+              Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
+            }"
+          />
         </template>
         <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />
@@ -329,7 +334,7 @@ if (route.params.catalogue) {
     </template>
     <template #side>
       <SideNavigation
-        :title="cohort?.acronym"
+        :title="cohort?.acronym || cohort?.name"
         :image="cohort?.logo?.url"
         :items="tocItems"
       />
@@ -374,6 +379,7 @@ if (route.params.catalogue) {
           title="Available Data &amp; Samples"
           :collectionEvents="cohort?.collectionEvents"
         />
+
         <TableContent
           v-if="cohortData.data.Subcohorts_agg.count > 0"
           id="Subpopulations"
@@ -460,7 +466,7 @@ if (route.params.catalogue) {
           title="Attached Files"
           :documents="cohort.documentation"
         />
-      </ContentBlocks>
-    </template>
+      </ContentBlocks> </template
+    >f
   </LayoutsDetailPage>
 </template>
