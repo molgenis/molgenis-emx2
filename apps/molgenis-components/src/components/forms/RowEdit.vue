@@ -216,6 +216,7 @@ export default {
                     column3.refTable === column2.refTable
                   ) {
                     filter[column3.name] = {
+                      //@ts-ignore
                       equals: this.internalValues[column.refLink],
                     };
                   }

@@ -196,16 +196,15 @@ export function applyJsTemplate(
     );
 
     if (object.hasOwnProperty("primaryKey")) {
+      //@ts-ignore
       return flattenObject(object.primaryKey);
     }
 
     if (object.hasOwnProperty("name")) {
+      //@ts-ignore
       return object.name;
     }
 
-    if (object.hasOwnProperty("id")) {
-      return object.id;
-    }
     return flattenObject(object);
   }
 }
