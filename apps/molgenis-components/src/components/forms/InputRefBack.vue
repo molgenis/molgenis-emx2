@@ -168,16 +168,18 @@ export default {
       return result;
     },
     visibleColumnNames() {
-      return this.visibleColumns.map((c) => c.id);
+      return this.visibleColumns.map((column) => column.name);
     },
     visibleColumns() {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.id != this.refBack && !c.id.startsWith("mg_")
+          (column) =>
+            column.name != this.refBack && !column.name.startsWith("mg_")
         );
+      } else {
+        return [];
       }
-      return [];
     },
   },
   methods: {
