@@ -308,6 +308,25 @@ class SqlTableMetadataExecutor {
       if (!c.isSystemColumn()) {
         if (c.isFile()) {
           // do nothing for now
+        } else if (c.isOntology()) {
+          for (Reference r : c.getReferences()) {
+            String schemaName =
+                r.toPrimitiveColumn().getRefSchema().isEmpty()
+                    ? table.getSchema().getName()
+                    : r.toPrimitiveColumn().getRefSchema();
+
+            if (c.isArray()) {
+              mgSearchVector.append(
+                  String.format(
+                      " || coalesce((SELECT string_agg(\"%1$s_TEXT_SEARCH_COLUMN\", ' ') FROM \"%3$s\".\"%1$s\" WHERE \"%1$s\".\"name\" = ANY( NEW.\"%2$s\") ),'') || ' '",
+                      r.getTargetTable(), r.getName(), schemaName));
+            } else {
+              mgSearchVector.append(
+                  String.format(
+                      " || coalesce((SELECT \"%1$s_TEXT_SEARCH_COLUMN\" FROM \"%3$s\".\"%1$s\" WHERE \"%1$s\".\"name\" = NEW.\"%2$s\"),'') || ' '",
+                      r.getTargetTable(), r.getName(), schemaName));
+            }
+          }
         } else if (c.isReference()) {
           for (Reference r : c.getReferences()) {
             mgSearchVector.append(
