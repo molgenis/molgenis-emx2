@@ -1,7 +1,7 @@
 import csv
 import io
 import logging
-from functools import cached_property
+from functools import cache, cached_property
 from typing import TypeAlias, Literal
 
 import pandas as pd
@@ -159,6 +159,7 @@ class Client:
 
         return database_names
 
+    @cache
     def _schema_schema(self, schema: str) -> dict:
         """Queries the schema of a schema"""
         query = """
@@ -182,7 +183,9 @@ class Client:
         }"""
         schema_url = f"{self.url}/{schema}/graphql"
         response = self.session.post(url=schema_url, json={"query": query})
-        tables: dict = response.json().get('data').get('_schema').get('tables')
+        tables = {
+            tab.pop('name'): tab for tab in response.json().get('data').get('_schema').get('tables')
+        }
         return tables
     
     @staticmethod
