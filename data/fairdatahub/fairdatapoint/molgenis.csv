@@ -1,46 +1,46 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Catalog,,,,,,,,,,,http://www.w3.org/ns/dcat#Catalog,DCAT v2 catalog entries.
-Catalog,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the catalog.
-Catalog,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,Name of the catalog with the language tag.
-Catalog,,hasVersion,string,,,,,,,,http://purl.org/dc/terms/hasVersion,Version of the catalog.
-Catalog,,description,string,,,,,,,,http://purl.org/dc/terms/description,Description of the catalog with the language tag.
-Catalog,,publisher,string,,TRUE,,,,,,http://purl.org/dc/terms/publisher,The entity(ies) (person or organization) responsible for the catalog.
-Catalog,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,The language(s) used in the catalog.
-Catalog,,license,hyperlink,,TRUE,,,,,,http://purl.org/dc/terms/license,The reference to the usage license of the catalog.
-Catalog,,themeTaxonomy,hyperlink,,TRUE,,,,,,http://www.w3.org/ns/dcat#themeTaxonomy,A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.
-Catalog,,dataset,refBack,,,,Dataset,,belongsToCatalog,,http://www.w3.org/ns/dcat#dataset,The relation between the catalog and its items. This is the most general predicate for membership of a catalog. It is recommended to use more specific sub-properties such as dcat:dataset, dcat:catalog, dcat:service, or a custom sub-property.
-Dataset,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,DCAT v2 dataset entries.
-Dataset,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the dataset.
-Dataset,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.
-Dataset,,description,string,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.
-Dataset,,belongsToCatalog,ref_array,,TRUE,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this dataset.
-Dataset,,distribution,refBack,,,,Distribution,,belongsToDataset,,http://purl.org/dc/terms/distribution,"Reference to one or more Distributions to make table data and/or remote file(s) metadata available in the FDP."
-Dataset,,accrualPeriodicity,string,,,,,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.
-Dataset,,spatial,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.
-Dataset,,spatialResolutionInMeters,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,Minimum spatial separation resolvable in a dataset, measured in meters.
-Dataset,,temporal,string,,,,,,,,http://purl.org/dc/terms/temporal,The temporal period that the dataset covers.
-Dataset,,temporalResolution,string,,,,,,,,http://purl.org/dc/terms/temporalResolution,Minimum time period resolvable in the dataset.
-Dataset,,wasGeneratedBy,string,,,,,,,,http://www.w3.org/ns/prov#wasGeneratedBy,An activity that generated, or provides the business context for, the creation of the dataset.
-Dataset,,accessRights,string,,,,,,,,http://purl.org/dc/terms/accessRights,Information about who can access the resource or an indication of its security status.
-Dataset,,contactPoint,ref,,,,Persons,,,,http://purl.org/dc/terms/contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].
-Dataset,,creator,ref_array,,,,Persons,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.
-Dataset,,hasPolicy,string,,,,,,,,http://www.w3.org/ns/odrl/2/hasPolicy,An ODRL conformant policy expressing the rights associated with the resource.
-Dataset,,identifier,string,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.
-Dataset,,isReferencedBy,string,,,,,,,,http://purl.org/dc/terms/isReferencedBy,A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.
-Dataset,,keyword,string_array,,,,,,,,http://purl.org/dc/terms/keyword,A keyword or tag describing the resource.
-Dataset,,landingPage,string,,,,,,,,http://purl.org/dc/terms/landingPage,A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.
-Dataset,,license,string,,,,,,,,http://purl.org/dc/terms/license,A legal document under which the resource is made available.
-Dataset,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.
-Dataset,,relation,string,,,,,,,,http://purl.org/dc/terms/relation,A resource with an unspecified relationship to the cataloged item.
-Dataset,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.
-Dataset,,qualifiedRelation,string,,,,,,,,http://purl.org/dc/terms/qualifiedRelation,Link to a description of a relationship with another resource.
-Dataset,,publisher,ref,,,,Organisations,,,,http://purl.org/dc/terms/publisher,The entity responsible for making the item available.
-Dataset,,theme,hyperlink_array,,,,,,,,http://purl.org/dc/terms/theme,A main category of the resource. A resource can have multiple themes.
-Dataset,,type,string,,,,,,,,http://purl.org/dc/terms/type,The nature or genre of the resource.
-Dataset,,qualifiedAttribution,string,,,,,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Link to an Agent having some form of responsibility for the resource
-Distribution,,,,,,,,,,,http://www.w3.org/ns/dcat#Distribution,DCAT v2 distribution entries.
-Distribution,,name,string,1,TRUE,,,,,,http://schema.org/name,"Unique name of a Table or (set of) File(s)."
-Distribution,,description,string,,,,,,,,http://purl.org/dc/terms/description,"Description of a Table or (set of) File(s)."
-Distribution,,type,ontology,,TRUE,,DistributionType,,,,http://purl.allotrope.org/ontologies/result#AFR_0002205,"Distribution type, either Table or File."
-Distribution,,files,ref_array,,,,Files,,,,http://purl.obolibrary.org/obo/STATO_0000002,"One or multiple metadata for digital remote files."
-Distribution,,belongsToDataset,ref_array,,TRUE,,Dataset,,,,http://www.w3.org/ns/dcat#Dataset,Reference to any datasets that contain this distribution.
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Catalog,,,,,,,,,,,http://www.w3.org/ns/dcat#Catalog,DCAT v2 catalog entries.,DCAT
+Catalog,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the catalog.,DCAT
+Catalog,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,Name of the catalog with the language tag.,DCAT
+Catalog,,hasVersion,string,,,,,,,,http://purl.org/dc/terms/hasVersion,Version of the catalog.,DCAT
+Catalog,,description,string,,,,,,,,http://purl.org/dc/terms/description,Description of the catalog with the language tag.,DCAT
+Catalog,,publisher,string,,TRUE,,,,,,http://purl.org/dc/terms/publisher,The entity(ies) (person or organization) responsible for the catalog.,DCAT
+Catalog,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,The language(s) used in the catalog.,DCAT
+Catalog,,license,hyperlink,,TRUE,,,,,,http://purl.org/dc/terms/license,The reference to the usage license of the catalog.,DCAT
+Catalog,,themeTaxonomy,hyperlink,,TRUE,,,,,,http://www.w3.org/ns/dcat#themeTaxonomy,A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.,DCAT
+Catalog,,dataset,refBack,,,,Dataset,,belongsToCatalog,,http://www.w3.org/ns/dcat#dataset,The relation between the catalog and its items. This is the most general predicate for membership of a catalog. It is recommended to use more specific sub-properties such as dcat:dataset, dcat:catalog, dcat:service, or a custom sub-property.,DCAT
+Dataset,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,DCAT v2 dataset entries.,DCAT
+Dataset,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the dataset.,DCAT
+Dataset,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT
+Dataset,,description,string,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT
+Dataset,,belongsToCatalog,ref_array,,TRUE,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this dataset.,DCAT
+Dataset,,distribution,refBack,,,,Distribution,,belongsToDataset,,http://purl.org/dc/terms/distribution,"Reference to one or more Distributions to make table data and/or remote file(s) metadata available in the FDP.",DCAT
+Dataset,,accrualPeriodicity,string,,,,,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT
+Dataset,,spatial,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.,DCAT
+Dataset,,spatialResolutionInMeters,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,Minimum spatial separation resolvable in a dataset, measured in meters.,DCAT
+Dataset,,temporal,string,,,,,,,,http://purl.org/dc/terms/temporal,The temporal period that the dataset covers.,DCAT
+Dataset,,temporalResolution,string,,,,,,,,http://purl.org/dc/terms/temporalResolution,Minimum time period resolvable in the dataset.,DCAT
+Dataset,,wasGeneratedBy,string,,,,,,,,http://www.w3.org/ns/prov#wasGeneratedBy,An activity that generated, or provides the business context for, the creation of the dataset.,DCAT
+Dataset,,accessRights,string,,,,,,,,http://purl.org/dc/terms/accessRights,Information about who can access the resource or an indication of its security status.,DCAT
+Dataset,,contactPoint,ref,,,,Persons,,,,http://purl.org/dc/terms/contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT
+Dataset,,creator,ref_array,,,,Persons,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT
+Dataset,,hasPolicy,string,,,,,,,,http://www.w3.org/ns/odrl/2/hasPolicy,An ODRL conformant policy expressing the rights associated with the resource.,DCAT
+Dataset,,identifier,string,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT
+Dataset,,isReferencedBy,string,,,,,,,,http://purl.org/dc/terms/isReferencedBy,A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.,DCAT
+Dataset,,keyword,string_array,,,,,,,,http://purl.org/dc/terms/keyword,A keyword or tag describing the resource.,DCAT
+Dataset,,landingPage,string,,,,,,,,http://purl.org/dc/terms/landingPage,A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.,DCAT
+Dataset,,license,string,,,,,,,,http://purl.org/dc/terms/license,A legal document under which the resource is made available.,DCAT
+Dataset,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.,DCAT
+Dataset,,relation,string,,,,,,,,http://purl.org/dc/terms/relation,A resource with an unspecified relationship to the cataloged item.,DCAT
+Dataset,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.,DCAT
+Dataset,,qualifiedRelation,string,,,,,,,,http://purl.org/dc/terms/qualifiedRelation,Link to a description of a relationship with another resource.,DCAT
+Dataset,,publisher,ref,,,,Organisations,,,,http://purl.org/dc/terms/publisher,The entity responsible for making the item available.,DCAT
+Dataset,,theme,hyperlink_array,,,,,,,,http://purl.org/dc/terms/theme,A main category of the resource. A resource can have multiple themes.,DCAT
+Dataset,,type,string,,,,,,,,http://purl.org/dc/terms/type,The nature or genre of the resource.,DCAT
+Dataset,,qualifiedAttribution,string,,,,,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Link to an Agent having some form of responsibility for the resource,DCAT
+Distribution,,,,,,,,,,,http://www.w3.org/ns/dcat#Distribution,DCAT v2 distribution entries.,DCAT
+Distribution,,name,string,1,TRUE,,,,,,http://schema.org/name,"Unique name of a Table or (set of) File(s).",DCAT
+Distribution,,description,string,,,,,,,,http://purl.org/dc/terms/description,"Description of a Table or (set of) File(s).",DCAT
+Distribution,,type,ontology,,TRUE,,DistributionType,,,,http://purl.allotrope.org/ontologies/result#AFR_0002205,"Distribution type, either Table or File.",DCAT
+Distribution,,files,ref_array,,,,Files,,,,http://purl.obolibrary.org/obo/STATO_0000002,"One or multiple metadata for digital remote files.",DCAT
+Distribution,,belongsToDataset,ref_array,,TRUE,,Dataset,,,,http://www.w3.org/ns/dcat#Dataset,Reference to any datasets that contain this distribution.,DCAT
