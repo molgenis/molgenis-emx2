@@ -92,6 +92,8 @@ public class MetadataUtils {
       field(name("cascade"), BOOLEAN.nullable(true));
   private static final Field<Boolean> COLUMN_READONLY =
       field(name("readonly"), BOOLEAN.nullable(true));
+  private static final Field<String> COLUMN_DEFAULT =
+      field(name("defaultValue"), VARCHAR.nullable(true));
 
   // users
   private static final Field<String> USER_NAME = field(name("username"), VARCHAR);
@@ -501,7 +503,8 @@ public class MetadataUtils {
             COLUMN_DESCRIPTION,
             COLUMN_READONLY,
             COLUMN_SEMANTICS,
-            COLUMN_VISIBLE)
+            COLUMN_VISIBLE,
+            COLUMN_DEFAULT)
         .values(
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
@@ -523,7 +526,8 @@ public class MetadataUtils {
             column.getDescriptions(),
             column.isReadonly(),
             column.getSemantics(),
-            column.getVisible())
+            column.getVisible(),
+            column.getDefaultValue())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(COLUMN_LABEL, column.getLabels())
@@ -544,6 +548,7 @@ public class MetadataUtils {
         .set(COLUMN_READONLY, column.isReadonly())
         .set(COLUMN_SEMANTICS, column.getSemantics())
         .set(COLUMN_VISIBLE, column.getVisible())
+        .set(COLUMN_DEFAULT, column.getDefaultValue())
         .execute();
   }
 
@@ -582,6 +587,7 @@ public class MetadataUtils {
     c.setReadonly(col.get(COLUMN_READONLY, Boolean.class));
     c.setSemantics(col.get(COLUMN_SEMANTICS, String[].class));
     c.setVisible(col.get(COLUMN_VISIBLE, String.class));
+    c.setDefaultValue(col.get(COLUMN_DEFAULT, String.class));
     return c;
   }
 

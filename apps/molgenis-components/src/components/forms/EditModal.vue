@@ -183,6 +183,9 @@ export default {
       type: Boolean,
       default: () => null,
     },
+    applyDefaultValues: {
+      type: Boolean,
+    },
   },
   computed: {
     title() {
@@ -333,6 +336,13 @@ export default {
     }
 
     this.rowData = { ...this.rowData, ...deepClone(this.defaultValue) };
+    if (this.applyDefaultValues) {
+      this.tableMetaData.columns.forEach((column) => {
+        if (column.defaultValue) {
+          this.rowData[column.id] = column.defaultValue;
+        }
+      });
+    }
     this.checkForErrors();
     this.loaded = true;
   },

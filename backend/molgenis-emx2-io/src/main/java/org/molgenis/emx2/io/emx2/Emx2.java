@@ -23,6 +23,7 @@ public class Emx2 {
   public static final String REF_JS_TEMPLATE = "refLabel";
   public static final String REF_BACK = "refBack";
   public static final String REQUIRED = "required";
+  public static final String DEFAULT_VALUE = "defaultValue";
   private static final String VALIDATION = "validation";
   private static final String VISIBLE = "visible";
   private static final String COMPUTED = "computed";
@@ -106,6 +107,7 @@ public class Emx2 {
           if (r.notNull(REF_LINK)) column.setRefLink(r.getString(REF_LINK));
           if (r.notNull(REF_BACK)) column.setRefBack(r.getString(REF_BACK));
           if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
+          if (r.notNull(DEFAULT_VALUE)) column.setDefaultValue(r.getString(DEFAULT_VALUE));
           if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
           // description i18n
           r.getColumnNames().stream()
@@ -171,6 +173,7 @@ public class Emx2 {
             REF_LINK,
             REF_BACK,
             REF_JS_TEMPLATE,
+            DEFAULT_VALUE,
             VALIDATION,
             VISIBLE,
             COMPUTED,
@@ -214,6 +217,7 @@ public class Emx2 {
       row.setString(COLUMN_TYPE, null);
       row.setString(KEY, null);
       row.setString(REQUIRED, null);
+      row.setString(DEFAULT_VALUE, null);
       row.setString(REF_SCHEMA, null);
       row.setString(REF_TABLE, null);
       row.setString(REF_LINK, null);
@@ -249,6 +253,7 @@ public class Emx2 {
         if (!c.getColumnType().equals(STRING))
           row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
         if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
+        if (c.getDefaultValue() != null) row.setString(DEFAULT_VALUE, c.getDefaultValue());
         if (c.getKey() > 0) row.setInt(KEY, c.getKey());
         if (!c.getRefSchema().equals(c.getSchemaName()))
           row.setString(REF_SCHEMA, c.getRefSchema());

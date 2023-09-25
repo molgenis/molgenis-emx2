@@ -29,9 +29,9 @@ import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
-public class TestGraphqSchemaFields {
+public class TestGraphqlSchemaFields {
 
-  private static final String schemaName = TestGraphqSchemaFields.class.getSimpleName();
+  private static final String schemaName = TestGraphqlSchemaFields.class.getSimpleName();
   private static GraphQL grapql;
   private static Database database;
   private static TaskService taskService;
@@ -472,12 +472,12 @@ public class TestGraphqSchemaFields {
 
     // add table
     execute(
-        "mutation{change(tables:[{name:\"table1\",labels:[{locale:\"en\", value: \"table1\"}],descriptions:[{locale:\"en\", value: \"desc1\"}],columns:[{name:\"col1\", key:1, labels:[{locale:\"en\", value:\"column1\"}], descriptions:[{locale:\"en\", value:\"desc11\"}]}]}]){message}}");
-
+        "mutation{change(tables:[{name:\"table1\",labels:[{locale:\"en\", value: \"table1\"}],descriptions:[{locale:\"en\", value: \"desc1\"}],columns:[{name:\"col1\", defaultValue: \"bla\", key:1, labels:[{locale:\"en\", value:\"column1\"}], descriptions:[{locale:\"en\", value:\"desc11\"}]}]}]){message}}");
     JsonNode node =
         execute(
-            "{_schema{tables{name,labels{locale,value},descriptions{locale,value},columns{name,key,labels{locale,value},descriptions{locale,value}}}}}");
-    assertEquals(1, node.at("/_schema/tables/0/columns/0/key").intValue());
+            "{_schema{tables{name,labels{locale,value},descriptions{locale,value},columns{name,key,defaultValue,labels{locale,value},descriptions{locale,value}}}}}");
+    assertEquals(1, node.at("/_schema/tables/5/columns/0/key").intValue());
+    assertEquals("bla", node.at("/_schema/tables/5/columns/0/defaultValue").asText());
 
     assertEquals("en", node.at("/_schema/tables/5/labels/0/locale").asText());
     assertEquals("table1", node.at("/_schema/tables/5/labels/0/value").asText());

@@ -64,6 +64,9 @@
       <span v-if="column.readonly === true || column.readonly === 'true'">
         readonly
       </span>
+      <span v-if="column.defaultValue">
+        defaultValue='{{ column.defaultValue }}'
+      </span>
       <span v-if="column.refLabel"> refLabel='{{ column.refLabel }}' </span>
       <span v-if="column.computed"> computed="{{ column.computed }}"</span>
     </td>

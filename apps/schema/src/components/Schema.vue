@@ -245,6 +245,7 @@ export default {
                 refLabel
                 required
                 readonly
+                defaultValue
                 descriptions {
                   locale
                   value
