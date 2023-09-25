@@ -369,10 +369,12 @@ class SqlTable implements Table {
         .filter(c -> !c.getName().equals(MG_INSERTEDBY) && !c.getName().equals(MG_INSERTEDON))
         .filter(
             c ->
-                AUTO_ID.equals(c.getColumnType()) || c.getComputed() != null || c.isReference()
-                    ? c.getReferences().stream()
-                        .anyMatch(r -> columnsProvided.contains(r.getName()))
-                    : columnsProvided.contains(c.getName()))
+                AUTO_ID.equals(c.getColumnType())
+                    || c.getComputed() != null
+                    || (c.isReference()
+                        ? c.getReferences().stream()
+                            .anyMatch(r -> columnsProvided.contains(r.getName()))
+                        : columnsProvided.contains(c.getName())))
         .toList();
   }
 

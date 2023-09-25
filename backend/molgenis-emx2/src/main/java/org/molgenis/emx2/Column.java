@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
+import static org.molgenis.emx2.Constants.SYS_COLUMN_NAME_PREFIX;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
@@ -603,6 +604,10 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public boolean isFile() {
     return getColumnType().isFile();
+  }
+
+  public boolean isSystemColumn() {
+    return this.getName().startsWith(SYS_COLUMN_NAME_PREFIX);
   }
 
   public boolean isHeading() {

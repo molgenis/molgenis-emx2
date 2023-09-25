@@ -259,7 +259,7 @@
             "
           />
           <TableMolgenis
-            v-if="view == View.TABLE"
+            v-if="view === View.TABLE"
             :schemaName="schemaName"
             :selection="selectedItems"
             @update:selection="selectedItems = $event"
@@ -918,6 +918,7 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
         :showOrder="showOrder"
         :canEdit="canEdit"
         :canManage="canManage"
+        :canView="true"
         :locale="locale"
       />
       <div class="border mt-3 p-2">

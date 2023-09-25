@@ -247,7 +247,7 @@ public class Emx2 {
 
     // output the columns
     for (Column c : columns) {
-      if (!c.getName().startsWith("mg_")) {
+      if (!c.isSystemColumn()) {
         Map<String, String> labels = c.getLabels();
         if (labels.get("en") != null && labels.get("en").equals(convertToTitleCase(c.getName()))) {
           labels = new TreeMap<>();

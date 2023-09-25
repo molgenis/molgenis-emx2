@@ -101,7 +101,7 @@ public class QueryHelper {
       ArrayList<Column> pathToColumn, String columnSemanticTagOrIRI, Table table) {
 
     for (Column column : table.getMetadata().getColumns()) {
-      if (column.getName().startsWith("mg_")) {
+      if (column.isSystemColumn()) {
         continue;
       }
 
