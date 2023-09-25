@@ -12,32 +12,12 @@ public class Profiles {
    */
   public String name;
   public String description;
-  public String datamodels;
+  public String models;
   public String profiles;
-  public String dataPartOfModelFolder;
-  public String optionalDemoDataFolder;
-  public List<String> datamodelsList;
+  public String data;
+  public String examples;
+  public List<String> modelsList;
   public List<String> profilesList;
-  public List<String> dataPartOfModelFolderList;
-  public List<String> optionalDemoDataFolderList;
-
-  @Override
-  public String toString() {
-    return "Profiles{"
-        + "name='"
-        + name
-        + '\''
-        + ", description='"
-        + description
-        + '\''
-        + ", datamodelsList="
-        + datamodelsList
-        + ", profilesList="
-        + profilesList
-        + ", dataPartOfModelFolderList="
-        + dataPartOfModelFolderList
-        + ", optionalDemoDataFolderList="
-        + optionalDemoDataFolderList
-        + '}';
-  }
+  public List<String> dataList;
+  public List<String> examplesList;
 }

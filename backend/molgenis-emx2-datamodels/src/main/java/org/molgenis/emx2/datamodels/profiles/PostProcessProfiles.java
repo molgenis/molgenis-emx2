@@ -13,10 +13,10 @@ public class PostProcessProfiles extends StdConverter<Profiles, Profiles> {
 
   @Override
   public Profiles convert(Profiles profiles) {
-    profiles.datamodelsList = csvStringToList(profiles.datamodels);
+    profiles.modelsList = csvStringToList(profiles.models);
     profiles.profilesList = csvStringToList(profiles.profiles);
-    profiles.dataPartOfModelFolderList = csvStringToList(profiles.dataPartOfModelFolder);
-    profiles.optionalDemoDataFolderList = csvStringToList(profiles.optionalDemoDataFolder);
+    profiles.dataList = csvStringToList(profiles.data);
+    profiles.examplesList = csvStringToList(profiles.examples);
     return profiles;
   }
 
