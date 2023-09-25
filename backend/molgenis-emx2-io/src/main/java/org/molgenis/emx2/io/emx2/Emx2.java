@@ -255,7 +255,7 @@ public class Emx2 {
           row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
         if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
         if (c.getKey() > 0) row.setInt(KEY, c.getKey());
-        if (!c.getRefSchema().equals(c.getSchemaName()))
+        if (c.getRefSchema() != null && !c.getRefSchema().equals(c.getSchemaName()))
           row.setString(REF_SCHEMA, c.getRefSchema());
         if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
         if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
