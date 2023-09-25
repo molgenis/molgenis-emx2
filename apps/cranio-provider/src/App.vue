@@ -10,15 +10,14 @@
       <div v-else>
         <PageHeader
           title="ERN CRANIO Registry"
-          :subtitle="schema"
-          imageSrc="profiles/erasmus-mc.jpg"
+          :subtitle="provider.name"
+          :imageSrc="provider.imageUrl"
         />
         <Dashboard class="provider-dashboard-container">
           <ProviderSidebar />
           <router-view
-            providerId="schema"
-            providerName="Test"
-            providerImageUrl="profiles/erasmus-mc.jpg"
+            :providerId="provider.id"
+            :providerName="provider.name"
           >
           </router-view>
         </Dashboard>
@@ -44,50 +43,55 @@ import { postQuery } from "./utils/utils";
 
 const session = ref(null);
 const page = ref(null);
+
 let loading = ref(true);
 let error = ref(null);
 let schema = ref(null);
-let data = ref(null);
+let provider = ref(null);
 
 async function getSchemaMeta() {
-  const result = await postQuery("/api/graphql", "{ _schema { name }}");
+  const result = await postQuery("/graphql", "{ _schema { name }}");
   const data = await result.data._schema.name;
   return data;
 }
 
 async function getProviderMeta(id) {
   const result = await postQuery(
-    "/pet%20store/graphql",
-    "{ _schema { name }}"
-    // `{
-    //   Organisations (
-    //     filter: {
-    //       providerInformation: {
-    //         providerIdentifier: {
-    //           equals: "${id}"
-    //         }
-    //       }
-    //     }
-    //   ) {
-    //     name
-    //     imageUrl
-    //     providerInformation {
-    //       providerIdentifier
-    //     }
-    //   }
-    // }`
+    "/CranioStats/graphql",
+    `{
+      Organisations (
+        filter: {
+          providerInformation: {
+            providerIdentifier: {
+              equals: "${id}"
+            }
+          }
+        }
+      ) {
+        name
+        imageUrl
+        providerInformation {
+          providerIdentifier
+        }
+      }
+    }`
   );
 
-  const data = await result.data;
+  const data = await result.data.Organisations[0];
   return data;
 }
 
-onBeforeMount(() => {
-  getSchemaMeta()
-    .then((response) => (schema.value = response))
-    .then(() => (loading.value = false))
-    .catch((err) => (err.value = error));
 
-  getProviderMeta().then((response) => console.log(response));
+async function loadData() {
+  schema.value = await getSchemaMeta();
+  provider.value = await getProviderMeta(schema.value);
+  provider.value.id = provider.value.providerInformation[0].providerIdentifier
+  delete provider.value.providerInformation
+}
+
+onBeforeMount(() => {
+  loadData()
+    .then(() => loading.value = false)
+    .catch(err => error.value = err)
 });
 </script>

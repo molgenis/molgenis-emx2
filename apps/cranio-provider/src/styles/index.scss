@@ -118,6 +118,12 @@
         }
       }
     }
+    
+    .dashboard-title {
+      span {
+        color: $ern-cranio-primary;        
+      }
+    }
 
     .dashboard-h2 {
       font-size: 16pt;

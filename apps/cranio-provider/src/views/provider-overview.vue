@@ -1,12 +1,9 @@
 <template>
   <ProviderDashboard>
     <DashboardBox id="provider-overview-welcome" class="mb-4">
-      <h2>Welcome!</h2>
+      <h2 class="dashboard-title">Welcome to <span>{{ providerName }}'s</span> dashboard!</h2>
       <p>
-        Welcome to <strong>{{ providerName }}'s</strong> dashboard. These pages
-        provide an overview of the patients you have submitted to relavent
-        subregistries. On the current page, you will find a snapshot of your
-        center as of today.
+        Pages are grouped by workstream. You can view an overview of patients your centre has submitted to the ERN Cranio registry, and you can compare the results of your centre against the entire registry. On the current page, you will find a snapshot of your centre as of today.
       </p>
     </DashboardBox>
     <DashboardChartLayout :columns="2">
