@@ -107,6 +107,10 @@ const { data, pending, error, refresh } = await useFetch(
 function buildRecordId(record: any) {
   return extractKeyFromRecord(record, resourceType, schemaName, schemas);
 }
+let crumbs: Record<string, string> = {
+  Home: "..",
+  Resources: `../resources`,
+};
 </script>
 <template>
   <LayoutsSearchPage>
@@ -117,11 +121,10 @@ function buildRecordId(record: any) {
       <SearchResults>
         <template #header>
           <!-- <NavigationIconsMobile :link="" /> -->
-          <PageHeader
-            :title="resourceName"
-            :description="description"
-            icon="image-link"
-          >
+          <PageHeader :title="resourceName" :description="description">
+            <template #prefix>
+              <BreadCrumbs :crumbs="crumbs" :current="resourceType" />
+            </template>
             <template #suffix>
               <SearchResultsViewTabs
                 class="hidden xl:flex"

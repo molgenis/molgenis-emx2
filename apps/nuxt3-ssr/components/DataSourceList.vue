@@ -61,6 +61,7 @@ const query = computed(() => {
       description
       keywords
       numberOfParticipants
+      type{name}
     }
     DataSources_agg (filter:$filter){
         count
@@ -183,13 +184,13 @@ if (route.params.catalogue) {
         <template #search-results>
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
-            <CardList v-if="data?.data?.Cohorts?.length > 0">
+            <CardList v-if="data?.data?.DataSources?.length > 0">
               <CardListItem
-                v-for="cohort in data?.data?.Cohorts"
-                :key="cohort.name"
+                v-for="datasource in data?.data?.DataSources"
+                :key="datasource.name"
               >
-                <CohortCard
-                  :cohort="cohort"
+                <DataSourceCard
+                  :datasource="datasource"
                   :schema="route.params.schema"
                   :compact="activeName !== 'detailed'"
                   :catalogue="route.params.catalogue"
@@ -198,7 +199,7 @@ if (route.params.catalogue) {
             </CardList>
             <div v-else class="flex justify-center pt-3">
               <span class="py-15 text-blue-500">
-                No Cohorts found with current filters
+                No Datasources found with current filters
               </span>
             </div>
           </SearchResultsList>
@@ -207,7 +208,9 @@ if (route.params.catalogue) {
         <template v-if="data?.data?.Cohorts?.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
+            :totalPages="
+              Math.ceil(data?.data?.DataSources_agg.count / pageSize)
+            "
             @update="setCurrentPage($event)"
           />
         </template>

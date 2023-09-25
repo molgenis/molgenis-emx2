@@ -86,7 +86,7 @@ function percentageLongitudinal(
         title="Resources"
         description="Search in all resources: cohorts, biobanks and databanks"
         :count="data.data.DataResources_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
+        :link="`/${route.params.schema}/ssr-catalogue/resources`"
       />
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"

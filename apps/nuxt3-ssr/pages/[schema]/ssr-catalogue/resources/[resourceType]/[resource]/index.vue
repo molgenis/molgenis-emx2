@@ -124,9 +124,10 @@ function sectionTitle(section: ISection) {
 }
 
 let crumbs: Record<string, string> = {
-  Home: `/${route.params.schema}/ssr-catalogue`,
+  Home: "../../..",
+  Resources: `../../resources`,
 };
-crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${resourceName}`;
+crumbs[resourceType] = `../cohorts`;
 </script>
 
 <template>
@@ -134,7 +135,7 @@ crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${resourceName}`;
     <template #header>
       <PageHeader :title="resource?.name" :description="resource?.label">
         <template #prefix>
-          <BreadCrumbs :crumbs="crumbs" />
+          <BreadCrumbs :crumbs="crumbs" :current="resource.id" />
         </template>
         <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />

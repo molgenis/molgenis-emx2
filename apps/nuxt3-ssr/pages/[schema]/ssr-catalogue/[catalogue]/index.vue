@@ -72,9 +72,6 @@ const catalogue = data.value.data?.Networks[0];
         :title="catalogue.name"
         :description="catalogue.description"
       >
-        <template #prefix>
-          <BreadCrumbs :current="catalogue.id" />
-        </template>
       </PageHeader>
       <LandingPrimary>
         <LandingCardPrimary

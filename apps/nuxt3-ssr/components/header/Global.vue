@@ -8,8 +8,7 @@ const menu = [
   config.public.cohortOnly
     ? undefined
     : { label: "Catalogues", link: `/${schema}/ssr-catalogue/catalogues` },
-  { label: "Cohorts", link: `/${schema}/ssr-catalogue/cohorts` },
-  { label: "Databanks", link: `/${schema}/ssr-catalogue/databanks` },
+  { label: "Resources", link: `/${schema}/ssr-catalogue/resources` },
   config.public.cohortOnly
     ? undefined
     : { label: "Variables", link: `/${schema}/ssr-catalogue/variables` },

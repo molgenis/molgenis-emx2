@@ -112,6 +112,7 @@ const filter = computed(() => {
   if (route.params.catalogue) {
     result._and["networks"] = { id: { equals: route.params.catalogue } };
   }
+  console.log(result);
   return result;
 });
 
@@ -125,6 +126,10 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
     variables: { orderby, filter },
   },
 });
+if (error) {
+  console.log(error);
+  console.log(query);
+}
 
 function setCurrentPage(pageNumber: number) {
   router.push({ path: route.path, query: { page: pageNumber } });

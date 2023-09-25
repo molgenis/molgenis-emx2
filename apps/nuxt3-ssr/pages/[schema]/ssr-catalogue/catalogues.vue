@@ -116,8 +116,10 @@ let activeName = ref("detailed");
           <PageHeader
             title="Catalogues"
             description="Collaborations of multiple institutions and/or cohorts with a common objective."
-            icon="image-diagram"
           >
+            <template #prefix>
+              <BreadCrumbs :crumbs="{ Home: '.' }" current="catalogues" />
+            </template>
             <template #suffix>
               <SearchResultsViewTabs
                 class="hidden xl:flex"

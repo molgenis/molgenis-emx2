@@ -84,7 +84,7 @@ const links = [
         -->
             <NuxtLink
               v-if="!compact"
-              :to="`/${schema}/ssr-catalogue/networks/${network.id}`"
+              :to="`/${schema}/ssr-catalogue/${network.id}`"
             >
               <IconButton
                 icon="arrow-right"
