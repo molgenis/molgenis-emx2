@@ -129,7 +129,7 @@ interface ICollectionEventCategorySet {
   definition?: string;
 }
 
-interface INetwork {
+export interface INetwork {
   id: string;
   name: string;
   acronym?: string;
