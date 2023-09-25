@@ -9,7 +9,12 @@
     <Breadcrumbs />
     <PageSection aria-labelledby="providers-list-title">
       <h2 id="providers-list-title">Providers</h2>
-      <p>Sunt do dolore non ex cillum mollit officia est laboris ex exercitation qui cillum. Elit culpa non voluptate occaecat ut sit qui voluptate quis sint incididunt dolore Lorem enim. Labore ad dolore est sit. Cupidatat nulla et commodo amet amet excepteur ut ex sint amet voluptate.</p>
+      <p>
+        Sunt do dolore non ex cillum mollit officia est laboris ex exercitation
+        qui cillum. Elit culpa non voluptate occaecat ut sit qui voluptate quis
+        sint incididunt dolore Lorem enim. Labore ad dolore est sit. Cupidatat
+        nulla et commodo amet amet excepteur ut ex sint amet voluptate.
+      </p>
     </PageSection>
     <PageSection class="section-bg-light-blue" :verticalPadding="2">
       <h2>View Providers</h2>
@@ -17,7 +22,7 @@
         <p>Unable to retrieve data {{ error }}</p>
       </MessageBox>
       <div class="provider-listings" v-else>
-        <div 
+        <div
           v-for="provider in providers"
           class="provider"
           :data-provider-id="provider.id"
@@ -44,15 +49,21 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import Breadcrumbs from "../components/breadcrumbs.vue";
-import { Page, PageHeader, PageSection, MessageBox, sortData } from "molgenis-viz";
+import {
+  Page,
+  PageHeader,
+  PageSection,
+  MessageBox,
+  sortData,
+} from "molgenis-viz";
 import { postQuery } from "../utils/utils";
 
-import { ChevronRightIcon as LinkIcon } from "@heroicons/vue/24/outline"
+import { ChevronRightIcon as LinkIcon } from "@heroicons/vue/24/outline";
 
 let error = ref(false);
 let providers = ref([]);
 
-async function getOrganisations () {
+async function getOrganisations() {
   const response = await postQuery(
     "/api/graphql",
     `{
@@ -67,13 +78,12 @@ async function getOrganisations () {
         }
       }
     }`
-  )
-  
-  const data = await response.data.Organisations
-    .map(row => {
-      return {...row, id: row.providerInformation[0].providerIdentifier}
-    });
-  return data
+  );
+
+  const data = await response.data.Organisations.map((row) => {
+    return { ...row, id: row.providerInformation[0].providerIdentifier };
+  });
+  return data;
 }
 
 async function loadData() {
@@ -82,20 +92,20 @@ async function loadData() {
 
 onMounted(() => {
   Promise.resolve(loadData())
-  .then(() => {
-    providers.value = sortData(providers.value, "name");
-  })
-  .catch(err => error.value = err);
-})
+    .then(() => {
+      providers.value = sortData(providers.value, "name");
+    })
+    .catch((err) => (error.value = err));
+});
 </script>
 
 <style lang="scss">
 .provider-listings {
   padding: 1em 0;
-  
+
   $borderRadius: 24pt;
 
-  .provider {    
+  .provider {
     display: grid;
     grid-template-columns: repeat(2, 1fr) 100px;
     justify-content: center;
@@ -105,25 +115,25 @@ onMounted(() => {
     padding: 1em;
     margin-bottom: 1.3em;
     border-radius: $borderRadius;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
-    
+
     div {
       flex-grow: 1;
       font-size: 13pt;
     }
-    
+
     .name {
-      padding: 0 1.5em; 
+      padding: 0 1.5em;
       h3 {
         text-align: left;
-        color: $blue-900; 
+        color: $blue-900;
         font-size: 13pt;
       }
     }
-    
+
     .location {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -132,7 +142,7 @@ onMounted(() => {
         color: $blue-700;
       }
     }
-    
+
     .link {
       a {
         display: block;
@@ -142,7 +152,7 @@ onMounted(() => {
         background-color: $ern-cranio-primary;
         color: $gray-000;
         @include textTransform(bold);
-        font-size: 10pt; 
+        font-size: 10pt;
 
         svg {
           width: 11pt;
@@ -151,7 +161,6 @@ onMounted(() => {
         }
       }
     }
-  
   }
 }
 </style>

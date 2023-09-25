@@ -1,6 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
-
 import ProviderOverview from "../views/provider-overview.vue";
 
 // Craniosynostosis pages (id: `-cs-`)
@@ -30,9 +29,8 @@ const router = createRouter({
       path: "/",
       component: ProviderOverview,
       meta: {
-        title: "Center Overview"
-      }
-
+        title: "Center Overview",
+      },
     },
 
     // router-view for Craniosynostosis (`-cs-`)
@@ -104,7 +102,7 @@ const router = createRouter({
         },
       ],
     },
-    
+
     // Placeholder for genetic-deafness
     {
       name: "provider-genetic-deafness",
@@ -114,7 +112,7 @@ const router = createRouter({
         title: "Genetic Deafness",
       },
     },
-    
+
     // Placeholder for larnyxcleft
     {
       name: "provider-larnyxcleft",

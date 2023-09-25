@@ -67,5 +67,4 @@ import {
   PresentationChartLineIcon,
   BuildingOffice2Icon,
 } from "@heroicons/vue/24/outline";
-
 </script>

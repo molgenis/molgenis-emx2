@@ -1,7 +1,7 @@
 <template>
-  <Molgenis id="__top" v-model="session"> 
+  <Molgenis id="__top" v-model="session">
     <Page>
-      <LoadingScreen v-if="loading && !error"/>
+      <LoadingScreen v-if="loading && !error" />
       <div v-else-if="!loading && error">
         <MessageBox type="error">
           <p>Unable to retrieve results. {{ error }}</p>
@@ -30,7 +30,13 @@
 <script setup>
 import { ref, onBeforeMount } from "vue";
 import { Molgenis } from "molgenis-components";
-import { Page, PageHeader, Dashboard, MessageBox, LoadingScreen } from "molgenis-viz";
+import {
+  Page,
+  PageHeader,
+  Dashboard,
+  MessageBox,
+  LoadingScreen,
+} from "molgenis-viz";
 import ProviderSidebar from "./components/ProviderSidebar.vue";
 // import AppFooter from "./components/AppFooter.vue";
 
@@ -43,18 +49,15 @@ let error = ref(null);
 let schema = ref(null);
 let data = ref(null);
 
-async function getSchemaMeta () {
-  const result = await postQuery(
-    '/api/graphql',
-    '{ _schema { name }}'
-  )
-  const data = await result.data._schema.name
-  return data
+async function getSchemaMeta() {
+  const result = await postQuery("/api/graphql", "{ _schema { name }}");
+  const data = await result.data._schema.name;
+  return data;
 }
 
-async function getProviderMeta (id) {
+async function getProviderMeta(id) {
   const result = await postQuery(
-    '/pet%20store/graphql',
+    "/pet%20store/graphql",
     "{ _schema { name }}"
     // `{
     //   Organisations (
@@ -73,21 +76,18 @@ async function getProviderMeta (id) {
     //     }
     //   }
     // }`
-  )
-  
+  );
+
   const data = await result.data;
-  return data
+  return data;
 }
 
-onBeforeMount(() => { 
+onBeforeMount(() => {
   getSchemaMeta()
-  .then(response => schema.value = response)
-  .then(() => loading.value = false)
-  .catch(err => err.value = error);
-  
-  getProviderMeta()
-  .then(response => console.log(response))
-})
+    .then((response) => (schema.value = response))
+    .then(() => (loading.value = false))
+    .catch((err) => (err.value = error));
 
-
+  getProviderMeta().then((response) => console.log(response));
+});
 </script>

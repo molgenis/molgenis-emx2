@@ -1,5 +1,5 @@
 <template>
-  <Molgenis id="__top" v-model="session"> 
+  <Molgenis id="__top" v-model="session">
     <div>
       <router-view :session="session" :page="page" />
       <AppFooter />
@@ -14,5 +14,4 @@ import AppFooter from "./components/AppFooter.vue";
 
 const session = ref(null);
 const page = ref(null);
-
 </script>

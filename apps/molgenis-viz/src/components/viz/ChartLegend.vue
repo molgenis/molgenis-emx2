@@ -62,13 +62,12 @@
 export default {
   name: "ChartLegend",
   props: {
-    
     // a unique ID for the legend
     legendId: {
       type: String,
-      required: true
+      required: true,
     },
-    
+
     // One or more key-value pairs
     data: {
       type: Object,
@@ -88,7 +87,7 @@ export default {
       // `false`
       default: false,
     },
-    
+
     // If `true`, mouseover event will be enabled for all labels. When a label is
     // clicked, the row-level data for that item will be emitted.
     // To access the data, use the event `legend-item-hovered=(value)=>...`
@@ -96,7 +95,7 @@ export default {
       type: Boolean,
       // `false`
       default: false,
-    }
+    },
   },
   emits: [
     "legend-item-clicked",
@@ -116,14 +115,14 @@ export default {
     },
     emitMouseOver(value) {
       if (this.enableHovering) {
-        this.$emit('legend-item-mouseover', value);
+        this.$emit("legend-item-mouseover", value);
       }
     },
     emitMouseOut(value) {
       if (this.enableHovering) {
-        this.$emit('legend-item-mouseout', value);
+        this.$emit("legend-item-mouseout", value);
       }
-    }
+    },
   },
   computed: {
     classNames() {
@@ -166,14 +165,13 @@ export default {
       margin-right: 6px;
     }
   }
-  
+
   .legend-item {
     cursor: default;
 
     &:hover {
       cursor: pointer;
     }
-
   }
 
   &.legend-horizontal {

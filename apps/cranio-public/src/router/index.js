@@ -42,8 +42,8 @@ const router = createRouter({
       meta: {
         title: "Providers",
         breadcrumbs: [{ name: "dashboard", label: "Dashboard" }],
-      }
-    }
+      },
+    },
   ],
   scrollBehavior(to, from, savedPosition) {
     return savedPosition || { top: 0, left: 0 };

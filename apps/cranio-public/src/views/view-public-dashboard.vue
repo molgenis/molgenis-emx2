@@ -7,7 +7,7 @@
       imageSrc="banner-diagnoses.jpg"
     />
     <Breadcrumbs />
-    <LoadingScreen v-if="loading && !error"/>
+    <LoadingScreen v-if="loading && !error" />
     <PageSection
       id="section-intro-title"
       aria-labelledby="section-intro-title"
@@ -28,7 +28,7 @@
         />
       </DashboardBox>
       <DashboardBox class="viz-pie-chart">
-        <PieChart2 
+        <PieChart2
           chartId="cranio-sex-at-birth"
           title="Patients by sex at birth"
           :chartData="sexAtBirth"
@@ -94,7 +94,7 @@ import {
   DataTable,
   PieChart2,
   asDataObject,
-  renameKey
+  renameKey,
 } from "molgenis-viz";
 
 import Breadcrumbs from "../components/breadcrumbs.vue";
@@ -107,9 +107,9 @@ let providers = ref([]);
 let workstreamSummary = ref([]);
 let sexAtBirth = ref({});
 
-async function getStatsByComponent () {
+async function getStatsByComponent() {
   const response = await postQuery(
-    '/api/graphql',
+    "/api/graphql",
     `{
       Components {
         name
@@ -122,12 +122,12 @@ async function getStatsByComponent () {
       }
     }`
   );
-  
+
   const data = await response.data.Components;
   return data;
 }
 
-async function getOrganisations () {
+async function getOrganisations() {
   const response = await postQuery(
     "/api/graphql",
     `{
@@ -143,17 +143,17 @@ async function getOrganisations () {
         }
       }
     }`
-  )
-  
-  const data = await response.data.Organisations.map(row => {
+  );
+
+  const data = await response.data.Organisations.map((row) => {
     return {
       ...row,
       hasSubmittedData: row.providerInformation[0].hasSubmittedData
-        ? 'Data Submitted'
-        : "No Data"
-    }
+        ? "Data Submitted"
+        : "No Data",
+    };
   });
-  return data
+  return data;
 }
 
 async function loadData() {
@@ -162,27 +162,32 @@ async function loadData() {
 }
 
 onMounted(() => {
-  
   Promise.resolve(loadData())
-  .then(() => {
-    const workstreamComponent = stats.value.filter(row => row.name === "patients-by-workstream")[0];
-    workstreamSummary.value = workstreamComponent.statistics
-      .map(row => {
-        return { ...row, value: `${Math.round(parseFloat(row.value) * 100)}%` }
-      })
-      .sort((current, next) => current.label < next.label ? -1 : 1);
-    renameKey(workstreamSummary.value, 'label', 'workstream');
-    renameKey(workstreamSummary.value, 'value', 'percent');
-      
-    const sexAtBirthStats = stats.value
-      .filter(row => row.name === "patients-sex-at-birth")[0].statistics
-      .sort((current, next) => current.valueOrder < next.valueOrder ? -1 : 1);
-    sexAtBirth.value = asDataObject(sexAtBirthStats, 'label', 'value');
-  })
-  .then(() => loading.value = false)
-  .catch(err => error.value = err);
-})
+    .then(() => {
+      const workstreamComponent = stats.value.filter(
+        (row) => row.name === "patients-by-workstream"
+      )[0];
+      workstreamSummary.value = workstreamComponent.statistics
+        .map((row) => {
+          return {
+            ...row,
+            value: `${Math.round(parseFloat(row.value) * 100)}%`,
+          };
+        })
+        .sort((current, next) => (current.label < next.label ? -1 : 1));
+      renameKey(workstreamSummary.value, "label", "workstream");
+      renameKey(workstreamSummary.value, "value", "percent");
 
+      const sexAtBirthStats = stats.value
+        .filter((row) => row.name === "patients-sex-at-birth")[0]
+        .statistics.sort((current, next) =>
+          current.valueOrder < next.valueOrder ? -1 : 1
+        );
+      sexAtBirth.value = asDataObject(sexAtBirthStats, "label", "value");
+    })
+    .then(() => (loading.value = false))
+    .catch((err) => (error.value = err));
+});
 </script>
 
 <style lang="scss">

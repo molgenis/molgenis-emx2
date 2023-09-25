@@ -59,17 +59,17 @@ export default {
         return Object.keys(object).length <= 7;
       },
     },
-    
+
     // If true (default), values will be rendered with the labels
     valuesAreShown: {
       type: Boolean,
-      default: true
+      default: true,
     },
-    
+
     // If true, labels will be generated with a percent sign.
     valuesArePercents: {
       type: Boolean,
-      default: true
+      default: true,
     },
 
     // set the height of the chart. Width is determined by the
@@ -124,7 +124,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    
+
     // If `true`, hover events will be enabled for all slices. A hover event
     // will highlight the hovered slice by increasing the font size of the
     // labels and increasing the size of the slice. The slice will return
@@ -132,7 +132,7 @@ export default {
     enableHoverEvents: {
       type: Boolean,
       // `true`
-      default: true
+      default: true,
     },
 
     // If `true`, click events will be enabled for all slices. When a slice is
@@ -167,7 +167,7 @@ export default {
       if (this.enableHoverEvents) {
         css.push("slice-hover-enabled");
       }
-      
+
       if (this.enableClicks) {
         css.push("slice-clicks-enabled");
       }
@@ -285,7 +285,7 @@ export default {
         slices.on("mouseover", (event, value) => this.onMouseOver(value));
         slices.on("mouseout", (event, value) => this.onMouseOut(value));
       }
-        
+
       if (this.enableClicks) {
         slices.on("click", (event, value) => this.onClick(value));
       }
@@ -330,7 +330,7 @@ export default {
 
       if (this.valuesAreShown) {
         labelCategories.attr("dy", "0");
-        
+
         labels
           .append("tspan")
           .attr("class", "data-value")
@@ -340,9 +340,9 @@ export default {
           .text((value) => {
             const text = value.data[1];
             if (this.valuesArePercents) {
-              return `${text}%`
+              return `${text}%`;
             }
-            return text
+            return text;
           });
       }
     },
@@ -420,7 +420,8 @@ export default {
       }
     }
 
-    &.slice-clicks-enabled, .slice-hover-enabled {
+    &.slice-clicks-enabled,
+    .slice-hover-enabled {
       .slice {
         cursor: pointer;
       }

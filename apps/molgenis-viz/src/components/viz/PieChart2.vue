@@ -36,7 +36,15 @@
 
 <script>
 import ChartLegend from "./ChartLegend.vue";
-import { select, selectAll, scaleOrdinal, pie, arc, schemeBlues, sort } from "d3";
+import {
+  select,
+  selectAll,
+  scaleOrdinal,
+  pie,
+  arc,
+  schemeBlues,
+  sort,
+} from "d3";
 const d3 = { select, selectAll, scaleOrdinal, pie, arc, schemeBlues, sort };
 
 import { validateNumRange } from "../../utils/utils.js";
@@ -62,7 +70,7 @@ export default {
     // A title that describes the chart
     title: {
       type: String,
-      required: true
+      required: true,
     },
 
     // Additional information to display below the title
@@ -76,19 +84,19 @@ export default {
         return Object.keys(object).length <= 7;
       },
     },
-    
+
     // If true (default), values will be rendered with the labels
     valuesAreShown: {
       type: Boolean,
       // `true`
-      default: true
+      default: true,
     },
-    
+
     // If true (default), labels will be generated with a percent sign.
     valuesArePercents: {
       type: Boolean,
       // `true`
-      default: true
+      default: true,
     },
 
     // set the height of the chart. Width is determined by the
@@ -146,7 +154,7 @@ export default {
       // `false`
       default: false,
     },
-    
+
     // If `true`, hover events will be enabled for all slices. A hover event
     // will highlight the hovered slice by increasing the font size of the
     // labels and increasing the size of the slice. The slice will return
@@ -154,7 +162,7 @@ export default {
     enableHoverEvents: {
       type: Boolean,
       // `false`
-      default: false
+      default: false,
     },
 
     // If `true`, click events will be enabled for all slices. When a slice is
@@ -165,7 +173,7 @@ export default {
       // `false`
       default: false,
     },
-    
+
     // If `true` (default), a legend will be rendered in the below the chart.
     // Use props `stackLegend`... to customise the legend. Additional styling
     // should be made in the css/scss file.
@@ -174,26 +182,24 @@ export default {
       // `true`
       default: true,
     },
-    
-    
+
     // If `true`, all legend items will be stacked (i.e., vertically arranged).
     stackLegend: {
       type: Boolean,
       // `false`
       default: false,
     },
-    
-    
+
     // If the legend is enabled, you can specify the arrangement of the pie chart,
     // the legend, and the chart context (title and description). Options are
     // 'top', 'bottom', 'right', 'left'
     legendPosition: {
       type: String,
       // `top`
-      default: 'top',
+      default: "top",
       validator: (value) => {
-        return ['bottom', 'left', 'right', 'top'].includes(value);
-      }
+        return ["bottom", "left", "right", "top"].includes(value);
+      },
     },
 
     // If `true`, click events will be enabled for legend groups. This allows
@@ -202,18 +208,18 @@ export default {
       type: Boolean,
       default: false,
     },
-    
+
     // If `true`, hover events will be enabled for legend items. This allows you
     // to extract the value of the hovered slice.
     enableLegendHovering: {
       type: Boolean,
       // `false`
-      default: false
-    }
+      default: false,
+    },
   },
   emits: ["slice-clicked"],
   components: {
-    ChartLegend
+    ChartLegend,
   },
   data() {
     return {
@@ -225,10 +231,10 @@ export default {
     svg() {
       return d3.select(`#${this.chartId}`);
     },
-    parentClassNames () {
-      const css = ['d3-viz', 'd3-pie'];
+    parentClassNames() {
+      const css = ["d3-viz", "d3-pie"];
       css.push(`legend-position-${this.legendPosition}`);
-      return css.join(' ')
+      return css.join(" ");
     },
     svgClassNames() {
       const css = ["chart"];
@@ -243,7 +249,7 @@ export default {
       if (this.enableHoverEvents) {
         css.push("slice-hover-enabled");
       }
-      
+
       if (this.enableClicks) {
         css.push("slice-clicks-enabled");
       }
@@ -292,13 +298,15 @@ export default {
         const autoColors = {};
         const length = Object.keys(this.chartData).length;
         const palette = d3.scaleOrdinal(d3.schemeBlues[length]);
-        Object.keys(this.chartData).sort().forEach((key, index) => {
-          autoColors[key] = palette(index);
-        });
+        Object.keys(this.chartData)
+          .sort()
+          .forEach((key, index) => {
+            autoColors[key] = palette(index);
+          });
         return autoColors;
       }
       return this.chartColors;
-    }
+    },
   },
   methods: {
     setChartDimensions() {
@@ -347,10 +355,12 @@ export default {
         .attr("fill", (value) => this.colors[value.data[0]]);
 
       if (this.enableHoverEvents) {
-        slices.on("mouseover", (event, value) => this.onMouseOver(value.data[0]));
+        slices.on("mouseover", (event, value) =>
+          this.onMouseOver(value.data[0])
+        );
         slices.on("mouseout", (event, value) => this.onMouseOut(value.data[0]));
       }
-        
+
       if (this.enableClicks) {
         slices.on("click", (event, value) => this.onClick(value));
       }
@@ -421,49 +431,49 @@ export default {
 .d3-pie {
   display: grid;
   gap: 0.1em;
-  
+
   .legend {
     grid-area: legend;
   }
-  
+
   &.legend-position-bottom {
-    grid-template-areas: 
+    grid-template-areas:
       "context"
       "chart"
       "legend";
-      
-      .chart-legend {
-        justify-content: center;
-      }
+
+    .chart-legend {
+      justify-content: center;
+    }
   }
-  
+
   &.legend-position-left {
-    grid-template-areas: 
+    grid-template-areas:
       "context context"
       "legend chart";
   }
-  
+
   &.legend-position-right {
-    grid-template-areas: 
+    grid-template-areas:
       "context context"
       "chart legend";
   }
-  
+
   &.legend-position-top {
     grid-template-areas:
       "context"
       "legend"
-      "chart";   
+      "chart";
   }
-  
+
   .chart-context {
     grid-area: context;
-    
+
     h3.chart-title {
       margin: 0;
       text-align: left;
     }
-  
+
     p.chart-description {
       text-align: left;
       margin: 0;
@@ -492,7 +502,8 @@ export default {
       }
     }
 
-    &.slice-clicks-enabled, .slice-hover-enabled {
+    &.slice-clicks-enabled,
+    .slice-hover-enabled {
       .slice {
         cursor: pointer;
       }

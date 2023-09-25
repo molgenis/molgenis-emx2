@@ -6,5 +6,5 @@ export default {
   providerName: {
     type: String,
     required: true,
-  }
+  },
 };

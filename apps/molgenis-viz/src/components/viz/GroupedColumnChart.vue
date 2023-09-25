@@ -505,7 +505,9 @@ export default {
 
       columns
         .attr("y", (row) => this.yAxis(Math.max(0, row[this.yvar])))
-        .attr("height", (row) => this.calculateColumnHeight(row[this.xvar],row[this.yvar]));
+        .attr("height", (row) =>
+          this.calculateColumnHeight(row[this.xvar], row[this.yvar])
+        );
     },
 
     renderChart() {

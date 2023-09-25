@@ -9,7 +9,9 @@
     <PageSection :verticalPadding="0">
       <Breadcrumbs>
         <li>
-          <router-link :to="{ name: 'progress-charts' }">Progress Charts</router-link>
+          <router-link :to="{ name: 'progress-charts' }"
+            >Progress Charts</router-link
+          >
         </li>
       </Breadcrumbs>
     </PageSection>
@@ -51,7 +53,13 @@
     </PageSection>
     <PageSection>
       <h2>Progress Meter</h2>
-      <p><strong>Gauge Charts</strong> can be useful, but it is better to simplify the display visualisation. The <strong>ProgressMeter</strong> is a better way to display how much progress has been made. The outline shows the total possible value, and the filled in region shows how much progress has been made.</p>
+      <p>
+        <strong>Gauge Charts</strong> can be useful, but it is better to
+        simplify the display visualisation. The
+        <strong>ProgressMeter</strong> is a better way to display how much
+        progress has been made. The outline shows the total possible value, and
+        the filled in region shows how much progress has been made.
+      </p>
       <ProgressMeter
         chartId="progressBar"
         title="Cases Completed"
@@ -82,10 +90,9 @@ data.value = ["Control", "Experimental"].map((group) => {
     id: `Gauge${group}`,
     group: group,
     percent: value,
-    value: Math.round(value * 100)
+    value: Math.round(value * 100),
   };
 });
-
 </script>
 
 <style lang="scss">

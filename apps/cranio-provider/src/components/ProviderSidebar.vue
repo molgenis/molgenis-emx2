@@ -4,9 +4,7 @@
     <nav>
       <ul class="navlinks">
         <li>
-          <router-link :to="{ name: 'home' }">
-            Home
-          </router-link>
+          <router-link :to="{ name: 'home' }"> Home </router-link>
         </li>
         <li>
           <Accordion id="cranio-nav" title="Craniosynostosis">
@@ -26,12 +24,12 @@
             <p>Your Center</p>
             <ul>
               <li>
-                <router-link :to="{ name: 'provider-cs-center-overview' }" >
+                <router-link :to="{ name: 'provider-cs-center-overview' }">
                   General overview
                 </router-link>
               </li>
               <li>
-                <router-link :to="{ name: 'provider-cs-center-surgical' }" >
+                <router-link :to="{ name: 'provider-cs-center-surgical' }">
                   Surgical overview
                 </router-link>
               </li>
@@ -42,12 +40,12 @@
           <Accordion id="clp-nav" title="Cleft lip and palate">
             <ul>
               <li>
-                <router-link :to="{ name: 'provider-clp-your-center' }" >
+                <router-link :to="{ name: 'provider-clp-your-center' }">
                   Your center's overview
                 </router-link>
               </li>
               <li>
-                <router-link :to="{ name: 'provider-clp-all-centers' }" >
+                <router-link :to="{ name: 'provider-clp-all-centers' }">
                   All centers
                 </router-link>
               </li>

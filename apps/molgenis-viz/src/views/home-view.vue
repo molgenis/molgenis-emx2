@@ -66,7 +66,9 @@
           <router-link :to="{ name: 'scatter-plot' }">Scatter Plot</router-link>
         </LinkCard>
         <LinkCard :imageSrc="GaugeChartImage">
-          <router-link :to="{ name: 'progress-charts' }">Progress Charts</router-link>
+          <router-link :to="{ name: 'progress-charts' }"
+            >Progress Charts</router-link
+          >
         </LinkCard>
       </div>
     </PageSection>

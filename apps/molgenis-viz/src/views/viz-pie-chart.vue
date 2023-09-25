@@ -106,9 +106,9 @@ onMounted(() => {
               percent: Math.round((group[1] / size) * 100),
             })
         )
-        .sort((a,b) => {
+        .sort((a, b) => {
           return a.percent < b.percent;
-        })
+        });
 
       total.value = size;
       data.value = asDataObject(orgs, "type", "percent");
