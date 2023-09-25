@@ -1,5 +1,11 @@
 <script setup lang="ts">
-const links = ["cohorts", "datasources"];
+const links = [
+  "cohorts",
+  "datasources",
+  "organisations",
+  "variables",
+  "networks",
+];
 </script>
 <template>
   <LayoutsSearchPage>
@@ -18,12 +24,12 @@ const links = ["cohorts", "datasources"];
         <template #search-results>
           <SearchResultsList>
             <CardList>
-              <CardListItem v-for="link in links" :key="link">
-                <ReferenceCard
-                  :url="'resources/' + link"
-                  :title="link"
-                ></ReferenceCard>
-              </CardListItem>
+              <ReferenceCard
+                v-for="link in links"
+                :key="link"
+                :url="'resources/' + link"
+                :title="link"
+              ></ReferenceCard>
             </CardList>
           </SearchResultsList>
         </template>

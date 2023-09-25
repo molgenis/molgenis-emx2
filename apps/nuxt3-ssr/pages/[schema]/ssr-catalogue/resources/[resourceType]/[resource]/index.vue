@@ -124,10 +124,10 @@ function sectionTitle(section: ISection) {
 }
 
 let crumbs: Record<string, string> = {
-  Home: "../../..",
+  Home: "../../.",
   Resources: `../../resources`,
 };
-crumbs[resourceType] = `../cohorts`;
+crumbs[resourceType] = `../${resourceType}`;
 </script>
 
 <template>
