@@ -170,11 +170,14 @@ onMounted(() => {
       .map(row => {
         return { ...row, value: `${Math.round(parseFloat(row.value) * 100)}%` }
       })
+      .sort((current, next) => current.label < next.label ? -1 : 1);
     renameKey(workstreamSummary.value, 'label', 'workstream');
     renameKey(workstreamSummary.value, 'value', 'percent');
       
-    const sexAtBirthComponent = stats.value.filter(row => row.name === "patients-sex-at-birth")[0];
-    sexAtBirth.value = asDataObject(sexAtBirthComponent.statistics, 'label', 'value');
+    const sexAtBirthStats = stats.value
+      .filter(row => row.name === "patients-sex-at-birth")[0].statistics
+      .sort((current, next) => current.valueOrder < next.valueOrder ? -1 : 1);
+    sexAtBirth.value = asDataObject(sexAtBirthStats, 'label', 'value');
   })
   .then(() => loading.value = false)
   .catch(err => error.value = err);
