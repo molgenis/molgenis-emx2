@@ -26,11 +26,6 @@ const config = {
       cohortOnly: false,
     },
   },
-  router: {
-    options: {
-      strict: true,
-    },
-  },
   nitro: {
     compressPublicAssets: { brotli: true },
   },
