@@ -40,7 +40,7 @@ def prepare_pkey(schema: dict, table_name: str, col_name: str | list = None) -> 
     col_data, = [col for col in schema[table_name]['columns'] if col['id'] == col_name]
     if not col_data.get('columnType') in ['REF', 'REF_ARRAY']:
         return col_name
-    if col_data.get('columnType') == 'REF':
+    if col_data.get('columnType') in ['REF', 'REF_ARRAY']:
         ref_keys = prepare_pkey(schema, col_data.get('refTable'))
         ref_cols = [prepare_pkey(schema, col_data['refTable'], rk) for rk in ref_keys]
         return {col_name: ref_cols}
@@ -88,7 +88,6 @@ def find_cohort_references(schema_schema: dict) -> dict:
 
 def construct_delete_query(db_schema: dict, table: str, pkeys: list):
     """Constructs a GraphQL query for deleting rows from a table."""
-    table_schema = db_schema[table]
     table_id = db_schema[table]['id']
     pkeys_print = query_columns_string(pkeys, indent=4)
     _query = (f"query {table_id}($filter: {table_id}Filter) {{\n"

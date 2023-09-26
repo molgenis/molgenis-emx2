@@ -77,6 +77,7 @@ class StagingMigrator(Client):
             # Iterate over the tables that reference the Cohorts table of the staging area
             # Check if any row matches this Cohorts table
             table_schema = schema_schema[t_name]
+            # TODO: put following in method and return response
             pkeys = [prepare_pkey(schema_schema, t_name, col['id']) for col in table_schema['columns'] if
                      col.get('key') == 1]
             query = construct_delete_query(schema_schema, t_name, pkeys)
@@ -90,8 +91,38 @@ class StagingMigrator(Client):
             # TODO discuss and fix this
             try:
                 if len(response.json().get('data')) > 0:
-                    print(f"\nDeleting row with primary keys {response.json().get('data')}")
+                    if not self._cohorts_in_ref_array(table_schema):
+                        print(f"\nDeleting row with primary keys {response.json().get('data')}")
+                        self._delete_table_entries(schema=catalogue, table_id=table_schema['id'],
+                                                   pkeys=response.json().get('data').get(table_schema['id']))
+                    # TODO: implement following
+                    # else:
+                    #     self._delete_from_ref_array(schema=catalogue, table_id=table_schema['id'],
+                    #                                 pkeys=response.json().get('data').get(table_schema['id']))
             except TypeError:
                 print(f"Error for table {t_name}.\n{response.json()}")
 
             # Delete the matching rows from the target catalogue table
+
+    def _delete_table_entries(self, schema: str, table_id: str, pkeys: list):
+        """Deletes the rows marked by the primary keys from the table."""
+        query = (f"mutation delete($pkey:[{table_id}Input]) {{\n"
+                 f"  delete({table_id}:$pkey) {{message}}\n"
+                 f"}}")
+
+        batch_size = 1000
+        for _batch in range(0, len(pkeys), batch_size):
+            variables = {'pkey': pkeys[_batch:_batch + batch_size]}
+            response = self.session.post(
+                url=f"{self.url}/{schema}/graphql",
+                json={"query": query, "variables": variables}
+            )
+            if response.status_code != 200:
+                log.error(response)
+                log.error(f"Deleting entries from table {table_id} failed.")
+
+    @staticmethod
+    def _cohorts_in_ref_array(_table_schema: dict) -> bool:
+        """Returns True if cohorts are referenced in a referenced array in any column in this table."""
+        return (len([col for col in _table_schema['columns']
+                     if ((col.get('columnType') == 'REF_ARRAY') & (col.get('refTable') == 'Cohorts'))]) > 0)
