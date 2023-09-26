@@ -6,8 +6,6 @@ const schema = "NL1";
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" }
 
 export default defineConfig(() => {
-  // require('dotenv').config({ path: `./.env` });
- 
   return {
     css: {
       preprocessorOptions: {
