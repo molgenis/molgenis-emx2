@@ -10,10 +10,9 @@
     <PageSection aria-labelledby="providers-list-title">
       <h2 id="providers-list-title">Providers</h2>
       <p>
-        Sunt do dolore non ex cillum mollit officia est laboris ex exercitation
-        qui cillum. Elit culpa non voluptate occaecat ut sit qui voluptate quis
-        sint incididunt dolore Lorem enim. Labore ad dolore est sit. Cupidatat
-        nulla et commodo amet amet excepteur ut ex sint amet voluptate.
+        In the ERN Cranio registry, each Healthcare provider has their dashboard
+        which provide an overview of the patients submitted to the registry. In
+        the list below, you can view the dashboards that you have access to.
       </p>
     </PageSection>
     <PageSection class="section-bg-light-blue" :verticalPadding="2">
@@ -35,7 +34,7 @@
             <p class="country">{{ provider.country }}</p>
           </div>
           <div class="link">
-            <a :href="`/${provider.id}`">
+            <a :href="`/${provider.id}/`">
               <span>View</span>
               <LinkIcon />
             </a>
@@ -65,7 +64,7 @@ let providers = ref([]);
 
 async function getOrganisations() {
   const response = await postQuery(
-    "/api/graphql",
+    "/CranioStats/api/graphql",
     `{
       Organisations {
         name
@@ -80,22 +79,22 @@ async function getOrganisations() {
     }`
   );
 
-  const data = await response.data.Organisations.map((row) => {
-    return { ...row, id: row.providerInformation[0].providerIdentifier };
-  });
+  const data = await response.data.Organisations
   return data;
 }
 
 async function loadData() {
-  providers.value = await getOrganisations();
+  const data = await getOrganisations();
+  providers.value = data.map(row => {
+    return {...row, id: row.providerInformation[0].providerIdentifier}
+  })
+  .sort((current,next) => {
+    return current.name < next.name ? -1 : 1;
+  });
 }
 
 onMounted(() => {
-  Promise.resolve(loadData())
-    .then(() => {
-      providers.value = sortData(providers.value, "name");
-    })
-    .catch((err) => (error.value = err));
+  loadData().catch((err) => (error.value = err));
 });
 </script>
 

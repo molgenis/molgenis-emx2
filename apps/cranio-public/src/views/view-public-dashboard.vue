@@ -109,7 +109,7 @@ let sexAtBirth = ref({});
 
 async function getStatsByComponent() {
   const response = await postQuery(
-    "/api/graphql",
+    "/CranioStats/api/graphql",
     `{
       Components {
         name
@@ -129,7 +129,7 @@ async function getStatsByComponent() {
 
 async function getOrganisations() {
   const response = await postQuery(
-    "/api/graphql",
+    "/CranioStats/api/graphql",
     `{
       Organisations {
         name
@@ -162,7 +162,7 @@ async function loadData() {
 }
 
 onMounted(() => {
-  Promise.resolve(loadData())
+  loadData()
     .then(() => {
       const workstreamComponent = stats.value.filter(
         (row) => row.name === "patients-by-workstream"
