@@ -1,5 +1,7 @@
 package org.molgenis.emx2.datamodels.profiles;
 
+import static org.molgenis.emx2.datamodels.profiles.PostProcessProfiles.csvStringToList;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.*;
@@ -12,23 +14,18 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.datamodels.AbstractDataLoader;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
-import org.molgenis.emx2.io.readers.CsvTableWriter;
 
-public class SchemaCsvFromProfile {
+public class SchemaFromProfile {
 
   private String yamlFileLocation;
-  private String outputDatamodelCsv;
   private Profiles profiles;
   private Character separator;
 
-  public SchemaCsvFromProfile(String yamlFileLocation) {
+  public SchemaFromProfile(String yamlFileLocation) {
     if (!yamlFileLocation.endsWith(".yaml")) {
       throw new MolgenisException("Input YAML file name must end in '.yaml'");
     }
     this.yamlFileLocation = yamlFileLocation;
-    this.outputDatamodelCsv =
-        this.yamlFileLocation.substring(0, this.yamlFileLocation.length() - 5)
-            + "_generatedFromProfile.csv";
     InputStreamReader yaml =
         new InputStreamReader(
             Objects.requireNonNull(
@@ -47,7 +44,7 @@ public class SchemaCsvFromProfile {
     return profiles;
   }
 
-  public String generate() throws MolgenisException {
+  public SchemaMetadata create() throws MolgenisException {
     List<Row> keepRows = new ArrayList<>();
 
     for (String schemaLoc : profiles.modelsList) {
@@ -58,39 +55,34 @@ public class SchemaCsvFromProfile {
                       AbstractDataLoader.class.getClassLoader().getResourceAsStream(schemaLoc))));
 
       for (Row row : Emx2.toRowList(metadata)) {
-        String profiles = row.getString("profiles");
-        if (profiles == null) {
-          throw new MolgenisException("Missing profiles for " + row);
+        List<String> profiles = csvStringToList(row.getString("profiles"));
+
+        if (profiles.isEmpty()) {
+          throw new MolgenisException("No profiles for " + row);
         }
-        if (this.profiles.profilesList.contains(profiles)) {
-          keepRows.add(row);
+
+        boolean profileFound = false;
+        for (String profile : profiles) {
+          if (this.profiles.profilesList.contains(profile)) {
+            keepRows.add(row);
+            profileFound = true;
+            break;
+          }
+        }
+        if (!profileFound) {
+          System.out.println("discard: " + row);
         }
       }
     }
 
-    try {
-      FileWriter writer = new FileWriter("outputDatamodelCsv");
-      Writer bufferedWriter = new BufferedWriter(writer);
-      if (keepRows.iterator().hasNext()) {
-        CsvTableWriter.write(
-            keepRows,
-            keepRows.get(0).getColumnNames().stream().toList(),
-            bufferedWriter,
-            separator);
-      }
-    } catch (Exception e) {
-      throw new MolgenisException(e.getMessage(), e);
-    }
-    // System.out.println(row);
-    //  System.out.println(row.getString("columnName") + " " + row.getString("profiles"));
+    SchemaMetadata generatedSchema = Emx2.fromRowList(keepRows);
 
-    // System.out.println("profile loaded:" + profiles.toString());
-    return this.outputDatamodelCsv;
+    return generatedSchema;
   }
 
   public static void main(String args[]) throws IOException {
-    SchemaCsvFromProfile sfp = new SchemaCsvFromProfile("fairdatahub/FAIRDataHub.yaml");
-    String outFile = sfp.generate();
-    System.out.println("output at " + outFile);
+    SchemaFromProfile sfp = new SchemaFromProfile("fairdatahub/FAIRDataHub.yaml");
+    SchemaMetadata generatedSchema = sfp.create();
+    System.out.println("resulting schema: " + generatedSchema);
   }
 }

@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class PostProcessProfiles extends StdConverter<Profiles, Profiles> {
 
-  private Pattern delimiter = Pattern.compile(",");
+  public static Pattern delimiter = Pattern.compile(",");
 
   @Override
   public Profiles convert(Profiles profiles) {
@@ -20,7 +20,7 @@ public class PostProcessProfiles extends StdConverter<Profiles, Profiles> {
     return profiles;
   }
 
-  private List<String> csvStringToList(String value) {
+  public static List<String> csvStringToList(String value) {
     return Optional.ofNullable(value)
         .map(delimiter::splitAsStream)
         .map(x -> x.map(String::trim).collect(Collectors.toList()))
