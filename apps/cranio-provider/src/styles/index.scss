@@ -81,9 +81,13 @@
 
   .dashboard-content {
     display: grid;
-    grid-template-columns: 350px 1fr;
+    grid-template-columns: 1fr;
     align-items: flex-start;
     justify-content: flex-start;
+    
+    @media screen and (min-width: 924px) {
+      grid-template-columns: 350px 1fr;
+    }
 
     .dashboard-chart-layout {
       margin-top: 1em;

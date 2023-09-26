@@ -2,7 +2,7 @@
   <Molgenis id="__top" v-model="session">
     <Page>
       <LoadingScreen v-if="loading && !error" />
-      <div v-else-if="!loading && error">
+      <div class="message-box-container" v-else-if="!loading && error">
         <MessageBox type="error">
           <p>Unable to retrieve results. {{ error }}</p>
         </MessageBox>
@@ -48,7 +48,7 @@ let schema = ref(null);
 let provider = ref(null);
 
 async function getSchemaMeta() {
-  const result = await postQuery("/api/graphql", "{ _schema { name }}");
+  const result = await postQuery("../api/graphql", "{ _schema { name }}");
   const data = await result.data._schema.name;
   return data;
 }
@@ -89,6 +89,9 @@ async function loadData() {
 onBeforeMount(() => {
   loadData()
     .then(() => (loading.value = false))
-    .catch((err) => (error.value = err));
+    .catch((err) => {
+      loading.value = false;
+      error.value = err;
+    });
 });
 </script>
