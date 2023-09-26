@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const route = useRoute();
+</script>
 <template>
-  <CohortDetails />
+  <CohortDetails :catalogue="route.params.catalogue" />
 </template>

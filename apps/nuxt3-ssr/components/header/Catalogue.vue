@@ -26,7 +26,7 @@ const catalogue = data.value.data?.Networks[0];
 
 const menu = [
   {
-    label: "Home",
+    label: "dashboard",
     link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}`,
   },
 ];

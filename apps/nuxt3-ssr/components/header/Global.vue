@@ -10,9 +10,6 @@ const menu = [
     ? undefined
     : { label: "Catalogues", link: `/${schema}/ssr-catalogue/catalogues` },
   { label: "Resources", link: `/${schema}/ssr-catalogue/resources` },
-  config.public.cohortOnly
-    ? undefined
-    : { label: "Variables", link: `/${schema}/ssr-catalogue/variables` },
   // { label: "Statistical Methods", link: "#" },
   // { label: "Tables", link: "#" },
   // { label: "Manuals", link: "#" },

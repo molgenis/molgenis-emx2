@@ -145,6 +145,14 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
     underConstructionNotice.value = setting.value;
   }
 });
+
+const crumbs: any = {};
+if (route.params.catalogue) {
+  crumbs[`${route.params.catalogue}`] = `${route.path}/../..`;
+} else {
+  crumbs["Home"] = `${route.path}/../..`;
+  crumbs["Browse"] = `${route.path}/..`;
+}
 </script>
 
 <template>
@@ -161,6 +169,9 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
             description="Group of individuals sharing a defining demographic characteristic."
             icon="image-link"
           >
+            <template #prefix>
+              <BreadCrumbs :crumbs="crumbs" current="cohorts" />
+            </template>
             <template #suffix>
               <div
                 v-if="underConstructionNotice"

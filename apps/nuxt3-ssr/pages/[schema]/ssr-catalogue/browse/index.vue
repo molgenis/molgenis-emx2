@@ -17,7 +17,7 @@ const links = [
             description="click a resource below to browse"
           >
             <template #prefix>
-              <BreadCrumbs :crumbs="{ Home: '.' }" current="resources" />
+              <BreadCrumbs :crumbs="{ Home: '.' }" current="browse" />
             </template>
           </PageHeader>
         </template>
@@ -27,7 +27,7 @@ const links = [
               <ReferenceCard
                 v-for="link in links"
                 :key="link"
-                :url="'resources/' + link"
+                :url="'browse/' + link"
                 :title="link"
               ></ReferenceCard>
             </CardList>

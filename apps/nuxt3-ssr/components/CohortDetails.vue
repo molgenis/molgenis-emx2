@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps({
+const props = defineProps({
   cohort: { type: Object },
 });
 
@@ -301,15 +301,12 @@ const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
 
 const crumbs: any = {};
 if (route.params.catalogue) {
-  crumbs[
-    route.params.catalogue
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-  crumbs[
-    "Cohorts"
-  ] = `/${route.params.schema}/ssr-catalogue/cohorts/cat/${route.params.catalogue}/cohorts`;
+  crumbs[`${route.params.catalogue}`] = `${route.path}/../..`;
+  crumbs["Cohorts"] = `${route.path}/..`;
 } else {
-  crumbs["Home"] = `/${route.params.schema}/ssr-catalogue`;
-  crumbs["Cohorts"] = `/${route.params.schema}/ssr-catalogue/cohorts`;
+  crumbs["Home"] = `${route.path}/../../..`;
+  crumbs["Browse"] = `${route.path}/../..`;
+  crumbs["Cohorts"] = `${route.path}/..`;
 }
 </script>
 <template>
@@ -320,12 +317,7 @@ if (route.params.catalogue) {
         :description="cohort?.acronym ? cohort?.name : ''"
       >
         <template #prefix>
-          <BreadCrumbs
-            :crumbs="{
-              Home: `/${route.params.schema}/ssr-catalogue`,
-              Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
-            }"
-          />
+          <BreadCrumbs :crumbs="crumbs" />
         </template>
         <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />
