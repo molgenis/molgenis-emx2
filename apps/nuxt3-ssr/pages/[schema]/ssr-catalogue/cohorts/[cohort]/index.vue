@@ -315,7 +315,7 @@ const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
     </template>
     <template #side>
       <SideNavigation
-        :title="cohort?.acronym"
+        :title="cohort?.acronym || cohort?.name"
         :image="cohort?.logo?.url"
         :items="tocItems"
       />
