@@ -167,11 +167,13 @@ class Client:
           _schema {
             tables {
               name
+              id
               externalSchema
               inherit
               tableType
               columns {
-                name 
+                name
+                id 
                 required
                 key
                 columnType 
