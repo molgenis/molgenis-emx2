@@ -2,6 +2,6 @@
 name: FAIR Data Hub
 description: The FAIR life science and omics model
 models: fairdatahub/beaconv2/molgenis.csv, fairdatahub/addons/molgenis.csv, fairdatahub/fairdatapoint/molgenis.csv, fairdatahub/ontologies/SEMANTICS.csv
-profiles: DCAT, RD3, Beacon v2, Beacon v2 EMX2 add-on, FAIR Genomes
+profiles: DCAT, RD3, Beacon v2, Beacon v2 EMX2 add-on, Beacon v2 Vivify add-on, FAIR Genomes
 data: fairdatahub/ontologies
 examples: fairdatahub/beaconv2/demodata, fairdatahub/fairdatapoint/demodata, fairdatahub/addons/demodata
