@@ -4,8 +4,9 @@ Script used in developing the StagingMigrator package.
 import logging
 import os
 
-from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 from dotenv import load_dotenv
+
+from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
 
 def main():

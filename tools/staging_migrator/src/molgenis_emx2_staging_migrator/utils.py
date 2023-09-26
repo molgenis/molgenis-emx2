@@ -32,19 +32,12 @@ def get_staging_cohort_id(url, session, staging_area) -> str | None:
     return response['Cohorts'][0]['id']
 
 
-def table_to_pascal(_table: str) -> str:
-    """Converts a table name to Pascal case format for use in
-    GraphQL queries, e.g. 'Variable mappings' -> 'VariableMappings'.
-    """
-    return "".join(word.capitalize() for word in _table.split(' '))
-
-
 def prepare_pkey(schema: dict, table_name: str, col_name: str | list = None) -> str | list | dict:
     """Prepares a primary key by adding a reference to a table if necessary."""
     if not col_name:
         # Return the primary keys of a table if no column name is specified
-        return [col['name'] for col in schema[table_name]['columns'] if col.get('key') == 1]
-    col_data, = [col for col in schema[table_name]['columns'] if col['name'] == col_name]
+        return [col['id'] for col in schema[table_name]['columns'] if col.get('key') == 1]
+    col_data, = [col for col in schema[table_name]['columns'] if col['id'] == col_name]
     if not col_data.get('columnType') in ['REF', 'REF_ARRAY']:
         return col_name
     if col_data.get('columnType') == 'REF':
@@ -68,3 +61,54 @@ def query_columns_string(column: str | list | dict, indent: int) -> str:
                       f"{query_columns_string(vals, indent=indent+2)}\n"
                       f"{indent*' '}}}")
         return return_val
+
+
+def find_cohort_references(schema_schema: dict) -> dict:
+    """Finds the references in the target catalogue to the Cohorts table."""
+    def find_table_columns(_t_name: str, _t_values: dict):
+        _table_references = []
+        for _column in _t_values['columns']:
+            if _column.get('columnType') in ['REF', 'REF_ARRAY']:
+                if _column.get('refTable') in cohort_inheritance and _column['id'] != 'target':
+                    _table_references.append(_column['id'])
+                elif _column.get('refTable') != _t_name:
+                    _column_references = find_table_columns(_column['refTable'], schema_schema[_column['refTable']])
+                    if len(_column_references) > 0:
+                        _table_references.append(_column['id'])
+        return _table_references
+
+    cohort_inheritance = ['Cohorts', 'Data resources', 'Extended resources']
+    cohort_references = dict()
+    for t_name, t_values in schema_schema.items():
+        table_references = find_table_columns(t_name, t_values)
+        if len(table_references) > 0:
+            cohort_references.update({t_name: table_references[0]})
+    return cohort_references
+
+
+def construct_delete_query(db_schema: dict, table: str, pkeys: list):
+    """Constructs a GraphQL query for deleting rows from a table."""
+    table_schema = db_schema[table]
+    table_id = db_schema[table]['id']
+    pkeys_print = query_columns_string(pkeys, indent=4)
+    _query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
+              f"  {table_id}(filter: $filter) {{\n"
+              f"{pkeys_print}\n"
+              f"  }}\n"
+              f"}}")
+    return _query
+
+
+def construct_delete_variables(_staging_cohort_id: str, _t_name: str, _t_type: str, _schema: dict):
+    """Constructs a variables filter for querying the GraphQL table on the desired column values."""
+    pkeys = prepare_pkey(_schema, _t_name, _t_type)
+
+    def prepare_key_part(_pkey: str | dict):
+        if isinstance(_pkey, str):
+            return {"equals": [{_pkey: _staging_cohort_id}]}
+        if isinstance(_pkey, dict):
+            _key, _val = list(_pkey.items())[0]
+            return {_key: prepare_key_part(_val[0])}
+    _variables = {"filter": prepare_key_part(pkeys)}
+
+    return _variables
