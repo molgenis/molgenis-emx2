@@ -109,7 +109,7 @@ function buildRecordId(record: any) {
 }
 let crumbs: Record<string, string> = {
   Home: "..",
-  Resources: `../resources`,
+  Browse: `../browse`,
 };
 </script>
 <template>

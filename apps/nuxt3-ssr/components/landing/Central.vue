@@ -107,9 +107,9 @@ function percentageLongitudinal(
       />
       <LandingCardSecondary
         icon="database"
-        title="Databanks"
+        title="Data sources"
         :count="data.data.DataSources_agg.count"
-        :link="`${route.path}/browse/databanks`"
+        :link="`${route.path}/browse/datasources`"
       />
       <LandingCardSecondary
         icon="hub"

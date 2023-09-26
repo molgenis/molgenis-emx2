@@ -118,14 +118,15 @@ function buildTOC(sections: ISection[]) {
 }
 
 function sectionTitle(section: ISection) {
-  return section.meta.descriptions
-    ? section.meta.descriptions[0].value
+  let temp = section.meta.labels
+    ? section.meta.labels[0].value
     : section.meta.name;
+  return temp.charAt(0).toUpperCase() + temp.substr(1);
 }
 
 let crumbs: Record<string, string> = {
   Home: "../../.",
-  Resources: `../../resources`,
+  Browse: `../../browse`,
 };
 crumbs[resourceType] = `../${resourceType}`;
 </script>
