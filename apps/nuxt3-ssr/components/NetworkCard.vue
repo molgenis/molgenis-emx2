@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const route = useRoute();
 import { INetwork } from "~/interfaces/types";
 import { computed } from "vue";
 
@@ -57,7 +58,7 @@ const links = [
           class="items-center flex justify-center"
           :class="[compact ? 'w-50px h-50px' : 'h-full w-full']"
         >
-          <NuxtLink :to="`/${schema}/ssr-catalogue/${network.id}`">
+          <NuxtLink :to="`${route.path}/../${network.id}`">
             <img :src="network?.logo?.url" />
           </NuxtLink>
         </div>
@@ -67,7 +68,7 @@ const links = [
           <div :class="titleContainerClasses" class="">
             <h2 class="min-w-[160px] mr-4 md:inline-block block">
               <NuxtLink
-                :to="`/${schema}/ssr-catalogue/${network.id}`"
+                :to="`${route.path}/../${network.id}`"
                 class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
               >
                 {{ network?.acronym || network?.name }}
@@ -75,6 +76,7 @@ const links = [
             </h2>
           </div>
           <div class="flex justify-end items-center grow">
+            {{ network.name }}
             <!--
         <IconButton
           icon="star"
@@ -82,10 +84,7 @@ const links = [
           class="text-blue-500 xl:justify-end"
         />
         -->
-            <NuxtLink
-              v-if="!compact"
-              :to="`/${schema}/ssr-catalogue/${network.id}`"
-            >
+            <NuxtLink v-if="!compact" :to="`${route.path}/../${network.id}`">
               <IconButton
                 icon="arrow-right"
                 class="text-blue-500 hidden xl:flex xl:justify-end"

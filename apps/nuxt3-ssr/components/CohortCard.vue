@@ -38,9 +38,7 @@ const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
 });
 
-let url = props.catalogue
-  ? `/${props.schema}/ssr-catalogue/${props.catalogue}/cohorts/${props.cohort.id}`
-  : `/${props.schema}/ssr-catalogue/cohorts/${props.cohort.id}`;
+const url = `cohorts/${props.cohort.id}`;
 </script>
 
 <template>
@@ -68,7 +66,7 @@ let url = props.catalogue
           class="text-blue-500 xl:justify-end"
         />
         -->
-        <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${cohort.id}`">
+        <NuxtLink :to="url">
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"

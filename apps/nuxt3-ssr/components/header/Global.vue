@@ -5,6 +5,7 @@ if (useRoute) {
   schema = useRoute().params.schema;
 }
 const menu = [
+  { label: "Home", link: `/${schema}/ssr-catalogue` },
   config.public.cohortOnly
     ? undefined
     : { label: "Catalogues", link: `/${schema}/ssr-catalogue/catalogues` },

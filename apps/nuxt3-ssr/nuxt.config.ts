@@ -18,12 +18,17 @@ const config = {
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side
     public: {
-      apiBase: "http://localhost:3000/", //'https://emx2.molgeniscloud.org/',
+      apiBase: "https://data-catalogue.molgeniscloud.org/", //'https://emx2.molgeniscloud.org/',
       emx2Theme: "",
       emx2Logo: "",
       siteTitle: "Data Catalogue",
       analyticsKey: "",
       cohortOnly: false,
+    },
+  },
+  router: {
+    options: {
+      strict: true,
     },
   },
   nitro: {

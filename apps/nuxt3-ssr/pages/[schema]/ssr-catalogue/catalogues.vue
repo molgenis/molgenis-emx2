@@ -16,7 +16,7 @@ let offset = computed(() => (currentPage.value - 1) * pageSize);
 
 let filters: IFilter[] = reactive([
   {
-    title: "Search in networks",
+    title: "Search in catalogues",
     columnType: "_SEARCH",
     search: "",
     initialCollapsed: false,
@@ -30,7 +30,7 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Organisations",
-    columnName: "dataCategories",
+    columnName: "leadOrganisation",
     columnType: "REF_ARRAY",
     refTable: "Organisations",
     refFields: {
@@ -38,14 +38,6 @@ let filters: IFilter[] = reactive([
       name: "id",
       description: "name",
     },
-    conditions: [],
-  },
-  {
-    title: "Topics",
-    refTable: "AgeGroups",
-    columnName: "ageGroups",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
     conditions: [],
   },
 ]);
