@@ -18,8 +18,7 @@
           <router-view
             :providerId="provider.id"
             :providerName="provider.name"
-          >
-          </router-view>
+          ></router-view>
         </Dashboard>
       </div>
     </Page>
@@ -37,7 +36,6 @@ import {
   LoadingScreen,
 } from "molgenis-viz";
 import ProviderSidebar from "./components/ProviderSidebar.vue";
-// import AppFooter from "./components/AppFooter.vue";
 
 import { postQuery } from "./utils/utils";
 
@@ -50,14 +48,14 @@ let schema = ref(null);
 let provider = ref(null);
 
 async function getSchemaMeta() {
-  const result = await postQuery("/graphql", "{ _schema { name }}");
+  const result = await postQuery("./api/graphql", "{ _schema { name }}");
   const data = await result.data._schema.name;
   return data;
 }
 
 async function getProviderMeta(id) {
   const result = await postQuery(
-    "/CranioStats/graphql",
+    "/CranioStats/api/graphql",
     `{
       Organisations (
         filter: {
@@ -81,17 +79,16 @@ async function getProviderMeta(id) {
   return data;
 }
 
-
 async function loadData() {
   schema.value = await getSchemaMeta();
   provider.value = await getProviderMeta(schema.value);
-  provider.value.id = provider.value.providerInformation[0].providerIdentifier
-  delete provider.value.providerInformation
+  provider.value.id = provider.value.providerInformation[0].providerIdentifier;
+  delete provider.value.providerInformation;
 }
 
 onBeforeMount(() => {
   loadData()
-    .then(() => loading.value = false)
-    .catch(err => error.value = err)
+    .then(() => (loading.value = false))
+    .catch((err) => (error.value = err));
 });
 </script>

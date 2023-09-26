@@ -79,18 +79,19 @@ async function getOrganisations() {
     }`
   );
 
-  const data = await response.data.Organisations
+  const data = await response.data.Organisations;
   return data;
 }
 
 async function loadData() {
   const data = await getOrganisations();
-  providers.value = data.map(row => {
-    return {...row, id: row.providerInformation[0].providerIdentifier}
-  })
-  .sort((current,next) => {
-    return current.name < next.name ? -1 : 1;
-  });
+  providers.value = data
+    .map((row) => {
+      return { ...row, id: row.providerInformation[0].providerIdentifier };
+    })
+    .sort((current, next) => {
+      return current.name < next.name ? -1 : 1;
+    });
 }
 
 onMounted(() => {

@@ -17,7 +17,9 @@
           <p><strong>For Members</strong></p>
           <UnorderedList listType="none">
             <li>
-              <router-link :to="{ name: 'providers' }">View Providers</router-link>
+              <router-link :to="{ name: 'providers' }"
+                >View Providers</router-link
+              >
             </li>
             <!-- more links here -->
           </UnorderedList>
