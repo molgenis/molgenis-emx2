@@ -48,7 +48,7 @@ let schema = ref(null);
 let provider = ref(null);
 
 async function getSchemaMeta() {
-  const result = await postQuery("./api/graphql", "{ _schema { name }}");
+  const result = await postQuery("/api/graphql", "{ _schema { name }}");
   const data = await result.data._schema.name;
   return data;
 }
