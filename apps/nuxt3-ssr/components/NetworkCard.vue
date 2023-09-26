@@ -34,18 +34,18 @@ const iconStarClasses = computed(() => {
 });
 
 const links = [
-  {
-    title: "Network",
-    url: `/${props.schema}/ssr-catalogue/networks/${props.network.id}`,
-  },
-  {
-    title: "Cohorts",
-    url: `/${props.schema}/ssr-catalogue/networks/${props.network.id}#cohorts`,
-  },
-  {
-    title: "Variables",
-    url: `/${props.schema}/ssr-catalogue/networks/${props.network.id}#variables`,
-  },
+  // {
+  //   title: "Network",
+  //   url: `/${props.schema}/ssr-catalogue/networks/${props.network.id}`,
+  // },
+  // {
+  //   title: "Cohorts",
+  //   url: `/${props.schema}/ssr-catalogue/networks/${props.network.id}#cohorts`,
+  // },
+  // {
+  //   title: "Variables",
+  //   url: `/${props.schema}/ssr-catalogue/networks/${props.network.id}#variables`,
+  // },
 ];
 </script>
 
@@ -57,7 +57,7 @@ const links = [
           class="items-center flex justify-center"
           :class="[compact ? 'w-50px h-50px' : 'h-full w-full']"
         >
-          <NuxtLink :to="`/${schema}/ssr-catalogue/networks/${network.id}`">
+          <NuxtLink :to="`/${schema}/ssr-catalogue/${network.id}`">
             <img :src="network?.logo?.url" />
           </NuxtLink>
         </div>
@@ -67,7 +67,7 @@ const links = [
           <div :class="titleContainerClasses" class="">
             <h2 class="min-w-[160px] mr-4 md:inline-block block">
               <NuxtLink
-                :to="`/${schema}/ssr-catalogue/networks/${network.id}`"
+                :to="`/${schema}/ssr-catalogue/${network.id}`"
                 class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
               >
                 {{ network?.acronym || network?.name }}
