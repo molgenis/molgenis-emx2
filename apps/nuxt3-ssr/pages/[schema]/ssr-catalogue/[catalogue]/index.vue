@@ -112,7 +112,7 @@ const catalogue = data.value.data?.Networks[0];
           title="Partners"
           :description="'Browse ' + catalogue.id + ' partner organisations'"
           :count="data.data.DataSources_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/cat/${catalogue.id}/datasources`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogue.id}/datasources`"
         />
       </LandingPrimary>
       <LandingSecondary> </LandingSecondary>

@@ -6,6 +6,7 @@ const props = defineProps({
 import { gql } from "graphql-request";
 import subcohortsQuery from "~~/gql/subcohorts";
 import collectionEventsQuery from "~~/gql/collectionEvents";
+import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
 const config = useRuntimeConfig();
@@ -130,6 +131,9 @@ const query = gql`
         url
         file ${loadGql(fileFragment)}
       }
+      datasets {
+        name
+      }
     }
     CollectionEvents_agg(filter: { resource: { id: { equals: [$id] } } }) {
       count
@@ -179,6 +183,15 @@ function collectionEventMapper(item: any) {
     numberOfParticipants: item.numberOfParticipants,
     _renderComponent: "CollectionEventDisplay",
     _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/collection-events/${item.name}`,
+  };
+}
+
+function datasetMapper(item: any) {
+  return {
+    id: item.name,
+    name: item.name,
+    description: item.descriptions,
+    _path: `/${route.params.schema}/ssr-catalogue/browse/datasets`,
   };
 }
 
@@ -413,6 +426,24 @@ if (route.params.catalogue) {
           v-slot="slotProps"
         >
           <CollectionEventDisplay :id="slotProps.id" />
+        </TableContent>
+
+        <TableContent
+          v-if="cohort.datasets"
+          id="Datasets"
+          title="Datasets"
+          description="List of datasets for this resource"
+          :headers="[
+            { id: 'name', label: 'Name' },
+            { id: 'description', label: 'Description', singleLine: true },
+          ]"
+          type="Datasets"
+          :query="datasetQuery"
+          :filter="{ id: route.params.cohort }"
+          :rowMapper="datasetMapper"
+          v-slot="slotProps"
+        >
+          {{ slotProps }}
         </TableContent>
 
         <ContentBlockPartners

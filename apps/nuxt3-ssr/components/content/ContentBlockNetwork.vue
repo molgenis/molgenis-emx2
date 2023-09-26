@@ -15,7 +15,7 @@ defineProps<{
         :imageUrl="network?.logo?.url"
         :title="network?.name"
         :description="network?.description"
-        :url="`/${route.params.schema}/ssr-catalogue/networks/${network.id}`"
+        :url="`/${route.params.schema}/ssr-catalogue/browse/${network.id}`"
       />
     </ReferenceCardList>
   </ContentBlock>

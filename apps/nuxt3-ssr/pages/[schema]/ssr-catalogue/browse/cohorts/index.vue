@@ -148,10 +148,12 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
 
 const crumbs: any = {};
 if (route.params.catalogue) {
-  crumbs[`${route.params.catalogue}`] = `${route.path}/../..`;
+  crumbs[
+    `${route.params.catalogue}`
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 } else {
-  crumbs["Home"] = `${route.path}/../..`;
-  crumbs["Browse"] = `${route.path}/..`;
+  crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
+  crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/browse`;
 }
 </script>
 

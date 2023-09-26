@@ -9,7 +9,13 @@ const menu = [
   config.public.cohortOnly
     ? undefined
     : { label: "Catalogues", link: `/${schema}/ssr-catalogue/catalogues` },
-  { label: "Resources", link: `/${schema}/ssr-catalogue/resources` },
+  config.public.cohortOnly
+    ? { label: "Cohorts", link: `/${schema}/ssr-catalogue/browse/cohorts` }
+    : { label: "Resources", link: `/${schema}/ssr-catalogue/browse` },
+  config.public.cohortOnly
+    ? undefined
+    : { label: "Variables", link: `/${schema}/ssr-catalogue/browse/variables` },
+
   // { label: "Statistical Methods", link: "#" },
   // { label: "Tables", link: "#" },
   // { label: "Manuals", link: "#" },

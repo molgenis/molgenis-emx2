@@ -68,7 +68,7 @@ const links = [
           <div :class="titleContainerClasses" class="">
             <h2 class="min-w-[160px] mr-4 md:inline-block block">
               <NuxtLink
-                :to="`${route.path}/../${network.id}`"
+                :to="`/${route.params.schema}/ssr-catalogue/${network.id}`"
                 class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
               >
                 {{ network?.acronym || network?.name }}
@@ -84,7 +84,10 @@ const links = [
           class="text-blue-500 xl:justify-end"
         />
         -->
-            <NuxtLink v-if="!compact" :to="`${route.path}/../${network.id}`">
+            <NuxtLink
+              v-if="!compact"
+              :to="`/${route.params.schema}/ssr-catalogue/${network.id}`"
+            >
               <IconButton
                 icon="arrow-right"
                 class="text-blue-500 hidden xl:flex xl:justify-end"
