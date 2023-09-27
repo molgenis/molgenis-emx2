@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.Constants.MG_ID;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
 
@@ -70,6 +71,13 @@ class SqlSchemaMetadataExecutor {
     db.getJooq()
         .execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(aggregator));
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
+
+    // create autoid sequence
+    db.getJooq()
+        .execute(
+            "CREATE SEQUENCE IF NOT EXISTS {0} AS bigint INCREMENT BY 9 START 59049 CACHE 1000 NO CYCLE",
+            name(schemaName, MG_ID));
+    db.getJooq().execute("GRANT USAGE ON {0} TO {1}", name(schemaName, MG_ID), name(editor));
 
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
   }
@@ -217,6 +225,9 @@ class SqlSchemaMetadataExecutor {
       List<Table> tables = db.getSchema(schemaName).getTablesSorted();
       Collections.reverse(tables);
       tables.forEach(table -> executeDropTable(db.getJooq(), table.getMetadata()));
+
+      // drop sequence
+      db.getJooq().dropSequence(name(schemaName, MG_ID));
 
       // drop schema
       db.getJooq().dropSchema(name(schemaName)).cascade().execute();

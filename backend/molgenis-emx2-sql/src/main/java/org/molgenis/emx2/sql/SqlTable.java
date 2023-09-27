@@ -432,7 +432,6 @@ class SqlTable implements Table {
         step2.set(field(name(MG_UPDATEDON)), now);
       }
     }
-
     return step.execute();
   }
 
