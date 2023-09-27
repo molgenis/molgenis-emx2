@@ -14,6 +14,7 @@
     "molgenis-components",
     "molgenis-viz",
     "ern-reconnet",
+    "ern-ithaca",
     "helloworld",
     "reports",
     "tasks",

@@ -1,0 +1,153 @@
+.app-page,
+.page-footer {
+  font-size: 13pt;
+
+  .page-header {
+    &.header-image-background {
+      background-position: 0 100%;
+    }
+    .background-image-filter {
+      opacity: 0.5;
+    }
+  }
+
+  .page-section {
+    &.section-background-brand {
+      background-color: $brand-blue-900;
+    }
+  }
+}
+
+.message-box {
+  .message-text {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    p {
+      margin: 0;
+    }
+  }
+}
+
+.quick-links-container {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1em;
+
+  .link-card {
+    flex-grow: 1;
+    padding: 1em 0.5em;
+    height: 4em;
+    text-align: center;
+    background-color: $gray-050;
+
+    $offset: 6px;
+    box-shadow: $offset $offset 0 0 $brand-red-orange;
+
+    a {
+      font-size: 11pt;
+      color: $brand-blue-900;
+    }
+
+    svg {
+      $size: 14px;
+      width: $size;
+      height: $size;
+      margin-top: -3px;
+      color: $brand-red-orange;
+      stroke-width: 3px;
+    }
+
+    &:hover,
+    &:focus {
+      background-color: $brand-blue-600;
+
+      a {
+        text-decoration: underline;
+        color: $gray-050;
+      }
+
+      svg {
+        color: $gray-050;
+      }
+    }
+  }
+}
+
+#publicDashboard {
+  .dashboard-content {
+    display: grid;
+    grid-template-areas:
+      "dashboard-message"
+      "table-enrollment"
+      "table-genes"
+      "provider-map";
+
+    @media screen and (min-width: 972px) {
+      grid-template-areas:
+        "dashboard-message dashboard-message"
+        "table-enrollment table-genes"
+        "provider-map provider-map";
+    }
+
+    .dashboard-box {
+      padding: 1em;
+
+      .d3-table caption,
+      .chart-title {
+        font-weight: bold;
+      }
+
+      .d3-table {
+        caption {
+          margin: 0;
+        }
+        td {
+          padding: 0.5em;
+        }
+
+        td,
+        th {
+          font-size: 11pt;
+        }
+      }
+    }
+  }
+}
+
+#table-enrollment {
+  grid-area: table-enrollment;
+
+  .d3-table {
+    tbody {
+      tr {
+        &:last-child {
+          td {
+            $border: 2px solid $gray-800;
+            border-top: $border;
+            border-bottom: none;
+            font-weight: bold;
+          }
+        }
+      }
+    }
+  }
+}
+
+#table-genes {
+  grid-area: table-genes;
+}
+
+#dashboard-message {
+  grid-area: dashboard-message;
+}
+
+#provider-map {
+  grid-area: provider-map;
+}
