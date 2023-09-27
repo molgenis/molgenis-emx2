@@ -15,6 +15,8 @@ import InputLabel from '../src/components/forms/InputLabel.vue'
 import InputSearch from '../src/components/forms/InputSearch.vue'
 
 // layout components
+import Dashboard from "../src/components/layouts/Dashboard.vue";
+import DashboardBox from "../src/components/layouts/DashboardBox.vue";
 import Page from "../src/components/layouts/Page.vue"
 import PageFooter from "../src/components/layouts/PageFooter.vue"
 import PageFooterMeta from "../src/components/layouts/PageFooterMeta.vue"
@@ -33,8 +35,16 @@ import DataValueHighlights from "../src/components/viz/DataHighlights.vue"
 import GeoMercator from "../src/components/viz/GeoMercator.vue"
 import PieChart from '../src/components/viz/PieChart.vue'
 
+// data
+import WorldGeoJson from "../src/data/world.geo.json"
+
+// utils
+import { asDataObject, flattenData, renameKey, sortData, reverseSortData } from "../src/utils/utils.js";
+
 
 export {
+  
+  // display components
   Accordion,
   ActionLink,
   ButtonSearch,
@@ -46,6 +56,10 @@ export {
   MessageBox,
   MolgenisLogo,
   
+  
+  // layouts
+  Dashboard,
+  DashboardBox,
   Page,
   PageFooter,
   PageFooterMeta,
@@ -56,11 +70,22 @@ export {
   PageSection,
   UnorderedList,
   
+  // visualisations
   BarChart,
   ColumnChart,
   DataTable,
   DataValueHighlights,
   GeoMercator,
   ChartLegend,
-  PieChart
+  PieChart,
+  
+  // datasets
+  WorldGeoJson,
+  
+  // utils
+  asDataObject,
+  flattenData,
+  renameKey,
+  sortData,
+  reverseSortData
 }
