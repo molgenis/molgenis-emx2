@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 10;
+  private static final int SOFTWARE_DATABASE_VERSION = 11;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
@@ -83,6 +83,10 @@ public class Migrations {
           if (version < 10)
             executeMigrationFile(tdb, "migration10.sql", "add Aggregate role for each schema");
 
+          if (version < 11) {
+            executeMigration11((SqlDatabase) tdb, "update search column trigger and search index");
+          }
+
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
         });
@@ -143,6 +147,29 @@ public class Migrations {
     // delete settings table
 
     logger.debug(message);
+  }
+
+  private static void executeMigration11(SqlDatabase tbd, String message) {
+    logger.debug(message);
+
+    // foreach table in each schema, update the search index trigger function and execute it
+    tbd.getSchemaNames().stream()
+        .filter(schemaName -> !schemaName.equals(MOLGENIS))
+        .forEach(
+            schemaName -> {
+              Schema schema = tbd.getSchema(schemaName);
+              schema
+                  .getTablesSorted()
+                  .forEach(
+                      table -> {
+                        SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(
+                            tbd.getJooq(), table.getMetadata(), table.getName());
+                        String callTriggerQuery =
+                            TriggerBuilderHelpers.buildCallSearchTriggerFunction(
+                                schemaName, table.getName());
+                        tbd.getJooq().query(callTriggerQuery).execute();
+                      });
+            });
   }
 
   static void executeMigrationFile(Database db, String sqlFile, String message) {

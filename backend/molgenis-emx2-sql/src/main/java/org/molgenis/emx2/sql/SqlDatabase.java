@@ -91,10 +91,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public SqlDatabase(boolean init) {
     initDataSource();
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
-    final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
-    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, settings);
     if (init) {
       try {
+        // run init without query timeout to allow for long-running migrations
+        this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
         // elevate privileges for init (prevent reload)
         this.connectionProvider.setActiveUser(ADMIN_USER);
         this.init();
@@ -103,6 +103,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         this.connectionProvider.clearActiveUser();
       }
     }
+    final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
+    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, settings);
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
     logger.info("Database was created using version: {} ", this.databaseVersion);

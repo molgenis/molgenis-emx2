@@ -28,4 +28,11 @@ public class TriggerBuilderHelpers {
                 """;
     return template.formatted(schemaName, tableName, columnName);
   }
+
+  public static String buildCallSearchTriggerFunction(String schemaName, String tableName) {
+    return """
+        UPDATE "%1$s"."%2$s" set "%2$s_TEXT_SEARCH_COLUMN" = "%2$s_TEXT_SEARCH_COLUMN";
+        """
+        .formatted(schemaName, tableName);
+  }
 }

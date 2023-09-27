@@ -33,4 +33,13 @@ WHERE
 """,
         TriggerBuilderHelpers.buildOntologySearchSection("mySchema", "myTable", "myColumn", true));
   }
+
+  @Test
+  void buildCallSearchTriggerFunction() {
+    assertEquals(
+        """
+UPDATE "mySchema"."myTable" set "myTable_TEXT_SEARCH_COLUMN" = "myTable_TEXT_SEARCH_COLUMN";
+""",
+        TriggerBuilderHelpers.buildCallSearchTriggerFunction("mySchema", "myTable"));
+  }
 }
