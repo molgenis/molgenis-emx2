@@ -15,13 +15,13 @@ public class FilteringTerm {
     this.type = type;
     this.id = id;
     this.label = label;
-    this.scope = scope;
+    this.scope = Character.toLowerCase(scope.charAt(0)) + scope.substring(1);
   }
 
   public FilteringTerm(String type, String id, String scope) {
     this.type = type;
     this.id = id;
-    this.scope = scope;
+    this.scope = Character.toLowerCase(scope.charAt(0)) + scope.substring(1);
   }
 
   @Override
