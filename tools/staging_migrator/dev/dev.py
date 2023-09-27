@@ -26,7 +26,7 @@ def main():
     with StagingMigrator(url='https://ype.molgeniscloud.org') as migrator:
         migrator.signin(username, password)
         print(migrator.status)
-        migrator.migrate('PRESTO', catalogue='TestCatalogue')
+        migrator.migrate('TestCohort', catalogue='TestCatalogue')
 
 
 if __name__ == '__main__':

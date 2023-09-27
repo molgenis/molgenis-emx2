@@ -86,23 +86,20 @@ class StagingMigrator(Client):
             response = self.session.post(url=f"{self.url}/{catalogue}/graphql",
                                          json={"query": query, "variables": variables})
 
-            # This line breaks for table 'Quantitative information'
-            # Column 'age groups' has key 1 and references an ontology table
-            # TODO discuss and fix this
-            try:
-                if len(response.json().get('data')) > 0:
-                    if not self._cohorts_in_ref_array(table_schema):
-                        print(f"\nDeleting row with primary keys {response.json().get('data')}")
-                        self._delete_table_entries(schema=catalogue, table_id=table_schema['id'],
-                                                   pkeys=response.json().get('data').get(table_schema['id']))
-                    # TODO: implement following
-                    # else:
-                    #     self._delete_from_ref_array(schema=catalogue, table_id=table_schema['id'],
-                    #                                 pkeys=response.json().get('data').get(table_schema['id']))
-            except TypeError:
-                print(f"Error for table {t_name}.\n{response.json()}")
+            if len(response.json().get('data')) > 0:
+                if not self._cohorts_in_ref_array(table_schema):
+                    print(f"\nDeleting row with primary keys {response.json().get('data').get(table_schema['id'])}\n"
+                          f" in table {t_name}.")
 
-            # Delete the matching rows from the target catalogue table
+                    # Delete the matching rows from the target catalogue table
+                    self._delete_table_entries(schema=catalogue, table_id=table_schema['id'],
+                                               pkeys=response.json().get('data').get(table_schema['id']))
+                else:
+                    print(f"\nUpdating row with primary keys {response.json().get('data').get(table_schema['id'])}"
+                          f"\n in table {t_name}. (Not yet implemented)")
+                    # TODO: implement following
+                    # self._delete_from_ref_array(schema=catalogue, table_id=table_schema['id'],
+                    #                             pkeys=response.json().get('data').get(table_schema['id']))
 
     def _delete_table_entries(self, schema: str, table_id: str, pkeys: list):
         """Deletes the rows marked by the primary keys from the table."""
