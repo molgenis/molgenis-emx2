@@ -12,7 +12,7 @@
       :verticalPadding="2"
     >
       <h2 id="section-templ-message">Documents</h2>
-      <MessageBox>
+      <MessageBox type="warning">
         <p>This page is under construction.</p>
       </MessageBox>
     </PageSection>

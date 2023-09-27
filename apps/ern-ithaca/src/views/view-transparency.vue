@@ -12,7 +12,7 @@
       :verticalPadding="2"
     >
       <h2 id="section-temp-message-title">Our transparency statement</h2>
-      <MessageBox>
+      <MessageBox type="warning">
         <p>This page is under construction.</p>
       </MessageBox>
     </PageSection>
