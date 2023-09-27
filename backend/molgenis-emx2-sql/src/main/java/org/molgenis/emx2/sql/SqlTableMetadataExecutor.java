@@ -300,7 +300,7 @@ class SqlTableMetadataExecutor {
     // then?
 
     String triggerName = getSearchTriggerName(tableName);
-    String triggerfunction =
+    String triggerFunction =
         String.format("\"%s\".\"%s\"()", table.getSchema().getName(), triggerName);
 
     StringBuilder mgSearchVector = new StringBuilder("' '");
@@ -309,19 +309,7 @@ class SqlTableMetadataExecutor {
         if (c.isFile()) {
           // do nothing for now
         } else if (c.isOntology()) {
-          for (Reference r : c.getReferences()) {
-            if (c.isArray()) {
-              mgSearchVector.append(
-                  String.format(
-                      " || coalesce((SELECT string_agg(\"%1$s_TEXT_SEARCH_COLUMN\", ' ') FROM \"%3$s\".\"%1$s\" WHERE \"%1$s\".\"name\" = ANY( NEW.\"%2$s\") ),'') || ' '",
-                      r.getTargetTable(), r.getName(), c.getRefSchema()));
-            } else {
-              mgSearchVector.append(
-                  String.format(
-                      " || coalesce((SELECT \"%1$s_TEXT_SEARCH_COLUMN\" FROM \"%3$s\".\"%1$s\" WHERE \"%1$s\".\"name\" = NEW.\"%2$s\"),'') || ' '",
-                      r.getTargetTable(), r.getName(), c.getRefSchema()));
-            }
-          }
+          mgSearchVector.append(buildOntologySearchVector(c));
         } else if (c.isReference()) {
           for (Reference r : c.getReferences()) {
             mgSearchVector.append(
@@ -342,13 +330,29 @@ class SqlTableMetadataExecutor {
                 + "\treturn new;\n"
                 + "end\n"
                 + "$$ LANGUAGE plpgsql;",
-            triggerfunction, name(searchColumnName(tableName)), mgSearchVector);
+            triggerFunction, name(searchColumnName(tableName)), mgSearchVector);
 
     jooq.execute(functionBody);
     jooq.execute(
-        "ALTER FUNCTION " + triggerfunction + " OWNER TO {0}",
+        "ALTER FUNCTION " + triggerFunction + " OWNER TO {0}",
         name(getRolePrefix(table) + Privileges.MANAGER.toString()));
-    return triggerfunction;
+    return triggerFunction;
+  }
+
+  private static String buildOntologySearchVector(Column ontologyColumn) {
+    StringBuilder mgSearchVector = new StringBuilder("' '");
+    for (Reference r : ontologyColumn.getReferences()) {
+      String ontologySearchSection =
+          TriggerBuilderHelpers.buildOntologySearchSection(
+              ontologyColumn.getRefSchema(),
+              r.getTargetTable(),
+              r.getName(),
+              ontologyColumn.isArray());
+
+      mgSearchVector.append(String.format(" || coalesce((%s),'') || ' '", ontologySearchSection));
+    }
+
+    return mgSearchVector.toString();
   }
 
   static String searchColumnName(String tableName) {
