@@ -29,7 +29,11 @@ class SqlTableMetadataExecutor {
 
     // create the table
     Table jooqTable = table.getJooqTable();
-    jooq.execute("CREATE TABLE {0}()", jooqTable);
+    Name mg_id = name(table.getSchemaName(), "mg_id");
+    jooq.execute(
+        "create sequence if not exists {0} as bigint increment by 9 minvalue 59049 cache 1000 no cycle",
+        mg_id);
+    jooq.execute("CREATE TABLE {0}(mg_id bigint default nextval({1) unique)", jooqTable, mg_id);
     MetadataUtils.saveTableMetadata(jooq, table);
 
     // grant rights to schema manager, editor and viewer role

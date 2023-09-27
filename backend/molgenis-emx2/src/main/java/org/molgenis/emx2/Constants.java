@@ -103,6 +103,7 @@ public class Constants {
 
   public static final String CONTACT_RECIPIENTS_QUERY_SETTING_KEY = "contactRecipientsQuery";
   public static final String CONTACT_BCC_ADDRESS = "contactBccAddress";
+  public static final String MG_ID = "mg_id";
 
   private Constants() {
     // hide constructor
