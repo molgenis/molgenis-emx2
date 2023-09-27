@@ -36,7 +36,7 @@
               <router-link :to="{ name: 'home' }">
                 <!-- insert project logo here -->
                 <img
-                  src="ern-ithaca-logo.png"
+                  src="/ern-ithaca-logo.png"
                   class="project-logo"
                   alt="ERN Ithaca: an international library of intellectual disability and anomalies of development"
                 />
