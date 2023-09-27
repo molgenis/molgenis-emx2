@@ -2,7 +2,7 @@
   <Page>
     <PageHeader
       title="ERN Ithaca"
-      subtitle="Our transparency statement"
+      subtitle="Transparency statement"
       imageSrc="ern-ithaca-header.jpg"
       height="large"
     />
@@ -11,7 +11,7 @@
       aria-labelledby="section-temp-message-title"
       :verticalPadding="2"
     >
-      <h2 id="section-temp-message-title">Our transparency statement</h2>
+      <h2 id="section-temp-message-title">Transparency statement</h2>
       <MessageBox type="warning">
         <p>This page is under construction.</p>
       </MessageBox>
