@@ -167,6 +167,7 @@
               tag="tbody"
               @end="applyPosition"
               item-key="name"
+              handle=".moveHandle"
             >
               <template #item="{ element, index }">
                 <ColumnView
