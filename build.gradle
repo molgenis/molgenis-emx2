@@ -26,8 +26,8 @@ println "Corrected version checking for optional snapshot: " + rootProject.versi
 
 nyxPublish.dependsOn assemble
 
-targetCompatibility = "17"
-sourceCompatibility = "17"
+targetCompatibility = "20"
+sourceCompatibility = "20"
 
 sonarqube {
     properties {
