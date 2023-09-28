@@ -12,6 +12,12 @@
   }
 
   .page-section {
+    
+    h2 {
+      color: $brand-blue-600;
+      margin-bottom: 0.25em;
+    }
+    
     &.section-background-brand {
       background-color: $brand-blue-900;
     }
@@ -48,7 +54,7 @@
     background-color: $gray-050;
 
     $offset: 6px;
-    box-shadow: $offset $offset 0 0 $brand-red-orange;
+    box-shadow: $offset $offset 0 0 $brand-red-orange-900;
 
     a {
       font-size: 11pt;
@@ -60,7 +66,7 @@
       width: $size;
       height: $size;
       margin-top: -3px;
-      color: $brand-red-orange;
+      color: $brand-red-orange-900;
       stroke-width: 3px;
     }
 
@@ -81,6 +87,8 @@
 }
 
 #publicDashboard {
+  background-color: $blue-100;
+
   .dashboard-content {
     display: grid;
     grid-template-areas:

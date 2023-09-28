@@ -70,7 +70,7 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
 <style lang="scss">
 .page-footer {
   background-color: $gray-000;
-
+  
   .footer-container {
     color: $gray-800;
     background-color: $gray-050;
