@@ -3019,14 +3019,6 @@
   dependencies:
     "@types/node" "*"
 
-"@unhead/dom@1.3.4":
-  version "1.3.4"
-  resolved "https://registry.yarnpkg.com/@unhead/dom/-/dom-1.3.4.tgz#0645ccee9e041a3b04a2ad63f0ece081a3eb0b99"
-  integrity sha512-wQK31cqjcZHqmMLI0PEDbzigp0KwQjG4P/H8BybcARvGQoaWdgZkiOu+iYmW0sl7e5V08CBL+PXiyiJ1TU6K3Q==
-  dependencies:
-    "@unhead/schema" "1.3.4"
-    "@unhead/shared" "1.3.4"
-
 "@unhead/dom@1.7.4", "@unhead/dom@^1.7.4":
   version "1.7.4"
   resolved "https://registry.yarnpkg.com/@unhead/dom/-/dom-1.7.4.tgz#d6d5899245a0b4e16b01d08553bcde570f8eb00a"
@@ -3035,14 +3027,6 @@
     "@unhead/schema" "1.7.4"
     "@unhead/shared" "1.7.4"
 
-"@unhead/schema@1.3.4":
-  version "1.3.4"
-  resolved "https://registry.yarnpkg.com/@unhead/schema/-/schema-1.3.4.tgz#596590a5192ef33f00651d972757e007f1bb2b01"
-  integrity sha512-9a/5l6YpyW36ud0AKRkHzIVc9mWBxFqvE/ASFLjef2trmHhIVNewu5hjegotAO3uNSxC32AX4FoeJBgTDpYmHA==
-  dependencies:
-    hookable "^5.5.3"
-    zhead "^2.0.10"
-
 "@unhead/schema@1.7.4":
   version "1.7.4"
   resolved "https://registry.yarnpkg.com/@unhead/schema/-/schema-1.7.4.tgz#c70526f481828c5a4217501a544cfc48a85c1e55"
@@ -3050,13 +3034,6 @@
   dependencies:
     hookable "^5.5.3"
     zhead "^2.1.1"
-
-"@unhead/shared@1.3.4":
-  version "1.3.4"
-  resolved "https://registry.yarnpkg.com/@unhead/shared/-/shared-1.3.4.tgz#23803244a91856ed9d9afc6a943664d3f2473b6a"
-  integrity sha512-cBi6gIdSxl5kNrVWJS3zTXsyTeF6JQmub2SQEWzLnCy/+S/1K0pmrbj5d1B01AKBVKgJ4UVS+AaAfKfXKyv4tg==
-  dependencies:
-    "@unhead/schema" "1.3.4"
 
 "@unhead/shared@1.7.4":
   version "1.7.4"
@@ -3073,17 +3050,7 @@
     "@unhead/schema" "1.7.4"
     "@unhead/shared" "1.7.4"
 
-"@unhead/vue@1.3.4":
-  version "1.3.4"
-  resolved "https://registry.yarnpkg.com/@unhead/vue/-/vue-1.3.4.tgz#66e580dc89336bc47e154857630d8ebf72a38cb8"
-  integrity sha512-+LIQ/2W2Kyo0+Z3OvdpOh54tx+LOVURt9dbudHdol2wpioZ6JN6VJlOBBaesIrHqj48fSQP10GdaZDqrIkNUgw==
-  dependencies:
-    "@unhead/schema" "1.3.4"
-    "@unhead/shared" "1.3.4"
-    hookable "^5.5.3"
-    unhead "1.3.4"
-
-"@unhead/vue@^1.7.4":
+"@unhead/vue@1.7.4", "@unhead/vue@^1.7.4":
   version "1.7.4"
   resolved "https://registry.yarnpkg.com/@unhead/vue/-/vue-1.7.4.tgz#2869e7d8114de9f460d1c4e2ce4db82196eda909"
   integrity sha512-ZfgzOhg1Bxo9xwp3upawqerw4134hc9Lhz6t005ixcBwPX+39Wpgc9dC3lf+owFQEVuWkf8F+eAwK2sghVBK4A==
@@ -11131,7 +11098,7 @@ nuxt-proxy@0.4.1:
     http-proxy-middleware "^3.0.0-beta.0"
     ohash "^1.0.0"
 
-nuxt@^3.7.4:
+nuxt@3.7.4:
   version "3.7.4"
   resolved "https://registry.yarnpkg.com/nuxt/-/nuxt-3.7.4.tgz#281a596f84730869e14e231de376f1ec55553f1d"
   integrity sha512-voXN2kheEpi7DJd0hkikfLuA41UiP9IwDDol65dvoJiHnRseWfaw1MyJl6FLHHDHwRzisX9QXWIyMfa9YF4nGg==
@@ -14629,16 +14596,6 @@ unenv@^1.7.4:
     node-fetch-native "^1.4.0"
     pathe "^1.1.1"
 
-unhead@1.3.4:
-  version "1.3.4"
-  resolved "https://registry.yarnpkg.com/unhead/-/unhead-1.3.4.tgz#bf069e0bb1ddb3a72bd67b053de7753ab53fea84"
-  integrity sha512-cSl5Xsmb99JzV0lE0D9TQxU9sU2vu3ZMdeIBy48Y0J6XVVY4WXVAyhbeSzhLVRaBfjYn7O43BGsgN7TjxSCSrg==
-  dependencies:
-    "@unhead/dom" "1.3.4"
-    "@unhead/schema" "1.3.4"
-    "@unhead/shared" "1.3.4"
-    hookable "^5.5.3"
-
 unhead@1.7.4:
   version "1.7.4"
   resolved "https://registry.yarnpkg.com/unhead/-/unhead-1.7.4.tgz#acf3e01b2a035ba6101cb34e41a72277025284b0"
@@ -15852,11 +15809,6 @@ zen-observable@^0.8.0:
   version "0.8.15"
   resolved "https://registry.npmjs.org/zen-observable/-/zen-observable-0.8.15.tgz"
   integrity sha512-PQ2PC7R9rslx84ndNBZB/Dkv8V8fZEpk83RLgXtYd0fwUgEjseMn1Dgajh2x6S8QbZAFa9p2qVCEuYZNgve0dQ==
-
-zhead@^2.0.10:
-  version "2.0.10"
-  resolved "https://registry.npmjs.org/zhead/-/zhead-2.0.10.tgz"
-  integrity sha512-irug8fXNKjqazkA27cFQs7C6/ZD3qNiEzLC56kDyzQART/Z9GMGfg8h2i6fb9c8ZWnIx/QgOgFJxK3A/CYHG0g==
 
 zhead@^2.1.1:
   version "2.1.1"
