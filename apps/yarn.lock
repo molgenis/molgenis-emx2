@@ -2767,9 +2767,9 @@
     mini-svg-data-uri "^1.2.3"
 
 "@tailwindcss/typography@^0.5.8":
-  version "0.5.9"
-  resolved "https://registry.npmjs.org/@tailwindcss/typography/-/typography-0.5.9.tgz"
-  integrity sha512-t8Sg3DyynFysV9f4JDOVISGsjazNb48AeIYQwcL+Bsq5uf4RYL75C1giZ43KISjeDGBaTN3Kxh7Xj/vRSMJUUg==
+  version "0.5.10"
+  resolved "https://registry.yarnpkg.com/@tailwindcss/typography/-/typography-0.5.10.tgz#2abde4c6d5c797ab49cf47610830a301de4c1e0a"
+  integrity sha512-Pe8BuPJQJd3FfRnm6H0ulKIGoMEQS+Vq01R6M5aCrFB/ccR/shT+0kXLjouGC1gFLm9hopTFN+DMP0pfwRWzPw==
   dependencies:
     lodash.castarray "^4.4.0"
     lodash.isplainobject "^4.0.6"
@@ -11131,7 +11131,7 @@ nuxt-proxy@0.4.1:
     http-proxy-middleware "^3.0.0-beta.0"
     ohash "^1.0.0"
 
-nuxt@^3.7.4:
+nuxt@3.7.4:
   version "3.7.4"
   resolved "https://registry.yarnpkg.com/nuxt/-/nuxt-3.7.4.tgz#281a596f84730869e14e231de376f1ec55553f1d"
   integrity sha512-voXN2kheEpi7DJd0hkikfLuA41UiP9IwDDol65dvoJiHnRseWfaw1MyJl6FLHHDHwRzisX9QXWIyMfa9YF4nGg==
