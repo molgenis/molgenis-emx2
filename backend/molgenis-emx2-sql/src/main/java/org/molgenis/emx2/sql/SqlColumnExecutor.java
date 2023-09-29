@@ -10,7 +10,7 @@ import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.removeRefArrayCons
 import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.createRefBackColumnConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.removeRefBackConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
-import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
+import static org.molgenis.emx2.sql.SqlTypeUtils.*;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -446,7 +446,8 @@ public class SqlColumnExecutor {
     if (newColumn.getDefaultValue() != null) {
       jooq.alterTable(newColumn.getJooqTable())
           .alterColumn(newColumn.getJooqField())
-          .defaultValue(newColumn.getDefaultValue())
+          .defaultValue(
+              toJooqType(newColumn.getColumnType()).convert(getTypedDefaultValue(newColumn)))
           .execute();
     } else {
       // remove default

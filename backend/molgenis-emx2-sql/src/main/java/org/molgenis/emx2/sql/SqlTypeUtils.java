@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.ColumnType.AUTO_ID;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
@@ -99,7 +100,7 @@ public class SqlTypeUtils extends TypeUtils {
   public static Object getTypedValue(Column c, Row row, boolean applyDefault) {
     String name = c.getName();
     if (row.isNull(name, c.getColumnType()) && applyDefault && c.getDefaultValue() != null) {
-      return TypeUtils.getTypedValue(c.getDefaultValue(), c.getColumnType());
+      return getTypedDefaultValue(c);
     }
     return switch (c.getPrimitiveColumnType()) {
       case FILE -> row.getBinary(name);
@@ -126,6 +127,14 @@ public class SqlTypeUtils extends TypeUtils {
       default -> throw new UnsupportedOperationException(
           "Unsupported columnType found:" + c.getColumnType());
     };
+  }
+
+  static Object getTypedDefaultValue(Column c) {
+    String defaultValue = c.getDefaultValue();
+    if (defaultValue.startsWith("=")) {
+      defaultValue = executeJavascript(defaultValue.substring(1));
+    }
+    return TypeUtils.getTypedValue(defaultValue, c.getColumnType());
   }
 
   static String getPsqlType(Column column) {
