@@ -1,7 +1,7 @@
 <template>
   <button class="btn p-0 m-0 btn-outline-danger border-0" @click="onClick">
     <Tooltip :value="tooltip" class="p-1 mt-n1 mb-n1">
-      <span v-if="label" class="mr-2">{{ label }}</span>
+      <span v-if="label" class="mr-2 d-inline-block">{{ label }}</span>
       <i :class="'fas fa-fw fa-' + icon"></i>
     </Tooltip>
   </button>

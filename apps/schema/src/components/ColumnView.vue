@@ -3,10 +3,12 @@
     class="hoverContainer"
     :style="column.drop ? 'text-decoration: line-through' : ''"
   >
-    <td class="border-0">
-      <IconAction class="moveHandle" icon="ellipsis-v" />
-    </td>
     <td class="bg-white">
+      <IconAction
+        v-if="isManager"
+        class="moveHandle mr-1 align-middle"
+        icon="ellipsis-v"
+      />
       <span>
         {{ column.name }}
         <span v-if="column.semantics">
