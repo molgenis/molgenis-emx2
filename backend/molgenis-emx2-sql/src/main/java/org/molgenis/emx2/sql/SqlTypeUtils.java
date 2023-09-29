@@ -93,7 +93,14 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static Object getTypedValue(Column c, Row row) {
+    return getTypedValue(c, row, false);
+  }
+
+  public static Object getTypedValue(Column c, Row row, boolean applyDefault) {
     String name = c.getName();
+    if (row.isNull(name, c.getColumnType()) && applyDefault && c.getDefaultValue() != null) {
+      return TypeUtils.getTypedValue(c.getDefaultValue(), c.getColumnType());
+    }
     return switch (c.getPrimitiveColumnType()) {
       case FILE -> row.getBinary(name);
       case UUID -> row.getUuid(name);

@@ -13,7 +13,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
 @Tag("slow")
-public class TestComputedValue {
+public class TestComputedOrDefaultValue {
   static Database db;
   static Schema schema;
 
@@ -21,17 +21,17 @@ public class TestComputedValue {
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
 
-    schema = db.dropCreateSchema(TestComputedValue.class.getSimpleName());
+    schema = db.dropCreateSchema(TestComputedOrDefaultValue.class.getSimpleName());
   }
 
   @Test
-  public void test1() {
+  public void testComputed() {
     Table t =
         schema.create(table("Test1", column("id").setPkey(), column("computed").setComputed("5;")));
 
     // reload to make sure 'computed' is really in backend
     db.clearCache();
-    schema = db.getSchema(TestComputedValue.class.getSimpleName());
+    schema = db.getSchema(TestComputedOrDefaultValue.class.getSimpleName());
 
     t.insert(new Row().set("id", 1));
     assertEquals(5, (int) t.query().retrieveRows().get(0).getInteger("computed"));
@@ -50,5 +50,15 @@ public class TestComputedValue {
     //    StopWatch.start("start");
     //    t.insert(rows);
     //    StopWatch.print("complete", 10000);
+  }
+
+  @Test
+  public void testDefault() {
+    Table t =
+        schema.create(
+            table("Test2", column("id").setPkey(), column("hasDefault").setDefaultValue("blaat")));
+
+    t.insert(new Row().set("id", 1));
+    assertEquals("blaat", t.query().retrieveRows().get(0).getString("hasDefault"));
   }
 }
