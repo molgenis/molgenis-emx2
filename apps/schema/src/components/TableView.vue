@@ -144,11 +144,12 @@
           </div>
           <table
             v-if="table.columns?.length > 0"
-            class="table table-bordered table-sm"
+            class="table table-bordered table-sm border-0"
             style="table-layout: fixed"
           >
             <thead>
               <tr class="hoverContainer">
+                <th style="width: 2.1em" scope="col" class="border-0"></th>
                 <th style="width: 25ch" scope="col">column</th>
                 <th
                   style="width: 25ch"

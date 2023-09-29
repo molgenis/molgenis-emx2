@@ -3,8 +3,11 @@
     class="hoverContainer"
     :style="column.drop ? 'text-decoration: line-through' : ''"
   >
-    <td>
-      <span class="moveHandle">
+    <td class="border-0">
+      <IconAction class="moveHandle" icon="ellipsis-v" />
+    </td>
+    <td class="bg-white">
+      <span>
         {{ column.name }}
         <span v-if="column.semantics">
           (<a
@@ -45,8 +48,10 @@
         />
       </IconBar>
     </td>
-    <td v-if="table.subclasses?.length > 0">{{ column.table }}</td>
-    <td>
+    <td class="bg-white" v-if="table.subclasses?.length > 0">
+      {{ column.table }}
+    </td>
+    <td class="bg-white">
       <span v-if="column.refTable">
         {{ column.columnType.toLowerCase() }}({{
           column.refSchema ? column.refSchema + "." : ""
@@ -67,7 +72,7 @@
       <span v-if="column.refLabel"> refLabel='{{ column.refLabel }}' </span>
       <span v-if="column.computed"> computed="{{ column.computed }}"</span>
     </td>
-    <td>
+    <td class="bg-white">
       <table v-if="column.labels" class="table-borderless">
         <tr v-for="el in column.labels.filter((el) => el.value)">
           <td>{{ el.locale }}:</td>
@@ -75,7 +80,7 @@
         </tr>
       </table>
     </td>
-    <td>
+    <td class="bg-white">
       <table v-if="column.descriptions" class="table-borderless">
         <tr v-for="el in column.descriptions.filter((el) => el.value)">
           <td>{{ el.locale }}:</td>
@@ -99,13 +104,14 @@ span {
 <script>
 import columnTypes from "../columnTypes.js";
 import ColumnEditModal from "./ColumnEditModal.vue";
-import { IconDanger, IconBar } from "molgenis-components";
+import { IconDanger, IconBar, IconAction } from "molgenis-components";
 
 export default {
   components: {
     ColumnEditModal,
     IconDanger,
     IconBar,
+    IconAction,
   },
   data() {
     return {
