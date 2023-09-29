@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@nuxt/devtools": "0.8.5",
-    "@nuxt/image-edge": "1.0.0-rc.2-28266434.a5fe841",
+    "@nuxt/image-edge": "1.0.0-rc.2-28266507.41ef546",
     "@nuxt/test-utils": "3.7.4",
     "@nuxt/vite-builder": "3.7.4",
     "@tailwindcss/forms": "^0.5.3",
