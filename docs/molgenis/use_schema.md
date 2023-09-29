@@ -96,6 +96,8 @@ When required=TRUE then values in this column must be filled. When required=FALS
 ### defaultValue
 
 Using 'defaultValue' you can set a default value for a column.
+In forms, this value will be pre-filled.
+When uploading csv/excel all empty cells will receive the defaultValue (in insert and update)
 
 ### label,label:en,label:fr etc
 
