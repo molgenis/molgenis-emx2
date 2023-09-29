@@ -98,12 +98,10 @@ import { hash } from ".fingerprint.js";
 const config = useRuntimeConfig();
 
 const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics");
-console.log("isAnalyticsAllowedCookie: ", isAnalyticsAllowedCookie.value);
 
 const showCookieWall = ref(
   !!(config.public.analyticsKey && isAnalyticsAllowedCookie.value === undefined)
 );
-console.log("showCookieWall: ", showCookieWall.value);
 
 function setAnalyticsCookie(value: boolean) {
   isAnalyticsAllowedCookie.value = value.toString();
