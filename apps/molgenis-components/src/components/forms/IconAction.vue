@@ -4,7 +4,7 @@
     @click.prevent="onClick"
   >
     <Tooltip :value="tooltip" class="mt-n1 mb-n1 p-1">
-      <span v-if="label" class="mr-2 d-inline-block">
+      <span v-if="label" class="mr-2">
         {{ label }}
       </span>
       <i :class="'fas fa-fw fa-' + icon" />
