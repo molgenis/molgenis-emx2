@@ -98,6 +98,9 @@ When required=TRUE then values in this column must be filled. When required=FALS
 Using 'defaultValue' you can set a default value for a column.
 In forms, this value will be pre-filled.
 When uploading csv/excel all empty cells will receive the defaultValue (in insert and update)
+Optionally you can also use javascript expressions, e.g.
+* ```=new Date().toJSONString().substr(0,10)``` provides automatic date
+* ```=new Date().toJSONString()``` provides automatic dateTime
 
 ### label,label:en,label:fr etc
 

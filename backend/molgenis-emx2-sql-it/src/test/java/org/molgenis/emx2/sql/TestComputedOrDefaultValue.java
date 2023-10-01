@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -56,9 +57,22 @@ public class TestComputedOrDefaultValue {
   public void testDefault() {
     Table t =
         schema.create(
-            table("Test2", column("id").setPkey(), column("hasDefault").setDefaultValue("blaat")));
+            table("Test3", column("id").setPkey(), column("hasDefault").setDefaultValue("blaat")));
 
     t.insert(new Row().set("id", 1));
     assertEquals("blaat", t.query().retrieveRows().get(0).getString("hasDefault"));
+
+    t =
+        schema.create(
+            table(
+                "Test4",
+                column("id").setPkey(),
+                column("autoDate").setDefaultValue("=new Date().toISOString().substr(0,10)"),
+                column("autoDateTime").setDefaultValue("=new Date().toISOString()")));
+
+    t.insert(new Row().set("id", 1));
+    final Row result = t.query().retrieveRows().get(0);
+    assertNotNull(result.getDate("autoDate"));
+    assertNotNull(result.getDate("autoDateTime"));
   }
 }

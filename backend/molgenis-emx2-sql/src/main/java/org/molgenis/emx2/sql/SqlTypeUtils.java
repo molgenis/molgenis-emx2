@@ -32,6 +32,14 @@ public class SqlTypeUtils extends TypeUtils {
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else if (AUTO_ID.equals(c.getColumnType())) {
         applyAutoid(c, row);
+      } else if (!c.getColumnType().isFile()
+          && c.getDefaultValue() != null
+          && row.isNull(c.getName(), c.getColumnType())) {
+        if (c.getDefaultValue().startsWith("=")) {
+          row.set(c.getName(), executeJavascriptOnMap(c.getDefaultValue().substring(1), graph));
+        } else {
+          row.set(c.getName(), c.getDefaultValue());
+        }
       } else if (c.getComputed() != null) {
         row.set(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
       } else if (columnIsVisible(c, graph)) {
@@ -93,14 +101,7 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static Object getTypedValue(Column c, Row row) {
-    return getTypedValue(c, row, false);
-  }
-
-  public static Object getTypedValue(Column c, Row row, boolean applyDefault) {
     String name = c.getName();
-    if (row.isNull(name, c.getColumnType()) && applyDefault && c.getDefaultValue() != null) {
-      return TypeUtils.getTypedValue(c.getDefaultValue(), c.getColumnType());
-    }
     return switch (c.getPrimitiveColumnType()) {
       case FILE -> row.getBinary(name);
       case UUID -> row.getUuid(name);
