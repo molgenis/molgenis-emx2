@@ -489,7 +489,7 @@ class SqlTable implements Table {
 
   private static Map<String, Object> getSelectedRowValues(List<Column> selection, Row row) {
     Map<String, Object> selectedValues = new LinkedHashMap<>();
-    selection.forEach(c -> selectedValues.put(c.getName(), getTypedValue(c, row, true)));
+    selection.forEach(c -> selectedValues.put(c.getName(), getTypedValue(c, row)));
     return selectedValues;
   }
 
