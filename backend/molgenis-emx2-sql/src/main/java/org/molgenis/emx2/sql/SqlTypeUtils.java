@@ -34,7 +34,7 @@ public class SqlTypeUtils extends TypeUtils {
         applyAutoid(c, row);
       } else if (!c.getColumnType().isFile()
           && c.getDefaultValue() != null
-          && row.isNull(c.getName(), c.getColumnType())) {
+          && !row.notNull(c.getName()) {
         if (c.getDefaultValue().startsWith("=")) {
           row.set(c.getName(), executeJavascriptOnMap(c.getDefaultValue().substring(1), graph));
         } else {
