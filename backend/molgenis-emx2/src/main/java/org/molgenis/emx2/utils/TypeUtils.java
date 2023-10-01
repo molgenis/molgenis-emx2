@@ -178,7 +178,8 @@ public class TypeUtils {
     // otherwise try to use string value
     String value = toString(v);
     if (value != null) {
-      return toDateTime(v).toLocalDate();
+      LocalDateTime ldt = toDateTime(v);
+      if (ldt != null) return ldt.toLocalDate();
     }
     return null;
   }
