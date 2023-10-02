@@ -20,7 +20,7 @@ public class JavaScriptUtils {
   }
 
   public static String executeJavascript(String script) {
-    return executeJavascriptOnMap(script, Map.of());
+    return executeJavascriptOnMap(script, null);
   }
 
   public static String executeJavascriptOnMap(String script, Map<String, Object> values) {
@@ -36,9 +36,10 @@ public class JavaScriptUtils {
               .engine(engine)
               .build();
       Value bindings = context.getBindings("js");
-      for (Map.Entry<String, Object> entry : values.entrySet()) {
-        bindings.putMember(entry.getKey(), entry.getValue());
-      }
+      if (values != null)
+        for (Map.Entry<String, Object> entry : values.entrySet()) {
+          bindings.putMember(entry.getKey(), entry.getValue());
+        }
       String scriptWithFixedRegex = script.replace("\\\\", "\\");
       return context.eval("js", scriptWithFixedRegex).toString();
     } catch (Exception e) {
