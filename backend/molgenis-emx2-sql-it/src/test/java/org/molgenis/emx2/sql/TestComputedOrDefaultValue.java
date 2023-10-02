@@ -61,7 +61,7 @@ public class TestComputedOrDefaultValue {
     final Table t2 =
         schema.create(
             table(
-                "Test3",
+                "Test4",
                 column("id").setPkey(),
                 column("autoDate")
                     .setType(ColumnType.DATE)
