@@ -65,7 +65,7 @@ export default {
     <div>
       <RowButtonAdd
           id="row-add-btn-sample"
-          tableName="Pet"
+          tableName="Order"
           schemaName="pet store"
       />
     </div>

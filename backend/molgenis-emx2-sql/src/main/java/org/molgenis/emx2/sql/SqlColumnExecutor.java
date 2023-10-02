@@ -11,6 +11,8 @@ import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.createRefBackColumn
 import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.removeRefBackConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
+import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -444,9 +446,18 @@ public class SqlColumnExecutor {
 
   public static void executeSetDefaultValue(DSLContext jooq, Column newColumn) {
     if (newColumn.getDefaultValue() != null) {
+      Object defaultValue = newColumn.getDefaultValue();
+      if (newColumn.getDefaultValue().startsWith("=")) {
+        defaultValue = executeJavascript(newColumn.getDefaultValue().substring(1));
+      }
+      defaultValue = getTypedValue(defaultValue, newColumn.getPrimitiveColumnType());
       jooq.alterTable(newColumn.getJooqTable())
           .alterColumn(newColumn.getJooqField())
-          .defaultValue(newColumn.getDefaultValue())
+          .defaultValue(defaultValue)
+          .execute();
+      jooq.update(newColumn.getJooqTable())
+          .set(newColumn.getJooqField(), defaultValue)
+          .where(newColumn.getJooqField().isNull())
           .execute();
     } else {
       // remove default

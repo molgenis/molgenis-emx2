@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.ColumnType.AUTO_ID;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
@@ -32,14 +33,6 @@ public class SqlTypeUtils extends TypeUtils {
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else if (AUTO_ID.equals(c.getColumnType())) {
         applyAutoid(c, row);
-      } else if (!c.getColumnType().isFile()
-          && c.getDefaultValue() != null
-          && !row.notNull(c.getName())) {
-        if (c.getDefaultValue().startsWith("=")) {
-          row.set(c.getName(), executeJavascriptOnMap(c.getDefaultValue().substring(1), graph));
-        } else {
-          row.set(c.getName(), c.getDefaultValue());
-        }
       } else if (c.getComputed() != null) {
         row.set(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
       } else if (columnIsVisible(c, graph)) {
@@ -101,7 +94,18 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static Object getTypedValue(Column c, Row row) {
+    return getTypedValue(c, row);
+  }
+
+  public static Object getTypedValue(Column c, Row row, boolean applyDefault) {
     String name = c.getName();
+    if (applyDefault && !row.notNull(name) && c.getDefaultValue() != null) {
+      if (c.getDefaultValue().startsWith("=")) {
+        row.set(c.getName(), executeJavascript(c.getDefaultValue().substring(1)));
+      } else {
+        row.set(c.getName(), c.getDefaultValue());
+      }
+    }
     return switch (c.getPrimitiveColumnType()) {
       case FILE -> row.getBinary(name);
       case UUID -> row.getUuid(name);

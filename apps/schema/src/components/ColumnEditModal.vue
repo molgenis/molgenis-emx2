@@ -227,6 +227,7 @@
             :tableMetaData="table"
             :tableName="table.name"
             :key="JSON.stringify(table)"
+            :applyDefaultValues="true"
           />
           Values:
           {{ previewData }}

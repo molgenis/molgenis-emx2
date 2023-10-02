@@ -19,6 +19,10 @@ public class JavaScriptUtils {
     // hide constructor
   }
 
+  public static String executeJavascript(String script) {
+    return executeJavascriptOnMap(script, Map.of());
+  }
+
   public static String executeJavascriptOnMap(String script, Map<String, Object> values) {
     try {
       final Context context =
