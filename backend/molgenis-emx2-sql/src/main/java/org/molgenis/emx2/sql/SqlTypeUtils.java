@@ -94,7 +94,7 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static Object getTypedValue(Column c, Row row) {
-    return getTypedValue(c, row);
+    return getTypedValue(c, row, false);
   }
 
   public static Object getTypedValue(Column c, Row row, boolean applyDefault) {
