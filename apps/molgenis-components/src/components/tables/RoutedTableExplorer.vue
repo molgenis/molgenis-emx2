@@ -64,7 +64,7 @@ export default {
     },
     canView: {
       type: Boolean,
-      default: () => false,
+      default: () => true,
     },
     canEdit: {
       type: Boolean,

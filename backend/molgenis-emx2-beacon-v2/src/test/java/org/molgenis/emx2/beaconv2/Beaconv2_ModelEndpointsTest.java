@@ -44,11 +44,11 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"filteringTerms\" : ["));
     assertTrue(json.contains("\"type\" : \"alphanumeric\","));
     assertTrue(json.contains("\"id\" : \"position_assemblyId\","));
-    assertTrue(json.contains("\"scope\" : \"GenomicVariations\""));
+    assertTrue(json.contains("\"scope\" : \"genomicVariations\""));
     assertTrue(json.contains("\"type\" : \"ontology\","));
-    assertTrue(json.contains("\"id\" : \"NCIT_C124261\","));
+    assertTrue(json.contains("\"id\" : \"NCIT:C124261\","));
     assertTrue(json.contains("\"label\" : \"Whole Transcriptome Sequencing\","));
-    assertTrue(json.contains("\"scope\" : \"SequencingRuns\""));
+    assertTrue(json.contains("\"scope\" : \"sequencingRuns\""));
   }
 
   @Test

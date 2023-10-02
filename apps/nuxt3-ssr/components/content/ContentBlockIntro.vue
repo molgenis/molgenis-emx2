@@ -123,14 +123,7 @@ const submitForm = async () => {
     <div class="flex flex-col items-center justify-center gap-11 md:flex-row">
       <img v-if="image" class="max-h-11" :src="image" />
       <div class="flex-grow hidden align-middle md:block">
-        <a
-          v-if="link"
-          :href="link"
-          :target="linkTarget"
-          class="text-blue-500 underline hover:bg-blue-50"
-        >
-          <BaseIcon name="external-link" class="inline mr-2" />{{ link }}
-        </a>
+        <HyperLink v-if="link" :href="link" :target="linkTarget" />
       </div>
       <SideModal
         :show="showContactInformation"
