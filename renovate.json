@@ -30,6 +30,12 @@
         "nuxt"
       ]
     },
+        {
+      "groupName": "vueuse",
+      "matchPackagePrefixes": [
+        "vueuse"
+      ]
+    },
     {
       "groupName": "org.eclipse.rdf4j",
       "matchPackagePrefixes": [
