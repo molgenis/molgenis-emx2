@@ -36,12 +36,16 @@ public class Emx2 {
   }
 
   public static SchemaMetadata fromRowList(Iterable<Row> rows) {
+    return fromRowList(rows, false);
+  }
+
+  public static SchemaMetadata fromRowList(Iterable<Row> rows, boolean sanitize) {
     SchemaMetadata schema = new SchemaMetadata();
     int lineNo = 1; // use as position
     int columnPosition = 0;
 
     for (Row r : rows) {
-      String tableName = sanitize(r.getString(TABLE_NAME));
+      String tableName = sanitize ? sanitize(r.getString(TABLE_NAME)) : r.getString(TABLE_NAME);
       if (tableName == null) {
         throw new MolgenisException(
             "Parsing of sheet molgenis failed: Required column "
@@ -56,7 +60,10 @@ public class Emx2 {
 
       // load table metadata, this is when columnName is empty
       if (r.getString(COLUMN_NAME) == null) {
-        schema.getTableMetadata(tableName).setInherit(sanitize(r.getString(TABLE_EXTENDS)));
+        schema
+            .getTableMetadata(tableName)
+            .setInherit(
+                sanitize ? sanitize(r.getString(TABLE_EXTENDS)) : r.getString(TABLE_EXTENDS));
         schema.getTableMetadata(tableName).setImportSchema(r.getString(REF_SCHEMA));
         schema.getTableMetadata(tableName).setSemantics(r.getStringArray(SEMANTICS, false));
         if (r.getString(TABLE_TYPE) != null) {
@@ -98,14 +105,19 @@ public class Emx2 {
                     + lineNo);
           }
 
-          Column column = column(sanitize(r.getString(COLUMN_NAME)));
+          Column column =
+              column(sanitize ? sanitize(r.getString(COLUMN_NAME)) : r.getString(COLUMN_NAME));
           if (r.notNull(COLUMN_TYPE))
             column.setType(ColumnType.valueOf(r.getString(COLUMN_TYPE).toUpperCase().trim()));
           if (r.notNull(KEY)) column.setKey(r.getInteger(KEY));
           if (r.notNull(REF_SCHEMA)) column.setRefSchema(r.getString(REF_SCHEMA));
-          if (r.notNull(REF_TABLE)) column.setRefTable(sanitize(r.getString(REF_TABLE)));
-          if (r.notNull(REF_LINK)) column.setRefLink(sanitize(r.getString(REF_LINK)));
-          if (r.notNull(REF_BACK)) column.setRefBack(sanitize(r.getString(REF_BACK)));
+          if (r.notNull(REF_TABLE))
+            column.setRefTable(
+                sanitize ? sanitize(r.getString(REF_TABLE)) : r.getString(REF_TABLE));
+          if (r.notNull(REF_LINK))
+            column.setRefLink(sanitize ? sanitize(r.getString(REF_LINK)) : r.getString(REF_LINK));
+          if (r.notNull(REF_BACK))
+            column.setRefBack(sanitize ? sanitize(r.getString(REF_BACK)) : r.getString(REF_BACK));
           if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
           if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
           // description i18n
