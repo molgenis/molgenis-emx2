@@ -61,27 +61,46 @@
         recruited by ERN-CRANIO, and patients with connective tissue disorders
         recruited by ERN SKIN.
       </p>
-      <p>ILIAD will register 3 types of patients:</p>
-      <ul>
-        <li>
-          genetically defined patients: patients must have a genetic/genomic
-          diagnosis to be recorded
-        </li>
-        <li>
-          clinically defined patients: patients must have a precise clinical
-          diagnosis with a disease-level ORPHA code
-        </li>
-        <li>undiagnosed patients</li>
-      </ul>
-      <p>
-        For more information on the structure of the registry, please see the
-        <a href="#">Model Document</a>.
-      </p>
+      <p>The ILIAD registry will include three types of patients.</p>
+      <div class="icon-cards-container">
+        <div class="icon-card">
+          <div class="card-icon">
+            <FingerPrintIcon />
+          </div>
+          <p class="card-heading">genetically defined</p>
+          <p class="card-description">
+            Patients have a genetic and a genomic diagnosis to be recorded
+          </p>
+        </div>
+        <div class="icon-card">
+          <div class="card-icon">
+            <ClipboardDocumentListIcon />
+          </div>
+          <p class="card-heading">clinically defined</p>
+          <p class="card-description">
+            Patients have a clinical diagnosis with a disease-level ORPHA code
+          </p>
+        </div>
+        <div class="icon-card">
+          <div class="card-icon">
+            <UserIcon />
+          </div>
+          <p class="card-heading">undiagnosed patients</p>
+          <p class="card-description">
+            Patients that do not have a genetic or clincial diagnosis
+          </p>
+        </div>
+      </div>
     </PageSection>
   </Page>
 </template>
 
 <script setup>
 import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
-import { PlusIcon } from "@heroicons/vue/24/outline";
+import {
+  PlusIcon,
+  FingerPrintIcon,
+  ClipboardDocumentListIcon,
+  UserIcon,
+} from "@heroicons/vue/24/outline";
 </script>

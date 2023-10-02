@@ -4,7 +4,6 @@
       title="ERN Ithaca"
       subtitle="About the patient registry"
       imageSrc="ern-ithaca-header.jpg"
-      height="large"
     />
     <PageSection
       id="section-temp-message"

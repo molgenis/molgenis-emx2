@@ -5,18 +5,22 @@
         <div class="footer-column footer-links">
           <p><strong>ERN Ithaca</strong></p>
           <UnorderedList listType="none">
-            <li><router-link :to="{ name: 'home' }">Home</router-link></li>
-            <li><router-link :to="{ name: 'about' }">About</router-link></li>
             <li>
-              <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
+              <router-link :to="{ name: 'home' }"> Home </router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'documents' }">Documents</router-link>
+              <router-link :to="{ name: 'about' }"> About </router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'transparency' }"
-                >Transparency Statement</router-link
-              >
+              <router-link :to="{ name: 'dashboard' }"> Dashboard </router-link>
+            </li>
+            <li>
+              <router-link :to="{ name: 'documents' }"> Documents </router-link>
+            </li>
+            <li>
+              <router-link :to="{ name: 'transparency' }">
+                Transparency Statement
+              </router-link>
             </li>
             <!-- more links here -->
           </UnorderedList>
@@ -24,9 +28,6 @@
         <div class="footer-column footer-links">
           <p><strong>For Members</strong></p>
           <UnorderedList listType="none">
-            <li>
-              <a href="/apps/central/#/admin/users">Sign in</a>
-            </li>
             <!-- more links here -->
           </UnorderedList>
         </div>
@@ -44,9 +45,9 @@
             </li>
             <li>
               <a href="https://www.molgenis.org">
-                <span class="visually-hidden"
-                  >visit the molgenis website to learn more</span
-                >
+                <span class="visually-hidden">
+                  visit the molgenis website to learn more
+                </span>
                 <li>
                   <img
                     src="/molgenis-logo-blue-text.png"
@@ -70,7 +71,7 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
 <style lang="scss">
 .page-footer {
   background-color: $gray-000;
-  
+
   .footer-container {
     color: $gray-800;
     background-color: $gray-050;

@@ -85,7 +85,9 @@ import {
   WorldGeoJson,
   renameKey,
 } from "molgenis-viz";
-import { postQuery } from "../utils/utils";
+
+import gql from "graphql-tag";
+import { request } from "graphql-request";
 
 let loading = ref(true);
 let error = ref(null);
@@ -101,9 +103,8 @@ const mapColorPalette = {
 };
 
 async function getStats() {
-  const response = await postQuery(
-    "../api/graphql",
-    `{
+  const query = gql`
+    {
       Components {
         name
         statistics {
@@ -113,17 +114,17 @@ async function getStats() {
           valueOrder
         }
       }
-    }`
-  );
+    }
+  `;
 
-  const data = await response.data.Components;
+  const response = await request("../api/graphql", query);
+  const data = await response.Components;
   return data;
 }
 
 async function getProviders() {
-  const response = await postQuery(
-    "../api/graphql",
-    `{
+  const query = gql`
+    {
       Organisations {
         name
         definition
@@ -133,9 +134,11 @@ async function getProviders() {
         latitude
         longitude
       }
-    }`
-  );
-  const data = await response.data.Organisations;
+    }
+  `;
+
+  const response = await request("../api/graphql", query);
+  const data = await response.Organisations;
   return data;
 }
 

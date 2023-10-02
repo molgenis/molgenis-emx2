@@ -49,7 +49,7 @@ const router = createRouter({
       },
     },
   ],
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(_to, _from, savedPosition) {
     return savedPosition || { top: 0, left: 0 };
   },
 });

@@ -3,7 +3,7 @@ import vue from "@vitejs/plugin-vue";
 
 const host = "https://ithaca-emx2test.molgeniscloud.org/";
 const schema = "ErnStats";
-const opts = { changeOrigin: true, secure: false, logLevel: "debug" }
+const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
 export default defineConfig(() => {
   return {
@@ -15,9 +15,9 @@ export default defineConfig(() => {
           @import "../molgenis-viz/src/styles/variables.scss";
           @import "../molgenis-viz/src/styles/mixins.scss";
           @import "src/styles/variables.scss";
-        `
-        }
-      }
+        `,
+        },
+      },
     },
     plugins: [vue()],
     base: "",
@@ -25,7 +25,7 @@ export default defineConfig(() => {
       proxy: {
         "/api/graphql": {
           target: `${host}/${schema}`,
-          ...opts
+          ...opts,
         },
         "^/[a-zA-Z0-9_.%-]+/api/graphql": {
           target: host,
@@ -33,21 +33,21 @@ export default defineConfig(() => {
         },
         "/api": {
           target: `${host}/api`,
-          ...opts
+          ...opts,
         },
         "/graphql": {
           target: `${host}/api/graphql`,
-          ...opts
+          ...opts,
         },
         "/apps": {
           target: host,
-          ...opts
+          ...opts,
         },
         "/theme.css": {
           target: `${host}/${schema}`,
-          ...opts
+          ...opts,
         },
-      }
+      },
     },
-  }
+  };
 });
