@@ -94,13 +94,17 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static Object getTypedValue(Column c, Row row) {
-    return getTypedValue(c, row, false);
+    return getTypedValue(c, row);
   }
 
   public static Object getTypedValue(Column c, Row row, boolean applyDefault) {
     String name = c.getName();
-    if (row.isNull(name, c.getColumnType()) && applyDefault && c.getDefaultValue() != null) {
-      return getTypedDefaultValue(c);
+    if (applyDefault && !row.notNull(name) && c.getDefaultValue() != null) {
+      if (c.getDefaultValue().startsWith("=")) {
+        return executeJavascript(c.getDefaultValue().substring(1));
+      } else {
+        return c.getDefaultValue();
+      }
     }
     return switch (c.getPrimitiveColumnType()) {
       case FILE -> row.getBinary(name);

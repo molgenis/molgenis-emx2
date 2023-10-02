@@ -54,11 +54,10 @@ public class TestComputedOrDefaultValue {
   public void testDefault() {
     final Table t =
         schema.create(
-            table("Test2", column("id").setPkey(), column("hasDefault").setDefaultValue("blaat")));
+            table("Test3", column("id").setPkey(), column("hasDefault").setDefaultValue("blaat")));
 
     t.insert(new Row().set("id", 1));
     assertEquals("blaat", t.query().retrieveRows().get(0).getString("hasDefault"));
-
     final Table t2 =
         schema.create(
             table(

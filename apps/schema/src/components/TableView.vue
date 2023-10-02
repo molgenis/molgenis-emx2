@@ -167,6 +167,8 @@
               tag="tbody"
               @end="applyPosition"
               item-key="name"
+              handle=".moveHandle"
+              :disabled="!isManager"
             >
               <template #item="{ element, index }">
                 <ColumnView
