@@ -70,6 +70,7 @@ class StagingMigrator(Client):
 
         # Gather the tables to delete from the target catalogue
         tables_to_delete = find_cohort_references(self._schema_schema(catalogue))
+        print("\n".join([f"{k:25}: {v}" for (k, v) in tables_to_delete.items()]))
 
         staging_cohort_id = get_staging_cohort_id(self.url, self.session, staging_area)
         schema_schema = self._schema_schema(catalogue)
@@ -77,29 +78,33 @@ class StagingMigrator(Client):
             # Iterate over the tables that reference the Cohorts table of the staging area
             # Check if any row matches this Cohorts table
             table_schema = schema_schema[t_name]
-            # TODO: put following in method and return response
-            pkeys = [prepare_pkey(schema_schema, t_name, col['id']) for col in table_schema['columns'] if
-                     col.get('key') == 1]
-            query = construct_delete_query(schema_schema, t_name, pkeys)
-            variables = construct_delete_variables(staging_cohort_id, t_name, t_type, schema_schema)
 
-            response = self.session.post(url=f"{self.url}/{catalogue}/graphql",
-                                         json={"query": query, "variables": variables})
+            delete_rows = self._query_delete_rows(schema_schema, t_name, t_type, staging_cohort_id, catalogue)
 
-            if len(response.json().get('data')) > 0:
+            if len(delete_rows) > 0:
                 if not self._cohorts_in_ref_array(table_schema):
-                    print(f"\nDeleting row with primary keys {response.json().get('data').get(table_schema['id'])}\n"
-                          f" in table {t_name}.")
+                    log.info(f"\nDeleting row with primary keys {delete_rows.get(table_schema['id'])}\n"
+                             f" in table {t_name}.")
 
                     # Delete the matching rows from the target catalogue table
                     self._delete_table_entries(schema=catalogue, table_id=table_schema['id'],
-                                               pkeys=response.json().get('data').get(table_schema['id']))
+                                               pkeys=delete_rows.get(table_schema['id']))
                 else:
-                    print(f"\nUpdating row with primary keys {response.json().get('data').get(table_schema['id'])}"
-                          f"\n in table {t_name}. (Not yet implemented)")
+                    log.info(f"\nUpdating row with primary keys {delete_rows.get(table_schema['id'])}"
+                             f"\n in table {t_name}. (Not yet implemented)")
                     # TODO: implement following
                     # self._delete_from_ref_array(schema=catalogue, table_id=table_schema['id'],
                     #                             pkeys=response.json().get('data').get(table_schema['id']))
+
+    def _query_delete_rows(self, schema_schema: dict, t_name: str, t_type: str,
+                           staging_cohort_id: str, catalogue: str) -> dict:
+        """Queries the rows to be deleted from a table."""
+        query = construct_delete_query(schema_schema, t_name)
+        variables = construct_delete_variables(staging_cohort_id, t_name, t_type, schema_schema)
+
+        response = self.session.post(url=f"{self.url}/{catalogue}/graphql",
+                                     json={"query": query, "variables": variables})
+        return response.json().get('data')
 
     def _delete_table_entries(self, schema: str, table_id: str, pkeys: list):
         """Deletes the rows marked by the primary keys from the table."""

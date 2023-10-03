@@ -74,7 +74,7 @@ def find_cohort_references(schema_schema: dict) -> dict:
         _table_references = []
         for _column in _t_values['columns']:
             if _column.get('columnType') in ['REF', 'REF_ARRAY']:
-                if _column.get('refTable') in cohort_inheritance and _column['id'] != 'target':
+                if _column.get('refTable') in ['Cohorts', *cohort_inheritance.values()]:
                     _table_references.append(_column['id'])
                 elif _column.get('refTable') != _t_name:
                     _column_references = find_table_columns(_column['refTable'], schema_schema[_column['refTable']])
@@ -82,17 +82,29 @@ def find_cohort_references(schema_schema: dict) -> dict:
                         _table_references.append(_column['id'])
         return _table_references
 
-    cohort_inheritance = ['Cohorts', 'Data resources', 'Extended resources']
-    cohort_references = dict()
+    cohort_inheritance = {'Cohorts': 'Data resources', 'Data resources': 'Extended resources',
+                          'Extended resources': 'Resources'}
+    cohort_references = {'Cohorts': 'id'}
     for t_name, t_values in schema_schema.items():
-        table_references = find_table_columns(t_name, t_values)
+        if t_name in cohort_inheritance.keys():
+            table_references = ['id']
+        else:
+            table_references = find_table_columns(t_name, t_values)
         if len(table_references) > 0:
             cohort_references.update({t_name: table_references[0]})
 
-    # Put in sequence
-    ref_backs = {tab: [_col.get('refTable') for _col in schema_schema[tab]['columns']
-                       if _col.get('columnType') == 'REFBACK']
-                 for tab, col in cohort_references.items()}
+    # Gather all backwards references to the tables
+    ref_backs = {
+        tab: [_tab for _tab in cohort_references.keys()
+              if len([_col for _col in schema_schema[_tab]['columns']
+                      if (_col.get('columnType') in ['REF', 'REF_ARRAY']) & (_col.get('refTable') == tab)]) > 0]
+        for tab in cohort_references.keys()
+    }
+    for coh, inh in cohort_inheritance.items():
+        if coh in ref_backs.keys():
+            ref_backs[coh].append(inh)
+        else:
+            ref_backs[coh] = [inh]
 
     def pop_dict(key):
         ref_backs.pop(key)
@@ -110,8 +122,10 @@ def find_cohort_references(schema_schema: dict) -> dict:
     return cohort_references
 
 
-def construct_delete_query(db_schema: dict, table: str, pkeys: list):
+def construct_delete_query(db_schema: dict, table: str):
     """Constructs a GraphQL query for deleting rows from a table."""
+    pkeys = [prepare_pkey(db_schema, table, col['id']) for col in db_schema[table]['columns'] if
+             col.get('key') == 1]
     table_id = db_schema[table]['id']
     pkeys_print = query_columns_string(pkeys, indent=4)
     _query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
