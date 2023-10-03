@@ -1521,7 +1521,7 @@
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
-"@heroicons/vue@2.0.18":
+"@heroicons/vue@2.0.18", "@heroicons/vue@^2.0.18":
   version "2.0.18"
   resolved "https://registry.npmjs.org/@heroicons/vue/-/vue-2.0.18.tgz"
   integrity sha512-BcTC9nq2TkwNSfQuqo96J7ehx4etezypc2YeTq7KsXWxrcrerhkgjLrxGRBnStN0wrXo0Gv4BInybqz5uBG6Cw==
