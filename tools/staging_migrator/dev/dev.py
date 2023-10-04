@@ -23,10 +23,11 @@ def main():
     username = os.environ.get('MG_USERNAME')
     password = os.environ.get('MG_PASSWORD')
 
-    with StagingMigrator(url='https://ype.molgeniscloud.org') as migrator:
+    with StagingMigrator(url='https://ype.molgeniscloud.org',
+                         staging_area='TestCohort', catalogue='TestCatalogue') as migrator:
         migrator.signin(username, password)
         print(migrator.status)
-        migrator.migrate('TestCohort', catalogue='TestCatalogue')
+        migrator.migrate()
 
 
 if __name__ == '__main__':

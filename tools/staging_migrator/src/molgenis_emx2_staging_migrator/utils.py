@@ -68,7 +68,10 @@ def query_columns_string(column: str | list | dict, indent: int) -> str:
 
 
 def find_cohort_references(schema_schema: dict) -> dict:
-    """Finds the references in the target catalogue to the Cohorts table."""
+    """Finds the references in the target catalogue to the Cohorts table.
+    References may be direct or indirect, such as the 'Subcohort counts' table
+    that references the 'Subcohorts' table, which references the 'Cohorts' table directly.
+    """
 
     def find_table_columns(_t_name: str, _t_values: dict):
         _table_references = []
@@ -84,7 +87,7 @@ def find_cohort_references(schema_schema: dict) -> dict:
 
     cohort_inheritance = {'Cohorts': 'Data resources', 'Data resources': 'Extended resources',
                           'Extended resources': 'Resources'}
-    cohort_references = {'Cohorts': 'id'}
+    cohort_references = dict()
     for t_name, t_values in schema_schema.items():
         if t_name in cohort_inheritance.keys():
             table_references = ['id']
@@ -136,9 +139,9 @@ def construct_delete_query(db_schema: dict, table: str):
     return _query
 
 
-def construct_delete_variables(staging_cohort_id: str, t_name: str, t_type: str, schema: dict):
+def construct_delete_variables(db_schema: dict, staging_cohort_id: str, t_name: str, t_type: str):
     """Constructs a variables filter for querying the GraphQL table on the desired column values."""
-    pkeys = prepare_pkey(schema, t_name, t_type)
+    pkeys = prepare_pkey(db_schema, t_name, t_type)
 
     def prepare_key_part(_pkey: str | dict):
         if isinstance(_pkey, str):
