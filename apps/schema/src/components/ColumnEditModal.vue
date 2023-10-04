@@ -220,6 +220,8 @@
             :tableMetaData="table"
             :tableName="table.name"
             :key="JSON.stringify(table)"
+            :errorPerColumn="rowErrors"
+            @update:model-value="checkForErrors"
           />
           Values:
           {{ previewData }}
@@ -266,6 +268,7 @@ import {
   RowEdit,
   Spinner,
   deepClone,
+  getRowErrors,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 
@@ -340,6 +343,7 @@ export default {
       loading: false,
       previewShow: false,
       previewData: {},
+      rowErrors: {},
     };
   },
   computed: {
@@ -491,6 +495,9 @@ export default {
         !column.computed &&
         column.columnType !== AUTO_ID
       );
+    },
+    checkForErrors() {
+      this.rowErrors = getRowErrors(this.table, this.previewData);
     },
   },
   created() {
