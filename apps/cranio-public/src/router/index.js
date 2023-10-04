@@ -41,7 +41,7 @@ const router = createRouter({
       component: ProvidersPage,
       meta: {
         title: "Providers",
-        breadcrumbs: [{ name: "dashboard", label: "Dashboard" }],
+        breadcrumbs: [{ name: "providers", label: "Provider" }],
       },
     },
   ],

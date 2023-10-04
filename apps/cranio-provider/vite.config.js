@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
-const host = "https://emx2.dev.molgenis.org";
+const host = "https://cranio-demo.molgeniscloud.org";
 const schema = "NL1";
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" }
 

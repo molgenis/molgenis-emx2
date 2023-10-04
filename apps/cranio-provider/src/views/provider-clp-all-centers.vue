@@ -91,21 +91,7 @@ const props = defineProps({
 });
 
 // generate random data for display purposes
-import { randomInt } from "d3";
-
-function randomGroupDataset(groups, categories, minValue, maxValue) {
-  return categories
-    .map((group) => {
-      return groups.map((category) => {
-        return {
-          group: group,
-          category: category,
-          value: randomInt(minValue, maxValue)(),
-        };
-      });
-    })
-    .flat();
-}
+import { randomGroupDataset } from "../utils/devtools";
 
 let cleftOutcomes = ref(
   randomGroupDataset(

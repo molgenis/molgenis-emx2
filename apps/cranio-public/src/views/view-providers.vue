@@ -48,50 +48,68 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import Breadcrumbs from "../components/breadcrumbs.vue";
-import {
-  Page,
-  PageHeader,
-  PageSection,
-  MessageBox,
-  sortData,
-} from "molgenis-viz";
-import { postQuery } from "../utils/utils";
+import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
+import gql from "graphql-tag";
+import { request } from "graphql-request";
 
 import { ChevronRightIcon as LinkIcon } from "@heroicons/vue/24/outline";
 
 let error = ref(false);
+let schemas = ref([]);
 let providers = ref([]);
 
-async function getOrganisations() {
-  const response = await postQuery(
-    "/CranioStats/api/graphql",
-    `{
-      Organisations {
+async function getSchemas() {
+  const query = gql`
+    {
+      _schemas {
         name
-        city
-        country
-        latitude
-        longitude
-        providerInformation {
-          providerIdentifier
-        }
       }
-    }`
-  );
+    }
+  `;
+  const response = await request("/graphql", query);
+  schemas.value = response._schemas
+    .map((schema) => schema.name)
+    .filter((schema) => schema !== "CranioStats");
+}
 
-  const data = await response.data.Organisations;
-  return data;
+async function getOrganisations() {
+  const filters = schemas.value.map((schema) => {
+    return `{
+      providerInformation: {
+        providerIdentifier: { equals: "${schema}"}
+      }
+    }`;
+  });
+
+  const query = gql`{
+    Organisations (
+      filter: {
+        _or: [${filters}]
+      }
+    ) {
+      name
+      city
+      country
+      latitude
+      longitude
+      providerInformation {
+        providerIdentifier
+        hasSubmittedData
+      }
+    }
+  }`;
+
+  const response = await request("../api/graphql", query);
+  providers.value = response.Organisations.map((row) => {
+    return { ...row, id: row.providerInformation[0].providerIdentifier };
+  }).sort((current, next) => {
+    return current.name < next.name ? -1 : 1;
+  });
 }
 
 async function loadData() {
-  const data = await getOrganisations();
-  providers.value = data
-    .map((row) => {
-      return { ...row, id: row.providerInformation[0].providerIdentifier };
-    })
-    .sort((current, next) => {
-      return current.name < next.name ? -1 : 1;
-    });
+  await getSchemas();
+  await getOrganisations();
 }
 
 onMounted(() => {

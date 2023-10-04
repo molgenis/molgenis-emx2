@@ -30,6 +30,10 @@
       background-color: $blue-050;
     }
 
+    &.section-bg-light-gray {
+      background-color: $gray-050;
+    }
+
     &.section-text-center {
       text-align: center;
     }
@@ -44,11 +48,14 @@
     }
   }
 }
+
 .message-box {
   .message-text {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 0.5em;
+
     p {
       margin: 0;
     }
@@ -78,6 +85,7 @@
 
 .provider-dashboard-container {
   font-size: 13pt;
+  padding-top: 0;
 
   .dashboard-content {
     display: grid;
@@ -86,6 +94,10 @@
     justify-content: flex-start;
     
     @media screen and (min-width: 924px) {
+      grid-template-columns: 350px 1fr;
+    }
+
+    @media screen and (min-width: 816px) {
       grid-template-columns: 350px 1fr;
     }
 

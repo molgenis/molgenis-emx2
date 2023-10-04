@@ -98,7 +98,8 @@ import {
 } from "molgenis-viz";
 
 import Breadcrumbs from "../components/breadcrumbs.vue";
-import { postQuery } from "../utils/utils";
+import gql from "graphql-tag";
+import { request } from "graphql-request";
 
 let loading = ref(true);
 let error = ref(false);
@@ -108,9 +109,8 @@ let workstreamSummary = ref([]);
 let sexAtBirth = ref({});
 
 async function getStatsByComponent() {
-  const response = await postQuery(
-    "/CranioStats/api/graphql",
-    `{
+  const query = gql`
+    {
       Components {
         name
         statistics {
@@ -120,32 +120,31 @@ async function getStatsByComponent() {
           valueOrder
         }
       }
-    }`
-  );
+    }
+  `;
 
-  const data = await response.data.Components;
+  const response = await request("../api/graphql", query);
+  const data = await response.Components;
   return data;
 }
 
 async function getOrganisations() {
-  const response = await postQuery(
-    "/CranioStats/api/graphql",
-    `{
-      Organisations {
-        name
-        city
-        country
-        latitude
-        longitude
-        providerInformation {
-          providerIdentifier
-          hasSubmittedData
-        }
+  const query = `{
+    Organisations {
+      name
+      city
+      country
+      latitude
+      longitude
+      providerInformation {
+        providerIdentifier
+        hasSubmittedData
       }
-    }`
-  );
+    }
+  }`;
 
-  const data = await response.data.Organisations.map((row) => {
+  const response = await request("../api/graphql", query);
+  const data = await response.Organisations.map((row) => {
     return {
       ...row,
       hasSubmittedData: row.providerInformation[0].hasSubmittedData

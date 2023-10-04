@@ -5,30 +5,31 @@
         <div class="footer-column footer-links">
           <p><strong>ERN CRANIO</strong></p>
           <UnorderedList listType="none">
-            <li><router-link :to="{ name: 'home' }">Home</router-link></li>
-            <li><router-link :to="{ name: 'about' }">About</router-link></li>
             <li>
-              <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
+              <router-link :to="{ name: 'home' }"> Home </router-link>
             </li>
-            <!-- more links here -->
+            <li>
+              <router-link :to="{ name: 'about' }"> About </router-link>
+            </li>
+            <li>
+              <router-link :to="{ name: 'dashboard' }"> Dashboard </router-link>
+            </li>
           </UnorderedList>
         </div>
         <div class="footer-column footer-links">
           <p><strong>For Members</strong></p>
           <UnorderedList listType="none">
             <li>
-              <router-link :to="{ name: 'providers' }"
-                >View Providers</router-link
-              >
+              <router-link :to="{ name: 'providers' }">
+                View Providers
+              </router-link>
             </li>
-            <!-- more links here -->
           </UnorderedList>
         </div>
         <div class="footer-column footer-logos">
           <UnorderedList listType="none">
             <li id="project-logo-link">
               <router-link :to="{ name: 'home' }">
-                <!-- insert project logo here -->
                 <img
                   src="/ern-cranio-logo.png"
                   alt="ERN CRANIO: European Reference Network for rare and/or complex craniofacial anomalies and ear, nose and throat (ENT) disorders"
@@ -37,9 +38,9 @@
             </li>
             <li>
               <a href="https://www.molgenis.org">
-                <span class="visually-hidden"
-                  >visit the molgenis website to learn more</span
-                >
+                <span class="visually-hidden">
+                  visit the molgenis website to learn more
+                </span>
                 <li>
                   <img
                     src="/molgenis-logo-blue-text.png"

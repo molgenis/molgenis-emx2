@@ -1,26 +1,4 @@
-import { randomInt, sum } from "d3";
-import { asDataObject } from "../../../molgenis-viz/src/utils/utils";
-
-export function randomPercentages({ labels = [], asObject = false }) {
-  let result = [];
-  for (let i = 0; i < labels.length; i++) {
-    const currentSum = sum(result, (row) => row.value);
-    const record = { label: labels[i] };
-    if (i === 0) {
-      record.value = randomInt(1, 100)();
-    } else if (i === length) {
-      record.value = 100 - currentSum;
-    } else {
-      record.value = randomInt(1, 100 - currentSum)();
-    }
-    result.push(record);
-  }
-  const sorted = result.sort((a, b) => {
-    return a.value <= b.value;
-  });
-
-  return asObject ? asDataObject(sorted, "label", "value") : sorted;
-}
+import { randomInt } from "d3";
 
 export function randomGroupDataset(groups, categories, minValue, maxValue) {
   return categories
@@ -34,4 +12,11 @@ export function randomGroupDataset(groups, categories, minValue, maxValue) {
       });
     })
     .flat();
+}
+
+export function seq(start, stop, by) {
+  return Array.from(
+    { length: (stop - start) / by + 1 },
+    (_, i) => start + i * by
+  );
 }

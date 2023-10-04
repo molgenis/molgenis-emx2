@@ -91,7 +91,7 @@ const props = defineProps({
   organization: Object,
 });
 
-import { randomGroupDataset } from "../utils/devtools";
+import { randomGroupDataset, seq } from "../utils/devtools";
 
 let combinedTypeofSurgery = ref(
   randomGroupDataset(
@@ -99,7 +99,7 @@ let combinedTypeofSurgery = ref(
     ["Vault", "Midface", "Hydrocephalus", "Aesthetic"],
     0,
     100
-  ).sort((a, b) => a.group > b.group)
+  ).sort((a, b) => (a.group > b.group ? -1 : 1))
 );
 
 let combinedComplication = ref(
@@ -108,7 +108,7 @@ let combinedComplication = ref(
     ["Complications", "No complications"],
     0,
     100
-  ).sort((a, b) => a.group > b.group)
+  ).sort((a, b) => (a.group > b.group ? -1 : 1))
 );
 
 let combinedSurgicalInterventions = ref(
@@ -117,15 +117,8 @@ let combinedSurgicalInterventions = ref(
     ["Additional", "Unwanted"],
     0,
     100
-  ).sort((a, b) => a.group > b.group)
+  ).sort((a, b) => (a.group > b.group ? -1 : 1))
 );
-
-function seq(start, stop, by) {
-  return Array.from(
-    { length: (stop - start) / by + 1 },
-    (_, i) => start + i * by
-  );
-}
 
 let combinedAgeAtSurgery = ref(
   randomGroupDataset(["Your center", "ERN"], seq(0, 14, 1), 0, 100)

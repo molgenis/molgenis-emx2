@@ -96,14 +96,7 @@ import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 // create random datasets for demo purposes
 import { randomInt } from "d3";
-import { randomPercentages } from "../utils/devtools.js";
-
-function seq(start, stop, by) {
-  return Array.from(
-    { length: (stop - start) / by + 1 },
-    (_, i) => start + i * by
-  );
-}
+import { seq } from "../utils/devtools.js";
 
 let ageAtSurgery = ref(
   seq(0, 14, 2).map((value) => {
@@ -134,17 +127,14 @@ let affectedSuture = ref({
   Multiple: 7,
 });
 
-let complications = ref(
-  randomPercentages({
-    labels: ["Complications", "No complications"],
-    asObject: true,
-  })
-);
+let complications = ref({
+  Complications: 0.4,
+  "No complications": 0.6,
+});
 
-let surgicalInterventions = ref(
-  randomPercentages({
-    labels: ["Single", "Unwanted", "Additional"],
-    asObject: true,
-  })
-);
+let surgicalInterventions = ref({
+  Single: 0.3,
+  Unwanted: 0.4,
+  Additional: 0.3,
+});
 </script>

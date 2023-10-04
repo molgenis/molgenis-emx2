@@ -13,6 +13,20 @@
           :subtitle="provider.name"
           :imageSrc="provider.imageUrl"
         />
+        <PageSection
+          class="section-bg-light-gray"
+          aria-labelledby="temp-message-title"
+        >
+          <h2 id="temp-message-title" class="visually-hidden">
+            About the dashboards
+          </h2>
+          <MessageBox type="warning">
+            <p>
+              All data presented in the dashboard is randomly generated for
+              display purposes only.
+            </p>
+          </MessageBox>
+        </PageSection>
         <Dashboard class="provider-dashboard-container">
           <ProviderSidebar />
           <router-view
@@ -31,13 +45,15 @@ import { Molgenis } from "molgenis-components";
 import {
   Page,
   PageHeader,
+  PageSection,
   Dashboard,
   MessageBox,
   LoadingScreen,
 } from "molgenis-viz";
 import ProviderSidebar from "./components/ProviderSidebar.vue";
 
-import { postQuery } from "./utils/utils";
+import gql from "graphql-tag";
+import { request } from "graphql-request";
 
 const session = ref(null);
 const page = ref(null);
@@ -48,42 +64,46 @@ let schema = ref(null);
 let provider = ref(null);
 
 async function getSchemaMeta() {
-  const result = await postQuery("../api/graphql", "{ _schema { name }}");
-  const data = await result.data._schema.name;
-  return data;
+  const query = gql`
+    {
+      _schema {
+        name
+      }
+    }
+  `;
+  const result = await request("../api/graphql", query);
+  schema.value = result._schema.name;
 }
 
-async function getProviderMeta(id) {
-  const result = await postQuery(
-    "/CranioStats/api/graphql",
-    `{
-      Organisations (
-        filter: {
-          providerInformation: {
-            providerIdentifier: {
-              equals: "${id}"
-            }
+async function getProviderMeta() {
+  const query = gql`{
+    Organisations (
+      filter: {
+        providerInformation: {
+          providerIdentifier: {
+            equals: "${schema.value}"
           }
         }
-      ) {
-        name
-        imageUrl
-        providerInformation {
-          providerIdentifier
-        }
       }
-    }`
-  );
+    ) {
+      name
+      imageUrl
+      providerInformation {
+        providerIdentifier
+      }
+    }
+  }`;
 
-  const data = await result.data.Organisations[0];
-  return data;
+  const result = await request("/CranioStats/api/graphql", query);
+  const data = result.Organisations[0];
+  data.id = data.providerInformation[0].providerIdentifier;
+  delete data.providerInformation;
+  provider.value = data;
 }
 
 async function loadData() {
-  schema.value = await getSchemaMeta();
-  provider.value = await getProviderMeta(schema.value);
-  provider.value.id = provider.value.providerInformation[0].providerIdentifier;
-  delete provider.value.providerInformation;
+  await getSchemaMeta();
+  await getProviderMeta();
 }
 
 onBeforeMount(() => {

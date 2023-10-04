@@ -1,18 +1,12 @@
 import { defineConfig } from "vite";
-import { fileURLToPath, URL } from 'node:url';
 import vue from "@vitejs/plugin-vue";
 
-const host = "https://emx2.dev.molgenis.org";
-const schema = "NL1";
+const host = "https://cranio-demo.molgeniscloud.org";
+const schema = "CranioStats";
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" }
 
 export default defineConfig(() => {
   return {
-    resolve: {
-      alias: {
-        '$shared': fileURLToPath(new URL('../molgenis-viz/src/', import.meta.url))
-      }
-    },
     css: {
       preprocessorOptions: {
         scss: {
@@ -28,7 +22,11 @@ export default defineConfig(() => {
     plugins: [vue()],
     base: "",
     server: {
-      proxy: { 
+      proxy: {
+        "/api/graphql": {
+          target: `${host}/${schema}`,
+          ...opts
+        },
         "^/[a-zA-Z0-9_.%-]+/api/graphql": {
           target: host,
           ...opts,

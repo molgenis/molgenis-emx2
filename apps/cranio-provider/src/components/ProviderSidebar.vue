@@ -4,7 +4,7 @@
     <nav>
       <ul class="navlinks">
         <li>
-          <router-link :to="{ name: 'home' }"> Home </router-link>
+          <router-link :to="{ name: 'home' }"> Your center </router-link>
         </li>
         <li>
           <Accordion id="cranio-nav" title="Craniosynostosis">
