@@ -110,3 +110,7 @@ unit per liter,UO,0000179,,,,,http://purl.obolibrary.org/obo/UO_0000179
 estimated fetal weight SDS,,,,,,,
 Hectopascal,NCIT,C105487,,"A SI derived unit of pressure equivalent to one hundred pascals, 1 millibar or 0.0145 pounds per square inch.",,,http://purl.obolibrary.org/obo/NCIT_C105487
 watt per square meter,UO,0000155,,,,,http://purl.obolibrary.org/obo/UO_0000155
+mg/dL,,,,,,,
+pmol/L,,,,,,,
+g/dL,,,,,,,
+ug/g,,,,,,,

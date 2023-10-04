@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ICohort } from "interfaces/types";
+
 const { cohort } = defineProps<{
   title: string;
   description?: string;
@@ -87,7 +89,7 @@ function setData() {
     },
     {
       label: "Inclusion criteria",
-      content: cohort?.inclusionCriteria,
+      content: cohort?.otherInclusionCriteria,
     },
     {
       label: "Marker paper",

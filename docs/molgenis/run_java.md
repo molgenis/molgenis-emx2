@@ -2,7 +2,7 @@
 
 Steps:
 
-* Install [Postgresql](https://www.postgresql.org/download/) (we use 14)
+* Install [Postgresql](https://www.postgresql.org/download/) (we use 15)
 * Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
     ```console
     psql postgres

@@ -28,16 +28,20 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import FormInput from "./FormInput.vue";
 import constants from "../constants.js";
-import Client from "../../client/client.ts";
+import Client from "../../client/client";
 import {
   deepClone,
   convertToCamelCase,
   getLocalizedLabel,
   getLocalizedDescription,
 } from "../utils";
+import { IColumn } from "../../Interfaces/IColumn";
+import { IRow } from "../../Interfaces/IRow";
+import { executeExpression, isColumnVisible } from "./formUtils/formUtils";
+import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 
 const { AUTO_ID } = constants;
 
@@ -106,7 +110,7 @@ export default {
       default: () => ({}),
     },
   },
-  emits: ["update:modelValue", "errorsInForm"],
+  emits: ["update:modelValue"],
   components: {
     FormInput,
   },
@@ -120,98 +124,103 @@ export default {
     columnsWithoutMeta() {
       return this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
-            (column) => !column.id?.startsWith("mg_")
+            (column: IColumn) => !column.id?.startsWith("mg_")
           )
         : [];
     },
     graphqlFilter() {
       if (this.tableMetaData && this.pkey) {
         return this.tableMetaData.columns
-          .filter((column) => column.key == 1)
-          .reduce((accum, column) => {
-            accum[column.id] = { equals: this.pkey[column.id] };
-            return accum;
-          }, {});
+          .filter((column: IColumn) => column.key === 1)
+          .reduce(
+            (accum: Record<string, { equals: IRow }>, column: IColumn) => {
+              accum[column.id] = {
+                equals: this.pkey ? this.pkey[column.id] : undefined,
+              };
+              return accum;
+            },
+            {}
+          );
       } else {
         return {};
       }
     },
   },
   methods: {
-    getColumnLabel(column) {
+    getColumnLabel(column: IColumn) {
       return getLocalizedLabel(column, this.locale);
     },
-    getColumnDescription(column) {
+    getColumnDescription(column: IColumn) {
       return getLocalizedDescription(column, this.locale);
     },
-    showColumn(column) {
+    showColumn(column: IColumn) {
       if (column.columnType === AUTO_ID) {
         return this.pkey;
-      } else if (column.reflink) {
+      } else if (column.refLink) {
         return this.internalValues[convertToCamelCase(column.refLink)];
       } else {
         const isColumnVisible = this.visibleColumns
           ? this.visibleColumns.includes(column.id)
           : true;
+
         return (
           isColumnVisible &&
-          this.visible(column.visible, column.id) &&
+          this.isVisible(column) &&
           column.id !== "mg_tableclass"
         );
       }
     },
-    visible(expression, columnId) {
-      if (expression) {
-        try {
-          return executeExpression(
-            expression,
-            this.internalValues,
-            this.tableMetaData
-          );
-        } catch (error) {
-          this.errorPerColumn[
-            columnId
-          ] = `Invalid visibility expression, reason: ${error}`;
-          return true;
-        }
-      } else {
+    isVisible(column: IColumn) {
+      try {
+        return isColumnVisible(
+          column,
+          this.internalValues,
+          this.tableMetaData as ITableMetaData
+        );
+      } catch (error: any) {
+        this.errorPerColumn[column.id] = error;
         return true;
       }
     },
     applyComputed() {
-      this.tableMetaData.columns.forEach((c) => {
-        if (c.computed && c.columnType !== AUTO_ID) {
+      this.tableMetaData.columns.forEach((column: IColumn) => {
+        if (column.computed && column.columnType !== AUTO_ID) {
           try {
-            this.internalValues[c.id] = executeExpression(
-              c.computed,
+            this.internalValues[column.id] = executeExpression(
+              column.computed,
               this.internalValues,
-              this.tableMetaData
+              this.tableMetaData as ITableMetaData
             );
           } catch (error) {
-            this.errorPerColumn[c.id] = "Computation failed: " + error;
+            this.errorPerColumn[column.id] = "Computation failed: " + error;
           }
         }
       });
     },
     //create a filter in case inputs are linked by overlapping refs
-    refLinkFilter(c) {
+    refLinkFilter(column: IColumn) {
       //need to figure out what refs overlap
       if (
-        c.refLink &&
-        this.showColumn(c) &&
-        this.internalValues[convertToCamelCase(c.refLink)]
+        column.refLink &&
+        this.showColumn(column) &&
+        this.internalValues[convertToCamelCase(column.refLink)]
       ) {
-        let filter = {};
-        this.tableMetaData.columns.forEach((c2) => {
-          if (c2.name === c.refLink) {
-            this.schemaMetaData.tables.forEach((t) => {
+        let filter: Record<string, any> = {};
+        this.tableMetaData.columns.forEach((column2: IColumn) => {
+          if (column2.name === column.refLink) {
+            this.schemaMetaData.tables.forEach((table: ITableMetaData) => {
               //check how the reftable overlaps with columns in our column
-              if (t.name === c.refTable) {
-                t.columns.forEach((c3) => {
-                  if (c3.key === 1 && c3.refTable === c2.refTable) {
-                    filter[c3.name] = {
+              if (table.name === column.refTable) {
+                table.columns.forEach((column3) => {
+                  if (
+                    column3.key === 1 &&
+                    column3.refTable === column2.refTable
+                  ) {
+                    filter[column3.name] = {
                       equals:
-                        this.internalValues[convertToCamelCase(c.refLink)],
+                        this.internalValues[
+                          convertToCamelCase(column.refLink || "")
+                        ],
                     };
                   }
                 });
@@ -222,7 +231,7 @@ export default {
         return filter;
       }
     },
-    handleModelValueUpdate(event, columnId) {
+    handleModelValueUpdate(event: any, columnId: string) {
       this.internalValues[columnId] = event;
       this.onValuesUpdate();
     },
@@ -259,9 +268,9 @@ export default {
             id="row-edit"
             v-model="rowData"
             :tableName="tableName"
-            :tableMetaData="tableMetaData"
+            :tableMetaData="tableMetadata"
             :locale="locale"
-            :schemaMetaData="schemaMetaData"
+            :schemaMetaData="schemaMetadata"
         />
       </div>
       <div class="col-6 border-left">
@@ -280,8 +289,8 @@ export default {
           <dt>Row data</dt>
           <dd>{{ rowData }}</dd>
 
-          <dt>MetaData</dt>
-          <dd>{{ tableMetaData }}</dd>
+          <dt>Metadata</dt>
+          <dd>{{ tableMetadata }}</dd>
         </dl>
       </div>
     </div>
@@ -294,10 +303,10 @@ export default {
         showRowEdit: true,
         locale: 'en',
         tableName: 'Pet',
-        tableMetaData: {
+        tableMetadata: {
           columns: [],
         },
-        schemaMetaData: {},
+        schemaMetadata: {},
         rowData: {},
         schemaName: 'pet store',
       };
@@ -321,8 +330,8 @@ export default {
         // force complete component reload to have a clean demo component and hit all lifecycle events
         this.showRowEdit = false;
         const client = this.$Client.newClient(this.schemaName);
-        this.schemaMetaData = await client.fetchSchemaMetaData();
-        this.tableMetaData = await client.fetchTableMetaData(this.tableName);
+        this.schemaMetadata = await client.fetchSchemaMetaData();
+        this.tableMetadata = await client.fetchTableMetaData(this.tableName);
         // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
         this.showRowEdit = true;
       },

@@ -16,183 +16,53 @@ node {
     with nodeSpec
 }
 
-subprojects {
-    apply plugin: "com.github.node-gradle.node"
-
-    //subprojects will reuse the yarn installed in parent task
-    node {
-        with nodeSpec
-    }
-
-    //disable yarn_install, only parent should run install in yarn workspaces
-    yarn_install.enabled = false;
-    yarnSetup.dependsOn parent.yarnSetup
-    npmSetup.dependsOn parent.npmSetup
-    nodeSetup.dependsOn parent.nodeSetup
-
-    task format(type: YarnTask, dependsOn: parent.yarn_install) {
-        args = ['run', 'format']
-        if (project.name == 'nuxt3-ssr') {
-            outputs.dir('components')
-            outputs.dir('composables')
-            outputs.dir('gql')
-            outputs.dir('interfaces')
-            outputs.dir('pages')
-            outputs.dir('plugins')
-            outputs.dir('utils')
-            inputs.files(fileTree('components'))
-            inputs.files(fileTree('composables'))
-            inputs.files(fileTree('gql'))
-            inputs.files(fileTree('interfaces'))
-            inputs.files(fileTree('pages'))
-            inputs.files(fileTree('plugins'))
-            inputs.files(fileTree('utils'))
-        } else {
-            inputs.files(fileTree('src'))
-            outputs.dir('src')
-        }
-        outputs.cacheIf { true }
-    }
-
-    task checkFormat(type: YarnTask, dependsOn: parent.yarn_install) {
-        onlyIf {!format.enabled}
-        args = ['run', 'format', '--check']
-        if (project.name == 'nuxt3-ssr') {
-            inputs.files(fileTree('components'))
-            inputs.files(fileTree('composables'))
-            inputs.files(fileTree('gql'))
-            inputs.files(fileTree('interfaces'))
-            inputs.files(fileTree('pages'))
-            inputs.files(fileTree('plugins'))
-            inputs.files(fileTree('utils'))
-        } else {
-            inputs.files(fileTree('src'))
-        }
-    }
-
-
-    task build(type: YarnTask, dependsOn: format) {
-         // force build order: molgenis-components > ...apps
-        if (project.name != 'molgenis-components') {
-            dependsOn ":apps:molgenis-components:build"
-            if(project.name != 'molgenis-viz') {
-                dependsOn ":apps:molgenis-viz:build"
-            }
-        }
-
-        // set input out out put for each app type
-        if (project.name == 'molgenis-components') {
-            inputs.file('package.json')
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('public'))
-            inputs.files(fileTree('lib'))
-            inputs.file('vite.config.js')
-            inputs.file('docs-plugin.js')
-            outputs.dir('dist')
-            outputs.dir('gen-docs')
-            outputs.dir('showCase')
-        } else if(project.name == 'molgenis-viz') {
-            inputs.file('package.json')
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('lib'))
-            inputs.file('vite.config.js')
-            inputs.file('vuese.config.js')
-            outputs.dir('dist')
-            outputs.dir('showCase')
-        } else if (project.name == 'nuxt3-ssr') {
-            inputs.file('package.json')
-            inputs.files(fileTree('assets'))
-            inputs.files(fileTree('components'))
-            inputs.files(fileTree('composables'))
-            inputs.files(fileTree('middleware'))
-            inputs.files(fileTree('layouts'))
-            inputs.files(fileTree('pages'))
-            inputs.files(fileTree('static'))
-            inputs.files(fileTree('store'))
-            inputs.file('nuxt.config.ts')
-            inputs.file('app.vue')
-            inputs.file('router.options.ts')
-            inputs.file('tailwind.config.ts')
-            outputs.dir('.nuxt')
-            outputs.dir('.output')
-        } else if (project.name == 'graphql-playground') {
-            inputs.file('package.json')
-            inputs.files(fileTree('src'))
-            inputs.file('index.html')
-            inputs.file('vite.config.js')
-            outputs.dir('dist')
-        } else {
-            inputs.file('package.json')
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('public'))
-            inputs.files(fileTree('assets'))
-            inputs.file('vite.config.js')
-            inputs.file('index.html')
-            outputs.dir('dist')
-        }
-
-        outputs.cacheIf { true }
-
-        args = ['run', 'build']
-
-        delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-    }
-
-    if (project.name == 'molgenis-components') {
-        task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
-            if (project.name == 'molgenis-components') {
-                inputs.file('package.json')
-                inputs.files(fileTree('src'))
-                inputs.files(fileTree('public'))
-                inputs.files(fileTree('lib'))
-                inputs.file('vite.config.js')
-                outputs.dir('showCase')
-                outputs.cacheIf { true }
-                args = ['run', 'build-showcase']
-            }
-        }
-        task test(type: YarnTask, dependsOn: parent.yarn_install) {
-            args = ['run', 'test-ci']
-        }
-    }
-
-    task copyDistFiles(type: Copy) {
-        if (project.name == 'molgenis-components') {
-            dependsOn buildComponentsShowcase
-        } else {
-            dependsOn build
-        }
-        if (project.name == 'molgenis-components' || project.name == 'molgenis-viz') {
-            from "showCase"
-            inputs.dir("showCase")
-        } else {
-            from "dist"
-            inputs.dir("dist")
-        }
-
-        into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-        outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
-        outputs.cacheIf { true }
-    }
-
-    clean.doLast {
-        project.delete(files("dist"))
-        project.delete(files("build"))
-        project.delete(files("node_modules"))
-        project.delete(files(".nuxt"))
-        project.delete(files(".output"))
-        project.delete(files("showCase"))
-    }
-
+task format(type: YarnTask, dependsOn: yarn_install) {
+    args = ['run', 'nx', 'format:write']
 }
 
+task checkFormat(type: YarnTask, dependsOn: yarn_install) {
+    args = ['run', 'nx', 'format:check']
+}
+
+task buildJavascript(type: YarnTask, dependsOn: format) {
+    environment = ["NODE_OPTIONS":"--max-old-space-size=4096"]
+    args = ['run', 'nx', 'run-many', '--target=build,build-showcase',"--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}",'--verbose']
+    outputs.upToDateWhen { false }
+}
+
+task cleanJavascript(type: YarnTask, dependsOn: yarn_install) {
+    args = ['run', 'nx', 'reset']
+}
+clean.dependsOn cleanJavascript
+
+/* copy the javascript files to the build folder, nasty we have to manually set libs */
+task copyDistFiles(type: Copy, dependsOn: buildJavascript) {
+   file("${project.projectDir}").eachDir { dir ->
+       if (dir.name == 'molgenis-components' || dir.name == 'molgenis-viz') {
+           copy {
+               from dir.path + "/showCase"
+               into "${buildDir}/resources/main/public_html/apps/" + dir.name
+           }
+       } else if(dir.name != ".gradle" && dir.name != 'build' && dir.name != 'node_modules') {
+           println dir.path + "/dist"
+           copy {
+               from dir.name + "/dist"
+               into "${buildDir}/resources/main/public_html/apps/" + dir.name
+           }
+       }
+    }
+    outputs.upToDateWhen { false }
+}
+
+
 /* convert build files into one apps.jar that we can use as a dependency in the java part */
-task createJar(type: Zip, dependsOn: subprojects.copyDistFiles) {
+task createJar(type: Zip, dependsOn: copyDistFiles) {
     archiveBaseName = 'molgenis-emx2-apps'
     archiveExtension = 'jar'
     destinationDirectory = file("${buildDir}/build/libs")
     from('build/resources/main')
 }
+build.dependsOn createJar
 
 configurations {
     appResources

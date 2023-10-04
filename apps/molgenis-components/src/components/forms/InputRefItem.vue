@@ -14,9 +14,10 @@
   </label>
 </template>
 
-<script>
+<script lang="ts">
 import BaseInput from "./baseInputs/BaseInput.vue";
 import { flattenObject } from "../utils";
+import { IRow } from "../../Interfaces/IRow";
 
 export default {
   name: "InputRefItem",
@@ -41,18 +42,10 @@ export default {
       return this.rowKey?.name === this.selection?.name;
     },
   },
-  watch: {
-    selection: {
-      handler(newValue) {
-        this.isSelected = this.rowKey?.name === newValue?.name;
-      },
-      deep: true,
-    },
-  },
   mounted() {
     this.client
       .convertRowToPrimaryKey(this.row, this.tableName)
-      .then((rowKey) => {
+      .then((rowKey: IRow) => {
         this.rowKey = rowKey;
       });
   },

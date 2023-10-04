@@ -38,6 +38,7 @@ class SqlTableMetadata extends TableMetadata {
     // first per-column actions, then multi-column action such as composite keys/refs
     int position = MetadataUtils.getMaxPosition(tm.getJooq(), schemaName) + 1;
     for (Column c : column) {
+      validateColumnIdentifierIsUnique(tm, c);
       long start = System.currentTimeMillis();
       if (tm.getLocalColumn(c.getName()) != null) {
         tm.alterColumn(c);
@@ -83,6 +84,20 @@ class SqlTableMetadata extends TableMetadata {
     return tm;
   }
 
+  private static void validateColumnIdentifierIsUnique(
+      SqlTableMetadata existingTableMetadata, Column column) {
+    for (Column existingColumn : existingTableMetadata.getColumns()) {
+      if (!column.getName().equals(MG_TABLECLASS)
+          && !column.getName().equals(existingColumn.getName())
+          && existingColumn.getIdentifier().equals(column.getIdentifier())) {
+        throw new MolgenisException(
+            String.format(
+                "Cannot create/alter column because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
+                column.getName(), existingColumn.getName(), column.getIdentifier()));
+      }
+    }
+  }
+
   @Override
   public TableMetadata alterName(String newName) {
     long start = System.currentTimeMillis();
@@ -125,9 +140,12 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public TableMetadata alterColumn(String columnName, Column column) {
     // ignore mg_ columns
-    if (column.getName().startsWith("mg_")) return this;
+    if (column.isSystemColumn()) return this;
 
     Column oldColumn = getColumn(columnName);
+
+    validateColumnIdentifierIsUnique(this, column);
+
     if (oldColumn == null) {
       throw new MolgenisException(
           "Alter column failed: Column  '"

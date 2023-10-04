@@ -53,6 +53,7 @@ import InputDate from "../src/components/forms/InputDate.vue";
 import InputDateTime from "../src/components/forms/InputDateTime.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
 import InputFile from "../src/components/forms/InputFile.vue";
+import InputEmail from "../src/components/forms/InputEmail.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
 import InputInt from "../src/components/forms/InputInt.vue";
@@ -88,6 +89,8 @@ import RowEditFooter from "../src/components/forms/RowEditFooter.vue";
 
 //layout
 import Breadcrumb from "../src/components/layout/Breadcrumb.vue";
+import CookieWall from "../src/components/layout/CookieWall.vue";
+import GTag from "../src/components/layout/GTag.vue";
 import LayoutCard from "../src/components/layout/LayoutCard.vue";
 import LayoutForm from "../src/components/layout/LayoutForm.vue";
 import LayoutModal from "../src/components/layout/LayoutModal.vue";
@@ -143,6 +146,9 @@ import {
   flattenObject,
   applyJsTemplate,
 } from "../src/components/utils";
+
+import { getRowErrors } from "../src/components/forms/formUtils/formUtils";
+
 import constants, { privacyConstants } from "../src/components/constants";
 
 export {
@@ -191,6 +197,7 @@ export {
   InputDate,
   InputDateTime,
   InputDecimal,
+  InputEmail,
   InputFile,
   InputGroup,
   InputInt,
@@ -224,6 +231,8 @@ export {
   RowButtonEdit,
   RowEditFooter,
   Breadcrumb,
+  CookieWall,
+  GTag,
   LayoutCard,
   LayoutForm,
   LayoutModal,
@@ -272,4 +281,5 @@ export {
   getLocalizedLabel,
   flattenObject,
   applyJsTemplate,
+  getRowErrors,
 };

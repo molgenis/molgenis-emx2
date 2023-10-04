@@ -124,7 +124,7 @@ export function flipSign(value: string): string | null {
 const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
 
 export function getBigIntError(value: string): string | undefined {
-  if (value === "-" || isInvalidBigInt(value)) {
+  if (isInvalidBigInt(value)) {
     return BIG_INT_ERROR;
   } else {
     return undefined;
@@ -132,10 +132,12 @@ export function getBigIntError(value: string): string | undefined {
 }
 
 export function isInvalidBigInt(value: string): boolean {
-  return (
-    value !== null &&
-    (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
-  );
+  const isValidRegex = /^-?\d+$/;
+  if (Boolean(value) && isValidRegex.test(value)) {
+    return BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG);
+  } else {
+    return true;
+  }
 }
 
 export function convertToCamelCase(string: string): string {

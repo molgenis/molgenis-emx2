@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Operator.*;
 
 public class Constants {
 
+  public static final String SYS_COLUMN_NAME_PREFIX = "mg_";
   public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE_";
   public static final String MG_ROLE_PREFIX = "MG_ROLE_";
   public static final String MG_USER_PREFIX = "MG_USER_";
@@ -101,6 +102,7 @@ public class Constants {
   public static final String SYSTEM_SCHEMA = "_SYSTEM_";
 
   public static final String CONTACT_RECIPIENTS_QUERY_SETTING_KEY = "contactRecipientsQuery";
+  public static final String CONTACT_BCC_ADDRESS = "contactBccAddress";
 
   private Constants() {
     // hide constructor

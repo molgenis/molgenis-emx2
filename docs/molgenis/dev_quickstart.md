@@ -22,7 +22,7 @@ it inside IntelliJ.
 
 ## Build whole system
 
-Requires [Postgresql 14](https://www.postgresql.org/download/) and java (we use
+Requires [Postgresql 15](https://www.postgresql.org/download/) and java (we use
 [adopt OpenJDK 17](https://adoptium.net/)):
 Optionally also install python3 for [scripts](use_scripts_jobs.md) feature.
 
@@ -30,18 +30,7 @@ On Linux/Mac this could go as follows (Windows users, please tell us if this wor
 
 **Start postgres using a native postgres installation**
 
-* Optionally, drop a previous version of molgenis database (caution: destroys previous data!)
-  ```console
-  sudo -u postgres psql
-  postgres=# drop database molgenis;
-  ```
-* If not already done, create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'.
-  ```console
-  sudo -u postgres psql
-  postgres=# create database molgenis;
-  postgres=# create user molgenis with superuser encrypted password 'molgenis';
-  postgres=# grant all privileges on database molgenis to molgenis;
-  ```
+See [Installation guide](run)
 
 **Start postgres using docker-compose**
 You can start postgres using `docker-compose`. The data will be mounted in a directory called `psql_data` where you start the docker-compose (default: repo

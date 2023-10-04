@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.semantics.graphgenome.GraphGenome;
+import org.molgenis.emx2.graphgenome.GraphGenome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;

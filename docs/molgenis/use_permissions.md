@@ -8,17 +8,19 @@ Currently we have as standard roles:
   columns (i.e. change the schema)
 * editor - context: schema. Has permission to insert, update, delete rows in tables. Can NOT change schema.
 * viewer - context: schema. Has permission to view data.
+* aggregator - context: schema. Has permission to count table rows (unless <10), and to view ontology data
 
 ## Users can get roles in a schema
 
 Access to databases is controlled by providing roles to users. A user with a role we call a 'member' of a
 database/schema. See: [database settings](use_database_settings.md).
 
-In addition there are two special users:
-
-* admin - context: whole database. Has rights to view and edit everything.
+In addition there are three special users:
 * anonymous - context: whole database. Is any user that has not signed in. You can give 'view' permission to 'anonymous'
   user (i.e, make anonymous member of your schema)
+* user - context: whole database. Is any user that has signed in. E.g. you can give 'edit' permission to 'user' to say that all authenticated users are authorized to edit
+* admin - context: whole database. Has rights to view and edit everything (cannot be changed).
+
 
 ## Users can be managed by admin
 
