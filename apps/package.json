@@ -13,6 +13,8 @@
     "nuxt3-ssr",
     "molgenis-components",
     "molgenis-viz",
+    "cranio-public",
+    "cranio-provider",
     "ern-reconnet",
     "ern-ithaca",
     "helloworld",

@@ -7,7 +7,7 @@
       :key="key"
     >
       <div class="checkbox-item" v-if="enableClicks">
-        <label :for="`cb-${key}`" class="item-label">
+        <label :for="`cb-${legendId}-${key}`" class="item-label">
           <svg
             class="item-marker"
             width="16"
@@ -20,7 +20,7 @@
           <span>{{ key }}</span>
         </label>
         <input
-          :id="`cb-${key}`"
+          :id="`cb-${legendId}-${key}`"
           class="legend-checkbox visually-hidden"
           type="checkbox"
           :data-group="key"
@@ -29,7 +29,13 @@
           @change="emitSelection"
         />
       </div>
-      <div class="text-item" v-else>
+      <div
+        class="text-item"
+        :data-value="key"
+        @mouseover="emitMouseOver(key)"
+        @mouseout="emitMouseOut(key)"
+        v-else
+      >
         <svg
           class="item-marker"
           width="16"
@@ -56,6 +62,12 @@
 export default {
   name: "ChartLegend",
   props: {
+    // a unique ID for the legend
+    legendId: {
+      type: String,
+      required: true,
+    },
+
     // One or more key-value pairs
     data: {
       type: Object,
@@ -67,16 +79,29 @@ export default {
       default: true,
     },
 
-    // If `true`, click events will be enabled for all bars. When a bar is
-    // clicked, the row-level data for that bar will be emitted.
-    // To access the data, use the event `@barClicked=>(value) => ...`
+    // If `true`, click events will be enabled for all labels. When a label is
+    // clicked, the row-level data for that label will be emitted.
+    // To access the data, use the event `@legend-item-clicked=(value) => ...`
     enableClicks: {
       type: Boolean,
       // `false`
       default: false,
     },
+
+    // If `true`, mouseover event will be enabled for all labels. When a label is
+    // clicked, the row-level data for that item will be emitted.
+    // To access the data, use the event `legend-item-hovered=(value)=>...`
+    enableHovering: {
+      type: Boolean,
+      // `false`
+      default: false,
+    },
   },
-  emits: ["legend-item-clicked"],
+  emits: [
+    "legend-item-clicked",
+    "legend-item-mouseover",
+    "legend-item-mouseout",
+  ],
   data() {
     return {
       selection: [],
@@ -88,10 +113,20 @@ export default {
       parent.classList.toggle("checkbox-clicked");
       this.$emit("legend-item-clicked", this.selection);
     },
+    emitMouseOver(value) {
+      if (this.enableHovering) {
+        this.$emit("legend-item-mouseover", value);
+      }
+    },
+    emitMouseOut(value) {
+      if (this.enableHovering) {
+        this.$emit("legend-item-mouseout", value);
+      }
+    },
   },
   computed: {
     classNames() {
-      const css = ["legend"];
+      const css = ["chart-legend"];
       if (!this.stackLegend) {
         css.push("legend-horizontal");
       }
@@ -105,7 +140,7 @@ export default {
 </script>
 
 <style lang="scss">
-.legend {
+.chart-legend {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -128,6 +163,14 @@ export default {
     .item-marker {
       width: 16px;
       margin-right: 6px;
+    }
+  }
+
+  .legend-item {
+    cursor: default;
+
+    &:hover {
+      cursor: pointer;
     }
   }
 

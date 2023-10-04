@@ -10,7 +10,8 @@ public enum AvailableDataModels {
   PET_STORE(new PetStoreLoader()),
   FAIR_DATA_HUB(new FAIRDataHubLoader()),
   RD3(new Rd3Loader()),
-  DASHBOARD(new DashboardLoader()),
+  ERN_DASHBOARD(new DashboardLoader()),
+  ERN_CRANIO(new ErnCranioLoader()),
   BIOBANK_DIRECTORY(new BiobankDirectoryLoader());
 
   private AbstractDataLoader installer;

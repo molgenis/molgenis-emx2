@@ -63,7 +63,7 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import ChartLegend from "../components/viz/ChartLegend.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
-import headerImage from "../assets/studio-media-unsplash.jpg";
+import headerImage from "../assets/legend-header.jpg";
 
 let loading = ref(false);
 let data = ref([]);
@@ -75,19 +75,18 @@ function updateSelection(value) {
 }
 
 const query = `{
-  Statistics (filter: { component: {name: {equals:"organisations.by.type"}}}) {
-    label
-    component {
-      name
-    }
+  Organisations {
+    organisationType
   }
 }`;
 
 onMounted(() => {
-  Promise.resolve(fetchData(query))
+  Promise.resolve(fetchData("/api/graphql", query))
     .then((response) => {
-      const stats = response.data.Statistics;
-      const groups = [...new Set(stats.map((row) => row.label))];
+      const organisations = response.data.Organisations;
+      const groups = [
+        ...new Set(organisations.map((row) => row.organisationType)),
+      ];
       const scheme = schemeGnBu[groups.length];
       const colors = {};
       groups.forEach((key, index) => (colors[key] = scheme[index]));
