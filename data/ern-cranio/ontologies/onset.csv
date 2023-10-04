@@ -1,0 +1,8 @@
+"id","HPO","description"
+"Infantile onset","HP:0003593 ","Onset of signs or symptoms of disease between 28 days to one year of life."
+"Antenatal onset","HP:0030674","Onset prior to birth."
+"Childhood onset","HP:0011463","Onset of disease at the age of between 1 and 5 years."
+"Neonatal onset","HP:0003623","Onset of signs or symptoms of disease within the first 28 days of life."
+"Adult onset","HP:0003581","Onset of disease manifestations in adulthood, defined here as at the age of 16 years or later."
+"Congenital onset","HP:0003577 ","A phenotypic abnormality that is present at birth"
+"Juvenile onset ","HP:0003621","Onset of signs or symptoms of disease between the age of 5 and 15 years"

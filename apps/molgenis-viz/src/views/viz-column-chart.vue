@@ -33,11 +33,11 @@
       <ColumnChart
         v-else
         chartId="organisationsByType"
-        title="Organistations by type"
+        title="Organisations by type"
         description="The following chart shows the number of organisations by type."
         :chartData="data"
-        xvar="label"
-        yvar="value"
+        xvar="type"
+        yvar="count"
         :chartMargins="{ left: 110, top: 10, right: 40, bottom: 60 }"
         :barPaddingInner="0.25"
         :barPaddingOuter="0.25"
@@ -56,7 +56,10 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchData, sortData } from "../utils/utils.js";
+import { rollups } from "d3";
+const d3 = { rollups };
+
+import { fetchData } from "../utils/utils.js";
 
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
@@ -64,7 +67,7 @@ import PageSection from "../components/layouts/PageSection.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import ColumnChart from "../components/viz/ColumnChart.vue";
-import headerImage from "../assets/adrien-delforge-unsplash.jpg";
+import headerImage from "../assets/column-chart-header.jpg";
 
 let loading = ref(true);
 let hasError = ref(false);
@@ -73,15 +76,9 @@ let selection = ref({});
 let data = ref([]);
 
 const query = `{
-  Statistics(filter: {component: {name: {equals: "organisations.by.type"}}}) {
-    id
-    label
-    value
-    valueOrder
-    component {
-      name
-      definition
-    }
+  Organisations {
+    name
+    organisationType
   }
 }`;
 
@@ -90,9 +87,15 @@ function updateClicked(value) {
 }
 
 onMounted(() => {
-  Promise.resolve(fetchData(query))
+  Promise.resolve(fetchData("/api/graphql", query))
     .then((response) => {
-      data.value = sortData(response.data.Statistics, "label");
+      data.value = d3
+        .rollups(
+          response.data.Organisations,
+          (row) => row.length,
+          (row) => row.organisationType
+        )
+        .map((group) => new Object({ type: group[0], count: group[1] }));
       loading.value = false;
     })
     .catch((error) => {
