@@ -492,6 +492,12 @@ public class SqlQuery extends QueryBean {
       search.add(
           field(name(table.getTableName(), searchColumnName(table.getTableName())))
               .likeIgnoreCase("%" + term + "%"));
+      table.getColumns().stream()
+          .filter(Column::isOntology)
+          .forEach(
+              oc ->
+                  search.add(
+                      jsonSearchConditions((SqlTableMetadata) oc.getRefTable(), searchTerms)));
       TableMetadata parent = table.getInheritedTable();
       while (parent != null) {
         search.add(
