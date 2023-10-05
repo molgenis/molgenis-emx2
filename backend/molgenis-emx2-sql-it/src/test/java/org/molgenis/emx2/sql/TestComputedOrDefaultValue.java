@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -58,6 +59,7 @@ public class TestComputedOrDefaultValue {
 
     t.insert(new Row().set("id", 1));
     assertEquals("blaat", t.query().retrieveRows().get(0).getString("hasDefault"));
+
     final Table t2 =
         schema.create(
             table(
@@ -70,8 +72,28 @@ public class TestComputedOrDefaultValue {
                     .setType(ColumnType.DATETIME)
                     .setDefaultValue("=new Date().toISOString()")));
     t2.insert(new Row().set("id", 1));
-    Row result = t2.query().retrieveRows().get(0);
+    final Row result = t2.query().retrieveRows().get(0);
     assertDoesNotThrow(() -> result.getDate("autoDate"));
     assertDoesNotThrow(() -> result.getDate("autoDateTime"));
+
+    final Table t3 =
+        schema.create(
+            table(
+                "Test5",
+                column("id").setPkey(),
+                column("ontologyArray")
+                    .setType(ColumnType.ONTOLOGY_ARRAY)
+                    .setRefTable("Colors")
+                    .setDefaultValue("=[{name:\"green\"}]"),
+                column("ontology")
+                    .setType(ColumnType.ONTOLOGY)
+                    .setRefTable("Colors")
+                    .setDefaultValue("={name:\"green\"}")));
+    schema.getTable("Colors").insert(row("name", "green"));
+
+    t3.insert(new Row().set("id", 1));
+    final Row result2 = t3.query().retrieveRows().get(0);
+    assertEquals("green", result2.getString("ontology"));
+    assertEquals("green", result2.getStringArray("ontologyArray")[0]);
   }
 }

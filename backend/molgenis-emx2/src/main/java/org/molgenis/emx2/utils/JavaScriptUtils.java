@@ -41,6 +41,7 @@ public class JavaScriptUtils {
                       .allowArrayAccess(true)
                       .allowListAccess(true)
                       .allowMapAccess(true)
+                      .allowAllClassImplementations(true)
                       .build())
               .engine(engine)
               .build();

@@ -44,7 +44,9 @@ public class SqlTypeUtils extends TypeUtils {
                   c);
             } else if (c.isRef()) {
               convertRefToRow(
-                  (Map) executeJavascriptOnMap(c.getDefaultValue().substring(1), graph, Map.class),
+                  (Map)
+                      executeJavascriptOnMap(
+                          "(" + c.getDefaultValue().substring(1) + ")", graph, Map.class),
                   row,
                   c);
             } else {
