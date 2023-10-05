@@ -144,6 +144,9 @@ import {
   flattenObject,
   applyJsTemplate,
 } from "../src/components/utils";
+
+import { getRowErrors } from "../src/components/forms/formUtils/formUtils";
+
 import constants, { privacyConstants } from "../src/components/constants";
 
 export {
@@ -274,4 +277,5 @@ export {
   getLocalizedLabel,
   flattenObject,
   applyJsTemplate,
+  getRowErrors,
 };

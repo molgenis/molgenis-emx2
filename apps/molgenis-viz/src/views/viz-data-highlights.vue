@@ -9,9 +9,9 @@
     <PageSection :verticalPadding="0">
       <Breadcrumbs>
         <li>
-          <router-link :to="{ name: 'data-highlights' }"
-            >Data Highlights</router-link
-          >
+          <router-link :to="{ name: 'data-highlights' }">
+            Data Highlights
+          </router-link>
         </li>
       </Breadcrumbs>
     </PageSection>
@@ -44,6 +44,9 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { rollups } from "d3";
+const d3 = { rollups };
+
 import { fetchData, asDataObject } from "../utils/utils.js";
 
 import Page from "../components/layouts/Page.vue";
@@ -52,7 +55,7 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import DataHighlights from "../components/viz/DataHighlights.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
-import headerImage from "../assets/ray-shrewsberry-unsplash.jpg";
+import headerImage from "../assets/highlights-header.jpg";
 
 let loading = ref(false);
 let hasError = ref(false);
@@ -60,19 +63,22 @@ let error = ref(null);
 let summarised = ref({});
 
 const query = `{
-  Statistics(filter: {component: {name: {equals: "organisations.by.type"}}}) {
-    label
-    value
-    component {
-      name
-    }
+  Organisations {
+    name
+    organisationType
   }
 }`;
 
 onMounted(() => {
-  Promise.resolve(fetchData(query)).then((response) => {
-    const data = asDataObject(response.data.Statistics, "label", "value");
-    summarised.value = data;
+  Promise.resolve(fetchData("/api/graphql", query)).then((response) => {
+    const data = d3
+      .rollups(
+        response.data.Organisations,
+        (row) => row.length,
+        (row) => row.organisationType
+      )
+      .map((group) => new Object({ type: group[0], count: group[1] }));
+    summarised.value = asDataObject(data, "type", "count");
   });
 });
 </script>

@@ -1,6 +1,9 @@
 package org.molgenis.emx2.datamodels;
 
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.datamodels.profiles.Profiles;
+import org.molgenis.emx2.datamodels.profiles.SchemaFromProfile;
 import org.molgenis.emx2.io.MolgenisIO;
 
 public class FAIRDataHubLoader extends AbstractDataLoader {
@@ -8,22 +11,22 @@ public class FAIRDataHubLoader extends AbstractDataLoader {
   @Override
   void loadInternalImplementation(Schema schema, boolean includeDemoData) {
 
-    // create Beacon v2 + FAIR Data Point schema (which will create tables in ontology schema)
-    createSchema(schema, "fairdatahub/beaconv2/molgenis.csv");
-    createSchema(schema, "fairdatahub/addons/molgenis.csv");
-    createSchema(schema, "fairdatahub/fairdatapoint/molgenis.csv");
+    // generate and load schema
+    SchemaFromProfile schemaFromProfile = new SchemaFromProfile("fairdatahub/FAIRDataHub.yaml");
+    SchemaMetadata schemaMetadata = schemaFromProfile.create();
+    schema.migrate(schemaMetadata);
 
-    // load ontologies
-    MolgenisIO.fromClasspathDirectory("fairdatahub/ontologies", schema, false);
-
-    // apply ontology semantics
-    createSchema(schema, "fairdatahub/ontologies/SEMANTICS.csv");
+    // load any required data associated to template
+    Profiles profiles = schemaFromProfile.getProfiles();
+    for (String data : profiles.dataList) {
+      MolgenisIO.fromClasspathDirectory(data, schema, false);
+    }
 
     // optionally, load demo data
     if (includeDemoData) {
-      MolgenisIO.fromClasspathDirectory("fairdatahub/beaconv2/demodata", schema, false);
-      MolgenisIO.fromClasspathDirectory("fairdatahub/fairdatapoint/demodata", schema, false);
-      MolgenisIO.fromClasspathDirectory("fairdatahub/addons/demodata", schema, false);
+      for (String example : profiles.examplesList) {
+        MolgenisIO.fromClasspathDirectory(example, schema, false);
+      }
     }
   }
 }

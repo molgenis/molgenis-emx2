@@ -1,0 +1,2 @@
+Identifier,BelongsToBiosamples,ProcessingType,SampleExtraction,FilterUsed,PassingRate,SPECartridge,WashingProtocol
+processingSample0001,Sample0001,high performance liquid chromatography,someSampleExtraction,someFilterUsed,42,someSPECartridge,The washing protocol in detail
