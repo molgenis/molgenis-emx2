@@ -197,13 +197,16 @@ public class SqlTypeUtils extends TypeUtils {
           // you can have a validation rule that simply returns true or false;
           // false means not valid.
           return validationScript;
-        } else
+        } else if (error.equals(true)) {
+          return null;
+        }
         // you can have a validation script returning true which means valid, and undefined also
-        if (!Boolean.TRUE.equals(error) && error != null) {
+        else {
           return error.toString();
         }
+      } else {
+        return null;
       }
-      return null;
     } catch (MolgenisException me) {
       // seperate syntax errors
       throw me;
