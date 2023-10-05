@@ -68,6 +68,8 @@ public class MetadataUtils {
       field(name("visible"), VARCHAR.nullable(true));
   private static final Field<String[]> COLUMN_SEMANTICS =
       field(name("columnSemantics"), VARCHAR.nullable(true).getArrayType());
+  private static final Field<String[]> COLUMN_PROFILES =
+      field(name("columnProfiles"), VARCHAR.nullable(true).getArrayType());
   private static final Field<String> COLUMN_TYPE =
       field(name("columnType"), VARCHAR.nullable(false));
   private static final Field<Boolean> COLUMN_REQUIRED =
@@ -241,6 +243,7 @@ public class MetadataUtils {
                         COLUMN_CASCADE,
                         COLUMN_DESCRIPTION,
                         COLUMN_SEMANTICS,
+                        COLUMN_PROFILES,
                         COLUMN_VISIBLE)
                     .constraints(
                         primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
@@ -503,8 +506,9 @@ public class MetadataUtils {
             COLUMN_DESCRIPTION,
             COLUMN_READONLY,
             COLUMN_SEMANTICS,
-            COLUMN_VISIBLE,
-            COLUMN_DEFAULT)
+            COLUMN_DEFAULT,
+            COLUMN_PROFILES,
+            COLUMN_VISIBLE)
         .values(
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
@@ -526,8 +530,9 @@ public class MetadataUtils {
             column.getDescriptions(),
             column.isReadonly(),
             column.getSemantics(),
-            column.getVisible(),
-            column.getDefaultValue())
+            column.getDefaultValue(),
+            column.getProfiles(),
+            column.getVisible())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(COLUMN_LABEL, column.getLabels())
@@ -547,6 +552,7 @@ public class MetadataUtils {
         .set(COLUMN_DESCRIPTION, column.getDescriptions())
         .set(COLUMN_READONLY, column.isReadonly())
         .set(COLUMN_SEMANTICS, column.getSemantics())
+        .set(COLUMN_PROFILES, column.getProfiles())
         .set(COLUMN_VISIBLE, column.getVisible())
         .set(COLUMN_DEFAULT, column.getDefaultValue())
         .execute();
@@ -586,6 +592,7 @@ public class MetadataUtils {
     c.setCascadeDelete(col.get(COLUMN_CASCADE, Boolean.class));
     c.setReadonly(col.get(COLUMN_READONLY, Boolean.class));
     c.setSemantics(col.get(COLUMN_SEMANTICS, String[].class));
+    c.setProfiles(col.get(COLUMN_PROFILES, String[].class));
     c.setVisible(col.get(COLUMN_VISIBLE, String.class));
     c.setDefaultValue(col.get(COLUMN_DEFAULT, String.class));
     return c;

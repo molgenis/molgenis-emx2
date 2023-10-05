@@ -1,12 +1,17 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+
 import HomePage from "../views/home-view.vue";
-import VizBarChart from "../views/viz-bar-chart.vue";
-import ColumnChart from "../views/viz-column-chart.vue";
-import PieChart from "../views/viz-pie-chart.vue";
+import BarChart from "../views/viz-bar-chart.vue";
 import ChartLegend from "../views/viz-chart-legend.vue";
+import ColumnChart from "../views/viz-column-chart.vue";
 import DataHighlights from "../views/viz-data-highlights.vue";
-import GeoMercator from "../views/viz-geo-mercator.vue";
 import Datatable from "../views/viz-datatable.vue";
+import ProgressCharts from "../views/viz-progress-charts.vue";
+import GeoMercator from "../views/viz-geo-mercator.vue";
+import GroupedColumnChart from "../views/viz-grouped-column-chart.vue";
+import PieChart from "../views/viz-pie-chart.vue";
+import PieChart2 from "../views/viz-pie-chart-2.vue";
+import ScatterPlot from "../views/viz-scatter-plot.vue";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -19,7 +24,7 @@ const router = createRouter({
     {
       name: "bar-chart",
       path: "/bar-chart",
-      component: VizBarChart,
+      component: BarChart,
       meta: {
         title: "Bar Chart",
       },
@@ -53,7 +58,23 @@ const router = createRouter({
       path: "/datatable",
       component: Datatable,
       meta: {
-        title: "Datatable",
+        title: "Data Table",
+      },
+    },
+    {
+      name: "progress-charts",
+      path: "/progress-charts",
+      component: ProgressCharts,
+      meta: {
+        title: "Progress Charts",
+      },
+    },
+    {
+      name: "grouped-column-chart",
+      path: "/grouped-column-chart",
+      component: GroupedColumnChart,
+      meta: {
+        title: "Grouped Column Chart",
       },
     },
     {
@@ -70,6 +91,22 @@ const router = createRouter({
       component: PieChart,
       meta: {
         title: "Pie Chart",
+      },
+    },
+    {
+      name: "pie-chart-2",
+      path: "/pie-chart-2",
+      component: PieChart2,
+      meta: {
+        title: "Pie Chart 2",
+      },
+    },
+    {
+      name: "scatter-plot",
+      path: "/scatter-plot",
+      component: ScatterPlot,
+      meta: {
+        title: "Scatter Plot",
       },
     },
   ],

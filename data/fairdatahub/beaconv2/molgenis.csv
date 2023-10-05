@@ -1,31 +1,31 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,origin
-GenomicVariations,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17248,Beacon v2  GenomicVariation,
-GenomicVariations,,variantInternalId,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C164813,E.g. 20:2447955..2447958c>g,
-GenomicVariations,,variantType,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000773,E.g. SNP,
-GenomicVariations,,referenceBases,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000036,E.g. c,
-GenomicVariations,,alternateBases,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000002,E.g. g,
-GenomicVariations,,position_assemblyId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164388,E.g. GRCh37,
-GenomicVariations,,position_refseqId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C45335,E.g. 20,
-GenomicVariations,,position_start,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000894,E.g. 2447955,
-GenomicVariations,,position_end,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000895,E.g. 2447958,
-GenomicVariations,,geneId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C20826,E.g. TTN,
-GenomicVariations,,genomicHGVSId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172243,E.g. NC_000017.11:g.43057063G>A,
-GenomicVariations,,proteinHGVSIds,string_array,,,,,,,,http://ensembl.org/glossary/ENSGLOSSARY_0000274,E.g. NP_009225.1:p.Glu1817Ter,
-GenomicVariations,,transcriptHGVSIds,string_array,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172244,E.g. NC_000023.10(NM004006.2):c.357+1G,
-GenomicVariations,,clinicalInterpretations,ref_array,,,,GenomicVariationsClinInterpr,,,,http://purl.obolibrary.org/obo/NCIT_C125009,E.g. Var001_CI001,
-GenomicVariationsClinInterpr,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C125009,Beacon v2 GenomicVariations Clinical Interpretations,
-GenomicVariationsClinInterpr,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Var001_CI001,
-GenomicVariationsClinInterpr,,category,ontology,,,,VariationCategory,,,,http://purl.obolibrary.org/obo/NCIT_C25372,E.g. disease or disorder,
-GenomicVariationsClinInterpr,,clinicalRelevance,ontology,,,,VariationClinicalRelevance,,,,http://purl.obolibrary.org/obo/HP_0045088,E.g. Likely benign,
-GenomicVariationsClinInterpr,,conditionId,String,,,,,,,,http://edamontology.org/data_3667,E.g. famchol1,
-GenomicVariationsClinInterpr,,effect,ontology,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Spinocerebellar ataxia type 34,
-GenomicVariations,,caseLevelData,ref_array,,,,GenomicVariationsCaseLevel,,,,http://purl.obolibrary.org/obo/GSSO_000660,E.g. Var001_CLD01,
-GenomicVariationsCaseLevel,,,,,,,,,,,http://purl.obolibrary.org/obo/GSSO_000660,Beacon v2 GenomicVariations Case Level Data,
-GenomicVariationsCaseLevel,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0001047,E.g. Var001_CLD01,
-GenomicVariationsCaseLevel,,individualId,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001,
-GenomicVariationsCaseLevel,,clinicalInterpretations,ref_array,,,,GenomicVariationsClinInterpr,,,,http://purl.obolibrary.org/obo/NCIT_C125009,E.g. Var001_CI001,
-Analyses,,,,,,,,,,,http://edamontology.org/operation_2945,"An analysis applies analytical (often computational) methods to existing data of a specific type to produce some desired output.","Beacon v2, FAIR Genomes (Analysis)"
-Analyses,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001979,"A unique proper name or character sequence that identifies this particular analysis.","Beacon v2, FAIR Genomes (AnalysisIdentifier)"
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+GenomicVariations,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17248,Beacon v2  GenomicVariation,Beacon v2
+GenomicVariations,,variantInternalId,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C164813,E.g. 20:2447955..2447958c>g,Beacon v2
+GenomicVariations,,variantType,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000773,E.g. SNP,Beacon v2
+GenomicVariations,,referenceBases,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000036,E.g. c,Beacon v2
+GenomicVariations,,alternateBases,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000002,E.g. g,Beacon v2
+GenomicVariations,,position_assemblyId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164388,E.g. GRCh37,Beacon v2
+GenomicVariations,,position_refseqId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C45335,E.g. 20,Beacon v2
+GenomicVariations,,position_start,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000894,E.g. 2447955,Beacon v2
+GenomicVariations,,position_end,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000895,E.g. 2447958,Beacon v2
+GenomicVariations,,geneId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C20826,E.g. TTN,Beacon v2
+GenomicVariations,,genomicHGVSId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172243,E.g. NC_000017.11:g.43057063G>A,Beacon v2
+GenomicVariations,,proteinHGVSIds,string_array,,,,,,,,http://ensembl.org/glossary/ENSGLOSSARY_0000274,E.g. NP_009225.1:p.Glu1817Ter,Beacon v2
+GenomicVariations,,transcriptHGVSIds,string_array,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172244,E.g. NC_000023.10(NM004006.2):c.357+1G,Beacon v2
+GenomicVariations,,clinicalInterpretations,ref_array,,,,GenomicVariationsClinInterpr,,,,http://purl.obolibrary.org/obo/NCIT_C125009,E.g. Var001_CI001,Beacon v2
+GenomicVariationsClinInterpr,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C125009,Beacon v2 GenomicVariations Clinical Interpretations,Beacon v2
+GenomicVariationsClinInterpr,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Var001_CI001,Beacon v2
+GenomicVariationsClinInterpr,,category,ontology,,,,VariationCategory,,,,http://purl.obolibrary.org/obo/NCIT_C25372,E.g. disease or disorder,Beacon v2
+GenomicVariationsClinInterpr,,clinicalRelevance,ontology,,,,VariationClinicalRelevance,,,,http://purl.obolibrary.org/obo/HP_0045088,E.g. Likely benign,Beacon v2
+GenomicVariationsClinInterpr,,conditionId,String,,,,,,,,http://edamontology.org/data_3667,E.g. famchol1,Beacon v2
+GenomicVariationsClinInterpr,,effect,ontology,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Spinocerebellar ataxia type 34,Beacon v2
+GenomicVariations,,caseLevelData,ref_array,,,,GenomicVariationsCaseLevel,,,,http://purl.obolibrary.org/obo/GSSO_000660,E.g. Var001_CLD01,Beacon v2
+GenomicVariationsCaseLevel,,,,,,,,,,,http://purl.obolibrary.org/obo/GSSO_000660,Beacon v2 GenomicVariations Case Level Data,Beacon v2
+GenomicVariationsCaseLevel,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0001047,E.g. Var001_CLD01,Beacon v2
+GenomicVariationsCaseLevel,,individualId,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001,Beacon v2
+GenomicVariationsCaseLevel,,clinicalInterpretations,ref_array,,,,GenomicVariationsClinInterpr,,,,http://purl.obolibrary.org/obo/NCIT_C125009,E.g. Var001_CI001,Beacon v2
+Analyses,,,,,,,,,,,http://edamontology.org/operation_2945,An analysis applies analytical (often computational) methods to existing data of a specific type to produce some desired output. In FAIR Genomes: Analysis.,"Beacon v2, FAIR Genomes"
+Analyses,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001979,A unique proper name or character sequence that identifies this particular analysis. In FAIR Genomes: AnalysisIdentifier.,"Beacon v2, FAIR Genomes"
 Analyses,,aligner,string,,,,,,,,http://edamontology.org/operation_0292,E.g. bwa-0.7.8,"Beacon v2"
 Analyses,,analysisDate,date,,TRUE,,,,,,http://purl.obolibrary.org/obo/date,E.g. 2021-10-17,"Beacon v2"
 Analyses,,biosampleId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. S0001,"Beacon v2"
@@ -44,38 +44,38 @@ Analyses,,variantCaller,string,,,,,,,,http://edamontology.org/operation_3227,E.g
 "Analyses","","BioinformaticProtocolDeviation","string","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C50996","A variation from processes or procedures defined in the bioinformatic protocol. Deviations usually do not preclude the overall evaluability of subject data for either efficacy or safety, and are often acknowledged and accepted in advance by the sponsor.","FAIR Genomes"
 "Analyses","","ReasonForBioinformaticProtocolDeviation","string","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C93529","The rationale for why a deviation from the bioinformatic protocol has occurred.","FAIR Genomes"
 "Analyses","","WgsGuidelineFollowed","string","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C17564","Any followed systematic statement of policy rules or principles. Guidelines may be developed by government agencies at any level, institutions, professional societies, governing boards, or by convening expert panels.","FAIR Genomes"
-Biosamples,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C43376","A natural substance derived from living organisms such as cells, tissues, proteins, and DNA.","Beacon v2, FAIR Genomes (Material)"
-Biosamples,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,"A unique proper name or character sequence that identifies this particular material.","Beacon v2, FAIR Genomes (Material.MaterialIdentifier)"
-Biosamples,,PathologicalState,ontology,,TRUE,,PathologicalState,,,,"http://purl.obolibrary.org/obo/NCIT_C28257","An examination that is performed to determine the extent of the spread of cancer based on histopathologic examination of one or more pathology specimens. Pathologic staging uses evidence acquired during the process of clinical staging, supplemented by histopathologic examination of surgical specimens.","Beacon v2 (biosampleStatus), FAIR Genomes"
-Biosamples,,sampleOriginType,ontology,,TRUE,,SampleOriginType,,,,"http://purl.obolibrary.org/obo/NCIT_C42703,http://purl.obolibrary.org/obo/NCIT_C103264",""Biological entity that constitutes the structural organization of an individual member of a biological species from which this material was taken.","Beacon v2, FAIR Genomes (AnatomicalSource)"
+Biosamples,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C43376","A natural substance derived from living organisms such as cells, tissues, proteins, and DNA. In FAIR Genomes: Material.","Beacon v2, FAIR Genomes"
+Biosamples,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,A unique proper name or character sequence that identifies this particular material. In FAIR Genomes: MaterialIdentifier.,"Beacon v2, FAIR Genomes"
+Biosamples,,PathologicalState,ontology,,TRUE,,PathologicalState,,,,"http://purl.obolibrary.org/obo/NCIT_C28257","An examination that is performed to determine the extent of the spread of cancer based on histopathologic examination of one or more pathology specimens. Pathologic staging uses evidence acquired during the process of clinical staging, supplemented by histopathologic examination of surgical specimens. In Beacon v2: biosampleStatus.","Beacon v2, FAIR Genomes"
+Biosamples,,sampleOriginType,ontology,,TRUE,,SampleOriginType,,,,"http://purl.obolibrary.org/obo/NCIT_C42703,http://purl.obolibrary.org/obo/NCIT_C103264","Biological entity that constitutes the structural organization of an individual member of a biological species from which this material was taken. In FAIR Genomes: AnatomicalSource.","Beacon v2, FAIR Genomes"
 Biosamples,,collectionMoment,string,,,,,,,,http://purl.obolibrary.org/obo/GSSO_011434,E.g. P32Y6M1D,"Beacon v2"
-Biosamples,,collectionDate,datetime,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,"Date and time at which this material was collected.","Beacon v2, FAIR Genomes (SamplingTimestamp)"
-Biosamples,,obtentionProcedure,ontology,,TRUE,,ObtentionProcedure,,,,"http://purl.obolibrary.org/obo/OBI_0000659,http://www.ebi.ac.uk/efo/EFO_0005518","The procedure whereby this material was sampled for an analysis.","Beacon v2, FAIR Genomes (SamplingProtocol)"
-"Biosamples","","CollectedFromPerson","ref","","","","Individuals","","","","http://semanticscience.org/resource/SIO_000244","Reference to the person from whom this material was collected.","FAIR Genomes (Material)"
-"Biosamples","","BelongsToDiagnosis","ref_array","","","","Clinical","","","","http://semanticscience.org/resource/SIO_000068","Reference to a diagnosis c.q. clinical examination of which this material may be a part of. There can be multiple diagnoses when a non-tumor material is reused as reference.","FAIR Genomes (Material)"
-"Biosamples","","RegistrationTimestamp","datetime","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C25646","Date and time at which this material was listed or recorded officially, i.e. officially qualified or enrolled.","FAIR Genomes (Material)"
-"Biosamples","","SamplingProtocolDeviation","string","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C50996","A variation from processes or procedures defined in the sampling protocol. Deviations usually do not preclude the overall evaluability of subject data for either efficacy or safety, and are often acknowledged and accepted in advance by the sponsor.","FAIR Genomes (Material)"
-"Biosamples","","ReasonForSamplingProtocolDeviation","string","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C93529","The rationale for why a deviation from the sampling protocol has occurred.","FAIR Genomes (Material)"
-"Biosamples","","BiospecimenType","ontology","","","","BiospecimenType","","","","http://purl.obolibrary.org/obo/NCIT_C70713","The type of material taken from a biological entity for testing, diagnostic, propagation, treatment or research purposes.","FAIR Genomes (Material)"
-"Biosamples","","StorageConditions","ontology","","","","StorageConditions","","","","http://purl.obolibrary.org/obo/NCIT_C96145","The conditions under which this biological material was stored.","FAIR Genomes (Material)"
-"Biosamples","","ExpirationDate","date","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C164516","The date beyond which this material is no longer regarded as fit for use.","FAIR Genomes (Material)"
-"Biosamples","","PercentageTumorCells","decimal","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C127771","The percentage of tumor cells compared to total cells present in this material.","FAIR Genomes (Material)"
-"Biosamples","","PhysicalLocation","string","","","","","","","","http://purl.obolibrary.org/obo/GAZ_00000448","A place on the Earth where this material is located, by its name or by its geographical location. This definition is intentionally vague to allow reuse locally (e.g. which freezer), for contacting (e.g. which institute), broadly for logistical or legal reasons (e.g. city, country or continent).","FAIR Genomes (Material)"
-"Biosamples","","AnalysesPerformed","ontology_array","","","","AnalysesPerformed","","","","http://purl.obolibrary.org/obo/IAO_0000702","Reports the existence of any analyses performed on this material other than genomics (e.g. transcriptomics, metabolomics, proteomics).","FAIR Genomes (Material)"
-"Biosamples","","DerivedFrom","string","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C28355","Indicate if this material was produced from or related to another.","FAIR Genomes (Material)"
-Cohorts,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C61512,Beacon v2 Cohorts,
-Cohorts,,cohortId,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,E.g. cohort0001,
-Cohorts,,cohortName,string,,TRUE,,,,,,http://edamontology.org/operation_0292,E.g. GCAT Genomes for Life,
-Cohorts,,cohortType,string,,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C142175,"Either study-defined, beacon-defined, or user-defined",
-Cohorts,,cohortDesign,ontology,,,,StudyDesign,,,,http://purl.obolibrary.org/obo/OBI_0500000,E.g. longitudinal study design,
-Cohorts,,cohortSize,int,,,,,,,,http://purl.obolibrary.org/obo/CTO_0000028,E.g. 20000,
-Cohorts,,inclusionCriteria_ageRange_start_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001878,E.g. P18Y,
-Cohorts,,inclusionCriteria_ageRange_end_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001877,E.g. P40Y,
-Cohorts,,locations,ontology_array,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001830,E.g. Spain,
-Cohorts,,genders,ontology_array,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"E.g. assigned female at birth, assigned male at birth",
-Cohorts,,cohortDataTypes,ontology_array,,,,DCMITypes,,,,http://purl.obolibrary.org/obo/NCIT_C15783,"E.g. Dataset, Sound, Still Image",
-Individuals,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90492,"Data, facts or figures about an individual; the set of relevant items would depend on the use case.","Beacon v2, FAIR Genomes (Personal)"
-Individuals,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,"A unique proper name or character sequence that identifies this particular person.","Beacon v2 (id), FAIR Genomes (PersonalIdentifier)"
+Biosamples,,collectionDate,datetime,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,Date and time at which this material was collected. In FAIR Genomes: SamplingTimestamp.,"Beacon v2, FAIR Genomes"
+Biosamples,,obtentionProcedure,ontology,,TRUE,,ObtentionProcedure,,,,"http://purl.obolibrary.org/obo/OBI_0000659,http://www.ebi.ac.uk/efo/EFO_0005518",The procedure whereby this material was sampled for an analysis. In FAIR Genomes: SamplingProtocol.,"Beacon v2, FAIR Genomes"
+"Biosamples","","CollectedFromPerson","ref","","","","Individuals","","","","http://semanticscience.org/resource/SIO_000244","Reference to the person from whom this material was collected.",FAIR Genomes
+"Biosamples","","BelongsToDiagnosis","ref_array","","","","Clinical","","","","http://semanticscience.org/resource/SIO_000068","Reference to a diagnosis c.q. clinical examination of which this material may be a part of. There can be multiple diagnoses when a non-tumor material is reused as reference.",FAIR Genomes
+"Biosamples","","RegistrationTimestamp","datetime","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C25646","Date and time at which this material was listed or recorded officially, i.e. officially qualified or enrolled.",FAIR Genomes
+"Biosamples","","SamplingProtocolDeviation","string","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C50996","A variation from processes or procedures defined in the sampling protocol. Deviations usually do not preclude the overall evaluability of subject data for either efficacy or safety, and are often acknowledged and accepted in advance by the sponsor.",FAIR Genomes
+"Biosamples","","ReasonForSamplingProtocolDeviation","string","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C93529","The rationale for why a deviation from the sampling protocol has occurred.",FAIR Genomes
+"Biosamples","","BiospecimenType","ontology","","","","BiospecimenType","","","","http://purl.obolibrary.org/obo/NCIT_C70713","The type of material taken from a biological entity for testing, diagnostic, propagation, treatment or research purposes.",FAIR Genomes
+"Biosamples","","StorageConditions","ontology","","","","StorageConditions","","","","http://purl.obolibrary.org/obo/NCIT_C96145","The conditions under which this biological material was stored.",FAIR Genomes
+"Biosamples","","ExpirationDate","date","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C164516","The date beyond which this material is no longer regarded as fit for use.",FAIR Genomes
+"Biosamples","","PercentageTumorCells","decimal","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C127771","The percentage of tumor cells compared to total cells present in this material.",FAIR Genomes
+"Biosamples","","PhysicalLocation","string","","","","","","","","http://purl.obolibrary.org/obo/GAZ_00000448","A place on the Earth where this material is located, by its name or by its geographical location. This definition is intentionally vague to allow reuse locally (e.g. which freezer), for contacting (e.g. which institute), broadly for logistical or legal reasons (e.g. city, country or continent).",FAIR Genomes
+"Biosamples","","AnalysesPerformed","ontology_array","","","","AnalysesPerformed","","","","http://purl.obolibrary.org/obo/IAO_0000702","Reports the existence of any analyses performed on this material other than genomics (e.g. transcriptomics, metabolomics, proteomics).",FAIR Genomes
+"Biosamples","","DerivedFrom","string","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C28355","Indicate if this material was produced from or related to another.",FAIR Genomes
+Cohorts,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C61512,Beacon v2 Cohorts,Beacon v2
+Cohorts,,cohortId,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,E.g. cohort0001,Beacon v2
+Cohorts,,cohortName,string,,TRUE,,,,,,http://edamontology.org/operation_0292,E.g. GCAT Genomes for Life,Beacon v2
+Cohorts,,cohortType,string,,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C142175,"Either study-defined, beacon-defined, or user-defined",Beacon v2
+Cohorts,,cohortDesign,ontology,,,,StudyDesign,,,,http://purl.obolibrary.org/obo/OBI_0500000,E.g. longitudinal study design,Beacon v2
+Cohorts,,cohortSize,int,,,,,,,,http://purl.obolibrary.org/obo/CTO_0000028,E.g. 20000,Beacon v2
+Cohorts,,inclusionCriteria_ageRange_start_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001878,E.g. P18Y,Beacon v2
+Cohorts,,inclusionCriteria_ageRange_end_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001877,E.g. P40Y,Beacon v2
+Cohorts,,locations,ontology_array,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001830,E.g. Spain,Beacon v2
+Cohorts,,genders,ontology_array,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"E.g. assigned female at birth, assigned male at birth",Beacon v2
+Cohorts,,cohortDataTypes,ontology_array,,,,DCMITypes,,,,http://purl.obolibrary.org/obo/NCIT_C15783,"E.g. Dataset, Sound, Still Image",Beacon v2
+Individuals,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90492,"Data, facts or figures about an individual; the set of relevant items would depend on the use case. In FAIR Genomes: Personal.","Beacon v2, FAIR Genomes"
+Individuals,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,"A unique proper name or character sequence that identifies this particular person. In Beacon v2: id, in FAIR Genomes: PersonalIdentifier.","Beacon v2, FAIR Genomes"
 Individuals,,sex,ontology,,TRUE,,GenderAtBirth,,,,"http://purl.obolibrary.org/obo/GSSO_009418,http://purl.obolibrary.org/obo/NCIT_C28421",E.g. assigned female at birth,"Beacon v2"
 Individuals,,age_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old","Beacon v2"
 Individuals,,age_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D","Beacon v2"
@@ -86,45 +86,45 @@ Individuals,,hasGenomicVariations,refback,,,,GenomicVariationsCaseLevel,,individ
 Individuals,,diseases,ref_array,,,,IndividualsDiseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Ind001_Dis001,"Beacon v2"
 Individuals,,measures,ref_array,,,,IndividualsMeasures,,,,http://purl.obolibrary.org/obo/NCIT_C25209,E.g. Ind001_Meas001,"Beacon v2"
 Individuals,,phenotypicFeatures,ref_array,,,,IndividualsPhenotypicFeatures,,,,http://purl.obolibrary.org/obo/NCIT_C116555,E.g. Ind001_Phen001,"Beacon v2"
-Individuals,,GenderIdentity,ontology,,,,GenderIdentity,,,,http://purl.bioontology.org/ontology/MESH/D005783,"A person's concept of self as being male and masculine or female and feminine, or ambivalent, based in part on physical characteristics, parental responses, and psychological and social pressures. It is the internal experience of gender role. For practical reasons the lookups are limited to first and second-level entries, but can be expanded when needed. Note that 'Gender at birth', 'Genotypic sex' and any (gender-related) hormone therapies in 'Medication' are usually medically more relevant than this term.","FAIR Genomes (Personal)"
-Individuals,,GenderAtBirth,ontology,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"Assigned gender is one's gender which was assigned at birth, typically by a medical and/or legal organization, and then later registered with other organizations. Such a designation is typically based off of the superficial appearance of external genitalia present at birth.","FAIR Genomes (Personal)"
-Individuals,,GenotypicSex,ontology,,,,GenotypicSex,,,,http://purl.obolibrary.org/obo/PATO_0020000,"A biological sex quality inhering in an individual based upon genotypic composition of sex chromosomes.","FAIR Genomes (Personal)"
-Individuals,,CountryOfResidence,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/NCIT_C171105,"Country of residence at enrollment.","FAIR Genomes (Personal)"
-Individuals,,Ancestry,ontology_array,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,"Population category defined using ancestry informative markers (AIMs) based on genetic/genomic data.","FAIR Genomes (Personal)"
-Individuals,,CountryOfBirth,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,"The country that this person was born in.","FAIR Genomes (Personal)"
-Individuals,,YearOfBirth,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C83164","The year in which this person was born.","FAIR Genomes (Personal)"
-Individuals,,InclusionStatus,ontology,,,,InclusionStatus,,,,"http://purl.obolibrary.org/obo/NCIT_C166244","An indicator that provides information on the current health status of this person.","FAIR Genomes (Personal)"
-Individuals,,AgeAtDeath,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C135383","The age at which death occurred.","FAIR Genomes (Personal)"
-Individuals,,Consanguinity,bool,,,,,,,,"http://purl.obolibrary.org/obo/OMIT_0004546","Information on whether the patient is a child from two family members who are second cousins or closer.","FAIR Genomes (Personal)"
-Individuals,,PrimaryAffiliatedInstitute,ontology,,,,Organisations,,,,"http://purl.obolibrary.org/obo/NCIT_C25412","The most significant institute for medical consultation and/or study inclusion in context of the genetic disease of this person.","FAIR Genomes (Personal)"
-Individuals,,ResourcesInOtherInstitutes,ontology_array,,,,Organisations,,,,"http://purl.obolibrary.org/obo/NCIT_C19012","Material or data related to this person that is not captured by this system though known to be available in other institutes such as biobanks or hospitals.","FAIR Genomes (Personal)"
-Individuals,,ParticipatesInStudy,ref_array,,,,Study,,,,"http://purl.obolibrary.org/obo/RO_0000056","Reference to the study or studies in which this person participates.","FAIR Genomes (Personal)"
-IndividualsPhenotypicFeatures,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C116555,Beacon v2 Individuals PhenotypicFeatures,
-IndividualsPhenotypicFeatures,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Phen001,
-IndividualsPhenotypicFeatures,,featureType,ontology,,TRUE,,Phenotypes,,,,http://semanticscience.org/resource/SIO_010056,E.g. Abnormality of body height,
-IndividualsPhenotypicFeatures,,modifiers,ontology_array,,,,Phenotypes,,,,http://purl.obolibrary.org/obo/HP_0012823,E.g. Exacerbated by tobacco use,
-IndividualsPhenotypicFeatures,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound,
-IndividualsPhenotypicFeatures,,belongsToIndividual,refback,,,,Individuals,,phenotypicFeatures,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001,
-IndividualsDiseases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,Beacon v2 Individuals Diseases,
-IndividualsDiseases,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Dis001,
-IndividualsDiseases,,diseaseCode,ontology,,TRUE,,Diseases,,,,"http://purl.obolibrary.org/obo/NCIT_C15607,http://semanticscience.org/resource/SIO_001003",E.g. Spinocerebellar ataxia type 34,
-IndividualsDiseases,,ageOfOnset_ageGroup,ontology,,,,AgeGroups,,,,"http://purl.obolibrary.org/obo/HP_0003674,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. Adult 18-65 Years Old,
-IndividualsDiseases,,ageOfOnset_age_iso8601duration,string,,,,,,,,"http://www.orpha.net/ORDO/Orphanet_C023,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. P32Y6M1D,
-IndividualsDiseases,,ageAtDiagnosis_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old",
-IndividualsDiseases,,ageAtDiagnosis_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D",
-IndividualsDiseases,,familyHistory,bool,,,,,,,,http://purl.obolibrary.org/obo/HP_0032316,E.g. false,
-IndividualsDiseases,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound,
-IndividualsDiseases,,stage,ontology,,,,DiseaseStage,,,,http://purl.obolibrary.org/obo/OBI_0000278,E.g. acute onset,
-IndividualsDiseases,,belongsToIndividual,refback,,,,Individuals,,diseases,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001,
-IndividualsMeasures,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25209,Beacon v2 Individuals Measures,
-IndividualsMeasures,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001121,E.g. Ind001_Meas001,
-IndividualsMeasures,,assayCode,ontology,,TRUE,,AnalysesPerformed,,,,http://purl.obolibrary.org/obo/IAO_0000702,E.g. Metabolomics,
-IndividualsMeasures,,date,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2017-05-03,
-IndividualsMeasures,,measurementVariable,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C54166,NON-STANDARD FIELD. E.g. Blood platelet count,
-IndividualsMeasures,,measurementValue_value,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25712,E.g. 55345,
-IndividualsMeasures,,measurementValue_units,ontology,,,,Units,,,,http://purl.obolibrary.org/obo/NCIT_C25709,E.g. Per Millimeter,
-IndividualsMeasures,,observationMoment_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82517,E.g. P55Y8M12D,
-IndividualsMeasures,,belongsToIndividual,refback,,,,Individuals,,measures,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001,
+Individuals,,GenderIdentity,ontology,,,,GenderIdentity,,,,http://purl.bioontology.org/ontology/MESH/D005783,"A person's concept of self as being male and masculine or female and feminine, or ambivalent, based in part on physical characteristics, parental responses, and psychological and social pressures. It is the internal experience of gender role. For practical reasons the lookups are limited to first and second-level entries, but can be expanded when needed. Note that 'Gender at birth', 'Genotypic sex' and any (gender-related) hormone therapies in 'Medication' are usually medically more relevant than this term.",FAIR Genomes
+Individuals,,GenderAtBirth,ontology,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"Assigned gender is one's gender which was assigned at birth, typically by a medical and/or legal organization, and then later registered with other organizations. Such a designation is typically based off of the superficial appearance of external genitalia present at birth.",FAIR Genomes
+Individuals,,GenotypicSex,ontology,,,,GenotypicSex,,,,http://purl.obolibrary.org/obo/PATO_0020000,"A biological sex quality inhering in an individual based upon genotypic composition of sex chromosomes.",FAIR Genomes
+Individuals,,CountryOfResidence,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/NCIT_C171105,"Country of residence at enrollment.",FAIR Genomes
+Individuals,,Ancestry,ontology_array,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,"Population category defined using ancestry informative markers (AIMs) based on genetic/genomic data.",FAIR Genomes
+Individuals,,CountryOfBirth,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,"The country that this person was born in.",FAIR Genomes
+Individuals,,YearOfBirth,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C83164","The year in which this person was born.",FAIR Genomes
+Individuals,,InclusionStatus,ontology,,,,InclusionStatus,,,,"http://purl.obolibrary.org/obo/NCIT_C166244","An indicator that provides information on the current health status of this person.",FAIR Genomes
+Individuals,,AgeAtDeath,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C135383","The age at which death occurred.",FAIR Genomes
+Individuals,,Consanguinity,bool,,,,,,,,"http://purl.obolibrary.org/obo/OMIT_0004546","Information on whether the patient is a child from two family members who are second cousins or closer.",FAIR Genomes
+Individuals,,PrimaryAffiliatedInstitute,ontology,,,,Organisations,,,,"http://purl.obolibrary.org/obo/NCIT_C25412","The most significant institute for medical consultation and/or study inclusion in context of the genetic disease of this person.",FAIR Genomes
+Individuals,,ResourcesInOtherInstitutes,ontology_array,,,,Organisations,,,,"http://purl.obolibrary.org/obo/NCIT_C19012","Material or data related to this person that is not captured by this system though known to be available in other institutes such as biobanks or hospitals.",FAIR Genomes
+Individuals,,ParticipatesInStudy,ref_array,,,,Study,,,,"http://purl.obolibrary.org/obo/RO_0000056","Reference to the study or studies in which this person participates.",FAIR Genomes
+IndividualsPhenotypicFeatures,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C116555,Beacon v2 Individuals PhenotypicFeatures,Beacon v2
+IndividualsPhenotypicFeatures,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Phen001,Beacon v2
+IndividualsPhenotypicFeatures,,featureType,ontology,,TRUE,,Phenotypes,,,,http://semanticscience.org/resource/SIO_010056,E.g. Abnormality of body height,Beacon v2
+IndividualsPhenotypicFeatures,,modifiers,ontology_array,,,,Phenotypes,,,,http://purl.obolibrary.org/obo/HP_0012823,E.g. Exacerbated by tobacco use,Beacon v2
+IndividualsPhenotypicFeatures,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound,Beacon v2
+IndividualsPhenotypicFeatures,,belongsToIndividual,refback,,,,Individuals,,phenotypicFeatures,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001,Beacon v2 EMX2 add-on
+IndividualsDiseases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,Beacon v2 Individuals Diseases,Beacon v2
+IndividualsDiseases,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Dis001,Beacon v2
+IndividualsDiseases,,diseaseCode,ontology,,TRUE,,Diseases,,,,"http://purl.obolibrary.org/obo/NCIT_C15607,http://semanticscience.org/resource/SIO_001003",E.g. Spinocerebellar ataxia type 34,Beacon v2
+IndividualsDiseases,,ageOfOnset_ageGroup,ontology,,,,AgeGroups,,,,"http://purl.obolibrary.org/obo/HP_0003674,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. Adult 18-65 Years Old,Beacon v2
+IndividualsDiseases,,ageOfOnset_age_iso8601duration,string,,,,,,,,"http://www.orpha.net/ORDO/Orphanet_C023,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. P32Y6M1D,Beacon v2
+IndividualsDiseases,,ageAtDiagnosis_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old",Beacon v2 Vivify add-on
+IndividualsDiseases,,ageAtDiagnosis_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D",Beacon v2 Vivify add-on
+IndividualsDiseases,,familyHistory,bool,,,,,,,,http://purl.obolibrary.org/obo/HP_0032316,E.g. false,Beacon v2
+IndividualsDiseases,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound,Beacon v2
+IndividualsDiseases,,stage,ontology,,,,DiseaseStage,,,,http://purl.obolibrary.org/obo/OBI_0000278,E.g. acute onset,Beacon v2
+IndividualsDiseases,,belongsToIndividual,refback,,,,Individuals,,diseases,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001,Beacon v2 EMX2 add-on
+IndividualsMeasures,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25209,Beacon v2 Individuals Measures,Beacon v2
+IndividualsMeasures,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001121,E.g. Ind001_Meas001,Beacon v2
+IndividualsMeasures,,assayCode,ontology,,TRUE,,AnalysesPerformed,,,,http://purl.obolibrary.org/obo/IAO_0000702,E.g. Metabolomics,Beacon v2
+IndividualsMeasures,,date,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2017-05-03,Beacon v2
+IndividualsMeasures,,measurementVariable,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C54166,NON-STANDARD FIELD. E.g. Blood platelet count,Beacon v2 EMX2 add-on
+IndividualsMeasures,,measurementValue_value,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25712,E.g. 55345,Beacon v2
+IndividualsMeasures,,measurementValue_units,ontology,,,,Units,,,,http://purl.obolibrary.org/obo/NCIT_C25709,E.g. Per Millimeter,Beacon v2
+IndividualsMeasures,,observationMoment_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82517,E.g. P55Y8M12D,Beacon v2
+IndividualsMeasures,,belongsToIndividual,refback,,,,Individuals,,measures,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001,Beacon v2 EMX2 add-on
 "Clinical","","","","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C25398","Findings and circumstances relating to the examination and treatment of a patient.","FAIR Genomes"
 "Clinical","","ClinicalIdentifier","string","1","TRUE","","","","","","http://purl.obolibrary.org/obo/NCIT_C87853","A unique proper name or character sequence that identifies this particular clinical examination.","FAIR Genomes"
 "Clinical","","BelongsToPerson","ref","","","","Individuals","","","","http://purl.obolibrary.org/obo/IAO_0000136","Reference to the person whom this clinical information is about.","FAIR Genomes"
@@ -145,17 +145,17 @@ IndividualsMeasures,,belongsToIndividual,refback,,,,Individuals,,measures,,http:
 "Clinical","","FirstContact","date","","","","","","","","http://purl.bioontology.org/ontology/LNC/MTHU048806","First contact of the patient with a specialised center in context of disease or study inclusion.","FAIR Genomes"
 "Clinical","","Functioning","text","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C21007","Patient's classification of functioning i.e. disability profile according to International Classification of Functioning and Disability (ICF).","FAIR Genomes"
 "Clinical","","MaterialUsedInDiagnosis","string","","","","","","","","http://semanticscience.org/resource/SIO_000641","This diagnosis c.q. clinical examination is based on one or more sampled materials.","FAIR Genomes"
-SequencingRuns,,,,,,,,,,,http://edamontology.org/topic_3168,"The determination of complete (typically nucleotide) sequences, including those of genomes (full genome sequencing, de novo sequencing and resequencing), amplicons and transcriptomes.","Beacon v2 (Runs), FAIR Genomes (Sequencing)"
-SequencingRuns,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C171337,"A unique proper name or character sequence that identifies this particular nucleic acid sequencing assay.","Beacon v2, FAIR Genomes (SequencingIdentifier)"
+SequencingRuns,,,,,,,,,,,http://edamontology.org/topic_3168,"The determination of complete (typically nucleotide) sequences, including those of genomes (full genome sequencing, de novo sequencing and resequencing), amplicons and transcriptomes. In Beacon v2: Runs, in FAIR Genomes: Sequencing.","Beacon v2, FAIR Genomes"
+SequencingRuns,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C171337,A unique proper name or character sequence that identifies this particular nucleic acid sequencing assay. In FAIR Genomes: SequencingIdentifier.,"Beacon v2, FAIR Genomes"
 SequencingRuns,,biosampleId,ref,,TRUE,,Biosamples,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. sample-example-0001,"Beacon v2"
 SequencingRuns,,individualId,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001,"Beacon v2"
-SequencingRuns,,runDate,date,,TRUE,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000069,"Date on which this sequencing assay was performed.","Beacon v2, FAIR Genomes (SequencingDate)"
+SequencingRuns,,runDate,date,,TRUE,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000069,Date on which this sequencing assay was performed. In FAIR Genomes: SequencingDate.,"Beacon v2, FAIR Genomes"
 SequencingRuns,,librarySource,ontology,,,,LibrarySource,,,,http://purl.obolibrary.org/obo/GENEPIO_0001965,E.g. genomic source,"Beacon v2"
 SequencingRuns,,librarySelection,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001940,E.g. RANDOM method,"Beacon v2"
-SequencingRuns,,libraryStrategy,ontology,,,,SequencingMethods,,,,http://purl.obolibrary.org/obo/FIX_0000704,"Method used to determine the order of bases in a nucleic acid sequence.","Beacon v2, FAIR Genomes (SequencingMethod)"
+SequencingRuns,,libraryStrategy,ontology,,,,SequencingMethods,,,,http://purl.obolibrary.org/obo/FIX_0000704,Method used to determine the order of bases in a nucleic acid sequence. In FAIR Genomes: SequencingMethod.,"Beacon v2, FAIR Genomes"
 SequencingRuns,,libraryLayout,string,,,,,,,,http://purl.obolibrary.org/obo/FBcv_0003208,Either PAIRED or SINGLE,"Beacon v2"
-SequencingRuns,,platform,ontology,,,,SequencingPlatforms,,,,http://purl.obolibrary.org/obo/GENEPIO_0000071,"The used sequencing platform (i.e. brand, name of a company that produces sequencer equipment).","Beacon v2, FAIR Genomes (SequencingPlatform)"
-SequencingRuns,,platformModel,ontology,,,,SequencingInstrumentModels,,,,http://purl.obolibrary.org/obo/GENEPIO_0001921,"The used product name and model number of a manufacturer's genomic (dna) sequencer.","Beacon v2, FAIR Genomes (SequencingInstrumentModel)"
+SequencingRuns,,platform,ontology,,,,SequencingPlatforms,,,,http://purl.obolibrary.org/obo/GENEPIO_0000071,"The used sequencing platform (i.e. brand, name of a company that produces sequencer equipment). In FAIR Genomes: SequencingPlatform.","Beacon v2, FAIR Genomes"
+SequencingRuns,,platformModel,ontology,,,,SequencingInstrumentModels,,,,http://purl.obolibrary.org/obo/GENEPIO_0001921,The used product name and model number of a manufacturer's genomic (dna) sequencer. In FAIR Genomes: SequencingInstrumentModel.,"Beacon v2, FAIR Genomes"
 "SequencingRuns","","BelongsToSamplePreparation","ref","","","","SamplePreparation","","","","http://purl.obolibrary.org/obo/NCIT_C25683","Reference to the prepared sample, i.e. the source that was sequenced.","FAIR Genomes"
 "SequencingRuns","","MedianReadDepth","int","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C155320","The median number of times a particular locus (site, nucleotide, amplicon, region) was sequenced.","FAIR Genomes"
 "SequencingRuns","","ObservedReadLength","int","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C153362","The number of nucleotides successfully ordered from each side of a nucleic acid fragment obtained after the completion of a sequencing process.","FAIR Genomes"
