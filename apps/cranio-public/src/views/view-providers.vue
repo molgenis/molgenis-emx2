@@ -30,11 +30,11 @@
             <h3>{{ provider.name }}</h3>
           </div>
           <div class="location">
-            <p class="city">{{ provider.city }}</p>
-            <p class="country">{{ provider.country }}</p>
+            <p>{{ provider.city }}</p>
+            <p>{{ provider.country }}</p>
           </div>
           <div class="link">
-            <a :href="`/${provider.id}/`">
+            <a :href="`/${provider.schemaName}/`">
               <span>View</span>
               <LinkIcon />
             </a>
@@ -55,36 +55,13 @@ import { request } from "graphql-request";
 import { ChevronRightIcon as LinkIcon } from "@heroicons/vue/24/outline";
 
 let error = ref(false);
-let schemas = ref([]);
 let providers = ref([]);
 
-async function getSchemas() {
-  const query = gql`
-    {
-      _schemas {
-        name
-      }
-    }
-  `;
-  const response = await request("/graphql", query);
-  schemas.value = response._schemas
-    .map((schema) => schema.name)
-    .filter((schema) => schema !== "CranioStats");
-}
-
 async function getOrganisations() {
-  const filters = schemas.value.map((schema) => {
-    return `{
-      providerInformation: {
-        providerIdentifier: { equals: "${schema}"}
-      }
-    }`;
-  });
-
   const query = gql`{
     Organisations (
       filter: {
-        _or: [${filters}]
+        hasSchema: { equals: true }
       }
     ) {
       name
@@ -96,19 +73,17 @@ async function getOrganisations() {
         providerIdentifier
         hasSubmittedData
       }
+      hasSchema
+      schemaName
     }
   }`;
 
   const response = await request("../api/graphql", query);
-  providers.value = response.Organisations.map((row) => {
-    return { ...row, id: row.providerInformation[0].providerIdentifier };
-  }).sort((current, next) => {
-    return current.name < next.name ? -1 : 1;
-  });
+  providers.value = response.Organisations
+    .sort((current, next) => current.name < next.name ? -1 : 1);
 }
 
 async function loadData() {
-  await getSchemas();
   await getOrganisations();
 }
 
@@ -125,12 +100,12 @@ onMounted(() => {
 
   .provider {
     display: grid;
-    grid-template-columns: repeat(2, 1fr) 100px;
+    grid-template-columns: 1fr;
     justify-content: center;
     align-items: center;
     box-sizing: content-box;
     background-color: $gray-000;
-    padding: 1em;
+    padding: 1em 1.5em;
     margin-bottom: 1.3em;
     border-radius: $borderRadius;
 
@@ -143,21 +118,21 @@ onMounted(() => {
       font-size: 13pt;
     }
 
-    .name {
-      padding: 0 1.5em;
+    .name { 
       h3 {
-        text-align: left;
+        text-align: center;
         color: $blue-900;
         font-size: 13pt;
       }
     }
 
     .location {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      p {
+      display: flex;
+      justify-content: center;
+      gap: 0.5em;
+      p { 
         margin: 0;
-        color: $blue-700;
+        color: $blue-700; 
       }
     }
 
@@ -177,6 +152,21 @@ onMounted(() => {
           stroke-width: 3px;
           margin-top: -4px;
         }
+      }
+    }
+    
+    @media screen and (min-width: 636px) {
+      grid-template-columns: repeat(2, 1fr) 100px;
+      
+      .name {
+        h3 {
+          text-align: left;
+        }
+      }
+      
+      .location {
+        display: grid;
+        grid-template-columns: repeat(2,1fr);
       }
     }
   }
