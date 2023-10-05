@@ -21,6 +21,7 @@ public abstract class AbstractDataLoader {
             try {
               this.loadInternalImplementation(db.getSchema(schema.getName()), includeExampleData);
             } catch (Exception e) {
+              e.printStackTrace();
               throw new MolgenisException(e.getMessage());
             }
           });
