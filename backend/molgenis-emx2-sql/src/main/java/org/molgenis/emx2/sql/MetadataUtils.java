@@ -69,7 +69,7 @@ public class MetadataUtils {
   private static final Field<String[]> COLUMN_SEMANTICS =
       field(name("columnSemantics"), VARCHAR.nullable(true).getArrayType());
   private static final Field<String[]> COLUMN_PROFILES =
-          field(name("columnProfiles"), VARCHAR.nullable(true).getArrayType());
+      field(name("columnProfiles"), VARCHAR.nullable(true).getArrayType());
   private static final Field<String> COLUMN_TYPE =
       field(name("columnType"), VARCHAR.nullable(false));
   private static final Field<Boolean> COLUMN_REQUIRED =
@@ -241,7 +241,6 @@ public class MetadataUtils {
                         COLUMN_CASCADE,
                         COLUMN_DESCRIPTION,
                         COLUMN_SEMANTICS,
-                        COLUMN_PROFILES,
                         COLUMN_VISIBLE)
                     .constraints(
                         primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
