@@ -445,7 +445,8 @@ public class SqlColumnExecutor {
   }
 
   public static void executeSetDefaultValue(DSLContext jooq, Column newColumn) {
-    if (newColumn.getDefaultValue() != null) {
+    if (newColumn.getDefaultValue() != null && newColumn.isReference()) {
+      // we can't do this for references yet
       Object defaultValue = newColumn.getDefaultValue();
       if (newColumn.getDefaultValue().startsWith("=")) {
         defaultValue = executeJavascript(newColumn.getDefaultValue().substring(1));

@@ -33,6 +33,30 @@ public class SqlTypeUtils extends TypeUtils {
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else if (AUTO_ID.equals(c.getColumnType())) {
         applyAutoid(c, row);
+      } else if (c.getDefaultValue() != null && !row.notNull(c.getName())) {
+        if (c.getDefaultValue().startsWith("=")) {
+          try {
+            if (c.isRefArray()) {
+              convertRefArrayToRow(
+                  (List)
+                      executeJavascriptOnMap(c.getDefaultValue().substring(1), graph, List.class),
+                  row,
+                  c);
+            } else if (c.isRef()) {
+              convertRefToRow(
+                  (Map) executeJavascriptOnMap(c.getDefaultValue().substring(1), graph, Map.class),
+                  row,
+                  c);
+            } else {
+              row.set(c.getName(), executeJavascript(c.getDefaultValue().substring(1)));
+            }
+          } catch (Exception e) {
+            throw new MolgenisException(
+                "Error in defaultValue of column " + c.getName() + ": " + e.getMessage());
+          }
+        } else {
+          row.set(c.getName(), c.getDefaultValue());
+        }
       } else if (c.getComputed() != null) {
         row.set(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
       } else if (columnIsVisible(c, graph)) {
@@ -85,8 +109,8 @@ public class SqlTypeUtils extends TypeUtils {
 
   private static boolean columnIsVisible(Column column, Map values) {
     if (column.getVisible() != null) {
-      String visibleResult = executeJavascriptOnMap(column.getVisible(), values);
-      if (visibleResult.equals("false") || visibleResult.equals("null")) {
+      Object visibleResult = executeJavascriptOnMap(column.getVisible(), values);
+      if (visibleResult.equals(false) || visibleResult == null) {
         return false;
       }
     }
@@ -94,18 +118,7 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static Object getTypedValue(Column c, Row row) {
-    return getTypedValue(c, row, false);
-  }
-
-  public static Object getTypedValue(Column c, Row row, boolean applyDefault) {
     String name = c.getName();
-    if (applyDefault && !row.notNull(name) && c.getDefaultValue() != null) {
-      if (c.getDefaultValue().startsWith("=")) {
-        return executeJavascript(c.getDefaultValue().substring(1));
-      } else {
-        return c.getDefaultValue();
-      }
-    }
     return switch (c.getPrimitiveColumnType()) {
       case FILE -> row.getBinary(name);
       case UUID -> row.getUuid(name);
@@ -131,14 +144,6 @@ public class SqlTypeUtils extends TypeUtils {
       default -> throw new UnsupportedOperationException(
           "Unsupported columnType found:" + c.getColumnType());
     };
-  }
-
-  static Object getTypedDefaultValue(Column c) {
-    String defaultValue = c.getDefaultValue();
-    if (defaultValue.startsWith("=")) {
-      defaultValue = executeJavascript(defaultValue.substring(1));
-    }
-    return TypeUtils.getTypedValue(defaultValue, c.getColumnType());
   }
 
   static String getPsqlType(Column column) {
@@ -184,16 +189,16 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static String checkValidation(String validationScript, Map<String, Object> values) {
     try {
-      String error = executeJavascriptOnMap(validationScript, values);
+      Object error = executeJavascriptOnMap(validationScript, values);
       if (error != null) {
-        if (error.trim().equals("false")) {
+        if (error.equals(false)) {
           // you can have a validation rule that simply returns true or false;
           // false means not valid.
           return validationScript;
         } else
         // you can have a validation script returning true which means valid, and undefined also
-        if (!error.trim().equals("true") && !error.trim().equals("undefined")) {
-          return error;
+        if (!error.equals(true) && !error.equals(null)) {
+          return error.toString();
         }
       }
       return null;
