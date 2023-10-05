@@ -17,15 +17,18 @@ node {
 }
 
 task cleanJavascript(type: YarnTask, dependsOn: yarn_install) {
+    outputs.upToDateWhen { false }
     args = ['run', 'nx', 'reset']
 }
 clean.dependsOn cleanJavascript
 
 task format(type: YarnTask, dependsOn: yarn_install) {
+    outputs.upToDateWhen { false }
     args = ['run', 'nx', 'format:write']
 }
 
 task checkFormat(type: YarnTask, dependsOn: yarn_install) {
+    outputs.upToDateWhen { false }
     args = ['run', 'nx', 'format:check']
 }
 
@@ -50,6 +53,8 @@ task buildJavascript(type: YarnTask, dependsOn: format) {
         }
     }
 }
+
+compileJava.dependsOn buildJavascript
 
 sourceSets {
     main {
