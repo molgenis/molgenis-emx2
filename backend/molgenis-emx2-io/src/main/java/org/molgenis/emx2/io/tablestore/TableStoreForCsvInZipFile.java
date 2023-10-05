@@ -68,7 +68,8 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
   }
 
   @Override
-  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+  public void writeTable(
+      String name, List<String> columnNames, NameMapper nameMapper, Iterable<Row> rows) {
     if (columnNames.isEmpty()) {
       return;
     }
@@ -79,7 +80,7 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
       Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       Writer writer = Files.newBufferedWriter(pathInZipfile);
       if (rows.iterator().hasNext()) {
-        CsvTableWriter.write(rows, columnNames, writer, COMMA);
+        CsvTableWriter.write(rows, columnNames, nameMapper, writer, COMMA);
       } else {
         // only header in case no rows provided
         writer.write(columnNames.stream().collect(Collectors.joining("" + COMMA)));

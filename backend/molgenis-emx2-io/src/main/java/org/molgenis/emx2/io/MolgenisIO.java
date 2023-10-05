@@ -54,9 +54,15 @@ public class MolgenisIO {
   private static void executeEmx1Export(TableStore store, Schema schema) {
     // write metadata
     store.writeTable(
-        "entities", List.of("UNSUPPORTED"), Emx1.getEmx1Entities(schema.getMetadata()));
+        "entities",
+        List.of("UNSUPPORTED"),
+        new DefaultNameMapper(),
+        Emx1.getEmx1Entities(schema.getMetadata()));
     store.writeTable(
-        "attributes", List.of("UNSUPPORTED"), Emx1.getEmx1Attributes(schema.getMetadata()));
+        "attributes",
+        List.of("UNSUPPORTED"),
+        new DefaultNameMapper(),
+        Emx1.getEmx1Attributes(schema.getMetadata()));
     // write data
     for (String tableName : schema.getTableNames()) {
       outputTable(store, schema.getTable(tableName));

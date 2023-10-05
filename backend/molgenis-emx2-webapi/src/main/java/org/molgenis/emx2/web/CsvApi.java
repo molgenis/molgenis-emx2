@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
+import org.molgenis.emx2.io.ColumnLabelNameMapper;
+import org.molgenis.emx2.io.DefaultNameMapper;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
@@ -76,6 +78,7 @@ public class CsvApi {
     CsvTableWriter.write(
         Emx2.toRowList(schema.getMetadata()),
         getHeaders(schema.getMetadata()),
+        new DefaultNameMapper(),
         writer,
         getSeperator(request));
     response.type(ACCEPT_CSV);
@@ -91,7 +94,10 @@ public class CsvApi {
     Table table = MolgenisWebservice.getTable(request);
     TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeperator(request));
     store.writeTable(
-        table.getName(), getDownloadColumns(request, table), getDownloadRows(request, table));
+        table.getName(),
+        getDownloadColumns(request, table),
+        new ColumnLabelNameMapper(table.getMetadata()),
+        getDownloadRows(request, table));
     response.type(ACCEPT_CSV);
     response.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
     response.status(200);

@@ -7,7 +7,7 @@ import org.molgenis.emx2.Row;
 
 public interface TableStore {
 
-  void writeTable(String name, List<String> columnNames, Iterable<Row> rows);
+  void writeTable(String name, List<String> columnNames, NameMapper mapper, Iterable<Row> rows);
 
   Iterable<Row> readTable(String name);
 

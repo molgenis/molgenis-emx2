@@ -32,7 +32,8 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
   }
 
   @Override
-  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+  public void writeTable(
+      String name, List<String> columnNames, NameMapper mapper, Iterable<Row> rows) {
     throw new UnsupportedOperationException("Cannot write to classpath");
   }
 

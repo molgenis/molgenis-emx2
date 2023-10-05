@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.DefaultNameMapper;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
 public class Emx2Settings {
@@ -39,7 +40,10 @@ public class Emx2Settings {
 
     if (!settings.isEmpty()) {
       store.writeTable(
-          Constants.SETTINGS_TABLE, List.of(TABLE, SETTINGS_NAME, SETTINGS_VALUE), settings);
+          Constants.SETTINGS_TABLE,
+          List.of(TABLE, SETTINGS_NAME, SETTINGS_VALUE),
+          new DefaultNameMapper(),
+          settings);
     }
   }
 

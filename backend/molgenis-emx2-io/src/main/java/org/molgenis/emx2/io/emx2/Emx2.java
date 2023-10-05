@@ -7,6 +7,7 @@ import static org.molgenis.emx2.utils.TypeUtils.convertToTitleCase;
 
 import java.util.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.DefaultNameMapper;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
 public class Emx2 {
@@ -168,7 +169,7 @@ public class Emx2 {
   public static void outputMetadata(TableStore store, SchemaMetadata schema) {
     // headers
     List<String> headers = getHeaders(schema);
-    store.writeTable("molgenis", headers, toRowList(schema));
+    store.writeTable("molgenis", headers, new DefaultNameMapper(), toRowList(schema));
   }
 
   public static List getHeaders(SchemaMetadata schema) {

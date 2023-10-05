@@ -48,6 +48,7 @@ public class TestEmx2Settings {
     store.writeTable(
         SETTINGS_TABLE,
         List.of(SETTINGS_NAME, SETTINGS_VALUE),
+        new DefaultNameMapper(),
         List.of(row(SETTINGS_NAME, "foo", SETTINGS_VALUE, null)));
 
     // verify

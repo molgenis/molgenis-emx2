@@ -22,11 +22,12 @@ public class TableStoreForCsvFile implements TableStore {
   }
 
   @Override
-  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+  public void writeTable(
+      String name, List<String> columnNames, NameMapper mapper, Iterable<Row> rows) {
     try {
       Writer writer = Files.newBufferedWriter(csvFile);
       if (rows.iterator().hasNext()) {
-        CsvTableWriter.write(rows, columnNames, writer, ',');
+        CsvTableWriter.write(rows, columnNames, mapper, writer, ',');
       } else {
         // only header in case no rows provided
         writer.write(columnNames.stream().collect(Collectors.joining(",")));

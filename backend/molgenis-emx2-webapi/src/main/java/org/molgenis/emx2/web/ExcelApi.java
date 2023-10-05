@@ -20,6 +20,7 @@ import java.nio.file.StandardCopyOption;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.ColumnLabelNameMapper;
 import org.molgenis.emx2.io.ImportExcelTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -103,7 +104,10 @@ public class ExcelApi {
       Path excelFile = tempDir.resolve("download.xlsx");
       TableStore excelStore = new TableStoreForXlsxFile(excelFile);
       excelStore.writeTable(
-          table.getName(), getDownloadColumns(request, table), getDownloadRows(request, table));
+          table.getName(),
+          getDownloadColumns(request, table),
+          new ColumnLabelNameMapper(table.getMetadata()),
+          getDownloadRows(request, table));
       response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       response.header(
           "Content-Disposition",
