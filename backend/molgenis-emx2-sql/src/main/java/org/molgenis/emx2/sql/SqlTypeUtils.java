@@ -110,7 +110,7 @@ public class SqlTypeUtils extends TypeUtils {
   private static boolean columnIsVisible(Column column, Map values) {
     if (column.getVisible() != null) {
       Object visibleResult = executeJavascriptOnMap(column.getVisible(), values);
-      if (visibleResult.equals(false) || visibleResult == null) {
+      if (visibleResult == null || Boolean.FALSE.equals(visibleResult)) {
         return false;
       }
     }
