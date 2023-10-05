@@ -101,7 +101,7 @@ Optionally you can also use javascript expressions. For example:
 * ```duck``` would set a string value
 * ```1``` would set a numeric value
 * ```=new Date().toJSONString()``` provides automatic date/dateTime
-* * ```={name:"green"}``` could be default value for an ontology_
+* ```={name:"green"}``` could be default value for an ontology_
 * ```=[{name:"green"}]``` could be default value for an ontology_array
 
 Known limitation: doesn't work for columns refering to a table with composite primary key (i.e. having multiple key=1 fields).

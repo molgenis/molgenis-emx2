@@ -197,7 +197,7 @@ public class SqlTypeUtils extends TypeUtils {
           return validationScript;
         } else
         // you can have a validation script returning true which means valid, and undefined also
-        if (!error.equals(true) && !error.equals(null)) {
+        if (!Boolean.TRUE.equals(error) && error != null) {
           return error.toString();
         }
       }
