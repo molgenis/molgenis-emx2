@@ -20,7 +20,11 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
+<<<<<<< HEAD
   private static final int SOFTWARE_DATABASE_VERSION = 12;
+=======
+  private static final int SOFTWARE_DATABASE_VERSION = 11;
+>>>>>>> 6437fd74bab4cd8b8fc834f35737245bd9dbc8ad
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
@@ -82,6 +86,8 @@ public class Migrations {
 
           if (version < 10)
             executeMigrationFile(tdb, "migration10.sql", "add Aggregate role for each schema");
+
+          if (version < 11) executeMigrationFile(tdb, "migration11.sql", "add profile metadata");
 
           if (version < 12)
             executeMigrationFile(tdb, "migration12.sql", "add defaultValue in metadata schema");

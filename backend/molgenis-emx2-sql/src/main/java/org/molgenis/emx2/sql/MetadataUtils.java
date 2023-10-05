@@ -243,7 +243,6 @@ public class MetadataUtils {
                         COLUMN_CASCADE,
                         COLUMN_DESCRIPTION,
                         COLUMN_SEMANTICS,
-                        COLUMN_PROFILES,
                         COLUMN_VISIBLE)
                     .constraints(
                         primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
