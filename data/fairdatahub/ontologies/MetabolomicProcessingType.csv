@@ -1,0 +1,5 @@
+name,definition,codesystem,code,ontologyTermURI
+"derivatization","derivatization","MSIO","0000111","http://purl.obolibrary.org/obo/MSIO_0000111"
+"high performance liquid chromatography","high performance liquid chromatography","MSIO","0000148","http://purl.obolibrary.org/obo/MSIO_0000148"
+"lipid extraction","lipid extraction","MSIO","0000142","http://purl.obolibrary.org/obo/MSIO_0000142"
+"polar metabolite extraction","polar metabolite extraction","MSIO","0000143","http://purl.obolibrary.org/obo/MSIO_0000143"
