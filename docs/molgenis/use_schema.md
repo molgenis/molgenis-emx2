@@ -95,11 +95,16 @@ When required=TRUE then values in this column must be filled. When required=FALS
 
 ### defaultValue
 
-Using 'defaultValue' you can set a default value for a column.
-In forms, this value will be pre-filled.
+Using 'defaultValue' you can set a default value for a column. In forms, this value will be pre-filled.
 When uploading csv/excel all empty cells will receive the defaultValue (in insert and update)
-Optionally you can also use javascript expressions, e.g.
+Optionally you can also use javascript expressions. For example:
+* ```duck``` would set a string value
+* ```1``` would set a numeric value
 * ```=new Date().toJSONString()``` provides automatic date/dateTime
+* * ```={name:"green"}``` could be default value for an ontology_
+* ```=[{name:"green"}]``` could be default value for an ontology_array
+
+Known limitation: doesn't work for columns refering to a table with composite primary key (i.e. having multiple key=1 fields).
 
 ### label,label:en,label:fr etc
 
