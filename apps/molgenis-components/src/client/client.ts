@@ -192,6 +192,7 @@ _schema {
       refLabelDefault,
       refBack,
       required,
+      defaultValue,
       readonly,
       semantics,
       descriptions{
