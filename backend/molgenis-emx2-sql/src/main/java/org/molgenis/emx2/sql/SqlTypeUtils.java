@@ -193,11 +193,11 @@ public class SqlTypeUtils extends TypeUtils {
     try {
       Object error = executeJavascriptOnMap(validationScript, values);
       if (error != null) {
-        if (error.equals(false)) {
+        if (error instanceof Boolean && (Boolean) error == false) {
           // you can have a validation rule that simply returns true or false;
           // false means not valid.
           return validationScript;
-        } else if (error.equals(true)) {
+        } else if (error instanceof Boolean && (Boolean) error == true) {
           return null;
         }
         // you can have a validation script returning true which means valid, and undefined also
