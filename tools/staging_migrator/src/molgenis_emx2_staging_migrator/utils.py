@@ -8,20 +8,22 @@ from tools.staging_migrator.src.molgenis_emx2_staging_migrator.graphql_queries i
 log = logging.getLogger(__name__)
 
 
-def get_staging_cohort_id(url, session, staging_area) -> str | None:
+def get_cohort_ids(server_url, session, staging_area) -> list | None:
     """Fetches the id associated with the staging area's cohort."""
 
     # Query server for cohort id
     query = Queries.Cohorts
-    staging_url = f"{url}/{staging_area}/graphql"
-    response = session.post(url=staging_url, json={"query": query}).json().get('data')
+    staging_url = f"{server_url}/{staging_area}/graphql"
+    response = session.post(url=staging_url,
+                            json={"query": query})
+    response_data = response.json().get('data')
 
     # Return only if there is exactly one id/cohort in the Cohorts table
-    if "Cohorts" in response.keys():
-        if len(response['Cohorts']) != 1:
+    if "Cohorts" in response_data.keys():
+        if len(response_data['Cohorts']) < 1:
             log.warning(
-                f'Expected a single cohort in staging area "{staging_area}"'
-                f' but found {len(response["Cohorts"])}')
+                f'Expected a cohort in staging area "{staging_area}"'
+                f' but found {len(response_data["Cohorts"])}')
             return None
     else:
         log.warning(
@@ -29,7 +31,7 @@ def get_staging_cohort_id(url, session, staging_area) -> str | None:
             f' but found none.')
         return None
 
-    return response['Cohorts'][0]['id']
+    return [cohort['id'] for cohort in response_data['Cohorts']]
 
 
 def prepare_pkey(schema: dict, table_name: str, col_name: str | list = None) -> str | list | dict:
@@ -139,13 +141,13 @@ def construct_delete_query(db_schema: dict, table: str):
     return _query
 
 
-def construct_delete_variables(db_schema: dict, staging_cohort_id: str, t_name: str, t_type: str):
+def construct_delete_variables(db_schema: dict, cohort_ids: list, t_name: str, t_type: str):
     """Constructs a variables filter for querying the GraphQL table on the desired column values."""
     pkeys = prepare_pkey(db_schema, t_name, t_type)
 
     def prepare_key_part(_pkey: str | dict):
         if isinstance(_pkey, str):
-            return {"equals": [{_pkey: staging_cohort_id}]}
+            return {"equals": [{_pkey: _id} for _id in cohort_ids]}
         if isinstance(_pkey, dict):
             _key, _val = list(_pkey.items())[0]
             return {_key: prepare_key_part(_val[0])}
