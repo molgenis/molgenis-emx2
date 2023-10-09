@@ -37,7 +37,7 @@
     "click-outside-vue3": "4.0.1",
     "cross-env": "7.0.3",
     "universal-cookie": "4.0.4",
-    "vue": "3.2.47",
+    "vue": "3.3.4",
     "vue-gtag": "2.0.1",
     "vue-flatpickr-component": "11.0.3",
     "vue3-cookies": "^1.0.6",
