@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@vueup/vue-quill": "^1.0.0",
-    "core-js": "3.32.2",
+    "core-js": "3.33.0",
     "graphql-request": "5.2.0",
     "molgenis-components": "*",
     "vue": "3.3.4",
