@@ -186,7 +186,11 @@ public class ZipApi {
       String sql = (String) reportObject.get("sql");
       String name = (String) reportObject.get("name");
       List<Row> rows = schema.retrieveSql(sql, parameters);
-      store.writeTable(name, new ArrayList<>(rows.get(0).getColumnNames()), rows);
+      if (rows.size() > 0) {
+        store.writeTable(name, new ArrayList<>(rows.get(0).getColumnNames()), rows);
+      } else {
+        store.writeTable(name, new ArrayList<>(), rows);
+      }
     }
   }
 

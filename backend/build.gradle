@@ -1,7 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
-    id "com.diffplug.spotless" version "6.20.0" apply false
+    id "com.diffplug.spotless" version "6.22.0" apply false
 }
 
 repositories {
@@ -45,7 +45,7 @@ subprojects {
         implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
         implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
         implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
-        implementation 'com.graphql-java:graphql-java:21.0'
+        implementation 'com.graphql-java:graphql-java:21.1'
         implementation 'com.graphql-java:graphql-java-extended-scalars:20.2'
         implementation 'com.sparkjava:spark-core:2.9.4'
         implementation 'org.pac4j:pac4j-core:5.4.5'
@@ -99,7 +99,7 @@ subprojects {
     }
 
     test {
-        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
+        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED")
         useJUnitPlatform ()
         failFast true
         testLogging {

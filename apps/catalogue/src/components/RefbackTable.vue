@@ -172,14 +172,14 @@ export default {
           } else if (col.refLabel) {
             return applyJsTemplate(v, col.refLabel);
           } else {
-            return flattenObject(v);
+            return applyJsTemplate(v, col.refLabelDefault);
           }
         });
       } else if (col.columnType == "REF" || col.columnType == "ONTOLOGY") {
         if (col.refLabel) {
           return [applyJsTemplate(row[col.id], col.refLabel)];
         } else {
-          return [flattenObject(row[col.id])];
+          return applyJsTemplate(row[col.id], col.refLabelDefault);
         }
       } else if (col.columnType.includes("ARRAY")) {
         return row[col.id];

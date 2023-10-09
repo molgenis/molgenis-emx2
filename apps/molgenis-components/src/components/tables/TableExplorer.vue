@@ -360,6 +360,7 @@
       :schemaName="schemaName"
       @close="handleModalClose"
       :locale="locale"
+      :apply-default-values="editMode === 'add'"
     />
 
     <ConfirmModal
@@ -570,7 +571,7 @@ export default {
     },
     canView: {
       type: Boolean,
-      default: () => false,
+      default: () => true,
     },
     canEdit: {
       type: Boolean,

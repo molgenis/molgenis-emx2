@@ -109,6 +109,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    applyDefaultValues: {
+      type: Boolean,
+      default: () => false,
+    },
   },
   emits: ["update:modelValue"],
   components: {
@@ -193,6 +197,16 @@ export default {
             );
           } catch (error) {
             this.errorPerColumn[column.id] = "Computation failed: " + error;
+          }
+        } else if (this.applyDefaultValues && column.defaultValue) {
+          if (column.defaultValue.startsWith("=")) {
+            this.internalValues[column.id] = executeExpression(
+              column.defaultValue.substr(1),
+              this.internalValues,
+              this.tableMetaData as ITableMetaData
+            );
+          } else {
+            this.internalValues[column.id] = column.defaultValue;
           }
         }
       });

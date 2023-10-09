@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ISectionField } from "interfaces/types";
-const ContentTypeString = resolveComponent("ContentTypeString");
-const ContentTypeText = resolveComponent("ContentTypeText");
-const ContentTypeOntologyArray = resolveComponent("ContentTypeOntologyArray");
+const String = resolveComponent("ContentTypeString");
+const Text = resolveComponent("ContentTypeText");
+const OntologyArray = resolveComponent("ContentTypeOntologyArray");
+const HyperLink = resolveComponent("ContentTypeHyperLink");
 
 const { field } = defineProps<{
   field: ISectionField;
@@ -11,13 +12,15 @@ const { field } = defineProps<{
 const component = computed(() => {
   switch (field.meta?.columnType) {
     case "TEXT":
-      return ContentTypeText;
+      return Text;
     case "STRING":
-      return ContentTypeString;
+      return String;
     case "ONTOLOGY_ARRAY":
-      return ContentTypeOntologyArray;
+      return OntologyArray;
+    case "HYPERLINK":
+      return HyperLink;
     default:
-      return ContentTypeString;
+      return String;
   }
 });
 </script>

@@ -23,6 +23,7 @@
               :clone="clone"
               :locale="locale"
               :errorPerColumn="rowErrors"
+              :applyDefaultValues="applyDefaultValues"
               @update:model-value="checkForErrors"
             />
           </div>
@@ -182,6 +183,9 @@ export default {
     useChapters: {
       type: Boolean,
       default: () => null,
+    },
+    applyDefaultValues: {
+      type: Boolean,
     },
   },
   computed: {

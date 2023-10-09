@@ -42,6 +42,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
   private String[] semantics = null; // json ld expression
+  private String[] profiles = null; // comma-separated strings
+
   // todo implement below, or remove
   private Boolean readonly = false;
   private String defaultValue = null;
@@ -106,6 +108,15 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this;
   }
 
+  public String[] getProfiles() {
+    return profiles;
+  }
+
+  public Column setProfiles(String... profiles) {
+    this.profiles = profiles;
+    return this;
+  }
+
   /* copy constructor to prevent changes on in progress data */
   private void copy(Column column) {
     columnName = column.columnName;
@@ -129,6 +140,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     descriptions = column.descriptions;
     cascadeDelete = column.cascadeDelete;
     semantics = column.semantics;
+    profiles = column.profiles;
     visible = column.visible;
   }
 
