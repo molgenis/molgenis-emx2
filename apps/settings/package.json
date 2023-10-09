@@ -13,7 +13,7 @@
     "molgenis-components": "*",
     "core-js": "3.32.2",
     "graphql-request": "5.2.0",
-    "vue": "3.2.47",
+    "vue": "3.3.4",
     "vue-router": "4.1.6",
     "vue3-colorpicker": "2.2.2",
     "vuedraggable": "4.1.0"
