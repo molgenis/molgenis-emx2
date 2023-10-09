@@ -1,3 +1,5 @@
+import { type } from "node:os";
+
 export interface IResource {
   id: string;
   pid: string;
@@ -263,3 +265,8 @@ export interface ISection {
   meta: IColumn;
   fields: ISectionField[];
 }
+
+// workaround needed as circular references are not supported for records
+export type KeyObject = {
+  [key: string]: KeyObject | string;
+};

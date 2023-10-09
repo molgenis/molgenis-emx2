@@ -17,9 +17,9 @@ const props = withDefaults(
 
 const resourceIdPath = computed(() => {
   return (
-    Object.values(props.resourceId)[0] +
+    buildValueKey(props.resourceId) +
     "?keys=" +
-    new URLSearchParams(props.resourceId).toString()
+    JSON.stringify(props.resourceId)
   );
 });
 

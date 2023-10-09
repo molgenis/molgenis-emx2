@@ -1,22 +1,18 @@
-import { LocationQueryValue } from ".nuxt/vue-router";
+import { KeyObject } from "~/interfaces/types";
 
-export const locationQueryValueToObject = (
-  value: LocationQueryValue | LocationQueryValue[]
-) => {
-  // TODO: handle nested object case
-  if (value === null) {
-    return {};
-  } else if (Array.isArray(value)) {
-    return value.reduce((acc: Record<string, string>, pair) => {
-      if (pair === null) {
-        return acc;
-      }
-      const [key, val] = pair.split("=");
-      acc[key] = val;
-      return acc;
-    }, {});
-  } else {
-    const [key, val] = value.split("=");
-    return { [key]: val };
-  }
+export const transformToKeyObject = (keyObjectAsString: string): KeyObject =>
+  JSON.parse(keyObjectAsString);
+
+/**
+ * Generates human readable key from KeyObject, one way only, only used for readability
+ */
+export const buildValueKey = (keyObject: KeyObject): string => {
+  return Object.values(keyObject).reduce(
+    (acc: string, val: string | KeyObject) => {
+      const joiner = acc.length === 0 ? "" : "-";
+      return (acc +=
+        joiner + (typeof val === "string" ? val : buildValueKey(val)));
+    },
+    ""
+  );
 };
