@@ -34,22 +34,30 @@ def get_cohort_ids(server_url, session, staging_area) -> list | None:
     return [cohort['id'] for cohort in response_data['Cohorts']]
 
 
-def prepare_pkey(schema: dict, table_name: str, col_name: str | list = None) -> str | list | dict:
+def prepare_pkey(schema: dict, table_name: str, col_id: str | list = None) -> str | list | dict | None:
     """Prepares a primary key by adding a reference to a table if necessary."""
-    if not col_name:
+    if not col_id:
         # Return the primary keys of a table if no column name is specified
         return [col['id'] for col in schema[table_name]['columns'] if col.get('key') == 1]
-    col_data, = [col for col in schema[table_name]['columns'] if col['id'] == col_name]
-    if col_data.get('columnType') in ['ONTOLOGY', 'ONTOLOGY_ARRAY']:
+    col_data, = [col for col in schema[table_name]['columns'] if col['id'] == col_id]
+    if col_id.startswith('mg_'):
+        return None
+    if col_data.get('columnType') == 'HEADING':
+        return None
+    elif col_data.get('columnType') == 'REFBACK':
+        return None
+    elif col_data.get('columnType') in ['ONTOLOGY', 'ONTOLOGY_ARRAY']:
         ont_keys = prepare_pkey(schema, col_data.get('refTable'))
         ont_cols = [prepare_pkey(schema, col_data['refTable'], ok) for ok in ont_keys]
-        return {col_name: ont_cols}
+        return {col_id: ont_cols}
     elif col_data.get('columnType') in ['REF', 'REF_ARRAY']:
         ref_keys = prepare_pkey(schema, col_data.get('refTable'))
         ref_cols = [prepare_pkey(schema, col_data['refTable'], rk) for rk in ref_keys]
-        return {col_name: ref_cols}
+        return {col_id: ref_cols}
+    elif col_data.get('columnType') == 'FILE':
+        return {col_id: 'id'}
     else:
-        return col_name
+        return col_id
 
 
 def query_columns_string(column: str | list | dict, indent: int) -> str:
@@ -127,10 +135,14 @@ def find_cohort_references(schema_schema: dict) -> dict:
     return cohort_references
 
 
-def construct_delete_query(db_schema: dict, table: str):
+def construct_delete_query(db_schema: dict, table: str, all_columns: bool = False):
     """Constructs a GraphQL query for deleting rows from a table."""
-    pkeys = [prepare_pkey(db_schema, table, col['id']) for col in db_schema[table]['columns'] if
-             col.get('key') == 1]
+    if all_columns:
+        pkeys = [prepare_pkey(db_schema, table, col['id']) for col in db_schema[table]['columns']]
+        pkeys = [pk for pk in pkeys if pk is not None]
+    else:
+        pkeys = [prepare_pkey(db_schema, table, col['id']) for col in db_schema[table]['columns'] if
+                 col.get('key') == 1]
     table_id = db_schema[table]['id']
     pkeys_print = query_columns_string(pkeys, indent=4)
     _query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
