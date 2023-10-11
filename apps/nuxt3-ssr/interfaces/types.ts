@@ -59,7 +59,7 @@ export interface ICohort {
   documentation?: IDocumentation[];
 }
 
-interface IVariable {
+export interface IVariable {
   name: string;
   label: string;
   description?: string;
