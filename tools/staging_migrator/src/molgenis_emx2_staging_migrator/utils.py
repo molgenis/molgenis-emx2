@@ -2,6 +2,9 @@
 Utility functions for the StagingMigrator class.
 """
 import logging
+from io import BytesIO
+
+import pandas as pd
 
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.graphql_queries import Queries
 
@@ -167,3 +170,28 @@ def construct_delete_variables(db_schema: dict, cohort_ids: list, t_name: str, t
     variables = {"filter": prepare_key_part(pkeys)}
 
     return variables
+
+
+def has_statement_of_consent(table_name: str, schema: dict) -> int:
+    """Checks whether this table has a column that asks for a statement of consent."""
+    consent_cols = ['statement of consent personal data',
+                    'statement of consent email']
+    col_names = [_col['name'] for _col in schema[table_name]['columns']]
+
+    return 1*(consent_cols[0] in col_names) + 2*(consent_cols[1] in col_names)
+
+
+def process_statement(table: bytes, consent_val: int) -> bytes:
+    """Processes any statement of consent by modifying the rows in the table for which no consent is given."""
+    df = pd.read_csv(BytesIO(table))
+
+    # Remove rows without any data consent
+    if consent_val % 2 == 1:
+        df = df.loc[df['statement of consent personal data']]
+    # Replace email values for rows without email consent
+    if consent_val > 1:
+        df.loc[~df['statement of consent email'], 'email'] = ''
+
+    _table = df.to_csv(index=False).encode()
+
+    return _table

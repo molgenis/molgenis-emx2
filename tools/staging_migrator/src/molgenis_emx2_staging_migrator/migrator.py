@@ -2,6 +2,8 @@
 import logging
 import os
 import pathlib
+import zipfile
+from io import BytesIO
 from typing import TypeAlias, Literal
 
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException, PyclientException
@@ -9,7 +11,8 @@ from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTable
 from tools.pyclient.src.molgenis_emx2_pyclient import Client
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.constants import BASE_DIR
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.utils import get_cohort_ids, \
-    find_cohort_references, construct_delete_query, construct_delete_variables, prepare_pkey
+    find_cohort_references, construct_delete_query, construct_delete_variables, prepare_pkey, has_statement_of_consent, \
+    process_statement
 
 log = logging.getLogger(__name__)
 
@@ -39,26 +42,18 @@ class StagingMigrator(Client):
         """Performs the migration of the staging area to the catalogue."""
 
         # Download the target catalogue for upload in case of an error during execution
-        # self._download_schema_zip(schema=self.catalogue, schema_type='target', include_system_columns=False)
+        self._download_schema_zip(schema=self.catalogue, schema_type='target', include_system_columns=False)
 
         # Delete the source tables from the target database
-        # self._delete_staging_from_catalogue()
+        self._delete_staging_from_catalogue()
 
-        # Filter and download the staging area tables
-        self._find_source_table_references()
-        cohort_ids = get_cohort_ids(self.url, self.session, self.staging_area)
-        _tables_to_sync = find_cohort_references(schema_schema=self._schema_schema(self.staging_area))
-        tables_to_sync = dict(reversed(_tables_to_sync.items()))
-        for table, ref_col in tables_to_sync.items():
-            print(table)
-            try:
-                self._synchronize_table(table_name=table, ref_col=ref_col, cohort_ids=cohort_ids)
-            except NoSuchTableException as e:
-                print(e)
+        # Create zipfile for uploading
+        zip_stream = self._create_upload_zip()
 
-        # Upload the staging area tables to the catalogue
+        self._upload_zip_stream(zip_stream)
 
-    def _download_schema_zip(self, schema: str, schema_type: SchemaType, include_system_columns: bool = True):
+    def _download_schema_zip(self, schema: str, schema_type: SchemaType,
+                             include_system_columns: bool = True) -> str:
         """Download target schema as zip, save in case upload fails."""
         filename = f'{BASE_DIR}/{schema_type}.zip'
         if os.path.exists(filename):
@@ -73,6 +68,7 @@ class StagingMigrator(Client):
             log.info(f'Downloaded target schema to "{filename}".')
         else:
             log.error('Error: download failed')
+        return filename
 
     def _delete_staging_from_catalogue(self):
         """
@@ -149,10 +145,6 @@ class StagingMigrator(Client):
             raise NoSuchSchemaException(f"Schema '{self.catalogue}' not found on server."
                                         f" Available schemas: {', '.join(self.schemas)}.")
 
-    def _find_source_table_references(self):
-        tables_to_sync = find_cohort_references(self._schema_schema(self.staging_area))
-        print("\n".join([f"{k:25}: {v}" for (k, v) in tables_to_sync.items()]))
-
     def _synchronize_table(self, table_name: str, ref_col: str, cohort_ids: list):
         """Synchronizes the table from the staging area to the catalogue by performing three tasks:
         1. Delete rows from the catalogue relating to the cohort that are not in the staging area table
@@ -201,6 +193,47 @@ class StagingMigrator(Client):
                 raise PyclientException
         schema_rows = _schema_response.json().get('data').get(table_id, [])
         return schema_rows
+
+    def _create_upload_zip(self) -> BytesIO:
+        """Combines the relevant tables of the staging area into a zipfile."""
+        tables_to_sync = find_cohort_references(self._schema_schema(self.staging_area))
+
+        source_file_path = self._download_schema_zip(schema=self.staging_area, schema_type='source',
+                                                     include_system_columns=False)
+
+        upload_stream = BytesIO()
+
+        with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
+              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
+            for file_name in source_archive.namelist():
+                if '_files/' in file_name:
+                    upload_archive.writestr(file_name, BytesIO(source_archive.read(file_name)).getvalue())
+                    continue
+                elif (table_name := os.path.splitext(file_name)[0]) not in tables_to_sync.keys():
+                    continue
+
+                _table = source_archive.read(file_name)
+                if consent_val := has_statement_of_consent(table_name, self._schema_schema(self.staging_area)):
+                    _table = process_statement(table=_table, consent_val=consent_val)
+                upload_archive.writestr(file_name, BytesIO(_table).getvalue())
+
+        pathlib.Path('SOURCE.zip').write_bytes(upload_stream.getvalue())
+        return upload_stream
+
+    def _upload_zip_stream(self, zip_stream: BytesIO):
+        """Uploads the zip file containing the tables from the staging area
+        to the catalogue.
+        """
+        upload_url = f"{self.url}/{self.catalogue}/api/zip?async=true"
+
+        response = self.session.post(
+            url=upload_url,
+            files={'file': ('upload.zip', zip_stream.getvalue())}
+        )
+
+        response_status = response.status_code
+        print(response_status)
+        print(str(response.text))
 
     def _delete_rows(self, table_name: str, rows: list):
         """Deletes rows from the table within a schema."""
