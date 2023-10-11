@@ -28,7 +28,7 @@ const tables = computed(() =>
           <template v-for="table in tables">
             <TableRow>
               <TableCell>
-                <NuxtLink :to="`${table.id}`">{{
+                <NuxtLink :to="`/${schemaName}/ssr-catalogue/${table.id}`">{{
                   table.name
                 }}</NuxtLink></TableCell
               >
