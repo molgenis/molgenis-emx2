@@ -263,3 +263,8 @@ export interface ISection {
   meta: IColumn;
   fields: ISectionField[];
 }
+
+// workaround needed as circular references are not supported for records
+export type KeyObject = {
+  [key: string]: KeyObject | string;
+};
