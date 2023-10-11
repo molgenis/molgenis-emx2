@@ -1,5 +1,3 @@
-import { type } from "node:os";
-
 export interface IResource {
   id: string;
   pid: string;
