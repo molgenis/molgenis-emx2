@@ -1,8 +1,0 @@
-query SourceDataDictionaries($filter: SourceDataDictionariesFilter) {
-  SourceDataDictionaries(filter: $filter) {
-    resource {
-      pid
-    }
-    version
-  }
-}

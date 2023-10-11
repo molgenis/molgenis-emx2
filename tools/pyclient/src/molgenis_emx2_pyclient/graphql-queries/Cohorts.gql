@@ -1,7 +1,0 @@
-query Cohorts($filter: CohortsFilter) {
-  Cohorts(filter: $filter) {
-    id
-    name
-    acronym
-  }
-}

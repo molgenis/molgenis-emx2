@@ -1,8 +1,0 @@
-query Subcohorts($filter: SubcohortsFilter) {
-  Subcohorts(filter: $filter) {
-    resource {
-      id
-    }
-    name
-  }
-}

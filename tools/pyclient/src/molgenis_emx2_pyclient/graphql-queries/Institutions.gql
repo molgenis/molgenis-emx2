@@ -1,5 +1,0 @@
-query Institutions($filter: InstitutionsFilter) {
-  Institutions(filter: $filter) {
-    pid
-  }
-}

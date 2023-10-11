@@ -1,6 +1,0 @@
-query Models($filter: ModelsFilter) {
-  Models(filter: $filter) {
-    pid
-    name
-  }
-}

@@ -1,8 +1,0 @@
-query TargetDataDictionaries($filter: TargetDataDictionariesFilter) {
-  TargetDataDictionaries(filter: $filter) {
-    resource {
-      pid
-    }
-    version
-  }
-}
