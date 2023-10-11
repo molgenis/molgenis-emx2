@@ -11,6 +11,7 @@
             <RowEdit
               :id="id"
               v-model="rowData"
+              v-model:errorPerColumn="rowErrors"
               :pkey="pkey"
               :tableName="tableName"
               :tableMetaData="tableMetaData"
@@ -22,7 +23,6 @@
               "
               :clone="clone"
               :locale="locale"
-              :errorPerColumn="rowErrors"
               :applyDefaultValues="applyDefaultValues"
               @update:model-value="checkForErrors"
             />

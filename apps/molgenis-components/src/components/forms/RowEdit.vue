@@ -115,7 +115,7 @@ export default {
       default: () => false,
     },
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "update:errorPerColumn"],
   components: {
     FormInput,
   },
@@ -184,6 +184,7 @@ export default {
         );
       } catch (error: any) {
         this.columnErrors[column.id] = error;
+        this.$emit("update:errorPerColumn", this.columnErrors);
         return true;
       }
     },
@@ -209,6 +210,7 @@ export default {
           }
         } catch (error) {
           this.columnErrors[column.id] = "Computation failed: " + error;
+          this.$emit("update:errorPerColumn", this.columnErrors);
         }
       });
     },
