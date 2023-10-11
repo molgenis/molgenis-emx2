@@ -2039,10 +2039,10 @@
     which "^3.0.1"
     ws "^8.14.2"
 
-"@nuxt/image-edge@1.0.0-rc.3-28277678.46975fe":
-  version "1.0.0-rc.3-28277678.46975fe"
-  resolved "https://registry.yarnpkg.com/@nuxt/image-edge/-/image-edge-1.0.0-rc.3-28277678.46975fe.tgz#9a97efca9937e5c0804c28490724c8f1e5d60cff"
-  integrity sha512-dZ5bSKe8sURiKDEQEprU/iOzxlWnm0zO5E/A4dxkxjbhtPWQIPmc2jAxr20wIzJJtwT0fN2OzjfO7mrZ3lSJcQ==
+"@nuxt/image-edge@1.0.0-rc.3-28282346.a10323e":
+  version "1.0.0-rc.3-28282346.a10323e"
+  resolved "https://registry.yarnpkg.com/@nuxt/image-edge/-/image-edge-1.0.0-rc.3-28282346.a10323e.tgz#63afabe53ca93a987894c3bca6acbe121bc260a8"
+  integrity sha512-x7F5M8PrCcoHCclPD0jJMiVut8vpN5roFZ4g76l7M8rPm+OGZKQVRwAyHiZTTvEVmCIuV0mXwH6OUrU4koy4ag==
   dependencies:
     "@nuxt/kit" "^3.7.4"
     consola "^3.2.3"
