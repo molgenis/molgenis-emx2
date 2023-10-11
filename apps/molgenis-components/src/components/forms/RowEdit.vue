@@ -7,7 +7,7 @@
       :modelValue="internalValues[column.id]"
       :columnType="column.columnType"
       :description="getColumnDescription(column)"
-      :errorMessage="errorPerColumn[column.id]"
+      :errorMessage="columnErrors[column.id]"
       :label="getColumnLabel(column)"
       :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
       :pkey="primaryKey"
@@ -49,6 +49,7 @@ export default {
   name: "RowEdit",
   data: function () {
     return {
+      columnErrors: this.errorPerColumn,
       client: Client.newClient(this.schemaMetaData.name),
       internalValues: deepClone(this.modelValue),
     };
@@ -182,32 +183,32 @@ export default {
           this.tableMetaData as ITableMetaData
         );
       } catch (error: any) {
-        this.errorPerColumn[column.id] = error;
+        this.columnErrors[column.id] = error;
         return true;
       }
     },
     applyComputed() {
       this.tableMetaData.columns.forEach((column: IColumn) => {
-        if (column.computed && column.columnType !== AUTO_ID) {
-          try {
+        try {
+          if (column.computed && column.columnType !== AUTO_ID) {
             this.internalValues[column.id] = executeExpression(
               column.computed,
               this.internalValues,
               this.tableMetaData as ITableMetaData
             );
-          } catch (error) {
-            this.errorPerColumn[column.id] = "Computation failed: " + error;
+          } else if (this.applyDefaultValues && column.defaultValue) {
+            if (column.defaultValue.startsWith("=")) {
+              this.internalValues[column.id] = executeExpression(
+                column.defaultValue.substr(1),
+                this.internalValues,
+                this.tableMetaData as ITableMetaData
+              );
+            } else {
+              this.internalValues[column.id] = column.defaultValue;
+            }
           }
-        } else if (this.applyDefaultValues && column.defaultValue) {
-          if (column.defaultValue.startsWith("=")) {
-            this.internalValues[column.id] = executeExpression(
-              column.defaultValue.substr(1),
-              this.internalValues,
-              this.tableMetaData as ITableMetaData
-            );
-          } else {
-            this.internalValues[column.id] = column.defaultValue;
-          }
+        } catch (error) {
+          this.columnErrors[column.id] = "Computation failed: " + error;
         }
       });
     },
