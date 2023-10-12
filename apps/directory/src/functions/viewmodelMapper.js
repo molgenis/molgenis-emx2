@@ -2,12 +2,8 @@ import { useSettingsStore } from "../stores/settingsStore";
 import { sortCollectionsByName } from "./sorting";
 
 export const getName = (contact) => {
-  const {
-    title_before_name,
-    first_name,
-    last_name,
-    title_after_name,
-  } = contact;
+  const { title_before_name, first_name, last_name, title_after_name } =
+    contact;
 
   let name = "";
 
@@ -298,6 +294,12 @@ export const collectionReportInformation = (collection) => {
     };
   }
 
+  if (collection.also_known) {
+    collectionReport.also_known = collection.also_known
+      ? mapAlsoKnownIn(collection)
+      : undefined;
+  }
+
   if (collection.biobank) {
     collectionReport.biobank = {
       id: collection.biobank.id,
@@ -305,7 +307,7 @@ export const collectionReportInformation = (collection) => {
       juridical_person: collection.biobank.juridical_person,
       country: collection.country.label || collection.country.name,
       report: `/biobank/${collection.biobank.id}`,
-      website: mapUrl(collection.biobank.url),
+      website: collection.biobank.url,
       email: collection.biobank.contact
         ? collection.biobank.contact.email
         : undefined,
@@ -389,4 +391,16 @@ export const mapContactInfo = (instance) => {
   } else {
     return {};
   }
+};
+
+export const mapAlsoKnownIn = (instance) => {
+  let obj = [];
+
+  if (instance.also_known) {
+    instance.also_known.forEach((value, index) => {
+      obj.push({ value: value.url, type: "url" });
+    });
+  }
+
+  return obj;
 };

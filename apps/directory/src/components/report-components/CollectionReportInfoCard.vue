@@ -66,7 +66,7 @@
                     aria-hidden="true"
                   ></span>
                   <a
-                    :href="info.biobank.website"
+                    :href="info.biobank.url"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -89,6 +89,8 @@
               </li>
             </ul>
           </template>
+          <h5>Also Known In</h5>
+          <ReportDetailsList :reportDetails="info.also_known" />
           <template v-if="info.networks && info.networks.length > 0">
             <h5>Networks</h5>
             <ul class="right-content-list">
@@ -159,6 +161,7 @@
 <script setup>
 import { computed, toRefs } from "vue";
 import { useSettingsStore } from "../../stores/settingsStore";
+import ReportDetailsList from "../../components/report-components/ReportDetailsList.vue";
 
 const settingsStore = useSettingsStore();
 const uiText = computed(() => settingsStore.uiText);

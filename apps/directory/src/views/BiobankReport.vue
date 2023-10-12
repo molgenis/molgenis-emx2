@@ -92,6 +92,8 @@
                       <report-details-list
                         :reportDetails="quality"
                       ></report-details-list>
+                      <h5>Also Known In</h5>
+                      <ReportDetailsList :reportDetails="alsoKnownIn" />
                     </div>
                   </div>
                 </div>
@@ -123,6 +125,7 @@ import {
   mapContactInfo,
   mapNetworkInfo,
   mapObjArray,
+  mapAlsoKnownIn,
 } from "../functions/viewmodelMapper";
 import { useBiobanksStore } from "../stores/biobanksStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
@@ -189,6 +192,11 @@ export default {
     contact() {
       return this.biobankDataAvailable && this.biobank.contact
         ? mapContactInfo(this.biobank)
+        : {};
+    },
+    alsoKnownIn() {
+      return this.biobankDataAvailable && this.biobank.also_known
+        ? mapAlsoKnownIn(this.biobank)
         : {};
     },
     quality() {
