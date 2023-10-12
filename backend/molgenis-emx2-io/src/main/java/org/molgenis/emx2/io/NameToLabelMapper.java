@@ -3,10 +3,10 @@ package org.molgenis.emx2.io;
 import org.molgenis.emx2.NameMapper;
 import org.molgenis.emx2.TableMetadata;
 
-public class ColumnLabelNameMapper implements NameMapper {
+public class NameToLabelMapper implements NameMapper {
   TableMetadata tableMetadata;
 
-  public ColumnLabelNameMapper(TableMetadata tableMetadata) {
+  public NameToLabelMapper(TableMetadata tableMetadata) {
     this.tableMetadata = tableMetadata;
   }
 

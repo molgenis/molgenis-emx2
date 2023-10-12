@@ -75,11 +75,10 @@ public class ImportTableTask extends Task {
 
         // column warning
         if (task.getProgress() == 0) {
-          List<String> columnNames =
-              metadata.getDownloadColumnNames().stream().map(Column::getName).toList();
+          LabelToNameMapper mapper = new LabelToNameMapper(metadata);
           warningColumns =
               row.getColumnNames().stream()
-                  .filter(name -> !columnNames.contains(name))
+                  .filter(name -> mapper.map(name) == null)
                   .collect(Collectors.toSet());
           if (!warningColumns.isEmpty()) {
             if (task.isStrict()) {

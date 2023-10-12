@@ -5,7 +5,7 @@ import static org.molgenis.emx2.FilterBean.f;
 
 import java.util.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.ColumnLabelNameMapper;
+import org.molgenis.emx2.io.NameToLabelMapper;
 import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
@@ -46,7 +46,7 @@ public class Emx2Tables {
       store.writeTable(
           table.getName(),
           downloadColumnNames,
-          new ColumnLabelNameMapper(table.getMetadata()),
+          new NameToLabelMapper(table.getMetadata()),
           table
               .query()
               .select(select)
@@ -60,7 +60,7 @@ public class Emx2Tables {
       store.writeTable(
           table.getName(),
           downloadColumnNames,
-          new ColumnLabelNameMapper(table.getMetadata()),
+          new NameToLabelMapper(table.getMetadata()),
           table.select(select).retrieveRows());
     }
 

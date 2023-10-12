@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
-import org.molgenis.emx2.io.ColumnLabelNameMapper;
 import org.molgenis.emx2.io.DefaultNameMapper;
+import org.molgenis.emx2.io.NameToLabelMapper;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
@@ -96,7 +96,7 @@ public class CsvApi {
     store.writeTable(
         table.getName(),
         getDownloadColumns(request, table),
-        new ColumnLabelNameMapper(table.getMetadata()),
+        new NameToLabelMapper(table.getMetadata()),
         getDownloadRows(request, table));
     response.type(ACCEPT_CSV);
     response.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");

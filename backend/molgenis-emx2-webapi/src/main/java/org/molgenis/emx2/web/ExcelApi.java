@@ -20,9 +20,9 @@ import java.nio.file.StandardCopyOption;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.ColumnLabelNameMapper;
 import org.molgenis.emx2.io.ImportExcelTask;
 import org.molgenis.emx2.io.MolgenisIO;
+import org.molgenis.emx2.io.NameToLabelMapper;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import spark.Request;
@@ -106,7 +106,7 @@ public class ExcelApi {
       excelStore.writeTable(
           table.getName(),
           getDownloadColumns(request, table),
-          new ColumnLabelNameMapper(table.getMetadata()),
+          new NameToLabelMapper(table.getMetadata()),
           getDownloadRows(request, table));
       response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       response.header(
