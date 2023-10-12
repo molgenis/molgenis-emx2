@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -30,7 +29,6 @@ public class FAIRDataPointBadDistributionInDatasetTest {
   static Schema fairDataHub_baddistribution;
 
   @BeforeAll
-  @Disabled
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     fairDataHub_baddistribution = database.dropCreateSchema("fairDataHub_baddistribution");
@@ -39,7 +37,6 @@ public class FAIRDataPointBadDistributionInDatasetTest {
   }
 
   @Test
-  @Disabled
   public void FDPBadDistribution() throws Exception {
 
     // check correct situation: distribution value matches a table, API returns as normal

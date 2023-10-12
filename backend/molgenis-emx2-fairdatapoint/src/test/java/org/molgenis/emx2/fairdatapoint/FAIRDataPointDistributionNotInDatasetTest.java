@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -26,7 +25,6 @@ public class FAIRDataPointDistributionNotInDatasetTest {
   static Schema fairDataHub_distribnotindataset;
 
   @BeforeAll
-  @Disabled
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     fairDataHub_distribnotindataset = database.dropCreateSchema("fairDataHub_distribnotindataset");
@@ -35,7 +33,6 @@ public class FAIRDataPointDistributionNotInDatasetTest {
   }
 
   @Test
-  @Disabled
   public void FDPBadDistribution() throws Exception {
     // request a distribution that is okay to retrieve
     Request request = mock(Request.class);

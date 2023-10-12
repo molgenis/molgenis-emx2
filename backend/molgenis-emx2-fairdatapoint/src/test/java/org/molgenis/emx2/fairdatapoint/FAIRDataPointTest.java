@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.formatToMediaType;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -26,7 +25,6 @@ public class FAIRDataPointTest {
   static Schema fdpSchema;
 
   @BeforeAll
-  @Disabled
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     fdpSchema = database.dropCreateSchema("fdpTest");
@@ -41,7 +39,6 @@ public class FAIRDataPointTest {
   }
 
   @Test
-  @Disabled
   public void FDPMetadataSchemaService() throws Exception {
     Request request = mock(Request.class);
     when(request.url()).thenReturn("http://localhost:8080/api/fdp");
