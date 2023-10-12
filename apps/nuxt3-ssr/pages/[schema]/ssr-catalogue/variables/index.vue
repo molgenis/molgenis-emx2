@@ -82,6 +82,26 @@ const query = computed(() => {
           name
         }
       } 
+      repeats {
+        name
+        mappings {   
+          match {
+            name
+          }
+          source {
+            id
+          }
+          sourceVariables {
+            name
+          }
+          sourceDataset {
+            resource {
+              id
+            }
+            name
+          }
+        }
+      }
     }
     Cohorts(orderby: { id: ASC }) {
       id
