@@ -36,7 +36,7 @@ const statusMap = computed(() => {
 </script>
 
 <template>
-  <div class="pb-5">
+  <div class="pb-5 relative">
     <table class="table-auto">
       <thead>
         <tr class="border-y-2">
