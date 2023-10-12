@@ -114,6 +114,7 @@ public class SqlColumnExecutor {
       jooq.execute(
           "DROP INDEX {0}",
           name(oldColumn.getSchemaName(), table.getName() + "/" + oldColumn.getName()));
+      // and drop trigger
     }
 
     // change the type

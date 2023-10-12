@@ -1,6 +1,5 @@
 package org.molgenis.emx2.sql;
 
-import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefConstraints;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
@@ -338,14 +337,6 @@ public class SqlSchema implements Schema {
           if (oldColumn == null && !newColumn.isRefback()) {
             oldTable.add(newColumn);
             created.add(newColumn.getTableName() + "." + newColumn.getName());
-          } else
-          // if column exist but type has changed remove triggers
-          if (oldColumn != null
-              && !newColumn
-                  .getColumnType()
-                  .getBaseType()
-                  .equals(oldColumn.getColumnType().getBaseType())) {
-            executeRemoveRefConstraints(targetSchema.getMetadata().getJooq(), oldColumn);
           }
         }
       }
