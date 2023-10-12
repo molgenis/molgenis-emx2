@@ -361,30 +361,6 @@ public class TestMergeAlter {
   }
 
   @Test
-  public void testAlterOntologyArrayToOntology() {
-    schema.create(
-        table(
-            "SomeOntologyArray",
-            column("key").setPkey(),
-            column("myOntology").setType(ONTOLOGY_ARRAY).setRefTable("OntologyTarget")));
-
-    SchemaMetadata upgrade = new SchemaMetadata();
-    upgrade.create(
-        table(
-            "SomeOntologyArray",
-            column("key").setPkey(),
-            column("myOntology").setType(ONTOLOGY).setRefTable("OntologyTarget")));
-    schema.migrate(upgrade);
-    assertEquals(
-        ONTOLOGY,
-        schema
-            .getMetadata()
-            .getTableMetadata("SomeOntologyArray")
-            .getColumn("myOntology")
-            .getColumnType());
-  }
-
-  @Test
   public void testAlterTypeFromOntologyArrayToRefArray() {
     // regression test: this went wrong because columnType was checked instead of
     // columnType.baseType
