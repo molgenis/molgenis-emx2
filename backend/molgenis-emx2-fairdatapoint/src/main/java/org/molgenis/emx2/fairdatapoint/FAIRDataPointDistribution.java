@@ -37,177 +37,186 @@ public class FAIRDataPointDistribution {
    * http://localhost:8080/api/fdp/distribution/rd3/Analyses/jsonld
    *
    * @param request
-   * @param database
+   * @param db
    * @throws Exception
    */
-  public FAIRDataPointDistribution(Request request, Database database) throws Exception {
+  public FAIRDataPointDistribution(Request request, Database db) throws Exception {
 
-    String schemaParam = request.params("schema");
-    String distributionParam = request.params("distribution");
-    String formatParam = request.params("format");
+    final String schemaParam = request.params("schema");
+    final String distributionParam = request.params("distribution");
+    final String rawFormatParam = request.params("format");
 
-    if (schemaParam == null || distributionParam == null || formatParam == null) {
+    if (schemaParam == null || distributionParam == null || rawFormatParam == null) {
       throw new Exception(
           "You must provide 3 parameters: schema, distribution (or file), and format");
     }
 
-    if (database.getSchema(schemaParam) == null) {
-      throw new Exception("Schema unknown.");
-    }
+    final ModelBuilder builder = new ModelBuilder();
 
-    // 'distribution' must either refer to the name of existing and visible 'Distribution' by a
-    // file contained therein
-    Schema schemaObj = database.getSchema(schemaParam);
-    List<Map<String, Object>> distrByName = queryDistribution(schemaObj, "name", distributionParam);
-    List<Map<String, Object>> distrByFile =
-        queryDistribution(schemaObj, "files:{identifier", distributionParam);
+    db.tx(
+        database -> {
+          if (database.getSchema(schemaParam) == null) {
+            throw new MolgenisException("Schema unknown.");
+          }
 
-    if (distrByName.size() == 0 && distrByFile.size() == 0) {
-      throw new Exception("Distribution or file therein not found");
-    } else if (distrByName.size() > 0 && distrByFile.size() > 0) {
-      throw new Exception(
-          "Cannot resolve distribution because it is ambiguous: file name equal to a table name. Please resolve this issue.");
-    }
+          // 'distribution' must either refer to the name of existing and visible 'Distribution' by
+          // a
+          // file contained therein
+          Schema schemaObj = database.getSchema(schemaParam);
+          List<Map<String, Object>> distrByName =
+              queryDistribution(schemaObj, "name", distributionParam);
+          List<Map<String, Object>> distrByFile =
+              queryDistribution(schemaObj, "files:{identifier", distributionParam);
 
-    List<Map<String, Object>> distributions;
-    if (distrByName.size() > 0) {
-      distributions = distrByName;
-    } else {
-      distributions = distrByFile;
-    }
+          if (distrByName.size() == 0 && distrByFile.size() == 0) {
+            throw new MolgenisException("Distribution or file therein not found");
+          } else if (distrByName.size() > 0 && distrByFile.size() > 0) {
+            throw new MolgenisException(
+                "Cannot resolve distribution because it is ambiguous: file name equal to a table name. Please resolve this issue.");
+          }
 
-    Map type = (Map) distributions.get(0).get("type"); // type and type.name are required
-    boolean refersToTable = type.get("name").equals("Table");
+          List<Map<String, Object>> distributions;
+          if (distrByName.size() > 0) {
+            distributions = distrByName;
+          } else {
+            distributions = distrByFile;
+          }
 
-    if (refersToTable) {
-      formatParam = formatParam.toLowerCase();
-      if (!FORMATS.contains(formatParam)) {
-        throw new Exception("Format unknown. Use any of: " + FORMATS);
-      }
-      if (database.getSchema(schemaParam).getTable(distributionParam) == null) {
-        throw new Exception("Table unknown.");
-      }
-    }
+          Map type = (Map) distributions.get(0).get("type"); // type and type.name are required
+          boolean refersToTable = type.get("name").equals("Table");
+          String formatParam = rawFormatParam;
+          if (refersToTable) {
+            formatParam = rawFormatParam.toLowerCase();
+            if (!FORMATS.contains(formatParam)) {
+              throw new MolgenisException("Format unknown. Use any of: " + FORMATS);
+            }
+            if (database.getSchema(schemaParam).getTable(distributionParam) == null) {
+              throw new MolgenisException("Table unknown.");
+            }
+          }
 
-    // All prefixes and namespaces
-    Map<String, String> prefixToNamespace = new HashMap<>();
-    prefixToNamespace.put("dcterms", "http://purl.org/dc/terms/");
-    prefixToNamespace.put("dcat", "http://www.w3.org/ns/dcat#");
+          // All prefixes and namespaces
+          Map<String, String> prefixToNamespace = new HashMap<>();
+          prefixToNamespace.put("dcterms", "http://purl.org/dc/terms/");
+          prefixToNamespace.put("dcat", "http://www.w3.org/ns/dcat#");
 
-    // Main model builder
-    ModelBuilder builder = new ModelBuilder();
+          // Main model builder
+          for (String prefix : prefixToNamespace.keySet()) {
+            builder.setNamespace(prefix, prefixToNamespace.get(prefix));
+          }
+
+          // reconstruct server:port URL to prevent problems with double encoding of schema/table
+          // names
+          URI requestURI = getURI(request.url());
+          String host = extractHost(requestURI);
+          IRI reqURL = iri(request.url()); // escaping/encoding seems OK
+
+          /*
+          See https://www.w3.org/TR/vocab-dcat-2/#Class:Distribution
+           */
+          builder.add(reqURL, RDF.TYPE, DCAT.DISTRIBUTION);
+          builder.add(reqURL, DCTERMS.TITLE, "Data distribution for " + reqURL);
+          builder.add(
+              reqURL,
+              DCTERMS.DESCRIPTION,
+              "MOLGENIS EMX2 data distribution at "
+                  + host
+                  + " for table "
+                  + distributionParam
+                  + " in schema "
+                  + schemaParam
+                  + ", formatted as "
+                  + formatParam
+                  + ".");
+
+          if (refersToTable) {
+            if (formatParam.equals("csv")
+                || formatParam.equals("jsonld")
+                || formatParam.equals("ttl")
+                || formatParam.equals("excel")
+                || formatParam.equals("zip")) {
+              builder.add(
+                  reqURL,
+                  DCAT.DOWNLOAD_URL,
+                  encodedIRI(
+                      host + "/" + schemaParam + "/api/" + formatParam + "/" + distributionParam));
+            } else if (formatParam.equals("graphql")) {
+              List<String> columnNames =
+                  database
+                      .getSchema(schemaParam)
+                      .getTable(distributionParam)
+                      .getMetadata()
+                      .getColumnNames();
+              // GraphQL, e.g. http://localhost:8080/fdh/graphql?query={Analyses{id,etc}}
+              builder.add(
+                  reqURL,
+                  DCAT.DOWNLOAD_URL,
+                  encodedIRI(
+                      host
+                          + "/"
+                          + schemaParam
+                          + "/graphql?query={"
+                          + distributionParam
+                          + "{"
+                          + (String.join(",", columnNames))
+                          + "}}"));
+            } else {
+              // all "rdf-" flavours
+              builder.add(
+                  reqURL,
+                  DCAT.DOWNLOAD_URL,
+                  encodedIRI(
+                      host
+                          + "/"
+                          + schemaParam
+                          + "/api/rdf/"
+                          + distributionParam
+                          + "?format="
+                          + formatParam.replace("rdf-", "")));
+            }
+            builder.add(reqURL, DCAT.MEDIA_TYPE, iri(formatToMediaType(formatParam)));
+          } else {
+            // file
+            // todo
+          }
+
+          builder.add(reqURL, DCTERMS.FORMAT, formatParam);
+
+          for (Map distribution : distributions) {
+            builder.add(
+                reqURL,
+                DCTERMS.ISSUED,
+                literal(
+                    TypeUtils.toString(distribution.get("mg_insertedOn")).substring(0, 19),
+                    XSD.DATETIME));
+            builder.add(
+                reqURL,
+                DCTERMS.MODIFIED,
+                literal(
+                    TypeUtils.toString(distribution.get("mg_updatedOn")).substring(0, 19),
+                    XSD.DATETIME));
+            List<Map> datasets = (List<Map>) distribution.get("belongsToDataset");
+            for (Map dataset : datasets) {
+              if (dataset.get("license") != null) {
+                builder.add(reqURL, DCTERMS.LICENSE, dataset.get("license"));
+              }
+              if (dataset.get("accessRights") != null) {
+                builder.add(reqURL, DCTERMS.ACCESS_RIGHTS, dataset.get("accessRights"));
+              }
+              if (dataset.get("rights") != null) {
+                builder.add(reqURL, DCTERMS.RIGHTS, dataset.get("rights"));
+              }
+            }
+          }
+
+          builder.add(reqURL, DCTERMS.CONFORMS_TO, iri("http://www.w3.org/ns/dcat#Distribution"));
+          // todo odrl:Policy? https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
+
+        });
+
     RDFFormat applicationOntologyFormat = RDFFormat.TURTLE;
     WriterConfig config = new WriterConfig();
     config.set(BasicWriterSettings.INLINE_BLANK_NODES, true);
-    for (String prefix : prefixToNamespace.keySet()) {
-      builder.setNamespace(prefix, prefixToNamespace.get(prefix));
-    }
-
-    // reconstruct server:port URL to prevent problems with double encoding of schema/table names
-    URI requestURI = getURI(request.url());
-    String host = extractHost(requestURI);
-    IRI reqURL = iri(request.url()); // escaping/encoding seems OK
-
-    /*
-    See https://www.w3.org/TR/vocab-dcat-2/#Class:Distribution
-     */
-    builder.add(reqURL, RDF.TYPE, DCAT.DISTRIBUTION);
-    builder.add(reqURL, DCTERMS.TITLE, "Data distribution for " + reqURL);
-    builder.add(
-        reqURL,
-        DCTERMS.DESCRIPTION,
-        "MOLGENIS EMX2 data distribution at "
-            + host
-            + " for table "
-            + distributionParam
-            + " in schema "
-            + schemaParam
-            + ", formatted as "
-            + formatParam
-            + ".");
-
-    if (refersToTable) {
-      if (formatParam.equals("csv")
-          || formatParam.equals("jsonld")
-          || formatParam.equals("ttl")
-          || formatParam.equals("excel")
-          || formatParam.equals("zip")) {
-        builder.add(
-            reqURL,
-            DCAT.DOWNLOAD_URL,
-            encodedIRI(host + "/" + schemaParam + "/api/" + formatParam + "/" + distributionParam));
-      } else if (formatParam.equals("graphql")) {
-        List<String> columnNames =
-            database
-                .getSchema(schemaParam)
-                .getTable(distributionParam)
-                .getMetadata()
-                .getColumnNames();
-        // GraphQL, e.g. http://localhost:8080/fdh/graphql?query={Analyses{id,etc}}
-        builder.add(
-            reqURL,
-            DCAT.DOWNLOAD_URL,
-            encodedIRI(
-                host
-                    + "/"
-                    + schemaParam
-                    + "/graphql?query={"
-                    + distributionParam
-                    + "{"
-                    + (String.join(",", columnNames))
-                    + "}}"));
-      } else {
-        // all "rdf-" flavours
-        builder.add(
-            reqURL,
-            DCAT.DOWNLOAD_URL,
-            encodedIRI(
-                host
-                    + "/"
-                    + schemaParam
-                    + "/api/rdf/"
-                    + distributionParam
-                    + "?format="
-                    + formatParam.replace("rdf-", "")));
-      }
-      builder.add(reqURL, DCAT.MEDIA_TYPE, iri(formatToMediaType(formatParam)));
-    } else {
-      // file
-      // todo
-    }
-
-    builder.add(reqURL, DCTERMS.FORMAT, formatParam);
-
-    for (Map distribution : distributions) {
-      builder.add(
-          reqURL,
-          DCTERMS.ISSUED,
-          literal(
-              TypeUtils.toString(distribution.get("mg_insertedOn")).substring(0, 19),
-              XSD.DATETIME));
-      builder.add(
-          reqURL,
-          DCTERMS.MODIFIED,
-          literal(
-              TypeUtils.toString(distribution.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
-      List<Map> datasets = (List<Map>) distribution.get("belongsToDataset");
-      for (Map dataset : datasets) {
-        if (dataset.get("license") != null) {
-          builder.add(reqURL, DCTERMS.LICENSE, dataset.get("license"));
-        }
-        if (dataset.get("accessRights") != null) {
-          builder.add(reqURL, DCTERMS.ACCESS_RIGHTS, dataset.get("accessRights"));
-        }
-        if (dataset.get("rights") != null) {
-          builder.add(reqURL, DCTERMS.RIGHTS, dataset.get("rights"));
-        }
-      }
-    }
-
-    builder.add(reqURL, DCTERMS.CONFORMS_TO, iri("http://www.w3.org/ns/dcat#Distribution"));
-    // todo odrl:Policy? https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
-
-    // Write model
     Model model = builder.build();
     StringWriter stringWriter = new StringWriter();
     Rio.write(model, stringWriter, applicationOntologyFormat, config);

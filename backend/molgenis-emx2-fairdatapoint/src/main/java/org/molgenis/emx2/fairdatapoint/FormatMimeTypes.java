@@ -2,6 +2,7 @@ package org.molgenis.emx2.fairdatapoint;
 
 import java.util.Set;
 import java.util.TreeSet;
+import org.molgenis.emx2.MolgenisException;
 
 public class FormatMimeTypes {
 
@@ -30,7 +31,7 @@ public class FormatMimeTypes {
    * @return
    * @throws Exception
    */
-  public static String formatToMediaType(String format) throws Exception {
+  public static String formatToMediaType(String format) {
     String mediaType;
     switch (format) {
       case "csv":
@@ -67,7 +68,7 @@ public class FormatMimeTypes {
         mediaType = "https://www.iana.org/assignments/media-types/application/trig";
         break;
       default:
-        throw new Exception("MIME Type could not be assigned");
+        throw new MolgenisException("MIME Type could not be assigned");
     }
     return mediaType;
   }
