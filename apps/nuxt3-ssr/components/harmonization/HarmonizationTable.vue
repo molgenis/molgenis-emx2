@@ -36,7 +36,8 @@ const statusMap = computed(() => {
 </script>
 
 <template>
-  <div class="pb-5 relative">
+  <!-- temp 'fix' for table y overflow -->
+  <div class="pb-5 relative overflow-x-auto max-w-4xl pl-6">
     <table class="table-auto">
       <thead>
         <tr class="border-y-2">
