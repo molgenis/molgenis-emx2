@@ -138,15 +138,15 @@ def find_cohort_references(schema_schema: dict) -> dict:
     return cohort_references
 
 
-def construct_delete_query(db_schema: dict, table: str, all_columns: bool = False):
+def construct_delete_query(db_schema: dict, table_name: str, all_columns: bool = False):
     """Constructs a GraphQL query for deleting rows from a table."""
     if all_columns:
-        pkeys = [prepare_pkey(db_schema, table, col['id']) for col in db_schema[table]['columns']]
+        pkeys = [prepare_pkey(db_schema, table_name, col['id']) for col in db_schema[table_name]['columns']]
         pkeys = [pk for pk in pkeys if pk is not None]
     else:
-        pkeys = [prepare_pkey(db_schema, table, col['id']) for col in db_schema[table]['columns'] if
+        pkeys = [prepare_pkey(db_schema, table_name, col['id']) for col in db_schema[table_name]['columns'] if
                  col.get('key') == 1]
-    table_id = db_schema[table]['id']
+    table_id = db_schema[table_name]['id']
     pkeys_print = query_columns_string(pkeys, indent=4)
     _query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
               f"  {table_id}(filter: $filter) {{\n"
@@ -156,9 +156,9 @@ def construct_delete_query(db_schema: dict, table: str, all_columns: bool = Fals
     return _query
 
 
-def construct_delete_variables(db_schema: dict, cohort_ids: list, t_name: str, t_type: str):
+def construct_delete_variables(db_schema: dict, cohort_ids: list, table_name: str, ref_col: str):
     """Constructs a variables filter for querying the GraphQL table on the desired column values."""
-    pkeys = prepare_pkey(db_schema, t_name, t_type)
+    pkeys = prepare_pkey(db_schema, table_name, ref_col)
 
     def prepare_key_part(_pkey: str | dict):
         if isinstance(_pkey, str):
@@ -193,5 +193,7 @@ def process_statement(table: bytes, consent_val: int) -> bytes:
         df.loc[~df['statement of consent email'], 'email'] = ''
 
     _table = df.to_csv(index=False).encode()
+
+    log.info("Implemented statement of consent in Contacts table.")
 
     return _table

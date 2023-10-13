@@ -50,12 +50,16 @@ class StagingMigrator(Client):
         # Create zipfile for uploading
         zip_stream = self._create_upload_zip()
 
+        # Upload the zip to the target schema
         self._upload_zip_stream(zip_stream)
+
+        # Remove any downloaded files from disk
+        self._cleanup()
 
     def _download_schema_zip(self, schema: str, schema_type: SchemaType,
                              include_system_columns: bool = True) -> str:
         """Download target schema as zip, save in case upload fails."""
-        filename = f'{BASE_DIR}/{schema_type}.zip'
+        filename = f"{BASE_DIR}/{schema_type}.zip"
         if os.path.exists(filename):
             os.remove(filename)
         api_zip_url = f"{self.url}/{schema}/api/zip"
@@ -65,7 +69,7 @@ class StagingMigrator(Client):
 
         if resp.content:
             pathlib.Path(filename).write_bytes(resp.content)
-            log.info(f'Downloaded target schema to "{filename}".')
+            log.info(f'Downloaded {schema_type} schema to "{filename}".')
         else:
             log.error('Error: download failed')
         return filename
@@ -78,36 +82,35 @@ class StagingMigrator(Client):
 
         # Gather the tables to delete from the target catalogue
         tables_to_delete = find_cohort_references(self._schema_schema(self.catalogue))
-        print("\n".join([f"{k:25}: {v}" for (k, v) in tables_to_delete.items()]))
 
         cohort_ids = get_cohort_ids(self.url, self.session, self.staging_area)
-        for t_name, t_type in tables_to_delete.items():
+        for table_name, ref_col in tables_to_delete.items():
             # Iterate over the tables that reference the Cohorts table of the staging area
             # Check if any row matches this Cohorts table
-            table_id = self._schema_schema(self.catalogue).get(t_name).get('id')
+            table_id = self._schema_schema(self.catalogue).get(table_name).get('id')
 
-            delete_rows = self._query_delete_rows(t_name, t_type, cohort_ids)
+            delete_rows = self._query_delete_rows(table_name, ref_col, cohort_ids)
 
-            if len(delete_rows) > 0:
-                if not self._cohorts_in_ref_array(t_name):
-                    log.info(f"\nDeleting row with primary keys {delete_rows.get(table_id)}\n"
-                             f" in table {t_name}.")
+            if len(delete_rows) == 0:
+                continue
+            if not self._cohorts_in_ref_array(table_name):
+                log.info(f"\nDeleting in table '{table_name}' row(s) with primary keys {delete_rows.get(table_id)}.")
 
-                    # Delete the matching rows from the target catalogue table
-                    self._delete_table_entries(table_id=table_id,
-                                               pkeys=delete_rows.get(table_id))
-                else:
-                    log.info(f"\nUpdating row with primary keys {delete_rows.get(table_id)}"
-                             f"\n in table {t_name}. (Not yet implemented)")
-                    # TODO: implement following
-                    # self._delete_from_ref_array(schema=catalogue, table_id=table_schema['id'],
-                    #                             pkeys=response.json().get('data').get(table_schema['id']))
+                # Delete the matching rows from the target catalogue table
+                self._delete_table_entries(table_id=table_id,
+                                           pkeys=delete_rows.get(table_id))
+            else:
+                log.info(f"\nUpdating row(s) with primary keys {delete_rows.get(table_id)}"
+                         f"\n in table {table_name}. (Not yet implemented)")
+                # TODO: implement following
+                # self._delete_from_ref_array(schema=catalogue, table_id=table_schema['id'],
+                #                             pkeys=response.json().get('data').get(table_schema['id']))
 
-    def _query_delete_rows(self, t_name: str, t_type: str,
+    def _query_delete_rows(self, table_name: str, ref_col: str,
                            cohort_ids: list) -> dict:
         """Queries the rows to be deleted from a table."""
-        query = construct_delete_query(self._schema_schema(self.catalogue), t_name)
-        variables = construct_delete_variables(self._schema_schema(self.catalogue), cohort_ids, t_name, t_type)
+        query = construct_delete_query(self._schema_schema(self.catalogue), table_name)
+        variables = construct_delete_variables(self._schema_schema(self.catalogue), cohort_ids, table_name, ref_col)
 
         response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
                                      json={"query": query, "variables": variables})
@@ -168,7 +171,7 @@ class StagingMigrator(Client):
                     _table = process_statement(table=_table, consent_val=consent_val)
                 upload_archive.writestr(file_name, BytesIO(_table).getvalue())
 
-        pathlib.Path('SOURCE.zip').write_bytes(upload_stream.getvalue())
+        log.info(f"Migrating tables {', '.join(tables_to_sync.keys())}.")
         return upload_stream
 
     def _upload_zip_stream(self, zip_stream: BytesIO):
@@ -179,9 +182,35 @@ class StagingMigrator(Client):
 
         response = self.session.post(
             url=upload_url,
-            files={'file': ('upload.zip', zip_stream.getvalue())}
+            files={'file': (f'{BASE_DIR}/upload.zip', zip_stream.getvalue())}
         )
 
         response_status = response.status_code
-        print(response_status)
-        print(str(response.text))
+        if response.status_code != 200:
+            log.error(f"Migration failed with error {response_status}:\n{str(response.text)}")
+            log.error("Uploading fallback zip.")
+            self._upload_fallback_zip()
+        else:
+            log.info("Migrated successfully.")
+
+    @staticmethod
+    def _cleanup():
+        """Deletes the downloaded files after successful migration."""
+        zip_files = ['target.zip', 'source.zip', 'upload.zip']
+        for zp in zip_files:
+            filename = f"{BASE_DIR}/{zp}"
+            if os.path.exists(filename):
+                log.debug(f"Deleting file '{zp}'.")
+                os.remove(filename)
+
+    def _upload_fallback_zip(self):
+        """Restores the catalogue to the state before deletion by uploading the downloaded target zip."""
+        target_filename = f"{BASE_DIR}/target.zip"
+        upload_stream = BytesIO()
+        # Load the target.zip file as a stream
+        with (zipfile.ZipFile(target_filename, 'r') as target_archive,
+              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED) as upload_archive):
+            for file_name in target_archive.namelist():
+                upload_archive.writestr(file_name, BytesIO(target_archive.read(file_name)).getvalue())
+        # Upload the stream
+        self._upload_zip_stream(upload_stream)
