@@ -40,6 +40,7 @@ Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this r
 Resources,,website,hyperlink,,,,,,,,,Link to the website or homepage,EMA,,
 Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,EMA,,
 Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,EMA,,
+Studies,,other lead organisation,text_array,,,,,,,,,List the names of lead organisations that are not listed,EMA,,
 Studies,,other organisations,text,,,,Organisations,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA,,
 Networks,,other organisations,text,,,,Organisations,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA,,
 Resources,,description,text,,,,,,,,,Short description,EMA,,
@@ -376,7 +377,7 @@ Mappings,,cdms other,,1,TRUE,,,,,,,"if cdm is not under targets, which cdm was m
 Mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,"Mapping from collected datasets to standard/harmonized datasets, optionally including ETL syntaxes",EMA,,
 Mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months",EMA,,
 Mappings,,ETL specification url,hyperlink,,,,,,,,,Link to ETL specification documentation,EMA,,
-Mappings,,ETL specification document,,,,,,,,,,Documentation concerning ETL details,EMA,,
+Mappings,,ETL specification document,file,,,,,,,,,Documentation concerning ETL details,EMA,,
 Dataset mappings,,source,ref,1,TRUE,,Extended resources,,,,,datasource being mapped from,,TableMappings,fromDataDictionary
 Dataset mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,name of the table being mapped from,,TableMappings,fromTable
 Dataset mappings,,target,ref,1,TRUE,,Extended resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",,TableMappings,toDataDictionary
