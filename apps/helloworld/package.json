@@ -13,7 +13,7 @@
     "molgenis-components": "*",
     "graphql-request": "5.2.0",
     "vue": "3.3.4",
-    "vue-router": "4.1.6"
+    "vue-router": "4.2.5"
   },
   "devDependencies": {
     "vite": "4.3.9",
