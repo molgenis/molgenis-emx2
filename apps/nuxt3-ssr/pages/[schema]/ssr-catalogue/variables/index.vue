@@ -2,7 +2,7 @@
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
-const pageSize = 10;
+const pageSize = 30;
 
 useHead({ title: "Variables" });
 
