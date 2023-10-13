@@ -59,7 +59,7 @@ export interface ICohort {
   documentation?: IDocumentation[];
 }
 
-interface IVariable {
+export interface IVariable {
   name: string;
   label: string;
   description?: string;
@@ -268,3 +268,26 @@ export interface ISection {
 export type KeyObject = {
   [key: string]: KeyObject | string;
 };
+
+export interface IMapping {
+  sourceDataset: {
+    resource: {
+      id: string;
+    };
+    name: string;
+  };
+  targetVariable: {
+    dataset: {
+      resource: {
+        id: string;
+      };
+      name: string;
+    };
+    name: string;
+  };
+  match: {
+    name: string;
+  };
+}
+
+export type HarmonizationStatus = "unmapped" | "partial" | "complete";
