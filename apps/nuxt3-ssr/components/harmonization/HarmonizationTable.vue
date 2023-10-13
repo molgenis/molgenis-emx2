@@ -37,7 +37,17 @@ const statusMap = computed(() => {
 
 <template>
   <!-- temp 'fix' for table y overflow -->
-  <div class="pb-5 relative overflow-x-auto max-w-4xl pl-6">
+  <div class="pb-5 relative overflow-x-auto max-w-4xl">
+    <div class="flex flex-row-reverse items-center h-16">
+      <a class="ml-6 hover:underline text-blue-500 cursor-help"
+        >About statuses</a
+      >
+      No Data
+      <HarmonizationStatusIcon status="unmapped" class="mr-1 ml-6" /> Completed
+      <HarmonizationStatusIcon status="complete" class="mr-1 ml-6" /> Partial
+      <HarmonizationStatusIcon status="partial" class="mr-1 ml-6" />
+    </div>
+
     <table class="table-auto">
       <thead>
         <tr class="border-y-2">
@@ -46,15 +56,20 @@ const statusMap = computed(() => {
             v-for="cohort in cohorts"
             class="align-bottom hover:bg-button-outline-hover border-x-2"
           >
-            <div class="rotate-180 [writing-mode:vertical-lr]">
+            <div
+              class="text-blue-500 font-normal rotate-180 [writing-mode:vertical-lr] py-2"
+            >
               {{ cohort.id }}
             </div>
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(variable, rowIndex) in variables" class="border-b-2">
-          <td class="border-r-2">{{ variable.name }}</td>
+        <tr
+          v-for="(variable, rowIndex) in variables"
+          class="border-b-2 hover:bg-button-outline-hover"
+        >
+          <td class="text-blue-500 border-r-2 px-2">{{ variable.name }}</td>
           <HarmonizationTableCell
             v-for="(_, colIndex) in cohorts"
             :status="statusMap[rowIndex][colIndex]"

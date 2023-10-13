@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { HarmonizationStatus } from "~/interfaces/types";
 
-// Note: component similar to HarmonizationStatusIcon.vue but with different due to table cell styling details
-
 const props = defineProps<{
   status: HarmonizationStatus;
 }>();
@@ -10,7 +8,7 @@ const props = defineProps<{
 const tableClass = computed(() => {
   switch (props.status) {
     case "unmapped":
-      return "";
+      return "border ";
     case "partial":
       return "bg-yellow-200";
     case "complete":
@@ -41,7 +39,10 @@ const fillClass = computed(() => {
 });
 </script>
 <template>
-  <td class="text-center" :class="tableClass">
+  <div
+    class="w-8 h-8 p-1 justify-center items-center inline-flex"
+    :class="tableClass"
+  >
     <BaseIcon v-if="iconName" :name="iconName" :class="fillClass" />
-  </td>
+  </div>
 </template>
