@@ -40,7 +40,7 @@
     "@vitejs/plugin-vue": "4.2.3",
     "@vuese/cli": "2.14.3",
     "prettier": "2.8.8",
-    "sass": "1.68.0",
+    "sass": "1.69.3",
     "vite": "4.3.9",
     "vue-router": "4.1.6"
   }

@@ -207,7 +207,12 @@ export default {
       );
       const filteredByVisibilityExpressions =
         filteredByVisibilityFilters.filter((column: IColumn) => {
-          return isColumnVisible(column, this.rowData, this.tableMetaData);
+          try {
+            return isColumnVisible(column, this.rowData, this.tableMetaData);
+          } catch (error: any) {
+            this.rowErrors[column.name] = error;
+            return true;
+          }
         });
       const withoutMetadataColumns = filteredByVisibilityExpressions.filter(
         (column: IColumn) => !column.id.startsWith("mg_")
