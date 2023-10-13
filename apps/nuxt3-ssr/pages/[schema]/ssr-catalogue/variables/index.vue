@@ -141,6 +141,14 @@ watch(filters, () => {
 });
 
 let activeName = ref("harmonization");
+let pageIcon = computed(() => {
+  switch (activeName.value) {
+    case "list":
+      return "image-diagram-2";
+    case "harmonization":
+      return "image-table";
+  }
+});
 </script>
 
 <template>
@@ -155,7 +163,7 @@ let activeName = ref("harmonization");
           <PageHeader
             title="Variables"
             description="A complete overview of available variables."
-            icon="image-diagram"
+            :icon="pageIcon"
           >
             <template #suffix>
               <SearchResultsViewTabs

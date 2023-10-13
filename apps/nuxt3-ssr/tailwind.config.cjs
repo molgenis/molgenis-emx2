@@ -111,6 +111,7 @@ module.exports = {
         none: "none",
         sm: "20rem",
         xs: "15rem",
+        table: "60.7rem"
       },
       backgroundImage: {
         "sidebar-gradient":
