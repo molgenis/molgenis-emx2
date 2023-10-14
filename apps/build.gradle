@@ -32,10 +32,9 @@ task checkFormat(type: YarnTask, dependsOn: yarn_install) {
     args = ['run', 'nx', 'format:check']
 }
 
-task buildJavascript(type: YarnTask, dependsOn: format) {
+task buildJavascript(type: YarnTask, dependsOn: yarn_install) {
     environment = ["NODE_OPTIONS":"--max-old-space-size=4096"]
-    args = ['run', 'nx', 'run-many', '--target=build,build-showcase',"--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}",'--verbose']
-    outputs.upToDateWhen { false }
+    args = ['run', 'nx', 'run-many', '--target=format:write,build,build-showcase',"--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}",'--verbose']
     doLast {
         file("${project.projectDir}").eachDir { dir ->
             if (dir.name == 'molgenis-components' || dir.name == 'molgenis-viz') {
@@ -52,6 +51,7 @@ task buildJavascript(type: YarnTask, dependsOn: format) {
             }
         }
     }
+    outputs.upToDateWhen { false }
 }
 
 compileJava.dependsOn buildJavascript
