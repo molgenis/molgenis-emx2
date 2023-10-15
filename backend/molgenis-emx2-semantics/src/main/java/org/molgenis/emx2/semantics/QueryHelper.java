@@ -63,7 +63,7 @@ public class QueryHelper {
       ontologyTerm.setId(
           mapList.get(i).get("codesystem") + ":" + TypeUtils.toString(mapList.get(i).get("code")));
       ontologyTerm.setLabel(TypeUtils.toString(mapList.get(i).get("name")));
-      ontologyTerm.setUri(TypeUtils.toString(mapList.get(i).get("ontologyTermURI")));
+      ontologyTerm.setURI(TypeUtils.toString(mapList.get(i).get("ontologyTermURI")));
       result[i] = ontologyTerm;
     }
     return result;
@@ -83,7 +83,7 @@ public class QueryHelper {
     Map map = (Map) mapObj;
     ontologyTerm.setId(map.get("codesystem") + ":" + TypeUtils.toString(map.get("code")));
     ontologyTerm.setLabel(TypeUtils.toString(map.get("name")));
-    ontologyTerm.setUri(TypeUtils.toString(map.get("ontologyTermURI")));
+    ontologyTerm.setURI(TypeUtils.toString(map.get("ontologyTermURI")));
     return ontologyTerm;
   }
 

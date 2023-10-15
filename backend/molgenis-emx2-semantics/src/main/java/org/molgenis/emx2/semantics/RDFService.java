@@ -3,6 +3,7 @@ package org.molgenis.emx2.semantics;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.molgenis.emx2.semantics.ValueToRDF.columnTypeToXSD;
 import static org.molgenis.emx2.semantics.ValueToRDF.describeValues;
+import static org.molgenis.emx2.semantics.rdf.RootToRDF.describeRoot;
 
 import java.io.OutputStream;
 import java.net.URI;
@@ -166,14 +167,6 @@ public class RDFService {
 
   public RDFFormat getRdfFormat() {
     return rdfFormat;
-  }
-
-  public static void describeRoot(ModelBuilder builder, String rootContext) {
-    // SIO:000750 = database
-    builder.add(rootContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_000750"));
-    builder.add(rootContext, RDFS.LABEL, "EMX2");
-    builder.add(rootContext, DCTERMS.DESCRIPTION, "MOLGENIS EMX2 database at " + rootContext);
-    builder.add(rootContext, DCTERMS.CREATOR, iri("https://molgenis.org"));
   }
 
   public static void describeColumns(
