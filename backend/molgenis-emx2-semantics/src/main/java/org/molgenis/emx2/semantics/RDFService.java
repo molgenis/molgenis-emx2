@@ -144,12 +144,7 @@ public class RDFService {
               rdfService.getBuilder(), columnName, tableToDescribe, schemaRdfApiContext);
           // if a column name is provided then only provide column metadata, no row values
           if (columnName == null) {
-            describeValues(
-                rdfService.getJsonMapper(),
-                rdfService.getBuilder(),
-                tableToDescribe,
-                rowId,
-                schemaRdfApiContext);
+            describeValues(rdfService.getBuilder(), tableToDescribe, rowId, schemaRdfApiContext);
           }
         }
       }

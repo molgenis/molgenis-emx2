@@ -2,37 +2,32 @@ package org.molgenis.emx2.semantics.rdf;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.eclipse.rdf4j.model.vocabulary.XSD.*;
-import static org.eclipse.rdf4j.model.vocabulary.XSD.LONG;
+import static org.molgenis.emx2.FilterBean.and;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.semantics.QueryHelper.selectColumns;
 import static org.molgenis.emx2.semantics.rdf.ColumnTypeToXSDDataType.columnTypeToXSD;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
+import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.TypeUtils;
 
 public class ValueToRDF {
 
   public static void describeValues(
-      ObjectMapper jsonMapper,
-      ModelBuilder builder,
-      Table table,
-      String rowId,
-      String schemaContext)
-      throws Exception {
+      ModelBuilder builder, Table table, String rowId, String schemaContext) {
     Map<String, Column> columnMap = new HashMap<>();
     for (Column c : table.getMetadata().getColumns()) {
       columnMap.put(c.getName(), c);
@@ -40,34 +35,29 @@ public class ValueToRDF {
     String tableContext = schemaContext + "/" + table.getName();
     Query query = selectColumns(table);
     if (rowId != null) {
-      // FIXME: how to support multiple PKs?
-      query.where(f(table.getMetadata().getPrimaryKeyColumns().get(0).getName(), EQUALS, rowId));
+      if (table.getMetadata().getPrimaryKeyFields().size() > 1) {
+        query.where(decodeRowIdToFilter(rowId));
+      } else {
+        query.where(f(table.getMetadata().getPrimaryKeyColumns().get(0).getName(), EQUALS, rowId));
+      }
     }
-    String json = query.retrieveJSON();
-    Map<String, List<Map<String, Object>>> jsonMap = jsonMapper.readValue(json, Map.class);
-    List<Map<String, Object>> data = jsonMap.get(table.getName());
-
-    if (data == null) {
+    List<Row> rows = query.retrieveRows();
+    if (rows.isEmpty()) {
       return;
     }
 
-    for (Map<String, Object> row : data) {
-
-      String pkValue =
-          table.getMetadata().getPrimaryKeys().stream()
-              .map(primaryKey -> row.get(primaryKey).toString())
-              .collect(Collectors.joining("-"));
-      IRI rowContext = encodedIRI(schemaContext + "/" + table.getName() + "/" + pkValue);
-
+    for (Row row : rows) {
+      IRI rowContext =
+          getIriValuesBasedOnPkey(schemaContext, table.getMetadata(), row, "")
+              .get(0); // note the prefix
       builder.add(rowContext, RDF.TYPE, encodedIRI(tableContext));
       // SIO:001187 = database row
       builder.add(rowContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_001187"));
       if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
         // NCIT:C95637 = Coded Value Data Type
         builder.add(rowContext, RDF.TYPE, iri("http://purl.obolibrary.org/obo/NCIT_C95637"));
-        if (row.get("ontologyTermURI") != null) {
-          builder.add(
-              rowContext, RDFS.ISDEFINEDBY, iri(TypeUtils.toString(row.get("ontologyTermURI"))));
+        if (row.getString("ontologyTermURI") != null) {
+          builder.add(rowContext, RDFS.ISDEFINEDBY, iri(row.getString("ontologyTermURI")));
         }
       } else {
         builder.add(rowContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#Observation"));
@@ -75,10 +65,10 @@ public class ValueToRDF {
       builder.add(
           rowContext, iri("http://purl.org/linked-data/cube#dataSet"), encodedIRI(tableContext));
 
-      for (String column : row.keySet()) {
-        if (row.get(column) != null) {
-          IRI columnContext = encodedIRI(tableContext + "/column/" + column);
-          for (Value value : formatValue(row.get(column), columnMap.get(column), schemaContext)) {
+      for (Column column : table.getMetadata().getColumns()) {
+        if (row.getString(column.getName()) != null) { // empty lists we don't want
+          IRI columnContext = encodedIRI(tableContext + "/column/" + column.getName());
+          for (Value value : formatValue(row, column, schemaContext)) {
             if (value != null) {
               builder.add(rowContext, columnContext, value);
             }
@@ -88,105 +78,114 @@ public class ValueToRDF {
     }
   }
 
-  public static Value[] formatValue(Object object, Column column, String schemaContext)
-      throws Exception {
-    Value[] valList;
-    if (object instanceof List) {
-      List<Object> objList = (List<Object>) object;
-      valList = new Value[objList.size()];
-      for (int i = 0; i < valList.length; i++) {
-        valList[i] = applyFormatting(objList.get(i), column, schemaContext);
-      }
-    } else {
-      valList = new Value[1];
-      valList[0] = applyFormatting(object, column, schemaContext);
+  private static Filter decodeRowIdToFilter(String rowId) {
+    try {
+      List<NameValuePair> params = URLEncodedUtils.parse(new URI(rowId), StandardCharsets.UTF_8);
+      List<Filter> filters = new ArrayList<>();
+      params.forEach(param -> filters.add(f(param.getName(), EQUALS, param.getValue())));
+      return and(filters);
+    } catch (Exception e) {
+      throw new MolgenisException("Decode row to filter failed for id " + rowId);
     }
-    return valList;
   }
 
-  public static Value applyFormatting(Object o, Column column, String schemaContext)
-      throws Exception {
+  private static List<IRI> getIriValuesBasedOnPkey(
+      String schemaContext, TableMetadata tableMetadata, Row row, String prefix) {
+    String[] keys = row.getStringArray(prefix + tableMetadata.getPrimaryKeys().get(0));
+    // check null
+    if (keys == null) {
+      return List.of();
+    }
+    // simple keys get the key value
+    if (tableMetadata.getPrimaryKeyFields().size() == 1) {
+      return Arrays.stream(keys)
+          .map(
+              value -> encodedIRI(schemaContext + "/" + tableMetadata.getTableName() + "/" + value))
+          .toList();
+    }
+    // composite keys get pattern of part1=a&part2=b
+    else {
+      List<List<NameValuePair>> keyValuePairList = new ArrayList<>();
+      tableMetadata.getPrimaryKeyFields().stream()
+          .forEach(
+              field -> {
+                String[] keyParts = row.getStringArray(prefix + field.getName());
+                for (int i = 0; i < keyParts.length; i++) {
+                  if (keyValuePairList.get(i) == null) keyValuePairList.add(new ArrayList<>());
+                  keyValuePairList
+                      .get(i)
+                      .add(new BasicNameValuePair(prefix + field.getName(), keyParts[i]));
+                }
+              });
+      return keyValuePairList.stream()
+          .map(
+              valuePairList ->
+                  encodedIRI(
+                      schemaContext
+                          + "/"
+                          + tableMetadata.getTableName()
+                          + "/"
+                          + URLEncodedUtils.format(valuePairList, StandardCharsets.UTF_8)))
+          .toList();
+    }
+  }
+
+  public static List<Value> formatValue(Row row, Column column, String schemaContext) {
+    List<Value> values = new ArrayList<>();
+
     ColumnType columnType = column.getColumnType();
-    CoreDatatype.XSD XSDType = columnTypeToXSD(columnType);
-
-    if (columnType.equals(ColumnType.REF)
-        || columnType.equals(ColumnType.REF_ARRAY)
-        || columnType.equals(ColumnType.REFBACK)
-        || columnType.equals(ColumnType.ONTOLOGY)
-        || columnType.equals(ColumnType.ONTOLOGY_ARRAY)) {
-      // TODO should the target IRI be resolvable here?
-      TableMetadata tableMetadata = column.getRefTable();
-      String primaryKey = tableMetadata.getPrimaryKeys().get(0);
-      String pkValue = TypeUtils.toString(((Map) o).get(primaryKey));
-      return encodedIRI(schemaContext + "/" + tableMetadata.getTableName() + "/" + pkValue);
+    if (columnType.isReference()) {
+      values.addAll(
+          getIriValuesBasedOnPkey(
+              schemaContext, column.getRefTable(), row, column.getName() + "_"));
     } else if (columnType.equals(ColumnType.FILE)) {
-      Map map = ((Map) o);
-      if (map.get("id") != null) {
-        return encodedIRI(
-            schemaContext
-                + "/api/file/"
-                + column.getTableName()
-                + "/"
-                + column.getName()
-                + "/"
-                + map.get("id"));
-      } else {
-        return null;
+      if (row.getString(column.getName() + "_id") != null) {
+        values.add(
+            encodedIRI(
+                schemaContext
+                    + "/api/file/"
+                    + column.getTableName()
+                    + "/"
+                    + column.getName()
+                    + "/"));
       }
-
     } else {
-
-      if (o == null) {
-        return null;
-      }
-      switch (XSDType) {
-        case BOOLEAN:
-          return literal((boolean) o);
-        case DATE:
-          return literal(TypeUtils.toString(o), XSDType);
-        case DATETIME:
-          return literal(TypeUtils.toString(o).substring(0, 19), XSDType);
-        case DECIMAL:
-          return literal(fixDouble(o));
-        case STRING:
-          return literal(TypeUtils.toString(o));
-        case ANYURI:
-          return encodedIRI(TypeUtils.toString(o));
-        case INT:
-          return literal((int) o);
-        case LONG:
-          return literal(fixLong(o));
-        default:
-          throw new Exception("XSD type formatting not supported for: " + XSDType);
-      }
+      values.addAll(getLiteralValues(row, column));
     }
+    return values;
   }
 
-  /**
-   * FIXME: apparently EMX2 can return DECIMAL data as Integers when it is a whole number?
-   *
-   * @param object
-   * @return
-   */
-  private static Double fixDouble(Object object) {
-    if (object instanceof Integer) {
-      return Double.valueOf((int) object);
-    } else {
-      return (double) object;
-    }
-  }
-
-  /**
-   * FIXME: apparently EMX2 can return LONG data as Integers when it is a whole number?
-   *
-   * @param object
-   * @return
-   */
-  private static Long fixLong(Object object) {
-    if (object instanceof Integer) {
-      return Long.valueOf((int) object);
-    } else {
-      return (long) object;
+  public static List<? extends Value> getLiteralValues(Row row, Column column) {
+    CoreDatatype.XSD XSDType = columnTypeToXSD(column.getColumnType());
+    switch (XSDType) {
+      case BOOLEAN:
+        return Arrays.stream(row.getBooleanArray(column.getName())).map(Values::literal).toList();
+      case DATE:
+        return Arrays.stream(row.getDateArray(column.getName()))
+            .map(value -> literal(value.toString(), XSDType))
+            .toList();
+      case DATETIME:
+        return Arrays.stream(row.getDateTimeArray(column.getName()))
+            .map(value -> literal(value.toString().substring(0, 19), XSDType))
+            .toList();
+      case DECIMAL:
+        return Arrays.stream(row.getDecimalArray(column.getName())).map(Values::literal).toList();
+      case STRING:
+        return Arrays.stream(row.getStringArray(column.getName())).map(Values::literal).toList();
+      case ANYURI:
+        return Arrays.stream(row.getStringArray(column.getName()))
+            .map(
+                value -> {
+                  System.out.println("found " + value);
+                  return encodedIRI(value);
+                })
+            .toList();
+      case INT:
+        return Arrays.stream(row.getIntegerArray(column.getName())).map(Values::literal).toList();
+      case LONG:
+        return Arrays.stream(row.getLongArray(column.getName())).map(Values::literal).toList();
+      default:
+        throw new MolgenisException("XSD type formatting not supported for: " + XSDType);
     }
   }
 }
