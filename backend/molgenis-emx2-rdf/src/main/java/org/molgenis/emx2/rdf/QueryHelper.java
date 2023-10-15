@@ -1,11 +1,10 @@
-package org.molgenis.emx2.semantics;
+package org.molgenis.emx2.rdf;
 
 import static org.molgenis.emx2.SelectColumn.s;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.jooq.tools.StringUtils;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Query;
@@ -25,8 +24,7 @@ public class QueryHelper {
     Query query = table.query();
     for (Column column : table.getMetadata().getColumns()) {
       if (column.isOntology() || column.isReference()) {
-        List<Column> ontoRefCols =
-            column.getRefTable().getColumns().stream().collect(Collectors.toList());
+        List<Column> ontoRefCols = column.getRefTable().getColumns().stream().toList();
         ArrayList<String> colNames = new ArrayList<>();
         for (Column ontoRefCol : ontoRefCols) {
           colNames.add(ontoRefCol.getName());
@@ -65,7 +63,7 @@ public class QueryHelper {
       ontologyTerm.setId(
           mapList.get(i).get("codesystem") + ":" + TypeUtils.toString(mapList.get(i).get("code")));
       ontologyTerm.setLabel(TypeUtils.toString(mapList.get(i).get("name")));
-      ontologyTerm.setURI(TypeUtils.toString(mapList.get(i).get("ontologyTermURI")));
+      ontologyTerm.setUri(TypeUtils.toString(mapList.get(i).get("ontologyTermURI")));
       result[i] = ontologyTerm;
     }
     return result;
@@ -85,7 +83,7 @@ public class QueryHelper {
     Map map = (Map) mapObj;
     ontologyTerm.setId(map.get("codesystem") + ":" + TypeUtils.toString(map.get("code")));
     ontologyTerm.setLabel(TypeUtils.toString(map.get("name")));
-    ontologyTerm.setURI(TypeUtils.toString(map.get("ontologyTermURI")));
+    ontologyTerm.setUri(TypeUtils.toString(map.get("ontologyTermURI")));
     return ontologyTerm;
   }
 
@@ -98,13 +96,12 @@ public class QueryHelper {
    * @return
    */
   public static ColumnPath findColumnPath(
-      ArrayList<Column> pathToColumn, String columnSemanticTagOrIRI, Table table) {
+      List<Column> pathToColumn, String columnSemanticTagOrIRI, Table table) {
 
-    for (Column column : table.getMetadata().getColumns()) {
-      if (column.isSystemColumn()) {
-        continue;
-      }
-
+    for (Column column :
+        table.getMetadata().getColumns().stream()
+            .filter(column -> !column.isSystemColumn())
+            .toList()) {
       // check semantics, return if found
       for (String semantics : column.getSemantics()) {
         if (semantics.endsWith(columnSemanticTagOrIRI)) {

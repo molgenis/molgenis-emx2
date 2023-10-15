@@ -1,13 +1,13 @@
 package org.molgenis.emx2.beaconv2.endpoints.individuals;
 
 import static org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsFields.*;
-import static org.molgenis.emx2.semantics.QueryHelper.mapToOntologyTerm;
+import static org.molgenis.emx2.rdf.QueryHelper.mapToOntologyTerm;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.beaconv2.common.AgeAndAgeGroup;
-import org.molgenis.emx2.semantics.OntologyTerm;
+import org.molgenis.emx2.rdf.OntologyTerm;
 import org.molgenis.emx2.utils.TypeUtils;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)

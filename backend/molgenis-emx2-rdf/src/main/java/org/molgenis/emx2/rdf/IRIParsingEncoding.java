@@ -1,4 +1,4 @@
-package org.molgenis.emx2.semantics.rdf;
+package org.molgenis.emx2.rdf;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -7,6 +7,10 @@ import org.eclipse.rdf4j.model.IRI;
 import org.molgenis.emx2.MolgenisException;
 
 public class IRIParsingEncoding {
+  private IRIParsingEncoding() {
+    // do not instantiate
+  }
+
   /**
    * @param uriString
    * @return
@@ -15,16 +19,14 @@ public class IRIParsingEncoding {
   public static URI getURI(String uriString) {
     try {
       ParsedIRI parsedIRI = ParsedIRI.create(uriString);
-      URI uri =
-          new URI(
-              parsedIRI.getScheme(),
-              parsedIRI.getUserInfo(),
-              parsedIRI.getHost(),
-              parsedIRI.getPort(),
-              parsedIRI.getPath(),
-              parsedIRI.getQuery(),
-              parsedIRI.getFragment());
-      return uri;
+      return new URI(
+          parsedIRI.getScheme(),
+          parsedIRI.getUserInfo(),
+          parsedIRI.getHost(),
+          parsedIRI.getPort(),
+          parsedIRI.getPath(),
+          parsedIRI.getQuery(),
+          parsedIRI.getFragment());
     } catch (Exception e) {
       throw new MolgenisException("getURI failed", e);
     }

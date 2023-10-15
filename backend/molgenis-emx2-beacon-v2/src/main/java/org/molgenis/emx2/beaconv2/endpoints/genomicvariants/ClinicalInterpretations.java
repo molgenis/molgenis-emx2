@@ -1,11 +1,11 @@
 package org.molgenis.emx2.beaconv2.endpoints.genomicvariants;
 
-import static org.molgenis.emx2.semantics.QueryHelper.mapToOntologyTerm;
+import static org.molgenis.emx2.rdf.QueryHelper.mapToOntologyTerm;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import java.util.List;
 import java.util.Map;
-import org.molgenis.emx2.semantics.OntologyTerm;
+import org.molgenis.emx2.rdf.OntologyTerm;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class ClinicalInterpretations {

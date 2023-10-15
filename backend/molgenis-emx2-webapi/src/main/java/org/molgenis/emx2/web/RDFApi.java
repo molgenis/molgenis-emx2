@@ -7,16 +7,18 @@ import java.io.*;
 import java.util.Collection;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.semantics.RDFService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.molgenis.emx2.rdf.RDFService;
 import spark.Request;
 import spark.Response;
 
 public class RDFApi {
-  private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
+  public static final String FORMAT = "format";
   private static MolgenisSessionManager sessionManager;
   public static final String RDF_API_LOCATION = "/api/rdf";
+
+  private RDFApi() {
+    // no instantiate
+  }
 
   public static void create(MolgenisSessionManager sm) {
     // ideally, we estimate/calculate the content length and inform the client using
@@ -24,10 +26,11 @@ public class RDFApi {
     // created on-the-fly, there is no way of knowing (or is there?)
     sessionManager = sm;
     get(RDF_API_LOCATION, RDFApi::rdfForDatabase);
-    get("/:schema" + RDF_API_LOCATION, RDFApi::rdfForSchema);
-    get("/:schema" + RDF_API_LOCATION + "/:table", RDFApi::rdfForTable);
-    get("/:schema" + RDF_API_LOCATION + "/:table/:row", RDFApi::rdfForRow);
-    get("/:schema" + RDF_API_LOCATION + "/:table/column/:column", RDFApi::rdfForColumn); // huh?
+    final String schemaPath = "/:schema" + RDF_API_LOCATION;
+    get(schemaPath, RDFApi::rdfForSchema);
+    get(schemaPath + "/:table", RDFApi::rdfForTable);
+    get(schemaPath + "/:table/:row", RDFApi::rdfForRow);
+    get(schemaPath + "/:table/column/:column", RDFApi::rdfForColumn);
   }
 
   private static int rdfForDatabase(Request request, Response response) throws IOException {
@@ -38,7 +41,7 @@ public class RDFApi {
       schemas[i] = (sessionManager.getSession(request).getDatabase().getSchema(schemaNamesArr[i]));
     }
 
-    RDFService rdf = new RDFService(request.url(), request.queryParams("format"));
+    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
@@ -51,7 +54,7 @@ public class RDFApi {
   private static int rdfForSchema(Request request, Response response) throws IOException {
     Schema schema = getSchema(request);
 
-    RDFService rdf = new RDFService(request.url(), request.queryParams("format"));
+    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
@@ -64,7 +67,7 @@ public class RDFApi {
   private static int rdfForTable(Request request, Response response) throws IOException {
     Table table = getTable(request);
 
-    RDFService rdf = new RDFService(request.url(), request.queryParams("format"));
+    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
@@ -78,7 +81,7 @@ public class RDFApi {
     Table table = getTable(request);
     String rowId = sanitize(request.params("row"));
 
-    RDFService rdf = new RDFService(request.url(), request.queryParams("format"));
+    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
@@ -92,7 +95,7 @@ public class RDFApi {
     Table table = getTable(request);
     String columnName = sanitize(request.params("column"));
 
-    RDFService rdf = new RDFService(request.url(), request.queryParams("format"));
+    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
