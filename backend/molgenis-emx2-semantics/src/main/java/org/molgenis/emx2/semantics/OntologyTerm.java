@@ -10,12 +10,12 @@ public class OntologyTerm {
   private String label;
 
   // no getter because JSON will pick it up again, instead public...
-  @JsonIgnore public String uri;
+  @JsonIgnore public String URI;
 
-  public OntologyTerm(String id, String label, String uri) {
+  public OntologyTerm(String id, String label, String URI) {
     this.id = id;
     this.label = label;
-    this.uri = uri;
+    this.URI = URI;
   }
 
   public OntologyTerm() {}
@@ -36,7 +36,7 @@ public class OntologyTerm {
     return label;
   }
 
-  public void setUri(String uri) {
-    this.uri = uri;
+  public void setURI(String URI) {
+    this.URI = URI;
   }
 }
