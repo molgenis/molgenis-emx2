@@ -56,13 +56,7 @@ public class RDFWithCompositeKeysTest {
     RDFService rdf = new RDFService("http://localhost:8080" + RDF_API_LOCATION);
     OutputStream outputStream = new ByteArrayOutputStream();
     rdf.describeAsRDF(
-        outputStream,
-        RDF_API_LOCATION,
-        null,
-        null,
-        null,
-        null,
-        List.of(schema).toArray(new Schema[1]));
+        outputStream, RDF_API_LOCATION, null, null, null, List.of(schema).toArray(new Schema[1]));
     String result = outputStream.toString();
     assertTrue(result.contains(RDFWithCompositeKeysTest.class.getSimpleName()));
 

@@ -1,14 +1,52 @@
 package org.molgenis.emx2.semantics;
 
+import static org.molgenis.emx2.SelectColumn.s;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.jooq.tools.StringUtils;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Query;
+import org.molgenis.emx2.SelectColumn;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.utils.TypeUtils;
 
 public class QueryHelper {
+
+  /**
+   * Select query columns from table, including the columns of any reference.
+   *
+   * @param table
+   * @throws Exception
+   */
+  public static Query selectColumns(Table table) {
+    Query query = table.query();
+    for (Column column : table.getMetadata().getColumns()) {
+      if (column.isOntology() || column.isReference()) {
+        List<Column> ontoRefCols =
+            column.getRefTable().getColumns().stream().collect(Collectors.toList());
+        ArrayList<String> colNames = new ArrayList<>();
+        for (Column ontoRefCol : ontoRefCols) {
+          colNames.add(ontoRefCol.getName());
+        }
+        query.select(new SelectColumn(column.getName(), colNames));
+      } else if (column.isFile()) {
+        ArrayList<String> colNames = new ArrayList<>();
+        colNames.add("id");
+        colNames.add("mimetype");
+        colNames.add("extension");
+        // skip contents, which is served by file api
+        query.select(new SelectColumn(column.getName(), colNames));
+      } else if (column.isHeading()) {
+        // ignore headings, not part of rows
+      } else {
+        query.select(s(column.getName()));
+      }
+    }
+    return query;
+  }
 
   /**
    * Convert list of maps to an array of ontology terms

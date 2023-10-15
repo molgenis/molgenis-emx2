@@ -111,7 +111,7 @@ public class GraphGenome {
       sortedVariants.sort(new SortByPosition());
 
       // prep RDF export
-      RDFService rdfService = new RDFService(request, response);
+      RDFService rdfService = new RDFService(request.url(), request.queryParams("format"));
       String apiContext = rdfService.getHost() + graphGenomeApiLocation;
       describeRoot(rdfService.getBuilder(), rdfService.getHost());
       host = rdfService.getHost();

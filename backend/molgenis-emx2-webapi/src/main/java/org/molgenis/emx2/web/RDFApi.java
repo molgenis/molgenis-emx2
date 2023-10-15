@@ -38,12 +38,11 @@ public class RDFApi {
       schemas[i] = (sessionManager.getSession(request).getDatabase().getSchema(schemaNamesArr[i]));
     }
 
-    String format = request.queryParams("format");
-    RDFService rdf = new RDFService(request.url());
-    response.type(rdf.getMimeType(format));
+    RDFService rdf = new RDFService(request.url(), request.queryParams("format"));
+    response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, format, null, null, null, schemas);
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, schemas);
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -52,12 +51,11 @@ public class RDFApi {
   private static int rdfForSchema(Request request, Response response) throws IOException {
     Schema schema = getSchema(request);
 
-    String format = request.queryParams("format");
-    RDFService rdf = new RDFService(request.url());
-    response.type(rdf.getMimeType(format));
+    RDFService rdf = new RDFService(request.url(), request.queryParams("format"));
+    response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, format, null, null, null, schema);
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, schema);
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -66,12 +64,11 @@ public class RDFApi {
   private static int rdfForTable(Request request, Response response) throws IOException {
     Table table = getTable(request);
 
-    String format = request.queryParams("format");
-    RDFService rdf = new RDFService(request.url());
-    response.type(rdf.getMimeType(format));
+    RDFService rdf = new RDFService(request.url(), request.queryParams("format"));
+    response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, format, table, null, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, null, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -81,13 +78,11 @@ public class RDFApi {
     Table table = getTable(request);
     String rowId = sanitize(request.params("row"));
 
-    String format = request.queryParams("format");
-    RDFService rdf = new RDFService(request.url());
-    response.type(rdf.getMimeType(format));
+    RDFService rdf = new RDFService(request.url(), request.queryParams("format"));
+    response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(
-        outputStream, request.url(), RDF_API_LOCATION, table, rowId, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, rowId, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -97,13 +92,11 @@ public class RDFApi {
     Table table = getTable(request);
     String columnName = sanitize(request.params("column"));
 
-    String format = request.queryParams("format");
-    RDFService rdf = new RDFService(request.url());
-    response.type(rdf.getMimeType(format));
+    RDFService rdf = new RDFService(request.url(), request.queryParams("format"));
+    response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(
-        outputStream, RDF_API_LOCATION, format, table, null, columnName, table.getSchema());
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, null, columnName, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;

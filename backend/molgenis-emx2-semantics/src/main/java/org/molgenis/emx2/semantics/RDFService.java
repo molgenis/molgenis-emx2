@@ -41,21 +41,32 @@ public class RDFService {
 
   private ObjectMapper jsonMapper;
   private ModelBuilder builder;
+  private RDFFormat rdfFormat;
   private WriterConfig config;
   private String host;
 
-  /**
-   * Hidden constructor, used on-the-fly by static functions that handle requests.
-   *
-   * @param requestURL
-   * @param response
-   */
   public RDFService(String requestURL) {
+    this(requestURL, null);
+  }
+
+  /**
+   * @param requestURL
+   */
+  public RDFService(String requestURL, String format) {
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
     // etc
     URI requestURI = getURI(requestURL);
     this.host = extractHost(requestURI);
+
+    if (format == null) {
+      this.rdfFormat = RDFFormat.TURTLE;
+    } else {
+      if (!RDF_FILE_FORMATS.keySet().contains(format)) {
+        throw new MolgenisException("Format unknown. Use any of: " + RDF_FILE_FORMATS.keySet());
+      }
+      this.rdfFormat = RDF_FILE_FORMATS.get(format);
+    }
 
     jsonMapper =
         new ObjectMapper()
@@ -99,7 +110,6 @@ public class RDFService {
   public void describeAsRDF(
       OutputStream outputStream,
       String rdfApiLocation,
-      String format,
       Table table,
       String rowId,
       String columnName,
@@ -124,7 +134,7 @@ public class RDFService {
         }
       }
 
-      Rio.write(builder.build(), outputStream, getFormat(format), config);
+      Rio.write(builder.build(), outputStream, rdfFormat, config);
 
     } catch (Exception e) {
       throw new MolgenisException("RDF export failed due to an exception", e);
@@ -160,20 +170,11 @@ public class RDFService {
     return host;
   }
 
-  public RDFFormat getFormat(String format) {
-    RDFFormat rdfFormat;
-    if (format == null) {
-      rdfFormat = RDFFormat.TURTLE;
-    } else {
-      if (!RDF_FILE_FORMATS.keySet().contains(format)) {
-        throw new MolgenisException("Format unknown. Use any of: " + RDF_FILE_FORMATS.keySet());
-      }
-      rdfFormat = RDF_FILE_FORMATS.get(format);
-    }
-    return rdfFormat;
+  public String getMimeType() {
+    return rdfFormat.getDefaultMIMEType();
   }
 
-  public String getMimeType(String format) {
-    return getFormat(format).getDefaultMIMEType();
+  public RDFFormat getRdfFormat() {
+    return rdfFormat;
   }
 }
