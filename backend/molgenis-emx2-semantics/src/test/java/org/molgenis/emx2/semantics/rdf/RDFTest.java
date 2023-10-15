@@ -39,7 +39,11 @@ public class RDFTest {
 
   @Test
   public void RDFForDatabaseAsTTL() {
-    Request request = mock(Request.class);
+    Request request =
+        mock(
+            Request
+                .class); // your should not pass request / responses instead extract params and pass
+    // those
     Response response = mock(Response.class);
     when(request.url()).thenReturn("http://localhost:8080" + RDF_API_LOCATION);
     OutputStream outputStream = new ByteArrayOutputStream();

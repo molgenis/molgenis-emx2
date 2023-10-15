@@ -101,7 +101,7 @@ public class RDFService {
    *       row
    * </ul>
    *
-   * Each call will result in a full stack of data, containing the following elements:
+   * <p>Each call will result in a full stack of data, containing the following elements:
    *
    * <ul>
    *   <li>Root node with server URL
@@ -111,7 +111,7 @@ public class RDFService {
    *   <li>Row node(s) linked to its table with value(s) linked to its column(s)
    * </ul>
    *
-   * The number of schemas, tables, and rows returned depend on the input parameters.
+   * <p>The number of schemas, tables, and rows returned depend on the input parameters.
    *
    * @param schemas
    * @param outputStream
