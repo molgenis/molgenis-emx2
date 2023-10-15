@@ -7,10 +7,6 @@ import org.eclipse.rdf4j.model.IRI;
 import org.molgenis.emx2.MolgenisException;
 
 public class IRIParsingEncoding {
-  private IRIParsingEncoding() {
-    // do not instantiate
-  }
-
   /**
    * @param uriString
    * @return
@@ -19,14 +15,16 @@ public class IRIParsingEncoding {
   public static URI getURI(String uriString) {
     try {
       ParsedIRI parsedIRI = ParsedIRI.create(uriString);
-      return new URI(
-          parsedIRI.getScheme(),
-          parsedIRI.getUserInfo(),
-          parsedIRI.getHost(),
-          parsedIRI.getPort(),
-          parsedIRI.getPath(),
-          parsedIRI.getQuery(),
-          parsedIRI.getFragment());
+      URI uri =
+          new URI(
+              parsedIRI.getScheme(),
+              parsedIRI.getUserInfo(),
+              parsedIRI.getHost(),
+              parsedIRI.getPort(),
+              parsedIRI.getPath(),
+              parsedIRI.getQuery(),
+              parsedIRI.getFragment());
+      return uri;
     } catch (Exception e) {
       throw new MolgenisException("getURI failed", e);
     }

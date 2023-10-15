@@ -1,7 +1,7 @@
-package org.molgenis.emx2.semantics;
+package org.molgenis.emx2.semantics.rdf;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.semantics.StringsForRDFTest.*;
+import static org.molgenis.emx2.semantics.rdf.StringsForRDFTest.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -11,6 +11,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.semantics.RDFService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RDFTest {
@@ -68,7 +69,6 @@ public class RDFTest {
     OutputStream outputStream = new ByteArrayOutputStream();
     RDFService rdf = new RDFService("http://localhost:8080/petStoreNr1" + RDF_API_LOCATION);
     rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, petStoreSchemas[0]);
-
     String result = outputStream.toString();
     assertTrue(result.contains(TTL_PREFIX_1));
     assertFalse(result.contains(TTL_PREFIX_2));

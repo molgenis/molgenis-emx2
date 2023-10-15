@@ -1,17 +1,17 @@
 package org.molgenis.emx2.semantics;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.molgenis.emx2.semantics.ValueToRDF.columnTypeToXSD;
-import static org.molgenis.emx2.semantics.ValueToRDF.describeValues;
+import static org.molgenis.emx2.semantics.rdf.ColumnTypeToXSDDataType.columnTypeToXSD;
 import static org.molgenis.emx2.semantics.rdf.RootToRDF.describeRoot;
+import static org.molgenis.emx2.semantics.rdf.SchemaToRDF.describeSchema;
+import static org.molgenis.emx2.semantics.rdf.SupportedRDFFileFormats.RDF_FILE_FORMATS;
+import static org.molgenis.emx2.semantics.rdf.TableToRDF.describeTable;
+import static org.molgenis.emx2.semantics.rdf.ValueToRDF.describeValues;
 
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -31,31 +31,14 @@ import org.molgenis.emx2.semantics.rdf.IRIParsingEncoding;
  * Nomenclature used from:
  *
  * <ul>
- *   <li>SIO http://semanticscience.org
- *   <li>RDF Data Cube https://www.w3.org/TR/vocab-data-cube
+ *   <li>SIO (http://semanticscience.org)
+ *   <li>RDF Data Cube (https://www.w3.org/TR/vocab-data-cube)
  *   <li>OWL, RDF, RDFS
  * </ul>
  */
 public class RDFService {
-  public static final Map<String, RDFFormat> RDF_FILE_FORMATS =
-      new TreeMap<>(
-          Map.of(
-              "ttl",
-              RDFFormat.TURTLE,
-              "n3",
-              RDFFormat.N3,
-              "ntriples",
-              RDFFormat.NTRIPLES,
-              "nquads",
-              RDFFormat.NQUADS,
-              "xml",
-              RDFFormat.RDFXML,
-              "trig",
-              RDFFormat.TRIG,
-              "jsonld",
-              RDFFormat.JSONLD));
-  private final RDFFormat rdfFormat;
   private final WriterConfig config;
+  private final RDFFormat rdfFormat;
   private final String host;
 
   public RDFService(String requestURL) {
@@ -208,55 +191,6 @@ public class RDFService {
     }
     if (column.getDescriptions() != null) {
       builder.add(columnContext, DC.DESCRIPTION, column.getDescriptions());
-    }
-  }
-
-  public static void describeSchema(
-      ModelBuilder builder, Schema schema, String schemaContext, String rootContext) {
-    builder.add(schemaContext, RDFS.LABEL, schema.getName());
-    builder.add(schemaContext, DCTERMS.IS_PART_OF, IRIParsingEncoding.encodedIRI(rootContext));
-    if (schema.getMetadata().getDescription() != null) {
-      builder.add(schemaContext, DCTERMS.DESCRIPTION, schema.getMetadata().getDescription());
-    }
-    builder.add(schemaContext, RDF.TYPE, RDFS.CONTAINER);
-    for (String tableName : schema.getTableNames()) {
-      IRI tableContext = IRIParsingEncoding.encodedIRI(schemaContext + "/" + tableName);
-      builder.add(schemaContext, "http://www.w3.org/ns/ldp#contains", tableContext);
-    }
-  }
-
-  public static void describeTable(ModelBuilder builder, Table table, String schemaContext) {
-    IRI tableContext = IRIParsingEncoding.encodedIRI(schemaContext + "/" + table.getName());
-    builder.add(tableContext, RDF.TYPE, OWL.CLASS);
-    builder.add(tableContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#DataSet"));
-    // SIO:000754 = database table
-    builder.add(tableContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_000754"));
-    if (table.getMetadata().getSemantics() != null) {
-      for (String tableSemantics : table.getMetadata().getSemantics()) {
-        builder.add(tableContext, RDFS.ISDEFINEDBY, iri(tableSemantics));
-      }
-    } else if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
-      builder.add(
-          // NCIT:C48697 = Controlled Vocabulary
-          tableContext, RDFS.ISDEFINEDBY, iri("http://purl.obolibrary.org/obo/NCIT_C48697"));
-    } else {
-      builder.add(
-          // SIO:001055 = observing (definition: observing is a process of passive interaction in
-          // which one entity makes note of attributes of one or more entities)
-          tableContext, RDFS.ISDEFINEDBY, iri("http://semanticscience.org/resource/SIO_001055"));
-    }
-    builder.add(tableContext, RDFS.LABEL, table.getName());
-    if (table.getMetadata().getDescriptions() != null
-        && table.getMetadata().getDescriptions().get("en") != null) {
-      builder.add(
-          tableContext, DCTERMS.DESCRIPTION, table.getMetadata().getDescriptions().get("en"));
-    }
-    if (table.getMetadata().getTableType() == TableType.DATA) {
-      // NCIT:C25474 = Data
-      builder.add(tableContext, RDFS.RANGE, iri("http://purl.obolibrary.org/obo/NCIT_C25474"));
-    } else if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
-      // NCIT:C21270 = Ontology
-      builder.add(tableContext, RDFS.RANGE, iri("http://purl.obolibrary.org/obo/NCIT_C21270"));
     }
   }
 }

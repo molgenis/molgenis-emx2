@@ -16,10 +16,6 @@ public class RDFApi {
   private static MolgenisSessionManager sessionManager;
   public static final String RDF_API_LOCATION = "/api/rdf";
 
-  private RDFApi() {
-    // no instantiate
-  }
-
   public static void create(MolgenisSessionManager sm) {
     // ideally, we estimate/calculate the content length and inform the client using
     // response.raw().setContentLengthLong(x) but since the output is streaming and the triples

@@ -5,7 +5,7 @@ import static org.molgenis.emx2.graphgenome.Formatting.formatNodeId;
 import static org.molgenis.emx2.graphgenome.Formatting.shorten;
 import static org.molgenis.emx2.graphgenome.RetrieveRefSeq.getDnaFromUCSC;
 import static org.molgenis.emx2.graphgenome.Semantics.*;
-import static org.molgenis.emx2.semantics.RDFService.describeRoot;
+import static org.molgenis.emx2.semantics.rdf.RootToRDF.describeRoot;
 
 import java.io.OutputStream;
 import java.util.*;

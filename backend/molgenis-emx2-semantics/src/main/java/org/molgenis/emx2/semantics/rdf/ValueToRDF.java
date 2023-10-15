@@ -1,10 +1,11 @@
-package org.molgenis.emx2.semantics;
+package org.molgenis.emx2.semantics.rdf;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.FilterBean.and;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.semantics.rdf.ColumnTypeToXSDDataType.columnTypeToXSD;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -20,55 +21,8 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.semantics.rdf.IRIParsingEncoding;
 
 public class ValueToRDF {
-
-  private ValueToRDF() {
-    // hide constructor, not meant to be instantiated
-  }
-
-  public static CoreDatatype.XSD columnTypeToXSD(ColumnType columnType) {
-    switch (columnType) {
-      case BOOL, BOOL_ARRAY:
-        return CoreDatatype.XSD.BOOLEAN;
-
-      case DATE, DATE_ARRAY:
-        return CoreDatatype.XSD.DATE;
-
-      case DATETIME, DATETIME_ARRAY:
-        return CoreDatatype.XSD.DATETIME;
-
-      case DECIMAL, DECIMAL_ARRAY:
-        return CoreDatatype.XSD.DECIMAL;
-
-      case EMAIL,
-          EMAIL_ARRAY,
-          HEADING,
-          JSONB,
-          JSONB_ARRAY,
-          STRING,
-          STRING_ARRAY,
-          TEXT,
-          TEXT_ARRAY,
-          UUID,
-          UUID_ARRAY,
-          AUTO_ID:
-        return CoreDatatype.XSD.STRING;
-
-      case FILE, HYPERLINK, HYPERLINK_ARRAY, ONTOLOGY, ONTOLOGY_ARRAY, REF, REF_ARRAY, REFBACK:
-        return CoreDatatype.XSD.ANYURI;
-
-      case INT, INT_ARRAY:
-        return CoreDatatype.XSD.INT;
-
-      case LONG, LONG_ARRAY:
-        return CoreDatatype.XSD.LONG;
-
-      default:
-        throw new MolgenisException("ColumnType not mapped: " + columnType);
-    }
-  }
 
   public static void describeValues(
       ModelBuilder builder, Table table, String rowId, String schemaContext) {
