@@ -33,7 +33,7 @@ public class TestOntologyTableSemantics {
   }
 
   @Test
-  void OntologyTableSemantics() {
+  void testOntologyTableSemantics() {
     OutputStream outputStream = new ByteArrayOutputStream();
     RDFService rdf = new RDFService("http://localhost:8080/semanticPetStore/api/fdp");
     rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, petStoreSchema);
@@ -58,7 +58,7 @@ public class TestOntologyTableSemantics {
     petStoreSchema.migrate(metadata);
 
     outputStream = new ByteArrayOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, null, petStoreSchema);
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, petStoreSchema);
     result = outputStream.toString();
 
     /*

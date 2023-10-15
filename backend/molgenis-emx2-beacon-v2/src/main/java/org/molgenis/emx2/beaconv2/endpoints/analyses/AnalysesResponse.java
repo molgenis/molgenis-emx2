@@ -24,7 +24,7 @@ public class AnalysesResponse {
   // query parameters, ignore from output
   @JsonIgnore private String idForQuery;
 
-  public AnalysesResponse(Request request, List<Table> tables) throws Exception {
+  public AnalysesResponse(Request request, List<Table> tables) {
 
     List<AnalysesResultSets> resultSetsList = new ArrayList<>();
     idForQuery = request.queryParams("id");

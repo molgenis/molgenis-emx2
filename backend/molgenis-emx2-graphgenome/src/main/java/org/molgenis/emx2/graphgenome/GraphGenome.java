@@ -113,9 +113,9 @@ public class GraphGenome {
       // prep RDF export
       RDFService rdfService = new RDFService(request.url(), request.queryParams("format"));
       String apiContext = rdfService.getHost() + graphGenomeApiLocation;
-      describeRoot(rdfService.getBuilder(), rdfService.getHost());
+      ModelBuilder builder = new ModelBuilder();
+      describeRoot(builder, rdfService.getHost());
       host = rdfService.getHost();
-      ModelBuilder builder = rdfService.getBuilder();
 
       String apiContextGene =
           addGeneNode(
@@ -253,11 +253,7 @@ public class GraphGenome {
           upstreamVariantAltNodes,
           refSeq);
 
-      Rio.write(
-          rdfService.getBuilder().build(),
-          outputStream,
-          rdfService.getRdfFormat(),
-          rdfService.getConfig());
+      Rio.write(builder.build(), outputStream, rdfService.getRdfFormat(), rdfService.getConfig());
 
     } catch (Exception e) {
       throw new MolgenisException("Graph genome export failed due to an exception", e);

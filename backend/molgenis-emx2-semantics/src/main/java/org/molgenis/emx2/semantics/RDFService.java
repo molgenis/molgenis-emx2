@@ -8,9 +8,6 @@ import static org.molgenis.emx2.semantics.rdf.SupportedRDFFileFormats.RDF_FILE_F
 import static org.molgenis.emx2.semantics.rdf.TableToRDF.describeTable;
 import static org.molgenis.emx2.semantics.rdf.ValueToRDF.describeValues;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Arrays;
@@ -32,26 +29,20 @@ import org.molgenis.emx2.*;
  * Nomenclature used from:
  *
  * <ul>
- *   <li>SIO (http://semanticscience.org)
- *   <li>RDF Data Cube (https://www.w3.org/TR/vocab-data-cube)
+ *   <li>SIO http://semanticscience.org
+ *   <li>RDF Data Cube https://www.w3.org/TR/vocab-data-cube
  *   <li>OWL, RDF, RDFS
  * </ul>
  */
 public class RDFService {
-
-  private ObjectMapper jsonMapper;
-  private ModelBuilder builder;
-  private RDFFormat rdfFormat;
-  private WriterConfig config;
-  private String host;
+  private final RDFFormat rdfFormat;
+  private final WriterConfig config;
+  private final String host;
 
   public RDFService(String requestURL) {
     this(requestURL, null);
   }
 
-  /**
-   * @param requestURL
-   */
   public RDFService(String requestURL, String format) {
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
@@ -62,27 +53,14 @@ public class RDFService {
     if (format == null) {
       this.rdfFormat = RDFFormat.TURTLE;
     } else {
-      if (!RDF_FILE_FORMATS.keySet().contains(format)) {
+      if (!RDF_FILE_FORMATS.containsKey(format)) {
         throw new MolgenisException("Format unknown. Use any of: " + RDF_FILE_FORMATS.keySet());
       }
       this.rdfFormat = RDF_FILE_FORMATS.get(format);
     }
 
-    jsonMapper =
-        new ObjectMapper()
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .setDateFormat(new StdDateFormat().withColonInTimeZone(true));
-
-    this.builder = new ModelBuilder();
     this.config = new WriterConfig();
     this.config.set(BasicWriterSettings.INLINE_BLANK_NODES, true);
-    this.builder.setNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-    this.builder.setNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
-    this.builder.setNamespace("xsd", "http://www.w3.org/2001/XMLSchema#");
-    this.builder.setNamespace("owl", "http://www.w3.org/2002/07/owl#");
-    this.builder.setNamespace("sio", "http://semanticscience.org/resource/");
-    this.builder.setNamespace("qb", "http://purl.org/linked-data/cube#");
-    this.builder.setNamespace("dcterms", "http://purl.org/dc/terms/");
   }
 
   /**
@@ -115,7 +93,14 @@ public class RDFService {
       String columnName,
       Schema... schemas) {
     try {
-
+      ModelBuilder builder = new ModelBuilder();
+      builder.setNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+      builder.setNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
+      builder.setNamespace("xsd", "http://www.w3.org/2001/XMLSchema#");
+      builder.setNamespace("owl", "http://www.w3.org/2002/07/owl#");
+      builder.setNamespace("sio", "http://semanticscience.org/resource/");
+      builder.setNamespace("qb", "http://purl.org/linked-data/cube#");
+      builder.setNamespace("dcterms", "http://purl.org/dc/terms/");
       describeRoot(builder, host);
 
       for (int i = 0; i < schemas.length; i++) {
@@ -141,25 +126,12 @@ public class RDFService {
     }
   }
 
-  /**
-   * Extract the host location from a request URI.
-   *
-   * @param requestURI
-   * @return
-   */
+  /** Extract the host location from a request URI. */
   public static String extractHost(URI requestURI) {
     return requestURI.getScheme()
         + "://"
         + requestURI.getHost()
         + (requestURI.getPort() != -1 ? ":" + requestURI.getPort() : "");
-  }
-
-  private ObjectMapper getJsonMapper() {
-    return jsonMapper;
-  }
-
-  public ModelBuilder getBuilder() {
-    return builder;
   }
 
   public WriterConfig getConfig() {

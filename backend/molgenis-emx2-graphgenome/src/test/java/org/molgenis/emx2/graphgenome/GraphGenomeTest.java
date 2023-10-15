@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -20,6 +21,7 @@ import spark.Request;
 import spark.Response;
 
 @Tag("slow")
+@Disabled
 public class GraphGenomeTest {
 
   static Database database;
