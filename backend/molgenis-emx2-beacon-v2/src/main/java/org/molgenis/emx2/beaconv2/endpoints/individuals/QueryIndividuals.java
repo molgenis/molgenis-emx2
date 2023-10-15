@@ -1,8 +1,8 @@
 package org.molgenis.emx2.beaconv2.endpoints.individuals;
 
 import static org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsFields.*;
-import static org.molgenis.emx2.rdf.QueryHelper.mapListToOntologyTerms;
-import static org.molgenis.emx2.rdf.QueryHelper.mapToOntologyTerm;
+import static org.molgenis.emx2.semantics.QueryHelper.mapListToOntologyTerms;
+import static org.molgenis.emx2.semantics.QueryHelper.mapToOntologyTerm;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;

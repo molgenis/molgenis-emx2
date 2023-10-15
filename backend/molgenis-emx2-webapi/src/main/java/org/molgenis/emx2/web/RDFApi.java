@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.Collection;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.semantics.RDFService;
 import spark.Request;
 import spark.Response;
 

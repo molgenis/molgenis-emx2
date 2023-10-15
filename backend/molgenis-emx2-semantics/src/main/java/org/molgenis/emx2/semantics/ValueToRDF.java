@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2.semantics;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;

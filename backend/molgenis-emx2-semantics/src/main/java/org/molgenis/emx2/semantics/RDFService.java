@@ -1,8 +1,8 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2.semantics;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.molgenis.emx2.rdf.ValueToRDF.columnTypeToXSD;
-import static org.molgenis.emx2.rdf.ValueToRDF.describeValues;
+import static org.molgenis.emx2.semantics.ValueToRDF.columnTypeToXSD;
+import static org.molgenis.emx2.semantics.ValueToRDF.describeValues;
 
 import java.io.OutputStream;
 import java.net.URI;

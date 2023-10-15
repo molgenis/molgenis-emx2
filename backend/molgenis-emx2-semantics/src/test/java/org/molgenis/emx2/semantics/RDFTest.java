@@ -1,7 +1,7 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2.semantics;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.rdf.StringsForRDFTest.*;
+import static org.molgenis.emx2.semantics.StringsForRDFTest.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;

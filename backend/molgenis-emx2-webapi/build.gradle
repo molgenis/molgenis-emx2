@@ -4,7 +4,7 @@ dependencies {
     implementation project(':backend:molgenis-emx2-graphql')
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-datamodels')
-    implementation project(':backend:molgenis-emx2-rdf')
+    implementation project(':backend:molgenis-emx2-semantics')
     implementation project(':backend:molgenis-emx2-beacon-v2')
     implementation project(':backend:molgenis-emx2-graphgenome')
     implementation project(':backend:molgenis-emx2-fairdatapoint')

@@ -5,7 +5,7 @@ import static org.molgenis.emx2.graphgenome.Formatting.formatNodeId;
 import static org.molgenis.emx2.graphgenome.Formatting.shorten;
 import static org.molgenis.emx2.graphgenome.RetrieveRefSeq.getDnaFromUCSC;
 import static org.molgenis.emx2.graphgenome.Semantics.*;
-import static org.molgenis.emx2.rdf.RDFService.describeRoot;
+import static org.molgenis.emx2.semantics.RDFService.describeRoot;
 
 import java.io.OutputStream;
 import java.util.*;
@@ -14,7 +14,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.*;
-import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.semantics.RDFService;
 import spark.Request;
 import spark.Response;
 

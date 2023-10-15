@@ -2,7 +2,7 @@ package org.molgenis.emx2.beaconv2.endpoints.analyses;
 
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.rdf.QueryHelper.selectColumns;
+import static org.molgenis.emx2.semantics.QueryHelper.selectColumns;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
