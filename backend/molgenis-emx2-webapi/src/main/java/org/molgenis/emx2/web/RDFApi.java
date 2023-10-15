@@ -27,7 +27,7 @@ public class RDFApi {
     get("/:schema" + RDF_API_LOCATION, RDFApi::rdfForSchema);
     get("/:schema" + RDF_API_LOCATION + "/:table", RDFApi::rdfForTable);
     get("/:schema" + RDF_API_LOCATION + "/:table/:row", RDFApi::rdfForRow);
-    get("/:schema" + RDF_API_LOCATION + "/:table/column/:column", RDFApi::rdfForColumn);
+    get("/:schema" + RDF_API_LOCATION + "/:table/column/:column", RDFApi::rdfForColumn); // huh?
   }
 
   private static int rdfForDatabase(Request request, Response response) throws IOException {
@@ -37,9 +37,13 @@ public class RDFApi {
     for (int i = 0; i < schemas.length; i++) {
       schemas[i] = (sessionManager.getSession(request).getDatabase().getSchema(schemaNamesArr[i]));
     }
+
+    String format = request.queryParams("format");
+    RDFService rdf = new RDFService(request.url());
+    response.type(rdf.getMimeType(format));
+
     OutputStream outputStream = response.raw().getOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, null, null, null, schemas);
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, format, null, null, null, schemas);
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -47,9 +51,13 @@ public class RDFApi {
 
   private static int rdfForSchema(Request request, Response response) throws IOException {
     Schema schema = getSchema(request);
+
+    String format = request.queryParams("format");
+    RDFService rdf = new RDFService(request.url());
+    response.type(rdf.getMimeType(format));
+
     OutputStream outputStream = response.raw().getOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, null, null, null, schema);
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, format, null, null, null, schema);
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -57,9 +65,13 @@ public class RDFApi {
 
   private static int rdfForTable(Request request, Response response) throws IOException {
     Table table = getTable(request);
+
+    String format = request.queryParams("format");
+    RDFService rdf = new RDFService(request.url());
+    response.type(rdf.getMimeType(format));
+
     OutputStream outputStream = response.raw().getOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, table, null, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, format, table, null, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -68,9 +80,14 @@ public class RDFApi {
   private static int rdfForRow(Request request, Response response) throws IOException {
     Table table = getTable(request);
     String rowId = sanitize(request.params("row"));
+
+    String format = request.queryParams("format");
+    RDFService rdf = new RDFService(request.url());
+    response.type(rdf.getMimeType(format));
+
     OutputStream outputStream = response.raw().getOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, table, rowId, null, table.getSchema());
+    rdf.describeAsRDF(
+        outputStream, request.url(), RDF_API_LOCATION, table, rowId, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -79,16 +96,14 @@ public class RDFApi {
   private static int rdfForColumn(Request request, Response response) throws IOException {
     Table table = getTable(request);
     String columnName = sanitize(request.params("column"));
+
+    String format = request.queryParams("format");
+    RDFService rdf = new RDFService(request.url());
+    response.type(rdf.getMimeType(format));
+
     OutputStream outputStream = response.raw().getOutputStream();
-    RDFService.describeAsRDF(
-        outputStream,
-        request,
-        response,
-        RDF_API_LOCATION,
-        table,
-        null,
-        columnName,
-        table.getSchema());
+    rdf.describeAsRDF(
+        outputStream, RDF_API_LOCATION, format, table, null, columnName, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;

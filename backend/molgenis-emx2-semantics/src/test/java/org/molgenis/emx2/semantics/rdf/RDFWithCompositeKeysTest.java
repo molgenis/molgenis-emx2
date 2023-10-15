@@ -1,8 +1,6 @@
 package org.molgenis.emx2.semantics.rdf;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -18,8 +16,6 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.semantics.RDFService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-import spark.Request;
-import spark.Response;
 
 public class RDFWithCompositeKeysTest {
   private static Schema schema;
@@ -57,16 +53,12 @@ public class RDFWithCompositeKeysTest {
 
   @Test
   public void testRDFwithCompositeKeys() {
-    // TODO refactor so we don't pass request and response but instead URI and query params
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.url()).thenReturn("http://localhost:8080" + RDF_API_LOCATION);
+    RDFService rdf = new RDFService("http://localhost:8080" + RDF_API_LOCATION);
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService.describeAsRDF(
+    rdf.describeAsRDF(
         outputStream,
-        request,
-        response,
         RDF_API_LOCATION,
+        null,
         null,
         null,
         null,

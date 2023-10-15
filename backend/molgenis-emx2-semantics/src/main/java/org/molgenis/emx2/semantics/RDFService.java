@@ -21,8 +21,6 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
-import spark.Request;
-import spark.Response;
 
 // TODO check null value handling
 // TODO check value types
@@ -44,20 +42,18 @@ public class RDFService {
   private ObjectMapper jsonMapper;
   private ModelBuilder builder;
   private WriterConfig config;
-  private RDFFormat rdfFormat;
   private String host;
 
   /**
    * Hidden constructor, used on-the-fly by static functions that handle requests.
    *
-   * @param request
+   * @param requestURL
    * @param response
    */
-  public RDFService(Request request, Response response) throws Exception {
+  public RDFService(String requestURL) {
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
     // etc
-    String requestURL = request.url();
     URI requestURI = getURI(requestURL);
     this.host = extractHost(requestURI);
 
@@ -65,17 +61,6 @@ public class RDFService {
         new ObjectMapper()
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             .setDateFormat(new StdDateFormat().withColonInTimeZone(true));
-
-    if (request.queryParams("format") == null) {
-      this.rdfFormat = RDFFormat.TURTLE;
-    } else {
-      String format = request.queryParams("format");
-      if (!RDF_FILE_FORMATS.keySet().contains(format)) {
-        throw new Exception("Format unknown. Use any of: " + RDF_FILE_FORMATS.keySet());
-      }
-      this.rdfFormat = RDF_FILE_FORMATS.get(format);
-    }
-    response.type(this.rdfFormat.getDefaultMIMEType());
 
     this.builder = new ModelBuilder();
     this.config = new WriterConfig();
@@ -110,50 +95,36 @@ public class RDFService {
    *   <li>Column node(s) linked to its table
    *   <li>Row node(s) linked to its table with value(s) linked to its column(s)
    * </ul>
-   *
-   * <p>The number of schemas, tables, and rows returned depend on the input parameters.
-   *
-   * @param schemas
-   * @param outputStream
-   * @param request
-   * @param response
    */
-  public static void describeAsRDF(
+  public void describeAsRDF(
       OutputStream outputStream,
-      Request request,
-      Response response,
       String rdfApiLocation,
+      String format,
       Table table,
       String rowId,
       String columnName,
       Schema... schemas) {
     try {
 
-      RDFService rdfService = new RDFService(request, response);
-      describeRoot(rdfService.getBuilder(), rdfService.getHost());
+      describeRoot(builder, host);
 
       for (int i = 0; i < schemas.length; i++) {
         Schema schema = schemas[i];
-        String schemaRdfApiContext = rdfService.getHost() + "/" + schema.getName() + rdfApiLocation;
-        rdfService.getBuilder().setNamespace("emx" + i, schemaRdfApiContext + "/");
-        describeSchema(rdfService.getBuilder(), schema, schemaRdfApiContext, rdfService.getHost());
+        String schemaRdfApiContext = host + "/" + schema.getName() + rdfApiLocation;
+        builder.setNamespace("emx" + i, schemaRdfApiContext + "/");
+        describeSchema(builder, schema, schemaRdfApiContext, host);
         List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();
         for (Table tableToDescribe : tables) {
-          describeTable(rdfService.getBuilder(), tableToDescribe, schemaRdfApiContext);
-          describeColumns(
-              rdfService.getBuilder(), columnName, tableToDescribe, schemaRdfApiContext);
+          describeTable(builder, tableToDescribe, schemaRdfApiContext);
+          describeColumns(builder, columnName, tableToDescribe, schemaRdfApiContext);
           // if a column name is provided then only provide column metadata, no row values
           if (columnName == null) {
-            describeValues(rdfService.getBuilder(), tableToDescribe, rowId, schemaRdfApiContext);
+            describeValues(builder, tableToDescribe, rowId, schemaRdfApiContext);
           }
         }
       }
 
-      Rio.write(
-          rdfService.getBuilder().build(),
-          outputStream,
-          rdfService.getRdfFormat(),
-          rdfService.getConfig());
+      Rio.write(builder.build(), outputStream, getFormat(format), config);
 
     } catch (Exception e) {
       throw new MolgenisException("RDF export failed due to an exception", e);
@@ -185,11 +156,24 @@ public class RDFService {
     return config;
   }
 
-  public RDFFormat getRdfFormat() {
+  public String getHost() {
+    return host;
+  }
+
+  public RDFFormat getFormat(String format) {
+    RDFFormat rdfFormat;
+    if (format == null) {
+      rdfFormat = RDFFormat.TURTLE;
+    } else {
+      if (!RDF_FILE_FORMATS.keySet().contains(format)) {
+        throw new MolgenisException("Format unknown. Use any of: " + RDF_FILE_FORMATS.keySet());
+      }
+      rdfFormat = RDF_FILE_FORMATS.get(format);
+    }
     return rdfFormat;
   }
 
-  public String getHost() {
-    return host;
+  public String getMimeType(String format) {
+    return getFormat(format).getDefaultMIMEType();
   }
 }
