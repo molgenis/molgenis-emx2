@@ -5,6 +5,7 @@ import static org.molgenis.emx2.SelectColumn.s;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.jooq.tools.StringUtils;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Query;
@@ -24,7 +25,8 @@ public class QueryHelper {
     Query query = table.query();
     for (Column column : table.getMetadata().getColumns()) {
       if (column.isOntology() || column.isReference()) {
-        List<Column> ontoRefCols = column.getRefTable().getColumns().stream().toList();
+        List<Column> ontoRefCols =
+            column.getRefTable().getColumns().stream().collect(Collectors.toList());
         ArrayList<String> colNames = new ArrayList<>();
         for (Column ontoRefCol : ontoRefCols) {
           colNames.add(ontoRefCol.getName());
@@ -96,12 +98,13 @@ public class QueryHelper {
    * @return
    */
   public static ColumnPath findColumnPath(
-      List<Column> pathToColumn, String columnSemanticTagOrIRI, Table table) {
+      ArrayList<Column> pathToColumn, String columnSemanticTagOrIRI, Table table) {
 
-    for (Column column :
-        table.getMetadata().getColumns().stream()
-            .filter(column -> !column.isSystemColumn())
-            .toList()) {
+    for (Column column : table.getMetadata().getColumns()) {
+      if (column.isSystemColumn()) {
+        continue;
+      }
+
       // check semantics, return if found
       for (String semantics : column.getSemantics()) {
         if (semantics.endsWith(columnSemanticTagOrIRI)) {
