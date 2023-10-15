@@ -1,8 +1,8 @@
 package org.molgenis.emx2.beaconv2.endpoints.datasets;
 
-import static org.molgenis.emx2.semantics.IRIParsingEncoding.encodedIRI;
-import static org.molgenis.emx2.semantics.IRIParsingEncoding.getURI;
 import static org.molgenis.emx2.semantics.RDFService.extractHost;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;

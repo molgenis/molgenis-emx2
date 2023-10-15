@@ -18,6 +18,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.semantics.rdf.IRIParsingEncoding;
 
 // TODO check null value handling
 // TODO check value types

@@ -20,6 +20,7 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.semantics.rdf.IRIParsingEncoding;
 
 public class ValueToRDF {
 

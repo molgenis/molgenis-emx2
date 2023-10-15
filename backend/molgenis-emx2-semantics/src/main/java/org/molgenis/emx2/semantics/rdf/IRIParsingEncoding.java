@@ -1,4 +1,4 @@
-package org.molgenis.emx2.semantics;
+package org.molgenis.emx2.semantics.rdf;
 
 import java.net.URI;
 import java.net.URISyntaxException;
