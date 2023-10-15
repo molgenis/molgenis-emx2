@@ -1,6 +1,7 @@
 package org.molgenis.emx2.semantics;
 
 import static org.molgenis.emx2.semantics.rdf.ColumnToRDF.describeColumns;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
 import static org.molgenis.emx2.semantics.rdf.RootToRDF.describeRoot;
 import static org.molgenis.emx2.semantics.rdf.SchemaToRDF.describeSchema;
 import static org.molgenis.emx2.semantics.rdf.SupportedRDFFileFormats.RDF_FILE_FORMATS;
@@ -12,13 +13,11 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
-import org.eclipse.rdf4j.model.vocabulary.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.semantics.rdf.IRIParsingEncoding;
 
 // TODO check null value handling
 // TODO check value types
@@ -48,7 +47,7 @@ public class RDFService {
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
     // etc
-    URI requestURI = IRIParsingEncoding.getURI(requestURL);
+    URI requestURI = getURI(requestURL);
     this.host = extractHost(requestURI);
 
     if (format == null) {
