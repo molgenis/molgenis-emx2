@@ -58,29 +58,28 @@ let error = ref(false);
 let providers = ref([]);
 
 async function getOrganisations() {
-  const query = gql`{
-    Organisations (
-      filter: {
-        hasSchema: { equals: true }
+  const query = gql`
+    {
+      Organisations(filter: { hasSchema: { equals: true } }) {
+        name
+        city
+        country
+        latitude
+        longitude
+        providerInformation {
+          providerIdentifier
+          hasSubmittedData
+        }
+        hasSchema
+        schemaName
       }
-    ) {
-      name
-      city
-      country
-      latitude
-      longitude
-      providerInformation {
-        providerIdentifier
-        hasSubmittedData
-      }
-      hasSchema
-      schemaName
     }
-  }`;
+  `;
 
   const response = await request("../api/graphql", query);
-  providers.value = response.Organisations
-    .sort((current, next) => current.name < next.name ? -1 : 1);
+  providers.value = response.Organisations.sort((current, next) =>
+    current.name < next.name ? -1 : 1
+  );
 }
 
 async function loadData() {
@@ -118,7 +117,7 @@ onMounted(() => {
       font-size: 13pt;
     }
 
-    .name { 
+    .name {
       h3 {
         text-align: center;
         color: $blue-900;
@@ -130,9 +129,9 @@ onMounted(() => {
       display: flex;
       justify-content: center;
       gap: 0.5em;
-      p { 
+      p {
         margin: 0;
-        color: $blue-700; 
+        color: $blue-700;
       }
     }
 
@@ -154,19 +153,19 @@ onMounted(() => {
         }
       }
     }
-    
+
     @media screen and (min-width: 636px) {
       grid-template-columns: repeat(2, 1fr) 100px;
-      
+
       .name {
         h3 {
           text-align: left;
         }
       }
-      
+
       .location {
         display: grid;
-        grid-template-columns: repeat(2,1fr);
+        grid-template-columns: repeat(2, 1fr);
       }
     }
   }
