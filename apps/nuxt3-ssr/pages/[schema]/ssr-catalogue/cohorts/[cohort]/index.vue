@@ -42,7 +42,7 @@ const query = gql`
       numberOfParticipants
       numberOfParticipantsWithSamples
       designDescription
-      designSchematic ${loadGql(fileFragment)}
+      designSchematic ${moduleToString(fileFragment)}
       design {
         definition
         name
@@ -51,7 +51,7 @@ const query = gql`
         title
         doi
       }
-      inclusionCriteria ${loadGql(ontologyFragment)}
+      inclusionCriteria ${moduleToString(ontologyFragment)}
       otherInclusionCriteria
       additionalOrganisations {
         id
@@ -59,14 +59,14 @@ const query = gql`
         name
         website
         description
-        logo ${loadGql(fileFragment)}
+        logo ${moduleToString(fileFragment)}
       }
       networks {
         id
         name
         description
         website
-        logo ${loadGql(fileFragment)}
+        logo ${moduleToString(fileFragment)}
       }
       collectionEvents {
         name
@@ -78,10 +78,10 @@ const query = gql`
           name
         }
         numberOfParticipants
-        ageGroups ${loadGql(ontologyFragment)}
-        dataCategories ${loadGql(ontologyFragment)}
-        sampleCategories ${loadGql(ontologyFragment)}
-        areasOfInformation ${loadGql(ontologyFragment)}
+        ageGroups ${moduleToString(ontologyFragment)}
+        dataCategories ${moduleToString(ontologyFragment)}
+        sampleCategories ${moduleToString(ontologyFragment)}
+        areasOfInformation ${moduleToString(ontologyFragment)}
         subcohorts {
           name
         }
@@ -123,7 +123,7 @@ const query = gql`
         name
         description
         url
-        file ${loadGql(fileFragment)}
+        file ${moduleToString(fileFragment)}
       }
     }
     CollectionEvents_agg(filter: { resource: { id: { equals: [$id] } } }) {

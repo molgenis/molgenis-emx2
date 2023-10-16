@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ICohort, IVariableWithMappings } from "~/interfaces/types";
+const route = useRoute();
 
 const props = defineProps<{
   variables: IVariableWithMappings[];
@@ -22,6 +23,9 @@ const statusMap = computed(() => {
     });
   });
 });
+
+let showSidePanel = computed(() => activeVariableName.value !== "");
+let activeVariableName = ref("");
 </script>
 
 <template>
@@ -51,7 +55,12 @@ const statusMap = computed(() => {
             v-for="(variable, rowIndex) in variables"
             class="border-b-2 hover:bg-button-outline-hover"
           >
-            <td class="text-blue-500 border-r-2 px-2">{{ variable.name }}</td>
+            <td
+              class="text-blue-500 border-r-2 px-2"
+              @click="activeVariableName = variable.name"
+            >
+              {{ variable.name }}
+            </td>
             <HarmonizationTableCell
               v-for="(_, colIndex) in cohorts"
               :status="statusMap[rowIndex][colIndex]"
@@ -60,5 +69,23 @@ const statusMap = computed(() => {
         </tbody>
       </table>
     </div>
+
+    <SideModal
+      :show="showSidePanel"
+      :fullScreen="false"
+      :slideInRight="true"
+      @close="activeVariableName = ''"
+      buttonAlignment="right"
+    >
+      <VariableDisplay :name="activeVariableName" />
+
+      <template #footer>
+        <NuxtLink
+          :to="`/${route.params.schema}/ssr-catalogue/variables/${activeVariableName}`"
+        >
+          <Button type="primary" size="small" label="More details " />
+        </NuxtLink>
+      </template>
+    </SideModal>
   </div>
 </template>

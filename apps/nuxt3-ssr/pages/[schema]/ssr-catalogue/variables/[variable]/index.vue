@@ -1,69 +1,10 @@
 <script setup lang="ts">
-import { gql } from "graphql-request";
-import type {
-  HarmonizationStatus,
-  IVariable,
-  IVariableMappings,
-} from "~/interfaces/types";
+import variableQuery from "~~/gql/variable";
+import type { IVariable, IVariableMappings } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 
-const query = gql`
-  query Variables($name: String) {
-    Variables(filter: { name: { equals: [$name] } }) {
-      name
-      label
-      description
-      unit {
-        name
-      }
-      format {
-        name
-      }
-      mappings {
-        source {
-          id
-          name
-        }
-        match {
-          name
-        }
-        sourceDataset {
-          resource {
-            id
-          }
-        }
-      }
-      repeats {
-        name
-        mappings {
-          source {
-            id
-            name
-          }
-          match {
-            name
-          }
-          sourceDataset {
-            resource {
-              id
-            }
-          }
-        }
-      }
-    }
-    Cohorts(orderby: { id: ASC }) {
-      id
-      name
-    }
-    RepeatedVariables_agg(
-      filter: { isRepeatOf: { name: { equals: [$name] } } }
-    ) {
-      count
-    }
-  }
-`;
-
+const query = moduleToString(variableQuery);
 const variables = { name: route.params.variable };
 let variable: VariableDetailsWithMapping;
 let cohorts: { id: string }[];

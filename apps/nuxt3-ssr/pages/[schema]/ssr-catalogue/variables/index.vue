@@ -140,7 +140,7 @@ watch(filters, () => {
   setCurrentPage(1);
 });
 
-let activeName = ref("harmonization");
+let activeName = ref("list");
 let pageIcon = computed(() => {
   switch (activeName.value) {
     case "list":

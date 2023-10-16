@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { Ref } from "vue";
-import query from "~~/gql/subcohort";
+import subcohortGql from "~~/gql/subcohort";
 const config = useRuntimeConfig();
 const route = useRoute();
 
-if (query.loc?.source.body === undefined) {
-  throw "unable to load query: " + query.toString();
-}
-const queryValue = query.loc?.source.body;
+const query = moduleToString(subcohortGql);
 
 let subcohort: Ref = ref();
 const { data: subcohortData } = await useFetch(
@@ -16,7 +13,7 @@ const { data: subcohortData } = await useFetch(
     baseURL: config.public.apiBase,
     method: "POST",
     body: {
-      query: queryValue,
+      query,
       variables: { id: route.params.cohort, name: route.params.subcohort },
     },
   }

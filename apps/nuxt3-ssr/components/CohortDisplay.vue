@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import query from "~~/gql/cohort";
+import cohortGql from "~~/gql/cohort";
 
 const props = defineProps<{
   id: string;
@@ -8,10 +8,7 @@ const props = defineProps<{
 const config = useRuntimeConfig();
 const route = useRoute();
 
-if (query.loc?.source.body === undefined) {
-  throw "unable to load query: " + query.toString();
-}
-const queryValue = query.loc?.source.body;
+const query = moduleToString(cohortGql);
 
 let cohort: ICohort = ref();
 
@@ -21,7 +18,7 @@ const { data: cohortData } = await useFetch(
     baseURL: config.public.apiBase,
     method: "POST",
     body: {
-      query: queryValue,
+      query,
       variables: {
         id: props.id,
       },

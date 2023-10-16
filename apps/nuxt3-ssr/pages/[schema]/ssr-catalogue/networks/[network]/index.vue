@@ -15,7 +15,7 @@ const query = gql`
       name
       description
       website
-      logo ${loadGql(fileFragment)}
+      logo ${moduleToString(fileFragment)}
       acronym
       contacts {
         roleDescription
