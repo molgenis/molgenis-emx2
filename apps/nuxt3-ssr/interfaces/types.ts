@@ -59,14 +59,27 @@ export interface ICohort {
   documentation?: IDocumentation[];
 }
 
-export interface IVariable {
+export interface IVariableBase {
   name: string;
   label: string;
   description?: string;
+}
+
+export interface IVariableDetails {
   unit?: IOntologyNode;
   format?: IOntologyNode;
-  nRepeats?: number;
 }
+
+export interface IVariableMappings {
+  mappings?: IMapping[];
+  repeats?: {
+    name: string;
+    mappings: IMapping[];
+  }[];
+}
+
+export type IVariable = IVariableBase & IVariableDetails;
+export type IVariableWithMappings = IVariable & IVariableMappings;
 
 interface IFile {
   id?: string;

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { IVariable } from "~/interfaces/types";
+
 defineProps<{
   variable: IVariable;
   schema: string;

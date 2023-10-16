@@ -1,19 +1,8 @@
 <script setup lang="ts">
-import type { ICohort, IMapping } from "~/interfaces/types";
-
-interface IVariableWithMapping {
-  name: string;
-  label: string;
-  description: string;
-  mappings?: IMapping[];
-  repeats?: {
-    name: string;
-    mappings: IMapping[];
-  }[];
-}
+import type { ICohort, IVariableWithMappings } from "~/interfaces/types";
 
 const props = defineProps<{
-  variables: IVariableWithMapping[];
+  variables: IVariableWithMappings[];
   cohorts: ICohort[];
 }>();
 
@@ -38,15 +27,7 @@ const statusMap = computed(() => {
 <template>
   <!-- temp 'fix' for table y overflow -->
   <div class="pb-5 relative">
-    <div class="flex flex-row-reverse items-center h-16">
-      <a class="ml-6 mr-4 hover:underline text-blue-500 cursor-help"
-        >About statuses</a
-      >
-      No Data
-      <HarmonizationStatusIcon status="unmapped" class="mr-1 ml-6" /> Completed
-      <HarmonizationStatusIcon status="complete" class="mr-1 ml-6" /> Partial
-      <HarmonizationStatusIcon status="partial" class="mr-1 ml-6" />
-    </div>
+    <HarmonizationLegend class="flex-row-reverse" />
 
     <div class="overflow-x-auto max-w-table">
       <table class="table-auto">

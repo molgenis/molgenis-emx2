@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
-import type { IVariable } from "~/interfaces/types";
+import type {
+  HarmonizationStatus,
+  IVariable,
+  IVariableMappings,
+} from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -25,7 +29,9 @@ const query = gql`
           name
         }
         sourceDataset {
-          name
+          resource {
+            id
+          }
         }
       }
       repeats {
@@ -39,10 +45,16 @@ const query = gql`
             name
           }
           sourceDataset {
-            name
+            resource {
+              id
+            }
           }
         }
       }
+    }
+    Cohorts(orderby: { id: ASC }) {
+      id
+      name
     }
     RepeatedVariables_agg(
       filter: { isRepeatOf: { name: { equals: [$name] } } }
@@ -53,7 +65,11 @@ const query = gql`
 `;
 
 const variables = { name: route.params.variable };
-let variable: IVariable;
+let variable: VariableDetailsWithMapping;
+let cohorts: { id: string }[];
+
+type VariableDetailsWithMapping = IVariable &
+  IVariableMappings & { nRepeats: number };
 
 const { data, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
@@ -70,8 +86,9 @@ watch(data, setData, {
 });
 
 function setData(data: any) {
-  variable = data?.data?.Variables[0];
+  variable = data?.data?.Variables[0] as VariableDetailsWithMapping;
   variable.nRepeats = data?.data?.RepeatedVariables_agg.count;
+  cohorts = data?.data?.Cohorts;
 }
 
 let tocItems = reactive([
@@ -130,21 +147,10 @@ let tocItems = reactive([
           title="Harmonization status per Cohort"
           description="Overview of the harmonization status per Cohort"
         >
-          <div class="grid grid-cols-3 gap-4">
-            <div
-              v-for="mapping in variable?.mappings"
-              class="inline-flex gap-1 group text-icon text-breadcrumb-arrow"
-            >
-              <BaseIcon name="completed" :width="24" class="text-green-500" />
-              <NuxtLink
-                :to="`/${route.params.schema}/ssr-catalogue/cohorts/${mapping.source.id}`"
-              >
-                <span class="text-body-base text-blue-500 hover:underline">{{
-                  mapping.source.id
-                }}</span>
-              </NuxtLink>
-            </div>
-          </div>
+          <HarmonizationListPerVariable
+            :variable="variable"
+            :cohorts="cohorts"
+          />
         </ContentBlock>
       </ContentBlocks>
     </template>
