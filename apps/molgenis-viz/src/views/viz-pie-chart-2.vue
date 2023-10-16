@@ -14,19 +14,16 @@
       </Breadcrumbs>
     </PageSection>
     <PageSection>
-      <h2>PieChart Component</h2>
+      <h2>PieChart2 Component</h2>
       <p>
-        The <strong>PieChart</strong> component is used to descriptives for
-        categorical data. Input data must be an object with one or more
-        key-value pairs. It is recommended to supply no more than 7 categories
-        and to combine smaller groups into an "other" category. If you need to
-        display more groups, it is strongly recommended to use the
-        <strong>BarChart</strong> or <strong>ColumnChart</strong> components.
-        Alternatively, the <strong>DataTable</strong> component is much better.
-      </p>
-      <p>
-        It is also possible to enable click events to enhance interactivity with
-        other visualisation components. See the example below.
+        After implementing the
+        <router-link :to="{ name: 'pie-chart' }">PieChart</router-link>
+        component, in several projects, it was apparent that the first iteration
+        did not meet the project-specific demands. For example, some projects
+        have very long names or they require more than the recommended number of
+        categories. To address these issues, the <strong>PieChart2</strong> was
+        created. The second iteration introduces a new legend feature and a
+        number of other options to interact with the chart.
       </p>
     </PageSection>
     <PageSection class="bkg-light" :verticalPadding="2">
@@ -40,7 +37,7 @@
         v-else
         chartId="organisationsByType2"
         title="Summary of organisation type"
-        :description="`In total, ${total} organisations across the Netherlands and Belgium were selected. The following chart shows the breakdown of oganisations by type.`"
+        :description="`${total} organisations are included in the dataset. The following chart shows the breakdown of oganisations by type.`"
         :chartData="data"
         :enableClicks="true"
         :enableLegendHovering="true"
@@ -60,7 +57,9 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchData, asDataObject } from "../utils/utils.js";
+import { request } from "graphql-request";
+import gql from "graphql-tag";
+import { asDataObject } from "../utils/utils.js";
 import { sum, rollups } from "d3";
 const d3 = { sum, rollups };
 
@@ -73,53 +72,47 @@ import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import headerImage from "../assets/pie-chart-header.jpg";
 
 let loading = ref(true);
-let hasError = ref(false);
 let error = ref(null);
 let selection = ref({});
 let data = ref({});
 let total = ref(0);
 
-const query = `{
-  Organisations {
-    name
-    organisationType
-  }
-}`;
+async function getOrganisations() {
+  const query = gql`
+    {
+      Organisations {
+        name
+        organisationType
+      }
+    }
+  `;
+  const response = await request("../api/graphql", query);
+  const rawdata = response.Organisations;
+  total.value = rawdata.length;
+  const orgs = d3
+    .rollups(
+      rawdata,
+      (row) => row.length,
+      (row) => row.organisationType
+    )
+    .map(
+      (group) =>
+        new Object({
+          type: group[0],
+          percent: Math.round((group[1] / total.value) * 100),
+        })
+    )
+    .sort((a, b) => (a.percent < b.percent ? 1 : -1));
+  data.value = asDataObject(orgs, "type", "percent");
+}
 
 function updateSelection(value) {
   selection.value = value;
 }
 
 onMounted(() => {
-  Promise.resolve(fetchData("/api/graphql", query))
-    .then((response) => {
-      const rawdata = response.data.Organisations;
-      const size = rawdata.length;
-      const orgs = d3
-        .rollups(
-          rawdata,
-          (row) => row.length,
-          (row) => row.organisationType
-        )
-        .map(
-          (group) =>
-            new Object({
-              type: group[0],
-              percent: Math.round((group[1] / size) * 100),
-            })
-        )
-        .sort((a, b) => {
-          return a.percent < b.percent;
-        });
-
-      total.value = size;
-      data.value = asDataObject(orgs, "type", "percent");
-
-      loading.value = false;
-    })
-    .catch((error) => {
-      hasError.value = true;
-      error.value = error;
-    });
+  getOrganisations()
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 });
 </script>

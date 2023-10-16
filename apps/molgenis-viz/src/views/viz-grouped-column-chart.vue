@@ -18,11 +18,10 @@
     <PageSection :verticalPadding="2">
       <h2>Column Chart example</h2>
       <p>
-        The <strong>ColumnChart</strong> component is used to display values for
-        categorical data. Groups are plotted along the x-axis and values along
-        the y-axis. If you would like to display values horizontally, use the
-        <router-link :to="{ name: 'bar-chart' }">Bar Chart</router-link>
-        component.
+        The <strong>GroupedColumnChart</strong> component is used to display
+        values for categorical data by group. Groups are plotted along the
+        x-axis and values along the y-axis. Legends are shown by default and can
+        be used to hide/show groups.
       </p>
     </PageSection>
     <PageSection class="bkg-light" :verticalPadding="2">
@@ -35,8 +34,8 @@
       <GroupedColumnChart
         v-else
         chartId="institutionsByCountryAndType"
-        title="Institutions by country and organisation type"
-        description=""
+        title="Number of organisations by country and organisation type"
+        description="Of the four countries included in the dataset, France has the most 'facilities'."
         :chartData="data"
         group="country"
         :columnFillPalette="{
@@ -61,6 +60,8 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { request } from "graphql-request";
+import gql from "graphql-tag";
 
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
@@ -71,9 +72,8 @@ import GroupedColumnChart from "../components/viz/GroupedColumnChart.vue";
 
 import headerImage from "../assets/grouped-column-chart-header.jpg";
 
-import { fetchData } from "../utils/utils.js";
-import { rollups, rollup } from "d3";
-const d3 = { rollups, rollup };
+import { rollup } from "d3";
+const d3 = { rollup };
 
 let loading = ref(true);
 let hasError = ref(false);
@@ -84,21 +84,6 @@ let clicked = ref({});
 function updateClicked(data) {
   clicked.value = data;
 }
-
-const query = `{
-  Organisations {
-    name
-    code
-    city
-    country
-    latitude
-    longitude
-    organisationType
-    providerInformation {
-      hasSubmittedData
-    }
-  }
-}`;
 
 function unroll(rollup, keys, label = "value", p = {}) {
   return Array.from(rollup, ([key, value]) =>
@@ -113,29 +98,30 @@ function unroll(rollup, keys, label = "value", p = {}) {
   ).flat();
 }
 
+async function getOrganisations() {
+  const query = gql`
+    {
+      Organisations {
+        name
+        country
+        organisationType
+      }
+    }
+  `;
+  const response = await request("../api/graphql", query);
+  const summarized = d3.rollup(
+    response.Organisations,
+    (row) => row.length,
+    (row) => row.country,
+    (row) => row.organisationType
+  );
+  data.value = unroll(summarized, ["country", "organisationType"], "count");
+}
+
 onMounted(() => {
-  Promise.resolve(fetchData("/api/graphql", query))
-    .then((response) => {
-      const data = response.data.Organisations;
-      const summarized = d3.rollup(
-        data,
-        (row) => row.length,
-        (row) => row.country,
-        (row) => row.organisationType
-      );
-      return unroll(summarized, ["country", "organisationType"], "count");
-    })
-    .then((result) => {
-      data.value = result;
-      loading.value = false;
-    })
-    .catch((error) => {
-      const err = error.message;
-      loading.value = false;
-      hasError.value = true;
-      error.value = err;
-      throw new Error(error);
-    });
+  getOrganisations()
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 });
 </script>
 

@@ -110,4 +110,9 @@ data.value = ["Control", "Experimental"].map((group) => {
     }
   }
 }
+
+.d3-progress-meter {
+  max-width: 650px;
+  margin: 0 auto;
+}
 </style>

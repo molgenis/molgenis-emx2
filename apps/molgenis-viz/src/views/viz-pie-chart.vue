@@ -30,17 +30,17 @@
       </p>
     </PageSection>
     <PageSection class="bkg-light" :verticalPadding="2">
-      <MessageBox v-if="loading & !hasError">
+      <MessageBox v-if="loading && !error">
         <p>Fetching data</p>
       </MessageBox>
-      <MessageBox v-else-if="!loading && hasError" type="error">
+      <MessageBox v-else-if="!loading && error" type="error">
         <p>{{ error }}</p>
       </MessageBox>
       <PieChart
         v-else
         chartId="organisationsByType"
         title="Summary of organisation type"
-        :description="`In total, ${total} organisations across the Netherlands and Belgium were selected. The following chart shows the breakdown of oganisations by type.`"
+        :description="`${total} organisations are included in the dataset. The following chart shows the breakdown of oganisations by type.`"
         :chartData="data"
         :enableClicks="true"
         :chartHeight="250"
@@ -53,12 +53,25 @@
         {{ selection }}
       </output>
     </PageSection>
+    <PageSection>
+      <h2>Further Information</h2>
+      <p>
+        Since the development of the <strong>PieChart</strong> component, a
+        number of design and implementation issues arose. As a result, the
+        <router-link :to="{ name: 'pie-chart-2' }">PieChart2</router-link>
+        component was created. Both components will work but version 1 will no
+        longer be developed.
+      </p>
+    </PageSection>
   </Page>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchData, asDataObject } from "../utils/utils.js";
+import { request } from "graphql-request";
+import gql from "graphql-tag";
+import { asDataObject } from "../utils/utils.js";
+
 import { sum, rollups } from "d3";
 const d3 = { sum, rollups };
 
@@ -71,53 +84,47 @@ import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import headerImage from "../assets/pie-chart-header.jpg";
 
 let loading = ref(true);
-let hasError = ref(false);
 let error = ref(null);
 let selection = ref({});
 let data = ref({});
 let total = ref(0);
 
-const query = `{
-  Organisations {
-    name
-    organisationType
-  }
-}`;
+async function getOrganisations() {
+  const query = gql`
+    {
+      Organisations {
+        name
+        organisationType
+      }
+    }
+  `;
+  const response = await request("../api/graphql", query);
+  const rawdata = response.Organisations;
+  total.value = rawdata.length;
+  const orgs = d3
+    .rollups(
+      rawdata,
+      (row) => row.length,
+      (row) => row.organisationType
+    )
+    .map(
+      (group) =>
+        new Object({
+          type: group[0],
+          percent: Math.round((group[1] / total.value) * 100),
+        })
+    )
+    .sort((a, b) => (a.percent < b.percent ? 1 : -1));
+  data.value = asDataObject(orgs, "type", "percent");
+}
 
 function updateSelection(value) {
   selection.value = value;
 }
 
 onMounted(() => {
-  Promise.resolve(fetchData("/api/graphql", query))
-    .then((response) => {
-      const rawdata = response.data.Organisations;
-      const size = rawdata.length;
-      const orgs = d3
-        .rollups(
-          rawdata,
-          (row) => row.length,
-          (row) => row.organisationType
-        )
-        .map(
-          (group) =>
-            new Object({
-              type: group[0],
-              percent: Math.round((group[1] / size) * 100),
-            })
-        )
-        .sort((a, b) => {
-          return a.percent < b.percent;
-        });
-
-      total.value = size;
-      data.value = asDataObject(orgs, "type", "percent");
-
-      loading.value = false;
-    })
-    .catch((error) => {
-      hasError.value = true;
-      error.value = error;
-    });
+  getOrganisations()
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 });
 </script>

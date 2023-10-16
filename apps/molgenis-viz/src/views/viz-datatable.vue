@@ -17,24 +17,26 @@
       <h2>Datatable</h2>
       <p>
         The <strong>Datatable</strong> component can be used to display data in
-        tablular format. The table is responsive and can be customised using
-        CSS. All cells, rows, and columns can be selected using values in the
-        data. Click events are also available.
+        tablular format. The table is responsive and has a mobile friendly
+        layout. Tables are minimally styled and can be customised using CSS. All
+        cells, rows, and columns can be selected using values in the data.
+        Content can also be rendered as HTML. Click and hover events are also
+        available.
       </p>
     </PageSection>
     <PageSection class="bkg-light" :verticalPadding="2">
-      <MessageBox v-if="loading & !hasError">
+      <MessageBox v-if="loading & !error">
         <p>Fetching data</p>
       </MessageBox>
-      <MessageBox v-else-if="!loading && hasError" type="error">
+      <MessageBox v-else-if="!loading && error" type="error">
         <p>{{ error }}</p>
       </MessageBox>
       <Datatable
         v-else
         tableId="institutionsTable"
         :data="data"
-        caption="All Groningen-based institutions in ROR"
-        :columnOrder="['name', 'city', 'iri']"
+        caption="Top 10 cities by total number of organisations"
+        :columnOrder="['city', 'country', 'organisations']"
         :renderHtml="true"
         @row-clicked="updateSelection"
       />
@@ -49,7 +51,8 @@
 </template>
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchData } from "../utils/utils.js";
+import { request } from "graphql-request";
+import gql from "graphql-tag";
 
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
@@ -59,41 +62,47 @@ import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import Datatable from "../components/viz/DataTable.vue";
 import headerImage from "../assets/table-header.jpg";
 
+import { flatRollup } from "d3";
+const d3 = { flatRollup };
+
 let loading = ref(true);
-let hasError = ref(false);
 let error = ref(null);
 let data = ref([]);
 let selection = ref({});
 
-const query = `{
-  Organisations(
-    filter: { city: { equals: "Groningen" } }
-  ) {
-    name
-    city
-    country
-    ontologyTermURI
-  }
-}`;
+async function getOrganisations() {
+  const query = gql`
+    {
+      Organisations {
+        name
+        city
+        country
+      }
+    }
+  `;
+  const response = await request("../api/graphql", query);
+  const organisations = response.Organisations;
+  data.value = d3
+    .flatRollup(
+      organisations,
+      (row) => row.length,
+      (row) => row.city,
+      (row) => row.country
+    )
+    .map((arr) => {
+      return { city: arr[0], country: arr[1], organisations: arr[2] };
+    })
+    .sort((a, b) => (a.organisations < b.organisations ? 1 : -1))
+    .slice(0, 5);
+}
 
 function updateSelection(value) {
   selection.value = value;
 }
 
 onMounted(() => {
-  Promise.resolve(fetchData("/api/graphql", query))
-    .then((response) => {
-      data.value = response.data.Organisations.map((row) => {
-        return {
-          ...row,
-          iri: `<a href=${row.ontologyTermURI}>${row.ontologyTermURI}</a>`,
-        };
-      });
-      loading.value = false;
-    })
-    .catch((error) => {
-      hasError.value = true;
-      error.value = error;
-    });
+  getOrganisations()
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 });
 </script>

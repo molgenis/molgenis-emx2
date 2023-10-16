@@ -31,10 +31,10 @@
       </p>
     </PageSection>
     <PageSection class="bkg-light" :verticalPadding="2">
-      <MessageBox v-if="loading & !hasError">
+      <MessageBox v-if="loading && !error">
         <p>Fetching data</p>
       </MessageBox>
-      <MessageBox v-else-if="hasError" type="error">
+      <MessageBox v-else-if="!loading && error" type="error">
         <p>{{ error }}</p>
       </MessageBox>
       <DataHighlights :data="summarised" v-else />
@@ -44,10 +44,12 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { request } from "graphql-request";
+import gql from "graphql-tag";
 import { rollups } from "d3";
 const d3 = { rollups };
 
-import { fetchData, asDataObject } from "../utils/utils.js";
+import { asDataObject } from "../utils/utils.js";
 
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
@@ -58,28 +60,34 @@ import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import headerImage from "../assets/highlights-header.jpg";
 
 let loading = ref(false);
-let hasError = ref(false);
 let error = ref(null);
 let summarised = ref({});
 
-const query = `{
-  Organisations {
-    name
-    organisationType
-  }
-}`;
+async function getOrganisations() {
+  const query = gql`
+    {
+      Organisations {
+        name
+        organisationType
+      }
+    }
+  `;
+  const response = await request("../api/graphql", query);
+  const data = d3
+    .rollups(
+      response.Organisations,
+      (row) => row.length,
+      (row) => row.organisationType
+    )
+    .map((group) => new Object({ type: group[0], count: group[1] }))
+    .sort((a, b) => (a.type < b.type ? -1 : 1));
+  summarised.value = asDataObject(data, "type", "count");
+}
 
 onMounted(() => {
-  Promise.resolve(fetchData("/api/graphql", query)).then((response) => {
-    const data = d3
-      .rollups(
-        response.data.Organisations,
-        (row) => row.length,
-        (row) => row.organisationType
-      )
-      .map((group) => new Object({ type: group[0], count: group[1] }));
-    summarised.value = asDataObject(data, "type", "count");
-  });
+  getOrganisations()
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 });
 </script>
 

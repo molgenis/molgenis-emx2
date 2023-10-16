@@ -54,8 +54,9 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { request } from "graphql-request";
+import gql from "graphql-tag";
 import { schemeGnBu } from "d3-scale-chromatic";
-import { fetchData } from "../utils/utils";
 
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
@@ -66,38 +67,36 @@ import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import headerImage from "../assets/legend-header.jpg";
 
 let loading = ref(false);
-let data = ref([]);
+let data = ref({});
 let error = ref(null);
 let selection = ref([]);
+
+async function getOrganisations() {
+  const query = gql`
+    {
+      Organisations {
+        organisationType
+      }
+    }
+  `;
+  const response = await request("../api/graphql", query);
+  const orgtypes = [
+    ...new Set(response.Organisations.map((row) => row.organisationType)),
+  ];
+  const scheme = schemeGnBu[orgtypes.length];
+  const colors = {};
+  orgtypes.forEach((key, index) => (colors[key] = scheme[index]));
+  data.value = colors;
+}
 
 function updateSelection(value) {
   selection.value = value;
 }
 
-const query = `{
-  Organisations {
-    organisationType
-  }
-}`;
-
 onMounted(() => {
-  Promise.resolve(fetchData("/api/graphql", query))
-    .then((response) => {
-      const organisations = response.data.Organisations;
-      const groups = [
-        ...new Set(organisations.map((row) => row.organisationType)),
-      ];
-      const scheme = schemeGnBu[groups.length];
-      const colors = {};
-      groups.forEach((key, index) => (colors[key] = scheme[index]));
-
-      data.value = colors;
-      loading.value = false;
-    })
-    .catch((error) => {
-      loading.value = false;
-      error.value = error;
-    });
+  getOrganisations()
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 });
 </script>
 

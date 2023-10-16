@@ -37,19 +37,13 @@
         <LinkCard :imageSrc="BarChartImage">
           <router-link :to="{ name: 'bar-chart' }">Bar Chart</router-link>
         </LinkCard>
-        <LinkCard :imageSrc="LegendImage">
-          <router-link :to="{ name: 'chart-legend' }">Legends</router-link>
-        </LinkCard>
         <LinkCard :imageSrc="ColumnChartImage">
-          <router-link :to="{ name: 'column-chart' }">Column Chart</router-link>
+          <router-link :to="{ name: 'column-chart' }">
+            Column Chart
+          </router-link>
         </LinkCard>
         <LinkCard :imageSrc="DatatableImage">
-          <router-link :to="{ name: 'datatable' }">Data Table</router-link>
-        </LinkCard>
-        <LinkCard :imageSrc="GroupedColumnChartImage">
-          <router-link :to="{ name: 'grouped-column-chart' }">
-            Grouped Column Chart
-          </router-link>
+          <router-link :to="{ name: 'datatable' }"> Data Table </router-link>
         </LinkCard>
         <LinkCard :imageSrc="HighlightsImage">
           <router-link :to="{ name: 'data-highlights' }">
@@ -57,18 +51,33 @@
           </router-link>
         </LinkCard>
         <LinkCard :imageSrc="MapImage">
-          <router-link :to="{ name: 'geo-mercator' }">GeoMercator</router-link>
+          <router-link :to="{ name: 'geo-mercator' }">
+            GeoMercator
+          </router-link>
+        </LinkCard>
+        <LinkCard :imageSrc="GroupedColumnChartImage">
+          <router-link :to="{ name: 'grouped-column-chart' }">
+            Grouped Column Chart
+          </router-link>
+        </LinkCard>
+        <LinkCard :imageSrc="LegendImage">
+          <router-link :to="{ name: 'chart-legend' }"> Legends </router-link>
         </LinkCard>
         <LinkCard :imageSrc="PieChartImage">
-          <router-link :to="{ name: 'pie-chart' }">Pie Chart</router-link>
+          <router-link :to="{ name: 'pie-chart' }"> Pie Chart </router-link>
+        </LinkCard>
+        <LinkCard :imageSrc="PieChartImage">
+          <router-link :to="{ name: 'pie-chart-2' }"> Pie Chart2 </router-link>
         </LinkCard>
         <LinkCard :imageSrc="ScatterPlotImage">
-          <router-link :to="{ name: 'scatter-plot' }">Scatter Plot</router-link>
+          <router-link :to="{ name: 'scatter-plot' }">
+            Scatter Plot
+          </router-link>
         </LinkCard>
         <LinkCard :imageSrc="GaugeChartImage">
-          <router-link :to="{ name: 'progress-charts' }"
-            >Progress Charts</router-link
-          >
+          <router-link :to="{ name: 'progress-charts' }">
+            Progress Charts
+          </router-link>
         </LinkCard>
       </div>
     </PageSection>
