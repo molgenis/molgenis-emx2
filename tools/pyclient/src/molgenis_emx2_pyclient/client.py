@@ -122,7 +122,6 @@ class Client:
         status = response.json().get('data', {}).get('signout', {}).get('status')
         if status == 'SUCCESS':
             print(f"Signed out of {self.url}")
-            self.username = 'anonymous'
             self.signin_status = 'signed out'
         else:
             print(f"Unable to sign out of {self.url}.")
