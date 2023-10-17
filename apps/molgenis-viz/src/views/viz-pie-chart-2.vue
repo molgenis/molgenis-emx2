@@ -1,7 +1,7 @@
 <template>
   <Page>
     <PageHeader
-      title="RD-Components"
+      title="molgenis-viz"
       subtitle="Pie Chart"
       imageSrc="pie-chart-header.jpg"
       height="large"

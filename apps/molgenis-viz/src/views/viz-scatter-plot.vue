@@ -1,9 +1,9 @@
 <template>
   <Page>
     <PageHeader
-      title="RD-Components"
+      title="molgenis-viz"
       subtitle="Scatter Plot"
-      imageSrc="gauge-chart-header.jpg"
+      imageSrc="scatter-plot-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">

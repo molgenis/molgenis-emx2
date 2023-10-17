@@ -1,7 +1,7 @@
 <template>
   <Page>
     <PageHeader
-      title="RD-Components"
+      title="molgenis-viz"
       subtitle="Chart Legends"
       imageSrc="legend-header.jpg"
       height="large"

@@ -1,7 +1,7 @@
 <template>
   <Page>
     <PageHeader
-      title="RD-Components"
+      title="molgenis-viz"
       subtitle="Data Highlights Example"
       imageSrc="highlights-header.jpg"
       height="large"

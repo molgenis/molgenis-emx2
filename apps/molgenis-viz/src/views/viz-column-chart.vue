@@ -1,7 +1,7 @@
 <template>
   <Page>
     <PageHeader
-      title="RD-Components"
+      title="molgenis-viz"
       subtitle="Column Chart Example"
       imageSrc="column-chart-header.jpg"
       height="large"
