@@ -6,6 +6,7 @@ import static org.molgenis.emx2.fairdatapoint.FAIRDataPointCatalog.extractItemAs
 import static org.molgenis.emx2.fairdatapoint.FormatMimeTypes.FORMATS;
 import static org.molgenis.emx2.fairdatapoint.Queries.queryDataset;
 import static org.molgenis.emx2.rdf.RDFService.*;
+import static org.molgenis.emx2.rdf.RDFUtils.*;
 
 import java.io.StringWriter;
 import java.net.URI;

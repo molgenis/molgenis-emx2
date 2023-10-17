@@ -5,6 +5,7 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.FilterBean.and;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.rdf.RDFUtils.*;
 
 import java.io.OutputStream;
 import java.net.URI;
@@ -14,7 +15,6 @@ import java.util.*;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
-import org.eclipse.rdf4j.common.net.ParsedIRI;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
@@ -152,14 +152,6 @@ public class RDFService {
     }
   }
 
-  /** Extract the host location from a request URI. */
-  public static String extractHost(URI requestURI) {
-    return requestURI.getScheme()
-        + "://"
-        + requestURI.getHost()
-        + (requestURI.getPort() != -1 ? ":" + requestURI.getPort() : "");
-  }
-
   public WriterConfig getConfig() {
     return config;
   }
@@ -176,8 +168,8 @@ public class RDFService {
     return rdfFormat;
   }
 
-  // todo: make non static
-  public static void describeRoot(ModelBuilder builder, String rootContext) {
+  // todo: make non static and private
+  protected void describeRoot(ModelBuilder builder, String rootContext) {
     // SIO:000750 = database
     builder.add(rootContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_000750"));
     builder.add(rootContext, RDFS.LABEL, "EMX2");
@@ -186,7 +178,7 @@ public class RDFService {
   }
 
   // todo: make non-static
-  public static void describeSchema(
+  private void describeSchema(
       ModelBuilder builder, Schema schema, String schemaContext, String rootContext) {
     builder.add(schemaContext, RDFS.LABEL, schema.getName());
     builder.add(schemaContext, DCTERMS.IS_PART_OF, encodedIRI(rootContext));
@@ -200,7 +192,7 @@ public class RDFService {
     }
   }
 
-  public static void describeTable(ModelBuilder builder, Table table, String schemaContext) {
+  private void describeTable(ModelBuilder builder, Table table, String schemaContext) {
     IRI tableContext = encodedIRI(schemaContext + "/" + table.getName());
     builder.add(tableContext, RDF.TYPE, OWL.CLASS);
     builder.add(tableContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#DataSet"));
@@ -235,7 +227,7 @@ public class RDFService {
     }
   }
 
-  public static void describeColumns(
+  private void describeColumns(
       ModelBuilder builder, String columnName, Table table, String schemaContext) {
     String tableContext = schemaContext + "/" + table.getName();
     for (Column column : table.getMetadata().getColumns()) {
@@ -245,7 +237,7 @@ public class RDFService {
     }
   }
 
-  private static void describeColumn(
+  private void describeColumn(
       ModelBuilder builder, String schemaContext, Column column, String tableContext) {
     String columnContext = tableContext + "/column/" + column.getName();
     // SIO:000757 = database column
@@ -275,7 +267,7 @@ public class RDFService {
     }
   }
 
-  public static CoreDatatype.XSD columnTypeToXSD(ColumnType columnType) {
+  private CoreDatatype.XSD columnTypeToXSD(ColumnType columnType) {
     switch (columnType) {
       case BOOL, BOOL_ARRAY:
         return CoreDatatype.XSD.BOOLEAN;
@@ -315,32 +307,10 @@ public class RDFService {
     }
   }
 
-  public static URI getURI(String uriString) {
-    try {
-      ParsedIRI parsedIRI = ParsedIRI.create(uriString);
-      return new URI(
-          parsedIRI.getScheme(),
-          parsedIRI.getUserInfo(),
-          parsedIRI.getHost(),
-          parsedIRI.getPort(),
-          parsedIRI.getPath(),
-          parsedIRI.getQuery(),
-          parsedIRI.getFragment());
-    } catch (Exception e) {
-      throw new MolgenisException("getURI failed", e);
-    }
-  }
-
   /**
-   * @param uriString
    * @return
    */
-  public static IRI encodedIRI(String uriString) {
-    return org.eclipse.rdf4j.model.util.Values.iri(ParsedIRI.create(uriString).toString());
-  }
-
-  public static void rowsToRdf(
-      ModelBuilder builder, Table table, String rowId, String schemaContext) {
+  public void rowsToRdf(ModelBuilder builder, Table table, String rowId, String schemaContext) {
     Map<String, Column> columnMap = new HashMap<>();
     for (Column c : table.getMetadata().getColumns()) {
       columnMap.put(c.getName(), c);
@@ -374,7 +344,7 @@ public class RDFService {
     }
   }
 
-  private static List<Row> getRows(Table table, String rowId) {
+  private List<Row> getRows(Table table, String rowId) {
     Query query = table.query();
     if (rowId != null) {
       if (table.getMetadata().getPrimaryKeyFields().size() > 1) {
@@ -386,7 +356,7 @@ public class RDFService {
     return query.retrieveRows(); // we use the default select
   }
 
-  private static Filter decodeRowIdToFilter(String rowId) {
+  private Filter decodeRowIdToFilter(String rowId) {
     try {
       List<NameValuePair> params =
           URLEncodedUtils.parse(new URI("?" + rowId), StandardCharsets.UTF_8);
@@ -398,7 +368,7 @@ public class RDFService {
     }
   }
 
-  private static List<IRI> getIriValuesBasedOnPkey(
+  private List<IRI> getIriValuesBasedOnPkey(
       String schemaContext, TableMetadata tableMetadata, Row row, String prefix) {
     String[] keys =
         row.getStringArray(prefix + tableMetadata.getPrimaryKeyFields().get(0).getName());
@@ -439,7 +409,7 @@ public class RDFService {
     }
   }
 
-  public static List<Value> formatValue(Row row, Column column, String schemaContext) {
+  private List<Value> formatValue(Row row, Column column, String schemaContext) {
     List<Value> values = new ArrayList<>();
     ColumnType columnType = column.getColumnType();
     if (columnType.isReference()) {
@@ -463,7 +433,7 @@ public class RDFService {
     return values;
   }
 
-  public static List<Value> getLiteralValues(Row row, Column column) {
+  private List<Value> getLiteralValues(Row row, Column column) {
     CoreDatatype.XSD xsdType = columnTypeToXSD(column.getColumnType());
     if (row.getString(column.getName()) == null) {
       return List.of();

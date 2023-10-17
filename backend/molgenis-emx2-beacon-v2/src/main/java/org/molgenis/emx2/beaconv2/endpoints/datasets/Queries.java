@@ -1,6 +1,7 @@
 package org.molgenis.emx2.beaconv2.endpoints.datasets;
 
 import static org.molgenis.emx2.rdf.RDFService.*;
+import static org.molgenis.emx2.rdf.RDFUtils.*;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;

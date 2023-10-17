@@ -3,8 +3,8 @@ package org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp;
 import static org.molgenis.emx2.beaconv2.endpoints.QueryHelper.findColumnPath;
 import static org.molgenis.emx2.beaconv2.endpoints.individuals.QueryIndividuals.queryIndividuals;
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
-import static org.molgenis.emx2.rdf.RDFService.extractHost;
-import static org.molgenis.emx2.rdf.RDFService.getURI;
+import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
+import static org.molgenis.emx2.rdf.RDFUtils.getURI;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;

@@ -1,7 +1,7 @@
 package org.molgenis.emx2.beaconv2.endpoints;
 
-import static org.molgenis.emx2.rdf.RDFService.extractHost;
-import static org.molgenis.emx2.rdf.RDFService.getURI;
+import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
+import static org.molgenis.emx2.rdf.RDFUtils.getURI;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import java.net.URI;

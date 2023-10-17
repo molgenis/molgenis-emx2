@@ -5,7 +5,6 @@ import static org.molgenis.emx2.graphgenome.Formatting.formatNodeId;
 import static org.molgenis.emx2.graphgenome.Formatting.shorten;
 import static org.molgenis.emx2.graphgenome.RetrieveRefSeq.getDnaFromUCSC;
 import static org.molgenis.emx2.graphgenome.Semantics.*;
-import static org.molgenis.emx2.rdf.RDFService.describeRoot;
 
 import java.io.OutputStream;
 import java.util.*;
@@ -112,6 +111,7 @@ public class GraphGenome extends RDFService {
       // prep RDF export
       String apiContext = getHost() + graphGenomeApiLocation;
       ModelBuilder builder = new ModelBuilder();
+      // todo, can this be done in superclass so describe root doesn't need to be public
       describeRoot(builder, getHost());
       host = getHost();
 
