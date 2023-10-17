@@ -2,6 +2,7 @@
 import logging
 import os
 import pathlib
+import time
 import zipfile
 from io import BytesIO
 from typing import TypeAlias, Literal
@@ -14,7 +15,7 @@ from tools.staging_migrator.src.molgenis_emx2_staging_migrator.utils import get_
     find_cohort_references, construct_delete_query, construct_delete_variables, has_statement_of_consent, \
     process_statement
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('Molgenis EMX2 Migrator')
 
 SchemaType: TypeAlias = Literal['source', 'target']
 
@@ -191,7 +192,19 @@ class StagingMigrator(Client):
             log.error("Uploading fallback zip.")
             self._upload_fallback_zip()
         else:
-            log.info("Migrated successfully.")
+            upload_status = self.session.get(f"{self.url}{response.json().get('url')}").json().get('status')
+            upload_description = self.session.get(f"{self.url}{response.json().get('url')}").json().get('description')
+            while upload_status == 'RUNNING':
+                time.sleep(2)
+                upload_status = self.session.get(f"{self.url}{response.json().get('url')}").json().get('status')
+                upload_description = self.session.get(f"{self.url}{response.json().get('url')}").json().get('description')
+
+            if upload_status == 'ERROR':
+                log.error(f"Migration failed, reason: {upload_description}.")
+                log.info("Uploading fallback zip.")
+                self._upload_fallback_zip()
+            else:
+                log.info("Migrated successfully.")
 
     @staticmethod
     def _cleanup():
