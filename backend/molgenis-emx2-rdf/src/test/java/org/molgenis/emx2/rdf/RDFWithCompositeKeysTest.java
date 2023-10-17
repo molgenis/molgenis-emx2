@@ -1,4 +1,4 @@
-package org.molgenis.emx2.semantics.rdf;
+package org.molgenis.emx2.rdf;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.semantics.RDFService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RDFWithCompositeKeysTest {

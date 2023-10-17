@@ -2,9 +2,9 @@ package org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp;
 
 import static org.molgenis.emx2.beaconv2.endpoints.individuals.QueryIndividuals.queryIndividuals;
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
-import static org.molgenis.emx2.semantics.QueryHelper.findColumnPath;
-import static org.molgenis.emx2.semantics.RDFService.extractHost;
-import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
+import static org.molgenis.emx2.rdf.QueryHelper.findColumnPath;
+import static org.molgenis.emx2.rdf.RDFService.extractHost;
+import static org.molgenis.emx2.rdf.RDFService.getURI;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
@@ -19,8 +19,8 @@ import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSetsIte
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.beaconv2.requests.Filter;
 import org.molgenis.emx2.beaconv2.responses.BeaconCountResponse;
-import org.molgenis.emx2.semantics.ColumnPath;
-import org.molgenis.emx2.semantics.QueryHelper;
+import org.molgenis.emx2.rdf.ColumnPath;
+import org.molgenis.emx2.rdf.QueryHelper;
 import spark.Request;
 import spark.Response;
 

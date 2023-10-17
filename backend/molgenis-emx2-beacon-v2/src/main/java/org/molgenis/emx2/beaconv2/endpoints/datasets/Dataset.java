@@ -1,7 +1,7 @@
 package org.molgenis.emx2.beaconv2.endpoints.datasets;
 
 import org.molgenis.emx2.beaconv2.common.misc.Info;
-import org.molgenis.emx2.semantics.OntologyTerm;
+import org.molgenis.emx2.rdf.OntologyTerm;
 
 // https://github.com/ga4gh-beacon/beacon-v2-Models/blob/main/BEACON-V2-draft4-Model/datasets/defaultSchema.json
 public class Dataset {

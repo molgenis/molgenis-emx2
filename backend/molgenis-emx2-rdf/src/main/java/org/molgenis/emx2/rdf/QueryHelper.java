@@ -1,4 +1,4 @@
-package org.molgenis.emx2.semantics;
+package org.molgenis.emx2.rdf;
 
 import static org.molgenis.emx2.SelectColumn.s;
 
@@ -12,6 +12,7 @@ import org.molgenis.emx2.SelectColumn;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.utils.TypeUtils;
 
+// todo: do we still need this if we use retrieveRows?
 public class QueryHelper {
   private QueryHelper() {
     // static only
@@ -59,7 +60,7 @@ public class QueryHelper {
     if (mapListObj == null) {
       return null;
     }
-    List<Map> mapList = (List<Map>) mapListObj;
+    List<Map<String, Object>> mapList = (List<Map<String, Object>>) mapListObj;
     OntologyTerm[] result = new OntologyTerm[mapList.size()];
     for (int i = 0; i < mapList.size(); i++) {
       OntologyTerm ontologyTerm = new OntologyTerm();
@@ -83,7 +84,7 @@ public class QueryHelper {
     if (mapObj == null) {
       return null;
     }
-    Map map = (Map) mapObj;
+    Map<String, Object> map = (Map<String, Object>) mapObj;
     ontologyTerm.setId(map.get("codesystem") + ":" + TypeUtils.toString(map.get("code")));
     ontologyTerm.setLabel(TypeUtils.toString(map.get("name")));
     ontologyTerm.setUri(TypeUtils.toString(map.get("ontologyTermURI")));

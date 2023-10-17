@@ -1,4 +1,4 @@
-package org.molgenis.emx2.semantics;
+package org.molgenis.emx2.rdf;
 
 import java.util.List;
 import org.molgenis.emx2.Column;
