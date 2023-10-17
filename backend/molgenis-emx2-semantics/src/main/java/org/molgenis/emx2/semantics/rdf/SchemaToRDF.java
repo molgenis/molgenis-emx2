@@ -8,6 +8,10 @@ import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.molgenis.emx2.Schema;
 
 public class SchemaToRDF {
+  private SchemaToRDF() {
+    // static only
+  }
+
   public static void describeSchema(
       ModelBuilder builder, Schema schema, String schemaContext, String rootContext) {
     builder.add(schemaContext, RDFS.LABEL, schema.getName());

@@ -5,6 +5,10 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 
 public class ColumnTypeToXSDDataType {
+  private ColumnTypeToXSDDataType() {
+    // static only
+  }
+
   public static CoreDatatype.XSD columnTypeToXSD(ColumnType columnType) {
     switch (columnType) {
       case BOOL:

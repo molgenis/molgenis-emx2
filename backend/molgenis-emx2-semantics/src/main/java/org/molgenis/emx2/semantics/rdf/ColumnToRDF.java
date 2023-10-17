@@ -12,6 +12,9 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Table;
 
 public class ColumnToRDF {
+  private ColumnToRDF() {
+    // static only
+  }
 
   // todo: unit is missing (which would also be a sdmx-attribute:unitMeasure, typed as an
   // qb:AttributeProperty)

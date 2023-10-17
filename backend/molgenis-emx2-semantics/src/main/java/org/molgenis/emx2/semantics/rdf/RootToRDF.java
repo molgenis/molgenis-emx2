@@ -8,6 +8,10 @@ import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 
 public class RootToRDF {
+  private RootToRDF() {
+    // static only
+  }
+
   public static void describeRoot(ModelBuilder builder, String rootContext) {
     // SIO:000750 = database
     builder.add(rootContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_000750"));

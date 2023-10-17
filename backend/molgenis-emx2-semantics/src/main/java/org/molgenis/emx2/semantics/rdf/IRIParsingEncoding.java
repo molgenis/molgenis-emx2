@@ -7,6 +7,10 @@ import org.eclipse.rdf4j.model.IRI;
 import org.molgenis.emx2.MolgenisException;
 
 public class IRIParsingEncoding {
+  private IRIParsingEncoding() {
+    // static only
+  }
+
   /**
    * @param uriString
    * @return
