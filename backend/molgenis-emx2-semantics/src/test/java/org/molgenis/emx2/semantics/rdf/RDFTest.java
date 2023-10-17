@@ -1,8 +1,6 @@
 package org.molgenis.emx2.semantics.rdf;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.semantics.rdf.StringsForRDFTest.*;
 
 import java.io.ByteArrayOutputStream;
@@ -15,8 +13,6 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.semantics.RDFService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-import spark.Request;
-import spark.Response;
 
 public class RDFTest {
 
@@ -38,13 +34,10 @@ public class RDFTest {
   }
 
   @Test
-  public void RDFForDatabaseAsTTL() {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.url()).thenReturn("http://localhost:8080" + RDF_API_LOCATION);
+  void RDFForDatabaseAsTTL() {
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, null, null, null, petStoreSchemas);
+    RDFService rdf = new RDFService("http://localhost:8080" + RDF_API_LOCATION);
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, petStoreSchemas);
     String result = outputStream.toString();
     assertTrue(result.contains(TTL_PREFIX_1));
     assertTrue(result.contains(TTL_PREFIX_2));
@@ -72,13 +65,10 @@ public class RDFTest {
   }
 
   @Test
-  public void RDFForOneSchemaAsTTL() {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.url()).thenReturn("http://localhost:8080/petStoreNr1" + RDF_API_LOCATION);
+  void RDFForOneSchemaAsTTL() {
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, null, null, null, petStoreSchemas[0]);
+    RDFService rdf = new RDFService("http://localhost:8080/petStoreNr1" + RDF_API_LOCATION);
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, petStoreSchemas[0]);
     String result = outputStream.toString();
     assertTrue(result.contains(TTL_PREFIX_1));
     assertFalse(result.contains(TTL_PREFIX_2));
@@ -106,15 +96,12 @@ public class RDFTest {
   }
 
   @Test
-  public void RDFForOneTableAsTTL() {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.url())
-        .thenReturn("http://localhost:8080/petStore" + RDF_API_LOCATION + "/Category");
+  void RDFForOneTableAsTTL() {
+    RDFService rdf =
+        new RDFService("http://localhost:8080/petStore" + RDF_API_LOCATION + "/Category");
     Table table = petStoreSchemas[0].getTable("Category");
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, table, null, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, null, null, table.getSchema());
     String result = outputStream.toString();
     assertTrue(result.contains(TTL_PREFIX_1));
     assertFalse(result.contains(TTL_PREFIX_2));
@@ -142,22 +129,12 @@ public class RDFTest {
   }
 
   @Test
-  public void RDFForOneColumnAsTTL() {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.url())
-        .thenReturn("http://localhost:8080/petStore" + RDF_API_LOCATION + "/Pet/column/details");
+  void RDFForOneColumnAsTTL() {
     Table table = petStoreSchemas[0].getTable("Pet");
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService.describeAsRDF(
-        outputStream,
-        request,
-        response,
-        RDF_API_LOCATION,
-        table,
-        null,
-        "details",
-        table.getSchema());
+    RDFService rdf =
+        new RDFService("http://localhost:8080/petStore" + RDF_API_LOCATION + "/Pet/column/details");
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, null, "details", table.getSchema());
     String result = outputStream.toString();
     assertTrue(result.contains(TTL_PREFIX_1));
     assertFalse(result.contains(TTL_PREFIX_2));
@@ -185,16 +162,13 @@ public class RDFTest {
   }
 
   @Test
-  public void RDFForOneRowAsTTL() {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.url())
-        .thenReturn("http://localhost:8080/petStore" + RDF_API_LOCATION + "/Category/cat");
+  void RDFForOneRowAsTTL() {
+    RDFService rdf =
+        new RDFService("http://localhost:8080/petStore" + RDF_API_LOCATION + "/Category/cat");
     Table table = petStoreSchemas[0].getTable("Category");
     String rowId = "cat";
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, table, rowId, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, rowId, null, table.getSchema());
     String result = outputStream.toString();
     assertTrue(result.contains(TTL_PREFIX_1));
     assertFalse(result.contains(TTL_PREFIX_2));
@@ -222,18 +196,15 @@ public class RDFTest {
   }
 
   @Test
-  public void RDFForOneRowAsXML() {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.url())
-        .thenReturn(
-            "http://localhost:8080/petStore" + RDF_API_LOCATION + "/Category/cat?format=xml");
-    when(request.queryParams("format")).thenReturn("xml");
+  void RDFForOneRowAsXML() {
+    RDFService rdf =
+        new RDFService(
+            "http://localhost:8080/petStore" + RDF_API_LOCATION + "/Category/cat?format=xml",
+            "xml");
     Table table = petStoreSchemas[0].getTable("Category");
     String rowId = "cat";
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, table, rowId, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, rowId, null, table.getSchema());
     String result = outputStream.toString();
     assertTrue(result.contains("xmlns:emx0=\"http://localhost:8080/petStoreNr1/api/rdf/\">"));
     assertTrue(result.contains("<rdf:Description rdf:about=\"http://localhost:8080\">"));
@@ -249,14 +220,11 @@ public class RDFTest {
   }
 
   @Test
-  public void RDFUpdateOntologySemantics() {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.url()).thenReturn("http://localhost:8080/petStore" + RDF_API_LOCATION + "/Tag");
+  void RDFUpdateOntologySemantics() {
+    RDFService rdf = new RDFService("http://localhost:8080/petStore" + RDF_API_LOCATION + "/Tag");
     Table table = petStoreSchemas[0].getTable("Tag");
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, table, null, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, null, null, table.getSchema());
     String result = outputStream.toString();
 
     // expect the default tag ("Controlled Vocabulary") but not NCIT_C25586 ("New")
@@ -267,8 +235,7 @@ public class RDFTest {
     table.getMetadata().setSemantics("http://purl.obolibrary.org/obo/NCIT_C25586");
     System.out.println("getSem = " + table.getMetadata().getSemantics()[0]);
     outputStream = new ByteArrayOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, table, null, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, null, null, table.getSchema());
     result = outputStream.toString();
 
     // expect NCIT_C25586 ("New") and no longer the default tag ("Controlled Vocabulary")

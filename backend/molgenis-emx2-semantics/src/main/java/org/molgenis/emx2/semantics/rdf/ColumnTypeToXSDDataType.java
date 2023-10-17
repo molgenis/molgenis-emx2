@@ -2,9 +2,14 @@ package org.molgenis.emx2.semantics.rdf;
 
 import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.MolgenisException;
 
 public class ColumnTypeToXSDDataType {
-  public static CoreDatatype.XSD columnTypeToXSD(ColumnType columnType) throws Exception {
+  private ColumnTypeToXSDDataType() {
+    // static only
+  }
+
+  public static CoreDatatype.XSD columnTypeToXSD(ColumnType columnType) {
     switch (columnType) {
       case BOOL:
       case BOOL_ARRAY:
@@ -55,7 +60,7 @@ public class ColumnTypeToXSDDataType {
         return CoreDatatype.XSD.LONG;
 
       default:
-        throw new Exception("ColumnType not mapped: " + columnType);
+        throw new MolgenisException("ColumnType not mapped: " + columnType);
     }
   }
 }

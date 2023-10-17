@@ -13,6 +13,10 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableType;
 
 public class TableToRDF {
+  private TableToRDF() {
+    // static only
+  }
+
   public static void describeTable(ModelBuilder builder, Table table, String schemaContext) {
     IRI tableContext = encodedIRI(schemaContext + "/" + table.getName());
     builder.add(tableContext, RDF.TYPE, OWL.CLASS);
