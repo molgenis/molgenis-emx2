@@ -1,4 +1,4 @@
-package org.molgenis.emx2.semantics.rdf;
+package org.molgenis.emx2.rdf;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,7 +14,6 @@ import org.molgenis.emx2.datamodels.FAIRDataHubLoader;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
-import org.molgenis.emx2.semantics.RDFService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class OntologyTableSemantics {
