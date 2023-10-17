@@ -1,6 +1,6 @@
 package org.molgenis.emx2.fairdatapoint;
 
-import static org.molgenis.emx2.rdf.QueryHelper.finalizeFilter;
+import static org.molgenis.emx2.beaconv2.endpoints.QueryHelper.finalizeFilter;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;

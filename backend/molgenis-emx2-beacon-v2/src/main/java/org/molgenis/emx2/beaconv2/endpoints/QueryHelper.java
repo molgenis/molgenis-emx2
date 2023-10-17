@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2.beaconv2.endpoints;
 
 import static org.molgenis.emx2.SelectColumn.s;
 
