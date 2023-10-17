@@ -5,6 +5,9 @@ import java.util.TreeMap;
 import org.eclipse.rdf4j.rio.RDFFormat;
 
 public class SupportedRDFFileFormats {
+  private SupportedRDFFileFormats() {
+    // static only
+  }
 
   public static Map<String, RDFFormat> RDF_FILE_FORMATS =
       new TreeMap<>(

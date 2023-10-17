@@ -1,6 +1,6 @@
 package org.molgenis.emx2.semantics;
 
-import java.util.ArrayList;
+import java.util.List;
 import org.molgenis.emx2.Column;
 
 /**
@@ -10,9 +10,9 @@ import org.molgenis.emx2.Column;
 public class ColumnPath {
 
   private Column column;
-  private ArrayList<Column> path;
+  private List<Column> path;
 
-  public ColumnPath(Column column, ArrayList<Column> path) {
+  public ColumnPath(Column column, List<Column> path) {
     this.column = column;
     this.path = path;
     path.add(column);
@@ -22,15 +22,15 @@ public class ColumnPath {
     return column;
   }
 
-  public ArrayList<Column> getPath() {
+  public List<Column> getPath() {
     return path;
   }
 
   @Override
   public String toString() {
-    StringBuffer stringBuffer = new StringBuffer();
-    for (Column column : path) {
-      stringBuffer.append("{" + column.getName() + ":");
+    StringBuilder stringBuffer = new StringBuilder();
+    for (Column col : path) {
+      stringBuffer.append("{" + col.getName() + ":");
     }
     stringBuffer.append("{");
     return stringBuffer.toString();

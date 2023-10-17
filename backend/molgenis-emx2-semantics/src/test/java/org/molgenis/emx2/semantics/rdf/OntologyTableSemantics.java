@@ -1,8 +1,6 @@
 package org.molgenis.emx2.semantics.rdf;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
@@ -18,8 +16,6 @@ import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.semantics.RDFService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-import spark.Request;
-import spark.Response;
 
 public class OntologyTableSemantics {
 
@@ -37,13 +33,10 @@ public class OntologyTableSemantics {
   }
 
   @Test
-  public void OntologyTableSemantics() {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.url()).thenReturn("http://localhost:8080/semanticPetStore/api/fdp");
+  void OntologyTableSemantics() {
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, null, null, null, petStoreSchema);
+    RDFService rdf = new RDFService("http://localhost:8080/semanticPetStore/api/fdp");
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, petStoreSchema);
     String result = outputStream.toString();
 
     /**
@@ -65,8 +58,7 @@ public class OntologyTableSemantics {
     petStoreSchema.migrate(metadata);
 
     outputStream = new ByteArrayOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, null, null, null, petStoreSchema);
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, petStoreSchema);
     result = outputStream.toString();
 
     /**
