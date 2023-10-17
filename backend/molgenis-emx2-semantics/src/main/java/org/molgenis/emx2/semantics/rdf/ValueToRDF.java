@@ -18,12 +18,15 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
-import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.molgenis.emx2.*;
 
 public class ValueToRDF {
+  private ValueToRDF() {
+    // only static
+  }
+
   private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
   public static void describeValues(
@@ -155,34 +158,44 @@ public class ValueToRDF {
     return values;
   }
 
-  public static List<? extends Value> getLiteralValues(Row row, Column column) {
+  public static List<Value> getLiteralValues(Row row, Column column) {
     CoreDatatype.XSD xsdType = columnTypeToXSD(column.getColumnType());
     if (row.getString(column.getName()) == null) {
       return List.of();
     }
     switch (xsdType) {
       case BOOLEAN:
-        return Arrays.stream(row.getBooleanArray(column.getName())).map(Values::literal).toList();
+        return Arrays.stream(row.getBooleanArray(column.getName()))
+            .map(value -> (Value) literal(value))
+            .toList();
       case DATE:
         return Arrays.stream(row.getDateArray(column.getName()))
-            .map(value -> literal(value.toString(), xsdType))
+            .map(value -> (Value) literal(value.toString(), xsdType))
             .toList();
       case DATETIME:
         return Arrays.stream(row.getDateTimeArray(column.getName()))
-            .map(value -> literal(formatter.format(value), xsdType))
+            .map(value -> (Value) literal(formatter.format(value), xsdType))
             .toList();
       case DECIMAL:
-        return Arrays.stream(row.getDecimalArray(column.getName())).map(Values::literal).toList();
+        return Arrays.stream(row.getDecimalArray(column.getName()))
+            .map(value -> (Value) literal(value))
+            .toList();
       case STRING:
-        return Arrays.stream(row.getStringArray(column.getName())).map(Values::literal).toList();
+        return Arrays.stream(row.getStringArray(column.getName()))
+            .map(value -> (Value) literal(value))
+            .toList();
       case ANYURI:
         return Arrays.stream(row.getStringArray(column.getName()))
-            .map(value -> IRIParsingEncoding.encodedIRI(value))
+            .map(value -> (Value) IRIParsingEncoding.encodedIRI(value))
             .toList();
       case INT:
-        return Arrays.stream(row.getIntegerArray(column.getName())).map(Values::literal).toList();
+        return Arrays.stream(row.getIntegerArray(column.getName()))
+            .map(value -> (Value) literal(value))
+            .toList();
       case LONG:
-        return Arrays.stream(row.getLongArray(column.getName())).map(Values::literal).toList();
+        return Arrays.stream(row.getLongArray(column.getName()))
+            .map(value -> (Value) literal(value))
+            .toList();
       default:
         throw new MolgenisException("XSD type formatting not supported for: " + xsdType);
     }
