@@ -252,7 +252,6 @@ public class GraphGenome extends RDFService {
           refSeq);
 
       Rio.write(builder.build(), outputStream, getRdfFormat(), getConfig());
-
     } catch (Exception e) {
       throw new MolgenisException("Graph genome export failed due to an exception", e);
     }
