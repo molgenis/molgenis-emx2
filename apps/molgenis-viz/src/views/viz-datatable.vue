@@ -3,7 +3,7 @@
     <PageHeader
       title="RD-Components"
       subtitle="Bar Chart Example"
-      :imageSrc="headerImage"
+      imageSrc="table-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -60,7 +60,6 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import Datatable from "../components/viz/DataTable.vue";
-import headerImage from "../assets/table-header.jpg";
 
 import { flatRollup } from "d3";
 const d3 = { flatRollup };

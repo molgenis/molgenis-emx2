@@ -3,7 +3,7 @@
     <PageHeader
       title="RD-Components"
       subtitle="Pie Chart"
-      :imageSrc="headerImage"
+      imageSrc="pie-chart-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -69,7 +69,6 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import PieChart2 from "../components/viz/PieChart2.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
-import headerImage from "../assets/pie-chart-header.jpg";
 
 let loading = ref(true);
 let error = ref(null);

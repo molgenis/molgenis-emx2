@@ -3,7 +3,7 @@
     <PageHeader
       title="RD-Components"
       subtitle="Map Component"
-      :imageSrc="headerImage"
+      imageSrc="map-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -79,7 +79,6 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import GeoMercator from "../components/viz/GeoMercator.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
-import headerImage from "../assets/map-header.jpg";
 
 import geojson from "../data/world.geo.json";
 

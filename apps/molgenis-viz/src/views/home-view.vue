@@ -3,7 +3,7 @@
     <PageHeader
       title="RD-Components"
       subtitle="Layout and Data Visualisation components"
-      :imageSrc="headerImage"
+      imageSrc="home-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="2" aria-labelledby="welcome-title">
@@ -34,47 +34,53 @@
     >
       <h2 id="components-title">Visualisation Components</h2>
       <div class="link-container">
-        <LinkCard :imageSrc="BarChartImage">
+        <LinkCard imageSrc="bar-chart-header.jpg">
           <router-link :to="{ name: 'bar-chart' }">Bar Chart</router-link>
         </LinkCard>
-        <LinkCard :imageSrc="ColumnChartImage">
+        <LinkCard imageSrc="column-chart-header.jpg">
           <router-link :to="{ name: 'column-chart' }">
             Column Chart
           </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="DatatableImage">
+        <LinkCard imageSrc="table-header.jpg">
           <router-link :to="{ name: 'datatable' }"> Data Table </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="HighlightsImage">
+        <LinkCard imageSrc="highlights-header.jpg">
           <router-link :to="{ name: 'data-highlights' }">
             Data Highlights
           </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="MapImage">
+        <LinkCard imageSrc="map-head.jpg">
           <router-link :to="{ name: 'geo-mercator' }">
             GeoMercator
           </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="GroupedColumnChartImage">
+        <LinkCard imageSrc="grouped-column-chart-header.jpg">
           <router-link :to="{ name: 'grouped-column-chart' }">
             Grouped Column Chart
           </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="LegendImage">
-          <router-link :to="{ name: 'chart-legend' }"> Legends </router-link>
+        <LinkCard imageSrc="legend-header.jpg">
+          <router-link :to="{ name: 'chart-legend' }">
+            Legends
+          </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="PieChartImage">
-          <router-link :to="{ name: 'pie-chart' }"> Pie Chart </router-link>
+        <LinkCard imageSrc="pie-chart-header.jpg">
+          <router-link :to="{ name: 'pie-chart' }">
+            Pie Chart
+          </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="PieChartImage">
-          <router-link :to="{ name: 'pie-chart-2' }"> Pie Chart2 </router-link>
+        <LinkCard imageSrc="pie-chart-header.jpg">
+          <router-link :to="{ name: 'pie-chart-2' }">
+            Pie Chart2
+          </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="ScatterPlotImage">
+        <LinkCard imageSrc="scatter-plot-header.jpg">
           <router-link :to="{ name: 'scatter-plot' }">
             Scatter Plot
           </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="GaugeChartImage">
+        <LinkCard imageSrc="gauge-chart-header.jpg">
           <router-link :to="{ name: 'progress-charts' }">
             Progress Charts
           </router-link>
@@ -89,18 +95,6 @@ import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
 import PageSection from "../components/layouts/PageSection.vue";
 import LinkCard from "../components/display/LinkCard.vue";
-
-import headerImage from "../assets/header-image.jpg";
-import BarChartImage from "../assets/bar-chart-header.jpg";
-import ColumnChartImage from "../assets/column-chart-header.jpg";
-import DatatableImage from "../assets/table-header.jpg";
-import GaugeChartImage from "../assets/gauge-chart-header.jpg";
-import GroupedColumnChartImage from "../assets/grouped-column-chart-header.jpg";
-import HighlightsImage from "../assets/highlights-header.jpg";
-import LegendImage from "../assets/legend-header.jpg";
-import MapImage from "../assets/map-header.jpg";
-import PieChartImage from "../assets/pie-chart-header.jpg";
-import ScatterPlotImage from "../assets/scatter-plot-header.jpg";
 </script>
 
 <style lang="scss">

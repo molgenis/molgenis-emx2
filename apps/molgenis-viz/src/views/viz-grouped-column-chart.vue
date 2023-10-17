@@ -3,7 +3,7 @@
     <PageHeader
       title="RD-Components"
       subtitle="Grouped Column Chart Example"
-      :imageSrc="headerImage"
+      imageSrc="grouped-column-chart-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -69,8 +69,6 @@ import PageSection from "../components/layouts/PageSection.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import GroupedColumnChart from "../components/viz/GroupedColumnChart.vue";
-
-import headerImage from "../assets/grouped-column-chart-header.jpg";
 
 import { rollup } from "d3";
 const d3 = { rollup };

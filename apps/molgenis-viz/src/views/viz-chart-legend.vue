@@ -3,7 +3,7 @@
     <PageHeader
       title="RD-Components"
       subtitle="Chart Legends"
-      :imageSrc="headerImage"
+      imageSrc="legend-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -64,7 +64,6 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import ChartLegend from "../components/viz/ChartLegend.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
-import headerImage from "../assets/legend-header.jpg";
 
 let loading = ref(false);
 let data = ref({});

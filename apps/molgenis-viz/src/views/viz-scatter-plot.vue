@@ -3,7 +3,7 @@
     <PageHeader
       title="RD-Components"
       subtitle="Scatter Plot"
-      :imageSrc="headerImage"
+      imageSrc="gauge-chart-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -75,7 +75,6 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import ScatterPlot from "../components/viz/ScatterPlot.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
-import headerImage from "../assets/scatter-plot-header.jpg";
 
 let loading = ref(true);
 let error = ref(false);

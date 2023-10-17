@@ -3,7 +3,7 @@
     <PageHeader
       title="molgenis-viz"
       subtitle="Progress Charts"
-      :imageSrc="headerImage"
+      imageSrc="gauge-chart-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -80,8 +80,6 @@ import PageSection from "../components/layouts/PageSection.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import GaugeChart from "../components/viz/GaugeChart.vue";
 import ProgressMeter from "../components/viz/ProgressMeter.vue";
-
-import headerImage from "../assets/gauge-chart-header.jpg";
 
 let data = ref([]);
 data.value = ["Control", "Experimental"].map((group) => {

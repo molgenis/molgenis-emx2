@@ -3,7 +3,7 @@
     <PageHeader
       title="RD-Components"
       subtitle="Data Highlights Example"
-      :imageSrc="headerImage"
+      imageSrc="highlights-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -57,7 +57,6 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import DataHighlights from "../components/viz/DataHighlights.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
-import headerImage from "../assets/highlights-header.jpg";
 
 let loading = ref(false);
 let error = ref(null);

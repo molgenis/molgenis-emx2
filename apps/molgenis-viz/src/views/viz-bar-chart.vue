@@ -3,7 +3,7 @@
     <PageHeader
       title="RD-Components"
       subtitle="Bar Chart Example"
-      :imageSrc="headerImage"
+      imageSrc="bar-chart-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -66,7 +66,6 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import BarChart from "../components/viz/BarChart.vue";
-import headerImage from "../assets/header-image.jpg";
 
 let loading = ref(true);
 let error = ref(null);

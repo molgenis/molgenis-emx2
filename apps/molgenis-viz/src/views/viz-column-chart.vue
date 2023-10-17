@@ -3,7 +3,7 @@
     <PageHeader
       title="RD-Components"
       subtitle="Column Chart Example"
-      :imageSrc="headerImage"
+      imageSrc="column-chart-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -67,7 +67,6 @@ import PageSection from "../components/layouts/PageSection.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import ColumnChart from "../components/viz/ColumnChart.vue";
-import headerImage from "../assets/column-chart-header.jpg";
 
 let loading = ref(true);
 let error = ref(null);
