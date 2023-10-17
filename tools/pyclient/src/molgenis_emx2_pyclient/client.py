@@ -122,6 +122,8 @@ class Client:
         status = response.json().get('data', {}).get('signout', {}).get('status')
         if status == 'SUCCESS':
             print(f"Signed out of {self.url}")
+            self.username = 'anonymous'
+            self.signin_status = 'signed out'
         else:
             print(f"Unable to sign out of {self.url}.")
             message = response.json().get('errors')[0].get('message')
@@ -134,7 +136,7 @@ class Client:
         message = (
           f"Host: {self.url}\n"
           f"User: {self.username}\n"
-          f"Status: {'Signed in' if self.signin_status == 'success' else 'Logged out'}\n"
+          f"Status: {'Signed in' if self.signin_status == 'success' else 'Signed out'}\n"
           f"Schemas: \n\t{schemas}\n"
           f"Version: {self.version}\n"
         )
