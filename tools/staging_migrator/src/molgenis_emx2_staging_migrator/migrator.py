@@ -192,12 +192,12 @@ class StagingMigrator(Client):
             log.error("Uploading fallback zip.")
             self._upload_fallback_zip()
         else:
-            upload_status = self.session.get(f"{self.url}{response.json().get('url')}").json().get('status')
-            upload_description = self.session.get(f"{self.url}{response.json().get('url')}").json().get('description')
+            response_url = f"{self.url}{response.json().get('url')}"
+            upload_status = self.session.get(response_url).json().get('status')
             while upload_status == 'RUNNING':
                 time.sleep(2)
-                upload_status = self.session.get(f"{self.url}{response.json().get('url')}").json().get('status')
-                upload_description = self.session.get(f"{self.url}{response.json().get('url')}").json().get('description')
+                upload_status = self.session.get(response_url).json().get('status')
+            upload_description = self.session.get(response_url).json().get('description')
 
             if upload_status == 'ERROR':
                 log.error(f"Migration failed, reason: {upload_description}.")
