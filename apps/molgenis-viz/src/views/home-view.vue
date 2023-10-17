@@ -38,9 +38,7 @@
         <a href="https://ror.org">ROR</a>. All organisations from France,
         Belgium, Germany, and the Netherlands were selected. Metadata was
         collated and compiled into a usable dataset (
-          <a href="../tables/#/Organisations">
-            Organisations table
-          </a>
+        <a href="../tables/#/Organisations"> Organisations table </a>
         ), and used in the examples.
       </p>
       <MessageBox v-if="error || !confirmed">
