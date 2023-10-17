@@ -9,6 +9,7 @@ import static org.molgenis.emx2.semantics.rdf.ColumnTypeToXSDDataType.columnType
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -23,6 +24,7 @@ import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.molgenis.emx2.*;
 
 public class ValueToRDF {
+  private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
   public static void describeValues(
       ModelBuilder builder, Table table, String rowId, String schemaContext) {
@@ -167,7 +169,7 @@ public class ValueToRDF {
             .toList();
       case DATETIME:
         return Arrays.stream(row.getDateTimeArray(column.getName()))
-            .map(value -> literal(value.toString().substring(0, 19), xsdType))
+            .map(value -> literal(formatter.format(value), xsdType))
             .toList();
       case DECIMAL:
         return Arrays.stream(row.getDecimalArray(column.getName())).map(Values::literal).toList();
