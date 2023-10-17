@@ -9,7 +9,7 @@
     <PageSection :verticalPadding="0">
       <Breadcrumbs>
         <li>
-          <router-link :to="{ name: 'pie-chart' }">Pie Chart</router-link>
+          <router-link :to="{ name: 'pie-chart-2' }">Pie Chart 2</router-link>
         </li>
       </Breadcrumbs>
     </PageSection>
@@ -46,7 +46,9 @@
         @slice-clicked="updateSelection"
         legend-position="bottom"
       />
-      <h3>Selected Item</h3>
+    </PageSection>
+    <PageSection :verticalPadding="2" aria-labelledby="output-title">
+      <h2 id="output-title">Selected Item</h2>
       <p>Click a slice in the chart of above to display the row-level data</p>
       <output class="output">
         {{ selection }}
