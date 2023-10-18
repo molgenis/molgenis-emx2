@@ -1,5 +1,9 @@
 package org.molgenis.emx2.io;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.table;
+
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
@@ -62,7 +66,16 @@ public class TestImportExportAllExamples {
     executeCompare(schema1);
   }
 
-  public void executeCompare(SchemaMetadata schema1) throws IOException, MolgenisException {
+  @Test
+  public void testDefaultValuesMetadata() throws IOException {
+    SchemaMetadata schema1 = new SchemaMetadata("8");
+    schema1.create(table("test", column("id").setDefaultValue("bla")));
+    Schema result = executeCompare(schema1);
+    assertEquals(
+        "bla", result.getMetadata().getTableMetadata("test").getColumn("id").getDefaultValue());
+  }
+
+  public Schema executeCompare(SchemaMetadata schema1) throws IOException, MolgenisException {
     try {
       // now write it out and fromReader back and compare
       List<Row> contents = Emx2.toRowList(schema1);
@@ -76,6 +89,7 @@ public class TestImportExportAllExamples {
 
       Schema schema3 = db.dropCreateSchema(getClass().getSimpleName() + schema1.getName());
       schema3.migrate(schema2);
+      return schema3;
 
     } catch (MolgenisException e) {
       System.out.println(e.getDetails());

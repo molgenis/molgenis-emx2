@@ -111,6 +111,7 @@ module.exports = {
         none: "none",
         sm: "20rem",
         xs: "15rem",
+        table: "60.7rem",
       },
       backgroundImage: {
         "sidebar-gradient":
@@ -219,7 +220,7 @@ module.exports = {
         "search-input": "9999px",
         "search-button": "9999px",
         pagination: "9999px",
-        landing: "50px"
+        landing: "50px",
       },
       opacity: {
         "background-gradient": 100,

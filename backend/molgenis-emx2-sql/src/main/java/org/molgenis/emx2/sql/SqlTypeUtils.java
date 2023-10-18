@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.ColumnType.AUTO_ID;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
@@ -32,6 +33,32 @@ public class SqlTypeUtils extends TypeUtils {
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else if (AUTO_ID.equals(c.getColumnType())) {
         applyAutoid(c, row);
+      } else if (c.getDefaultValue() != null && !row.notNull(c.getName())) {
+        if (c.getDefaultValue().startsWith("=")) {
+          try {
+            if (c.isRefArray()) {
+              convertRefArrayToRow(
+                  (List)
+                      executeJavascriptOnMap(c.getDefaultValue().substring(1), graph, List.class),
+                  row,
+                  c);
+            } else if (c.isRef()) {
+              convertRefToRow(
+                  (Map)
+                      executeJavascriptOnMap(
+                          "(" + c.getDefaultValue().substring(1) + ")", graph, Map.class),
+                  row,
+                  c);
+            } else {
+              row.set(c.getName(), executeJavascript(c.getDefaultValue().substring(1)));
+            }
+          } catch (Exception e) {
+            throw new MolgenisException(
+                "Error in defaultValue of column " + c.getName() + ": " + e.getMessage());
+          }
+        } else {
+          row.set(c.getName(), c.getDefaultValue());
+        }
       } else if (c.getComputed() != null) {
         row.set(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
       } else if (columnIsVisible(c, graph)) {
@@ -84,8 +111,8 @@ public class SqlTypeUtils extends TypeUtils {
 
   private static boolean columnIsVisible(Column column, Map values) {
     if (column.getVisible() != null) {
-      String visibleResult = executeJavascriptOnMap(column.getVisible(), values);
-      if (visibleResult.equals("false") || visibleResult.equals("null")) {
+      Object visibleResult = executeJavascriptOnMap(column.getVisible(), values);
+      if (visibleResult == null || Boolean.FALSE.equals(visibleResult)) {
         return false;
       }
     }
@@ -164,19 +191,22 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static String checkValidation(String validationScript, Map<String, Object> values) {
     try {
-      String error = executeJavascriptOnMap(validationScript, values);
+      Object error = executeJavascriptOnMap(validationScript, values);
       if (error != null) {
-        if (error.trim().equals("false")) {
+        if (error instanceof Boolean && (Boolean) error == false) {
           // you can have a validation rule that simply returns true or false;
           // false means not valid.
           return validationScript;
-        } else
-        // you can have a validation script returning true which means valid, and undefined also
-        if (!error.trim().equals("true") && !error.trim().equals("undefined")) {
-          return error;
+        } else if (error instanceof Boolean && (Boolean) error == true) {
+          return null;
         }
+        // you can have a validation script returning true which means valid, and undefined also
+        else {
+          return error.toString();
+        }
+      } else {
+        return null;
       }
-      return null;
     } catch (MolgenisException me) {
       // seperate syntax errors
       throw me;
