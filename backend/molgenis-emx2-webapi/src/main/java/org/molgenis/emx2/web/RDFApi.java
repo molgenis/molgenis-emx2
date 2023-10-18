@@ -5,9 +5,10 @@ import static spark.Spark.get;
 
 import java.io.*;
 import java.util.Collection;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.semantics.RDFService;
+import org.molgenis.emx2.rdf.RDFService;
 import spark.Request;
 import spark.Response;
 
@@ -33,15 +34,19 @@ public class RDFApi {
     Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
-    for (int i = 0; i < schemas.length; i++) {
-      schemas[i] = (sessionManager.getSession(request).getDatabase().getSchema(schemaNamesArr[i]));
-    }
 
-    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    Database db = sessionManager.getSession(request).getDatabase();
+    final RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
-
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, schemas);
+    db.tx(
+        database -> {
+          for (int i = 0; i < schemas.length; i++) {
+            schemas[i] = (db.getSchema(schemaNamesArr[i]));
+          }
+          rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, schemas);
+        });
+
     outputStream.flush();
     outputStream.close();
     return 200;

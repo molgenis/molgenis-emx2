@@ -1,4 +1,4 @@
-package org.molgenis.emx2.semantics.rdf;
+package org.molgenis.emx2.rdf;
 
 public class StringsForRDFTest {
   static final String TTL_PREFIX_1 = "@prefix emx0: <http://localhost:8080/petStoreNr1/api/rdf/> .";

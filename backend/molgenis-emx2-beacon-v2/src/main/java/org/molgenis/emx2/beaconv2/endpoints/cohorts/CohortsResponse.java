@@ -2,7 +2,7 @@ package org.molgenis.emx2.beaconv2.endpoints.cohorts;
 
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.semantics.QueryHelper.*;
+import static org.molgenis.emx2.beaconv2.endpoints.QueryHelper.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
