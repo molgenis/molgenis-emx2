@@ -72,16 +72,12 @@ async function getOrganisations() {
   `;
 
   const response = await request("../api/graphql", query);
-  providers.value = response.Organisations
-  .map(row => {
+  providers.value = response.Organisations.map((row) => {
     return {
       id: row.providerInformation[0].providerIdentifier,
-      ...row
-    }
-  })
-  .sort((current, next) =>
-    current.name < next.name ? -1 : 1
-  );
+      ...row,
+    };
+  }).sort((current, next) => (current.name < next.name ? -1 : 1));
 }
 
 onMounted(() => {
