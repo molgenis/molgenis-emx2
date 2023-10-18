@@ -1,8 +1,6 @@
 package org.molgenis.emx2.graphgenome;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.datamodels.FAIRDataHubLoader.createSchema;
 
 import java.io.ByteArrayOutputStream;
@@ -17,8 +15,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-import spark.Request;
-import spark.Response;
 
 @Tag("slow")
 @Disabled
@@ -39,20 +35,14 @@ public class GraphGenomeTest {
 
   @Test
   public void TestForGene() {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.url())
-        .thenReturn(
-            "http://localhost:8080/api/graphgenome?gene=TERC&assembly=GRCh37&ucscgenome=hg19");
-    when(request.queryParams("gene")).thenReturn("TERC");
-    when(request.queryParams("assembly")).thenReturn("GRCh37");
-    when(request.queryParams("ucscgenome")).thenReturn("hg19");
     OutputStream outputStream = new ByteArrayOutputStream();
-    new GraphGenome()
+    new GraphGenome(
+            "http://localhost:8080/api/graphgenome?gene=TERC&assembly=GRCh37&ucscgenome=hg19", null)
         .graphGenomeAsRDF(
             outputStream,
-            request,
-            response,
+            "TERC",
+            "GRCh37",
+            "hg19",
             GRAPH_GENOME_API_LOCATION,
             genomicVariationsTables,
             true);
@@ -72,9 +62,13 @@ public class GraphGenomeTest {
     assertTrue(
         result.contains(
             "<http://snomed.info/id/363713009> <http://localhost:8080/api/graphgenome/TERC/node1/ALT/T/clinical_interpretation0>"));
+    //    todo: check with joeri
+    //     assertTrue(
+    //        result.contains(
+    //            "dcterms:replaces <http://localhost:8080/api/graphgenome/TERC/node2/REF/C>"));
     assertTrue(
         result.contains(
-            "dcterms:replaces <http://localhost:8080/api/graphgenome/TERC/node2/REF/C>"));
+            "<http://purl.org/dc/terms/replaces> <http://localhost:8080/api/graphgenome/TERC/node2/REF/C>"));
     assertTrue(
         result.contains(
             "<http://purl.obolibrary.org/obo/HP_0045088> \"Likely benign\", <http://purl.obolibrary.org/obo/NCIT_C168801>"));
