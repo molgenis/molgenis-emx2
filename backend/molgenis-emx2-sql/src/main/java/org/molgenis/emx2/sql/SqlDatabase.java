@@ -544,9 +544,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           this.getListener().afterCommit();
         }
       } catch (Exception e) {
-        if (e.getMessage().contains("canceling statement due to user request")) {
-          e.printStackTrace();
-        }
         throw new SqlMolgenisException("Transaction failed", e);
       }
     }
