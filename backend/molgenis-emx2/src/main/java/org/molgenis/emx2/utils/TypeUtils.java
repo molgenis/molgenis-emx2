@@ -481,6 +481,7 @@ public class TypeUtils {
 
   public static String convertToTitleCase(String value) {
     if (value == null) return null;
+    if (value.startsWith("mg_")) return value;
     if (value.length() == 0) return value;
 
     // split on aA lowercase to uppercase edges
