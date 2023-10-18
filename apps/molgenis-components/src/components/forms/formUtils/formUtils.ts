@@ -27,7 +27,6 @@ function getColumnError(
   // FIXME: this function should also check all array types
   // FIXME: longs are not checked
   const missesValue = value === undefined || value === null || value === "";
-
   try {
     if (!isColumnVisible(column, values, tableMetaData)) {
       return undefined;

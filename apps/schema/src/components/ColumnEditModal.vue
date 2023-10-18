@@ -162,6 +162,7 @@
                 <InputText
                   id="column_validation"
                   v-model="column.validation"
+                  @update:model-value="checkForErrors"
                   label="validation"
                   description="When javascript expression returns 'false' the expression itself is shown. Example: name === 'John'. When javascript expression returns a string then this string is shown. Example if(name!=='John')'name should be John'. Is not checked if not visible."
                 />
@@ -223,12 +224,12 @@
           <RowEdit
             id="form-edit"
             v-model="previewData"
+            v-model:errorPerColumn="rowErrors"
             :schemaMetaData="schema"
             :tableMetaData="table"
             :tableName="table.name"
             :key="JSON.stringify(table)"
             :applyDefaultValues="true"
-            :errorPerColumn="rowErrors"
             @update:model-value="checkForErrors"
           />
           Values:
