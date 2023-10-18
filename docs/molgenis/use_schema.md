@@ -9,7 +9,7 @@ For that make sure each Excel sheet or .tsv/.csv file is named in your molgenis 
 ## Example of a 'molgenis' schema
 
 | tableName | columName | type | key | required | description               |
-| --------- | --------- | ---- | --- | -------- | ------------------------- |
+|-----------|-----------|------|-----|----------|---------------------------|
 | Person    |           |      |     |          | my person table           |
 | Person    | id        | int  | 1   |          | id is part of primary key |
 | Person    | firstName |      | 2   |          |                           |
@@ -23,14 +23,16 @@ You can describe basic columns using:
 
 ### tableName
 
-Will be the name of the table. Must start with one of a-zAZ followed by zero or more of a-zA-Z0-9_. Maximum length 31 characters. If you leave columnName empty
-then all other settings will apply to the table instead of the column. N.B. in the user interface a user friendly label is generated converting 'camelCase' into 'Sentence case'. E.g.
+Will be the name of the table, which should be case-insensitive unique within the schema. Must start with one of a-zAZ followed by zero or more of
+a-zA-Z0-9_. Maximum length 31 characters. If you leave columnName empty then all other settings will apply to the table instead of the column. N.B. in the
+user interface a user friendly label is generated converting 'camelCase' into 'Sentence case'. E.g.
 'variableMappings' becomes 'Variable mappings' and 'VCFtools' becomes 'VCF tools'.
 
 ### columnName
 
-Will be the name of the column. Must be unique per tableName. Must start with one of a-zA-Z followed by zero or more of a-zA-Z0-9_. Maximum length 31
-characters. Default value: empty. Also columnName will be shown in user interface using friendly Sentence case, see tableName.
+Will be the name of the column, which must be case-insensitive unique within a tablename . Must be unique per tableName. Must start with one of a-zA-Z
+followed by zero or more of a-zA-Z0-9_. Maximum length 31 characters. Default value: empty. Also columnName will be shown in user interface using friendly
+Sentence case, see tableName.
 
 ### columnType
 
@@ -99,6 +101,7 @@ When required=TRUE then values in this column must be filled. When required=FALS
 Using 'defaultValue' you can set a default value for a column. In forms, this value will be pre-filled.
 When uploading csv/excel all empty cells will receive the defaultValue (in insert and update)
 Optionally you can also use javascript expressions. For example:
+
 * ```duck``` would set a string value
 * ```1``` would set a numeric value
 * ```=new Date().toISOString()``` provides automatic date/dateTime
@@ -132,7 +135,7 @@ all you need. The value of refTable should a defined tableName. Default value: e
 A simple reference:
 
 | tableName | columName | type | key | refTable | required | description               |
-| --------- | --------- | ---- | --- | -------- | -------- | ------------------------- |
+|-----------|-----------|------|-----|----------|----------|---------------------------|
 | Person    |           |      |     |          |          | my person table           |
 | Person    | id        | int  | 1   |          |          | id is part of primary key |
 | Person    | firstName |      | 2   |          | TRUE     |                           |
@@ -158,14 +161,14 @@ as the name.
 The ontology table minimaly needs the following content
 
 | name  |
-| ----- |
+|-------|
 | term1 |
 | term2 |
 
 A more advanced example
 
 | name    | parent | label | description                           | ontologyURI |
-| ------- | ------ | ----- | ------------------------------------- | ----------- |
+|---------|--------|-------|---------------------------------------|-------------|
 | term1   |        |       |                                       |             |
 | term1.a | term1  |       |                                       |             |
 | term1.b | term1  | b     | this will show 'b' instead of term1.b |
@@ -191,7 +194,7 @@ value. All columns of the table are available as variable. Computed values are r
 For example:
 
 | tableName | columnName | key | computed                  |
-| --------- | ---------- | --- | ------------------------- |
+|-----------|------------|-----|---------------------------|
 | parts     | id         | 1   | productNo + "\_" + partNo |
 | parts     | productNo  | 2   |                           |
 | parts     | partNo     | 2   |                           |
@@ -202,9 +205,9 @@ In combination with data type AUTO_ID this will generate an value for a column b
 
 For example:
 
-| tableName | columnName | key | type     | computed             |
-|-----------| ---------- | --- |----------|----------------------|
-| parts     | id         | 1   | AUTO_ID  | foo-${mg_autoid}-bar |
+| tableName | columnName | key | type    | computed             |
+|-----------|------------|-----|---------|----------------------|
+| parts     | id         | 1   | AUTO_ID | foo-${mg_autoid}-bar |
 
 Auto id with pre and post fix ```foo-${mg_autoid}-bar'``` would result in something like ```foo-ae6e3b15-c9e2-4d16-8ab3-5984ba64ce09-bar```
 
@@ -216,7 +219,7 @@ Validation expressions must return either null or true. Otherwise they will show
 expression itself is shown. Otherwise, the return value of the expression will be shown. For example:
 
 | validation                                                                 | message                                                                           |
-| -------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+|----------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
 | `price > 1`                                                                | Application of validation rule failed: price > 1                                  |
 | `if(price<=1)'price should be larger than 1'`                              | Application of validation rule failed: price should be larger than 1              |
 | `/^([a-z]+)$/.test(name)`                                                  | Application of validation rule failed: /^([a-z]+)$/.test(name)                    |
@@ -226,7 +229,7 @@ Visible expressions must return a value that is not false or undefined, otherwis
 throws an exception, this is shown in user interface/error message. For example:
 
 | visible                                   | description                                                      |
-| ----------------------------------------- | ---------------------------------------------------------------- |
+|-------------------------------------------|------------------------------------------------------------------|
 | `pets?.some(pet => pet.name === 'pooky')` | will only be shown when 'pooky' was selected in 'pets' ref_array |
 
 ## Table inheritance
@@ -259,12 +262,12 @@ should make sure that the refLabel is unique and not null. To make sure, we reco
 
 Example:
 
-| tableName | columnName | type  | key | required | refTable                 | refLabel |
-|-----------|------------|-------|-----|----------|--------------------------|----------|
-| person    | id         |       | 1   | true     |                          |          |
-| person    | firstName  |       | 2   | true     |                          |          |
-| person    | lastName   |       | 2   | true     |                          |          |
-| person    | mother     | ref   |     | person   | ${firstName} ${lastName} |          | 
+| tableName | columnName | type | key | required | refTable                 | refLabel |
+|-----------|------------|------|-----|----------|--------------------------|----------|
+| person    | id         |      | 1   | true     |                          |          |
+| person    | firstName  |      | 2   | true     |                          |          |
+| person    | lastName   |      | 2   | true     |                          |          |
+| person    | mother     | ref  |     | person   | ${firstName} ${lastName} |          | 
 
 ## Changelog
 
