@@ -25,7 +25,7 @@ public class OntologyTableSemantics {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    Schema petStore = database.dropCreateSchema("semanticPetStore");
+    Schema petStore = database.dropCreateSchema(OntologyTableSemantics.class.getSimpleName());
     PetStoreLoader petStoreLoader = new PetStoreLoader();
     petStoreLoader.load(petStore, true);
     petStoreSchema = petStore;
