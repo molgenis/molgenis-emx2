@@ -86,11 +86,6 @@ export default {
       type: Array,
       required: false,
     },
-    // defaultValue: when creating new record, this is initialization value
-    defaultValue: {
-      type: Object,
-      required: false,
-    },
     // object with the whole schema, needed to create refLink filter
     schemaMetaData: {
       type: Object,
@@ -205,8 +200,6 @@ export default {
               this.internalValues,
               this.tableMetaData as ITableMetaData
             );
-          } else {
-            this.internalValues[column.id] = column.defaultValue;
           }
         }
       });
@@ -263,9 +256,11 @@ export default {
     },
   },
   created() {
-    if (this.defaultValue) {
-      this.internalValues = deepClone(this.defaultValue);
-    }
+    this.tableMetaData.columns.forEach((column: IColumn) => {
+      if (column.defaultValue && !this.internalValues[column.id]) {
+        this.internalValues[column.id] = column.defaultValue;
+      }
+    });
     this.onValuesUpdate();
   },
 };
