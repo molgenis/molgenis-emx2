@@ -93,19 +93,18 @@ public class PetStoreLoader extends AbstractDataLoader {
     final String shopowner = "shopowner";
 
     // initialize users
-    schema.addMember(shopmanager, "Manager");
     if (!schema.getDatabase().hasUser(shopmanager)) {
       schema.getDatabase().setUserPassword(shopmanager, shopmanager);
     }
-    schema.addMember(shopviewer, "Viewer");
     if (!schema.getDatabase().hasUser(shopviewer)) {
       schema.getDatabase().setUserPassword(shopviewer, shopviewer);
     }
-
-    schema.addMember(shopowner, "Owner");
     if (!schema.getDatabase().hasUser(shopowner)) {
       schema.getDatabase().setUserPassword(shopowner, shopowner);
     }
+    schema.addMember(shopmanager, "Manager");
+    schema.addMember(shopviewer, "Viewer");
+    schema.addMember(shopowner, "Owner");
 
     schema
         .getTable(CATEGORY)

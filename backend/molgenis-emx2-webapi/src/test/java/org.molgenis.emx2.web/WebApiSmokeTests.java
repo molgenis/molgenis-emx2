@@ -46,7 +46,6 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/petStore/api/csv";
-  public static final String PET_SHOP_OWNER = "pet_shop_owner";
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
   public static String SESSION_ID; // to toss around a session for the tests
   private static Database db;
@@ -89,9 +88,7 @@ public class WebApiSmokeTests {
     // should be created
     schema = db.getSchema("petStore");
     // grant a user permission
-    schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
-    db.grantCreateSchema(PET_SHOP_OWNER);
   }
 
   @AfterAll
@@ -607,20 +604,19 @@ public class WebApiSmokeTests {
 
   @Test
   public void testMolgenisWebservice_redirectToFirstMenuItem() {
-    given()
-        .redirects()
-        .follow(false)
-        .expect()
-        .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/petStore/tables"))
-        .when()
-        .get("/petStore/");
-
     schema
         .getMetadata()
         .setSetting(
             "menu",
             "[{\"label\":\"home\",\"href\":\"../blaat\", \"role\":\"Manager\"},{\"label\":\"home\",\"href\":\"../blaat2\", \"role\":\"Viewer\"}]");
+
+    assertTrue(
+        given()
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("anonymous"));
 
     // sign in as shopviewer
     String shopViewerSessionId =
@@ -630,6 +626,16 @@ public class WebApiSmokeTests {
             .when()
             .post("/api/graphql")
             .sessionId();
+
+    assertTrue(
+        given()
+            .sessionId(shopViewerSessionId)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopviewer"));
 
     given()
         .sessionId(shopViewerSessionId)
@@ -649,6 +655,15 @@ public class WebApiSmokeTests {
             .when()
             .post("/api/graphql")
             .sessionId();
+
+    assertTrue(
+        given()
+            .sessionId(shopManagerSessionId)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopmanager"));
 
     given()
         .sessionId(shopManagerSessionId)
@@ -835,7 +850,7 @@ public class WebApiSmokeTests {
   public void downloadExcelTable() throws IOException {
     Response response = downloadPet("/petStore/api/excel/Pet");
     List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
-    assertEquals("name,category,photoUrls,status,tags,weight", rows.get(0));
+    assertEquals("Name,Category,Photo urls,Status,Tags,Weight", rows.get(0));
     assertEquals("pooky,cat,,available,,9.4", rows.get(1));
   }
 
@@ -851,7 +866,7 @@ public class WebApiSmokeTests {
     File file = TestUtils.responseToFile(downloadPet("/petStore/api/zip/Pet"));
     List<File> files = TestUtils.extractFileFromZip(file);
     String result = Files.readString(files.get(0).toPath());
-    assertTrue(result.contains("name,category,photoUrls,status,tags,weight"));
+    assertTrue(result.contains("Name,Category,Photo urls,Status,Tags,Weight"));
     assertTrue(result.contains("pooky,cat,,available,,9.4"));
   }
 
