@@ -40,7 +40,7 @@ import {
 } from "../utils";
 import { IColumn } from "../../Interfaces/IColumn";
 import { IRow } from "../../Interfaces/IRow";
-import { executeExpression } from "./formUtils/formUtils";
+import { executeExpression, isColumnVisible } from "./formUtils/formUtils";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 
 const { AUTO_ID } = constants;
@@ -109,8 +109,12 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    applyDefaultValues: {
+      type: Boolean,
+      default: () => false,
+    },
   },
-  emits: ["update:modelValue", "errorsInForm"],
+  emits: ["update:modelValue"],
   components: {
     FormInput,
   },
@@ -162,42 +166,47 @@ export default {
         const isColumnVisible = this.visibleColumns
           ? this.visibleColumns.includes(column.id)
           : true;
+
         return (
           isColumnVisible &&
-          this.visible(column.visible, column.id) &&
+          this.isVisible(column) &&
           column.id !== "mg_tableclass"
         );
       }
     },
-    visible(expression: string | undefined, columnId: string) {
-      if (expression) {
-        try {
-          return executeExpression(
-            expression,
-            this.internalValues,
-            this.tableMetaData as ITableMetaData
-          );
-        } catch (error) {
-          this.errorPerColumn[
-            columnId
-          ] = `Invalid visibility expression, reason: ${error}`;
-          return true;
-        }
-      } else {
+    isVisible(column: IColumn) {
+      try {
+        return isColumnVisible(
+          column,
+          this.internalValues,
+          this.tableMetaData as ITableMetaData
+        );
+      } catch (error: any) {
+        this.errorPerColumn[column.id] = error;
         return true;
       }
     },
     applyComputed() {
-      this.tableMetaData.columns.forEach((c: IColumn) => {
-        if (c.computed && c.columnType !== AUTO_ID) {
+      this.tableMetaData.columns.forEach((column: IColumn) => {
+        if (column.computed && column.columnType !== AUTO_ID) {
           try {
-            this.internalValues[c.id] = executeExpression(
-              c.computed,
+            this.internalValues[column.id] = executeExpression(
+              column.computed,
               this.internalValues,
               this.tableMetaData as ITableMetaData
             );
           } catch (error) {
-            this.errorPerColumn[c.id] = "Computation failed: " + error;
+            this.errorPerColumn[column.id] = "Computation failed: " + error;
+          }
+        } else if (this.applyDefaultValues && column.defaultValue) {
+          if (column.defaultValue.startsWith("=")) {
+            this.internalValues[column.id] = executeExpression(
+              "(" + column.defaultValue.substr(1) + ")",
+              this.internalValues,
+              this.tableMetaData as ITableMetaData
+            );
+          } else {
+            this.internalValues[column.id] = column.defaultValue;
           }
         }
       });

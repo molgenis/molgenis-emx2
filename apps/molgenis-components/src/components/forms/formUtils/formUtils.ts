@@ -28,6 +28,14 @@ function getColumnError(
   // FIXME: longs are not checked
   const missesValue = value === undefined || value === null || value === "";
 
+  try {
+    if (!isColumnVisible(column, values, tableMetaData)) {
+      return undefined;
+    }
+  } catch (error) {
+    return error as string;
+  }
+
   if (column.columnType === AUTO_ID || column.columnType === HEADING) {
     return undefined;
   }
@@ -158,28 +166,31 @@ export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
   return filterObject(rowData, (key) => !keyColumnsNames?.includes(key));
 }
 
-export function getPageHeadings(tableMetadata: ITableMetaData): string[] {
-  const columns: IColumn[] = tableMetadata?.columns
-    ? tableMetadata?.columns
-    : [];
-  const headings: string[] = columns
-    .filter((column) => column.columnType === HEADING)
-    .map((column) => column.name);
-  if (columns[0].columnType === HEADING) {
-    return headings;
-  } else {
-    return ["First chapter"].concat(headings);
-  }
-}
-
 export function filterVisibleColumns(
   columns: IColumn[],
   visibleColumns: string[] | null
-) {
+): IColumn[] {
   if (!visibleColumns) {
     return columns;
   } else {
     return columns.filter((column) => visibleColumns.includes(column.id));
+  }
+}
+
+export function isColumnVisible(
+  column: IColumn,
+  values: Record<string, any>,
+  tableMetadata: ITableMetaData
+): boolean {
+  const expression = column.visible;
+  if (expression) {
+    try {
+      return executeExpression(expression, values, tableMetadata);
+    } catch (error) {
+      throw `Invalid visibility expression, reason: ${error}`;
+    }
+  } else {
+    return true;
   }
 }
 

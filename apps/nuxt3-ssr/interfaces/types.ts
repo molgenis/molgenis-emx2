@@ -1,3 +1,13 @@
+export interface IResource {
+  id: string;
+  pid: string;
+  acronym: string;
+  name: string;
+  website: string;
+  description: string;
+  contacts: IContributor[];
+  logo?: IUrlObject;
+}
 export interface ICohort {
   id: string;
   name: string;
@@ -34,7 +44,8 @@ export interface ICohort {
     title: string;
     doi: string;
   }[];
-  inclusionCriteria?: string;
+  inclusionCriteria?: IOntologyNode[];
+  otherInclusionCriteria?: string;
   collectionEvents: ICollectionEvent[];
   additionalOrganisations: IPartner[];
   contacts: IContributor[];
@@ -48,7 +59,7 @@ export interface ICohort {
   documentation?: IDocumentation[];
 }
 
-interface IVariable {
+export interface IVariable {
   name: string;
   label: string;
   description?: string;
@@ -128,7 +139,7 @@ interface ICollectionEventCategorySet {
   definition?: string;
 }
 
-interface INetwork {
+export interface INetwork {
   id: string;
   name: string;
   acronym?: string;
@@ -164,7 +175,7 @@ interface ISearchFilter extends IBaseFilter {
   search?: string;
 }
 
-interface IFilter extends IBaseFilter {
+export interface IFilter extends IBaseFilter {
   columnType: "_SEARCH" | "ONTOLOGY" | "REF_ARRAY";
   refTable?: string;
   columnName?: string;
@@ -197,3 +208,86 @@ export enum INotificationType {
   warning,
   info,
 }
+
+export interface ILocale {
+  locale: string;
+  value: string;
+}
+
+export interface IColumn {
+  columnType: string;
+  id: string;
+  name: string;
+  computed?: string;
+  conditions?: string[];
+  descriptions?: ILocale[];
+  key?: number;
+  labels?: ILocale[];
+  position?: number;
+  readonly?: string;
+  refBack?: string;
+  refLabel?: string;
+  refLabelDefault?: string;
+  refLink?: string;
+  refSchema?: string;
+  refTable?: string;
+  required?: boolean;
+  semantics?: string[];
+  validation?: string;
+  visible?: string;
+}
+
+export interface ITableMetaData {
+  id: string;
+  name: string;
+  tableType: string;
+  columns: IColumn[];
+  descriptions?: ILocale[];
+  externalSchema: string;
+  labels?: ILocale[];
+  semantics?: string[];
+  settings?: ISetting[];
+}
+
+export interface ISchemaMetaData {
+  name: string;
+  tables: ITableMetaData[];
+}
+
+export interface ISectionField {
+  meta: IColumn;
+  value: any;
+}
+
+export interface ISection {
+  meta: IColumn;
+  fields: ISectionField[];
+}
+
+// workaround needed as circular references are not supported for records
+export type KeyObject = {
+  [key: string]: KeyObject | string;
+};
+
+export interface IMapping {
+  sourceDataset: {
+    resource: {
+      id: string;
+    };
+    name: string;
+  };
+  targetVariable: {
+    dataset: {
+      resource: {
+        id: string;
+      };
+      name: string;
+    };
+    name: string;
+  };
+  match: {
+    name: string;
+  };
+}
+
+export type HarmonizationStatus = "unmapped" | "partial" | "complete";

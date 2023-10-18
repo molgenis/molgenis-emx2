@@ -23,6 +23,7 @@
               :clone="clone"
               :locale="locale"
               :errorPerColumn="rowErrors"
+              :applyDefaultValues="applyDefaultValues"
               @update:model-value="checkForErrors"
             />
           </div>
@@ -34,9 +35,9 @@
             <div class="mb-1">
               <b>Chapters</b>
             </div>
-            <div v-for="(heading, index) in pageHeadings">
+            <div v-for="(chapter, index) in columnsSplitByHeadings">
               <Tooltip
-                :name="`chapter-${heading}-error-tooltip`"
+                :name="`chapter-${chapter[0]}-error-tooltip`"
                 :value="
                   chapterStyleAndErrors[index].errorFields.length
                     ? `errors in:\n${chapterStyleAndErrors[index].errorFields}`
@@ -51,7 +52,7 @@
                   @click="setCurrentPage(index + 1)"
                   :style="chapterStyleAndErrors[index].style"
                 >
-                  {{ getHeadingLabel(heading) }}
+                  {{ getHeadingLabel(chapter[0]) }}
                 </button>
               </Tooltip>
             </div>
@@ -94,6 +95,7 @@
 </template>
 
 <script lang="ts">
+import { IColumn } from "../../Interfaces/IColumn";
 import { ISchemaMetaData } from "../../Interfaces/IMetaData";
 import { IRow } from "../../Interfaces/IRow";
 import { ISetting } from "../../Interfaces/ISetting";
@@ -107,10 +109,10 @@ import ButtonAction from "./ButtonAction.vue";
 import RowEdit from "./RowEdit.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import Tooltip from "./Tooltip.vue";
+import { isColumnVisible } from "./formUtils/formUtils";
 import {
   filterVisibleColumns,
   getChapterStyle,
-  getPageHeadings,
   getRowErrors,
   getSaveDisabledMessage,
   removeKeyColumns,
@@ -182,6 +184,9 @@ export default {
       type: Boolean,
       default: () => null,
     },
+    applyDefaultValues: {
+      type: Boolean,
+    },
   },
   computed: {
     title() {
@@ -192,19 +197,33 @@ export default {
         return getLocalizedLabel(this.tableMetaData);
       }
     },
-    pageHeadings() {
-      return getPageHeadings(this.tableMetaData);
-    },
     titlePrefix() {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
     },
     columnsSplitByHeadings(): string[][] {
-      return splitColumnNamesByHeadings(
-        filterVisibleColumns(
-          this.tableMetaData?.columns || [],
-          this.visibleColumns as string[]
-        )
+      const filteredByVisibilityFilters = filterVisibleColumns(
+        this.tableMetaData?.columns || [],
+        this.visibleColumns as string[]
       );
+      const filteredByVisibilityExpressions =
+        filteredByVisibilityFilters.filter((column: IColumn) => {
+          try {
+            return isColumnVisible(column, this.rowData, this.tableMetaData);
+          } catch (error: any) {
+            this.rowErrors[column.name] = error;
+            return true;
+          }
+        });
+      const withoutMetadataColumns = filteredByVisibilityExpressions.filter(
+        (column: IColumn) => !column.id.startsWith("mg_")
+      );
+      const splitByHeadings = splitColumnNamesByHeadings(
+        withoutMetadataColumns
+      );
+      const filteredEmptyHeadings = splitByHeadings.filter(
+        (chapter: string[]) => chapter.length > 1
+      );
+      return filteredEmptyHeadings;
     },
     chapterStyleAndErrors(): IChapterInfo[] {
       return this.columnsSplitByHeadings.map((page: string[]): IChapterInfo => {
@@ -286,14 +305,14 @@ export default {
       this.rowErrors = getRowErrors(this.tableMetaData, this.rowData);
       this.saveDisabledMessage = getSaveDisabledMessage(this.rowErrors);
     },
-    getHeadingLabel(headingName: string) {
+    getHeadingLabel(headingId: string) {
       const column = this.tableMetaData.columns.find(
-        (column) => column.name === headingName
-        //TODO change to id when merging with chapter visibility PR
+        (column) => column.id === headingId
       );
       return (
         column?.labels?.find((label) => label.locale === this.locale)?.value ||
-        headingName
+        column?.name ||
+        headingId
       );
     },
   },
@@ -352,21 +371,29 @@ interface IChapterInfo {
 </style>
 
 <docs>
-  <template>
+<template>
   <DemoItem label="Edit Modal">
-  <p>This component can be used in chapter mode split the form into multiple chapter based on headings.</p>
-  <div class="mt-2 mb-3">
-    Use the "isChaptersEnabled" schema setting to switch mode.
-    <div class="font-weight-bold">isChaptersEnabled: 
-      <input :disabled="loadFromBackend" type="checkbox" id="checkbox" v-model="useChapters" />
-    </div>
-    <div class="font-weight-bold">load from backend: 
-      <input type="checkbox" id="checkbox" v-model="loadFromBackend" />
+    <p>
+      This component can be used in chapter mode split the form into multiple
+      chapter based on headings.
+    </p>
+    <div class="mt-2 mb-3">
+      Use the "isChaptersEnabled" schema setting to switch mode.
+      <div class="font-weight-bold">
+        isChaptersEnabled:
+        <input
+          :disabled="loadFromBackend"
+          type="checkbox"
+          id="checkbox"
+          v-model="useChapters"
+        />
+      </div>
+      <div class="font-weight-bold">
+        load from backend:
+        <input type="checkbox" id="checkbox" v-model="loadFromBackend" />
+      </div>
     </div>
 
-
-  </div>
-  
     <button class="btn btn-primary" @click="isModalShown = !isModalShown">
       Show {{ demoMode }} {{ tableName }}
     </button>
@@ -425,34 +452,37 @@ export default {
       demoKey: null, // empty in case of insert
       isModalShown: false,
       useChapters: true,
-      loadFromBackend: false
+      loadFromBackend: false,
     };
   },
   methods: {
     async reload() {
       const client = this.$Client.newClient(this.schemaName);
-      const tableMetaData = await client.fetchTableMetaData(this.tableName);
       const rowData = await client.fetchTableDataValues(this.tableName, {});
-      this.demoKey = this.demoMode === "insert" ? null : await client.convertRowToPrimaryKey(rowData[0], this.tableName);
+      this.demoKey =
+        this.demoMode === "insert"
+          ? null
+          : await client.convertRowToPrimaryKey(rowData[0], this.tableName);
       const settings = await client.fetchSettings();
-      if(this.loadFromBackend) {
-           this.useChapters =
-        settings.find((item) => item.key === this.$constants.IS_CHAPTERS_ENABLED_FIELD_NAME)?.value !==
-        "false";
+      if (this.loadFromBackend) {
+        this.useChapters =
+          settings.find(
+            (item) =>
+              item.key === this.$constants.IS_CHAPTERS_ENABLED_FIELD_NAME
+          )?.value !== "false";
       }
-   
-    }
+    },
   },
   watch: {
     demoMode() {
       this.reload();
     },
-    useChapters () {
+    useChapters() {
       this.reload();
     },
-    loadFromBackend () {
+    loadFromBackend() {
       this.reload();
-    }
+    },
   },
   mounted() {
     this.reload();

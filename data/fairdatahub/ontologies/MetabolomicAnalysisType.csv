@@ -1,0 +1,4 @@
+name,definition,codesystem,code,ontologyTermURI
+"normalized corrected peak area","normalized corrected peak area","MSIO","0000192","http://purl.obolibrary.org/obo/MSIO_0000192"
+"chemical entity assignment","chemical entity assignment","MSIO","0000194","http://purl.obolibrary.org/obo/MSIO_0000194"
+"pathway","pathway","MSIO","0000059","http://purl.obolibrary.org/obo/MSIO_0000059"

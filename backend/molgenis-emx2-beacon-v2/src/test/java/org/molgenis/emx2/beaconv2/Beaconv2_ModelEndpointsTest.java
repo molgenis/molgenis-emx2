@@ -38,17 +38,17 @@ public class Beaconv2_ModelEndpointsTest {
 
   @Test
   void testFilteringTerms() throws Exception {
-    Request request = mock(Request.class);
     FilteringTerms filteringTerms = new FilteringTerms(database);
     String json = JsonUtil.getWriter().writeValueAsString(filteringTerms);
     assertTrue(json.contains("\"entityType\" : \"filteringterms\""));
     assertTrue(json.contains("\"filteringTerms\" : ["));
-    assertTrue(json.contains("\"type\" : \"STRING\","));
-    assertTrue(json.contains("\"id\" : \"accrualPeriodicity\","));
-    assertTrue(json.contains("\"scope\" : \"Individuals\""));
-    assertTrue(json.contains("\"type\" : \"ONTOLOGY\","));
-    assertTrue(json.contains("\"id\" : \"reference sample\","));
-    assertTrue(json.contains("\"label\" : \"reference sample\","));
+    assertTrue(json.contains("\"type\" : \"alphanumeric\","));
+    assertTrue(json.contains("\"id\" : \"position_assemblyId\","));
+    assertTrue(json.contains("\"scope\" : \"genomicVariations\""));
+    assertTrue(json.contains("\"type\" : \"ontology\","));
+    assertTrue(json.contains("\"id\" : \"NCIT:C124261\","));
+    assertTrue(json.contains("\"label\" : \"Whole Transcriptome Sequencing\","));
+    assertTrue(json.contains("\"scope\" : \"sequencingRuns\""));
   }
 
   @Test

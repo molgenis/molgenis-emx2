@@ -23,7 +23,7 @@ withDefaults(defineProps<Props>(), {
       <div class="relative">
         <NuxtLink :to="link">
           <h1
-            class="font-display md:text-heading-6xl text-heading-3xl text-title-contrast px-3"
+            class="font-display md:text-heading-5xl text-heading-5xl text-title-contrast px-3"
           >
             {{ title }}
           </h1>
@@ -31,7 +31,7 @@ withDefaults(defineProps<Props>(), {
       </div>
       <slot name="title-suffix">
         <span
-          class="bg-blue-50 text-title-contrast flex justify-center rounded-full px-3 font-bold"
+          class="bg-blue-50 text-title-contrast flex justify-center rounded-full px-3 py-1 font-bold text-heading-sm"
         >
           {{ count }}
         </span>

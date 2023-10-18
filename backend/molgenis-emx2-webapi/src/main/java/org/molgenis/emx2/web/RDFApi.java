@@ -5,16 +5,15 @@ import static spark.Spark.get;
 
 import java.io.*;
 import java.util.Collection;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.semantics.RDFService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.molgenis.emx2.rdf.RDFService;
 import spark.Request;
 import spark.Response;
 
 public class RDFApi {
-  private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
+  public static final String FORMAT = "format";
   private static MolgenisSessionManager sessionManager;
   public static final String RDF_API_LOCATION = "/api/rdf";
 
@@ -24,22 +23,30 @@ public class RDFApi {
     // created on-the-fly, there is no way of knowing (or is there?)
     sessionManager = sm;
     get(RDF_API_LOCATION, RDFApi::rdfForDatabase);
-    get("/:schema" + RDF_API_LOCATION, RDFApi::rdfForSchema);
-    get("/:schema" + RDF_API_LOCATION + "/:table", RDFApi::rdfForTable);
-    get("/:schema" + RDF_API_LOCATION + "/:table/:row", RDFApi::rdfForRow);
-    get("/:schema" + RDF_API_LOCATION + "/:table/column/:column", RDFApi::rdfForColumn);
+    final String schemaPath = "/:schema" + RDF_API_LOCATION;
+    get(schemaPath, RDFApi::rdfForSchema);
+    get(schemaPath + "/:table", RDFApi::rdfForTable);
+    get(schemaPath + "/:table/:row", RDFApi::rdfForRow);
+    get(schemaPath + "/:table/column/:column", RDFApi::rdfForColumn);
   }
 
   private static int rdfForDatabase(Request request, Response response) throws IOException {
     Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
-    for (int i = 0; i < schemas.length; i++) {
-      schemas[i] = (sessionManager.getSession(request).getDatabase().getSchema(schemaNamesArr[i]));
-    }
+
+    Database db = sessionManager.getSession(request).getDatabase();
+    final RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    response.type(rdf.getMimeType());
     OutputStream outputStream = response.raw().getOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, null, null, null, schemas);
+    db.tx(
+        database -> {
+          for (int i = 0; i < schemas.length; i++) {
+            schemas[i] = (db.getSchema(schemaNamesArr[i]));
+          }
+          rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, schemas);
+        });
+
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -47,9 +54,12 @@ public class RDFApi {
 
   private static int rdfForSchema(Request request, Response response) throws IOException {
     Schema schema = getSchema(request);
+
+    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    response.type(rdf.getMimeType());
+
     OutputStream outputStream = response.raw().getOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, null, null, null, schema);
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, schema);
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -57,9 +67,12 @@ public class RDFApi {
 
   private static int rdfForTable(Request request, Response response) throws IOException {
     Table table = getTable(request);
+
+    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    response.type(rdf.getMimeType());
+
     OutputStream outputStream = response.raw().getOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, table, null, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, null, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -68,9 +81,12 @@ public class RDFApi {
   private static int rdfForRow(Request request, Response response) throws IOException {
     Table table = getTable(request);
     String rowId = sanitize(request.params("row"));
+
+    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    response.type(rdf.getMimeType());
+
     OutputStream outputStream = response.raw().getOutputStream();
-    RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, table, rowId, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, rowId, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -79,16 +95,12 @@ public class RDFApi {
   private static int rdfForColumn(Request request, Response response) throws IOException {
     Table table = getTable(request);
     String columnName = sanitize(request.params("column"));
+
+    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    response.type(rdf.getMimeType());
+
     OutputStream outputStream = response.raw().getOutputStream();
-    RDFService.describeAsRDF(
-        outputStream,
-        request,
-        response,
-        RDF_API_LOCATION,
-        table,
-        null,
-        columnName,
-        table.getSchema());
+    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, null, columnName, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;

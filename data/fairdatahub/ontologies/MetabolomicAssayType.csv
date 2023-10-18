@@ -1,0 +1,4 @@
+name,definition,codesystem,code,ontologyTermURI
+"selected reaction monitoring","selected reaction monitoring","CHMO","0002867","http://purl.obolibrary.org/obo/CHMO_0002867"
+"high-resolution mass spectrometry","high-resolution mass spectrometry","CHMO","0000498","http://purl.obolibrary.org/obo/CHMO_0000498"
+"electrospray-ionisation quadrupole time-of-flight tandem mass spectrometry","electrospray-ionisation quadrupole time-of-flight tandem mass spectrometry","CHMO","0001275","http://purl.obolibrary.org/obo/CHMO_0001275"
