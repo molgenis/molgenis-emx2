@@ -63,22 +63,29 @@ Biosamples,,obtentionProcedure,ontology,,TRUE,,ObtentionProcedure,,,,"http://pur
 "Biosamples","","PhysicalLocation","string","","","","","","","","http://purl.obolibrary.org/obo/GAZ_00000448","A place on the Earth where this material is located, by its name or by its geographical location. This definition is intentionally vague to allow reuse locally (e.g. which freezer), for contacting (e.g. which institute), broadly for logistical or legal reasons (e.g. city, country or continent).",FAIR Genomes
 "Biosamples","","AnalysesPerformed","ontology_array","","","","AnalysesPerformed","","","","http://purl.obolibrary.org/obo/IAO_0000702","Reports the existence of any analyses performed on this material other than genomics (e.g. transcriptomics, metabolomics, proteomics).",FAIR Genomes
 "Biosamples","","DerivedFrom","string","","","","","","","","http://purl.obolibrary.org/obo/NCIT_C28355","Indicate if this material was produced from or related to another.",FAIR Genomes
-Cohorts,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C61512,Beacon v2 Cohorts,Beacon v2
-Cohorts,,cohortId,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,E.g. cohort0001,Beacon v2
-Cohorts,,cohortName,string,,TRUE,,,,,,http://edamontology.org/operation_0292,E.g. GCAT Genomes for Life,Beacon v2
+Cohorts,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C61512,"A group of individuals, identified by a common characteristic.","Beacon v2, RD3"
+Cohorts,,cohortId,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing.","Beacon v2, RD3"
+Cohorts,,cohortName,string,,TRUE,,,,,,"http://edamontology.org/operation_0292,http://purl.obolibrary.org/obo/NCIT_C42614","The words or language units by which a thing is known","Beacon v2, RD3"
 Cohorts,,cohortType,string,,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C142175,"Either study-defined, beacon-defined, or user-defined",Beacon v2
 Cohorts,,cohortDesign,ontology,,,,StudyDesign,,,,http://purl.obolibrary.org/obo/OBI_0500000,E.g. longitudinal study design,Beacon v2
-Cohorts,,cohortSize,int,,,,,,,,http://purl.obolibrary.org/obo/CTO_0000028,E.g. 20000,Beacon v2
+Cohorts,,cohortSize,int,,,,,,,,http://purl.obolibrary.org/obo/CTO_0000028,"The total number of participants that are enrolled","Beacon v2, RD3"
 Cohorts,,inclusionCriteria_ageRange_start_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001878,E.g. P18Y,Beacon v2
 Cohorts,,inclusionCriteria_ageRange_end_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001877,E.g. P40Y,Beacon v2
 Cohorts,,locations,ontology_array,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001830,E.g. Spain,Beacon v2
 Cohorts,,genders,ontology_array,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"E.g. assigned female at birth, assigned male at birth",Beacon v2
 Cohorts,,cohortDataTypes,ontology_array,,,,DCMITypes,,,,http://purl.obolibrary.org/obo/NCIT_C15783,"E.g. Dataset, Sound, Still Image",Beacon v2
-Individuals,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90492,"Data, facts or figures about an individual; the set of relevant items would depend on the use case. In FAIR Genomes: Personal.","Beacon v2, FAIR Genomes"
-Individuals,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,"A unique proper name or character sequence that identifies this particular person. In Beacon v2: id, in FAIR Genomes: PersonalIdentifier.","Beacon v2, FAIR Genomes"
+Cohorts,,acronym,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C93495,The non-unique initials or abbreviated name used for identification.,RD3
+Cohorts,,description,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C166209,The description of the characteristics that define a cohort.,RD3
+Cohorts,,principleInvestigator,string,,,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0000100,The principle investigator or responsible person for this study.,RD3
+Cohorts,,contactPerson,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,A person acting as a channel for communication between groups or on behalf of a group.,RD3
+Cohorts,,contactEmail,string,,,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0000035,An email address for the purpose of contacting the study contact person.,RD3
+Individuals,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C90492,http://purl.obolibrary.org/obo/ExO_0000127","Data, facts or figures about an individual; the set of relevant items would depend on the use case. In FAIR Genomes: Personal. In RD3: Subjects.","Beacon v2, FAIR Genomes, RD3"
+Individuals,,id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C164337,http://purl.obolibrary.org/obo/NCIT_C142495","A unique proper name or character sequence that identifies this particular person. In Beacon v2: id, in FAIR Genomes: PersonalIdentifier. In RD3: subjectID.","Beacon v2, FAIR Genomes, RD3"
 Individuals,,sex,ontology,,TRUE,,GenderAtBirth,,,,"http://purl.obolibrary.org/obo/GSSO_009418,http://purl.obolibrary.org/obo/NCIT_C28421",E.g. assigned female at birth,"Beacon v2"
 Individuals,,age_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old","Beacon v2"
 Individuals,,age_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D","Beacon v2"
+Individuals,,YearOfBirth,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C83164","The year in which this person was born.",FAIR Genomes
+Individuals,,dateOfBirth,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C83164,"The year in which a person was born.",RD3
 Individuals,,diseaseCausalGenes,ontology_array,,,,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C16612,"Addition for EJP-RD Virtual Platform API. E.g. TTN","Beacon v2"
 Individuals,,ethnicity,ontology,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,E.g. Luxembourgish,"Beacon v2"
 Individuals,,geographicOrigin,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,E.g. Switzerland,"Beacon v2"
@@ -87,18 +94,42 @@ Individuals,,diseases,ref_array,,,,IndividualsDiseases,,,,http://purl.obolibrary
 Individuals,,measures,ref_array,,,,IndividualsMeasures,,,,http://purl.obolibrary.org/obo/NCIT_C25209,E.g. Ind001_Meas001,"Beacon v2"
 Individuals,,phenotypicFeatures,ref_array,,,,IndividualsPhenotypicFeatures,,,,http://purl.obolibrary.org/obo/NCIT_C116555,E.g. Ind001_Phen001,"Beacon v2"
 Individuals,,GenderIdentity,ontology,,,,GenderIdentity,,,,http://purl.bioontology.org/ontology/MESH/D005783,"A person's concept of self as being male and masculine or female and feminine, or ambivalent, based in part on physical characteristics, parental responses, and psychological and social pressures. It is the internal experience of gender role. For practical reasons the lookups are limited to first and second-level entries, but can be expanded when needed. Note that 'Gender at birth', 'Genotypic sex' and any (gender-related) hormone therapies in 'Medication' are usually medically more relevant than this term.",FAIR Genomes
-Individuals,,GenderAtBirth,ontology,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"Assigned gender is one's gender which was assigned at birth, typically by a medical and/or legal organization, and then later registered with other organizations. Such a designation is typically based off of the superficial appearance of external genitalia present at birth.",FAIR Genomes
+Individuals,,GenderAtBirth,ontology,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"Assigned gender is one's gender which was assigned at birth, typically by a medical and/or legal organization, and then later registered with other organizations. Such a designation is typically based off of the superficial appearance of external genitalia present at birth. In RD3: sex1.","FAIR Genomes,RD3"
 Individuals,,GenotypicSex,ontology,,,,GenotypicSex,,,,http://purl.obolibrary.org/obo/PATO_0020000,"A biological sex quality inhering in an individual based upon genotypic composition of sex chromosomes.",FAIR Genomes
 Individuals,,CountryOfResidence,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/NCIT_C171105,"Country of residence at enrollment.",FAIR Genomes
 Individuals,,Ancestry,ontology_array,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,"Population category defined using ancestry informative markers (AIMs) based on genetic/genomic data.",FAIR Genomes
-Individuals,,CountryOfBirth,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,"The country that this person was born in.",FAIR Genomes
-Individuals,,YearOfBirth,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C83164","The year in which this person was born.",FAIR Genomes
+Individuals,,CountryOfBirth,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,"The country that this person was born in.","FAIR Genomes, RD3"
 Individuals,,InclusionStatus,ontology,,,,InclusionStatus,,,,"http://purl.obolibrary.org/obo/NCIT_C166244","An indicator that provides information on the current health status of this person.",FAIR Genomes
-Individuals,,AgeAtDeath,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C135383","The age at which death occurred.",FAIR Genomes
-Individuals,,Consanguinity,bool,,,,,,,,"http://purl.obolibrary.org/obo/OMIT_0004546","Information on whether the patient is a child from two family members who are second cousins or closer.",FAIR Genomes
+Individuals,,AgeAtDeath,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C135383","The age at which death occurred.","FAIR Genomes, RD3"
+Individuals,,Consanguinity,bool,,,,,,,,"http://purl.obolibrary.org/obo/OMIT_0004546","Information on whether the patient is a child from two family members who are second cousins or closer.","FAIR Genomes, RD3"
 Individuals,,PrimaryAffiliatedInstitute,ontology,,,,Organisations,,,,"http://purl.obolibrary.org/obo/NCIT_C25412","The most significant institute for medical consultation and/or study inclusion in context of the genetic disease of this person.",FAIR Genomes
 Individuals,,ResourcesInOtherInstitutes,ontology_array,,,,Organisations,,,,"http://purl.obolibrary.org/obo/NCIT_C19012","Material or data related to this person that is not captured by this system though known to be available in other institutes such as biobanks or hospitals.",FAIR Genomes
 Individuals,,ParticipatesInStudy,ref_array,,,,Study,,,,"http://purl.obolibrary.org/obo/RO_0000056","Reference to the study or studies in which this person participates.",FAIR Genomes
+Individuals,,FamilyID,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25173,"A domestic group, or a number of domestic groups linked through descent (demonstrated or stipulated) from a common ancestor, marriage, or adoption.",RD3
+Individuals,,MaternalID,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C89336,Identifier indicating a reference to mother of the subject,RD3
+Individuals,,PaternalID,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C94324,Identifier indicating a reference to father of the subject,RD3
+Individuals,,ClinicalStatus,bool,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C64917,whether it is an affected individual (main disease) Yes/No,RD3
+Individuals,,Disease,ontology_array,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,"if affected, which MAIN disease code(s) apply to subject",RD3
+Individuals,,Phenotype,ontology_array,,,,Phenotypes,,,,http://purl.obolibrary.org/obo/NCIT_C16977,Phenotype based on Human Phenotype Ontology (HPO),RD3
+Individuals,,HasNotPhenotype,ontology_array,,,,Phenotypes,,,,http://purl.bioontology.org/ontology/HL7/C0442737,Relevant Phenotype NOT present in subject,RD3
+Individuals,,MostRecentPhenopacketFile,string,,,,,,,,,name of the most recent phenopackets file (formated as <subjectID>.<date>.json),RD3
+Individuals,,IncludedInStudies,ref_array,,,,studies,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the study or studies in which this person participates.,RD3
+Individuals,,IncludedInCohorts,ref_array,,,,Cohorts,,,,http://purl.obolibrary.org/obo/NCIT_C61512,"A group of individuals, identified by a common characteristic.",RD3
+Individuals,,IncludedInDatasets,ref_array,,,,datasets,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the dataset or datasets in which this person was assigned to.,RD3
+Individuals,,Organisation,ontology_array,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,Name of the organisation that submitted Subject,RD3
+Individuals,,ERN,ontology_array,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,ERN,RD3
+Individuals,,Solved,bool,,,,,,,,,Solved Case for Solve-RD (true/false),RD3
+Individuals,,DateSolved,date,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25164,Date Solved,RD3
+Individuals,,Remarks,text,,,,,,,,,Remarks about this Subject (Relevant for SOLVE-RD project),RD3
+Individuals,,Consent,heading,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C16735,,RD3
+Individuals,,MatchMakerPermission,bool,,,,,,,,,"If true, permission is given for MatchMaking (boolean)",RD3
+Individuals,,NoIncidentalFindings,bool,,,,,,,,http://purl.obolibrary.org/obo/ICO_0000178,"If true, do NOT report incidental findings back (boolean)",RD3
+Individuals,,Recontact,ontology,,,,NoYesUnknown,,,,http://purl.obolibrary.org/obo/NCIT_C25737,Recontact is allowed in case of incidental findings,RD3
+Individuals,,Retracted,ontology,,,,NoYesUnknown,,,,http://purl.obolibrary.org/obo/PATO_0001477,"Is the subject retracted or not",RD3
+Individuals,,Comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material.",RD3
+Individuals,,ageOfOnset,int,,,,,,,,http://www.orpha.net/ORDO/Orphanet_C023,"Age (in years) of onset of clinical manifestations related to the disease of the patient.",RD3
+Individuals,,ageAtDiagnosis,int,,,,,,,,http://purl.bioontology.org/ontology/SNOMEDCT/423493009,"The age (in years), measured from some defined time point (e.g. birth) at which a patient is diagnosed with a disease.",RD3
+Individuals,,partOfRelease,ref_array,,,,datareleases,,,,http://purl.obolibrary.org/obo/NCIT_C172217,"One or more Solve-RD releases that indicate when the record was first introduced into RD3 or when it was updated.",RD3
 IndividualsPhenotypicFeatures,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C116555,Beacon v2 Individuals PhenotypicFeatures,Beacon v2
 IndividualsPhenotypicFeatures,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Phen001,Beacon v2
 IndividualsPhenotypicFeatures,,featureType,ontology,,TRUE,,Phenotypes,,,,http://semanticscience.org/resource/SIO_010056,E.g. Abnormality of body height,Beacon v2
