@@ -47,11 +47,10 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import Breadcrumbs from "../components/breadcrumbs.vue";
-import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
-
+import Breadcrumbs from "../components/breadcrumbs.vue";
+import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
 import { ChevronRightIcon as LinkIcon } from "@heroicons/vue/24/outline";
 
 let error = ref(false);
@@ -64,30 +63,29 @@ async function getOrganisations() {
         name
         city
         country
-        latitude
-        longitude
         providerInformation {
           providerIdentifier
-          hasSubmittedData
         }
-        hasSchema
         schemaName
       }
     }
   `;
 
   const response = await request("../api/graphql", query);
-  providers.value = response.Organisations.sort((current, next) =>
+  providers.value = response.Organisations
+  .map(row => {
+    return {
+      id: row.providerInformation[0].providerIdentifier,
+      ...row
+    }
+  })
+  .sort((current, next) =>
     current.name < next.name ? -1 : 1
   );
 }
 
-async function loadData() {
-  await getOrganisations();
-}
-
 onMounted(() => {
-  loadData().catch((err) => (error.value = err));
+  getOrganisations().catch((err) => (error.value = err));
 });
 </script>
 

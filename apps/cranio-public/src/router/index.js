@@ -5,8 +5,6 @@ import AboutPage from "../views/view-about.vue";
 import PublicDashboardPage from "../views/view-public-dashboard.vue";
 import ProvidersPage from "../views/view-providers.vue";
 
-// For new routes, use the property `meta` to define the document title
-// E.g., {..., meta: {title: 'My Page'}}
 const project = "ERN CRANIO";
 
 const router = createRouter({
@@ -41,11 +39,11 @@ const router = createRouter({
       component: ProvidersPage,
       meta: {
         title: "Providers",
-        breadcrumbs: [{ name: "providers", label: "Provider" }],
+        breadcrumbs: [{ name: "providers", label: "Providers" }],
       },
     },
   ],
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(_to, _from, savedPosition) {
     return savedPosition || { top: 0, left: 0 };
   },
 });
