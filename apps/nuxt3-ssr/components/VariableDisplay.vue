@@ -24,6 +24,21 @@ const { data, pending, error } = await useFetch(
     },
   }
 ).catch((e) => console.log(e));
+
+const items = computed(() => [
+  {
+    label: "Unit",
+    content: data.value.data?.Variables[0]?.unit?.name || "-",
+  },
+  {
+    label: "Formats",
+    content: data.value.data?.Variables[0]?.format?.name || "-",
+  },
+  {
+    label: "n repeats",
+    content: data.value.data?.RepeatedVariables_agg.count || "None",
+  },
+]);
 </script>
 
 <template>
@@ -32,6 +47,6 @@ const { data, pending, error } = await useFetch(
     :description="data.data?.Variables[0].description"
     sub-title="Variable"
   >
-    <!-- <DefinitionList :items="items" :small="true" /> -->
+    <DefinitionList :items="items" :small="true" />
   </ContentBlockModal>
 </template>

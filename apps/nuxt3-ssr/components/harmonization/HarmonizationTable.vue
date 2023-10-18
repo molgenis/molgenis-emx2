@@ -56,7 +56,7 @@ let activeVariableName = ref("");
             class="border-b-2 hover:bg-button-outline-hover"
           >
             <td
-              class="text-blue-500 border-r-2 px-2"
+              class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 border-r-2 px-2 cursor-pointer"
               @click="activeVariableName = variable.name"
             >
               {{ variable.name }}
@@ -71,6 +71,7 @@ let activeVariableName = ref("");
     </div>
 
     <SideModal
+      :key="activeVariableName"
       :show="showSidePanel"
       :fullScreen="false"
       :slideInRight="true"

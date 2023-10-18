@@ -5,7 +5,7 @@ interface DefinitionListItem {
   type?: string;
   content: any;
 }
-const { small, items } = withDefaults(
+withDefaults(
   defineProps<{
     items: DefinitionListItem[];
     small?: boolean;
