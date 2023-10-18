@@ -130,18 +130,25 @@ onMounted(() => {
     }
 
     .link {
+      display: block;
+      text-align: center;
+      padding: 0.6em 0.2em;
+      border-radius: $borderRadius;
+      background-color: $ern-cranio-primary;
+      
       a {
-        display: block;
-        text-align: center;
-        padding: 8px 0;
-        border-radius: $borderRadius;
-        background-color: $ern-cranio-primary;
+        border-bottom: 2px solid transparent;
         color: $gray-000;
         @include textTransform(bold);
-        font-size: 10pt;
+        font-size: 0.85rem;
+        text-decoration: none;
+        
+        &:hover, &:focus {
+          border-bottom-color: currentColor;
+        }
 
         svg {
-          width: 11pt;
+          width: 10pt;
           stroke-width: 3px;
           margin-top: -4px;
         }
