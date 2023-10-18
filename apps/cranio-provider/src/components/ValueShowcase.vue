@@ -31,7 +31,7 @@ const props = defineProps({
   .icon {
     grid-area: icon;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     margin-right: 1em;
 
