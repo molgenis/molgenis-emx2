@@ -4,8 +4,6 @@ description: The Rare Disease Data about Data (RD3) sample tracker for Solve-RD
 
 models:   fairdatahub/beaconv2/molgenis.csv,
           fairdatahub/addons/molgenis.csv,
-          fairdatahub/fairdatapoint/molgenis.csv,
-          fairdatahub/metabolomics/molgenis.csv,
           fairdatahub/rd3/molgenis.csv,
           fairdatahub/ontologies/SEMANTICS.csv
 
