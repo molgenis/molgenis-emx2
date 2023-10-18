@@ -23,7 +23,7 @@
     "gportal"
   ],
   "devDependencies": {
-    "nx": "16.9.1",
+    "nx": "16.10.0",
     "nx-cloud": "latest"
   }
 }
