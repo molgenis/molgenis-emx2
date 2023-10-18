@@ -13,12 +13,15 @@ public class LabelToNameMapper implements NameMapper {
 
   @Override
   public String map(String label) {
+    if (label == null) {
+      return null;
+    }
     for (Column c : tableMetadata.getColumns()) {
       if (c.getLabels().get("en").equals(label)
           || label.toLowerCase().replace(" ", "").equals(c.getName().toLowerCase())) {
         return c.getName();
       }
     }
-    return null;
+    return label;
   }
 }

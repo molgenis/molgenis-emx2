@@ -75,8 +75,8 @@ public class TestTypeUtils {
   @Test
   void testConvertToTitleCase() {
     assertEquals("Table1", convertToTitleCase("table1"));
-    assertEquals("Table 1", convertToTitleCase("table_1"));
-    assertEquals("Table 1abc", convertToTitleCase("table_1abc"));
+    assertEquals("Table_1", convertToTitleCase("table_1"));
+    assertEquals("Table_1abc", convertToTitleCase("table_1abc"));
     assertEquals("Table a1abc", convertToTitleCase("tableA1abc"));
     assertEquals("Variable mappings", convertToTitleCase("variableMappings"));
     assertEquals("Variable mappings", convertToTitleCase("VariableMappings"));

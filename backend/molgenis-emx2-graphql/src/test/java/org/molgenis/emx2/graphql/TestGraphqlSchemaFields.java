@@ -396,7 +396,7 @@ public class TestGraphqlSchemaFields {
 
     // add table
     execute(
-        "mutation{change(tables:[{name:\"table1\",labels:[{locale:\"en\", value: \"table1\"}],descriptions:[{locale:\"en\", value: \"desc1\"}],columns:[{name:\"col1\", defaultValue: \"bla\", key:1, labels:[{locale:\"en\", value:\"column1\"}], descriptions:[{locale:\"en\", value:\"desc11\"}]}]}]){message}}");
+        "mutation{change(tables:[{name:\"table1\",labels:[{locale:\"en\", value: \"Table1\"}],descriptions:[{locale:\"en\", value: \"desc1\"}],columns:[{name:\"col1\", defaultValue: \"bla\", key:1, labels:[{locale:\"en\", value:\"Col1\"}], descriptions:[{locale:\"en\", value:\"desc11\"}]}]}]){message}}");
     JsonNode node =
         execute(
             "{_schema{tables{name,labels{locale,value},descriptions{locale,value},columns{name,key,defaultValue,labels{locale,value},descriptions{locale,value}}}}}");

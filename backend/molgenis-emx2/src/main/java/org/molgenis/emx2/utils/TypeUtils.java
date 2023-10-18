@@ -477,7 +477,7 @@ public class TypeUtils {
     return word.substring(0, 1).toLowerCase() + word.substring(1);
   }
 
-  private static Pattern WORD_FINDER = Pattern.compile("(([A-Z]?[a-z0-9]+)|([A-Za-z0-9]))");
+  private static Pattern WORD_FINDER = Pattern.compile("(([A-Z]?[a-z0-9_]+)|([A-Za-z0-9_]))");
 
   public static String convertToTitleCase(String value) {
     if (value == null) return null;

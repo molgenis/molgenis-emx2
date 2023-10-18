@@ -20,10 +20,10 @@ import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @Tag("slow")
-public class TestImportExportAllExamples {
+public class TestIOAllExamples {
 
   static Database db;
-  static String prefix = "allExamples";
+  static String prefix = TestIOAllExamples.class.getSimpleName();
 
   @BeforeAll
   public static void setup() {
@@ -68,7 +68,7 @@ public class TestImportExportAllExamples {
 
   @Test
   public void testDefaultValuesMetadata() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("8");
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "8");
     schema1.create(table("test", column("id").setDefaultValue("bla")));
     Schema result = executeCompare(schema1);
     assertEquals(

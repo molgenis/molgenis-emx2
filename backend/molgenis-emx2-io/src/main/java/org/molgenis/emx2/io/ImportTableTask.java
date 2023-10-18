@@ -34,14 +34,16 @@ public class ImportTableTask extends Task {
         "Table " + table.getName() + ": Counting rows & checking that all key columns are unique");
     source.processTable(
         tableNameInStore,
-        new RemoveSpaceNameMapper(),
+        new CaseAndSpaceInsensitiveNameMapper(table.getMetadata()),
         new ValidatePkeyProcessor(table.getMetadata(), this));
 
     // execute the actual loading, we can use index to find the size
     this.setTotal(this.getProgress());
     this.setDescription("Importing rows into " + table.getName());
     source.processTable(
-        tableNameInStore, new RemoveSpaceNameMapper(), new ImportRowProcesssor(table, this));
+        tableNameInStore,
+        new CaseAndSpaceInsensitiveNameMapper(table.getMetadata()),
+        new ImportRowProcesssor(table, this));
 
     // done
     if (getProgress() > 0) {
@@ -75,10 +77,11 @@ public class ImportTableTask extends Task {
 
         // column warning
         if (task.getProgress() == 0) {
-          LabelToNameMapper mapper = new LabelToNameMapper(metadata);
+          List<String> columnNames =
+              metadata.getDownloadColumnNames().stream().map(Column::getName).toList();
           warningColumns =
               row.getColumnNames().stream()
-                  .filter(name -> mapper.map(name) == null)
+                  .filter(name -> !columnNames.contains(name))
                   .collect(Collectors.toSet());
           if (!warningColumns.isEmpty()) {
             if (task.isStrict()) {

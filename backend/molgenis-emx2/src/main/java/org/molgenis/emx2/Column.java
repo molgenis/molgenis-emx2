@@ -165,7 +165,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   @Override
   public Map<String, String> getLabels() {
     Map<String, String> result = super.getLabels();
-    if (result.size() == 0) {
+    if (result.size() == 0 || result.get("en") == null) {
       // default label is derived
       return Map.of("en", convertToTitleCase(getName()));
     } else {

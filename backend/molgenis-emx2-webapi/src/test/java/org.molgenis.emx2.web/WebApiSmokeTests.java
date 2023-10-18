@@ -820,7 +820,7 @@ public class WebApiSmokeTests {
   public void downloadCsvTable() {
     Response response = downloadPet("/petStore/api/csv/Pet");
     assertTrue(
-        response.getBody().asString().contains("name,category,photoUrls,status,tags,weight"));
+        response.getBody().asString().contains("Name,Category,Photo urls,Status,Tags,Weight"));
     assertTrue(response.getBody().asString().contains("pooky,cat,,available,,9.4"));
     assertFalse(response.getBody().asString().contains("mg_"));
   }

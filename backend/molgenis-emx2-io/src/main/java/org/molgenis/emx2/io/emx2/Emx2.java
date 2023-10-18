@@ -324,7 +324,7 @@ public class Emx2 {
         if (i == 0) {
           result.append(words[i]);
         } else {
-          // all other words have first letter character case
+          // all other words have first letter upper character case
           result.append(words[i].substring(0, 1).toUpperCase());
 
           if (words[i].length() > 1) {
