@@ -13,11 +13,11 @@
     "graphql-request": "5.2.0",
     "molgenis-components": "*",
     "vue": "3.3.4",
-    "vue-router": "4.1.6"
+    "vue-router": "4.2.5"
   },
   "devDependencies": {
     "vite": "4.3.9",
-    "@vitejs/plugin-vue": "4.1.0",
+    "@vitejs/plugin-vue": "4.4.0",
     "prettier": "2.8.8"
   },
   "browserslist": [

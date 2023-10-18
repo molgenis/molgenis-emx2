@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { LocationQueryValue } from ".nuxt/vue-router";
 import { gql } from "graphql-request";
-import {
+import type {
   IColumn,
   ISection,
   ISchemaMetaData,
   ITableMetaData,
-} from "interfaces/types";
+} from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 const resourceName: string = route.params.resourceType as string;

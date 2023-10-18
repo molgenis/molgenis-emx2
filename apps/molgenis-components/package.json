@@ -44,11 +44,11 @@
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.2.3",
+    "@vitejs/plugin-vue": "4.4.0",
     "prettier": "2.8.8",
     "vite": "4.3.9",
     "vitest": "0.34.6",
-    "vue-router": "4.1.6",
+    "vue-router": "4.2.5",
     "vue-scrollto": "2.20.0"
   }
 }
