@@ -31,7 +31,7 @@ withDefaults(defineProps<Props>(), {
       </div>
       <slot name="title-suffix">
         <span
-          class="bg-blue-50 text-title-contrast flex justify-center rounded-full px-3 font-bold text-heading-sm"
+          class="bg-blue-50 text-title-contrast flex justify-center rounded-full px-3 py-1 font-bold text-heading-sm"
         >
           {{ count }}
         </span>

@@ -14,6 +14,7 @@ import graphql.schema.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class GraphqlTableFieldFactory {
   // static types
@@ -749,27 +750,19 @@ public class GraphqlTableFieldFactory {
           int count = 0;
           switch (mutationType) {
             case UPDATE:
-              count =
-                  table.update(
-                      GraphqlApiFactory.convertToRows(table.getMetadata(), rowsAslistOfMaps));
+              count = table.update(TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps));
               result.append("updated " + count + " records to " + tableName + "\n");
               break;
             case INSERT:
-              count =
-                  table.insert(
-                      GraphqlApiFactory.convertToRows(table.getMetadata(), rowsAslistOfMaps));
+              count = table.insert(TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps));
               result.append("inserted " + count + " records to " + tableName + "\n");
               break;
             case SAVE:
-              count =
-                  table.save(
-                      GraphqlApiFactory.convertToRows(table.getMetadata(), rowsAslistOfMaps));
+              count = table.save(TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps));
               result.append("upserted " + count + " records to " + tableName + "\n");
               break;
             case DELETE:
-              count =
-                  table.delete(
-                      GraphqlApiFactory.convertToRows(table.getMetadata(), rowsAslistOfMaps));
+              count = table.delete(TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps));
               result.append("delete " + count + " records from " + tableName + "\n");
               break;
           }

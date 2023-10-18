@@ -59,7 +59,7 @@ export interface ICohort {
   documentation?: IDocumentation[];
 }
 
-interface IVariable {
+export interface IVariable {
   name: string;
   label: string;
   description?: string;
@@ -263,3 +263,31 @@ export interface ISection {
   meta: IColumn;
   fields: ISectionField[];
 }
+
+// workaround needed as circular references are not supported for records
+export type KeyObject = {
+  [key: string]: KeyObject | string;
+};
+
+export interface IMapping {
+  sourceDataset: {
+    resource: {
+      id: string;
+    };
+    name: string;
+  };
+  targetVariable: {
+    dataset: {
+      resource: {
+        id: string;
+      };
+      name: string;
+    };
+    name: string;
+  };
+  match: {
+    name: string;
+  };
+}
+
+export type HarmonizationStatus = "unmapped" | "partial" | "complete";

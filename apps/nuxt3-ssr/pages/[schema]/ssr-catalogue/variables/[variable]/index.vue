@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
+import type { IVariable } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 
