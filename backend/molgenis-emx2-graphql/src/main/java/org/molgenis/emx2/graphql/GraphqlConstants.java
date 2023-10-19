@@ -7,6 +7,7 @@ public class GraphqlConstants {
   public static final String ANONYMOUS = "anonymous";
   public static final String COLUMNS = "columns";
   public static final String REQUIRED = "required";
+  public static final String DEFAULT_VALUE = "defaultValue";
   public static final String COLUMN_POSITION = "position";
   public static final String COLUMN_TYPE = "columnType";
   public static final String TABLE_TYPE = "tableType";

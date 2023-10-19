@@ -2,9 +2,8 @@ package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.semantics.RDFService.extractHost;
-import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
-import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
+import static org.molgenis.emx2.rdf.RDFService.*;
+import static org.molgenis.emx2.rdf.RDFUtils.*;
 
 import java.io.StringWriter;
 import java.net.URI;

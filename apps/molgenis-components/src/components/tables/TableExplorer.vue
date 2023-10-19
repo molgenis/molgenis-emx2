@@ -360,6 +360,7 @@
       :schemaName="schemaName"
       @close="handleModalClose"
       :locale="locale"
+      :apply-default-values="editMode === 'add'"
     />
 
     <ConfirmModal

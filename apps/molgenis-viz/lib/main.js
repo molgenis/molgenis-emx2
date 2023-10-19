@@ -32,7 +32,11 @@ import ColumnChart from "../src/components/viz/ColumnChart.vue";
 import DataTable from "../src/components/viz/DataTable.vue";
 import DataValueHighlights from "../src/components/viz/DataHighlights.vue";
 import GeoMercator from "../src/components/viz/GeoMercator.vue";
+import GroupedColumnChart from "../src/components/viz/GroupedColumnChart.vue";
 import PieChart from "../src/components/viz/PieChart.vue";
+import PieChart2 from "../src/components/viz/PieChart2.vue";
+import ProgressMeter from "../src/components/viz/ProgressMeter.vue";
+import ScatterPlot from "../src/components/viz/ScatterPlot.vue";
 
 // data
 import WorldGeoJson from "../src/data/world.geo.json";
@@ -74,12 +78,16 @@ export {
 
   // visualisations
   BarChart,
+  ChartLegend,
   ColumnChart,
   DataTable,
   DataValueHighlights,
   GeoMercator,
-  ChartLegend,
+  GroupedColumnChart,
   PieChart,
+  PieChart2,
+  ProgressMeter,
+  ScatterPlot,
 
   // datasets
   WorldGeoJson,

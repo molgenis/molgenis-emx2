@@ -82,21 +82,17 @@ export const buildRecordDetailsQueryFields = (
 };
 
 export const buildRecordListQueryFields = (
-  tableId: string,
+  tableName: string,
   schemaName: string,
   schemas: Record<string, ISchemaMetaData>
 ) => {
-  const keyFields = buildKeyFields(tableId, schemaName, schemas);
-
-  const tableMetaData = schemas[schemaName].tables.find(
-    (t: ITableMetaData) =>
-      t.id.toLocaleLowerCase() === tableId.toLocaleLowerCase()
-  );
+  const keyFields = buildKeyFields(tableName, schemaName, schemas);
+  const tableMetaData = getTableMetaData(schemas[schemaName], tableName);
 
   if (tableMetaData === undefined) {
     throw new Error(
-      "buildRecordListQueryFields; tableMetaData is undefined for tableId " +
-        tableId +
+      "buildRecordListQueryFields; tableMetaData is undefined for tableName " +
+        tableName +
         " in schema " +
         schemaName
     );
@@ -122,29 +118,30 @@ export const buildRecordListQueryFields = (
 
   const queryFields = [...new Set([...keyFields, ...additionalFields])];
 
-  const fieldsString = queryFields.reduce((acc: string, field: any) => {
-    if (Array.isArray(field)) {
-      return (acc += " { " + field + " } ");
-    } else {
-      return (acc += " " + field);
-    }
-  }, "");
+  const fieldsString = fieldsToQueryString(queryFields);
 
   return fieldsString;
 };
 
+const fieldsToQueryString = (fields: string[][]): string => {
+  return fields.reduce((acc: string, field: any) => {
+    if (Array.isArray(field)) {
+      return (acc += " { " + fieldsToQueryString(field) + " } ");
+    } else {
+      return (acc += " " + field);
+    }
+  }, "");
+};
+
 const buildKeyFields = (
-  tableId: string,
+  tableName: string,
   schemaName: string,
   schemas: Record<string, ISchemaMetaData>
 ) => {
   const schemaMetaData = schemas[schemaName];
-  const tableMetaData = schemaMetaData.tables.find(
-    (t: ITableMetaData) =>
-      t.id.toLocaleLowerCase() === tableId.toLocaleLowerCase()
-  );
+  const tableMetaData = getTableMetaData(schemaMetaData, tableName);
 
-  const keyFields = tableMetaData?.columns.reduce(
+  const keyFields = tableMetaData.columns.reduce(
     (acc: any, column: IColumn) => {
       if (column.key === 1) {
         if (isValueType(column)) {
@@ -155,7 +152,7 @@ const buildKeyFields = (
               "refTable is undefined for refColumn with id " +
                 column.id +
                 " in table " +
-                tableId +
+                tableName +
                 ""
             );
           } else {
@@ -206,17 +203,14 @@ export const extractExternalSchemas = (schemaMetaData: ISchemaMetaData) => {
 
 export const extractKeyFromRecord = (
   record: any,
-  tableId: string,
+  tableName: string,
   schemaId: string,
   schemas: Record<string, ISchemaMetaData>
 ) => {
   const schemaMetaData = schemas[schemaId];
-  const tableMetaData = schemaMetaData.tables.find(
-    (t: ITableMetaData) =>
-      t.id.toLocaleLowerCase() === tableId.toLocaleLowerCase()
-  );
+  const tableMetaData = getTableMetaData(schemaMetaData, tableName);
 
-  const key = tableMetaData?.columns.reduce((acc: any, column: IColumn) => {
+  const key = tableMetaData.columns.reduce((acc: any, column: IColumn) => {
     if (column.key === 1 && record[column.id]) {
       if (isValueType(column)) {
         acc[column.id] = record[column.id];
@@ -226,7 +220,7 @@ export const extractKeyFromRecord = (
             "refTable is undefined for refColumn with id " +
               column.id +
               " in table " +
-              tableId +
+              tableName +
               ""
           );
         } else {
@@ -264,4 +258,21 @@ export const buildFilterFromKeysObject = (keys: Record<string, string>) => {
     },
     {}
   );
+};
+
+export const getTableMetaData = (
+  schemaMetaData: ISchemaMetaData,
+  tableName: string
+): ITableMetaData => {
+  const tableMetaData = schemaMetaData.tables.find(
+    (t: ITableMetaData) =>
+      t.name.toLocaleLowerCase() === tableName.toLocaleLowerCase()
+  );
+
+  if (tableMetaData === undefined) {
+    const msg = "ERROR: tableMetaData is undefined for tableName " + tableName;
+    console.log(msg);
+    throw new Error(msg);
+  }
+  return tableMetaData;
 };

@@ -1,4 +1,4 @@
-import { IColumn, ITableMetaData } from "interfaces/types";
+import type { IColumn, ITableMetaData } from "~/interfaces/types";
 
 export const toHeadings = (tableMetaData: ITableMetaData) => {
   return tableMetaData.columns.filter(

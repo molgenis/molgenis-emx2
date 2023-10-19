@@ -9,6 +9,7 @@
       :schemaName="schemaName"
       :defaultValue="defaultValue"
       :visibleColumns="visibleColumns"
+      :applyDefaultValues="true"
       @close="handleClose"
     />
   </span>

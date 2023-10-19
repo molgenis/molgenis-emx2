@@ -147,8 +147,9 @@ public class BeaconApi {
   static List<Table> getTableFromAllSchemas(String tableName, Request request) {
     List<Table> tables = new ArrayList<>();
     Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
+    Database database = sessionManager.getSession(request).getDatabase();
     for (String sn : schemaNames) {
-      Schema schema = sessionManager.getSession(request).getDatabase().getSchema(sn);
+      Schema schema = database.getSchema(sn);
       Table t = schema.getTable(tableName);
       if (t != null) {
         tables.add(t);

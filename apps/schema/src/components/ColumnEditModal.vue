@@ -128,6 +128,13 @@
                   label="isReadonly"
                 />
               </div>
+              <div class="col-4" v-if="isEditable(column)">
+                <InputString
+                  id="column_default"
+                  v-model="column.defaultValue"
+                  label="defaultValue"
+                />
+              </div>
             </div>
             <div class="row">
               <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
@@ -220,6 +227,9 @@
             :tableMetaData="table"
             :tableName="table.name"
             :key="JSON.stringify(table)"
+            :applyDefaultValues="true"
+            :errorPerColumn="rowErrors"
+            @update:model-value="checkForErrors"
           />
           Values:
           {{ previewData }}
@@ -266,6 +276,7 @@ import {
   RowEdit,
   Spinner,
   deepClone,
+  getRowErrors,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 
@@ -340,6 +351,7 @@ export default {
       loading: false,
       previewShow: false,
       previewData: {},
+      rowErrors: {},
     };
   },
   computed: {
@@ -491,6 +503,9 @@ export default {
         !column.computed &&
         column.columnType !== AUTO_ID
       );
+    },
+    checkForErrors() {
+      this.rowErrors = getRowErrors(this.table, this.previewData);
     },
   },
   created() {
