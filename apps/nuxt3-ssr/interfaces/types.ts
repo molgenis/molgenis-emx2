@@ -61,6 +61,15 @@ export interface ICohort {
 
 export interface IVariableBase {
   name: string;
+  resource: {
+    id: string;
+  };
+  dataset: {
+    name: string;
+    resource: {
+      id: string;
+    };
+  };
   label: string;
   description?: string;
 }
@@ -198,7 +207,7 @@ export interface IFilter extends IBaseFilter {
   search?: string;
 }
 
-interface IFormField {
+export interface IFormField {
   name: string;
   label: string;
   fieldValue: string; // value is taken by vue reactivity
@@ -207,7 +216,7 @@ interface IFormField {
   message?: string;
 }
 
-interface IContactFormData {
+export interface IContactFormData {
   recipientsFilter: string;
   subject: string;
   body: string;

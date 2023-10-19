@@ -5,7 +5,8 @@ const config = useRuntimeConfig();
 const route = useRoute();
 
 const query = moduleToString(variableQuery);
-const variables = { name: route.params.variable };
+const { key } = useQueryParams();
+const variables = key;
 let variable: VariableDetailsWithMapping;
 let cohorts: { id: string }[];
 

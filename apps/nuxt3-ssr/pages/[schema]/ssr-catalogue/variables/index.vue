@@ -60,6 +60,15 @@ const query = computed(() => {
   query Variables($filter:VariablesFilter, $orderby:Variablesorderby){
     Variables(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       name
+      resource {
+        id
+      }
+      dataset {
+        name
+        resource {
+          id
+        }
+      }
       label
       description
       mappings {
