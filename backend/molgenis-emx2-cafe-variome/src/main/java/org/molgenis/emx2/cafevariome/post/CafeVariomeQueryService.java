@@ -41,8 +41,17 @@ public class CafeVariomeQueryService {
     if (query.hasReactome()) {
       filters.addAll(makeReactomeFilter(query.getReactomeQuery()));
     }
+    if (query.hasGene()) {
+      filters.addAll(makeGeneFilter(query.getGeneQuery()));
+    }
+    if (query.hasDemography()) {
+      filters.addAll(makeDemographyFilter(query.getDemographyQuery()));
+    }
+    // TODO how about EAV ?
+
     List<IndividualsResultSets> individualsResultSets =
         queryIndividuals(tables, filters.toArray(new String[0]));
+
     QueryResponse response = ResultSetToResponse.transform(tables, individualsResultSets);
     return response;
   }
