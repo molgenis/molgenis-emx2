@@ -6,12 +6,12 @@ import stat
 
 
 class Zip:
-    """Update catalogue data model from 2.8 to 3.0.
+    """Functions to zip and unzip data
     """
 
     def __init__(self, database):
         self.database = database
-        self.path = './files/' + self.database + '_data/'
+        self.path = './files/' + self.database
         self.logger = logging.getLogger(' data update and transform')
 
     def remove_unzipped_data(self):
@@ -26,7 +26,7 @@ class Zip:
     def unzip_data(self):
         """Extract data.zip
         """
-        data = ZipFile('./files/' + self.database + '_data.zip')
+        data = ZipFile(self.path + '.zip')
         try:
             data.extractall(self.path)
         except FileNotFoundError:
@@ -35,14 +35,8 @@ class Zip:
         except PermissionError:
             self.logger.error('Error: unzip failed, permission denied')
             exit()
-        try:
-            if os.path.exists('./files/' + self.database + '_data.zip'):
-                os.remove('./files/' + self.database + '_data.zip')
-        except PermissionError:
-            # remove fails on windows, is not needed on Windows, pass
-            self.logger.warning('Warning: Error deleting ' + self.database + '_data.zip')
 
     def zip_data(self):
         """Zip transformed data to upload.zip
         """
-        shutil.make_archive('./files/' + self.database + '_upload', 'zip', self.path)
+        shutil.make_archive('./files/' + self.database, 'zip', self.path)
