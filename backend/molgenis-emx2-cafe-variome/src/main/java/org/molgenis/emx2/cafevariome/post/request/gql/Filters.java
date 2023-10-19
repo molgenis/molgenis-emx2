@@ -33,7 +33,7 @@ public class Filters {
     List<String> filters = new ArrayList<>();
     String ordoTerm = ordoQuery.getSearchTerm();
     if (ordoTerm.startsWith("ORPHA:")) {
-      ordoTerm = ordoTerm.replace("ORPHA:", "ORPHA_");
+      ordoTerm = ordoTerm.replace("ORPHA:", "Orphanet_");
     } else {
       System.out.println("ordoTerm=" + ordoTerm);
       throw new Exception("Expected input ORDO term to start with 'ORPHA:'");
