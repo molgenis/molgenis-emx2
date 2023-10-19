@@ -1,25 +1,13 @@
 <script setup lang="ts">
 import type { IVariable } from "~/interfaces/types";
+import { getKey } from "~/utils/variableUtils";
 
 const props = defineProps<{
   variable: IVariable;
   schema: string;
 }>();
 
-const variableKey = computed(() => {
-  return {
-    name: props.variable.name,
-    resource: {
-      id: props.variable.resource.id,
-    },
-    dataset: {
-      name: props.variable.dataset.name,
-      resource: {
-        id: props.variable.dataset.resource.id,
-      },
-    },
-  };
-});
+const variableKey = computed(() => getKey(props.variable));
 
 const resourcePathId = resourceIdPath(variableKey.value);
 </script>

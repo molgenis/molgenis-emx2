@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ICohort, IVariableWithMappings } from "~/interfaces/types";
+import { getKey } from "~/utils/variableUtils";
 const route = useRoute();
 
 const props = defineProps<{
@@ -11,8 +12,21 @@ const statusMap = computed(() =>
   calcHarmonizationStatus(props.variables, props.cohorts)
 );
 
-let showSidePanel = computed(() => activeVariableName.value !== "");
-let activeVariableName = ref("");
+let activeRowIndex = ref(-1);
+
+// list of optional computed values that are non null when the side panel is shown
+let showSidePanel = computed(() => activeRowIndex.value !== -1);
+let activeVariable = computed(() =>
+  showSidePanel ? props.variables[activeRowIndex.value] : null
+);
+
+let activeVariableKey = computed(() =>
+  activeVariable.value ? getKey(activeVariable.value) : null
+);
+
+let activeVariablePath = computed(() =>
+  activeVariableKey.value ? resourceIdPath(activeVariableKey.value) : ""
+);
 </script>
 
 <template>
@@ -44,7 +58,7 @@ let activeVariableName = ref("");
           >
             <td
               class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 border-r-2 px-2 cursor-pointer"
-              @click="activeVariableName = variable.name"
+              @click="activeRowIndex = rowIndex"
             >
               {{ variable.name }}
             </td>
@@ -58,18 +72,20 @@ let activeVariableName = ref("");
     </div>
 
     <SideModal
-      :key="activeVariableName"
+      :key="activeRowIndex"
       :show="showSidePanel"
       :fullScreen="false"
       :slideInRight="true"
-      @close="activeVariableName = ''"
+      @close="activeRowIndex = -1"
       buttonAlignment="right"
     >
-      <VariableDisplay :name="activeVariableName" />
+      <template v-if="activeVariableKey">
+        <VariableDisplay :variableKey="activeVariableKey" />
+      </template>
 
       <template #footer>
         <NuxtLink
-          :to="`/${route.params.schema}/ssr-catalogue/variables/${activeVariableName}`"
+          :to="`/${route.params.schema}/ssr-catalogue/variables/${activeVariablePath}`"
         >
           <Button type="primary" size="small" label="More details " />
         </NuxtLink>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import ContentBlockModal from "./content/ContentBlockModal.vue";
+import { KeyObject } from "~/interfaces/types";
 import variableQuery from "~~/gql/variable";
 
 const query = moduleToString(variableQuery);
 
 const props = defineProps<{
-  name: string;
+  variableKey: KeyObject;
 }>();
 
 const config = useRuntimeConfig();
@@ -18,9 +18,7 @@ const { data, pending, error } = await useFetch(
     method: "POST",
     body: {
       query: query,
-      variables: {
-        name: props.name,
-      },
+      variables: { filter: buildFilterFromKeysObject(props.variableKey) },
     },
   }
 ).catch((e) => console.log(e));

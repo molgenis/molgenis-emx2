@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 export default gql`
-  query Variables($name: String) {
-    Variables(filter: { name: { equals: [$name] } }) {
+  query Variables($filter: VariablesFilter) {
+    Variables(filter: $filter) {
       name
       label
       description
@@ -51,9 +51,7 @@ export default gql`
       id
       name
     }
-    RepeatedVariables_agg(
-      filter: { isRepeatOf: { name: { equals: [$name] } } }
-    ) {
+    RepeatedVariables_agg(filter: { isRepeatOf: $filter }) {
       count
     }
   }

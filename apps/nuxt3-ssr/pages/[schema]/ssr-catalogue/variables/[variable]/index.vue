@@ -6,7 +6,8 @@ const route = useRoute();
 
 const query = moduleToString(variableQuery);
 const { key } = useQueryParams();
-const variables = key;
+const filter = buildFilterFromKeysObject(key);
+
 let variable: VariableDetailsWithMapping;
 let cohorts: { id: string }[];
 
@@ -18,7 +19,7 @@ const { data, pending, error, refresh } = await useFetch(
   {
     baseURL: config.public.apiBase,
     method: "POST",
-    body: { query, variables },
+    body: { query, variables: { filter } },
   }
 );
 
