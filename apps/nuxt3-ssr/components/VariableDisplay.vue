@@ -45,6 +45,6 @@ const items = computed(() => [
     :description="data.data?.Variables[0].description"
     sub-title="Variable"
   >
-    <DefinitionList :items="items" :small="true" />
+    <CatalogueItemList :items="items" :small="true" />
   </ContentBlockModal>
 </template>

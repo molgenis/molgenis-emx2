@@ -41,8 +41,8 @@ const activeMappingDescription = computed(() => {
     </div>
   </div>
 
-  <DefinitionList
-    :items="[
+  <!-- {{ variable.mappings }} -->
+  <!-- :items="[
       {
         label: 'Cohort',
         content: cohorts[activeIndex].id,
@@ -61,8 +61,38 @@ const activeMappingDescription = computed(() => {
       },
       {
         label: 'Syntax',
-        content: 'None',
+        content: variable.mappings?.find(
+          (mapping) => mapping.sourceDataset.resource.id === cohorts[activeIndex].id
+        )?.syntax || 'None',
       },
-    ]"
-  />
+    ]" -->
+  <DefinitionList>
+    <DefinitionListTerm>Cohort</DefinitionListTerm>
+    <DefinitionListDefinition>
+      {{ cohorts[activeIndex].id }}
+    </DefinitionListDefinition>
+
+    <DefinitionListTerm>Harmonization status</DefinitionListTerm>
+    <DefinitionListDefinition>
+      <HarmonizationStatus :status="statusPerCohort[activeIndex]" />
+    </DefinitionListDefinition>
+
+    <DefinitionListTerm>Description</DefinitionListTerm>
+    <DefinitionListDefinition>{{
+      activeMappingDescription
+    }}</DefinitionListDefinition>
+
+    <DefinitionListTerm>Variables used</DefinitionListTerm>
+    <DefinitionListDefinition> None </DefinitionListDefinition>
+
+    <DefinitionListTerm>Syntax</DefinitionListTerm>
+    <DefinitionListDefinition>
+      {{
+        variable.mappings?.find(
+          (mapping) =>
+            mapping.sourceDataset.resource.id === cohorts[activeIndex].id
+        )?.syntax || "None"
+      }}
+    </DefinitionListDefinition>
+  </DefinitionList>
 </template>

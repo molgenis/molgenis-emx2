@@ -67,7 +67,7 @@ let tocItems = reactive([
           title="Description"
           :description="variable?.description"
         >
-          <DefinitionList
+          <CatalogueItemList
             :items="[
               {
                 label: 'Unit',
@@ -83,7 +83,7 @@ let tocItems = reactive([
               },
             ]"
           >
-          </DefinitionList>
+          </CatalogueItemList>
         </ContentBlock>
 
         <ContentBlock

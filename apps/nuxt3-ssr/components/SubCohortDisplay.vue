@@ -124,6 +124,6 @@ if (subcohort?.inclusionCriteria) {
     :title="subcohort?.name"
     :description="subcohort?.description"
   >
-    <DefinitionList :items="items" :small="true" />
+    <CatalogueItemList :items="items" :small="true" />
   </ContentBlockModal>
 </template>

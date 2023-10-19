@@ -138,7 +138,7 @@ useHead({ title: subcohort?.name });
     <template #main>
       <ContentBlocks v-if="subcohort">
         <ContentBlock id="details" title="Details">
-          <DefinitionList :items="items" />
+          <CatalogueItemList :items="items" />
         </ContentBlock>
         <ContentBlock
           v-if="subcohort.ageGroups"

@@ -67,6 +67,6 @@ if (cohort?.numberOfParticipantsWithSamples) {
     :description="cohort?.description"
     v-if="cohort"
   >
-    <DefinitionList :items="items" :small="true" />
+    <CatalogueItemList :items="items" :small="true" />
   </ContentBlockModal>
 </template>

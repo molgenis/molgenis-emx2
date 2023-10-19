@@ -430,7 +430,7 @@ const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
             cohort?.releaseDescription
           "
         >
-          <DefinitionList :items="accessConditionsItems" />
+          <CatalogueItemList :items="accessConditionsItems" />
         </ContentBlock>
 
         <ContentBlock
@@ -438,7 +438,7 @@ const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
           title="Funding &amp; Citation requirements "
           v-if="cohort?.fundingStatement || cohort?.acknowledgements"
         >
-          <DefinitionList :items="fundingAndAcknowledgementItems" />
+          <CatalogueItemList :items="fundingAndAcknowledgementItems" />
         </ContentBlock>
 
         <ContentBlockAttachedFiles

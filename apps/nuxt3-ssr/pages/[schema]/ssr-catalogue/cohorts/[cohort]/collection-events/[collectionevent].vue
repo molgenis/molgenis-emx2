@@ -139,7 +139,7 @@ useHead({ title: collectionEvent?.name });
     <template #main>
       <ContentBlocks v-if="collectionEvent">
         <ContentBlock v-if="collectionEvent" id="details" title="Details">
-          <DefinitionList :items="items" :collapse-all="false" />
+          <CatalogueItemList :items="items" :collapse-all="false" />
         </ContentBlock>
         <ContentBlock
           v-if="collectionEvent.ageGroups"
@@ -183,7 +183,7 @@ useHead({ title: collectionEvent?.name });
             :tree="standardizedToolsTree"
             :collapse-all="false"
           />
-          <DefinitionList
+          <CatalogueItemList
             v-if="collectionEvent.standardizedToolsOther"
             class="mt-6"
             :items="[
