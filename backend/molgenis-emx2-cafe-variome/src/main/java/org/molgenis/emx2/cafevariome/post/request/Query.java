@@ -78,15 +78,22 @@ public class Query {
 
   @Override
   public String toString() {
-    return "Query{" +
-            "requiredQuery=" + requiredQuery +
-            ", hpoQuery=" + hpoQuery +
-            ", eavQuery=" + eavQuery +
-            ", ordoQuery=" + ordoQuery +
-            ", reactomeQuery=" + reactomeQuery +
-            ", geneQuery=" + Arrays.toString(geneQuery) +
-            ", demographyQuery=" + demographyQuery +
-            '}';
+    return "Query{"
+        + "requiredQuery="
+        + requiredQuery
+        + ", hpoQuery="
+        + hpoQuery
+        + ", eavQuery="
+        + eavQuery
+        + ", ordoQuery="
+        + ordoQuery
+        + ", reactomeQuery="
+        + reactomeQuery
+        + ", geneQuery="
+        + Arrays.toString(geneQuery)
+        + ", demographyQuery="
+        + demographyQuery
+        + '}';
   }
 
   public boolean hasHPO() {

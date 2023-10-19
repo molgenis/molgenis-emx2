@@ -5,7 +5,6 @@ import static org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp.EJP_VP_
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.molgenis.emx2.cafevariome.post.request.query.DemographyQuery;
 import org.molgenis.emx2.cafevariome.post.request.query.GeneReactomeQuery;
 import org.molgenis.emx2.cafevariome.post.request.query.HPOQuery;
@@ -47,6 +46,7 @@ public class Filters {
 
   /**
    * No support yet
+   *
    * @param reactomeQuery
    * @return
    * @throws Exception
@@ -58,6 +58,7 @@ public class Filters {
 
   /**
    * Only support direct match on HGNC symbol
+   *
    * @param geneQuery
    * @return
    * @throws Exception
@@ -65,8 +66,7 @@ public class Filters {
   public static List<String> makeGeneFilter(GeneReactomeQuery[] geneQuery) throws Exception {
     List<String> filters = new ArrayList<>();
     String[] values = new String[geneQuery.length];
-    for(int i = 0; i < geneQuery.length; i ++)
-    {
+    for (int i = 0; i < geneQuery.length; i++) {
       values[i] = geneQuery[i].getId();
     }
     filters.add(valueArrayFilterBuilder("{diseaseCausalGenes: {name: {equals:", values));
@@ -74,15 +74,19 @@ public class Filters {
   }
 
   /**
-   * TODO: most of this
-   * minAge and maxAge are really tricky since there are multiple ways to store age, some of which (i.e. ISO8601) need to be fully parsed first (see EJP_VP_IndividualsQuery) before logic can be applied
+   * TODO: most of this minAge and maxAge are really tricky since there are multiple ways to store
+   * age, some of which (i.e. ISO8601) need to be fully parsed first (see EJP_VP_IndividualsQuery)
+   * before logic can be applied
+   *
    * @param demographyQuery
    * @return
    * @throws Exception
    */
-  public static List<String> makeDemographyFilter(DemographyQuery demographyQuery) throws Exception {
+  public static List<String> makeDemographyFilter(DemographyQuery demographyQuery)
+      throws Exception {
     List<String> filters = new ArrayList<>();
-    filters.add(valueArrayFilterBuilder("{sex: {ontologyTermURI: {like:", demographyQuery.getGender()));
+    filters.add(
+        valueArrayFilterBuilder("{sex: {ontologyTermURI: {like:", demographyQuery.getGender()));
     return filters;
   }
 }
