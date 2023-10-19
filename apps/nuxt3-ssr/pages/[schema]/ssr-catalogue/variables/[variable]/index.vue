@@ -83,12 +83,24 @@ let tocItems = reactive([
           >
           </DefinitionList>
         </ContentBlock>
+
         <ContentBlock
-          id="harmonization-per-cohort"
+          id="harmonization-status-per-cohort"
           title="Harmonization status per Cohort"
           description="Overview of the harmonization status per Cohort"
         >
           <HarmonizationListPerVariable
+            :variable="variable"
+            :cohorts="cohorts"
+          />
+        </ContentBlock>
+
+        <ContentBlock
+          id="harmonization--details per-cohort"
+          title="Harmonization details per Cohort"
+          description="Explanation about available data and the functionality seen here."
+        >
+          <HarmonizationVariableDetails
             :variable="variable"
             :cohorts="cohorts"
           />

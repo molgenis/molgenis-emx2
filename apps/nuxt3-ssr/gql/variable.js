@@ -12,6 +12,8 @@ export default gql`
         name
       }
       mappings {
+        syntax
+        description
         source {
           id
           name
@@ -28,6 +30,8 @@ export default gql`
       repeats {
         name
         mappings {
+          syntax
+          description
           source {
             id
             name

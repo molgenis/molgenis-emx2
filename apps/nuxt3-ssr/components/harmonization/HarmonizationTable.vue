@@ -7,32 +7,19 @@ const props = defineProps<{
   cohorts: ICohort[];
 }>();
 
-const statusMap = computed(() => {
-  return props.variables.map((v) => {
-    return props.cohorts.map((c) => {
-      if (!Array.isArray(v.mappings)) {
-        // no mapping
-        return "unmapped";
-      } else if (v.repeats) {
-        // handle repeats
-        return calcStatusForRepeatingVariable(v, c);
-      } else {
-        // handle non repeating
-        return calcStatusForSingleVariable(v, c);
-      }
-    });
-  });
-});
+const statusMap = computed(() =>
+  calcHarmonizationStatus(props.variables, props.cohorts)
+);
 
 let showSidePanel = computed(() => activeVariableName.value !== "");
 let activeVariableName = ref("");
 </script>
 
 <template>
-  <!-- temp 'fix' for table y overflow -->
   <div class="pb-5 relative">
     <HarmonizationLegend class="flex-row-reverse" />
 
+    <!-- temp 'fix' for table y overflow -->
     <div class="overflow-x-auto max-w-table">
       <table class="table-auto">
         <thead>

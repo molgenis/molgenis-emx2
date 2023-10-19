@@ -7,20 +7,9 @@ const props = defineProps<{
   cohorts: { id: string }[];
 }>();
 
-const harmonizationPerCohort = computed(() => {
-  return props.cohorts.map((cohort) => {
-    if (!Array.isArray(props.variable.mappings)) {
-      // no mapping
-      return "unmapped";
-    } else if (props.variable.repeats) {
-      // handle repeats
-      return calcStatusForRepeatingVariable(props.variable, cohort);
-    } else {
-      // handle non repeating
-      return calcStatusForSingleVariable(props.variable, cohort);
-    }
-  });
-});
+const harmonizationPerCohort = computed(
+  () => calcHarmonizationStatus([props.variable], props.cohorts)[0]
+);
 </script>
 <template>
   <div class="grid grid-cols-3 gap-4">

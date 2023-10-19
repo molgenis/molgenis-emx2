@@ -117,6 +117,7 @@ const query = computed(() => {
 });
 
 const orderby = { label: "ASC" };
+const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
 
 const filter = computed(() => buildQueryFilter(filters, search.value));
 
@@ -127,7 +128,7 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   method: "POST",
   body: {
     query,
-    variables: { orderby, filter },
+    variables: { orderby, filter: { ...filter.value, ...typeFilter } },
   },
 });
 

@@ -283,6 +283,8 @@ export type KeyObject = {
 };
 
 export interface IMapping {
+  syntax: string;
+  description: string;
   sourceDataset: {
     resource: {
       id: string;

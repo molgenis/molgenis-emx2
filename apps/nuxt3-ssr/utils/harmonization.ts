@@ -1,5 +1,4 @@
 import {
-  ICohort,
   HarmonizationStatus,
   IVariableWithMappings,
   IVariableBase,
@@ -8,7 +7,27 @@ import {
 type IRepeatingVariableWithMapping = IVariableWithMappings;
 type INonRepeatingVariableWithMapping = IVariableBase & IVariableWithMappings;
 
-export const calcStatusForSingleVariable = (
+export const calcHarmonizationStatus = (
+  variables: IVariableWithMappings[],
+  cohorts: { id: string }[]
+) => {
+  return variables.map((v) => {
+    return cohorts.map((c) => {
+      if (!Array.isArray(v.mappings)) {
+        // no mapping
+        return "unmapped";
+      } else if (v.repeats) {
+        // handle repeats
+        return calcStatusForRepeatingVariable(v, c);
+      } else {
+        // handle non repeating
+        return calcStatusForSingleVariable(v, c);
+      }
+    });
+  });
+};
+
+const calcStatusForSingleVariable = (
   variable: INonRepeatingVariableWithMapping,
   cohort: { id: string }
 ): HarmonizationStatus => {
@@ -30,7 +49,7 @@ export const calcStatusForSingleVariable = (
   }
 };
 
-export const calcStatusForRepeatingVariable = (
+const calcStatusForRepeatingVariable = (
   variable: IRepeatingVariableWithMapping,
   cohort: { id: string }
 ): HarmonizationStatus => {
