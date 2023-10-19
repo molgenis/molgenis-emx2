@@ -1,6 +1,6 @@
 ---
 name: RD3
-description: The Rare Disease Data about Data (RD3) sample tracker for Solve-RD
+description: The Rare Disease Data about Data (RD3) database for Solve-RD
 
 models:   fairdatahub/beaconv2/molgenis.csv,
           fairdatahub/addons/molgenis.csv,
