@@ -15,6 +15,9 @@ public class JsonHPOQueryParser {
    * @throws Exception
    */
   public static boolean hasHPOParams(JsonQuery request) throws Exception {
+    if (request.getQuery().getComponents().getSim() == null) {
+      return false;
+    }
     int simLength = request.getQuery().getComponents().getSim().length;
 
     if (simLength == 0) {

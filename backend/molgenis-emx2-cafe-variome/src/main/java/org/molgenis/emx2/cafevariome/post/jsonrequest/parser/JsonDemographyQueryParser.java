@@ -15,8 +15,10 @@ public class JsonDemographyQueryParser {
    * @throws Exception
    */
   public static boolean hasDemographyParams(JsonQuery request) throws Exception {
+    if (request.getQuery().getComponents().getDemography() == null) {
+      return false;
+    }
     int demographyLength = request.getQuery().getComponents().getDemography().length;
-
     if (demographyLength == 0) {
       return false;
     } else if (demographyLength > 1) {

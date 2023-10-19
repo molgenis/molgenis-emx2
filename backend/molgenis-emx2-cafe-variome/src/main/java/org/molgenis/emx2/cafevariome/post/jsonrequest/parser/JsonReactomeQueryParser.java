@@ -15,8 +15,10 @@ public class JsonReactomeQueryParser {
    * @throws Exception
    */
   public static boolean hasReactomeParams(JsonQuery request) throws Exception {
+    if (request.getQuery().getComponents().getReactome() == null) {
+      return false;
+    }
     int reactomeLength = request.getQuery().getComponents().getReactome().length;
-
     if (reactomeLength == 0) {
       return false;
     } else if (reactomeLength > 1) {

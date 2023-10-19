@@ -15,6 +15,9 @@ public class JsonGeneQueryParser {
    * @throws Exception
    */
   public static boolean hasGeneParams(JsonQuery request) throws Exception {
+    if (request.getQuery().getComponents().getGene() == null) {
+      return false;
+    }
     int geneLength = request.getQuery().getComponents().getGene().length;
     if (geneLength == 0) {
       return false;

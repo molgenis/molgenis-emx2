@@ -16,8 +16,10 @@ public class JsonORDOQueryParser {
    * @throws Exception
    */
   public static boolean hasORDOParams(JsonQuery request) throws Exception {
+    if (request.getQuery().getComponents().getOrdo() == null) {
+      return false;
+    }
     int ordoLength = request.getQuery().getComponents().getOrdo().length;
-
     if (ordoLength == 0) {
       return false;
     } else if (ordoLength > 1) {
