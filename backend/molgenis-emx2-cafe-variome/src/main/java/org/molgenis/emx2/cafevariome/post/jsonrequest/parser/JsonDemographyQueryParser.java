@@ -8,7 +8,7 @@ import org.molgenis.emx2.cafevariome.post.request.query.DemographyQuery;
 public class JsonDemographyQueryParser {
 
   /**
-   * Check if request has an ORDO query
+   * Check if request has an Demography query
    *
    * @param request
    * @return

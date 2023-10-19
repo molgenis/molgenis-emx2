@@ -57,6 +57,9 @@ public class JsonHPOQueryParser {
    * @return
    */
   public static boolean stringsInArrayProvided(String[] strArr) {
+    if (strArr.length == 0) {
+      return false;
+    }
     for (String str : strArr) {
       if (!stringProvided(str)) {
         System.out.println("array problem");

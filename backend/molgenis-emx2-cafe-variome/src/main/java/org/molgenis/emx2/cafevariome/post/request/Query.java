@@ -8,11 +8,10 @@ import static org.molgenis.emx2.cafevariome.post.request.parser.ORDOQueryParser.
 import static org.molgenis.emx2.cafevariome.post.request.parser.ORDOQueryParser.hasORDOParams;
 import static org.molgenis.emx2.cafevariome.post.request.parser.RequiredQueryParser.getRequiredQueryFromRequest;
 
+import java.util.Arrays;
 import java.util.Map;
 import org.molgenis.emx2.cafevariome.post.jsonrequest.JsonQuery;
-import org.molgenis.emx2.cafevariome.post.jsonrequest.parser.JsonHPOQueryParser;
-import org.molgenis.emx2.cafevariome.post.jsonrequest.parser.JsonORDOQueryParser;
-import org.molgenis.emx2.cafevariome.post.jsonrequest.parser.JsonReactomeQueryParser;
+import org.molgenis.emx2.cafevariome.post.jsonrequest.parser.*;
 import org.molgenis.emx2.cafevariome.post.request.query.*;
 
 public class Query {
@@ -21,7 +20,9 @@ public class Query {
   private HPOQuery hpoQuery;
   private EAVQuery eavQuery;
   private ORDOQuery ordoQuery;
-  private ReactomeQuery reactomeQuery;
+  private GeneReactomeQuery reactomeQuery;
+  private GeneReactomeQuery[] geneQuery;
+  private DemographyQuery demographyQuery;
 
   /**
    * @param request
@@ -63,29 +64,29 @@ public class Query {
     if (JsonReactomeQueryParser.hasReactomeParams(request)) {
       this.reactomeQuery = JsonReactomeQueryParser.getReactomeQueryFromRequest(request);
     }
-
-    // TODO
-    //    if (hasORDOParams(request)) {
-    //      this.ordoQuery = getORDOQueryFromRequest(request);
-    //    }
+    if (JsonGeneQueryParser.hasGeneParams(request)) {
+      this.geneQuery = JsonGeneQueryParser.getGeneQueryFromRequest(request);
+    }
+    if (JsonDemographyQueryParser.hasDemographyParams(request)) {
+      this.demographyQuery = JsonDemographyQueryParser.getDemographyQueryFromRequest(request);
+    }
+    // TODO?
     //    if (hasEAVParams(request)) {
     //      this.eavQuery = getEAVQueryFromRequest(request);
     //    }
-
   }
 
   @Override
   public String toString() {
-    return "QueryComponents{"
-        + "requiredQuery="
-        + requiredQuery
-        + ", hpoQuery="
-        + hpoQuery
-        + ", eavQuery="
-        + eavQuery
-        + ", ordoQuery="
-        + ordoQuery
-        + '}';
+    return "Query{" +
+            "requiredQuery=" + requiredQuery +
+            ", hpoQuery=" + hpoQuery +
+            ", eavQuery=" + eavQuery +
+            ", ordoQuery=" + ordoQuery +
+            ", reactomeQuery=" + reactomeQuery +
+            ", geneQuery=" + Arrays.toString(geneQuery) +
+            ", demographyQuery=" + demographyQuery +
+            '}';
   }
 
   public boolean hasHPO() {
@@ -94,6 +95,14 @@ public class Query {
 
   public boolean hasORDO() {
     return ordoQuery != null;
+  }
+
+  public boolean hasGene() {
+    return geneQuery != null;
+  }
+
+  public boolean hasDemography() {
+    return demographyQuery != null;
   }
 
   public boolean hasReactome() {
@@ -108,6 +117,14 @@ public class Query {
     return requiredQuery;
   }
 
+  public GeneReactomeQuery[] getGeneQuery() {
+    return geneQuery;
+  }
+
+  public DemographyQuery getDemographyQuery() {
+    return demographyQuery;
+  }
+
   public void setRequiredQuery(RequiredQuery requiredQuery) {
     this.requiredQuery = requiredQuery;
   }
@@ -116,7 +133,7 @@ public class Query {
     return hpoQuery;
   }
 
-  public ReactomeQuery getReactomeQuery() {
+  public GeneReactomeQuery getReactomeQuery() {
     return reactomeQuery;
   }
 
