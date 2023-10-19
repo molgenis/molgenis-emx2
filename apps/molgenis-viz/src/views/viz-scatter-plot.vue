@@ -1,9 +1,9 @@
 <template>
   <Page>
     <PageHeader
-      title="RD-Components"
+      title="molgenis-viz"
       subtitle="Scatter Plot"
-      :imageSrc="headerImage"
+      imageSrc="scatter-plot-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -27,16 +27,17 @@
       </p>
     </PageSection>
     <PageSection class="viz-section-dark" :verticalPadding="2">
-      <MessageBox v-if="loading & !hasError">
+      <MessageBox v-if="loading && !error">
         <p>Fetching data</p>
       </MessageBox>
-      <MessageBox v-else-if="!loading && hasError" type="error">
+      <MessageBox v-else-if="!loading && error" type="error">
         <p>{{ error }}</p>
       </MessageBox>
       <ScatterPlot
+        v-else
         chartId="organisationsScatterPlot"
-        title="Publication outpus by number of authors per institution and organisation type"
-        :description="`For the ${data.length} institutions in the Netherlands, the total number of publishing authors and publications are displayed for Healthcare and Education institutions.`"
+        title="Publication outputs by number of authors per institution and organisation type"
+        :description="`For the ${data.length} institutions in the Netherlands, the total number of publishing authors and publications are displayed for Healthcare and Education institutions. (Note: values are randomly generated)`"
         :chartData="data"
         group="organisationType"
         xvar="authors"
@@ -52,7 +53,6 @@
         :enableClicks="true"
         :enableTooltip="true"
         @point-clicked="updateSelection"
-        v-else
       />
     </PageSection>
     <PageSection>
@@ -65,7 +65,8 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-
+import { request } from "graphql-request";
+import gql from "graphql-tag";
 import { randomNormal } from "d3";
 
 import Page from "../components/layouts/Page.vue";
@@ -74,64 +75,56 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import ScatterPlot from "../components/viz/ScatterPlot.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
-import headerImage from "../assets/scatter-plot-header.jpg";
-
-import { fetchData } from "../utils/utils.js";
 
 let loading = ref(true);
 let error = ref(false);
-let hasError = ref(false);
 let data = ref([]);
 let clicked = ref({});
 
-const query = `{
-  Organisations (
-    filter: {
-      country: { equals: "Netherlands" },
-      _or: [
-        { organisationType: { equals: "Education" }}
-        { organisationType: { equals: "Healthcare" }}
-      ]
-    } 
-  ) {
-    name
-    latitude
-    longitude
-    country
-    organisationType
-  }
-}`;
+async function getOrganisations() {
+  const query = gql`
+    {
+      Organisations(
+        filter: {
+          country: { equals: "Netherlands" }
+          _or: [
+            { organisationType: { equals: "Education" } }
+            { organisationType: { equals: "Healthcare" } }
+          ]
+        }
+      ) {
+        name
+        latitude
+        longitude
+        country
+        organisationType
+      }
+    }
+  `;
+  const response = await request("../api/graphql", query);
+  const size = response.Organisations.length;
+  const randPubsDist = Array.from({ length: size }, randomNormal(400, 80));
+  const randAuthDist = Array.from({ length: size }, randomNormal(250, 50));
+  data.value = response.Organisations.map((row, index) =>
+    Object.assign(
+      {},
+      {
+        ...row,
+        publications: Math.floor(randPubsDist[index]),
+        authors: Math.floor(randAuthDist[index]),
+      }
+    )
+  );
+}
 
 function updateSelection(value) {
   clicked.value = value;
 }
 
 onMounted(() => {
-  Promise.resolve(fetchData("/api/graphql", query))
-    .then((response) => {
-      const size = response.data.Organisations.length;
-      const randPubsDist = Array.from({ length: size }, randomNormal(400, 80));
-      const randAuthDist = Array.from({ length: size }, randomNormal(250, 50));
-      const orgs = response.data.Organisations.map((row, index) =>
-        Object.assign(
-          {},
-          {
-            ...row,
-            publications: Math.floor(randPubsDist[index]),
-            authors: Math.floor(randAuthDist[index]),
-          }
-        )
-      );
-      data.value = orgs;
-      loading.value = false;
-    })
-    .catch((error) => {
-      const err = error.message;
-      loading.value = false;
-      hasError.value = true;
-      error.value = err;
-      throw new Error(error);
-    });
+  getOrganisations()
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 });
 </script>
 

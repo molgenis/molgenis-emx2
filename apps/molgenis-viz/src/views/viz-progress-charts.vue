@@ -3,7 +3,7 @@
     <PageHeader
       title="molgenis-viz"
       subtitle="Progress Charts"
-      :imageSrc="headerImage"
+      imageSrc="gauge-chart-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -81,8 +81,6 @@ import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import GaugeChart from "../components/viz/GaugeChart.vue";
 import ProgressMeter from "../components/viz/ProgressMeter.vue";
 
-import headerImage from "../assets/gauge-chart-header.jpg";
-
 let data = ref([]);
 data.value = ["Control", "Experimental"].map((group) => {
   const value = Math.random();
@@ -109,5 +107,10 @@ data.value = ["Control", "Experimental"].map((group) => {
       text-align: center;
     }
   }
+}
+
+.d3-progress-meter {
+  max-width: 650px;
+  margin: 0 auto;
 }
 </style>
