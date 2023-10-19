@@ -45,7 +45,7 @@ public class JsonGeneQueryParser {
     int geneLength = request.getQuery().getComponents().getGene().length;
     GeneReactomeQuery[] geneQueryArr = new GeneReactomeQuery[geneLength];
     for (int i = 0; i < geneLength; i++) {
-      String gene_id = request.getQuery().getComponents().getGene()[0].getGene_id();
+      String gene_id = request.getQuery().getComponents().getGene()[i].getGene_id();
       GeneReactomeQuery geneQuery = new GeneReactomeQuery();
       geneQuery.setId(gene_id);
       geneQueryArr[i] = geneQuery;
