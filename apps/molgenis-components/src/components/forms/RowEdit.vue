@@ -177,7 +177,7 @@ export default {
     },
     isVisible(column: IColumn) {
       try {
-        if (column.visible === "" && this.columnErrors[column.id] !== "") {
+        if (!column.visible && this.columnErrors[column.id]) {
           this.columnErrors[column.id] = "";
           this.$emit("update:errorPerColumn", this.columnErrors);
         }
