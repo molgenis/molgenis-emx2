@@ -1,9 +1,9 @@
 <template>
   <Page>
     <PageHeader
-      title="RD-Components"
+      title="molgenis-viz"
       subtitle="Bar Chart Example"
-      :imageSrc="headerImage"
+      imageSrc="bar-chart-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -24,10 +24,10 @@
       </p>
     </PageSection>
     <PageSection class="bkg-light" :verticalPadding="2">
-      <MessageBox v-if="loading & !hasError">
+      <MessageBox v-if="loading & !error">
         <p>Fetching data</p>
       </MessageBox>
-      <MessageBox v-else-if="!loading && hasError" type="error">
+      <MessageBox v-else-if="!loading && error" type="error">
         <p>{{ error }}</p>
       </MessageBox>
       <BarChart
@@ -55,11 +55,10 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { request } from "graphql-request";
+import gql from "graphql-tag";
 import { rollups } from "d3";
-
 const d3 = { rollups };
-
-import { fetchData, reverseSortData } from "../utils/utils.js";
 
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
@@ -67,42 +66,40 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
 import BarChart from "../components/viz/BarChart.vue";
-import headerImage from "../assets/header-image.jpg";
 
 let loading = ref(true);
-let hasError = ref(false);
 let error = ref(null);
 let selection = ref({});
 let data = ref([]);
 
-const query = `{
-  Organisations {
-    name
-    organisationType
-  }
-}`;
+async function getOrganisations() {
+  const query = gql`
+    {
+      Organisations {
+        name
+        organisationType
+      }
+    }
+  `;
+
+  const response = await request("../api/graphql", query);
+  data.value = d3
+    .rollups(
+      response.Organisations,
+      (row) => row.length,
+      (row) => row.organisationType
+    )
+    .map((group) => new Object({ type: group[0], count: group[1] }))
+    .sort((a, b) => (a.count < b.count ? 1 : -1));
+}
 
 function updateClicked(value) {
   selection.value = value;
 }
 
 onMounted(() => {
-  Promise.resolve(fetchData("/api/graphql", query))
-    .then((response) => {
-      const organisations = response.data.Organisations;
-      const summarized = d3
-        .rollups(
-          organisations,
-          (row) => row.length,
-          (row) => row.organisationType
-        )
-        .map((group) => new Object({ type: group[0], count: group[1] }));
-      data.value = reverseSortData(summarized, "count");
-      loading.value = false;
-    })
-    .catch((error) => {
-      hasError.value = true;
-      error.value = error;
-    });
+  getOrganisations()
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 });
 </script>

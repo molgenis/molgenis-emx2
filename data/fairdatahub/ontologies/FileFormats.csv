@@ -307,7 +307,7 @@ mega variant,mega variant,EDAM,format_2923,http://edamontology.org/format_2923
 Phylip format variant,Phylip format variant,EDAM,format_2924,http://edamontology.org/format_2924
 AB1,AB1,EDAM,format_3000,http://edamontology.org/format_3000
 ACE,ACE,EDAM,format_3001,http://edamontology.org/format_3001
-BED,BED,EDAM,format_3003,http://edamontology.org/format_3003
+BED,"Browser Extensible Data (BED) format of sequence annotation track, typically to be displayed in a genome browser.",EDAM,format_3003,http://edamontology.org/format_3003
 BED format,BED format,EDAM,format_3003,http://edamontology.org/format_3003
 bigBed,bigBed,EDAM,format_3004,http://edamontology.org/format_3004
 bigWig,bigWig,EDAM,format_3006,http://edamontology.org/format_3006
@@ -363,7 +363,7 @@ OWL/XML,OWL/XML,EDAM,format_3262,http://edamontology.org/format_3262
 A2M,A2M,EDAM,format_3281,http://edamontology.org/format_3281
 SFF,SFF,EDAM,format_3284,http://edamontology.org/format_3284
 MAP,MAP,EDAM,format_3285,http://edamontology.org/format_3285
-PED,PED,EDAM,format_3286,http://edamontology.org/format_3286
+PED,The PED file describes individuals and genetic data and is used by the Plink package.,EDAM,format_3286,http://edamontology.org/format_3286
 Individual genetic data format,Individual genetic data format,EDAM,format_3287,http://edamontology.org/format_3287
 PED/MAP,PED/MAP,EDAM,format_3288,http://edamontology.org/format_3288
 CT,CT,EDAM,format_3309,http://edamontology.org/format_3309
@@ -372,12 +372,12 @@ RNAML,RNAML,EDAM,format_3311,http://edamontology.org/format_3311
 GDE,GDE,EDAM,format_3312,http://edamontology.org/format_3312
 BLC,BLC,EDAM,format_3313,http://edamontology.org/format_3313
 Data index format,Data index format,EDAM,format_3326,http://edamontology.org/format_3326
-BAI,BAI,EDAM,format_3327,http://edamontology.org/format_3327
+BAI,BAM indexing format,EDAM,format_3327,http://edamontology.org/format_3327
 HMMER2,HMMER2,EDAM,format_3328,http://edamontology.org/format_3328
 HMMER3,HMMER3,EDAM,format_3329,http://edamontology.org/format_3329
 PO,PO,EDAM,format_3330,http://edamontology.org/format_3330
 BLAST XML results format,BLAST XML results format,EDAM,format_3331,http://edamontology.org/format_3331
-CRAM,CRAM,EDAM,format_3462,http://edamontology.org/format_3462
+CRAM,Reference-based compression of alignment format,EDAM,format_3462,http://edamontology.org/format_3462
 JSON,JSON,EDAM,format_3464,http://edamontology.org/format_3464
 EPS,EPS,EDAM,format_3466,http://edamontology.org/format_3466
 GIF,GIF,EDAM,format_3467,http://edamontology.org/format_3467
@@ -530,9 +530,9 @@ taverna workflow format,taverna workflow format,EDAM,format_1665,http://edamonto
 Nexus format,Nexus format,EDAM,format_1912,http://edamontology.org/format_1912
 Alignment format,Alignment format,EDAM,format_1921,http://edamontology.org/format_1921
 .fastq,.fastq,EDAM,format_1930,http://edamontology.org/format_1930
-FASTQ,FASTQ,EDAM,format_1930,http://edamontology.org/format_1930
+FASTQ,FASTQ short read format ignoring quality scores.,EDAM,format_1930,http://edamontology.org/format_1930
 html,html,EDAM,format_2331,http://edamontology.org/format_2331
-BAM,BAM,EDAM,format_2572,http://edamontology.org/format_2572
+BAM,"BAM format, the binary, BGZF-formatted compressed version of SAM format for alignment of nucleotide sequences (e.g. sequencing reads) to (a) reference sequence(s). May contain base-call and alignment qualities and other data.",EDAM,format_2572,http://edamontology.org/format_2572
 .sam,.sam,EDAM,format_2573,http://edamontology.org/format_2573
 SAM,SAM,EDAM,format_2573,http://edamontology.org/format_2573
 .wig,.wig,EDAM,format_3005,http://edamontology.org/format_3005
@@ -575,3 +575,6 @@ BPMAP,BPMAP,SWO,SWO_1100035,http://www.ebi.ac.uk/swo/SWO_1100035
 CDF binary format,CDF binary format,SWO,SWO_1100054,http://www.ebi.ac.uk/swo/SWO_1100054
 CHP binary format,CHP binary format,SWO,SWO_1100122,http://www.ebi.ac.uk/swo/SWO_1100122
 GEO Matrix Series format,GEO Matrix Series format,SWO,SWO_1100126,http://www.ebi.ac.uk/swo/SWO_1100126
+crai,CRAI,,,
+phenopacketJSON,"JavaScript Object Notation PhenoPacket a lightweight, text-based format to represent tree-structured data using key-value pairs.",EDAM,format:3464,http://edamontology.org/format_3464
+gVCF,"Genomic Variant Call Format (VCF) for sequence variation (indels, polymorphisms, structural variation).",EDAM,format:3016,http://edamontology.org/format_3016

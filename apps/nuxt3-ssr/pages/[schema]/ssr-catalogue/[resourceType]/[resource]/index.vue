@@ -39,13 +39,9 @@ const schemas = externalSchemas.reduce(
 
 const fields = buildRecordDetailsQueryFields(schemas, schemaName, resourceType);
 
-const keys = route.query.keys;
-if (typeof keys !== "string") {
-  throw new Error("invalid record identifier");
-}
-const keysObject = transformToKeyObject(keys);
+const { key } = useQueryParams();
 
-const filter = buildFilterFromKeysObject(keysObject);
+const filter = buildFilterFromKeysObject(key);
 
 const query = gql`
   query ${resourceType}($filter: ${resourceType}Filter) {

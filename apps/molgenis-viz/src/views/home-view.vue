@@ -1,9 +1,10 @@
 <template>
   <Page>
     <PageHeader
-      title="RD-Components"
-      subtitle="Layout and Data Visualisation components"
-      :imageSrc="headerImage"
+      class="home-page-header"
+      title="molgenis-viz"
+      subtitle="Layout and Data visualization components"
+      imageSrc="home-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="2" aria-labelledby="welcome-title">
@@ -11,20 +12,17 @@
         Welcome to the <strong>molgenis-viz</strong> library!
       </h2>
       <p>
-        The <strong>molgenis-viz</strong> library contains D3-based
-        visualisation components and other layout components for use in MOLGENIS
-        applications. This allows us to standarise our custom applications while
-        allowing for project-specific requirements (e.g., branding, logos,
-        etc.).
+        The <strong>molgenis-viz</strong> library provides a number of layout
+        and visualization components for creating custom molgenis applications.
+        The components are not dependent on each other and are minimally styled.
+        Therefore, you can pick and choose the elements that suit your needs.
       </p>
       <p>
-        The <strong>molgenis-viz</strong> demo application was built using the
-        library itself to showcase the visualisation components. There are few
-        visualisation components available and more on the way. Follow the links
-        below to view a demonstration of the components. The Data used in the
-        examples visualisations was sourced from the
-        <a href="https://ror.org">ROR Database</a> and is stored in the
-        Dashboard schema.
+        There are a number of visualization components included in the library
+        and there are more on the way. The visualization components are built
+        using D3 v7+ and were designed according to the best data visualization
+        practices. All components are customizable and have a number of
+        interactive features enabled.
       </p>
     </PageSection>
     <PageSection
@@ -32,43 +30,68 @@
       :verticalPadding="2"
       aria-labelledby="components-title"
     >
-      <h2 id="components-title">Visualisation Components</h2>
-      <div class="link-container">
-        <LinkCard :imageSrc="BarChartImage">
-          <router-link :to="{ name: 'bar-chart' }">Bar Chart</router-link>
+      <h2 id="components-title">Visualization Components</h2>
+      <p>
+        This application was built using the library itself to showcase the
+        visualization components. Follow a link below to view and interact with
+        the component. For the examples, data was sourced from
+        <a href="https://ror.org">ROR</a>. All organisations from France,
+        Belgium, Germany, and the Netherlands were selected. Metadata was
+        collated and compiled into a usable dataset (
+        <a href="../tables/#/Organisations"> Organisations table </a>
+        ), and used in the examples.
+      </p>
+      <MessageBox v-if="error || !confirmed">
+        <p>
+          Unable to confirm schema configuration. Please recreate the schema. If
+          an error persists, please open a new issue on GitHub. {{ error }}
+        </p>
+      </MessageBox>
+      <div class="link-container" v-else>
+        <LinkCard imageSrc="bar-chart-header.jpg">
+          <router-link :to="{ name: 'bar-chart' }"> Bar Chart </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="LegendImage">
-          <router-link :to="{ name: 'chart-legend' }">Legends</router-link>
-        </LinkCard>
-        <LinkCard :imageSrc="ColumnChartImage">
-          <router-link :to="{ name: 'column-chart' }">Column Chart</router-link>
-        </LinkCard>
-        <LinkCard :imageSrc="DatatableImage">
-          <router-link :to="{ name: 'datatable' }">Data Table</router-link>
-        </LinkCard>
-        <LinkCard :imageSrc="GroupedColumnChartImage">
-          <router-link :to="{ name: 'grouped-column-chart' }">
-            Grouped Column Chart
+        <LinkCard imageSrc="column-chart-header.jpg">
+          <router-link :to="{ name: 'column-chart' }">
+            Column Chart
           </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="HighlightsImage">
+        <LinkCard imageSrc="table-header.jpg">
+          <router-link :to="{ name: 'datatable' }"> Data Table </router-link>
+        </LinkCard>
+        <LinkCard imageSrc="highlights-header.jpg">
           <router-link :to="{ name: 'data-highlights' }">
             Data Highlights
           </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="MapImage">
-          <router-link :to="{ name: 'geo-mercator' }">GeoMercator</router-link>
+        <LinkCard imageSrc="map-header.jpg">
+          <router-link :to="{ name: 'geo-mercator' }">
+            GeoMercator
+          </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="PieChartImage">
-          <router-link :to="{ name: 'pie-chart' }">Pie Chart</router-link>
+        <LinkCard imageSrc="grouped-column-chart-header.jpg">
+          <router-link :to="{ name: 'grouped-column-chart' }">
+            Grouped Column Chart
+          </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="ScatterPlotImage">
-          <router-link :to="{ name: 'scatter-plot' }">Scatter Plot</router-link>
+        <LinkCard imageSrc="legend-header.jpg">
+          <router-link :to="{ name: 'chart-legend' }"> Legends </router-link>
         </LinkCard>
-        <LinkCard :imageSrc="GaugeChartImage">
-          <router-link :to="{ name: 'progress-charts' }"
-            >Progress Charts</router-link
-          >
+        <LinkCard imageSrc="pie-chart-header.jpg">
+          <router-link :to="{ name: 'pie-chart' }"> Pie Chart </router-link>
+        </LinkCard>
+        <LinkCard imageSrc="pie-chart-header.jpg">
+          <router-link :to="{ name: 'pie-chart-2' }"> Pie Chart2 </router-link>
+        </LinkCard>
+        <LinkCard imageSrc="scatter-plot-header.jpg">
+          <router-link :to="{ name: 'scatter-plot' }">
+            Scatter Plot
+          </router-link>
+        </LinkCard>
+        <LinkCard imageSrc="gauge-chart-header.jpg">
+          <router-link :to="{ name: 'progress-charts' }">
+            Progress Charts
+          </router-link>
         </LinkCard>
       </div>
     </PageSection>
@@ -76,25 +99,43 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from "vue";
+import { request } from "graphql-request";
+import gql from "graphql-tag";
+
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
 import PageSection from "../components/layouts/PageSection.vue";
 import LinkCard from "../components/display/LinkCard.vue";
+import MessageBox from "../components/display/MessageBox.vue";
 
-import headerImage from "../assets/header-image.jpg";
-import BarChartImage from "../assets/bar-chart-header.jpg";
-import ColumnChartImage from "../assets/column-chart-header.jpg";
-import DatatableImage from "../assets/table-header.jpg";
-import GaugeChartImage from "../assets/gauge-chart-header.jpg";
-import GroupedColumnChartImage from "../assets/grouped-column-chart-header.jpg";
-import HighlightsImage from "../assets/highlights-header.jpg";
-import LegendImage from "../assets/legend-header.jpg";
-import MapImage from "../assets/map-header.jpg";
-import PieChartImage from "../assets/pie-chart-header.jpg";
-import ScatterPlotImage from "../assets/scatter-plot-header.jpg";
+let loading = ref(true);
+let error = ref(null);
+let confirmed = ref(false);
+
+async function confirmSchema() {
+  const query = gql`
+    {
+      Organisations {
+        name
+      }
+    }
+  `;
+  const response = await request("../api/graphql", query);
+  confirmed.value = response.Organisations.length > 0;
+}
+
+onMounted(() => {
+  confirmSchema()
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
+});
 </script>
 
 <style lang="scss">
+.home-page-header.header-image-background {
+  background-position: 0 60%;
+}
 .link-container {
   display: flex;
   flex-direction: row;

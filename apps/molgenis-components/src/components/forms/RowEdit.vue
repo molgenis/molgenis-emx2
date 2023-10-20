@@ -201,7 +201,7 @@ export default {
         } else if (this.applyDefaultValues && column.defaultValue) {
           if (column.defaultValue.startsWith("=")) {
             this.internalValues[column.id] = executeExpression(
-              column.defaultValue.substr(1),
+              "(" + column.defaultValue.substr(1) + ")",
               this.internalValues,
               this.tableMetaData as ITableMetaData
             );

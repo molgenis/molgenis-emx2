@@ -5,7 +5,7 @@ export const fetchGql = (
   variables?: object,
   schemaName?: string
 ) => {
-  const queryValue = typeof query !== "string" ? loadGql(query) : query;
+  const queryValue = typeof query !== "string" ? moduleToString(query) : query;
 
   let body: { query: string; variables?: object } = {
     query: queryValue,
