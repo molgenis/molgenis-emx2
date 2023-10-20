@@ -23,8 +23,9 @@ public class CaseAndSpaceInsensitiveNameMapper implements NameMapper {
   public String map(String name) {
     if (!cache.containsKey(name)) {
       Optional<Column> result =
-          tableMetadata.getColumns().stream()
-              .filter(column -> strip(column.getName()).equals(strip(name)))
+          tableMetadata.getMutationColumns().stream()
+              .filter(
+                  column -> strip(column.getName().toLowerCase()).equals(strip(name).toLowerCase()))
               .findFirst();
       if (result.isPresent()) {
         cache.put(name, result.get().getName());
