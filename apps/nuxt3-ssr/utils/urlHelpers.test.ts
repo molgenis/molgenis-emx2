@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 
-import { transformToKeyObject, buildValueKey } from "./urlHelpers";
+import {
+  transformToKeyObject,
+  buildValueKey,
+  resourceIdPath,
+} from "./urlHelpers";
 
 describe("transformToKeyObject", () => {
   it("should take a string that represents a key and transform it into a KeyObject ", () => {
@@ -31,5 +35,23 @@ describe("buildValueKey", () => {
     };
 
     expect(buildValueKey(someKey)).toEqual("foo-bar-section 1");
+  });
+});
+
+describe("resourceIdPath", () => {
+  it("should take a KeyObject and transform path section that identifies a single entity( table row )", () => {
+    const someKey = {
+      name: "foo",
+      category: {
+        name: "bar",
+        section: {
+          id: "section 1",
+        },
+      },
+    };
+
+    expect(resourceIdPath(someKey)).toEqual(
+      `foo-bar-section 1?keys={"name":"foo","category":{"name":"bar","section":{"id":"section 1"}}}`
+    );
   });
 });
