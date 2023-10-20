@@ -1,6 +1,21 @@
 <template>
   <ProviderDashboard>
     <h2 class="dashboard-h2">Overview for your center</h2>
+    <DashboardBox>
+      <h3>Options</h3>
+      <InputLabel
+        id="yearOfBirthFilter"
+        label="Year of birth"
+        description="Limit the results by year of birth"
+      />
+      <select class="inputs select" id="yearOfBirthFilter" @change="onYearOfBirthFilter">
+        <option value="3-4" selected>3-4 years</option>
+        <option value="5-6">5-6 years</option>
+        <option value="8-9">8-9 years</option>
+        <option value="10-12">10-12 years</option>
+        <option value="18+">18+ years</option>
+      </select>
+    </DashboardBox>
     <DashboardChartLayout :columns="2">
       <DashboardBox id="clp-patients-by-phenotype">
         <PieChart2
@@ -8,99 +23,48 @@
           title="Patients by phenotype"
           :chartData="patientsByPhenotype"
           :asDonutChart="true"
+          :chartColors="phenotypeColors"
           :enableLegendHovering="true"
           legendPosition="bottom"
           :chartHeight="200"
           :chartScale="0.9"
+          :valuesArePercents="false"
         />
       </DashboardBox>
-      <DashboardBox id="clp-patients-by-surgical-outcome">
-        <PieChart2
-          chartId="patientsByOutcome"
-          title="Patients by surgical outcome"
-          :chartData="patientsBySurgicalOutcome"
+      <DashboardBox>
+        <PieChart2 
+          chartId="patientsByGender"
+          :title="`Patients per gender (n=${totalCases})`"
+          :chartData="patientsByGender"
           :asDonutChart="true"
+          :chartColors="genderColors"
           :enableLegendHovering="true"
           legendPosition="bottom"
           :chartHeight="200"
           :chartScale="0.9"
+          :valuesArePercents="false"
         />
       </DashboardBox>
-      <DashboardBox id="clp-cleft-q-completed">
+    </DashboardChartLayout>
+    <DashboardChartLayout :columns="1">
+      <DashboardBox id="clp-cleft-q-completed" v-if="showCleftQCompleted">
         <ProgressMeter
           chartId="cleftQCompleted"
-          title="Cleft-Q Completed"
-          :value="qCompleted"
-          :totalValue="qTotal"
+          :title="`% of patients that completed the CLEFT-Q (${ageGroupFilter}yrs)`"
+          :value="cleftQCompleted"
+          :totalValue="totalCases"
           :barHeight="25"
+          barFill="#66c2a4"
         />
       </DashboardBox>
-      <DashboardBox id="clp-ics-completed">
-        <ProgressMeter
+      <DashboardBox id="clp-ics-completed" v-if="showIcsCompleted">
+        <ProgressMeter 
           chartId="icsCompleted"
-          title="ICS Completed"
+          :title="`% of patients that completed the ICS (${ageGroupFilter}yrs)`"
           :value="icsCompleted"
-          :totalValue="icsTotal"
+          :totalValue="totalCases"
           :barHeight="25"
-        />
-      </DashboardBox>
-    </DashboardChartLayout>
-    <h2 class="dashboard-h2">Surgical Overview for your center</h2>
-    <h3 class="dashboard-h3">Lip closure overview</h3>
-    <DashboardChartLayout>
-      <DashboardBox id="clp-timing-of-lip-closure">
-        <ColumnChart
-          chartId="timingLipClosure"
-          title="Timing of lip closure"
-          :chartData="timingLipClosure"
-          xvar="week"
-          yvar="value"
-          xAxisLabel="Weeks"
-          yAxisLabel="Number of cases"
-          :yMax="100"
-          :yTickValues="[0, 20, 40, 60, 80, 100]"
-          :chartHeight="250"
-        />
-      </DashboardBox>
-      <DashboardBox>
-        <PieChart2
-          chartId="lipClosureOutcomes"
-          title="Lip closure surgical outcomes"
-          :chartData="lipClosureOutcomes"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :chartHeight="200"
-          :chartScale="0.9"
-        />
-      </DashboardBox>
-    </DashboardChartLayout>
-    <h3 class="dashboard-h3">Soft palate closure overview</h3>
-    <DashboardChartLayout>
-      <DashboardBox id="clp-soft-palate-closure">
-        <ColumnChart
-          chartId="softPalateClosure"
-          title="Timing of soft palate closure"
-          :chartData="softPalateClosure"
-          xvar="week"
-          yvar="value"
-          xAxisLabel="Weeks"
-          yAxisLabel="Number of cases"
-          :yMax="100"
-          :yTickValues="[0, 20, 40, 60, 80, 100]"
-          :chartHeight="250"
-        />
-      </DashboardBox>
-      <DashboardBox>
-        <PieChart2
-          chartId="softPalateClosureOutcomes"
-          title="Soft Palate surgical outcomes"
-          :chartData="softPalateClosureOutcomes"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :chartHeight="200"
-          :chartScale="0.9"
+          barFill="#9f6491"
         />
       </DashboardBox>
     </DashboardChartLayout>
@@ -109,68 +73,65 @@
 
 <script setup>
 import { ref } from "vue";
-import {
-  DashboardBox,
-  PieChart2,
-  ProgressMeter,
-  ColumnChart,
-} from "molgenis-viz";
+import { DashboardBox, PieChart2, ProgressMeter, InputLabel } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
-const props = defineProps({
-  user: String,
-  organization: Object,
-});
-
 // generate random data for display purposes
 import { randomInt } from "d3";
+import generateColors from "../utils/palette.js";
 
-let patientsByPhenotype = ref({
-  CL: 40,
-  CLA: 30,
-  CP: 20,
-  CLAP: 10,
-});
+let totalCases = ref(0);
+let patientsByPhenotype = ref({ CL: 0, CLA: 0, CP: 0, CLAP: 0 });
+let patientsByGender = ref({ Female:0, Male: 0, Undetermined: 0 });
+let cleftQCompleted = ref(0);
+let icsCompleted = ref(0);
+let showCleftQCompleted = ref(false);
+let showIcsCompleted = ref(false);
+let ageGroupFilter = ref('3-4');
 
-let patientsBySurgicalOutcome = ref({
-  "Lip Closure": 50,
-  "Soft Palate": 15,
-  "Hard Palate": 10,
-  "Alveolar Bone Graft": 25,
-});
+const phenotypeColors = generateColors(Object.keys(patientsByPhenotype.value))
+const genderColors = generateColors(Object.keys(patientsByGender.value))
 
-let qCompleted = ref(randomInt(12, 31)());
-let qTotal = ref(randomInt(32, 56)());
+function setPatientsByPhenotype () {
+  const types = Object.keys(patientsByPhenotype.value);
+  const data = types.map(type => [type, randomInt(1,100)()])
+    .sort((current,next) => current[1] < next[1] ? 1 : -1);
+  
+  totalCases.value = data.map(row => row[1]).reduce((sum,value) => sum + value, 0);
+  patientsByPhenotype.value = Object.fromEntries(data);
+}
 
-let icsCompleted = ref(randomInt(1, 41)());
-let icsTotal = ref(randomInt(42, 96)());
 
-let timingLipClosure = ref([
-  { week: "8", value: randomInt(0, 100)() },
-  { week: "9", value: randomInt(0, 100)() },
-  { week: "10", value: randomInt(0, 100)() },
-  { week: "11", value: randomInt(0, 100)() },
-  { week: "12", value: randomInt(0, 100)() },
-]);
+function setPatientsByGender () {
+  let currentTotal = totalCases.value;
+  const groups = Object.keys(patientsByGender.value);
+  const data = groups
+    .map((type,i) => {
+      const value = i === groups.length - 1 ? currentTotal : randomInt(1, currentTotal)();
+      const row = [type, value];
+      currentTotal -= value;
+      return row;
+    })
+    .sort((current, next) => current[1] < next[1] ? 1 : -1);
+  patientsByGender.value = Object.fromEntries(data);
+}
 
-let lipClosureOutcomes = ref({
-  Complications: 20,
-  Incidents: 20,
-  Successful: 60,
-});
+function setProgressMeters () {
+  showCleftQCompleted.value = ['8-9','10-12','18+'].includes(ageGroupFilter.value);
+  showIcsCompleted.value = ['3-4', '5-6'].includes(ageGroupFilter.value);
+  cleftQCompleted.value = randomInt(1, totalCases.value)();
+  icsCompleted.value = randomInt(1, totalCases.value)();
+}
 
-let softPalateClosure = ref([
-  { week: "8", value: randomInt(0, 100)() },
-  { week: "9", value: randomInt(0, 100)() },
-  { week: "10", value: randomInt(0, 100)() },
-  { week: "11", value: randomInt(0, 100)() },
-  { week: "12", value: randomInt(0, 100)() },
-]);
+function onYearOfBirthFilter (event) {
+  ageGroupFilter.value = event.target.value;
+  setPatientsByPhenotype();
+  setPatientsByGender();
+  setProgressMeters();
+}
 
-let softPalateClosureOutcomes = ref({
-  Complications: 50,
-  Incidents: 10,
-  Successful: 40,
-});
+setPatientsByPhenotype();
+setPatientsByGender();
+setProgressMeters();
 </script>
