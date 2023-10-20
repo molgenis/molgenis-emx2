@@ -1,5 +1,5 @@
-$ern-cranio-primary: #f3833b;
-$ern-cranio-primary-alt: hsl(23, 88%, 83%);
+$cranio-primary: #f3833e;
+$cranio-primary-alt: hsl(23, 88%, 83%);
 
 @mixin buttonLink($width: 100%) {
   display: block;
@@ -7,7 +7,7 @@ $ern-cranio-primary-alt: hsl(23, 88%, 83%);
   padding: 0.6em 0;
   background-color: none;
   text-align: center;
-  background-color: $ern-cranio-primary;
+  background-color: $cranio-primary;
   color: $gray-000;
   border-radius: 32pt;
 }

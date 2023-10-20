@@ -19,7 +19,7 @@
       }
 
       .background-image-filter {
-        background-color: $ern-cranio-primary-alt;
+        background-color: $cranio-primary-alt;
         opacity: 0.1;
       }
     }
@@ -133,11 +133,25 @@
           margin: 0;
         }
       }
+      
+      .d3-pie {
+        &.legend-position-right {
+          align-items:center;
+        } 
+      }
+      
+      .d3-viz-message {
+        flex-grow: 1;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
     }
 
     .dashboard-title {
       span {
-        color: $ern-cranio-primary;
+        color: $cranio-primary;
       }
     }
 
