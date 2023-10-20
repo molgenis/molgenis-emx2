@@ -4,24 +4,6 @@
     <DashboardChartLayout :columns="2">
       <DashboardBox>
         <GroupedColumnChart
-          chartId="cs-center-surgical-type-of-surgery-combined"
-          title="Type of Surgery"
-          description="Number of surgeries performed by type for your center and all centers combined"
-          :chartData="combinedTypeofSurgery"
-          group="group"
-          xvar="category"
-          yvar="value"
-          :yTickValues="[0, 25, 50, 75, 100]"
-          :yMax="100"
-          :columnFillPalette="{
-            'Your center': '#b2e2e2',
-            ERN: '#66c2a4',
-          }"
-          :chartHeight="300"
-        />
-      </DashboardBox>
-      <DashboardBox>
-        <GroupedColumnChart
           chartId="cs-center-surgical-complications-combined"
           title="Surgical complications"
           description="Complications that occurred at your center and all centers combined"
@@ -92,15 +74,6 @@ const props = defineProps({
 });
 
 import { randomGroupDataset, seq } from "../utils/devtools";
-
-let combinedTypeofSurgery = ref(
-  randomGroupDataset(
-    ["Your center", "ERN"],
-    ["Vault", "Midface", "Hydrocephalus", "Aesthetic"],
-    0,
-    100
-  ).sort((a, b) => (a.group > b.group ? -1 : 1))
-);
 
 let combinedComplication = ref(
   randomGroupDataset(

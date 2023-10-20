@@ -8,52 +8,61 @@
         label="Year of birth"
         description="Limit the results by year of birth"
       />
-      <select class="inputs select" id="yearOfBirthFilter">
+      <select class="inputs select" id="yearOfBirthFilter" @change="onYearOfBirthFilter">
         <option value="all">All Patients</option>
-        <option v-for="year in yearOfBirthOptions" :value="year">
-          {{ year }}
-        </option>
+        <option value="2023" selected>2023</option>
       </select>
     </DashboardBox>
-    <DashboardChartLayout :columns="2">
+    <DashboardChartLayout :columns="1">
       <DashboardBox>
         <PieChart2
           chartId="cs-center-type-of-craniosynostosis"
           title="Type of craniosynostosis"
-          :chartData="centerTypeOfCs"
+          :chartData="csTypes"
+          :chartColors="csTypeColors"
           :asDonutChart="true"
           :enableLegendHovering="true"
-          legendPosition="bottom"
-          :chartHeight="200"
-          :chartScale="0.9"
+          legendPosition="right"
+          :stackLegend="true"
+          :chartHeight="300"
+          :chartScale="0.65"
+          :valuesArePercents="false"
         />
       </DashboardBox>
+    </DashboardChartLayout>
+    <DashboardChartLayout>
       <DashboardBox>
         <PieChart2
           chartId="cs-center-affect-suture"
-          title="Affected Suture"
-          :chartData="centerAffectedSuture"
+          title="Single suture synostosis"
+          :chartData="csSingleSutures"
+          :chartColors="singleSutureColors"
           :asDonutChart="true"
           :enableLegendHovering="true"
           legendPosition="bottom"
           :chartHeight="200"
-          :chartScale="0.9"
+          :chartScale="0.85"
+          :valuesArePercents="false"
+          :enableClicks="true"
+          @slice-clicked="updateMultipleSutures"
         />
       </DashboardBox>
       <DashboardBox>
+        <div class="d3-viz-message" v-if="!showSutureTypes">
+          <p>To view the breakdown of mutiple suture synostosis, click a category in the "Single Suture Synostosis" chart.</p>
+        </div>
         <PieChart2
-          chartId="cs-center-gentic-diagnosis"
-          title="Genetic Diagnosis"
-          :chartData="centerGeneticDiagnosis"
-          :chartColors="{
-            Available: '#426fab',
-            'Not Available': '#f3f4ff',
-          }"
+          v-else
+          chartId="sutureTypes"
+          title="Multiple suture synostosis"
+          :chartData="csMultipleSutures"
+          :chartColors="multipleSutureColors"
+          :chartHeight="200"
           :asDonutChart="true"
           :enableLegendHovering="true"
           legendPosition="bottom"
-          :chartHeight="200"
-          :chartScale="0.9"
+          :chartScale="0.85"
+          :valuesArePercents="false"
         />
       </DashboardBox>
     </DashboardChartLayout>
@@ -72,27 +81,86 @@ const props = defineProps({
 });
 
 // define random data
-let yearOfBirthOptions = ref(Array.from({ length: 16 }, (v, i) => 1980 + i));
+import { randomInt } from "d3";
+import generateColors from "../utils/palette.js";
 
-let centerTypeOfCs = ref({
-  Syndromic: 45,
-  "Non-syndromic": 20,
-  Familial: 15,
-  Metabolic: 13,
-  Iatrogenic: 7,
+let csTotalCases = ref(0);
+let csTypes = ref({
+  Familial: 0,
+  Iatrogenic: 0,
+  Metabolic: 0,
+  "Non-syndromic": 0,
+  Syndromic: 0,
 });
+let csSingleSutures = ref({
+  Frontosphenoidal: 0,
+  Metopic: 0,
+  Multiple: 0,
+  Sagittal: 0,
+  Unicoronal: 0,
+  Unilambdoid: 0,
+});
+let csMultipleSutures = ref({
+  bicoronal: 0,
+  bilambdoid: 0,
+  "bilambdoid+sagittal": 0,
+  pansynostosis: 0,
+  other: 0,
+});
+let showSutureTypes = ref(false);
 
-let centerAffectedSuture = ref({
-  Sagittal: 35,
-  Metopic: 14,
-  Unicoronal: 13,
-  Unilambdoid: 13,
-  Frontosphenoidal: 13,
-  Multiple: 12,
-});
+const csTypeColors =generateColors(Object.keys(csTypes.value));
+const singleSutureColors = generateColors(Object.keys(csSingleSutures.value));
+const multipleSutureColors = generateColors(Object.keys(csMultipleSutures.value));
 
-let centerGeneticDiagnosis = ref({
-  Available: 60,
-  "Not Available": 40,
-});
+function setCsTypes () {
+  const types = Object.keys(csTypes.value);
+  const data = types.map((type) => [type, randomInt(1,100)()])
+    .sort((current,next) => current[1] < next[1] ? 1 : -1);
+  csTotalCases.value = data.map(row => row[1])
+    .reduce((sum,value) => sum + value, 0);
+  csTypes.value = Object.fromEntries(data);
+}
+
+function setSingleSutures () {
+  const types = Object.keys(csSingleSutures.value);
+  let currentTotal = csTotalCases.value;
+  const data = types.map((type,i) => {
+    const randomValue = i === types.length-1 ? currentTotal : randomInt(3, currentTotal)();
+    const row = [type, randomValue];
+    currentTotal -= randomValue;
+    return row;
+  })
+  .sort((current,next) => current[1] < next[1] ? 1 : -1);
+  csSingleSutures.value = Object.fromEntries(data);
+}
+
+function setMultipleSutures (total) {
+  const types = Object.keys(csMultipleSutures.value);
+  let currentTotal = total;
+  const data = types.map((type,i) => {
+    const randomValue = i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
+    const row = [type, randomValue];
+    currentTotal -= randomValue;
+    return row;
+  })
+  .sort((current,next) => current[1] < next[1] ? 1 : -1);
+  csMultipleSutures.value = Object.fromEntries(data);
+}
+
+function updateMultipleSutures (value) {
+  const total = value[Object.keys(value)];
+  setMultipleSutures(total);
+  showSutureTypes.value=true;
+}
+
+function onYearOfBirthFilter () {
+  setCsTypes();
+  setSingleSutures();
+}
+
+// generate data
+setCsTypes();
+setSingleSutures();
+
 </script>
