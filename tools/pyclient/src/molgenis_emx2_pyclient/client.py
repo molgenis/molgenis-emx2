@@ -185,6 +185,7 @@ class Client:
         }"""
         schema_url = f"{self.url}/{schema}/graphql"
         response = self.session.post(url=schema_url, json={"query": query})
+        # TODO: fix in case of no schema
         tables = {
             tab.pop('name'): tab for tab in response.json().get('data').get('_schema').get('tables')
         }

@@ -35,3 +35,7 @@ class ServiceUnavailableError(PyclientException):
 
 class NoContextManagerException(PyclientException):
     """Thrown when sign in is attempted outside a context manager."""
+
+
+class IncorrectSchemaError(PyclientException):
+    """Thrown when a table is requested from a schema that does not contain it."""

@@ -1,4 +1,3 @@
-# from molgenis_emx2_pyclient import Client
 import logging
 import os
 import pathlib
@@ -26,7 +25,7 @@ class StagingMigrator(Client):
     The class subclasses the Molgenis EMX2 Pyclient to access the API on the server
     """
 
-    def __init__(self, url: str, staging_area: str, catalogue: str = 'catalogue'):
+    def __init__(self, url: str, staging_area: str = None, catalogue: str = 'catalogue'):
         """Sets up the StagingMigrator by logging in to the client."""
         super().__init__(url)
         self.staging_area = staging_area
@@ -39,6 +38,26 @@ class StagingMigrator(Client):
         super().signin(username, password)
         self._verify_schemas()
 
+    def set_staging_area(self, staging_area: str):
+        """Sets the staging area and verifies its existence."""
+        old_staging_area = self.staging_area
+
+        self.staging_area = staging_area
+        try:
+            self._verify_schemas()
+        except NoSuchSchemaException:
+            self.staging_area = old_staging_area
+
+    def set_catalogue(self, catalogue: str):
+        """Sets the catalogue and verifies its existence."""
+        old_catalogue = self.catalogue
+
+        self.catalogue = catalogue
+        try:
+            self._verify_schemas()
+        except NoSuchSchemaException:
+            self.catalogue = old_catalogue
+
     def migrate(self):
         """Performs the migration of the staging area to the catalogue."""
 
@@ -46,6 +65,7 @@ class StagingMigrator(Client):
         self._download_schema_zip(schema=self.catalogue, schema_type='target', include_system_columns=False)
 
         # Delete the source tables from the target database
+        log.info("Deleting staging area cohorts from the catalogue.")
         self._delete_staging_from_catalogue()
 
         # Create zipfile for uploading
@@ -70,9 +90,9 @@ class StagingMigrator(Client):
 
         if resp.content:
             pathlib.Path(filename).write_bytes(resp.content)
-            log.info(f'Downloaded {schema_type} schema to "{filename}".')
+            log.debug(f"Downloaded '{schema_type}' schema to '{filename}'.")
         else:
-            log.error('Error: download failed')
+            log.error("Error: download failed.")
         return filename
 
     def _delete_staging_from_catalogue(self):
@@ -95,13 +115,13 @@ class StagingMigrator(Client):
             if len(delete_rows) == 0:
                 continue
             if not self._cohorts_in_ref_array(table_name):
-                log.info(f"\nDeleting in table '{table_name}' row(s) with primary keys {delete_rows.get(table_id)}.")
+                log.debug(f"\nDeleting in table '{table_name}' row(s) with primary keys {delete_rows.get(table_id)}.")
 
                 # Delete the matching rows from the target catalogue table
                 self._delete_table_entries(table_id=table_id,
                                            pkeys=delete_rows.get(table_id))
             else:
-                log.info(f"\nUpdating row(s) with primary keys {delete_rows.get(table_id)}"
+                log.debug(f"\nUpdating row(s) with primary keys {delete_rows.get(table_id)}"
                          f"\n in table {table_name}. (Not yet implemented)")
                 # TODO: implement following
                 # self._delete_from_ref_array(schema=catalogue, table_id=table_schema['id'],
@@ -142,9 +162,10 @@ class StagingMigrator(Client):
 
     def _verify_schemas(self):
         """Ensures the staging area and catalogue are available."""
-        if self.staging_area not in self.schemas:
-            raise NoSuchSchemaException(f"Schema '{self.staging_area}' not found on server."
-                                        f" Available schemas: {', '.join(self.schemas)}.")
+        if self.staging_area is not None:
+            if self.staging_area not in self.schemas:
+                raise NoSuchSchemaException(f"Schema '{self.staging_area}' not found on server."
+                                            f" Available schemas: {', '.join(self.schemas)}.")
         if self.catalogue not in self.schemas:
             raise NoSuchSchemaException(f"Schema '{self.catalogue}' not found on server."
                                         f" Available schemas: {', '.join(self.schemas)}.")
@@ -175,7 +196,7 @@ class StagingMigrator(Client):
         log.info(f"Migrating tables {', '.join(tables_to_sync.keys())}.")
         return upload_stream
 
-    def _upload_zip_stream(self, zip_stream: BytesIO):
+    def _upload_zip_stream(self, zip_stream: BytesIO, is_fallback: bool = False):
         """Uploads the zip file containing the tables from the staging area
         to the catalogue.
         """
@@ -201,10 +222,17 @@ class StagingMigrator(Client):
 
             if upload_status == 'ERROR':
                 log.error(f"Migration failed, reason: {upload_description}.")
-                log.info("Uploading fallback zip.")
-                self._upload_fallback_zip()
+                log.debug(self.session.get(response_url).json())
+                if not is_fallback:
+                    log.info("Uploading fallback zip.")
+                    self._upload_fallback_zip()
+                else:
+                    log.error("Restoring fallback zip failed.")
             else:
-                log.info("Migrated successfully.")
+                if is_fallback:
+                    log.info("Fallback zip restored successfully.")
+                else:
+                    log.info("Migrated successfully.")
 
     @staticmethod
     def _cleanup():
@@ -226,4 +254,4 @@ class StagingMigrator(Client):
             for file_name in target_archive.namelist():
                 upload_archive.writestr(file_name, BytesIO(target_archive.read(file_name)).getvalue())
         # Upload the stream
-        self._upload_zip_stream(upload_stream)
+        self._upload_zip_stream(upload_stream, is_fallback=True)

@@ -6,6 +6,7 @@ from io import BytesIO
 
 import pandas as pd
 
+from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import IncorrectSchemaError
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.graphql_queries import Queries
 
 log = logging.getLogger(__name__)
@@ -20,6 +21,9 @@ def get_cohort_ids(server_url, session, staging_area) -> list | None:
     response = session.post(url=staging_url,
                             json={"query": query})
     response_data = response.json().get('data')
+    if response_data is None:
+        # Raise new error
+        raise IncorrectSchemaError(f"Table 'Cohorts' not found on schema '{staging_area}'.")
 
     # Return only if there is exactly one id/cohort in the Cohorts table
     if "Cohorts" in response_data.keys():
