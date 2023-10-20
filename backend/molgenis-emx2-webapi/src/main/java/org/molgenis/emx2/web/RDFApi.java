@@ -11,6 +11,7 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.RDFService;
 import spark.Request;
 import spark.Response;
+import spark.utils.StringUtils;
 
 public class RDFApi {
   public static final String FORMAT = "format";
@@ -36,7 +37,8 @@ public class RDFApi {
     Schema[] schemas = new Schema[schemaNames.size()];
 
     Database db = sessionManager.getSession(request).getDatabase();
-    final RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    final String baseURL = extractBaseURL(request);
+    final RDFService rdf = new RDFService(request.url(), baseURL, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
     OutputStream outputStream = response.raw().getOutputStream();
     db.tx(
@@ -44,7 +46,7 @@ public class RDFApi {
           for (int i = 0; i < schemas.length; i++) {
             schemas[i] = (db.getSchema(schemaNamesArr[i]));
           }
-          rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, schemas);
+          rdf.describeAsRDF(outputStream, null, null, null, schemas);
         });
 
     outputStream.flush();
@@ -55,11 +57,12 @@ public class RDFApi {
   private static int rdfForSchema(Request request, Response response) throws IOException {
     Schema schema = getSchema(request);
 
-    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    final String baseURL = extractBaseURL(request);
+    RDFService rdf = new RDFService(request.url(), baseURL, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, schema);
+    rdf.describeAsRDF(outputStream, null, null, null, schema);
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -68,11 +71,12 @@ public class RDFApi {
   private static int rdfForTable(Request request, Response response) throws IOException {
     Table table = getTable(request);
 
-    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    final String baseURL = extractBaseURL(request);
+    RDFService rdf = new RDFService(request.url(), baseURL, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, null, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, table, null, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -82,11 +86,12 @@ public class RDFApi {
     Table table = getTable(request);
     String rowId = sanitize(request.params("row"));
 
-    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    final String baseURL = extractBaseURL(request);
+    RDFService rdf = new RDFService(request.url(), baseURL, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, rowId, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, table, rowId, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -96,13 +101,22 @@ public class RDFApi {
     Table table = getTable(request);
     String columnName = sanitize(request.params("column"));
 
-    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    final String baseURL = extractBaseURL(request);
+    RDFService rdf = new RDFService(request.url(), baseURL, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, null, columnName, table.getSchema());
+    rdf.describeAsRDF(outputStream, table, null, columnName, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;
+  }
+
+  private static String extractBaseURL(Request request) {
+    return request.scheme()
+        + "://"
+        + request.host()
+        + (request.port() > 0 ? ":" + request.port() : "")
+        + (StringUtils.isNotEmpty(request.servletPath()) ? "/" + request.servletPath() + "/" : "/");
   }
 }

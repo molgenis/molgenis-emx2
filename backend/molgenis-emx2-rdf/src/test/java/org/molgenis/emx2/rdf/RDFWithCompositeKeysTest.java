@@ -52,15 +52,9 @@ public class RDFWithCompositeKeysTest {
 
   @Test
   void testRDFwithCompositeKeys() {
-    RDFService rdf = new RDFService("http://localhost:8080" + RDFTest.RDF_API_LOCATION);
+    RDFService rdf = new RDFService("http://localhost:8080", RDFTest.RDF_API_LOCATION, null);
     OutputStream outputStream = new ByteArrayOutputStream();
-    rdf.describeAsRDF(
-        outputStream,
-        RDFTest.RDF_API_LOCATION,
-        null,
-        null,
-        null,
-        List.of(schema).toArray(new Schema[1]));
+    rdf.describeAsRDF(outputStream, null, null, null, List.of(schema).toArray(new Schema[1]));
     String result = outputStream.toString();
     assertTrue(result.contains(RDFWithCompositeKeysTest.class.getSimpleName()));
     String rowId =
@@ -82,7 +76,6 @@ public class RDFWithCompositeKeysTest {
     outputStream = new ByteArrayOutputStream();
     rdf.describeAsRDF(
         outputStream,
-        RDFTest.RDF_API_LOCATION,
         schema.getTable("Samples"),
         "patient.firstName=Donald&patient.lastName=Duck&id=sample2",
         null,
