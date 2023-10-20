@@ -1,49 +1,133 @@
-id,name,homepage,country,type,description
-UiO,University of Oslo,https://www.uio.no/,Norway,Academic institution,
-AU,University of Aarhus,,Denmark,Academic institution,
-UoD,University of Dundee,,United Kingdom of Great Britain and Northern Ireland (the),Academic institution,
-ULST,University of Ulster,,United Kingdom of Great Britain and Northern Ireland (the),Academic institution,
-CHUT,Centre Hospitalier Universitaire de Toulouse,,France,Academic institution,
-UMCG,University Medical Center Groningen,http://www.umcg.nl,Netherlands (the),Academic institution,The University Medical Center Groningen (UMCG) is one of 8 university medical centers in the Netherlands.
-PHARMO,The PHARMO institute,,Netherlands (the),Research centre,
-ERASMUS,Erasmus MC,,Netherlands (the),Academic institution,
-UOB,University of Bristol,,United Kingdom of Great Britain and Northern Ireland (the),Academic institution,
-UMCU,UMC Utrecht,,Netherlands (the),Academic institution,
-UOULU,University of Oulu,,Finland,Academic institution,
-ISGLOBAL,Barcelona Institute for Global Health,,Spain,Research centre,
-ICL,Imperial College London,,United Kingdom of Great Britain and Northern Ireland (the),Academic institution,
-BETA,Beta Technologies,,United Kingdom of Great Britain and Northern Ireland (the),SME,
-UEF,University of Eastern Finland,,Finland,Academic institution,
-CHALMERS,Chalmers University of Technology ,,Sweden,Academic institution,
-INSERM,National Institute of Medical Research ,,France,Research centre,
-UCL,University College London ,,United Kingdom of Great Britain and Northern Ireland (the),Academic institution,
-UU,University of Utrecht ,,Netherlands (the),Academic institution,
-SURREY,University of Surrey ,,United Kingdom of Great Britain and Northern Ireland (the),Academic institution,
-AMC,Amsterdam Medical Center ,,Netherlands (the),Academic institution,
-UPF,University Pompeu Fabra ,,Spain,Academic institution,
-ABAC,Ab-acus ,,Italy,SME,
-CYN,Cynexo ,,Italy,SME,
-CEIS,University of Rome ,,Italy,Academic institution,
-UB,University of Bordeaux,,France,Academic institution,
-LIPRE,Leibniz Institute for Prevention Research and Epidemiology,,Germany,Research centre,
-FISABIO,Fundación para el Fomento de la Investigación Sanitaria y Biomédica de la Comunitat Valenciana,,Spain,Research centre,
-IDIAPJGol,Institut de Recerca en Atenció Primària Jordi Gol,,Spain,Research centre,
-FERR,Università degli Studi di Ferrara – University of Ferrara,,Italy,Academic institution,
-CNR-IFC,"CNR Tuscany, Italy Florence research aray",,Italy,Research centre,
-ARS,Agenzia regionale di sanità della Toscana,,Italy,Research centre,
-UM,University of Messina,,Italy,Academic institution,
-MLT,"Malta Congenital Anomalies Registry, Directorate for Health Information and Research",,Malta,Research centre,
-AMF,Malformation Monitoring Centre Saxony-Anhalt Medical Faculty,,Germany,Academic institution,
-THL,Finnish Institute for Health and Welfare,,Finland,Research centre,
-USWAN,University of Swansea,,United Kingdom of Great Britain and Northern Ireland (the),Academic institution,
-GSK,GlaxoSmithKline,,United Kingdom of Great Britain and Northern Ireland (the),Pharmaceutical company,
-BRI,Bradford Royal Infirmary,,United Kingdom of Great Britain and Northern Ireland (the),Academic institution,
-UBAC,University of Barcelona,,Spain,Academic institution,
-UNITOV,TOR VERGETA University of Rome,,Italy,Academic institution,
-UCPH,University of Copenhagen,,Denmark,Academic institution,
-NIPH,Norwegian Institute of Public Health,,Norway,Research centre,
-UNITO,University of Turin,,Italy,Academic institution,
-SOTON,University of Southampton,,United Kingdom of Great Britain and Northern Ireland (the),Academic institution,
-UWA,University of Western Australia,,Australia,Academic institution,
-UOC,University of Crete,,Greece,Academic institution,
-LMU,University of Munich,,,,
+id,pid,acronym,name,type,type other,institution,institution acronym,email,logo,address,expertise,country,features,role,website,description
+UU,,UU,University of Utrecht ,University,,,,,,,,Netherlands (the),,,,
+USEY,,USEY,University of Surrey ,University,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,,
+AMC,,AMC,Amsterdam Medical Center ,University,,,,,,,,Netherlands (the),,,,
+CYN,,CYN,Cynexo ,SME,,,,,,,,Italy,,,,
+CEIS,,CEIS,University of Rome ,University,,,,,,,,Italy,,,,
+TUNI,,,Tampere University,University,,,,,,,,Finland,,,https://www.tuni.fi/en,
+INSERM,,INSERM,National Institute of Medical Research ,Research centre,,,,,,,,France,,,,
+UCL,,UCL,University College London ,University,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,,
+ICL,,ICL,Imperial College London,University,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,,
+BETA,,BETA,Beta Technologies,SME,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,,
+UEF,,UEF,University of Eastern Finland,University,,,,,,,,Finland,,,,
+CUT,,CUT,Chalmers University of Technology ,University,,,,,,,,Sweden,,,,
+MLT,,MLT,"Malta Congenital Anomalies Registry, Directorate for Health Information and Research",Research centre,,,,,,,,Malta,,,,
+AMF,,AMF,Malformation Monitoring Centre Saxony-Anhalt Medical Faculty,University,,,,,,,,Germany,,,,
+MUMC,,,Maastricht UMC+,Academic medical centre,,,,,,,,,,,,
+BRI,,BRI,Bradford Royal Infirmary,Teaching hospital,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,,
+NIPH,,NIPH,Norwegian Institute of Public Health,Government agency,,,,,,,,Norway,,,https://www.fhi.no/en/,
+UNITO,,UNITO,Università degli Studi di Torino,University,,,,,,,,Italy,,,https://www.unito.it/,
+UHASSELT,,UHASSELT,Hasselt University (Universiteit Hasselt),University,,,,,,,,Belgium,,,http://www.uhasselt.be/en,
+NKI,,NKI,Netherlands Cancer Institute,Research centre,,,,,,,,,,,,
+UOC,,UOC,University of Crete,University,,,,,,,,Greece,,,https://www.uoc.gr/,
+LMU,,LMU,Medical Faculty - LMU Munich,University,,,,,,,,Germany,,,https://www.med.uni-muenchen.de/index.html,
+UWA,,UWA,University of Western Australia,University,,,,,,,,Australia,,,https://www.uwa.edu.au/,
+VMU,,VMU,Vytautas Magnus University,University,,,,,,"K. Donelaičio g. 58, LT-44248 Kaunas",,Lithuania,,,https://www.vdu.lt/,
+Amsterdam UMC (AMC),,,"Amsterdam UMC, location AMC",Academic medical centre,Netherlands (the),,,,,,,,,,,
+Soton,,Soton,University of Southampton,University,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,https://www.southampton.ac.uk/,
+HUA,,HUA,Harokopio University,University,,,,evangeliatzo@gmail.com,,,,,,,https://www.ddns.hua.gr/en/home/,
+KI,,KI,Karolinska Institutet,University,,,,,,,,Sweden,,,https://ki.se/en,
+UCD,,UCD,University College Dublin,University,,,,,,,,Ireland,,,,
+UIBK,,UIBK,Universität Innsbruck,University,,,,,,,,Austria,,,https://www.uibk.ac.at/,
+GGZ Drenthe,,,GGZ Drenthe,,,,,,,,,,,,,
+GGZ Friesland,,,GGZ Friesland,,,,,,,,,,,,,
+Lentis Research,,,Lentis Research,,,,,,,,,,,,,
+ISPUP,,,Institute of Public Health of the University of Porto,,,,,,,,,,,,,
+CUH,,CUH,Copenhagen University Hospital,University,,,,,,,,Denmark,,,,
+pre-demo,,,test org,,,,,,,,,,,,,
+VIB,,,VIB,,,,,,,,,Belgium,,,https://vib.be/,
+WWU,,,WESTFAELISCHE WILHELMSUNIVERSITAET MUENSTER,,,,,,,,,Germany,,,https://www.uni-muenster.de/en/,
+ImaginAb,,,"IMAGINAB, INC",,,,,,,,,United States of America (the),,,https://imaginab.com/,
+Pfizer,,,PFIZER LIMITED,,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,https://www.pfizer.com/,
+Janssen,,,JANSSEN PHARMACEUTICA NV,,,,,,,,,Belgium,,,https://www.janssen.com/belgium/,
+UCAM,,,THE CHANCELLOR MASTERS AND SCHOLARS OF THE UNIVERSITY OF CAMBRIDGE,,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,https://www.cam.ac.uk/,
+Takeda,,,TAKEDA DEVELOPMENT CENTRE EUROPE LTD,,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,,
+Bayer,,,BAYER AKTIENGESELLSCHAFT,,,,,,,,,Germany,,,https://www.bayer.com/en/,
+Novartis,,,NOVARTIS PHARMA AG,,,,,,,,,Switzerland,,,https://www.novartis.com/,
+Roche,,,F. HOFFMANN-LA ROCHE AG,,,,,,,,,Switzerland,,,https://www.roche.com/,
+ECPC,,,EUROPEAN CANCER PATIENT COALITION,,,,,,,,,Belgium,,,https://ecpc.org/,
+AmsterdamUMC (VUmc),,,Amterdam UMC locatie VUmc,Academic medical centre,,,,,,,,,,,,
+PHARMO,,PHARMO,The PHARMO institute,Research centre,,,,,,,,Netherlands (the),,,,
+ABAC,,ABAC,Ab-acus ,SME,,,,,,,,Italy,,,,
+EMC,,EMC,Erasmus MC,University,,,,,,,,Netherlands (the),,,,
+Maxima MC,,MMC,Maxima Medisch Centrum,Hospital/Clinic/Other health care facility,,,,,,,,,,,,
+UOB,,UOB,University of Bristol,University,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,,
+RECETOX,,RECETOX,Research Centre for Toxic Compounds in the Environment,Research centre,,,,,,,,Czechia,,,https://www.recetox.muni.cz/en,
+LYG,,,STICHTING LYGATURE,,,,,,,,,Netherlands (the),,,https://www.lygature.org/,
+Antaros,,,ANTAROS MEDICAL AB,,,,,,,,,Sweden,,,https://antarosmedical.com/,
+VHIR,,,FUNDACIO HOSPITAL UNIVERSITARI VALL D'HEBRON - INSTITUT DE RECERCA,,,,,,,,,Spain,,,,
+EKUT,,,EBERHARD KARLS UNIVERSITAET TUEBINGEN,,,,,,,,,Germany,,,https://uni-tuebingen.de/en/,
+VUB,,,VRIJE UNIVERSITEIT BRUSSEL,,,,,,,,,Belgium,,,https://www.vub.be/en/home,
+VHIO,,,FUNDACIO PRIVADA INSTITUT D'INVESTIGACIO ONCOLOGICA DE VALL-HEBRON,,,,,,,,,Spain,,,https://www.vhio.net/,
+VUMC,,P1,STICHTING VUMC,,,,,,,,,Netherlands (the),,,https://www.vumc.nl/,
+CEA,,,COMMISSARIAT A L ENERGIE ATOMIQUE ET AUX ENERGIES ALTERNATIVES,,,,,,,,,France,,,http://www.cea.fr/english/Pages/Welcome.aspx,
+TTOP,,,TTOPSTART BV,,,,,,,,,Netherlands (the),,,https://ttopstart.com/,
+Lawrencium,,,LAWRENCIUM LEGAL BV,,,,,,,,,Netherlands (the),,,https://lawrencium-legal.com/,
+UPF,,UPF,University Pompeu Fabra ,University,,,,,,,,Spain,,,,
+UOULU,,UOULU,University of Oulu,University,,,,,,,,Finland,,,,
+ISGLOBAL,,ISGLOBAL,Barcelona Institute for Global Health,Research centre,,,,,,,,Spain,,,,
+IKNL,,,Integraal kankercentrum Nederland,,,,,,,,,,,,,
+CNR-IEOS,,CNR-IEOS,Istituto per l'endocrinologia e l'oncologia,,,,,,,,,,,,,
+UoD,,UoD,University of Dundee,Academic institution,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,,
+DHMA,,,Danish Health and Medicines Authority (Sundhedsdatastyrelsen),Government agency,,,,,,,,,,Other,,
+AEMPS,,AEMPS,Agencia Española de Medicamentos y Productos Sanitarios,Government agency,,,,,,,"The Spanish Agency on medicines and medical devices (AEMPS) is responsable to guarantee the quality, safety, efficacy and correct information of the medicines and medical devices. To do this, the AEMPs has a broad and multidisciplinary expertise in all matters related to medicines and medical devices. In this  context, the AEMPs fully finance the non-profit program BIFAP that supports a longitudinal population-based database of computer-based medical patient records belonging to the National Health Service (NHS). The main use of BIFAP is for research purposes in order to evaluate the adverse and beneficial effects of drugs and drug utilization patterns as used in the general population under real conditions of use. The BIFAP multidisciplinary team includes Epidemiologists, clinicians, statistitians, project management and Information Technology personnel with a broad expertise in designing,  managing, anlyzing and interpreting big data information.",Spain,,,https://www.aemps.gob.es/,
+JP,,JP,Janssen Pharmaceutica NV,Pharmaceutical company,,,,,,,,Belgium,,,,
+P95,,P95,P95,Pharmaceutical company,,,,,,,,Belgium,,,,
+PHARMO.I,,PHARMO,PHARMO Institute,Research centre,,,,,,,"PHARMO is an independent scientific research organisation dedicated to drug utilisation reviews and outcomes research in current practice. PHARMO assists universities, companies and agencies to formulate and optimise research questions to meet company goals to the highest scientific standards. The institute has direct access to large and high quality pharmaco-epidemiological databases included in the PHARMO Database Network and is staffed with academic trained specialists in epidemiology, pharmacotherapeutics, medicine and informatics. The high level of expertise and access to real world data enables rapid and professional handling of research questions meeting the highest research standards. PHARMO coordinates multi-database studies in Europe in collaboration with local expertise centres. Through collaboration the opportunity arises to increase sample size and market heterogeneity, which allows identification of rare outcomes, small effects and complex interactions with comorbidities and co-medication. Furthermore, working with local partners ensures access to the data and expertise of the local healthcare system and database structure.",Netherlands (the),,Researcher,https://pharmo.nl/,
+LAREB,,LAREB,Stichting LAREB,Not-for-profit,,,,,,,,Netherlands (the),,,,
+CNAM,,CNAM,Caisse Nationale d'Assurance Maladie,Healthcare payer,,,,,,,,France,,Data originator,https://www.ameli.fr/,"The French National Fund for Health Insurance  (Caisse nationale de l'Assurance Maladie / CNAM) is the main public health insurer in France ; 
+It was created by the 1967 ordinance which established a separation of Social Security into autonomous branches: sickness (CNAM), family (CNAF) and old age (CNAV). It acts under the supervision of the Ministry of Social Security and the Ministry of Economy and Finance.
+It is involved in the scheme for therapeutic part-time work, established by the law of 10 August 2018 which is intended to help disabled employees return to employment. If the Social Security Medical Board considers this appropriate payment of sickness benefits will continue
+It covers 99 % of the French population (salaried workers, self employed workers, and students), through 101 local health insurance funds.
+
+CNAM manages the Système National des Données de Santé (SNDS) database, which links and regroups:
+    - health insurance data (from SNIIRAM database - originator: CNAM)
+    - hospital data (from PMSI database - originator: ATIH)
+    - medical causes of death (from CépiDC database - originator: INSERM)"
+NBHW,,NBHW,Swedish National Board of Health and Welfare,Government agency,,,,,,,,Sweden,,Other,https://www.socialstyrelsen.se/en/,"The National Board of Health and Welfare is a government agency under the Ministry of Health and Social Affairs, with a very wide range of activities and many different duties within the fields of social services, health and medical services, patient safety and epidemiology."
+AU,,AU,Aarhus University,Academic institution,,,,,,,"Department of Clinical Epidemiology, Aarhus University, offers consultancy services and research collaboration to health authorities as well as to the pharmaceutical and biotech industries. Our research is focused on prevention, diagnostics and treatment and related areas such as biostatistics, evidence-based medicine, and e-health as well as traditional research and quality assessments. Approximately 100 people are affiliated with the department.",Denmark,,Researcher,https://international.au.dk/,"Department of Clinical Epidemiology, Aarhus University, is a highly specialized research department working with clinical epidemiology at an international level. Its mission is to improve clinical care through high-quality clinical epidemiological research, education, and translation of knowledge into clinical practice. Its vision is to be a world-leading department of clinical epidemiology, working in global partnership to address contemporary and future clinical challenges."
+UiO,,UiO,University of Oslo,Academic institution,,,,,,,,Norway,,,,"PharmacoEpidemiology and Drug Safety Research Group (PharmaSafe) is a research group within the Department of Pharmacy at the Faculty of Mathematics and Natural Sciences, UiO. The research group coordinates and performs studies of medications in pregnancy. First, PharmaSafe/UiO apply to the Regional Ethical Regional Committees for Medical and Health Research Ethics (REC)*. REC carries out an assessment as to whether research is undertaken in an acceptable manner. This entails the consideration of benefit versus risk for the participants and whether data protection is assured. UiOs Data Protection Officer performs the Data Protection Impact Assessment (DPIA). Upon approval from REC and the data protection officer at UiO, PharmaSafe/UiO applies to the administrator of each database for use of data files, and negotiates the terms and data transfer agreements. All data files are transferred from the different registries to UiO where it is uploaded to TSD, a secure platform for data storage and analysis (GDPR compliant). On TSD, the data files from the different registries are linked using the Norwegian national identity number. International researchers can access the data through TSD or sign a data transfer agreement with UiO and have data transferred abroad. There are some restrictions on the types of data that can be transferred abroad. The data themselves are free of charge, but costs accrue for administrative handling and file processing."
+CHUT,,CHUT,Centre Hospitalier Universitaire de Toulouse,Academic institution,,,,,,,,France,,,,"CHUT is a University Hospital in Touloue, in the region of Haute Garonne (France)"
+SSI,,SSI,Statens Serum Institut,Research centre,,,,,,,,Denmark,,,,
+UKZN,,UKZN,University of KwaZulu-Natal,Academic institution,,,,,,,,South Africa,,,,
+KUL,,KUL,KU Leuven,Academic institution,,,,,,,,Belgium,,,,
+UPP,,UPP,Uppsala Universitet,Academic institution,,,,,,,,Sweden,,,,
+SIDIAP.I,,SIDIAP,Information System for Research in Primary Care,Research centre,,,,,,,,Spain,,,,
+FERR,,FERR,Università degli Studi di Ferrara – University of Ferrara,Academic institution,,,,,,,,Italy,,,,
+UM,,UM,University of Messina,Academic institution,,,,,,,,Italy,,,,The pharmacoepidemiology group of the University of Messina uses Caserta healthcare claims databases available in-house.
+ARS.TOSCANA,,ARS,Agenzia regionale di sanità della Toscana,Research centre,,,,,,,,Italy,,,https://www.ars.toscana.it/,"ARS is an agency of the Tuscany Region, and acts as a technical and scientific consultant both to the regional government and to the Regional Council. The Tuscany Region transmits a copy of its healthcare administrative databases to ARS, which is entitled by regional law to use it for its institutional purposes, upon permission of a board representing the Regional Council. Ars also receives copy of the other regional data banks.Upon permission, ARS may request access to local data banks, for specific purposes (eg validation)"
+MLT.I,,MLT,Malta Congenital Anomalies Registry Directorate for Health Information and Research,Research centre,,,,,,,,Malta,,,,
+UMCU,,UMCU,UMC Utrecht,Academic institution,,,,,,,,Netherlands (the),,Researcher,https://www.umcutrecht.nl/nl,
+USWAN,,USWAN,University of Swansea,Academic institution,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,,
+IHD,,IHD,The European Institute for Innovation through Health Data,Research centre,,,,,,,,,,,,
+NP,,NP,Novartis Pharma AG,Pharmaceutical company,,,,,,,,Switzerland,,,,
+UCB,,UCB,UCB biopharma,Pharmaceutical company,,,,,,,,,,,,
+SAN,,SAN,Sanofi,Pharmaceutical company,,,,,,,,France,,,,
+TAK,,TAK,Takeda,Pharmaceutical company,,,,,,,,Japan,,,,
+BBMRI-ERIC,,BBMRI-ERIC,Biobanking and Biomolecular Resources Research Infrastructure – European Research Infrastructure Consortium,Not-for-profit,,,,,,,,Austria,,,,
+JORDIGOL,,JORDIGOL,Institut de Recerca en Atenció Primària Jordi Gol,Academic institution,,,,,,,,Spain,,,,
+UCPH,,UCPH,University of Copenhagen,Academic institution,,,,,,,,Denmark,,,https://www.ku.dk/english/,
+UB,,UB-BPE,"Université de Bordeaux, Bordeaux PharmacoEpi",Academic institution,,,,nicolas.thurin@u-bordeaux.fr,,"146 rue Leo Saignat - Case 41
+33076 Bordeaux Cedex
+France","Over the last 15 years, BPE has been developing its expertise in pharmacoepidemiology in many therapeutic areas, carrying out both field studies with ad-hoc data collection, and database studies relying on secondary data.  BPE has an extensive experience in the use of the French Nationwide healthcare database (Système National des Données de Santé - SNDS) encompassing outpatients claims and hospital discharge summaries of the 67 million French people, to generate real world evidence around health technologies. The platform is used to conduct federated analyses with international partners.",France,,Researcher,http://www.bordeauxpharmacoepi.eu/en/,"BPE is a research platform of the Université de Bordeaux specialized in pharmacoepidemiology and real world evidence generation.
+BPE is part of the French National Institute  of Health and Medical Research (INSERM), is certified ISO 9001:v2015 for its pharmacoepidemiology research activities. The platform has been registered with ENCePP since ENCePP’s creation and is on the list of the EMA procurement procedure for drug safety (EMA/2012/08/C)."
+DHL.I,,THL,Finnish Institute for Health and Welfare,Government agency,,,,maarit.leinonen@thl.fi,,"Postal address: P.O. Box 30, FI-00271 Helsinki, Finland
+Street address: Mannerheimintie 166, Helsinki",,Finland,,"Data originator,Researcher",https://thl.fi/en/web/thlfi-en,"THL is a Finnish expert agency that provides reliable information on health and welfare for decision-making and activities in the field.
+
+Utilization of health registry data for scientific research always requires approval from the register administrators. Finnish Social and Health Data Permit Authority Findata grants permits for the secondary use of social and health care data used in the ConcePTION."
+OVGU,,OVGU,Otto von Guericke University Magdeburg,Academic institution,,,,,,,,Germany,,,,
+GSK,,GSK,GlaxoSmithKline,Pharmaceutical company,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,,
+CNR-IFC,,CNR-IFC,CNR Tuscany,Research centre,,,,apier@ifc.cnr.it,,,"CNR-IFC has a consolidate experience in designing epidemiological and health studies and performing the statistical analysis of multidimensional data.
+As a member of EUROmediCAT and EUROmediSafe consortia and wider EUROCAT and ICBDSR networks is specialised in pregnancy related research.",Italy,,"Researcher,Surveillance",https://www.ifc.cnr.it/index.php/en/,"CNR-IFC is responsible in the Tuscany Region to perform research and surveillance activities by using data from the regional congenital anomalies registry.  The Tuscany Region collects administrative and surveillance data bank on whole the Tuscan population; CNR-IFC is entitled to receive the records which are referred to children in the congenital anomaly registry, and link them to the congenital anomaly registry. Linkage is possible for children and for mothers."
+FISABIO,,FISABIO,Fundación para el Fomento de la Investigación Sanitaria y Biomédica de la Comunitat Valenciana,Research centre,,,,,,"FISABIO / Avda. De Catalunya, 21/46020 Valencia, Spain",,Spain,,Researcher,http://fisabio.san.gva.es/,"The Foundation for the Promotion of Health and Biomedical Research of Valencian Region, FISABIO, is a non-profit scientific and healthcare entity, whose primary purpose is to encourage, to promote and to develop scientific and technical health and biomedical research in Valencian Region. 
+FISABIO provides service to more than 1,500 healthcare professionals within the Valencian network, who are specialists working in research projects and clinical trials managed by the Foundation. 
+Among FISABIO the main objectives are: 
+• To facilitate, promote, develop and execute research according to existing research plans in the Valencia Department of Health. 
+• To act as scientific and technical research and innovation driving agent, providing the necessary basis to promote interaction between research teams located in Universities, Hospitals, the Scientific Research Council and other similar institutions. 
+• To facilitate and promote the training of professionals and researchers within the Health field. 
+• To perform and promote all type of studies that generate knowledge in the field of health care and health in general. 
+• To Cooperate and develop healthcare activities
+**FISABIO- Rare Diseases Research Unit aims to increase global understanding on the current situation and distribution of rare diseases and congenital anomalies, as well as their effects on the population, using epidemiological methods for analyzing studies’ design and implementation, in addition to spatial epidemiology techniques. Moreover, it is responsible for the population-based registry of congenital anomalies in the Valencian Region."
+ULST,,ULST,University of Ulster,Academic institution,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,,
+UMCG,,UMCG,University Medical Center Groningen,Academic institution,,,,,,,,Netherlands (the),,,,The University Medical Center Groningen (UMCG) is one of 8 university medical centers in the Netherlands.
+LIPRE,,LIPRE,Leibniz Institute for Prevention Research and Epidemiology,Research centre,,,,,,,,Germany,,,,
