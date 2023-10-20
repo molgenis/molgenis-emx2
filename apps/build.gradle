@@ -33,8 +33,8 @@ task checkFormat(type: YarnTask, dependsOn: yarn_install) {
 }
 
 task buildJavascript(type: YarnTask, dependsOn: yarn_install) {
-    environment = ["NODE_OPTIONS":"--max-old-space-size=4096"]
-    args = ['run', 'nx', 'run-many', '--target=format:write,build,build-showcase',"--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}",'--verbose']
+    environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
+    args = ['run', 'nx', 'affected', '-t', 'build,build-showcase,test']
     doLast {
         file("${project.projectDir}").eachDir { dir ->
             if (dir.name == 'molgenis-components' || dir.name == 'molgenis-viz') {
@@ -42,7 +42,7 @@ task buildJavascript(type: YarnTask, dependsOn: yarn_install) {
                     from dir.path + "/showCase"
                     into "${buildDir}/generated/main/resources/public_html/apps/" + dir.name
                 }
-            } else if(dir.name != ".gradle" && dir.name != 'build' && dir.name != 'node_modules') {
+            } else if (dir.name != ".gradle" && dir.name != 'build' && dir.name != 'node_modules') {
                 println dir.path + "/dist"
                 copy {
                     from dir.name + "/dist"
