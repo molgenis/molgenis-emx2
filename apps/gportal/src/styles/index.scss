@@ -1,10 +1,59 @@
-.visually-hidden {
-  position: absolute;
-  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
-  clip: rect(1px, 1px, 1px, 1px);
-  overflow: hidden;
-  height: 1px;
-  width: 1px;
-  margin: -1px;
-  white-space: nowrap;
+.app-page { 
+  font-size: 11pt;
+  
+  .page-header {
+    border-bottom: 10px solid transparent;
+    border-image: $gdi-brand-gradient;
+    border-image-slice: 1;
+  }
+  
+  .page-section {
+    .page-section-content {
+      h2 {
+        color: $gdi-brand-purple;
+      }
+    }
+    
+    &.bg-gray-050 {
+      background-color: $gray-050;
+    }
+  }
+}
+
+.link-card-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1em;
+  
+  .link-card {
+    background-color: $gdi-brand-purple;
+    flex-grow: 1;
+    &.height-medium {
+      height: auto;
+      padding: 0.8em;
+    }
+  }
+}
+
+.table {
+  font-size: 12pt;
+}
+
+.message-box {
+  .message-text { 
+    p {
+      margin: 0;
+    }
+  }
+  
+  &.message-error {
+    .message-text {
+      padding: 0.5em 1em;
+      
+      p {
+        margin: 0;
+      }
+    }
+  }
 }
