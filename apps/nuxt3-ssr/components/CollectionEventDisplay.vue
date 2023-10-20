@@ -132,6 +132,6 @@ if (collectionEvent?.coreVariables?.length) {
     :title="collectionEvent?.name"
     :description="collectionEvent?.description"
   >
-    <DefinitionList :items="items" :small="true" />
+    <CatalogueItemList :items="items" :small="true" />
   </ContentBlockModal>
 </template>
