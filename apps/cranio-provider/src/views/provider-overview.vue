@@ -11,7 +11,7 @@
         current page, you will find a snapshot of your centre as of today.
       </p>
     </DashboardBox>
-    <DashboardChartLayout :columns="2">
+    <DashboardChartLayout :columns="1">
       <DashboardBox
         id="provider-overview-patients-submitted"
         class="center-showcase"
@@ -32,6 +32,7 @@
           :chartData="numPatientsByWorkstream"
           :chartHeight="215"
           :asDonutChart="true"
+          :chartColors="workstreamColors"
           :enableLegendHovering="true"
           legendPosition="bottom"
           :chartScale="0.85"
@@ -40,14 +41,19 @@
           @slice-clicked="updateSelection"
         />
       </DashboardBox>
-      <DashboardBox id="provider-overview-patients-by-sex-at-birth" v-if="showSexAtBirth">
+      <DashboardBox id="provider-overview-patients-by-sex-at-birth">
+        <div class="d3-viz-message" v-if="!showSexAtBirth">
+          <p>Click a workstream to view the number of patients by sex at birth</p>
+        </div>
         <PieChart2
+          v-else
           chartId="sexAtBirth"
           :title="sexAtBirthTitle"
           :chartData="sexAtBirth"
           :chartHeight="215"
           :asDonutChart="true"
           :enableLegendHovering="true"
+          :chartColors="genderColors"
           legendPosition="bottom"
           :chartScale="0.85"
           :valuesArePercents="false"
@@ -70,19 +76,33 @@ import viewProps from "../data/props";
 const props = defineProps(viewProps);
 
 import { randomInt } from "d3";
+import generateColors from "../utils/palette.js";
 
 // generate random data for display purposes
 let totPatientsSubmitted = ref(0);
 let avgPatientsSubmitted = ref(0);
-let numPatientsByWorkstream = ref({});
+let numPatientsByWorkstream = ref({
+  'Cleft lip and palate': 0,
+  Craniosynostosis: 0,
+  'Genetic Deafness': 0,
+  Larynxcleft: 0
+});
 let showSexAtBirth = ref(false);
-let sexAtBirth = ref({});
+let sexAtBirth = ref({
+  Female: 0,
+  Male: 0,
+  Undetermined: 0
+});
+
 let sexAtBirthTitle = ref(null);
 let patientsSexByWorkstream = ref([]);
 
+const workstreamColors = generateColors(Object.keys(numPatientsByWorkstream.value));
+const genderColors = generateColors(Object.keys(sexAtBirth.value));
+
 function generatePatients () {
-  const workstreams = ['Cleft lip and palate','Craniosynostosis','Genetic Deafness','Larynxcleft'];
-  const sexAtBirthGroups = ['Female', "Male", 'Undetermined'];
+  const workstreams = Object.keys(numPatientsByWorkstream.value)
+  const sexAtBirthGroups = Object.keys(sexAtBirth.value);
   const patientsByWorkstream = workstreams.map(value => [value, randomInt(25,225)()]);
   
   numPatientsByWorkstream.value = Object.fromEntries(patientsByWorkstream.sort((a,b) => a[1] < b[1] ? 1 : -1));
