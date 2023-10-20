@@ -6,7 +6,7 @@ import ProviderOverview from "../views/provider-overview.vue";
 import ProviderCsApp from "../views/provider-cs-app.vue";
 import ProvidersCsAllGeneral from "../views/provider-cs-all-general.vue";
 import ProvidersCsAllSurgical from "../views/provider-cs-all-surgical.vue";
-import ProvidersCsCenterGeneral from "../views/provider-cs-center-overview.vue";
+import ProvidersCsCenterGeneral from "../views/provider-cs-center-general.vue";
 import ProvidersCsCenterSurgical from "../views/provider-cs-center-surgical.vue";
 
 // cleft lip and palate pages (id: `-clp-`)
