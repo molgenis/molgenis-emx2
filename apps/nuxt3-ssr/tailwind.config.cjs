@@ -145,6 +145,9 @@ module.exports = {
         "pagination-hover": theme("colors.blue.900"),
         footer: theme("colors.blue.800"),
         "modal-footer": theme("colors.blue.800"),
+        tab: theme("colors.blue.50"),
+        "tab-hover": theme("colors.blue.500"),
+        "tab-active": theme("colors.blue.500"),
       }),
       textColor: ({ theme }) => ({
         "button-primary": theme("colors.gray.900"),

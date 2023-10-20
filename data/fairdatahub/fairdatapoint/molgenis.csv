@@ -22,8 +22,8 @@ Dataset,,temporal,string,,,,,,,,http://purl.org/dc/terms/temporal,The temporal p
 Dataset,,temporalResolution,string,,,,,,,,http://purl.org/dc/terms/temporalResolution,Minimum time period resolvable in the dataset.,DCAT
 Dataset,,wasGeneratedBy,string,,,,,,,,http://www.w3.org/ns/prov#wasGeneratedBy,"An activity that generated, or provides the business context for, the creation of the dataset.",DCAT
 Dataset,,accessRights,string,,,,,,,,http://purl.org/dc/terms/accessRights,Information about who can access the resource or an indication of its security status.,DCAT
-Dataset,,contactPoint,ref,,,,Persons,,,,http://purl.org/dc/terms/contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT
-Dataset,,creator,ref_array,,,,Persons,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT
+Dataset,,contactPoint,ref,,,,ContactPersons,,,,http://purl.org/dc/terms/contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT
+Dataset,,creator,ref_array,,,,ContactPersons,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT
 Dataset,,hasPolicy,string,,,,,,,,http://www.w3.org/ns/odrl/2/hasPolicy,An ODRL conformant policy expressing the rights associated with the resource.,DCAT
 Dataset,,identifier,string,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT
 Dataset,,isReferencedBy,string,,,,,,,,http://purl.org/dc/terms/isReferencedBy,"A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.",DCAT

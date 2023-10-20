@@ -1,16 +1,21 @@
-import { IColumn, ISchemaMetaData, ITableMetaData } from "interfaces/types";
+import {
+  IColumn,
+  ISchemaMetaData,
+  ITableMetaData,
+  KeyObject,
+} from "~~/interfaces/types";
 
 const FILE_FRAGMENT = "{ id, size, extension, url }";
 
 export const buildRecordDetailsQueryFields = (
   schemas: Record<string, ISchemaMetaData>,
   schemaName: string,
-  tableId: string
+  tableName: string
 ): string => {
   const schemaMetaData = schemas[schemaName];
   const tableMetaData = schemaMetaData.tables.find(
     (t: ITableMetaData) =>
-      t.id.toLocaleLowerCase() === tableId.toLocaleLowerCase()
+      t.name.toLocaleLowerCase() === tableName.toLocaleLowerCase()
   );
 
   const allColumns = tableMetaData?.columns;
@@ -26,16 +31,16 @@ export const buildRecordDetailsQueryFields = (
     const allRefColumns = refTableMetaData?.columns;
 
     const refTableDataColumns = allRefColumns
-      ?.filter((c) => !c.id.startsWith("mg_"))
+      ?.filter((c) => !c.name.startsWith("mg_"))
       .filter((c) => c.columnType !== "HEADING");
 
     const refFields = refTableDataColumns?.map((column) => {
       switch (column.columnType) {
         case "STRING":
         case "TEXT":
-          return column.id;
+          return column.name;
         case "FILE":
-          return `${column.id} ${FILE_FRAGMENT}`;
+          return `${column.name} ${FILE_FRAGMENT}`;
         case "REF":
         case "ONTOLOGY":
         case "REF_ARRAY":
@@ -43,7 +48,7 @@ export const buildRecordDetailsQueryFields = (
         case "ONTOLOGY_ARRAY":
           return ""; // stop recursion
         default:
-          return column.id;
+          return column.name;
       }
     });
 
@@ -56,17 +61,17 @@ export const buildRecordDetailsQueryFields = (
     switch (column.columnType) {
       case "STRING":
       case "TEXT":
-        return column.id;
+        return column.name;
       case "FILE":
-        return `${column.id} ${FILE_FRAGMENT}`;
+        return `${column.name} ${FILE_FRAGMENT}`;
       case "REF":
       case "ONTOLOGY":
       case "REF_ARRAY":
       case "REFBACK":
       case "ONTOLOGY_ARRAY":
-        return `${column.id} { ${refTableQueryFields(column)} }`;
+        return `${column.name} { ${refTableQueryFields(column)} }`;
       default:
-        return column.id;
+        return column.name;
     }
   });
 
@@ -92,7 +97,7 @@ export const buildRecordListQueryFields = (
     );
   }
 
-  const typeFields = tableMetaData.columns.map((c) => c.id);
+  const typeFields = tableMetaData.columns.map((c) => c.name);
 
   // suggested list fields that are part of this tableType
   const additionalFields: any = [
@@ -139,18 +144,18 @@ const buildKeyFields = (
     (acc: any, column: IColumn) => {
       if (column.key === 1) {
         if (isValueType(column)) {
-          acc.push(column.id);
+          acc.push(column.name);
         } else if (isRefType(column)) {
           if (!column.refTable) {
             throw new Error(
-              "refTable is undefined for refColumn with id " +
-                column.id +
+              "refTable is undefined for refColumn with name " +
+                column.name +
                 " in table " +
                 tableName +
                 ""
             );
           } else {
-            acc.push(column.id);
+            acc.push(column.name);
             acc.push(
               buildKeyFields(
                 column.refTable,
@@ -198,30 +203,30 @@ export const extractExternalSchemas = (schemaMetaData: ISchemaMetaData) => {
 export const extractKeyFromRecord = (
   record: any,
   tableName: string,
-  schemaId: string,
+  schemaName: string,
   schemas: Record<string, ISchemaMetaData>
 ) => {
-  const schemaMetaData = schemas[schemaId];
+  const schemaMetaData = schemas[schemaName];
   const tableMetaData = getTableMetaData(schemaMetaData, tableName);
 
   const key = tableMetaData.columns.reduce((acc: any, column: IColumn) => {
-    if (column.key === 1 && record[column.id]) {
+    if (column.key === 1 && record[column.name]) {
       if (isValueType(column)) {
-        acc[column.id] = record[column.id];
+        acc[column.name] = record[column.name];
       } else if (isRefType(column)) {
         if (!column.refTable) {
           throw new Error(
-            "refTable is undefined for refColumn with id " +
-              column.id +
+            "refTable is undefined for refColumn with name " +
+              column.name +
               " in table " +
               tableName +
               ""
           );
         } else {
-          acc[column.id] = extractKeyFromRecord(
-            record[column.id],
+          acc[column.name] = extractKeyFromRecord(
+            record[column.name],
             column.refTable,
-            column.refSchema || schemaId,
+            column.refSchema || schemaName,
             schemas
           );
         }
@@ -244,9 +249,12 @@ export const extractKeyFromRecord = (
   return key || {};
 };
 
-export const buildFilterFromKeysObject = (keys: Record<string, string>) => {
+export const buildFilterFromKeysObject = (keys: KeyObject) => {
   return Object.entries(keys).reduce(
-    (acc: Record<string, object>, [key, value]: [string, string]) => {
+    (
+      acc: Record<string, object>,
+      [key, value]: [string, string | KeyObject]
+    ) => {
       acc[key] = { equals: [value] };
       return acc;
     },

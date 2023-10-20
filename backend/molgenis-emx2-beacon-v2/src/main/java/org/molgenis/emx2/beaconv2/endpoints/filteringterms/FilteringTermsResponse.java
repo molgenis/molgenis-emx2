@@ -18,7 +18,7 @@ public class FilteringTermsResponse {
           "Dataset",
           "GenomicVariations",
           "Individuals",
-          "SequencingRuns");
+          "Runs");
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
   private FilteringTerm[] filteringTerms;

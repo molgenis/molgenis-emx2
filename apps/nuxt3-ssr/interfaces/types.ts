@@ -59,14 +59,36 @@ export interface ICohort {
   documentation?: IDocumentation[];
 }
 
-export interface IVariable {
+export interface IVariableBase {
   name: string;
+  resource: {
+    id: string;
+  };
+  dataset: {
+    name: string;
+    resource: {
+      id: string;
+    };
+  };
   label: string;
   description?: string;
+}
+
+export interface IVariableDetails {
   unit?: IOntologyNode;
   format?: IOntologyNode;
-  nRepeats?: number;
 }
+
+export interface IVariableMappings {
+  mappings?: IMapping[];
+  repeats?: {
+    name: string;
+    mappings: IMapping[];
+  }[];
+}
+
+export type IVariable = IVariableBase & IVariableDetails;
+export type IVariableWithMappings = IVariable & IVariableMappings;
 
 interface IFile {
   id?: string;
@@ -185,7 +207,7 @@ export interface IFilter extends IBaseFilter {
   search?: string;
 }
 
-interface IFormField {
+export interface IFormField {
   name: string;
   label: string;
   fieldValue: string; // value is taken by vue reactivity
@@ -194,7 +216,7 @@ interface IFormField {
   message?: string;
 }
 
-interface IContactFormData {
+export interface IContactFormData {
   recipientsFilter: string;
   subject: string;
   body: string;
@@ -270,6 +292,8 @@ export type KeyObject = {
 };
 
 export interface IMapping {
+  syntax: string;
+  description: string;
   sourceDataset: {
     resource: {
       id: string;

@@ -1,2 +1,84 @@
-resource,name,noParticipants,description,ageCategories,disease,geographicRegion,inclusionCriteria,supplementaryInformation
-TestCohort,Children,2,some test sub cohort,0y,None,Netherlands,None,Some suppl info
+resource,name,description,number of participants,inclusion start,inclusion end,age groups,main medical condition,comorbidity,countries,regions,inclusion criteria,supplementary information
+ALSPAC,Mothers,,14541,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,
+ALSPAC,Partners,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,
+ALSPAC,Children,,,,,,,,United Kingdom of Great Britain and Northern Ireland (the),,,
+BIB,Children,,,,,,,,,Bradford,,
+BIB,Mothers,,12453,,,,,,,Bradford,Baseline (26-28 weeks gestation) with various follow-ups,
+BIB,Partners,,3353,,,,,,,Bradford,,
+CON,Prognosis study,,,,,,,,,,,
+CSC,Age stratification 30-49,Women aged 30 to 49 years old,,,,,,,,,,
+CSC,Age stratification 50-70,Women aged 50 to 70,,,,,,,,,,
+CSC,Age stratification 23-29,Women aged 23 to 29 years,,,,,,,,,,
+DFBC,follow-up at: 74/75,,,,,,,,Netherlands (the),,,
+DFBC,follow-up at: 58,,,,,,,,Netherlands (the),,,
+DFBC,follow-up at: 73,,,,,,,,Netherlands (the),,,
+DFBC,Baseline (50 years of age),,912,,,Middle-aged (45-64 years),,,Netherlands (the),,,
+DFBC,follow-up at: 77,,,,,,,,Netherlands (the),,,
+DFBC,follow-up at: 68,,,,,,,,Netherlands (the),,,
+DFBC,follow-up at: 63,,,,,,,,Netherlands (the),,,
+DNBC,children,,96825,,,,,,Denmark,,,
+DNBC,pregnancies,,100410,,,,,,Denmark,,,
+EDEN,children,,1400,,,,,,,Vienne,,
+EDEN,fathers,,,,,,,,,Vienne,,
+EDEN,mothers,,1900,,,,,,,Vienne,,
+ELFE,children,,18329,,,,,,France,,,
+ELFE,mothers,,,,,,,,France,,,
+ELFE,fathers,,,,,,,,France,,,
+MoBa,children,,114500,,,,,,Norway,,,
+MoBa,fathers,,75000,,,,,,Norway,,,
+mtFIT study,mtFIT study,,13300,,,,,,,,,
+PSYCONN,RQ-MIS,"RoQua Management Information System.
+Health care consumption, socio-demographic, and diagnosis data.
+PSYCONN baseline and outcome data is collected from RQ-MIS.",,,,,,,,,,
+FORCE-NEN,FORCE-NEN intensive,,,2022,,"Adult (18+ years),Young adult (18-24 years),Adult (25-44 years),Middle-aged (45-64 years),Aged (65+ years),Aged (65-79 years),Aged (80+ years)","Duodenal neuroendocrine tumor,Functioning neuroendocrine tumor of pancreas,Gastroenteropancreatic neuroendocrine neoplasm,Ileal neuroendocrine tumor,Jejunal neuroendocrine tumor,Neuroendocrine carcinoma of pancreas,Neuroendocrine neoplasm,Neuroendocrine neoplasm of appendix,Neuroendocrine neoplasm of esophagus,Neuroendocrine neoplasm of pancreas,Neuroendocrine tumor of pancreas,Neuroendocrine tumor of the small intestine,Non-functioning neuroendocrine tumor of pancreas",,Netherlands (the),,"Pancreatic or Small intestine neuroendocrine tumor with a Ki-67 more than 10%, gastro-entero-pancreatic neuroendocrine carcinoma
+Age 18 years and older
+Able to provide broad consent
+RECIST measurable disease at baseline
+
+Exclusion criteria:
+(history of) other malignancy at baseline
+Hereditary syndrome as cause of the neuroendocrine neoplasm
+Mixed neuroendocrine / non-neuroendocrine neoplasm
+Unable to provide consent",
+FORCE-NEN,FORCE-NEN Regular,,,2022,,"Adult (18+ years),Young adult (18-24 years),Adult (25-44 years),Middle-aged (45-64 years),Aged (65+ years),Aged (65-79 years),Aged (80+ years)","C17.0 Malignant neoplasm of small intestine - Duodenum,C17.1 Malignant neoplasm of small intestine - Jejunum,C17.2 Malignant neoplasm of small intestine - Ileum,C25.4 Malignant neoplasm of pancreas - Endocrine pancreas,Carcinoid syndrome,Duodenal neuroendocrine tumor,Functioning neuroendocrine tumor of pancreas,Ileal neuroendocrine tumor,Jejunal neuroendocrine tumor,Neuroendocrine tumor of pancreas,Non-functioning neuroendocrine tumor of pancreas",,Netherlands (the),,"Pancreatic or Small intestine neuroendocrine tumor with a Ki-67 up to 10%
+Age 18 years and older
+Able to provide broad consent
+RECIST measurable disease at baseline
+
+Exclusion criteria:
+(history of) other malignancy at baseline
+Hereditary syndrome as cause of the neuroendocrine neoplasm
+Mixed neuroendocrine / non-neuroendocrine neoplasm
+Unable to provide consent",
+HPV,Follow-Up at age 18,,,,,,,,,,,
+HPV,Follow-Up at age 28,,,,,,,,,,,
+HPV,Initial at age 14,,,,,,,,,,,
+HPV,Follow-Up at age 22,,,,,,,,,,,
+HPV,Follow-Up at age 25,,,,,,,,,,,
+INMA,Children,,1580,,,"Prenatal,Newborn (0-1 months),Infants and toddlers (2-23 months),Infant (0-23 months),Child (2-12 years),Adolescent (13-17 years)",,,Spain,,"Criteria for inclusion of the mothers were: (i) to be resident in one of the study areas, (ii) to be at least 16 years old, (iii) to have a singleton pregnancy, (iv) to not have followed any programme of assisted reproduction, (v) to wish to deliver in the reference hospital and (vi) to have no communication problems.",
+INMA,Mothers,,1600,,,,,,Spain,,"Criteria for inclusion of the mothers were: (i) to be resident in one of the study areas, (ii) to be at least 16 years old, (iii) to have a singleton pregnancy, (iv) to not have followed any programme of assisted reproduction, (v) to wish to deliver in the reference hospital and (vi) to have no communication problems.",
+LSC,Intermittent fasting with ketogenic supplement,,,,,,,,,,,
+LSC,Intermittent fasting without ketogenic supplement,,,,,,,,,,,
+LSC,Smoking cessation,,,,,,,,,,,
+MoBa,mothers,,95000,,,,,,Norway,,,
+PSYCONN,PHAMOUS,"Pharmacotherapy Outcome and Monitoring Survey
+PSYCONN outcome data is collected from PHAMOUS.",650,2006,2022,"Adult (18+ years),Young adult (18-24 years),Adult (25-44 years),Middle-aged (45-64 years),Aged (65+ years),Aged (65-79 years),Aged (80+ years)","F20 Schizophrenia,""F20-F29 Schizophrenia, schizotypal and delusional disorders"",F20.0 Paranoid schizophrenia,F20.1 Hebephrenic schizophrenia,F20.2 Catatonic schizophrenia,F20.3 Undifferentiated schizophrenia,F20.4 Schizophrenia - Post-schizophrenic depression,F20.5 Residual schizophrenia,F20.6 Simple schizophrenia,F20.8 Other schizophrenia,""F20.9 Schizophrenia, unspecified"",F21 Schizotypal disorder,F22 Persistent delusional disorders,F22.0 Delusional disorder,F22.8 Other persistent delusional disorders,""F22.9 Persistent delusional disorder, unspecified"",F23 Acute and transient psychotic disorders,F23.0 Acute polymorphic psychotic disorder without symptoms of schizophrenia,F23.1 Acute polymorphic psychotic disorder with symptoms of schizophrenia,F23.2 Acute schizophrenia-like psychotic disorder,F23.3 Other acute predominantly delusional psychotic disorders,F23.8 Other acute and transient psychotic disorders,""F23.9 Acute and transient psychotic disorder, unspecified"",F24 Induced delusional disorder,F25 Schizoaffective disorders,""F25.0 Schizoaffective disorder, manic type"",""F25.1 Schizoaffective disorder, depressive type"",""F25.2 Schizoaffective disorder, mixed type"",F25.8 Other schizoaffective disorders,""F25.9 Schizoaffective disorder, unspecified"",F28 Other nonorganic psychotic disorders,F29 Unspecified nonorganic psychosis,""F31.2 Bipolar affective disorder, current episode manic with psychotic symptoms"",""F31.5 Bipolar affective disorder, current episode severe depression with psychotic symptoms"",F32.3 Severe depressive episode with psychotic symptoms,""F33.3 Recurrent depressive disorder, current episode severe with psychotic symptoms""",,Netherlands (the),"Groningen,Friesland,Drenthe","Patients ≥18 years of age with a psychotic disorder who receive care from mental health care institutions in the northern part of the Netherlands (University Medical Center Groningen (UMCG)/University Center for Psychiatry (UCP), Lentis, GGZ Drenthe or GGZ Friesland)",https://umcgresearchdatacatalogue.nl/UMCG/ssr-catalogue/cohorts/MindLines
+PSYCONN,PROGR-S,"Psychosis Recent Onset GRoningen Survey
+PSYCONN baseline data is collected from PROGR-S.",1000,1998,2018,"Adult (18+ years),Young adult (18-24 years),Adult (25-44 years),Middle-aged (45-64 years),Aged (65+ years),Aged (65-79 years),Aged (80+ years)","F20 Schizophrenia,""F20-F29 Schizophrenia, schizotypal and delusional disorders"",F20.0 Paranoid schizophrenia,F20.1 Hebephrenic schizophrenia,F20.2 Catatonic schizophrenia,F20.3 Undifferentiated schizophrenia,F20.4 Schizophrenia - Post-schizophrenic depression,F20.5 Residual schizophrenia,F20.6 Simple schizophrenia,F20.8 Other schizophrenia,""F20.9 Schizophrenia, unspecified"",F21 Schizotypal disorder,F22 Persistent delusional disorders,F22.0 Delusional disorder,F22.8 Other persistent delusional disorders,""F22.9 Persistent delusional disorder, unspecified"",F23 Acute and transient psychotic disorders,F23.0 Acute polymorphic psychotic disorder without symptoms of schizophrenia,F23.1 Acute polymorphic psychotic disorder with symptoms of schizophrenia,F23.2 Acute schizophrenia-like psychotic disorder,F23.3 Other acute predominantly delusional psychotic disorders,F23.8 Other acute and transient psychotic disorders,""F23.9 Acute and transient psychotic disorder, unspecified"",F24 Induced delusional disorder,F25 Schizoaffective disorders,""F25.0 Schizoaffective disorder, manic type"",""F25.1 Schizoaffective disorder, depressive type"",""F25.2 Schizoaffective disorder, mixed type"",F25.8 Other schizoaffective disorders,""F25.9 Schizoaffective disorder, unspecified"",F28 Other nonorganic psychotic disorders,F29 Unspecified nonorganic psychosis,F30.2 Manic episode - Mania with psychotic symptoms,""F31.2 Bipolar affective disorder, current episode manic with psychotic symptoms"",""F31.5 Bipolar affective disorder, current episode severe depression with psychotic symptoms"",F32.3 Severe depressive episode with psychotic symptoms,""F33.3 Recurrent depressive disorder, current episode severe with psychotic symptoms""",,Netherlands (the),Groningen,Patients with a suspected recent-onset psychotic episode or recurrent psychotic episode not diagnosed as such before.,https://umcgresearchdatacatalogue.nl/UMCG/ssr-catalogue/cohorts/MindLines
+RS1,2018,,750,1989,,"Middle-aged (45-64 years),Aged (65+ years)",,,Netherlands (the),,≥ 55 years,
+RS1,1993,,6315,1989,,"Middle-aged (45-64 years),Aged (65+ years)",,,Netherlands (the),,≥ 55 years,
+RS1,1997,,4797,1989,,"Middle-aged (45-64 years),Aged (65+ years)",,,Netherlands (the),,≥ 55 years,
+RS1,2014,,1153,1989,,"Middle-aged (45-64 years),Aged (65+ years)",,,Netherlands (the),,≥ 55 years,
+RS1,2002,,3550,1989,,"Middle-aged (45-64 years),Aged (65+ years)",,,Netherlands (the),,≥ 55 years,
+RS1,2009,,2147,1989,,"Middle-aged (45-64 years),Aged (65+ years)",,,Netherlands (the),,≥ 55 years,
+RS1,baseline,,7983,1989,,"Middle-aged (45-64 years),Aged (65+ years)",,,Netherlands (the),,≥ 55 years,
+RS2,2015,,1408,,,"Aged (65+ years),Middle-aged (45-64 years)",,,Netherlands (the),,≥ 55 years,
+RS2,baseline,,3011,,,"Middle-aged (45-64 years),Aged (65+ years)",,,Netherlands (the),,≥ 55 years,
+RS2,2011,,1893,,,"Middle-aged (45-64 years),Aged (65+ years)",,,Netherlands (the),,≥ 55 years,
+RS2,2004,,2469,0,,"Middle-aged (45-64 years),Aged (65+ years)",,,Netherlands (the),,≥ 55 years at inclusion,
+RS3,baseline,,3932,2006,,"Middle-aged (45-64 years),Aged (65+ years)",,,Netherlands (the),Rotterdam,≥ 45 years,
+RS3,2012,,3122,2012,,"Middle-aged (45-64 years),Aged (65+ years)",,,Netherlands (the),Rotterdam,≥ 45 years at inclusion,
+Sepages,infants,children aged between 0 and 3 years,,,,,,,,,,
+Sepages,pregnant women,pregnant women,,,,,,,,,,
+Sepages,mothers,from the time of delivery,,,,,,,,,,
+Sepages,fathers,biological father,,,,,,,,,,

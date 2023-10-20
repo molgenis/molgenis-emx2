@@ -1,9 +1,9 @@
 <template>
   <Page>
     <PageHeader
-      title="RD-Components"
+      title="molgenis-viz"
       subtitle="Map Component"
-      :imageSrc="headerImage"
+      imageSrc="map-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -21,10 +21,10 @@
       </p>
     </PageSection>
     <PageSection class="bkg-light" :verticalPadding="2">
-      <MessageBox v-if="loading & !hasError">
+      <MessageBox v-if="loading && !error">
         <p>Fetching data</p>
       </MessageBox>
-      <MessageBox v-else-if="hasError" type="error">
+      <MessageBox v-else-if="!loading && error" type="error">
         <p>{{ error }}</p>
       </MessageBox>
       <GeoMercator
@@ -70,9 +70,8 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-
-import { fetchData } from "../utils/utils.js";
-import geojson from "../data/world.geo.json";
+import { request } from "graphql-request";
+import gql from "graphql-tag";
 
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
@@ -80,10 +79,10 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import GeoMercator from "../components/viz/GeoMercator.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
-import headerImage from "../assets/map-header.jpg";
+
+import geojson from "../data/world.geo.json";
 
 let loading = ref(true);
-let hasError = ref(false);
 let error = ref(null);
 let data = ref([]);
 let location = ref(null);
@@ -96,90 +95,37 @@ function updateSelection(value) {
   location.value = value;
 }
 
-const query = `{
-  Organisations(
-    filter: { latitude: { between: [0, 100] } }
-  ) {
-    name
-    code
-    ontologyTermURI
-    country
-    city
-    latitude
-    longitude
-    providerInformation {
-      hasSubmittedData
+async function getOrganisations() {
+  const query = gql`
+    {
+      Organisations(filter: { latitude: { between: [0, 100] } }) {
+        name
+        code
+        ontologyTermURI
+        country
+        city
+        latitude
+        longitude
+        providerInformation {
+          hasSubmittedData
+        }
+      }
     }
-  }
-}`;
+  `;
+  const response = await request("../api/graphql", query);
+  data.value = response.Organisations.map((row) => {
+    return {
+      ...row,
+      status: row.providerInformation[0].hasSubmittedData
+        ? "Submitted"
+        : "No Data",
+    };
+  });
+}
 
 onMounted(() => {
-  Promise.resolve(fetchData("/api/graphql", query))
-    .then((response) => {
-      const orgs = response.data.Organisations.map((row) => {
-        return {
-          ...row,
-          status: row.providerInformation[0].hasSubmittedData
-            ? "Submitted"
-            : "No Data",
-        };
-      });
-      data.value = orgs;
-      loading.value = false;
-    })
-    .catch((error) => {
-      loading.value = false;
-      hasError.value = false;
-      error.value = error;
-    });
+  getOrganisations()
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 });
-
-// export default {
-//   components: {
-//     Page,
-//     PageHeader,
-//     PageSection,
-//     MessageBox,
-//     GeoMercator,
-//     Breadcrumbs,
-//   },
-//   data() {
-//     return {
-//       headerImage: headerImage,
-//       loading: true,
-//       hasError: false,
-//       error: null,
-//       data: {},
-//       geojson: geojson,
-//       mapColorGroups: {
-//         Education: "#F4D58D",
-//         Facility: "#FC7573",
-//         Healthcare: "#B6C2D9",
-//       },
-//       location: null,
-//     };
-//   },
-//   methods: {
-//     updateSelection(data) {
-//       this.location = data;
-//     },
-//   },
-//   mounted() {
-//     Promise.resolve(
-//       fetchData('/api/v2/rdcomponents_institutions?num=5000&q=lat!=""')
-//     )
-//       .then((response) => {
-//         const data = response.items;
-//         data.forEach((row) => delete row["_href"]);
-//         this.data = data;
-//         this.loading = false;
-//       })
-//       .catch((error) => {
-//         this.loading = false;
-//         this.hasError = true;
-//         this.error = error;
-//         throw new Error(error);
-//       });
-//   },
-// };
 </script>
