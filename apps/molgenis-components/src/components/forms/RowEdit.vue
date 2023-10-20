@@ -86,15 +86,15 @@ export default {
       type: Array,
       required: false,
     },
-    // object with the whole schema, needed to create refLink filter
-    schemaMetaData: {
-      type: Object,
-      required: true,
-    },
     // defaultValue: when creating new record, this is initialization value
     defaultValue: {
       type: Object,
       required: false,
+    },
+    // object with the whole schema, needed to create refLink filter
+    schemaMetaData: {
+      type: Object,
+      required: true,
     },
     canEdit: {
       type: Boolean,
