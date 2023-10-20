@@ -2,7 +2,6 @@ import { ILocale } from "./ILocales";
 
 export interface IColumn {
   columnType: string;
-  id: string;
   name: string;
   computed?: string;
   conditions?: string[];

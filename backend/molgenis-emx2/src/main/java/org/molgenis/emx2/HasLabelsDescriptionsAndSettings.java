@@ -3,13 +3,14 @@ package org.molgenis.emx2;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
 public class HasLabelsDescriptionsAndSettings<T> extends HasSettings<T> {
   // long names, with locale as keyl, label as value
   // options
-  protected Map<String, String> labels = new TreeMap<>();
+  @DiffIgnore protected Map<String, String> labels = new TreeMap<>();
   // long description of the column, locale as key, description as value
-  protected Map<String, String> descriptions = new TreeMap<>();
+  @DiffIgnore protected Map<String, String> descriptions = new TreeMap<>();
 
   public T setLabels(Map<String, String> newLabels) {
     Objects.requireNonNull(newLabels);

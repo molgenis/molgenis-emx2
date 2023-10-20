@@ -2,9 +2,9 @@
 
 The `molgenis-viz` app is a data visualization component library and a showcase of these components. This library is designed for those who would like to create landing pages for their database or develop interactive dashboards. This library includes the following.
 
-* Visualization components with different interactive features (e.g., click events, mouse events)
-* Designed to be responsive
-* Customizable for any situation (components are minimally styled)
+- Visualization components with different interactive features (e.g., click events, mouse events)
+- Designed to be responsive
+- Customizable for any situation (components are minimally styled)
 
 ## Get Started
 

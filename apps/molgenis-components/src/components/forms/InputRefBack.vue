@@ -99,7 +99,7 @@ import MessageWarning from "./MessageWarning.vue";
 import MessageError from "./MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import ConfirmModal from "./ConfirmModal.vue";
-import { convertToCamelCase, deepEqual } from "../utils";
+import { deepEqual } from "../utils";
 
 export default {
   name: "InputRefBack",
@@ -162,22 +162,24 @@ export default {
   computed: {
     graphqlFilter() {
       var result = new Object();
-      result[convertToCamelCase(this.refBack)] = {
+      result[this.refBack] = {
         equals: this.refTablePrimaryKeyObject,
       };
       return result;
     },
     visibleColumnNames() {
-      return this.visibleColumns.map((c) => c.id);
+      return this.visibleColumns.map((column) => column.name);
     },
     visibleColumns() {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.id != this.refBack && !c.id.startsWith("mg_")
+          (column) =>
+            column.name != this.refBack && !column.name.startsWith("mg_")
         );
+      } else {
+        return [];
       }
-      return [];
     },
   },
   methods: {
@@ -228,8 +230,7 @@ export default {
       .fetchTableMetaData(this.tableName)
       .catch((error) => (this.errorMessage = error.message));
     this.defaultValue = new Object();
-    this.defaultValue[convertToCamelCase(this.refBack)] = await this
-      .refTablePrimaryKeyObject;
+    this.defaultValue[this.refBack] = await this.refTablePrimaryKeyObject;
     await this.reload();
   },
 };
@@ -252,7 +253,7 @@ export default {
           tableName="Order"
           refBack="pet"
           :refTablePrimaryKeyObject=null
-          schemaName="pet store"
+          schemaName="petStore"
       />
     </div>
 
@@ -266,7 +267,7 @@ export default {
           tableName="Order"
           refBack="pet"
           :refTablePrimaryKeyObject="{name:'spike'}"
-          schemaName="pet store"
+          schemaName="petStore"
       />
     </div>
 
@@ -279,7 +280,7 @@ export default {
           tableName="Order"
           refBack="pet"
           :refTablePrimaryKeyObject="{name:'spike'}"
-          schemaName="pet store"
+          schemaName="petStore"
       />
     </div>
   </div>

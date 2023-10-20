@@ -1,12 +1,10 @@
 export const contactsMetadata = {
   name: "Contacts",
   tableType: "DATA",
-  id: "Contacts",
   externalSchema: "Catalogue",
   columns: [
     {
       name: "resource",
-      id: "resource",
       columnType: "REF",
       key: 1,
       refTable: "Resources",
@@ -21,8 +19,7 @@ export const contactsMetadata = {
       position: 179,
     },
     {
-      name: "first name",
-      id: "firstName",
+      name: "firstName",
       columnType: "STRING",
       key: 1,
       required: true,
@@ -35,8 +32,7 @@ export const contactsMetadata = {
       position: 182,
     },
     {
-      name: "last name",
-      id: "lastName",
+      name: "lastName",
       columnType: "STRING",
       key: 1,
       required: true,
@@ -50,7 +46,6 @@ export const contactsMetadata = {
     },
     {
       name: "email",
-      id: "email",
       columnType: "STRING",
       descriptions: [
         {
@@ -62,7 +57,6 @@ export const contactsMetadata = {
     },
     {
       name: "orcid",
-      id: "orcid",
       columnType: "STRING",
       descriptions: [
         {
@@ -74,7 +68,6 @@ export const contactsMetadata = {
     },
     {
       name: "mg_draft",
-      id: "mg_draft",
       columnType: "BOOL",
       position: -5,
     },
@@ -84,7 +77,6 @@ export const contactsMetadata = {
 export const resourcesMetadata = {
   name: "Resources",
   tableType: "DATA",
-  id: "Resources",
   descriptions: [
     {
       locale: "en",
@@ -96,7 +88,6 @@ export const resourcesMetadata = {
   columns: [
     {
       name: "id",
-      id: "id",
       columnType: "STRING",
       key: 1,
       required: true,
@@ -110,7 +101,6 @@ export const resourcesMetadata = {
     },
     {
       name: "name",
-      id: "name",
       columnType: "TEXT",
       key: 3,
       required: true,
@@ -124,7 +114,6 @@ export const resourcesMetadata = {
     },
     {
       name: "description",
-      id: "description",
       columnType: "TEXT",
       descriptions: [
         {
@@ -136,7 +125,6 @@ export const resourcesMetadata = {
     },
     {
       name: "mg_tableclass",
-      id: "mg_tableclass",
       columnType: "STRING",
       readonly: true,
       position: 10005,

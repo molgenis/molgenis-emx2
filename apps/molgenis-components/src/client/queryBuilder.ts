@@ -1,4 +1,3 @@
-import { convertToPascalCase } from "../components/utils";
 import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
 
@@ -37,7 +36,7 @@ export const columnNames = (
         result =
           result +
           " " +
-          col.id +
+          col.name +
           " {" +
           columnNames(
             col.refSchema ? col.refSchema : schemaName,
@@ -49,9 +48,9 @@ export const columnNames = (
           ) +
           " }";
       } else if (col.columnType === "FILE") {
-        result += ` ${col.id} { id, size, extension, url }`;
+        result += ` ${col.name} { id, size, extension, url }`;
       } else if (col.columnType !== "HEADING") {
-        result += ` ${col.id}`;
+        result += ` ${col.name}`;
       }
     }
   });
@@ -64,9 +63,7 @@ const getTable = (
   tableStore: ITableMetaData[]
 ) => {
   const result = tableStore.find(
-    (table) =>
-      table.id === convertToPascalCase(tableName) &&
-      table.externalSchema === schemaName
+    (table) => table.name === tableName && table.externalSchema === schemaName
   );
   return result;
 };

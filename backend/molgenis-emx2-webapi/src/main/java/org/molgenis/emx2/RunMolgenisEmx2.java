@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class RunMolgenisEmx2 {
 
-  public static final String CATALOGUE_DEMO = "catalogue-demo";
+  public static final String CATALOGUE_DEMO = "catalogue_demo";
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
 
   public static final boolean INCLUDE_CATALOGUE_DEMO =
@@ -40,8 +40,8 @@ public class RunMolgenisEmx2 {
         db -> {
           db.becomeAdmin();
 
-          if (db.getSchema("pet store") == null) {
-            Schema schema = db.createSchema("pet store");
+          if (db.getSchema("petStore") == null) {
+            Schema schema = db.createSchema("petStore");
             new PetStoreLoader().load(schema, true);
           }
 

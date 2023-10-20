@@ -62,7 +62,7 @@ export default {
           id="row-clone-btn-sample"
           tableName="Pet"
           :pkey="{name: 'pooky'}"
-          schemaName="pet store"
+          schemaName="petStore"
       />
     </div>
   </div>

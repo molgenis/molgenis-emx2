@@ -16,7 +16,7 @@ describe("getRowErrors", () => {
   test("it should return undefined for an autoId field", () => {
     const rowData = { autoId: "1337" };
     const metaData = {
-      columns: [{ id: "autoId", columnType: AUTO_ID }],
+      columns: [{ name: "autoId", columnType: AUTO_ID }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({ autoId: undefined });
@@ -25,7 +25,7 @@ describe("getRowErrors", () => {
   test("it should return undefined for a heading field", () => {
     const rowData = { heading: "1337" };
     const metaData = {
-      columns: [{ id: "heading", columnType: HEADING }],
+      columns: [{ name: "heading", columnType: HEADING }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({ heading: undefined });
@@ -36,7 +36,6 @@ describe("getRowErrors", () => {
     const metaData = {
       columns: [
         {
-          id: "required",
           name: "required",
           columnType: "STRING",
           required: true,
@@ -52,7 +51,6 @@ describe("getRowErrors", () => {
     const metaData = {
       columns: [
         {
-          id: "required",
           name: "required",
           columnType: "DECIMAL",
           required: true,
@@ -66,7 +64,7 @@ describe("getRowErrors", () => {
   test("it should return undefined it has no value and isn't required", () => {
     const rowData = { empty: null };
     const metaData = {
-      columns: [{ id: "empty", columnType: "STRING" }],
+      columns: [{ name: "empty", columnType: "STRING" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({ empty: undefined });
@@ -75,7 +73,7 @@ describe("getRowErrors", () => {
   test("it should return undefined for a valid email address", () => {
     const rowData = { email: "blaat@blabla.bla" };
     const metaData = {
-      columns: [{ id: "email", columnType: "EMAIL" }],
+      columns: [{ name: "email", columnType: "EMAIL" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({ email: undefined });
@@ -84,7 +82,7 @@ describe("getRowErrors", () => {
   test("it should return an error for an invalid email address", () => {
     const rowData = { email: "in@valid" };
     const metaData = {
-      columns: [{ id: "email", columnType: "EMAIL" }],
+      columns: [{ name: "email", columnType: "EMAIL" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({ email: "Invalid email address" });
@@ -93,7 +91,7 @@ describe("getRowErrors", () => {
   test("it should return undefined for a valid hyperlink", () => {
     const rowData = { hyperlink: "https://google.com" };
     const metaData = {
-      columns: [{ id: "hyperlink", columnType: "HYPERLiNK" }],
+      columns: [{ name: "hyperlink", columnType: "HYPERLiNK" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({ hyperlink: undefined });
@@ -103,7 +101,7 @@ describe("getRowErrors", () => {
   // test("it should return an error for an invalid hyperlink", () => {
   //   const rowData = { hyperlink: "google" };
   //   const metaData = {
-  //     columns: [{ id: "hyperlink", columnType: "HYPERLiNK" }],
+  //     columns: [{ name: "hyperlink", columnType: "HYPERLiNK" }],
   //   } as ITableMetaData;
   //   const result = getRowErrors(metaData, rowData);
   //   expect(result).to.deep.equal({ hyperlink: "Invalid hyperlink" });
@@ -112,7 +110,7 @@ describe("getRowErrors", () => {
   test("it should return undefined for a valid email address array array", () => {
     const rowData = { email: ["blaat@blabla.bla", "bla2@blabla.bla"] };
     const metaData = {
-      columns: [{ id: "email", columnType: "EMAIL_ARRAY" }],
+      columns: [{ name: "email", columnType: "EMAIL_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({ email: undefined });
@@ -121,7 +119,7 @@ describe("getRowErrors", () => {
   test("it should return an error for an invalid email address array", () => {
     const rowData = { email: ["in@valid", "val@id.com"] };
     const metaData = {
-      columns: [{ id: "email", columnType: "EMAIL_ARRAY" }],
+      columns: [{ name: "email", columnType: "EMAIL_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({ email: "Invalid email address" });
@@ -132,7 +130,7 @@ describe("getRowErrors", () => {
       hyperlink: ["https://google.com", "https://molgenis.org"],
     };
     const metaData = {
-      columns: [{ id: "hyperlink", columnType: "HYPERLiNK_ARRAY" }],
+      columns: [{ name: "hyperlink", columnType: "HYPERLiNK_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({ hyperlink: undefined });
@@ -142,7 +140,7 @@ describe("getRowErrors", () => {
   // test("it should return an error for an invalid hyperlink array ", () => {
   //   const rowData = { hyperlink: ["google"] };
   //   const metaData = {
-  //     columns: [{ id: "hyperlink", columnType: "HYPERLiNK_ARRAY" }],
+  //     columns: [{ name: "hyperlink", columnType: "HYPERLiNK_ARRAY" }],
   //   } as ITableMetaData;
   //   const result = getRowErrors(metaData, rowData);
   //   expect(result).to.deep.equal({ hyperlink: "Invalid hyperlink" });
@@ -153,7 +151,7 @@ describe("getRowErrors", () => {
     const metaData = {
       columns: [
         {
-          id: "validation",
+          name: "validation",
           columnType: "DECIMAL",
           validation: "validation > 1",
         },
@@ -170,7 +168,7 @@ describe("getRowErrors", () => {
     const metaData = {
       columns: [
         {
-          id: "validation",
+          name: "validation",
           columnType: "DECIMAL",
           validation: "validation > 1",
         },
@@ -183,13 +181,13 @@ describe("getRowErrors", () => {
   });
 
   test("it should return undefined if there is a reflink with overlap", () => {
-    const rowData = { overlap: "refValue", refLinkId: "refValue" };
+    const rowData = { overlap: "refValue", refLink: "refValue" };
     const metaData = {
       columns: [
         {
-          id: "overlap",
+          name: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLink: "refLink",
         },
       ],
     } as ITableMetaData;
@@ -200,47 +198,47 @@ describe("getRowErrors", () => {
   });
 
   test("it should return an error if there is a reflink without overlap", () => {
-    const rowData = { overlap: "refValue", refLinkId: "refLinkValue" };
+    const rowData = { overlap: "refValue", refLink: "refLinkValue" };
     const metaData = {
       columns: [
         {
-          id: "overlap",
+          name: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLink: "refLink",
         },
       ],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({
-      overlap: "value should match your selection in column 'refLinkId'",
+      overlap: "value should match your selection in column 'refLink'",
     });
   });
 
   test("it should return an error if there is a reflink array without overlap", () => {
-    const rowData = { overlap: ["refValue"], refLinkId: ["refLinkValue"] };
+    const rowData = { overlap: ["refValue"], refLink: ["refLinkValue"] };
     const metaData = {
       columns: [
         {
-          id: "overlap",
+          name: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLink: "refLink",
         },
       ],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({
-      overlap: "value should match your selection in column 'refLinkId'",
+      overlap: "value should match your selection in column 'refLink'",
     });
   });
 
   test("it should return undefined if there is a reflink array with overlap", () => {
-    const rowData = { overlap: ["refValue"], refLinkId: ["refValue"] };
+    const rowData = { overlap: ["refValue"], refLink: ["refValue"] };
     const metaData = {
       columns: [
         {
-          id: "overlap",
+          name: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLink: "refLink",
         },
       ],
     } as ITableMetaData;
@@ -253,7 +251,7 @@ describe("getRowErrors", () => {
   test("it should return undefined for a valid input", () => {
     const rowData = { valid: "input " };
     const metaData = {
-      columns: [{ id: "valid", columnType: "STRING" }],
+      columns: [{ name: "valid", columnType: "STRING" }],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({
@@ -275,28 +273,28 @@ describe("removeKeyColumns", () => {
 
 describe("filterVisibleColumns", () => {
   test("it should return the columns if no visisble columns are defined", () => {
-    const columns = [{ id: "col1" }, { id: "col2" }] as IColumn[];
+    const columns = [{ name: "col1" }, { name: "col2" }] as IColumn[];
     const visibleColumns = null;
     const result = filterVisibleColumns(columns, visibleColumns);
     expect(result).to.deep.equal(columns);
   });
 
   test("it should return only the visible columns", () => {
-    const columns = [{ id: "col1" }, { id: "col2" }] as IColumn[];
+    const columns = [{ name: "col1" }, { name: "col2" }] as IColumn[];
     const visibleColumns = ["col2"];
     const result = filterVisibleColumns(columns, visibleColumns);
-    expect(result).to.deep.equal([{ id: "col2" }]);
+    expect(result).to.deep.equal([{ name: "col2" }]);
   });
 });
 
 describe("splitColumnNamesByHeadings", () => {
   test("it should split all columns by the headings", () => {
     const columns = [
-      { id: "heading1", columnType: HEADING },
-      { id: "string1", columnType: "STRING" },
-      { id: "heading2", columnType: HEADING },
-      { id: "string2", columnType: "STRING" },
-      { id: "string3", columnType: "STRING" },
+      { name: "heading1", columnType: HEADING },
+      { name: "string1", columnType: "STRING" },
+      { name: "heading2", columnType: HEADING },
+      { name: "string2", columnType: "STRING" },
+      { name: "string3", columnType: "STRING" },
     ] as IColumn[];
     const result = splitColumnNamesByHeadings(columns);
     const expectedResult = [

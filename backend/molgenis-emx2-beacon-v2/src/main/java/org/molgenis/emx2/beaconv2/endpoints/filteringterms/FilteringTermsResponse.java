@@ -78,7 +78,7 @@ public class FilteringTermsResponse {
       TableMetadata metadata = database.getSchema(schemaName).getTable(tableToQuery).getMetadata();
       // todo: now extended columns are ignored because make the query super complicated
       for (Column column : metadata.getLocalColumns()) {
-        if (column.getColumnType().isAtomicType() && !column.getIdentifier().startsWith("mg_")) {
+        if (column.getColumnType().isAtomicType() && !column.getName().startsWith("mg_")) {
           FilteringTerm filteringTerm =
               new FilteringTerm("alphanumeric", column.getName(), tableToQuery);
           filteringTermsSet.add(filteringTerm);

@@ -8,7 +8,6 @@ import org.molgenis.emx2.TableMetadata;
 
 public class Column {
   private String table;
-  private String id;
   private String name;
   private List<LanguageValue> labels = new ArrayList<>();
   private boolean drop = false; // needed in case of migrations
@@ -46,7 +45,6 @@ public class Column {
       this.table = column.getTableName();
       this.position = column.getPosition();
     }
-    this.id = column.getIdentifier();
     this.name = column.getName();
     this.labels =
         column.getLabels().entrySet().stream()
@@ -274,14 +272,6 @@ public class Column {
 
   public void setPosition(Integer position) {
     this.position = position;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
   }
 
   public Boolean getReadonly() {

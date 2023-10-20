@@ -30,7 +30,7 @@ public class LinkedDataFragmentsApi {
             + table.getSchema().getName()
             + RDFApi.RDF_API_LOCATION
             + "/"
-            + table.getIdentifier()
+            + table.getName()
             + "?format=jsonld",
         302);
     return "";
@@ -55,7 +55,7 @@ public class LinkedDataFragmentsApi {
             + table.getSchema().getName()
             + RDFApi.RDF_API_LOCATION
             + "/"
-            + table.getIdentifier()
+            + table.getName()
             + "?format=ttl",
         302);
     return "";

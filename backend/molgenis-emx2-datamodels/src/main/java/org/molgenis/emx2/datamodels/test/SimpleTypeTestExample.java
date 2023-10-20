@@ -21,7 +21,7 @@ public class SimpleTypeTestExample {
         new ColumnType[] {UUID, STRING, BOOL, INT, LONG, DECIMAL, TEXT, DATE, DATETIME};
     for (ColumnType columnType : columnTypes) {
       typeTestTable.add(
-          column("Test " + columnType.toString().toLowerCase())
+          column("Test_" + columnType.toString().toLowerCase())
               // test for labels, only used in forms user interface
               .setLabel("Test_" + columnType.toString().toLowerCase() + "_label")
               .setLabel("Test_" + columnType.toString().toLowerCase() + "_label2", "bla")
@@ -30,7 +30,7 @@ public class SimpleTypeTestExample {
               .setType(columnType)
               .setRequired(true));
       typeTestTable.add(
-          column("Test " + columnType.toString().toLowerCase() + " nillable").setType(columnType));
+          column("Test_" + columnType.toString().toLowerCase() + "_nillable").setType(columnType));
     }
     schema.create(typeTestTable);
   }
