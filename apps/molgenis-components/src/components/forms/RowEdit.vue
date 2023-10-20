@@ -91,6 +91,11 @@ export default {
       type: Object,
       required: true,
     },
+    // defaultValue: when creating new record, this is initialization value
+    defaultValue: {
+      type: Object,
+      required: false,
+    },
     canEdit: {
       type: Boolean,
       required: false,
@@ -256,6 +261,9 @@ export default {
     },
   },
   created() {
+    if (this.defaultValue) {
+      this.internalValues = deepClone(this.defaultValue);
+    }
     this.tableMetaData.columns.forEach((column: IColumn) => {
       if (column.defaultValue && !this.internalValues[column.id]) {
         this.internalValues[column.id] = column.defaultValue;
