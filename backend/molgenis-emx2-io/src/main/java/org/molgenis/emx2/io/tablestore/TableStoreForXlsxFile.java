@@ -15,6 +15,7 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.NameMapper;
 import org.molgenis.emx2.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,8 @@ public class TableStoreForXlsxFile implements TableStore {
   }
 
   @Override
-  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+  public void writeTable(
+      String name, List<String> columnNames, NameMapper nameMapper, Iterable<Row> rows) {
     SXSSFWorkbook wb;
     try {
       if (name.length() > 30)
@@ -55,9 +57,9 @@ public class TableStoreForXlsxFile implements TableStore {
         wb = new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), ROW_ACCESS_WINDOW_SIZE);
       }
       if (rows.iterator().hasNext()) {
-        writeRowsToSheet(name, columnNames, rows, wb);
+        writeRowsToSheet(name, columnNames, nameMapper, rows, wb);
       } else {
-        writeHeaderOnlyToSheet(name, columnNames, wb);
+        writeHeaderOnlyToSheet(name, columnNames, nameMapper, wb);
       }
       // write contents to a temp file and overwrite original
       try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
@@ -72,16 +74,21 @@ public class TableStoreForXlsxFile implements TableStore {
     }
   }
 
-  private void writeHeaderOnlyToSheet(String name, List<String> columnNames, Workbook wb) {
+  private void writeHeaderOnlyToSheet(
+      String name, List<String> columnNames, NameMapper nameMapper, Workbook wb) {
     Sheet sheet = wb.createSheet(name);
     org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(0);
     for (int i = 0; i < columnNames.size(); i++) {
-      excelRow.createCell(i).setCellValue(columnNames.get(i));
+      excelRow.createCell(i).setCellValue(nameMapper.map(columnNames.get(i)));
     }
   }
 
   private void writeRowsToSheet(
-      String name, List<String> columnNames, Iterable<Row> rows, SXSSFWorkbook wb)
+      String name,
+      List<String> columnNames,
+      NameMapper nameMapper,
+      Iterable<Row> rows,
+      SXSSFWorkbook wb)
       throws IOException {
 
     // create the sheet
@@ -103,7 +110,7 @@ public class TableStoreForXlsxFile implements TableStore {
         // write a header row
         org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum);
         for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
-          excelRow.createCell(entry.getValue()).setCellValue(entry.getKey());
+          excelRow.createCell(entry.getValue()).setCellValue(nameMapper.map(entry.getKey()));
         }
         rowNum++;
       }
@@ -172,6 +179,11 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public List<Row> readTable(String name) {
+    return readTable(name, null);
+  }
+
+  @Override
+  public List<Row> readTable(String name, NameMapper mapper) {
     if (this.cache == null) {
       this.cache();
     }
@@ -179,12 +191,12 @@ public class TableStoreForXlsxFile implements TableStore {
       throw new MolgenisException(
           "Import failed: Table with name " + name + " not found in Excel file");
     }
-    return this.cache.get(name);
+    return this.cache.get(name).stream().map(row -> new Row(row, mapper)).toList();
   }
 
   @Override
-  public void processTable(String name, RowProcessor processor) {
-    processor.process(readTable(name).iterator(), this);
+  public void processTable(String name, NameMapper mapper, RowProcessor processor) {
+    processor.process(readTable(name, mapper).iterator(), this);
   }
 
   private Row convertRow(

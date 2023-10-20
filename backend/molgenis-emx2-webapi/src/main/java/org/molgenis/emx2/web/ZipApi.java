@@ -25,6 +25,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.io.DefaultNameMapper;
 import org.molgenis.emx2.io.FileUtils;
 import org.molgenis.emx2.io.ImportCsvZipTask;
 import org.molgenis.emx2.io.MolgenisIO;
@@ -187,9 +188,10 @@ public class ZipApi {
       String name = (String) reportObject.get("name");
       List<Row> rows = schema.retrieveSql(sql, parameters);
       if (rows.size() > 0) {
-        store.writeTable(name, new ArrayList<>(rows.get(0).getColumnNames()), rows);
+        store.writeTable(
+            name, new ArrayList<>(rows.get(0).getColumnNames()), new DefaultNameMapper(), rows);
       } else {
-        store.writeTable(name, new ArrayList<>(), rows);
+        store.writeTable(name, new ArrayList<>(), new DefaultNameMapper(), rows);
       }
     }
   }

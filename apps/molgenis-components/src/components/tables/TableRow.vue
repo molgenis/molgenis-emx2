@@ -34,7 +34,7 @@
       "
       :class="{ refType: isRefType(col.columnType) }"
     >
-      <data-display-cell :data="row[col.id]" :metaData="col" />
+      <data-display-cell :data="row[col.name]" :metaData="col" />
     </td>
   </tr>
 </template>
@@ -85,7 +85,7 @@ export default {
       this.$emit("column-click", column);
     },
     onCellClick(column) {
-      const value = this.row[column.id];
+      const value = this.row[column.name];
       if (value) {
         this.$emit("cellClick", {
           cellValue: deepClone(value),

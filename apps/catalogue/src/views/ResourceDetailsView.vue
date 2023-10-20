@@ -97,7 +97,7 @@ export default {
     sections() {
       const comparePosition = (a, b) => a.position < b.position;
       const isHeading = (meta) => meta.columnType === "HEADING";
-      const isNonSystemField = (meta) => !meta.id.startsWith("mg_");
+      const isNonSystemField = (meta) => !meta.name.startsWith("mg_");
 
       return this.tableMetadata.columns
         .filter(isNonSystemField)
@@ -112,7 +112,7 @@ export default {
             }
             accum.at(-1).fields.push({
               meta: { ...item, primaryTableKey: this.primaryTableKey },
-              value: this.resourceData[item.id],
+              value: this.resourceData[item.name],
             });
           }
           return accum;
@@ -123,8 +123,8 @@ export default {
     },
     primaryTableKey() {
       return this.tableMetadata.columns.reduce((accum, col) => {
-        if (col.key == 1 && this.resourceData[col.id]) {
-          accum[col.id] = this.resourceData[col.id];
+        if (col.key == 1 && this.resourceData[col.name]) {
+          accum[col.name] = this.resourceData[col.name];
         }
         return accum;
       }, {});

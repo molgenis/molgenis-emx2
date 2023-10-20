@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.NameMapper;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.readers.RowReaderJackson;
@@ -31,12 +32,13 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
   }
 
   @Override
-  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+  public void writeTable(
+      String name, List<String> columnNames, NameMapper nameMapper, Iterable<Row> rows) {
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
     try {
       Writer writer = Files.newBufferedWriter(relativePath);
       if (rows.iterator().hasNext()) {
-        CsvTableWriter.write(rows, columnNames, writer, separator);
+        CsvTableWriter.write(rows, columnNames, nameMapper, writer, separator);
       } else {
         // only header in case no rows provided
         writer.write(columnNames.stream().collect(Collectors.joining("" + separator)));
@@ -66,19 +68,24 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
   }
 
   @Override
-  public List<Row> readTable(String name) {
+  public Iterable<Row> readTable(String name) {
+    return readTable(name, null);
+  }
+
+  @Override
+  public List<Row> readTable(String name, NameMapper mapper) {
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
     try {
       Reader reader = Files.newBufferedReader(relativePath);
-      return RowReaderJackson.readList(reader, separator);
+      return RowReaderJackson.readList(reader, mapper, separator);
     } catch (Exception ioe) {
       throw new MolgenisException("Import '" + name + "' failed: " + ioe.getMessage(), ioe);
     }
   }
 
   @Override
-  public void processTable(String name, RowProcessor processor) {
-    processor.process(readTable(name).iterator(), this);
+  public void processTable(String name, NameMapper mapper, RowProcessor processor) {
+    processor.process(readTable(name, mapper).iterator(), this);
   }
 
   @Override
@@ -91,7 +98,10 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
   public Collection<String> tableNames() {
     List<String> result = new ArrayList<>();
     for (File f : directoryPath.toFile().listFiles()) {
-      result.add(f.getName());
+      String name = f.getName();
+      if (name.endsWith(CSV_EXTENSION)) {
+        result.add(name.substring(0, name.length() - CSV_EXTENSION.length()));
+      }
     }
     return result;
   }

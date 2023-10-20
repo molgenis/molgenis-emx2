@@ -32,7 +32,7 @@
               :id="col.name"
             />
             <label class="form-check-label" :for="col.name">
-              {{ col.name }}
+              {{ getLocalizedLabel(col, locale) }}
             </label>
           </div>
         </span>
@@ -45,6 +45,7 @@
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
 import IconAction from "../forms/IconAction.vue";
+import { getLocalizedLabel } from "../utils";
 
 export default {
   components: { ButtonAlt, ButtonDropdown, IconAction },
@@ -67,12 +68,19 @@ export default {
       type: Boolean,
       default: false,
     },
+    locale: {
+      type: String,
+      default: "en",
+    },
   },
   methods: {
     value(col) {
       return col[this.checkAttribute] == undefined
         ? this.defaultValue
         : col[this.checkAttribute];
+    },
+    getLocalizedLabel(col) {
+      return getLocalizedLabel(col, this.locale);
     },
     change(key, value) {
       let update = JSON.parse(JSON.stringify(this.columns));
@@ -146,7 +154,7 @@ export default {
     },
   },
   mounted: async function () {
-    const client = this.$Client.newClient("pet store");
+    const client = this.$Client.newClient("petStore");
     const tableMetaData = await client.fetchTableMetaData("Pet");
     this.columns = tableMetaData.columns;
   },

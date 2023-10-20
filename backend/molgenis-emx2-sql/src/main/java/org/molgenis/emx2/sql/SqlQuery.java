@@ -258,12 +258,12 @@ public class SqlQuery extends QueryBean {
       fields.add(
           jsonAggregateSelect(
                   table, null, table.getTableName(), select, getFilter(), getSearchTerms())
-              .as(convertToPascalCase(select.getColumn())));
+              .as(select.getColumn()));
     } else if (select.getColumn().endsWith("_groupBy")) {
       fields.add(
           jsonGroupBySelect(
                   table, null, table.getTableName(), select, getFilter(), getSearchTerms())
-              .as(convertToPascalCase(select.getColumn())));
+              .as(select.getColumn()));
     } else {
       // select all on root level as default
       if (select.getSubselect().isEmpty()) {
@@ -275,7 +275,7 @@ public class SqlQuery extends QueryBean {
       }
       fields.add(
           jsonSubselect(table, null, table.getTableName(), select, getFilter(), getSearchTerms())
-              .as(name(convertToPascalCase(select.getColumn()))));
+              .as(name(select.getColumn())));
     }
 
     // asemble final query
@@ -537,7 +537,7 @@ public class SqlQuery extends QueryBean {
                     select,
                     null,
                     new String[0])
-                .as(convertToCamelCase(select.getColumn())));
+                .as(select.getColumn()));
       } else if (column.isReference() && select.getColumn().endsWith("_groupBy")) {
         // aggregation subselect
         fields.add(
@@ -548,7 +548,7 @@ public class SqlQuery extends QueryBean {
                     select,
                     null,
                     new String[0])
-                .as(convertToCamelCase(select.getColumn())));
+                .as(select.getColumn()));
       } else if (column.isReference()) {
         // normal subselect
         fields.add(
@@ -559,7 +559,7 @@ public class SqlQuery extends QueryBean {
                     select,
                     select.getFilter(),
                     new String[0])
-                .as(name(convertToCamelCase(select.getColumn()))));
+                .as(name(select.getColumn())));
       } else if (column.isHeading()) {
         /**
          * Ignore headings, not part of rows. Fixme: must ignore to allow JSON subqueries, but
@@ -567,8 +567,7 @@ public class SqlQuery extends QueryBean {
          */
       } else {
         // primitive fields
-        fields.add(
-            field(name(alias(tableAlias), column.getName())).as(name(column.getIdentifier())));
+        fields.add(field(name(alias(tableAlias), column.getName())).as(name(column.getName())));
       }
     }
     return fields;
@@ -600,7 +599,7 @@ public class SqlQuery extends QueryBean {
       }
     }
     return field((jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
-        .as(column.getIdentifier());
+        .as(column.getName());
   }
 
   private Field<?> jsonAggregateSelect(
@@ -626,14 +625,14 @@ public class SqlQuery extends QueryBean {
           Column c = getColumnByName(table, sub.getColumn());
           switch (field.getColumn()) {
             case MAX_FIELD -> result.add(
-                key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
+                key(c.getName()).value(max(field(name(alias(subAlias), c.getName())))));
             case MIN_FIELD -> result.add(
-                key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
+                key(c.getName()).value(min(field(name(alias(subAlias), c.getName())))));
             case AVG_FIELD -> result.add(
-                key(c.getIdentifier())
+                key(c.getName())
                     .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
             case SUM_FIELD -> result.add(
-                key(c.getIdentifier())
+                key(c.getName())
                     .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
             default -> throw new MolgenisException(
                 "Unknown aggregate type provided: " + field.getColumn());
@@ -707,20 +706,17 @@ public class SqlQuery extends QueryBean {
                         .forEach(
                             pkeyRef -> {
                               subselectFields.add(
-                                  pkeyRef
-                                      .getJooqField()
-                                      .as(name("pkey_" + convertToCamelCase(pkeyRef.getName()))));
+                                  pkeyRef.getJooqField().as(name("pkey_" + pkeyRef.getName())));
                             });
                   } else {
-                    subselectFields.add(
-                        pkey.getJooqField().as(name("pkey_" + pkey.getIdentifier())));
+                    subselectFields.add(pkey.getJooqField().as(name("pkey_" + pkey.getName())));
                   }
                 });
 
         if (col.isReference() && col.getReferences().size() > 1) {
-          selectFields.add(field(col.getIdentifier()));
+          selectFields.add(field(col.getName()));
         } else {
-          selectFields.add(col.getJooqField().as(col.getIdentifier()));
+          selectFields.add(col.getJooqField().as(col.getName()));
         }
 
         // in case of 'ref' we subselect
@@ -791,7 +787,7 @@ public class SqlQuery extends QueryBean {
     return field(
             jooq.select(field(JSON_AGG_SQL))
                 .from(groupByQuery.groupBy(groupByFields).orderBy(orderByFields).asTable(ITEM)))
-        .as(convertToCamelCase(groupBy.getColumn()));
+        .as(groupBy.getColumn());
   }
 
   private static Table<org.jooq.Record> tableWithInheritanceJoin(TableMetadata table) {

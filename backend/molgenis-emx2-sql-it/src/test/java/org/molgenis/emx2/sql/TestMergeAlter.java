@@ -261,22 +261,22 @@ public class TestMergeAlter {
 
     assertThrows(
         MolgenisException.class,
-        () -> db.createSchema("Test Merge Alter"),
+        () -> db.createSchema("testMergeAlter"),
         "shouln't be able to create schame with name that converts to same identifier");
 
-    Table table = schema.create(table("my table", column("id").setPkey()));
+    Table table = schema.create(table("myTable", column("id").setPkey()));
     assertThrows(
         MolgenisException.class,
         () -> {
-          schema.create(table("My table", column("id").setPkey()));
+          schema.create(table("Mytable", column("id").setPkey()));
         },
         "shouldn't be able to create table with name that converts to same identifier");
 
-    Table otherTable = schema.create(table("my other table", column("id").setPkey()));
+    Table otherTable = schema.create(table("myOtherTable", column("id").setPkey()));
     assertThrows(
         MolgenisException.class,
         () -> {
-          ((SqlSchemaMetadata) schema.getMetadata()).renameTable(table.getMetadata(), "My table");
+          ((SqlSchemaMetadata) schema.getMetadata()).renameTable(table.getMetadata(), "MyTable");
         },
         "shouldn't be able to rename table with name that converts to same identifier");
 

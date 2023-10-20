@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { RoutedTableExplorer, convertToPascalCase } from "molgenis-components";
+import { RoutedTableExplorer } from "molgenis-components";
 import { mapActions, mapGetters } from "vuex";
 
 const css = {
@@ -46,15 +46,12 @@ export default {
   },
   computed: {
     ...mapGetters(["canEdit", "canManage"]),
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     headerCss() {
       return css[this.tableName];
     },
     detailRouteName() {
       //detailRoute is name of table minus trailing 's'
-      return this.tableId + "-details";
+      return this.tableName + "-details";
     },
     defaultCards() {
       if (this.tableName == "Institutions") {

@@ -286,7 +286,7 @@ export default {
       return {
         canEdit: false,
         canView: false,
-        schema: "pet store",
+        schema: "petStore",
         table: "Pet"
       }
     },

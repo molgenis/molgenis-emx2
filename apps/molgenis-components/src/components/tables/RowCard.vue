@@ -24,7 +24,7 @@
         </span>
         <VueTemplate v-if="template" :template="template" :row="row" />
         <dl v-else>
-          <template v-for="col in columns" :key="col.id">
+          <template v-for="col in columns" :key="col.name">
             <template v-if="showItem(row, col)">
               <dt v-if="showItem(row, col)" class="pr-3 pb-1">
                 {{ col.name }}
@@ -89,7 +89,7 @@ export default {
       return result;
     },
     showItem(row, col) {
-      return col.showColumn && row[col.id] && col.id != "mg_tableclass";
+      return col.showColumn && row[col.name] && col.name != "mg_tableclass";
     },
   },
 };

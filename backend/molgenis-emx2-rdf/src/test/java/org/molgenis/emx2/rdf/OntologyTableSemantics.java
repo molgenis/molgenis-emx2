@@ -25,7 +25,7 @@ public class OntologyTableSemantics {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    Schema petStore = database.dropCreateSchema("semanticPetStore");
+    Schema petStore = database.dropCreateSchema(OntologyTableSemantics.class.getSimpleName());
     PetStoreLoader petStoreLoader = new PetStoreLoader();
     petStoreLoader.load(petStore, true);
     petStoreSchema = petStore;
@@ -53,7 +53,8 @@ public class OntologyTableSemantics {
                 new InputStreamReader(
                     FAIRDataHubLoader.class
                         .getClassLoader()
-                        .getResourceAsStream("OntologyTableSemanticsTestFile.csv"))));
+                        .getResourceAsStream("OntologyTableSemanticsTestFile.csv")),
+                null));
     petStoreSchema.migrate(metadata);
 
     outputStream = new ByteArrayOutputStream();

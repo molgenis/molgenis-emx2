@@ -3,7 +3,6 @@ import { ILocale } from "./ILocales";
 import { ISetting } from "./ISetting";
 
 export interface ITableMetaData {
-  id: string;
   name: string;
   tableType: string;
   columns: IColumn[];

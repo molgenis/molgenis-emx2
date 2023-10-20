@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.molgenis.emx2.NameMapper;
 import org.molgenis.emx2.Row;
 
 public class RowReaderJackson {
@@ -22,19 +23,22 @@ public class RowReaderJackson {
 
   private static ObjectReader reader = new CsvMapper().readerFor(Map.class);
 
-  public static Iterable<Row> read(File f, Character separator) throws IOException {
-    return read(new FileReader(f), separator);
+  public static Iterable<Row> read(File f, NameMapper mapper, Character separator)
+      throws IOException {
+    return read(new FileReader(f), mapper, separator);
   }
 
-  public static List<Row> readList(Reader in, Character separator) throws IOException {
+  public static List<Row> readList(Reader in, NameMapper mapper, Character separator)
+      throws IOException {
     List<Row> result = new ArrayList<>();
-    for (Row r : read(in, separator)) {
+    for (Row r : read(in, mapper, separator)) {
       result.add(r);
     }
     return result;
   }
 
-  public static Iterable<Row> read(Reader in, Character separator) throws IOException {
+  public static Iterable<Row> read(Reader in, NameMapper mapper, Character separator)
+      throws IOException {
     CsvSchema schema =
         CsvSchema.emptySchema()
             .withHeader()
@@ -58,7 +62,7 @@ public class RowReaderJackson {
            * @deprecated
            */
           public Row next() {
-            return new Row(it.next());
+            return new Row(it.next(), mapper);
           }
 
           @Override
