@@ -198,6 +198,13 @@ public class RDFService {
     builder.add(tableContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#DataSet"));
     // SIO:000754 = database table
     builder.add(tableContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_000754"));
+    if (table.getMetadata().getInherit() != null) {
+      builder.add(
+          tableContext,
+          RDFS.SUBCLASSOF,
+          encodedIRI(schemaContext + "/" + table.getMetadata().getInheritedTable().getTableName()));
+      // todo: can extend from other schema, need discuss how we deal in rdf export
+    }
     if (table.getMetadata().getSemantics() != null) {
       for (String tableSemantics : table.getMetadata().getSemantics()) {
         builder.add(tableContext, RDFS.ISDEFINEDBY, iri(tableSemantics));
@@ -230,7 +237,10 @@ public class RDFService {
   private void describeColumns(
       ModelBuilder builder, String columnName, Table table, String schemaContext) {
     String tableContext = schemaContext + "/" + table.getName();
-    for (Column column : table.getMetadata().getColumns()) {
+    for (Column column :
+        table.getMetadata().getLocalColumns().stream()
+            .filter(column -> !column.isSystemColumn())
+            .toList()) {
       if (columnName == null || column.getName().equals(columnName)) {
         describeColumn(builder, schemaContext, column, tableContext);
       }
@@ -335,8 +345,12 @@ public class RDFService {
       builder.add(
           rowContext, iri("http://purl.org/linked-data/cube#dataSet"), encodedIRI(tableContext));
 
-      for (Column column : table.getMetadata().getColumns()) {
-        IRI columnContext = encodedIRI(tableContext + "/column/" + column.getName());
+      for (Column column :
+          table.getMetadata().getColumns().stream()
+              .filter(column -> column.isSystemColumn())
+              .toList()) {
+        IRI columnContext =
+            encodedIRI(schemaContext + "/" + column.getTableName() + "/column/" + column.getName());
         for (Value value : formatValue(row, column, schemaContext)) {
           builder.add(rowContext, columnContext, value);
         }
