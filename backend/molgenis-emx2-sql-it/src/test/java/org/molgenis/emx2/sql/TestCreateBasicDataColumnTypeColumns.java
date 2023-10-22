@@ -50,28 +50,28 @@ public class TestCreateBasicDataColumnTypeColumns {
     // check setNullable ok
     Row row = new Row();
     row.setString("id", "test1");
-    row.setUuid("Test_uuid", java.util.UUID.randomUUID());
-    row.setString("Test_string", "test");
-    row.setBool("Test_bool", true);
-    row.setInt("Test_int", 1);
-    row.setLong("Test_long", 1l);
-    row.setDecimal("Test_decimal", 1.1);
-    row.setText("Test_text", "testtext");
-    row.setDate("Test_date", LocalDate.of(2018, 12, 13));
-    row.setDateTime("Test_datetime", LocalDateTime.of(2018, 12, 13, 12, 40));
+    row.setUuid("Test uuid", java.util.UUID.randomUUID());
+    row.setString("Test string", "test");
+    row.setBool("Test bool", true);
+    row.setInt("Test int", 1);
+    row.setLong("Test long", 1l);
+    row.setDecimal("Test decimal", 1.1);
+    row.setText("Test text", "testtext");
+    row.setDate("Test date", LocalDate.of(2018, 12, 13));
+    row.setDateTime("Test datetime", LocalDateTime.of(2018, 12, 13, 12, 40));
     t2.insert(row);
 
     // check not null expects exception
     row = new Row();
     row.setString("id", "test2");
-    row.setUuid("Test_uuid_nillable", java.util.UUID.randomUUID());
-    row.setString("Test_string_nillable", "test");
-    row.setBool("Test_bool_nillable", true);
-    row.setInt("Test_int_nillable", 1);
-    row.setDecimal("Test_decimal_nillable", 1.1);
-    row.setText("Test_text_nillable", "testtext");
-    row.setDate("Test_date_nillable", LocalDate.of(2018, 12, 13));
-    row.setDateTime("Test_datetime_nillable", LocalDateTime.of(2018, 12, 13, 12, 40));
+    row.setUuid("Test uuid nillable", java.util.UUID.randomUUID());
+    row.setString("Test string nillable", "test");
+    row.setBool("Test bool nillable", true);
+    row.setInt("Test int nillable", 1);
+    row.setDecimal("Test decimal nillable", 1.1);
+    row.setText("Test text nillable", "testtext");
+    row.setDate("Test date nillable", LocalDate.of(2018, 12, 13));
+    row.setDateTime("Test datetime nillable", LocalDateTime.of(2018, 12, 13, 12, 40));
     try {
       // should fail on all non  nillable columns
       t2.insert(row);
@@ -86,14 +86,14 @@ public class TestCreateBasicDataColumnTypeColumns {
     // check queryOld and test getters
     List<Row> result = schema.getTable("TypeTest").retrieveRows();
     for (Row res : result) {
-      assert (res.getDate("Test_date") instanceof LocalDate);
-      assert (res.getDateTime("Test_datetime") instanceof LocalDateTime);
-      assert (res.getString("Test_string") instanceof String);
-      assert (res.getInteger("Test_int") instanceof Integer);
-      assert (res.getDecimal("Test_decimal") instanceof Double);
-      assert (res.getText("Test_text") instanceof String);
-      assert (res.getBoolean("Test_bool") instanceof Boolean);
-      assert (res.getUuid("Test_uuid") instanceof java.util.UUID);
+      assert (res.getDate("Test date") instanceof LocalDate);
+      assert (res.getDateTime("Test datetime") instanceof LocalDateTime);
+      assert (res.getString("Test string") instanceof String);
+      assert (res.getInteger("Test int") instanceof Integer);
+      assert (res.getDecimal("Test decimal") instanceof Double);
+      assert (res.getText("Test text") instanceof String);
+      assert (res.getBoolean("Test bool") instanceof Boolean);
+      assert (res.getUuid("Test uuid") instanceof java.util.UUID);
     }
 
     StopWatch.print("checked getters");

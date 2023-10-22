@@ -2,14 +2,13 @@ package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
 import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
 import org.molgenis.emx2.utils.TableSort;
 
 public class SchemaMetadata extends HasSettings<SchemaMetadata> {
 
-  private static final String SCHEMA_NAME_MESSAGE =
-      "': Schema name must start with a letter or underscore, followed by letters, underscores, or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters (so it fits in Excel sheet names)";
   protected Map<String, TableMetadata> tables = new LinkedHashMap<>();
   protected String name;
   // optional
@@ -20,7 +19,8 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   public SchemaMetadata() {}
 
   public SchemaMetadata(String name) {
-    this.name = validateSchemaName(name);
+    validateSchemaName(name);
+    this.name = name;
   }
 
   public SchemaMetadata(String name, String description) {
@@ -42,19 +42,19 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     this.setSettingsWithoutReload(schema.getSettings());
   }
 
-  private String validateSchemaName(String name) {
+  private void validateSchemaName(String name) {
     if (name == null || name.isEmpty())
       throw new MolgenisException("Create schema failed: Schema name was null or empty");
-    if (!name.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
-      throw new MolgenisException("Invalid schema name '" + name + SCHEMA_NAME_MESSAGE);
-    }
     if (name.equalsIgnoreCase(OIDC_LOGIN_PATH) || name.equalsIgnoreCase(OIDC_CALLBACK_PATH))
       throw new MolgenisException(String.format("Schema name: '%s' is a reserved word", name));
-    return name;
   }
 
   public String getName() {
     return name;
+  }
+
+  public String getIdentifier() {
+    return convertToPascalCase(getName());
   }
 
   public void setName(String name) {

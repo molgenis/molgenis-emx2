@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.NameMapper;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
@@ -22,12 +21,11 @@ public class TableStoreForCsvFile implements TableStore {
   }
 
   @Override
-  public void writeTable(
-      String name, List<String> columnNames, NameMapper mapper, Iterable<Row> rows) {
+  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     try {
       Writer writer = Files.newBufferedWriter(csvFile);
       if (rows.iterator().hasNext()) {
-        CsvTableWriter.write(rows, columnNames, mapper, writer, ',');
+        CsvTableWriter.write(rows, columnNames, writer, ',');
       } else {
         // only header in case no rows provided
         writer.write(columnNames.stream().collect(Collectors.joining(",")));
@@ -40,20 +38,15 @@ public class TableStoreForCsvFile implements TableStore {
 
   @Override
   public Iterable<Row> readTable(String name) {
-    return this.readTable(name, null);
-  }
-
-  @Override
-  public Iterable<Row> readTable(String name, NameMapper mapper) {
     try {
-      return CsvTableReader.read(csvFile.toFile(), mapper);
+      return CsvTableReader.read(csvFile.toFile());
     } catch (Exception e) {
       throw new MolgenisException("Parse of CSV file failed", e);
     }
   }
 
   @Override
-  public void processTable(String name, NameMapper mapper, RowProcessor processor) {
+  public void processTable(String name, RowProcessor processor) {
     throw new UnsupportedOperationException();
   }
 

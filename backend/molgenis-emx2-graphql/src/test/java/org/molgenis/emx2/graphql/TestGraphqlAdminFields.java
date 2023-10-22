@@ -20,7 +20,7 @@ public class TestGraphqlAdminFields {
 
   private static GraphQL grapql;
   private static Database database;
-  private static final String schemaName = TestGraphqlAdminFields.class.getSimpleName();
+  private static final String schemaName = TestGraphqlAdminFields.class.getName();
 
   @BeforeAll
   public static void setup() {

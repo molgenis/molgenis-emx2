@@ -233,7 +233,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.tx(
         db -> {
           SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
-          validateNameIsLowercaseUnique(metadata, db);
+          validateSchemaIdentifierIsUnique(metadata, db);
           executeCreateSchema((SqlDatabase) db, metadata);
           // copy
           SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
@@ -249,13 +249,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return getSchema(name);
   }
 
-  private static void validateNameIsLowercaseUnique(SchemaMetadata metadata, Database db) {
+  private static void validateSchemaIdentifierIsUnique(SchemaMetadata metadata, Database db) {
     for (String name : db.getSchemaNames()) {
-      if (!metadata.getName().equals(name) && metadata.getName().equalsIgnoreCase(name)) {
+      if (!metadata.getName().equals(name)
+          && metadata.getIdentifier().equals(new SchemaMetadata(name).getIdentifier())) {
         throw new MolgenisException(
             String.format(
-                "Cannot create/alter schema because name is equal to existing schema in different case: '%s' is same as  '%s' (both resolve to '%s')",
-                metadata.getName(), name, metadata.getName().toLowerCase()));
+                "Cannot create/alter schema because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
+                metadata.getName(), name, metadata.getIdentifier()));
       }
     }
   }

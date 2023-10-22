@@ -75,7 +75,7 @@ public class SchemaFromProfile {
       }
     }
 
-    SchemaMetadata generatedSchema = Emx2.fromRowList(keepRows, true);
+    SchemaMetadata generatedSchema = Emx2.fromRowList(keepRows);
 
     return generatedSchema;
   }

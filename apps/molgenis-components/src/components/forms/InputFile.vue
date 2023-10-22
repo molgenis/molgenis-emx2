@@ -49,7 +49,7 @@
     </div>
     <div v-if="modelValue">
       <a v-if="modelValue && modelValue.url" :href="modelValue.url">
-        Previous value: {{ modelValue.name }}.{{ modelValue.extension }}
+        Previous value: {{ modelValue.id }}.{{ modelValue.extension }}
       </a>
     </div>
   </FormGroup>
@@ -115,7 +115,7 @@ export default {
           id : "3955978b18024de4bad8fcf8e2d49b59",
           size : 107,
           extension : "csv",
-          url : "/petStore/api/file/User/picture/3955978b18024de4bad8fcf8e2d49b59"
+          url : "/pet store/api/file/User/picture/3955978b18024de4bad8fcf8e2d49b59"
         }
       };
     }

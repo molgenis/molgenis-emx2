@@ -119,7 +119,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
               tableList.addAll(List.of(tables));
               if (tableList.size() > 1) sortTableByDependency(tableList);
               for (TableMetadata table : tableList) {
-                validateNameIsLowercaseUnique(sm, table);
+                validateTableIdentifierIsUnique(sm, table);
                 SqlTableMetadata result = null;
                 if (TableType.ONTOLOGIES.equals(table.getTableType())) {
                   result =
@@ -139,16 +139,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return this;
   }
 
-  private static void validateNameIsLowercaseUnique(SqlSchemaMetadata sm, TableMetadata table) {
+  private static void validateTableIdentifierIsUnique(SqlSchemaMetadata sm, TableMetadata table) {
     for (TableMetadata existingTable : sm.getTables()) {
       if (!existingTable.getTableName().equals(table.getTableName())
-          && existingTable.getTableName().equalsIgnoreCase(table.getTableName())) {
+          && existingTable.getIdentifier().equals(table.getIdentifier())) {
         throw new MolgenisException(
             String.format(
-                "Cannot create/alter because name resolves to same lowercase: '%s' is same '%s' (equals '%s')",
-                table.getTableName(),
-                existingTable.getTableName(),
-                table.getTableName().toLowerCase()));
+                "Cannot create/alter because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
+                table.getTableName(), existingTable.getTableName(), table.getIdentifier()));
       }
     }
   }
@@ -254,7 +252,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static SqlSchemaMetadata renameTableTransaction(
       Database db, String schemaName, String tableName, String newName) {
     SqlSchemaMetadata sm = (SqlSchemaMetadata) db.getSchema(schemaName).getMetadata();
-    validateNameIsLowercaseUnique(sm, new TableMetadata(newName));
+    validateTableIdentifierIsUnique(sm, new TableMetadata(newName));
     SqlTableMetadata tm = sm.getTableMetadata(tableName);
     tm.alterName(newName);
     sm.tables.remove(tableName);

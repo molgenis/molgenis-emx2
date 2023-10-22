@@ -86,7 +86,7 @@ export default {
           id="row-delete-btn-sample"
           tableName="Pet"
           :pkey="{name: 'pooky'}"
-          schemaName="petStore"
+          schemaName="pet store"
           @error="handleError"
           @success="handleSuccess"
       />

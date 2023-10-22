@@ -11,21 +11,21 @@ describe("columnNames", () => {
   test("it should return the pet columns expanded, children are not expanded, expect primary keys", () => {
     const expectedResult =
       " name category { name } tags { name } weight orders { orderId }";
-    const result = columnNames("petStore", "Pet", metaData, EXPAND_ONE);
+    const result = columnNames("pet store", "Pet", metaData, EXPAND_ONE);
     assert.equal(result, expectedResult);
   });
   //expand 2
   test("it should return the pet columns expanded", () => {
     const expectedResult =
       " name category { name } tags { order name label parent { name } } weight orders { orderId pet { name } }";
-    const result = columnNames("petStore", "Pet", metaData, EXPAND_TWO);
+    const result = columnNames("pet store", "Pet", metaData, EXPAND_TWO);
     assert.equal(result, expectedResult);
   });
 
   //expand 2
   test("it should return the order columns expanded, only arrays are not expanded beyond level 0 (so 'pet.tags' is missing)", () => {
     const expectedResult = " orderId pet { name category { name } weight }";
-    const result = columnNames("petStore", "Order", metaData, EXPAND_TWO);
+    const result = columnNames("pet store", "Order", metaData, EXPAND_TWO);
     assert.equal(result, expectedResult);
   });
 
@@ -34,30 +34,31 @@ describe("columnNames", () => {
   test("it should return the ontology columns expanded, only children array are not expanded beyond level 0", () => {
     const expectedResult =
       " order name label parent { name } children { name }";
-    const result = columnNames("petStore", "Tag", metaData, EXPAND_ONE);
+    const result = columnNames("pet store", "Tag", metaData, EXPAND_ONE);
     assert.equal(result, expectedResult);
   });
   //expand 2
   test("it should return the ontology columns expanded, only children array are not expanded beyond level 0", () => {
     const expectedResult =
       " order name label parent { order name label parent { name } } children { order name label parent { name } }";
-    const result = columnNames("petStore", "Tag", metaData, EXPAND_TWO);
+    const result = columnNames("pet store", "Tag", metaData, EXPAND_TWO);
     assert.equal(result, expectedResult);
   });
 });
 
 // test meta data with mg_columns removed
 const metaData: ISchemaMetaData = {
-  name: "petStore",
+  name: "pet store",
   tables: [
     {
       name: "Category",
       tableType: "DATA",
       id: "Category",
-      externalSchema: "petStore",
+      externalSchema: "pet store",
       columns: [
         {
           name: "name",
+          id: "name",
           columnType: "STRING",
           key: 1,
           required: true,
@@ -68,16 +69,18 @@ const metaData: ISchemaMetaData = {
       name: "Order",
       tableType: "DATA",
       id: "Order",
-      externalSchema: "petStore",
+      externalSchema: "pet store",
       columns: [
         {
           name: "orderId",
+          id: "orderId",
           columnType: "STRING",
           key: 1,
           required: true,
         },
         {
           name: "pet",
+          id: "pet",
           columnType: "REF",
           refTable: "Pet",
           refLabelDefault: "${name}",
@@ -95,10 +98,11 @@ const metaData: ISchemaMetaData = {
           value: "My pet store example table",
         },
       ],
-      externalSchema: "petStore",
+      externalSchema: "pet store",
       columns: [
         {
           name: "name",
+          id: "name",
           columnType: "STRING",
           key: 1,
           required: true,
@@ -111,6 +115,7 @@ const metaData: ISchemaMetaData = {
         },
         {
           name: "category",
+          id: "category",
           columnType: "REF",
           refTable: "Category",
           refLabelDefault: "${name}",
@@ -120,6 +125,7 @@ const metaData: ISchemaMetaData = {
 
         {
           name: "tags",
+          id: "tags",
           columnType: "ONTOLOGY_ARRAY",
           refTable: "Tag",
           refLabelDefault: "${name}",
@@ -127,12 +133,14 @@ const metaData: ISchemaMetaData = {
         },
         {
           name: "weight",
+          id: "weight",
           columnType: "DECIMAL",
           required: true,
           position: 6,
         },
         {
           name: "orders",
+          id: "orders",
           columnType: "REFBACK",
           refTable: "Order",
           refLabelDefault: "${orderId}",
@@ -144,10 +152,12 @@ const metaData: ISchemaMetaData = {
     {
       name: "Tag",
       tableType: "ONTOLOGIES",
-      externalSchema: "petStore",
+      id: "Tag",
+      externalSchema: "pet store",
       columns: [
         {
           name: "order",
+          id: "order",
           columnType: "INT",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C42680"],
           descriptions: [
@@ -159,6 +169,7 @@ const metaData: ISchemaMetaData = {
         },
         {
           name: "name",
+          id: "name",
           columnType: "STRING",
           key: 1,
           required: true,
@@ -173,6 +184,7 @@ const metaData: ISchemaMetaData = {
         },
         {
           name: "label",
+          id: "label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
           descriptions: [
@@ -186,6 +198,7 @@ const metaData: ISchemaMetaData = {
         },
         {
           name: "parent",
+          id: "parent",
           columnType: "REF",
           refTable: "Tag",
           refLabelDefault: "${name}",
@@ -201,6 +214,7 @@ const metaData: ISchemaMetaData = {
 
         {
           name: "children",
+          id: "children",
           columnType: "REFBACK",
           refTable: "Tag",
           refLabelDefault: "${name}",
@@ -220,10 +234,12 @@ const metaData: ISchemaMetaData = {
     {
       name: "User",
       tableType: "DATA",
-      externalSchema: "petStore",
+      id: "User",
+      externalSchema: "pet store",
       columns: [
         {
           name: "username",
+          id: "username",
           columnType: "STRING",
           key: 1,
           required: true,
@@ -236,16 +252,19 @@ const metaData: ISchemaMetaData = {
         },
         {
           name: "lastName",
+          id: "lastName",
           columnType: "STRING",
           position: 2,
         },
         {
           name: "picture",
+          id: "picture",
           columnType: "FILE",
           position: 3,
         },
         {
           name: "pets",
+          id: "pets",
           columnType: "REF_ARRAY",
           refTable: "Pet",
           refLabelDefault: "${name}",

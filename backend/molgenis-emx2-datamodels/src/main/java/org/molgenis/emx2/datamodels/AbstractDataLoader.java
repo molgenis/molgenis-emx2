@@ -34,8 +34,7 @@ public abstract class AbstractDataLoader {
         Emx2.fromRowList(
             CsvTableReader.read(
                 new InputStreamReader(
-                    AbstractDataLoader.class.getClassLoader().getResourceAsStream(path))),
-            true);
+                    AbstractDataLoader.class.getClassLoader().getResourceAsStream(path))));
     schema.migrate(metadata);
   }
 }

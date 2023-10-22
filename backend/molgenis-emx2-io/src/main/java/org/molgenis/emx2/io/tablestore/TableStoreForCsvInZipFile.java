@@ -14,7 +14,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.NameMapper;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
@@ -68,8 +67,7 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
   }
 
   @Override
-  public void writeTable(
-      String name, List<String> columnNames, NameMapper nameMapper, Iterable<Row> rows) {
+  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     if (columnNames.isEmpty()) {
       return;
     }
@@ -80,7 +78,7 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
       Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       Writer writer = Files.newBufferedWriter(pathInZipfile);
       if (rows.iterator().hasNext()) {
-        CsvTableWriter.write(rows, columnNames, nameMapper, writer, COMMA);
+        CsvTableWriter.write(rows, columnNames, writer, COMMA);
       } else {
         // only header in case no rows provided
         writer.write(columnNames.stream().collect(Collectors.joining("" + COMMA)));
@@ -92,14 +90,14 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
   }
 
   @Override
-  public void processTable(String name, NameMapper mapper, RowProcessor processor) {
+  public void processTable(String name, RowProcessor processor) {
     try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
       ZipEntry entry = getEntry(zf, name);
       Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
       if (entry != null && entry.getName().endsWith(CSV_EXTENSION)) {
-        processor.process(CsvTableReader.read(reader, mapper).iterator(), this);
+        processor.process(CsvTableReader.read(reader).iterator(), this);
       } else if (entry != null && entry.getName().endsWith(TSV_EXTENSION)) {
-        processor.process(CsvTableReader.read(reader, mapper).iterator(), this);
+        processor.process(CsvTableReader.read(reader).iterator(), this);
       } else {
         throw new MolgenisException(
             String.format(
@@ -114,20 +112,13 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
 
   @Override
   public Iterable<Row> readTable(String name) {
-    return readTable(name, null);
-  }
-
-  @Override
-  public Iterable<Row> readTable(String name, NameMapper mapper) {
     try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
       ZipEntry entry = getEntry(zf, name);
       Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
       if (entry != null && entry.getName().endsWith(CSV_EXTENSION)) {
-        return StreamSupport.stream(CsvTableReader.read(reader, mapper).spliterator(), false)
-            .toList();
+        return StreamSupport.stream(CsvTableReader.read(reader).spliterator(), false).toList();
       } else if (entry != null && entry.getName().endsWith(TSV_EXTENSION)) {
-        return StreamSupport.stream(CsvTableReader.read(reader, mapper).spliterator(), false)
-            .toList();
+        return StreamSupport.stream(CsvTableReader.read(reader).spliterator(), false).toList();
       } else {
         throw new MolgenisException(
             String.format(

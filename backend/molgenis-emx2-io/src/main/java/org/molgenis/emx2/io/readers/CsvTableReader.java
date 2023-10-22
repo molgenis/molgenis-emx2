@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.NameMapper;
 import org.molgenis.emx2.Row;
 import org.simpleflatmapper.csv.CsvParser;
 
@@ -17,18 +16,10 @@ public class CsvTableReader {
   }
 
   public static Iterable<Row> read(File f) throws IOException {
-    return read(f, null);
-  }
-
-  public static Iterable<Row> read(File f, NameMapper mapper) throws IOException {
-    return read(new FileReader(f), mapper);
+    return read(new FileReader(f));
   }
 
   public static Iterable<Row> read(Reader in) {
-    return read(in, null);
-  }
-
-  public static Iterable<Row> read(Reader in, NameMapper mapper) {
     try {
       BufferedReader bufferedReader = new BufferedReader(in);
       bufferedReader.mark(2000000);
@@ -85,7 +76,7 @@ public class CsvTableReader {
             }
 
             public Row next() {
-              return new Row(it.next(), mapper);
+              return new Row(it.next());
             }
 
             @Override

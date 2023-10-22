@@ -1,11 +1,8 @@
 # Up and download tool
 
-In the main menu choose 'up/download'. Here you can upload / download data conform your schema design.
-Note:
+In the main menu choose 'up/download'.
 
-* during upload molgenis will ignore case and any spaces you might have added.
-* during download, molgenis will use 'sentence case' conversion of you names as table/column names unless you have manually defined labels. This means that
-  a column 'firstName' will be exported as 'First name' to make your users happy why also satisfying programmers ;-)
+You then will have the option to
 
 ## Download
 

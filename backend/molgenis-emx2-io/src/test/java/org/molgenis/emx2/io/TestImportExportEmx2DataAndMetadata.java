@@ -19,7 +19,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
 
 @Tag("slow")
-public class TestImportExportEmx2 {
+public class TestImportExportEmx2DataAndMetadata {
   static Database database;
 
   @BeforeAll

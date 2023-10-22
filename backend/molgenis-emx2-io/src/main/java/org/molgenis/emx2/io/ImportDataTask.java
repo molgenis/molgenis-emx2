@@ -1,10 +1,7 @@
 package org.molgenis.emx2.io;
 
-import static org.molgenis.emx2.io.emx2.Emx2.sanitize;
-
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Optional;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -39,14 +36,8 @@ public class ImportDataTask extends Task {
 
     // create task for the import, including subtasks for each sheet
     for (Table table : schema.getTablesSorted()) {
-      Optional<String> tableNameInStore =
-          tableStore.tableNames().stream()
-              .filter(name -> sanitize(name).equals(table.getName()))
-              .findFirst();
-
-      if (tableNameInStore.isPresent()) {
-        ImportTableTask importTableTask =
-            new ImportTableTask(tableStore, table, tableNameInStore.get(), isStrict());
+      if (tableStore.containsTable(table.getName())) {
+        ImportTableTask importTableTask = new ImportTableTask(tableStore, table, isStrict());
         this.addSubTask(importTableTask);
         importTableTask.run();
         skipped = false;

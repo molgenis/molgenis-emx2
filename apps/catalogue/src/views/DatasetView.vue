@@ -98,7 +98,12 @@
 </template>
 <script>
 import { request, gql } from "graphql-request";
-import { TableExplorer, MessageError, RowButtonAdd } from "molgenis-components";
+import {
+  TableExplorer,
+  MessageError,
+  convertToPascalCase,
+  RowButtonAdd,
+} from "molgenis-components";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
@@ -121,7 +126,9 @@ export default {
     ...mapGetters(["canEdit", "canManage"]),
     resourceType() {
       if (this.dataset) {
-        return this.dataset.resource.mg_tableclass.split(".")[1];
+        return convertToPascalCase(
+          this.dataset.resource.mg_tableclass.split(".")[1]
+        );
       }
     },
   },

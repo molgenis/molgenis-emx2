@@ -45,12 +45,13 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 @Tag("slow")
 public class WebApiSmokeTests {
 
-  public static final String DATA_PET_STORE = "/petStore/api/csv";
+  public static final String DATA_PET_STORE = "/pet store/api/csv";
+  public static final String PET_SHOP_OWNER = "pet_shop_owner";
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
   public static String SESSION_ID; // to toss around a session for the tests
   private static Database db;
   private static Schema schema;
-  final String CSV_TEST_SCHEMA = "petStoreCsv";
+  final String CSV_TEST_SCHEMA = "pet store csv";
   static final int PORT = 8081; // other then default so we can see effect
 
   @BeforeAll
@@ -86,9 +87,11 @@ public class WebApiSmokeTests {
             .sessionId();
 
     // should be created
-    schema = db.getSchema("petStore");
+    schema = db.getSchema("pet store");
     // grant a user permission
+    schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
+    db.grantCreateSchema(PET_SHOP_OWNER);
   }
 
   @AfterAll
@@ -104,10 +107,10 @@ public class WebApiSmokeTests {
         given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(DATA_PET_STORE).asString();
 
     // create a new schema for zip
-    db.dropCreateSchema("petStoreZip");
+    db.dropCreateSchema("pet store zip");
 
     // download zip contents of old schema
-    byte[] zipContents = getContentAsByteArray(ACCEPT_ZIP, "/petStore/api/zip");
+    byte[] zipContents = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip");
 
     // upload zip contents into new schema
     File zipFile = createTempFile(zipContents, ".zip");
@@ -115,7 +118,7 @@ public class WebApiSmokeTests {
         .sessionId(SESSION_ID)
         .multiPart(zipFile)
         .when()
-        .post("/petStoreZip/api/zip")
+        .post("/pet store zip/api/zip")
         .then()
         .statusCode(200);
 
@@ -125,36 +128,38 @@ public class WebApiSmokeTests {
             .sessionId(SESSION_ID)
             .accept(ACCEPT_CSV)
             .when()
-            .get("/petStoreZip/api/csv")
+            .get("/pet store zip/api/csv")
             .asString();
     assertEquals(schemaCsv, schemaCsv2);
 
     // delete the new schema
-    db.dropSchema("petStoreZip");
+    db.dropSchema("pet store zip");
   }
 
   @Test
   public void testReports() throws IOException {
     // create a new schema for report
-    Schema schema = db.dropCreateSchema("petStoreReports");
+    Schema schema = db.dropCreateSchema("pet store reports");
     new PetStoreLoader().load(schema, true);
 
     // check if reports work
-    byte[] zipContents = getContentAsByteArray(ACCEPT_ZIP, "/petStoreReports/api/reports/zip?id=0");
+    byte[] zipContents =
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=0");
     File zipFile = createTempFile(zipContents, ".zip");
     TableStore store = new TableStoreForCsvInZipFile(zipFile.toPath());
     store.containsTable("pet report");
 
     // check if reports work with parameters
     zipContents =
-        getContentAsByteArray(ACCEPT_ZIP, "/petStoreReports/api/reports/zip?id=1&name=spike,pooky");
+        getContentAsByteArray(
+            ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=1&name=spike,pooky");
     zipFile = createTempFile(zipContents, ".zip");
     store = new TableStoreForCsvInZipFile(zipFile.toPath());
     store.containsTable("pet report with parameters");
 
     // check if reports work
     byte[] excelContents =
-        getContentAsByteArray(ACCEPT_ZIP, "/petStoreReports/api/reports/excel?id=0");
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=0");
     File excelFile = createTempFile(excelContents, ".xlsx");
     store = new TableStoreForXlsxFile(excelFile.toPath());
     assertTrue(store.containsTable("pet report"));
@@ -162,7 +167,7 @@ public class WebApiSmokeTests {
     // check if reports work with parameters
     excelContents =
         getContentAsByteArray(
-            ACCEPT_ZIP, "/petStoreReports/api/reports/excel?id=1&name=spike,pooky");
+            ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=1&name=spike,pooky");
     excelFile = createTempFile(excelContents, ".xlsx");
     store = new TableStoreForXlsxFile(excelFile.toPath());
     assertTrue(store.containsTable("pet report with parameters"));
@@ -245,12 +250,12 @@ public class WebApiSmokeTests {
     db.dropCreateSchema(CSV_TEST_SCHEMA);
 
     // download csv metadata and data from existing schema
-    byte[] contentsMeta = getContentAsByteArray(ACCEPT_CSV, "/petStore/api/csv");
-    byte[] contentsCategoryData = getContentAsByteArray(ACCEPT_CSV, "/petStore/api/csv/Category");
-    byte[] contentsOrderData = getContentAsByteArray(ACCEPT_CSV, "/petStore/api/csv/Order");
-    byte[] contentsPetData = getContentAsByteArray(ACCEPT_CSV, "/petStore/api/csv/Pet");
-    byte[] contentsUserData = getContentAsByteArray(ACCEPT_CSV, "/petStore/api/csv/User");
-    byte[] contentsTagData = getContentAsByteArray(ACCEPT_CSV, "/petStore/api/csv/Tag");
+    byte[] contentsMeta = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv");
+    byte[] contentsCategoryData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Category");
+    byte[] contentsOrderData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Order");
+    byte[] contentsPetData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Pet");
+    byte[] contentsUserData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/User");
+    byte[] contentsTagData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Tag");
 
     // create tmp files for csv metadata and data
     File contentsMetaFile = createTempFile(contentsMeta, ".csv");
@@ -295,7 +300,7 @@ public class WebApiSmokeTests {
             .queryParam("filter", "{\"name\":{\"equals\":\"pooky\"}}")
             .accept(ACCEPT_CSV)
             .when()
-            .get("/petStore/api/csv/Pet")
+            .get("/pet store/api/csv/Pet")
             .asString();
     assertTrue(result.contains("pooky"));
     assertFalse(result.contains("spike"));
@@ -306,7 +311,7 @@ public class WebApiSmokeTests {
             .queryParam("filter", "{\"tags\":{\"name\": {\"equals\":\"blue\"}}}")
             .accept(ACCEPT_CSV)
             .when()
-            .get("/petStore/api/csv/Pet")
+            .get("/pet store/api/csv/Pet")
             .asString();
     assertTrue(result.contains("jerry"));
     assertFalse(result.contains("spike"));
@@ -339,39 +344,39 @@ public class WebApiSmokeTests {
   @Test
   @Disabled("gives many false positive errors")
   public void testJsonYamlApi() {
-    String schemaJson = given().sessionId(SESSION_ID).when().get("/petStore/api/json").asString();
+    String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
 
-    db.dropCreateSchema("petStoreJson");
+    db.dropCreateSchema("pet store json");
 
     given()
         .sessionId(SESSION_ID)
         .body(schemaJson)
         .when()
-        .post("/petStoreJson/api/json")
+        .post("/pet store json/api/json")
         .then()
         .statusCode(200);
 
     String schemaJson2 =
-        given().sessionId(SESSION_ID).when().get("/petStoreJson/api/json").asString();
+        given().sessionId(SESSION_ID).when().get("/pet store json/api/json").asString();
 
-    assertEquals(schemaJson, schemaJson2.replace("petStoreJson", "petStore"));
+    assertEquals(schemaJson, schemaJson2.replace("pet store json", "pet store"));
 
-    String schemaYaml = given().sessionId(SESSION_ID).when().get("/petStore/api/yaml").asString();
+    String schemaYaml = given().sessionId(SESSION_ID).when().get("/pet store/api/yaml").asString();
 
-    db.dropCreateSchema("petStoreYaml");
+    db.dropCreateSchema("pet store yaml");
 
     given()
         .sessionId(SESSION_ID)
         .body(schemaYaml)
         .when()
-        .post("/petStoreYaml/api/yaml")
+        .post("/pet store yaml/api/yaml")
         .then()
         .statusCode(200);
 
     String schemaYaml2 =
-        given().sessionId(SESSION_ID).when().get("/petStoreYaml/api/yaml").asString();
+        given().sessionId(SESSION_ID).when().get("/pet store yaml/api/yaml").asString();
 
-    assertEquals(schemaYaml, schemaYaml2.replace("petStoreYaml", "petStore"));
+    assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", "pet store"));
   }
 
   @Test
@@ -379,13 +384,18 @@ public class WebApiSmokeTests {
 
     // download json schema
     String schemaCSV =
-        given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get("/petStore/api/csv").asString();
+        given()
+            .sessionId(SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv")
+            .asString();
 
     // create a new schema for excel
-    db.dropCreateSchema("petStoreExcel");
+    db.dropCreateSchema("pet store excel");
 
     // download excel contents from schema
-    byte[] excelContents = getContentAsByteArray(ACCEPT_EXCEL, "/petStore/api/excel");
+    byte[] excelContents = getContentAsByteArray(ACCEPT_EXCEL, "/pet store/api/excel");
     File excelFile = createTempFile(excelContents, ".xlsx");
 
     // upload excel into new schema
@@ -394,7 +404,7 @@ public class WebApiSmokeTests {
             .sessionId(SESSION_ID)
             .multiPart(excelFile)
             .when()
-            .post("/petStoreExcel/api/excel?async=true")
+            .post("/pet store excel/api/excel?async=true")
             .asString();
 
     Map<String, String> val = new ObjectMapper().readValue(message, Map.class);
@@ -423,7 +433,7 @@ public class WebApiSmokeTests {
             .sessionId(SESSION_ID)
             .multiPart(excelFile)
             .when()
-            .get("/petStore/api/tasks")
+            .get("/pet store/api/tasks")
             .asString()
             .contains(id));
 
@@ -433,13 +443,13 @@ public class WebApiSmokeTests {
             .sessionId(SESSION_ID)
             .accept(ACCEPT_CSV)
             .when()
-            .get("/petStoreExcel/api/csv")
+            .get("/pet store excel/api/csv")
             .asString();
 
     assertTrue(schemaCSV2.contains("Pet"));
 
     // delete a new schema for excel
-    db.dropSchema("petStoreExcel");
+    db.dropSchema("pet store excel");
   }
 
   private File createTempFile(byte[] zipContents, String extension) throws IOException {
@@ -455,7 +465,7 @@ public class WebApiSmokeTests {
   @Test
   public void testCsvApi_tableCsvUploadDownload() {
 
-    String path = "/petStore/api/csv/Tag";
+    String path = "/pet store/api/csv/Tag";
 
     String result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
     assertTrue(result.contains("green,,colors"));
@@ -538,7 +548,7 @@ public class WebApiSmokeTests {
             .asString();
     assertFalse(result.contains("Error"));
 
-    String schemaPath = "/petStore/api/graphql";
+    String schemaPath = "/pet store/api/graphql";
     result =
         given()
             .sessionId(sessionId)
@@ -571,11 +581,11 @@ public class WebApiSmokeTests {
   @Test
   public void testBootstrapThemeService() {
     // should success
-    String css = given().when().get("/petStore/tables/theme.css?primaryColor=123123").asString();
+    String css = given().when().get("/pet store/tables/theme.css?primaryColor=123123").asString();
     Assert.assertTrue(css.contains("123123"));
 
     // should fail
-    css = given().when().get("/petStore/tables/theme.css?primaryColor=pink").asString();
+    css = given().when().get("/pet store/tables/theme.css?primaryColor=pink").asString();
     Assert.assertTrue(css.contains("pink"));
   }
 
@@ -587,9 +597,9 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/petStore/"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/"))
         .when()
-        .get("/petStore");
+        .get("/pet store");
 
     given()
         .sessionId(SESSION_ID)
@@ -597,26 +607,27 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/petStore/tables/"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/tables/"))
         .when()
-        .get("/petStore/tables");
+        .get("/pet store/tables");
   }
 
   @Test
   public void testMolgenisWebservice_redirectToFirstMenuItem() {
+    given()
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("http://localhost:" + PORT + "/pet store/tables"))
+        .when()
+        .get("/pet store/");
+
     schema
         .getMetadata()
         .setSetting(
             "menu",
             "[{\"label\":\"home\",\"href\":\"../blaat\", \"role\":\"Manager\"},{\"label\":\"home\",\"href\":\"../blaat2\", \"role\":\"Viewer\"}]");
-
-    assertTrue(
-        given()
-            .body("{\"query\":\"{_session{email}}\"}")
-            .post("/api/graphql")
-            .getBody()
-            .asString()
-            .contains("anonymous"));
 
     // sign in as shopviewer
     String shopViewerSessionId =
@@ -627,25 +638,15 @@ public class WebApiSmokeTests {
             .post("/api/graphql")
             .sessionId();
 
-    assertTrue(
-        given()
-            .sessionId(shopViewerSessionId)
-            .body("{\"query\":\"{_session{email}}\"}")
-            .when()
-            .post("/api/graphql")
-            .getBody()
-            .asString()
-            .contains("shopviewer"));
-
     given()
         .sessionId(shopViewerSessionId)
         .redirects()
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/petStore/blaat2"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/blaat2"))
         .when()
-        .get("/petStore/");
+        .get("/pet store/");
 
     // sign in as shopviewer
     String shopManagerSessionId =
@@ -656,24 +657,15 @@ public class WebApiSmokeTests {
             .post("/api/graphql")
             .sessionId();
 
-    assertTrue(
-        given()
-            .sessionId(shopManagerSessionId)
-            .body("{\"query\":\"{_session{email}}\"}")
-            .post("/api/graphql")
-            .getBody()
-            .asString()
-            .contains("shopmanager"));
-
     given()
         .sessionId(shopManagerSessionId)
         .redirects()
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("http://localhost:" + PORT + "/petStore/blaat"))
+        .header("Location", is("http://localhost:" + PORT + "/pet store/blaat"))
         .when()
-        .get("/petStore/");
+        .get("/pet store/");
 
     schema.getMetadata().removeSetting("menu");
     db.becomeAdmin();
@@ -784,31 +776,31 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/petStore/api/rdf");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/petStore/api/rdf/Category");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/petStore/api/rdf/Category/column/name");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/column/name");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/petStore/api/rdf/Category/cat");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/cat");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(400)
         .when()
-        .get("http://localhost:" + PORT + "/petStore/api/rdf/doesnotexist");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
   }
 
   @Test
@@ -818,7 +810,7 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(400)
         .when()
-        .get("http://localhost:" + PORT + "/api/fdp/distribution/petStore/Category/ttl");
+        .get("http://localhost:" + PORT + "/api/fdp/distribution/pet store/Category/ttl");
   }
 
   @Test
@@ -833,40 +825,40 @@ public class WebApiSmokeTests {
 
   @Test
   public void downloadCsvTable() {
-    Response response = downloadPet("/petStore/api/csv/Pet");
+    Response response = downloadPet("/pet store/api/csv/Pet");
     assertTrue(
-        response.getBody().asString().contains("Name,Category,Photo urls,Status,Tags,Weight"));
+        response.getBody().asString().contains("name,category,photoUrls,status,tags,weight"));
     assertTrue(response.getBody().asString().contains("pooky,cat,,available,,9.4"));
     assertFalse(response.getBody().asString().contains("mg_"));
   }
 
   @Test
   public void downloadCsvTableWithSystemColumns() {
-    Response response = downloadPet("/petStore/api/csv/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true");
+    Response response = downloadPet("/pet store/api/csv/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true");
     assertTrue(response.getBody().asString().contains("mg_"));
   }
 
   @Test
   public void downloadExcelTable() throws IOException {
-    Response response = downloadPet("/petStore/api/excel/Pet");
+    Response response = downloadPet("/pet store/api/excel/Pet");
     List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
-    assertEquals("Name,Category,Photo urls,Status,Tags,Weight", rows.get(0));
+    assertEquals("name,category,photoUrls,status,tags,weight", rows.get(0));
     assertEquals("pooky,cat,,available,,9.4", rows.get(1));
   }
 
   @Test
   public void downloadExelTableWithSystemColumns() throws IOException {
-    Response response = downloadPet("/petStore/api/excel/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true");
+    Response response = downloadPet("/pet store/api/excel/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true");
     List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
     assertTrue(rows.get(0).contains("mg_"));
   }
 
   @Test
   public void downloadZipTable() throws IOException, InterruptedException {
-    File file = TestUtils.responseToFile(downloadPet("/petStore/api/zip/Pet"));
+    File file = TestUtils.responseToFile(downloadPet("/pet store/api/zip/Pet"));
     List<File> files = TestUtils.extractFileFromZip(file);
     String result = Files.readString(files.get(0).toPath());
-    assertTrue(result.contains("Name,Category,Photo urls,Status,Tags,Weight"));
+    assertTrue(result.contains("name,category,photoUrls,status,tags,weight"));
     assertTrue(result.contains("pooky,cat,,available,,9.4"));
   }
 
@@ -874,7 +866,7 @@ public class WebApiSmokeTests {
   public void downloadZipTableWithSystemColumns() throws IOException, InterruptedException {
     File file =
         TestUtils.responseToFile(
-            downloadPet("/petStore/api/zip/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true"));
+            downloadPet("/pet store/api/zip/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true"));
     List<File> files = TestUtils.extractFileFromZip(file);
     String result = Files.readString(files.get(0).toPath());
     assertTrue(result.contains("mg_"));
@@ -1113,9 +1105,9 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("/petStore/api/rdf?format=jsonld"))
+        .header("Location", is("/pet store/api/rdf?format=jsonld"))
         .when()
-        .get("/petStore/api/jsonld");
+        .get("/pet store/api/jsonld");
 
     given()
         .sessionId(SESSION_ID)
@@ -1123,9 +1115,9 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("/petStore/api/rdf/Pet?format=jsonld"))
+        .header("Location", is("/pet store/api/rdf/Pet?format=jsonld"))
         .when()
-        .get("/petStore/api/jsonld/Pet");
+        .get("/pet store/api/jsonld/Pet");
   }
 
   @Test
@@ -1136,9 +1128,9 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("/petStore/api/rdf?format=ttl"))
+        .header("Location", is("/pet store/api/rdf?format=ttl"))
         .when()
-        .get("/petStore/api/ttl");
+        .get("/pet store/api/ttl");
 
     given()
         .sessionId(SESSION_ID)
@@ -1146,9 +1138,9 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("/petStore/api/rdf/Pet?format=ttl"))
+        .header("Location", is("/pet store/api/rdf/Pet?format=ttl"))
         .when()
-        .get("/petStore/api/ttl/Pet");
+        .get("/pet store/api/ttl/Pet");
   }
 
   @Test

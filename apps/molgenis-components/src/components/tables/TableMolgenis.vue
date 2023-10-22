@@ -15,14 +15,13 @@
           class="column-drag-header"
           :style="col.showColumn ? '' : 'display: none'"
         >
-          <h6yarn
-            dev
+          <h6
             class="mb-0 align-text-bottom text-nowrap"
             @click="onColumnClick(col)"
           >
-            {{ getLocalizedLabel(col, locale) }}
+            {{ col.name }}
             <slot name="colheader" :col="col" />
-          </h6yarn>
+          </h6>
         </th>
       </thead>
 
@@ -80,7 +79,6 @@ th {
 <script>
 import Client from "../../client/client";
 import TableRow from "./TableRow.vue";
-import { getLocalizedLabel } from "../utils";
 import { toRaw } from "vue";
 
 export default {
@@ -97,7 +95,6 @@ export default {
     data: { type: Array, default: () => [] },
     showSelect: { type: Boolean, default: false },
     schemaName: { type: String, required: true },
-    locale: { type: String, default: "en" },
   },
   data() {
     return {
@@ -142,9 +139,6 @@ export default {
       this.$emit("deselect", rowKey);
       this.$emit("update:selection", this.selection.toSpliced(deleteIndex, 1));
     },
-    getLocalizedLabel(column) {
-      return getLocalizedLabel(column, this.locale);
-    },
   },
 };
 </script>
@@ -170,7 +164,7 @@ export default {
         v-model:columns="columns"
         :data="remoteTableData"
         tableName="Pet"
-        schemaName="petStore"
+        schemaName="pet store"
         :showSelect="canSelect"
       />
     </DemoItem>
@@ -179,7 +173,7 @@ export default {
       <table-molgenis
           :data="[]"
           tableName="Pet"
-          schemaName="petStore"
+          schemaName="pet store"
           v-model:columns="columns"
       />
     </DemoItem>
@@ -188,7 +182,7 @@ export default {
       <table-molgenis
           :data="[]"
           tableName="Pet"
-          schemaName="petStore"
+          schemaName="pet store"
       />
     </DemoItem>
   </div>
@@ -207,7 +201,7 @@ export default {
     };
   },
   async mounted() {
-    const client = Client.newClient("petStore");
+    const client = Client.newClient("pet store");
     const metaData = await client.fetchSchemaMetaData();
     const petColumns = metaData.tables.find(
       (t) => t.name === "Pet"

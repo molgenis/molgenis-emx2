@@ -5,7 +5,6 @@ import static org.molgenis.emx2.FilterBean.f;
 
 import java.util.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.NameToLabelMapper;
 import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
@@ -46,7 +45,6 @@ public class Emx2Tables {
       store.writeTable(
           table.getName(),
           downloadColumnNames,
-          new NameToLabelMapper(table.getMetadata()),
           table
               .query()
               .select(select)
@@ -57,11 +55,7 @@ public class Emx2Tables {
                       table.getSchema().getName() + "." + table.getName()))
               .retrieveRows());
     } else {
-      store.writeTable(
-          table.getName(),
-          downloadColumnNames,
-          new NameToLabelMapper(table.getMetadata()),
-          table.select(select).retrieveRows());
+      store.writeTable(table.getName(), downloadColumnNames, table.select(select).retrieveRows());
     }
 
     // in case of zip file we include the attached files
