@@ -12,8 +12,8 @@ export default {
       `{
           _session { email,roles } _schema {
             name, tables {
-              name, tableType, descriptions{locale,value}, externalSchema, semantics, columns {
-                name, columnType, key, refTable, refLink, refLabel, refBack, required, 
+              name, tableType, id, descriptions{locale,value}, externalSchema, semantics, columns {
+                name, id, columnType, key, refTable, refLink, refLabel, refBack, required, 
                 semantics, descriptions{locale,value}, position, validation, visible
               } settings { key, value }
             }

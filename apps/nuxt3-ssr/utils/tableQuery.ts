@@ -4,18 +4,19 @@ import {
   ITableMetaData,
   KeyObject,
 } from "~~/interfaces/types";
+import { convertToPascalCase } from "../../molgenis-components/src/components/utils";
 
 const FILE_FRAGMENT = "{ id, size, extension, url }";
 
 export const buildRecordDetailsQueryFields = (
   schemas: Record<string, ISchemaMetaData>,
   schemaName: string,
-  tableName: string
+  tableId: string
 ): string => {
   const schemaMetaData = schemas[schemaName];
   const tableMetaData = schemaMetaData.tables.find(
     (t: ITableMetaData) =>
-      t.name.toLocaleLowerCase() === tableName.toLocaleLowerCase()
+      t.id.toLocaleLowerCase() === tableId.toLocaleLowerCase()
   );
 
   const allColumns = tableMetaData?.columns;
@@ -26,21 +27,26 @@ export const buildRecordDetailsQueryFields = (
   const refTableQueryFields = (refColumn: IColumn): string => {
     const refTableMetaData = schemas[
       refColumn.refSchema || schemaName
-    ].tables.find((t: ITableMetaData) => t.name === refColumn.refTable);
+    ].tables.find(
+      (t: ITableMetaData) =>
+        t.id.toLocaleLowerCase() ===
+        // @ts-ignore we know that refTable is not undefined
+        convertToPascalCase(refColumn.refTable).toLocaleLowerCase()
+    );
 
     const allRefColumns = refTableMetaData?.columns;
 
     const refTableDataColumns = allRefColumns
-      ?.filter((c) => !c.name.startsWith("mg_"))
+      ?.filter((c) => !c.id.startsWith("mg_"))
       .filter((c) => c.columnType !== "HEADING");
 
     const refFields = refTableDataColumns?.map((column) => {
       switch (column.columnType) {
         case "STRING":
         case "TEXT":
-          return column.name;
+          return column.id;
         case "FILE":
-          return `${column.name} ${FILE_FRAGMENT}`;
+          return `${column.id} ${FILE_FRAGMENT}`;
         case "REF":
         case "ONTOLOGY":
         case "REF_ARRAY":
@@ -48,7 +54,7 @@ export const buildRecordDetailsQueryFields = (
         case "ONTOLOGY_ARRAY":
           return ""; // stop recursion
         default:
-          return column.name;
+          return column.id;
       }
     });
 
@@ -61,17 +67,17 @@ export const buildRecordDetailsQueryFields = (
     switch (column.columnType) {
       case "STRING":
       case "TEXT":
-        return column.name;
+        return column.id;
       case "FILE":
-        return `${column.name} ${FILE_FRAGMENT}`;
+        return `${column.id} ${FILE_FRAGMENT}`;
       case "REF":
       case "ONTOLOGY":
       case "REF_ARRAY":
       case "REFBACK":
       case "ONTOLOGY_ARRAY":
-        return `${column.name} { ${refTableQueryFields(column)} }`;
+        return `${column.id} { ${refTableQueryFields(column)} }`;
       default:
-        return column.name;
+        return column.id;
     }
   });
 
@@ -97,7 +103,7 @@ export const buildRecordListQueryFields = (
     );
   }
 
-  const typeFields = tableMetaData.columns.map((c) => c.name);
+  const typeFields = tableMetaData.columns.map((c) => c.id);
 
   // suggested list fields that are part of this tableType
   const additionalFields: any = [
@@ -144,18 +150,18 @@ const buildKeyFields = (
     (acc: any, column: IColumn) => {
       if (column.key === 1) {
         if (isValueType(column)) {
-          acc.push(column.name);
+          acc.push(column.id);
         } else if (isRefType(column)) {
           if (!column.refTable) {
             throw new Error(
-              "refTable is undefined for refColumn with name " +
-                column.name +
+              "refTable is undefined for refColumn with id " +
+                column.id +
                 " in table " +
                 tableName +
                 ""
             );
           } else {
-            acc.push(column.name);
+            acc.push(column.id);
             acc.push(
               buildKeyFields(
                 column.refTable,
@@ -203,30 +209,30 @@ export const extractExternalSchemas = (schemaMetaData: ISchemaMetaData) => {
 export const extractKeyFromRecord = (
   record: any,
   tableName: string,
-  schemaName: string,
+  schemaId: string,
   schemas: Record<string, ISchemaMetaData>
 ) => {
-  const schemaMetaData = schemas[schemaName];
+  const schemaMetaData = schemas[schemaId];
   const tableMetaData = getTableMetaData(schemaMetaData, tableName);
 
   const key = tableMetaData.columns.reduce((acc: any, column: IColumn) => {
-    if (column.key === 1 && record[column.name]) {
+    if (column.key === 1 && record[column.id]) {
       if (isValueType(column)) {
-        acc[column.name] = record[column.name];
+        acc[column.id] = record[column.id];
       } else if (isRefType(column)) {
         if (!column.refTable) {
           throw new Error(
-            "refTable is undefined for refColumn with name " +
-              column.name +
+            "refTable is undefined for refColumn with id " +
+              column.id +
               " in table " +
               tableName +
               ""
           );
         } else {
-          acc[column.name] = extractKeyFromRecord(
-            record[column.name],
+          acc[column.id] = extractKeyFromRecord(
+            record[column.id],
             column.refTable,
-            column.refSchema || schemaName,
+            column.refSchema || schemaId,
             schemas
           );
         }

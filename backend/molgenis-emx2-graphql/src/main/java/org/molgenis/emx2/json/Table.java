@@ -37,6 +37,7 @@ public class Table {
         tableMetadata.getLabels().entrySet().stream()
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
+    this.id = tableMetadata.getIdentifier();
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
     this.inherit = tableMetadata.getInherit();

@@ -189,7 +189,11 @@
 </template>
 
 <script>
-import { MessageError, ButtonAlt } from "molgenis-components";
+import {
+  MessageError,
+  ButtonAlt,
+  convertToPascalCase,
+} from "molgenis-components";
 import { request, gql } from "graphql-request";
 import OntologyTerms from "../components/OntologyTerms.vue";
 
@@ -223,7 +227,7 @@ export default {
       this.hideNA = !this.hideNA;
     },
     getType(mg_tableclass) {
-      return mg_tableclass.split(".")[1];
+      return convertToPascalCase(mg_tableclass.split(".")[1]);
     },
     reload() {
       request(

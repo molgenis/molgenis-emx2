@@ -20,10 +20,9 @@ import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @Tag("slow")
-public class TestIOAllExamples {
+public class TestImportExportAllExamples {
 
   static Database db;
-  static String prefix = TestIOAllExamples.class.getSimpleName();
 
   @BeforeAll
   public static void setup() {
@@ -32,35 +31,35 @@ public class TestIOAllExamples {
 
   @Test
   public void testArrayTypeTestExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata(prefix + "1");
+    SchemaMetadata schema1 = new SchemaMetadata("1");
     ArrayTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
   public void testRefAndRefArrayExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata(prefix + "4");
+    SchemaMetadata schema1 = new SchemaMetadata("4");
     RefAndRefArrayTestExample.createRefAndRefArrayTestExample(schema1);
     executeCompare(schema1);
   }
 
   @Test
   public void testSimpleTypeTestExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata(prefix + "5");
+    SchemaMetadata schema1 = new SchemaMetadata("5");
     SimpleTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
   public void testProductComponentPartsExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata(prefix + "6");
+    SchemaMetadata schema1 = new SchemaMetadata("6");
     ProductComponentPartsExample.create(schema1);
     executeCompare(schema1);
   }
 
   @Test
   public void testPetStoreExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata(prefix + "7");
+    SchemaMetadata schema1 = new SchemaMetadata("7");
     schema1.create(
         new PetStoreLoader().getSchemaMetadata().getTables().toArray(new TableMetadata[0]));
     executeCompare(schema1);
@@ -68,7 +67,7 @@ public class TestIOAllExamples {
 
   @Test
   public void testDefaultValuesMetadata() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata(prefix + "8");
+    SchemaMetadata schema1 = new SchemaMetadata("8");
     schema1.create(table("test", column("id").setDefaultValue("bla")));
     Schema result = executeCompare(schema1);
     assertEquals(

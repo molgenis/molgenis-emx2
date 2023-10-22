@@ -215,7 +215,7 @@ export default {
           }
         });
       const withoutMetadataColumns = filteredByVisibilityExpressions.filter(
-        (column: IColumn) => !column.name.startsWith("mg_")
+        (column: IColumn) => !column.id.startsWith("mg_")
       );
       const splitByHeadings = splitColumnNamesByHeadings(
         withoutMetadataColumns
@@ -241,7 +241,7 @@ export default {
         (column) =>
           column.key === 1 &&
           column.columnType !== "AUTO_ID" &&
-          !this.rowData[column.name]
+          !this.rowData[column.id]
       );
       if (hasPrimaryKeyValue) {
         return "Cannot save draft: primary key is required";
@@ -307,7 +307,7 @@ export default {
     },
     getHeadingLabel(headingId: string) {
       const column = this.tableMetaData.columns.find(
-        (column) => column.name === headingId
+        (column) => column.id === headingId
       );
       return (
         column?.labels?.find((label) => label.locale === this.locale)?.value ||
@@ -446,7 +446,7 @@ interface IChapterInfo {
 export default {
   data: function () {
     return {
-      schemaName: "petStore",
+      schemaName: "pet store",
       tableName: "Pet",
       demoMode: "insert", // one of [insert, update, clone]
       demoKey: null, // empty in case of insert

@@ -78,7 +78,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import InputRefItem from "./InputRefItem.vue";
-import { flattenObject } from "../utils";
+import { flattenObject, convertToPascalCase } from "../utils";
 
 export default {
   name: "InputRef",
@@ -121,6 +121,9 @@ export default {
     };
   },
   computed: {
+    tableId() {
+      return convertToPascalCase(this.tableName);
+    },
     title() {
       return "Select " + this.tableName;
     },
@@ -150,12 +153,9 @@ export default {
       if (this.filter) {
         options.filter = this.filter;
       }
-      const response = await this.client.fetchTableData(
-        this.tableName,
-        options
-      );
-      this.data = response[this.tableName];
-      this.count = response[this.tableName + "_agg"].count;
+      const response = await this.client.fetchTableData(this.tableId, options);
+      this.data = response[this.tableId];
+      this.count = response[this.tableId + "_agg"].count;
     },
   },
   watch: {
@@ -190,7 +190,7 @@ export default {
         v-model="value"
         tableName="Pet"
         description="Standard input"
-        schemaName="petStore"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ value }}
@@ -203,7 +203,7 @@ export default {
         tableName="Pet"
         description="This is a default value"
         :defaultValue="defaultValue"
-        schemaName="petStore"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ defaultValue }}
@@ -216,7 +216,7 @@ export default {
         tableName="Pet"
         description="Filter by name"
         :filter="{ category: { name: { equals: 'cat' } } }"
-        schemaName="petStore"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ filterValue }}
@@ -230,7 +230,7 @@ export default {
         v-model="multiColumnValue"
         tableName="Pet"
         description="This is a multi column input"
-        schemaName="petStore"
+        schemaName="pet store"
         multipleColumns
         :itemsPerColumn="3"
         :canEdit="canEdit"

@@ -4,10 +4,10 @@
       v-for="column in columnsWithoutMeta.filter(showColumn)"
       :key="JSON.stringify(column)"
       :id="`${id}-${column.name}`"
-      :modelValue="internalValues[column.name]"
+      :modelValue="internalValues[column.id]"
       :columnType="column.columnType"
       :description="getColumnDescription(column)"
-      :errorMessage="errorPerColumn[column.name]"
+      :errorMessage="errorPerColumn[column.id]"
       :label="getColumnLabel(column)"
       :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
       :pkey="primaryKey"
@@ -23,7 +23,7 @@
       :tableName="column.refTable"
       :canEdit="canEdit"
       :filter="refLinkFilter(column)"
-      @update:modelValue="handleModelValueUpdate($event, column.name)"
+      @update:modelValue="handleModelValueUpdate($event, column.id)"
     />
   </div>
 </template>
@@ -34,6 +34,7 @@ import constants from "../constants.js";
 import Client from "../../client/client";
 import {
   deepClone,
+  convertToCamelCase,
   getLocalizedLabel,
   getLocalizedDescription,
 } from "../utils";
@@ -127,7 +128,7 @@ export default {
     columnsWithoutMeta() {
       return this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
-            (column: IColumn) => !column.name?.startsWith("mg_")
+            (column: IColumn) => !column.id?.startsWith("mg_")
           )
         : [];
     },
@@ -137,8 +138,8 @@ export default {
           .filter((column: IColumn) => column.key === 1)
           .reduce(
             (accum: Record<string, { equals: IRow }>, column: IColumn) => {
-              accum[column.name] = {
-                equals: this.pkey ? this.pkey[column.name] : undefined,
+              accum[column.id] = {
+                equals: this.pkey ? this.pkey[column.id] : undefined,
               };
               return accum;
             },
@@ -160,16 +161,16 @@ export default {
       if (column.columnType === AUTO_ID) {
         return this.pkey;
       } else if (column.refLink) {
-        return this.internalValues[column.refLink];
+        return this.internalValues[convertToCamelCase(column.refLink)];
       } else {
         const isColumnVisible = this.visibleColumns
-          ? this.visibleColumns.includes(column.name)
+          ? this.visibleColumns.includes(column.id)
           : true;
 
         return (
           isColumnVisible &&
           this.isVisible(column) &&
-          column.name !== "mg_tableclass"
+          column.id !== "mg_tableclass"
         );
       }
     },
@@ -181,7 +182,7 @@ export default {
           this.tableMetaData as ITableMetaData
         );
       } catch (error: any) {
-        this.errorPerColumn[column.name] = error;
+        this.errorPerColumn[column.id] = error;
         return true;
       }
     },
@@ -189,13 +190,13 @@ export default {
       this.tableMetaData.columns.forEach((column: IColumn) => {
         if (column.computed && column.columnType !== AUTO_ID) {
           try {
-            this.internalValues[column.name] = executeExpression(
+            this.internalValues[column.id] = executeExpression(
               column.computed,
               this.internalValues,
               this.tableMetaData as ITableMetaData
             );
           } catch (error) {
-            this.errorPerColumn[column.name] = "Computation failed: " + error;
+            this.errorPerColumn[column.id] = "Computation failed: " + error;
           }
         } else if (this.applyDefaultValues && column.defaultValue) {
           if (column.defaultValue.startsWith("=")) {
@@ -216,7 +217,7 @@ export default {
       if (
         column.refLink &&
         this.showColumn(column) &&
-        this.internalValues[column.refLink]
+        this.internalValues[convertToCamelCase(column.refLink)]
       ) {
         let filter: Record<string, any> = {};
         this.tableMetaData.columns.forEach((column2: IColumn) => {
@@ -230,8 +231,10 @@ export default {
                     column3.refTable === column2.refTable
                   ) {
                     filter[column3.name] = {
-                      //@ts-ignore
-                      equals: this.internalValues[column.refLink],
+                      equals:
+                        this.internalValues[
+                          convertToCamelCase(column.refLink || "")
+                        ],
                     };
                   }
                 });
@@ -242,8 +245,8 @@ export default {
         return filter;
       }
     },
-    handleModelValueUpdate(event: any, columnName: string) {
-      this.internalValues[columnName] = event;
+    handleModelValueUpdate(event: any, columnId: string) {
+      this.internalValues[columnId] = event;
       this.onValuesUpdate();
     },
     onValuesUpdate() {
@@ -319,7 +322,7 @@ export default {
         },
         schemaMetadata: {},
         rowData: {},
-        schemaName: 'petStore',
+        schemaName: 'pet store',
       };
     },
     watch: {

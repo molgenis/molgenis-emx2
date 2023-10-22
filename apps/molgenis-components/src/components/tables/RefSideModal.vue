@@ -17,7 +17,7 @@
           :reference="queryResult"
           :showDataOwner="showDataOwner"
           :startsCollapsed="queryResults.length > 1"
-          :tableName="column.refTable"
+          :tableId="column.refTable"
           :schema="column.refSchema || props.schema"
           @ref-cell-clicked="handleRefCellClicked"
         />
@@ -74,30 +74,26 @@ watch([column, rows], () => {
   }
 });
 
-async function updateData(
-  activeSchema: string,
-  rows: IRow[],
-  tableName: string
-) {
+async function updateData(activeSchema: string, rows: IRow[], tableId: string) {
   errorMessage.value = "";
   loading.value = true;
-  queryResults.value = await getRowData(activeSchema, rows, tableName);
+  queryResults.value = await getRowData(activeSchema, rows, tableId);
   loading.value = false;
 }
 
 async function getRowData(
   activeSchema: string,
   rowKeys: IRow[],
-  tableName: string
+  tableId: string
 ): Promise<IRow[]> {
   let newQueryResults: IRow[] = [];
   const client = Client.newClient(activeSchema);
-  const metadata = await client.fetchTableMetaData(tableName);
+  const metadata = await client.fetchTableMetaData(tableId);
   for (const row of rowKeys) {
     const externalSchemaClient = Client.newClient(metadata.externalSchema);
     const expandLevel = 2;
     const queryResult = await externalSchemaClient
-      .fetchRowData(tableName, row, expandLevel)
+      .fetchRowData(tableId, row, expandLevel)
       .catch(errorHandler);
     queryResult.metadata = metadata;
     newQueryResults.push(queryResult);
@@ -112,12 +108,13 @@ async function handleRefCellClicked({
   refColumn: IColumn;
   refTableRow: IRow;
 }): Promise<void> {
+  const refTableId = refColumn.refTable;
   const activeSchema =
     refColumn.refSchema || column.value.refSchema || props.schema;
-  if (refColumn.refTable && activeSchema) {
-    const clickedCellPrimaryKeys = [refTableRow[refColumn.name]].flat();
+  if (refTableId && activeSchema) {
+    const clickedCellPrimaryKeys = [refTableRow[refColumn.id]].flat();
     localColumnName.value = refColumn.name;
-    updateData(activeSchema, clickedCellPrimaryKeys, refColumn.refTable);
+    updateData(activeSchema, clickedCellPrimaryKeys, refTableId);
   } else {
     errorMessage.value = "Failed to load reference data";
   }
@@ -142,6 +139,6 @@ function errorHandler(error: AxiosError) {
 <script setup lang="ts">
 import { ref } from "vue";
 let showModal = ref(false);
-const column = { refTable: "Pet", name: "orders", refSchema: "petStore" };
+const column = { refTable: "Pet", name: "orders", refSchema: "pet store" };
 </script>
 </docs>

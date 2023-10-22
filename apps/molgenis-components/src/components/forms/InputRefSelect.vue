@@ -122,7 +122,7 @@ export default {
           id="input-ref-select-1"
           v-model="value1"
           tableName="Pet"
-          schemaName="petStore"
+          schemaName="pet store"
           refLabel="${name}"
       />
       Selection: {{ value1 }}
@@ -134,7 +134,7 @@ export default {
           id="input-ref-select-1b"
           v-model="value1"
           tableName="Pet"
-          schemaName="petStore"
+          schemaName="pet store"
           refLabel="${name}"
           :readonly="true"
       />
@@ -148,7 +148,7 @@ export default {
           id="input-ref-select-2"
           v-model="value2"
           tableName="Pet"
-          schemaName="petStore"
+          schemaName="pet store"
           refLabel="${name}"
       />
       Selection: {{ value2 }}
@@ -161,7 +161,7 @@ export default {
           v-model="value3"
           tableName="Pet"
           :filter="{category:{name: {equals:'dog'}}}"
-          schemaName="petStore"
+          schemaName="pet store"
           refLabel="${name}"
       />
       Selection: {{ value3 }}

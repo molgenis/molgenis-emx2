@@ -113,6 +113,7 @@ import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "click-outside-vue3";
+import { convertToPascalCase } from "../utils.ts";
 import Spinner from "../layout/Spinner.vue";
 
 /**
@@ -179,6 +180,9 @@ export default {
     };
   },
   computed: {
+    tableId() {
+      return convertToPascalCase(this.tableName);
+    },
     rootTerms() {
       if (this.terms) {
         let result = Object.values(this.terms).filter(
@@ -500,7 +504,7 @@ export default {
       const client = Client.newClient(this.schemaName);
       this.data = (
         await client.fetchTableData(this.tableName, { limit: this.limit || 20 })
-      )[this.tableName];
+      )[this.tableId];
     }
   },
   created() {
@@ -565,7 +569,7 @@ function getSelectedChildNodes(term) {
           description="please choose your options in tree below"
           v-model="value3"
           tableName="Tag"
-          schemaName="petStore"
+          schemaName="pet store"
       />
       <div>You selected: {{ value3 }}</div>
     </demo-item>
@@ -579,7 +583,7 @@ function getSelectedChildNodes(term) {
           v-model="value4"
           :isMultiSelect="true"
           tableName="Tag"
-          schemaName="petStore"
+          schemaName="pet store"
       />
       <div>You selected: {{ value4 }}</div>
     </demo-item>

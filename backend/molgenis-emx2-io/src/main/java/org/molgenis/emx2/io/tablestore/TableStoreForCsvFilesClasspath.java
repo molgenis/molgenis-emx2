@@ -1,13 +1,10 @@
 package org.molgenis.emx2.io.tablestore;
 
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ScanResult;
 import java.io.*;
-import java.net.*;
+import java.net.URL;
 import java.util.*;
 import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.NameMapper;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.RowReaderJackson;
 
@@ -32,8 +29,7 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
   }
 
   @Override
-  public void writeTable(
-      String name, List<String> columnNames, NameMapper mapper, Iterable<Row> rows) {
+  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     throw new UnsupportedOperationException("Cannot write to classpath");
   }
 
@@ -43,23 +39,18 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
 
   @Override
   public List<Row> readTable(String name) {
-    return this.readTable(name, null);
-  }
-
-  @Override
-  public List<Row> readTable(String name, NameMapper mapper) {
     String path = directoryPath + "/" + name + CSV_EXTENSION;
     try {
       Reader reader = new InputStreamReader(getClass().getResourceAsStream(path));
-      return RowReaderJackson.readList(reader, mapper, separator);
+      return RowReaderJackson.readList(reader, separator);
     } catch (Exception ioe) {
       throw new MolgenisException("Import '" + name + "' failed: " + ioe.getMessage(), ioe);
     }
   }
 
   @Override
-  public void processTable(String name, NameMapper mapper, RowProcessor processor) {
-    processor.process(readTable(name, mapper).iterator(), this);
+  public void processTable(String name, RowProcessor processor) {
+    processor.process(readTable(name).iterator(), this);
   }
 
   @Override
@@ -70,27 +61,7 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
 
   @Override
   public Collection<String> tableNames() {
-    try {
-      List<String> result = new ArrayList<>();
-      for (String file : getResourceFiles(directoryPath)) {
-        if (file.endsWith(CSV_EXTENSION)) {
-          result.add(file.substring(0, file.length() - CSV_EXTENSION.length()));
-        }
-      }
-      return result;
-    } catch (Exception e) {
-      throw new MolgenisException(e.getMessage());
-    }
-  }
-
-  private List<String> getResourceFiles(String directory) {
-    try (ScanResult scanResult = new ClassGraph().acceptPaths(directory).scan()) {
-      return scanResult.getAllResources().getPaths().stream()
-          .map(file -> file.substring(directory.length()))
-          .toList();
-    } catch (Exception e) {
-      throw new MolgenisException(e.getMessage());
-    }
+    throw new UnsupportedOperationException("Cannot list files in classpath");
   }
 
   @Override

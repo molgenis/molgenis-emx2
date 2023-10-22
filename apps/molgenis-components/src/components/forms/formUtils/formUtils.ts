@@ -2,7 +2,7 @@ import { IColumn } from "../../../Interfaces/IColumn";
 import { IRow } from "../../../Interfaces/IRow";
 import { ITableMetaData } from "../../../Interfaces/ITableMetaData";
 import constants from "../../constants.js";
-import { deepClone, filterObject } from "../../utils";
+import { deepClone, convertToCamelCase, filterObject } from "../../utils";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID, HEADING } = constants;
 
@@ -11,7 +11,7 @@ export function getRowErrors(
   rowData: Record<string, any>
 ) {
   return tableMetaData.columns.reduce((accum, column) => {
-    accum[column.name] = getColumnError(column, rowData, tableMetaData);
+    accum[column.id] = getColumnError(column, rowData, tableMetaData);
     return accum;
   }, {} as Record<string, string | undefined>);
 }
@@ -21,7 +21,7 @@ function getColumnError(
   values: Record<string, any>,
   tableMetaData: ITableMetaData
 ) {
-  const value = values[column.name];
+  const value = values[column.id];
   const type = column.columnType;
   const isInvalidNumber = isInValidNumericValue(type, value);
   // FIXME: this function should also check all array types
@@ -102,8 +102,8 @@ export function executeExpression(
   //make sure all columns have keys to prevent reference errors
   const copy: Record<string, any> = deepClone(values);
   tableMetaData.columns.forEach((column) => {
-    if (!copy.hasOwnProperty(column.name)) {
-      copy[column.name] = null;
+    if (!copy.hasOwnProperty(column.id)) {
+      copy[column.id] = null;
     }
   });
 
@@ -121,8 +121,11 @@ function isRefLinkWithoutOverlap(column: IColumn, values: Record<string, any>) {
   if (!column.refLink) {
     return false;
   }
-  const value = values[column.name];
-  const refValue = values[column.refLink];
+  const columnRefLink = column.refLink;
+  const refLinkId = convertToCamelCase(columnRefLink);
+
+  const value = values[column.id];
+  const refValue = values[refLinkId];
 
   if (typeof value === "string" && typeof refValue === "string") {
     return value && refValue && value !== refValue;
@@ -170,7 +173,7 @@ export function filterVisibleColumns(
   if (!visibleColumns) {
     return columns;
   } else {
-    return columns.filter((column) => visibleColumns.includes(column.name));
+    return columns.filter((column) => visibleColumns.includes(column.id));
   }
 }
 
@@ -194,12 +197,12 @@ export function isColumnVisible(
 export function splitColumnNamesByHeadings(columns: IColumn[]): string[][] {
   return columns.reduce((accum, column) => {
     if (column.columnType === "HEADING") {
-      accum.push([column.name]);
+      accum.push([column.id]);
     } else {
       if (accum.length === 0) {
         accum.push([] as string[]);
       }
-      accum[accum.length - 1].push(column.name);
+      accum[accum.length - 1].push(column.id);
     }
     return accum;
   }, [] as string[][]);

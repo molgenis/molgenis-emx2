@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.NameMapper;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
@@ -24,15 +23,14 @@ public class TableStoreForCsvInMemory implements TableStore {
   }
 
   @Override
-  public void writeTable(
-      String name, List<String> columnNames, NameMapper nameMapper, Iterable<Row> rows) {
+  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     try {
       Writer writer = new StringWriter();
       Writer bufferedWriter = new BufferedWriter(writer);
       String existing = "";
       if (store.containsKey(name)) existing = store.get(name);
       if (rows.iterator().hasNext()) {
-        CsvTableWriter.write(rows, columnNames, nameMapper, bufferedWriter, separator);
+        CsvTableWriter.write(rows, columnNames, bufferedWriter, separator);
       } else {
         // only header in case no rows provided
         writer.write(columnNames.stream().collect(Collectors.joining("" + separator)));
@@ -46,22 +44,17 @@ public class TableStoreForCsvInMemory implements TableStore {
 
   @Override
   public Iterable<Row> readTable(String name) {
-    return this.readTable(name, null);
-  }
-
-  @Override
-  public Iterable<Row> readTable(String name, NameMapper mapper) {
     if (!store.containsKey(name))
       throw new MolgenisException(
           "Import failed: Table not found. File with name " + name + " doesn't exist");
     Reader reader = new BufferedReader(new StringReader(store.get(name)));
 
-    return CsvTableReader.read(reader, mapper);
+    return CsvTableReader.read(reader);
   }
 
   @Override
-  public void processTable(String name, NameMapper mapper, RowProcessor processor) {
-    processor.process(readTable(name, mapper).iterator(), this);
+  public void processTable(String name, RowProcessor processor) {
+    processor.process(readTable(name).iterator(), this);
   }
 
   @Override

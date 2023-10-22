@@ -205,11 +205,11 @@ public class TestEvaluateExpressions {
         schema.create(
             table(
                 "Test3",
-                column("firstName").setPkey(),
-                column("lastName").setPkey(),
-                column("displayName").setComputed("firstName+' '+lastName")));
-    test3.insert(row("firstName", "foo", "lastName", "bar"));
-    assertEquals("foo bar", test3.retrieveRows().get(0).getString("displayName"));
+                column("first name").setPkey(),
+                column("last name").setPkey(),
+                column("display name").setComputed("firstName+' '+lastName")));
+    test3.insert(row("first name", "foo", "last name", "bar"));
+    assertEquals("foo bar", test3.retrieveRows().get(0).getString("display name"));
 
     Table test4 =
         schema.create(
@@ -251,13 +251,13 @@ public class TestEvaluateExpressions {
           row(
               "id",
               1,
-              "ref.firstName",
+              "ref.first name",
               "foo",
-              "ref.lastName",
+              "ref.last name",
               "bar",
-              "refArray.firstName",
+              "refArray.first name",
               "fo2",
-              "refArray.lastName",
+              "refArray.last name",
               "ba2"));
       fail("should fail");
     } catch (Exception e) {
@@ -271,13 +271,13 @@ public class TestEvaluateExpressions {
         row(
             "id",
             1,
-            "ref.firstName",
+            "ref.first name",
             "foo",
-            "ref.lastName",
+            "ref.last name",
             "bar",
-            "refArray.firstName",
+            "refArray.first name",
             "foo",
-            "refArray.lastName",
+            "refArray.last name",
             "bar"));
   }
 }

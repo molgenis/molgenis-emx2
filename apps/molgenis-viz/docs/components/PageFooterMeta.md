@@ -5,9 +5,10 @@ This is a layout component for use in the `<PageFooter/>` component. The purpose
 ## Slots
 
 <!-- @vuese:PageFooterMeta:slots:start -->
-
-| Name    | Description  | Default Slot Content |
-| ------- | ------------ | -------------------- |
-| default | main content | -                    |
+|Name|Description|Default Slot Content|
+|---|---|---|
+|default|main content|-|
 
 <!-- @vuese:PageFooterMeta:slots:end -->
+
+

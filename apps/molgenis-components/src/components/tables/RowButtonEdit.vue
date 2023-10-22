@@ -64,7 +64,7 @@ export default {
           id="row-edit-btn-sample"
           tableName="Pet"
           :pkey="{name: 'pooky'}"
-          schemaName="petStore"
+          schemaName="pet store"
       />
     </div>
   </div>
@@ -76,7 +76,7 @@ export default {
           id="row-edit-btn-sample"
           tableName="Pet"
           :pkey="{name: 'pooky'}"
-          schemaName="petStore"
+          schemaName="pet store"
           :visibleColumns="['name']"
       />
     </div>

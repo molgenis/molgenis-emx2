@@ -9,16 +9,16 @@ class ChangeLogUtilsTest {
   void testBuildProcessAuditFunction() {
     String expectedFunction =
         """
-                        CREATE OR REPLACE FUNCTION "petStore"."process_Pet_audit"() RETURNS TRIGGER AS $Pet_audit$
+                        CREATE OR REPLACE FUNCTION "pet store"."process_Pet_audit"() RETURNS TRIGGER AS $Pet_audit$
                                BEGIN
                                    IF (TG_OP = 'DELETE') THEN
-                                       INSERT INTO "petStore".mg_changelog
+                                       INSERT INTO "pet store".mg_changelog
                                        SELECT 'D', now(), user, TG_TABLE_NAME, row_to_json(OLD.*), row_to_json(NEW.*);
                                    ELSIF (TG_OP = 'UPDATE') THEN
-                                       INSERT INTO "petStore".mg_changelog
+                                       INSERT INTO "pet store".mg_changelog
                                        SELECT 'U', now(), user, TG_TABLE_NAME, row_to_json(OLD.*), row_to_json(NEW.*);
                                    ELSIF (TG_OP = 'INSERT') THEN
-                                       INSERT INTO "petStore".mg_changelog
+                                       INSERT INTO "pet store".mg_changelog
                                        SELECT 'I', now(), user, TG_TABLE_NAME, row_to_json(OLD.*), row_to_json(NEW.*);
                                    END IF;
                                    RETURN NULL; -- result is ignored since this is an AFTER trigger
@@ -27,7 +27,7 @@ class ChangeLogUtilsTest {
                         """;
     assertEquals(
         expectedFunction.strip(),
-        ChangeLogUtils.buildProcessAuditFunction("petStore", "Pet").strip());
+        ChangeLogUtils.buildProcessAuditFunction("pet store", "Pet").strip());
   }
 
   @Test
@@ -35,11 +35,11 @@ class ChangeLogUtilsTest {
     String expectedTrigger =
         """
                         CREATE TRIGGER Pet_audit
-                        AFTER INSERT OR UPDATE OR DELETE ON "petStore"."Pet"
-                            FOR EACH ROW EXECUTE FUNCTION "petStore"."process_Pet_audit"();
+                        AFTER INSERT OR UPDATE OR DELETE ON "pet store"."Pet"
+                            FOR EACH ROW EXECUTE FUNCTION "pet store"."process_Pet_audit"();
                           """;
     assertEquals(
-        expectedTrigger.strip(), ChangeLogUtils.buildAuditTrigger("petStore", "Pet").strip());
+        expectedTrigger.strip(), ChangeLogUtils.buildAuditTrigger("pet store", "Pet").strip());
   }
 
   @Test
@@ -47,11 +47,11 @@ class ChangeLogUtilsTest {
     String expectedTrigger =
         """
                         CREATE TRIGGER My_pets_audit
-                        AFTER INSERT OR UPDATE OR DELETE ON "petStore"."My pets"
-                            FOR EACH ROW EXECUTE FUNCTION "petStore"."process_My_pets_audit"();
+                        AFTER INSERT OR UPDATE OR DELETE ON "pet store"."My pets"
+                            FOR EACH ROW EXECUTE FUNCTION "pet store"."process_My_pets_audit"();
                           """;
     assertEquals(
-        expectedTrigger.strip(), ChangeLogUtils.buildAuditTrigger("petStore", "My pets").strip());
+        expectedTrigger.strip(), ChangeLogUtils.buildAuditTrigger("pet store", "My pets").strip());
   }
 
   @Test

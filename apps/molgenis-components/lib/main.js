@@ -139,6 +139,8 @@ import TaskManager from "../src/components/task/TaskManager.vue";
 //utils
 import {
   deepClone,
+  convertToCamelCase,
+  convertToPascalCase,
   getLocalizedDescription,
   getLocalizedLabel,
   flattenObject,
@@ -273,6 +275,8 @@ export {
   constants,
   privacyConstants,
   request,
+  convertToPascalCase,
+  convertToCamelCase,
   getLocalizedDescription,
   getLocalizedLabel,
   flattenObject,

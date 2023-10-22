@@ -40,13 +40,13 @@
             <div>
               <div>
                 <span class="fixed-width">zip</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableName"
+                <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableId"
                   >all rows</ButtonAlt
                 >
               </div>
               <div>
                 <span class="fixed-width">csv</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableName"
+                <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableId"
                   >all rows</ButtonAlt
                 >
                 <span v-if="Object.keys(graphqlFilter).length > 0">
@@ -56,7 +56,7 @@
                       '/' +
                       schemaName +
                       '/api/csv/' +
-                      tableName +
+                      tableId +
                       '?filter=' +
                       JSON.stringify(graphqlFilter)
                     "
@@ -67,7 +67,7 @@
               </div>
               <div>
                 <span class="fixed-width">excel</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableName"
+                <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableId"
                   >all rows</ButtonAlt
                 >
                 <span v-if="Object.keys(graphqlFilter).length > 0">
@@ -77,7 +77,7 @@
                       '/' +
                       schemaName +
                       '/api/excel/' +
-                      tableName +
+                      tableId +
                       '?filter=' +
                       JSON.stringify(graphqlFilter)
                     "
@@ -90,11 +90,7 @@
                 <span class="fixed-width">jsonld</span>
                 <ButtonAlt
                   :href="
-                    '/' +
-                    schemaName +
-                    '/api/rdf/' +
-                    tableName +
-                    '?format=jsonld'
+                    '/' + schemaName + '/api/rdf/' + tableId + '?format=jsonld'
                   "
                 >
                   all rows
@@ -104,7 +100,7 @@
                 <span class="fixed-width">ttl</span>
                 <ButtonAlt
                   :href="
-                    '/' + schemaName + '/api/rdf/' + tableName + '?format=ttl'
+                    '/' + schemaName + '/api/rdf/' + tableId + '?format=ttl'
                   "
                 >
                   all rows
@@ -288,7 +284,7 @@
             </template>
             <template v-slot:colheader="slotProps">
               <IconAction
-                v-if="slotProps.col && orderByColumn === slotProps.col.name"
+                v-if="slotProps.col && orderByColumn === slotProps.col.id"
                 :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
                 class="d-inline p-0"
               />
@@ -430,6 +426,7 @@ import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
 import {
+  convertToPascalCase,
   convertRowToPrimaryKey,
   deepClone,
   getLocalizedDescription,
@@ -590,6 +587,9 @@ export default {
     },
   },
   computed: {
+    tableId() {
+      return convertToPascalCase(this.tableName);
+    },
     localizedLabel() {
       return getLocalizedLabel(this.tableMetadata, this.locale);
     },
@@ -638,7 +638,7 @@ export default {
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
       const resp = await this.client
-        .deleteRow(this.editRowPrimaryKey, this.tableName)
+        .deleteRow(this.editRowPrimaryKey, this.tableId)
         .catch(this.handleError);
       if (resp) {
         this.reload();
@@ -677,7 +677,7 @@ export default {
     onColumnClick(column) {
       const oldOrderByColumn = this.orderByColumn;
       let order = this.order;
-      if (oldOrderByColumn !== column.name) {
+      if (oldOrderByColumn !== column.id) {
         order = "ASC";
       } else if (order === "ASC") {
         order = "DESC";
@@ -685,10 +685,10 @@ export default {
         order = "ASC";
       }
       this.order = order;
-      this.orderByColumn = column.name;
+      this.orderByColumn = column.id;
       this.$emit("updateShowOrder", {
         direction: order,
-        column: column.name,
+        column: column.id,
       });
       this.reload();
     },
@@ -782,8 +782,8 @@ export default {
           orderby: orderBy,
         })
         .catch(this.handleError);
-      this.dataRows = dataResponse[this.tableName];
-      this.count = dataResponse[this.tableName + "_agg"]["count"];
+      this.dataRows = dataResponse[this.tableId];
+      this.count = dataResponse[this.tableId + "_agg"]["count"];
       this.loading = false;
     },
   },
@@ -846,14 +846,14 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
           col.columnType.startsWith("STRING") ||
           col.columnType.startsWith("TEXT")
         ) {
-          filter[col.name] = { like: conditions };
+          filter[col.id] = { like: conditions };
         } else if (col.columnType.startsWith("BOOL")) {
-          filter[col.name] = { equals: conditions };
+          filter[col.id] = { equals: conditions };
         } else if (
           col.columnType.startsWith("REF") ||
           col.columnType.startsWith("ONTOLOGY")
         ) {
-          filter[col.name] = { equals: conditions };
+          filter[col.id] = { equals: conditions };
         } else if (
           [
             "LONG",
@@ -868,7 +868,7 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
             "DATETIME_ARRAY",
           ].includes(col.columnType)
         ) {
-          filter[col.name] = {
+          filter[col.id] = {
             between: conditions.flat(),
           };
         } else {
@@ -909,7 +909,7 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
       <table-explorer
         id="my-table-explorer"
         tableName="Pet"
-        schemaName="petStore"
+        schemaName="pet store"
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"

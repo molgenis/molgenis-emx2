@@ -10,8 +10,6 @@ import java.time.temporal.TemporalAccessor;
 import java.util.*;
 import java.util.function.IntFunction;
 import java.util.function.UnaryOperator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jooq.DataType;
@@ -465,52 +463,6 @@ public class TypeUtils {
     }
   }
 
-  private static String capitalizeFirst(String word) {
-    if (word.length() == 1) {
-      return word.substring(0, 1).toUpperCase();
-    } else {
-      return word.substring(0, 1).toUpperCase() + word.substring(1);
-    }
-  }
-
-  private static String lowerCaseFirst(String word) {
-    return word.substring(0, 1).toLowerCase() + word.substring(1);
-  }
-
-  private static Pattern WORD_FINDER = Pattern.compile("(([A-Z]?[a-z0-9_]+)|([A-Za-z0-9_]))");
-
-  public static String convertToTitleCase(String value) {
-    if (value == null) return null;
-    if (value.startsWith("mg_")) return value;
-    if (value.length() == 0) return value;
-
-    // split on aA lowercase to uppercase edges
-    Matcher matcher = WORD_FINDER.matcher(value);
-    List<String> result = new ArrayList<>();
-    String previousResult = null;
-    while (matcher.find()) {
-      String current = capitalizeFirst(matcher.group(0));
-      if (previousResult == null) {
-        result.add(capitalizeFirst(current));
-        previousResult = current;
-      } else {
-        if (previousResult.length() == 1) {
-          int i = result.size() - 1;
-          // range of uppercase letters become words on their own
-          result.set(i, result.get(i).toUpperCase() + current.substring(0, 1).toUpperCase());
-          if (current.length() > 1) {
-            current = current.substring(1);
-            result.add(current);
-          }
-        } else {
-          result.add(lowerCaseFirst(current));
-        }
-        previousResult = current;
-      }
-    }
-    return String.join(" ", result);
-  }
-
   public static boolean isNull(Object value, ColumnType type) {
     Object typedValue = getTypedValue(value, type);
     if (type.isArray()) {
@@ -532,22 +484,23 @@ public class TypeUtils {
     for (Map<String, Object> object : map) {
       Row row = new Row();
       for (Column column : metadata.getColumns()) {
-        if (object.containsKey(column.getName())) {
+        if (object.containsKey(column.getIdentifier())) {
           if (column.isRef()) {
-            convertRefToRow((Map<String, Object>) object.get(column.getName()), row, column);
+            convertRefToRow((Map<String, Object>) object.get(column.getIdentifier()), row, column);
           } else if (column.isReference()) {
             // REFBACK, REF_ARRAY
             convertRefArrayToRow(
-                (List<Map<String, Object>>) object.get(column.getName()), row, column);
+                (List<Map<String, Object>>) object.get(column.getIdentifier()), row, column);
           } else if (column.isFile()) {
-            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(column.getName());
+            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(column.getIdentifier());
             if (bfw == null || !bfw.isSkip()) {
               // also necessary in case of 'null' to ensure all file metadata fields are made empty
               // skip is used when use submitted only metadata (that they received in query)
-              row.setBinary(column.getName(), (BinaryFileWrapper) object.get(column.getName()));
+              row.setBinary(
+                  column.getName(), (BinaryFileWrapper) object.get(column.getIdentifier()));
             }
           } else {
-            row.set(column.getName(), object.get(column.getName()));
+            row.set(column.getName(), object.get(column.getIdentifier()));
           }
         }
       }

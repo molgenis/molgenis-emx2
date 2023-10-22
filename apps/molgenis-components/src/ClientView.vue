@@ -52,7 +52,7 @@ export default {
     },
   },
   async mounted() {
-    this.client = Client.newClient("petStore");
+    this.client = Client.newClient("pet store");
     this.fetchData();
   },
   watch: {

@@ -13,38 +13,25 @@ public class Row {
   private Map<String, Object> values = new LinkedHashMap<>();
 
   public Row(Row row) {
-    this(row, null);
-  }
-
-  public Row(Row row, NameMapper mapper) {
-    if (mapper != null) {
-      for (Map.Entry<String, Object> e : row.getValueMap().entrySet()) {
-        values.put(mapper.map(e.getKey()), e.getValue());
-      }
-    } else {
-      for (Map.Entry<String, Object> e : row.getValueMap().entrySet()) {
-        values.put(e.getKey(), e.getValue());
-      }
+    for (Map.Entry<String, Object> e : row.getValueMap().entrySet()) {
+      values.put(e.getKey(), e.getValue());
     }
   }
 
-  public Row(String key, Object... nameValuePairs) {
+  public Row(Object... nameValuePairs) {
     if (nameValuePairs == null) return;
-    if (nameValuePairs.length % 2 == 0) {
+    if (nameValuePairs.length % 2 == 1) {
       throw new MolgenisException(
           "Row nameValue constructor should even number of parameters representing name-value pairs: Received "
               + nameValuePairs.length
               + " values");
     }
-    List<Object> valuePairs = new ArrayList<>(1 + nameValuePairs.length);
-    valuePairs.add(key);
-    Collections.addAll(valuePairs, nameValuePairs);
-    for (int i = 0; i < valuePairs.size(); i = i + 2) {
-      if (!(valuePairs.get(i) instanceof String)) {
+    for (int i = 0; i < nameValuePairs.length; i = i + 2) {
+      if (!(nameValuePairs[i] instanceof String)) {
         throw new MolgenisException(
-            "Row names should be not null string: found " + valuePairs.get(i));
+            "Row names should be not null string: found " + nameValuePairs[i]);
       }
-      this.set((String) valuePairs.get(i), valuePairs.get(i + 1));
+      this.set((String) nameValuePairs[i], nameValuePairs[i + 1]);
     }
   }
 
@@ -52,35 +39,17 @@ public class Row {
     return new Row();
   }
 
-  public static Row row(String name, Object... nameValuePairs) {
-    return new Row(name, nameValuePairs);
+  public static Row row(Object... nameValuePairs) {
+    return new Row(nameValuePairs);
   }
 
   public Row() {}
 
   public Row(Map<String, ?> values) {
-    this(values, null);
-  }
-
-  public Row(Map<String, ?> values, NameMapper mapper) {
     this();
-    if (mapper != null) {
-      for (Map.Entry<String, ?> entry : values.entrySet()) {
-        this.set(mapper.map(entry.getKey()), entry.getValue());
-      }
-    } else {
-      for (Map.Entry<String, ?> entry : values.entrySet()) {
-        this.set(entry.getKey(), entry.getValue());
-      }
+    for (Map.Entry<String, ?> entry : values.entrySet()) {
+      this.set(entry.getKey(), entry.getValue());
     }
-  }
-
-  private String recode(String key, Set<String> columnNames) {
-    if (columnNames == null) return key;
-    return columnNames.stream()
-        .filter(c -> key.replace(" ", "").equalsIgnoreCase(c))
-        .findFirst()
-        .orElse(key);
   }
 
   public void clear(String name) {

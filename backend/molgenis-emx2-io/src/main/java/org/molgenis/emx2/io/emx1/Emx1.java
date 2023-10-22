@@ -46,7 +46,7 @@ public class Emx1 {
       if (store.containsTable(tableToSheet.get(table.getTableName()))) {
         targetSchema
             .getTable(table.getTableName())
-            .save(store.readTable(tableToSheet.get(table.getTableName()), null)); // actually upsert
+            .save(store.readTable(tableToSheet.get(table.getTableName()))); // actually upsert
       }
     }
 
@@ -115,7 +115,7 @@ public class Emx1 {
     List<Emx1Attribute> attributes = new ArrayList<>();
     try {
       if (store.containsTable("attributes")) {
-        for (Row row : store.readTable("attributes", null)) {
+        for (Row row : store.readTable("attributes")) {
           attributes.add(new Emx1Attribute(row));
           line++;
         }
@@ -162,7 +162,7 @@ public class Emx1 {
 
     try {
       if (store.containsTable("entities")) {
-        for (Row row : store.readTable("entities", null)) {
+        for (Row row : store.readTable("entities")) {
           Emx1Entity e = new Emx1Entity(row);
           if (e.getPackageName() != null) {
             entities.put(e.getPackageName() + "_" + e.getName(), e);

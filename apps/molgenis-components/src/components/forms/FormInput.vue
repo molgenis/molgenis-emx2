@@ -519,7 +519,7 @@ export default {
   </div>
 </template>
 <script>
-  const schemaName = "petStore";
+  const schemaName = "pet store";
   export default {
     data: function () {
       return {

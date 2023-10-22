@@ -238,7 +238,7 @@ export default defineComponent({
 <docs>
 <template>
   <div>
-    <MolgenisSession class="bg-primary" v-model="session" graphql="/petStore/graphql"/>
+    <MolgenisSession class="bg-primary" v-model="session" graphql="/pet store/graphql"/>
     <pre>session = {{ session }}</pre>
   </div>
 </template>

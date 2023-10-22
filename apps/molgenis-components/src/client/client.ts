@@ -4,7 +4,7 @@ import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
-import { deepClone } from "../components/utils";
+import { convertToPascalCase, deepClone } from "../components/utils";
 import { IClient, INewClient } from "./IClient";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { columnNames } from "./queryBuilder";
@@ -32,43 +32,44 @@ const client: IClient = {
       ): Promise<ITableMetaData> => {
         const schema = await fetchSchemaMetaData(schemaName);
         return deepClone(schema).tables.find(
-          (table: ITableMetaData) => table.name === tableName
+          (table: ITableMetaData) => table.id === convertToPascalCase(tableName)
         );
       },
       fetchTableData: async (
-        tableName: string,
+        tableId: string,
         properties: IQueryMetaData = {}
       ) => {
         const schemaMetaData = await fetchSchemaMetaData(schemaName);
-        return fetchTableData(tableName, properties, schemaMetaData);
+        return fetchTableData(tableId, properties, schemaMetaData);
       },
       fetchTableDataValues: async (
         tableName: string,
         properties: IQueryMetaData = {}
       ) => {
         const schemaMetaData = await fetchSchemaMetaData(schemaName);
+        const tableId = convertToPascalCase(tableName);
         const dataResp = await fetchTableData(
-          tableName,
+          tableId,
           properties,
           schemaMetaData
         );
-        return dataResp[tableName];
+        return dataResp[tableId];
       },
       fetchRowData: async (
         tableName: string,
         rowId: IRow,
         expandLevel: number = 1
       ) => {
+        const tableId = convertToPascalCase(tableName);
         const schemaMetaData = await fetchSchemaMetaData(schemaName);
         const tableMetaData = schemaMetaData.tables.find(
           (table) =>
-            table.name === tableName &&
-            table.externalSchema === schemaMetaData.name
+            table.id === tableId && table.externalSchema === schemaMetaData.name
         );
         const filter = tableMetaData?.columns
           ?.filter((column) => column.key === 1)
           .reduce((accum: any, column) => {
-            accum[column.name] = { equals: rowId[column.name] };
+            accum[column.id] = { equals: rowId[column.id] };
             return accum;
           }, {});
         const resultArray = (
@@ -80,7 +81,7 @@ const client: IClient = {
             schemaMetaData,
             expandLevel
           )
-        )[tableName];
+        )[tableId];
 
         if (!resultArray.length || resultArray.length !== 1) {
           return undefined;
@@ -168,6 +169,7 @@ _schema {
       value
     },
     tableType,
+    id,
     descriptions {
       locale,
       value
@@ -180,6 +182,7 @@ _schema {
         locale,
         value
       },
+      id,
       columnType,
       key,
       refTable,
@@ -217,8 +220,9 @@ const insertDataRow = (
   tableName: string,
   schemaName: string
 ) => {
+  const tableId = convertToPascalCase(tableName);
   const formData = toFormData(rowData);
-  const query = `mutation insert($value:[${tableName}Input]){insert(${tableName}:$value){message}}`;
+  const query = `mutation insert($value:[${tableId}Input]){insert(${tableId}:$value){message}}`;
   formData.append("query", query);
   return axios.post(graphqlURL(schemaName), formData);
 };
@@ -228,14 +232,16 @@ const updateDataRow = (
   tableName: string,
   schemaName: string
 ) => {
+  const tableId = convertToPascalCase(tableName);
   const formData = toFormData(rowData);
-  const query = `mutation update($value:[${tableName}Input]){update(${tableName}:$value){message}}`;
+  const query = `mutation update($value:[${tableId}Input]){update(${tableId}:$value){message}}`;
   formData.append("query", query);
   return axios.post(graphqlURL(schemaName), formData);
 };
 
 const deleteRow = async (row: IRow, tableName: string, schemaName?: string) => {
-  const query = `mutation delete($pkey:[${tableName}Input]){delete(${tableName}:$pkey){message}}`;
+  const tableId = convertToPascalCase(tableName);
+  const query = `mutation delete($pkey:[${tableId}Input]){delete(${tableId}:$pkey){message}}`;
   const key = await convertRowToPrimaryKey(row, tableName, schemaName);
   const variables = { pkey: [key] };
   return axios.post(graphqlURL(schemaName), { query, variables });
@@ -275,6 +281,7 @@ const fetchTableData = async (
   metaData: ISchemaMetaData,
   expandLevel: number = 2
 ) => {
+  const tableId = convertToPascalCase(tableName);
   const limit = properties.limit ? properties.limit : 20;
   const offset = properties.offset ? properties.offset : 0;
 
@@ -283,9 +290,9 @@ const fetchTableData = async (
     : "";
 
   const schemaName = metaData.name;
-  const cNames = columnNames(schemaName, tableName, metaData, expandLevel);
-  const tableDataQuery = `query ${tableName}( $filter:${tableName}Filter, $orderby:${tableName}orderby ) {
-        ${tableName}(
+  const cNames = columnNames(schemaName, tableId, metaData, expandLevel);
+  const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
+        ${tableId}(
           filter:$filter,
           limit:${limit}, 
           offset:${offset}${search},
@@ -294,7 +301,7 @@ const fetchTableData = async (
           {
             ${cNames}
           }
-          ${tableName}_agg( filter:$filter${search} ) {
+          ${tableId}_agg( filter:$filter${search} ) {
             count
           }
         }`;
@@ -381,7 +388,8 @@ async function convertRowToPrimaryKey(
   const schema = await fetchSchemaMetaData(schemaName);
   const tableMetadata = schema.tables.find(
     (table: ITableMetaData) =>
-      table.name === tableName && table.externalSchema === schema.name
+      table.id === convertToPascalCase(tableName) &&
+      table.externalSchema === schema.name
   );
   if (!tableMetadata?.columns) {
     throw new Error("Empty columns in metadata");
@@ -389,9 +397,9 @@ async function convertRowToPrimaryKey(
     return await tableMetadata.columns.reduce(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
         let accum: IRow = await accumPromise;
-        const cellValue = row[column.name];
+        const cellValue = row[column.id];
         if (column.key === 1 && cellValue) {
-          accum[column.name] = await getKeyValue(
+          accum[column.id] = await getKeyValue(
             cellValue,
             column,
             column.refSchema || schema.name

@@ -35,14 +35,14 @@
             <div
               v-else-if="
                 'REF' === col.columnType ||
-                ('REFBACK' === col.columnType && !Array.isArray(row[col.name]))
+                ('REFBACK' === col.columnType && !Array.isArray(row[col.id]))
               "
             >
               <RouterLink
-                v-if="row[col.name]"
+                v-if="row[col.id]"
                 :to="{
-                  name: col.refTable + '-details',
-                  params: routeParams(col, row[col.name]),
+                  name: convertToPascalCase(col.refTable) + '-details',
+                  params: routeParams(col, row[col.id]),
                 }"
               >
                 {{ renderValue(row, col)[0] }}
@@ -58,7 +58,7 @@
                 <RouterLink
                   v-if="val"
                   :to="{
-                    name: col.refTable + '-details',
+                    name: convertToPascalCase(col.refTable) + '-details',
                     params: routeParams(col, val),
                   }"
                 >
@@ -95,6 +95,8 @@ import {
   Spinner,
   ReadMore,
   Client,
+  convertToCamelCase,
+  convertToPascalCase,
   flattenObject,
   applyJsTemplate,
 } from "molgenis-components";
@@ -122,10 +124,11 @@ export default {
     };
   },
   methods: {
+    convertToPascalCase,
     handleRowClick(row) {
       //good guessing the parameters :-)
       this.$router.push({
-        name: this.table + "-details",
+        name: convertToPascalCase(this.table) + "-details",
         params: {
           id: row.id ? row.id : this.pkey.id,
           resource: row.id ? row.id : this.pkey.id,
@@ -154,7 +157,7 @@ export default {
       this.$emit("click", value);
     },
     renderValue(row, col) {
-      if (row[col.name] === undefined) {
+      if (row[col.id] === undefined) {
         return [];
       }
       if (
@@ -162,7 +165,7 @@ export default {
         col.columnType == "REFBACK" ||
         col.columnType == "ONTOLOGY_ARRAY"
       ) {
-        return row[col.name].map((v) => {
+        return row[col.id].map((v) => {
           if (col.name === "tables") {
             //hack, ideally we start setting refLabel in configuration!
             return v.name;
@@ -174,21 +177,21 @@ export default {
         });
       } else if (col.columnType == "REF" || col.columnType == "ONTOLOGY") {
         if (col.refLabel) {
-          return [applyJsTemplate(row[col.name], col.refLabel)];
+          return [applyJsTemplate(row[col.id], col.refLabel)];
         } else {
-          return applyJsTemplate(row[col.name], col.refLabelDefault);
+          return applyJsTemplate(row[col.id], col.refLabelDefault);
         }
       } else if (col.columnType.includes("ARRAY")) {
-        return row[col.name];
+        return row[col.id];
       } else {
-        return [row[col.name]];
+        return [row[col.id]];
       }
     },
   },
   computed: {
     graphqlFilter() {
       var result = new Object();
-      result[this.refBack] = {
+      result[convertToCamelCase(this.refBack)] = {
         equals: this.pkey,
       };
       return result;

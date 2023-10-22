@@ -3,9 +3,10 @@
 ## Slots
 
 <!-- @vuese:Dashboard:slots:start -->
-
-| Name    | Description | Default Slot Content |
-| ------- | ----------- | -------------------- |
-| default | -           | -                    |
+|Name|Description|Default Slot Content|
+|---|---|---|
+|default|-|-|
 
 <!-- @vuese:Dashboard:slots:end -->
+
+

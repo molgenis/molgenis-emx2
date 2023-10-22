@@ -3,11 +3,9 @@ package org.molgenis.emx2.io.emx2;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.utils.TypeUtils.convertToTitleCase;
 
 import java.util.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.DefaultNameMapper;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
 public class Emx2 {
@@ -39,16 +37,12 @@ public class Emx2 {
   }
 
   public static SchemaMetadata fromRowList(Iterable<Row> rows) {
-    return fromRowList(rows, false);
-  }
-
-  public static SchemaMetadata fromRowList(Iterable<Row> rows, boolean sanitize) {
     SchemaMetadata schema = new SchemaMetadata();
     int lineNo = 1; // use as position
     int columnPosition = 0;
 
     for (Row r : rows) {
-      String tableName = sanitize ? sanitize(r.getString(TABLE_NAME)) : r.getString(TABLE_NAME);
+      String tableName = r.getString(TABLE_NAME);
       if (tableName == null) {
         throw new MolgenisException(
             "Parsing of sheet molgenis failed: Required column "
@@ -63,10 +57,7 @@ public class Emx2 {
 
       // load table metadata, this is when columnName is empty
       if (r.getString(COLUMN_NAME) == null) {
-        schema
-            .getTableMetadata(tableName)
-            .setInherit(
-                sanitize ? sanitize(r.getString(TABLE_EXTENDS)) : r.getString(TABLE_EXTENDS));
+        schema.getTableMetadata(tableName).setInherit(r.getString(TABLE_EXTENDS));
         schema.getTableMetadata(tableName).setImportSchema(r.getString(REF_SCHEMA));
         schema.getTableMetadata(tableName).setSemantics(r.getStringArray(SEMANTICS, false));
         schema.getTableMetadata(tableName).setProfiles(r.getStringArray(PROFILES, false));
@@ -109,19 +100,14 @@ public class Emx2 {
                     + lineNo);
           }
 
-          Column column =
-              column(sanitize ? sanitize(r.getString(COLUMN_NAME)) : r.getString(COLUMN_NAME));
+          Column column = column(r.getString(COLUMN_NAME));
           if (r.notNull(COLUMN_TYPE))
             column.setType(ColumnType.valueOf(r.getString(COLUMN_TYPE).toUpperCase().trim()));
           if (r.notNull(KEY)) column.setKey(r.getInteger(KEY));
           if (r.notNull(REF_SCHEMA)) column.setRefSchema(r.getString(REF_SCHEMA));
-          if (r.notNull(REF_TABLE))
-            column.setRefTable(
-                sanitize ? sanitize(r.getString(REF_TABLE)) : r.getString(REF_TABLE));
-          if (r.notNull(REF_LINK))
-            column.setRefLink(sanitize ? sanitize(r.getString(REF_LINK)) : r.getString(REF_LINK));
-          if (r.notNull(REF_BACK))
-            column.setRefBack(sanitize ? sanitize(r.getString(REF_BACK)) : r.getString(REF_BACK));
+          if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
+          if (r.notNull(REF_LINK)) column.setRefLink(r.getString(REF_LINK));
+          if (r.notNull(REF_BACK)) column.setRefBack(r.getString(REF_BACK));
           if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
           if (r.notNull(DEFAULT_VALUE)) column.setDefaultValue(r.getString(DEFAULT_VALUE));
           if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
@@ -171,7 +157,7 @@ public class Emx2 {
   public static void outputMetadata(TableStore store, SchemaMetadata schema) {
     // headers
     List<String> headers = getHeaders(schema);
-    store.writeTable("molgenis", headers, new DefaultNameMapper(), toRowList(schema));
+    store.writeTable("molgenis", headers, toRowList(schema));
   }
 
   public static List getHeaders(SchemaMetadata schema) {
@@ -225,11 +211,7 @@ public class Emx2 {
 
     List<Row> result = new ArrayList<>();
     for (TableMetadata t : tables) {
-      Map<String, String> labels = t.getLabels();
-      if (labels.get("en") != null
-          && labels.get("en").equals(convertToTitleCase(t.getTableName()))) {
-        labels = new TreeMap<>();
-      }
+
       Row row = new Row();
       // set null columns to ensure sensible order
       row.setString(TABLE_NAME, t.getTableName());
@@ -249,7 +231,7 @@ public class Emx2 {
       row.setString(COMPUTED, null);
       if (t.getSemantics() != null) row.setStringArray(SEMANTICS, t.getSemantics());
       if (t.getProfiles() != null) row.setStringArray(PROFILES, t.getProfiles());
-      for (Map.Entry<String, String> entry : labels.entrySet()) {
+      for (Map.Entry<String, String> entry : t.getLabels().entrySet()) {
         if (entry.getKey().equals("en")) {
           row.set(LABEL, entry.getValue());
         } else {
@@ -270,10 +252,6 @@ public class Emx2 {
     // output the columns
     for (Column c : columns) {
       if (!c.isSystemColumn()) {
-        Map<String, String> labels = c.getLabels();
-        if (labels.get("en") != null && labels.get("en").equals(convertToTitleCase(c.getName()))) {
-          labels = new TreeMap<>();
-        }
         Row row = new Row();
         row.setString(TABLE_NAME, c.getTableName());
         row.setString(COLUMN_NAME, c.getName());
@@ -300,8 +278,7 @@ public class Emx2 {
         if (c.getVisible() != null) row.set(VISIBLE, c.getVisible());
         if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
         if (c.getProfiles() != null) row.set(PROFILES, c.getProfiles());
-
-        for (Map.Entry<String, String> label : labels.entrySet()) {
+        for (Map.Entry<String, String> label : c.getLabels().entrySet()) {
           if (label.getKey().equals("en")) {
             row.set(LABEL, label.getValue());
           } else {
@@ -312,29 +289,5 @@ public class Emx2 {
       }
     }
     return result;
-  }
-
-  public static String sanitize(String value) {
-    // main purpose is to remove spaces because not allowed in names, and also to make nice
-    // camelCase or PascalCase (we don't touch first character to not destroy existing names)
-    if (value != null) {
-      String[] words = value.split("\\s+");
-      StringBuilder result = new StringBuilder();
-      for (int i = 0; i < words.length; i++) {
-        if (i == 0) {
-          result.append(words[i]);
-        } else {
-          // all other words have first letter upper character case
-          result.append(words[i].substring(0, 1).toUpperCase());
-
-          if (words[i].length() > 1) {
-            result.append(words[i].substring(1));
-          }
-        }
-      }
-      return result.toString().trim();
-    } else {
-      return null;
-    }
   }
 }

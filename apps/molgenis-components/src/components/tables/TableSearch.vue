@@ -8,7 +8,7 @@
       >
         <InputSearch
           id="input-search"
-          v-if="lookupTableName"
+          v-if="lookupTableIdentifier"
           v-model="searchTerms"
         />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
@@ -90,6 +90,7 @@ import Client from "../../client/client.ts";
 import RowButtonAdd from "./RowButtonAdd.vue";
 import RowButtonEdit from "./RowButtonEdit.vue";
 import RowButtonDelete from "./RowButtonDelete.vue";
+import { convertToPascalCase } from "../utils";
 
 export default {
   name: "TableSearch",
@@ -146,6 +147,9 @@ export default {
     };
   },
   computed: {
+    lookupTableIdentifier() {
+      return convertToPascalCase(this.lookupTableName);
+    },
     showHeaderIfNeeded() {
       return this.showHeader || this.count > this.limit;
     },
@@ -180,8 +184,8 @@ export default {
       this.tableMetadata = await client.fetchTableMetaData(
         this.lookupTableName
       );
-      this.data = gqlResponse[this.lookupTableName];
-      this.count = gqlResponse[`${this.lookupTableName}_agg`].count;
+      this.data = gqlResponse[this.lookupTableIdentifier];
+      this.count = gqlResponse[`${this.lookupTableIdentifier}_agg`].count;
       this.loading = false;
     },
   },
@@ -221,7 +225,7 @@ export default {
         v-model:selection="selected"
         v-model:columns="columns"
         :lookupTableName="'Pet'"
-        schemaName="petStore"
+        schemaName="pet store"
         :canEdit="canEdit"
         :showSelect="canSelect"
     >

@@ -277,7 +277,7 @@ public class TestQueryJsonGraph {
     // create a simple test table to pet store just to make sure
     Table table =
         petStore.create(
-            table("TestGroupBy")
+            table("testGroupBy")
                 .add(column("id").setPkey())
                 .add(column("col1").setType(REF).setRefTable("Category"))
                 .add(column("col2").setType(REF).setRefTable("Category")));

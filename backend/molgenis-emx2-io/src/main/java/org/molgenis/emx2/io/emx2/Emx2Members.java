@@ -7,7 +7,6 @@ import java.util.List;
 import org.molgenis.emx2.Member;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.io.DefaultNameMapper;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
 /** outputs into MOLGENIS_MEMBERS */
@@ -26,14 +25,14 @@ public class Emx2Members {
       members.add(row(USER, m.getUser(), ROLE, m.getRole()));
     }
     if (!members.isEmpty()) {
-      store.writeTable(ROLES_TABLE, List.of(USER, ROLE), new DefaultNameMapper(), members);
+      store.writeTable(ROLES_TABLE, List.of(USER, ROLE), members);
     }
   }
 
   public static int inputRoles(TableStore store, Schema schema) {
     int count = 0;
     if (store.containsTable(ROLES_TABLE)) {
-      for (Row row : store.readTable(ROLES_TABLE, null)) {
+      for (Row row : store.readTable(ROLES_TABLE)) {
         count++;
         schema.addMember(row.getString(USER), row.getString(ROLE));
       }

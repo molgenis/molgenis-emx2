@@ -13,16 +13,13 @@ import org.molgenis.emx2.tasks.TaskStatus;
 public class ImportTableTask extends Task {
   private Table table;
   private TableStore source;
-  private String tableNameInStore;
 
-  public ImportTableTask(TableStore source, Table table, String tableNameInStore, boolean strict) {
+  public ImportTableTask(TableStore source, Table table, boolean strict) {
     super("Import table " + table.getName(), strict);
     Objects.requireNonNull(source, "tableStore cannot be null");
     Objects.requireNonNull(table, "table cannot be null");
-    Objects.requireNonNull(tableNameInStore, "tableNameInStore cannot be null");
     this.table = table;
     this.source = source;
-    this.tableNameInStore = tableNameInStore;
   }
 
   @Override
@@ -32,18 +29,12 @@ public class ImportTableTask extends Task {
     // validate uniqueness of the keys in the set
     this.setDescription(
         "Table " + table.getName() + ": Counting rows & checking that all key columns are unique");
-    source.processTable(
-        tableNameInStore,
-        new CaseAndSpaceInsensitiveNameMapper(table.getMetadata()),
-        new ValidatePkeyProcessor(table.getMetadata(), this));
+    source.processTable(table.getName(), new ValidatePkeyProcessor(table.getMetadata(), this));
 
     // execute the actual loading, we can use index to find the size
     this.setTotal(this.getProgress());
     this.setDescription("Importing rows into " + table.getName());
-    source.processTable(
-        tableNameInStore,
-        new CaseAndSpaceInsensitiveNameMapper(table.getMetadata()),
-        new ImportRowProcesssor(table, this));
+    source.processTable(table.getName(), new ImportRowProcesssor(table, this));
 
     // done
     if (getProgress() > 0) {

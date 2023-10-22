@@ -18,9 +18,6 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
-import org.molgenis.emx2.io.CaseAndSpaceInsensitiveNameMapper;
-import org.molgenis.emx2.io.DefaultNameMapper;
-import org.molgenis.emx2.io.NameToLabelMapper;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
@@ -49,7 +46,7 @@ public class CsvApi {
   }
 
   private static String discardMetadata(Request request, Response response) {
-    SchemaMetadata schema = Emx2.fromRowList(getRowList(request, null));
+    SchemaMetadata schema = Emx2.fromRowList(getRowList(request));
     getSchema(request).discard(schema);
     response.status(200);
     return "remove metadata items success";
@@ -61,13 +58,12 @@ public class CsvApi {
 
     if (fileNameMatchesTable) {
       // so we assume it isn't meta data
-      Table table = MolgenisWebservice.getTable(request, fileName);
-      int count = table.save(getRowList(request, table.getMetadata()));
+      int count = MolgenisWebservice.getTable(request, fileName).save(getRowList(request));
       response.status(200);
       response.type(ACCEPT_CSV);
       return "imported number of rows: " + count;
     } else {
-      SchemaMetadata schema = Emx2.fromRowList(getRowList(request, null));
+      SchemaMetadata schema = Emx2.fromRowList(getRowList(request));
       getSchema(request).migrate(schema);
       response.status(200);
       return "add/update metadata success";
@@ -80,7 +76,6 @@ public class CsvApi {
     CsvTableWriter.write(
         Emx2.toRowList(schema.getMetadata()),
         getHeaders(schema.getMetadata()),
-        new DefaultNameMapper(),
         writer,
         getSeperator(request));
     response.type(ACCEPT_CSV);
@@ -96,10 +91,7 @@ public class CsvApi {
     Table table = MolgenisWebservice.getTable(request);
     TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeperator(request));
     store.writeTable(
-        table.getName(),
-        getDownloadColumns(request, table),
-        new NameToLabelMapper(table.getMetadata()),
-        getDownloadRows(request, table));
+        table.getName(), getDownloadColumns(request, table), getDownloadRows(request, table));
     response.type(ACCEPT_CSV);
     response.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
     response.status(200);
@@ -132,25 +124,18 @@ public class CsvApi {
   }
 
   private static String tableUpdate(Request request, Response response) {
-    Table table = MolgenisWebservice.getTable(request);
-    int count = table.save(getRowList(request, table.getMetadata()));
+    int count = MolgenisWebservice.getTable(request).save(getRowList(request));
     response.status(200);
     response.type(ACCEPT_CSV);
     return "" + count;
   }
 
-  private static Iterable<Row> getRowList(Request request, TableMetadata tableMetadata) {
-    if (tableMetadata == null) {
-      return CsvTableReader.read(new StringReader(request.body()));
-    } else {
-      return CsvTableReader.read(
-          new StringReader(request.body()), new CaseAndSpaceInsensitiveNameMapper(tableMetadata));
-    }
+  private static Iterable<Row> getRowList(Request request) {
+    return CsvTableReader.read(new StringReader(request.body()));
   }
 
   private static String tableDelete(Request request, Response response) {
-    Table table = MolgenisWebservice.getTable(request);
-    int count = table.delete(getRowList(request, table.getMetadata()));
+    int count = MolgenisWebservice.getTable(request).delete(getRowList(request));
     response.type(ACCEPT_CSV);
     response.status(200);
     return "" + count;
