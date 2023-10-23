@@ -73,8 +73,12 @@ async function getKeyValue(cellValue: any, column: IColumn, schemaId: string) {
   if (typeof cellValue === "string") {
     return cellValue;
   } else {
-    if (column.refTable) {
-      return await convertRowToPrimaryKey(cellValue, column.refTable, schemaId);
+    if (column.refTableId) {
+      return await convertRowToPrimaryKey(
+        cellValue,
+        column.refTableId,
+        schemaId
+      );
     }
   }
 }

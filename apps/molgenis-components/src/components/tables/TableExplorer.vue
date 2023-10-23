@@ -377,7 +377,7 @@
       :title="'Truncate ' + tableMetadata.label"
       actionLabel="Truncate"
       actionType="danger"
-      :tableId"tableId"
+      :tableId="tableId"
       @close="isDeleteAllModalShown = false"
       @confirmed="handelExecuteDeleteAll"
     >
@@ -689,10 +689,7 @@ export default {
     },
     emitColumns(event) {
       this.columns = event;
-      this.$emit(
-        "updateShowColumns",
-        getColumnIds(this.columns, "showColumn")
-      );
+      this.$emit("updateShowColumns", getColumnIds(this.columns, "showColumn"));
     },
     emitFilters(event) {
       this.columns = event;
