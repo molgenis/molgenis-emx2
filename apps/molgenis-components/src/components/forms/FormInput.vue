@@ -91,7 +91,7 @@ export default {
       type: Object,
       required: false,
     },
-    schemaName: {
+    schemaId: {
       required: false,
       type: String,
     },
@@ -121,7 +121,7 @@ export default {
       type: String,
       required: false,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: false,
     },
@@ -443,9 +443,9 @@ export default {
             id="ref-example"
             columnType="REF"
             label="Example ref input"
-            tableName="Pet"
+            tableId="Pet"
             :defaultValue="{ name: 'spike' }"
-            :schemaName="schemaName"
+            :schemaId="schemaId"
             v-model="refValue"
             refLabel="${name}"
         />
@@ -458,9 +458,9 @@ export default {
             id="ref-array-example"
             columnType="REF_ARRAY"
             label="Example ref array input"
-            tableName="Pet"
+            tableId="Pet"
             :defaultValue="[{ name: 'spike' }]"
-            :schemaName="schemaName"
+            :schemaId="schemaId"
             v-model="refValueArray"
             refLabel="${name}"
         />
@@ -473,9 +473,9 @@ export default {
             id="ontology-example"
             columnType="ONTOLOGY"
             label="Example ontology input"
-            tableName="Category"
+            tableId="Category"
             v-model="ontologyValue"
-            :schemaName="schemaName"
+            :schemaId="schemaId"
         />
       </div>
       <div>You selected: {{ JSON.stringify(ontologyValue, null, 2) }}</div>
@@ -486,9 +486,9 @@ export default {
             id="ontology-array-example"
             columnType="ONTOLOGY_ARRAY"
             label="Example ontology array input"
-            tableName="Category"
+            tableId="Category"
             v-model="ontologyArrayValue"
-            :schemaName="schemaName"
+            :schemaId="schemaId"
         />
       </div>
       <div>You selected: {{ JSON.stringify(ontologyArrayValue, null, 2) }}</div>
@@ -519,11 +519,11 @@ export default {
   </div>
 </template>
 <script>
-  const schemaName = "pet store";
+  const schemaId = "pet store";
   export default {
     data: function () {
       return {
-        schemaName,
+        schemaId,
         stringValue: "test",
         stringValueInplace: "inplace",
         stringValueArray: ["value1", "value2"],

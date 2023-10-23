@@ -4,9 +4,7 @@
       <div>
         <span class="hoverContainer">
           <h4
-            :id="
-              table.name !== undefined ? table.name.replaceAll(' ', '_') : ''
-            "
+            :id="table.id !== undefined ? table.name.replaceAll(' ', '_') : ''"
             style="display: inline-block; text-transform: none !important"
             :style="table.drop ? 'text-decoration: line-through' : ''"
           >

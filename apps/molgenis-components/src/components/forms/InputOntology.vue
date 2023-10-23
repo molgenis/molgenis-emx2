@@ -153,11 +153,11 @@ export default {
       type: Boolean,
       default: false,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: false,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -181,7 +181,7 @@ export default {
   },
   computed: {
     tableId() {
-      return convertToPascalCase(this.tableName);
+      return convertToPascalCase(this.tableId);
     },
     rootTerms() {
       if (this.terms) {
@@ -500,10 +500,10 @@ export default {
     },
   },
   async mounted() {
-    if (this.tableName) {
-      const client = Client.newClient(this.schemaName);
+    if (this.tableId) {
+      const client = Client.newClient(this.schemaId);
       this.data = (
-        await client.fetchTableData(this.tableName, { limit: this.limit || 20 })
+        await client.fetchTableData(this.tableId, { limit: this.limit || 20 })
       )[this.tableId];
     }
   },
@@ -568,8 +568,8 @@ function getSelectedChildNodes(term) {
           label="Ontology select with backend data"
           description="please choose your options in tree below"
           v-model="value3"
-          tableName="Tag"
-          schemaName="pet store"
+          tableId="Tag"
+          schemaId="petStore"
       />
       <div>You selected: {{ value3 }}</div>
     </demo-item>
@@ -582,8 +582,8 @@ function getSelectedChildNodes(term) {
           description="please choose your options in tree below"
           v-model="value4"
           :isMultiSelect="true"
-          tableName="Tag"
-          schemaName="pet store"
+          tableId="Tag"
+          schemaId="petStore"
       />
       <div>You selected: {{ value4 }}</div>
     </demo-item>

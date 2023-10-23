@@ -7,7 +7,7 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
-  private String table;
+  private String table; // name
   private String id;
   private String name;
   private List<LanguageValue> labels = new ArrayList<>();
@@ -18,9 +18,9 @@ public class Column {
   private Boolean readonly = false;
   private String defaultValue;
   private String refSchema = null;
-  private String refTable = null;
-  private String refLink = null;
-  private String refBack = null;
+  private String refTable = null; // todo id and name
+  private String refLink = null; // todo id and name
+  private String refBack = null; // todo id and name
   private String refLabel;
   private String refLabelDefault;
   private Integer position = null;
@@ -60,12 +60,12 @@ public class Column {
     }
     this.refSchema =
         column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
-    this.refTable = column.getRefTableName();
-    this.refLink = column.getRefLink();
+    this.refTable = column.getRefTable().getIdentifier();
+    this.refLink = column.getRefLinkColumn().getIdentifier();
     this.refLabel = column.getRefLabel();
     this.refLabelDefault = column.getRefLabelDefault();
     // this.cascadeDelete = column.isCascadeDelete();
-    this.refBack = column.getRefBack();
+    this.refBack = column.getRefBackColumn().getIdentifier();
     this.validation = column.getValidation();
     this.required = column.isRequired();
     this.readonly = column.isReadonly();

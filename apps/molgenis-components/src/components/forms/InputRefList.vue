@@ -65,11 +65,11 @@
           <TableSearch
             v-model:selection="selection"
             @update:selection="$emit('update:modelValue', $event)"
-            :lookupTableName="tableName"
+            :lookupTable="tableId"
             :filter="filter"
             @select="emitSelection"
             @deselect="deselect"
-            :schemaName="schemaName"
+            :schemaId="schemaId"
             :showSelect="true"
             :limit="10"
             :canEdit="canEdit"
@@ -120,7 +120,7 @@ export default {
     Spinner,
   },
   props: {
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -128,7 +128,7 @@ export default {
     orderby: Object,
     multipleColumns: Boolean,
     maxNum: { type: Number, default: 11 },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
@@ -146,11 +146,8 @@ export default {
     },
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     title() {
-      return "Select " + this.tableName;
+      return "Select " + this.tableMetadata.label;
     },
     showMultipleColumns() {
       const itemsPerColumn = 12;
@@ -197,7 +194,7 @@ export default {
           row.primaryKey = await convertRowToPrimaryKey(
             row,
             this.tableId,
-            this.schemaName
+            this.schemaId
           );
         })
       ).then(() => (this.loading = false));
@@ -216,8 +213,8 @@ export default {
   },
   async created() {
     //should be created, not mounted, so we are before the watchers
-    this.client = Client.newClient(this.schemaName);
-    this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
+    this.client = Client.newClient(this.schemaId);
+    this.tableMetaData = await this.client.fetchTableMetaData(this.tableId);
     await this.loadOptions();
     if (!this.modelValue) {
       this.selection = [];
@@ -239,14 +236,14 @@ export default {
       <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
-      <!-- normally you don't need schemaName, it will use graphql on current path-->
+      <!-- normally you don't need schemaId, it will use graphql on current path-->
       <InputRefList
           id="input-ref-list"
           label="Standard ref input list"
           v-model="value"
-          tableName="Pet"
+          tableId="Pet"
           description="Standard input"
-          schemaName="pet store"
+          schemaId="pet store"
           :canEdit="canEdit"
           refLabel="${name}"
       />
@@ -257,10 +254,10 @@ export default {
           id="input-ref-list-default"
           label="Ref input list with default value"
           v-model="defaultValue"
-          tableName="Pet"
+          tableId="Pet"
           description="This is a default value"
           :defaultValue="defaultValue"
-          schemaName="pet store"
+          schemaId="pet store"
           :canEdit="canEdit"
           refLabel="${name}"
       />
@@ -271,10 +268,10 @@ export default {
           id="input-ref-list-filter"
           label="Ref input list with pre set filter"
           v-model="filterValue"
-          tableName="Pet"
+          tableId="Pet"
           description="Filter by name"
           :filter="{ category: { name: { equals: 'dog' } } }"
-          schemaName="pet store"
+          schemaId="pet store"
           :canEdit="canEdit"
           refLabel="${name}"
       />
@@ -285,9 +282,9 @@ export default {
           id="input-ref-list"
           label="Ref input list with multiple columns"
           v-model="multiColumnValue"
-          tableName="Pet"
+          tableId="Pet"
           description="This is a multi column input"
-          schemaName="pet store"
+          schemaId="pet store"
           multipleColumns
           :canEdit="canEdit"
           refLabel="${name}"

@@ -40,7 +40,7 @@ public class Table {
     this.id = tableMetadata.getIdentifier();
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
-    this.inherit = tableMetadata.getInherit();
+    this.inherit = tableMetadata.getInheritedTable().getIdentifier();
     this.descriptions =
         tableMetadata.getDescriptions().entrySet().stream()
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))

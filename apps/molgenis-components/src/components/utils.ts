@@ -43,11 +43,11 @@ export function flattenObject(object: Record<string, any>): string {
 
 export async function convertRowToPrimaryKey(
   row: IRow,
-  tableName: string,
-  schemaName: string
+  tableId: string,
+  schemaId: string
 ): Promise<Record<string, any>> {
-  const client = Client.newClient(schemaName);
-  const tableMetadata = await client.fetchTableMetaData(tableName);
+  const client = Client.newClient(schemaId);
+  const tableMetadata = await client.fetchTableMetaData(tableId);
   if (!tableMetadata?.columns) {
     throw new Error("Empty columns in metadata");
   } else {
@@ -59,7 +59,7 @@ export async function convertRowToPrimaryKey(
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
-            column.refSchema || schemaName
+            column.refSchema || schemaId
           );
         }
         return accum;
@@ -69,20 +69,12 @@ export async function convertRowToPrimaryKey(
   }
 }
 
-async function getKeyValue(
-  cellValue: any,
-  column: IColumn,
-  schemaName: string
-) {
+async function getKeyValue(cellValue: any, column: IColumn, schemaId: string) {
   if (typeof cellValue === "string") {
     return cellValue;
   } else {
     if (column.refTable) {
-      return await convertRowToPrimaryKey(
-        cellValue,
-        column.refTable,
-        schemaName
-      );
+      return await convertRowToPrimaryKey(cellValue, column.refTable, schemaId);
     }
   }
 }
@@ -184,7 +176,7 @@ export function getLocalizedLabel(
     }
   }
   if (!label) {
-    label = tableOrColumnMetadata.name;
+    label = tableOrColumnMetadata.id;
   }
   return label;
 }
@@ -206,17 +198,17 @@ export function applyJsTemplate(
   if (object === undefined || object === null) {
     return "";
   }
-  const names = Object.keys(object);
+  const ids = Object.keys(object);
   const vals = Object.values(object);
   try {
     // @ts-ignore
-    return new Function(...names, "return `" + labelTemplate + "`;")(...vals);
+    return new Function(...ids, "return `" + labelTemplate + "`;")(...vals);
   } catch (err: any) {
     // The template is not working, lets try and fail gracefully
     console.log(
       err.message +
         " we got keys:" +
-        JSON.stringify(names) +
+        JSON.stringify(ids) +
         " vals:" +
         JSON.stringify(vals) +
         " and template: " +

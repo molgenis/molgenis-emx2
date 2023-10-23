@@ -29,9 +29,9 @@
       <LayoutModal v-if="showSelect" :title="title" @close="showSelect = false">
         <template v-slot:body>
           <TableSearch
-            :lookupTableName="tableName"
+            :lookupTable="tableId"
             :filter="filter"
-            :schemaName="schemaName"
+            :schemaId="schemaId"
             :canEdit="canEdit"
             @select="select($event)"
             @deselect="deselect(selectIdx)"

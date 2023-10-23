@@ -2,7 +2,7 @@
   <div class="container">
     <h1>Table data client module</h1>
 
-    <h5>Table data for: {{ tableName }}</h5>
+    <h5>Table data for: {{ tableLabel }}</h5>
     <div class="form-group">
       <label for="filterInput">filter</label>
       <input
@@ -33,12 +33,17 @@ export default {
   data() {
     return {
       client: null,
-      tableName: "Pet",
+      tableId: "Pet",
       filter: '{"name": {"like": ["pooky"]}}',
       orderby: '{"status": "ASC"}',
       metaData: {},
       tableData: [],
     };
+  },
+  computed: {
+    tableLabel() {
+      return this.metaData?.label;
+    },
   },
   methods: {
     async fetchData() {

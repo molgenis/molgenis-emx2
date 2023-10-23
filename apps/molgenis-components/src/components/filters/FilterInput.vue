@@ -243,8 +243,8 @@ export default {
         <FilterInput
             id="filter-input-ontology"
             columnType="ONTOLOGY"
-            tableName="Tag"
-            schemaName="pet store"
+            tableId="Tag"
+            schemaId="petStore"
             :conditions="conditions6"
             @updateConditions="conditions6 = $event"
         />
@@ -257,8 +257,8 @@ export default {
         <FilterInput
             id="filter-input-ref"
             columnType="REF"
-            tableName="Tag"
-            schemaName="pet store"
+            tableId="Tag"
+            schemaId="pet store"
             :conditions="conditions7"
             @updateConditions="conditions7 = $event"
             refLabel="${name}"
@@ -272,8 +272,8 @@ export default {
         <FilterInput
             id="filter-input-reflist"
             columnType="REF_ARRAY"
-            tableName="Tag"
-            schemaName="pet store"
+            tableId="Tag"
+            schemaId="petStore"
             :conditions="conditions8"
             @updateConditions="conditions8 = $event"
             refLabel="${name}"

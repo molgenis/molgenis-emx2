@@ -194,7 +194,7 @@ export function isColumnVisible(
   }
 }
 
-export function splitColumnNamesByHeadings(columns: IColumn[]): string[][] {
+export function splitColumnIdsByHeadings(columns: IColumn[]): string[][] {
   return columns.reduce((accum, column) => {
     if (column.columnType === "HEADING") {
       accum.push([column.id]);

@@ -3,13 +3,13 @@
     <FormInput
       v-for="column in columnsWithoutMeta.filter(showColumn)"
       :key="JSON.stringify(column)"
-      :id="`${id}-${column.name}`"
+      :id="`${id}-${column.id}`"
       :modelValue="internalValues[column.id]"
       :columnType="column.columnType"
-      :description="getColumnDescription(column)"
+      :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
       :label="getColumnLabel(column)"
-      :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
+      :schemaId="column.refSchema ? column.refSchema : schemaMetaData.id"
       :pkey="primaryKey"
       :readonly="
         column.readonly ||
@@ -20,7 +20,7 @@
       :refTablePrimaryKeyObject="primaryKey"
       :refLabel="column.refLabel ? column.refLabel : column.refLabelDefault"
       :required="column.required"
-      :tableName="column.refTable"
+      :tableId="column.refTable"
       :canEdit="canEdit"
       :filter="refLinkFilter(column)"
       @update:modelValue="handleModelValueUpdate($event, column.id)"
@@ -49,7 +49,7 @@ export default {
   name: "RowEdit",
   data: function () {
     return {
-      client: Client.newClient(this.schemaMetaData.name),
+      client: Client.newClient(this.schemaMetaData.id),
       internalValues: deepClone(this.modelValue),
     };
   },
@@ -63,8 +63,8 @@ export default {
       type: String,
       required: true,
     },
-    // tableName: name of the molgenis table loaded
-    tableName: {
+    // tableId: name of the molgenis table loaded
+    tableId: {
       type: String,
       required: true,
     },
@@ -122,7 +122,7 @@ export default {
     async primaryKey() {
       return this.client.convertRowToPrimaryKey(
         this.internalValues,
-        this.tableName
+        this.tableId
       );
     },
     columnsWithoutMeta() {
@@ -219,16 +219,16 @@ export default {
       ) {
         let filter: Record<string, any> = {};
         this.tableMetaData.columns.forEach((column2: IColumn) => {
-          if (column2.name === column.refLink) {
+          if (column2.id === column.refLink) {
             this.schemaMetaData.tables.forEach((table: ITableMetaData) => {
               //check how the reftable overlaps with columns in our column
-              if (table.name === column.refTable) {
+              if (table.id === column.refTable) {
                 table.columns.forEach((column3) => {
                   if (
                     column3.key === 1 &&
                     column3.refTable === column2.refTable
                   ) {
-                    filter[column3.name] = {
+                    filter[column3.id] = {
                       equals:
                         this.internalValues[
                           convertToCamelCase(column.refLink || "")
@@ -264,11 +264,6 @@ export default {
     if (this.defaultValue) {
       this.internalValues = deepClone(this.defaultValue);
     }
-    this.tableMetaData.columns.forEach((column: IColumn) => {
-      if (column.defaultValue && !this.internalValues[column.id]) {
-        this.internalValues[column.id] = column.defaultValue;
-      }
-    });
     this.onValuesUpdate();
   },
 };
@@ -284,7 +279,7 @@ export default {
             v-if="showRowEdit"
             id="row-edit"
             v-model="rowData"
-            :tableName="tableName"
+            :tableId="tableId"
             :tableMetaData="tableMetadata"
             :locale="locale"
             :schemaMetaData="schemaMetadata"
@@ -295,7 +290,7 @@ export default {
         <dl id="create-mode-config">
           <dt>Table name</dt>
           <dd>
-            <select v-model="tableName">
+            <select v-model="tableId">
               <option>Pet</option>
               <option>Order</option>
               <option>Category</option>
@@ -319,17 +314,17 @@ export default {
       return {
         showRowEdit: true,
         locale: 'en',
-        tableName: 'Pet',
+        tableId: 'Pet',
         tableMetadata: {
           columns: [],
         },
         schemaMetadata: {},
         rowData: {},
-        schemaName: 'pet store',
+        schemaId: 'pet store',
       };
     },
     watch: {
-      async tableName(newValue, oldValue) {
+      async tableId(newValue, oldValue) {
         if (newValue !== oldValue) {
           this.rowData = {};
           await this.reload();
@@ -346,10 +341,10 @@ export default {
       async reload() {
         // force complete component reload to have a clean demo component and hit all lifecycle events
         this.showRowEdit = false;
-        const client = this.$Client.newClient(this.schemaName);
+        const client = this.$Client.newClient(this.schemaId);
         this.schemaMetadata = await client.fetchSchemaMetaData();
-        this.tableMetadata = await client.fetchTableMetaData(this.tableName);
-        // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
+        this.tableMetadata = await client.fetchTableMetaData(this.tableId);
+        // this.rowData = (await client.fetchTableData(this.tableId))[this.tableId];
         this.showRowEdit = true;
       },
     },

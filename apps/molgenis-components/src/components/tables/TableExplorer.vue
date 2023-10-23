@@ -40,13 +40,13 @@
             <div>
               <div>
                 <span class="fixed-width">zip</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableId"
+                <ButtonAlt :href="'/' + schemaId + '/api/zip/' + tableId"
                   >all rows</ButtonAlt
                 >
               </div>
               <div>
                 <span class="fixed-width">csv</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableId"
+                <ButtonAlt :href="'/' + schemaId + '/api/csv/' + tableId"
                   >all rows</ButtonAlt
                 >
                 <span v-if="Object.keys(graphqlFilter).length > 0">
@@ -54,7 +54,7 @@
                   <ButtonAlt
                     :href="
                       '/' +
-                      schemaName +
+                      schemaId +
                       '/api/csv/' +
                       tableId +
                       '?filter=' +
@@ -67,7 +67,7 @@
               </div>
               <div>
                 <span class="fixed-width">excel</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableId"
+                <ButtonAlt :href="'/' + schemaId + '/api/excel/' + tableId"
                   >all rows</ButtonAlt
                 >
                 <span v-if="Object.keys(graphqlFilter).length > 0">
@@ -75,7 +75,7 @@
                   <ButtonAlt
                     :href="
                       '/' +
-                      schemaName +
+                      schemaId +
                       '/api/excel/' +
                       tableId +
                       '?filter=' +
@@ -90,7 +90,7 @@
                 <span class="fixed-width">jsonld</span>
                 <ButtonAlt
                   :href="
-                    '/' + schemaName + '/api/rdf/' + tableId + '?format=jsonld'
+                    '/' + schemaId + '/api/rdf/' + tableId + '?format=jsonld'
                   "
                 >
                   all rows
@@ -99,9 +99,7 @@
               <div>
                 <span class="fixed-width">ttl</span>
                 <ButtonAlt
-                  :href="
-                    '/' + schemaName + '/api/rdf/' + tableId + '?format=ttl'
-                  "
+                  :href="'/' + schemaId + '/api/rdf/' + tableId + '?format=ttl'"
                 >
                   all rows
                 </ButtonAlt>
@@ -169,7 +167,7 @@
         <TableSettings
           v-if="tableMetadata"
           :tableMetadata="tableMetadata"
-          :schemaName="schemaName"
+          :schemaId="schemaId"
           @update:settings="reloadMetadata"
         />
 

@@ -33,7 +33,7 @@
           @click="$emit('save')"
           :disabled="Boolean(saveDisabledMessage)"
         >
-          Save {{ tableName }}
+          Save {{ tableId }}
         </ButtonAction>
       </Tooltip>
     </div>
@@ -82,7 +82,7 @@ const {
     </DemoItem>
     <DemoItem>
       <label for="sample-table-name">With table name</label>
-      <RowEditFooter id="sample-table-name" tableName="Pets" />
+      <RowEditFooter id="sample-table-name" tableId="Pets" />
     </DemoItem>
     <DemoItem>
       <label for="sample-success-msg">With success message</label>

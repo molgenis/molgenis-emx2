@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { RoutedTableExplorer, convertToPascalCase } from "molgenis-components";
+import { RoutedTableExplorer } from "molgenis-components";
 import { mapActions, mapGetters } from "vuex";
 
 const css = {

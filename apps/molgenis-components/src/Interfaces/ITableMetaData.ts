@@ -4,12 +4,11 @@ import { ISetting } from "./ISetting";
 
 export interface ITableMetaData {
   id: string;
-  name: string;
+  label: string;
+  description?: string;
   tableType: string;
   columns: IColumn[];
-  descriptions?: ILocale[];
   externalSchema: string;
-  labels?: ILocale[];
   semantics?: string[];
   settings?: ISetting[];
 }

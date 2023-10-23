@@ -11,9 +11,9 @@ export default {
       state.graphqlURL,
       `{
           _session { email,roles } _schema {
-            name, tables {
-              name, tableType, id, descriptions{locale,value}, externalSchema, semantics, columns {
-                name, id, columnType, key, refTable, refLink, refLabel, refBack, required, 
+            id, label, tables {
+              id, label, tableType, descriptions{locale,value}, externalSchema, semantics, columns {
+                id, label, columnType, key, refTable, refLink, refLabel, refBack, required, 
                 semantics, descriptions{locale,value}, position, validation, visible
               } settings { key, value }
             }
@@ -38,8 +38,8 @@ export default {
       console.error(e);
       state.isLoading = false;
     });
-    commit("setSchema", resp._schema.name);
-    return resp._schema.name;
+    commit("setSchema", resp._schema.id);
+    return resp._schema.id;
   },
   fetchVariables: async ({ state, commit, getters, dispatch }, offset = 0) => {
     state.isLoading = true;

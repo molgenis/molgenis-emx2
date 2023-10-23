@@ -41,6 +41,7 @@ public class GraphqlConstants {
   public static final String ORDERBY = "orderby";
   public static final String KEYS = "keys";
   public static final String LABEL = "label";
+  public static final String DESCRIPTION = "description";
   public static final String COUNT = "count";
   public static final String SCHEMAS = "schemas";
   public static final String TASK_ID = "id";
