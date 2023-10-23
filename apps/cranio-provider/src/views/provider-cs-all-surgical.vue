@@ -34,6 +34,27 @@
         />
       </DashboardBox>
     </DashboardChartLayout>
+    <h2 class="dashboard-h2">Surgical interventions by diagnosis</h2>
+    <DashboardBox class="mb-4">
+      <InputLabel
+        id="diagnosisInput"
+        label="Select a diagnosis"
+      />
+      <select id="diagnosisInput" @change="onDiagnosisInput">
+        <option value=ORPHA:87>Apert syndrome</option>
+        <option value=ORPHA:207>Crouzon syndrome</option>
+        <option value=ORPHA:93262>Crouzon syndrome-acanthosis nigricans syndrome</option>
+        <option value=OSNEW1>ERF-related craniosynostosis syndrome</option>
+        <option value=ORPHA:53271>Muenke syndrome</option>
+        <option value=ORPHA:3366>Non-syndromic metopic craniosynostosis</option>
+        <option value=ORPHA:35093>Non-syndromic sagittal craniosynostosis</option>
+        <option value=ORPHA:620102>Non-syndromic unicoronal craniosynostosis</option>
+        <option value=ORPHA:620113>Non-syndromic unilambdoid craniosynostosis</option>
+        <option value=ORPHA:794>Saethre-Chotzen syndrome</option>
+        <option value=OSNEW5>TCF12-related craniosynostosis</option>
+        <option value="ORPHA:620198">non-syndromic multistural craniosynostosis</option>
+      </select>
+    </DashboardBox>
     <DashboardChartLayout>
       <DashboardBox>
         <PieChart2
@@ -55,13 +76,13 @@
           chartId="cd-all-surgical-age-at-surgery"
           title="Age at first surgery"
           description="Number of patients by age (months)"
-          :chartData="ageAtSurgery"
+          :chartData="ageAtFirstSurgery"
           xvar="age"
           yvar="value"
           xAxisLabel="Age (months)"
           yAxisLabel="Number of patients"
-          :yMax="100"
-          :yTickValues="[0, 25, 50, 75, 100]"
+          :yMax="200"
+          :yTickValues="[0, 25, 50, 75, 100, 125,150,175,200]"
           :chartHeight="280"
           columnFill="#2a8f64"
           columnHoverFill="#ed7b23"
@@ -73,7 +94,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { DashboardBox, PieChart2, ColumnChart } from "molgenis-viz";
+import { DashboardBox, PieChart2, ColumnChart, InputLabel } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
@@ -100,11 +121,7 @@ let surgicalInterventions = ref({
   "Unwanted reoperation due to complications": 0,
 });
 
-let ageAtSurgery = ref(
-  seq(0, 14, 2).map((value) => {
-    return { age: `${value}`, value: randomInt(1, 100)() };
-  })
-);
+let ageAtFirstSurgery = ref([]);
 
 const surgeryTypeColors = generateColors(Object.keys(typeOfSurgery.value));
 const complicationColors = generateColors(Object.keys(surgicalComplications.value));
@@ -156,8 +173,28 @@ function setSurgicalInterventions () {
   surgicalInterventions.value = Object.fromEntries(data);
 }
 
+function setAgeAtFirstSurgery () {
+  const ages = seq(0,14,2);
+  let currentTotal = totalCases.value;
+  const data = ages.map((age, i) => {
+    const randomValue = i === ages.length - 1
+      ? currentTotal
+      : randomInt(1, currentTotal)();
+    const row = {age: `${age}`, value: randomValue }
+    currentTotal -= randomValue;
+    return row
+  })
+  ageAtFirstSurgery.value = data;
+}
+
+function onDiagnosisInput () {
+  setSurgicalInterventions(totalCases.value);
+  setAgeAtFirstSurgery();
+}
+
 
 setTypeOfSurgery();
 setSurgicalComplications(totalCases.value);
 setSurgicalInterventions();
+setAgeAtFirstSurgery();
 </script>

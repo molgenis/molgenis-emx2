@@ -1,12 +1,10 @@
 <template>
   <ProviderDashboard>
+    <h2 class="dashboard-h2">General overview for your centers</h2>
     <DashboardBox class="mb-4">
-      <h2>General overview for your centers</h2>
-      <p>The following charts provides a general overview for all centers.</p>
       <InputLabel
         id="yearOfBirthFilter"
-        label="Year of birth"
-        description="Limit the results by year of birth"
+        label="Filter data by year of birth"
       />
       <select class="inputs select" id="yearOfBirthFilter" @change="onYearOfBirthFilter">
         <option value="all">All Patients</option>
@@ -30,6 +28,8 @@
         />
       </DashboardBox>
     </DashboardChartLayout>
+    <h3 class="dashboard-h3">Suture Overview</h3>
+    <p class="dashboard-text">Click a category in the "Single Suture Synostosis" chart to view more information.</p>
     <DashboardChartLayout>
       <DashboardBox>
         <PieChart2
@@ -47,12 +47,8 @@
           @slice-clicked="updateMultipleSutures"
         />
       </DashboardBox>
-      <DashboardBox>
-        <div class="d3-viz-message" v-if="!showSutureTypes">
-          <p>To view the breakdown of mutiple suture synostosis, click a category in the "Single Suture Synostosis" chart.</p>
-        </div>
-        <PieChart2
-          v-else
+      <DashboardBox v-if="showSutureTypes">
+        <PieChart2 
           chartId="sutureTypes"
           title="Multiple suture synostosis"
           :chartData="csMultipleSutures"
