@@ -36,10 +36,10 @@ export default {
         this.loading = true;
         request(
           "graphql",
-          "{" + this.value.refTable + "{" + this.value.refColumn + "}}"
+          "{" + this.value.refTableId + "{" + this.value.refColumn + "}}"
         )
           .then((data) => {
-            this.value.options = data[this.value.refTable];
+            this.value.options = data[this.value.refTableId];
           })
           .catch((error) => {
             this.graphqlError = error.response.errors[0].message;

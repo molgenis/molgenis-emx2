@@ -9,18 +9,18 @@
       :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
       :label="getColumnLabel(column)"
-      :schemaId="column.refSchema ? column.refSchema : schemaMetaData.id"
+      :schemaId="column.refSchemaId ? column.refSchemaId : schemaMetaData.id"
       :pkey="primaryKey"
       :readonly="
         column.readonly ||
         (pkey && column.key === 1 && !clone) ||
         (column.computed !== undefined && column.computed.trim() != '')
       "
-      :refBack="column.refBack"
+      :refBackId="column.refBackId"
       :refTablePrimaryKeyObject="primaryKey"
       :refLabel="column.refLabel ? column.refLabel : column.refLabelDefault"
       :required="column.required"
-      :tableId="column.refTable"
+      :tableId="column.refTableId"
       :canEdit="canEdit"
       :filter="refLinkFilter(column)"
       @update:modelValue="handleModelValueUpdate($event, column.id)"
@@ -160,8 +160,8 @@ export default {
     showColumn(column: IColumn) {
       if (column.columnType === AUTO_ID) {
         return this.pkey;
-      } else if (column.refLink) {
-        return this.internalValues[convertToCamelCase(column.refLink)];
+      } else if (column.refLinkId) {
+        return this.internalValues[column.refLinkId];
       } else {
         const isColumnVisible = this.visibleColumns
           ? this.visibleColumns.includes(column.id)
@@ -213,26 +213,23 @@ export default {
     refLinkFilter(column: IColumn) {
       //need to figure out what refs overlap
       if (
-        column.refLink &&
+        column.refLinkId &&
         this.showColumn(column) &&
-        this.internalValues[convertToCamelCase(column.refLink)]
+        this.internalValues[column.refLink]
       ) {
         let filter: Record<string, any> = {};
         this.tableMetaData.columns.forEach((column2: IColumn) => {
-          if (column2.id === column.refLink) {
+          if (column2.id === column.refLinkId) {
             this.schemaMetaData.tables.forEach((table: ITableMetaData) => {
-              //check how the reftable overlaps with columns in our column
-              if (table.id === column.refTable) {
+              //check how the refTableId overlaps with columns in our column
+              if (table.id === column.refTableId) {
                 table.columns.forEach((column3) => {
                   if (
                     column3.key === 1 &&
-                    column3.refTable === column2.refTable
+                    column3.refTableId === column2.refTableId
                   ) {
                     filter[column3.id] = {
-                      equals:
-                        this.internalValues[
-                          convertToCamelCase(column.refLink || "")
-                        ],
+                      equals: this.internalValues[column.refLinkId],
                     };
                   }
                 });

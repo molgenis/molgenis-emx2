@@ -17,8 +17,8 @@
           :reference="queryResult"
           :showDataOwner="showDataOwner"
           :startsCollapsed="queryResults.length > 1"
-          :tableId="column.refTable"
-          :schema="column.refSchema || props.schema"
+          :tableId="column.refTableId"
+          :schema="column.refSchemaId || props.schema"
           @ref-cell-clicked="handleRefCellClicked"
         />
       </div>
@@ -61,16 +61,16 @@ let loading = ref(true);
 let queryResults: Ref<IRow[]> = ref([]);
 let errorMessage = ref("");
 
-const activeSchema = column.value.refSchema || props.schema;
-if (activeSchema && column.value.refTable) {
-  updateData(activeSchema, rows.value, column.value.refTable);
+const activeSchema = column.value.refSchemaId || props.schema;
+if (activeSchema && column.value.refTableId) {
+  updateData(activeSchema, rows.value, column.value.refTableId);
 }
 
 watch([column, rows], () => {
   localColumnName.value = column.value.name;
-  const activeSchema = column.value.refSchema || props.schema;
-  if (activeSchema && column.value.refTable) {
-    updateData(activeSchema, rows.value, column.value.refTable);
+  const activeSchema = column.value.refSchemaId || props.schema;
+  if (activeSchema && column.value.refTableId) {
+    updateData(activeSchema, rows.value, column.value.refTableId);
   }
 });
 
@@ -108,9 +108,9 @@ async function handleRefCellClicked({
   refColumn: IColumn;
   refTableRow: IRow;
 }): Promise<void> {
-  const refTableId = refColumn.refTable;
+  const refTableId = refColumn.refTableId;
   const activeSchema =
-    refColumn.refSchema || column.value.refSchema || props.schema;
+    refColumn.refSchemaId || column.value.refSchemaId || props.schema;
   if (refTableId && activeSchema) {
     const clickedCellPrimaryKeys = [refTableRow[refColumn.id]].flat();
     localColumnName.value = refColumn.name;

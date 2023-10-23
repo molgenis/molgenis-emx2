@@ -62,9 +62,9 @@
               >
                 <InputSelect
                   id="column_refTable"
-                  v-model="column.refTable"
+                  v-model="column.refTableName"
                   :errorMessage="
-                    column.refTable === undefined || column.name === ''
+                    column.refTableName === undefined || column.name === ''
                       ? 'Referenced table is required'
                       : undefined
                   "
@@ -73,7 +73,7 @@
                 />
                 <InputSelect
                   id="column_refSchema"
-                  v-model="column.refSchema"
+                  v-model="column.refSchemaName"
                   :options="schemaNames"
                   @update:modelValue="loadRefSchema"
                   label="refSchema"
@@ -90,14 +90,14 @@
                 <InputSelect
                   id="column_refBack"
                   label="refBack"
-                  v-model="column.refBack"
-                  :options="refBackCandidates(column.refTable, table.name)"
+                  v-model="column.refBackName"
+                  :options="refBackCandidates(column.refTableName, table.name)"
                 />
               </div>
               <div
                 class="col-4"
                 v-if="
-                  column.refTable &&
+                  column.refTableName &&
                   (column.columnType === 'REF' ||
                     column.columnType === 'REF_ARRAY')
                 "
@@ -105,7 +105,7 @@
                 <InputSelect
                   v-if="refLinkCandidates.length > 0"
                   id="column_refLink"
-                  v-model="column.refLink"
+                  v-model="column.refLinkName"
                   :options="refLinkCandidates"
                   label="refLink"
                   description="refLink enables to define overlapping references, e.g. 'patientId', 'sampleId' (where sample also overlaps with patientId)"
@@ -468,13 +468,16 @@ export default {
       const columns = schema.tables
         .filter((t) => t.name === fromTable)
         .map((t) => t.columns)[0];
-      return columns?.filter((c) => c.refTable === toTable).map((c) => c.name);
+      return columns
+        ?.filter((c) => c.refTableName === toTable)
+        .map((c) => c.name);
     },
     async loadRefSchema() {
       this.error = undefined;
       this.loading = true;
-      if (this.column.refSchema) {
-        this.client = Client.newClient(this.column.refSchema);
+      if (this.column.refSchemaName) {
+        //todo, don't use client here because we need 'names' not 'ids'
+        this.client = Client.newClient(this.column.refSchemaName);
         const schema = await this.client.fetchSchemaMetaData().catch((e) => {
           this.error = e;
         });

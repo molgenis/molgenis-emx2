@@ -12,7 +12,7 @@
         @updateConditions="handleUpdateFilter(index, $event)"
         :columnType="filter.columnType"
         :tableName="filter.refTable"
-        :schemaName="filter.refSchema ? filter.refSchema : schemaName"
+        :schemaName="filter.refSchemaId ? filter.refSchemaId : schemaId"
         :refLabel="filter.refLabel ? filter.refLabel : filter.refLabelDefault"
       />
     </FilterContainer>

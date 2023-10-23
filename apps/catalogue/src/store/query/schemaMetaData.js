@@ -14,10 +14,13 @@ export default gql`
           id
           columnType
           key
-          refTable
-          refLink
+          refTableName
+          refTableId
+          refLinkName
+          refLinkId
           refLabel
-          refBack
+          refBackId
+          refBackName
           required
           semantics
           description

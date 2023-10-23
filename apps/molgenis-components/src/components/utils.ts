@@ -59,7 +59,7 @@ export async function convertRowToPrimaryKey(
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
-            column.refSchema || schemaId
+            column.refSchemaId || schemaId
           );
         }
         return accum;

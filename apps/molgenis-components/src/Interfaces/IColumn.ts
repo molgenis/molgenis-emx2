@@ -11,12 +11,12 @@ export interface IColumn {
   position?: number;
   readonly?: string;
   defaultValue?: string;
-  refBack?: string;
+  refBackId?: string;
   refLabel?: string;
   refLabelDefault?: string;
-  refLink?: string;
-  refSchema?: string;
-  refTable?: string;
+  refLinkId?: string;
+  refSchemaId?: string;
+  refTableId?: string;
   required?: boolean;
   semantics?: string[];
   validation?: string;

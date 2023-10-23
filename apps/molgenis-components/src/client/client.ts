@@ -179,12 +179,12 @@ _schema {
       },
       columnType,
       key,
-      refTable,
-      refSchema,
-      refLink,
+      refTableId,
+      refSchemaId,
+      refLinkId,
       refLabel,
       refLabelDefault,
-      refBack,
+      refBackId,
       required,
       defaultValue,
       readonly,
@@ -383,7 +383,7 @@ async function convertRowToPrimaryKey(
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
-            column.refSchema || schema.id
+            column.refSchemaId || schema.id
           );
         }
         return accum;
@@ -400,10 +400,10 @@ async function convertRowToPrimaryKey(
     if (typeof cellValue === "string") {
       return cellValue;
     } else {
-      if (column.refTable) {
+      if (column.refTableId) {
         return await convertRowToPrimaryKey(
           cellValue,
-          column.refTable,
+          column.refTableId,
           schemaId
         );
       }

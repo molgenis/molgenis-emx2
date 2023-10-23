@@ -24,7 +24,7 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Areas of information",
-    refTable: "AreasOfInformationCohorts",
+    refTableId: "AreasOfInformationCohorts",
     columnId: "areasOfInformation",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
@@ -32,7 +32,7 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Data categories",
-    refTable: "DataCategories",
+    refTableId: "DataCategories",
     columnId: "dataCategories",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
@@ -40,7 +40,7 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Population age groups",
-    refTable: "AgeGroups",
+    refTableId: "AgeGroups",
     columnId: "ageGroups",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
@@ -48,7 +48,7 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Sample categories",
-    refTable: "SampleCategories",
+    refTableId: "SampleCategories",
     columnId: "sampleCategories",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
@@ -56,14 +56,14 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Cohort Types",
-    refTable: "ResourceTypes",
+    refTableId: "ResourceTypes",
     columnId: "type",
     columnType: "ONTOLOGY",
     conditions: [],
   },
   {
     title: "Design",
-    refTable: "CohortDesigns",
+    refTableId: "CohortDesigns",
     columnId: "design",
     columnType: "ONTOLOGY",
     conditions: [],

@@ -41,7 +41,7 @@
               <RouterLink
                 v-if="row[col.id]"
                 :to="{
-                  name: col.refTable + '-details',
+                  name: col.refTableId + '-details',
                   params: routeParams(col, row[col.id]),
                 }"
               >
@@ -58,7 +58,7 @@
                 <RouterLink
                   v-if="val"
                   :to="{
-                    name: col.refTable + '-details',
+                    name: col.refTableId + '-details',
                     params: routeParams(col, val),
                   }"
                 >
@@ -110,7 +110,7 @@ export default {
       required: true,
     },
     refLabel: String,
-    /** name of the column in the other table */
+    /** id of the column in the other table */
     refBack: String,
     /** pkey of the current table that refback should point to */
     pkey: Object,

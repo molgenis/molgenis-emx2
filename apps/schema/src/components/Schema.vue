@@ -215,7 +215,7 @@ export default {
             tables {
               name
               tableType
-              inherit
+              inheritName
               externalSchema
               labels {
                 locale
@@ -227,7 +227,6 @@ export default {
               }
               semantics
               columns {
-                id
                 name
                 labels {
                   locale
@@ -238,10 +237,10 @@ export default {
                 columnType
                 inherited
                 key
-                refSchema
-                refTable
-                refLink
-                refBack
+                refSchemaName
+                refTableName
+                refLinkName
+                refBackName
                 refLabel
                 required
                 readonly

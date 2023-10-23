@@ -119,8 +119,8 @@ export default {
       type: String,
       required: true,
     },
-    /** name of the column in the other table */
-    refBack: {
+    /** id of the column in the other table */
+    refBackId: {
       type: String,
       required: true,
     },
@@ -162,7 +162,7 @@ export default {
   computed: {
     graphqlFilter() {
       var result = new Object();
-      result[convertToCamelCase(this.refBack)] = {
+      result[convertToCamelCase(this.refBackId)] = {
         equals: this.refTablePrimaryKeyObject,
       };
       return result;
@@ -174,7 +174,7 @@ export default {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.id != this.refBack && !c.id.startsWith("mg_")
+          (c) => c.id != this.refBackId && !c.id.startsWith("mg_")
         );
       }
       return [];
@@ -228,8 +228,7 @@ export default {
       .fetchTableMetaData(this.tableId)
       .catch((error) => (this.errorMessage = error.message));
     this.defaultValue = new Object();
-    this.defaultValue[convertToCamelCase(this.refBack)] = await this
-      .refTablePrimaryKeyObject;
+    this.defaultValue[this.refBackId] = await this.refTablePrimaryKeyObject;
     await this.reload();
   },
 };
@@ -250,7 +249,7 @@ export default {
           id="refback1"
           label="Orders"
           tableId="Order"
-          refBack="pet"
+          refBackId="pet"
           :refTablePrimaryKeyObject=null
           schemaId="pet store"
       />
@@ -264,7 +263,7 @@ export default {
           id="refback2"
           label="Orders"
           tableId="Order"
-          refBack="pet"
+          refBackId="pet"
           :refTablePrimaryKeyObject="{name:'spike'}"
           schemaId="pet store"
       />
@@ -277,7 +276,7 @@ export default {
           canEdit
           label="Orders"
           tableId="Order"
-          refBack="pet"
+          refBackId="pet"
           :refTablePrimaryKeyObject="{name:'spike'}"
           schemaId="pet store"
       />

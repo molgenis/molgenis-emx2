@@ -17,10 +17,14 @@ public class Column {
   private Boolean required = false;
   private Boolean readonly = false;
   private String defaultValue;
-  private String refSchema = null;
-  private String refTable = null; // todo id and name
-  private String refLink = null; // todo id and name
-  private String refBack = null; // todo id and name
+  private String refSchemaId = null;
+  private String refSchemaName = null;
+  private String refTableId = null;
+  private String refTableName = null;
+  private String refLinkId = null;
+  private String refLinkName = null;
+  private String refBackId = null;
+  private String refBackName = null;
   private String refLabel;
   private String refLabelDefault;
   private Integer position = null;
@@ -58,14 +62,26 @@ public class Column {
     if (!minimal || !ColumnType.STRING.equals(column.getColumnType())) {
       this.columnType = column.getColumnType();
     }
-    this.refSchema =
-        column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
-    this.refTable = column.getRefTable().getIdentifier();
-    this.refLink = column.getRefLinkColumn().getIdentifier();
+    if (column.getRefSchema() != null) {
+      this.refSchemaId =
+          column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
+      this.refSchemaName = column.getSchemaName();
+    }
+    if (column.getRefTableName() != null) {
+      this.refTableId = column.getRefTable().getIdentifier();
+      this.refTableName = column.getRefTableName();
+    }
+    if (column.getRefLink() != null) {
+      this.refLinkId = column.getRefLinkColumn().getIdentifier();
+      this.refLinkName = column.getRefLink();
+    }
     this.refLabel = column.getRefLabel();
     this.refLabelDefault = column.getRefLabelDefault();
     // this.cascadeDelete = column.isCascadeDelete();
-    this.refBack = column.getRefBackColumn().getIdentifier();
+    if (column.getRefBack() != null) {
+      this.refBackId = column.getRefBackColumn().getIdentifier();
+      this.refBackName = column.getRefBack();
+    }
     this.validation = column.getValidation();
     this.required = column.isRequired();
     this.readonly = column.isReadonly();
@@ -94,14 +110,14 @@ public class Column {
     if (drop) c.drop();
     c.setRequired(required);
     c.setDefaultValue(defaultValue);
-    c.setRefSchema(refSchema);
-    c.setRefTable(refTable);
-    c.setRefLink(refLink);
+    c.setRefSchema(refSchemaName);
+    c.setRefTable(refTableName);
+    c.setRefLink(refLinkName);
     c.setRefLabel(refLabel);
     c.setKey(key);
     c.setPosition(position);
     // c.setCascadeDelete(cascadeDelete);
-    c.setRefBack(refBack);
+    c.setRefBack(refBackName);
     c.setValidation(validation);
     c.setDescriptions(
         descriptions.stream()
@@ -148,12 +164,12 @@ public class Column {
     this.required = required;
   }
 
-  public String getRefTable() {
-    return refTable;
+  public String getRefTableId() {
+    return refTableId;
   }
 
-  public void setRefTable(String refTable) {
-    this.refTable = refTable;
+  public void setRefTableId(String refTableId) {
+    this.refTableId = refTableId;
   }
 
   //  public Boolean getCascadeDelete() {
@@ -180,12 +196,12 @@ public class Column {
     this.validation = validation;
   }
 
-  public String getRefBack() {
-    return refBack;
+  public String getRefBackId() {
+    return refBackId;
   }
 
-  public void setRefBack(String refBack) {
-    this.refBack = refBack;
+  public void setRefBackId(String refBackId) {
+    this.refBackId = refBackId;
   }
 
   public List<LanguageValue> getDescriptions() {
@@ -204,12 +220,12 @@ public class Column {
     this.semantics = semantics;
   }
 
-  public String getRefLink() {
-    return refLink;
+  public String getRefLinkId() {
+    return refLinkId;
   }
 
-  public void setRefLink(String refLink) {
-    this.refLink = refLink;
+  public void setRefLinkId(String refLinkId) {
+    this.refLinkId = refLinkId;
   }
 
   public String getRefLabel() {
@@ -236,12 +252,12 @@ public class Column {
     this.inherited = inherited;
   }
 
-  public String getRefSchema() {
-    return refSchema;
+  public String getRefSchemaId() {
+    return refSchemaId;
   }
 
-  public void setRefSchema(String refSchema) {
-    this.refSchema = refSchema;
+  public void setRefSchemaId(String refSchemaId) {
+    this.refSchemaId = refSchemaId;
   }
 
   public String getVisible() {
@@ -314,5 +330,37 @@ public class Column {
 
   public void setDefaultValue(String defaultValue) {
     this.defaultValue = defaultValue;
+  }
+
+  public String getRefSchemaName() {
+    return refSchemaName;
+  }
+
+  public void setRefSchemaName(String refSchemaName) {
+    this.refSchemaName = refSchemaName;
+  }
+
+  public String getRefTableName() {
+    return refTableName;
+  }
+
+  public void setRefTableName(String refTableName) {
+    this.refTableName = refTableName;
+  }
+
+  public String getRefLinkName() {
+    return refLinkName;
+  }
+
+  public void setRefLinkName(String refLinkName) {
+    this.refLinkName = refLinkName;
+  }
+
+  public String getRefBackName() {
+    return refBackName;
+  }
+
+  public void setRefBackName(String refBackName) {
+    this.refBackName = refBackName;
   }
 }

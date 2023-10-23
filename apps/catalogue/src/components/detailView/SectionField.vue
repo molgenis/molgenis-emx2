@@ -62,7 +62,7 @@ export default {
   computed: {
     fieldTypeComponentName() {
       //custom views
-      if (this.field.meta.refTable === "Linked resources") {
+      if (this.field.meta.refTableName === "Linked resources") {
         return "LinkedResourcesFieldValue";
       }
       //standard views
