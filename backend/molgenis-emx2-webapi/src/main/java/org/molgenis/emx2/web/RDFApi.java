@@ -58,7 +58,7 @@ public class RDFApi {
     Schema schema = getSchema(request);
 
     final String baseURL = extractBaseURL(request);
-    RDFService rdf = new RDFService(request.url(), baseURL, request.queryParams(FORMAT));
+    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
@@ -72,7 +72,7 @@ public class RDFApi {
     Table table = getTable(request);
 
     final String baseURL = extractBaseURL(request);
-    RDFService rdf = new RDFService(request.url(), baseURL, request.queryParams(FORMAT));
+    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
@@ -87,7 +87,7 @@ public class RDFApi {
     String rowId = sanitize(request.params("row"));
 
     final String baseURL = extractBaseURL(request);
-    RDFService rdf = new RDFService(request.url(), baseURL, request.queryParams(FORMAT));
+    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
@@ -102,7 +102,7 @@ public class RDFApi {
     String columnName = sanitize(request.params("column"));
 
     final String baseURL = extractBaseURL(request);
-    RDFService rdf = new RDFService(request.url(), baseURL, request.queryParams(FORMAT));
+    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
@@ -113,10 +113,10 @@ public class RDFApi {
   }
 
   private static String extractBaseURL(Request request) {
+    // NOTE: The request.host() already includes the server port!
     return request.scheme()
         + "://"
         + request.host()
-        + (request.port() > 0 ? ":" + request.port() : "")
         + (StringUtils.isNotEmpty(request.servletPath()) ? "/" + request.servletPath() + "/" : "/");
   }
 }

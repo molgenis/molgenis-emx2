@@ -9,6 +9,7 @@ import static org.molgenis.emx2.rdf.RDFUtils.*;
 
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -27,6 +28,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.TypeUtils;
 
 // TODO check null value handling
 // TODO check value types
@@ -89,6 +91,23 @@ public class RDFService {
   public static final IRI IRI_DATABASE_COLUMN =
       iri("http://semanticscience.org/resource/SIO_000757");
 
+  public static final String SEMANTICS_ID_URL_STRING =
+      "http://semanticscience.org/resource/SIO_000115";
+  public static final IRI IRI_OBSERVATION = iri("http://purl.org/linked-data/cube#Observation");
+  /** NCIT:C95637 = Coded Value Data Type */
+  public static final IRI IRI_CODED_VALUE_DATATYPE =
+      iri("http://purl.obolibrary.org/obo/NCIT_C95637");
+  /** SIO:000750 = database */
+  public static final IRI IRI_DATABASE = iri("http://semanticscience.org/resource/SIO_000750");
+
+  public static final IRI IRI_MOLGENIS = iri("https://molgenis.org");
+  public static final IRI IRI_MEASURE_PROPERTY =
+      iri("http://purl.org/linked-data/cube#MeasureProperty");
+  /** SIO:001187 = database row */
+  public static final IRI IRI_DATABASE_ROW = iri("http://semanticscience.org/resource/SIO_001187");
+
+  public static final String ONTOLOGY_TERM_URI = "ontologyTermURI";
+
   private final WriterConfig config;
   private final RDFFormat rdfFormat;
   /**
@@ -101,9 +120,23 @@ public class RDFService {
   private final String rdfAPIPath;
 
   public RDFService(String baseURL, String rdfAPIPath, String format) {
-
-    this.baseURL = baseURL;
-    this.rdfAPIPath = rdfAPIPath;
+    // Ensure that the base URL has a trailing "/" so we can use it easily to
+    // construct URL paths.
+    if (baseURL.trim().endsWith("/")) {
+      this.baseURL = baseURL.trim();
+    } else {
+      this.baseURL = baseURL.trim() + "/";
+    }
+    // Ensure that the stored rdfAPIPath has a leading and trailing "/" so we
+    // can use it easily to construct URL paths.
+    String temp = rdfAPIPath.trim();
+    if (!temp.startsWith("/")) {
+      temp = "/" + temp;
+    }
+    if (!temp.endsWith("/")) {
+      temp = temp + "/";
+    }
+    this.rdfAPIPath = temp;
 
     if (format == null) {
       this.rdfFormat = RDFFormat.TURTLE;
@@ -151,12 +184,14 @@ public class RDFService {
       builder.setNamespace("sio", NAMESPACE_SIO);
       builder.setNamespace("qb", NAMESPACE_QB);
       builder.setNamespace("dcterms", NAMESPACE_DCTERMS);
-      builder.setNamespace(ROOT_NAMESPACE, baseURL);
+      for (Schema schema : schemas) {
+        Namespace ns = getSchemaNamespace(schema);
+        builder.setNamespace(ns);
+      }
+      //      builder.setNamespace(ROOT_NAMESPACE, baseURL);
       describeRoot(builder);
 
       for (Schema schema : schemas) {
-        String schemaRdfApiContext = baseURL + schema.getName() + rdfAPIPath;
-        builder.setNamespace(schema.getName(), schemaRdfApiContext);
         describeSchema(builder, schema);
         List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();
         for (Table tableToDescribe : tables) {
@@ -164,11 +199,10 @@ public class RDFService {
           describeColumns(builder, tableToDescribe, columnName);
           // if a column name is provided then only provide column metadata, no row values
           if (columnName == null) {
-            rowsToRdf(builder, tableToDescribe, rowId, schemaRdfApiContext);
+            rowsToRdf(builder, tableToDescribe, rowId);
           }
         }
       }
-
       Rio.write(builder.build(), outputStream, rdfFormat, config);
 
     } catch (Exception e) {
@@ -194,39 +228,51 @@ public class RDFService {
 
   // todo: make non static and private
   protected void describeRoot(ModelBuilder builder) {
-    // SIO:000750 = database
-    builder.add(baseURL, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_000750"));
-    builder.add(baseURL, RDFS.LABEL, "EMX2");
-    builder.add(baseURL, DCTERMS.DESCRIPTION, "MOLGENIS EMX2 database at " + baseURL);
-    builder.add(baseURL, DCTERMS.CREATOR, iri("https://molgenis.org"));
+    builder
+        .subject(baseURL)
+        .add(RDF.TYPE, IRI_DATABASE)
+        .add(RDFS.LABEL, "EMX2")
+        .add(DCTERMS.DESCRIPTION, "MOLGENIS EMX2 database at " + baseURL)
+        .add(DCTERMS.CREATOR, IRI_MOLGENIS);
   }
 
-  private String getSchemaIRI(Schema schema) {
-    return baseURL + schema.getName() + rdfAPIPath;
+  private String getSchemaLocalName(Schema schema) {
+    return TypeUtils.convertToPascalCase(schema.getName()) + rdfAPIPath;
   }
 
-  private String getTableIRI(Table table) {
-    return getSchemaIRI(table.getSchema()) + "/" + table.getName();
+  private Namespace getSchemaNamespace(Schema schema) {
+    String url = baseURL + TypeUtils.convertToPascalCase(schema.getName()) + rdfAPIPath;
+    return Values.namespace(TypeUtils.convertToPascalCase(schema.getName()), url);
   }
+
+  // TODO TableMetadata ipv Table
+  private IRI getTableIRI(Table table) {
+    var ns = getSchemaNamespace(table.getSchema());
+    return Values.iri(ns, TypeUtils.convertToPascalCase(table.getName()) + "/");
+  }
+
   // todo: make non-static
   private void describeSchema(ModelBuilder builder, Schema schema) {
-    Namespace root = Values.namespace(ROOT_NAMESPACE, baseURL);
-    IRI subject = Values.iri(root, schema.getName() + rdfAPIPath);
-    builder.add(subject, RDFS.LABEL, schema.getName());
-    builder.add(subject, DCTERMS.IS_PART_OF, Values.iri(baseURL));
+    //    Namespace root = Values.namespace(ROOT_NAMESPACE, baseURL);
+    //    IRI subject = Values.iri(root, getSchemaLocalName(schema));
+    //    String subject = ROOT_NAMESPACE + ":" + getSchemaLocalName(schema);
+    var subject = getSchemaNamespace(schema).getName();
+    builder
+        .subject(subject)
+        .add(RDFS.LABEL, schema.getName())
+        .add(DCTERMS.IS_PART_OF, Values.iri(baseURL))
+        .add(subject, RDF.TYPE, RDFS.CONTAINER);
     if (schema.getMetadata().getDescription() != null) {
-      builder.add(subject, DCTERMS.DESCRIPTION, schema.getMetadata().getDescription());
+      builder.subject(subject).add(DCTERMS.DESCRIPTION, schema.getMetadata().getDescription());
     }
-    builder.add(subject, RDF.TYPE, RDFS.CONTAINER);
     for (Table table : schema.getTablesSorted()) {
-
-      IRI object = Values.iri(schema.getName(), getTableIRI(table));
-      builder.add(subject, LDP_CONTAINS, object);
+      IRI object = getTableIRI(table);
+      builder.subject(subject).add(LDP_CONTAINS, object);
     }
   }
 
   private void describeTable(ModelBuilder builder, Table table) {
-    IRI subject = Values.iri(table.getSchema().getName(), getTableIRI(table));
+    IRI subject = getTableIRI(table);
     builder.add(subject, RDF.TYPE, OWL.CLASS);
     builder.add(subject, RDF.TYPE, IRI_DATASET);
     builder.add(subject, RDF.TYPE, IRI_DATABASE_TABLE);
@@ -261,33 +307,36 @@ public class RDFService {
     }
   }
 
-  private String getColumnIRI(final Column column) {
-    return getTableIRI(column.getTable().getTable()) + "/column/" + column.getName();
+  private IRI getColumnIRI(final Column column) {
+    var table = column.getTable();
+    var schema = table.getTable().getSchema();
+    var ns = getSchemaNamespace(schema);
+    return Values.iri(
+        ns,
+        TypeUtils.convertToPascalCase(table.getTableName())
+            + "/column/"
+            + TypeUtils.convertToCamelCase(column.getName()));
   }
 
   private void describeColumn(ModelBuilder builder, Column column) {
-    IRI subject = Values.iri(column.getSchema().getName(), getColumnIRI(column));
+    IRI subject = getColumnIRI(column);
     builder.add(subject, RDF.TYPE, IRI_DATABASE_COLUMN);
-    builder.add(subject, RDF.TYPE, iri("http://purl.org/linked-data/cube#MeasureProperty"));
+    builder.add(subject, RDF.TYPE, IRI_MEASURE_PROPERTY);
     if (column.isReference()) {
       builder.add(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
       Table refTable = column.getRefTable().getTable();
-      builder.add(
-          subject, RDFS.RANGE, Values.iri(refTable.getSchema().getName(), getTableIRI(refTable)));
+      builder.add(subject, RDFS.RANGE, getTableIRI(refTable));
     } else {
       builder.add(subject, RDF.TYPE, OWL.DATATYPEPROPERTY);
       builder.add(subject, RDFS.RANGE, columnTypeToXSD(column.getColumnType()));
     }
     builder.add(subject, RDFS.LABEL, column.getName());
-    builder.add(
-        subject,
-        RDFS.DOMAIN,
-        Values.iri(column.getSchema().getName(), getTableIRI(column.getTable().getTable())));
+    builder.add(subject, RDFS.DOMAIN, getTableIRI(column.getTable().getTable()));
     if (column.getSemantics() != null) {
       for (String columnSemantics : column.getSemantics()) {
         if (columnSemantics.equals("id")) {
           // todo: need to figure out how to better handle 'id' tagging
-          columnSemantics = "http://semanticscience.org/resource/SIO_000115";
+          columnSemantics = SEMANTICS_ID_URL_STRING;
         }
         builder.add(subject, RDFS.ISDEFINEDBY, iri(columnSemantics));
       }
@@ -334,29 +383,25 @@ public class RDFService {
   /**
    * @return
    */
-  public void rowsToRdf(ModelBuilder builder, Table table, String rowId, String schemaContext) {
-    IRI tableIRI = Values.iri(table.getSchema().getName(), getTableIRI(table));
+  public void rowsToRdf(ModelBuilder builder, Table table, String rowId) {
+    IRI tableIRI = getTableIRI(table);
     for (Row row : getRows(table, rowId)) {
-      IRI subject =
-          getIriValuesBasedOnPkey(schemaContext, table.getMetadata(), row, "")
-              .get(0); // note the prefix
+      IRI subject = getIriForRow(row, table.getMetadata());
       builder.add(subject, RDF.TYPE, tableIRI);
-      // SIO:001187 = database row
-      builder.add(subject, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_001187"));
+      builder.add(subject, RDF.TYPE, IRI_DATABASE_ROW);
       if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
-        // NCIT:C95637 = Coded Value Data Type
-        builder.add(subject, RDF.TYPE, iri("http://purl.obolibrary.org/obo/NCIT_C95637"));
-        if (row.getString("ontologyTermURI") != null) {
-          builder.add(subject, RDFS.ISDEFINEDBY, iri(row.getString("ontologyTermURI")));
+        builder.add(subject, RDF.TYPE, IRI_CODED_VALUE_DATATYPE);
+        if (row.getString(ONTOLOGY_TERM_URI) != null) {
+          builder.add(subject, RDFS.ISDEFINEDBY, iri(row.getString(ONTOLOGY_TERM_URI)));
         }
       } else {
-        builder.add(subject, RDF.TYPE, iri("http://purl.org/linked-data/cube#Observation"));
+        builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
       }
-      builder.add(subject, iri("http://purl.org/linked-data/cube#dataSet"), tableIRI);
+      builder.add(subject, IRI_DATASET, tableIRI);
 
       for (Column column : table.getMetadata().getColumns()) {
-        IRI columnIRI = Values.iri(table.getSchema().getName(), getColumnIRI(column));
-        for (Value value : formatValue(row, column, schemaContext)) {
+        IRI columnIRI = getColumnIRI(column);
+        for (Value value : formatValue(row, column)) {
           builder.add(subject, columnIRI, value);
         }
       }
@@ -387,59 +432,46 @@ public class RDFService {
     }
   }
 
-  private List<IRI> getIriValuesBasedOnPkey(
-      String schemaContext, TableMetadata tableMetadata, Row row, String prefix) {
-    String[] keys =
-        row.getStringArray(prefix + tableMetadata.getPrimaryKeyFields().get(0).getName());
-    // check null
-    if (keys == null) {
-      return List.of();
+  private List<NameValuePair> getKeyParts(Row row, TableMetadata metadata) {
+    List<NameValuePair> keyParts = new ArrayList<>();
+    for (Column column : metadata.getPrimaryKeyColumns()) {
+      if (column.isReference()) {
+        for (var reference : column.getReferences()) {
+          var values = row.getStringArray(reference.getName());
+          for (var value : values) {
+            keyParts.add(new BasicNameValuePair(reference.getName(), value));
+          }
+        }
+      } else {
+        keyParts.add(new BasicNameValuePair(column.getName(), row.get(column).toString()));
+      }
     }
-    // simple keys get the key value
-    if (tableMetadata.getPrimaryKeyFields().size() == 1) {
-      return Arrays.stream(keys)
-          .map(
-              value -> encodedIRI(schemaContext + "/" + tableMetadata.getTableName() + "/" + value))
-          .toList();
-    }
-    // composite keys get pattern of part1=a&part2=b
-    else {
-      List<List<NameValuePair>> keyValuePairList = new ArrayList<>();
-      tableMetadata.getPrimaryKeyFields().stream()
-          .forEach(
-              field -> {
-                String fieldName = prefix + field.getName();
-                String[] keyParts = row.getStringArray(fieldName);
-                for (int i = 0; i < keyParts.length; i++) {
-                  if (keyValuePairList.size() <= i) keyValuePairList.add(new ArrayList<>());
-                  keyValuePairList.get(i).add(new BasicNameValuePair(fieldName, keyParts[i]));
-                }
-              });
-      return keyValuePairList.stream()
-          .map(
-              valuePairList ->
-                  encodedIRI(
-                      schemaContext
-                          + "/"
-                          + tableMetadata.getTableName()
-                          + "/"
-                          + URLEncodedUtils.format(valuePairList, StandardCharsets.UTF_8)))
-          .toList();
+    return keyParts;
+  }
+
+  private IRI getIriForRow(Row row, TableMetadata metadata) {
+    var keyParts = getKeyParts(row, metadata);
+    var ns = getSchemaNamespace(metadata.getTable().getSchema());
+    if (keyParts.size() == 1) {
+      var value = URLEncoder.encode(keyParts.get(0).getValue(), StandardCharsets.UTF_8);
+      return Values.iri(ns, TypeUtils.convertToPascalCase(metadata.getTableName()) + "/" + value);
+    } else {
+      var parameters = URLEncodedUtils.format(keyParts, StandardCharsets.UTF_8);
+      return Values.iri(
+          ns, TypeUtils.convertToPascalCase(metadata.getTableName()) + "/?" + parameters);
     }
   }
 
-  private List<Value> formatValue(Row row, Column column, String schemaContext) {
+  private List<Value> formatValue(Row row, Column column) {
     List<Value> values = new ArrayList<>();
     ColumnType columnType = column.getColumnType();
     if (columnType.isReference()) {
-      values.addAll(
-          getIriValuesBasedOnPkey(
-              schemaContext, column.getRefTable(), row, column.getName() + "."));
+      values.add(getIriForRow(row, column.getTable()));
     } else if (columnType.equals(ColumnType.FILE)) {
       if (row.getString(column.getName() + "_id") != null) {
         values.add(
             encodedIRI(
-                schemaContext
+                TypeUtils.convertToPascalCase(column.getSchemaName())
                     + "/api/file/"
                     + column.getTableName()
                     + "/"
