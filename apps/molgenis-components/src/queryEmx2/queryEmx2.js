@@ -5,7 +5,7 @@
 import { request } from "graphql-request";
 
 class QueryEMX2 {
-  tableName = "";
+  tableId = "";
   filters = {};
   column = "";
   _schemaTablesInformation = {};
@@ -25,9 +25,9 @@ class QueryEMX2 {
     this.graphqlUrl = graphqlUrl;
   }
 
-  table(tableName) {
+  table(tableId) {
     /** Tables are always PascalCase */
-    this.tableName = this._toPascalCase(tableName);
+    this.tableId = tableId;
     return this;
   }
 
@@ -54,22 +54,22 @@ class QueryEMX2 {
 
   /**
    * Builds a query for use in EMX2 GraphQL api
-   * @param {string} tableName
+   * @param {string} tableId
    * @param {string[]} columns
    * @param {object[]} filters
    * @returns GraphQL query string
    */
   async execute() {
     /** Fail fast */
-    if (!this.tableName) {
+    if (!this.tableId) {
       throw Error(
-        `You need to provide ${this.tableName ? "columns" : "a table name"}`
+        `You need to provide ${this.tableId ? "columns" : "a table id"}`
       );
     }
 
     /** Add all columns that are not linked to other tables */
     if (this.selection.length === 0) {
-      const columns = await this.getColumnsForTable(this.tableName);
+      const columns = await this.getColumnsForTable(this.tableId);
       this.selection = columns;
     }
 
@@ -85,14 +85,14 @@ class QueryEMX2 {
   }
 
   getQuery() {
-    return this._createQuery(this.tableName, this.selection);
+    return this._createQuery(this.tableId, this.selection);
   }
 
   getAggregateQuery() {
     /** create a hard copy */
     const aggSelection = Object.assign([], this.selection);
     aggSelection.push("count");
-    return this._createQuery(`${this.tableName}_agg`, aggSelection);
+    return this._createQuery(`${this.tableId}_agg`, aggSelection);
   }
 
   /**
@@ -147,27 +147,26 @@ class QueryEMX2 {
   }
 
   /** returns the columns with adjusted names so it can directly be used to query. */
-  async getColumnsForTable(tableName) {
+  async getColumnsForTable(tableId) {
     await this.getSchemaTablesInformation();
 
     return this._schemaTablesInformation
-      .find((table) => table.name === tableName)
+      .find((table) => table.id === tableId)
       .columns.filter(
         (column) =>
           !column.columnType.includes("REF") &&
           !column.columnType.includes("ONTOLOGY")
-      )
-      .map((column) => this._toCamelCase(column.name.replace(/\s+/g, "")));
+      );
   }
 
   /** returns the correct column names and their types. */
-  async getColumnsMetadataForTable(tableName) {
+  async getColumnsMetadataForTable(tableId) {
     await this.getSchemaTablesInformation();
 
     return this._schemaTablesInformation
-      .find((table) => table.name === tableName)
+      .find((table) => table.id === tableId)
       .columns.map((column) => ({
-        name: this._toCamelCase(column.name.replace(/\s+/g, "")),
+        id: column.id,
         columnType: column.columnType,
       }));
   }
@@ -250,9 +249,7 @@ class QueryEMX2 {
    */
   limit(item, amount) {
     let columnOrTable =
-      item.toLowerCase() === this.tableName.toLowerCase()
-        ? "root"
-        : this._toCamelCase(item);
+      item.toLowerCase() === this.tableId.toLowerCase() ? "root" : item;
     this.limits[columnOrTable] = amount;
     return this;
   }
@@ -264,9 +261,7 @@ class QueryEMX2 {
    */
   offset(item, amount) {
     let columnOrTable =
-      item.toLowerCase() === this.tableName.toLowerCase()
-        ? "root"
-        : this._toCamelCase(item);
+      item.toLowerCase() === this.tableId.toLowerCase() ? "root" : item;
     this.page[columnOrTable] = amount;
     return this;
   }

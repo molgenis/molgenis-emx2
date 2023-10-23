@@ -7,7 +7,7 @@ import {
   getRowErrors,
   getSaveDisabledMessage,
   removeKeyColumns,
-  splitColumnNamesByHeadings,
+  splitColumnIdsByHeadings,
 } from "./formUtils";
 import { IColumn } from "../../../Interfaces/IColumn";
 const { AUTO_ID, HEADING } = constants;
@@ -289,7 +289,7 @@ describe("filterVisibleColumns", () => {
   });
 });
 
-describe("splitColumnNamesByHeadings", () => {
+describe("splitColumnIdsByHeadings", () => {
   test("it should split all columns by the headings", () => {
     const columns = [
       { id: "heading1", columnType: HEADING },
@@ -298,7 +298,7 @@ describe("splitColumnNamesByHeadings", () => {
       { id: "string2", columnType: "STRING" },
       { id: "string3", columnType: "STRING" },
     ] as IColumn[];
-    const result = splitColumnNamesByHeadings(columns);
+    const result = splitColumnIdsByHeadings(columns);
     const expectedResult = [
       ["heading1", "string1"],
       ["heading2", "string2", "string3"],

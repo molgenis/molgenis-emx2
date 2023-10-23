@@ -35,8 +35,8 @@ export interface INewClient {
   ) => Promise<any>;
   fetchAggregateData: (
     tableId: string,
-    selectedColumn: { name: string; column: string },
-    selectedRow: { name: string; column: string },
+    selectedColumn: { id: string; column: string },
+    selectedRow: { id: string; column: string },
     filter: Object
   ) => Promise<any>;
   fetchSettings: () => Promise<any>;

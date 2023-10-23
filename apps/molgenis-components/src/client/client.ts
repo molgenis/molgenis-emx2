@@ -87,18 +87,18 @@ const client: IClient = {
       },
       fetchAggregateData: async (
         tableId: string,
-        selectedColumn: { name: string; column: string },
-        selectedRow: { name: string; column: string },
+        selectedColumn: { id: string; column: string }, //should these be id?
+        selectedRow: { id: string; column: string }, //should these be id?
         filter: Object
       ) => {
         const aggregateQuery = `
         query ${tableId}_groupBy($filter: ${tableId}Filter){
           ${tableId}_groupBy(filter: $filter) {
             count,
-            ${selectedColumn.name} {
+            ${selectedColumn.id} {
               ${selectedColumn.column}
             },
-            ${selectedRow.name} {
+            ${selectedRow.id} {
               ${selectedRow.column}
             }
           }

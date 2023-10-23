@@ -16,7 +16,7 @@
       <Spinner v-if="loading" />
       <div v-else>
         <TableMolgenis
-          :schemaName="schemaName"
+          :schemaId="schemaId"
           :selection="selection"
           :tableMetadata="tableMetadata"
           :columns="columnsVisible"
@@ -33,9 +33,9 @@
           <template v-slot:rowcolheader>
             <RowButtonAdd
               v-if="canEdit"
-              :id="'row-button-add-' + lookupTableName"
-              :tableName="lookupTableName"
-              :schemaName="schemaName"
+              :id="'row-button-add-' + lookupTableId"
+              :tableId="lookupTableId"
+              :schemaId="schemaId"
               @close="loadData"
               class="d-inline p-0"
             />
@@ -46,7 +46,7 @@
               v-bind="$props"
               :canEdit="canEdit"
               :reload="loadData"
-              :schemaName="schemaName"
+              :schemaId="schemaId"
             />
           </template>
           <template v-slot:rowheader="slotProps">
@@ -58,18 +58,18 @@
             />
             <RowButtonEdit
               v-if="canEdit"
-              :id="'row-button-edit-' + lookupTableName"
-              :tableName="lookupTableName"
-              :schemaName="schemaName"
+              :id="'row-button-edit-' + lookupTableId"
+              :tableId="lookupTableId"
+              :schemaId="schemaId"
               :pkey="slotProps.rowKey"
               @close="loadData"
               class="text-left"
             />
             <RowButtonDelete
               v-if="canEdit"
-              :id="'row-button-del-' + lookupTableName"
-              :tableName="lookupTableName"
-              :schemaName="schemaName"
+              :id="'row-button-del-' + lookupTableId"
+              :tableId="lookupTableId"
+              :schemaId="schemaId"
               :pkey="slotProps.rowKey"
               @close="loadData"
             />
@@ -105,11 +105,11 @@ export default {
     RowButtonDelete,
   },
   props: {
-    lookupTableName: {
+    lookupTableId: {
       type: String,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: true,
     },
@@ -147,9 +147,6 @@ export default {
     };
   },
   computed: {
-    lookupTableIdentifier() {
-      return convertToPascalCase(this.lookupTableName);
-    },
     showHeaderIfNeeded() {
       return this.showHeader || this.count > this.limit;
     },
@@ -177,15 +174,13 @@ export default {
         filter: this.filter,
       };
 
-      const client = Client.newClient(this.schemaName);
+      const client = Client.newClient(this.schemaId);
       const gqlResponse = await client
-        .fetchTableData(this.lookupTableName, queryOptions)
+        .fetchTableData(this.lookupTableId, queryOptions)
         .catch(() => (this.graphqlError = "Failed to load data"));
-      this.tableMetadata = await client.fetchTableMetaData(
-        this.lookupTableName
-      );
-      this.data = gqlResponse[this.lookupTableIdentifier];
-      this.count = gqlResponse[`${this.lookupTableIdentifier}_agg`].count;
+      this.tableMetadata = await client.fetchTableMetaData(this.lookupTableId);
+      this.data = gqlResponse[this.lookupTableId];
+      this.count = gqlResponse[`${this.lookupTableIdd}_agg`].count;
       this.loading = false;
     },
   },
@@ -224,8 +219,8 @@ export default {
         id="my-search-table"
         v-model:selection="selected"
         v-model:columns="columns"
-        :lookupTableName="'Pet'"
-        schemaName="pet store"
+        :lookupTableId="'Pet'"
+        schemaId="pet store"
         :canEdit="canEdit"
         :showSelect="canSelect"
     >

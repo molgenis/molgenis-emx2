@@ -29,13 +29,5 @@ export default {
       default: "en",
     },
   },
-  methods: {
-    getLocalizedDescription(table) {
-      return getLocalizedDescription(table, this.locale);
-    },
-    getLocalizedLabel(table) {
-      return getLocalizedLabel(table, this.locale);
-    },
-  },
 };
 </script>

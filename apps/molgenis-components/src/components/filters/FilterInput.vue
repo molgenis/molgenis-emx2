@@ -6,8 +6,8 @@
         :id="id"
         :condition="conditions"
         @updateCondition="updateCondition(index - 1, $event)"
-        :tableName="tableName"
-        :schemaName="schemaName"
+        :tableId="tableId"
+        :schemaId="schemaId"
         :refLabel="refLabel"
       ></component>
     </div>
@@ -20,8 +20,8 @@
         @clearCondition="clearCondition(index - 1)"
         @addCondition="fieldCount++"
         :showAddButton="index === conditions.length"
-        :tableName="tableName"
-        :schemaName="schemaName"
+        :tableId="tableId"
+        :schemaId="schemaId"
       ></component>
     </div>
   </div>
@@ -99,11 +99,11 @@ export default {
       type: Array,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: false,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },

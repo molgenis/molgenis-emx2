@@ -3,8 +3,8 @@
     :id="id"
     :modelValue="condition"
     @update:modelValue="onUpdateCondition"
-    :tableName="tableName"
-    :schemaName="schemaName"
+    :tableId="tableId"
+    :schemaId="schemaId"
   />
 </template>
 
@@ -23,11 +23,11 @@ export default {
       type: Object,
       required: false,
     },
-    schemaName: {
+    schemaId: {
       required: false,
       type: String,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },

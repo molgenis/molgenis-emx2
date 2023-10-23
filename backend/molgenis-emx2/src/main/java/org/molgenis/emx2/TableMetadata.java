@@ -566,4 +566,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     this.tableType = tableType;
     return this;
   }
+
+  public String getLabel() {
+    if (this.getLabels().get("en") != null) {
+      return this.getLabels().get("en");
+    } else {
+      return this.getTableName();
+    }
+  }
 }

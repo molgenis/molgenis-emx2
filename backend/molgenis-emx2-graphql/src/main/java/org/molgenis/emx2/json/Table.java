@@ -8,6 +8,8 @@ import org.molgenis.emx2.TableType;
 
 public class Table {
   private String name;
+  private String label;
+  private String description;
   private String oldName;
   private boolean drop;
   private String[] pkey;
@@ -33,6 +35,8 @@ public class Table {
 
   public Table(TableMetadata tableMetadata, boolean minimal) {
     this.name = tableMetadata.getTableName();
+    this.label = tableMetadata.getLabel();
+    this.description = tableMetadata.getLabels().get("en");
     this.labels =
         tableMetadata.getLabels().entrySet().stream()
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
@@ -177,5 +181,21 @@ public class Table {
 
   public void setInheritName(String inheritName) {
     this.inheritName = inheritName;
+  }
+
+  public String getLabel() {
+    return label;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }

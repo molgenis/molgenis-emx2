@@ -105,7 +105,7 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: true,
     },
@@ -113,7 +113,7 @@ export default defineComponent({
       type: Array,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
@@ -149,7 +149,7 @@ export default defineComponent({
       this.aggregateData = {};
       const responseData = await this.client
         .fetchAggregateData(
-          this.tableName,
+          this.tableId,
           {
             name: convertToCamelCase(this.selectedColumn),
             column: "name",
@@ -163,8 +163,8 @@ export default defineComponent({
         .catch((error) => {
           this.errorMessage = error;
         });
-      if (responseData && responseData[this.tableName + "_groupBy"]) {
-        responseData[this.tableName + "_groupBy"].forEach((item: any) =>
+      if (responseData && responseData[this.tableId + "_groupBy"]) {
+        responseData[this.tableId + "_groupBy"].forEach((item: any) =>
           this.addItem(item)
         );
         this.noResults = !this.columns.length;
@@ -212,7 +212,7 @@ export default defineComponent({
     },
   },
   mounted() {
-    this.client = Client.newClient(this.schemaName);
+    this.client = Client.newClient(this.schemaId);
     this.initialize();
   },
 });
@@ -234,15 +234,15 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
   <demo-item>
     <label>AggregateTable</label>
     <AggregateTable
-      tableName="Pet"
-      schemaName="pet store"
+      tableId="Pet"
+      schemaId="pet store"
       :allColumns="allColumns"
       :minimumValue="1"
     />
     <label>AggregateTable with filters set</label>
     <AggregateTable
-      tableName="Pet"
-      schemaName="pet store"
+      tableId="Pet"
+      schemaId="pet store"
       :allColumns="allColumns"
       :minimumValue="1"
       :graphqlFilter="graphqlFilter"

@@ -1,8 +1,8 @@
 <template>
   <div>
     <TableExplorer
-      :tableName="tableName"
-      :schemaName="schemaName"
+      :tableId="tableId"
+      :schemaId="schemaId"
       :canView="canView"
       :canEdit="canEdit"
       :canManage="canManage"
@@ -54,11 +54,11 @@ export default {
     };
   },
   props: {
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -271,8 +271,8 @@ export default {
       <routed-table-explorer
         id="my-table-explorer"
         :key="dynamicKey"
-        :tableName="table"
-        :schemaName="schema"
+        :tableId="table"
+        :schemaId="schema"
         :canEdit="canEdit"
         :canView="canView"
       />

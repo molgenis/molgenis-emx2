@@ -182,7 +182,7 @@
         <FilterSidebar
           :filters="columns"
           @updateFilters="emitConditions"
-          :schemaName="schemaName"
+          :schemaId="schemaId"
         />
       </div>
       <div
@@ -202,8 +202,8 @@
             v-if="view === View.AGGREGATE"
             :canView="canView"
             :allColumns="columns"
-            :tableName="tableName"
-            :schemaName="schemaName"
+            :tableId="tableId"
+            :schemaId="schemaId"
             :minimumValue="1"
             :graphqlFilter="graphqlFilter"
           />
@@ -213,7 +213,7 @@
             id="cards"
             :data="dataRows"
             :columns="columns"
-            :table-name="tableName"
+            :tableId="tableId"
             :canEdit="canEdit"
             :template="cardTemplate"
             @click="$emit('rowClick', $event)"
@@ -221,12 +221,12 @@
             @edit="
               handleRowAction(
                 'edit',
-                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
               )
             "
             @delete="
               handleDeleteRowRequest(
-                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
               )
             "
           />
@@ -235,7 +235,7 @@
             id="records"
             :data="dataRows"
             :columns="columns"
-            :table-name="tableName"
+            :tableId="tableId"
             :canEdit="canEdit"
             :template="recordTemplate"
             @click="$emit('rowClick', $event)"
@@ -243,18 +243,18 @@
             @edit="
               handleRowAction(
                 'edit',
-                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
               )
             "
             @delete="
               handleDeleteRowRequest(
-                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
               )
             "
           />
           <TableMolgenis
             v-if="view === View.TABLE"
-            :schemaName="schemaName"
+            :schemaId="schemaId"
             :selection="selectedItems"
             @update:selection="selectedItems = $event"
             :columns="columns"
@@ -273,8 +273,8 @@
               <RowButton
                 v-if="canEdit"
                 type="add"
-                :table="tableName"
-                :schemaName="schemaName"
+                :tableId="tableId"
+                :schemaId="schemaId"
                 @add="handleRowAction('add')"
                 class="d-inline p-0"
               />
@@ -296,8 +296,8 @@
                     'edit',
                     convertRowToPrimaryKey(
                       slotProps.row,
-                      tableMetadata.name,
-                      schemaName
+                      tableMetadata.id,
+                      schemaId
                     )
                   )
                 "
@@ -310,8 +310,8 @@
                     'clone',
                     convertRowToPrimaryKey(
                       slotProps.row,
-                      tableMetadata.name,
-                      schemaName
+                      tableMetadata.id,
+                      schemaId
                     )
                   )
                 "
@@ -323,8 +323,8 @@
                   handleDeleteRowRequest(
                     convertRowToPrimaryKey(
                       slotProps.row,
-                      tableMetadata.name,
-                      schemaName
+                      tableMetadata.id,
+                      schemaId
                     )
                   )
                 "
@@ -337,8 +337,8 @@
                 :rowKey="
                   convertRowToPrimaryKey(
                     slotProps.row,
-                    tableMetadata.name,
-                    schemaName
+                    tableMetadata.id,
+                    schemaId
                   )
                 "
               />
@@ -351,11 +351,11 @@
     <EditModal
       v-if="isEditModalShown"
       :isModalShown="true"
-      :id="tableName + '-edit-modal'"
-      :tableName="tableName"
+      :id="tableId + '-edit-modal'"
+      :tableId="tableId"
       :pkey="editRowPrimaryKey"
       :clone="editMode === 'clone'"
-      :schemaName="schemaName"
+      :schemaId="schemaId"
       @close="handleModalClose"
       :locale="locale"
       :apply-default-values="editMode === 'add'"
@@ -363,10 +363,10 @@
 
     <ConfirmModal
       v-if="isDeleteModalShown"
-      :title="'Delete from ' + tableName"
+      :title="'Delete from ' + tableMetadata.label"
       actionLabel="Delete"
       actionType="danger"
-      :tableName="tableName"
+      :tableId="tableId"
       :pkey="editRowPrimaryKey"
       @close="isDeleteModalShown = false"
       @confirmed="handleExecuteDelete"
@@ -374,19 +374,19 @@
 
     <ConfirmModal
       v-if="isDeleteAllModalShown"
-      :title="'Truncate ' + tableName"
+      :title="'Truncate ' + tableMetadata.label"
       actionLabel="Truncate"
       actionType="danger"
-      :tableName="tableName"
+      :tableId"tableId"
       @close="isDeleteAllModalShown = false"
       @confirmed="handelExecuteDeleteAll"
     >
       <p>
-        Truncate <strong>{{ tableName }}</strong>
+        Truncate <strong>{{ tableMetadata.label }}</strong>
       </p>
       <p>
         Are you sure that you want to delete ALL rows in table '{{
-          tableName
+          tableMetadata.label
         }}'?
       </p>
     </ConfirmModal>
@@ -394,7 +394,7 @@
       v-if="refSideModalProps"
       :column="refSideModalProps.column"
       :rows="refSideModalProps.rows"
-      :schema="this.schemaName"
+      :schema="this.schemaId"
       @onClose="refSideModalProps = undefined"
       :showDataOwner="canManage"
     />
@@ -515,11 +515,11 @@ export default {
     };
   },
   props: {
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -585,9 +585,6 @@ export default {
     },
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     localizedLabel() {
       return getLocalizedLabel(this.tableMetadata, this.locale);
     },
@@ -645,7 +642,7 @@ export default {
     async handelExecuteDeleteAll() {
       this.isDeleteAllModalShown = false;
       const resp = await this.client
-        .deleteAllTableData(this.tableMetadata.name)
+        .deleteAllTableData(this.tableMetadata.id)
         .catch(this.handleError);
       if (resp) {
         this.reload();
@@ -694,12 +691,12 @@ export default {
       this.columns = event;
       this.$emit(
         "updateShowColumns",
-        getColumnNames(this.columns, "showColumn")
+        getColumnIds(this.columns, "showColumn")
       );
     },
     emitFilters(event) {
       this.columns = event;
-      this.$emit("updateShowFilters", getColumnNames(event, "showFilter"));
+      this.$emit("updateShowFilters", getColumnIds(event, "showFilter"));
     },
     emitConditions() {
       this.page = 1;
@@ -755,9 +752,9 @@ export default {
       this.tableMetadata = newTableMetadata;
     },
     async reloadMetadata() {
-      this.client = Client.newClient(this.schemaName);
+      this.client = Client.newClient(this.schemaId);
       const newTableMetadata = await this.client
-        .fetchTableMetaData(this.tableName)
+        .fetchTableMetaData(this.tableId)
         .catch(this.handleError);
       this.setTableMetadata(newTableMetadata);
       if (this.canView) {
@@ -772,7 +769,7 @@ export default {
         ? { [this.orderByColumn]: this.order }
         : {};
       const dataResponse = await this.client
-        .fetchTableData(this.tableName, {
+        .fetchTableData(this.tableId, {
           limit: this.limit,
           offset: offset,
           filter: this.graphqlFilter,
@@ -801,10 +798,10 @@ export default {
   ],
 };
 
-function getColumnNames(columns, property) {
+function getColumnIds(columns, property) {
   return columns
     .filter((column) => column[property] && column.columnType !== "HEADING")
-    .map((column) => column.name);
+    .map((column) => column.id);
 }
 
 function getCondition(columnType, condition) {
@@ -906,8 +903,8 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
       <label>Read only example</label>
       <table-explorer
         id="my-table-explorer"
-        tableName="Pet"
-        schemaName="pet store"
+        tableId="Pet"
+        schemaId="pet store"
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"

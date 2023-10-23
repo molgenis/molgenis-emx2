@@ -134,6 +134,14 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.LABEL)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(LABELS)
                   .type(GraphQLList.list(outputLanguageValueType)))
           .field(
@@ -243,6 +251,14 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.LABEL)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(LABELS)
                   .type(GraphQLList.list(outputLanguageValueType)))
           .field(
@@ -285,7 +301,10 @@ public class GraphqlSchemaFieldFactory {
   private static final GraphQLObjectType outputMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisSchema")
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(ID).type(Scalars.GraphQLString))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(LABEL).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLES)
@@ -476,7 +495,10 @@ public class GraphqlSchemaFieldFactory {
       result.put(SETTINGS, mapSettingsToGraphql((schema.getMetadata().getSettings())));
 
       // add name
+      result.put(
+          ID, schema.getMetadata().getName()); // todo, think if we want to switch to identifier
       result.put(NAME, schema.getMetadata().getName());
+      result.put(LABEL, schema.getMetadata().getName());
       return result;
     };
   }

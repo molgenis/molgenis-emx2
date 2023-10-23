@@ -2,7 +2,7 @@ import { describe, assert, test } from "vitest";
 import { getColumnIds } from "./queryBuilder";
 import { ISchemaMetaData } from "../Interfaces/IMetaData";
 
-describe("columnNames", () => {
+describe("getColumnIds", () => {
   const EXPAND_ONE = 1;
   const EXPAND_TWO = 2;
 

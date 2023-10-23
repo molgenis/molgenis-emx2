@@ -10,6 +10,8 @@ public class Column {
   private String table; // name
   private String id;
   private String name;
+  private String label;
+  private String description;
   private List<LanguageValue> labels = new ArrayList<>();
   private boolean drop = false; // needed in case of migrations
   private String oldName;
@@ -51,6 +53,8 @@ public class Column {
       this.position = column.getPosition();
     }
     this.id = column.getIdentifier();
+    this.label = column.getLabel();
+    this.description = column.getDescriptions().get("en");
     this.name = column.getName();
     this.labels =
         column.getLabels().entrySet().stream()
@@ -362,5 +366,21 @@ public class Column {
 
   public void setRefBackName(String refBackName) {
     this.refBackName = refBackName;
+  }
+
+  public String getLabel() {
+    return label;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }

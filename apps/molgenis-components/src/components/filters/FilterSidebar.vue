@@ -11,8 +11,8 @@
         :conditions="visibleFilters[index].conditions"
         @updateConditions="handleUpdateFilter(index, $event)"
         :columnType="filter.columnType"
-        :tableName="filter.refTable"
-        :schemaName="filter.refSchemaId ? filter.refSchemaId : schemaId"
+        :tableId="filter.refTableId"
+        :schemaId="filter.refSchemaId ? filter.refSchemaId : schemaId"
         :refLabel="filter.refLabel ? filter.refLabel : filter.refLabelDefault"
       />
     </FilterContainer>
@@ -40,7 +40,7 @@ export default {
       type: Array,
       default: () => [],
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -67,10 +67,10 @@ export default {
   <demo-item>
     <div class="row">
       <div class="col-4">
-        <FilterSidebar :filters="filters" schemaName="pet store" @updateFilters="onUpdate"/>
+        <FilterSidebar :filters="filters" schemaId="pet store" @updateFilters="onUpdate"/>
       </div>
       <div class="col-8">
-        <FilterWells :filters="filters" schemaName="pet store" @updateFilters="onUpdate"/>
+        <FilterWells :filters="filters" schemaId="pet store" @updateFilters="onUpdate"/>
         <pre>{{ filters }}</pre>
       </div>
     </div>

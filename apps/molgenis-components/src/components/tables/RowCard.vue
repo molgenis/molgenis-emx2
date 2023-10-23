@@ -7,7 +7,7 @@
             v-if="canEdit"
             type="edit"
             class="d-inline"
-            :table="tableName"
+            :tableId="tableId"
             :pkey="getKey(row)"
             @close="$emit('reload')"
             @edit="$emit('edit', row)"
@@ -16,7 +16,7 @@
             v-if="canEdit"
             type="delete"
             class="mt-0"
-            :table="tableName"
+            :tableId="tableId"
             :pkey="getKey(row)"
             @close="$emit('reload')"
             @delete="$emit('delete', row)"
@@ -75,7 +75,7 @@ export default {
   },
   props: {
     columns: Array,
-    tableName: String,
+    tableId: String,
     row: Object,
     template: String,
     canEdit: Boolean,

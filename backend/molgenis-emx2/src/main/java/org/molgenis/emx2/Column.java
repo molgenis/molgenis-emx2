@@ -660,4 +660,12 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   public int hashCode() {
     return Objects.hash(table, columnName);
   }
+
+  public String getLabel() {
+    if (getLabels().get("en") != null) {
+      return getLabels().get("en");
+    } else {
+      return getName();
+    }
+  }
 }

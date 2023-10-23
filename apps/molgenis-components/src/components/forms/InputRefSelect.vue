@@ -78,8 +78,8 @@ export default {
     InputGroup,
   },
   props: {
-    tableName: String,
-    schemaName: {
+    tableId: String,
+    schemaId: {
       type: String,
       required: false,
     },
@@ -99,7 +99,7 @@ export default {
   },
   computed: {
     title() {
-      return "Select " + this.tableName;
+      return "Select " + this.tableId; //todo need a label
     },
   },
   methods: {
@@ -121,8 +121,8 @@ export default {
       <InputRefSelect
           id="input-ref-select-1"
           v-model="value1"
-          tableName="Pet"
-          schemaName="pet store"
+          tableId="Pet"
+          schemaId="pet store"
           refLabel="${name}"
       />
       Selection: {{ value1 }}
@@ -133,8 +133,8 @@ export default {
       <InputRefSelect
           id="input-ref-select-1b"
           v-model="value1"
-          tableName="Pet"
-          schemaName="pet store"
+          tableId="Pet"
+          schemaId="pet store"
           refLabel="${name}"
           :readonly="true"
       />
@@ -147,8 +147,8 @@ export default {
       <InputRefSelect
           id="input-ref-select-2"
           v-model="value2"
-          tableName="Pet"
-          schemaName="pet store"
+          tableId="Pet"
+          schemaId="pet store"
           refLabel="${name}"
       />
       Selection: {{ value2 }}
@@ -159,9 +159,9 @@ export default {
       <InputRefSelect
           id="input-ref-select-3"
           v-model="value3"
-          tableName="Pet"
+          tableId="Pet"
           :filter="{category:{name: {equals:'dog'}}}"
-          schemaName="pet store"
+          schemaId="pet store"
           refLabel="${name}"
       />
       Selection: {{ value3 }}

@@ -125,7 +125,7 @@ export default {
       this.tableId;
     },
     title() {
-      return "Select " + this.tableName;
+      return "Select " + this.tableId;
     },
     showMultipleColumns() {
       return this.multipleColumns && this.count > this.itemsPerColumn;

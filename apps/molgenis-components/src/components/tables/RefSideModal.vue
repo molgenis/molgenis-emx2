@@ -56,7 +56,7 @@ const props = withDefaults(
 const { column, rows } = toRefs(props);
 const emit = defineEmits(["onClose"]);
 
-let localColumnName = ref(column.value.name);
+let localColumnLabel = ref(column.value.label);
 let loading = ref(true);
 let queryResults: Ref<IRow[]> = ref([]);
 let errorMessage = ref("");
@@ -67,7 +67,7 @@ if (activeSchema && column.value.refTableId) {
 }
 
 watch([column, rows], () => {
-  localColumnName.value = column.value.name;
+  localColumnLabel.value = column.value.label;
   const activeSchema = column.value.refSchemaId || props.schema;
   if (activeSchema && column.value.refTableId) {
     updateData(activeSchema, rows.value, column.value.refTableId);
@@ -113,7 +113,7 @@ async function handleRefCellClicked({
     refColumn.refSchemaId || column.value.refSchemaId || props.schema;
   if (refTableId && activeSchema) {
     const clickedCellPrimaryKeys = [refTableRow[refColumn.id]].flat();
-    localColumnName.value = refColumn.name;
+    localColumnLabel.value = refColumn.label;
     updateData(activeSchema, clickedCellPrimaryKeys, refTableId);
   } else {
     errorMessage.value = "Failed to load reference data";

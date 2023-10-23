@@ -51,17 +51,17 @@ import { toRefs } from "vue";
 
 const props = withDefaults(
   defineProps<{
-    tableName?: string;
+    tableId?: string;
     successMessage?: string;
     errorMessage?: string;
     saveDraftDisabledMessage?: string;
     saveDisabledMessage?: string;
   }>(),
-  { tableName: "" }
+  { tableId: "" }
 );
 
 const {
-  tableName,
+  tableId,
   successMessage,
   errorMessage,
   saveDraftDisabledMessage,
