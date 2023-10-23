@@ -205,8 +205,6 @@ export default {
               this.internalValues,
               this.tableMetaData as ITableMetaData
             );
-          } else {
-            this.internalValues[column.id] = column.defaultValue;
           }
         }
       });
@@ -266,6 +264,11 @@ export default {
     if (this.defaultValue) {
       this.internalValues = deepClone(this.defaultValue);
     }
+    this.tableMetaData.columns.forEach((column: IColumn) => {
+      if (column.defaultValue && !this.internalValues[column.id]) {
+        this.internalValues[column.id] = column.defaultValue;
+      }
+    });
     this.onValuesUpdate();
   },
 };
