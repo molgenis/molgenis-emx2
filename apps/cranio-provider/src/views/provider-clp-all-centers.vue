@@ -36,7 +36,7 @@
           :yMax="200"
           :yTickValues="[0, 25, 50, 75, 100, 125, 150, 175, 200]"
           :columnFillPalette="colors"
-          :chartHeight="300"
+          :chartHeight="250"
         />
       </DashboardBox>
       <DashboardBox
@@ -51,10 +51,10 @@
           group="group"
           xvar="category"
           yvar="value"
-          :yMax="200"
-          :yTickValues="[0, 25, 50, 75, 100, 125, 150, 175, 200]"
+          :yMax="10"
+          :yTickValues="[0, 5, 10]"
           :columnFillPalette="colors"
-          :chartHeight="300"
+          :chartHeight="250"
         />
       </DashboardBox>
     </DashboardChartLayout>
@@ -87,8 +87,8 @@ function setOutcomesData() {
   icsOutcomes.value = randomGroupDataset(
     ["Your Center", "ERN Average"],
     ["Average total score", "Total score"],
-    50,
-    200
+    1,
+    10
   );
 }
 
