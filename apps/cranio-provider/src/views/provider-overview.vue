@@ -29,6 +29,7 @@
         <PieChart2
           chartId="patientsByWorkstream"
           title="Patients by workstream"
+          description="Click a workstream to view more information"
           :chartData="numPatientsByWorkstream"
           :chartHeight="215"
           :asDonutChart="true"
@@ -41,12 +42,8 @@
           @slice-clicked="updateSelection"
         />
       </DashboardBox>
-      <DashboardBox id="provider-overview-patients-by-sex-at-birth">
-        <div class="d3-viz-message" v-if="!showSexAtBirth">
-          <p>Click a workstream to view the number of patients by sex at birth</p>
-        </div>
+      <DashboardBox id="provider-overview-patients-by-sex-at-birth" v-if="showSexAtBirth">
         <PieChart2
-          v-else
           chartId="sexAtBirth"
           :title="sexAtBirthTitle"
           :chartData="sexAtBirth"
