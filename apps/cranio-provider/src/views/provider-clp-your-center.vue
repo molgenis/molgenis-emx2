@@ -8,7 +8,11 @@
         label="Year of birth"
         description="Limit the results by year of birth"
       />
-      <select class="inputs select" id="yearOfBirthFilter" @change="onYearOfBirthFilter">
+      <select
+        class="inputs select"
+        id="yearOfBirthFilter"
+        @change="onYearOfBirthFilter"
+      >
         <option value="3-4" selected>3-4 years</option>
         <option value="5-6">5-6 years</option>
         <option value="8-9">8-9 years</option>
@@ -32,7 +36,7 @@
         />
       </DashboardBox>
       <DashboardBox>
-        <PieChart2 
+        <PieChart2
           chartId="patientsByGender"
           :title="`Patients per gender (n=${totalCases})`"
           :chartData="patientsByGender"
@@ -58,7 +62,7 @@
         />
       </DashboardBox>
       <DashboardBox id="clp-ics-completed" v-if="showIcsCompleted">
-        <ProgressMeter 
+        <ProgressMeter
           chartId="icsCompleted"
           :title="`% of patients that completed the ICS (${ageGroupFilter}yrs)`"
           :value="icsCompleted"
@@ -73,7 +77,12 @@
 
 <script setup>
 import { ref } from "vue";
-import { DashboardBox, PieChart2, ProgressMeter, InputLabel } from "molgenis-viz";
+import {
+  DashboardBox,
+  PieChart2,
+  ProgressMeter,
+  InputLabel,
+} from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
@@ -83,48 +92,53 @@ import generateColors from "../utils/palette.js";
 
 let totalCases = ref(0);
 let patientsByPhenotype = ref({ CL: 0, CLA: 0, CP: 0, CLAP: 0 });
-let patientsByGender = ref({ Female:0, Male: 0, Undetermined: 0 });
+let patientsByGender = ref({ Female: 0, Male: 0, Undetermined: 0 });
 let cleftQCompleted = ref(0);
 let icsCompleted = ref(0);
 let showCleftQCompleted = ref(false);
 let showIcsCompleted = ref(false);
-let ageGroupFilter = ref('3-4');
+let ageGroupFilter = ref("3-4");
 
-const phenotypeColors = generateColors(Object.keys(patientsByPhenotype.value))
-const genderColors = generateColors(Object.keys(patientsByGender.value))
+const phenotypeColors = generateColors(Object.keys(patientsByPhenotype.value));
+const genderColors = generateColors(Object.keys(patientsByGender.value));
 
-function setPatientsByPhenotype () {
+function setPatientsByPhenotype() {
   const types = Object.keys(patientsByPhenotype.value);
-  const data = types.map(type => [type, randomInt(1,100)()])
-    .sort((current,next) => current[1] < next[1] ? 1 : -1);
-  
-  totalCases.value = data.map(row => row[1]).reduce((sum,value) => sum + value, 0);
+  const data = types
+    .map((type) => [type, randomInt(1, 100)()])
+    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
+
+  totalCases.value = data
+    .map((row) => row[1])
+    .reduce((sum, value) => sum + value, 0);
   patientsByPhenotype.value = Object.fromEntries(data);
 }
 
-
-function setPatientsByGender () {
+function setPatientsByGender() {
   let currentTotal = totalCases.value;
   const groups = Object.keys(patientsByGender.value);
   const data = groups
-    .map((type,i) => {
-      const value = i === groups.length - 1 ? currentTotal : randomInt(1, currentTotal)();
+    .map((type, i) => {
+      const value =
+        i === groups.length - 1 ? currentTotal : randomInt(1, currentTotal)();
       const row = [type, value];
       currentTotal -= value;
       return row;
     })
-    .sort((current, next) => current[1] < next[1] ? 1 : -1);
+    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
   patientsByGender.value = Object.fromEntries(data);
 }
 
-function setProgressMeters () {
-  showCleftQCompleted.value = ['8-9','10-12','18+'].includes(ageGroupFilter.value);
-  showIcsCompleted.value = ['3-4', '5-6'].includes(ageGroupFilter.value);
+function setProgressMeters() {
+  showCleftQCompleted.value = ["8-9", "10-12", "18+"].includes(
+    ageGroupFilter.value
+  );
+  showIcsCompleted.value = ["3-4", "5-6"].includes(ageGroupFilter.value);
   cleftQCompleted.value = randomInt(1, totalCases.value)();
   icsCompleted.value = randomInt(1, totalCases.value)();
 }
 
-function onYearOfBirthFilter (event) {
+function onYearOfBirthFilter(event) {
   ageGroupFilter.value = event.target.value;
   setPatientsByPhenotype();
   setPatientsByGender();

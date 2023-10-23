@@ -133,13 +133,13 @@
           margin: 0;
         }
       }
-      
+
       .d3-pie {
         &.legend-position-right {
-          align-items:center;
-        } 
+          align-items: center;
+        }
       }
-      
+
       .d3-viz-message {
         flex-grow: 1;
         height: 100%;
@@ -165,7 +165,7 @@
       font-size: 15pt;
       color: $gray-600;
     }
-    
+
     .dashboard-text {
       color: $gray-500;
     }

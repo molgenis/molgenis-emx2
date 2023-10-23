@@ -2,11 +2,12 @@
   <ProviderDashboard>
     <h2 class="dashboard-h2">General overview for your centers</h2>
     <DashboardBox class="mb-4">
-      <InputLabel
+      <InputLabel id="yearOfBirthFilter" label="Filter data by year of birth" />
+      <select
+        class="inputs select"
         id="yearOfBirthFilter"
-        label="Filter data by year of birth"
-      />
-      <select class="inputs select" id="yearOfBirthFilter" @change="onYearOfBirthFilter">
+        @change="onYearOfBirthFilter"
+      >
         <option value="all">All Patients</option>
         <option value="2023" selected>2023</option>
       </select>
@@ -29,7 +30,10 @@
       </DashboardBox>
     </DashboardChartLayout>
     <h3 class="dashboard-h3">Suture Overview</h3>
-    <p class="dashboard-text">Click a category in the "Single Suture Synostosis" chart to view more information.</p>
+    <p class="dashboard-text">
+      Click a category in the "Single Suture Synostosis" chart to view more
+      information.
+    </p>
     <DashboardChartLayout>
       <DashboardBox>
         <PieChart2
@@ -48,7 +52,7 @@
         />
       </DashboardBox>
       <DashboardBox v-if="showSutureTypes">
-        <PieChart2 
+        <PieChart2
           chartId="sutureTypes"
           title="Multiple suture synostosis"
           :chartData="csMultipleSutures"
@@ -105,52 +109,60 @@ let csMultipleSutures = ref({
 });
 let showSutureTypes = ref(false);
 
-const csTypeColors =generateColors(Object.keys(csTypes.value));
+const csTypeColors = generateColors(Object.keys(csTypes.value));
 const singleSutureColors = generateColors(Object.keys(csSingleSutures.value));
-const multipleSutureColors = generateColors(Object.keys(csMultipleSutures.value));
+const multipleSutureColors = generateColors(
+  Object.keys(csMultipleSutures.value)
+);
 
-function setCsTypes () {
+function setCsTypes() {
   const types = Object.keys(csTypes.value);
-  const data = types.map((type) => [type, randomInt(1,100)()])
-    .sort((current,next) => current[1] < next[1] ? 1 : -1);
-  csTotalCases.value = data.map(row => row[1])
-    .reduce((sum,value) => sum + value, 0);
+  const data = types
+    .map((type) => [type, randomInt(1, 100)()])
+    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
+  csTotalCases.value = data
+    .map((row) => row[1])
+    .reduce((sum, value) => sum + value, 0);
   csTypes.value = Object.fromEntries(data);
 }
 
-function setSingleSutures () {
+function setSingleSutures() {
   const types = Object.keys(csSingleSutures.value);
   let currentTotal = csTotalCases.value;
-  const data = types.map((type,i) => {
-    const randomValue = i === types.length-1 ? currentTotal : randomInt(3, currentTotal)();
-    const row = [type, randomValue];
-    currentTotal -= randomValue;
-    return row;
-  })
-  .sort((current,next) => current[1] < next[1] ? 1 : -1);
+  const data = types
+    .map((type, i) => {
+      const randomValue =
+        i === types.length - 1 ? currentTotal : randomInt(3, currentTotal)();
+      const row = [type, randomValue];
+      currentTotal -= randomValue;
+      return row;
+    })
+    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
   csSingleSutures.value = Object.fromEntries(data);
 }
 
-function setMultipleSutures (total) {
+function setMultipleSutures(total) {
   const types = Object.keys(csMultipleSutures.value);
   let currentTotal = total;
-  const data = types.map((type,i) => {
-    const randomValue = i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
-    const row = [type, randomValue];
-    currentTotal -= randomValue;
-    return row;
-  })
-  .sort((current,next) => current[1] < next[1] ? 1 : -1);
+  const data = types
+    .map((type, i) => {
+      const randomValue =
+        i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
+      const row = [type, randomValue];
+      currentTotal -= randomValue;
+      return row;
+    })
+    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
   csMultipleSutures.value = Object.fromEntries(data);
 }
 
-function updateMultipleSutures (value) {
+function updateMultipleSutures(value) {
   const total = value[Object.keys(value)];
   setMultipleSutures(total);
-  showSutureTypes.value=true;
+  showSutureTypes.value = true;
 }
 
-function onYearOfBirthFilter () {
+function onYearOfBirthFilter() {
   setCsTypes();
   setSingleSutures();
 }
@@ -158,5 +170,4 @@ function onYearOfBirthFilter () {
 // generate data
 setCsTypes();
 setSingleSutures();
-
 </script>

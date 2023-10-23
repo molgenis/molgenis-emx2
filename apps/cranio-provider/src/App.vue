@@ -11,7 +11,9 @@
         <PageHeader
           title="ERN CRANIO Registry"
           :subtitle="provider.name"
-          :imageSrc="provider.imageUrl ? provider.imageUrl : 'banner-diagnoses.jpg'"
+          :imageSrc="
+            provider.imageUrl ? provider.imageUrl : 'banner-diagnoses.jpg'
+          "
         />
         <PageSection
           class="section-bg-light-gray"

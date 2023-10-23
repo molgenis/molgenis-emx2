@@ -8,7 +8,11 @@
         label="Year of birth"
         description="Limit the results by year of birth"
       />
-      <select class="inputs select" id="yearOfBirthFilter" @change="onYearOfBirthFilter">
+      <select
+        class="inputs select"
+        id="yearOfBirthFilter"
+        @change="onYearOfBirthFilter"
+      >
         <option value="3-4" selected>3-4 years</option>
         <option value="5-6">5-6 years</option>
         <option value="8-9">8-9 years</option>
@@ -17,7 +21,11 @@
       </select>
     </DashboardBox>
     <DashboardChartLayout :columns="1">
-      <DashboardBox id="clp-outcome-cleft-q" class="mb-4 mt-4" v-if="showCleftOutcomes">
+      <DashboardBox
+        id="clp-outcome-cleft-q"
+        class="mb-4 mt-4"
+        v-if="showCleftOutcomes"
+      >
         <GroupedColumnChart
           chartId="clp-outcome-cleft-q-hcp-ern"
           title="Cleft-Q Outcomes after treatment"
@@ -31,7 +39,11 @@
           :chartHeight="300"
         />
       </DashboardBox>
-      <DashboardBox id="clp-outcome-cleft-q" class="mb-4 mt-4" v-if="showIcsOutcomes">
+      <DashboardBox
+        id="clp-outcome-cleft-q"
+        class="mb-4 mt-4"
+        v-if="showIcsOutcomes"
+      >
         <GroupedColumnChart
           chartId="clp-outcome-ics-hcp-ern"
           title="ICS Outcomes after treatment"
@@ -62,31 +74,30 @@ let icsOutcomes = ref([]);
 let showCleftOutcomes = ref(false);
 let showIcsOutcomes = ref(true);
 
-const colors = { "Your Center": "#66c2a4", "ERN Average": "#9f6491"};
+const colors = { "Your Center": "#66c2a4", "ERN Average": "#9f6491" };
 
-function setOutcomesData () {
+function setOutcomesData() {
   cleftOutcomes.value = randomGroupDataset(
     ["Your Center", "ERN Average"],
     ["Jaw", "Lip", "School", "Social", "Speech"],
     25,
     160
   );
-  
+
   icsOutcomes.value = randomGroupDataset(
     ["Your Center", "ERN Average"],
     ["Average total score", "Total score"],
     50,
     200
-  )
+  );
 }
 
-function onYearOfBirthFilter (event) {
+function onYearOfBirthFilter(event) {
   const ageGroup = event.target.value;
-  showCleftOutcomes.value = ['8-9','10-12','18+'].includes(ageGroup);
-  showIcsOutcomes.value = ['3-4','5-6'].includes(ageGroup);
+  showCleftOutcomes.value = ["8-9", "10-12", "18+"].includes(ageGroup);
+  showIcsOutcomes.value = ["3-4", "5-6"].includes(ageGroup);
   setOutcomesData();
 }
 
 setOutcomesData();
-
 </script>

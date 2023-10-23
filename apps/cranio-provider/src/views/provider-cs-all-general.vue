@@ -2,11 +2,12 @@
   <ProviderDashboard>
     <h2 class="dashboard-h2">General overview for all centers</h2>
     <DashboardBox class="mb-4">
-      <InputLabel
+      <InputLabel id="yearOfBirthFilter" label="Filter data by year of birth" />
+      <select
+        class="inputs select"
         id="yearOfBirthFilter"
-        label="Filter data by year of birth"
-      />
-      <select class="inputs select" id="yearOfBirthFilter" @change="onYearOfBirthFilter">
+        @change="onYearOfBirthFilter"
+      >
         <option value="all">All Patients</option>
         <option value="2023" selected>2023</option>
       </select>
@@ -29,7 +30,10 @@
       </DashboardBox>
     </DashboardChartLayout>
     <h3 class="dashboard-h3">Suture Overview</h3>
-    <p class="dashboard-text">Click a category in the "Single Suture Synostosis" chart to view more information.</p>
+    <p class="dashboard-text">
+      Click a category in the "Single Suture Synostosis" chart to view more
+      information.
+    </p>
     <DashboardChartLayout>
       <DashboardBox>
         <PieChart2
@@ -125,58 +129,62 @@ let sutureTypes = ref({
 
 let showSutureTypes = ref(false);
 
-const craniosynostosisColors = generateColors(Object.keys(craniosynostosisTypes.value))
-const singleSutureColors =generateColors(Object.keys(affectedSuture.value))
-const multipleSutureColors = generateColors(Object.keys(sutureTypes.value))
+const craniosynostosisColors = generateColors(
+  Object.keys(craniosynostosisTypes.value)
+);
+const singleSutureColors = generateColors(Object.keys(affectedSuture.value));
+const multipleSutureColors = generateColors(Object.keys(sutureTypes.value));
 
 /// generate random data for craniosynostosis types
-function setCraniosynostosisTypes () {
+function setCraniosynostosisTypes() {
   const types = Object.keys(craniosynostosisTypes.value);
-  const data = types.map(type => [type, randomInt(10,42)()])
-    .sort((current,next) => current[1] < next[1] ? 1 : -1);
-  craniosynostosisTypes.value = Object.fromEntries(data); 
+  const data = types
+    .map((type) => [type, randomInt(10, 42)()])
+    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
+  craniosynostosisTypes.value = Object.fromEntries(data);
 }
 
-
 // generate random data for affected suture
-function setAffectedSuture () {
-  const categories = Object.keys(affectedSuture.value)
-  const data = categories.map(category => [category, randomInt(10,60)()])
-    .sort((a,b) => a[1] < b[1] ? 1 : -1);
+function setAffectedSuture() {
+  const categories = Object.keys(affectedSuture.value);
+  const data = categories
+    .map((category) => [category, randomInt(10, 60)()])
+    .sort((a, b) => (a[1] < b[1] ? 1 : -1));
   affectedSuture.value = Object.fromEntries(data);
 }
 
-
-function setSutureTypes () {
+function setSutureTypes() {
   const types = Object.keys(sutureTypes.value);
-  const data = types.map(type => [type, randomInt(3,27)()])
-    .sort((current,next) => current[1] < next[1] ? 1 : -1);
+  const data = types
+    .map((type) => [type, randomInt(3, 27)()])
+    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
   sutureTypes.value = Object.fromEntries(data);
 }
 
-
 // generate random data for "country of residence"
-function setCountryOfResidence () {
-  const countries = ['NL', 'FR','GE','ES','PO','SE'];
-  countryOfResidence.value = countries.map(country => {
-    return { country: country, value: randomInt(10,100)()}
-  })
-  .sort((a,b) => a.country < b.country ? -1 : 1);
+function setCountryOfResidence() {
+  const countries = ["NL", "FR", "GE", "ES", "PO", "SE"];
+  countryOfResidence.value = countries
+    .map((country) => {
+      return { country: country, value: randomInt(10, 100)() };
+    })
+    .sort((a, b) => (a.country < b.country ? -1 : 1));
 }
 
-
 // set update sutute type selection
-function updateSutureTypes (value) {
+function updateSutureTypes(value) {
   const total = value[Object.keys(value)];
   const types = Object.keys(sutureTypes.value);
   let currentTotal = total;
-  const newSutureTypes = types.map((type, i) => {
-    const randomValue = i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
-    const row = [type, randomValue];
-    currentTotal -= randomValue;
-    return row
-  })
-  .sort((current,next) => current[1] < next[1] ? 1 : -1);
+  const newSutureTypes = types
+    .map((type, i) => {
+      const randomValue =
+        i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
+      const row = [type, randomValue];
+      currentTotal -= randomValue;
+      return row;
+    })
+    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
   sutureTypes.value = Object.fromEntries(newSutureTypes);
   showSutureTypes.value = true;
 }
@@ -186,12 +194,10 @@ setAffectedSuture();
 setCountryOfResidence();
 setSutureTypes();
 
-
-function onYearOfBirthFilter () {
+function onYearOfBirthFilter() {
   setCraniosynostosisTypes();
   setAffectedSuture();
   setCountryOfResidence();
   setSutureTypes();
 }
-
 </script>

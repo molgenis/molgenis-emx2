@@ -135,15 +135,16 @@ onMounted(() => {
       padding: 0.6em 0.2em;
       border-radius: $borderRadius;
       background-color: $ern-cranio-primary;
-      
+
       a {
         border-bottom: 2px solid transparent;
         color: $gray-000;
         @include textTransform(bold);
         font-size: 0.85rem;
         text-decoration: none;
-        
-        &:hover, &:focus {
+
+        &:hover,
+        &:focus {
           border-bottom-color: currentColor;
         }
 

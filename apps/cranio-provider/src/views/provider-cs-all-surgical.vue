@@ -36,23 +36,32 @@
     </DashboardChartLayout>
     <h2 class="dashboard-h2">Surgical interventions by diagnosis</h2>
     <DashboardBox class="mb-4">
-      <InputLabel
-        id="diagnosisInput"
-        label="Select a diagnosis"
-      />
+      <InputLabel id="diagnosisInput" label="Select a diagnosis" />
       <select id="diagnosisInput" @change="onDiagnosisInput">
-        <option value=ORPHA:87>Apert syndrome</option>
-        <option value=ORPHA:207>Crouzon syndrome</option>
-        <option value=ORPHA:93262>Crouzon syndrome-acanthosis nigricans syndrome</option>
-        <option value=OSNEW1>ERF-related craniosynostosis syndrome</option>
-        <option value=ORPHA:53271>Muenke syndrome</option>
-        <option value=ORPHA:3366>Non-syndromic metopic craniosynostosis</option>
-        <option value=ORPHA:35093>Non-syndromic sagittal craniosynostosis</option>
-        <option value=ORPHA:620102>Non-syndromic unicoronal craniosynostosis</option>
-        <option value=ORPHA:620113>Non-syndromic unilambdoid craniosynostosis</option>
-        <option value=ORPHA:794>Saethre-Chotzen syndrome</option>
-        <option value=OSNEW5>TCF12-related craniosynostosis</option>
-        <option value="ORPHA:620198">non-syndromic multistural craniosynostosis</option>
+        <option value="ORPHA:87">Apert syndrome</option>
+        <option value="ORPHA:207">Crouzon syndrome</option>
+        <option value="ORPHA:93262">
+          Crouzon syndrome-acanthosis nigricans syndrome
+        </option>
+        <option value="OSNEW1">ERF-related craniosynostosis syndrome</option>
+        <option value="ORPHA:53271">Muenke syndrome</option>
+        <option value="ORPHA:3366">
+          Non-syndromic metopic craniosynostosis
+        </option>
+        <option value="ORPHA:35093">
+          Non-syndromic sagittal craniosynostosis
+        </option>
+        <option value="ORPHA:620102">
+          Non-syndromic unicoronal craniosynostosis
+        </option>
+        <option value="ORPHA:620113">
+          Non-syndromic unilambdoid craniosynostosis
+        </option>
+        <option value="ORPHA:794">Saethre-Chotzen syndrome</option>
+        <option value="OSNEW5">TCF12-related craniosynostosis</option>
+        <option value="ORPHA:620198">
+          non-syndromic multistural craniosynostosis
+        </option>
       </select>
     </DashboardBox>
     <DashboardChartLayout>
@@ -82,7 +91,7 @@
           xAxisLabel="Age (months)"
           yAxisLabel="Number of patients"
           :yMax="200"
-          :yTickValues="[0, 25, 50, 75, 100, 125,150,175,200]"
+          :yTickValues="[0, 25, 50, 75, 100, 125, 150, 175, 200]"
           :chartHeight="280"
           columnFill="#2a8f64"
           columnHoverFill="#ed7b23"
@@ -124,74 +133,77 @@ let surgicalInterventions = ref({
 let ageAtFirstSurgery = ref([]);
 
 const surgeryTypeColors = generateColors(Object.keys(typeOfSurgery.value));
-const complicationColors = generateColors(Object.keys(surgicalComplications.value));
-const surgicalInterventionColors = generateColors(Object.keys(surgicalInterventions.value))
+const complicationColors = generateColors(
+  Object.keys(surgicalComplications.value)
+);
+const surgicalInterventionColors = generateColors(
+  Object.keys(surgicalInterventions.value)
+);
 
-function setTypeOfSurgery () {
+function setTypeOfSurgery() {
   const types = Object.keys(typeOfSurgery.value);
-  const data = types.map(type => [type, randomInt(1,100)()])
-    .sort((current, next) => current[1] < next[1] ? 1 : -1);
+  const data = types
+    .map((type) => [type, randomInt(1, 100)()])
+    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
 
   totalCases.value = data
-    .map(row => row[1])
-    .reduce((sum,value) => sum + value,0);
+    .map((row) => row[1])
+    .reduce((sum, value) => sum + value, 0);
   typeOfSurgery.value = Object.fromEntries(data);
 }
 
-function setSurgicalComplications (total) {
+function setSurgicalComplications(total) {
   const types = Object.keys(surgicalComplications.value);
   let currentTotal = total;
-  const data = types.map((type,i) => {
-    const randomValue = i === types.length -1  ? currentTotal : randomInt(1, currentTotal)();
-    const row = [type, randomValue];
-    currentTotal -= randomValue;
-    return row
-  })
-  .sort((current,next) => current[1] < next[1] ? 1 : -1);
+  const data = types
+    .map((type, i) => {
+      const randomValue =
+        i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
+      const row = [type, randomValue];
+      currentTotal -= randomValue;
+      return row;
+    })
+    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
   surgicalComplications.value = Object.fromEntries(data);
 }
 
-
-function updateSurgicalComplications (value) {
+function updateSurgicalComplications(value) {
   const title = Object.keys(value);
   surgicalComplicationsTitle.value = `${title} surgical complications`;
   const total = value[Object.keys(value)];
   setSurgicalComplications(total);
 }
 
-function setSurgicalInterventions () {
+function setSurgicalInterventions() {
   const types = Object.keys(surgicalInterventions.value);
   let currentTotal = totalCases.value;
   const data = types.map((type, i) => {
-    const randomValue = i === types.length - 1
-      ? currentTotal
-      : randomInt(1, currentTotal)()
+    const randomValue =
+      i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
     const row = [type, randomValue];
     currentTotal -= randomValue;
-    return row
-  })
+    return row;
+  });
   surgicalInterventions.value = Object.fromEntries(data);
 }
 
-function setAgeAtFirstSurgery () {
-  const ages = seq(0,14,2);
+function setAgeAtFirstSurgery() {
+  const ages = seq(0, 14, 2);
   let currentTotal = totalCases.value;
   const data = ages.map((age, i) => {
-    const randomValue = i === ages.length - 1
-      ? currentTotal
-      : randomInt(1, currentTotal)();
-    const row = {age: `${age}`, value: randomValue }
+    const randomValue =
+      i === ages.length - 1 ? currentTotal : randomInt(1, currentTotal)();
+    const row = { age: `${age}`, value: randomValue };
     currentTotal -= randomValue;
-    return row
-  })
+    return row;
+  });
   ageAtFirstSurgery.value = data;
 }
 
-function onDiagnosisInput () {
+function onDiagnosisInput() {
   setSurgicalInterventions(totalCases.value);
   setAgeAtFirstSurgery();
 }
-
 
 setTypeOfSurgery();
 setSurgicalComplications(totalCases.value);
