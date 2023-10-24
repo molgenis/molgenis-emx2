@@ -37,7 +37,7 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "required",
-          name: "required",
+          label: "required",
           columnType: "STRING",
           required: true,
         },
@@ -53,7 +53,7 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "required",
-          name: "required",
+          label: "required",
           columnType: "DECIMAL",
           required: true,
         },
@@ -188,8 +188,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -205,8 +206,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -222,8 +224,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -239,8 +242,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -265,7 +269,7 @@ describe("getRowErrors", () => {
 describe("removeKeyColumns", () => {
   test("it should return the data without the data of the key columns", () => {
     const metaData = {
-      columns: [{ name: "key", key: 1 }, { name: "some" }],
+      columns: [{ id: "key", key: 1 }, { id: "some" }],
     } as ITableMetaData;
     const rowData = { some: "Data", key: "primaryKey" };
     const result = removeKeyColumns(metaData, rowData);

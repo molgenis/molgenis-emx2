@@ -3,7 +3,6 @@ package org.molgenis.emx2;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -124,7 +123,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public String getIdentifier() {
-    return convertToPascalCase(getTableName());
+    return getTableName(); // todo, decide if we move to escaped name
   }
 
   public SchemaMetadata getSchema() {

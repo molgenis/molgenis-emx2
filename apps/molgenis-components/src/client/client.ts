@@ -60,7 +60,7 @@ const client: IClient = {
         const schemaMetaData = await fetchSchemaMetaData(schemaId);
         const tableMetaData = schemaMetaData.tables.find(
           (table) =>
-            table.id === tableId && table.externalSchema === schemaMetaData.id
+            table.id === tableId && table.schemaId === schemaMetaData.id
         );
         const filter = tableMetaData?.columns
           ?.filter((column) => column.key === 1)
@@ -169,7 +169,7 @@ _schema {
       locale,
       value
     },
-    externalSchema,
+    schemaId,
     semantics,
     columns {
       id,
@@ -370,7 +370,7 @@ async function convertRowToPrimaryKey(
   const schema = await fetchSchemaMetaData(schemaId);
   const tableMetadata = schema.tables.find(
     (table: ITableMetaData) =>
-      table.id === tableId && table.externalSchema === schema.id
+      table.id === tableId && table.schemaId === schema.id
   );
   if (!tableMetadata?.columns) {
     throw new Error("Empty columns in metadata");

@@ -48,16 +48,18 @@ describe("getColumnIds", () => {
 
 // test meta data with mg_columns removed
 const metaData: ISchemaMetaData = {
-  name: "petStore",
+  id: "pet store",
+  label: "Pet store",
   tables: [
     {
       label: "Category",
       tableType: "DATA",
       id: "Category",
-      externalSchema: "petStore",
+      schemaId: "pet store",
       columns: [
         {
           id: "name",
+          label: "Name",
           columnType: "STRING",
           key: 1,
           required: true,
@@ -65,40 +67,43 @@ const metaData: ISchemaMetaData = {
       ],
     },
     {
-      name: "Order",
+      label: "Order",
       tableType: "DATA",
       id: "Order",
-      externalSchema: "petStore",
+      schemaId: "petStore",
       columns: [
         {
           id: "orderId",
+          label: "Order id",
           columnType: "STRING",
           key: 1,
           required: true,
         },
         {
           id: "pet",
+          label: "Pet",
           columnType: "REF",
-          refTable: "Pet",
+          refTableId: "Pet",
           refLabelDefault: "${name}",
           position: 1,
         },
       ],
     },
     {
-      name: "Pet",
-      tableType: "DATA",
       id: "Pet",
+      tableType: "DATA",
+      label: "Pet",
       descriptions: [
         {
           locale: "en",
           value: "My pet store example table",
         },
       ],
-      externalSchema: "petStore",
+      schemaId: "pet store",
       columns: [
         {
           id: "name",
+          label: "Name",
           columnType: "STRING",
           key: 1,
           required: true,
@@ -111,8 +116,9 @@ const metaData: ISchemaMetaData = {
         },
         {
           id: "category",
+          label: "Category",
           columnType: "REF",
-          refTable: "Category",
+          refTableId: "Category",
           refLabelDefault: "${name}",
           required: true,
           position: 1,
@@ -120,34 +126,39 @@ const metaData: ISchemaMetaData = {
 
         {
           id: "tags",
+          label: "Tags",
           columnType: "ONTOLOGY_ARRAY",
-          refTable: "Tag",
+          refTableId: "Tag",
           refLabelDefault: "${name}",
           position: 5,
         },
         {
           id: "weight",
+          label: "Weight",
           columnType: "DECIMAL",
           required: true,
           position: 6,
         },
         {
           id: "orders",
+          label: "Orders",
           columnType: "REFBACK",
-          refTable: "Order",
+          refTableId: "Order",
           refLabelDefault: "${orderId}",
-          refBack: "pet",
+          refBackId: "pet",
           position: 7,
         },
       ],
     },
     {
-      name: "Tag",
+      id: "Tag",
+      label: "Tag",
       tableType: "ONTOLOGIES",
-      externalSchema: "petStore",
+      schemaId: "pet store",
       columns: [
         {
           id: "order",
+          label: "Order",
           columnType: "INT",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C42680"],
           descriptions: [
@@ -159,6 +170,7 @@ const metaData: ISchemaMetaData = {
         },
         {
           id: "name",
+          label: "Name",
           columnType: "STRING",
           key: 1,
           required: true,
@@ -173,6 +185,7 @@ const metaData: ISchemaMetaData = {
         },
         {
           id: "label",
+          label: "Label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
           descriptions: [
@@ -186,8 +199,9 @@ const metaData: ISchemaMetaData = {
         },
         {
           id: "parent",
+          label: "Parent",
           columnType: "REF",
-          refTable: "Tag",
+          refTableId: "Tag",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
           descriptions: [
@@ -201,10 +215,11 @@ const metaData: ISchemaMetaData = {
 
         {
           id: "children",
+          label: "Children",
           columnType: "REFBACK",
-          refTable: "Tag",
+          refTableId: "Tag",
           refLabelDefault: "${name}",
-          refBack: "parent",
+          refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
           descriptions: [
             {
@@ -219,34 +234,40 @@ const metaData: ISchemaMetaData = {
     },
     {
       id: "User",
+      label: "User",
       tableType: "DATA",
-      externalSchema: "petStore",
+      schemaId: "petStore",
       columns: [
         {
           id: "username",
+          label: "User name",
           columnType: "STRING",
           key: 1,
           required: true,
         },
         {
           id: "firstName",
+          label: "First name",
           columnType: "STRING",
           position: 1,
         },
         {
           id: "lastName",
+          label: "Last name",
           columnType: "STRING",
           position: 2,
         },
         {
           id: "picture",
+          label: "Picture",
           columnType: "FILE",
           position: 3,
         },
         {
           id: "pets",
+          label: "Pets",
           columnType: "REF_ARRAY",
-          refTable: "Pet",
+          refTableId: "Pet",
           refLabelDefault: "${name}",
           position: 8,
         },

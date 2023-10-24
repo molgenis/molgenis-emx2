@@ -8,7 +8,9 @@ export interface ITableMetaData {
   description?: string;
   tableType: string;
   columns: IColumn[];
-  externalSchema: string;
+  descriptions?: ILocale[];
+  schemaId: string;
+  labels?: ILocale[];
   semantics?: string[];
   settings?: ISetting[];
 }

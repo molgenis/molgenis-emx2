@@ -220,15 +220,15 @@ export function applyJsTemplate(
     );
 
     if (object.hasOwnProperty("primaryKey")) {
-      return flattenObject(object.primaryKey);
+      return flattenObject((object as any).primaryKey);
     }
 
     if (object.hasOwnProperty("name")) {
-      return object.name;
+      return (object as any).name;
     }
 
     if (object.hasOwnProperty("id")) {
-      return object.id;
+      return (object as any).id;
     }
     return flattenObject(object);
   }

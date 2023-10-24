@@ -267,7 +267,11 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.EXTERNAL_SCHEMA)
+                  .name(GraphqlConstants.SCHEMA_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.SCHEMA_ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -462,7 +466,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(EXTERNAL_SCHEMA)
+                  .name(SCHEMA_NAME)
                   .type(Scalars.GraphQLString))
           .build();
 
