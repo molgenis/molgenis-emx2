@@ -14,8 +14,16 @@
         <div class="footer-column footer-links">
           <p><strong>Search</strong></p>
           <UnorderedList listType="none">
-            <li><router-link :to="{ name: 'datasets' }">Find Datasets</router-link></li>
-            <li><router-link :to="{ name: 'beacon' }">Search with Beacon</router-link></li>
+            <li>
+              <router-link :to="{ name: 'datasets' }"
+                >Find Datasets</router-link
+              >
+            </li>
+            <li>
+              <router-link :to="{ name: 'beacon' }"
+                >Search with Beacon</router-link
+              >
+            </li>
           </UnorderedList>
         </div>
         <div class="footer-column footer-logos">
