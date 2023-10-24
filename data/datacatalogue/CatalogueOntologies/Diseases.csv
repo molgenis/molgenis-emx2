@@ -5559,7 +5559,7 @@ M34.2 Systemic sclerosis induced by drugs and chemicals,5557,M34.2,M30-M36 Syste
 M34.8 Other forms of systemic sclerosis,5558,M34.8,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M34.8,ORPHAcode: 352763 Scleredema
 "M34.9 Systemic sclerosis, unspecified",5559,M34.9,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M34.9,
 M35 Other systemic involvement of connective tissue,5560,M35,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35,
-M35.0 Other systemic involvement of connective tissue - Sicca syndrome [Sjögren],5561,M35.0,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35.0,ORPHAcode: 289390 Primary Sj  gren sy
+M35.0 Other systemic involvement of connective tissue - Sicca syndrome [Sjögren],5561,M35.0,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35.0,ORPHAcode: 289390 Primary Sjögren syndrome
 M35.1 Other overlap syndromes,5562,M35.1,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35.1,ORPHAcode: 809 Mixed connective tissue disease
 M35.2 Other systemic involvement of connective tissue - Behçet disease,5563,M35.2,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35.2,ORPHAcode: 117 Beh  et d
 M35.3 Other systemic involvement of connective tissue - Polymyalgia rheumatica,5564,M35.3,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35.3,ORPHAcode: 93569 Polymyalgia rheumatica
@@ -10263,6 +10263,7 @@ X46 Accidental poisoning by and exposure to organic solvents and halogenated hyd
 X47 Accidental poisoning by and exposure to other gases and vapours,10261,X47,X40-X49 Accidental poisoning by and exposure to noxious substances,http://identifiers.org/icd/X47,
 X48 Accidental poisoning by and exposure to pesticides,10262,X48,X40-X49 Accidental poisoning by and exposure to noxious substances,http://identifiers.org/icd/X48,
 X49 Accidental poisoning by and exposure to other and unspecified chemicals and noxious substances,10263,X49,X40-X49 Accidental poisoning by and exposure to noxious substances,http://identifiers.org/icd/X49,
+X49.9 Toxic Oil Syndrome,,X49.9,X40-X49 Accidental poisoning by and exposure to noxious substances,http://identifiers.org/icd/X49.9,
 "X50-X57 Overexertion, travel and privation",10264,X50-X57,W00-X59 Other external causes of accidental injury,,
 X50 Overexertion and strenuous or repetitive movements,10265,X50,"X50-X57 Overexertion, travel and privation",http://identifiers.org/icd/X50,
 X51 Travel and motion,10266,X51,"X50-X57 Overexertion, travel and privation",http://identifiers.org/icd/X51,
@@ -11254,7 +11255,6 @@ Z80.4 Family history of malignant neoplasm of genital organs,11251,Z80.4,Z80-Z99
 Z80.5 Family history of malignant neoplasm of urinary tract,11252,Z80.5,Z80-Z99 Persons with potential health hazards related to family and personal history and certain conditions influencing health status,http://identifiers.org/icd/Z80.5,
 Z80.6 Family history of leukaemia,11253,Z80.6,Z80-Z99 Persons with potential health hazards related to family and personal history and certain conditions influencing health status,http://identifiers.org/icd/Z80.6,
 Z82.2 Family history of deafness and hearing loss,11254,Z82.2,Z80-Z99 Persons with potential health hazards related to family and personal history and certain conditions influencing health status,http://identifiers.org/icd/Z82.2,
-U07.4 Emergency use of U07.4,11255,U07.4,U00-U49 Provisional assignment of new diseases of uncertain etiology or emergency use,http://identifiers.org/icd/U07.4,
 "Z80.7 Family history of other malignant neoplasms of lymphoid, haematopoietic and related tissues",11256,Z80.7,Z80-Z99 Persons with potential health hazards related to family and personal history and certain conditions influencing health status,http://identifiers.org/icd/Z80.7,
 Z80.8 Family history of malignant neoplasm of other organs or systems,11257,Z80.8,Z80-Z99 Persons with potential health hazards related to family and personal history and certain conditions influencing health status,http://identifiers.org/icd/Z80.8,
 "Z80.9 Family history of malignant neoplasm, unspecified",11258,Z80.9,Z80-Z99 Persons with potential health hazards related to family and personal history and certain conditions influencing health status,http://identifiers.org/icd/Z80.9,
@@ -11454,11 +11454,14 @@ U07.0 Emergency use of U07.0,11451,U07.0,U00-U49 Provisional assignment of new d
 U07.1 Laboratory-confirmed COVID-19 diagnosis,11452,U07.1,U00-U49 Provisional assignment of new diseases of uncertain etiology or emergency use,http://identifiers.org/icd/U07.1,
 U07.2 suspect or probable COVID-19 diagnosis,11453,U07.2,U00-U49 Provisional assignment of new diseases of uncertain etiology or emergency use,http://identifiers.org/icd/U07.2,
 U07.3 Emergency use of U07.3,11454,U07.3,U00-U49 Provisional assignment of new diseases of uncertain etiology or emergency use,http://identifiers.org/icd/U07.3,
+U07.4 Emergency use of U07.4,,U07.4,U00-U49 Provisional assignment of new diseases of uncertain etiology or emergency use,http://identifiers.org/icd/U07.4,
 U07.5 Emergency use of U07.5,11455,U07.5,U00-U49 Provisional assignment of new diseases of uncertain etiology or emergency use,http://identifiers.org/icd/U07.5,
 U07.6 Emergency use of U07.6,11456,U07.6,U00-U49 Provisional assignment of new diseases of uncertain etiology or emergency use,http://identifiers.org/icd/U07.6,
 U07.7 Emergency use of U07.7,11457,U07.7,U00-U49 Provisional assignment of new diseases of uncertain etiology or emergency use,http://identifiers.org/icd/U07.7,
 U07.8 Emergency use of U07.8,11458,U07.8,U00-U49 Provisional assignment of new diseases of uncertain etiology or emergency use,http://identifiers.org/icd/U07.8,
 U07.9 Emergency use of U07.9,11459,U07.9,U00-U49 Provisional assignment of new diseases of uncertain etiology or emergency use,http://identifiers.org/icd/U07.9,
+U09 Post COVID-19 condition - Post COVID-19 condition,,U09,U00-U49 Provisional assignment of new diseases of uncertain etiology or emergency use,http://identifiers.org/icd/U09,
+U09.9 Post COVID-19 condition - Post COVID-19 condition, unspecified,,U09.9,U00-U49 Provisional assignment of new diseases of uncertain etiology or emergency use,http://identifiers.org/icd/U09.9,
 U82-U85 Resistance to antimicrobial and antineoplastic drugs,11460,,XXII Codes for special purposes,,
 U82 Resistance to betalactam antibiotics,11461,U82,U82-U85 Resistance to antimicrobial and antineoplastic drugs,http://identifiers.org/icd/U82,
 U82.0 Resistance to penicillin,11462,U82.0,U82-U85 Resistance to antimicrobial and antineoplastic drugs,http://identifiers.org/icd/U82.0,
@@ -11483,6 +11486,7 @@ U85 Resistance to antineoplastic drugs,11480,U85,U82-U85 Resistance to antimicro
 ORPHAcodes,11481,,,,
 "48,XXYY syndrome",11482,10,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_10,
 Ataxia-telangiectasia,11483,100,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_100,Column6
+OBSOLETE: Genetic optic atrophy,,103,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_103,
 Ocular albinism with late-onset sensorineural deafness,11484,1000,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1000,
 Reticular perineurioma,11485,100000,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_100000,
 Sclerosing perineurioma,11486,100001,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_100001,
@@ -20240,7 +20244,9 @@ Hamel cerebro-palato-cardiac syndrome,20236,93946,ORPHAcodes,http://www.orpha.ne
 "X-linked intellectual disability, Sutherland-Haan type",20238,93950,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_93950,
 "X-linked intellectual disability, Hedera type",20239,93952,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_93952,
 Familial thyroglossal duct cyst,20240,93953,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_93953,
+OBSOLETE: Truncal dystonia,,93956,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_93956,
 Oromandibular dystonia,20241,93958,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_93958,
+OBSOLETE: Cervical dystonia,,93962,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_93962,
 Blepharospasm-oromandibular dystonia syndrome,20242,93964,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_93964,
 Meningocele,20243,93968,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_93968,
 Myelomeningocele,20244,93969,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_93969,
