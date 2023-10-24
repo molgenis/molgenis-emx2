@@ -941,8 +941,8 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
     data() {
       return {
         showColumns: [],
-        showFilters: ['name'],
-        urlConditions: {"name": "pooky,spike"},
+        showFilters: [],
+        urlConditions: {},
         page: 1,
         limit: 10,
         showOrder: 'DESC',
