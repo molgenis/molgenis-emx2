@@ -42,6 +42,27 @@ export default gql`
         name
         order
       }
+      inclusionCriteria {
+        name
+        code
+        order
+      }
+      otherInclusionCriteria
+      populationDisease {
+        name
+        code
+        order
+      }
+      populationOncologyTopology {
+        name
+        code
+        order
+      }
+      populationOncologyMorphology {
+        name
+        code
+        order
+      }
       logo {
         url
       }

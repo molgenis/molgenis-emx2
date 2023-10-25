@@ -34,3 +34,10 @@ name,definition,codesystem,code,ontologyTermURI
 "DNA Resequencing","DNA Resequencing","NCIT","C41254","http://purl.obolibrary.org/obo/NCIT_C41254"
 "DNA Sequencing","DNA Sequencing","NCIT","C153598","http://purl.obolibrary.org/obo/NCIT_C153598"
 "MicroRNA Sequencing","MicroRNA Sequencing","NCIT","C156057","http://purl.obolibrary.org/obo/NCIT_C156057"
+Reduced Representation Bisulfite Sequencing,Reduced Representation Bisulfite Sequencing,,RRBS,
+Single read,Single read,,SR,
+SR 35-bp,SR 35-bp,,,
+ssRNA-seq,ssRNA-seq,,,
+PE 150-bp,Paired-end 150-bp,,,
+Panel,Gene panel sequencing,,,
+Array,Genotyping array,,,

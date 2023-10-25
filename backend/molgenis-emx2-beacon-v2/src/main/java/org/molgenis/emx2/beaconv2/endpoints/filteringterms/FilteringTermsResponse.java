@@ -18,7 +18,7 @@ public class FilteringTermsResponse {
           "Dataset",
           "GenomicVariations",
           "Individuals",
-          "SequencingRuns");
+          "Runs");
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
   private FilteringTerm[] filteringTerms;
@@ -122,7 +122,7 @@ public class FilteringTermsResponse {
             code = code == null || code.isBlank() ? "NULL" : code;
             FilteringTerm filteringTerm =
                 new FilteringTerm(
-                    "ontology", codesystem + "_" + code, row.getString("name"), tableToQuery);
+                    "ontology", codesystem + ":" + code, row.getString("name"), tableToQuery);
             filteringTermsSet.add(filteringTerm);
           }
         } else {

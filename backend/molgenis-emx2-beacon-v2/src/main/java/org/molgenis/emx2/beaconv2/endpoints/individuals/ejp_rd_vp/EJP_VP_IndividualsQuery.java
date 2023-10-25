@@ -1,10 +1,10 @@
 package org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp;
 
+import static org.molgenis.emx2.beaconv2.endpoints.QueryHelper.findColumnPath;
 import static org.molgenis.emx2.beaconv2.endpoints.individuals.QueryIndividuals.queryIndividuals;
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
-import static org.molgenis.emx2.semantics.QueryHelper.findColumnPath;
-import static org.molgenis.emx2.semantics.RDFService.extractHost;
-import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
+import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
+import static org.molgenis.emx2.rdf.RDFUtils.getURI;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
@@ -13,14 +13,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.beaconv2.endpoints.ColumnPath;
+import org.molgenis.emx2.beaconv2.endpoints.QueryHelper;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.Diseases;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSets;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSetsItem;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.beaconv2.requests.Filter;
 import org.molgenis.emx2.beaconv2.responses.BeaconCountResponse;
-import org.molgenis.emx2.semantics.ColumnPath;
-import org.molgenis.emx2.semantics.QueryHelper;
 import spark.Request;
 import spark.Response;
 

@@ -16,6 +16,7 @@ public class Column {
   private Integer key = 0;
   private Boolean required = false;
   private Boolean readonly = false;
+  private String defaultValue;
   private String refSchema = null;
   private String refTable = null;
   private String refLink = null;
@@ -68,6 +69,7 @@ public class Column {
     this.validation = column.getValidation();
     this.required = column.isRequired();
     this.readonly = column.isReadonly();
+    this.defaultValue = column.getDefaultValue();
     this.descriptions =
         column.getDescriptions().entrySet().stream()
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
@@ -91,6 +93,7 @@ public class Column {
     c.setType(columnType);
     if (drop) c.drop();
     c.setRequired(required);
+    c.setDefaultValue(defaultValue);
     c.setRefSchema(refSchema);
     c.setRefTable(refTable);
     c.setRefLink(refLink);
@@ -303,5 +306,13 @@ public class Column {
 
   public void setLabels(List<LanguageValue> labels) {
     this.labels = labels;
+  }
+
+  public String getDefaultValue() {
+    return defaultValue;
+  }
+
+  public void setDefaultValue(String defaultValue) {
+    this.defaultValue = defaultValue;
   }
 }

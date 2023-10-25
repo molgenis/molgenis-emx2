@@ -16,10 +16,13 @@ public class FilteringTerms {
   private Handover beaconHandovers;
 
   public FilteringTerms(Database database) {
-    this.meta = new DatasetsMeta("../beaconFilteringTermsResponse.json", "filteringterms");
-    this.response = new FilteringTermsResponse(database);
-    this.responseSummary = new ResponseSummary();
-    this.beaconHandovers = new Handover();
+    database.tx(
+        db -> {
+          this.meta = new DatasetsMeta("../beaconFilteringTermsResponse.json", "filteringterms");
+          this.response = new FilteringTermsResponse(database);
+          this.responseSummary = new ResponseSummary();
+          this.beaconHandovers = new Handover();
+        });
   }
 
   public DatasetsMeta getMeta() {

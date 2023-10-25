@@ -1,0 +1,5 @@
+"id","HPO","description"
+"Subacute ","HP:0011011","Somewhat rapid onset and change of disease manifestations."
+"Chronic ","HP:0011010","Slow, creeping onset, slow progress and long continuance of disease manifestations."
+"Acute","HP:0011009","Sudden appearance of disease manifestations over a short period of time."
+"Insidious onset ","HP:0003587","Gradual, very slow onset of disease manifestations."
