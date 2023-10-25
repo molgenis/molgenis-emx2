@@ -9,6 +9,7 @@
             :key="`head-${index}`"
             class="sticky top-0 z-20 bg-white text-left align-bottom"
           >
+            <div class="absolute inset-0 border-l"></div>
             <div class="rotated-title">
               <span>
                 <slot name="column" :value="column">{{ column }}</slot>
@@ -24,10 +25,12 @@
           class="text-left hover:bg-gray-100"
         >
           <th class="sticky left-0 z-10 bg-white whitespace-nowrap">
+            <div class="absolute inset-0 border-t"></div>
+
             <slot name="row" :value="{ row, rowIndex }">{{ row }}</slot>
           </th>
           <td
-            class="relative whitespace-nowrap vertical-hover-bar"
+            class="relative whitespace-nowrap vertical-hover-bar border-t"
             v-for="(column, columnIndex) of columns"
             :key="`td-${columnIndex}`"
           >
@@ -69,5 +72,6 @@ table.table-auto tbody tr:hover th {
   top: -99999px;
   bottom: -99999px;
   background-color: rgb(244, 244, 244);
+  border: 1px solid rgb(226, 226, 226);
 }
 </style>
