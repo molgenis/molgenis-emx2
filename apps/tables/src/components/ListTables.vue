@@ -69,7 +69,7 @@ export default {
       if (this.search && this.search.trim().length > 0) {
         let terms = this.search.toLowerCase().split(" ");
         return this.schema.tables
-          .filter((table) => table.externalSchema === this.schema.id)
+          .filter((table) => table.schemaId === this.schema.id)
           .filter((table) =>
             terms.every(
               (term) =>

@@ -2,14 +2,14 @@ export const contactsMetadata = {
   name: "Contacts",
   tableType: "DATA",
   id: "Contacts",
-  externalSchema: "Catalogue",
+  schemaId: "Catalogue",
   columns: [
     {
       name: "resource",
       id: "resource",
       columnType: "REF",
       key: 1,
-      refTable: "Resources",
+      refTableId: "Resources",
       refLabelDefault: "${id}",
       required: true,
       descriptions: [
@@ -92,7 +92,7 @@ export const resourcesMetadata = {
         "Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",
     },
   ],
-  externalSchema: "Catalogue",
+  schemaId: "Catalogue",
   columns: [
     {
       name: "id",
