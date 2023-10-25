@@ -21,12 +21,11 @@ function scroll(event) {
     event.target.scrollWidth;
 }
 
-function scrollLeft(event) {
-  scrollElement.value.scrollLeft -= 200;
-}
-
-function scrollRight(event) {
-  scrollElement.value.scrollLeft += 200;
+function smoothScroll(value) {
+  scrollElement.value.scrollTo({
+    left: scrollElement.value.scrollLeft - value,
+    behavior: "smooth",
+  });
 }
 </script>
 
@@ -38,7 +37,7 @@ function scrollRight(event) {
     >
       <div
         class="relative right-6 flex items-center justify-center pointer-events-auto bg-white hover:bg-gray-100 rounded-full border w-10 h-10"
-        @click="scrollLeft"
+        @click="smoothScroll(200)"
       >
         <BaseIcon name="caret-left" :width="26" />
       </div>
@@ -50,7 +49,7 @@ function scrollRight(event) {
     >
       <div
         class="relative left-6 flex items-center justify-center pointer-events-auto bg-white hover:bg-gray-100 rounded-full border w-10 h-10"
-        @click="scrollRight"
+        @click="smoothScroll(-200)"
       >
         <BaseIcon name="caret-right" :width="26" />
       </div>
