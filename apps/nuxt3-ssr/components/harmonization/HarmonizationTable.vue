@@ -59,9 +59,9 @@ let activeVariablePath = computed(() =>
         </template>
 
         <template #cell="cell">
-          <HarmonizationStatusIcon
+          <HarmonizationTableCellStatusIcon
             :status="statusMap[cell.value.rowIndex][cell.value.columnIndex]"
-          ></HarmonizationStatusIcon>
+          ></HarmonizationTableCellStatusIcon>
         </template>
       </StickyTable>
 
