@@ -2,7 +2,7 @@
   <div class="container">
     <h1>Table data client module</h1>
 
-    <h5>Table data for: {{ tableLabel }}</h5>
+    <h5>Table data for: {{ metaData.label }}</h5>
     <div class="form-group">
       <label for="filterInput">filter</label>
       <input
@@ -40,15 +40,10 @@ export default {
       tableData: [],
     };
   },
-  computed: {
-    tableLabel() {
-      return this.metaData?.label;
-    },
-  },
   methods: {
     async fetchData() {
       const filter = this.filter ? JSON.parse(this.filter) : {};
-      const orderby = this.filter ? JSON.parse(this.orderby) : {};
+      const orderby = this.orderby ? JSON.parse(this.orderby) : {};
       this.metaData = await this.client.fetchSchemaMetaData();
       this.tableData = await this.client.fetchTableData("Pet", {
         filter,

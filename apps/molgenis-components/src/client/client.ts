@@ -118,7 +118,7 @@ const client: IClient = {
       fetchSettingValue: async (name: string) => {
         const settings = await fetchSettings(schemaId);
         const setting = settings.find(
-          (setting: ISetting) => setting.key == name
+          (setting: ISetting) => setting.key === name
         );
         if (setting) {
           return JSON.parse(setting.value);

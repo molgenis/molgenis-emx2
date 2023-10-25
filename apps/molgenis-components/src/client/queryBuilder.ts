@@ -1,4 +1,3 @@
-import { convertToPascalCase } from "../components/utils";
 import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
 
@@ -40,8 +39,8 @@ export const getColumnIds = (
           col.id +
           " {" +
           getColumnIds(
-            col.refSchema ? col.refSchema : schemaId,
-            col.refTable,
+            col.refSchemaId || schemaId,
+            col.refTableId || tableId,
             metaData,
             //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
             expandLevel - 1,
@@ -64,7 +63,7 @@ const getTable = (
   tableStore: ITableMetaData[]
 ) => {
   const result = tableStore.find(
-    (table) => table.id === tableId && table.externalSchema === schemaId
+    (table) => table.id === tableId && table.schemaId === schemaId
   );
   return result;
 };
