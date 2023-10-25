@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ICohort, IVariableWithMappings } from "~/interfaces/types";
 import { getKey } from "~/utils/variableUtils";
+import StickyTable from "../table/StickyTable.vue";
 const route = useRoute();
 
 const props = defineProps<{
@@ -35,6 +36,40 @@ let activeVariablePath = computed(() =>
 
     <!-- temp 'fix' for table y overflow -->
     <div class="overflow-x-auto max-w-table">
+      <StickyTable
+        :columns="cohorts"
+        :rows="variables"
+        class="h-screen overflow-auto"
+      >
+        <template #column="columnProps">
+          <div
+            class="text-blue-500 font-normal rotate-180 [writing-mode:vertical-lr] py-2"
+          >
+            {{ columnProps.value.id }}
+          </div>
+        </template>
+
+        <template #row="rowProps">
+          <div
+            class="text-body-base text-blue-500 font-normal hover:underline hover:bg-blue-50 border-r-2 px-2 cursor-pointer"
+            @click="activeRowIndex = rowProps.value.rowIndex"
+          >
+            {{ rowProps.value.row.name }}
+          </div>
+        </template>
+
+        <template #cell="cell">
+          <HarmonizationStatusIcon
+            :status="statusMap[cell.value.rowIndex][cell.value.columnIndex]"
+          ></HarmonizationStatusIcon>
+        </template>
+      </StickyTable>
+
+      <br />
+      <br />
+      <br />
+      <br />
+
       <table class="table-auto">
         <thead>
           <tr class="border-y-2">
