@@ -1,6 +1,6 @@
 <template>
   <div role="region">
-    <table class="table-auto">
+    <table class="table-auto relative z-0">
       <thead>
         <tr>
           <th class="sticky left-0 top-0 z-30 bg-white"></th>
@@ -17,22 +17,24 @@
           </th>
         </tr>
       </thead>
-      <tbody class="relative">
+      <tbody class="relative z-0">
         <tr
           v-for="(row, rowIndex) of rows"
           :key="`tr-${rowIndex}`"
-          class="text-left"
+          class="text-left hover:bg-gray-100"
         >
           <th class="sticky left-0 z-10 bg-white whitespace-nowrap">
             <slot name="row" :value="{ row, rowIndex }">{{ row }}</slot>
           </th>
           <td
-            class="relative bg-white whitespace-nowrap"
+            class="relative whitespace-nowrap vertical-hover-bar"
             v-for="(column, columnIndex) of columns"
             :key="`td-${columnIndex}`"
           >
-            <slot name="cell" :value="{ row, column, rowIndex, columnIndex }">
-            </slot>
+            <div class="z-10">
+              <slot name="cell" :value="{ row, column, rowIndex, columnIndex }">
+              </slot>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -52,7 +54,20 @@ export default {
 
 <style scoped>
 /* 
-    Based on: 
+    Sticky table Based on: 
     https://css-tricks.com/a-table-with-both-a-sticky-header-and-a-sticky-first-column/
-  */
+*/
+table.table-auto tbody tr:hover th {
+  background-color: rgb(244, 244, 244);
+}
+.vertical-hover-bar:hover::before {
+  z-index: -1;
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -99999px;
+  bottom: -99999px;
+  background-color: rgb(244, 244, 244);
+}
 </style>

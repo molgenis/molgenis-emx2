@@ -51,7 +51,7 @@ let activeVariablePath = computed(() =>
 
         <template #row="rowProps">
           <div
-            class="text-body-base text-blue-500 font-normal hover:underline hover:bg-blue-50 border-r-2 px-2 cursor-pointer"
+            class="text-body-base text-blue-500 font-normal hover:underline hover:bg-blue-50 px-2 cursor-pointer"
             @click="activeRowIndex = rowProps.value.rowIndex"
           >
             {{ rowProps.value.row.name }}
