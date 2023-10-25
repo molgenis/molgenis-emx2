@@ -314,7 +314,7 @@ export default {
       required: true,
     },
     /** list of schemas for externalSchema select */
-    schemaNames: {
+    schemaIds: {
       type: Array,
       required: true,
     },

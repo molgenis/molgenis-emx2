@@ -92,11 +92,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import FilterWell from "../filters/FilterWell.vue";
-import {
-  convertToPascalCase,
-  convertRowToPrimaryKey,
-  applyJsTemplate,
-} from "../utils";
+import { convertRowToPrimaryKey, applyJsTemplate } from "../utils";
 
 export default {
   extends: BaseInput,

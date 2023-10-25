@@ -34,7 +34,6 @@ import constants from "../constants.js";
 import Client from "../../client/client";
 import {
   deepClone,
-  convertToCamelCase,
   getLocalizedLabel,
   getLocalizedDescription,
 } from "../utils";

@@ -78,7 +78,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import InputRefItem from "./InputRefItem.vue";
-import { flattenObject, convertToPascalCase } from "../utils";
+import { flattenObject } from "../utils";
 
 export default {
   name: "InputRef",

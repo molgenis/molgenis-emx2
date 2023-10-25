@@ -424,7 +424,6 @@ import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
 import {
-  convertToPascalCase,
   convertRowToPrimaryKey,
   deepClone,
   getLocalizedDescription,
@@ -725,16 +724,16 @@ export default {
     setTableMetadata(newTableMetadata) {
       this.columns = newTableMetadata.columns.map((column) => {
         const showColumn = this.showColumns.length
-          ? this.showColumns.includes(column.name)
-          : !column.name.startsWith("mg_");
+          ? this.showColumns.includes(column.id)
+          : !column.id.startsWith("mg_");
         const conditions = getCondition(
           column.columnType,
-          this.urlConditions[column.name]
+          this.urlConditions[column.id]
         );
         return {
           ...column,
           showColumn,
-          showFilter: this.showFilters.includes(column.name),
+          showFilter: this.showFilters.includes(column.id),
           conditions,
         };
       });

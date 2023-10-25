@@ -136,6 +136,7 @@ export function isInvalidBigInt(value: string): boolean {
   }
 }
 
+//todo move to schema editor?
 export function convertToCamelCase(string: string): string {
   const words = string.trim().split(/\s+/);
   let result = "";
@@ -152,6 +153,7 @@ export function convertToCamelCase(string: string): string {
   return result;
 }
 
+//todo move to schema editor?
 export function convertToPascalCase(string: string): string {
   const words = string.trim().split(/\s+/);
   let result = "";

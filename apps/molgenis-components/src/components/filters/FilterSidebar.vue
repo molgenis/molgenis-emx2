@@ -2,12 +2,12 @@
   <div class="sidebar-container">
     <FilterContainer
       v-for="(filter, index) in visibleFilters"
-      :key="filter.name"
-      :title="filter.name"
+      :key="filter.id"
+      :title="filter.label"
       :conditions="filter.conditions"
     >
       <FilterInput
-        :id="'filter-' + filter.name"
+        :id="'filter-' + filter.id"
         :conditions="visibleFilters[index].conditions"
         @updateConditions="handleUpdateFilter(index, $event)"
         :columnType="filter.columnType"

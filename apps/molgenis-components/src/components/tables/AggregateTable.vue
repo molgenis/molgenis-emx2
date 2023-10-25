@@ -94,7 +94,6 @@ import IAggregateData from "./IAggregateData";
 import Client from "../../client/client";
 import InputSelect from "../forms/InputSelect.vue";
 import { IColumn } from "../../Interfaces/IColumn";
-import { convertToCamelCase } from "../utils";
 import { INewClient } from "../../client/IClient";
 
 export default defineComponent({
@@ -151,11 +150,11 @@ export default defineComponent({
         .fetchAggregateData(
           this.tableId,
           {
-            name: convertToCamelCase(this.selectedColumn),
+            id: this.selectedColumn,
             column: "name",
           },
           {
-            name: convertToCamelCase(this.selectedRow),
+            id: this.selectedRow,
             column: "name",
           },
           this.graphqlFilter
@@ -174,10 +173,8 @@ export default defineComponent({
       this.loading = false;
     },
     addItem(item: any) {
-      const column: string =
-        item[convertToCamelCase(this.selectedColumn)].name || "not specified";
-      const row: string =
-        item[convertToCamelCase(this.selectedRow)].name || "not specified";
+      const column: string = item[this.selectedColumn].name || "not specified";
+      const row: string = item[this.selectedRow].name || "not specified";
 
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
@@ -225,7 +222,7 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
         column.columnType.startsWith("ONTOLOGY")
       );
     })
-    .map((column: IColumn) => column.name);
+    .map((column: IColumn) => column.id);
 }
 </script>
 

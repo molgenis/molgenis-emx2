@@ -33,7 +33,7 @@ export default {
         ? this.metaData.refLabel
         : this.metaData.refLabelDefault;
       try {
-        return new Function(...names, "return `" + refLabel + "`;")(...vals);
+        return new Function(...id, "return `" + refLabel + "`;")(...vals);
       } catch (err) {
         const namesString = JSON.stringify(names);
         const valsString = JSON.stringify(vals);

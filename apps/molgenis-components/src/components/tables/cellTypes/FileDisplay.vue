@@ -1,6 +1,6 @@
 <template>
   <a v-if="data.id" :href="data.url">
-    {{ metaData.name }}.{{ data.extension }} ({{ fileSize }})
+    {{ metaData.label }}.{{ data.extension }} ({{ fileSize }})
   </a>
 </template>
 

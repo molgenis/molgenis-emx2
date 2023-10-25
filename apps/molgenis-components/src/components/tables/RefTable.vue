@@ -130,7 +130,7 @@ function metadataOfCell(key: string | number): IColumn {
 function isMetadata(
   metadata: ITableMetaData | string
 ): metadata is ITableMetaData {
-  return (<ITableMetaData>metadata).name !== undefined;
+  return (<ITableMetaData>metadata).id !== undefined;
 }
 
 function onCellClick(cellName: string): void {

@@ -132,7 +132,7 @@
             <ColumnEditModal
               v-if="isManager"
               :schema="schema"
-              :schemaNames="schemaNames"
+              :schemaIds="schemaIds"
               operation="add"
               :tableName="table.name"
               :columnIndex="0"
@@ -177,7 +177,7 @@
                   "
                   v-model="table.columns[index]"
                   :schema="schema"
-                  :schemaNames="schemaNames"
+                  :schemaIds="schemaIds"
                   @update:modelValue="updateColumn(index, $event)"
                   @add="addColumn(index + 1, $event)"
                   @delete="deleteColumn(index)"
@@ -229,7 +229,7 @@ export default {
       type: Object,
       required: true,
     },
-    schemaNames: {
+    schemaIds: {
       type: Array,
       required: true,
     },

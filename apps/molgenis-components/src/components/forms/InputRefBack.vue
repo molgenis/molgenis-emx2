@@ -99,7 +99,7 @@ import MessageWarning from "./MessageWarning.vue";
 import MessageError from "./MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import ConfirmModal from "./ConfirmModal.vue";
-import { convertToCamelCase, deepEqual } from "../utils";
+import { deepEqual } from "../utils";
 
 export default {
   name: "InputRefBack",
@@ -162,7 +162,7 @@ export default {
   computed: {
     graphqlFilter() {
       var result = new Object();
-      result[convertToCamelCase(this.refBackId)] = {
+      result[this.refBackId] = {
         equals: this.refTablePrimaryKeyObject,
       };
       return result;

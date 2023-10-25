@@ -2,7 +2,7 @@ import { IColumn } from "../../../Interfaces/IColumn";
 import { IRow } from "../../../Interfaces/IRow";
 import { ITableMetaData } from "../../../Interfaces/ITableMetaData";
 import constants from "../../constants.js";
-import { deepClone, convertToCamelCase, filterObject } from "../../utils";
+import { deepClone, filterObject } from "../../utils";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID, HEADING } = constants;
 
@@ -40,7 +40,7 @@ function getColumnError(
     return undefined;
   }
   if (column.required && (missesValue || isInvalidNumber)) {
-    return column.name + " is required";
+    return column.label + " is required";
   }
   if (missesValue) {
     return undefined;
@@ -122,7 +122,7 @@ function isRefLinkWithoutOverlap(column: IColumn, values: Record<string, any>) {
     return false;
   }
   const columnRefLink = column.refLink;
-  const refLinkId = convertToCamelCase(columnRefLink);
+  const refLinkId = columnRefLink;
 
   const value = values[column.id];
   const refValue = values[refLinkId];
@@ -159,11 +159,11 @@ function containsInvalidEmail(emails: any) {
 }
 
 export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
-  const keyColumnsNames = tableMetaData?.columns
+  const keyColumnsIds = tableMetaData?.columns
     ?.filter((column: IColumn) => column.key === 1)
-    .map((column: IColumn) => column.name);
+    .map((column: IColumn) => column.id);
 
-  return filterObject(rowData, (key) => !keyColumnsNames?.includes(key));
+  return filterObject(rowData, (key) => !keyColumnsIds?.includes(key));
 }
 
 export function filterVisibleColumns(

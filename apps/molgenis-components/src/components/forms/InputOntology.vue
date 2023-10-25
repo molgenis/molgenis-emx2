@@ -23,7 +23,7 @@
           :key="selectedTerm"
           @click.stop="deselect(selectedTerm)"
         >
-          {{ selectedTerm.label ? selectedTerm.label : selectedTerm.name }}
+          {{ selectedTerm.label ? selectedTerm.label : selectedTerm.id }}
           <span class="fa fa-times"></span>
         </span>
         <i
@@ -113,7 +113,6 @@ import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "click-outside-vue3";
-import { convertToPascalCase } from "../utils.ts";
 import Spinner from "../layout/Spinner.vue";
 
 /**
@@ -180,9 +179,6 @@ export default {
     };
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableId);
-    },
     rootTerms() {
       if (this.terms) {
         let result = Object.values(this.terms).filter(
@@ -197,7 +193,7 @@ export default {
     orderByObject() {
       if (
         this.tableMetadata &&
-        this.tableMetadata.columns.some((c) => c.name === "order")
+        this.tableMetadata.columns.some((c) => c.id === "order")
       ) {
         return { order: "ASC" };
       } else {

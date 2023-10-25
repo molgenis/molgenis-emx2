@@ -23,7 +23,7 @@
 
     <td
       v-for="col in columns"
-      :key="col.name + isSelected"
+      :key="col.id + isSelected"
       style="cursor: pointer"
       :style="col.showColumn ? '' : 'display: none'"
       @click="

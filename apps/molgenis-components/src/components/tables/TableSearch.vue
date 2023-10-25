@@ -90,7 +90,6 @@ import Client from "../../client/client.ts";
 import RowButtonAdd from "./RowButtonAdd.vue";
 import RowButtonEdit from "./RowButtonEdit.vue";
 import RowButtonDelete from "./RowButtonDelete.vue";
-import { convertToPascalCase } from "../utils";
 
 export default {
   name: "TableSearch",
@@ -153,8 +152,8 @@ export default {
     columnsVisible() {
       return this.tableMetadata.columns.filter(
         (column) =>
-          (this.showColumns == null && !column.name.startsWith("mg_")) ||
-          (this.showColumns != null && this.showColumns.includes(column.name))
+          (this.showColumns == null && !column.id.startsWith("mg_")) ||
+          (this.showColumns != null && this.showColumns.includes(column.id))
       );
     },
   },
