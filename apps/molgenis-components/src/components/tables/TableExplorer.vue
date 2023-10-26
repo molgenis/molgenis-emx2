@@ -1,9 +1,9 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <h1 v-if="showHeader && tableMetadata">{{ localizedLabel }}</h1>
+    <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.label }}</h1>
     <p v-if="showHeader && tableMetadata">
-      {{ localizedDescription }}
+      {{ tableMetadata.label }}
     </p>
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
@@ -357,7 +357,6 @@
       :clone="editMode === 'clone'"
       :schemaId="schemaId"
       @close="handleModalClose"
-      :locale="locale"
       :apply-default-values="editMode === 'add'"
     />
 
@@ -423,13 +422,7 @@ import InputSelect from "../forms/InputSelect.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
-import {
-  convertRowToPrimaryKey,
-  deepClone,
-  getLocalizedDescription,
-  getLocalizedLabel,
-  isRefType,
-} from "../utils";
+import { convertRowToPrimaryKey, deepClone, isRefType } from "../utils";
 import AggregateTable from "./AggregateTable.vue";
 import Pagination from "./Pagination.vue";
 import RecordCards from "./RecordCards.vue";
@@ -578,18 +571,8 @@ export default {
       type: Boolean,
       default: () => false,
     },
-    locale: {
-      type: String,
-      default: () => "en",
-    },
   },
   computed: {
-    localizedLabel() {
-      return getLocalizedLabel(this.tableMetadata, this.locale);
-    },
-    localizedDescription() {
-      return getLocalizedDescription(this.tableMetadata, this.locale);
-    },
     View() {
       return View;
     },
@@ -911,7 +894,6 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
         :canEdit="canEdit"
         :canManage="canManage"
         :canView="true"
-        :locale="locale"
       />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
@@ -940,7 +922,6 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
         showOrderBy: 'name',
         canEdit: false,
         canManage: false,
-        locale: 'en'
       }
     },
   }

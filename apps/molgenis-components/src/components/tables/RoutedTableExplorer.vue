@@ -21,7 +21,6 @@
       :showLimit="getLimit()"
       :showOrderBy="getOrderBy()"
       :showOrder="getOrder()"
-      :locale="locale"
       @rowClick="$emit('rowClick', $event)"
     >
       <template v-slot:rowcolheader>
@@ -73,10 +72,6 @@ export default {
     canManage: {
       type: Boolean,
       default: () => false,
-    },
-    locale: {
-      type: String,
-      default: () => "en",
     },
     showFilters: {
       type: Array,

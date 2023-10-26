@@ -216,6 +216,7 @@ export default {
       this.selection = [];
     }
   },
+  emits: ["optionsLoaded"],
 };
 </script>
 

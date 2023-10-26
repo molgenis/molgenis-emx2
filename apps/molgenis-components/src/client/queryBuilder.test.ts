@@ -93,12 +93,7 @@ const metaData: ISchemaMetaData = {
       id: "Pet",
       tableType: "DATA",
       label: "Pet",
-      descriptions: [
-        {
-          locale: "en",
-          value: "My pet store example table",
-        },
-      ],
+      description: "My pet store example table",
       schemaId: "pet store",
       columns: [
         {
@@ -107,12 +102,7 @@ const metaData: ISchemaMetaData = {
           columnType: "STRING",
           key: 1,
           required: true,
-          descriptions: [
-            {
-              locale: "en",
-              value: "the name",
-            },
-          ],
+          description: "the name",
         },
         {
           id: "category",
@@ -161,12 +151,7 @@ const metaData: ISchemaMetaData = {
           label: "Order",
           columnType: "INT",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C42680"],
-          descriptions: [
-            {
-              locale: "en",
-              value: "Order of this term within the code system",
-            },
-          ],
+          description: "Order of this term within the code system",
         },
         {
           id: "name",
@@ -175,12 +160,7 @@ const metaData: ISchemaMetaData = {
           key: 1,
           required: true,
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C42614"],
-          descriptions: [
-            {
-              locale: "en",
-              value: "Unique name of the term within this table",
-            },
-          ],
+          description: "Unique name of the term within this table",
           position: 1,
         },
         {
@@ -188,13 +168,9 @@ const metaData: ISchemaMetaData = {
           label: "Label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          descriptions: [
-            {
-              locale: "en",
-              value:
-                "User-friendly label for this term. Should be unique in parent",
-            },
-          ],
+          description:
+            "User-friendly label for this term. Should be unique in parent",
+
           position: 2,
         },
         {
@@ -204,12 +180,8 @@ const metaData: ISchemaMetaData = {
           refTableId: "Tag",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          descriptions: [
-            {
-              locale: "en",
-              value: "The parent term, in case this code exists in a hierarchy",
-            },
-          ],
+          description:
+            "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
 
@@ -221,13 +193,8 @@ const metaData: ISchemaMetaData = {
           refLabelDefault: "${name}",
           refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          descriptions: [
-            {
-              locale: "en",
-              value:
-                "Child terms, in case this term is the parent of other terms",
-            },
-          ],
+          description:
+            "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
       ],

@@ -1,5 +1,3 @@
-import { ILocale } from "./ILocales";
-
 export interface IColumn {
   columnType: string;
   id: string;
@@ -7,9 +5,7 @@ export interface IColumn {
   description?: string;
   computed?: string;
   conditions?: string[];
-  descriptions?: ILocale[];
   key?: number;
-  labels?: ILocale[];
   position?: number;
   readonly?: string;
   defaultValue?: string;

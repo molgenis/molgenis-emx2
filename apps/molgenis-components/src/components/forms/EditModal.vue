@@ -21,7 +21,6 @@
                   : visibleColumns
               "
               :clone="clone"
-              :locale="locale"
               :errorPerColumn="rowErrors"
               :applyDefaultValues="applyDefaultValues"
               @update:model-value="checkForErrors"
@@ -104,7 +103,7 @@ import { INewClient } from "../../client/IClient";
 import Client from "../../client/client";
 import constants from "../constants";
 import LayoutModal from "../layout/LayoutModal.vue";
-import { deepClone, getLocalizedLabel } from "../utils";
+import { deepClone } from "../utils";
 import ButtonAction from "./ButtonAction.vue";
 import RowEdit from "./RowEdit.vue";
 import RowEditFooter from "./RowEditFooter.vue";
@@ -176,10 +175,6 @@ export default {
       type: Object,
       default: () => null,
     },
-    locale: {
-      type: String,
-      default: () => "en",
-    },
     useChapters: {
       type: Boolean,
       default: () => null,
@@ -194,7 +189,7 @@ export default {
     },
     label() {
       if (this.tableMetaData) {
-        return getLocalizedLabel(this.tableMetaData);
+        return this.tableMetaData.label;
       }
     },
     titlePrefix() {

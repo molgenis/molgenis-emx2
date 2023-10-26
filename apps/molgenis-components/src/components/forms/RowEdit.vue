@@ -8,7 +8,7 @@
       :columnType="column.columnType"
       :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
-      :label="getColumnLabel(column)"
+      :label="column.label"
       :schemaId="column.refSchemaId ? column.refSchemaId : schemaMetaData.id"
       :pkey="pkey"
       :readonly="
@@ -95,10 +95,6 @@ export default {
       required: false,
       default: () => true,
     },
-    locale: {
-      type: String,
-      default: () => "en",
-    },
     errorPerColumn: {
       type: Object,
       default: () => ({}),
@@ -139,12 +135,6 @@ export default {
     },
   },
   methods: {
-    getColumnLabel(column: IColumn) {
-      return getLocalizedLabel(column, this.locale);
-    },
-    getColumnDescription(column: IColumn) {
-      return getLocalizedDescription(column, this.locale);
-    },
     showColumn(column: IColumn) {
       if (column.columnType === AUTO_ID) {
         return this.pkey;
@@ -284,7 +274,6 @@ export default {
               <option>User</option>
             </select>
           </dd>
-          <InputString v-model="locale" label="locale" id="locale"/>
           <dt>Row data</dt>
           <dd>{{ rowData }}</dd>
 
@@ -311,12 +300,6 @@ export default {
     },
     watch: {
       async tableId(newValue, oldValue) {
-        if (newValue !== oldValue) {
-          this.rowData = {};
-          await this.reload();
-        }
-      },
-      async locale(newValue, oldValue) {
         if (newValue !== oldValue) {
           this.rowData = {};
           await this.reload();
