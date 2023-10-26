@@ -6,6 +6,7 @@ import static spark.Spark.get;
 import java.io.*;
 import java.util.Collection;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.RDFService;
@@ -58,7 +59,9 @@ public class RDFApi {
 
   private static int rdfForSchema(Request request, Response response) throws IOException {
     Schema schema = getSchema(request);
-
+    if (schema == null) {
+      throw new MolgenisException("Schema " + request.params("schema") + " was not found");
+    }
     final String baseURL = extractBaseURL(request);
     RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
@@ -73,7 +76,7 @@ public class RDFApi {
   private static int rdfForTable(Request request, Response response) throws IOException {
     Table table = getTable(request);
     String rowId = null;
-    if (!request.queryString().isBlank()) {
+    if (request.queryString() != null && !request.queryString().isBlank()) {
       rowId = request.queryString();
     }
     final String baseURL = extractBaseURL(request);

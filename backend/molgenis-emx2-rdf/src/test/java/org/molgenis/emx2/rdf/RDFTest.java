@@ -66,101 +66,101 @@ public class RDFTest {
   @Test
   void RDFForOneSchemaAsTTL() {
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService rdf = new RDFService("http://localhost:8080/petStoreNr1", RDF_API_LOCATION, null);
+    RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
     rdf.describeAsRDF(outputStream, null, null, null, petStoreSchemas[0]);
     String result = outputStream.toString();
-    assertTrue(result.contains(TTL_PREFIX_1));
-    assertFalse(result.contains(TTL_PREFIX_2));
-    assertTrue(result.contains(TTL_ROOT));
-    assertTrue(result.contains(TTL_SCHEMA_1));
-    assertFalse(result.contains(TTL_SCHEMA_2));
-    assertTrue(result.contains(TTL_TABLE_CATEGORY_1));
-    assertFalse(result.contains(TTL_TABLE_CATEGORY_2));
-    assertTrue(result.contains(TTL_TABLE_PET_1));
-    assertFalse(result.contains(TTL_TABLE_PET_2));
-    assertTrue(result.contains(TTL_COL_CATEGORY_NAME_1));
-    assertFalse(result.contains(TTL_COL_CATEGORY_NAME_2));
-    assertTrue(result.contains(TTL_COL_PET_NAME_1));
-    assertFalse(result.contains(TTL_COL_PET_NAME_2));
-    assertTrue(result.contains(TTL_COL_PET_DETAILS_1));
-    assertFalse(result.contains(TTL_COL_PET_DETAILS_2));
-    assertTrue(result.contains(TTL_ROW_POOKY_1));
-    assertTrue(result.contains(TTL_ROW_SPIKE_1));
-    assertFalse(result.contains(TTL_ROW_POOKY_2));
-    assertFalse(result.contains(TTL_ROW_SPIKE_2));
-    assertTrue(result.contains(TTL_ROW_CAT_1));
-    assertTrue(result.contains(TTL_ROW_DOG_1));
-    assertFalse(result.contains(TTL_ROW_CAT_2));
-    assertFalse(result.contains(TTL_ROW_DOG_2));
+    assertTrue(result.contains(TTL_PREFIX_1), "Prefix 1");
+    assertFalse(result.contains(TTL_PREFIX_2), "Prefix 2");
+    assertTrue(result.contains(TTL_ROOT), "Root");
+    assertTrue(result.contains(TTL_SCHEMA_1), "Schema 1");
+    assertFalse(result.contains(TTL_SCHEMA_2), "Schema 2");
+    assertTrue(result.contains(TTL_TABLE_CATEGORY_1), "Category 1");
+    assertFalse(result.contains(TTL_TABLE_CATEGORY_2), "Category 2");
+    assertTrue(result.contains(TTL_TABLE_PET_1), "Pet 1");
+    assertFalse(result.contains(TTL_TABLE_PET_2), "Pet 2");
+    assertTrue(result.contains(TTL_COL_CATEGORY_NAME_1), "Category name 1");
+    assertFalse(result.contains(TTL_COL_CATEGORY_NAME_2), "Category name 2");
+    assertTrue(result.contains(TTL_COL_PET_NAME_1), "Pet name 1");
+    assertFalse(result.contains(TTL_COL_PET_NAME_2), "Pet name 2");
+    assertTrue(result.contains(TTL_COL_PET_DETAILS_1), "Pet details 1");
+    assertFalse(result.contains(TTL_COL_PET_DETAILS_2), "Pet details 2");
+    assertTrue(result.contains(TTL_ROW_POOKY_1), "Pooky 1");
+    assertTrue(result.contains(TTL_ROW_SPIKE_1), "Spike 1");
+    assertFalse(result.contains(TTL_ROW_POOKY_2), "Pooky 2");
+    assertFalse(result.contains(TTL_ROW_SPIKE_2), "Spike 2");
+    assertTrue(result.contains(TTL_ROW_CAT_1), "Cat 1");
+    assertTrue(result.contains(TTL_ROW_DOG_1), "Dog 1");
+    assertFalse(result.contains(TTL_ROW_CAT_2), "Cat 2");
+    assertFalse(result.contains(TTL_ROW_DOG_2), "Dog 2");
   }
 
   @Test
   void RDFForOneTableAsTTL() {
-    RDFService rdf = new RDFService("http://localhost:8080/petStore", RDF_API_LOCATION, null);
+    RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
     Table table = petStoreSchemas[0].getTable("Category");
     OutputStream outputStream = new ByteArrayOutputStream();
     rdf.describeAsRDF(outputStream, table, null, null, table.getSchema());
     String result = outputStream.toString();
-    assertTrue(result.contains(TTL_PREFIX_1));
-    assertFalse(result.contains(TTL_PREFIX_2));
-    assertTrue(result.contains(TTL_ROOT));
-    assertTrue(result.contains(TTL_SCHEMA_1));
-    assertFalse(result.contains(TTL_SCHEMA_2));
-    assertTrue(result.contains(TTL_TABLE_CATEGORY_1));
-    assertFalse(result.contains(TTL_TABLE_CATEGORY_2));
-    assertFalse(result.contains(TTL_TABLE_PET_1));
-    assertFalse(result.contains(TTL_TABLE_PET_2));
-    assertTrue(result.contains(TTL_COL_CATEGORY_NAME_1));
-    assertFalse(result.contains(TTL_COL_CATEGORY_NAME_2));
-    assertFalse(result.contains(TTL_COL_PET_NAME_1));
-    assertFalse(result.contains(TTL_COL_PET_NAME_2));
-    assertFalse(result.contains(TTL_COL_PET_DETAILS_1));
-    assertFalse(result.contains(TTL_COL_PET_DETAILS_2));
-    assertFalse(result.contains(TTL_ROW_POOKY_1));
-    assertFalse(result.contains(TTL_ROW_SPIKE_1));
-    assertFalse(result.contains(TTL_ROW_POOKY_2));
-    assertFalse(result.contains(TTL_ROW_SPIKE_2));
-    assertTrue(result.contains(TTL_ROW_CAT_1));
-    assertTrue(result.contains(TTL_ROW_DOG_1));
-    assertFalse(result.contains(TTL_ROW_CAT_2));
-    assertFalse(result.contains(TTL_ROW_DOG_2));
+    assertTrue(result.contains(TTL_PREFIX_1), "Prefix 1");
+    assertFalse(result.contains(TTL_PREFIX_2), "Prefix 2");
+    assertTrue(result.contains(TTL_ROOT), "Root");
+    assertTrue(result.contains(TTL_SCHEMA_1), "Schema 1");
+    assertFalse(result.contains(TTL_SCHEMA_2), "Schema 2");
+    assertTrue(result.contains(TTL_TABLE_CATEGORY_1), "Category 1");
+    assertFalse(result.contains(TTL_TABLE_CATEGORY_2), "Category 2");
+    assertFalse(result.contains(TTL_TABLE_PET_1), "Pet 1");
+    assertFalse(result.contains(TTL_TABLE_PET_2), "Pet 2");
+    assertTrue(result.contains(TTL_COL_CATEGORY_NAME_1), "Category name 1");
+    assertFalse(result.contains(TTL_COL_CATEGORY_NAME_2), "Category name 2");
+    assertFalse(result.contains(TTL_COL_PET_NAME_1), "Pet name 1");
+    assertFalse(result.contains(TTL_COL_PET_NAME_2), "Pet name 2");
+    assertFalse(result.contains(TTL_COL_PET_DETAILS_1), "Pet details 1");
+    assertFalse(result.contains(TTL_COL_PET_DETAILS_2), "Pet details 2");
+    assertFalse(result.contains(TTL_ROW_POOKY_1), "Pooky 1");
+    assertFalse(result.contains(TTL_ROW_SPIKE_1), "Spike 1");
+    assertFalse(result.contains(TTL_ROW_POOKY_2), "Pooky 2");
+    assertFalse(result.contains(TTL_ROW_SPIKE_2), "Spike 2");
+    assertTrue(result.contains(TTL_ROW_CAT_1), "Cat 1");
+    assertTrue(result.contains(TTL_ROW_DOG_1), "Dog 1");
+    assertFalse(result.contains(TTL_ROW_CAT_2), "Cat 2");
+    assertFalse(result.contains(TTL_ROW_DOG_2), "Dog 2");
   }
 
   @Test
   void RDFForOneColumnAsTTL() {
     Table table = petStoreSchemas[0].getTable("Pet");
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService rdf = new RDFService("http://localhost:8080/petStore", RDF_API_LOCATION, null);
+    RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
     rdf.describeAsRDF(outputStream, table, null, "details", table.getSchema());
     String result = outputStream.toString();
-    assertTrue(result.contains(TTL_PREFIX_1));
-    assertFalse(result.contains(TTL_PREFIX_2));
-    assertTrue(result.contains(TTL_ROOT));
-    assertTrue(result.contains(TTL_SCHEMA_1));
-    assertFalse(result.contains(TTL_SCHEMA_2));
-    assertFalse(result.contains(TTL_TABLE_CATEGORY_1));
-    assertFalse(result.contains(TTL_TABLE_CATEGORY_2));
-    assertTrue(result.contains(TTL_TABLE_PET_1));
-    assertFalse(result.contains(TTL_TABLE_PET_2));
-    assertFalse(result.contains(TTL_COL_CATEGORY_NAME_1));
-    assertFalse(result.contains(TTL_COL_CATEGORY_NAME_2));
-    assertFalse(result.contains(TTL_COL_PET_NAME_1));
-    assertFalse(result.contains(TTL_COL_PET_NAME_2));
-    assertTrue(result.contains(TTL_COL_PET_DETAILS_1));
-    assertFalse(result.contains(TTL_COL_PET_DETAILS_2));
-    assertFalse(result.contains(TTL_ROW_POOKY_1));
-    assertFalse(result.contains(TTL_ROW_SPIKE_1));
-    assertFalse(result.contains(TTL_ROW_POOKY_2));
-    assertFalse(result.contains(TTL_ROW_SPIKE_2));
-    assertFalse(result.contains(TTL_ROW_CAT_1));
-    assertFalse(result.contains(TTL_ROW_DOG_1));
-    assertFalse(result.contains(TTL_ROW_CAT_2));
-    assertFalse(result.contains(TTL_ROW_DOG_2));
+    assertTrue(result.contains(TTL_PREFIX_1), "Prefix 1");
+    assertFalse(result.contains(TTL_PREFIX_2), "Prefix 2");
+    assertTrue(result.contains(TTL_ROOT), "Root");
+    assertTrue(result.contains(TTL_SCHEMA_1), "Schema 1");
+    assertFalse(result.contains(TTL_SCHEMA_2), "Schema 2");
+    assertFalse(result.contains(TTL_TABLE_CATEGORY_1), "Category 1");
+    assertFalse(result.contains(TTL_TABLE_CATEGORY_2), "Category 2");
+    assertTrue(result.contains(TTL_TABLE_PET_1), "Pet 1");
+    assertFalse(result.contains(TTL_TABLE_PET_2), "Pet 2");
+    assertFalse(result.contains(TTL_COL_CATEGORY_NAME_1), "Category name 1");
+    assertFalse(result.contains(TTL_COL_CATEGORY_NAME_2), "Category name 2");
+    assertFalse(result.contains(TTL_COL_PET_NAME_1), "Pet name 1");
+    assertFalse(result.contains(TTL_COL_PET_NAME_2), "Pet name 2");
+    assertTrue(result.contains(TTL_COL_PET_DETAILS_1), "Pet details 1");
+    assertFalse(result.contains(TTL_COL_PET_DETAILS_2), "Pet details 2");
+    assertFalse(result.contains(TTL_ROW_POOKY_1), "Pooky 1");
+    assertFalse(result.contains(TTL_ROW_SPIKE_1), "Spike 1");
+    assertFalse(result.contains(TTL_ROW_POOKY_2), "Pooky 2");
+    assertFalse(result.contains(TTL_ROW_SPIKE_2), "Spike 1");
+    assertFalse(result.contains(TTL_ROW_CAT_1), "Cat 1");
+    assertFalse(result.contains(TTL_ROW_DOG_1), "Dog 1");
+    assertFalse(result.contains(TTL_ROW_CAT_2), "Cat 2");
+    assertFalse(result.contains(TTL_ROW_DOG_2), "Dog 2");
   }
 
   @Test
   void RDFForOneRowAsTTL() {
-    RDFService rdf = new RDFService("http://localhost:8080/petStore", RDF_API_LOCATION, null);
+    RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
     Table table = petStoreSchemas[0].getTable("Category");
     String rowId = "cat";
     OutputStream outputStream = new ByteArrayOutputStream();
@@ -193,7 +193,7 @@ public class RDFTest {
 
   @Test
   void RDFForOneRowAsXML() {
-    RDFService rdf = new RDFService("http://localhost:8080/petStore", RDF_API_LOCATION, "xml");
+    RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, "xml");
     Table table = petStoreSchemas[0].getTable("Category");
     String rowId = "cat";
     OutputStream outputStream = new ByteArrayOutputStream();
@@ -214,7 +214,7 @@ public class RDFTest {
 
   @Test
   void RDFUpdateOntologySemantics() {
-    RDFService rdf = new RDFService("http://localhost:8080/petStore", RDF_API_LOCATION, null);
+    RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
     Table table = petStoreSchemas[0].getTable("Tag");
     OutputStream outputStream = new ByteArrayOutputStream();
     rdf.describeAsRDF(outputStream, table, null, null, table.getSchema());

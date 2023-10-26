@@ -1,8 +1,10 @@
 package org.molgenis.emx2.rdf;
 
 public class StringsForRDFTest {
-  static final String TTL_PREFIX_1 = "@prefix emx0: <http://localhost:8080/petStoreNr1/api/rdf/> .";
-  static final String TTL_PREFIX_2 = "@prefix emx1: <http://localhost:8080/petStoreNr2/api/rdf/> .";
+  static final String TTL_PREFIX_1 =
+      "@prefix PetStoreNr1: <http://localhost:8080/petStoreNr1/api/rdf/> .";
+  static final String TTL_PREFIX_2 =
+      "@prefix PetStoreNr2: <http://localhost:8080/petStoreNr2/api/rdf/> .";
   static final String TTL_ROOT = "<http://localhost:8080> a sio:SIO_000750;";
   static final String TTL_SCHEMA_1 =
       "<http://localhost:8080/petStoreNr1/api/rdf> a rdfs:Container;";

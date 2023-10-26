@@ -44,8 +44,10 @@ public class OntologyTableSemantics {
      */
     System.out.println(result);
     assertTrue(
-        result.contains("emx0:Tag a owl:Class, qb:DataSet, sio:SIO_000754;"),
-        "Tag should be an instance of the given classes");
+        result.contains("rdfs:subClassOf qb:DataSet, sio:SIO_000754, owl:Thing;"),
+        "Tag should be a subclass of the given classes");
+    assertTrue(
+        result.contains("PetStore:Tag a owl:Class;"), "Tag should be an instance of owl:Class");
     assertTrue(
         result.contains("rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C48697>;"),
         "Tag should be defined by NCIT_C48697");
@@ -71,7 +73,11 @@ public class OntologyTableSemantics {
      * Situation after: the 'Tag' ontology table has the Tag annotation from the REPRODUCE-ME
      * ontology
      */
-    assertTrue(result.contains("emx0:Tag a owl:Class, qb:DataSet, sio:SIO_000754;"));
+    assertTrue(
+        result.contains("rdfs:subClassOf qb:DataSet, sio:SIO_000754, owl:Thing;"),
+        "Tag should be a subclass of the given classes");
+    assertTrue(
+        result.contains("PetStore:Tag a owl:Class;"), "Tag should be an instance of owl:Class");
     assertFalse(result.contains("rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C48697>;"));
     assertTrue(result.contains("rdfs:isDefinedBy <https://w3id.org/reproduceme#Tag>;"));
   }
