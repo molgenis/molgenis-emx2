@@ -136,36 +136,6 @@ export function isInvalidBigInt(value: string): boolean {
   }
 }
 
-//todo move to schema editor?
-export function convertToCamelCase(string: string): string {
-  const words = string.trim().split(/\s+/);
-  let result = "";
-  words.forEach((word: string, index: number) => {
-    if (index === 0) {
-      result += word.charAt(0).toLowerCase();
-    } else {
-      result += word.charAt(0).toUpperCase();
-    }
-    if (word.length > 1) {
-      result += word.slice(1);
-    }
-  });
-  return result;
-}
-
-//todo move to schema editor?
-export function convertToPascalCase(string: string): string {
-  const words = string.trim().split(/\s+/);
-  let result = "";
-  words.forEach((word: string) => {
-    result += word.charAt(0).toUpperCase();
-    if (word.length > 1) {
-      result += word.slice(1);
-    }
-  });
-  return result;
-}
-
 export function getLocalizedLabel(
   tableOrColumnMetadata: ITableMetaData | IColumn,
   locale?: string

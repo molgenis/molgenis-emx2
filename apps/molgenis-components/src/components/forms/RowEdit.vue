@@ -204,7 +204,7 @@ export default {
       if (
         column.refLinkId &&
         this.showColumn(column) &&
-        this.internalValues[column.refLink]
+        this.internalValues[column.refLinkId]
       ) {
         let filter: Record<string, any> = {};
         this.tableMetaData.columns.forEach((column2: IColumn) => {
@@ -218,6 +218,7 @@ export default {
                     column3.refTableId === column2.refTableId
                   ) {
                     filter[column3.id] = {
+                      //@ts-ignore
                       equals: this.internalValues[column.refLinkId],
                     };
                   }

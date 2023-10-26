@@ -10,7 +10,7 @@
           <label>Gender at birth</label>
           <InputRefList
             id="GenderAtBirth"
-            tableName="GenderAtBirth"
+            tableId="GenderAtBirth"
             v-model="genderAtBirth"
             refLabel="${name}"
             :multi-select="true"
@@ -19,7 +19,7 @@
           <label>Choose Gene</label>
           <InputRefList
             id="Genes"
-            tableName="Genes"
+            tableId="Genes"
             v-model="genes"
             refLabel="${name}"
             :multi-select="true"

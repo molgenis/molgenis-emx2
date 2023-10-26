@@ -273,7 +273,7 @@ class QueryEMX2 {
    */
   orderBy(item, column, direction) {
     let columnOrTable =
-      item.toLowerCase() === this.tableName.toLowerCase()
+      item.toLowerCase() === this.tableId.toLowerCase()
         ? "root"
         : this._toCamelCase(item);
     this.orderings[columnOrTable] = { column, direction };

@@ -4,7 +4,6 @@ import {
   ITableMetaData,
   KeyObject,
 } from "~~/interfaces/types";
-import { convertToPascalCase } from "../../molgenis-components/src/components/utils";
 
 const FILE_FRAGMENT = "{ id, size, extension, url }";
 
@@ -31,7 +30,7 @@ export const buildRecordDetailsQueryFields = (
       (t: ITableMetaData) =>
         t.id.toLocaleLowerCase() ===
         // @ts-ignore we know that refTable is not undefined
-        convertToPascalCase(refColumn.refTable).toLocaleLowerCase()
+        refColumn.refTableId.toLocaleLowerCase()
     );
 
     const allRefColumns = refTableMetaData?.columns;
