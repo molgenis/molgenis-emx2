@@ -1,7 +1,7 @@
 <template>
   <div>
     <FormInput
-      v-for="column in columnsWithoutMeta.filter(showColumn)"
+      v-for="column in shownColumnsWithoutMeta"
       :key="JSON.stringify(column)"
       :id="`${id}-${column.id}`"
       :modelValue="internalValues[column.id]"
@@ -10,14 +10,13 @@
       :errorMessage="errorPerColumn[column.id]"
       :label="getColumnLabel(column)"
       :schemaId="column.refSchemaId ? column.refSchemaId : schemaMetaData.id"
-      :pkey="primaryKey"
+      :pkey="pkey"
       :readonly="
         column.readonly ||
         (pkey && column.key === 1 && !clone) ||
-        (column.computed !== undefined && column.computed.trim() != '')
+        (column.computed !== undefined && column.computed.trim() !== '')
       "
       :refBackId="column.refBackId"
-      :refTablePrimaryKeyObject="primaryKey"
       :refLabel="column.refLabel ? column.refLabel : column.refLabelDefault"
       :required="column.required"
       :tableId="column.refTableId"
@@ -29,27 +28,27 @@
 </template>
 
 <script lang="ts">
-import FormInput from "./FormInput.vue";
-import constants from "../constants.js";
-import Client from "../../client/client";
-import {
-  deepClone,
-  getLocalizedLabel,
-  getLocalizedDescription,
-} from "../utils";
 import { IColumn } from "../../Interfaces/IColumn";
 import { IRow } from "../../Interfaces/IRow";
-import { executeExpression, isColumnVisible } from "./formUtils/formUtils";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
+import constants from "../constants.js";
+import {
+  deepClone,
+  getLocalizedDescription,
+  getLocalizedLabel,
+} from "../utils";
+import FormInput from "./FormInput.vue";
+import { executeExpression, isColumnVisible } from "./formUtils/formUtils";
 
 const { AUTO_ID } = constants;
 
 export default {
   name: "RowEdit",
-  data: function () {
+  data() {
     return {
-      client: Client.newClient(this.schemaMetaData.id),
-      internalValues: deepClone(this.modelValue),
+      internalValues: deepClone(
+        this.defaultValue ? this.defaultValue : this.modelValue
+      ),
     };
   },
   props: {
@@ -118,18 +117,13 @@ export default {
     FormInput,
   },
   computed: {
-    async primaryKey() {
-      return this.client.convertRowToPrimaryKey(
-        this.internalValues,
-        this.tableId
-      );
-    },
-    columnsWithoutMeta() {
-      return this?.tableMetaData?.columns
+    shownColumnsWithoutMeta() {
+      const columnsWithoutMeta = this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
             (column: IColumn) => !column.id?.startsWith("mg_")
           )
         : [];
+      return columnsWithoutMeta.filter(this.showColumn);
     },
     graphqlFilter() {
       if (this.tableMetaData && this.pkey) {
@@ -214,7 +208,7 @@ export default {
       if (
         column.refLinkId &&
         this.showColumn(column) &&
-        this.internalValues[column.refLink]
+        this.internalValues[column.refLinkId]
       ) {
         let filter: Record<string, any> = {};
         this.tableMetaData.columns.forEach((column2: IColumn) => {
@@ -228,6 +222,7 @@ export default {
                     column3.refTableId === column2.refTableId
                   ) {
                     filter[column3.id] = {
+                      //@ts-ignore
                       equals: this.internalValues[column.refLinkId],
                     };
                   }
@@ -257,9 +252,11 @@ export default {
     },
   },
   created() {
-    if (this.defaultValue) {
-      this.internalValues = deepClone(this.defaultValue);
-    }
+    this.tableMetaData.columns.forEach((column: IColumn) => {
+      if (column.defaultValue && !this.internalValues[column.id]) {
+        this.internalValues[column.id] = column.defaultValue;
+      }
+    });
     this.onValuesUpdate();
   },
 };
