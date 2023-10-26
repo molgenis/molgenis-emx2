@@ -131,8 +131,7 @@ export default {
                 equals: this.pkey ? this.pkey[column.id] : undefined,
               };
               return accum;
-            },
-            {}
+            }
           );
       } else {
         return {};
@@ -270,7 +269,6 @@ export default {
             v-model="rowData"
             :tableId="tableId"
             :tableMetaData="tableMetadata"
-            :locale="locale"
             :schemaMetaData="schemaMetadata"
         />
       </div>
@@ -302,7 +300,6 @@ export default {
     data: function () {
       return {
         showRowEdit: true,
-        locale: 'en',
         tableId: 'Pet',
         tableMetadata: {
           columns: [],
@@ -333,7 +330,7 @@ export default {
         const client = this.$Client.newClient(this.schemaId);
         this.schemaMetadata = await client.fetchSchemaMetaData();
         this.tableMetadata = await client.fetchTableMetaData(this.tableId);
-        // this.rowData = (await client.fetchTableData(this.tableId))[this.tableId];
+        //this.rowData = (await client.fetchTableData(this.tableId))[this.tableId];
         this.showRowEdit = true;
       },
     },

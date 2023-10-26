@@ -235,6 +235,15 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
       schemaId="pet store"
       :allColumns="allColumns"
       :minimumValue="1"
+      :canView="false"
+    />
+    <label>AggregateTable with canview=true</label>
+    <AggregateTable
+        tableId="Pet"
+        schemaId="pet store"
+        :allColumns="allColumns"
+        :minimumValue="1"
+        :canView="true"
     />
     <label>AggregateTable with filters set</label>
     <AggregateTable
@@ -243,6 +252,7 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
       :allColumns="allColumns"
       :minimumValue="1"
       :graphqlFilter="graphqlFilter"
+      :canView="true"
     />
   </demo-item>
 </template>
@@ -253,19 +263,19 @@ export default {
     return {
       allColumns: [
         {
-          name: "name",
+          id: "name",
           columnType: "STRING",
         },
         {
-          name: "category bla",
+          id: "category",
           columnType: "REF",
         },
         {
-          name: "tags",
+          id: "tags",
           columnType: "ONTOLOGY_ARRAY",
         },
         {
-          name: "orders",
+          id: "orders",
           columnType: "REFBACK",
         },
       ],

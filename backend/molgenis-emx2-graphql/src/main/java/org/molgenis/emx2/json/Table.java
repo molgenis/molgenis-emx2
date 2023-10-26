@@ -58,7 +58,7 @@ public class Table {
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .toList();
     this.schemaName = tableMetadata.getSchemaName();
-    this.schemaId = tableMetadata.getIdentifier();
+    this.schemaId = tableMetadata.getSchema().getName(); // todo? getIdentifier?
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
       this.columns.add(new Column(column, tableMetadata, minimal));
     }

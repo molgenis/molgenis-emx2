@@ -70,7 +70,7 @@ const metaData: ISchemaMetaData = {
       label: "Order",
       tableType: "DATA",
       id: "Order",
-      schemaId: "petStore",
+      schemaId: "pet store",
       columns: [
         {
           id: "orderId",
@@ -236,7 +236,7 @@ const metaData: ISchemaMetaData = {
       id: "User",
       label: "User",
       tableType: "DATA",
-      schemaId: "petStore",
+      schemaId: "pet store",
       columns: [
         {
           id: "username",

@@ -65,7 +65,7 @@
           <TableSearch
             v-model:selection="selection"
             @update:selection="$emit('update:modelValue', $event)"
-            :lookupTable="tableId"
+            :tableId="tableId"
             :filter="filter"
             @select="emitSelection"
             @deselect="deselect"

@@ -82,14 +82,16 @@ export default {
       return {
         filters: [
           {
-            name: "orderId",
+            id: "orderId",
+            label: "Order id",
             pkey: true,
             columnType: "STRING",
             showFilter: true,
             conditions: ["test123"],
           },
           {
-            name: "pets",
+            id: "pets",
+            label: "Pets",
             columnType: "REF",
             showFilter: false,
             expanded: true,
@@ -97,54 +99,62 @@ export default {
             refTable: "Pet",
           },
           {
-            name: "quantity",
+            id: "quantity",
+            label: "Quantity",
             columnType: "INT",
             showFilter: true,
             conditions: []
           },
           {
-            name: "longQuantity",
+            id: "longQuantity",
+            label: "Long quantity",
             columnType: "LONG",
             showFilter: true,
             conditions: []
           },
           {
-            name: "price",
+            id: "price",
+            label: "Price",
             columnType: "DECIMAL",
             showFilter: true,
             conditions: []
           },
           {
-            name: "complete",
+            id: "complete",
+            label: "Complete",
             columnType: "BOOL",
             showFilter: true,
             conditions: []
           },
           {
-            name: "status",
+            id: "status",
+            label: "Status",
             columnType: "STRING",
             showFilter: true,
             conditions: []
           },
           {
-            name: "birthday",
+            id: "birthday",
+            label: "Birthday",
             columnType: "DATE",
             showFilter: true,
             conditions: []
           },
           {
-            name: "tags",
+            id: "tags",
+            label: "Tags",
             columnType: "ONTOLOGY_ARRAY",
             showFilter: true,
             conditions: [],
-            refTable: "Tag",
+            refTableId: "Tag",
           },
           {
-            name: "orders",
+            id: "orders",
+            label: "Orders",
             columnType: "REF_ARRAY",
             showFilter: true,
             conditions: [],
-            refTable: "Order",
+            refTableId: "Order",
             refLabel: "${orderId}"
           },
         ],

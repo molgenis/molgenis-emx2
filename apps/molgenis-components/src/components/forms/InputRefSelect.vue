@@ -29,7 +29,7 @@
       <LayoutModal v-if="showSelect" :title="title" @close="showSelect = false">
         <template v-slot:body>
           <TableSearch
-            :lookupTable="tableId"
+            :tableId="tableId"
             :filter="filter"
             :schemaId="schemaId"
             :canEdit="canEdit"

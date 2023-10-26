@@ -121,9 +121,6 @@ export default {
     };
   },
   computed: {
-    tableId() {
-      this.tableId;
-    },
     title() {
       return "Select " + this.tableId;
     },

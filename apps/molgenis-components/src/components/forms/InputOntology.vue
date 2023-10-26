@@ -565,7 +565,7 @@ function getSelectedChildNodes(term) {
           description="please choose your options in tree below"
           v-model="value3"
           tableId="Tag"
-          schemaId="petStore"
+          schemaId="pet store"
       />
       <div>You selected: {{ value3 }}</div>
     </demo-item>
@@ -579,7 +579,7 @@ function getSelectedChildNodes(term) {
           v-model="value4"
           :isMultiSelect="true"
           tableId="Tag"
-          schemaId="petStore"
+          schemaId="pet store"
       />
       <div>You selected: {{ value4 }}</div>
     </demo-item>

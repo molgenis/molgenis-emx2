@@ -54,6 +54,7 @@ export const getColumnIds = (
       }
     }
   });
+
   return result;
 };
 

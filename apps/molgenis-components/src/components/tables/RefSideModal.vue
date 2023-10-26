@@ -1,9 +1,5 @@
 <template>
-  <SideModal
-    :label="localColumnName"
-    :isVisible="true"
-    @onClose="emit('onClose')"
-  >
+  <SideModal :label="column.label" :isVisible="true" @onClose="emit('onClose')">
     <div v-if="loading">
       <Spinner />
     </div>
@@ -18,7 +14,7 @@
           :showDataOwner="showDataOwner"
           :startsCollapsed="queryResults.length > 1"
           :tableId="column.refTableId"
-          :schema="column.refSchemaId || props.schema"
+          :schemaId="column.refSchemaId || props.schema"
           @ref-cell-clicked="handleRefCellClicked"
         />
       </div>
@@ -56,7 +52,6 @@ const props = withDefaults(
 const { column, rows } = toRefs(props);
 const emit = defineEmits(["onClose"]);
 
-let localColumnLabel = ref(column.value.label);
 let loading = ref(true);
 let queryResults: Ref<IRow[]> = ref([]);
 let errorMessage = ref("");
@@ -67,7 +62,6 @@ if (activeSchema && column.value.refTableId) {
 }
 
 watch([column, rows], () => {
-  localColumnLabel.value = column.value.label;
   const activeSchema = column.value.refSchemaId || props.schema;
   if (activeSchema && column.value.refTableId) {
     updateData(activeSchema, rows.value, column.value.refTableId);
@@ -113,7 +107,6 @@ async function handleRefCellClicked({
     refColumn.refSchemaId || column.value.refSchemaId || props.schema;
   if (refTableId && activeSchema) {
     const clickedCellPrimaryKeys = [refTableRow[refColumn.id]].flat();
-    localColumnLabel.value = refColumn.label;
     updateData(activeSchema, clickedCellPrimaryKeys, refTableId);
   } else {
     errorMessage.value = "Failed to load reference data";
@@ -139,6 +132,6 @@ function errorHandler(error: AxiosError) {
 <script setup lang="ts">
 import { ref } from "vue";
 let showModal = ref(false);
-const column = { refTable: "Pet", name: "orders", refSchema: "pet store" };
+const column = { refTable: "Pet", name: "orders", refSchema: "pet store" , "label":"Orders"};
 </script>
 </docs>

@@ -6,11 +6,7 @@
         v-if="showHeaderIfNeeded"
         class="form-inline justify-content-between mb-2 bg-white"
       >
-        <InputSearch
-          id="input-search"
-          v-if="lookupTableIdentifier"
-          v-model="searchTerms"
-        />
+        <InputSearch id="input-search" v-if="tableId" v-model="searchTerms" />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
       </form>
       <Spinner v-if="loading" />
@@ -33,8 +29,8 @@
           <template v-slot:rowcolheader>
             <RowButtonAdd
               v-if="canEdit"
-              :id="'row-button-add-' + lookupTableId"
-              :tableId="lookupTableId"
+              :id="'row-button-add-' + tableId"
+              :tableId="tableId"
               :schemaId="schemaId"
               @close="loadData"
               class="d-inline p-0"
@@ -58,8 +54,8 @@
             />
             <RowButtonEdit
               v-if="canEdit"
-              :id="'row-button-edit-' + lookupTableId"
-              :tableId="lookupTableId"
+              :id="'row-button-edit-' + tableId"
+              :tableId="tableId"
               :schemaId="schemaId"
               :pkey="slotProps.rowKey"
               @close="loadData"
@@ -67,8 +63,8 @@
             />
             <RowButtonDelete
               v-if="canEdit"
-              :id="'row-button-del-' + lookupTableId"
-              :tableId="lookupTableId"
+              :id="'row-button-del-' + tableId"
+              :tableId="tableId"
               :schemaId="schemaId"
               :pkey="slotProps.rowKey"
               @close="loadData"
@@ -104,7 +100,7 @@ export default {
     RowButtonDelete,
   },
   props: {
-    lookupTableId: {
+    tableId: {
       type: String,
       required: true,
     },
@@ -175,11 +171,11 @@ export default {
 
       const client = Client.newClient(this.schemaId);
       const gqlResponse = await client
-        .fetchTableData(this.lookupTableId, queryOptions)
+        .fetchTableData(this.tableId, queryOptions)
         .catch(() => (this.graphqlError = "Failed to load data"));
-      this.tableMetadata = await client.fetchTableMetaData(this.lookupTableId);
-      this.data = gqlResponse[this.lookupTableId];
-      this.count = gqlResponse[`${this.lookupTableIdd}_agg`].count;
+      this.tableMetadata = await client.fetchTableMetaData(this.tableId);
+      this.data = gqlResponse[this.tableId];
+      this.count = gqlResponse[`${this.tableId}_agg`].count;
       this.loading = false;
     },
   },
@@ -218,7 +214,7 @@ export default {
         id="my-search-table"
         v-model:selection="selected"
         v-model:columns="columns"
-        :lookupTableId="'Pet'"
+        :tableId="'Pet'"
         schemaId="pet store"
         :canEdit="canEdit"
         :showSelect="canSelect"

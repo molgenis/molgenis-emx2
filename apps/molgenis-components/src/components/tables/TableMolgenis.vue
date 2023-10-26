@@ -164,7 +164,7 @@ export default {
         v-model:columns="columns"
         :data="remoteTableData"
         tableId="Pet"
-        schemaId="petStore"
+        schemaId="pet store"
         :showSelect="canSelect"
       />
     </DemoItem>

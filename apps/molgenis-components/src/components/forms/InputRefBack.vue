@@ -229,7 +229,7 @@ export default {
     this.isLoading = true;
     this.tableMetadata = await this.client
       .fetchTableMetaData(this.tableId)
-      .catch((error) => (this.errorMessage = error.message));
+      .catch((error) => (this.graphqlError = error.message));
     this.defaultValue = new Object();
     this.defaultValue[this.refBackId] = await this.pkey;
     await this.reload();
@@ -263,8 +263,8 @@ export default {
       <InputRefBack
           id="refback1"
           label="Orders"
-          tableName="Order"
-          refBack="pet"
+          tableId="Order"
+          refBackId="pet"
           :pkey={}
           schemaName="pet store"
       />

@@ -156,54 +156,44 @@ const client: IClient = {
 export default client;
 
 const metaDataQuery = `{
-_schema {
-  id,
-  tables {
+  _schema {
     id,
-    labels {
-      locale,
-      value
-    },
-    tableType,
-    descriptions {
-      locale,
-      value
-    },
-    schemaId,
-    semantics,
-    columns {
+    tables {
+      schemaId,
       id,
-      labels {
-        locale,
-        value
-      },
-      columnType,
-      key,
-      refTableId,
-      refSchemaId,
-      refLinkId,
-      refLabel,
-      refLabelDefault,
-      refBackId,
-      required,
-      defaultValue,
-      readonly,
+      label, 
+      description,
+      tableType,
+      schemaId,
       semantics,
-      descriptions{
-        locale,
-        value
-      },
-      position,
-      computed,
-      visible,
-      validation
-    }
-    settings { 
-      key,
-      value 
+      columns {
+        id,
+        label,
+        description,
+        columnType,
+        key,
+        refTableId,
+        refSchemaId,
+        refLinkId,
+        refLabel,
+        refLabelDefault,
+        refBackId,
+        required,
+        defaultValue,
+        readonly,
+        semantics,
+        position,
+        computed,
+        visible,
+        validation
+      }
+      settings { 
+        key,
+        value 
+      }
     }
   }
-}}`;
+}`;
 
 const graphqlURL = (schemaId?: string) => {
   return schemaId ? "/" + schemaId + "/graphql" : "graphql";
