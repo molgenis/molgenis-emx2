@@ -91,16 +91,12 @@ export default {
       type: Object,
       required: false,
     },
-    schemaId: {
-      required: false,
-      type: String,
-    },
     pkey: {
       type: Object,
       required: false,
       default: () => null,
     },
-    refBack: {
+    refBackId: {
       type: String,
       required: false,
     },
@@ -117,7 +113,7 @@ export default {
       type: String,
       required: false,
     },
-    schema: {
+    schemaId: {
       type: String,
       required: false,
     },

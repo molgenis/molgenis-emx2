@@ -252,7 +252,7 @@
 
 <style>
 .column-scroll {
-  /** want to have columns not heigher than modal allows so we get seperate scroll bars for preview */
+  /** want to have columns not higher than modal allows so we get separate scroll bars for preview */
   max-height: calc(100vh - 240px);
   overflow-y: auto;
 }

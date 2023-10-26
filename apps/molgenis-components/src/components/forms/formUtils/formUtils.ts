@@ -61,7 +61,7 @@ function getColumnError(
     return getColumnValidationError(column.validation, values, tableMetaData);
   }
   if (isRefLinkWithoutOverlap(column, values)) {
-    return `value should match your selection in column '${column.refLink}'`;
+    return `value should match your selection in column '${column.refLinkId}'`;
   }
 
   return undefined;
@@ -111,17 +111,19 @@ export function executeExpression(
   // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function
   // FIXME: use es2021 instead of es2020 as you need it for replaceAll
   const func = new Function(
+    //@ts-ignore
     Object.keys(copy),
+    //@ts-ignore
     `return eval('${expression.replaceAll("'", '"')}');`
   );
   return func(...Object.values(copy));
 }
 
 function isRefLinkWithoutOverlap(column: IColumn, values: Record<string, any>) {
-  if (!column.refLink) {
+  if (!column.refLinkId) {
     return false;
   }
-  const columnRefLink = column.refLink;
+  const columnRefLink = column.refLinkId;
   const refLinkId = columnRefLink;
 
   const value = values[column.id];
