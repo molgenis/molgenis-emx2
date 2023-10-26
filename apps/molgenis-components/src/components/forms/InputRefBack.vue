@@ -94,7 +94,7 @@ import Client from "../../client/client.ts";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
 import TableMolgenis from "../tables/TableMolgenis.vue";
-import { convertToCamelCase, deepEqual } from "../utils";
+import { deepEqual } from "../utils";
 import ConfirmModal from "./ConfirmModal.vue";
 import FormGroup from "./FormGroup.vue";
 import MessageError from "./MessageError.vue";
@@ -162,7 +162,7 @@ export default {
   computed: {
     graphqlFilter() {
       return {
-        [convertToCamelCase(this.refBackId)]: {
+        [this.refBackId]: {
           equals: this.pkey,
         },
       };
