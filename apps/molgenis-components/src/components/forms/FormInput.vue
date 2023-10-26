@@ -108,11 +108,6 @@ export default {
       type: String,
       required: false,
     },
-    refTablePrimaryKeyObject: {
-      type: Object,
-      required: false,
-      default: () => null,
-    },
     refLabel: {
       type: String,
       required: false,

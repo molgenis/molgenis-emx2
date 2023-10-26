@@ -2,7 +2,7 @@
   <FormGroup v-bind="$props">
     <Spinner v-if="isLoading" />
     <TableMolgenis
-      v-else-if="refTablePrimaryKeyObject"
+      v-else-if="hasPrimaryKey"
       :schemaId="schemaId"
       :data="data"
       :columns="visibleColumns"
@@ -37,7 +37,7 @@
           :table="tableId"
           :schemaId="schemaId"
           :visible-columns="visibleColumnIds"
-          :refTablePrimaryKeyObject="slotProps.rowKey"
+          :pkey="slotProps.rowKey"
           @close="reload"
           @edit="handleRowAction('edit', slotProps.rowKey)"
         />
@@ -91,15 +91,15 @@
 
 <script>
 import Client from "../../client/client.ts";
-import BaseInput from "./baseInputs/BaseInput.vue";
-import FormGroup from "./FormGroup.vue";
-import TableMolgenis from "../tables/TableMolgenis.vue";
-import RowButton from "../tables/RowButton.vue";
-import MessageWarning from "./MessageWarning.vue";
-import MessageError from "./MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
-import ConfirmModal from "./ConfirmModal.vue";
+import RowButton from "../tables/RowButton.vue";
+import TableMolgenis from "../tables/TableMolgenis.vue";
 import { deepEqual } from "../utils";
+import ConfirmModal from "./ConfirmModal.vue";
+import FormGroup from "./FormGroup.vue";
+import MessageError from "./MessageError.vue";
+import MessageWarning from "./MessageWarning.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 
 export default {
   name: "InputRefBack",
@@ -128,9 +128,9 @@ export default {
      * primary key of the current table that refback should point to
      * when empty ( in case of draft , add message is shown instead of the table)
      *  */
-    refTablePrimaryKeyObject: {
-      type: Object,
-      required: false,
+    pkey: {
+      type: [Object, null],
+      required: true,
     },
     schemaId: {
       type: String,
@@ -161,11 +161,11 @@ export default {
   },
   computed: {
     graphqlFilter() {
-      var result = new Object();
-      result[this.refBackId] = {
-        equals: this.refTablePrimaryKeyObject,
+      return {
+        [this.refBackId]: {
+          equals: this.pkey,
+        },
       };
-      return result;
     },
     visibleColumnIds() {
       return this.visibleColumns.map((c) => c.id);
@@ -178,6 +178,9 @@ export default {
         );
       }
       return [];
+    },
+    hasPrimaryKey() {
+      return this.pkey ? Boolean(Object.values(this.pkey).length) : false;
     },
   },
   methods: {
@@ -228,7 +231,7 @@ export default {
       .fetchTableMetaData(this.tableId)
       .catch((error) => (this.errorMessage = error.message));
     this.defaultValue = new Object();
-    this.defaultValue[this.refBackId] = await this.refTablePrimaryKeyObject;
+    this.defaultValue[this.refBackId] = await this.pkey;
     await this.reload();
   },
 };
@@ -240,21 +243,32 @@ export default {
   <div>
     <p>
       note, this input doesn't have value on its own, it just allows you to edit the refback in context.
-      This also means you cannot do this unless your current record has a refTablePrimaryKeyObject to point to
+      This also means you cannot do this unless your current record has a pkey to point to
     </p>
 
     <div class="my-3">
-      <label for="refback1">When row has not been saved ( has not key) </label>
+      <label for="refback1">When row has not been saved (key === null) </label>
       <InputRefBack
           id="refback1"
           label="Orders"
           tableId="Order"
           refBackId="pet"
-          :refTablePrimaryKeyObject=null
+          :pkey=null
           schemaId="pet store"
       />
     </div>
 
+    <div class="my-3">
+      <label for="refback1">When row has not been saved (key === {}) </label>
+      <InputRefBack
+          id="refback1"
+          label="Orders"
+          tableName="Order"
+          refBack="pet"
+          :pkey={}
+          schemaName="pet store"
+      />
+    </div>
 
     <div class="my-3">
       <label for="refback2">When row has a key but can not be edited </label>
@@ -264,7 +278,7 @@ export default {
           label="Orders"
           tableId="Order"
           refBackId="pet"
-          :refTablePrimaryKeyObject="{name:'spike'}"
+          :pkey="{name:'spike'}"
           schemaId="pet store"
       />
     </div>
@@ -277,7 +291,7 @@ export default {
           label="Orders"
           tableId="Order"
           refBackId="pet"
-          :refTablePrimaryKeyObject="{name:'spike'}"
+          :pkey="{name:'spike'}"
           schemaId="pet store"
       />
     </div>
