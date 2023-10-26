@@ -7,9 +7,9 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.RDFUtils.*;
 
+import com.google.common.net.UrlEscapers;
 import java.io.OutputStream;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -40,8 +40,8 @@ import org.molgenis.emx2.utils.TypeUtils;
  * Nomenclature used from:
  *
  * <ul>
- *   <li>SIO (http://semanticscience.org)
- *   <li>RDF Data Cube (https://www.w3.org/TR/vocab-data-cube)
+ *   <li><a href="http://semanticscience.org">SIO</a>
+ *   <li><a href="https://www.w3.org/TR/vocab-data-cube">RDF Data Cube</a>
  *   <li>OWL, RDF, RDFS
  * </ul>
  */
@@ -65,7 +65,6 @@ public class RDFService {
   private static final DateTimeFormatter dateTimeFormatter =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
   public static final IRI LDP_CONTAINS = Values.iri("http://www.w3.org/ns/ldp#contains");
-  public static final String ROOT_NAMESPACE = "emx";
   public static final String NAMESPACE_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
   public static final String NAMESPACE_RDFS = "http://www.w3.org/2000/01/rdf-schema#";
   public static final String NAMESPACE_XSD = "http://www.w3.org/2001/XMLSchema#";
@@ -74,37 +73,41 @@ public class RDFService {
   public static final String NAMESPACE_QB = "http://purl.org/linked-data/cube#";
   public static final String NAMESPACE_DCTERMS = "http://purl.org/dc/terms/";
   public static final IRI IRI_DATABASE_TABLE =
-      iri("http://semanticscience.org/resource/SIO_000754");
-  public static final IRI IRI_DATASET = iri("http://purl.org/linked-data/cube#DataSet");
+      Values.iri("http://semanticscience.org/resource/SIO_000754");
+  public static final IRI IRI_DATASET = Values.iri("http://purl.org/linked-data/cube#DataSet");
   public static final IRI IRI_CONTROLLED_VOCABULARY =
-      iri("http://purl.obolibrary.org/obo/NCIT_C48697");
+      Values.iri("http://purl.obolibrary.org/obo/NCIT_C48697");
   /**
    * SIO:001055 = observing (definition: observing is a process of passive interaction in which one
    * entity makes note of attributes of one or more entities)
    */
-  public static final IRI IRI_OBSERVING = iri("http://semanticscience.org/resource/SIO_001055");
+  public static final IRI IRI_OBSERVING =
+      Values.iri("http://semanticscience.org/resource/SIO_001055");
   /** NCIT:C25474 = Data */
-  public static final IRI IRI_DATA = iri("http://purl.obolibrary.org/obo/NCIT_C25474");
+  public static final IRI IRI_DATA = Values.iri("http://purl.obolibrary.org/obo/NCIT_C25474");
   /** NCIT:C21270 = Ontology */
-  public static final IRI IRI_ONTOLOGY = iri("http://purl.obolibrary.org/obo/NCIT_C21270");
+  public static final IRI IRI_ONTOLOGY = Values.iri("http://purl.obolibrary.org/obo/NCIT_C21270");
   /** SIO:000757 = database column */
   public static final IRI IRI_DATABASE_COLUMN =
-      iri("http://semanticscience.org/resource/SIO_000757");
+      Values.iri("http://semanticscience.org/resource/SIO_000757");
 
   public static final String SEMANTICS_ID_URL_STRING =
       "http://semanticscience.org/resource/SIO_000115";
-  public static final IRI IRI_OBSERVATION = iri("http://purl.org/linked-data/cube#Observation");
+  public static final IRI IRI_OBSERVATION =
+      Values.iri("http://purl.org/linked-data/cube#Observation");
   /** NCIT:C95637 = Coded Value Data Type */
   public static final IRI IRI_CODED_VALUE_DATATYPE =
-      iri("http://purl.obolibrary.org/obo/NCIT_C95637");
+      Values.iri("http://purl.obolibrary.org/obo/NCIT_C95637");
   /** SIO:000750 = database */
-  public static final IRI IRI_DATABASE = iri("http://semanticscience.org/resource/SIO_000750");
+  public static final IRI IRI_DATABASE =
+      Values.iri("http://semanticscience.org/resource/SIO_000750");
 
-  public static final IRI IRI_MOLGENIS = iri("https://molgenis.org");
+  public static final IRI IRI_MOLGENIS = Values.iri("https://molgenis.org");
   public static final IRI IRI_MEASURE_PROPERTY =
-      iri("http://purl.org/linked-data/cube#MeasureProperty");
+      Values.iri("http://purl.org/linked-data/cube#MeasureProperty");
   /** SIO:001187 = database row */
-  public static final IRI IRI_DATABASE_ROW = iri("http://semanticscience.org/resource/SIO_001187");
+  public static final IRI IRI_DATABASE_ROW =
+      Values.iri("http://semanticscience.org/resource/SIO_001187");
 
   public static final String ONTOLOGY_TERM_URI = "ontologyTermURI";
 
@@ -119,7 +122,14 @@ public class RDFService {
   /** The rdfAPIPath is the relative path for the RDF api within a schema. */
   private final String rdfAPIPath;
 
-  public RDFService(String baseURL, String rdfAPIPath, String format) {
+  /**
+   * Construct an RDF Service.
+   *
+   * @param baseURL the base URL of the MOLGENIS installation
+   * @param rdfAPIPath the path fragment for the RDF service within a Schema
+   * @param format the requested RDF document type
+   */
+  public RDFService(final String baseURL, final String rdfAPIPath, final String format) {
     // Ensure that the base URL has a trailing "/" so we can use it easily to
     // construct URL paths.
     if (baseURL.trim().endsWith("/")) {
@@ -174,9 +184,13 @@ public class RDFService {
    * </ul>
    */
   public void describeAsRDF(
-      OutputStream outputStream, Table table, String rowId, String columnName, Schema... schemas) {
+      final OutputStream outputStream,
+      final Table table,
+      final String rowId,
+      final String columnName,
+      final Schema... schemas) {
     try {
-      ModelBuilder builder = new ModelBuilder();
+      final ModelBuilder builder = new ModelBuilder();
       builder.setNamespace("rdf", NAMESPACE_RDF);
       builder.setNamespace("rdfs", NAMESPACE_RDFS);
       builder.setNamespace("xsd", NAMESPACE_XSD);
@@ -184,17 +198,18 @@ public class RDFService {
       builder.setNamespace("sio", NAMESPACE_SIO);
       builder.setNamespace("qb", NAMESPACE_QB);
       builder.setNamespace("dcterms", NAMESPACE_DCTERMS);
-      for (Schema schema : schemas) {
-        Namespace ns = getSchemaNamespace(schema);
+      // Define the schemas at the start of the document.
+      for (final Schema schema : schemas) {
+        final Namespace ns = getSchemaNamespace(schema);
         builder.setNamespace(ns);
       }
-      //      builder.setNamespace(ROOT_NAMESPACE, baseURL);
+
       describeRoot(builder);
 
-      for (Schema schema : schemas) {
+      for (final Schema schema : schemas) {
         describeSchema(builder, schema);
-        List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();
-        for (Table tableToDescribe : tables) {
+        final List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();
+        for (final Table tableToDescribe : tables) {
           describeTable(builder, tableToDescribe);
           describeColumns(builder, tableToDescribe, columnName);
           // if a column name is provided then only provide column metadata, no row values
@@ -226,37 +241,48 @@ public class RDFService {
     return rdfFormat;
   }
 
-  // todo: make non static and private
-  protected void describeRoot(ModelBuilder builder) {
+  /**
+   * Describe the MOLGENIS instance as a whole.
+   *
+   * @param builder the builder for constructing the final RDF document.
+   */
+  protected void describeRoot(final ModelBuilder builder) {
     builder
         .subject(baseURL)
-        .add(RDF.TYPE, IRI_DATABASE)
+        .add(RDFS.SUBCLASSOF, IRI_DATABASE)
+        .add(RDFS.SUBCLASSOF, OWL.THING)
         .add(RDFS.LABEL, "EMX2")
         .add(DCTERMS.DESCRIPTION, "MOLGENIS EMX2 database at " + baseURL)
         .add(DCTERMS.CREATOR, IRI_MOLGENIS);
   }
 
-  private String getSchemaLocalName(Schema schema) {
-    return TypeUtils.convertToPascalCase(schema.getName()) + rdfAPIPath;
+  /**
+   * Get the namespace for this schema
+   *
+   * @param schema the schema
+   * @return A namespace that defines a local unique prefix for this schema.
+   */
+  private Namespace getSchemaNamespace(final Schema schema) {
+    final String schemaName = UrlEscapers.urlPathSegmentEscaper().escape(schema.getName());
+    final String url = baseURL + schemaName + rdfAPIPath;
+    final String prefix = TypeUtils.convertToPascalCase(schema.getName());
+    return Values.namespace(prefix, url);
   }
 
-  private Namespace getSchemaNamespace(Schema schema) {
-    String url = baseURL + TypeUtils.convertToPascalCase(schema.getName()) + rdfAPIPath;
-    return Values.namespace(TypeUtils.convertToPascalCase(schema.getName()), url);
+  /**
+   * Get an IRI for the table. Taking the schema in which the table resides into consideration.
+   *
+   * @param table the table
+   * @return An IRI that is based on the schema namespace.
+   */
+  private IRI getTableIRI(final Table table) {
+    final Namespace ns = getSchemaNamespace(table.getSchema());
+    return Values.iri(ns, table.getIdentifier());
   }
 
-  // TODO TableMetadata ipv Table
-  private IRI getTableIRI(Table table) {
-    var ns = getSchemaNamespace(table.getSchema());
-    return Values.iri(ns, TypeUtils.convertToPascalCase(table.getName()) + "/");
-  }
-
-  // todo: make non-static
-  private void describeSchema(ModelBuilder builder, Schema schema) {
-    //    Namespace root = Values.namespace(ROOT_NAMESPACE, baseURL);
-    //    IRI subject = Values.iri(root, getSchemaLocalName(schema));
-    //    String subject = ROOT_NAMESPACE + ":" + getSchemaLocalName(schema);
-    var subject = getSchemaNamespace(schema).getName();
+  private void describeSchema(final ModelBuilder builder, final Schema schema) {
+    // The name from a name space is the IRI.
+    final String subject = getSchemaNamespace(schema).getName();
     builder
         .subject(subject)
         .add(RDFS.LABEL, schema.getName())
@@ -265,19 +291,27 @@ public class RDFService {
     if (schema.getMetadata().getDescription() != null) {
       builder.subject(subject).add(DCTERMS.DESCRIPTION, schema.getMetadata().getDescription());
     }
-    for (Table table : schema.getTablesSorted()) {
-      IRI object = getTableIRI(table);
+    for (final Table table : schema.getTablesSorted()) {
+      final IRI object = getTableIRI(table);
       builder.subject(subject).add(LDP_CONTAINS, object);
     }
   }
 
-  private void describeTable(ModelBuilder builder, Table table) {
-    IRI subject = getTableIRI(table);
+  private void describeTable(final ModelBuilder builder, final Table table) {
+    final IRI subject = getTableIRI(table);
     builder.add(subject, RDF.TYPE, OWL.CLASS);
-    builder.add(subject, RDF.TYPE, IRI_DATASET);
-    builder.add(subject, RDF.TYPE, IRI_DATABASE_TABLE);
+    builder.add(subject, RDFS.SUBCLASSOF, IRI_DATASET);
+    builder.add(subject, RDFS.SUBCLASSOF, IRI_DATABASE_TABLE);
+    builder.add(subject, RDFS.SUBCLASSOF, OWL.THING);
+    // Specify the tables that this table inherits from.
+    Table parent = table.getInheritedTable();
+    while (parent != null) {
+      builder.add(subject, RDFS.SUBCLASSOF, getTableIRI(parent));
+      parent = parent.getInheritedTable();
+    }
+
     if (table.getMetadata().getSemantics() != null) {
-      for (String tableSemantics : table.getMetadata().getSemantics()) {
+      for (final String tableSemantics : table.getMetadata().getSemantics()) {
         builder.add(subject, RDFS.ISDEFINEDBY, iri(tableSemantics));
       }
     } else if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
@@ -286,11 +320,13 @@ public class RDFService {
       builder.add(subject, RDFS.ISDEFINEDBY, IRI_OBSERVING);
     }
     builder.add(subject, RDFS.LABEL, table.getName());
+
     if (table.getMetadata().getDescriptions() != null) {
-      for (var entry : table.getMetadata().getDescriptions().entrySet()) {
+      for (final var entry : table.getMetadata().getDescriptions().entrySet()) {
         builder.add(subject, DCTERMS.DESCRIPTION, Values.literal(entry.getValue(), entry.getKey()));
       }
     }
+
     if (table.getMetadata().getTableType() == TableType.DATA) {
       builder.add(subject, RDFS.RANGE, IRI_DATA);
     } else if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
@@ -300,7 +336,11 @@ public class RDFService {
 
   private void describeColumns(
       final ModelBuilder builder, final Table table, final String columnName) {
-    for (Column column : table.getMetadata().getColumns()) {
+    for (final Column column : table.getMetadata().getColumns()) {
+      // Exclude the system columns like mg_insertedBy
+      if (column.isSystemColumn()) {
+        continue;
+      }
       if (columnName == null || columnName.equals(column.getName())) {
         describeColumn(builder, column);
       }
@@ -308,26 +348,26 @@ public class RDFService {
   }
 
   private IRI getColumnIRI(final Column column) {
-    var table = column.getTable();
-    var schema = table.getTable().getSchema();
-    var ns = getSchemaNamespace(schema);
-    return Values.iri(
-        ns,
-        TypeUtils.convertToPascalCase(table.getTableName())
-            + "/column/"
-            + TypeUtils.convertToCamelCase(column.getName()));
+    final TableMetadata table = column.getTable();
+    final Schema schema = table.getTable().getSchema();
+    final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(table.getTableName());
+    final String columnName = UrlEscapers.urlPathSegmentEscaper().escape(column.getName());
+    final Namespace ns = getSchemaNamespace(schema);
+    return Values.iri(ns, tableName + "/column/" + columnName);
   }
 
-  private void describeColumn(ModelBuilder builder, Column column) {
-    IRI subject = getColumnIRI(column);
-    builder.add(subject, RDF.TYPE, IRI_DATABASE_COLUMN);
-    builder.add(subject, RDF.TYPE, IRI_MEASURE_PROPERTY);
+  private void describeColumn(final ModelBuilder builder, final Column column) {
+    final IRI subject = getColumnIRI(column);
+    builder.add(subject, RDF.TYPE, OWL.CLASS);
+    builder.add(subject, RDFS.SUBCLASSOF, IRI_DATABASE_COLUMN);
+    builder.add(subject, RDFS.SUBCLASSOF, IRI_MEASURE_PROPERTY);
+    builder.add(subject, RDFS.SUBCLASSOF, OWL.THING);
     if (column.isReference()) {
-      builder.add(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
+      builder.add(subject, RDFS.SUBCLASSOF, OWL.OBJECTPROPERTY);
       Table refTable = column.getRefTable().getTable();
       builder.add(subject, RDFS.RANGE, getTableIRI(refTable));
     } else {
-      builder.add(subject, RDF.TYPE, OWL.DATATYPEPROPERTY);
+      builder.add(subject, RDFS.SUBCLASSOF, OWL.DATATYPEPROPERTY);
       builder.add(subject, RDFS.RANGE, columnTypeToXSD(column.getColumnType()));
     }
     builder.add(subject, RDFS.LABEL, column.getName());
@@ -348,7 +388,7 @@ public class RDFService {
     }
   }
 
-  private CoreDatatype.XSD columnTypeToXSD(ColumnType columnType) {
+  private CoreDatatype.XSD columnTypeToXSD(final ColumnType columnType) {
     return switch (columnType) {
       case BOOL, BOOL_ARRAY -> CoreDatatype.XSD.BOOLEAN;
       case DATE, DATE_ARRAY -> CoreDatatype.XSD.DATE;
@@ -381,11 +421,15 @@ public class RDFService {
   }
 
   /**
-   * @return
+   * Write the rows to RDF
+   *
+   * @param builder the builder to output RDF
+   * @param table the table for which to fetch the rows
+   * @param rowId optional rowId
    */
-  public void rowsToRdf(ModelBuilder builder, Table table, String rowId) {
-    IRI tableIRI = getTableIRI(table);
-    for (Row row : getRows(table, rowId)) {
+  public void rowsToRdf(final ModelBuilder builder, final Table table, final String rowId) {
+    final IRI tableIRI = getTableIRI(table);
+    for (final Row row : getRows(table, rowId)) {
       IRI subject = getIriForRow(row, table.getMetadata());
       builder.add(subject, RDF.TYPE, tableIRI);
       builder.add(subject, RDF.TYPE, IRI_DATABASE_ROW);
@@ -399,16 +443,20 @@ public class RDFService {
       }
       builder.add(subject, IRI_DATASET, tableIRI);
 
-      for (Column column : table.getMetadata().getColumns()) {
+      for (final Column column : table.getMetadata().getColumns()) {
+        // Exclude the system columns like mg_insertedBy
+        if (column.isSystemColumn()) {
+          continue;
+        }
         IRI columnIRI = getColumnIRI(column);
-        for (Value value : formatValue(row, column)) {
+        for (final Value value : formatValue(row, column)) {
           builder.add(subject, columnIRI, value);
         }
       }
     }
   }
 
-  private List<Row> getRows(Table table, String rowId) {
+  private List<Row> getRows(final Table table, final String rowId) {
     Query query = table.query();
     if (rowId != null) {
       if (table.getMetadata().getPrimaryKeyFields().size() > 1) {
@@ -417,28 +465,34 @@ public class RDFService {
         query.where(f(table.getMetadata().getPrimaryKeyColumns().get(0).getName(), EQUALS, rowId));
       }
     }
-    return query.retrieveRows(); // we use the default select
+    // If a table is extended then we get only those rows that are for the base table.
+    if (table.getMetadata().getColumnNames().contains("mg_tableclass")) {
+      var tableName = table.getSchema().getName() + "." + table.getName();
+      query.where(f("mg_tableclass", EQUALS, tableName));
+    }
+    return query.retrieveRows();
   }
 
-  private Filter decodeRowIdToFilter(String rowId) {
+  private Filter decodeRowIdToFilter(final String rowId) {
     try {
-      List<NameValuePair> params =
+      final List<NameValuePair> params =
           URLEncodedUtils.parse(new URI("?" + rowId), StandardCharsets.UTF_8);
-      List<Filter> filters = new ArrayList<>();
-      params.forEach(param -> filters.add(f(param.getName(), EQUALS, param.getValue())));
+      final List<Filter> filters =
+          params.stream().map(param -> f(param.getName(), EQUALS, param.getValue())).toList();
       return and(filters);
     } catch (Exception e) {
       throw new MolgenisException("Decode row to filter failed for id " + rowId);
     }
   }
 
-  private List<NameValuePair> getKeyParts(Row row, TableMetadata metadata) {
-    List<NameValuePair> keyParts = new ArrayList<>();
-    for (Column column : metadata.getPrimaryKeyColumns()) {
+  private IRI getIriForRow(final Row row, final TableMetadata metadata) {
+    final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(metadata.getTableName());
+    final List<NameValuePair> keyParts = new ArrayList<>();
+    for (final Column column : metadata.getPrimaryKeyColumns()) {
       if (column.isReference()) {
-        for (var reference : column.getReferences()) {
-          var values = row.getStringArray(reference.getName());
-          for (var value : values) {
+        for (final Reference reference : column.getReferences()) {
+          final String[] values = row.getStringArray(reference.getName());
+          for (final String value : values) {
             keyParts.add(new BasicNameValuePair(reference.getName(), value));
           }
         }
@@ -446,37 +500,60 @@ public class RDFService {
         keyParts.add(new BasicNameValuePair(column.getName(), row.get(column).toString()));
       }
     }
-    return keyParts;
-  }
-
-  private IRI getIriForRow(Row row, TableMetadata metadata) {
-    var keyParts = getKeyParts(row, metadata);
-    var ns = getSchemaNamespace(metadata.getTable().getSchema());
+    final Namespace ns = getSchemaNamespace(metadata.getTable().getSchema());
     if (keyParts.size() == 1) {
-      var value = URLEncoder.encode(keyParts.get(0).getValue(), StandardCharsets.UTF_8);
-      return Values.iri(ns, TypeUtils.convertToPascalCase(metadata.getTableName()) + "/" + value);
+      final String value = UrlEscapers.urlPathSegmentEscaper().escape(keyParts.get(0).getValue());
+      return Values.iri(ns, tableName + "/" + value);
     } else {
-      var parameters = URLEncodedUtils.format(keyParts, StandardCharsets.UTF_8);
-      return Values.iri(
-          ns, TypeUtils.convertToPascalCase(metadata.getTableName()) + "/?" + parameters);
+      final String parameters = URLEncodedUtils.format(keyParts, StandardCharsets.UTF_8);
+      return Values.iri(ns, tableName + "?" + parameters);
     }
   }
 
-  private List<Value> formatValue(Row row, Column column) {
-    List<Value> values = new ArrayList<>();
-    ColumnType columnType = column.getColumnType();
+  private List<IRI> getIriValue(final Row row, final Column column) {
+    final TableMetadata target = column.getRefTable();
+    final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(target.getTableName());
+    final Namespace ns = getSchemaNamespace(target.getTable().getSchema());
+
+    final Set<IRI> iris = new HashSet<>();
+    final Map<Integer, List<NameValuePair>> items = new HashMap<>();
+    for (final Reference reference : column.getReferences()) {
+      final String localColumn = reference.getName();
+      final String targetColumn = reference.getPath().get(0);
+      final String[] values = row.getStringArray(localColumn);
+      if (values != null) {
+        for (int i = 0; i < values.length; i++) {
+          var keyValuePairs = items.getOrDefault(i, new ArrayList<>());
+          keyValuePairs.add(new BasicNameValuePair(targetColumn, values[i]));
+          items.put(i, keyValuePairs);
+        }
+      }
+    }
+
+    for (final var item : items.values()) {
+      if (item.size() == 1) {
+        final String value = UrlEscapers.urlPathSegmentEscaper().escape(item.get(0).getValue());
+        iris.add(Values.iri(ns, tableName + "/" + value));
+      } else if (item.size() > 1) {
+        final String parameters = URLEncodedUtils.format(item, StandardCharsets.UTF_8);
+        iris.add(Values.iri(ns, tableName + "?" + parameters));
+      }
+    }
+    return List.copyOf(iris);
+  }
+
+  private List<Value> formatValue(final Row row, final Column column) {
+    final List<Value> values = new ArrayList<>();
+    final ColumnType columnType = column.getColumnType();
     if (columnType.isReference()) {
-      values.add(getIriForRow(row, column.getTable()));
+      values.addAll(getIriValue(row, column));
     } else if (columnType.equals(ColumnType.FILE)) {
       if (row.getString(column.getName() + "_id") != null) {
-        values.add(
-            encodedIRI(
-                TypeUtils.convertToPascalCase(column.getSchemaName())
-                    + "/api/file/"
-                    + column.getTableName()
-                    + "/"
-                    + column.getName()
-                    + "/"));
+        final String schemaPath =
+            UrlEscapers.urlPathSegmentEscaper().escape(column.getSchemaName());
+        final String tablePath = UrlEscapers.urlPathSegmentEscaper().escape(column.getTableName());
+        final String columnPath = UrlEscapers.urlPathSegmentEscaper().escape(column.getName());
+        values.add(Values.iri(schemaPath + "/api/file/" + tablePath + "/" + columnPath + "/"));
       }
     } else {
       values.addAll(getLiteralValues(row, column));
@@ -484,7 +561,7 @@ public class RDFService {
     return values;
   }
 
-  private List<Value> getLiteralValues(Row row, Column column) {
+  private List<Value> getLiteralValues(final Row row, final Column column) {
     CoreDatatype.XSD xsdType = columnTypeToXSD(column.getColumnType());
     if (row.getString(column.getName()) == null) {
       return List.of();

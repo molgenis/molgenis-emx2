@@ -26,6 +26,8 @@ public class RDFApi {
     get(RDF_API_LOCATION, RDFApi::rdfForDatabase);
     final String schemaPath = "/:schema" + RDF_API_LOCATION;
     get(schemaPath, RDFApi::rdfForSchema);
+    // FIXME: rdfForTable also handles requests for a specific row if there is a composite key
+    // TODO: probably best to merge these two methods and always use query string to encode the row
     get(schemaPath + "/:table", RDFApi::rdfForTable);
     get(schemaPath + "/:table/:row", RDFApi::rdfForRow);
     get(schemaPath + "/:table/column/:column", RDFApi::rdfForColumn);
@@ -70,13 +72,16 @@ public class RDFApi {
 
   private static int rdfForTable(Request request, Response response) throws IOException {
     Table table = getTable(request);
-
+    String rowId = null;
+    if (!request.queryString().isBlank()) {
+      rowId = request.queryString();
+    }
     final String baseURL = extractBaseURL(request);
     RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, table, null, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, table, rowId, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;
