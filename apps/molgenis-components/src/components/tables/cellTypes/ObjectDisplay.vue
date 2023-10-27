@@ -27,17 +27,17 @@ export default {
       return !!this.metaData.refLabel || !!this.metaData.refLabelDefault;
     },
     asTemplate() {
-      const names = Object.keys(this.data);
+      const ids = Object.keys(this.data);
       const vals = Object.values(this.data);
       const refLabel = this.metaData.refLabel
         ? this.metaData.refLabel
         : this.metaData.refLabelDefault;
       try {
-        return new Function(...id, "return `" + refLabel + "`;")(...vals);
+        return new Function(...ids, "return `" + refLabel + "`;")(...vals);
       } catch (err) {
-        const namesString = JSON.stringify(names);
+        const idsAsString = JSON.stringify(ids);
         const valsString = JSON.stringify(vals);
-        return `${err.message} we got keys: ${namesString} vals: ${valsString} and template: ${refLabel}`;
+        return `${err.message} we got keys: ${idsAsString} vals: ${valsString} and template: ${refLabel}`;
       }
     },
     asDotSeparatedString() {
