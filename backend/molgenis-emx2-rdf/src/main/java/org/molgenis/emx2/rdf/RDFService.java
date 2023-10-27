@@ -326,12 +326,6 @@ public class RDFService {
         builder.add(subject, DCTERMS.DESCRIPTION, Values.literal(entry.getValue(), entry.getKey()));
       }
     }
-
-    if (table.getMetadata().getTableType() == TableType.DATA) {
-      builder.add(subject, RDFS.RANGE, IRI_DATA);
-    } else if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
-      builder.add(subject, RDFS.RANGE, IRI_ONTOLOGY);
-    }
   }
 
   private void describeColumns(
@@ -358,18 +352,16 @@ public class RDFService {
 
   private void describeColumn(final ModelBuilder builder, final Column column) {
     final IRI subject = getColumnIRI(column);
-    builder.add(subject, RDF.TYPE, OWL.CLASS);
-    builder.add(subject, RDFS.SUBCLASSOF, IRI_DATABASE_COLUMN);
-    builder.add(subject, RDFS.SUBCLASSOF, IRI_MEASURE_PROPERTY);
-    builder.add(subject, RDFS.SUBCLASSOF, OWL.THING);
     if (column.isReference()) {
-      builder.add(subject, RDFS.SUBCLASSOF, OWL.OBJECTPROPERTY);
+      builder.add(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
       Table refTable = column.getRefTable().getTable();
       builder.add(subject, RDFS.RANGE, getTableIRI(refTable));
     } else {
-      builder.add(subject, RDFS.SUBCLASSOF, OWL.DATATYPEPROPERTY);
+      builder.add(subject, RDF.TYPE, OWL.DATATYPEPROPERTY);
       builder.add(subject, RDFS.RANGE, columnTypeToXSD(column.getColumnType()));
     }
+    builder.add(subject, RDFS.SUBCLASSOF, IRI_DATABASE_COLUMN);
+    builder.add(subject, RDFS.SUBCLASSOF, IRI_MEASURE_PROPERTY);
     builder.add(subject, RDFS.LABEL, column.getName());
     builder.add(subject, RDFS.DOMAIN, getTableIRI(column.getTable().getTable()));
     if (column.getSemantics() != null) {
