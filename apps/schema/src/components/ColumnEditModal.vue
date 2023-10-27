@@ -74,7 +74,7 @@
                 <InputSelect
                   id="column_refSchema"
                   v-model="column.refSchemaName"
-                  :options="schemaNames"
+                  :options="schemaIds"
                   @update:modelValue="loadRefSchema"
                   label="refSchema"
                   description="When you want to refer to table in another schema"

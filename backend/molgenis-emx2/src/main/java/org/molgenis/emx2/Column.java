@@ -214,10 +214,18 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
         return schema.getTableMetadata(this.refTable);
       }
     }
-    return null;
+    throw new MolgenisException(
+        "refTable " + this.refTable + " could not be found for column " + this.getQualifiedName());
   }
 
   public Column setRefTable(String refTable) {
+    if (refTable != null && !getColumnType().isReference()) {
+      throw new MolgenisException(
+          "Cannot set refTable for column '"
+              + getName()
+              + "': is not a reference but a "
+              + getColumnType());
+    }
     this.refTable = refTable;
     return this;
   }
@@ -405,8 +413,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   public List<Reference> getReferences() {
 
     // no ref
-    if (getRefTable() == null) {
-      return new ArrayList<>();
+    if (getRefTableName() == null) {
+      throw new MolgenisException(
+          "getReferences failed: column " + getQualifiedName() + " is not a reference");
     }
 
     List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
@@ -547,9 +556,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   public String getRefSchema() {
     if (refSchema != null) {
       return refSchema;
-    } else if (getRefTable() != null) {
-      return getRefTable().getSchemaName();
-    } else return getSchemaName();
+    } else {
+      return getSchemaName();
+    }
   }
 
   public Column setRefSchema(String refSchema) {

@@ -66,26 +66,24 @@ public class Column {
     if (!minimal || !ColumnType.STRING.equals(column.getColumnType())) {
       this.columnType = column.getColumnType();
     }
-    if (column.getRefSchema() != null) {
+    if (column.isReference()) {
       this.refSchemaId =
           column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
       this.refSchemaName = column.getSchemaName();
-    }
-    if (column.getRefTableName() != null) {
       this.refTableId = column.getRefTable().getIdentifier();
       this.refTableName = column.getRefTableName();
-    }
-    if (column.getRefLink() != null) {
-      this.refLinkId = column.getRefLinkColumn().getIdentifier();
-      this.refLinkName = column.getRefLink();
+      if (column.getRefLinkColumn() != null) {
+        this.refLinkId = column.getRefLinkColumn().getIdentifier();
+        this.refLinkName = column.getRefLink();
+      }
+      if (column.getRefBack() != null) {
+        this.refBackId = column.getRefBackColumn().getIdentifier();
+        this.refBackName = column.getRefBack();
+      }
     }
     this.refLabel = column.getRefLabel();
     this.refLabelDefault = column.getRefLabelDefault();
     // this.cascadeDelete = column.isCascadeDelete();
-    if (column.getRefBack() != null) {
-      this.refBackId = column.getRefBackColumn().getIdentifier();
-      this.refBackName = column.getRefBack();
-    }
     this.validation = column.getValidation();
     this.required = column.isRequired();
     this.readonly = column.isReadonly();

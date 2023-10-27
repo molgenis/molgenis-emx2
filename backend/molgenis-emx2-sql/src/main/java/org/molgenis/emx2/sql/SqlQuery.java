@@ -1309,10 +1309,12 @@ public class SqlQuery extends QueryBean {
     if (column == null) {
       // is reference?
       for (Column c : table.getColumns()) {
-        for (Reference ref : c.getReferences()) {
-          // can also request composite reference columns, can only be used on row level queries
-          if (ref.getName().equals(columnName)) {
-            return new Column(table, columnName, true).setType(ref.getPrimitiveType());
+        if (c.isReference()) {
+          for (Reference ref : c.getReferences()) {
+            // can also request composite reference columns, can only be used on row level queries
+            if (ref.getName().equals(columnName)) {
+              return new Column(table, columnName, true).setType(ref.getPrimitiveType());
+            }
           }
         }
       }
