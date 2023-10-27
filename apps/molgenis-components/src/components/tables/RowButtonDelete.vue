@@ -7,6 +7,7 @@
       actionLabel="Delete"
       actionType="danger"
       :tableId="tableId"
+      :tableLable="tableLabel"
       :pkey="pkey"
       @close="handleClose"
       @confirmed="handleExecuteDelete"
@@ -28,6 +29,10 @@ export default {
       required: true,
     },
     tableId: {
+      type: String,
+      required: true,
+    },
+    tableLabel: {
       type: String,
       required: true,
     },
@@ -85,6 +90,7 @@ export default {
       <RowButtonDelete
           id="row-delete-btn-sample"
           tableId="Pet"
+          tableLabel="Pet"
           :pkey="{name: 'pooky'}"
           schemaId="pet store"
           @error="handleError"

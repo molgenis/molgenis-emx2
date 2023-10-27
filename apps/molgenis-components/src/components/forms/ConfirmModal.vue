@@ -52,6 +52,10 @@ export default {
       type: String,
       required: false,
     },
+    tableLabel: {
+      type: String,
+      required: false,
+    },
     pkey: Object,
     actionType: {
       type: String,

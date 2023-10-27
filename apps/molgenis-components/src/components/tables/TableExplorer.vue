@@ -353,6 +353,7 @@
       :isModalShown="true"
       :id="tableId + '-edit-modal'"
       :tableId="tableId"
+      :tableLabel="tableMetadata.label"
       :pkey="editRowPrimaryKey"
       :clone="editMode === 'clone'"
       :schemaId="schemaId"
@@ -366,6 +367,7 @@
       actionLabel="Delete"
       actionType="danger"
       :tableId="tableId"
+      :tableLabel="tableMetadata.label"
       :pkey="editRowPrimaryKey"
       @close="isDeleteModalShown = false"
       @confirmed="handleExecuteDelete"
@@ -377,6 +379,7 @@
       actionLabel="Truncate"
       actionType="danger"
       :tableId="tableId"
+      :tableLabel="tableMetadata.label"
       @close="isDeleteAllModalShown = false"
       @confirmed="handelExecuteDeleteAll"
     >

@@ -105,13 +105,13 @@ export default {
     ReadMore,
   },
   props: {
-    table: {
+    tableId: {
       type: String,
       required: true,
     },
     refLabel: String,
     /** id of the column in the other table */
-    refBack: String,
+    refBackId: String,
     /** pkey of the current table that refback should point to */
     pkey: Object,
   },
@@ -125,7 +125,7 @@ export default {
     handleRowClick(row) {
       //good guessing the parameters :-)
       this.$router.push({
-        name: this.table + "-details",
+        name: this.tableId + "-details",
         params: {
           id: row.id ? row.id : this.pkey.id,
           resource: row.id ? row.id : this.pkey.id,
@@ -188,13 +188,13 @@ export default {
   computed: {
     graphqlFilter() {
       var result = new Object();
-      result[this.refBack] = {
+      result[this.refBackId] = {
         equals: this.pkey,
       };
       return result;
     },
-    visibleColumnNames() {
-      return this.visibleColumns.map((c) => c.name);
+    visibleColumnIds() {
+      return this.visibleColumns.map((c) => c.id);
     },
     visibleColumns() {
       //columns, excludes refback and mg_
@@ -208,8 +208,8 @@ export default {
   },
   async created() {
     this.client = Client.newClient();
-    this.tableMetadata = await this.client.fetchTableMetaData(this.table);
-    this.refBackData = await this.client.fetchTableDataValues(this.table, {
+    this.tableMetadata = await this.client.fetchTableMetaData(this.tableId);
+    this.refBackData = await this.client.fetchTableDataValues(this.tableId, {
       filter: this.graphqlFilter,
     });
   },

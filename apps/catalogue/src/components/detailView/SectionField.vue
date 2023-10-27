@@ -2,7 +2,7 @@
   <div class="m-2 showcontainer row">
     <sectionFieldLabel
       class="col-4"
-      :label="field.meta.name"
+      :label="field.meta.label"
       :tooltip="field.description"
       :color="color"
     ></sectionFieldLabel>
@@ -62,7 +62,7 @@ export default {
   computed: {
     fieldTypeComponentName() {
       //custom views
-      if (this.field.meta.refTableName === "Linked resources") {
+      if (this.field.meta.refTableId === "LinkedResources") {
         return "LinkedResourcesFieldValue";
       }
       //standard views
