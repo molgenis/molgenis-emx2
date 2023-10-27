@@ -15,7 +15,7 @@ export default gql`
           locale
           value
         }
-        externalSchema
+        schemaId
         semantics
         columns {
           name

@@ -163,8 +163,8 @@ export default {
         col.columnType == "ONTOLOGY_ARRAY"
       ) {
         return row[col.id].map((v) => {
-          if (col.name === "tables") {
-            //hack, ideally we start setting refLabel in configuration!
+          if (col.id === "tables") {
+            //hack, ideally we start setting refLabel in configuration! <= actually we do
             return v.name;
           } else if (col.refLabel) {
             return applyJsTemplate(v, col.refLabel);
@@ -200,7 +200,7 @@ export default {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.name != this.refBack && !c.name.startsWith("mg_")
+          (c) => c.id != this.refBackId && !c.id.startsWith("mg_")
         );
       }
       return [];

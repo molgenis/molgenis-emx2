@@ -90,21 +90,21 @@ export interface IVariableMappings {
 export type IVariable = IVariableBase & IVariableDetails;
 export type IVariableWithMappings = IVariable & IVariableMappings;
 
-interface IFile {
+export interface IFile {
   id?: string;
   size?: number;
   extension?: string;
   url?: string;
 }
 
-interface IDocumentation {
+export interface IDocumentation {
   name: string;
   description: string;
   url: string;
   file: IFile;
 }
 
-interface IPartner {
+export interface IPartner {
   id: string;
   acronym: string;
   website: string;
@@ -113,7 +113,7 @@ interface IPartner {
   logo: IUrlObject;
 }
 
-interface IContributor {
+export interface IContributor {
   roleDescription: string;
   firstName: string;
   lastName: string;
@@ -132,7 +132,7 @@ interface IUrlObject {
   url: string;
 }
 
-interface ICollectionEvent {
+export interface ICollectionEvent {
   name: string;
   description: string;
   startYear: INameObject;
@@ -176,7 +176,7 @@ interface ITreeNode {
   parent?: string;
 }
 
-interface IOntologyNode extends ITreeNode {
+export interface IOntologyNode extends ITreeNode {
   code?: string;
   definition?: string;
   ontologyTermURI?: string;
@@ -199,8 +199,8 @@ interface ISearchFilter extends IBaseFilter {
 
 export interface IFilter extends IBaseFilter {
   columnType: "_SEARCH" | "ONTOLOGY" | "REF_ARRAY";
-  refTable?: string;
-  columnName?: string;
+  refTableId?: string;
+  columnId?: string;
   filterTable?: string;
   conditions?: [] | { [key: string]: string }[];
   searchTables?: string[];
@@ -231,28 +231,22 @@ export enum INotificationType {
   info,
 }
 
-export interface ILocale {
-  locale: string;
-  value: string;
-}
-
 export interface IColumn {
   columnType: string;
   id: string;
-  name: string;
+  label: string;
   computed?: string;
   conditions?: string[];
-  descriptions?: ILocale[];
+  description?: string;
   key?: number;
-  labels?: ILocale[];
   position?: number;
   readonly?: string;
-  refBack?: string;
+  refBackId?: string;
   refLabel?: string;
   refLabelDefault?: string;
-  refLink?: string;
-  refSchema?: string;
-  refTable?: string;
+  refLinkId?: string;
+  refSchemaId?: string;
+  refTableId?: string;
   required?: boolean;
   semantics?: string[];
   validation?: string;
@@ -261,18 +255,19 @@ export interface IColumn {
 
 export interface ITableMetaData {
   id: string;
-  name: string;
+  label: string;
+  description?: string;
   tableType: string;
   columns: IColumn[];
-  descriptions?: ILocale[];
-  externalSchema: string;
-  labels?: ILocale[];
+  schemaId: string;
   semantics?: string[];
   settings?: ISetting[];
 }
 
 export interface ISchemaMetaData {
-  name: string;
+  id: string;
+  label: string;
+  description?: string;
   tables: ITableMetaData[];
 }
 

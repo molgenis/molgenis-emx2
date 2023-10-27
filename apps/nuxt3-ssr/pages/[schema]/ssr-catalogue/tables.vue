@@ -1,18 +1,18 @@
 <script setup lang="ts">
 const route = useRoute();
 
-const schemaName = route.params.schema.toString();
-const metadata = await fetchMetadata(schemaName);
+const schemaId = route.params.schema.toString();
+const metadata = await fetchMetadata(schemaId);
 
 const tables = computed(() =>
   metadata.tables
-    .filter((t) => t.externalSchema === schemaName)
+    .filter((t) => t.schemaId === schemaId)
     .filter((t) => t.id !== "Version")
 );
 </script>
 <template>
   <LayoutsLandingPage>
-    <ContentBlock :title="metadata.name" class="mt-5">
+    <ContentBlock :title="metadata.label" class="mt-5">
       <Table class="">
         <template #head>
           <TableHeadRow>
@@ -28,13 +28,13 @@ const tables = computed(() =>
           <template v-for="table in tables">
             <TableRow>
               <TableCell>
-                <NuxtLink :to="`/${schemaName}/ssr-catalogue/${table.id}`">{{
-                  table.name
+                <NuxtLink :to="`/${schemaId}/ssr-catalogue/${table.id}`">{{
+                  table.id
                 }}</NuxtLink></TableCell
               >
               <TableCell
                 ><NuxtLink :to="`${table.id}`">{{
-                  table.descriptions ? table.descriptions[0].value : ""
+                  table.description ? table.description : ""
                 }}</NuxtLink></TableCell
               >
             </TableRow>
