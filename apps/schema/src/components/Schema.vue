@@ -162,7 +162,7 @@ export default {
         }
       });
       tables.forEach((table) => {
-        delete table.externalSchema;
+        delete table.schemaId;
         table.columns = table.columns
           ? table.columns.filter((column) => column.table === table.name)
           : [];
@@ -216,7 +216,7 @@ export default {
               name
               tableType
               inheritName
-              externalSchema
+              schemaId
               labels {
                 locale
                 value
@@ -286,8 +286,7 @@ export default {
           ? []
           : schema.tables.filter(
               (table) =>
-                table.tableType !== "ONTOLOGIES" &&
-                table.externalSchema === schema.name
+                table.tableType !== "ONTOLOGIES" && table.schemaId === schema.id
             );
         tables.forEach((t) => {
           t.oldName = t.name;
@@ -307,8 +306,7 @@ export default {
           ? []
           : schema.tables.filter(
               (table) =>
-                table.tableType === "ONTOLOGIES" &&
-                table.externalSchema === schema.name
+                table.tableType === "ONTOLOGIES" && table.schemaId === schema.id
             );
         //set old name so we can delete them properly
         schema.ontologies.forEach((o) => {

@@ -7,7 +7,7 @@ export default gql`
         name
         id
         description
-        externalSchema
+        schemaId
         semantics
         columns {
           name
