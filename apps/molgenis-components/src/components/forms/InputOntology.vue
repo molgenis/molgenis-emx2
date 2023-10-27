@@ -23,7 +23,7 @@
           :key="selectedTerm"
           @click.stop="deselect(selectedTerm)"
         >
-          {{ selectedTerm.label ? selectedTerm.label : selectedTerm.id }}
+          {{ selectedTerm.label ? selectedTerm.label : selectedTerm.name }}
           <span class="fa fa-times"></span>
         </span>
         <i
