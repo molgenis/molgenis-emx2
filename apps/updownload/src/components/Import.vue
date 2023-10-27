@@ -76,7 +76,7 @@
               Export specific tables:
               <ul>
                 <li v-for="table in visibleTables" :key="table.id">
-                  {{ table.label() }}:
+                  {{ table.label }}:
                   <a :href="'../api/csv/' + table.id">csv</a> /
                   <a :href="'../api/excel/' + table.id">excel</a>
                 </li>
