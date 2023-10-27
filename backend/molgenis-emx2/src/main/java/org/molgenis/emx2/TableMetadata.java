@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,7 +15,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     implements Comparable {
 
   public static final String TABLE_NAME_MESSAGE =
-      ": Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters (so it fits in Excel sheet names)";
+      ": Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_ ]*. Maximum length: 31 characters (so it fits in Excel sheet names)";
   // if a table extends another table (optional)
   public String inherit = null;
   // to allow indicate that a table should be dropped
@@ -123,7 +124,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public String getIdentifier() {
-    return getTableName(); // todo, decide if we move to escaped name
+    return convertToPascalCase(getTableName());
   }
 
   public SchemaMetadata getSchema() {
