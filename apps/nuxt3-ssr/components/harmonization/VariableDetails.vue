@@ -31,10 +31,10 @@ const variablesUsed = computed(() => {
     )
     .map((mapping) => {
       const sourceVariables = mapping.sourceVariables
-        ? mapping.sourceVariables.map((variable) => variable.name)
+        ? mapping.sourceVariables
         : [];
       const sourceVariablesOtherDatasets = mapping.sourceVariablesOtherDatasets
-        ? mapping.sourceVariablesOtherDatasets.map((variable) => variable.name)
+        ? mapping.sourceVariablesOtherDatasets
         : [];
       return [...sourceVariables, ...sourceVariablesOtherDatasets];
     })
@@ -42,11 +42,9 @@ const variablesUsed = computed(() => {
 });
 
 const syntax = computed(() => {
-  return (
-    props.variable.mappings?.find(
-      (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
-    )?.syntax || "None"
-  );
+  return props.variable.mappings?.find(
+    (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+  )?.syntax;
 });
 </script>
 
@@ -86,25 +84,23 @@ const syntax = computed(() => {
     <DefinitionListDefinition v-if="variable.mappings">
       <ul>
         <li v-for="variableUsed in variablesUsed">
-          <NuxtLink
-            :to="`/${schema}/ssr-catalogue/variables/${variableUsed}`"
-            class="text-body-base text-blue-500 hover:underline hover:bg-blue-50"
+          <a
+            class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 cursor-pointer"
           >
             <BaseIcon
               name="caret-right"
               class="inline"
               style="margin-left: -8px"
             />
-            {{ variableUsed }}
-          </NuxtLink>
+            {{ variableUsed.name }}
+          </a>
         </li>
       </ul>
     </DefinitionListDefinition>
     <DefinitionListDefinition v-else>None</DefinitionListDefinition>
 
     <DefinitionListTerm>Syntax</DefinitionListTerm>
-    <DefinitionListDefinition>
-      {{ syntax }}
-    </DefinitionListDefinition>
+    <DefinitionListDefinition v-if="!syntax">None</DefinitionListDefinition>
   </DefinitionList>
+  <CodeBlock v-if="syntax" class="mt-2">{{ syntax }}</CodeBlock>
 </template>
