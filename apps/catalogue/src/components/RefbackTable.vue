@@ -29,7 +29,9 @@
           >
             <div v-if="col.key === 1">
               <a href="" @click="handleRowClick(row)">{{
-                renderValue(row, col)[0]
+                Array.isArray(renderValue(row, col))
+                  ? renderValue(row, col)[0]
+                  : renderValue(row, col)
               }}</a>
             </div>
             <div
@@ -123,18 +125,24 @@ export default {
   },
   methods: {
     handleRowClick(row) {
+      let params = {};
+      params.id = row.id ? row.id : this.pkey.id;
+      params.resource = row.id ? row.id : this.pkey.id;
+      if (row.name) params.name = row.id;
+      if (row.source?.id) params.source = row.source.id;
+      if (row.sourceDataset?.name)
+        params.sourceDataset = row.sourceDataset.name;
+      if (row.target.id) params.target = row.target?.id;
+      if (row.targetDataset?.name)
+        params.targetDataset = row.targetDataset.name;
       //good guessing the parameters :-)
       this.$router.push({
         name: this.tableId + "-details",
-        params: {
-          id: row.id ? row.id : this.pkey.id,
-          resource: row.id ? row.id : this.pkey.id,
-          name: row.name,
-        },
+        params,
       });
     },
     routeParams(column, value) {
-      if (column.name === "datasets") {
+      if (column.id === "datasets") {
         let result = {
           resource: value.resource.id,
           name: value.name,

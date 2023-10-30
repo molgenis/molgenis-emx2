@@ -94,7 +94,7 @@ export default {
     tableId: { type: String, required: false },
     data: { type: Array, default: () => [] },
     showSelect: { type: Boolean, default: false },
-    schemaId: { type: String, required: true },
+    schemaId: { type: String, required: false },
   },
   data() {
     return {

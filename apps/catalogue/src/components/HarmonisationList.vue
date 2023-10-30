@@ -61,7 +61,7 @@ export default {
   },
   props: {
     resourceId: String,
-    tableName: String,
+    tableId: String,
   },
   data() {
     return {
@@ -141,7 +141,7 @@ export default {
     resourceId() {
       this.reload();
     },
-    tableName() {
+    tableId() {
       this.reload();
     },
     page() {

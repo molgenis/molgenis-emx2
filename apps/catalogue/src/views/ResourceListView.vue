@@ -3,7 +3,7 @@
     <RoutedTableExplorer
       :showColumns="defaultColumns"
       :showFilters="defaultFilters"
-      :tableName="tableName"
+      :tableId="tableId"
       :showCards="defaultCards"
       :initialSearchTerms="searchTerm"
       :canEdit="canEdit"
@@ -41,38 +41,36 @@ export default {
     RoutedTableExplorer,
   },
   props: {
-    tableName: String,
+    tableId: String,
     searchTerm: String,
   },
   computed: {
     ...mapGetters(["canEdit", "canManage"]),
     headerCss() {
-      return css[this.tableName];
+      return css[this.tableId];
     },
     detailRouteName() {
       //detailRoute is name of table minus trailing 's'
-      return this.tableName + "-details";
+      return this.tableId + "-details";
     },
     defaultCards() {
-      if (this.tableName == "Institutions") {
+      if (this.tableId == "Institutions") {
         return true;
       }
       return false;
     },
     defaultColumns() {
-      if (this.tableName == "Data sources") {
-        return ["id", "name", "lead organisation", "website"];
-      } else if (this.tableName == "Organisations") {
+      if (this.tableId == "DataSources") {
+        return ["id", "name", "leadOrganisation", "website"];
+      } else if (this.tableId == "Organisations") {
         return ["name", "id", "type", "country"];
-      } else if (
-        ["Data sources", "Networks", "Models"].includes(this.tableName)
-      ) {
+      } else if (["DataSources", "Networks", "Models"].includes(this.tableId)) {
         return ["name", "id", "type", "leadOrganisation"];
-      } else if (this.tableName == "Cohorts") {
+      } else if (this.tableId == "Cohorts") {
         return ["id", "name", "keywords", "noParticipants"];
-      } else if (this.tableName == "Studies") {
+      } else if (this.tableId == "Studies") {
         return ["id", "name", "keywords"];
-      } else if (this.tableName == "Contacts") {
+      } else if (this.tableId == "Contacts") {
         return [
           "name",
           "institution",
@@ -81,9 +79,9 @@ export default {
           "orcid",
           "homepage",
         ];
-      } else if (this.tableName == "Datasets") {
+      } else if (this.tableId == "Datasets") {
         return ["resource", "name"];
-      } else if (this.tableName == "Variables") {
+      } else if (this.tableId == "Variables") {
         return [
           "source",
           "dataset",
@@ -98,19 +96,19 @@ export default {
       }
     },
     defaultFilters() {
-      if (this.tableName == "Organisations") {
+      if (this.tableId == "Organisations") {
         return ["institution", "name", "type", "country"];
       }
-      if (this.tableName == "Studies") {
+      if (this.tableId == "Studies") {
         return ["keywords", "networks", "startYear", "endYear"];
       }
-      if (this.tableName == "Cohorts") {
+      if (this.tableId == "Cohorts") {
         return [
           "name",
-          "sample categories",
-          "data categories",
-          "number of particpants",
-          "age categories",
+          "sampleCategories",
+          "dataCategories",
+          "numberOfParticpants",
+          "ageCategories",
         ];
       }
       return ["type"];
@@ -131,7 +129,7 @@ export default {
       });
     },
     openDetailView(row) {
-      if (this.tableName == "DatasetMappings") {
+      if (this.tableId == "DatasetMappings") {
         this.$router.push({
           name: "DatasetMappings-details",
           params: {
@@ -141,7 +139,7 @@ export default {
             targetDataset: row.targetDataset.name,
           },
         });
-      } else if (this.tableName == "Variables") {
+      } else if (this.tableId == "Variables") {
         this.$router.push({
           name: this.detailRouteName,
           params: {
@@ -150,7 +148,7 @@ export default {
             name: row.name,
           },
         });
-      } else if (this.tableName == "VariableMappings") {
+      } else if (this.tableId == "VariableMappings") {
         this.$router.push({
           name: this.detailRouteName,
           params: {
@@ -163,7 +161,7 @@ export default {
             fromTable: row.fromTable.name,
           },
         });
-      } else if (this.tableName == "Publications") {
+      } else if (this.tableId == "Publications") {
         this.$router.push({
           name: "Publications-details",
           params: {

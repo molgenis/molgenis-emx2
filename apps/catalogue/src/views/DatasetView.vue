@@ -82,7 +82,7 @@
     <div v-else>N/A</div>
     <h6>Variables</h6>
     <TableExplorer
-      tableName="Variables"
+      tableId="Variables"
       :showHeader="false"
       :showFilters="[]"
       :showColumns="['name', 'label', 'format', 'description', 'notes']"
