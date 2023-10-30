@@ -32,7 +32,7 @@ let filters: IFilter[] = reactive([
     title: "Organisations",
     columnId: "dataCategories",
     columnType: "REF_ARRAY",
-    refTable: "Organisations",
+    refTableId: "Organisations",
     refFields: {
       key: "id",
       name: "id",
