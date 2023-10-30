@@ -16,18 +16,9 @@
 </template>
 
 <script>
-import {
-  getLocalizedDescription,
-  getLocalizedLabel,
-} from "molgenis-components";
-
 export default {
   props: {
     tables: Array,
-    locale: {
-      type: String,
-      default: "en",
-    },
   },
 };
 </script>
