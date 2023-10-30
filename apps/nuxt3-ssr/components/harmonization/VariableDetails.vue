@@ -13,16 +13,28 @@ const statusPerCohort = computed(
   () => calcHarmonizationStatus([props.variable], props.cohorts)[0]
 );
 
+const activeCohortId = computed(() => props.cohorts[activeIndex.value].id);
+
 const activeMappingDescription = computed(() => {
-  const activeCohortId = props.cohorts[activeIndex.value].id;
-  if (!props.variable.mappings) {
-    return "No description";
-  } else {
-    const activeCohortMapping = props.variable?.mappings.find(
-      (mapping) => mapping.sourceDataset.resource.id === activeCohortId
-    );
-    return activeCohortMapping?.description;
-  }
+  const activeCohortMapping = props.variable?.mappings?.find(
+    (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+  );
+  return activeCohortMapping?.description || "No description";
+});
+
+const variablesUsed = computed(() => {
+  return props.variable.mappings
+    ?.filter(
+      (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+    )
+    .map((mapping) => {
+      return [
+        ...mapping.sourceVariables.map((variable) => variable.name),
+        ...mapping.sourceVariablesOtherDatasets.map(
+          (variable) => variable.name
+        ),
+      ];
+    });
 });
 </script>
 
@@ -41,31 +53,6 @@ const activeMappingDescription = computed(() => {
     </div>
   </div>
 
-  <!-- {{ variable.mappings }} -->
-  <!-- :items="[
-      {
-        label: 'Cohort',
-        content: cohorts[activeIndex].id,
-      },
-      {
-        label: 'Harmonization status',
-        content: statusPerCohort[activeIndex],
-      },
-      {
-        label: 'Description',
-        content: activeMappingDescription,
-      },
-      {
-        label: 'Variables used',
-        content: 'None',
-      },
-      {
-        label: 'Syntax',
-        content: variable.mappings?.find(
-          (mapping) => mapping.sourceDataset.resource.id === cohorts[activeIndex].id
-        )?.syntax || 'None',
-      },
-    ]" -->
   <DefinitionList>
     <DefinitionListTerm>Cohort</DefinitionListTerm>
     <DefinitionListDefinition>
@@ -83,7 +70,11 @@ const activeMappingDescription = computed(() => {
     }}</DefinitionListDefinition>
 
     <DefinitionListTerm>Variables used</DefinitionListTerm>
-    <DefinitionListDefinition> None </DefinitionListDefinition>
+
+    <DefinitionListDefinition v-if="variable.mappings">
+      {{ variablesUsed }}
+    </DefinitionListDefinition>
+    <DefinitionListDefinition v-else>None</DefinitionListDefinition>
 
     <DefinitionListTerm>Syntax</DefinitionListTerm>
     <DefinitionListDefinition>
