@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { IVariable, IVariableMappings } from "~/interfaces/types";
 
+const schema = useRoute().params.schema;
+
 type VariableDetailsWithMapping = IVariable & IVariableMappings;
 const props = defineProps<{
   variable: VariableDetailsWithMapping;
@@ -28,13 +30,23 @@ const variablesUsed = computed(() => {
       (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
     )
     .map((mapping) => {
-      return [
-        ...mapping.sourceVariables.map((variable) => variable.name),
-        ...mapping.sourceVariablesOtherDatasets.map(
-          (variable) => variable.name
-        ),
-      ];
-    });
+      const sourceVariables = mapping.sourceVariables
+        ? mapping.sourceVariables.map((variable) => variable.name)
+        : [];
+      const sourceVariablesOtherDatasets = mapping.sourceVariablesOtherDatasets
+        ? mapping.sourceVariablesOtherDatasets.map((variable) => variable.name)
+        : [];
+      return [...sourceVariables, ...sourceVariablesOtherDatasets];
+    })
+    .flatMap((x) => x);
+});
+
+const syntax = computed(() => {
+  return (
+    props.variable.mappings?.find(
+      (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+    )?.syntax || "None"
+  );
 });
 </script>
 
@@ -72,18 +84,27 @@ const variablesUsed = computed(() => {
     <DefinitionListTerm>Variables used</DefinitionListTerm>
 
     <DefinitionListDefinition v-if="variable.mappings">
-      {{ variablesUsed }}
+      <ul>
+        <li v-for="variableUsed in variablesUsed">
+          <NuxtLink
+            :to="`/${schema}/ssr-catalogue/variables/${variableUsed}`"
+            class="text-body-base text-blue-500 hover:underline hover:bg-blue-50"
+          >
+            <BaseIcon
+              name="caret-right"
+              class="inline"
+              style="margin-left: -8px"
+            />
+            {{ variableUsed }}
+          </NuxtLink>
+        </li>
+      </ul>
     </DefinitionListDefinition>
     <DefinitionListDefinition v-else>None</DefinitionListDefinition>
 
     <DefinitionListTerm>Syntax</DefinitionListTerm>
     <DefinitionListDefinition>
-      {{
-        variable.mappings?.find(
-          (mapping) =>
-            mapping.sourceDataset.resource.id === cohorts[activeIndex].id
-        )?.syntax || "None"
-      }}
+      {{ syntax }}
     </DefinitionListDefinition>
   </DefinitionList>
 </template>
