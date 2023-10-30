@@ -62,7 +62,7 @@
     <template #footer>
       <RowEditFooter
         :id="id + '-footer'"
-        :tableId="tableId"
+        :tableLabel="label"
         :errorMessage="errorMessage"
         :saveDisabledMessage="saveDisabledMessage"
         :saveDraftDisabledMessage="saveDraftDisabledMessage"
