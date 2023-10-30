@@ -28,7 +28,7 @@ const activeMappingDescription = computed(() => {
 
 <template>
   <div class="mb-5 pb-[50px]">
-    <div class="overflow-x-scroll max-w-5xl">
+    <HorizontalScrollHelper add-fade add-scroll-button>
       <div class="flex flex-nowrap">
         <Tab
           v-for="(cohort, index) in cohorts"
@@ -38,7 +38,7 @@ const activeMappingDescription = computed(() => {
           {{ cohort.id }}
         </Tab>
       </div>
-    </div>
+    </HorizontalScrollHelper>
   </div>
 
   <!-- {{ variable.mappings }} -->
