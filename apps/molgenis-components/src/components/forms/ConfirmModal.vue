@@ -4,10 +4,10 @@
       <slot v-if="$slots.default"></slot>
       <div v-else>
         {{ actionLabel }}
-        <strong
-          ><span v-if="tableId">{{ tableLabel }}</span
-          ><span v-if="pkey">({{ pkeyAsString }})</span></strong
-        >
+        <strong>
+          <span v-if="tableId">{{ tableLabel }}</span>
+          <span v-if="pkey">({{ pkeyAsString }})</span>
+        </strong>
         <br />Are you sure ?
         <br />
       </div>
