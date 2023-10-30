@@ -1,7 +1,5 @@
-<script setup>
-import { computed, ref } from "vue";
-
-const props = defineProps({
+<script setup lang="ts">
+defineProps({
   addFade: {
     type: Boolean,
   },
@@ -12,16 +10,16 @@ const props = defineProps({
 
 let scrollAtStart = ref(true);
 let scrollAtEnd = ref(false);
-let scrollElement = ref(null);
+let scrollElement = ref();
 
-function scroll(event) {
-  scrollAtStart.value = event.target.scrollLeft === 0;
+function scroll(event: Event) {
+  let target = event.target as HTMLInputElement;
+  scrollAtStart.value = target.scrollLeft === 0;
   scrollAtEnd.value =
-    event.target.scrollLeft + event.target.offsetWidth ===
-    event.target.scrollWidth;
+    target.scrollLeft + target.offsetWidth === target.scrollWidth;
 }
 
-function smoothScroll(value) {
+function smoothScroll(value: number) {
   scrollElement.value.scrollTo({
     left: scrollElement.value.scrollLeft - value,
     behavior: "smooth",
