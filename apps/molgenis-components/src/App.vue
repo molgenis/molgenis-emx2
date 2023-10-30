@@ -6,6 +6,7 @@
         id="page-content-wrapper"
         class="container-fluid overflow-auto vh-100"
       >
+      <div>{{ msg }}</div>
         <div v-for="name in docNames" :key="name" :id="name">
           <h2>{{ name }}</h2>
           <router-link class="float-right" :to="'/component/' + name">
@@ -26,6 +27,7 @@
 </template>
 
 <script>
+import {sayHello} from 'meta-data-utils'
 export default {
   computed: {
     docNames() {
@@ -53,6 +55,7 @@ export default {
   },
   mounted: function () {
     this.setScrollStyle(this.$route.path === "/");
+    this.msg = sayHello();
   },
 };
 </script>

@@ -20,7 +20,8 @@
     "helloworld",
     "reports",
     "tasks",
-    "gportal"
+    "gportal",
+    "meta-data-utils"
   ],
   "devDependencies": {
     "nx": "16.10.0",

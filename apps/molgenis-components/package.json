@@ -36,6 +36,7 @@
     "axios": "1.5.1",
     "click-outside-vue3": "4.0.1",
     "cross-env": "7.0.3",
+    "meta-data-utils": "*",
     "universal-cookie": "4.0.4",
     "vue": "3.3.4",
     "vue-gtag": "2.0.1",
