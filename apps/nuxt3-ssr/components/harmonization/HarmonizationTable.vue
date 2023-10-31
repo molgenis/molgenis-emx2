@@ -31,7 +31,7 @@ let activeVariablePath = computed(() =>
 </script>
 
 <template>
-  <div class="pb-5 relative">
+  <div class="mb-7 relative">
     <HarmonizationLegend class="flex-row-reverse" />
 
     <!-- temp 'fix' for table y overflow -->
@@ -65,11 +65,7 @@ let activeVariablePath = computed(() =>
         </template>
       </StickyTable>
 
-      <br />
-      <br />
-      <br />
-      <br />
-
+      <!--
       <table class="table-auto">
         <thead>
           <tr class="border-y-2">
@@ -104,6 +100,7 @@ let activeVariablePath = computed(() =>
           </tr>
         </tbody>
       </table>
+      -->
     </div>
 
     <SideModal
