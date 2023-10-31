@@ -417,6 +417,13 @@ public class SqlSchema implements Schema {
     return metadata.getSetting(key) != null;
   }
 
+  @Override
+  public Table getTableById(String id) {
+    Optional<Table> table =
+        getTablesSorted().stream().filter(t -> t.getIdentifier().equals(id)).findFirst();
+    return table.orElseGet(null);
+  }
+
   public DSLContext getJooq() {
     return ((SqlDatabase) getDatabase()).getJooq();
   }

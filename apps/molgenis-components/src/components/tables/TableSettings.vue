@@ -111,10 +111,17 @@ export default {
       this.loading = true;
       this.graphqlError = null;
       this.success = null;
+      const settings = this.tableMetadata.settings.map((setting) => {
+        return {
+          tableId: this.tableMetadata.id,
+          key: setting.key,
+          value: setting.value,
+        };
+      });
       const resp = await request(
         this.schemaId ? "/" + this.schemaId + "/graphql" : "graphql",
-        `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`,
-        { tables: [this.tableMetadata] }
+        `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
+        { settings: settings }
       ).catch((error) => {
         this.graphqlError = error.errors[0].message;
       });

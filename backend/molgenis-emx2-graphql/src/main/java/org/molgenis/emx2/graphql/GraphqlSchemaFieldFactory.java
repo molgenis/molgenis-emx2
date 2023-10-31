@@ -32,6 +32,11 @@ public class GraphqlSchemaFieldFactory {
       new GraphQLInputObjectType.Builder()
           .name("MolgenisSettingsInput")
           .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(TABLE_ID)
+                  .type(Scalars.GraphQLString)
+                  .description("Optional, if a setting should be applied on level of tableId"))
+          .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(VALUE).type(Scalars.GraphQLString))
@@ -104,7 +109,9 @@ public class GraphqlSchemaFieldFactory {
       new GraphQLInputObjectType.Builder()
           .name("DropSettingsInput")
           .field(
-              GraphQLInputObjectField.newInputObjectField().name(TABLE).type(Scalars.GraphQLString))
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(TABLE_ID)
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .build();
@@ -585,8 +592,8 @@ public class GraphqlSchemaFieldFactory {
     List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
     if (settings != null) {
       for (Map<String, String> setting : settings) {
-        if (setting.get(TABLE) != null) {
-          Table table = schema.getTable(setting.get(TABLE));
+        if (setting.get(TABLE_ID) != null) {
+          Table table = schema.getTableById(setting.get(TABLE_ID));
           if (table == null) {
             throw new MolgenisException(
                 "Cannot remove setting because table " + setting.get(TABLE + " does not exist"));
@@ -768,7 +775,17 @@ public class GraphqlSchemaFieldFactory {
     if (settings != null) {
       settings.forEach(
           entry -> {
-            schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+            if (entry.get(TABLE_ID) != null) {
+              Table table = schema.getTableById(entry.get(TABLE_ID));
+              if (table == null)
+                throw new MolgenisException(
+                    "changeSettings failed: Table with id="
+                        + entry.get(TABLE_ID)
+                        + " cannot be found");
+              table.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+            } else {
+              schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+            }
           });
     }
   }
