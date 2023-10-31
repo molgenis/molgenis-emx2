@@ -4,7 +4,7 @@
   "type": "module",
   "main": "./dist/meta-data-utils.umd.cjs",
   "module": "./dist/meta-data-utils.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/types.d.ts",
   "exports": {
     ".": {
       "import": "./dist/meta-data-utils.js",
@@ -17,12 +17,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "format": "prettier src  --write --config ../.prettierrc.js"
   },
   "devDependencies": {
     "@types/node": "20.8.9",
     "typescript": "5.0.2",
     "vite": "4.4.5",
-    "vite-plugin-dts": "3.6.3"
+    "vite-plugin-dts": "3.6.3",
+    "vitest": "0.34.6"
   }
 }

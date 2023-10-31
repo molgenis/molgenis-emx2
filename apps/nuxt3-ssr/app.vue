@@ -52,7 +52,7 @@
       <slot name="footer">
         <div class="bg-footer p-6">
           <div class="mt-5 mb-0 text-center text-title text-body-lg">
-            This database was created using the {{ msg }} 
+            This database was created using the 
             <a
               class="text-body-base text-footer-link hover:underline"
               href="http://molgenis.org"
@@ -94,9 +94,6 @@
 <script setup lang="ts">
 import BackgroundGradient from "./components/BackgroundGradient.vue";
 import { hash } from ".fingerprint.js";
-import { sayHello } from "meta-data-utils";
-
-const msg = sayHello();
 
 const config = useRuntimeConfig();
 

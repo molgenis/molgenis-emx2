@@ -1,4 +1,4 @@
-import { ISchemaMetaData } from "interfaces/types";
+import { ISchemaMetaData } from "../types";
 
 export const petStoreMetadata: ISchemaMetaData = {
   name: "Pet",
@@ -9141,6 +9141,7 @@ export const catalogueMetadata: ISchemaMetaData = {
       descriptions: [
         {
           locale: "en",
+          value: "Resources that are part of the catalogue",
         },
       ],
       externalSchema: "catalogue",

@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
-import type {
-  IColumn,
-  ISection,
-  ISchemaMetaData,
+import {
+  buildFilterFromKeysObject,
+  buildRecordDetailsQueryFields,
+  extractExternalSchemas,
+} from "meta-data-utils";
+import {
   ITableMetaData,
-} from "~/interfaces/types";
+  ISchemaMetaData,
+  IColumn,
+} from "meta-data-utils/dist/types";
+import type { ISection } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 const resourceName: string = route.params.resourceType as string;

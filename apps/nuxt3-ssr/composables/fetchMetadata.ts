@@ -1,6 +1,6 @@
 import { StorageSerializers, useSessionStorage } from "@vueuse/core";
+import { ISchemaMetaData } from "meta-data-utils";
 
-import { ISchemaMetaData } from "~/interfaces/types";
 import metadataGql from "~~/gql/metadata";
 
 const query = moduleToString(metadataGql);

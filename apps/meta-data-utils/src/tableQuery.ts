@@ -1,10 +1,15 @@
-import {
+import type {
   IColumn,
   ISchemaMetaData,
   ITableMetaData,
   KeyObject,
-} from "~~/interfaces/types";
-import { convertToPascalCase } from "../../molgenis-components/src/components/utils";
+} from "./types";
+import {
+  isValueType,
+  isArrayType,
+  isFileType,
+  isRefType,
+} from "./fieldHelpers";
 
 const FILE_FRAGMENT = "{ id, size, extension, url }";
 
@@ -284,3 +289,15 @@ export const getTableMetaData = (
   }
   return tableMetaData;
 };
+
+function convertToPascalCase(string: string): string {
+  const words = string.trim().split(/\s+/);
+  let result = "";
+  words.forEach((word: string) => {
+    result += word.charAt(0).toUpperCase();
+    if (word.length > 1) {
+      result += word.slice(1);
+    }
+  });
+  return result;
+}
