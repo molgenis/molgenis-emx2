@@ -31,14 +31,13 @@
     </DashboardChartLayout>
     <h3 class="dashboard-h3">Suture Overview</h3>
     <p class="dashboard-text">
-      Click a category in the "Single Suture Synostosis" chart to view more
-      information.
+      Click a category in the "Affected suture" chart to view more information.
     </p>
     <DashboardChartLayout>
       <DashboardBox>
         <PieChart2
           chartId="cs-affected-sutures"
-          title="Single suture synostosis"
+          title="Affected suture"
           :chartData="affectedSuture"
           :chartHeight="200"
           :asDonutChart="true"
