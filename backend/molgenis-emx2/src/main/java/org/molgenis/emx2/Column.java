@@ -26,7 +26,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   @DiffIgnore private boolean drop; // use this for migrations, i.e. explicit CREATE, ALTER, DROP
 
   // relationships
-  private String refSchema; // for cross schema references
+  private String refSchemaName; // for cross schema references
   private String refTable; // table referenced
   private String refLink; // to allow a reference value to depend on another reference.
   private String refLabel; // template string influencing how ref value is shown
@@ -132,7 +132,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     indexed = column.indexed;
     refTable = column.refTable;
     refLink = column.refLink;
-    refSchema = column.refSchema;
+    refSchemaName = column.refSchemaName;
     refBack = column.refBack;
     validation = column.validation;
     refLabel = column.refLabel;
@@ -188,13 +188,13 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public TableMetadata getRefTable() {
     SchemaMetadata schema = getSchema();
-    if (this.refSchema != null) {
+    if (this.refSchemaName != null) {
       try {
-        schema = getSchema().getDatabase().getSchema(this.refSchema).getMetadata();
+        schema = getSchema().getDatabase().getSchema(this.refSchemaName).getMetadata();
       } catch (Exception e) {
         throw new MolgenisException(
             "refSchema '"
-                + this.refSchema
+                + this.refSchemaName
                 + "' cannot be found for column '"
                 + getTableName()
                 + "."
@@ -553,16 +553,16 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this;
   }
 
-  public String getRefSchema() {
-    if (refSchema != null) {
-      return refSchema;
+  public String getRefSchemaName() {
+    if (refSchemaName != null) {
+      return refSchemaName;
     } else {
       return getSchemaName();
     }
   }
 
-  public Column setRefSchema(String refSchema) {
-    this.refSchema = refSchema;
+  public Column setRefSchemaName(String refSchemaName) {
+    this.refSchemaName = refSchemaName;
     return this;
   }
 
@@ -649,7 +649,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public String getRootTableName() {
     TableMetadata table = this.getTable();
-    while (table.getInherit() != null) {
+    while (table.getInheritName() != null) {
       table = table.getInheritedTable();
     }
     return table.getTableName();

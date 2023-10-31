@@ -216,7 +216,6 @@ export default {
               name
               tableType
               inheritName
-              schemaId
               labels {
                 locale
                 value
@@ -284,10 +283,7 @@ export default {
         //normal tables
         let tables = !schema.tables
           ? []
-          : schema.tables.filter(
-              (table) =>
-                table.tableType !== "ONTOLOGIES" && table.schemaId === schema.id
-            );
+          : schema.tables.filter((table) => table.tableType !== "ONTOLOGIES");
         tables.forEach((t) => {
           t.oldName = t.name;
           if (t.columns) {
@@ -304,10 +300,7 @@ export default {
         });
         schema.ontologies = !schema.tables
           ? []
-          : schema.tables.filter(
-              (table) =>
-                table.tableType === "ONTOLOGIES" && table.schemaId === schema.id
-            );
+          : schema.tables.filter((table) => table.tableType === "ONTOLOGIES");
         //set old name so we can delete them properly
         schema.ontologies.forEach((o) => {
           o.oldName = o.name;
@@ -323,7 +316,7 @@ export default {
       //columns of subclasses should be put in root tables, sorted by position
       // this because position can only edited in context of root table
       schema.tables.forEach((table) => {
-        if (table.inherit === undefined) {
+        if (table.inheritName === undefined) {
           this.getSubclassTables(schema, table.name).forEach((subclass) => {
             //get columns from subclass tables
             table.columns.push(...subclass.columns);
@@ -343,13 +336,13 @@ export default {
       });
       //remove the subclass tables
       schema.tables = schema.tables.filter(
-        (table) => table.inherit === undefined
+        (table) => table.inheritName === undefined
       );
       return schema;
     },
     getSubclassTables(schema, tableName) {
       let subclasses = schema.tables.filter(
-        (table) => table.inherit === tableName
+        (table) => table.inheritName === tableName
       );
       return subclasses.concat(
         subclasses

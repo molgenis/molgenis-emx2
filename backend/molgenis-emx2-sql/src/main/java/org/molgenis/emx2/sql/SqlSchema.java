@@ -295,12 +295,12 @@ public class SqlSchema implements Schema {
         TableMetadata oldTable = targetSchema.getTable(mergeTable.getTableName()).getMetadata();
 
         // set inheritance
-        if (mergeTable.getInherit() != null) {
+        if (mergeTable.getInheritName() != null) {
           if (mergeTable.getImportSchema() != null) {
             oldTable.setImportSchema(mergeTable.getImportSchema());
           }
-          oldTable.setInherit(mergeTable.getInherit());
-        } else if (oldTable.getInherit() != null) {
+          oldTable.setInheritName(mergeTable.getInheritName());
+        } else if (oldTable.getInheritName() != null) {
           oldTable.removeInherit();
         }
 

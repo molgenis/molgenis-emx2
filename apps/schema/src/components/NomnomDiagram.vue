@@ -89,7 +89,7 @@ export default {
               res += `[<table> ${subclass.name}`;
               res += this.nomnomColumnsForTable(table, subclass.name);
               res += "]\n";
-              res += `[<table>${subclass.inherit}]<:-[<table>${subclass.name}]\n`;
+              res += `[<table>${subclass.inheritName}]<:-[<table>${subclass.name}]\n`;
             });
           }
         });

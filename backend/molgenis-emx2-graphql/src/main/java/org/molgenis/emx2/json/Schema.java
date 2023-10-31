@@ -42,7 +42,7 @@ public class Schema {
             .collect(Collectors.toMap(Setting::key, Setting::value)));
     for (Table t : this.tables) {
       TableMetadata tm = s.create(table(t.getName()));
-      tm.setInherit(t.getInheritId());
+      tm.setInheritName(t.getInheritName());
       tm.setSettings(
           t.getSettings().stream()
               .filter(d -> d.value() != null)

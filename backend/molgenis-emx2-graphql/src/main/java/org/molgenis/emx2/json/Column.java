@@ -68,8 +68,10 @@ public class Column {
     }
     if (column.isReference()) {
       this.refSchemaId =
-          column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
-      this.refSchemaName = column.getSchemaName();
+          column.getRefSchemaName().equals(column.getSchemaName())
+              ? null
+              : column.getRefSchemaName();
+      this.refSchemaName = column.getRefSchemaName();
       this.refTableId = column.getRefTable().getIdentifier();
       this.refTableName = column.getRefTableName();
       if (column.getRefLinkColumn() != null) {
@@ -97,7 +99,7 @@ public class Column {
     this.computed = column.getComputed();
 
     // calculated field
-    if (table.getInherit() != null)
+    if (table.getInheritName() != null)
       this.inherited = table.getInheritedTable().getColumnNames().contains(column.getName());
   }
 
@@ -112,7 +114,7 @@ public class Column {
     if (drop) c.drop();
     c.setRequired(required);
     c.setDefaultValue(defaultValue);
-    c.setRefSchema(refSchemaName);
+    c.setRefSchemaName(refSchemaName);
     c.setRefTable(refTableName);
     c.setRefLink(refLinkName);
     c.setRefLabel(refLabel);

@@ -198,7 +198,7 @@ class SqlColumnRefArrayExecutor {
   private static void createReferenceExistsCheck(DSLContext jooq, Column column) {
     String schemaName = column.getSchema().getName();
     Name thisTable = name(schemaName, column.getTable().getTableName());
-    Name toTable = name(column.getRefSchema(), column.getRefTableName());
+    Name toTable = name(column.getRefSchemaName(), column.getRefTableName());
     String functionName = getReferenceExistsCheckName(column);
     List<Reference> references = column.getReferences();
 

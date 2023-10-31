@@ -4,7 +4,9 @@
       <div>
         <span class="hoverContainer">
           <h4
-            :id="table.id !== undefined ? table.name.replaceAll(' ', '_') : ''"
+            :id="
+              table.name !== undefined ? table.name.replaceAll(' ', '_') : ''
+            "
             style="display: inline-block; text-transform: none !important"
             :style="table.drop ? 'text-decoration: line-through' : ''"
           >
@@ -118,7 +120,7 @@
                       class="hoverIcon"
                     />
                   </td>
-                  <td>extends {{ subclass.inherit }}</td>
+                  <td>extends {{ subclass.inheritName }}</td>
                   <td>
                     {{ subclass.description }}
                   </td>
@@ -132,7 +134,7 @@
             <ColumnEditModal
               v-if="isManager"
               :schema="schema"
-              :schemaIds="schemaIds"
+              :schemaNames="schemaNames"
               operation="add"
               :tableName="table.name"
               :columnIndex="0"
@@ -177,7 +179,7 @@
                   "
                   v-model="table.columns[index]"
                   :schema="schema"
-                  :schemaIds="schemaIds"
+                  :schemaNames="schemaNames"
                   @update:modelValue="updateColumn(index, $event)"
                   @add="addColumn(index + 1, $event)"
                   @delete="deleteColumn(index)"
@@ -229,7 +231,7 @@ export default {
       type: Object,
       required: true,
     },
-    schemaIds: {
+    schemaNames: {
       type: Array,
       required: true,
     },

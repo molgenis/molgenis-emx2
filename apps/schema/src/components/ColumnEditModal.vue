@@ -74,7 +74,7 @@
                 <InputSelect
                   id="column_refSchema"
                   v-model="column.refSchemaName"
-                  :options="schemaIds"
+                  :options="schemaNames"
                   @update:modelValue="loadRefSchema"
                   label="refSchema"
                   description="When you want to refer to table in another schema"
@@ -314,7 +314,7 @@ export default {
       required: true,
     },
     /** list of schemas for externalSchema select */
-    schemaIds: {
+    schemaNames: {
       type: Array,
       required: true,
     },

@@ -356,7 +356,7 @@ public class MetadataUtils {
               table.getSchema().getName(),
               table.getTableName(),
               table.getLabels(),
-              table.getInherit(),
+              table.getInheritName(),
               table.getImportSchema(),
               table.getDescriptions(),
               table.getSemantics(),
@@ -365,7 +365,7 @@ public class MetadataUtils {
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
           .set(TABLE_LABEL, table.getLabels())
-          .set(TABLE_INHERITS, table.getInherit())
+          .set(TABLE_INHERITS, table.getInheritName())
           .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
           .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
@@ -460,7 +460,7 @@ public class MetadataUtils {
 
   private static TableMetadata recordToTable(org.jooq.Record r) {
     TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
-    table.setInherit(r.get(TABLE_INHERITS, String.class));
+    table.setInheritName(r.get(TABLE_INHERITS, String.class));
     table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
     table.setLabels(r.get(TABLE_LABEL) != null ? r.get(TABLE_LABEL, Map.class) : new TreeMap<>());
     table.setDescriptions(
@@ -483,7 +483,9 @@ public class MetadataUtils {
   protected static void saveColumnMetadata(DSLContext jooq, Column column) {
     String refSchema =
         column.isReference()
-            ? column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema()
+            ? column.getRefSchemaName().equals(column.getSchemaName())
+                ? null
+                : column.getRefSchemaName()
             : null;
     jooq.insertInto(COLUMN_METADATA)
         .columns(
@@ -579,7 +581,7 @@ public class MetadataUtils {
     c.setRequired(col.get(COLUMN_REQUIRED, Boolean.class));
     c.setKey(col.get(COLUMN_KEY, Integer.class));
     c.setPosition(col.get(COLUMN_POSITION, Integer.class));
-    c.setRefSchema(col.get(COLUMN_REF_SCHEMA, String.class));
+    c.setRefSchemaName(col.get(COLUMN_REF_SCHEMA, String.class));
     c.setRefTable(col.get(COLUMN_REF_TABLE, String.class));
     c.setRefLink(col.get(COLUMN_REF_LINK, String.class));
     c.setRefLabel(col.get(COLUMN_REF_LABEL, String.class));

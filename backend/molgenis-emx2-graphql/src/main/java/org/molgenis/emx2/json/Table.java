@@ -45,8 +45,9 @@ public class Table {
     this.id = tableMetadata.getIdentifier();
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
-    if (tableMetadata.getInherit() != null) {
+    if (tableMetadata.getInheritName() != null) {
       this.inheritId = tableMetadata.getInheritedTable().getIdentifier();
+      this.inheritName = tableMetadata.getInheritName();
     }
     this.descriptions =
         tableMetadata.getDescriptions().entrySet().stream()
