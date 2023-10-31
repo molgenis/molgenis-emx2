@@ -88,8 +88,8 @@ public class TestEvaluateExpressions {
   @Test
   public void testCalculateComputedExpression() {
     String expression = "5 + 7";
-    String outcome = executeJavascriptOnMap(expression, Map.of());
-    assertEquals(12, Integer.parseInt(outcome));
+    Object outcome = executeJavascriptOnMap(expression, Map.of());
+    assertEquals(12, outcome);
   }
 
   @Test

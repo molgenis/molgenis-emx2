@@ -28,8 +28,12 @@ function getColumnError(
   // FIXME: longs are not checked
   const missesValue = value === undefined || value === null || value === "";
 
-  if (!isColumnVisible(column, values, tableMetaData)) {
-    return undefined;
+  try {
+    if (!isColumnVisible(column, values, tableMetaData)) {
+      return undefined;
+    }
+  } catch (error) {
+    return error as string;
   }
 
   if (column.columnType === AUTO_ID || column.columnType === HEADING) {

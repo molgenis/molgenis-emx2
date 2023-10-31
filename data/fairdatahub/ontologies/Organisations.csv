@@ -1,2 +1,27 @@
-name,definition,codesystem,code,ontologyTermURI
-UMCG,University Medical Center Groningen,ROR,03cv38k47,https://ror.org/03cv38k47
+name,definition,codesystem,code,ontologyTermURI,type,parent
+ERN Board of Member States,ERN Board of Member States,ROR,00r7apq26,https://ror.org/00r7apq26,index,European Commission
+European Commission,European Commission,ROR,00k4n6c32,https://ror.org/00k4n6c32,Parent,
+ERN BOND,European Reference Network on rare bone diseases,ROR,04crk2m06,https://ror.org/04crk2m06,Child,ERN Board of Member States
+ERN CRANIO,"European Reference Network for rare and/or complex craniofacial anomalies and ear, nose and throat disorders",ROR,032gggv33,https://ror.org/032gggv33,Child,ERN Board of Member States
+Endo-ERN,European Reference Network on Rare Endocrine Conditions,ROR,05s4nk876,https://ror.org/05s4nk876,Child,ERN Board of Member States
+ERN EpiCARE,European Reference Network for rare and complex epilepsies,ROR,0214h3370,https://ror.org/0214h3370,Child,ERN Board of Member States
+ERKNet,"European Reference Network for Rare Kidney Diseases,European Rare Kidney Disease Reference Network",ROR,04x2ddb07,https://ror.org/04x2ddb07,Child,ERN Board of Member States
+ERN-RND,European Reference Network for Rare Neurological Diseases,ROR,05a27za87,https://ror.org/05a27za87,Child,ERN Board of Member States
+ERNICA,European Reference Network for Rare Inherited and Congenital Anomalies,ROR,02h9n4675,https://ror.org/02h9n4675,Child,ERN Board of Member States
+ERN LUNG,European Reference Network on respiratory diseases,ROR,0279ntc65,https://ror.org/0279ntc65,Child,ERN Board of Member States
+ERN Skin,European Reference Network on skin disorders,ROR,0446wcg70,https://ror.org/0446wcg70,Child,ERN Board of Member States
+ERN EURACAN,European Reference Network on rare adult solid cancers,ROR,01rq5e797,https://ror.org/01rq5e797,Child,ERN Board of Member States
+ERN EuroBloodNet,European Reference Network on rare haematological diseases,ROR,04dng8q18,https://ror.org/04dng8q18,Child,ERN Board of Member States
+ERN eUROGEN,European Reference Network on urogenital diseases and conditions,ROR,00y7tet25,https://ror.org/00y7tet25,Child,ERN Board of Member States
+ERN EURO-NMD,European Reference Network on rare neuromuscular diseases,ROR,04x3ta798,https://ror.org/04x3ta798,Child,ERN Board of Member States
+ERN EYE,European Reference Network on rare eye diseases,ROR,029nm1m14,https://ror.org/029nm1m14,Child,ERN Board of Member States
+ERN GENTURIS,European Reference Network on rare genetic tumour risk syndromes,ROR,03pbpa834,https://ror.org/03pbpa834,Child,ERN Board of Member States
+ERN ITHACA,"European Reference Network for Intellectual disability, TeleHealth, Autism and Congenital Anomalies",ROR,03va0yq34,https://ror.org/03va0yq34,Child,ERN Board of Member States
+MetabERN,European Reference Network on hereditary metabolic disorders,ROR,00xdsr520,https://ror.org/00xdsr520,Child,ERN Board of Member States
+ERN PaedCan,European Reference Network on paediatric cancer,ROR,02dk8t214,https://ror.org/02dk8t214,Child,ERN Board of Member States
+ERN RARE-LIVER,European Reference Network on rare liver diseases,ROR,036e61f39,https://ror.org/036e61f39,Child,ERN Board of Member States
+ERN ReCONNET,European Reference Network on Rare and Complex Connective Tissue and Musculoskeletal Diseases,ROR,04069k268,https://ror.org/04069k268,Child,ERN Board of Member States
+ERN RITA,"European Reference Network on immunodeficiency, autoinflammatory and autoimmune diseases",ROR,0208ges23,https://ror.org/0208ges23,Child,ERN Board of Member States
+ERN TRANSPLANT-CHILD,European Reference Network on Transplantation in Children,ROR,04rr75245,https://ror.org/04rr75245,Child,ERN Board of Member States
+VASCERN,European Reference Network on Rare Multisystemic Vascular Diseases,ROR,005pygq66,https://ror.org/005pygq66,Child,ERN Board of Member States
+UMCG,University Medical Center Groningen,ROR,03cv38k47,https://ror.org/03cv38k47,,

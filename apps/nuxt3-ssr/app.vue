@@ -97,7 +97,9 @@ import { hash } from ".fingerprint.js";
 
 const config = useRuntimeConfig();
 
-const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics", { maxAge: 34560000 } );
+const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics", {
+  maxAge: 34560000,
+});
 
 const showCookieWall = ref(
   !!(config.public.analyticsKey && isAnalyticsAllowedCookie.value === undefined)

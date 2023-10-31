@@ -1,0 +1,55 @@
+source,source dataset,target,target dataset,order,description,syntax
+AP,AP,OOM_CDM,VISIT_OCCURRENCE,,"For each record 
+ ● Create a record of VISIT_OCCURRENCE and label the records with a unique code stored in visit_occurrence_id (primary key)
+ ● Copy the values of AP into VISIT_OCCURRENCE according to the following table",
+AP,AP,OOM_CDM,MEDICAL_OBSERVATIONS,,"For each record
+● Extract from VISIT_OCCURRENCE (above) the corresponding value of visit_occurrence_id
+● Create a record of MEDICAL_OBSERVATIONS for each non-empty column of this list
+a. Columns containing codes
+i. COD_MORF_1, 
+ii. COD_MORF_2, 
+iii. COD_MORF_3,
+iv. COD_TOPOG
+b. Columns containing text:
+i. DIAGNOSI
+ii. MACROSCOPIA
+● Copy the values of AP into each such record of MEDICAL_OBSERVATIONS according to the following table",
+ARS_ANAG_MED_RES_storico,ARS_ANAG_MED_RES_storico,OOM_CDM,PERSONS,,Select all the distinct values of IDUNI having at least one record with COD_REGIONE=’090’; for each of them select the values as follows,
+ARS_ANAG_MED_RES_storico,ARS_ANAG_MED_RES_storico,OOM_CDM,OBSERVATION_PERIODS,,"For each record with COD_REGIONE=’090’, fill the column of this table as follows",
+ARS_PS,PS,OOM_CDM,EVENTS,,"For each record
+● Create one record of EVENTS where the variable event_code is filled with diagnosi_princ; then for those records of PS whose ‘prognosi_testo’ is non empty, create a second record and use prognosi_testo to fill event_free_text    
+● Copy the values of PS into EVENTS according to the following table",
+COD_FARMACI_SPF,COD_FARMACI_SPF,OOM_CDM,PRODUCTS,,"For each record of each child, perform record linkage with CAP1 and fill the column of this table as follows",
+RMR,RMR,OOM_CDM,SURVEY_ID,,"For each record
+● Create one record of SURVEY_ID and number the records with a sequential number stored in survey_id
+● Copy the values of RMR into SURVEY_ID according to the following table",
+RMR,RMR,OOM_CDM,SURVEY_OBSERVATIONS,,"For each record 
+● Extract from SURVEY_ID (above) the corresponding value of survey_id
+● Create a record of SURVEY_OBSERVATIONS for each non-empty cell in the list below:
+a. CAUSAMORTE 
+b. CAUSAMORTE_ICDX 
+c. CAUSAVIOLENTA 
+d. CAUSAVIOLENTA_ICDX 
+e. NDOC 
+f. LUOGO
+g. LUOGOACC 
+h. MEV_GD 
+i. MEV_TI",
+SALM,SALM,OOM_CDM,EVENTS,,"For each record
+● Create one record of EVENTS for each non-empty value of   DIAGNOSI_PRINCIPALE, COMORBIDITA_1, COMORBIDITA_2
+● Copy the values of SALM into EVENTS according to the following table",
+SEA,SEA,OOM_CDM,EVENTS,,"For each record
+ ● Create a record of EVENTS 
+ ● Copy the values of SEA into EVENTS according to the following table",
+SPA,SPA,OOM_CDM,PROCEDURES,,"For each record having CODPRES not in the following list: ’89.01’ or ‘89.7’ or ‘95.02’ or ‘95.01’:
+● Create a record of PROCEDURES 
+● Copy the values of SPA into PROCEDURES according to the following table",
+SPA,SPA,OOM_CDM,VISIT_OCCURRENCE,,"For each record with CODPRES=’89.01’ or ‘89.7’ or ‘95.02’ or ‘95.01’:
+ ● Create a record of VISIT_OCCURRENCE and label the records with a unique code stored in visit_occurrence_id (primary key)
+ ● Copy the values of SPA into VISIT_OCCURRENCE according to the following table",
+SPF,SPF,OOM_CDM,MEDICINES,,"For each record
+● Create a record of MEDICINES 
+● Copy the values of SPF into MEDICINES according to the following table",
+VCN,VCN,OOM_CDM,VACCINES,,"For each record:
+● Create a record of VACCINES
+● Copy the values of VCN into VACCINES according to the following table",
