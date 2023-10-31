@@ -171,7 +171,7 @@ export default {
         col.columnType == "ONTOLOGY_ARRAY"
       ) {
         return row[col.id].map((v) => {
-          if (col.id === "tables") {
+          if (col.id === "datasets") {
             //hack, ideally we start setting refLabel in configuration! <= actually we do
             return v.name;
           } else if (col.refLabel) {

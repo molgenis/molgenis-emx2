@@ -73,7 +73,7 @@ export default {
     };
   },
   computed: {
-    tables() {
+    datasets() {
       return [
         ...new Set(
           this.harmonisations.map(

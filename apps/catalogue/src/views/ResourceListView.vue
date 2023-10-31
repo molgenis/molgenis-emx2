@@ -30,7 +30,7 @@ const css = {
   Contacts: "bg-info text-white",
   Affiliations: "bg-info text-white",
   Releases: "bg-dark text-white",
-  Tables: "bg-dark text-white",
+  Datasets: "bg-dark text-white",
   Variables: "bg-dark text-white",
   DatasetMappings: "bg-dark text-white",
   VariableMappings: "bg-dark text-white",

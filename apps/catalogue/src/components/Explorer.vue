@@ -26,7 +26,12 @@
                   <label>Limit search to:</label>
                   <InputCheckbox
                     class="custom-control-inline ml-2"
-                    :options="['Collections', 'Tables', 'Variables', 'Topics']"
+                    :options="[
+                      'Collections',
+                      'Datasets',
+                      'Variables',
+                      'Topics',
+                    ]"
                   />
                 </div>
               </form>
@@ -46,8 +51,8 @@
             <li>
               <router-link
                 class="nav-link"
-                :class="{ active: selected == 'Tables' }"
-                to="tables"
+                :class="{ active: selected == 'Datasets' }"
+                to="datasets"
               >
                 Dataset ({{ datasetCount }})
               </router-link>
