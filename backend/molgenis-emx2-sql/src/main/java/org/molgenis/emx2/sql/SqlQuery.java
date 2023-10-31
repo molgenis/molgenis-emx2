@@ -492,12 +492,39 @@ public class SqlQuery extends QueryBean {
       search.add(
           field(name(table.getTableName(), searchColumnName(table.getTableName())))
               .likeIgnoreCase("%" + term + "%"));
+      // also search in ontology tables linked to current table
       table.getColumns().stream()
           .filter(Column::isOntology)
           .forEach(
-              oc ->
+              ontologyColumn -> {
+                org.jooq.Table ontologyTable = ontologyColumn.getRefTable().getJooqTable();
+                if (ontologyColumn.isArray()) {
+                  // include if array overlap between ontology table and our selected values in our
+                  // ref_array
                   search.add(
-                      jsonSearchConditions((SqlTableMetadata) oc.getRefTable(), searchTerms)));
+                      condition(
+                          "{0} && array_agg({1})",
+                          ontologyColumn.getJooqField(),
+                          DSL.select(field("name"))
+                              .from(ontologyTable)
+                              .where(
+                                  field(searchColumnName(ontologyTable.getName()))
+                                      .likeIgnoreCase("%" + term + "%"))));
+                } else {
+                  // include if our ref is in the ontology terms list that would be found given our
+                  // search terms
+                  search.add(
+                      ontologyColumn
+                          .getJooqField()
+                          .in(
+                              DSL.select(field("name"))
+                                  .from(ontologyTable)
+                                  .where(
+                                      field(searchColumnName(ontologyTable.getName()))
+                                          .likeIgnoreCase("%" + term + "%"))));
+                }
+              });
+
       TableMetadata parent = table.getInheritedTable();
       while (parent != null) {
         search.add(
