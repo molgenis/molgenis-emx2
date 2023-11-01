@@ -30,11 +30,12 @@
             :data-value="row[yvar]"
           >
             <rect
-              :data-value="`${row[xvar]}-${row[yvar]}`"
+              :data-value-x="row[xvar]"
+              :data-value-y="row[yvar]"
               class="column"
               :x="xAxis(row[xvar])"
               :width="xAxis.bandwidth()"
-              :fill="columnFill"
+              :fill="colorPalatte[row[xvar]]"
               @click="onClick(row)"
               @mouseover="(event) => onMouseOver(event)"
               @mouseleave="(event) => onMouseLeave(event)"
@@ -195,6 +196,14 @@ export default {
       default: "#163D89",
     },
 
+    // Define your own color palette that is passed down to each column.
+    // You will need to create an object that maps each x-value to a
+    // specific color. The color supplied in `columnHoverFill` will
+    // not be overwritten.
+    columnColorPalatte: {
+      type: Object,
+    },
+
     // Adjust the amount of blank space inbetween columns between 0 and 1
     columnPaddingInner: {
       type: Number,
@@ -309,6 +318,17 @@ export default {
     chartColumns() {
       return this.chartArea.selectAll("rect.column");
     },
+    colorPalatte() {
+      const domain = this.chartData.map((row) => row[this.xvar]);
+      const colorMappings = domain.map((value) => {
+        const color = this.columnColorPalatte
+          ? this.columnColorPalatte[value]
+          : this.columnFill;
+        return [value, color];
+      });
+      const palatte = Object.fromEntries(colorMappings);
+      return palatte;
+    },
   },
   methods: {
     setChartDimensions() {
@@ -352,7 +372,8 @@ export default {
     onMouseLeave(event) {
       const column = event.target;
       const label = column.nextSibling;
-      column.style.fill = this.columnFill;
+      const xvar = column.getAttribute("data-value-x");
+      column.style.fill = this.colorPalatte[xvar];
       label.style.opacity = 0;
     },
     drawColumns() {
