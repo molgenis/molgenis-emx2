@@ -13,15 +13,15 @@
           <th
             v-for="(column, index) of columns"
             :key="`head-${index}`"
-            class="sticky top-0 z-20 bg-white text-left align-bottom"
+            class="sticky top-0 z-20 min-w-[2rem] bg-white text-center align-bottom"
           >
             <div
               class="absolute inset-0 border-l border-b pointer-events-none"
             ></div>
-            <div class="rotated-title max-h-title overflow-hidden">
-              <span>
-                <slot name="column" :value="column">{{ column }}</slot>
-              </span>
+            <div
+              class="rotated-title max-h-title text-left min-h-title overflow-hidden hover:overflow-visible"
+            >
+              <slot name="column" :value="column">{{ column }}</slot>
             </div>
           </th>
         </tr>

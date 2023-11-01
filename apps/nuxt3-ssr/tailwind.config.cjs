@@ -108,6 +108,9 @@ module.exports = {
       maxHeight: {
         title: "10rem",
       },
+      minHeight: {
+        title: "10rem",
+      },
       maxWidth: {
         lg: "88.75rem", // 970+380+30+20+20
         tooltip: "10.5rem",
