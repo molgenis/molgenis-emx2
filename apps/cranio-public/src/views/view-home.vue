@@ -9,11 +9,14 @@
     <PageSection aria-labelledby="welcome-section-title" :verticalPadding="3">
       <h2 id="welcome-section-title">Welcome to ERN CRANIO Registry</h2>
       <p>
-        The <strong>ERN CRANIO</strong> registry is the European registry
-        focused on the outcome of treatment using standardised diagnosis
-        specific outcome sets (starting with craniosynostosis and cleft
-        lip/palate) - including patient reported outcome measures and outcomes
-        on patients' quality of life.
+        <strong>ERN CRANIO</strong> is establishing a European-wide registry to
+        monitor treatment outcomes for rare craniofacial anomalies and ENT
+        disorders like craniosynostosis and cleft lip/palate. This registry
+        gathers patient data securely from across Europe, improving our
+        understanding and treatment of these conditions, fostering research, and
+        enhancing patient care. It covers a range of disorders and involves
+        collaboration with European specialists to define relevant outcome
+        measures.
       </p>
     </PageSection>
     <PageSection
