@@ -1,7 +1,7 @@
 <template>
   <ProviderDashboard>
     <h2 class="dashboard-h2">Overview for your center</h2>
-    <DashboardBox>
+    <DashboardBox class="mb-4">
       <h3>Options</h3>
       <InputLabel
         id="yearOfBirthFilter"
@@ -20,9 +20,22 @@
         <option value="18+">18+ years</option>
       </select>
     </DashboardBox>
+    <h3 class="dashboard-h3">Overview of patients {{ ageGroupFilter }} years old (n={{ totalCases }})</h3>
     <DashboardChartLayout :columns="2">
       <DashboardBox id="clp-patients-by-phenotype">
-        <PieChart2
+        <ColumnChart
+          chartId="patientsByPhenotype"
+          title="Patients by phenotype"
+          :chartData="patientsByPhenotype"
+          xvar="type"
+          yvar="count"
+          :yMax="100"
+          :yTickValues="[0,25,50,75,100]"
+          :chartHeight="300"
+          columnFill="#f2a058"
+          columnHoverFill="#708fb4"
+        />
+        <!-- <PieChart2
           chartId="patientsByPhenotype"
           title="Patients by phenotype"
           :chartData="patientsByPhenotype"
@@ -33,12 +46,12 @@
           :chartHeight="200"
           :chartScale="0.9"
           :valuesArePercents="false"
-        />
+        /> -->
       </DashboardBox>
       <DashboardBox>
         <PieChart2
           chartId="patientsByGender"
-          :title="`Patients per gender (n=${totalCases})`"
+          title="Patients per gender"
           :chartData="patientsByGender"
           :asDonutChart="true"
           :chartColors="genderColors"
@@ -79,6 +92,7 @@
 import { ref } from "vue";
 import {
   DashboardBox,
+  ColumnChart,
   PieChart2,
   ProgressMeter,
   InputLabel,
@@ -103,15 +117,15 @@ const phenotypeColors = generateColors(Object.keys(patientsByPhenotype.value));
 const genderColors = generateColors(Object.keys(patientsByGender.value));
 
 function setPatientsByPhenotype() {
-  const types = Object.keys(patientsByPhenotype.value);
+  const types = ['CL', 'CLA', 'CP', 'CLAP'];
   const data = types
-    .map((type) => [type, randomInt(1, 100)()])
-    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
+    .map((type) => Object.assign({type: type, count: randomInt(1, 100)()}))
+    .sort((current, next) => (current.type < next.type ? 1 : -1));
 
   totalCases.value = data
-    .map((row) => row[1])
+    .map((row) => row.count)
     .reduce((sum, value) => sum + value, 0);
-  patientsByPhenotype.value = Object.fromEntries(data);
+  patientsByPhenotype.value = data;
 }
 
 function setPatientsByGender() {
