@@ -22,9 +22,25 @@
       }
     }
 
+    &.bg-gray-000 {
+      background-color: $gray-000;
+    }
+
     &.bg-gray-050 {
       background-color: $gray-050;
     }
+    &.bg-gray-100 {
+      background-color: $gray-100;
+    }
+
+    &.bg-gray-900 {
+      background-color: $gray-900;
+    }
+
+    &.bg-primary {
+      background-color: $gdi-brand-purple;
+    }
+
     &.bg-primary-alt {
       background-color: $gdi-brand-purple-light;
     }
@@ -49,13 +65,38 @@
     grid-area: sidebar;
     display: flex;
     flex-direction: column;
-    gap: 1em;
     background-color: $gray-000;
     padding: 1em;
+
+    form {
+      padding: 0;
+      margin: 0;
+    }
+
+    button,
+    .btn {
+      margin-bottom: 1em;
+    }
+
+    .accordion {
+      margin: 0;
+      margin-bottom: 1em;
+      border: none;
+      .accordion-heading {
+        background-color: transparent;
+        margin: 0;
+        padding: 0;
+      }
+    }
   }
 
   .sidebar-main {
     grid-area: main;
+
+    &.main-beacon-output {
+      background-color: $gray-000;
+      padding: 1em;
+    }
   }
 
   @media screen and (min-width: 724px) {
@@ -70,52 +111,26 @@
   }
 }
 
-.portal-highlights {
-  @include flexCenterAll;
-  gap: 1em;
-
-  .highlight {
-    flex-grow: 1;
-    padding: 1em 3em;
-    background-color: $gray-000;
-    box-shadow: $box-shadow;
-    border-radius: 8pt;
-
-    .data {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1em;
-      color: $gdi-brand-purple;
-
-      .label {
-        @include textTransform;
-      }
-
-      .value {
-        font-size: 36pt;
-        font-weight: bold;
-      }
-    }
-  }
-}
-
 .link-card-container {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  align-items: stretch;
   gap: 1em;
 
   .link-card {
-    background-color: $gdi-brand-purple;
+    border-radius: 8px;
     flex-grow: 1;
+
     &.height-medium {
       height: auto;
-      padding: 0.8em;
+      padding: 3em;
     }
 
-    a {
-      color: $gray-000;
+    .card-content {
+      a {
+        color: $gray-000;
+      }
     }
   }
 }
@@ -158,8 +173,24 @@ a {
   }
 
   svg {
-    $size: 18pt;
+    $size: 16pt;
     width: $size;
     height: $size;
+  }
+}
+
+#accordion-beacon-query {
+  .accordion-heading {
+    background-color: transparent;
+  }
+
+  .accordion-content {
+    background-color: $gray-800;
+    padding: 1em;
+    code {
+      pre {
+        color: $gray-050;
+      }
+    }
   }
 }

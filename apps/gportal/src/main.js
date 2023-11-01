@@ -2,11 +2,9 @@ import { createApp } from "vue";
 import { createRouter, createWebHashHistory } from "vue-router";
 
 import App from "./App.vue";
-import Beacon from "./components/Beacon.vue";
-// import Datasets from "./components/Datasets.vue";
-
 import HomePage from "./views/view-home.vue";
 import DatasetSearch from "./views/search-dataset.vue";
+import BeaconSearch from "./views/search-beacon.vue";
 
 import "molgenis-components/dist/style.css";
 import "molgenis-viz/dist/style.css";
@@ -17,9 +15,9 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     {
-      name: "beacon",
-      path: "/beacon",
-      component: Beacon,
+      name: "home",
+      path: "/",
+      component: HomePage,
       props: true,
     },
     {
@@ -29,9 +27,9 @@ const router = createRouter({
       props: true,
     },
     {
-      name: "home",
-      path: "/",
-      component: HomePage,
+      name: "beacon",
+      path: "/beacon",
+      component: BeaconSearch,
       props: true,
     },
   ],

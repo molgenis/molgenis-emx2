@@ -3,9 +3,9 @@
     <PageHeader
       title="GDI Local Portal"
       subtitle="Search for datasets"
-      imageSrc="gdi-portal.jpg"
+      imageSrc="bkg-datasets.jpg"
       titlePositionX="center"
-      height="medium"
+      height="large"
     />
     <PageSection
       width="large"
@@ -43,19 +43,25 @@
       <div class="sidebar-layout" v-else>
         <aside class="sidebar-menu">
           <h3>Dataset selection</h3>
-          <p>
-            Select one or more datasets and add them to the cart. When you are
-            ready, click the "Request Access" button to apply for acess in the
-            REMS.
-          </p>
+          <p>Select one or more datasets and add them to the cart.</p>
           <a :href="remsApplyUrl" type="button" class="btn btn-primary">
             Request Access {{ selection.length ? `(${selection.length})` : "" }}
-            <ExternalLink />
+            <ArrowTopRightOnSquareIcon
+              class="heroicon"
+              style="margin-top: -3px"
+            />
           </a>
           <ButtonOutline @click="selectAll"> Select all </ButtonOutline>
           <ButtonAlt @click="clearAll"> Clear all </ButtonAlt>
         </aside>
         <div class="sidebar-main">
+          <h3>Available Datasets</h3>
+          <p>
+            Review each dataset and select the ones of interest by clicking the
+            add "+" button. Click the button again to remove from the dataset
+            from the cart. When you are satisfied with your selection, click the
+            "Request Access" button to start the application process in REMS.
+          </p>
           <div class="dataset-card" v-for="dataset in datasets">
             <div class="dataset-info">
               <h3 class="dataset-title">{{ dataset.title }}</h3>
@@ -94,10 +100,10 @@
                 @change="applySelectionStyle"
               />
               <label :for="dataset.id" class="btn btn-outline-primary">
-                <span>{{
-                  selection.includes(dataset.id) ? "Remove" : "Add"
-                }}</span>
-                <ShoppingCartIcon class="heroicon" />
+                <span class="visually-hidden">
+                  {{ selection.includes(dataset.id) ? "Remove" : "Add" }}
+                </span>
+                <PlusIcon class="heroicon" />
               </label>
             </div>
           </div>
@@ -113,7 +119,7 @@ import { request } from "graphql-request";
 import { ref, watch, onBeforeMount } from "vue";
 import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
 import { ButtonAlt, ButtonOutline } from "molgenis-components";
-import { ShoppingCartIcon } from "@heroicons/vue/24/outline";
+import { PlusIcon, ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline";
 
 let datasets = ref([]);
 let selection = ref([]);
@@ -200,6 +206,8 @@ function setUrl() {
 function clearAll() {
   selection.value = [];
   remsApplyUrl.value = remsHost.value;
+  const cards = document.querySelectorAll("div.dataset-card");
+  cards.forEach((card) => card.classList.remove("card-selected"));
 }
 
 function setRefs(value) {
@@ -215,6 +223,8 @@ function selectAll() {
     }
   });
   setUrl();
+  const cards = document.querySelectorAll("div.dataset-card");
+  cards.forEach((card) => card.classList.add("card-selected"));
 }
 
 function applySelectionStyle(event) {
@@ -247,7 +257,7 @@ watch([selection], setUrl);
   background-color: $gray-000;
   box-sizing: content-box;
   padding: 2em;
-  border-bottom: 1px solid $gdi-brand-purple-light;
+  border-bottom: 1px solid $gdi-brand-purple;
 
   @media screen and (min-width: 724px) {
     grid-template-columns: "info button";
@@ -266,6 +276,7 @@ watch([selection], setUrl);
       margin: 0;
       padding: 0;
       gap: 1em;
+
       li {
         padding: 0.15em 0.8em;
         border-radius: 24px;
@@ -282,13 +293,39 @@ watch([selection], setUrl);
     .heroicon {
       width: 18px;
       height: 18px;
-      margin-top: -0.2em;
-      margin-left: 0.4em;
+    }
+  }
+
+  .btn {
+    border-width: 2px;
+
+    .heroicon {
+      path {
+        stroke-width: 2px;
+      }
     }
   }
 
   &.card-selected {
-    background-color: $gdi-brand-yellow;
+    background-color: $gdi-brand-purple-light;
+
+    .heroicon {
+      path {
+        transform: rotate(-45deg);
+        transform-origin: center;
+      }
+    }
+
+    p {
+      color: $gdi-brand-purple;
+    }
+
+    .dataset-tags {
+      li {
+        background-color: $gdi-brand-purple;
+        color: $gray-000;
+      }
+    }
   }
 }
 </style>

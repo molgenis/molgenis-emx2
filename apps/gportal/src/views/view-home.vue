@@ -7,34 +7,6 @@
       height="large"
       titlePositionX="center"
     />
-    <PageSection class="bg-gray-050" :verticalPadding="2">
-      <div class="portal-highlights">
-        <div class="highlight">
-          <data class="data" :value="highlights.Catalog">
-            <span class="value">{{ highlights.Catalog }}</span>
-            <span class="label">{{
-              highlights.Catalog > 1 ? "Catalogues" : "Catalogue"
-            }}</span>
-          </data>
-        </div>
-        <div class="highlight">
-          <data class="data" :value="highlights.Dataset">
-            <span class="value">{{ highlights.Dataset }}</span>
-            <span class="label">{{
-              highlights.Dataset > 1 ? "Datasets" : "Dataset"
-            }}</span>
-          </data>
-        </div>
-        <div class="highlight">
-          <data class="data" :value="highlights.Distribution">
-            <span class="value">{{ highlights.Distribution }}</span>
-            <span class="label">{{
-              highlights.Distribution > 1 ? "Distributions" : "Distribution"
-            }}</span>
-          </data>
-        </div>
-      </div>
-    </PageSection>
     <PageSection aria-labelledby="welcome-title" :verticalPadding="2">
       <h2 id="get-started-title">Welcome to the GDI Local Portal</h2>
       <p>
@@ -59,13 +31,13 @@
         Search for data
       </h2>
       <div class="link-card-container">
-        <LinkCard>
+        <LinkCard imageSrc="bkg-datasets.jpg">
           <router-link :to="{ name: 'datasets' }">
             Find Datasets
             <ArrowRightCircleIcon />
           </router-link>
         </LinkCard>
-        <LinkCard>
+        <LinkCard imageSrc="bkg-beacon.jpg">
           <router-link :to="{ name: 'beacon' }">
             Search with Beacon
             <ArrowRightCircleIcon />
@@ -91,40 +63,6 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
 import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
 import { ArrowRightCircleIcon } from "@heroicons/vue/24/outline";
-
-let showHighlights = ref(false);
-let highlights = ref({});
-
-async function getHighlights() {
-  const query = gql`
-    {
-      Catalog {
-        id
-      }
-      Dataset {
-        id
-      }
-      Distribution {
-        name
-      }
-    }
-  `;
-  const response = await request("../api/graphql", query);
-  const data = Object.keys(response).map((key) => [key, response[key].length]);
-  highlights.value = Object.fromEntries(data);
-}
-
-onBeforeMount(() => {
-  getHighlights()
-    .then(() => (showHighlights.value = true))
-    .catch((err) => {
-      console.error(err);
-      throw new Error("Unable to retrieve highlights");
-    });
-});
 </script>
