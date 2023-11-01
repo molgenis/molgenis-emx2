@@ -8,16 +8,15 @@
             <li>
               <router-link :to="{ name: 'home' }"> Home </router-link>
             </li>
-            <!-- more links here -->
           </UnorderedList>
         </div>
         <div class="footer-column footer-links">
           <p><strong>Search</strong></p>
           <UnorderedList listType="none">
             <li>
-              <router-link :to="{ name: 'datasets' }"
-                >Find Datasets</router-link
-              >
+              <router-link :to="{ name: 'datasets' }">
+                Find Datasets
+              </router-link>
             </li>
             <li>
               <router-link :to="{ name: 'beacon' }"
@@ -29,14 +28,13 @@
         <div class="footer-column footer-logos">
           <UnorderedList listType="none">
             <li id="project-logo-link">
-              <router-link :to="{ name: 'home' }">
-                <!-- insert project logo here -->
+              <a href="https://gdi.onemilliongenomes.eu">
                 <img
                   src="gdi-logo.png"
                   class="project-logo"
                   alt="European Genomic Data Infrastructure (GDI)"
                 />
-              </router-link>
+              </a>
             </li>
             <li>
               <a href="https://www.molgenis.org">
