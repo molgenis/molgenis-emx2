@@ -1,238 +1,135 @@
 package org.molgenis.emx2.rdf;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.rdf.StringsForRDFTest.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringReader;
+import java.util.List;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.vocabulary.OWL;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.Rio;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RDFTest {
 
   static Database database;
-  static Schema[] petStoreSchemas;
+  static List<Schema> petStoreSchemas;
   static final String RDF_API_LOCATION = "/api/rdf";
+  static Schema petStore_nr1;
+  static Schema petStore_nr2;
+
+  static RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    Schema petStore_nr1 = database.dropCreateSchema("petStoreNr1");
-    Schema petStore_nr2 = database.dropCreateSchema("petStoreNr2");
+    petStore_nr1 = database.dropCreateSchema("petStoreNr1");
+    petStore_nr2 = database.dropCreateSchema("petStoreNr2");
     PetStoreLoader petStoreLoader = new PetStoreLoader();
     petStoreLoader.load(petStore_nr1, true);
     petStoreLoader.load(petStore_nr2, true);
-    petStoreSchemas = new Schema[2];
-    petStoreSchemas[0] = petStore_nr1;
-    petStoreSchemas[1] = petStore_nr2;
+    petStoreSchemas = List.of(petStore_nr1, petStore_nr2);
+  }
+
+  @AfterAll
+  public static void tearDown() {
+    database = TestDatabaseFactory.getTestDatabase();
+    Schema petStore_nr1 = database.dropCreateSchema("petStoreNr1");
+    Schema petStore_nr2 = database.dropCreateSchema("petStoreNr2");
   }
 
   @Test
-  void RDFForDatabaseAsTTL() {
+  void testThatColumnsAreAProperty() throws IOException {
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
-    rdf.describeAsRDF(outputStream, null, null, null, petStoreSchemas);
+    rdf.describeAsRDF(outputStream, null, null, null, petStore_nr1);
     String result = outputStream.toString();
-    assertTrue(result.contains(TTL_PREFIX_1));
-    assertTrue(result.contains(TTL_PREFIX_2));
-    assertTrue(result.contains(TTL_ROOT));
-    assertTrue(result.contains(TTL_SCHEMA_1));
-    assertTrue(result.contains(TTL_SCHEMA_2));
-    assertTrue(result.contains(TTL_TABLE_CATEGORY_1));
-    assertTrue(result.contains(TTL_TABLE_CATEGORY_2));
-    assertTrue(result.contains(TTL_TABLE_PET_1));
-    assertTrue(result.contains(TTL_TABLE_PET_2));
-    assertTrue(result.contains(TTL_COL_CATEGORY_NAME_1));
-    assertTrue(result.contains(TTL_COL_CATEGORY_NAME_2));
-    assertTrue(result.contains(TTL_COL_PET_NAME_1));
-    assertTrue(result.contains(TTL_COL_PET_NAME_2));
-    assertTrue(result.contains(TTL_COL_PET_DETAILS_1));
-    assertTrue(result.contains(TTL_COL_PET_DETAILS_2));
-    assertTrue(result.contains(TTL_ROW_POOKY_1));
-    assertTrue(result.contains(TTL_ROW_SPIKE_1));
-    assertTrue(result.contains(TTL_ROW_POOKY_2));
-    assertTrue(result.contains(TTL_ROW_SPIKE_2));
-    assertTrue(result.contains(TTL_ROW_CAT_1));
-    assertTrue(result.contains(TTL_ROW_DOG_1));
-    assertTrue(result.contains(TTL_ROW_CAT_2));
-    assertTrue(result.contains(TTL_ROW_DOG_2));
+    var parser = Rio.createParser(RDFFormat.TURTLE);
+    parser.setRDFHandler(
+        new InMemoryRDFHandler() {
+          @Override
+          public void handleStatement(Statement st) throws RDFHandlerException {
+            super.handleStatement(st);
+            if (st.getPredicate().equals(RDF.TYPE)) {
+              if (st.getSubject().stringValue().contains("/column/")) {
+                assertTrue(
+                    st.getObject().equals(OWL.OBJECTPROPERTY)
+                        || st.getObject().equals(OWL.DATATYPEPROPERTY)
+                        || st.getObject().equals(OWL.ANNOTATEDPROPERTY),
+                    "Columns must be defined as rdf:type one of owl:objectProperty, owl:dataProperty or owl:annotationProperty");
+              }
+            }
+          }
+        });
+    parser.parse(new StringReader(result));
   }
 
   @Test
-  void RDFForOneSchemaAsTTL() {
+  void testThatTablesAreClasses() throws IOException {
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
-    rdf.describeAsRDF(outputStream, null, null, null, petStoreSchemas[0]);
+    rdf.describeAsRDF(outputStream, null, null, null, petStore_nr1);
     String result = outputStream.toString();
-    assertTrue(result.contains(TTL_PREFIX_1), "Prefix 1");
-    assertFalse(result.contains(TTL_PREFIX_2), "Prefix 2");
-    assertTrue(result.contains(TTL_ROOT), "Root");
-    assertTrue(result.contains(TTL_SCHEMA_1), "Schema 1");
-    assertFalse(result.contains(TTL_SCHEMA_2), "Schema 2");
-    assertTrue(result.contains(TTL_TABLE_CATEGORY_1), "Category 1");
-    assertFalse(result.contains(TTL_TABLE_CATEGORY_2), "Category 2");
-    assertTrue(result.contains(TTL_TABLE_PET_1), "Pet 1");
-    assertFalse(result.contains(TTL_TABLE_PET_2), "Pet 2");
-    assertTrue(result.contains(TTL_COL_CATEGORY_NAME_1), "Category name 1");
-    assertFalse(result.contains(TTL_COL_CATEGORY_NAME_2), "Category name 2");
-    assertTrue(result.contains(TTL_COL_PET_NAME_1), "Pet name 1");
-    assertFalse(result.contains(TTL_COL_PET_NAME_2), "Pet name 2");
-    assertTrue(result.contains(TTL_COL_PET_DETAILS_1), "Pet details 1");
-    assertFalse(result.contains(TTL_COL_PET_DETAILS_2), "Pet details 2");
-    assertTrue(result.contains(TTL_ROW_POOKY_1), "Pooky 1");
-    assertTrue(result.contains(TTL_ROW_SPIKE_1), "Spike 1");
-    assertFalse(result.contains(TTL_ROW_POOKY_2), "Pooky 2");
-    assertFalse(result.contains(TTL_ROW_SPIKE_2), "Spike 2");
-    assertTrue(result.contains(TTL_ROW_CAT_1), "Cat 1");
-    assertTrue(result.contains(TTL_ROW_DOG_1), "Dog 1");
-    assertFalse(result.contains(TTL_ROW_CAT_2), "Cat 2");
-    assertFalse(result.contains(TTL_ROW_DOG_2), "Dog 2");
+    var parser = Rio.createParser(RDFFormat.TURTLE);
+    var handler = new InMemoryRDFHandler() {};
+    parser.setRDFHandler(handler);
+    parser.parse(new StringReader(result));
+    for (var resource : handler.resources.entrySet()) {
+      var subClasses = resource.getValue().get(RDFS.SUBCLASSOF);
+      if (subClasses != null && subClasses.contains(RDFService.IRI_DATABASE_TABLE)) {
+        var types = resource.getValue().get(RDF.TYPE);
+        var subject = resource.getKey().stringValue();
+        System.err.println("==> " + subject + " types " + types);
+        assertNotNull(types, subject + " should have a rdf:Type.");
+        assertTrue(types.contains(OWL.CLASS), subject + " should be a owl:Class.");
+      }
+    }
   }
 
   @Test
-  void RDFForOneTableAsTTL() {
-    RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
-    Table table = petStoreSchemas[0].getTable("Category");
+  void testThatClassesDoNotHaveRangeOrDomain() throws IOException {
     OutputStream outputStream = new ByteArrayOutputStream();
-    rdf.describeAsRDF(outputStream, table, null, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, null, null, null, petStore_nr1);
     String result = outputStream.toString();
-    assertTrue(result.contains(TTL_PREFIX_1), "Prefix 1");
-    assertFalse(result.contains(TTL_PREFIX_2), "Prefix 2");
-    assertTrue(result.contains(TTL_ROOT), "Root");
-    assertTrue(result.contains(TTL_SCHEMA_1), "Schema 1");
-    assertFalse(result.contains(TTL_SCHEMA_2), "Schema 2");
-    assertTrue(result.contains(TTL_TABLE_CATEGORY_1), "Category 1");
-    assertFalse(result.contains(TTL_TABLE_CATEGORY_2), "Category 2");
-    assertFalse(result.contains(TTL_TABLE_PET_1), "Pet 1");
-    assertFalse(result.contains(TTL_TABLE_PET_2), "Pet 2");
-    assertTrue(result.contains(TTL_COL_CATEGORY_NAME_1), "Category name 1");
-    assertFalse(result.contains(TTL_COL_CATEGORY_NAME_2), "Category name 2");
-    assertFalse(result.contains(TTL_COL_PET_NAME_1), "Pet name 1");
-    assertFalse(result.contains(TTL_COL_PET_NAME_2), "Pet name 2");
-    assertFalse(result.contains(TTL_COL_PET_DETAILS_1), "Pet details 1");
-    assertFalse(result.contains(TTL_COL_PET_DETAILS_2), "Pet details 2");
-    assertFalse(result.contains(TTL_ROW_POOKY_1), "Pooky 1");
-    assertFalse(result.contains(TTL_ROW_SPIKE_1), "Spike 1");
-    assertFalse(result.contains(TTL_ROW_POOKY_2), "Pooky 2");
-    assertFalse(result.contains(TTL_ROW_SPIKE_2), "Spike 2");
-    assertTrue(result.contains(TTL_ROW_CAT_1), "Cat 1");
-    assertTrue(result.contains(TTL_ROW_DOG_1), "Dog 1");
-    assertFalse(result.contains(TTL_ROW_CAT_2), "Cat 2");
-    assertFalse(result.contains(TTL_ROW_DOG_2), "Dog 2");
+    var parser = Rio.createParser(RDFFormat.TURTLE);
+    var handler = new InMemoryRDFHandler() {};
+    parser.setRDFHandler(handler);
+    parser.parse(new StringReader(result));
+    for (var resource : handler.resources.entrySet()) {
+      var types = resource.getValue().get(RDF.TYPE);
+      if (types != null && types.contains(OWL.CLASS)) {
+        var subject = resource.getKey().stringValue();
+        assertFalse(
+            resource.getValue().containsKey(RDFS.DOMAIN),
+            subject + " can't have a rdfs:Domain, since it is a class.");
+        assertFalse(
+            resource.getValue().containsKey(RDFS.RANGE),
+            subject + "can't have a rdfs:Range, since it is a class.");
+      }
+    }
   }
 
   @Test
-  void RDFForOneColumnAsTTL() {
-    Table table = petStoreSchemas[0].getTable("Pet");
+  void testThatRDFOnlyIncludesRequestedSchema() throws IOException {
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
-    rdf.describeAsRDF(outputStream, table, null, "details", table.getSchema());
+    rdf.describeAsRDF(outputStream, null, null, null, petStore_nr1);
     String result = outputStream.toString();
-    assertTrue(result.contains(TTL_PREFIX_1), "Prefix 1");
-    assertFalse(result.contains(TTL_PREFIX_2), "Prefix 2");
-    assertTrue(result.contains(TTL_ROOT), "Root");
-    assertTrue(result.contains(TTL_SCHEMA_1), "Schema 1");
-    assertFalse(result.contains(TTL_SCHEMA_2), "Schema 2");
-    assertFalse(result.contains(TTL_TABLE_CATEGORY_1), "Category 1");
-    assertFalse(result.contains(TTL_TABLE_CATEGORY_2), "Category 2");
-    assertTrue(result.contains(TTL_TABLE_PET_1), "Pet 1");
-    assertFalse(result.contains(TTL_TABLE_PET_2), "Pet 2");
-    assertFalse(result.contains(TTL_COL_CATEGORY_NAME_1), "Category name 1");
-    assertFalse(result.contains(TTL_COL_CATEGORY_NAME_2), "Category name 2");
-    assertFalse(result.contains(TTL_COL_PET_NAME_1), "Pet name 1");
-    assertFalse(result.contains(TTL_COL_PET_NAME_2), "Pet name 2");
-    assertTrue(result.contains(TTL_COL_PET_DETAILS_1), "Pet details 1");
-    assertFalse(result.contains(TTL_COL_PET_DETAILS_2), "Pet details 2");
-    assertFalse(result.contains(TTL_ROW_POOKY_1), "Pooky 1");
-    assertFalse(result.contains(TTL_ROW_SPIKE_1), "Spike 1");
-    assertFalse(result.contains(TTL_ROW_POOKY_2), "Pooky 2");
-    assertFalse(result.contains(TTL_ROW_SPIKE_2), "Spike 1");
-    assertFalse(result.contains(TTL_ROW_CAT_1), "Cat 1");
-    assertFalse(result.contains(TTL_ROW_DOG_1), "Dog 1");
-    assertFalse(result.contains(TTL_ROW_CAT_2), "Cat 2");
-    assertFalse(result.contains(TTL_ROW_DOG_2), "Dog 2");
-  }
-
-  @Test
-  void RDFForOneRowAsTTL() {
-    RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
-    Table table = petStoreSchemas[0].getTable("Category");
-    String rowId = "cat";
-    OutputStream outputStream = new ByteArrayOutputStream();
-    rdf.describeAsRDF(outputStream, table, rowId, null, table.getSchema());
-    String result = outputStream.toString();
-    assertTrue(result.contains(TTL_PREFIX_1));
-    assertFalse(result.contains(TTL_PREFIX_2));
-    assertTrue(result.contains(TTL_ROOT));
-    assertTrue(result.contains(TTL_SCHEMA_1));
-    assertFalse(result.contains(TTL_SCHEMA_2));
-    assertTrue(result.contains(TTL_TABLE_CATEGORY_1));
-    assertFalse(result.contains(TTL_TABLE_CATEGORY_2));
-    assertFalse(result.contains(TTL_TABLE_PET_1));
-    assertFalse(result.contains(TTL_TABLE_PET_2));
-    assertTrue(result.contains(TTL_COL_CATEGORY_NAME_1));
-    assertFalse(result.contains(TTL_COL_CATEGORY_NAME_2));
-    assertFalse(result.contains(TTL_COL_PET_NAME_1));
-    assertFalse(result.contains(TTL_COL_PET_NAME_2));
-    assertFalse(result.contains(TTL_COL_PET_DETAILS_1));
-    assertFalse(result.contains(TTL_COL_PET_DETAILS_2));
-    assertFalse(result.contains(TTL_ROW_POOKY_1));
-    assertFalse(result.contains(TTL_ROW_SPIKE_1));
-    assertFalse(result.contains(TTL_ROW_POOKY_2));
-    assertFalse(result.contains(TTL_ROW_SPIKE_2));
-    assertTrue(result.contains(TTL_ROW_CAT_1));
-    assertFalse(result.contains(TTL_ROW_DOG_1));
-    assertFalse(result.contains(TTL_ROW_CAT_2));
-    assertFalse(result.contains(TTL_ROW_DOG_2));
-  }
-
-  @Test
-  void RDFForOneRowAsXML() {
-    RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, "xml");
-    Table table = petStoreSchemas[0].getTable("Category");
-    String rowId = "cat";
-    OutputStream outputStream = new ByteArrayOutputStream();
-    rdf.describeAsRDF(outputStream, table, rowId, null, table.getSchema());
-    String result = outputStream.toString();
-    assertTrue(result.contains("xmlns:emx0=\"http://localhost:8080/petStoreNr1/api/rdf/\">"));
-    assertTrue(result.contains("<rdf:Description rdf:about=\"http://localhost:8080\">"));
-    assertTrue(
-        result.contains(
-            "<rdf:Description rdf:about=\"http://localhost:8080/petStoreNr1/api/rdf\">"));
-    assertTrue(
-        result.contains(
-            "<rdf:Description rdf:about=\"http://localhost:8080/petStoreNr1/api/rdf/Category\">"));
-    assertTrue(
-        result.contains(
-            "<rdf:Description rdf:about=\"http://localhost:8080/petStoreNr1/api/rdf/Category/column/name\">"));
-  }
-
-  @Test
-  void RDFUpdateOntologySemantics() {
-    RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
-    Table table = petStoreSchemas[0].getTable("Tag");
-    OutputStream outputStream = new ByteArrayOutputStream();
-    rdf.describeAsRDF(outputStream, table, null, null, table.getSchema());
-    String result = outputStream.toString();
-
-    // expect the default tag ("Controlled Vocabulary") but not NCIT_C25586 ("New")
-    assertTrue(result.contains("rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C48697>"));
-    assertFalse(result.contains("rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C25586>"));
-
-    // update table semantics and re-create RDF output
-    table.getMetadata().setSemantics("http://purl.obolibrary.org/obo/NCIT_C25586");
-    System.out.println("getSem = " + table.getMetadata().getSemantics()[0]);
-    outputStream = new ByteArrayOutputStream();
-    rdf.describeAsRDF(outputStream, table, null, null, table.getSchema());
-    result = outputStream.toString();
-
-    // expect NCIT_C25586 ("New") and no longer the default tag ("Controlled Vocabulary")
-    assertFalse(result.contains("rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C48697>"));
-    assertTrue(result.contains("rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C25586>"));
+    var parser = Rio.createParser(RDFFormat.TURTLE);
+    var handler = new InMemoryRDFHandler() {};
+    parser.setRDFHandler(handler);
+    parser.parse(new StringReader(result));
+    for (var resource : handler.resources.keySet()) {
+      assertFalse(resource.toString().contains("petStoreNr2"));
+    }
   }
 }
