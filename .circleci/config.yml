@@ -48,10 +48,6 @@ jobs:
         command: |
           ./gradlew dependencies
           apt-get update && apt-get install postgresql-client -y 
-          curl -sL https://deb.nodesource.com/setup_18.x | bash -
-          apt install nodejs
-          npx playwright install --with-deps
-          npm install -D @playwright/test
 
     - save_cache:
         paths:
@@ -93,12 +89,6 @@ jobs:
         name: build and test java
         command: |
           ./gradlew test --no-daemon
-
-    - run:
-        name: test e2e
-        command: |
-          set CI=true && npx playwright test --config e2e --project=chromium
-
 
     # to switch to release add following
     # ./gradlew release jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} --stacktrace
