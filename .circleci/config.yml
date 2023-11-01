@@ -88,7 +88,8 @@ jobs:
     - run:
         name: test e2e
         command: |
-          npm install -D -g @playwright/test
+          npx playwright install --with-deps
+          npm install -D @playwright/test
           set CI=true && npx playwright test --config e2e --project=chromium
 
 
