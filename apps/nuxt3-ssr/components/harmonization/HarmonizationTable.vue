@@ -41,18 +41,26 @@ let activeVariablePath = computed(() =>
       >
         <template #column="columnProps">
           <div
-            class="text-blue-500 font-normal rotate-180 [writing-mode:vertical-lr] py-2"
+            class="text-blue-500 font-normal rotate-180 [writing-mode:vertical-lr] py-2 truncate hover:text-clip hover:overflow-visible"
           >
-            {{ columnProps.value.id }}
+            <span
+              class="hover:bg-gray-100 hover:inline-block hover:border-t hover:pt-3"
+            >
+              {{ columnProps.value.id }}
+            </span>
           </div>
         </template>
 
         <template #row="rowProps">
           <div
-            class="text-body-base text-blue-500 font-normal hover:underline hover:bg-blue-50 px-2 cursor-pointer"
+            class="text-body-base text-blue-500 font-normal hover:underline px-2 cursor-pointer truncate hover:text-clip hover:overflow-visible"
             @click="activeRowIndex = rowProps.value.rowIndex"
           >
-            {{ rowProps.value.row.name }}
+            <span
+              class="hover:bg-gray-100 hover:inline-block hover:border-r hover:pr-3"
+            >
+              {{ rowProps.value.row.name }}
+            </span>
           </div>
         </template>
 

@@ -3,7 +3,9 @@
     <table class="table-auto relative z-0">
       <thead>
         <tr>
-          <th class="sticky left-0 top-0 z-30 bg-white max-w-40">
+          <th
+            class="sticky left-0 top-0 z-30 bg-white max-w-title max-h-title overflow-hidden"
+          >
             <div
               class="absolute inset-0 border-l border-b pointer-events-none"
             ></div>
@@ -16,7 +18,7 @@
             <div
               class="absolute inset-0 border-l border-b pointer-events-none"
             ></div>
-            <div class="rotated-title">
+            <div class="rotated-title max-h-title overflow-hidden">
               <span>
                 <slot name="column" :value="column">{{ column }}</slot>
               </span>
@@ -30,9 +32,8 @@
           :key="`tr-${rowIndex}`"
           class="text-left hover:bg-gray-100"
         >
-          <th class="sticky left-0 z-10 bg-white whitespace-nowrap max-w-40">
+          <th class="sticky left-0 z-10 bg-white whitespace-nowrap max-w-title">
             <div class="absolute inset-0 border-b pointer-events-none"></div>
-
             <slot name="row" :value="{ row, rowIndex }">{{ row }}</slot>
           </th>
           <td
