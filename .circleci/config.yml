@@ -82,10 +82,13 @@ jobs:
         name: build and test java
         command: |
           ./gradlew build -x test --no-daemon
+#         ./gradlew test --no-daemon
+
 
     - run:
         name: test e2e
         command: |
+          npm install -D -g @playwright/test
           set CI=true && npx playwright test --config e2e --project=chromium
 
 
