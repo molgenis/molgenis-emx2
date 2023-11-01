@@ -1,5 +1,5 @@
 <template>
-  <div role="region relative">
+  <div role="region relative overflow-hidden">
     <table class="table-auto relative z-0">
       <thead>
         <tr>
@@ -7,7 +7,7 @@
             class="sticky left-0 top-0 z-30 bg-white max-w-title max-h-title overflow-hidden"
           >
             <div
-              class="absolute inset-0 border-l border-b pointer-events-none"
+              class="absolute inset-0 border-r border-b pointer-events-none"
             ></div>
           </th>
           <th
@@ -16,10 +16,10 @@
             class="sticky top-0 z-20 min-w-[2rem] bg-white text-center align-bottom"
           >
             <div
-              class="absolute inset-0 border-l border-b pointer-events-none"
+              class="absolute inset-0 border-r border-b pointer-events-none"
             ></div>
             <div
-              class="rotated-title max-h-title text-left min-h-title overflow-hidden hover:overflow-visible"
+              class="max-h-title text-left min-h-title overflow-hidden hover:overflow-visible"
             >
               <slot name="column" :value="column">{{ column }}</slot>
             </div>
@@ -86,7 +86,7 @@ table.table-auto tbody tr:hover th {
   border: 1px solid rgb(226, 226, 226);
 }
 
-th::before {
+th:first-child::before {
   z-index: -1;
   content: "";
   position: absolute;

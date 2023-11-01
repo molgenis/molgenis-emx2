@@ -44,7 +44,7 @@ let activeVariablePath = computed(() =>
             class="hover:bg-gray-100 text-blue-500 font-normal min-w-[2rem] rotate-180 [writing-mode:vertical-lr] max-h-title min-h-title hover:max-h-none truncate hover:text-clip hover:overflow-visible"
           >
             <span
-              class="hover:bg-gray-100 hover:flex items-center justify-items-end align-middle min-w-[2rem] z-50 py-2"
+              class="hover:bg-gray-100 hover:flex items-center justify-items-end align-middle min-w-[2rem] hover:z-50 py-2"
             >
               {{ columnProps.value.id }}
             </span>
