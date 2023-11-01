@@ -192,7 +192,7 @@ class StagingMigrator(Client):
                 _table = source_archive.read(file_name)
                 if consent_val := has_statement_of_consent(table_name, self._schema_schema(self.staging_area)):
                     _table = process_statement(table=_table, consent_val=consent_val)
-                self._check_diff(file_name, _table)
+                # self._check_diff(file_name, _table)
                 upload_archive.writestr(file_name, BytesIO(_table).getvalue())
 
         log.info(f"Migrating tables {', '.join(tables_to_sync.keys())}.")
@@ -258,14 +258,24 @@ class StagingMigrator(Client):
         source_df = pd.read_csv(BytesIO(source_table))
         target_df = pd.read_csv(BytesIO(target_table))
 
+        if not (len(source_df) + len(target_df)):
+            return
+
         # Get primary keys for these tables
         p_keys = prepare_pkey(schema=self._schema_schema(self.staging_area), table_name=os.path.splitext(file_name)[0])
+
+        source_df[p_keys] = source_df[p_keys].astype(str)
+        target_df[p_keys] = target_df[p_keys].astype(str)
+
         # Filter target_table on primary keys that are the same as the ones in the source_table
-        target_df = target_df.loc[target_df == source_df]
+        # target_df = target_df.loc[target_df == source_df]
+        merge = pd.merge(source_df, target_df, on=p_keys)
+        if len(merge):
+            print(merge)
         # Output in case row exists in source but not target
+
         # Output in case row exists in target but not source
         # Output in case all rows are the same
-
 
     def _upload_fallback_zip(self):
         """Restores the catalogue to the state before deletion by uploading the downloaded target zip."""
