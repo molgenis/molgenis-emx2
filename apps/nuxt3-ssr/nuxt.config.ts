@@ -29,6 +29,11 @@ const config = {
   nitro: {
     compressPublicAssets: { brotli: true },
   },
+  imports: {
+    transform: {
+      exclude: [/\bmeta-data-utils\b/], // exclude from transform as this is already transformed by mono-repo build system
+    },
+  },
 };
 
 if (process.env.NODE_ENV === "development") {
