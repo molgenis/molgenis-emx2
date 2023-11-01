@@ -1,6 +1,8 @@
 FROM gradle:jdk17-jammy
 
 RUN apt-get update && apt-get install python3 python3-venv -y
+RUN apt-get install python3 python3-venv python3-pip -y
+RUN python3 -m pip install --upgrade build twine
 RUN python3 --version
 
 ENV NODE_VERSION=18.17.1
@@ -15,4 +17,6 @@ RUN node --version
 RUN npm --version
 
 RUN npx playwright install --with-deps
-RUN npm install -D @playwright/test
+RUN npm install -D -g @playwright/test
+
+RUN npx playwright --version
