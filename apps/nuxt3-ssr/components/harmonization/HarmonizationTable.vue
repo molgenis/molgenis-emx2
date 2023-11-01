@@ -33,8 +33,6 @@ let activeVariablePath = computed(() =>
 <template>
   <div class="mb-7 relative">
     <HarmonizationLegend class="flex-row-reverse" />
-
-    <!-- temp 'fix' for table y overflow -->
     <div class="overflow-x-auto max-w-table">
       <StickyTable
         :columns="cohorts"
@@ -61,6 +59,7 @@ let activeVariablePath = computed(() =>
         <template #cell="cell">
           <HarmonizationTableCellStatusIcon
             :status="statusMap[cell.value.rowIndex][cell.value.columnIndex]"
+            @click="activeRowIndex = cell.value.rowIndex"
           ></HarmonizationTableCellStatusIcon>
         </template>
       </StickyTable>

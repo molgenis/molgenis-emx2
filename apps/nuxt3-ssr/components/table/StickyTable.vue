@@ -3,15 +3,19 @@
     <table class="table-auto relative z-0">
       <thead>
         <tr>
-          <th class="sticky left-0 top-0 z-30 bg-white">
-            <div class="absolute inset-0 border-l border-b"></div>
+          <th class="sticky left-0 top-0 z-30 bg-white max-w-40">
+            <div
+              class="absolute inset-0 border-l border-b pointer-events-none"
+            ></div>
           </th>
           <th
             v-for="(column, index) of columns"
             :key="`head-${index}`"
             class="sticky top-0 z-20 bg-white text-left align-bottom"
           >
-            <div class="absolute inset-0 border-l border-b"></div>
+            <div
+              class="absolute inset-0 border-l border-b pointer-events-none"
+            ></div>
             <div class="rotated-title">
               <span>
                 <slot name="column" :value="column">{{ column }}</slot>
@@ -26,8 +30,8 @@
           :key="`tr-${rowIndex}`"
           class="text-left hover:bg-gray-100"
         >
-          <th class="sticky left-0 z-10 bg-white whitespace-nowrap">
-            <div class="absolute inset-0 border-b"></div>
+          <th class="sticky left-0 z-10 bg-white whitespace-nowrap max-w-40">
+            <div class="absolute inset-0 border-b pointer-events-none"></div>
 
             <slot name="row" :value="{ row, rowIndex }">{{ row }}</slot>
           </th>
@@ -53,14 +57,15 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "TableStickyHeaders",
-  props: {
-    columns: Array,
+<script setup lang="ts">
+const props = defineProps({
+  columns: {
+    type: Array,
+  },
+  rows: {
     rows: Array,
   },
-};
+});
 </script>
 
 <style scoped>
