@@ -22,6 +22,7 @@ Create a column chart (vertical bars) where the height of a bar is corresponds t
 |chartMargins|adjust the chart margins|`Object`|`false`|`{ top: 15, right: 15, bottom: 60, left: 60 }`|
 |columnFill|Set the fill of all columns (hex code)|`String`|`false`|`#6C85B5`|
 |columnHoverFill|Set the color that is displayed when a column is hovered (hex code)|`String`|`false`|`#163D89`|
+|columnColorPalette|Define your own color palette that is passed down to each column. You will need to create an object that maps each x-value to a specific color. The color supplied in `columnHoverFill` will not be overwritten. Note: It is not recommended to use this option as it does not make sense to apply a color scheme to ungrouped data. However, this option allows you to apply a color to a category of significant interest. Please use this with the best intentions.|`Object`|`false`|-|
 |columnPaddingInner|Adjust the amount of blank space inbetween columns between 0 and 1|`Number`|`false`|`0.2`|
 |columnPaddingOuter|Adjust the amount of blank space before the first column and after the last column. Value must be between 0 and 1|`Number`|`false`|`0.2`|
 |columnAlign|Along with `columnPaddingOuter`, specify how the columns are distributed x-axis. A value of 0 will position the columns closer to the y-axis.|`Number`|`false`|`0.5`|

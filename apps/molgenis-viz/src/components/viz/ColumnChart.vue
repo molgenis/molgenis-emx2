@@ -199,8 +199,11 @@ export default {
     // Define your own color palette that is passed down to each column.
     // You will need to create an object that maps each x-value to a
     // specific color. The color supplied in `columnHoverFill` will
-    // not be overwritten.
-    columnColorPalatte: {
+    // not be overwritten. Note: It is not recommended to use this option
+    // as it does not make sense to apply a color scheme to ungrouped data. However,
+    // this option allows you to apply a color to a category of significant interest.
+    // Please use this with the best intentions.
+    columnColorPalette: {
       type: Object,
     },
 
@@ -321,8 +324,8 @@ export default {
     colorPalatte() {
       const domain = this.chartData.map((row) => row[this.xvar]);
       const colorMappings = domain.map((value) => {
-        const color = this.columnColorPalatte
-          ? this.columnColorPalatte[value]
+        const color = this.columnColorPalette
+          ? this.columnColorPalette[value]
           : this.columnFill;
         return [value, color];
       });
