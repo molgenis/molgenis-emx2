@@ -508,7 +508,10 @@ public class SqlQuery extends QueryBean {
                           DSL.select(field("name"))
                               .from(ontologyTable)
                               .where(
-                                  field(searchColumnName(ontologyTable.getName()))
+                                  field(
+                                          name(
+                                              ontologyTable.getName(),
+                                              searchColumnName(ontologyTable.getName())))
                                       .likeIgnoreCase("%" + term + "%"))));
                 } else {
                   // include if our ref is in the ontology terms list that would be found given our
@@ -520,7 +523,10 @@ public class SqlQuery extends QueryBean {
                               DSL.select(field("name"))
                                   .from(ontologyTable)
                                   .where(
-                                      field(searchColumnName(ontologyTable.getName()))
+                                      field(
+                                              name(
+                                                  ontologyTable.getName(),
+                                                  searchColumnName(ontologyTable.getName())))
                                           .likeIgnoreCase("%" + term + "%"))));
                 }
               });
