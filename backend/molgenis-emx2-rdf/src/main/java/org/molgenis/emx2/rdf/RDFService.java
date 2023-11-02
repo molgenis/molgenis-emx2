@@ -249,8 +249,7 @@ public class RDFService {
   protected void describeRoot(final ModelBuilder builder) {
     builder
         .subject(baseURL)
-        .add(RDFS.SUBCLASSOF, IRI_DATABASE)
-        .add(RDFS.SUBCLASSOF, OWL.THING)
+        .add(RDF.TYPE, IRI_DATABASE)
         .add(RDFS.LABEL, "EMX2")
         .add(DCTERMS.DESCRIPTION, "MOLGENIS EMX2 database at " + baseURL)
         .add(DCTERMS.CREATOR, IRI_MOLGENIS);
@@ -345,8 +344,8 @@ public class RDFService {
     // TODO: In case of a column that is defined in a parent table the IRI should be the same
     final TableMetadata table = column.getTable();
     final Schema schema = table.getTable().getSchema();
-    final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(table.getTableName());
-    final String columnName = UrlEscapers.urlPathSegmentEscaper().escape(column.getName());
+    final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(table.getIdentifier());
+    final String columnName = UrlEscapers.urlPathSegmentEscaper().escape(column.getIdentifier());
     final Namespace ns = getSchemaNamespace(schema);
     return Values.iri(ns, tableName + "/column/" + columnName);
   }
@@ -479,7 +478,8 @@ public class RDFService {
   }
 
   private IRI getIriForRow(final Row row, final TableMetadata metadata) {
-    final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(metadata.getTableName());
+    final String tableName =
+        UrlEscapers.urlPathSegmentEscaper().escape(metadata.getTable().getIdentifier());
     final List<NameValuePair> keyParts = new ArrayList<>();
     for (final Column column : metadata.getPrimaryKeyColumns()) {
       if (column.isReference()) {
@@ -490,7 +490,7 @@ public class RDFService {
           }
         }
       } else {
-        keyParts.add(new BasicNameValuePair(column.getName(), row.get(column).toString()));
+        keyParts.add(new BasicNameValuePair(column.getIdentifier(), row.get(column).toString()));
       }
     }
     final Namespace ns = getSchemaNamespace(metadata.getTable().getSchema());
@@ -505,7 +505,7 @@ public class RDFService {
 
   private List<IRI> getIriValue(final Row row, final Column column) {
     final TableMetadata target = column.getRefTable();
-    final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(target.getTableName());
+    final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(target.getIdentifier());
     final Namespace ns = getSchemaNamespace(target.getTable().getSchema());
 
     final Set<IRI> iris = new HashSet<>();
