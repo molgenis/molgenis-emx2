@@ -471,11 +471,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (inTx) {
       try {
         if (username.equals(ADMIN_USER)) {
-          // admin user is session user, so remove role
-          jooq.execute("RESET ROLE;");
+          jooq.execute("SET ROLE {0}", name(MG_USER_PREFIX + ADMIN_USER));
         } else {
           // any other user should be set
-          jooq.execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + username));
+          jooq.execute("SET ROLE {0}", name(MG_USER_PREFIX + username));
         }
       } catch (DataAccessException dae) {
         throw new SqlMolgenisException("Set active user failed", dae);
