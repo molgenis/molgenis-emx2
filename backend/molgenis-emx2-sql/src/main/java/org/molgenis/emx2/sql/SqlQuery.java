@@ -12,6 +12,7 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
@@ -497,8 +498,8 @@ public class SqlQuery extends QueryBean {
           .filter(Column::isOntology)
           .forEach(
               ontologyColumn -> {
-                org.jooq.Table ontologyTable = ontologyColumn.getRefTable().getJooqTable();
-                if (ontologyColumn.isArray()) {
+                Table<Record> ontologyTable = ontologyColumn.getRefTable().getJooqTable();
+                if (Boolean.TRUE.equals(ontologyColumn.isArray())) {
                   // include if array overlap between ontology table and our selected values in our
                   // ref_array
                   search.add(
