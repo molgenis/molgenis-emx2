@@ -71,7 +71,7 @@ table {
 </style>
 
 <script>
-import { request, gql } from "graphql-request";
+import { request } from "graphql-request";
 import SchemaView from "./SchemaView.vue";
 import SchemaToc from "./SchemaToc.vue";
 import NomnomDiagram from "./NomnomDiagram.vue";
@@ -84,6 +84,7 @@ import {
   deepClone,
 } from "molgenis-components";
 import VueScrollTo from "vue-scrollto";
+import schemaQuery from "../schemaQuery.js";
 
 export default {
   components: {
@@ -204,61 +205,7 @@ export default {
     loadSchema() {
       this.error = null;
       this.loading = true;
-      const query = gql`
-        {
-          _session {
-            schemas
-            roles
-          }
-          _schema {
-            name
-            tables {
-              name
-              tableType
-              inherit
-              externalSchema
-              labels {
-                locale
-                value
-              }
-              descriptions {
-                locale
-                value
-              }
-              semantics
-              columns {
-                id
-                name
-                labels {
-                  locale
-                  value
-                }
-                table
-                position
-                columnType
-                inherited
-                key
-                refSchema
-                refTable
-                refLink
-                refBack
-                refLabel
-                required
-                readonly
-                defaultValue
-                descriptions {
-                  locale
-                  value
-                }
-                semantics
-                validation
-                visible
-                computed
-              }
-            }
-          }
-        }
-      `;
+      const query = schemaQuery;
       request("graphql", query)
         .then((data) => {
           this.rawSchema = this.addOldNamesAndRemoveMeta(data._schema);
