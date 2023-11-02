@@ -5,34 +5,43 @@
     Table of contents:
     <ul>
       <li v-for="table in schema.tables">
-        <a href="#"
-           v-scroll-to="{
+        <a
+          href="#"
+          v-scroll-to="{
             el: '#' + (table.name ? table.name.replaceAll(' ', '_') : ''),
             offset: -50,
           }"
-        >{{ table.name }}</a>
+          >{{ table.name }}</a
+        >
       </li>
     </ul>
     <div v-for="table in schema.tables">
       <h2 class="pt-4">Table: {{ table.name }}</h2>
-      <a :id="(table.name ? table.name.replaceAll(' ', '_'):'')"/>
+      <a :id="table.name ? table.name.replaceAll(' ', '_') : ''" />
       <p v-if="getDescription(table)">{{ getDescription(table) }}</p>
       <div class="mt-3" v-if="table.subclasses">
         <h5>Subclasses:</h5>
-          <ul v-for="subclass in table.subclasses">
-            <li>{{subclass.name}} <i>extends</i>{{subclass.inherit}} {{getDescription(subclass)}}</li>
-          </ul>
-        </div>
+        <ul v-for="subclass in table.subclasses">
+          <li>
+            {{ subclass.name }} <i>extends</i>{{ subclass.inherit }}
+            {{ getDescription(subclass) }}
+          </li>
+        </ul>
+      </div>
       <div>
         <div>
-      <h5>Column definitions:</h5>
-        <div v-for="column in table.columns">
-          <p>
-            <b>{{ column.name }}</b> <span v-if="getDescription(column)">- </span><i>{{getDescription(column) }}</i>
-          <div class="pl-3" v-if="table.subclasses">domain: {{ column.table }}</div>
-          <div class="pl-3">definition: <ColumnDefinition :column="column"></ColumnDefinition></div>
-          </p>
-        </div>
+          <h5>Column definitions:</h5>
+          <div v-for="column in table.columns">
+            <b>{{ column.name }}</b>
+            <span v-if="getDescription(column)">- </span
+            ><i>{{ getDescription(column) }}</i>
+            <div class="pl-3" v-if="table.subclasses">
+              domain: {{ column.table }}
+            </div>
+            <div class="pl-3">
+              definition: <ColumnDefinition :column="column"></ColumnDefinition>
+            </div>
+          </div>
         </div>
       </div>
     </div>
