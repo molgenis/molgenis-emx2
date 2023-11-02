@@ -17,6 +17,12 @@
           >
             {{ showDiagram ? "Hide" : "Show" }} Diagram
           </ButtonAction>
+          <ButtonAction href="../#/print" target="_blank" class="ml-2">
+            Show printable table
+          </ButtonAction>
+          <ButtonAction href="../#/print-list" target="_blank" class="ml-2">
+            Show printable list
+          </ButtonAction>
           <MessageError v-if="error" class="ml-2 m-0 p-2">
             {{ error }}
           </MessageError>
@@ -84,7 +90,11 @@ import {
   deepClone,
 } from "molgenis-components";
 import VueScrollTo from "vue-scrollto";
-import schemaQuery from "../schemaQuery.js";
+import {
+  schemaQuery,
+  addOldNamesAndRemoveMeta,
+  convertToSubclassTables,
+} from "../utils.ts";
 
 export default {
   components: {
@@ -208,8 +218,8 @@ export default {
       const query = schemaQuery;
       request("graphql", query)
         .then((data) => {
-          this.rawSchema = this.addOldNamesAndRemoveMeta(data._schema);
-          this.schema = this.convertToSubclassTables(this.rawSchema);
+          this.rawSchema = addOldNamesAndRemoveMeta(data._schema);
+          this.schema = convertToSubclassTables(this.rawSchema);
           this.schemaNames = data._session.schemas;
           this.loading = false;
           this.key = Date.now();
@@ -224,90 +234,6 @@ export default {
           }
           this.loading = false;
         });
-    },
-    addOldNamesAndRemoveMeta(rawSchema) {
-      //deep copy to not change the input
-      const schema = deepClone(rawSchema);
-      if (schema) {
-        //normal tables
-        let tables = !schema.tables
-          ? []
-          : schema.tables.filter(
-              (table) =>
-                table.tableType !== "ONTOLOGIES" &&
-                table.externalSchema === schema.name
-            );
-        tables.forEach((t) => {
-          t.oldName = t.name;
-          if (t.columns) {
-            t.columns = t.columns
-              .filter((c) => !c.name.startsWith("mg_"))
-              .map((c) => {
-                c.oldName = c.name;
-                return c;
-              })
-              .filter((c) => !c.inherited);
-          } else {
-            t.columns = [];
-          }
-        });
-        schema.ontologies = !schema.tables
-          ? []
-          : schema.tables.filter(
-              (table) =>
-                table.tableType === "ONTOLOGIES" &&
-                table.externalSchema === schema.name
-            );
-        //set old name so we can delete them properly
-        schema.ontologies.forEach((o) => {
-          o.oldName = o.name;
-        });
-        schema.tables = tables;
-      }
-
-      return schema;
-    },
-    convertToSubclassTables(rawSchema) {
-      //deep copy to not change the input
-      const schema = deepClone(rawSchema);
-      //columns of subclasses should be put in root tables, sorted by position
-      // this because position can only edited in context of root table
-      schema.tables.forEach((table) => {
-        if (table.inherit === undefined) {
-          this.getSubclassTables(schema, table.name).forEach((subclass) => {
-            //get columns from subclass tables
-            table.columns.push(...subclass.columns);
-            //remove the columns from subclass table
-            subclass.columns = [];
-            subclass.oldName = subclass.name;
-            //add subclass to root table
-            if (!table.subclasses) {
-              table.subclasses = [subclass];
-            } else {
-              table.subclasses.push(subclass);
-            }
-          });
-        }
-        //sort
-        table.columns.sort((a, b) => a.position - b.position);
-      });
-      //remove the subclass tables
-      schema.tables = schema.tables.filter(
-        (table) => table.inherit === undefined
-      );
-      return schema;
-    },
-    getSubclassTables(schema, tableName) {
-      let subclasses = schema.tables.filter(
-        (table) => table.inherit === tableName
-      );
-      return subclasses.concat(
-        subclasses
-          .map((table) => {
-            return this.getSubclassTables(schema, table.name);
-          })
-          .flat(1)
-      );
     },
   },
   created() {

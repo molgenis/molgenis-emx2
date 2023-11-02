@@ -16,12 +16,13 @@ export default {
   props: {
     href: { type: String, required: false },
     icon: { type: String, required: false },
+    target: { type: String, required: false },
     disabled: { type: Boolean, required: false },
   },
   methods: {
     onClick() {
       if (window && window.open && this.href) {
-        window.open(this.href, "_self");
+        window.open(this.href, this.target ? target : "_self");
       } else {
         /** emitted on click */
         this.$emit("click");
