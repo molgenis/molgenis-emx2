@@ -20,7 +20,9 @@
         <option value="18+">18+ years</option>
       </select>
     </DashboardBox>
-    <h3 class="dashboard-h3">Overview of patients {{ ageGroupFilter }} years old (n={{ totalCases }})</h3>
+    <h3 class="dashboard-h3">
+      Overview of patients {{ ageGroupFilter }} years old (n={{ totalCases }})
+    </h3>
     <DashboardChartLayout :columns="1">
       <DashboardBox
         id="clp-outcome-cleft-q"
@@ -74,7 +76,7 @@ let cleftOutcomes = ref([]);
 let icsOutcomes = ref([]);
 let showCleftOutcomes = ref(false);
 let showIcsOutcomes = ref(true);
-let ageGroupFilter = ref('3-4');
+let ageGroupFilter = ref("3-4");
 let totalCases = ref(0);
 
 const colors = { "Your Center": "#66c2a4", "ERN Average": "#9f6491" };
@@ -83,23 +85,25 @@ function setOutcomesData() {
   cleftOutcomes.value = randomGroupDataset(
     ["Your Center", "ERN Average"],
     ["Jaw", "Lip", "School", "Social", "Speech"],
-    5, 100
+    5,
+    100
   );
 
   icsOutcomes.value = randomGroupDataset(
     ["Your Center", "ERN Average"],
     ["Average total score", "Total score"],
-    1, 10
+    1,
+    10
   );
-  
+
   if (showCleftOutcomes.value) {
     totalCases.value = cleftOutcomes.value
-      .map(row => row.value)
-      .reduce((sum,value) => sum + value, 0);
+      .map((row) => row.value)
+      .reduce((sum, value) => sum + value, 0);
   } else {
     totalCases.value = icsOutcomes.value
-      .map(row => row.value)
-      .reduce((sum,value) => sum + value, 0);
+      .map((row) => row.value)
+      .reduce((sum, value) => sum + value, 0);
   }
 }
 

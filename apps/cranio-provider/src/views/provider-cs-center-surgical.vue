@@ -57,7 +57,7 @@
         </option>
       </select>
     </DashboardBox>
-    <div class="dashboard-chart-layout" id="surgicalInterventionsLayout">
+    <DashboardChartLayout :columns="2" class="dashboard-boxes-width-1-2">
       <DashboardBox>
         <GroupedColumnChart
           chartId="cs-center-surgical-interventions-combined"
@@ -89,7 +89,7 @@
           :chartHeight="225"
         />
       </DashboardBox>
-    </div>
+    </DashboardChartLayout>
   </ProviderDashboard>
 </template>
 
@@ -155,10 +155,3 @@ setComplicationsByGroup();
 setInterventionsByGroup();
 setAgeByGroup();
 </script>
-
-<style lang="scss">
-#surgicalInterventionsLayout {
-  display: grid;
-  grid-template-columns: 0.7fr 1.5fr;
-}
-</style>

@@ -20,7 +20,9 @@
           :title="`${totPatientsSubmitted} patients submitted`"
           :description="`Your center has submitted on average ${avgPatientsSubmitted} patients per month`"
         >
-          <UserGroupIcon />
+          <template v-slot:icon>
+            <UserCircleIcon />
+          </template>
         </ValueShowcase>
       </DashboardBox>
     </DashboardChartLayout>
@@ -29,7 +31,7 @@
         <PieChart2
           chartId="patientsByWorkstream"
           title="Patients by workstream"
-          description="Click a workstream to view more information"
+          description="Click a workstream to patients by sex at birth"
           :chartData="numPatientsByWorkstream"
           :chartHeight="215"
           :asDonutChart="true"
@@ -65,7 +67,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { UserGroupIcon } from "@heroicons/vue/24/outline";
+import { UserGroupIcon, UserCircleIcon } from "@heroicons/vue/24/outline";
 import { DashboardBox, PieChart2 } from "molgenis-viz";
 
 import ProviderDashboard from "../components/ProviderDashboard.vue";

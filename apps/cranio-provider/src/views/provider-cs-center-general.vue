@@ -14,18 +14,14 @@
     </DashboardBox>
     <DashboardChartLayout :columns="1">
       <DashboardBox>
-        <PieChart2
+        <ColumnChart
           chartId="cs-center-type-of-craniosynostosis"
           title="Type of craniosynostosis"
-          :chartData="csTypes"
-          :chartColors="csTypeColors"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          legendPosition="right"
-          :stackLegend="true"
+          :chartData="craniosynostosisTypes"
+          xvar="type"
+          yvar="count"
+          :columnColorPalette="colors.craniosynostosis"
           :chartHeight="300"
-          :chartScale="0.65"
-          :valuesArePercents="false"
         />
       </DashboardBox>
     </DashboardChartLayout>
@@ -33,35 +29,35 @@
     <p class="dashboard-text">
       Click a category in the "Affected suture" chart to view more information.
     </p>
-    <DashboardChartLayout>
+    <DashboardChartLayout :columns="2">
       <DashboardBox>
-        <PieChart2
-          chartId="cs-center-affect-suture"
+        <ColumnChart
+          chartId="craniosynostosis-affected-sutures"
           title="Affected suture"
-          :chartData="csSingleSutures"
-          :chartColors="singleSutureColors"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :chartHeight="200"
-          :chartScale="0.85"
-          :valuesArePercents="false"
+          class="chart-axis-x-angled-text"
+          :chartData="affectedSuture"
+          xvar="category"
+          yvar="count"
+          :yMax="50"
+          :yTickValues="[0,10,20,30,40,50]"
+          :columnColorPalette="colors.affectedSuture"
+          :chartHeight="275"
           :enableClicks="true"
-          @slice-clicked="updateMultipleSutures"
+          @column-clicked="updateSutureTypes"
+          :chartMargins="{top: 20, right: 10, bottom: 85, left: 60}"
         />
       </DashboardBox>
       <DashboardBox v-if="showSutureTypes">
-        <PieChart2
-          chartId="sutureTypes"
+        <ColumnChart
+          chartId="suture-types"
+          class="chart-axis-x-angled-text"
           title="Multiple suture synostosis"
-          :chartData="csMultipleSutures"
-          :chartColors="multipleSutureColors"
-          :chartHeight="200"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :chartScale="0.85"
-          :valuesArePercents="false"
+          :chartData="sutureTypes"
+          xvar="type"
+          yvar="count"
+          :columnColorPalette="colors.sutureType"
+          :chartHeight="275"
+          :chartMargins="{top: 20, right: 10, bottom: 85, left: 60}"
         />
       </DashboardBox>
     </DashboardChartLayout>
@@ -71,7 +67,7 @@
 <script setup>
 import { ref } from "vue";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
-import { DashboardBox, PieChart2, InputLabel } from "molgenis-viz";
+import { DashboardBox, PieChart2, ColumnChart, InputLabel } from "molgenis-viz";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
@@ -84,89 +80,89 @@ import { randomInt } from "d3";
 import generateColors from "../utils/palette.js";
 
 let csTotalCases = ref(0);
-let csTypes = ref({
-  Familial: 0,
-  Iatrogenic: 0,
-  Metabolic: 0,
-  "Non-syndromic": 0,
-  Syndromic: 0,
-});
-let csSingleSutures = ref({
-  Frontosphenoidal: 0,
-  Metopic: 0,
-  Multiple: 0,
-  Sagittal: 0,
-  Unicoronal: 0,
-  Unilambdoid: 0,
-});
-let csMultipleSutures = ref({
-  bicoronal: 0,
-  bilambdoid: 0,
-  "bilambdoid+sagittal": 0,
-  pansynostosis: 0,
-  other: 0,
-});
+let craniosynostosisTypes = ref([]);
+let affectedSuture = ref([]);
+let sutureTypes = ref([]);
 let showSutureTypes = ref(false);
 
-const csTypeColors = generateColors(Object.keys(csTypes.value));
-const singleSutureColors = generateColors(Object.keys(csSingleSutures.value));
-const multipleSutureColors = generateColors(
-  Object.keys(csMultipleSutures.value)
-);
+let colors = ref({
+  craniosynostosis: {},
+  affectedSuture: {},
+  sutureType: {}
+});
 
-function setCsTypes() {
-  const types = Object.keys(csTypes.value);
-  const data = types
-    .map((type) => [type, randomInt(1, 100)()])
-    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
-  csTotalCases.value = data
-    .map((row) => row[1])
-    .reduce((sum, value) => sum + value, 0);
-  csTypes.value = Object.fromEntries(data);
+
+/// generate random data for craniosynostosis types
+function setCraniosynostosisTypes() {
+  const types = [
+    "Familial",
+    "Iatrogenic",
+    "Metabolic",
+    "Non-syndromic",
+    "Syndromic",
+  ];
+  colors.value.craniosynostosis = generateColors(types);
+  craniosynostosisTypes.value = types.map((type) => {
+    return { type: type, count: randomInt(10, 42)() };
+  });
 }
 
-function setSingleSutures() {
-  const types = Object.keys(csSingleSutures.value);
-  let currentTotal = csTotalCases.value;
-  const data = types
-    .map((type, i) => {
-      const randomValue =
-        i === types.length - 1 ? currentTotal : randomInt(3, currentTotal)();
-      const row = [type, randomValue];
-      currentTotal -= randomValue;
-      return row;
-    })
-    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
-  csSingleSutures.value = Object.fromEntries(data);
+// generate random data for affected suture
+function setAffectedSuture() {
+  const types = [
+    "Frontosphenoidal",
+    "Metopic",
+    "Multiple",
+    "Sagittal",
+    "Unicoronal",
+    "Unilambdoid",
+  ]
+  colors.value.affectedSuture = generateColors(types);
+  affectedSuture.value = types.map((category) => {
+    return { category: category, count: randomInt(10, 50)() };
+  });
 }
 
-function setMultipleSutures(total) {
-  const types = Object.keys(csMultipleSutures.value);
+function setSutureTypes() {
+  const types = [
+    "bicoronal",
+    "bilambdoid",
+    "bilambdoid+sagittal",
+    "pansynostosis",
+    "other",
+  ]
+  colors.value.sutureType = generateColors(types);
+  sutureTypes.value = types.map((type) => {
+    return { type: type, count: randomInt(3, 27)() };
+  });
+}
+
+// set update sutute type selection
+function updateSutureTypes(value) {
+  const total = JSON.parse(value).count;
+  const types = sutureTypes.value.map(entry => entry.type);
   let currentTotal = total;
-  const data = types
+  sutureTypes.value = types
     .map((type, i) => {
-      const randomValue =
-        i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
-      const row = [type, randomValue];
+      const randomValue =  i === types.length - 1
+        ? currentTotal
+        : randomInt(1, currentTotal)();
       currentTotal -= randomValue;
-      return row;
-    })
-    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
-  csMultipleSutures.value = Object.fromEntries(data);
-}
-
-function updateMultipleSutures(value) {
-  const total = value[Object.keys(value)];
-  setMultipleSutures(total);
+      return {type: type, count: randomValue}; 
+    });
+  console.log(sutureTypes.value)
   showSutureTypes.value = true;
 }
 
 function onYearOfBirthFilter() {
-  setCsTypes();
-  setSingleSutures();
+  setCraniosynostosisTypes();
+  setAffectedSuture();
+  setSutureTypes();
 }
 
-// generate data
-setCsTypes();
-setSingleSutures();
+setCraniosynostosisTypes();
+setAffectedSuture();
+setSutureTypes();
+
+
 </script>

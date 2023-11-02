@@ -2,21 +2,20 @@
   <ProviderDashboard>
     <h2 class="dashboard-h2">Surgical overview for all centers</h2>
     <h3 class="dashboard-h3">Overview of all surgical interventions</h3>
-    <DashboardChartLayout :columns="2">
+    <DashboardChartLayout :columns="2" class="dashboard-boxes-width-2-1">
       <DashboardBox>
-        <PieChart2
+        <ColumnChart
           chartId="cs-all-surgical-type-of-surgery"
           title="Type of surgery"
+          description="Click a type of surgery to view complications"
           :chartData="typeOfSurgery"
-          :chartColors="surgeryTypeColors"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :chartHeight="200"
-          :chartScale="0.9"
-          :valuesArePercents="false"
-          :enableClicks="true"
-          @slice-clicked="updateSurgicalComplications"
+          xvar="type"
+          yvar="count"
+          :yTickValues="[0,25,50,75,100]"
+          :yMax="100"
+          :columnColorPalette="surgeryTypeColors"
+          xAxisLineBreaker=" "
+          :chartHeight="250"
         />
       </DashboardBox>
       <DashboardBox>
@@ -28,6 +27,7 @@
           :asDonutChart="true"
           :enableLegendHovering="true"
           legendPosition="bottom"
+          :stackLegend="true"
           :chartHeight="200"
           :chartScale="0.9"
           :valuesArePercents="false"
@@ -132,7 +132,7 @@ let surgicalInterventions = ref({
 
 let ageAtFirstSurgery = ref([]);
 
-const surgeryTypeColors = generateColors(Object.keys(typeOfSurgery.value));
+let surgeryTypeColors = ref({});
 const complicationColors = generateColors(
   Object.keys(surgicalComplications.value)
 );
@@ -141,15 +141,15 @@ const surgicalInterventionColors = generateColors(
 );
 
 function setTypeOfSurgery() {
-  const types = Object.keys(typeOfSurgery.value);
-  const data = types
-    .map((type) => [type, randomInt(1, 100)()])
-    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
+  const types = ["Extracranial procedures", "Hydrocephalus", "Midface", "Vault"];
+  surgeryTypeColors.value = generateColors(types)
+  typeOfSurgery.value = types.map((type) => {
+    return { type: type, count: randomInt(1, 100)() }
+  })
 
-  totalCases.value = data
-    .map((row) => row[1])
-    .reduce((sum, value) => sum + value, 0);
-  typeOfSurgery.value = Object.fromEntries(data);
+  totalCases.value = typeOfSurgery.value
+    .map((row) => row.count)
+    .reduce((sum, value) => sum + value, 0); 
 }
 
 function setSurgicalComplications(total) {

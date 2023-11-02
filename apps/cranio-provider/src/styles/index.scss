@@ -104,6 +104,21 @@
     .dashboard-chart-layout {
       margin-top: 1em;
       margin-bottom: 2em;
+      
+      &.dashboard-boxes-width-2-1 {
+        &.columns-2{
+          @media (min-width: 1024px) {
+            grid-template-columns: 2fr 1fr;
+          }
+        }
+      }
+      &.dashboard-boxes-width-1-2 {
+        &.columns-2{
+          @media (min-width: 1024px) {
+            grid-template-columns: 1fr 2fr;
+          }
+        }
+      }
     }
 
     .dashboard-box {

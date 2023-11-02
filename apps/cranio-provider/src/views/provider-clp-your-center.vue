@@ -20,7 +20,9 @@
         <option value="18+">18+ years</option>
       </select>
     </DashboardBox>
-    <h3 class="dashboard-h3">Overview of patients {{ ageGroupFilter }} years old (n={{ totalCases }})</h3>
+    <h3 class="dashboard-h3">
+      Overview of patients {{ ageGroupFilter }} years old (n={{ totalCases }})
+    </h3>
     <DashboardChartLayout :columns="2">
       <DashboardBox id="clp-patients-by-phenotype">
         <ColumnChart
@@ -30,23 +32,11 @@
           xvar="type"
           yvar="count"
           :yMax="100"
-          :yTickValues="[0,25,50,75,100]"
-          :chartHeight="300"
-          columnFill="#f2a058"
+          :yTickValues="[0, 25, 50, 75, 100]"
+          :chartHeight="250"
+          :column-color-palette="phenotypeColors"
           columnHoverFill="#708fb4"
         />
-        <!-- <PieChart2
-          chartId="patientsByPhenotype"
-          title="Patients by phenotype"
-          :chartData="patientsByPhenotype"
-          :asDonutChart="true"
-          :chartColors="phenotypeColors"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :chartHeight="200"
-          :chartScale="0.9"
-          :valuesArePercents="false"
-        /> -->
       </DashboardBox>
       <DashboardBox>
         <PieChart2
@@ -105,7 +95,7 @@ import { randomInt } from "d3";
 import generateColors from "../utils/palette.js";
 
 let totalCases = ref(0);
-let patientsByPhenotype = ref({ CL: 0, CLA: 0, CP: 0, CLAP: 0 });
+let patientsByPhenotype = ref([]);
 let patientsByGender = ref({ Female: 0, Male: 0, Undetermined: 0 });
 let cleftQCompleted = ref(0);
 let icsCompleted = ref(0);
@@ -113,13 +103,13 @@ let showCleftQCompleted = ref(false);
 let showIcsCompleted = ref(false);
 let ageGroupFilter = ref("3-4");
 
-const phenotypeColors = generateColors(Object.keys(patientsByPhenotype.value));
+const phenotypeColors = generateColors(["CL", "CLA", "CP", "CLAP"]);
 const genderColors = generateColors(Object.keys(patientsByGender.value));
 
 function setPatientsByPhenotype() {
-  const types = ['CL', 'CLA', 'CP', 'CLAP'];
+  const types = ["CL", "CLA", "CP", "CLAP"];
   const data = types
-    .map((type) => Object.assign({type: type, count: randomInt(1, 100)()}))
+    .map((type) => Object.assign({ type: type, count: randomInt(1, 100)() }))
     .sort((current, next) => (current.type < next.type ? 1 : -1));
 
   totalCases.value = data
