@@ -4,7 +4,11 @@
     <h1>Schema documentation for '{{ schema.name }}'</h1>
     Table of contents:
     <ul>
-      <li v-for="table in schema.tables">
+      <li
+        v-for="table in schema.tables.filter(
+          (table) => table.tableType == 'DATA'
+        )"
+      >
         <a
           href="#"
           v-scroll-to="{
@@ -15,19 +19,42 @@
         >
       </li>
     </ul>
-    <div v-for="table in schema.tables">
+    <a
+      href="#"
+      v-scroll-to="{
+        el: '#appendix',
+        offset: -50,
+      }"
+    >
+      Appendix: full schema diagram
+    </a>
+    <div
+      v-for="table in schema.tables.filter(
+        (table) => table.tableType == 'DATA'
+      )"
+    >
       <h2 class="pt-4">Table: {{ table.name }}</h2>
       <a :id="table.name ? table.name.replaceAll(' ', '_') : ''" />
       <p v-if="getDescription(table)">{{ getDescription(table) }}</p>
+      <div>
+        <h3>Overview and relationships:</h3>
+        <SchemaDiagram :tables="[table]" />
+      </div>
       <div class="mt-3" v-if="table.subclasses">
-        <h5>Subclasses:</h5>
+        <h3>Subdomains:</h3>
+        Table '{{ table.name }}' has the following subclasses/specializations:
         <table class="table table-bordered">
           <thead>
-            <th class="col-2">subclass table name</th>
-            <th class="col-1">extends</th>
-            <th class="col-3">description</th>
+            <th style="width: 16em">subclass table name</th>
+            <th style="width: 8em">extends</th>
+            <th>description</th>
           </thead>
           <tbody>
+            <tr>
+              <td>{{ table.name }}</td>
+              <td>-</td>
+              <td>{{ getDescription(table) }}</td>
+            </tr>
             <tr v-for="subclass in table.subclasses">
               <td>{{ subclass.name }}</td>
               <td>{{ subclass.inherit }}</td>
@@ -38,7 +65,7 @@
       </div>
       <div>
         <div>
-          <h5>Column definitions:</h5>
+          <h3>Column definitions:</h3>
           <table class="table table-bordered">
             <thead>
               <th style="width: 16em">column name</th>
@@ -62,9 +89,33 @@
     </div>
 
     <br /><br />
+    <SchemaDiagram
+      :tables="this.schema.tables.filter((table) => table.tableType === 'DATA')"
+    />
     <MessageError v-if="error">{{ error }}</MessageError>
   </div>
 </template>
+
+<style scoped>
+h3 {
+  font-size: 18px;
+  text-decoration: underline;
+  margin-top: 10px;
+}
+h2 {
+  font-size: 20px;
+}
+h1 {
+  font-size: 24px;
+}
+body {
+  font-size: 16px;
+}
+p {
+  margin: 0px;
+}
+</style>
+
 <script lang="ts">
 import {
   addOldNamesAndRemoveMeta,
@@ -74,9 +125,11 @@ import {
 import { request } from "graphql-request";
 import ColumnDefinition from "./ColumnDefinition.vue";
 import { Spinner, MessageError } from "molgenis-components";
+import SchemaDiagram from "./SchemaDiagram.vue";
 
 export default {
   components: {
+    SchemaDiagram,
     Spinner,
     MessageError,
     ColumnDefinition,

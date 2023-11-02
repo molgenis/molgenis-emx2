@@ -48,7 +48,18 @@
       </div>
       <div class="bg-white col ml-2 overflow-auto">
         <a id="molgenis_diagram_anchor"></a>
-        <NomnomDiagram :schema="schema" v-if="showDiagram" />
+        <InputBoolean
+          v-if="showDiagram"
+          id="showColumns"
+          label="Show columns"
+          :required="true"
+          v-model="showColumns"
+        />
+        <SchemaDiagram
+          :tables="schema.tables.filter((table) => table.tableType === 'DATA')"
+          :showColumns="showColumns"
+          v-if="showDiagram"
+        />
         <SchemaView
           :modelValue="schema"
           :schemaNames="schemaNames"
@@ -80,7 +91,7 @@ table {
 import { request } from "graphql-request";
 import SchemaView from "./SchemaView.vue";
 import SchemaToc from "./SchemaToc.vue";
-import NomnomDiagram from "./NomnomDiagram.vue";
+import SchemaDiagram from "./SchemaDiagram.vue";
 import {
   ButtonAction,
   MessageError,
@@ -88,6 +99,7 @@ import {
   MessageWarning,
   Spinner,
   deepClone,
+  InputBoolean,
 } from "molgenis-components";
 import VueScrollTo from "vue-scrollto";
 import {
@@ -98,6 +110,7 @@ import {
 
 export default {
   components: {
+    InputBoolean,
     SchemaView,
     ButtonAction,
     MessageError,
@@ -105,7 +118,7 @@ export default {
     MessageSuccess,
     SchemaToc,
     Spinner,
-    NomnomDiagram,
+    SchemaDiagram,
   },
   props: {
     session: {
@@ -121,6 +134,7 @@ export default {
       warning: null,
       success: null,
       showDiagram: false,
+      showColumns: false,
       schemaNames: [],
       dirty: false,
       key: Date.now(),

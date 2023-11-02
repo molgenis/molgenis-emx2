@@ -1,15 +1,14 @@
 <template>
   <Spinner v-if="loading" />
-  <div v-else class="container-fluid">
+  <div v-else class="container-fluid" id="print">
     <h1>Schema documentation for '{{ schema.name }}'</h1>
-    <div
-      v-html="figureForSchemaSVG(schema)"
-      class="bg-white"
-      style="max-width: 100%"
-    ></div>
     Table list:
     <ul>
-      <li v-for="table in schema.tables">
+      <li
+        v-for="table in schema.tables.filter(
+          (table) => table.tableType == 'DATA'
+        )"
+      >
         <a
           href="#"
           v-scroll-to="{
@@ -20,80 +19,123 @@
         >
       </li>
     </ul>
-    <div v-for="table in schema.tables">
+    <a
+      href="#"
+      v-scroll-to="{
+        el: '#appendix',
+        offset: -50,
+      }"
+    >
+      Appendix: full schema diagram
+    </a>
+    <div
+      v-for="table in schema.tables.filter(
+        (table) => table.tableType == 'DATA'
+      )"
+    >
       <h2 class="pt-4">Table: {{ table.name }}</h2>
       <a :id="table.name ? table.name.replaceAll(' ', '_') : ''" />
+      <div>
+        <h3>Overview and relationships:</h3>
+        <SchemaDiagram :tables="[table]" />
+      </div>
       <div v-if="getDescription(table)">
-        <h5>Definition:</h5>
+        <h3 class="mt-3">Table definition:</h3>
         <p>{{ getDescription(table) }}</p>
       </div>
       <div class="mt-3" v-if="table.subclasses">
-        <h5>Subdomains:</h5>
+        <h3>Extended table definitions:</h3>
         Table '{{ table.name }}' has the following subclasses/specializations:
-        <div
-          v-html="figureForTableSVG(table)"
-          class="bg-white"
-          style="max-width: 100%"
-        ></div>
-        <div class="ml-3 mt-3">
-          <b>{{ table.name }}</b>
-          <span v-if="getDescription(table)"
-            ><i> - {{ getDescription(table) }}</i></span
-          >
+        <div>
+          <p>
+            <b>&nbsp;&nbsp;&nbsp;&nbsp;{{ table.name }}</b>
+          </p>
+          <p v-if="getDescription(table)">
+            &nbsp;&nbsp;&nbsp;&nbsp;<i>{{ getDescription(table) }}</i>
+          </p>
         </div>
-        <div class="ml-3" v-for="subclass in table.subclasses">
-          <b>{{ subclass.name }}</b> (extends: {{ subclass.inherit }})
-          <span v-if="getDescription(subclass)"
-            ><i>- {{ getDescription(subclass) }}</i></span
-          >
+        <div v-for="subclass in table.subclasses">
+          <p>
+            <b>&nbsp;&nbsp;&nbsp;&nbsp;{{ subclass.name }}</b> (extends:
+            {{ subclass.inherit }})
+          </p>
+          <p v-if="getDescription(subclass)">
+            &nbsp;&nbsp;&nbsp;&nbsp;<i>{{ getDescription(subclass) }}</i>
+          </p>
         </div>
       </div>
-      <div>
-        <div class="mt-3">
-          <h5>Column definitions:</h5>
-          <div v-for="column in table.columns">
-            <div class="pt-3" v-if="column.columnType == 'HEADING'">
-              <b>section: {{ column.name }}</b>
-            </div>
-            <div class="ml-3 mt-3" v-else>
-              <b>{{ column.name }}</b>
-              <span v-if="getDescription(column)">
-                - <i>{{ getDescription(column) }}</i>
-              </span>
-              <div class="pl-3" v-if="table.subclasses">
-                domain: {{ column.table }}
-              </div>
-              <div class="pl-3">
-                definition:
-                <ColumnDefinition :column="column"></ColumnDefinition>
-              </div>
-            </div>
+      <div v-if="table.columns">
+        <h3>Column definitions:</h3>
+        <div v-for="column in table.columns">
+          <div v-if="column.columnType == 'HEADING'">
+            <b>section: {{ column.name }}</b>
+          </div>
+          <div v-else>
+            <p>
+              <b>&nbsp;&nbsp;&nbsp;&nbsp;{{ column.name }}</b>
+            </p>
+            <p v-if="getDescription(column)">
+              &nbsp;&nbsp;&nbsp;&nbsp;<i>{{ getDescription(column) }}</i>
+            </p>
+            <p v-if="table.subclasses">
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;domain:
+              {{ column.table }}
+            </p>
+            <p>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constraints:
+              <ColumnDefinition :column="column"></ColumnDefinition>
+            </p>
           </div>
         </div>
       </div>
     </div>
-    {{ schema }}
-    <br /><br />
+    <h2>Appendix: schema UML</h2>
+    <a id="appendix" />
+    <SchemaDiagram
+      :tables="this.schema.tables.filter((table) => table.tableType === 'DATA')"
+    />
     <MessageError v-if="error">{{ error }}</MessageError>
   </div>
 </template>
+
+<style scoped>
+h3 {
+  font-size: 18px;
+  text-decoration: underline;
+  margin-top: 10px;
+}
+h2 {
+  font-size: 20px;
+}
+h1 {
+  font-size: 24px;
+}
+body {
+  font-size: 16px;
+}
+p {
+  margin: 0px;
+}
+</style>
+
 <script lang="ts">
 import {
   addOldNamesAndRemoveMeta,
   convertToSubclassTables,
-  nomnomColumnsForTable,
   schemaQuery,
 } from "../utils.ts";
 import { request } from "graphql-request";
 import ColumnDefinition from "./ColumnDefinition.vue";
 import { Spinner, MessageError } from "molgenis-components";
 import { renderSvg } from "nomnoml";
+import SchemaDiagram from "./SchemaDiagram.vue";
 
 export default {
   components: {
     Spinner,
     MessageError,
     ColumnDefinition,
+    SchemaDiagram,
   },
   data() {
     return {
@@ -124,8 +166,6 @@ export default {
         });
     },
     getDescription,
-    figureForTableSVG,
-    figureForSchemaSVG,
   },
   created() {
     this.loadSchema();
@@ -136,22 +176,6 @@ function getDescription(item) {
   if (item.descriptions?.filter((desc) => desc.locale == "en").length == 1) {
     return item.descriptions?.filter((desc) => desc.locale == "en")[0].value;
   }
-}
-
-function figureForTableSVG(table) {
-  let result = `
-#.table: fill=white solid
-#stroke: #007bff
-#direction: down
-  `;
-  if (table.subclasses) {
-    table.subclasses.forEach((subclass) => {
-      result += `
-[<table>${subclass.inherit}]<:-[<table>${subclass.name}]
-`;
-    });
-  }
-  return renderSvg(result);
 }
 
 function figureForSchemaSVG(schema) {

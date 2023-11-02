@@ -2,7 +2,7 @@ import { createApp } from "vue";
 import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
 import Schema from "./components/Schema.vue";
-import PrintView from "./components/PrintView.vue";
+import PrintViewTable from "./components/PrintViewTable.vue";
 import PrintViewList from "./components/PrintViewList.vue";
 import VueScrollTo from "vue-scrollto";
 
@@ -12,7 +12,7 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: "/", component: Schema },
-    { path: "/print", component: PrintView },
+    { path: "/print", component: PrintViewTable },
     { path: "/print-list", component: PrintViewList },
   ],
 });
