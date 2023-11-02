@@ -58,7 +58,6 @@
     </div>
 
     <br /><br />
-    {{ JSON.stringify(schema) }}
     <MessageError v-if="error">{{ error }}</MessageError>
   </div>
 </template>

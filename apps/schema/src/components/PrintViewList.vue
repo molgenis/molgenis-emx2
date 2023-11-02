@@ -18,27 +18,38 @@
     <div v-for="table in schema.tables">
       <h2 class="pt-4">Table: {{ table.name }}</h2>
       <a :id="table.name ? table.name.replaceAll(' ', '_') : ''" />
-      <p v-if="getDescription(table)">{{ getDescription(table) }}</p>
+      <div v-if="getDescription(table)">
+        <h5>Definition:</h5>
+        <p>{{ getDescription(table) }}</p>
+      </div>
       <div class="mt-3" v-if="table.subclasses">
-        <h5>Subclasses:</h5>
-        <ul v-for="subclass in table.subclasses">
-          <li>
-            {{ subclass.name }} <i>extends</i>{{ subclass.inherit }}
-            {{ getDescription(subclass) }}
-          </li>
-        </ul>
+        <h5>Subdomains:</h5>
+        Table '{{ table.name }}' has the following subclasses/specializations:
+        <div class="ml-3 mt-3">
+          <b>{{ table.name }}</b>
+          <span v-if="getDescription(table)"
+            ><i> - {{ getDescription(table) }}</i></span
+          >
+        </div>
+        <div class="ml-3" v-for="subclass in table.subclasses">
+          <b>{{ subclass.name }}</b> (extends: {{ subclass.inherit }})
+          <span v-if="getDescription(subclass)"
+            ><i>- {{ getDescription(subclass) }}</i></span
+          >
+        </div>
       </div>
       <div>
-        <div>
+        <div class="mt-3">
           <h5>Column definitions:</h5>
           <div v-for="column in table.columns">
             <div class="pt-3" v-if="column.columnType == 'HEADING'">
-              <b>heading: {{ column.name }}</b>
+              <b>section: {{ column.name }}</b>
             </div>
-            <div class="pl-3" v-else>
+            <div class="ml-3 mt-3" v-else>
               <b>{{ column.name }}</b>
-              <span v-if="getDescription(column)">- </span
-              ><i>{{ getDescription(column) }}</i>
+              <span v-if="getDescription(column)">
+                - <i>{{ getDescription(column) }}</i>
+              </span>
               <div class="pl-3" v-if="table.subclasses">
                 domain: {{ column.table }}
               </div>
@@ -53,7 +64,6 @@
     </div>
 
     <br /><br />
-    {{ JSON.stringify(schema) }}
     <MessageError v-if="error">{{ error }}</MessageError>
   </div>
 </template>

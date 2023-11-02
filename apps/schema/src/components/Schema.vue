@@ -17,10 +17,10 @@
           >
             {{ showDiagram ? "Hide" : "Show" }} Diagram
           </ButtonAction>
-          <ButtonAction href="../#/print" target="_blank" class="ml-2">
+          <ButtonAction href="./#/print" target="_blank" class="ml-2">
             Show printable table
           </ButtonAction>
-          <ButtonAction href="../#/print-list" target="_blank" class="ml-2">
+          <ButtonAction href="./#/print-list" target="_blank" class="ml-2">
             Show printable list
           </ButtonAction>
           <MessageError v-if="error" class="ml-2 m-0 p-2">
