@@ -503,7 +503,7 @@ public class SqlQuery extends QueryBean {
                   // ref_array
                   search.add(
                       condition(
-                          "{0} && array_agg({1})",
+                          "{0} && ARRAY({1})",
                           ontologyColumn.getJooqField(),
                           DSL.select(field("name"))
                               .from(ontologyTable)
