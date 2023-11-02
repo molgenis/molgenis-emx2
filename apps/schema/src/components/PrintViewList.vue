@@ -11,7 +11,7 @@
             el: '#' + (table.name ? table.name.replaceAll(' ', '_') : ''),
             offset: -50,
           }"
-          >{{ table.name }}</a
+          >Table: {{ table.name }}</a
         >
       </li>
     </ul>
@@ -32,14 +32,20 @@
         <div>
           <h5>Column definitions:</h5>
           <div v-for="column in table.columns">
-            <b>{{ column.name }}</b>
-            <span v-if="getDescription(column)">- </span
-            ><i>{{ getDescription(column) }}</i>
-            <div class="pl-3" v-if="table.subclasses">
-              domain: {{ column.table }}
+            <div class="pt-3" v-if="column.columnType == 'HEADING'">
+              <b>heading: {{ column.name }}</b>
             </div>
-            <div class="pl-3">
-              definition: <ColumnDefinition :column="column"></ColumnDefinition>
+            <div class="pl-3" v-else>
+              <b>{{ column.name }}</b>
+              <span v-if="getDescription(column)">- </span
+              ><i>{{ getDescription(column) }}</i>
+              <div class="pl-3" v-if="table.subclasses">
+                domain: {{ column.table }}
+              </div>
+              <div class="pl-3">
+                definition:
+                <ColumnDefinition :column="column"></ColumnDefinition>
+              </div>
             </div>
           </div>
         </div>

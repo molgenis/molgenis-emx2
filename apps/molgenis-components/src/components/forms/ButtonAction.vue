@@ -22,7 +22,7 @@ export default {
   methods: {
     onClick() {
       if (window && window.open && this.href) {
-        window.open(this.href, this.target ? target : "_self");
+        window.open(this.href, this.target ? this.target : "_self");
       } else {
         /** emitted on click */
         this.$emit("click");
