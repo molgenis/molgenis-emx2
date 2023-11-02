@@ -139,3 +139,28 @@ export function getSubclassTables(schema, tableName) {
       .flat(1)
   );
 }
+
+export function nomnomColumnsForTable(table, tableName) {
+  let result = "";
+  if (Array.isArray(table.columns)) {
+    result += "|";
+    table.columns
+      .filter((column) => column.table === tableName)
+      .forEach((column) => {
+        if (
+          column.columnType.includes("REF") ||
+          column.columnType.includes("ONTOLOGY")
+        ) {
+          result += `${column.name}: ${column.columnType.toLowerCase()}(${
+            column.refTable
+          })`;
+        } else {
+          result += `${column.name}: ${column.columnType.toLowerCase()}`;
+        }
+        result += `${column.nullable ? ";" : "*;"}`;
+      });
+    //remove trailing ;
+    result = result.replace(/;\s*$/, "");
+  }
+  return result;
+}

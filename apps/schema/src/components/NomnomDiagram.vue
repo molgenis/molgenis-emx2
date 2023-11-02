@@ -12,6 +12,7 @@
 
 <script>
 import { renderSvg } from "nomnoml";
+import { nomnomColumnsForTable } from "../utils";
 import { InputCheckbox } from "molgenis-components";
 
 export default {
@@ -29,35 +30,6 @@ export default {
       imgFullscreen: false,
       displaySettings: [],
     };
-  },
-  methods: {
-    nomnomColumnsForTable(table, tableName) {
-      let result = "";
-      if (
-        Array.isArray(table.columns) &&
-        this.displaySettings.includes("attributes")
-      ) {
-        result += "|";
-        table.columns
-          .filter((column) => column.table === tableName)
-          .forEach((column) => {
-            if (
-              column.columnType.includes("REF") ||
-              column.columnType.includes("ONTOLOGY")
-            ) {
-              result += `${column.name}: ${column.columnType.toLowerCase()}(${
-                column.refTable
-              })`;
-            } else {
-              result += `${column.name}: ${column.columnType.toLowerCase()}`;
-            }
-            result += `${column.nullable ? ";" : "*;"}`;
-          });
-        //remove trailing ;
-        result = result.replace(/;\s*$/, "");
-      }
-      return result;
-    },
   },
   computed: {
     tables() {
@@ -82,12 +54,17 @@ export default {
       if (this.tables) {
         this.tables.forEach((table) => {
           res += `[<table> ${table.name}`;
-          res += this.nomnomColumnsForTable(table, table.name);
+          if (this.displaySettings.includes("attributes")) {
+            res += nomnomColumnsForTable(table, table.name);
+          }
           res += "]\n";
-          if (table.subclasses !== undefined) {
+          if (
+            table.subclasses !== undefined &&
+            this.displaySettings.includes("attributes")
+          ) {
             table.subclasses.forEach((subclass) => {
               res += `[<table> ${subclass.name}`;
-              res += this.nomnomColumnsForTable(table, subclass.name);
+              res += nomnomColumnsForTable(table, subclass.name);
               res += "]\n";
               res += `[<table>${subclass.inherit}]<:-[<table>${subclass.name}]\n`;
             });

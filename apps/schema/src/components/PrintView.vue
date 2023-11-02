@@ -21,37 +21,41 @@
       <p v-if="getDescription(table)">{{ getDescription(table) }}</p>
       <div class="mt-3" v-if="table.subclasses">
         <h5>Subclasses:</h5>
-        <table class="table">
+        <table class="table table-bordered">
           <thead>
-            <th>subclass table name</th>
-            <th>extends</th>
-            <th>description</th>
+            <th class="col-2">subclass table name</th>
+            <th class="col-1">extends</th>
+            <th class="col-3">description</th>
           </thead>
-          <tr v-for="subclass in table.subclasses">
-            <td>{{ subclass.name }}</td>
-            <td>{{ subclass.inherit }}</td>
-            <td>{{ getDescription(subclass) }}</td>
-          </tr>
+          <tbody>
+            <tr v-for="subclass in table.subclasses">
+              <td>{{ subclass.name }}</td>
+              <td>{{ subclass.inherit }}</td>
+              <td>{{ getDescription(subclass) }}</td>
+            </tr>
+          </tbody>
         </table>
       </div>
       <div>
         <div>
           <h5>Column definitions:</h5>
-          <table class="table">
+          <table class="table table-bordered">
             <thead>
-              <th class="col-2">column name</th>
-              <th class="col-1">type</th>
-              <th class="col-3">description</th>
-              <th class="col-2" v-if="table.subclasses">domain</th>
-              <th class="col2">definition</th>
+              <th style="width: 16em">column name</th>
+              <th style="width: 8em">type</th>
+              <th style="width: 32em">description</th>
+              <th style="width: 16em" v-if="table.subclasses">domain</th>
+              <th>definition</th>
             </thead>
-            <tr v-for="column in table.columns" border>
-              <td>{{ column.name }}</td>
-              <td>{{ column.columnType.toLowerCase() }}</td>
-              <td>{{ getDescription(column) }}</td>
-              <td v-if="table.subclasses">{{ column.table }}</td>
-              <td><ColumnDefinition :column="column"></ColumnDefinition></td>
-            </tr>
+            <tbody>
+              <tr v-for="column in table.columns" border>
+                <td>{{ column.name }}</td>
+                <td>{{ column.columnType.toLowerCase() }}</td>
+                <td>{{ getDescription(column) }}</td>
+                <td v-if="table.subclasses">{{ column.table }}</td>
+                <td><ColumnDefinition :column="column"></ColumnDefinition></td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </div>

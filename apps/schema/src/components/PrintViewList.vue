@@ -2,7 +2,12 @@
   <Spinner v-if="loading" />
   <div v-else class="container-fluid">
     <h1>Schema documentation for '{{ schema.name }}'</h1>
-    Table of contents:
+    <div
+      v-html="figureForSchemaSVG(schema)"
+      class="bg-white"
+      style="max-width: 100%"
+    ></div>
+    Table list:
     <ul>
       <li v-for="table in schema.tables">
         <a
@@ -25,6 +30,11 @@
       <div class="mt-3" v-if="table.subclasses">
         <h5>Subdomains:</h5>
         Table '{{ table.name }}' has the following subclasses/specializations:
+        <div
+          v-html="figureForTableSVG(table)"
+          class="bg-white"
+          style="max-width: 100%"
+        ></div>
         <div class="ml-3 mt-3">
           <b>{{ table.name }}</b>
           <span v-if="getDescription(table)"
@@ -62,7 +72,7 @@
         </div>
       </div>
     </div>
-
+    {{ schema }}
     <br /><br />
     <MessageError v-if="error">{{ error }}</MessageError>
   </div>
@@ -71,11 +81,13 @@
 import {
   addOldNamesAndRemoveMeta,
   convertToSubclassTables,
+  nomnomColumnsForTable,
   schemaQuery,
 } from "../utils.ts";
 import { request } from "graphql-request";
 import ColumnDefinition from "./ColumnDefinition.vue";
 import { Spinner, MessageError } from "molgenis-components";
+import { renderSvg } from "nomnoml";
 
 export default {
   components: {
@@ -112,6 +124,8 @@ export default {
         });
     },
     getDescription,
+    figureForTableSVG,
+    figureForSchemaSVG,
   },
   created() {
     this.loadSchema();
@@ -122,5 +136,59 @@ function getDescription(item) {
   if (item.descriptions?.filter((desc) => desc.locale == "en").length == 1) {
     return item.descriptions?.filter((desc) => desc.locale == "en")[0].value;
   }
+}
+
+function figureForTableSVG(table) {
+  let result = `
+#.table: fill=white solid
+#stroke: #007bff
+#direction: down
+  `;
+  if (table.subclasses) {
+    table.subclasses.forEach((subclass) => {
+      result += `
+[<table>${subclass.inherit}]<:-[<table>${subclass.name}]
+`;
+    });
+  }
+  return renderSvg(result);
+}
+
+function figureForSchemaSVG(schema) {
+  let result = `
+#.table: fill=white solid
+#stroke: #007bff
+#direction: down
+  `;
+  schema.tables.forEach((table) => {
+    result += `
+    [<table>${table.name}]
+    `;
+    table.columns.forEach((column) => {
+      if (column.columnType == "REF" || column.columnType == "REF_ARRAY") {
+        result += `[<table>${findRootTable(schema, column.refTable)}]<- ${
+          column.name
+        } [<table>${table.name}]\n`;
+      }
+    });
+  });
+  return renderSvg(result);
+}
+
+function findRootTable(schema, tableName) {
+  let result;
+  schema.tables.forEach((table) => {
+    if (table.name == tableName) {
+      result = table.name;
+    }
+    if (table.subclasses) {
+      table.subclasses.forEach((subclass) => {
+        if (subclass.name == tableName) {
+          result = table.name;
+        }
+      });
+    }
+  });
+  return result;
 }
 </script>
