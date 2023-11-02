@@ -229,7 +229,7 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
 <docs>
 <template>
   <demo-item>
-    <label>AggregateTable</label>
+    <label>AggregateTable with canview=false</label>
     <AggregateTable
       tableId="Pet"
       schemaId="pet store"
@@ -244,6 +244,7 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
         :allColumns="allColumns"
         :minimumValue="1"
         :canView="true"
+      :canView="true"
     />
     <label>AggregateTable with filters set</label>
     <AggregateTable
