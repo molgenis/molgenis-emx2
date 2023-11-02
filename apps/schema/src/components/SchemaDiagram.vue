@@ -1,7 +1,7 @@
 <template>
-  <div class="overflow-auto">
+  <div class="overflow-auto" style="max-width: 100%">
     <Spinner v-if="!imageURL" />
-    <img v-else :src="imageURL" style="max-width: 100%" />
+    <img v-else :src="imageURL" />
   </div>
 </template>
 <script>

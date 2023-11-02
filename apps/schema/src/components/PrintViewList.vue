@@ -40,51 +40,57 @@
         <SchemaDiagram :tables="[table]" />
       </div>
       <div v-if="getDescription(table)">
-        <h3 class="mt-3">Table definition:</h3>
-        <p>{{ getDescription(table) }}</p>
+        <br />
+        <h3>Table definition:</h3>
+        <div>{{ getDescription(table) }}</div>
       </div>
-      <div class="mt-3" v-if="table.subclasses">
+      <div v-if="table.subclasses">
+        <br />
         <h3>Extended table definitions:</h3>
         Table '{{ table.name }}' has the following subclasses/specializations:
         <div>
-          <p>
-            <b>&nbsp;&nbsp;&nbsp;&nbsp;{{ table.name }}</b>
-          </p>
-          <p v-if="getDescription(table)">
-            &nbsp;&nbsp;&nbsp;&nbsp;<i>{{ getDescription(table) }}</i>
-          </p>
+          <div>
+            <b>{{ table.name }}</b>
+          </div>
+          <div v-if="getDescription(table)">
+            <i>{{ getDescription(table) }}</i>
+          </div>
         </div>
         <div v-for="subclass in table.subclasses">
-          <p>
-            <b>&nbsp;&nbsp;&nbsp;&nbsp;{{ subclass.name }}</b> (extends:
-            {{ subclass.inherit }})
-          </p>
-          <p v-if="getDescription(subclass)">
-            &nbsp;&nbsp;&nbsp;&nbsp;<i>{{ getDescription(subclass) }}</i>
-          </p>
+          <div>
+            <b>{{ subclass.name }}</b> (extends: {{ subclass.inherit }})
+          </div>
+          <div v-if="getDescription(subclass)">
+            <i>{{ getDescription(subclass) }}</i>
+          </div>
         </div>
       </div>
       <div v-if="table.columns">
+        <br />
         <h3>Column definitions:</h3>
         <div v-for="column in table.columns">
           <div v-if="column.columnType == 'HEADING'">
-            <b>section: {{ column.name }}</b>
+            <br />
+            <b
+              ><u>section: {{ column.name }}</u></b
+            >
           </div>
           <div v-else>
-            <p>
-              <b>&nbsp;&nbsp;&nbsp;&nbsp;{{ column.name }}</b>
-            </p>
-            <p v-if="getDescription(column)">
-              &nbsp;&nbsp;&nbsp;&nbsp;<i>{{ getDescription(column) }}</i>
-            </p>
-            <p v-if="table.subclasses">
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;domain:
+            <br />
+            <div>
+              <b>{{ column.name }}</b>
+            </div>
+            <div v-if="getDescription(column)">
+              <i>{{ getDescription(column) }}</i>
+            </div>
+            <div v-if="table.subclasses">
+              &nbsp;&nbsp;&nbsp;&nbsp;domain:
               {{ column.table }}
-            </p>
-            <p>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constraints:
+            </div>
+            <div>
+              &nbsp;&nbsp;&nbsp;&nbsp;constraints:
               <ColumnDefinition :column="column"></ColumnDefinition>
-            </p>
+            </div>
           </div>
         </div>
       </div>
