@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { IVariable, IVariableMappings } from "~/interfaces/types";
 
-const schema = useRoute().params.schema;
-
 type VariableDetailsWithMapping = IVariable & IVariableMappings;
 const props = defineProps<{
   variable: VariableDetailsWithMapping;
@@ -31,7 +29,15 @@ const variablesUsed = computed(() => {
     )
     .map((mapping) => {
       const sourceVariables = mapping.sourceVariables
-        ? mapping.sourceVariables
+        ? mapping.sourceVariables.map((variable: { name: string }) => {
+            return {
+              name: variable.name,
+              resource: {
+                id: mapping.source.id,
+              },
+              dataset: mapping.sourceDataset,
+            };
+          })
         : [];
       const sourceVariablesOtherDatasets = mapping.sourceVariablesOtherDatasets
         ? mapping.sourceVariablesOtherDatasets
@@ -46,6 +52,9 @@ const syntax = computed(() => {
     (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
   )?.syntax;
 });
+
+let activeVariableKey = ref();
+let showSidePanel = computed(() => activeVariableKey.value?.name);
 </script>
 
 <template>
@@ -86,6 +95,7 @@ const syntax = computed(() => {
         <li v-for="variableUsed in variablesUsed">
           <a
             class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 cursor-pointer"
+            @click="activeVariableKey = getKey(variableUsed)"
           >
             <BaseIcon
               name="caret-right"
@@ -103,4 +113,17 @@ const syntax = computed(() => {
     <DefinitionListDefinition v-if="!syntax">None</DefinitionListDefinition>
   </DefinitionList>
   <CodeBlock v-if="syntax" class="mt-2">{{ syntax }}</CodeBlock>
+
+  <SideModal
+    :key="JSON.stringify(activeVariableKey)"
+    :show="showSidePanel"
+    :fullScreen="false"
+    :slideInRight="true"
+    @close="activeVariableKey = null"
+    buttonAlignment="right"
+  >
+    <template v-if="activeVariableKey">
+      <VariableDisplay :variableKey="activeVariableKey" />
+    </template>
+  </SideModal>
 </template>

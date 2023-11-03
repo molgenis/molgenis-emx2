@@ -70,7 +70,7 @@ export interface IVariableBase {
       id: string;
     };
   };
-  label: string;
+  label?: string;
   description?: string;
 }
 
