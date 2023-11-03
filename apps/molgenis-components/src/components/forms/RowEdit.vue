@@ -28,9 +28,8 @@
 </template>
 
 <script lang="ts">
-import { IColumn } from "../../Interfaces/IColumn";
 import { IRow } from "../../Interfaces/IRow";
-import { ITableMetaData } from "../../Interfaces/ITableMetaData";
+import { ITableMetaData, IColumn } from "meta-data-utils/dist/types";
 import constants from "../constants.js";
 import {
   convertToCamelCase,

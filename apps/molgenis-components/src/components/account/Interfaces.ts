@@ -1,4 +1,4 @@
-import { ISetting } from "../../Interfaces/ISetting";
+import type { ISetting } from "meta-data-utils/dist/types";
 
 export interface ISession {
   email?: string;

@@ -60,7 +60,7 @@ import { useCookies } from "vue3-cookies";
 import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
 import { IErrorMessage, IResponse, ISession } from "./Interfaces";
-import { ISetting } from "../../Interfaces/ISetting";
+import type { ISetting } from "meta-data-utils/dist/types";
 
 const { cookies } = useCookies();
 const query = `{

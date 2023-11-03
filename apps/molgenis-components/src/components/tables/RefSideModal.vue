@@ -33,7 +33,7 @@
 import { AxiosError } from "axios";
 import { Ref, ref, toRefs, watch } from "vue";
 import Client from "../../client/client";
-import { IColumn } from "../../Interfaces/IColumn";
+import { IColumn } from "meta-data-utils/dist/types";
 import { IRow } from "../../Interfaces/IRow";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";

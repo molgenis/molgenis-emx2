@@ -95,11 +95,13 @@
 </template>
 
 <script lang="ts">
-import { IColumn } from "../../Interfaces/IColumn";
-import { ISchemaMetaData } from "../../Interfaces/IMetaData";
+import type {
+  ISchemaMetaData,
+  ITableMetaData,
+  IColumn,
+  ISetting,
+} from "meta-data-utils/dist/types";
 import { IRow } from "../../Interfaces/IRow";
-import { ISetting } from "../../Interfaces/ISetting";
-import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { INewClient } from "../../client/IClient";
 import Client from "../../client/client";
 import constants from "../constants";

@@ -1,7 +1,6 @@
 import { Axios } from "axios";
 import { IRow } from "../Interfaces/IRow";
-import { ISetting } from "../Interfaces/ISetting";
-import { ITableMetaData } from "../Interfaces/ITableMetaData";
+import type { ITableMetaData, ISetting } from "meta-data-utils/dist/types";
 import { IQueryMetaData } from "./IQueryMetaData";
 
 export interface IClient {

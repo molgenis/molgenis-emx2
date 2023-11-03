@@ -1,7 +1,8 @@
 import { convertToPascalCase } from "../components/utils";
-import { ISchemaMetaData } from "../Interfaces/IMetaData";
-import { ITableMetaData } from "../Interfaces/ITableMetaData";
-
+import type {
+  ITableMetaData,
+  ISchemaMetaData,
+} from "meta-data-utils/dist/types";
 /**
  * @param {String} schemaName - schema where initial table is in
  * @param {String} tableName

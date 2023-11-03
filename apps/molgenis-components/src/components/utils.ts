@@ -1,6 +1,5 @@
-import { IColumn } from "../Interfaces/IColumn";
 import { IRow } from "../Interfaces/IRow";
-import { ITableMetaData } from "../Interfaces/ITableMetaData";
+import type { ITableMetaData, IColumn } from "meta-data-utils/dist/types";
 import constants from "./constants";
 import Client from "../client/client";
 

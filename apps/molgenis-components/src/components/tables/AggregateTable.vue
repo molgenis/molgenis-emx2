@@ -93,7 +93,7 @@ import TableStickyHeaders from "./TableStickyHeaders.vue";
 import IAggregateData from "./IAggregateData";
 import Client from "../../client/client";
 import InputSelect from "../forms/InputSelect.vue";
-import { IColumn } from "../../Interfaces/IColumn";
+import { IColumn } from "meta-data-utils/dist/types";
 import { convertToCamelCase } from "../utils";
 import { INewClient } from "../../client/IClient";
 

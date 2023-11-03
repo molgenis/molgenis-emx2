@@ -1,6 +1,6 @@
 import { describe, assert, test } from "vitest";
 import { columnNames } from "./queryBuilder";
-import { ISchemaMetaData } from "../Interfaces/IMetaData";
+import type { ISchemaMetaData } from "meta-data-utils/dist/types";
 
 describe("columnNames", () => {
   const EXPAND_ONE = 1;

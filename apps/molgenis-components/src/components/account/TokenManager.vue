@@ -35,7 +35,7 @@
 import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
 import { IError } from "../../Interfaces/IError";
-import { ISetting } from "../../Interfaces/ISetting";
+import type { ISetting } from "meta-data-utils/dist/types";
 import ButtonAction from "../forms/ButtonAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputString from "../forms/InputString.vue";

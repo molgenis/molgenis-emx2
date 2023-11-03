@@ -23,6 +23,7 @@ export interface IColumn {
   labels?: ILocale[];
   position?: number;
   readonly?: boolean;
+  defaultValue?: string;
   refBack?: string;
   refLabel?: string;
   refLabelDefault?: string;
