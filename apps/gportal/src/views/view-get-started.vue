@@ -2,7 +2,7 @@
   <Page>
     <PageHeader
       title="Local GDI Portal"
-      subtitle="Get Started"
+      subtitle="Get Started with the Local Portal"
       imageSrc="gdi-portal.jpg"
       height="large"
       titlePositionX="center"

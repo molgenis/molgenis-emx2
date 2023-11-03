@@ -242,9 +242,9 @@ onBeforeMount(() => {
     .then(() => {
       noRemsHostFound.value = false;
     })
-    .catch((err) => (noRemsHostFound.value = true));
+    .catch(() => (noRemsHostFound.value = true));
 
-  getDatasets().catch((err) => (noDatasetFound.value = true));
+  getDatasets().catch(() => (noDatasetFound.value = true));
 });
 
 watch([selection], setUrl);
