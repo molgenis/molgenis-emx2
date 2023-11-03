@@ -18,8 +18,13 @@
         data findable and accessibile.
       </p>
       <p>
-        To find get started, use the dataset search for find collections or use
-        the beacon search to find individual records.
+        To get started, use the dataset search for find collections or use the
+        beacon search to find individual records. If you have data that you
+        would like to add to the collection or manage the local portal, then
+        have a look at the
+        <router-link :to="{ name: 'get-started' }">
+          Get Started Guide </router-link
+        >.
       </p>
     </PageSection>
     <PageSection
@@ -44,20 +49,6 @@
           </router-link>
         </LinkCard>
       </div>
-    </PageSection>
-    <PageSection :verticalPadding="2" aria-labelledby="about-title">
-      <h2 id="about-title">About the GDI Local Portal</h2>
-      <p>
-        The GDI local portal implementation runs on
-        <a href="https://www.molgenis.org">MOLGENIS</a> (Java, PostgreSQL,
-        GraphQL) and is connected to
-        <a href="https://github.com/CSCfi/rems">REMS</a>. The portal also
-        includes OIDC configuration to allow users to seamlessly sign in to
-        these systems. In additional, the local portal exposes the metadata
-        though the
-        <a href="https://www.fairdatapoint.org">Fair Data Points</a> and
-        <a href="https://beacon-project.io">Beacon</a>.
-      </p>
     </PageSection>
   </Page>
 </template>

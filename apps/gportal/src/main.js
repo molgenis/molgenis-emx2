@@ -3,6 +3,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 
 import App from "./App.vue";
 import HomePage from "./views/view-home.vue";
+import GetStartedPage from "./views/view-get-started.vue";
 import DatasetSearch from "./views/search-dataset.vue";
 import BeaconSearch from "./views/search-beacon.vue";
 
@@ -19,6 +20,11 @@ const router = createRouter({
       path: "/",
       component: HomePage,
       props: true,
+    },
+    {
+      name: "get-started",
+      path: "/get-started",
+      component: GetStartedPage,
     },
     {
       name: "datasets",

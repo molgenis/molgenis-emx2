@@ -5,7 +5,7 @@
 
 .app-page {
   .page-header {
-    border-bottom: 10px solid transparent;
+    border-bottom: 8px solid transparent;
     border-image: $gdi-brand-gradient;
     border-image-slice: 1;
   }
@@ -14,11 +14,21 @@
     .page-section-content {
       h2 {
         color: $gdi-brand-purple;
+        margin-bottom: 0.4em;
       }
 
-      h3 {
-        text-align: left;
+      h3,
+      h4 {
         color: $gdi-brand-purple;
+        margin-bottom: 0.4em;
+      }
+
+      .dataset-card {
+        .dataset-info {
+          h3 {
+            text-align: left;
+          }
+        }
       }
     }
 
@@ -171,7 +181,11 @@ a {
   &:focus {
     color: var(--blue);
   }
+}
 
+a,
+p,
+li {
   svg {
     $size: 16pt;
     width: $size;

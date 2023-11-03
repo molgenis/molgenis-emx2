@@ -8,6 +8,11 @@
             <li>
               <router-link :to="{ name: 'home' }"> Home </router-link>
             </li>
+            <li>
+              <router-link :to="{ name: 'get-started' }">
+                Get Started
+              </router-link>
+            </li>
           </UnorderedList>
         </div>
         <div class="footer-column footer-links">
