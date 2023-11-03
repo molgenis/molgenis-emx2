@@ -127,7 +127,7 @@ export default {
     handleRowClick(row) {
       let params = {};
       params.id = row.id ? row.id : this.pkey.id;
-      params.resource = row.id ? row.id : this.pkey.id;
+      params.resource = row.id || this.pkey.id;
       if (row.name) params.name = row.id;
       if (row.source?.id) params.source = row.source.id;
       if (row.sourceDataset?.name)
