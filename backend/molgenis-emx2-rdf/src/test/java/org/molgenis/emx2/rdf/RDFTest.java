@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
@@ -50,15 +51,27 @@ public class RDFTest {
     petStoreLoader.load(petStore_nr2, true);
     petStoreSchemas = List.of(petStore_nr1, petStore_nr2);
 
-    Database database = TestDatabaseFactory.getTestDatabase();
-    compositeKeyTest = database.dropCreateSchema(RDFTest.class.getSimpleName());
+    var schemaName = RDFTest.class.getSimpleName();
+    compositeKeyTest = database.dropCreateSchema(schemaName);
+    //    compositeKeyTest.create(
+    //        table("Persons", column("firstName").setPkey(), column("lastName").setPkey()));
     compositeKeyTest.create(
-        table("Patients", column("firstName").setPkey(), column("lastName").setPkey()),
+        table("Persons", column("firstName").setPkey(), column("lastName").setPkey()),
+        table(
+                "Patients",
+                column("parents")
+                    .setType(ColumnType.REF_ARRAY)
+                    .setRefTable("Persons")
+                    .setRefSchema(schemaName))
+            .setInherit("Persons"),
         table(
             "Samples",
             column("patient").setType(ColumnType.REF).setRefTable("Patients").setPkey(),
             column("id").setPkey(),
             column("someNonKeyRef").setType(ColumnType.REF_ARRAY).setRefTable("Samples")));
+    compositeKeyTest.create(
+        table("InheritsFromPatients", column("test").setType(ColumnType.BOOL))
+            .setInherit("Patients"));
     compositeKeyTest.getTable("Patients").insert(row("firstName", "Donald", "lastName", "Duck"));
     compositeKeyTest
         .getTable("Samples")
@@ -223,6 +236,42 @@ public class RDFTest {
         iris.contains(subjectWithCompositeKey),
         "A Sample resource should have a key based on patient.firstName, patient.lastName and id");
   }
+
+  @Test
+  void testThatColumnIRIisForRootTable() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(compositeKeyTest, "Patients"), handler);
+    var parentsIRI = Values.iri("http://localhost:8080/RDFTest/api/rdf/Patients/column/parents");
+    var firstNameIRI = Values.iri("http://localhost:8080/RDFTest/api/rdf/Persons/column/firstName");
+
+    assertTrue(
+        handler.resources.containsKey(parentsIRI),
+        "IRI is based on the table that defines the column (Patients)");
+    assertTrue(
+        handler.resources.containsKey(firstNameIRI),
+        "IRI is based on the table that defines the column (Persons)");
+  }
+
+  @Test
+  void testThatColumnIRIisForRootTableWithTwoLayersOfInheritance() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(compositeKeyTest, "InheritsFromPatients"), handler);
+    var parentsIRI = Values.iri("http://localhost:8080/RDFTest/api/rdf/Patients/column/parents");
+    var firstNameIRI = Values.iri("http://localhost:8080/RDFTest/api/rdf/Persons/column/firstName");
+    var testIRI =
+        Values.iri("http://localhost:8080/RDFTest/api/rdf/InheritsFromPatients/column/test");
+
+    assertTrue(
+        handler.resources.containsKey(testIRI),
+        "IRI is based on the table that defines the column (InheritsFromPatients)");
+    assertTrue(
+        handler.resources.containsKey(parentsIRI),
+        "IRI is based on the table that defines the column (Patients)");
+    assertTrue(
+        handler.resources.containsKey(firstNameIRI),
+        "IRI is based on the table that defines the column (Persons)");
+  }
+
   /**
    * Helper method to reduce boilerplate code in the tests.<br>
    * <b>Note</b> this method delegates to the handler for the results of parsing.

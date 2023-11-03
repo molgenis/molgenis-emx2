@@ -341,8 +341,11 @@ public class RDFService {
   }
 
   private IRI getColumnIRI(final Column column) {
-    // TODO: In case of a column that is defined in a parent table the IRI should be the same
-    final TableMetadata table = column.getTable();
+    TableMetadata table = column.getTable();
+    // Find the table that defined this column.
+    while (!table.getLocalColumns().contains(column)) {
+      table = table.getInheritedTable();
+    }
     final Schema schema = table.getTable().getSchema();
     final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(table.getIdentifier());
     final String columnName = UrlEscapers.urlPathSegmentEscaper().escape(column.getIdentifier());
