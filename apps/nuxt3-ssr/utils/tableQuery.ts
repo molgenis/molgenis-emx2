@@ -1,4 +1,9 @@
-import { IColumn, ISchemaMetaData, ITableMetaData } from "interfaces/types";
+import {
+  IColumn,
+  ISchemaMetaData,
+  ITableMetaData,
+  KeyObject,
+} from "~~/interfaces/types";
 import { convertToPascalCase } from "../../molgenis-components/src/components/utils";
 
 const FILE_FRAGMENT = "{ id, size, extension, url }";
@@ -250,9 +255,12 @@ export const extractKeyFromRecord = (
   return key || {};
 };
 
-export const buildFilterFromKeysObject = (keys: Record<string, string>) => {
+export const buildFilterFromKeysObject = (keys: KeyObject) => {
   return Object.entries(keys).reduce(
-    (acc: Record<string, object>, [key, value]: [string, string]) => {
+    (
+      acc: Record<string, object>,
+      [key, value]: [string, string | KeyObject]
+    ) => {
       acc[key] = { equals: [value] };
       return acc;
     },
