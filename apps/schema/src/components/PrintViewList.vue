@@ -49,6 +49,7 @@
         <h3>Extended table definitions:</h3>
         Table '{{ table.name }}' has the following subclasses/specializations:
         <div>
+          <br />
           <div>
             <b>{{ table.name }}</b>
           </div>
@@ -57,11 +58,12 @@
           </div>
         </div>
         <div v-for="subclass in table.subclasses">
+          <br />
           <div>
             <b>{{ subclass.name }}</b> (extends: {{ subclass.inherit }})
-          </div>
-          <div v-if="getDescription(subclass)">
-            <i>{{ getDescription(subclass) }}</i>
+            <span v-if="getDescription(subclass)">
+              <i> - {{ getDescription(subclass) }}</i>
+            </span>
           </div>
         </div>
       </div>
@@ -72,16 +74,19 @@
           <div v-if="column.columnType == 'HEADING'">
             <br />
             <b
-              ><u>section: {{ column.name }}</u></b
+              ><u>heading: {{ column.name }}</u></b
             >
+            <span v-if="getDescription(column)">
+              <i> - {{ getDescription(column) }}</i>
+            </span>
           </div>
           <div v-else>
             <br />
             <div>
               <b>{{ column.name }}</b>
-            </div>
-            <div v-if="getDescription(column)">
-              <i>{{ getDescription(column) }}</i>
+              <span v-if="getDescription(column)">
+                <i> - {{ getDescription(column) }}</i>
+              </span>
             </div>
             <div v-if="table.subclasses">
               &nbsp;&nbsp;&nbsp;&nbsp;domain:
