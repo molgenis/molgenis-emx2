@@ -9,7 +9,7 @@ def nodeSpec = {
     version = '19.9.0'
     yarnVersion = '1.22.19'
     npmVersion = "9.5.1"
-    download = System.getenv('NODE_SPEC_DOWNLOAD') ?: true
+    download = System.getenv('NODE_SPEC_DOWNLOAD') ? System.getenv('NODE_SPEC_DOWNLOAD').toBoolean(): true
 }
 
 node {
