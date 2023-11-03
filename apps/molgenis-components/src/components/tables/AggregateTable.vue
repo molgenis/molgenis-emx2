@@ -238,6 +238,7 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
       schemaName="pet store"
       :allColumns="allColumns"
       :minimumValue="1"
+      :canView="true"
     />
     <label>AggregateTable with filters set</label>
     <AggregateTable
@@ -246,6 +247,7 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
       :allColumns="allColumns"
       :minimumValue="1"
       :graphqlFilter="graphqlFilter"
+      :canView="true"
     />
   </demo-item>
 </template>

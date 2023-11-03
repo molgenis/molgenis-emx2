@@ -12,6 +12,7 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
@@ -492,6 +493,45 @@ public class SqlQuery extends QueryBean {
       search.add(
           field(name(table.getTableName(), searchColumnName(table.getTableName())))
               .likeIgnoreCase("%" + term + "%"));
+      // also search in ontology tables linked to current table
+      table.getColumns().stream()
+          .filter(Column::isOntology)
+          .forEach(
+              ontologyColumn -> {
+                Table<Record> ontologyTable = ontologyColumn.getRefTable().getJooqTable();
+                if (Boolean.TRUE.equals(ontologyColumn.isArray())) {
+                  // include if array overlap between ontology table and our selected values in our
+                  // ref_array
+                  search.add(
+                      condition(
+                          "{0} && ARRAY({1})",
+                          ontologyColumn.getJooqField(),
+                          DSL.select(field("name"))
+                              .from(ontologyTable)
+                              .where(
+                                  field(
+                                          name(
+                                              ontologyTable.getName(),
+                                              searchColumnName(ontologyTable.getName())))
+                                      .likeIgnoreCase("%" + term + "%"))));
+                } else {
+                  // include if our ref is in the ontology terms list that would be found given our
+                  // search terms
+                  search.add(
+                      ontologyColumn
+                          .getJooqField()
+                          .in(
+                              DSL.select(field("name"))
+                                  .from(ontologyTable)
+                                  .where(
+                                      field(
+                                              name(
+                                                  ontologyTable.getName(),
+                                                  searchColumnName(ontologyTable.getName())))
+                                          .likeIgnoreCase("%" + term + "%"))));
+                }
+              });
+
       TableMetadata parent = table.getInheritedTable();
       while (parent != null) {
         search.add(

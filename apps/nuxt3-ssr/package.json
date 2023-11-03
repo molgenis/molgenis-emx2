@@ -27,7 +27,7 @@
     "@vue/test-utils": "2.4.1",
     "autoprefixer": "10.4.16",
     "graphql-tag": "2.12.6",
-    "jsdom": "21.1.2",
+    "jsdom": "22.1.0",
     "meta-data-utils": "*",
     "nuxt": "3.7.4",
     "nuxt-proxy": "0.4.1",
