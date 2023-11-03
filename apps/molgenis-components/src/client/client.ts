@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
+import type { ISchemaMetaData } from "meta-data-utils/dist/types";
 import { IColumn } from "../Interfaces/IColumn";
-import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
