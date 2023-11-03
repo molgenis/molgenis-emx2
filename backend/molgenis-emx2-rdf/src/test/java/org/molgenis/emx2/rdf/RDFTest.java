@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
@@ -93,7 +94,7 @@ public class RDFTest {
 
     for (var resource : handler.resources.entrySet()) {
       var subject = resource.getKey();
-      var types = resource.getValue().getOrDefault(RDF.TYPE, List.of());
+      var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
       if (subject.stringValue().contains("/column/")) {
 
         assertTrue(
@@ -113,7 +114,7 @@ public class RDFTest {
     for (var resource : handler.resources.entrySet()) {
       var subClasses = resource.getValue().get(RDFS.SUBCLASSOF);
       if (subClasses != null && subClasses.contains(RDFService.IRI_DATABASE_TABLE)) {
-        var types = resource.getValue().getOrDefault(RDF.TYPE, List.of());
+        var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
         var subject = resource.getKey().stringValue();
         assertFalse(types.isEmpty(), subject + " should have a rdf:Type.");
         assertTrue(types.contains(OWL.CLASS), subject + " should be a owl:Class.");
@@ -181,7 +182,7 @@ public class RDFTest {
 
     for (var resource : handler.resources.entrySet()) {
       var subject = resource.getKey().stringValue();
-      var types = resource.getValue().getOrDefault(RDF.TYPE, List.of());
+      var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
       assertFalse(types.isEmpty(), subject + " should have a rdf:type.");
       boolean isAllowedType = false;
       for (var type : types) {
