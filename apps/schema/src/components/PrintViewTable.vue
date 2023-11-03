@@ -33,10 +33,18 @@
         (table) => table.tableType == 'DATA'
       )"
     >
+      <br />
+      <b>Display options:</b>
+      <InputCheckbox
+        id="options"
+        :required="true"
+        v-model="options"
+        :options="[SHOW_TABLE_DIAGRAMS]"
+      />
       <h2 class="pt-4">Table: {{ table.name }}</h2>
       <a :id="table.name ? table.name.replaceAll(' ', '_') : ''" />
       <p v-if="getDescription(table)">{{ getDescription(table) }}</p>
-      <div>
+      <div v-if="options.includes(SHOW_TABLE_DIAGRAMS)">
         <h3>Overview and relationships:</h3>
         <SchemaDiagram :tables="[table]" />
       </div>
@@ -124,8 +132,10 @@ import {
 } from "../utils.ts";
 import { request } from "graphql-request";
 import ColumnDefinition from "./ColumnDefinition.vue";
-import { Spinner, MessageError } from "molgenis-components";
+import { Spinner, MessageError, InputCheckbox } from "molgenis-components";
 import SchemaDiagram from "./SchemaDiagram.vue";
+
+const SHOW_TABLE_DIAGRAMS = "show table diagrams";
 
 export default {
   components: {
@@ -133,12 +143,15 @@ export default {
     Spinner,
     MessageError,
     ColumnDefinition,
+    InputCheckbox,
   },
   data() {
     return {
       schema: {},
       loading: false,
       error: null,
+      options: [],
+      SHOW_TABLE_DIAGRAMS,
     };
   },
   methods: {

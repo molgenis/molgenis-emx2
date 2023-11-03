@@ -28,6 +28,15 @@
     >
       Appendix: full schema diagram
     </a>
+    <br />
+    <br />
+    <b>Display options:</b>
+    <InputCheckbox
+      id="options"
+      :required="true"
+      v-model="options"
+      :options="[SHOW_TABLE_DIAGRAMS]"
+    />
     <div
       v-for="table in schema.tables.filter(
         (table) => table.tableType == 'DATA'
@@ -35,7 +44,7 @@
     >
       <h2 class="pt-4">Table: {{ table.name }}</h2>
       <a :id="table.name ? table.name.replaceAll(' ', '_') : ''" />
-      <div>
+      <div v-if="options.includes(SHOW_TABLE_DIAGRAMS)">
         <h3>Overview and relationships:</h3>
         <SchemaDiagram :tables="[table]" />
       </div>
@@ -137,9 +146,11 @@ import {
 } from "../utils.ts";
 import { request } from "graphql-request";
 import ColumnDefinition from "./ColumnDefinition.vue";
-import { Spinner, MessageError } from "molgenis-components";
+import { Spinner, MessageError, InputCheckbox } from "molgenis-components";
 import { renderSvg } from "nomnoml";
 import SchemaDiagram from "./SchemaDiagram.vue";
+
+const SHOW_TABLE_DIAGRAMS = "show table diagrams";
 
 export default {
   components: {
@@ -147,12 +158,15 @@ export default {
     MessageError,
     ColumnDefinition,
     SchemaDiagram,
+    InputCheckbox,
   },
   data() {
     return {
       schema: {},
       loading: false,
       error: null,
+      options: [],
+      SHOW_TABLE_DIAGRAMS,
     };
   },
   methods: {
