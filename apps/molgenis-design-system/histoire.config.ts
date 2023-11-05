@@ -4,6 +4,7 @@ import { HstVue } from "@histoire/plugin-vue";
 export default defineConfig({
   plugins: [HstVue()],
   setupFile: "histoire.setup.ts",
+  outDir: "showCase",
   vite: {
     server: {
       fs: {
