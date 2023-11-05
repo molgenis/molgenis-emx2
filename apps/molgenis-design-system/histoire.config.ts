@@ -13,6 +13,7 @@ export default defineConfig({
         allow: [
           "../node_modules/histoire/dist/node/builtin-plugins/vanilla-support",
           "../node_modules/@histoire/plugin-vue/dist/bundled/client/app",
+          "../node_modules/@histoire/controls/dist",
         ],
       },
     },
