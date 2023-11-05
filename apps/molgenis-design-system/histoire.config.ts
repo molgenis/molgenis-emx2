@@ -5,7 +5,9 @@ export default defineConfig({
   plugins: [HstVue()],
   setupFile: "histoire.setup.ts",
   outDir: "showCase",
+  routerMode: "hash",
   vite: {
+    base: "",
     server: {
       fs: {
         allow: [
