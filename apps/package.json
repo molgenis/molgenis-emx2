@@ -12,6 +12,7 @@
     "graphql-playground",
     "nuxt3-ssr",
     "molgenis-components",
+    "molgenis-design-system",
     "molgenis-viz",
     "cranio-public",
     "cranio-provider",
