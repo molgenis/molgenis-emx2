@@ -37,7 +37,7 @@ task buildJavascript(type: YarnTask, dependsOn: yarn_install) {
     args = ['run', 'nx', 'run-many', '--target=format:write,build,build-showcase', "--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}", '--verbose']
     doLast {
         file("${project.projectDir}").eachDir { dir ->
-            if (dir.name == 'molgenis-components' || dir.name == 'molgenis-viz') {
+            if (dir.name == 'molgenis-components' || dir.name == 'molgenis-viz' || dir.name == 'molgenis-design-system') {
                 copy {
                     from dir.path + "/showCase"
                     into "${buildDir}/generated/main/resources/public_html/apps/" + dir.name
