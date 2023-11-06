@@ -1,4 +1,4 @@
-resource,dataset,name,label,collection event.resource,collection event.name,since version,until version,is repeat of.dataset,is repeat of.name
+resource,dataset,name,label,collection event.resource,collection event,since version,until version,is repeat of.dataset,is repeat of.name
 PELAGIE,harmonized,int_eval_8,,,,1.0.0,,harmonized,int_eval_1
 PELAGIE,harmonized,INT_EVAL_8,,,,1.0.0,,harmonized,int_eval_1
 ATHLETE_CDM,outcome_ath,aggr_avg_5,,,,,,outcome_ath,aggr_avg_0
