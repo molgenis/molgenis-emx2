@@ -16,7 +16,7 @@ const query = gql`
       name
       description
       website
-      logo ${loadGql(fileFragment)}
+      logo ${moduleToString(fileFragment)}
       acronym
       contacts {
         roleDescription
@@ -343,7 +343,7 @@ if (route.params.catalogue) {
             network?.releaseDescription
           "
         >
-          <DefinitionList :items="accessConditionsItems" />
+          <CatalogueItemList :items="accessConditionsItems" />
         </ContentBlock>
 
         <ContentBlock
@@ -351,7 +351,7 @@ if (route.params.catalogue) {
           title="Funding &amp; Citation requirements "
           v-if="network?.fundingStatement || network?.acknowledgements"
         >
-          <DefinitionList :items="fundingAndAcknowledgementItems" />
+          <CatalogueItemList :items="fundingAndAcknowledgementItems" />
         </ContentBlock>
 
         <TableContent

@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { LocationQueryValue } from ".nuxt/vue-router";
 import { gql } from "graphql-request";
-import {
+import type {
   IColumn,
   ISection,
   ISchemaMetaData,
   ITableMetaData,
-} from "interfaces/types";
+} from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 const resourceName: string = route.params.resourceType as string;
@@ -40,9 +39,9 @@ const schemas = externalSchemas.reduce(
 
 const fields = buildRecordDetailsQueryFields(schemas, schemaName, resourceType);
 
-const keys = route.query.keys;
-const keysObject = locationQueryValueToObject(keys);
-const filter = buildFilterFromKeysObject(keysObject);
+const { key } = useQueryParams();
+
+const filter = buildFilterFromKeysObject(key);
 
 const query = gql`
   query ${resourceType}($filter: ${resourceType}Filter) {

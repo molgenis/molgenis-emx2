@@ -44,11 +44,11 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"filteringTerms\" : ["));
     assertTrue(json.contains("\"type\" : \"alphanumeric\","));
     assertTrue(json.contains("\"id\" : \"position_assemblyId\","));
-    assertTrue(json.contains("\"scope\" : \"GenomicVariations\""));
+    assertTrue(json.contains("\"scope\" : \"genomicVariations\""));
     assertTrue(json.contains("\"type\" : \"ontology\","));
-    assertTrue(json.contains("\"id\" : \"NCIT_C124261\","));
+    assertTrue(json.contains("\"id\" : \"NCIT:C124261\","));
     assertTrue(json.contains("\"label\" : \"Whole Transcriptome Sequencing\","));
-    assertTrue(json.contains("\"scope\" : \"SequencingRuns\""));
+    assertTrue(json.contains("\"scope\" : \"runs\""));
   }
 
   @Test
@@ -326,7 +326,7 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testRuns_NoParams() throws Exception {
     Request request = mock(Request.class);
-    Runs runs = new Runs(request, List.of(beaconSchema.getTable("SequencingRuns")));
+    Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
     String json = JsonUtil.getWriter().writeValueAsString(runs);
     assertTrue(json.contains("\"resultsCount\" : 5,"));
     assertTrue(
@@ -337,7 +337,7 @@ public class Beaconv2_ModelEndpointsTest {
   public void testRuns_NoHits() throws Exception {
     Request request = mock(Request.class);
     when(request.queryParams("id")).thenReturn("SRR10903405");
-    Runs runs = new Runs(request, List.of(beaconSchema.getTable("SequencingRuns")));
+    Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
     String json = JsonUtil.getWriter().writeValueAsString(runs);
     assertTrue(
         json.contains(
@@ -351,7 +351,7 @@ public class Beaconv2_ModelEndpointsTest {
   public void testRuns_IdQuery() throws Exception {
     Request request = mock(Request.class);
     when(request.queryParams("id")).thenReturn("SRR10903403");
-    Runs runs = new Runs(request, List.of(beaconSchema.getTable("SequencingRuns")));
+    Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
     String json = JsonUtil.getWriter().writeValueAsString(runs);
     assertTrue(json.contains("\"id\" : \"SRR10903403\","));
     assertFalse(json.contains("\"id\" : \"SRR10903401\","));

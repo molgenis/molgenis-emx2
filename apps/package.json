@@ -13,14 +13,17 @@
     "nuxt3-ssr",
     "molgenis-components",
     "molgenis-viz",
+    "cranio-public",
+    "cranio-provider",
     "ern-reconnet",
+    "ern-ithaca",
     "helloworld",
     "reports",
     "tasks",
     "gportal"
   ],
   "devDependencies": {
-    "nx": "16.8.1",
+    "nx": "16.10.0",
     "nx-cloud": "latest"
   }
 }

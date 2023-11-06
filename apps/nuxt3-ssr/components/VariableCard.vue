@@ -1,8 +1,13 @@
 <script setup lang="ts">
-defineProps<{
+import type { IVariable } from "~/interfaces/types";
+import { getKey } from "~/utils/variableUtils";
+
+const props = defineProps<{
   variable: IVariable;
 }>();
 const route = useRoute();
+const variableKey = computed(() => getKey(props.variable));
+const resourcePathId = resourceIdPath(variableKey.value);
 </script>
 
 <template>

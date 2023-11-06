@@ -11,6 +11,7 @@ export interface IColumn {
   labels?: ILocale[];
   position?: number;
   readonly?: string;
+  defaultValue?: string;
   refBack?: string;
   refLabel?: string;
   refLabelDefault?: string;

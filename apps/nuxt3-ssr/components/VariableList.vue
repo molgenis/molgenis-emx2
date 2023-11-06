@@ -2,7 +2,7 @@
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
-const pageSize = 10;
+const pageSize = 30;
 
 useHead({ title: "Variables" });
 
@@ -54,8 +54,63 @@ const query = computed(() => {
   query Variables($filter:VariablesFilter, $orderby:Variablesorderby){
     Variables(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       name
+      resource {
+        id
+      }
+      dataset {
+        name
+        resource {
+          id
+        }
+      }
       label
       description
+      mappings {
+        sourceDataset {
+          resource {
+            id
+          }
+          name
+        }
+        targetVariable {
+          dataset {
+            resource {
+              id
+            }
+            name
+          }
+          name
+        }
+        match {
+          name
+        }
+      }
+      repeats {
+        name
+        mappings {
+          match {
+            name
+          }
+          source {
+            id
+          }
+          sourceVariables {
+            name
+          }
+          sourceDataset {
+            resource {
+              id
+            }
+            name
+          }
+        }
+      }
+    }
+    Cohorts(orderby: { id: ASC }) {
+      id
+      networks {
+        id
+      }
     }
     Variables_agg (filter:$filter){
       count
@@ -65,9 +120,13 @@ const query = computed(() => {
 });
 
 const orderby = { label: "ASC" };
+const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
 
 const filter = computed(() => {
-  let result = buildQueryFilter(filters, search.value);
+  let result = {
+    ...buildQueryFilter(filters, search.value),
+    ...typeFilter,
+  }
   if (route.params.catalogue) {
     result._and["networks"] = { resource: { equals: route.params.catalogue } };
   }
@@ -94,6 +153,7 @@ watch(filters, () => {
   setCurrentPage(1);
 });
 
+<<<<<<< HEAD:apps/nuxt3-ssr/components/VariableList.vue
 let activeName = ref("detailed");
 
 let crumbs: any = {};
@@ -106,6 +166,17 @@ if (route.params.catalogue) {
     Home: `/${route.params.schema}/ssr-catalogue`,
   };
 }
+=======
+let activeName = ref("list");
+let pageIcon = computed(() => {
+  switch (activeName.value) {
+    case "list":
+      return "image-diagram-2";
+    case "harmonization":
+      return "image-table";
+  }
+});
+>>>>>>> aa7f6a1088dfbd33b71efc4c403b3e1479d918f9:apps/nuxt3-ssr/pages/[schema]/ssr-catalogue/variables/index.vue
 </script>
 
 <template>
@@ -120,7 +191,7 @@ if (route.params.catalogue) {
           <PageHeader
             title="Variables"
             description="A complete overview of available variables."
-            icon="image-diagram"
+            :icon="pageIcon"
           >
             <template #prefix>
               <BreadCrumbs :crumbs="crumbs" current="variables" />
@@ -129,10 +200,10 @@ if (route.params.catalogue) {
               <SearchResultsViewTabs
                 class="hidden xl:flex"
                 buttonLeftLabel="List of variables"
-                buttonLeftName="detailed"
+                buttonLeftName="list"
                 buttonLeftIcon="view-compact"
                 buttonRightLabel="Harmonizations"
-                buttonRightName="compact"
+                buttonRightName="harmonization"
                 buttonRightIcon="view-table"
                 v-model:activeName="activeName"
               />
@@ -149,7 +220,15 @@ if (route.params.catalogue) {
         <template #search-results>
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
-            <CardList v-if="data?.data?.Variables?.length > 0">
+            <div
+              v-if="data?.data?.Variables_agg.count === 0"
+              class="flex justify-center pt-3"
+            >
+              <span class="py-15 text-blue-500">
+                No variables found with current filters
+              </span>
+            </div>
+            <CardList v-else-if="activeName === 'list'">
               <CardListItem
                 v-for="variable in data?.data?.Variables"
                 :key="variable.name"
@@ -157,19 +236,22 @@ if (route.params.catalogue) {
                 <VariableCard
                   :variable="variable"
                   :schema="route.params.schema"
-                  :compact="activeName !== 'detailed'"
                 />
               </CardListItem>
             </CardList>
-            <div v-else class="flex justify-center pt-3">
-              <span class="py-15 text-blue-500">
-                No variables found with current filters
-              </span>
-            </div>
+            <HarmonizationTable
+              v-else
+              :variables="data?.data?.Variables"
+              :cohorts="data?.data?.Cohorts"
+            >
+            </HarmonizationTable>
           </SearchResultsList>
         </template>
 
-        <template v-if="data?.data?.Variables?.length > 0" #pagination>
+        <template
+          #pagination
+          v-if="activeName === 'list' && data?.data?.Variables?.length > 0"
+        >
           <Pagination
             :current-page="currentPage"
             :totalPages="Math.ceil(data?.data?.Variables_agg.count / pageSize)"

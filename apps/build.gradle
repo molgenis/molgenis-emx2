@@ -1,7 +1,7 @@
 /* will produce a fat jar containing all html/js dist in public_html/apps*/
 
 plugins {
-    id "base"
+    id "java"
     id "com.github.node-gradle.node" version "3.6.0"
 }
 
@@ -16,65 +16,50 @@ node {
     with nodeSpec
 }
 
-task format(type: YarnTask, dependsOn: yarn_install) {
-    args = ['run', 'nx', 'format:write']
-}
-
-task checkFormat(type: YarnTask, dependsOn: yarn_install) {
-    args = ['run', 'nx', 'format:check']
-}
-
-task buildJavascript(type: YarnTask, dependsOn: format) {
-    environment = ["NODE_OPTIONS":"--max-old-space-size=4096"]
-    args = ['run', 'nx', 'run-many', '--target=build,build-showcase',"--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}",'--verbose']
-    outputs.upToDateWhen { false }
-}
-
 task cleanJavascript(type: YarnTask, dependsOn: yarn_install) {
+    outputs.upToDateWhen { false }
     args = ['run', 'nx', 'reset']
 }
 clean.dependsOn cleanJavascript
 
-/* copy the javascript files to the build folder, nasty we have to manually set libs */
-task copyDistFiles(type: Copy, dependsOn: buildJavascript) {
-   file("${project.projectDir}").eachDir { dir ->
-       if (dir.name == 'molgenis-components' || dir.name == 'molgenis-viz') {
-           copy {
-               from dir.path + "/showCase"
-               into "${buildDir}/resources/main/public_html/apps/" + dir.name
-           }
-       } else if(dir.name != ".gradle" && dir.name != 'build' && dir.name != 'node_modules') {
-           println dir.path + "/dist"
-           copy {
-               from dir.name + "/dist"
-               into "${buildDir}/resources/main/public_html/apps/" + dir.name
-           }
-       }
+task format(type: YarnTask, dependsOn: yarn_install) {
+    outputs.upToDateWhen { false }
+    args = ['run', 'nx', 'format:write']
+}
+
+task checkFormat(type: YarnTask, dependsOn: yarn_install) {
+    outputs.upToDateWhen { false }
+    args = ['run', 'nx', 'format:check']
+}
+
+task buildJavascript(type: YarnTask, dependsOn: yarn_install) {
+    environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
+    args = ['run', 'nx', 'run-many', '--target=format:write,build,build-showcase', "--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}", '--verbose']
+    doLast {
+        file("${project.projectDir}").eachDir { dir ->
+            if (dir.name == 'molgenis-components' || dir.name == 'molgenis-viz') {
+                copy {
+                    from dir.path + "/showCase"
+                    into "${buildDir}/generated/main/resources/public_html/apps/" + dir.name
+                }
+            } else if (dir.name != ".gradle" && dir.name != 'build' && dir.name != 'node_modules') {
+                println dir.path + "/dist"
+                copy {
+                    from dir.name + "/dist"
+                    into "${buildDir}/generated/main/resources/public_html/apps/" + dir.name
+                }
+            }
+        }
     }
     outputs.upToDateWhen { false }
 }
 
+compileJava.dependsOn buildJavascript
 
-/* convert build files into one apps.jar that we can use as a dependency in the java part */
-task createJar(type: Zip, dependsOn: copyDistFiles) {
-    archiveBaseName = 'molgenis-emx2-apps'
-    archiveExtension = 'jar'
-    destinationDirectory = file("${buildDir}/build/libs")
-    from('build/resources/main')
-}
-build.dependsOn createJar
-
-configurations {
-    appResources
-}
-configurations.default.extendsFrom(configurations.appResources)
-
-/* expose as artifact that can be used as dependency by other modules*/
-artifacts {
-    appResources(createJar.getArchiveFile()) {
-        builtBy createJar
-        type "jar"
+sourceSets {
+    main {
+        resources {
+            srcDir "${buildDir}/generated/main/resources"
+        }
     }
 }
-
-

@@ -1,0 +1,19 @@
+subcohort.resource,subcohort.name,age group,N total,N female,N male
+ALSPAC,Mothers,Adult (18+ years),20,8,12
+ALSPAC,Partners,Adult (18+ years),100,,
+ALSPAC,Children,Child (2-12 years),524,299,225
+BIB,Children,Child (2-12 years),70,35,35
+BIB,Mothers,Adult (18+ years),1530,580,950
+BIB,Partners,Adult (18+ years),233,,233
+CON,Prognosis study,Adult (18+ years),415,140,275
+DNBC,children,Child (2-12 years),,255,
+DNBC,pregnancies,Prenatal,1400,1400,
+EDEN,children,Child (2-12 years),235,110,125
+EDEN,fathers,Adult (18+ years),20,10,10
+EDEN,mothers,Adult (18+ years),1685,1685,
+ELFE,children,Child (2-12 years),804,290,514
+ELFE,mothers,Aged (65+ years),421,175,246
+ELFE,fathers,Aged (65+ years),804,290,514
+FORCE-NEN,FORCE-NEN intensive,Adult (18+ years),100,,
+FORCE-NEN,FORCE-NEN Regular,Child (2-12 years),543,185,358
+HPV,Follow-Up at age 18,Adult (18+ years),2229,1131,1098

@@ -69,7 +69,11 @@ watch(filters, () => {
 
 // build resource query for cards
 
-const fields = buildRecordListQueryFields(resourceType, schemaName, schemas);
+const fields = buildRecordListQueryFields(
+  tableMetaData.value.name,
+  schemaName,
+  schemas
+);
 
 const query = computed(() => {
   return `
@@ -105,7 +109,12 @@ const { data, pending, error, refresh } = await useFetch(
 );
 
 function buildRecordId(record: any) {
-  return extractKeyFromRecord(record, resourceType, schemaName, schemas);
+  return extractKeyFromRecord(
+    record,
+    tableMetaData.value.name,
+    schemaName,
+    schemas
+  );
 }
 let crumbs: Record<string, string> = {
   Home: "..",
