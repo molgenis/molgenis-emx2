@@ -1,7 +1,7 @@
 <template>
   <div>
     <FormInput
-      v-for="column in columnsWithoutMeta.filter(showColumn)"
+      v-for="column in shownColumnsWithoutMeta"
       :key="JSON.stringify(column)"
       :id="`${id}-${column.name}`"
       :modelValue="internalValues[column.id]"
@@ -10,14 +10,13 @@
       :errorMessage="errorPerColumn[column.id]"
       :label="getColumnLabel(column)"
       :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
-      :pkey="primaryKey"
+      :pkey="pkey"
       :readonly="
         column.readonly ||
         (pkey && column.key === 1 && !clone) ||
-        (column.computed !== undefined && column.computed.trim() != '')
+        (column.computed !== undefined && column.computed.trim() !== '')
       "
       :refBack="column.refBack"
-      :refTablePrimaryKeyObject="primaryKey"
       :refLabel="column.refLabel ? column.refLabel : column.refLabelDefault"
       :required="column.required"
       :tableName="column.refTable"
@@ -29,28 +28,28 @@
 </template>
 
 <script lang="ts">
-import FormInput from "./FormInput.vue";
-import constants from "../constants.js";
-import Client from "../../client/client";
-import {
-  deepClone,
-  convertToCamelCase,
-  getLocalizedLabel,
-  getLocalizedDescription,
-} from "../utils";
 import { IColumn } from "../../Interfaces/IColumn";
 import { IRow } from "../../Interfaces/IRow";
-import { executeExpression } from "./formUtils/formUtils";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
+import constants from "../constants.js";
+import {
+  convertToCamelCase,
+  deepClone,
+  getLocalizedDescription,
+  getLocalizedLabel,
+} from "../utils";
+import FormInput from "./FormInput.vue";
+import { executeExpression, isColumnVisible } from "./formUtils/formUtils";
 
 const { AUTO_ID } = constants;
 
 export default {
   name: "RowEdit",
-  data: function () {
+  data() {
     return {
-      client: Client.newClient(this.schemaMetaData.name),
-      internalValues: deepClone(this.modelValue),
+      internalValues: deepClone(
+        this.defaultValue ? this.defaultValue : this.modelValue
+      ),
     };
   },
   props: {
@@ -109,24 +108,23 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    applyDefaultValues: {
+      type: Boolean,
+      default: () => false,
+    },
   },
-  emits: ["update:modelValue", "errorsInForm"],
+  emits: ["update:modelValue"],
   components: {
     FormInput,
   },
   computed: {
-    async primaryKey() {
-      return this.client.convertRowToPrimaryKey(
-        this.internalValues,
-        this.tableName
-      );
-    },
-    columnsWithoutMeta() {
-      return this?.tableMetaData?.columns
+    shownColumnsWithoutMeta() {
+      const columnsWithoutMeta = this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
             (column: IColumn) => !column.id?.startsWith("mg_")
           )
         : [];
+      return columnsWithoutMeta.filter(this.showColumn);
     },
     graphqlFilter() {
       if (this.tableMetaData && this.pkey) {
@@ -162,42 +160,45 @@ export default {
         const isColumnVisible = this.visibleColumns
           ? this.visibleColumns.includes(column.id)
           : true;
+
         return (
           isColumnVisible &&
-          this.visible(column.visible, column.id) &&
+          this.isVisible(column) &&
           column.id !== "mg_tableclass"
         );
       }
     },
-    visible(expression: string | undefined, columnId: string) {
-      if (expression) {
-        try {
-          return executeExpression(
-            expression,
-            this.internalValues,
-            this.tableMetaData as ITableMetaData
-          );
-        } catch (error) {
-          this.errorPerColumn[
-            columnId
-          ] = `Invalid visibility expression, reason: ${error}`;
-          return true;
-        }
-      } else {
+    isVisible(column: IColumn) {
+      try {
+        return isColumnVisible(
+          column,
+          this.internalValues,
+          this.tableMetaData as ITableMetaData
+        );
+      } catch (error: any) {
+        this.errorPerColumn[column.id] = error;
         return true;
       }
     },
     applyComputed() {
-      this.tableMetaData.columns.forEach((c: IColumn) => {
-        if (c.computed && c.columnType !== AUTO_ID) {
+      this.tableMetaData.columns.forEach((column: IColumn) => {
+        if (column.computed && column.columnType !== AUTO_ID) {
           try {
-            this.internalValues[c.id] = executeExpression(
-              c.computed,
+            this.internalValues[column.id] = executeExpression(
+              column.computed,
               this.internalValues,
               this.tableMetaData as ITableMetaData
             );
           } catch (error) {
-            this.errorPerColumn[c.id] = "Computation failed: " + error;
+            this.errorPerColumn[column.id] = "Computation failed: " + error;
+          }
+        } else if (this.applyDefaultValues && column.defaultValue) {
+          if (column.defaultValue.startsWith("=")) {
+            this.internalValues[column.id] = executeExpression(
+              "(" + column.defaultValue.substr(1) + ")",
+              this.internalValues,
+              this.tableMetaData as ITableMetaData
+            );
           }
         }
       });
@@ -254,9 +255,11 @@ export default {
     },
   },
   created() {
-    if (this.defaultValue) {
-      this.internalValues = deepClone(this.defaultValue);
-    }
+    this.tableMetaData.columns.forEach((column: IColumn) => {
+      if (column.defaultValue && !this.internalValues[column.id]) {
+        this.internalValues[column.id] = column.defaultValue;
+      }
+    });
     this.onValuesUpdate();
   },
 };

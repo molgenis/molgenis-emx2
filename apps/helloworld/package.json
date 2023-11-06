@@ -12,12 +12,12 @@
   "dependencies": {
     "molgenis-components": "*",
     "graphql-request": "5.2.0",
-    "vue": "3.2.47",
-    "vue-router": "4.1.6"
+    "vue": "3.3.4",
+    "vue-router": "4.2.5"
   },
   "devDependencies": {
     "vite": "4.3.9",
-    "@vitejs/plugin-vue": "4.2.3",
+    "@vitejs/plugin-vue": "4.4.0",
     "prettier": "2.8.8"
   },
   "browserslist": [

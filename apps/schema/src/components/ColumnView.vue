@@ -3,8 +3,13 @@
     class="hoverContainer"
     :style="column.drop ? 'text-decoration: line-through' : ''"
   >
-    <td>
-      <span class="moveHandle">
+    <td class="bg-white">
+      <IconAction
+        v-if="isManager"
+        class="moveHandle mr-1 align-middle"
+        icon="ellipsis-v"
+      />
+      <span>
         {{ column.name }}
         <span v-if="column.semantics">
           (<a
@@ -45,29 +50,13 @@
         />
       </IconBar>
     </td>
-    <td v-if="table.subclasses?.length > 0">{{ column.table }}</td>
-    <td>
-      <span v-if="column.refTable">
-        {{ column.columnType.toLowerCase() }}({{
-          column.refSchema ? column.refSchema + "." : ""
-        }}{{ column.refTable
-        }}<span v-if="column.refBack">, refBack={{ column.refBack }}</span>
-        <span v-if="column.refLink">, refLink={{ column.refLink }}</span
-        >)
-      </span>
-      <span v-else>
-        {{ column.columnType.toLowerCase() }}
-      </span>
-      <span v-if="column.required === true || column.required === 'true'">
-        required
-      </span>
-      <span v-if="column.readonly === true || column.readonly === 'true'">
-        readonly
-      </span>
-      <span v-if="column.refLabel"> refLabel='{{ column.refLabel }}' </span>
-      <span v-if="column.computed"> computed="{{ column.computed }}"</span>
+    <td class="bg-white" v-if="table.subclasses?.length > 0">
+      {{ column.table }}
     </td>
-    <td>
+    <td class="bg-white">
+      <ColumnDefinition :column="column" />
+    </td>
+    <td class="bg-white">
       <table v-if="column.labels" class="table-borderless">
         <tr v-for="el in column.labels.filter((el) => el.value)">
           <td>{{ el.locale }}:</td>
@@ -75,7 +64,7 @@
         </tr>
       </table>
     </td>
-    <td>
+    <td class="bg-white">
       <table v-if="column.descriptions" class="table-borderless">
         <tr v-for="el in column.descriptions.filter((el) => el.value)">
           <td>{{ el.locale }}:</td>
@@ -99,13 +88,16 @@ span {
 <script>
 import columnTypes from "../columnTypes.js";
 import ColumnEditModal from "./ColumnEditModal.vue";
-import { IconDanger, IconBar } from "molgenis-components";
+import ColumnDefinition from "./ColumnDefinition.vue";
+import { IconDanger, IconBar, IconAction } from "molgenis-components";
 
 export default {
   components: {
     ColumnEditModal,
+    ColumnDefinition,
     IconDanger,
     IconBar,
+    IconAction,
   },
   data() {
     return {

@@ -62,6 +62,7 @@
       </svg>
       <div class="d3-viz-legend" v-if="legendData">
         <ChartLegend
+          :legendId="`${chartId}-legend`"
           :data="legendData"
           :enableClicks="enableLegendClicks"
           @legend-item-clicked="setLegendClicked"

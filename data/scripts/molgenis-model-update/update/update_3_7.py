@@ -59,9 +59,10 @@ class Transform:
         # copy molgenis.csv to appropriate folder
         if self.database_type == 'catalogue':
             path = './files/' + 'catalogue_data_model'
-            os.mkdir(path)
-            shutil.copyfile(data_model, os.path.abspath(os.path.join(path, 'molgenis.csv')))
-            shutil.make_archive('./files/' + 'catalogue_data_model_upload', 'zip', path)
+            if not os.path.isdir(path):
+                os.mkdir(path)
+                shutil.copyfile(data_model, os.path.abspath(os.path.join(path, 'molgenis.csv')))
+                shutil.make_archive('./files/' + 'catalogue_data_model_upload', 'zip', path)
         else:
             shutil.copyfile(data_model, os.path.abspath(os.path.join(self.path, 'molgenis.csv')))
 

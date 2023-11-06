@@ -68,6 +68,8 @@ public class MetadataUtils {
       field(name("visible"), VARCHAR.nullable(true));
   private static final Field<String[]> COLUMN_SEMANTICS =
       field(name("columnSemantics"), VARCHAR.nullable(true).getArrayType());
+  private static final Field<String[]> COLUMN_PROFILES =
+      field(name("columnProfiles"), VARCHAR.nullable(true).getArrayType());
   private static final Field<String> COLUMN_TYPE =
       field(name("columnType"), VARCHAR.nullable(false));
   private static final Field<Boolean> COLUMN_REQUIRED =
@@ -92,6 +94,8 @@ public class MetadataUtils {
       field(name("cascade"), BOOLEAN.nullable(true));
   private static final Field<Boolean> COLUMN_READONLY =
       field(name("readonly"), BOOLEAN.nullable(true));
+  private static final Field<String> COLUMN_DEFAULT =
+      field(name("defaultValue"), VARCHAR.nullable(true));
 
   // users
   private static final Field<String> USER_NAME = field(name("username"), VARCHAR);
@@ -190,7 +194,7 @@ public class MetadataUtils {
                 "DROP POLICY IF EXISTS {0} ON {1}",
                 name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
             jooq.execute(
-                "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},{3},'/Viewer'),'MEMBER'))",
+                "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},{3},'/Aggregator'),'MEMBER'))",
                 name(SCHEMA_METADATA.getName() + "_POLICY"),
                 SCHEMA_METADATA,
                 MG_ROLE_PREFIX,
@@ -266,7 +270,7 @@ public class MetadataUtils {
 
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
-    // we record the role name in as a column 'table_rls_manager' and 'table_rls_viewer' and use
+    // we record the role name in as a column 'table_rls_manager' and 'table_rls_aggregator' and use
     // this to enforce policy of being able to change vs view table.
     jooq.execute(
         "CREATE POLICY {0} ON {1} USING (pg_has_role(current_user, {2} || {3} || '/"
@@ -501,6 +505,8 @@ public class MetadataUtils {
             COLUMN_DESCRIPTION,
             COLUMN_READONLY,
             COLUMN_SEMANTICS,
+            COLUMN_DEFAULT,
+            COLUMN_PROFILES,
             COLUMN_VISIBLE)
         .values(
             column.getTable().getSchema().getName(),
@@ -523,6 +529,8 @@ public class MetadataUtils {
             column.getDescriptions(),
             column.isReadonly(),
             column.getSemantics(),
+            column.getDefaultValue(),
+            column.getProfiles(),
             column.getVisible())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
@@ -543,7 +551,9 @@ public class MetadataUtils {
         .set(COLUMN_DESCRIPTION, column.getDescriptions())
         .set(COLUMN_READONLY, column.isReadonly())
         .set(COLUMN_SEMANTICS, column.getSemantics())
+        .set(COLUMN_PROFILES, column.getProfiles())
         .set(COLUMN_VISIBLE, column.getVisible())
+        .set(COLUMN_DEFAULT, column.getDefaultValue())
         .execute();
   }
 
@@ -581,7 +591,9 @@ public class MetadataUtils {
     c.setCascadeDelete(col.get(COLUMN_CASCADE, Boolean.class));
     c.setReadonly(col.get(COLUMN_READONLY, Boolean.class));
     c.setSemantics(col.get(COLUMN_SEMANTICS, String[].class));
+    c.setProfiles(col.get(COLUMN_PROFILES, String[].class));
     c.setVisible(col.get(COLUMN_VISIBLE, String.class));
+    c.setDefaultValue(col.get(COLUMN_DEFAULT, String.class));
     return c;
   }
 

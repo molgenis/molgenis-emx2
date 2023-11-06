@@ -1,22 +1,32 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Files,,,,,,,,,,,http://purl.obolibrary.org/obo/STATO_0000002,"An electronic file is an information content entity which conforms to a specification or format and which is meant to hold data and information in digital form, accessible to software agents"
-Files,,identifier,string,1,TRUE,,,,,,http://purl.org/dc/elements/1.1/identifier,"Recommended practice is to identify the resource by means of a string conforming to an identification system. An unambiguous reference to the resource within a given context."
-Files,,md5checksum,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C171276,A 32-character hexadecimal number that is computed on a file.
-Files,,name,string,,TRUE,,,,,,http://edamontology.org/data_1050,The name (or part of a name) of a file (of any type).
-Files,,server,string,,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C48297,A computer which provides some service for other computers connected to it via a network.
-Files,,path,string,,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001927,A file path is an identifier for a file in a file system or network.
-Files,,format,ontology,,TRUE,,FileFormats,,,,http://purl.org/dc/terms/FileFormat,A digital resource format.
-Files,,analyses,ref_array,,,,Analyses,,,,http://edamontology.org/operation_2945,Beacon v2 Analyses
-Files,,biosamples,ref_array,,,,Biosamples,,,,http://purl.obolibrary.org/obo/NCIT_C43376,Beacon v2 Biosamples
-Files,,cohorts,ref_array,,,,Cohorts,,,,http://purl.obolibrary.org/obo/NCIT_C61512,Beacon v2 Cohorts
-Files,,individuals,ref_array,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C90492,Beacon v2 Individuals
-Files,,runs,ref_array,,,,SequencingRuns,,,,http://edamontology.org/topic_3168,Beacon v2 Runs
-Persons,,,,,,,,,,,http://semanticscience.org/resource/SIO_000498,"A person is an object that has certain capacities or attributes constituting personhood."
-Persons,,identifier,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C94034,"A unique symbol that establishes identity of the qualified person."
-Persons,,fullName,string,,,,,,,,http://semanticscience.org/resource/SIO_000183,"A personal name is a name to identify an individual person and usually comprises of a first name and a last name."
-Persons,,alternativeIdentifier,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,"A backup sequence of characters used to identify an entity."
-Persons,,firstName,string,,,,,,,,http://semanticscience.org/resource/SIO_000181,"A first name is a name that denotes a specific individual between members of a group of individuals, whose members usually share the same surname."
-Persons,,middleInitials,string,,,,,,,,http://semanticscience.org/resource/SIO_001317,"A middle name is a name assigned to an individual that is not the first or last name."
-Persons,,lastName,string,,,,,,,,http://semanticscience.org/resource/SIO_000182,"A last name (surname) is a name added to a given name and is part of a personal name and is often the family name."
-Persons,,email,email,,,,,,,,http://semanticscience.org/resource/SIO_001323,"An email address is an identifier to send mail to particular electronic mailbox."
-Persons,,primaryOrganisation,ontology,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,"A formal association between entities."
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Files,,,,,,,,,,,"http://purl.obolibrary.org/obo/STATO_0000002,http://purl.obolibrary.org/obo/NCIT_C42883","An electronic file is an information content entity which conforms to a specification or format and which is meant to hold data and information in digital form, accessible to software agents. In RD3: Individuals files stored in the sandbox environments. Files are linked to subjects, samples, and experiments, as well as with EGA accession number.","RD3, DCAT files add-on"
+Files,,identifier,string,1,TRUE,,,,,,http://purl.org/dc/elements/1.1/identifier,"Recommended practice is to identify the resource by means of a string conforming to an identification system. An unambiguous reference to the resource within a given context.","RD3, DCAT files add-on"
+Files,,md5checksum,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C171276,A 32-character hexadecimal number that is computed on a file.,"RD3, DCAT files add-on"
+Files,,name,string,,TRUE,,,,,,"http://edamontology.org/data_1050,http://purl.obolibrary.org/obo/NCIT_C171191","The name (or part of a name) of a file (of any type), i.e. the literal identifier for an electronic file.","RD3, DCAT files add-on"
+Files,,server,string,,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C48297,A computer which provides some service for other computers connected to it via a network.,"RD3, DCAT files add-on"
+Files,,path,string,,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001927,A file path is an identifier for a file in a file system or network.,"RD3, DCAT files add-on"
+Files,,format,ontology,,TRUE,,FileFormats,,,,"http://purl.org/dc/terms/FileFormat,http://purl.obolibrary.org/obo/NCIT_C171252","A digital resource format (e.g. BAM, FastQ, gVCF, phenopacket, BED)","Beacon v2 EMX2 add-on, RD3, DCAT files add-on"
+Files,,analyses,ref_array,,,,Analyses,,,,http://edamontology.org/operation_2945,Beacon v2 Analyses,Beacon v2 EMX2 add-on
+Files,,biosamples,ref_array,,,,Biosamples,,,,http://purl.obolibrary.org/obo/NCIT_C43376,Beacon v2 Biosamples,Beacon v2 EMX2 add-on
+Files,,cohorts,ref_array,,,,Cohorts,,,,http://purl.obolibrary.org/obo/NCIT_C61512,Beacon v2 Cohorts,Beacon v2 EMX2 add-on
+Files,,individuals,ref_array,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C90492,"One or more subject identifier associated with a file",Beacon v2 EMX2 add-on
+Files,,runs,ref_array,,,,Runs,,,,http://edamontology.org/topic_3168,Beacon v2 Runs,Beacon v2 EMX2 add-on
+Files,,EGA,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C171191,The literal identifier for an electronic file (EGA Accession number).,RD3
+Files,,sampleID,ref_array,,,,samples,,,,http://purl.obolibrary.org/obo/NCIT_C93400,One more more sample identifier associated with a file,RD3
+Files,,experimentID,ref,,,,labinfo,,,,http://purl.obolibrary.org/obo/NCIT_C171337,Identifier of the corresponding record in the labinfo table,RD3
+Files,,partOfRelease,ref_array,,,,datareleases,,,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more Solve-RD releases that indicate when the record was first introduced into RD3 or when it was updated.,RD3
+Files,,fenderFilePath,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C47922,The location of the file on Fender,RD3
+Files,,gearshiftFilePath,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C47922,The location of the file on Gearshift,RD3
+Files,,includedInStudies,ref_array,,,,studies,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the study or studies in which this person participates.,RD3
+Files,,includedInCohorts,ref_array,,,,Cohorts,,,,http://purl.obolibrary.org/obo/NCIT_C61512,"A group of individuals, identified by a common characteristic.",RD3
+Files,,includedInDatasets,ref_array,,,,datasets,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the dataset or datasets in which this person was assigned to.,RD3
+Files,,comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material.",RD3
+ContactPersons,,,,,,,,,,,"http://semanticscience.org/resource/SIO_000498,http://purl.obolibrary.org/obo/NCIT_C25461","A person is an object that has certain capacities or attributes constituting personhood. In RD3: researcher or contactperson involved in the study and/or affliated with organisation.","RD3, DCAT"
+ContactPersons,,identifier,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C94034,http://purl.obolibrary.org/obo/NCIT_C25364","A unique symbol that establishes identity of the qualified person.","RD3, DCAT"
+ContactPersons,,fullName,string,,,,,,,,"http://semanticscience.org/resource/SIO_000183,http://purl.obolibrary.org/obo/GSSO_001755","A personal name is a name to identify an individual person and usually comprises of a first name and a last name.","RD3, DCAT"
+ContactPersons,,alternativeIdentifier,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,"A backup sequence of characters used to identify an entity.","RD3, DCAT"
+ContactPersons,,firstName,string,,,,,,,,"http://semanticscience.org/resource/SIO_000181,http://purl.obolibrary.org/obo/NCIT_C40974","A first name is a name that denotes a specific individual between members of a group of individuals, whose members usually share the same surname.","RD3, DCAT"
+ContactPersons,,middleInitials,string,,,,,,,,"http://semanticscience.org/resource/SIO_001317,http://purl.obolibrary.org/obo/NCIT_C166237","A middle name is a name assigned to an individual that is not the first or last name.","RD3, DCAT"
+ContactPersons,,lastName,string,,,,,,,,"http://semanticscience.org/resource/SIO_000182,http://purl.obolibrary.org/obo/NCIT_C40975","A last name (surname) is a name added to a given name and is part of a personal name and is often the family name.","RD3, DCAT"
+ContactPersons,,email,email,,,,,,,,"http://semanticscience.org/resource/SIO_001323,http://purl.obolibrary.org/obo/NCIT_C42775","An email address is an identifier to send mail to particular electronic mailbox of a contact person or organization.","RD3, DCAT"
+ContactPersons,,primaryOrganisation,ontology,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,"The most significant institute associated to this person.","RD3, DCAT"

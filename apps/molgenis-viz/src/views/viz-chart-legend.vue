@@ -1,9 +1,9 @@
 <template>
   <Page>
     <PageHeader
-      title="RD-Components"
+      title="molgenis-viz"
       subtitle="Chart Legends"
-      :imageSrc="headerImage"
+      imageSrc="legend-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -54,8 +54,9 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { request } from "graphql-request";
+import gql from "graphql-tag";
 import { schemeGnBu } from "d3-scale-chromatic";
-import { fetchData } from "../utils/utils";
 
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
@@ -63,42 +64,38 @@ import PageSection from "../components/layouts/PageSection.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 import ChartLegend from "../components/viz/ChartLegend.vue";
 import Breadcrumbs from "../app-components/breadcrumbs.vue";
-import headerImage from "../assets/studio-media-unsplash.jpg";
 
 let loading = ref(false);
-let data = ref([]);
+let data = ref({});
 let error = ref(null);
 let selection = ref([]);
+
+async function getOrganisations() {
+  const query = gql`
+    {
+      Organisations {
+        organisationType
+      }
+    }
+  `;
+  const response = await request("../api/graphql", query);
+  const orgtypes = [
+    ...new Set(response.Organisations.map((row) => row.organisationType)),
+  ];
+  const scheme = schemeGnBu[orgtypes.length];
+  const colors = {};
+  orgtypes.forEach((key, index) => (colors[key] = scheme[index]));
+  data.value = colors;
+}
 
 function updateSelection(value) {
   selection.value = value;
 }
 
-const query = `{
-  Statistics (filter: { component: {name: {equals:"organisations.by.type"}}}) {
-    label
-    component {
-      name
-    }
-  }
-}`;
-
 onMounted(() => {
-  Promise.resolve(fetchData(query))
-    .then((response) => {
-      const stats = response.data.Statistics;
-      const groups = [...new Set(stats.map((row) => row.label))];
-      const scheme = schemeGnBu[groups.length];
-      const colors = {};
-      groups.forEach((key, index) => (colors[key] = scheme[index]));
-
-      data.value = colors;
-      loading.value = false;
-    })
-    .catch((error) => {
-      loading.value = false;
-      error.value = error;
-    });
+  getOrganisations()
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
 });
 </script>
 

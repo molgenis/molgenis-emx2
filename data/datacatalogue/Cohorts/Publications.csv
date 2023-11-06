@@ -1,3 +1,12 @@
-resource,doi,citation
-TestCohort,10.1093/ije/dys064,Boyd et al. (2013). Cohort Profile: the 'children of the 90s'--the index offspring of the Avon Longitudinal Study of Parents and Children. Int J Epidemiol.42(1):111-27.
-ALSPAC,10.1093/ije/dys064,Boyd et al. (2013). Cohort Profile: the 'children of the 90s'--the index offspring of the Avon Longitudinal Study of Parents and Children. Int J Epidemiol.42(1):111-27.
+doi,title,authors,year,journal,volume,number,pagination,publisher,school,abstract
+10.1093/ije/dyq128,,,,,,,,,,
+http://urn.fi/urn:nbn:fi:att:f5c10eef-3d25-4bd0-beb8-f2d59df95b8e,,,,,,,,,,
+10.1002/pds.4233,,,,,,,,,,
+10.1016/j.respe.2017.05.004,,,,,,,,,,
+10.3917/pos.403.0213,,,,,,,,,,
+10.1007/s10654-014-9930-3,,,,,,,,,,
+10.5324/nje.v18i2.23,,,,,,,,,,
+10.2147/CLEP.S91125,,,,,,,,,,
+10.1007/s10654-018-0356-1,,,,,,,,,,
+10.1093/ije/dyv098,,,,,,,,,,
+

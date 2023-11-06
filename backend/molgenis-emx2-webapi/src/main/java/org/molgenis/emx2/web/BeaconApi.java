@@ -134,7 +134,7 @@ public class BeaconApi {
 
   private static String getRuns(Request request, Response response) throws Exception {
     response.type(APPLICATION_JSON_MIME_TYPE);
-    List<Table> tables = getTableFromAllSchemas("SequencingRuns", request);
+    List<Table> tables = getTableFromAllSchemas("Runs", request);
     return getWriter().writeValueAsString(new Runs(request, tables));
   }
 
@@ -147,8 +147,9 @@ public class BeaconApi {
   static List<Table> getTableFromAllSchemas(String tableName, Request request) {
     List<Table> tables = new ArrayList<>();
     Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
+    Database database = sessionManager.getSession(request).getDatabase();
     for (String sn : schemaNames) {
-      Schema schema = sessionManager.getSession(request).getDatabase().getSchema(sn);
+      Schema schema = database.getSchema(sn);
       Table t = schema.getTable(tableName);
       if (t != null) {
         tables.add(t);

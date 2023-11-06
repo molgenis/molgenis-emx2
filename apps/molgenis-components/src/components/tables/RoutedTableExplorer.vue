@@ -3,6 +3,7 @@
     <TableExplorer
       :tableName="tableName"
       :schemaName="schemaName"
+      :canView="canView"
       :canEdit="canEdit"
       :canManage="canManage"
       @updateConditions="updateConditions"
@@ -60,6 +61,10 @@ export default {
     schemaName: {
       type: String,
       required: false,
+    },
+    canView: {
+      type: Boolean,
+      default: () => true,
     },
     canEdit: {
       type: Boolean,
@@ -247,7 +252,10 @@ export default {
      <label for="routed-table-explorer-can-edit">Can edit</label>
      <input class="ml-1" id='routed-table-explorer-can-edit' type="checkbox" v-model="canEdit" />
     </div>
-
+    <div>
+      <label for="routed-table-explorer-can-edit">Can view</label>
+      <input class="ml-1" id='routed-table-explorer-can-view' type="checkbox" v-model="canView" />
+    </div>
     <div>
      <label for="routed-table-explorer-schema">Schema</label>
      <input class="ml-1" id='routed-table-explorer-schema' v-model="schema" />
@@ -266,6 +274,7 @@ export default {
         :tableName="table"
         :schemaName="schema"
         :canEdit="canEdit"
+        :canView="canView"
       />
     </div>
   </div>
@@ -276,13 +285,14 @@ export default {
     data() {
       return {
         canEdit: false,
+        canView: false,
         schema: "pet store",
         table: "Pet"
       }
     },
     computed: {
       dynamicKey() {
-        return "my-table-explorer" + this.schema + "_" + this.table
+        return "my-table-explorer" + this.schema + "_" + this.table +"_"+this.canView
       },
      
     },
