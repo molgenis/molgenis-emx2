@@ -103,12 +103,8 @@ export default {
       type: String,
       required: true,
     },
-    /**
-     * Whether or not the buttons are show to edit the referenced table
-     *  */
     canEdit: {
       type: Boolean,
-      required: false,
       default: () => false,
     },
   },
@@ -173,7 +169,8 @@ export default {
 <docs>
 <template>
   <div>
-    You have to be have server running and be signed in for this to work
+    You have to be have server running and be signed in for this to work.
+    Note: this component is currently only used in the RefFilter. For inputting Ref entries in forms, InputRefList is used.
      <div class="border-bottom mb-3 p-2">
        <h5>synced demo props: </h5>
          <div>
