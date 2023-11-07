@@ -1,6 +1,5 @@
 import gql from "graphql-tag";
-import { deepClone } from "molgenis-components";
-import { renderSvg } from "nomnoml";
+import { deepClone, ITableMetaData, IColumn } from "molgenis-components";
 
 export const schemaQuery = gql`
   {
@@ -63,11 +62,7 @@ export function addOldNamesAndRemoveMeta(rawSchema: any) {
     //normal tables
     let tables = !schema.tables
       ? []
-      : schema.tables.filter(
-          (table) =>
-            table.tableType !== "ONTOLOGIES" &&
-            table.externalSchema === schema.name
-        );
+      : schema.tables.filter((table) => table.tableType !== "ONTOLOGIES");
     tables.forEach((t) => {
       t.oldName = t.name;
       if (t.columns) {
@@ -84,11 +79,7 @@ export function addOldNamesAndRemoveMeta(rawSchema: any) {
     });
     schema.ontologies = !schema.tables
       ? []
-      : schema.tables.filter(
-          (table) =>
-            table.tableType === "ONTOLOGIES" &&
-            table.externalSchema === schema.name
-        );
+      : schema.tables.filter((table) => table.tableType === "ONTOLOGIES");
     //set old name so we can delete them properly
     schema.ontologies.forEach((o) => {
       o.oldName = o.name;
@@ -137,4 +128,63 @@ export function getSubclassTables(schema, tableName) {
       })
       .flat(1)
   );
+}
+
+export function convertToCamelCase(string: string): string {
+  const words = string.trim().split(/\s+/);
+  let result = "";
+  words.forEach((word: string, index: number) => {
+    if (index === 0) {
+      result += word.charAt(0).toLowerCase();
+    } else {
+      result += word.charAt(0).toUpperCase();
+    }
+    if (word.length > 1) {
+      result += word.slice(1);
+    }
+  });
+  return result;
+}
+
+export function convertToPascalCase(string: string): string {
+  const words = string.trim().split(/\s+/);
+  let result = "";
+  words.forEach((word: string) => {
+    result += word.charAt(0).toUpperCase();
+    if (word.length > 1) {
+      result += word.slice(1);
+    }
+  });
+  return result;
+}
+
+export function getLocalizedLabel(
+  tableOrColumnMetadata: ITableMetaData | IColumn,
+  locale?: string
+): string {
+  let label;
+  if (tableOrColumnMetadata?.labels) {
+    label = tableOrColumnMetadata.labels.find(
+      (el) => el.locale === locale
+    )?.value;
+    if (!label) {
+      label = tableOrColumnMetadata.labels.find(
+        (el) => el.locale === "en"
+      )?.value;
+    }
+  }
+  if (!label) {
+    label = tableOrColumnMetadata.name;
+  }
+  return label;
+}
+
+export function getLocalizedDescription(
+  tableOrColumnMetadata: ITableMetaData | IColumn,
+  locale: string
+): string | undefined {
+  if (tableOrColumnMetadata.descriptions) {
+    return tableOrColumnMetadata.descriptions.find((el) => el.locale === locale)
+      ?.value;
+  }
 }

@@ -224,8 +224,8 @@
             id="form-edit"
             v-model="previewData"
             :schemaMetaData="schema"
-            :tableMetaData="table"
-            :tableName="table.name"
+            :tableMetaData="tableWithIdsLabelsAndDescriptions"
+            :tableId="tableWithIdsLabelsAndDescriptions.id"
             :key="JSON.stringify(table)"
             :applyDefaultValues="true"
             :errorPerColumn="rowErrors"
@@ -279,6 +279,12 @@ import {
   getRowErrors,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
+import {
+  getLocalizedDescription,
+  getLocalizedLabel,
+  convertToPascalCase,
+  convertToCamelCase,
+} from "../utils";
 
 const AUTO_ID = "AUTO_ID";
 
@@ -377,6 +383,20 @@ export default {
       } else {
         table.columns[index] = this.column;
       }
+      return table;
+    },
+    //tableMetadata with the ids, labels, descriptions added (duplication of conversions normally done server side)
+    tableWithIdsLabelsAndDescriptions() {
+      const table = deepClone(this.originalTable);
+      table.id = convertToPascalCase(table.name);
+      table.label = getLocalizedLabel(table);
+      table.description = getLocalizedDescription(table);
+      table.columns = table.columns.map((column) => {
+        column.id = convertToCamelCase(column.name);
+        column.label = getLocalizedLabel(column);
+        column.description = getLocalizedDescription(column);
+        return column;
+      });
       return table;
     },
     //listing of related subclasses, used to indicate if column is part of subclass
