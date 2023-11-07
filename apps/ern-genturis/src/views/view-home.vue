@@ -4,7 +4,7 @@
       class="genturis-header"
       title="ERN Genturis Registry"
       subtitle="Registry for Genetic Tumour Risk Syndromes"
-      :imageSrc="GenturisHeaderPhoto"
+      imageSrc="genturis-carousel.jpg"
       titlePositionX="center"
       titlePositionY="center"
     />
