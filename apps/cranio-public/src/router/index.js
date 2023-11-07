@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 
 import CranioHome from "../views/view-home.vue";
 import AboutPage from "../views/view-about.vue";
+import DocumentsPage from "../views/view-documents.vue";
 import PublicDashboardPage from "../views/view-public-dashboard.vue";
 import ProvidersPage from "../views/view-providers.vue";
 
@@ -22,6 +23,15 @@ const router = createRouter({
       meta: {
         title: "About",
         breadcrumbs: [{ name: "about", label: "About" }],
+      },
+    },
+    {
+      name: "documents",
+      path: "/documents",
+      component: DocumentsPage,
+      meta: {
+        tile: "Documents",
+        breadcrumbs: [{ name: "documents", label: "Dashboard" }],
       },
     },
     {

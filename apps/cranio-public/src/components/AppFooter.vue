@@ -12,6 +12,9 @@
               <router-link :to="{ name: 'about' }"> About </router-link>
             </li>
             <li>
+              <router-link :to="{ name: 'documents' }"> Documents </router-link>
+            </li>
+            <li>
               <router-link :to="{ name: 'dashboard' }"> Dashboard </router-link>
             </li>
           </UnorderedList>
