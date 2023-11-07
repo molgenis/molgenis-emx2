@@ -1,4 +1,4 @@
-import { IColumn } from "interfaces/types";
+import type { IColumn } from "~~/interfaces/types";
 
 export const fieldTypes = () => {
   return [

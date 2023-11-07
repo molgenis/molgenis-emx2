@@ -103,7 +103,7 @@ function setData() {
 
 <template>
   <ContentBlock :title="title" :description="description">
-    <DefinitionList
+    <CatalogueItemList
       :items="generalDesign.filter((item) => item.content !== undefined)"
     />
   </ContentBlock>

@@ -5,11 +5,14 @@ import static spark.Spark.get;
 
 import java.io.*;
 import java.util.Collection;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.semantics.RDFService;
+import org.molgenis.emx2.rdf.RDFService;
 import spark.Request;
 import spark.Response;
+import spark.utils.StringUtils;
 
 public class RDFApi {
   public static final String FORMAT = "format";
@@ -24,6 +27,8 @@ public class RDFApi {
     get(RDF_API_LOCATION, RDFApi::rdfForDatabase);
     final String schemaPath = "/:schema" + RDF_API_LOCATION;
     get(schemaPath, RDFApi::rdfForSchema);
+    // FIXME: rdfForTable also handles requests for a specific row if there is a composite key
+    // TODO: probably best to merge these two methods and always use query string to encode the row
     get(schemaPath + "/:table", RDFApi::rdfForTable);
     get(schemaPath + "/:table/:row", RDFApi::rdfForRow);
     get(schemaPath + "/:table/column/:column", RDFApi::rdfForColumn);
@@ -33,15 +38,20 @@ public class RDFApi {
     Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
-    for (int i = 0; i < schemas.length; i++) {
-      schemas[i] = (sessionManager.getSession(request).getDatabase().getSchema(schemaNamesArr[i]));
-    }
 
-    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    Database db = sessionManager.getSession(request).getDatabase();
+    final String baseURL = extractBaseURL(request);
+    final RDFService rdf = new RDFService(request.url(), baseURL, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
-
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, schemas);
+    db.tx(
+        database -> {
+          for (int i = 0; i < schemas.length; i++) {
+            schemas[i] = (db.getSchema(schemaNamesArr[i]));
+          }
+          rdf.describeAsRDF(outputStream, null, null, null, schemas);
+        });
+
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -49,12 +59,15 @@ public class RDFApi {
 
   private static int rdfForSchema(Request request, Response response) throws IOException {
     Schema schema = getSchema(request);
-
-    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    if (schema == null) {
+      throw new MolgenisException("Schema " + request.params("schema") + " was not found");
+    }
+    final String baseURL = extractBaseURL(request);
+    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, null, null, null, schema);
+    rdf.describeAsRDF(outputStream, null, null, null, schema);
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -62,12 +75,16 @@ public class RDFApi {
 
   private static int rdfForTable(Request request, Response response) throws IOException {
     Table table = getTable(request);
-
-    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    String rowId = null;
+    if (request.queryString() != null && !request.queryString().isBlank()) {
+      rowId = request.queryString();
+    }
+    final String baseURL = extractBaseURL(request);
+    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, null, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, table, rowId, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -77,11 +94,12 @@ public class RDFApi {
     Table table = getTable(request);
     String rowId = sanitize(request.params("row"));
 
-    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    final String baseURL = extractBaseURL(request);
+    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, rowId, null, table.getSchema());
+    rdf.describeAsRDF(outputStream, table, rowId, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;
@@ -91,13 +109,22 @@ public class RDFApi {
     Table table = getTable(request);
     String columnName = sanitize(request.params("column"));
 
-    RDFService rdf = new RDFService(request.url(), request.queryParams(FORMAT));
+    final String baseURL = extractBaseURL(request);
+    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, request.queryParams(FORMAT));
     response.type(rdf.getMimeType());
 
     OutputStream outputStream = response.raw().getOutputStream();
-    rdf.describeAsRDF(outputStream, RDF_API_LOCATION, table, null, columnName, table.getSchema());
+    rdf.describeAsRDF(outputStream, table, null, columnName, table.getSchema());
     outputStream.flush();
     outputStream.close();
     return 200;
+  }
+
+  private static String extractBaseURL(Request request) {
+    // NOTE: The request.host() already includes the server port!
+    return request.scheme()
+        + "://"
+        + request.host()
+        + (StringUtils.isNotEmpty(request.servletPath()) ? "/" + request.servletPath() + "/" : "/");
   }
 }

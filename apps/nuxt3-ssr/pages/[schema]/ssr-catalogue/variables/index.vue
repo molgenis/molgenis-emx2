@@ -60,6 +60,15 @@ const query = computed(() => {
   query Variables($filter:VariablesFilter, $orderby:Variablesorderby){
     Variables(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       name
+      resource {
+        id
+      }
+      dataset {
+        name
+        resource {
+          id
+        }
+      }
       label
       description
       mappings {
@@ -117,8 +126,14 @@ const query = computed(() => {
 });
 
 const orderby = { label: "ASC" };
+const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
 
-const filter = computed(() => buildQueryFilter(filters, search.value));
+const filter = computed(() => {
+  return {
+    ...buildQueryFilter(filters, search.value),
+    ...typeFilter,
+  };
+});
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
@@ -140,7 +155,7 @@ watch(filters, () => {
   setCurrentPage(1);
 });
 
-let activeName = ref("harmonization");
+let activeName = ref("list");
 let pageIcon = computed(() => {
   switch (activeName.value) {
     case "list":

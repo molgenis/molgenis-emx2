@@ -5,7 +5,6 @@ import static org.molgenis.emx2.graphgenome.Formatting.formatNodeId;
 import static org.molgenis.emx2.graphgenome.Formatting.shorten;
 import static org.molgenis.emx2.graphgenome.RetrieveRefSeq.getDnaFromUCSC;
 import static org.molgenis.emx2.graphgenome.Semantics.*;
-import static org.molgenis.emx2.semantics.rdf.RootToRDF.describeRoot;
 
 import java.io.OutputStream;
 import java.util.*;
@@ -14,11 +13,13 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.*;
-import org.molgenis.emx2.semantics.RDFService;
-import spark.Request;
-import spark.Response;
+import org.molgenis.emx2.rdf.RDFService;
 
-public class GraphGenome {
+public class GraphGenome extends RDFService {
+
+  public GraphGenome(String baseURL, String rdfAPIpath, String format) {
+    super(baseURL, rdfAPIpath, format);
+  }
 
   public static final int DNA_PADDING = 10;
   public static final String REFERENCE = "REF";
@@ -28,16 +29,13 @@ public class GraphGenome {
   /** Construct graph genome based on Beacon v2 variants and output as RDF */
   public void graphGenomeAsRDF(
       OutputStream outputStream,
-      Request request,
-      Response response,
+      String gene,
+      String assembly,
+      String ucscgenome,
       String graphGenomeApiLocation,
       List<Table> tables,
       boolean offlineMode) {
     try {
-      String gene = request.queryParams("gene");
-      String assembly = request.queryParams("assembly");
-      String ucscgenome = request.queryParams("ucscgenome");
-
       if (gene == null || gene.isEmpty()) {
         throw new Exception(
             "Must supply request parameter: HGNC gene name (e.g. COL7A1, so /api/graphgenome?gene=COL7A1&assembly=GRCh37&ucscgenome=hg19");
@@ -111,11 +109,11 @@ public class GraphGenome {
       sortedVariants.sort(new SortByPosition());
 
       // prep RDF export
-      RDFService rdfService = new RDFService(request.url(), request.queryParams("format"));
-      String apiContext = rdfService.getHost() + graphGenomeApiLocation;
+      String apiContext = getBaseURL() + graphGenomeApiLocation;
       ModelBuilder builder = new ModelBuilder();
-      describeRoot(builder, rdfService.getHost());
-      host = rdfService.getHost();
+      // todo, can this be done in superclass so describe root doesn't need to be public
+      describeRoot(builder);
+      host = getBaseURL();
 
       String apiContextGene =
           addGeneNode(
@@ -253,8 +251,7 @@ public class GraphGenome {
           upstreamVariantAltNodes,
           refSeq);
 
-      Rio.write(builder.build(), outputStream, rdfService.getRdfFormat(), rdfService.getConfig());
-
+      Rio.write(builder.build(), outputStream, getRdfFormat(), getConfig());
     } catch (Exception e) {
       throw new MolgenisException("Graph genome export failed due to an exception", e);
     }
@@ -263,10 +260,13 @@ public class GraphGenome {
   /** Overload with default FALSE for offline mode */
   public void graphGenomeAsRDF(
       OutputStream outputStream,
-      Request request,
-      Response response,
+      String gene,
+      String assembly,
+      String ucscgenome,
       String graphGenomeApiLocation,
       List<Table> tables) {
-    this.graphGenomeAsRDF(outputStream, request, response, graphGenomeApiLocation, tables, false);
+
+    this.graphGenomeAsRDF(
+        outputStream, gene, assembly, ucscgenome, graphGenomeApiLocation, tables, false);
   }
 }

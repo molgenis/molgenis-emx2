@@ -1,12 +1,9 @@
 import { StorageSerializers, useSessionStorage } from "@vueuse/core";
 
-import { IColumn, ISchemaMetaData, ITableMetaData } from "~/interfaces/types";
-import query from "~~/gql/metadata";
+import { ISchemaMetaData } from "~/interfaces/types";
+import metadataGql from "~~/gql/metadata";
 
-if (query.loc?.source.body === undefined) {
-  throw "unable to load query: " + query.toString();
-}
-const queryValue = query.loc?.source.body;
+const query = moduleToString(metadataGql);
 
 export default async (schemaName: string): Promise<ISchemaMetaData> => {
   const config = useRuntimeConfig();
@@ -21,7 +18,7 @@ export default async (schemaName: string): Promise<ISchemaMetaData> => {
       method: "POST",
       baseURL: config.public.apiBase,
       body: {
-        query: queryValue,
+        query,
       },
     });
 
