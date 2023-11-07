@@ -52,7 +52,6 @@
               :options="['Viewer', 'Editor', 'Manager']"
             />
           </div>
-          <!-- <IconDanger icon="trash" @click="items.splice(key, 1)" /> -->
           <IconDanger icon="trash" @click="$emit('delete', element.key)" />
         </form>
         <MenuManager

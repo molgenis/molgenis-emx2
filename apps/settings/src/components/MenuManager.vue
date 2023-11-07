@@ -110,7 +110,7 @@ export default {
       this.updateKey();
     },
     deleteItem(value) {
-      this.draft = this.draft.filter(item => item.key !== value);
+      this.draft = this.draft.filter((item) => item.key !== value);
     },
     updateKey() {
       this.key = Math.random().toString(36).substring(7);
