@@ -8,9 +8,15 @@ module.exports = {
     target: `${HOST}/${SCHEMA}`,
     ...opts,
   },
+  "^/apps/central/graphql$": {
+    target: `${HOST}`,
+    changeOrigin: true,
+    secure: false,
+  },
   "^/.*/graphql$": {
     target: `${HOST}/${SCHEMA}`,
-    ...opts,
+    changeOrigin: true,
+    secure: false,
   },
   "/apps/central/theme.css": {
     target: `${HOST}/${SCHEMA}`,
