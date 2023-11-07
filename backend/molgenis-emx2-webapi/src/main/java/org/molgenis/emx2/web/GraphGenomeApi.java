@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
+import spark.utils.StringUtils;
 
 public class GraphGenomeApi {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
@@ -30,8 +31,15 @@ public class GraphGenomeApi {
     String gene = request.queryParams("gene");
     String assembly = request.queryParams("assembly");
     String ucscgenome = request.queryParams("ucscgenome");
-
-    new GraphGenome(request.url(), format)
+    String baseURL =
+        request.scheme()
+            + "://"
+            + request.host()
+            + (request.port() > 0 ? ":" + request.port() : "")
+            + (StringUtils.isNotEmpty(request.servletPath())
+                ? "/" + request.servletPath() + "/"
+                : "/");
+    new GraphGenome(baseURL, RDFApi.RDF_API_LOCATION, format)
         .graphGenomeAsRDF(
             outputStream, gene, assembly, ucscgenome, GRAPH_GENOME_API_LOCATION, tables);
     outputStream.flush();
