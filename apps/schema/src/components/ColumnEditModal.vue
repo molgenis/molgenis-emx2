@@ -223,7 +223,7 @@
           <RowEdit
             id="form-edit"
             v-model="previewData"
-            :schemaMetaData="schema"
+            :schemaMetaData="schemaWithIdsLabelsAndDescriptions"
             :tableMetaData="tableWithIdsLabelsAndDescriptions"
             :tableId="tableWithIdsLabelsAndDescriptions.id"
             :key="JSON.stringify(table)"
@@ -284,6 +284,7 @@ import {
   getLocalizedLabel,
   convertToPascalCase,
   convertToCamelCase,
+  addTableIdsLabelsDescription,
 } from "../utils";
 
 const AUTO_ID = "AUTO_ID";
@@ -387,21 +388,16 @@ export default {
     },
     //tableMetadata with the ids, labels, descriptions added (duplication of conversions normally done server side)
     tableWithIdsLabelsAndDescriptions() {
-      const table = deepClone(this.originalTable);
-      table.id = convertToPascalCase(table.name);
-      table.label = getLocalizedLabel(table);
-      table.description = getLocalizedDescription(table);
-      table.columns = table.columns.map((column) => {
-        column.id = convertToCamelCase(column.name);
-        column.label = getLocalizedLabel(column, "en");
-        column.description = getLocalizedDescription(column, "en");
-        column.refTableId = convertToPascalCase(column.refTableName);
-        column.refLinkId = convertToCamelCase(column.refLinkName);
-        column.refSchemaId = column.refTableName; //todo, might change later
-        column.refBackId = convertToCamelCase(column.refBackName);
-        return column;
+      return addTableIdsLabelsDescription(deepClone(this.originalTable));
+    },
+    //schema metadata with ids
+    schemaWithIdsLabelsAndDescriptions() {
+      const schema = deepClone(this.schema);
+      schema.id = schema.name;
+      schema.tables = schema.tables.map((table) => {
+        return addTableIdsLabelsDescription(table);
       });
-      return table;
+      return schema;
     },
     //listing of related subclasses, used to indicate if column is part of subclass
     subclassNames() {
