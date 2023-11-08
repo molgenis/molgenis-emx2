@@ -498,7 +498,6 @@ export default {
   async mounted() {
     if (this.tableId) {
       const client = Client.newClient(this.schemaId);
-      this.data = (
       this.data = await client.fetchOntologyOptions(this.tableId);
     }
   },

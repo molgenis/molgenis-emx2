@@ -151,7 +151,7 @@ const client: IClient = {
         return convertRowToPrimaryKey(row, tableId, schemaId);
       },
       fetchOntologyOptions: async (tableName: string) => {
-        return fetchOntologyOptions(tableName, schemaName);
+        return fetchOntologyOptions(tableName, schemaId);
       },
     };
   },
