@@ -499,8 +499,7 @@ export default {
     if (this.tableId) {
       const client = Client.newClient(this.schemaId);
       this.data = (
-        await client.fetchTableData(this.tableId, { limit: this.limit || 20 })
-      )[this.tableId];
+      this.data = await client.fetchOntologyOptions(this.tableId);
     }
   },
   created() {

@@ -232,7 +232,6 @@ export default {
       const query = schemaQuery;
       request("graphql", query)
         .then((data) => {
-          console.log(data);
           this.rawSchema = addOldNamesAndRemoveMeta(data._schema);
           this.schema = convertToSubclassTables(this.rawSchema);
           this.schemaNames = data._session.schemas;

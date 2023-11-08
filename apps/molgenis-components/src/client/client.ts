@@ -150,6 +150,9 @@ const client: IClient = {
       convertRowToPrimaryKey: async (row: IRow, tableId: string) => {
         return convertRowToPrimaryKey(row, tableId, schemaId);
       },
+      fetchOntologyOptions: async (tableName: string) => {
+        return fetchOntologyOptions(tableName, schemaName);
+      },
     };
   },
 };
@@ -290,6 +293,33 @@ const fetchTableData = async (
       throw error;
     });
   return resp?.data.data;
+};
+
+const fetchOntologyOptions = async (
+  tableId: string,
+  schemaId: string | undefined
+) => {
+  const tableDataQuery = `query ${tableId} {
+        ${tableId}(
+          limit:100000
+          )
+          {
+          	order 
+            name 
+            label 
+            parent { order name label } 
+            children { order name label parent { name } } 
+          }
+        }`;
+  const resp = await axios
+    .post(graphqlURL(schemaId), {
+      query: tableDataQuery,
+    })
+    .catch((error: AxiosError) => {
+      console.log(error);
+      throw error;
+    });
+  return resp?.data.data[tableId];
 };
 
 const fetchSettings = async (schemaId?: string) => {
