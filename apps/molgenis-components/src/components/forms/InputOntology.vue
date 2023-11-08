@@ -502,9 +502,7 @@ export default {
   async mounted() {
     if (this.tableName) {
       const client = Client.newClient(this.schemaName);
-      this.data = (
-        await client.fetchTableData(this.tableName, { limit: this.limit || 20 })
-      )[this.tableId];
+      this.data = await client.fetchOntologyOptions(this.tableName);
     }
   },
   created() {
