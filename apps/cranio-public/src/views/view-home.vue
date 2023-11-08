@@ -6,7 +6,7 @@
       subtitle="ERN for rare complex craniofacial anomalies and ear, nose and throat (ENT) disorders"
       imageSrc="banner-diagnoses.jpg"
     />
-    <PageSection aria-labelledby="welcome-section-title" :verticalPadding="3">
+    <PageSection aria-labelledby="welcome-section-title" :verticalPadding="2">
       <h2 id="welcome-section-title">Welcome to ERN CRANIO Registry</h2>
       <p>
         <strong>ERN CRANIO</strong> is establishing a European-wide registry to
@@ -21,8 +21,8 @@
     </PageSection>
     <PageSection
       aria-labelledby="quicklinks-card-title"
-      :verticalPadding="3"
-      class="section-bg-light-blue"
+      :verticalPadding="2"
+      class="bg-blue-050"
     >
       <h2 class="visually-hidden" id="quicklinks-card-title">quick links</h2>
       <div class="quicklink-cards">
@@ -55,8 +55,8 @@
       <p>
         In case of any questions regarding the ERN CRANIO registry, please send
         us an email.
-        <a href="mailto:ern-cranio@erasmusmc.nl" class="button-link"
-          >Contact Us</a
+        <a href="mailto:ern-cranio@erasmusmc.nl" class="button-link">
+          Contact Us </a
         >.
       </p>
     </PageSection>

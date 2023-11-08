@@ -15,7 +15,7 @@
         the list below, you can view the dashboards that you have access to.
       </p>
     </PageSection>
-    <PageSection class="section-bg-light-blue" :verticalPadding="2">
+    <PageSection class="bg-blue-050" :verticalPadding="2">
       <h2>View Providers</h2>
       <MessageBox type="error" v-if="error">
         <p>Unable to retrieve data {{ error }}</p>
