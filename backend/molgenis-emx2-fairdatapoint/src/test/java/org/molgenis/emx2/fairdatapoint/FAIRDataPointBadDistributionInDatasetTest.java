@@ -30,7 +30,6 @@ public class FAIRDataPointBadDistributionInDatasetTest {
   static Schema fairDataHub_baddistribution;
 
   @BeforeAll
-  @Disabled
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     fairDataHub_baddistribution = database.dropCreateSchema("fairDataHub_baddistribution");
