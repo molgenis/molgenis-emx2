@@ -67,7 +67,7 @@
 <script setup>
 import { ref } from "vue";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
-import { DashboardBox, PieChart2, ColumnChart, InputLabel } from "molgenis-viz";
+import { DashboardBox, ColumnChart, InputLabel } from "molgenis-viz";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
