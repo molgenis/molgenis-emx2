@@ -311,7 +311,6 @@ const fetchTableData = async (
 
   const filter = properties.filter ? properties.filter : {};
   const orderby = properties.orderby ? properties.orderby : {};
-  console.log(tableDataQuery);
   const resp = await axios
     .post(graphqlURL(schemaName), {
       query: tableDataQuery,
