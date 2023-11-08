@@ -393,8 +393,12 @@ export default {
       table.description = getLocalizedDescription(table);
       table.columns = table.columns.map((column) => {
         column.id = convertToCamelCase(column.name);
-        column.label = getLocalizedLabel(column);
-        column.description = getLocalizedDescription(column);
+        column.label = getLocalizedLabel(column, "en");
+        column.description = getLocalizedDescription(column, "en");
+        column.refTableId = convertToPascalCase(column.refTableName);
+        column.refLinkId = convertToCamelCase(column.refLinkName);
+        column.refSchemaId = column.refTableName; //todo, might change later
+        column.refBackId = convertToCamelCase(column.refBackName);
         return column;
       });
       return table;

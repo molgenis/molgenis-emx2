@@ -11,6 +11,7 @@ export const schemaQuery = gql`
       name
       tables {
         name
+        schemaName
         tableType
         inheritName
         labels {
@@ -79,7 +80,10 @@ export function addOldNamesAndRemoveMeta(rawSchema: any) {
     });
     schema.ontologies = !schema.tables
       ? []
-      : schema.tables.filter((table) => table.tableType === "ONTOLOGIES");
+      : schema.tables.filter(
+          (table) =>
+            table.tableType === "ONTOLOGIES" && table.schemaName === schema.name
+        );
     //set old name so we can delete them properly
     schema.ontologies.forEach((o) => {
       o.oldName = o.name;
@@ -96,7 +100,7 @@ export function convertToSubclassTables(rawSchema: any) {
   //columns of subclasses should be put in root tables, sorted by position
   // this because position can only edited in context of root table
   schema.tables.forEach((table) => {
-    if (table.inherit === undefined) {
+    if (table.inheritName === undefined) {
       getSubclassTables(schema, table.name).forEach((subclass) => {
         //get columns from subclass tables
         table.columns.push(...subclass.columns);
@@ -120,7 +124,9 @@ export function convertToSubclassTables(rawSchema: any) {
 }
 
 export function getSubclassTables(schema, tableName) {
-  let subclasses = schema.tables.filter((table) => table.inherit === tableName);
+  let subclasses = schema.tables.filter(
+    (table) => table.inheritName === tableName
+  );
   return subclasses.concat(
     subclasses
       .map((table) => {
@@ -131,6 +137,7 @@ export function getSubclassTables(schema, tableName) {
 }
 
 export function convertToCamelCase(string: string): string {
+  if (!string) return string;
   const words = string.trim().split(/\s+/);
   let result = "";
   words.forEach((word: string, index: number) => {
@@ -147,6 +154,7 @@ export function convertToCamelCase(string: string): string {
 }
 
 export function convertToPascalCase(string: string): string {
+  if (!string) return string;
   const words = string.trim().split(/\s+/);
   let result = "";
   words.forEach((word: string) => {

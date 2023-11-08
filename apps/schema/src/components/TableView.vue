@@ -36,11 +36,7 @@
           />
           <a
             class="hoverIcon"
-            :href="'#'"
-            v-scroll-to="{
-              el: '#molgenis_tables_container',
-              offset: -200,
-            }"
+            :href="'#' + (table.name ? table.name.replaceAll(' ', '_') : '')"
           >
             scroll to top
           </a>
