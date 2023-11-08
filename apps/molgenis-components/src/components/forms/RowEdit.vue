@@ -256,12 +256,7 @@ export default {
   },
   created() {
     this.tableMetaData.columns.forEach((column: IColumn) => {
-      //mg_tableclass filter to correct for a backend bug before v9.3.3
-      if (
-        column.defaultValue &&
-        !column.id == "mg_tableclass" &&
-        !this.internalValues[column.id]
-      ) {
+      if (column.defaultValue && !this.internalValues[column.id]) {
         this.internalValues[column.id] = column.defaultValue;
       }
     });
