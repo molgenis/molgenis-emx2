@@ -1,6 +1,8 @@
 <template>
   <ProviderDashboard>
-    <h2 class="dashboard-h2">Overview "level 1" outcomes</h2>
+    <h2 class="dashboard-h2 mb-4">
+      Overview of patients {{ ageGroupFilter }} years old (n={{ totalCases }})
+    </h2>
     <DashboardBox class="mb-4">
       <h3>Options</h3>
       <InputLabel
@@ -20,9 +22,6 @@
         <option value="18+">18+ years</option>
       </select>
     </DashboardBox>
-    <h3 class="dashboard-h3">
-      Overview of patients {{ ageGroupFilter }} years old (n={{ totalCases }})
-    </h3>
     <DashboardChartLayout :columns="1">
       <DashboardBox
         id="clp-outcome-cleft-q"

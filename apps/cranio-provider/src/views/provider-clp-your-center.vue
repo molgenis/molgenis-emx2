@@ -1,6 +1,8 @@
 <template>
   <ProviderDashboard>
-    <h2 class="dashboard-h2">Overview for your center</h2>
+    <h2 class="dashboard-h2 mb-4">
+      Overview of patients {{ ageGroupFilter }} years old (n={{ totalCases }})
+    </h2>
     <DashboardBox class="mb-4">
       <h3>Options</h3>
       <InputLabel
@@ -20,9 +22,6 @@
         <option value="18+">18+ years</option>
       </select>
     </DashboardBox>
-    <h3 class="dashboard-h3">
-      Overview of patients {{ ageGroupFilter }} years old (n={{ totalCases }})
-    </h3>
     <DashboardChartLayout :columns="2">
       <DashboardBox id="clp-patients-by-phenotype">
         <ColumnChart
@@ -124,7 +123,11 @@ function setPatientsByGender() {
   const data = groups
     .map((type, i) => {
       const value =
-        i === groups.length - 1 ? currentTotal : randomInt(1, currentTotal)();
+        i === groups.length - 1
+          ? currentTotal
+          : i === 0
+          ? Math.round(currentTotal * 0.35)
+          : randomInt(1, currentTotal)();
       const row = [type, value];
       currentTotal -= value;
       return row;

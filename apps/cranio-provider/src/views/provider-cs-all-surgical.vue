@@ -11,7 +11,7 @@
           :chartData="typeOfSurgery"
           xvar="type"
           yvar="count"
-          :yTickValues="[0,25,50,75,100]"
+          :yTickValues="[0, 25, 50, 75, 100]"
           :yMax="100"
           :columnColorPalette="surgeryTypeColors"
           xAxisLineBreaker=" "
@@ -141,15 +141,20 @@ const surgicalInterventionColors = generateColors(
 );
 
 function setTypeOfSurgery() {
-  const types = ["Extracranial procedures", "Hydrocephalus", "Midface", "Vault"];
-  surgeryTypeColors.value = generateColors(types)
+  const types = [
+    "Extracranial procedures",
+    "Hydrocephalus",
+    "Midface",
+    "Vault",
+  ];
+  surgeryTypeColors.value = generateColors(types);
   typeOfSurgery.value = types.map((type) => {
-    return { type: type, count: randomInt(1, 100)() }
-  })
+    return { type: type, count: randomInt(1, 100)() };
+  });
 
   totalCases.value = typeOfSurgery.value
     .map((row) => row.count)
-    .reduce((sum, value) => sum + value, 0); 
+    .reduce((sum, value) => sum + value, 0);
 }
 
 function setSurgicalComplications(total) {
@@ -177,13 +182,15 @@ function updateSurgicalComplications(value) {
 function setSurgicalInterventions() {
   const types = Object.keys(surgicalInterventions.value);
   let currentTotal = totalCases.value;
-  const data = types.map((type, i) => {
-    const randomValue =
-      i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
-    const row = [type, randomValue];
-    currentTotal -= randomValue;
-    return row;
-  });
+  const data = types
+    .map((type, i) => {
+      const randomValue =
+        i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
+      const row = [type, randomValue];
+      currentTotal -= randomValue;
+      return row;
+    })
+    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
   surgicalInterventions.value = Object.fromEntries(data);
 }
 
@@ -201,7 +208,7 @@ function setAgeAtFirstSurgery() {
 }
 
 function onDiagnosisInput() {
-  setSurgicalInterventions(totalCases.value);
+  setSurgicalInterventions();
   setAgeAtFirstSurgery();
 }
 

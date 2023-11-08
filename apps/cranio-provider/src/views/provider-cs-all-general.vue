@@ -39,12 +39,12 @@
           xvar="category"
           yvar="count"
           :yMax="50"
-          :yTickValues="[0,10,20,30,40,50]"
+          :yTickValues="[0, 10, 20, 30, 40, 50]"
           :columnColorPalette="colors.affectedSuture"
           :chartHeight="275"
           :enableClicks="true"
           @column-clicked="updateSutureTypes"
-          :chartMargins="{top: 20, right: 10, bottom: 85, left: 60}"
+          :chartMargins="{ top: 20, right: 10, bottom: 85, left: 60 }"
         />
       </DashboardBox>
       <DashboardBox v-if="showSutureTypes">
@@ -57,7 +57,7 @@
           yvar="count"
           :columnColorPalette="colors.sutureType"
           :chartHeight="275"
-          :chartMargins="{top: 20, right: 10, bottom: 85, left: 60}"
+          :chartMargins="{ top: 20, right: 10, bottom: 85, left: 60 }"
         />
       </DashboardBox>
     </DashboardChartLayout>
@@ -133,7 +133,7 @@ function setAffectedSuture() {
     "Sagittal",
     "Unicoronal",
     "Unilambdoid",
-  ]
+  ];
   colors.value.affectedSuture = generateColors(types);
   affectedSuture.value = types.map((category) => {
     return { category: category, count: randomInt(10, 50)() };
@@ -147,7 +147,7 @@ function setSutureTypes() {
     "bilambdoid+sagittal",
     "pansynostosis",
     "other",
-  ]
+  ];
   colors.value.sutureType = generateColors(types);
   sutureTypes.value = types.map((type) => {
     return { type: type, count: randomInt(3, 27)() };
@@ -168,17 +168,15 @@ function setCountryOfResidence() {
 // set update sutute type selection
 function updateSutureTypes(value) {
   const total = JSON.parse(value).count;
-  const types = sutureTypes.value.map(entry => entry.type);
+  const types = sutureTypes.value.map((entry) => entry.type);
   let currentTotal = total;
-  sutureTypes.value = types
-    .map((type, i) => {
-      const randomValue =  i === types.length - 1
-        ? currentTotal
-        : randomInt(1, currentTotal)();
-      currentTotal -= randomValue;
-      return {type: type, count: randomValue}; 
-    });
-  console.log(sutureTypes.value)
+  sutureTypes.value = types.map((type, i) => {
+    const randomValue =
+      i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
+    currentTotal -= randomValue;
+    return { type: type, count: randomValue };
+  });
+  console.log(sutureTypes.value);
   showSutureTypes.value = true;
 }
 

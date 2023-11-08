@@ -57,21 +57,24 @@
         </option>
       </select>
     </DashboardBox>
-    <DashboardChartLayout :columns="2" class="dashboard-boxes-width-1-2">
+    <DashboardChartLayout :columns="1">
       <DashboardBox>
-        <GroupedColumnChart
-          chartId="cs-center-surgical-interventions-combined"
-          title="Surgical interventions"
-          :chartData="interventionsByGroup"
-          group="group"
-          xvar="category"
-          yvar="value"
-          :yMax="100"
-          :yTickValues="[0, 25, 50, 75, 100]"
-          :columnFillPalette="palette"
-          :chartHeight="240"
+        <PieChart2
+          chartId="cs-center-surgical-interventions"
+          title="Surgical Interventions"
+          :chartData="surgicalInterventions"
+          :chartColors="surgicalInterventionColors"
+          :asDonutChart="true"
+          :enableLegendHovering="true"
+          :stackLegend="true"
+          legendPosition="right"
+          :chartHeight="200"
+          :chartScale="0.4"
+          :valuesArePercents="false"
         />
       </DashboardBox>
+    </DashboardChartLayout>
+    <DashboardChartLayout :columns="1">
       <DashboardBox>
         <GroupedColumnChart
           chartId="cs-center-age-at-first-surgery-combined"
@@ -87,6 +90,7 @@
           :columnPaddingOuter="0.3"
           :columnFillPalette="palette"
           :chartHeight="225"
+          :chartMargins="{ top: 10, right: 0, bottom: 60, left: 30 }"
         />
       </DashboardBox>
     </DashboardChartLayout>
@@ -95,7 +99,12 @@
 
 <script setup>
 import { ref } from "vue";
-import { DashboardBox, GroupedColumnChart, InputLabel } from "molgenis-viz";
+import {
+  DashboardBox,
+  GroupedColumnChart,
+  InputLabel,
+  PieChart2,
+} from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
@@ -104,11 +113,23 @@ const props = defineProps({
   organization: Object,
 });
 
+// create random datasets for demo purposes
+import { randomInt } from "d3";
+import generateColors from "../utils/palette.js";
 import { randomGroupDataset, seq } from "../utils/devtools";
 
+let totalCases = ref(0);
 let complicationsByGroup = ref([]);
-let interventionsByGroup = ref([]);
 let ageByGroup = ref([]);
+let surgicalInterventions = ref({
+  "Additional planned surgery according to protocol": 0,
+  "First surgery": 0,
+  "Unwanted reoperation due to complications": 0,
+});
+
+const surgicalInterventionColors = generateColors(
+  Object.keys(surgicalInterventions.value)
+);
 
 const palette = {
   "Your center": "#3f6597",
@@ -122,15 +143,29 @@ function setComplicationsByGroup() {
     0,
     100
   ).sort((a, b) => (a.group > b.group ? -1 : 1));
+
+  totalCases.value = complicationsByGroup.value
+    .map((row) => row.value)
+    .reduce((sum, value) => sum + value, 0);
 }
 
-function setInterventionsByGroup() {
-  interventionsByGroup.value = randomGroupDataset(
-    ["Your center", "ERN"],
-    ["Additional", "Unwanted"],
-    0,
-    100
-  ).sort((a, b) => (a.group > b.group ? -1 : 1));
+function setSurgicalInterventions() {
+  const types = Object.keys(surgicalInterventions.value);
+  let currentTotal = totalCases.value;
+  const data = types
+    .map((type, i) => {
+      const randomValue =
+        i === types.length - 1
+          ? currentTotal
+          : i === 1
+          ? Math.round(currentTotal * 0.45)
+          : randomInt(1, currentTotal)();
+      const row = [type, randomValue];
+      currentTotal -= randomValue;
+      return row;
+    })
+    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
+  surgicalInterventions.value = Object.fromEntries(data);
 }
 
 function setAgeByGroup() {
@@ -147,11 +182,11 @@ function onSurgeryTypeInput() {
 }
 
 function onDiagnosisInput() {
-  setInterventionsByGroup();
+  setSurgicalInterventions();
   setAgeByGroup();
 }
 
 setComplicationsByGroup();
-setInterventionsByGroup();
+setSurgicalInterventions();
 setAgeByGroup();
 </script>
