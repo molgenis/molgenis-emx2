@@ -13,11 +13,6 @@ module.exports = {
     changeOrigin: true,
     secure: false,
   },
-  "^/.*/graphql$": {
-    target: `${HOST}/${SCHEMA}`,
-    changeOrigin: true,
-    secure: false,
-  },
   "/apps/central/theme.css": {
     target: `${HOST}/${SCHEMA}`,
     ...opts,
