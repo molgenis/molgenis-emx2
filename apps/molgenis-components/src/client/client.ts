@@ -287,7 +287,6 @@ const fetchTableData = async (
   const tableId = convertToPascalCase(tableName);
   const limit = properties.limit ? properties.limit : 20;
   const offset = properties.offset ? properties.offset : 0;
-  expandLevel = properties.expandLevel || expandLevel;
 
   const search = properties.searchTerms
     ? ',search:"' + properties.searchTerms.trim() + '"'
