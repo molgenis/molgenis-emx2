@@ -4,4 +4,5 @@ export interface IQueryMetaData {
   searchTerms?: string;
   filter?: Object;
   orderby?: Object;
+  expandLevel?: number;
 }

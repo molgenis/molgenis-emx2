@@ -29,11 +29,7 @@ export const columnNames = (
         ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)
       ) {
         //skip
-      } else if (
-        ["REF", "ONTOLOGY", "REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(
-          col.columnType
-        )
-      ) {
+      } else if (["REF", "REF_ARRAY", "REFBACK"].includes(col.columnType)) {
         result =
           result +
           " " +
@@ -48,6 +44,8 @@ export const columnNames = (
             false
           ) +
           " }";
+      } else if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
+        result = result + " " + col.id + " {name, label}";
       } else if (col.columnType === "FILE") {
         result += ` ${col.id} { id, size, extension, url }`;
       } else if (col.columnType !== "HEADING") {

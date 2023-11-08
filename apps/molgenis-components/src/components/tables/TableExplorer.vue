@@ -780,6 +780,7 @@ export default {
           filter: this.graphqlFilter,
           searchTerms: this.searchTerms,
           orderby: orderBy,
+          expandLevel: 2,
         })
         .catch(this.handleError);
       this.dataRows = dataResponse[this.tableId];
