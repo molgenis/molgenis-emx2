@@ -98,7 +98,7 @@ $borderRadius: 24pt;
     justify-content: flex-start;
     align-items: center;
     grid-template-columns: repeat(2, 1fr);
-    grid-template-areas: 
+    grid-template-areas:
       "name name"
       "city country"
       "link link";
@@ -108,19 +108,19 @@ $borderRadius: 24pt;
     box-sizing: content-box;
     padding: 1em 1.5em;
     margin-bottom: 1.3em;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
-      
-    .provider-data { 
+
+    .provider-data {
       flex-grow: 1;
       font-size: 13pt;
       p {
         margin-bottom: 0;
       }
     }
-    
+
     .name {
       grid-area: name;
       word-break: break-word;
@@ -130,19 +130,19 @@ $borderRadius: 24pt;
         color: $blue-800;
       }
     }
-    
+
     .city {
       grid-area: city;
       text-align: right;
     }
-    
+
     .country {
       grid-area: country;
-    } 
-      
+    }
+
     .link {
       grid-area: link;
-      
+
       a {
         display: block;
         text-align: center;
@@ -153,7 +153,7 @@ $borderRadius: 24pt;
         @include textTransform(bold);
         font-size: 0.85rem;
         text-decoration: none;
-        
+
         svg {
           margin-top: -2px;
           width: 12px;
@@ -164,7 +164,7 @@ $borderRadius: 24pt;
         }
       }
     }
-    
+
     @media (min-width: 636px) {
       grid-template-columns: 2fr 1fr 1fr 100px;
       grid-template-areas: "name city country link";
@@ -177,7 +177,7 @@ $borderRadius: 24pt;
       .city {
         text-align: center;
       }
-      
+
       .country {
         text-align: center;
       }
