@@ -19,7 +19,6 @@ public class FAIRDataPointNoCatalogsTest {
   static Schema fairDataHub_nocatalogs;
 
   @BeforeAll
-  @Disabled("This test is disabled because does not fail/succeed consistently.")
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     fairDataHub_nocatalogs = database.dropCreateSchema("fairDataHub_nocatalogs");
