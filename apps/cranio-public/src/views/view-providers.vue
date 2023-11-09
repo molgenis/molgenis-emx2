@@ -26,14 +26,16 @@
           class="provider"
           :data-provider-id="provider.id"
         >
-          <div class="name">
+          <div class="provider-data name">
             <h3>{{ provider.name }}</h3>
           </div>
-          <div class="location">
+          <div class="provider-data city">
             <p>{{ provider.city }}</p>
+          </div>
+          <div class="provider-data country">
             <p>{{ provider.country }}</p>
           </div>
-          <div class="link">
+          <div class="provider-data link">
             <a :href="`/${provider.schemaName}/`">
               <span>View</span>
               <LinkIcon />
@@ -86,88 +88,98 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+$borderRadius: 24pt;
+
 .provider-listings {
   padding: 1em 0;
 
-  $borderRadius: 24pt;
-
   .provider {
     display: grid;
-    grid-template-columns: 1fr;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    box-sizing: content-box;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas: 
+      "name name"
+      "city country"
+      "link link";
+    gap: 1em;
     background-color: $gray-000;
+    border-radius: $borderRadius;
+    box-sizing: content-box;
     padding: 1em 1.5em;
     margin-bottom: 1.3em;
-    border-radius: $borderRadius;
-
+    
     &:last-child {
       margin-bottom: 0;
     }
-
-    div {
+      
+    .provider-data { 
       flex-grow: 1;
       font-size: 13pt;
-    }
-
-    .name {
-      h3 {
-        text-align: center;
-        color: $blue-900;
-        font-size: 13pt;
-      }
-    }
-
-    .location {
-      display: flex;
-      justify-content: center;
-      gap: 0.5em;
       p {
-        margin: 0;
-        color: $blue-700;
+        margin-bottom: 0;
       }
     }
+    
+    .name {
+      grid-area: name;
+      word-break: break-word;
 
+      h3 {
+        font-size: 13pt;
+        color: $blue-800;
+      }
+    }
+    
+    .city {
+      grid-area: city;
+      text-align: right;
+    }
+    
+    .country {
+      grid-area: country;
+    } 
+      
     .link {
-      display: block;
-      text-align: center;
-      padding: 0.6em 0.2em;
-      border-radius: $borderRadius;
-      background-color: $ern-cranio-primary;
-
+      grid-area: link;
+      
       a {
-        border-bottom: 2px solid transparent;
+        display: block;
+        text-align: center;
+        border-radius: $borderRadius;
+        background-color: $ern-cranio-primary;
+        padding: 0.6em 0.2em;
         color: $gray-000;
         @include textTransform(bold);
         font-size: 0.85rem;
         text-decoration: none;
-
-        &:hover,
-        &:focus {
-          border-bottom-color: currentColor;
-        }
-
+        
         svg {
-          width: 10pt;
-          stroke-width: 3px;
-          margin-top: -4px;
+          margin-top: -2px;
+          width: 12px;
+          height: 12px;
+          path {
+            stroke-width: 5px;
+          }
         }
       }
     }
-
-    @media screen and (min-width: 636px) {
-      grid-template-columns: repeat(2, 1fr) 100px;
-
+    
+    @media (min-width: 636px) {
+      grid-template-columns: 2fr 1fr 1fr 100px;
+      grid-template-areas: "name city country link";
+      gap: 0.2em;
       .name {
         h3 {
           text-align: left;
         }
       }
-
-      .location {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
+      .city {
+        text-align: center;
+      }
+      
+      .country {
+        text-align: center;
       }
     }
   }
