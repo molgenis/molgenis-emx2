@@ -195,17 +195,11 @@ export default {
     },
     async loadOptions() {
       this.loading = true;
-      let options: IQueryMetaData = {
+      const options: IQueryMetaData = {
         limit: this.maxNum,
         filter: this.filter,
         orderby: this.orderby,
       };
-      // if (this.filter) {
-      //   options["filter"] = this.filter;
-      // }
-      // if (this.orderby) {
-      //   options["orderby"] = this.orderby;
-      // }
       const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
       this.count = response[this.tableId + "_agg"].count;
