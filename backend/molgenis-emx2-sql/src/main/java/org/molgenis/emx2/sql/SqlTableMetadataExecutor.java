@@ -152,11 +152,7 @@ class SqlTableMetadataExecutor {
     }
     // add column to superclass table
     if (other.getLocalColumn(MG_TABLECLASS) == null) {
-      other.add(
-          column(MG_TABLECLASS)
-              .setReadonly(true)
-              .setPosition(10005)
-              .setDefaultValue(other.getSchemaName() + "." + other.getTableName()));
+      other.add(column(MG_TABLECLASS).setReadonly(true).setPosition(10005));
 
       // should not be user editable, we add trigger
       createMgTableClassCannotUpdateCheck((SqlTableMetadata) other, jooq);

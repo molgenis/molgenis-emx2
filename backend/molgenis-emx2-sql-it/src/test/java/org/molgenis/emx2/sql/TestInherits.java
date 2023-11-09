@@ -58,6 +58,9 @@ public class TestInherits {
         s.create(
             table("Employee").setInheritName(person.getName()).add(column("salary").setType(INT)));
 
+    // check that mg_tableclass column doesn't have a default (regression #2936)
+    assertNull(employee.getMetadata().getColumn(MG_TABLECLASS).getDefaultValue());
+
     Table manager =
         s.create(
             table("Manager")

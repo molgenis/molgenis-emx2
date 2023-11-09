@@ -26,7 +26,6 @@ public class FAIRDataPointTest {
   static Schema fdpSchema;
 
   @BeforeAll
-  @Disabled
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     fdpSchema = database.dropCreateSchema("fdpTest");

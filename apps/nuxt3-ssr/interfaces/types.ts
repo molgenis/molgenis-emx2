@@ -70,7 +70,7 @@ export interface IVariableBase {
       id: string;
     };
   };
-  label: string;
+  label?: string;
   description?: string;
 }
 
@@ -289,24 +289,22 @@ export type KeyObject = {
 export interface IMapping {
   syntax: string;
   description: string;
+  match: {
+    name: string;
+  };
+  source: {
+    id: string;
+    name: string;
+  };
   sourceDataset: {
     resource: {
       id: string;
     };
     name: string;
   };
-  targetVariable: {
-    dataset: {
-      resource: {
-        id: string;
-      };
-      name: string;
-    };
-    name: string;
-  };
-  match: {
-    name: string;
-  };
+  sourceVariables: IVariableBase[] | IVariable[];
+  targetVariable: IVariableBase[] | IVariable[];
+  sourceVariablesOtherDatasets: IVariableBase[] | IVariable[];
 }
 
 export type HarmonizationStatus = "unmapped" | "partial" | "complete";
