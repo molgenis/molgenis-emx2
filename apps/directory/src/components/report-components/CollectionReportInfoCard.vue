@@ -89,8 +89,10 @@
               </li>
             </ul>
           </template>
-          <h5>Also Known In</h5>
-          <ReportDetailsList :reportDetails="info.also_known" />
+          <template v-if="info.also_known">
+            <h5>Also Known In</h5>
+            <ReportDetailsList :reportDetails="info.also_known" />
+          </template>
           <template v-if="info.networks && info.networks.length > 0">
             <h5>Networks</h5>
             <ul class="right-content-list">
