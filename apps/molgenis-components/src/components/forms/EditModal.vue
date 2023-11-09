@@ -109,12 +109,12 @@ import ButtonAction from "./ButtonAction.vue";
 import RowEdit from "./RowEdit.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import Tooltip from "./Tooltip.vue";
-import { isColumnVisible } from "./formUtils/formUtils";
 import {
   filterVisibleColumns,
   getChapterStyle,
   getRowErrors,
   getSaveDisabledMessage,
+  isColumnVisible,
   removeKeyColumns,
   splitColumnNamesByHeadings,
 } from "./formUtils/formUtils";
