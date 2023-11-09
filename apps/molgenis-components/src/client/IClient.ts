@@ -51,4 +51,5 @@ export interface INewClient {
     row: IRow,
     tableName: string
   ) => Promise<Record<string, any>>;
+  fetchOntologyOptions: (tableName: string) => Promise<any>;
 }
