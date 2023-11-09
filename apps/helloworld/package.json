@@ -10,15 +10,16 @@
     "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "dependencies": {
-    "molgenis-components": "*",
     "graphql-request": "5.2.0",
+    "meta-data-utils": "*",
+    "molgenis-components": "*",
     "vue": "3.3.4",
     "vue-router": "4.2.5"
   },
   "devDependencies": {
-    "vite": "4.3.9",
     "@vitejs/plugin-vue": "4.4.0",
-    "prettier": "2.8.8"
+    "prettier": "2.8.8",
+    "vite": "4.3.9"
   },
   "browserslist": [
     "> 1%",
