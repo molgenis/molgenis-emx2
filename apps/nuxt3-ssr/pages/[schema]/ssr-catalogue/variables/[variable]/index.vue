@@ -36,7 +36,8 @@ function setData(data: any) {
 
 let tocItems = reactive([
   { label: "Description", id: "description" },
-  { label: "Harmonization status", id: "harmonization-per-cohort" },
+  { label: "Per cohort harmonization", id: "harmonization-per-cohort" },
+  { label: "Harmonization details", id: "harmonization-details-per-cohort" },
 ]);
 </script>
 
@@ -87,7 +88,7 @@ let tocItems = reactive([
         </ContentBlock>
 
         <ContentBlock
-          id="harmonization-status-per-cohort"
+          id="harmonization-per-cohort"
           title="Harmonization status per Cohort"
           description="Overview of the harmonization status per Cohort"
         >
@@ -98,9 +99,9 @@ let tocItems = reactive([
         </ContentBlock>
 
         <ContentBlock
-          id="harmonization--details per-cohort"
+          id="harmonization-details-per-cohort"
           title="Harmonization details per Cohort"
-          description="Explanation about available data and the functionality seen here."
+          description="Select a Cohort to see the details of the harmonization"
         >
           <HarmonizationVariableDetails
             :variable="variable"
