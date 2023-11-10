@@ -66,9 +66,9 @@ jobs:
         version: 19.03.13
         docker_layer_caching: true
 
-    - run:
-        name: Sign in to docker
-        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+  ##  - run:
+  ##      name: Sign in to docker
+  ##      command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
     - run:
         name: Setup git, todo, move to molgenisci user
@@ -96,44 +96,44 @@ jobs:
     #    ./gradlew checkFormat spotlessCheck test jacocoMergedReport sonarqube ci \
     #    -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
     #    -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
-    - run:
-        name: release, push docker, push python
-        command: |
-          if [ "${CIRCLE_BRANCH}" = "master" ]; then
-            ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release \
-            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
-          else
-            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release publishPython \
-            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-            -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
-          fi
-          export $( cat build/ci.properties | xargs )
-          if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
-            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
-            docker push molgenis/ssr-catalogue-snapshot --all-tags
-          else
-            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
-            docker push molgenis/ssr-catalogue --all-tags
-          fi
-        environment:
-          MOLGENIS_POSTGRES_USER: molgenis
-          MOLGENIS_POSTGRES_PASS: molgenis
-          MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
+    ##- run:
+    ##    name: release, push docker, push python
+    ##    command: |
+    ##      if [ "${CIRCLE_BRANCH}" = "master" ]; then
+    ##        ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release \
+    ##        -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+    ##        -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
+    ##      else
+    ##        echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+    ##        ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release publishPython \
+    ##        -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+    ##        -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+    ##        -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+    ##      fi
+    ##      export $( cat build/ci.properties | xargs )
+    ##      if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
+    ##        docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+    ##        docker push molgenis/ssr-catalogue-snapshot --all-tags
+    ##      else
+    ##        docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
+    ##        docker push molgenis/ssr-catalogue --all-tags
+    ##      fi
+    ##    environment:
+    ##      MOLGENIS_POSTGRES_USER: molgenis
+    ##      MOLGENIS_POSTGRES_PASS: molgenis
+    ##      MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
 
-    #- run:
-    #    name: deploy preview or update dev to k8s
-    #    command: |
-    #      export $( cat build/ci.properties | xargs )
-    #      bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
-    #      if [ "${CIRCLE_BRANCH}" = "master" ]
-    #      then
-    #        bash ci/create_or_update_k8s.sh "emx2" ${TAG_NAME}
-    #      else
-    #        bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
-    #      fi
+    ##- run:
+    ##    name: deploy preview or update dev to k8s
+    ##    command: |
+    ##      export $( cat build/ci.properties | xargs )
+    ##      bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
+    ##      if [ "${CIRCLE_BRANCH}" = "master" ]
+    ##      then
+    ##        bash ci/create_or_update_k8s.sh "emx2" ${TAG_NAME}
+    ##      else
+    ##        bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
+    ##      fi
 
     - run:
         name: deploy preview or update dev to azure 
