@@ -19,7 +19,8 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   tls:
-  - host: {{ .host | quote }}
+  - hosts: 
+  - {{ .host | quote }}
   secretName: tls-secret
   rules:
   {{- range .Values.ingress.hosts }}
