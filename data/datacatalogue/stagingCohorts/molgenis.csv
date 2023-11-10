@@ -51,8 +51,8 @@ Cohorts,,data use conditions,ontology_array,,,CatalogueOntologies,Data use condi
 Cohorts,,data access conditions description,text,,,,,,,,,Description of data access terms and use conditions
 Cohorts,,data access fee,bool,,,,,,,,,Does a fee apply to gain access to data of this cohort?
 Data resources,,information,heading,,,,,,,,,Other information
-Data resources,,design paper,refback,,,,Publications,,resource,,,Publication(s) that describe(s) the design of this resource
-Extended resources,,publications,refback,,,,Publications,,resource,,,Other publication(s) about this resource
+Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
+Extended resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
 Data resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?
 Extended resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
 Extended resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
@@ -61,10 +61,19 @@ Data resources,,supplementary information,text,,,,,,,,,Any other information tha
 Data resources,,collaborations,heading,,,,,,,,,List of relevant collaborations
 Cohorts,,studies,ref_array,,,catalogue,Studies,,cohorts,,,Listing of studies that used this cohort
 Cohorts,,networks,ref_array,,,catalogue,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
-Publications,,,,,,,,,,,,Publications following bibtex format
-Publications,,resource,ref,1,TRUE,,Extended resources,,,,,Resource this publication belongs to
+Publications,,,,,,,,,,,,Publications following bibtex format,,,
 Publications,,doi,,1,TRUE,,,,,,,Digital object identifier
-Publications,,citation,,,,,,,,,,Publication citation
+Publications,,title,text,,,,,,,,,Publication title
+Publications,,authors,string_array,,,,,,,,,"List of authors, one entry per author"
+Publications,,year,int,,,,,,,,,"Year of publication (or, if unpublished, year of creation)"
+Publications,,journal,,,,,,,,,,Journal or magazine the work was published in
+Publications,,volume,int,,,,,,,,,Journal or magazine volume
+Publications,,number,int,,,,,,,,,Journal or maragzine issue number
+Publications,,pagination,,,,,,,,,,"Page numbers, separated either by commas or double-hyphens"
+Publications,,publisher,,,,,,,,,,Publisher's name
+Publications,,school,,,,,,,,,,School where the thesis was written (in case of thesis)
+Publications,,abstract,text,,,,,,,,,Publication abstract
+Publications,,resources,refback,,,,Extended resources,,publications,,,List of resources that refer to this publication
 Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with
 Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource
 Contacts,,first name,,1,TRUE,,,,,,,First name of the contact person

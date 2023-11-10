@@ -126,10 +126,19 @@ Extended resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and 
 Extended resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent",EMA
 Data resources,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource,
 Data resources,,collaborations,heading,,,,,,,,,List of relevant collaborations,
-Publications,,,,,,,,,,,,Publications following bibtex format
-Publications,,resource,ref,1,TRUE,,Extended resources,,,,,Resource this publication belongs to
-Publications,,doi,,1,TRUE,,,,,,,Digital object identifier
-Publications,,citation,,,,,,,,,,Publication citation
+Publications,,,,,,,,,,,,Publications following bibtex format,
+Publications,,doi,,1,TRUE,,,,,,,Digital object identifier,
+Publications,,title,text,,,,,,,,,Publication title,
+Publications,,authors,string_array,,,,,,,,,"List of authors, one entry per author",
+Publications,,year,int,,,,,,,,,"Year of publication (or, if unpublished, year of creation)",
+Publications,,journal,,,,,,,,,,Journal or magazine the work was published in,
+Publications,,volume,int,,,,,,,,,Journal or magazine volume,
+Publications,,number,int,,,,,,,,,Journal or maragzine issue number,
+Publications,,pagination,,,,,,,,,,"Page numbers, separated either by commas or double-hyphens",
+Publications,,publisher,,,,,,,,,,Publisher's name,
+Publications,,school,,,,,,,,,,School where the thesis was written (in case of thesis),
+Publications,,abstract,text,,,,,,,,,Publication abstract,
+Publications,,resources,refback,,,,Extended resources,,publications,,,List of resources that refer to this publication,
 Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with,EMA
 Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource,EMA
 Contacts,,role description,text,,,,,,,,,Description of the role,

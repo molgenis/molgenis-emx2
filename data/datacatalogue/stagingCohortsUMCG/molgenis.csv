@@ -1,6 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Publications,,,,,,,,,,,,Publications following bibtex format
-Version,,,,,,,,,,,,3.8
+Version,,,,,,,,,,,,3.7
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Extended resources,Resources,,,,,,,,,,,
 Data resources,Extended resources,,,,,,,,,,,
@@ -52,15 +51,14 @@ Cohorts,,release type,ontology,,,CatalogueOntologies,Release types,,,,,Select wh
 Cohorts,,release description,text,,,,,,,,,Description of the release cycle of this resource
 Cohorts,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource
 Data resources,,other information,heading,,,,,,,,,Other information
-Data resources,,design paper,refback,,,,Publications,,resource,,,Publication(s) that describe(s) the design of this resource
+Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
 Data resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?
 Extended resources,,documentation,refback,,,,Documentation,,resource,,,List of documentation available for this resource
 Extended resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
 Extended resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
 Publications,,,,,,,,,,,,Publications following bibtex format
-Publications,,resource,ref,1,TRUE,,Extended resources,,,,,Resource this publication belongs to
 Publications,,doi,,1,TRUE,,,,,,,Digital object identifier
-Publications,,citation,,,,,,,,,,Publication citation
+Publications,,title,,,TRUE,,,,,,,Publication title
 Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with
 Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource
 Contacts,,first name,,1,TRUE,,,,,,,First name of the contact person
