@@ -2,7 +2,7 @@
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
-const pageSize = 10;
+const pageSize = 30;
 
 useHead({ title: "Variables" });
 
@@ -23,16 +23,16 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Topics",
-    refTable: "Topics",
-    columnName: "topics",
+    refTableId: "Keywords",
+    columnId: "keywords",
     columnType: "ONTOLOGY",
     conditions: [],
   },
   {
     title: "Networks",
-    columnName: "networks",
+    columnId: "networks",
     columnType: "REF_ARRAY",
-    refTable: "Organisations",
+    refTableId: "Networks",
     refFields: {
       key: "id",
       name: "id",
@@ -42,10 +42,14 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Cohorts",
-    refTable: "Cohorts",
-    columnName: "cohorts",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
+    refTableId: "Cohorts",
+    columnNId: "cohorts",
+    columnType: "REF_ARRAY",
+    refFields: {
+      key: "id",
+      name: "id",
+      description: "name",
+    },
     conditions: [],
   },
 ]);
@@ -60,8 +64,63 @@ const query = computed(() => {
   query Variables($filter:VariablesFilter, $orderby:Variablesorderby){
     Variables(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       name
+      resource {
+        id
+      }
+      dataset {
+        name
+        resource {
+          id
+        }
+      }
       label
       description
+      mappings {
+        sourceDataset {
+          resource {
+            id
+          }
+          name
+        }
+        targetVariable {
+          dataset {
+            resource {
+              id
+            }
+            name
+          }
+          name
+        }
+        match {
+          name
+        }
+      } 
+      repeats {
+        name
+        mappings {   
+          match {
+            name
+          }
+          source {
+            id
+          }
+          sourceVariables {
+            name
+          }
+          sourceDataset {
+            resource {
+              id
+            }
+            name
+          }
+        }
+      }
+    }
+    Cohorts(orderby: { id: ASC }) {
+      id
+      networks {
+        id
+      }
     }
     Variables_agg (filter:$filter){
       count
@@ -71,8 +130,14 @@ const query = computed(() => {
 });
 
 const orderby = { label: "ASC" };
+const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
 
-const filter = computed(() => buildQueryFilter(filters, search.value));
+const filter = computed(() => {
+  return {
+    ...buildQueryFilter(filters, search.value),
+    ...typeFilter,
+  };
+});
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
@@ -94,7 +159,15 @@ watch(filters, () => {
   setCurrentPage(1);
 });
 
-let activeName = ref("detailed");
+let activeName = ref("list");
+let pageIcon = computed(() => {
+  switch (activeName.value) {
+    case "list":
+      return "image-diagram-2";
+    case "harmonization":
+      return "image-table";
+  }
+});
 </script>
 
 <template>
@@ -109,16 +182,16 @@ let activeName = ref("detailed");
           <PageHeader
             title="Variables"
             description="A complete overview of available variables."
-            icon="image-diagram"
+            :icon="pageIcon"
           >
             <template #suffix>
               <SearchResultsViewTabs
                 class="hidden xl:flex"
                 buttonLeftLabel="List of variables"
-                buttonLeftName="detailed"
+                buttonLeftName="list"
                 buttonLeftIcon="view-compact"
                 buttonRightLabel="Harmonizations"
-                buttonRightName="compact"
+                buttonRightName="harmonization"
                 buttonRightIcon="view-table"
                 v-model:activeName="activeName"
               />
@@ -135,7 +208,15 @@ let activeName = ref("detailed");
         <template #search-results>
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
-            <CardList v-if="data?.data?.Variables?.length > 0">
+            <div
+              v-if="data?.data?.Variables_agg.count === 0"
+              class="flex justify-center pt-3"
+            >
+              <span class="py-15 text-blue-500">
+                No variables found with current filters
+              </span>
+            </div>
+            <CardList v-else-if="activeName === 'list'">
               <CardListItem
                 v-for="variable in data?.data?.Variables"
                 :key="variable.name"
@@ -143,19 +224,22 @@ let activeName = ref("detailed");
                 <VariableCard
                   :variable="variable"
                   :schema="route.params.schema"
-                  :compact="activeName !== 'detailed'"
                 />
               </CardListItem>
             </CardList>
-            <div v-else class="flex justify-center pt-3">
-              <span class="py-15 text-blue-500">
-                No variables found with current filters
-              </span>
-            </div>
+            <HarmonizationTable
+              v-else
+              :variables="data?.data?.Variables"
+              :cohorts="data?.data?.Cohorts"
+            >
+            </HarmonizationTable>
           </SearchResultsList>
         </template>
 
-        <template v-if="data?.data?.Variables?.length > 0" #pagination>
+        <template
+          #pagination
+          v-if="activeName === 'list' && data?.data?.Variables?.length > 0"
+        >
           <Pagination
             :current-page="currentPage"
             :totalPages="Math.ceil(data?.data?.Variables_agg.count / pageSize)"

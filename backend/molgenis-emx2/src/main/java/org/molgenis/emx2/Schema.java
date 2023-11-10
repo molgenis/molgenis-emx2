@@ -69,4 +69,6 @@ public interface Schema {
   String getSettingValue(String key);
 
   boolean hasSetting(String emailHost);
+
+  Table getTableById(String id);
 }

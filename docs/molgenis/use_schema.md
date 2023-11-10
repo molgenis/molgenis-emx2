@@ -93,6 +93,19 @@ is used as the primary key in the user interface, upload and API. Other key>1 ca
 
 When required=TRUE then values in this column must be filled. When required=FALSE then this column can be left empty. Default value: FALSE.
 
+### defaultValue
+
+Using 'defaultValue' you can set a default value for a column. In forms, this value will be pre-filled.
+When uploading csv/excel all empty cells will receive the defaultValue (in insert and update)
+Optionally you can also use javascript expressions. For example:
+* ```duck``` would set a string value
+* ```1``` would set a numeric value
+* ```=new Date().toISOString()``` provides automatic date/dateTime
+* ```={name:"green"}``` could be default value for an ontology_
+* ```=[{name:"green"}]``` could be default value for an ontology_array
+
+Known limitation: doesn't work for columns refering to a table with composite primary key (i.e. having multiple key=1 fields).
+
 ### label,label:en,label:fr etc
 
 Using label you can change the labels in forms. Typically useful for data capture and surveys. Using :suffix you can give labels for multiple languages, e.g.
@@ -113,7 +126,7 @@ these translate to foreign keys, and array of foreign key with triggers protecti
 ### refTable
 
 This metadata is used to define relationships between tables. When columnType is 'ref' or 'ref_array' then you must provide refTable. In simple cases, this is
-all you need. The value of refTable should a defined tableName. Default value: empty
+all you need. The value of refTable should a defined tableName. N.B. if your columnType is not of a 'ref' than having refTable will produce an error. Default value: empty
 
 A simple reference:
 

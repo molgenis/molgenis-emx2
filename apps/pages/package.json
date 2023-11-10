@@ -11,14 +11,14 @@
   },
   "dependencies": {
     "@vueup/vue-quill": "^1.0.0",
-    "core-js": "3.32.2",
+    "core-js": "3.33.0",
     "graphql-request": "5.2.0",
     "molgenis-components": "*",
-    "vue": "3.2.47",
-    "vue-router": "4.1.6"
+    "vue": "3.3.4",
+    "vue-router": "4.2.5"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.2.3",
+    "@vitejs/plugin-vue": "4.4.0",
     "vite": "4.3.9",
     "prettier": "2.8.8"
   },

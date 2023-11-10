@@ -24,16 +24,16 @@
       >
         {{ term.label ? term.label : term.name }}
         <span v-if="term.code">
-          (<span v-if="term.codesystem">{{ term.codesystem }}:</span
-          >{{ term.code }})</span
-        >
+          (<span v-if="term.codesystem"> {{ term.codesystem }}: </span>
+          {{ term.code }})
+        </span>
         <small v-if="term.definition" class="text-muted">
-          <i> - {{ term.definition }}</i></small
-        >
-        <span v-if="term.children && countVisibleChildren(term) > 0"
-          >({{ countVisibleChildren(term) }})</span
-        ></span
-      >
+          <i> - {{ term.definition }}</i>
+        </small>
+        <span v-if="term.children && countVisibleChildren(term) > 0">
+          ({{ countVisibleChildren(term) }})
+        </span>
+      </span>
       <InputOntologySubtree
         v-if="term.expanded"
         :terms="term.children"

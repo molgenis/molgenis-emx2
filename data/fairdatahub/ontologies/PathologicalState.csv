@@ -6,3 +6,8 @@ cancer cell line sample,"A neoplastic sample derived from a cancer cell line.",E
 metastasis sample,"A neoplastic sample derived from a cancer metastasis (not from a primary tumor).",EFO,0010941,http://www.ebi.ac.uk/efo/EFO_0010941
 primary tumor sample,"A neoplastic sample derived from a primary tumor (not from a cancer metastasis).",EFO,0010942,http://www.ebi.ac.uk/efo/EFO_0010942
 recurrent tumor sample,"A neoplastic sample derived from a recurrent tumor (not from a primary occurrence of a neoplasm).",EFO,0010943,http://www.ebi.ac.uk/efo/EFO_0010943
+Affected,Skin region is determined to be affected by a skin disease.,,,
+Normal,The area within a sample that is represented by non-tumor tissue.,NCIT,C166238,http://purl.obolibrary.org/obo/NCIT_C166238
+Organoid,A three dimensional mass comprised of a cultured cell or tissue sample that resembles an in vivo tissue or organ. Organoids are grown in vitro from a combination of cells or tissue fragments cultured in medium containing a variety of biochemical factors.,NCIT,C172259,http://purl.obolibrary.org/obo/NCIT_C172259
+Tumor,"A tumor sample, or entire tumor that is removed for microscopic examination.",NCIT,C18009,http://purl.obolibrary.org/obo/NCIT_C18009
+Tumoroid,A three dimensional mass comprised of a cultured tumor cell or tumor sample that resembles an in vivo tumor. Tumoroid are grown in vitro from a combination of cells or tissue fragments cultured in medium containing a variety of biochemical factors.,FG,0000124,https://w3id.org/fair-genomes/resource/FG_0000124

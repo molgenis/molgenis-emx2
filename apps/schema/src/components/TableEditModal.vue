@@ -27,7 +27,7 @@
       <InputSelect
         v-if="rootTable !== undefined"
         id="table_extends"
-        v-model="table.inherit"
+        v-model="table.inheritName"
         :required="true"
         :options="inheritOptions"
         :readonly="table.oldName !== undefined"
@@ -167,7 +167,7 @@ export default {
       return null;
     },
     subclassInvalid() {
-      return this.inheritOptions && this.table.inherit === undefined
+      return this.inheritOptions && this.table.inheritName === undefined
         ? "Extends is required in case of subclass"
         : null;
     },

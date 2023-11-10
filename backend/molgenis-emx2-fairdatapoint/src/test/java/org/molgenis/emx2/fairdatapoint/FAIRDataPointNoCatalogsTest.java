@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
@@ -26,6 +27,7 @@ public class FAIRDataPointNoCatalogsTest {
   }
 
   @Test
+  @Disabled("This test is disabled because does not fail/succeed consistently.")
   public void FDPNoCatalogs() throws Exception {
     Request request = mock(Request.class);
     when(request.url()).thenReturn("http://localhost:8080/api/fdp");

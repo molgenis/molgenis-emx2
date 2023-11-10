@@ -16,9 +16,9 @@ vi.mock("../client/client", () => {
   return {
     default: {
       newClient: () => ({
-        fetchTableMetaData: (tableName: string) => {
-          if (tableName === "Resources") return resourcesMetadata;
-          else if (tableName === "Contacts") return contactsMetadata;
+        fetchTableMetaData: (tableId: string) => {
+          if (tableId === "Resources") return resourcesMetadata;
+          else if (tableId === "Contacts") return contactsMetadata;
           else return {};
         },
       }),

@@ -38,13 +38,13 @@ subprojects {
     dependencies {
         implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
         implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0'
-        implementation 'org.jooq:jooq:3.18.6'
+        implementation 'org.jooq:jooq:3.18.7'
         implementation 'com.zaxxer:HikariCP:5.0.1'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.15.2'
-        implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-        implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
-        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.3'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.15.3'
+        implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
+        implementation 'com.fasterxml.jackson.core:jackson-core:2.15.3'
+        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.3'
         implementation 'com.graphql-java:graphql-java:21.1'
         implementation 'com.graphql-java:graphql-java-extended-scalars:20.2'
         implementation 'com.sparkjava:spark-core:2.9.4'
@@ -53,12 +53,12 @@ subprojects {
         implementation 'org.pac4j:pac4j-http:5.4.5'
         implementation 'org.pac4j:spark-pac4j:5.0.0'
         implementation 'org.javers:javers-core:6.14.0'
-        implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
+        implementation 'com.nimbusds:nimbus-jose-jwt:9.37'
 
         //also used outside test
         implementation 'org.junit.jupiter:junit-jupiter:5.10.0'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
-        testImplementation 'org.mockito:mockito-core:5.4.0'
+        testImplementation 'org.mockito:mockito-core:5.6.0'
         //allows to set environment variables in test
         testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
     }

@@ -34,14 +34,14 @@
     "d3": "7.8.5",
     "graphql-request": "^6.1.0",
     "heroicons": "^2.0.18",
-    "vue": "3.2.47"
+    "vue": "3.3.4"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.2.3",
+    "@vitejs/plugin-vue": "4.4.0",
     "@vuese/cli": "2.14.3",
     "prettier": "2.8.8",
-    "sass": "1.68.0",
+    "sass": "1.69.5",
     "vite": "4.3.9",
-    "vue-router": "4.1.6"
+    "vue-router": "4.2.5"
   }
 }

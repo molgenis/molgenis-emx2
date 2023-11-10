@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ICohort } from "interfaces/types";
+import { ICohort } from "~/interfaces/types";
 
 const { cohort } = defineProps<{
   title: string;
@@ -103,7 +103,7 @@ function setData() {
 
 <template>
   <ContentBlock :title="title" :description="description">
-    <DefinitionList
+    <CatalogueItemList
       :items="generalDesign.filter((item) => item.content !== undefined)"
     />
   </ContentBlock>

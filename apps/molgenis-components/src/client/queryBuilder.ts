@@ -1,19 +1,18 @@
-import { convertToPascalCase } from "../components/utils";
 import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
 
 /**
- * @param {String} schemaName - schema where initial table is in
- * @param {String} tableName
+ * @param {String} schemaId - schema where initial table is in
+ * @param {String} tableId
  * @param {Object} metaData - object that contains all schema meta data
  * @param {Number} expandLevel - how many levels of grahpql should be expanded
  * @returns String of fields for use in gql query.
  * key=1 fields will always be expanded.
  * Other fields until level is reached
  */
-export const columnNames = (
-  schemaName: string,
-  tableName: string,
+export const getColumnIds = (
+  schemaId: string,
+  tableId: string,
   metaData: ISchemaMetaData,
   //allows expansion of ref fields to add their next layer of details.
   expandLevel: number,
@@ -21,7 +20,7 @@ export const columnNames = (
   rootLevel = true
 ) => {
   let result = "";
-  getTable(schemaName, tableName, metaData.tables)?.columns?.forEach((col) => {
+  getTable(schemaId, tableId, metaData.tables)?.columns?.forEach((col) => {
     //we always expand the subfields of key=1, but other 'ref' fields only if they do not break server
     if (expandLevel > 0 || col.key == 1) {
       if (
@@ -29,25 +28,23 @@ export const columnNames = (
         ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)
       ) {
         //skip
-      } else if (
-        ["REF", "ONTOLOGY", "REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(
-          col.columnType
-        )
-      ) {
+      } else if (["REF", "REF_ARRAY", "REFBACK"].includes(col.columnType)) {
         result =
           result +
           " " +
           col.id +
           " {" +
-          columnNames(
-            col.refSchema ? col.refSchema : schemaName,
-            col.refTable,
+          getColumnIds(
+            col.refSchemaId || schemaId,
+            col.refTableId || tableId,
             metaData,
             //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
             expandLevel - 1,
             false
           ) +
           " }";
+      } else if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
+        result = result + " " + col.id + " {name, label}";
       } else if (col.columnType === "FILE") {
         result += ` ${col.id} { id, size, extension, url }`;
       } else if (col.columnType !== "HEADING") {
@@ -55,18 +52,17 @@ export const columnNames = (
       }
     }
   });
+
   return result;
 };
 
 const getTable = (
-  schemaName: string,
-  tableName: string,
+  schemaId: string,
+  tableId: string,
   tableStore: ITableMetaData[]
 ) => {
   const result = tableStore.find(
-    (table) =>
-      table.id === convertToPascalCase(tableName) &&
-      table.externalSchema === schemaName
+    (table) => table.id === tableId && table.schemaId === schemaId
   );
   return result;
 };

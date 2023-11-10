@@ -6,8 +6,8 @@
         :id="id"
         :condition="conditions"
         @updateCondition="updateCondition(index - 1, $event)"
-        :tableName="tableName"
-        :schemaName="schemaName"
+        :tableId="tableId"
+        :schemaId="schemaId"
         :refLabel="refLabel"
       ></component>
     </div>
@@ -20,8 +20,8 @@
         @clearCondition="clearCondition(index - 1)"
         @addCondition="fieldCount++"
         :showAddButton="index === conditions.length"
-        :tableName="tableName"
-        :schemaName="schemaName"
+        :tableId="tableId"
+        :schemaId="schemaId"
       ></component>
     </div>
   </div>
@@ -99,11 +99,11 @@ export default {
       type: Array,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: false,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -243,8 +243,8 @@ export default {
         <FilterInput
             id="filter-input-ontology"
             columnType="ONTOLOGY"
-            tableName="Tag"
-            schemaName="pet store"
+            tableId="Tag"
+            schemaId="pet store"
             :conditions="conditions6"
             @updateConditions="conditions6 = $event"
         />
@@ -257,8 +257,8 @@ export default {
         <FilterInput
             id="filter-input-ref"
             columnType="REF"
-            tableName="Tag"
-            schemaName="pet store"
+            tableId="Tag"
+            schemaId="pet store"
             :conditions="conditions7"
             @updateConditions="conditions7 = $event"
             refLabel="${name}"
@@ -272,8 +272,8 @@ export default {
         <FilterInput
             id="filter-input-reflist"
             columnType="REF_ARRAY"
-            tableName="Tag"
-            schemaName="pet store"
+            tableId="Tag"
+            schemaId="pet store"
             :conditions="conditions8"
             @updateConditions="conditions8 = $event"
             refLabel="${name}"

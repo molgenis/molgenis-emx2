@@ -68,6 +68,8 @@ public class MetadataUtils {
       field(name("visible"), VARCHAR.nullable(true));
   private static final Field<String[]> COLUMN_SEMANTICS =
       field(name("columnSemantics"), VARCHAR.nullable(true).getArrayType());
+  private static final Field<String[]> COLUMN_PROFILES =
+      field(name("columnProfiles"), VARCHAR.nullable(true).getArrayType());
   private static final Field<String> COLUMN_TYPE =
       field(name("columnType"), VARCHAR.nullable(false));
   private static final Field<Boolean> COLUMN_REQUIRED =
@@ -92,6 +94,8 @@ public class MetadataUtils {
       field(name("cascade"), BOOLEAN.nullable(true));
   private static final Field<Boolean> COLUMN_READONLY =
       field(name("readonly"), BOOLEAN.nullable(true));
+  private static final Field<String> COLUMN_DEFAULT =
+      field(name("defaultValue"), VARCHAR.nullable(true));
 
   // users
   private static final Field<String> USER_NAME = field(name("username"), VARCHAR);
@@ -352,7 +356,7 @@ public class MetadataUtils {
               table.getSchema().getName(),
               table.getTableName(),
               table.getLabels(),
-              table.getInherit(),
+              table.getInheritName(),
               table.getImportSchema(),
               table.getDescriptions(),
               table.getSemantics(),
@@ -361,7 +365,7 @@ public class MetadataUtils {
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
           .set(TABLE_LABEL, table.getLabels())
-          .set(TABLE_INHERITS, table.getInherit())
+          .set(TABLE_INHERITS, table.getInheritName())
           .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
           .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
@@ -456,7 +460,7 @@ public class MetadataUtils {
 
   private static TableMetadata recordToTable(org.jooq.Record r) {
     TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
-    table.setInherit(r.get(TABLE_INHERITS, String.class));
+    table.setInheritName(r.get(TABLE_INHERITS, String.class));
     table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
     table.setLabels(r.get(TABLE_LABEL) != null ? r.get(TABLE_LABEL, Map.class) : new TreeMap<>());
     table.setDescriptions(
@@ -478,7 +482,11 @@ public class MetadataUtils {
 
   protected static void saveColumnMetadata(DSLContext jooq, Column column) {
     String refSchema =
-        column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
+        column.isReference()
+            ? column.getRefSchemaName().equals(column.getSchemaName())
+                ? null
+                : column.getRefSchemaName()
+            : null;
     jooq.insertInto(COLUMN_METADATA)
         .columns(
             TABLE_SCHEMA,
@@ -501,6 +509,8 @@ public class MetadataUtils {
             COLUMN_DESCRIPTION,
             COLUMN_READONLY,
             COLUMN_SEMANTICS,
+            COLUMN_DEFAULT,
+            COLUMN_PROFILES,
             COLUMN_VISIBLE)
         .values(
             column.getTable().getSchema().getName(),
@@ -523,6 +533,8 @@ public class MetadataUtils {
             column.getDescriptions(),
             column.isReadonly(),
             column.getSemantics(),
+            column.getDefaultValue(),
+            column.getProfiles(),
             column.getVisible())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
@@ -543,7 +555,9 @@ public class MetadataUtils {
         .set(COLUMN_DESCRIPTION, column.getDescriptions())
         .set(COLUMN_READONLY, column.isReadonly())
         .set(COLUMN_SEMANTICS, column.getSemantics())
+        .set(COLUMN_PROFILES, column.getProfiles())
         .set(COLUMN_VISIBLE, column.getVisible())
+        .set(COLUMN_DEFAULT, column.getDefaultValue())
         .execute();
   }
 
@@ -567,7 +581,7 @@ public class MetadataUtils {
     c.setRequired(col.get(COLUMN_REQUIRED, Boolean.class));
     c.setKey(col.get(COLUMN_KEY, Integer.class));
     c.setPosition(col.get(COLUMN_POSITION, Integer.class));
-    c.setRefSchema(col.get(COLUMN_REF_SCHEMA, String.class));
+    c.setRefSchemaName(col.get(COLUMN_REF_SCHEMA, String.class));
     c.setRefTable(col.get(COLUMN_REF_TABLE, String.class));
     c.setRefLink(col.get(COLUMN_REF_LINK, String.class));
     c.setRefLabel(col.get(COLUMN_REF_LABEL, String.class));
@@ -581,7 +595,9 @@ public class MetadataUtils {
     c.setCascadeDelete(col.get(COLUMN_CASCADE, Boolean.class));
     c.setReadonly(col.get(COLUMN_READONLY, Boolean.class));
     c.setSemantics(col.get(COLUMN_SEMANTICS, String[].class));
+    c.setProfiles(col.get(COLUMN_PROFILES, String[].class));
     c.setVisible(col.get(COLUMN_VISIBLE, String.class));
+    c.setDefaultValue(col.get(COLUMN_DEFAULT, String.class));
     return c;
   }
 

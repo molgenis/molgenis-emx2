@@ -17,9 +17,9 @@ const props = withDefaults(
 
 const resourceIdPath = computed(() => {
   return (
-    Object.values(props.resourceId)[0] +
+    buildValueKey(props.resourceId) +
     "?keys=" +
-    new URLSearchParams(props.resourceId).toString()
+    JSON.stringify(props.resourceId)
   );
 });
 
@@ -127,6 +127,13 @@ const iconStarClasses = computed(() => {
           </dd>
         </div>
       </dl> -->
+      <template
+        v-if="!resource.acronym && !resource.name && !resource.description"
+      >
+        <div>{{ resource }}</div>
+        <hr class="m-3" />
+        <div>{{ resourceId }}</div>
+      </template>
     </div>
   </article>
 </template>

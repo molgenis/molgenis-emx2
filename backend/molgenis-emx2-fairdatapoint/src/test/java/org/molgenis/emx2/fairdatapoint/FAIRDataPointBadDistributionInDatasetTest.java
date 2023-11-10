@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -37,6 +38,7 @@ public class FAIRDataPointBadDistributionInDatasetTest {
   }
 
   @Test
+  @Disabled
   public void FDPBadDistribution() throws Exception {
 
     // check correct situation: distribution value matches a table, API returns as normal

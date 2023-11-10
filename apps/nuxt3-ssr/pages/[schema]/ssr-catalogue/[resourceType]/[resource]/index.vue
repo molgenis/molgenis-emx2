@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { LocationQueryValue } from ".nuxt/vue-router";
 import { gql } from "graphql-request";
-import {
+import type {
   IColumn,
   ISection,
   ISchemaMetaData,
   ITableMetaData,
-} from "interfaces/types";
+} from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 const resourceName: string = route.params.resourceType as string;
-const schemaName = route.params.schema.toString();
-const metadata = await fetchMetadata(schemaName);
+const schemaId = route.params.schema.toString();
+const metadata = await fetchMetadata(schemaId);
 
 const tableMetaDataFinderResult = metadata.tables.find(
   (t: ITableMetaData) =>
@@ -26,23 +25,21 @@ const tableMetaData = computed(() => {
   }
 });
 const resourceType = tableMetaData.value.id;
-const externalSchemaNames: string[] = extractExternalSchemas(metadata);
-const externalSchemas = await Promise.all(
-  externalSchemaNames.map(fetchMetadata)
-);
+const schemaIds: string[] = extractExternalSchemas(metadata);
+const externalSchemas = await Promise.all(schemaIds.map(fetchMetadata));
 const schemas = externalSchemas.reduce(
   (acc: Record<string, ISchemaMetaData>, schema) => {
-    acc[schema.name] = schema;
+    acc[schema.id] = schema;
     return acc;
   },
-  { [schemaName]: metadata }
+  { [schemaId]: metadata }
 );
 
-const fields = buildRecordDetailsQueryFields(schemas, schemaName, resourceType);
+const fields = buildRecordDetailsQueryFields(schemas, schemaId, resourceType);
 
-const keys = route.query.keys;
-const keysObject = locationQueryValueToObject(keys);
-const filter = buildFilterFromKeysObject(keysObject);
+const { key } = useQueryParams();
+
+const filter = buildFilterFromKeysObject(key);
 
 const query = gql`
   query ${resourceType}($filter: ${resourceType}Filter) {
@@ -118,9 +115,9 @@ function buildTOC(sections: ISection[]) {
 }
 
 function sectionTitle(section: ISection) {
-  return section.meta.descriptions
-    ? section.meta.descriptions[0].value
-    : section.meta.name;
+  return section.meta.description
+    ? section.meta.description
+    : section.meta.label;
 }
 
 let crumbs: Record<string, string> = {

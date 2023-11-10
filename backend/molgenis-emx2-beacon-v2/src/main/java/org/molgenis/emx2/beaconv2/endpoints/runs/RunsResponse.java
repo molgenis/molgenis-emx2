@@ -1,6 +1,6 @@
 package org.molgenis.emx2.beaconv2.endpoints.runs;
 
-import static org.molgenis.emx2.semantics.QueryHelper.mapToOntologyTerm;
+import static org.molgenis.emx2.beaconv2.endpoints.QueryHelper.mapToOntologyTerm;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -37,7 +37,7 @@ public class RunsResponse {
       GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
       ExecutionResult executionResult =
           grapql.execute(
-              "{SequencingRuns"
+              "{Runs"
                   + (idForQuery != null ? "(filter:{id: {equals:\"" + idForQuery + "\"}})" : "")
                   + "{"
                   + "id,"
@@ -54,8 +54,7 @@ public class RunsResponse {
 
       Map<String, Object> result = executionResult.toSpecification();
       List<Map<String, Object>> runsListFromJSON =
-          (List<Map<String, Object>>)
-              ((HashMap<String, Object>) result.get("data")).get("SequencingRuns");
+          (List<Map<String, Object>>) ((HashMap<String, Object>) result.get("data")).get("Runs");
 
       if (runsListFromJSON != null) {
         for (Map map : runsListFromJSON) {
