@@ -40,9 +40,6 @@ Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this r
 Resources,,website,hyperlink,,,,,,,,,Link to the website or homepage,EMA,,
 Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,EMA,,
 Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,EMA,,
-Studies,,other lead organisation,text_array,,,,,,,,,List the names of lead organisations that are not listed,EMA,,
-Studies,,other organisations,text,,,,Organisations,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA,,
-Networks,,other organisations,text,,,,Organisations,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA,,
 Resources,,description,text,,,,,,,,,Short description,EMA,,
 RWE resources,,data collection description,text,,,,,,,,,Describe the process of collection and recording of data.,EMA,,
 RWE resources,,date established,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,,
@@ -171,8 +168,8 @@ RWE resources,,cdms other,text,,,,,,,,,"If not in list above, give the name of c
 Databanks,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",,Databanks,ETLstandardVocabularies
 Databanks,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",,Databanks,ETLstandardVocabulariesOther
 Data resources,,information,heading,,,,,,,,,Other information,,,
-Data resources,,design paper,refback,,,,Publications,,resource,,,Publication(s) that describe(s) the design of this resource,,,
-Extended resources,,publications,refback,,,,Publications,,resource,,,Other publication(s) about this resource,EMA,,
+Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource,,,
+Extended resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,EMA,,
 Data resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?,,,
 RWE resources,,funding sources,ontology_array,,,CatalogueOntologies,Funding types,,,,,Specify the main financial support sources for the data source in the last 3 years. Select all that apply,EMA,,
 Studies,,funding scheme,ontology_array,,,CatalogueOntologies,Study funding,,,,,The source of funding for the study. Select all that apply,EMA,,
@@ -188,9 +185,18 @@ Studies,,networks other,text,,,,,,,,,List the names of any other networks that a
 RWE resources,,networks,refback,,,,Networks,,data sources,,,List of networks that this datasource is associated with,EMA,,
 RWE resources,,studies,refback,,,,Studies,,data sources,,,List of studies that this datasource is associated with,EMA,,
 Publications,,,,,,,,,,,,Publications following bibtex format,,,
-Publications,,resource,ref,1,TRUE,,Extended resources,,,,,Resource this publication belongs to,,,
 Publications,,doi,,1,TRUE,,,,,,,Digital object identifier,EMA,,
-Publications,,citation,text,,,,,,,,,Publication citation,EMA,,
+Publications,,title,text,,,,,,,,,Publication title,EMA,,
+Publications,,authors,string_array,,,,,,,,,"List of authors, one entry per author",,,
+Publications,,year,int,,,,,,,,,"Year of publication (or, if unpublished, year of creation)",,,
+Publications,,journal,,,,,,,,,,Journal or magazine the work was published in,,,
+Publications,,volume,int,,,,,,,,,Journal or magazine volume,,,
+Publications,,number,int,,,,,,,,,Journal or maragzine issue number,,,
+Publications,,pagination,,,,,,,,,,"Page numbers, separated either by commas or double-hyphens",,,
+Publications,,publisher,,,,,,,,,,Publisher's name,,,
+Publications,,school,,,,,,,,,,School where the thesis was written (in case of thesis),,,
+Publications,,abstract,text,,,,,,,,,Publication abstract,,,
+Publications,,resources,refback,,,,Extended resources,,publications,,,List of resources that refer to this publication,,,
 Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with,EMA,Contributions,resource
 Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource,EMA,Contributions,contributionType
 Contacts,,role description,text,,,,,,,,,Description of the role,,Contributions,contributionDescription
