@@ -1,0 +1,58 @@
+.app-page, .app-footer {
+  font-size: 13pt;
+  font-family: $font-family;
+}
+  
+.app-page {
+  .page-header {
+    .background-image-filter {
+      opacity: 0.5;
+    }
+  }
+
+  .page-section {
+    .page-section-content {
+      h1,
+      h2 {
+        color: $blue-900;
+      }
+
+      h2 {
+        margin-top: 1.4em;
+        margin-bottom: 0.8em;
+      }
+
+      ul {
+        line-height: 1.5;
+      }
+    }
+
+    &.bg-gray-050 {
+      background-color: $gray-050;
+    }
+
+    &.bg-blue-050 {
+      background-color: $blue-050;
+    }
+  }
+}
+
+.genturis-header {
+  filter: saturate(90%);
+  height: 28em;
+}
+
+.genturis-logo {
+  display: block;
+  width: 175px;
+
+  &.logo-medium {
+    width: 250px;
+  }
+
+  &.logo-large {
+    display: block;
+    margin: 1em auto;
+    width: 325px;
+  }
+}

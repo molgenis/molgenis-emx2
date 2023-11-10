@@ -16,7 +16,10 @@
       <h2 id="genturis-section-documents-title">Documents</h2>
       <p>Download additional information about the GENTURIS Registry.</p>
       <MessageBox type="error" v-if="error">
-        <p>Unable to retrieve the list of available files. Please sign in or try again later.</p>
+        <p>
+          Unable to retrieve the list of available files. Please sign in or try
+          again later.
+        </p>
       </MessageBox>
     </PageSection>
   </Page>

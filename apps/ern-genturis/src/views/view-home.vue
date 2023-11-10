@@ -41,8 +41,16 @@
         aria-labelledby="quicklinks-card-title"
         :data="[
           { name: 'about', label: 'About Us' },
-          { name: 'documents', label: 'Documents', image:'/bkg-image-documents.jpg' },
-          { name: 'dashboard', label: 'Dashboard', image:'/bkg-image-dashboard.jpg' },
+          {
+            name: 'documents',
+            label: 'Documents',
+            image: '/bkg-image-documents.jpg',
+          },
+          {
+            name: 'dashboard',
+            label: 'Dashboard',
+            image: '/bkg-image-dashboard.jpg',
+          },
         ]"
         name="name"
         label="label"
