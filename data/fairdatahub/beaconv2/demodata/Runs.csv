@@ -1,6 +1,6 @@
 id,biosampleId,individualId,runDate,librarySource,librarySelection,libraryStrategy,libraryLayout,platform,platformModel
-SRR10903401,Sample0001,Ind001,2019-02-01,genomic source,cDNA method,WGS strategy,PAIRED,PacBio platform,PacBio RS II
-SRR10903402,Sample0002,Ind002,2020-01-02,transcriptomic source,DNAse method,RNA-Seq strategy,SINGLE,Illumina platform,Illumina NextSeq 2000
-SRR10903403,Sample0002,Ind002,2021-02-01,genomic source,cDNA method,WGS strategy,PAIRED,PacBio platform,PacBio RS II
-SRR10903404,Sample0001,Ind001,2022-01-02,transcriptomic source,DNAse method,RNA-Seq strategy,SINGLE,Illumina platform,Illumina NextSeq 2000
+SRR10903401,Sample0001,Ind001,2019-02-01,genomic source,cDNA method,"Whole-Genome Shotgun Sequencing",PAIRED,PacBio platform,PacBio RS II
+SRR10903402,Sample0002,Ind002,2020-01-02,transcriptomic source,DNAse method,"Whole Transcriptome Sequencing",SINGLE,Illumina platform,Illumina NextSeq 2000
+SRR10903403,Sample0002,Ind002,2021-02-01,genomic source,cDNA method,"Whole-Genome Shotgun Sequencing",PAIRED,PacBio platform,PacBio RS II
+SRR10903404,Sample0001,Ind001,2022-01-02,transcriptomic source,DNAse method,"Whole Transcriptome Sequencing",SINGLE,Illumina platform,Illumina NextSeq 2000
 MinSRR10903,MinSample3,,2022-03-19,,,,,,

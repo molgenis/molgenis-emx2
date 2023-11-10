@@ -1,8 +1,15 @@
 <script setup lang="ts">
-defineProps<{
+import type { IVariable } from "~/interfaces/types";
+import { getKey } from "~/utils/variableUtils";
+
+const props = defineProps<{
   variable: IVariable;
   schema: string;
 }>();
+
+const variableKey = computed(() => getKey(props.variable));
+
+const resourcePathId = resourceIdPath(variableKey.value);
 </script>
 
 <template>
@@ -11,7 +18,7 @@ defineProps<{
       <div class="grow flex items-center">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/ssr-catalogue/variables/${variable.name}`"
+            :to="`/${schema}/ssr-catalogue/variables/${resourcePathId}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ variable?.name }}
@@ -30,7 +37,7 @@ defineProps<{
           class="text-blue-500 xl:justify-end"
         />
         -->
-        <NuxtLink :to="`/${schema}/ssr-catalogue/variables/${variable.name}`">
+        <NuxtLink :to="`/${schema}/ssr-catalogue/variables/${resourcePathId}`">
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"

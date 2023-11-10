@@ -92,7 +92,9 @@ const isAnalyticsEnabled = computed(() => {
 <docs>
 <template>
   <demo-item>
+
     <CookieWall @acceptCookie=handleAcceptCookie></CookieWall>
+
     <div class="mb-3">cookie 'mg_allow_analytics' is set to: {{cookieValue}}</div>
     <p>You can replace the default message by placing a custom message in de default slot</p>
     <p>Override the default button labels using the 'acceptLabel' and 'rejectLabel' props</p>

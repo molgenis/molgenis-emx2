@@ -1,11 +1,12 @@
 // fetchData
 // retrive data from a given endpoint using graphql
 //
+// @param url the endpoint to send the request
 // @param query string containing a graphql query
 //
 // @return json
-export async function fetchData(query) {
-  const response = await fetch("graphql", {
+export async function fetchData(url, query) {
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

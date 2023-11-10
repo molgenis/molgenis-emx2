@@ -3,28 +3,42 @@
     <p>
       This database was created using
       <a href="https://www.molgenis.org/">MOLGENIS open source software</a>
-      <span v-if="version">using version {{ version }}</span>
+      <span v-if="manifest.SpecificationVersion">
+        using version {{ manifest.SpecificationVersion }}</span
+      >
     </p>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchData } from "../../utils/utils";
+import gql from "graphql-tag";
+import { request } from "graphql-request";
 
-let version = ref(null);
+let manifest = ref({});
 
-const query = `{
-  _manifest {
-    DatabaseVersion
-    SpecificationVersion
-  }
-}`;
+async function getManifest() {
+  const query = gql`
+    {
+      _manifest {
+        ImplementationVersion
+        SpecificationVersion
+        DatabaseVersion
+      }
+    }
+  `;
+  const result = await request("/api/graphql", query);
+  return result._manifest;
+}
+
+async function loadData() {
+  manifest.value = await getManifest();
+}
 
 onMounted(() => {
-  Promise.resolve(fetchData(query)).then((response) => {
-    const data = response.data._manifest;
-    version.value = data.SpecificationVersion;
+  loadData().catch((err) => {
+    console.error(err);
+    throw new Error("Unable to retrieve manifest");
   });
 });
 </script>

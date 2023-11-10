@@ -380,7 +380,7 @@ public class Row {
   }
 
   public boolean notNull(String columnName) {
-    return values.get(columnName) != null;
+    return values.get(columnName) != null && !values.get(columnName).toString().trim().equals("");
   }
 
   public boolean isNull(String columnName, ColumnType type) {

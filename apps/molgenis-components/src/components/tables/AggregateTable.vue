@@ -1,11 +1,11 @@
 <template>
   <div>
     <Spinner v-if="loading" class="m-3" />
-    <div v-else-if="!refColumns.length" class="alert alert-warning">
-      Not enough input to create an aggregate table
+    <div v-else-if="refColumns.length === 0" class="alert alert-warning">
+      Not enough input to create an aggregate table. Need at least 1 column with
+      permission that can be used as group by.
     </div>
-
-    <div class="border d-inline-block p-2 bg-white">
+    <div v-else class="border d-inline-block p-2 bg-white">
       <div class="aggregate-options">
         <table>
           <tr>
@@ -94,12 +94,17 @@ import IAggregateData from "./IAggregateData";
 import Client from "../../client/client";
 import InputSelect from "../forms/InputSelect.vue";
 import { IColumn } from "../../Interfaces/IColumn";
+import { INewClient } from "../../client/IClient";
 
 export default defineComponent({
   name: "AggregateTable",
   components: { TableStickyHeaders, InputSelect },
   props: {
-    schemaName: {
+    canView: {
+      type: Boolean,
+      required: true,
+    },
+    schemaId: {
       type: String,
       required: true,
     },
@@ -107,7 +112,7 @@ export default defineComponent({
       type: Array,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
@@ -125,12 +130,13 @@ export default defineComponent({
       selectedColumn: "",
       selectedRow: "",
       refColumns: [] as string[],
-      loading: true,
+      loading: false,
       rows: [] as string[],
       columns: [] as string[],
       aggregateData: {} as IAggregateData,
       noResults: false,
       errorMessage: undefined,
+      client: {} as INewClient,
     };
   },
   methods: {
@@ -140,16 +146,15 @@ export default defineComponent({
       this.rows = [];
       this.columns = [];
       this.aggregateData = {};
-      const client = Client.newClient(this.schemaName);
-      const responseData = await client
+      const responseData = await this.client
         .fetchAggregateData(
-          this.tableName,
+          this.tableId,
           {
-            name: this.selectedColumn,
+            id: this.selectedColumn,
             column: "name",
           },
           {
-            name: this.selectedRow,
+            id: this.selectedRow,
             column: "name",
           },
           this.graphqlFilter
@@ -157,11 +162,11 @@ export default defineComponent({
         .catch((error) => {
           this.errorMessage = error;
         });
-      if (responseData && responseData[this.tableName + "_groupBy"]) {
-        responseData[this.tableName + "_groupBy"].forEach((item: any) =>
+      if (responseData && responseData[this.tableId + "_groupBy"]) {
+        responseData[this.tableId + "_groupBy"].forEach((item: any) =>
           this.addItem(item)
         );
-        this.noResults = !Boolean(this.columns.length);
+        this.noResults = !this.columns.length;
       } else {
         this.noResults = true;
       }
@@ -184,50 +189,70 @@ export default defineComponent({
         this.rows.push(row);
       }
     },
-  },
-  created() {
-    if (this.allColumns.length > 0) {
-      this.refColumns = getRefTypeColumns(this.allColumns as IColumn[]);
+    initialize() {
+      if (this.allColumns.length > 0) {
+        this.refColumns = getRefTypeColumns(
+          this.allColumns as IColumn[],
+          this.canView
+        );
+      }
       if (this.refColumns?.length > 0) {
         this.selectedColumn = this.refColumns[0];
         this.selectedRow = this.refColumns[1] || this.refColumns[0];
+        this.fetchData();
       }
-    }
-    this.fetchData();
+    },
+  },
+  watch: {
+    allColumns() {
+      this.initialize();
+    },
+  },
+  mounted() {
+    this.client = Client.newClient(this.schemaId);
+    this.initialize();
   },
 });
 
-function getRefTypeColumns(columns: IColumn[]): string[] {
+function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
   return columns
-    .filter((column: IColumn) => isRefType(column))
-    .map((column: IColumn) => column.name);
-}
-
-function isRefType(column: IColumn): boolean {
-  return (
-    column.columnType.startsWith("REF") ||
-    column.columnType.startsWith("ONTOLOGY")
-  );
+    .filter((column: IColumn) => {
+      return (
+        (column.columnType.startsWith("REF") && canView) ||
+        column.columnType.startsWith("ONTOLOGY")
+      );
+    })
+    .map((column: IColumn) => column.id);
 }
 </script>
 
 <docs>
 <template>
   <demo-item>
-    <label>AggregateTable</label>
+    <label>AggregateTable with canview=false</label>
     <AggregateTable
-      tableName="Pet"
-      schemaName="pet store"
+      tableId="Pet"
+      schemaId="pet store"
       :allColumns="allColumns"
       :minimumValue="1"
+      :canView="false"
+    />
+    <label>AggregateTable with canview=true</label>
+    <AggregateTable
+      tableId="Pet"
+      schemaId="pet store"
+      :allColumns="allColumns"
+      :minimumValue="1"
+      :canView="true"
     />
     <label>AggregateTable with filters set</label>
     <AggregateTable
-      tableName="Pet"
-      schemaName="pet store"
+      tableId="Pet"
+      schemaId="pet store"
       :allColumns="allColumns"
       :minimumValue="1"
       :graphqlFilter="graphqlFilter"
+      :canView="true"
     />
   </demo-item>
 </template>
@@ -238,19 +263,19 @@ export default {
     return {
       allColumns: [
         {
-          name: "name",
+          id: "name",
           columnType: "STRING",
         },
         {
-          name: "category",
+          id: "category",
           columnType: "REF",
         },
         {
-          name: "tags",
+          id: "tags",
           columnType: "ONTOLOGY_ARRAY",
         },
         {
-          name: "orders",
+          id: "orders",
           columnType: "REFBACK",
         },
       ],

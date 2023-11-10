@@ -1,7 +1,8 @@
 package org.molgenis.emx2;
 
 public enum Privileges {
-
+  // can aggregate
+  AGGREGATOR("Aggregator"),
   // can select
   VIEWER("Viewer"),
   // can insert, update, delete, implies Viewer

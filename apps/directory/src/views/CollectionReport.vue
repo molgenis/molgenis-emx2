@@ -9,7 +9,6 @@
     </div>
 
     <div
-      class="hello"
       v-if="loaded && collectionDataAvailable && bioschemasJsonld"
       v-html="bioschemasJsonld"
     />
@@ -22,36 +21,15 @@
     <div class="container-fluid" v-if="loaded && collectionDataAvailable">
       <div class="row">
         <div class="col my-3 shadow-sm d-flex p-2 align-items-center bg-white">
-          <breadcrumb>
-            <ol class="breadcrumb my-1">
-              <li class="breadcrumb-item">
-                <router-link to="/catalogue" title="Back to the catalogue">
-                  {{ uiText["home"] }}
-                </router-link>
-              </li>
-              <li class="breadcrumb-item">
-                <router-link
-                  :to="'/biobank/' + collection.biobank.id"
-                  :title="'Go to biobank ' + collection.biobank.name"
-                >
-                  {{ collection.biobank.name }}
-                </router-link>
-              </li>
-              <li class="breadcrumb-item" v-if="info.parentCollection">
-                <router-link
-                  :to="'/collection/' + info.parentCollection.id"
-                  :title="
-                    'Go to parent collection ' + info.parentCollection.name
-                  "
-                >
-                  {{ info.parentCollection.name }}
-                </router-link>
-              </li>
-              <li class="breadcrumb-item active text-dark" aria-current="page">
-                {{ collection.name }}
-              </li>
-            </ol>
-          </breadcrumb>
+          <Breadcrumb
+            class="directory-nav"
+            :crumbs="{
+              [uiText['home']]: '../#/',
+              [collection.biobank
+                .name]: `../#/biobank/${collection.biobank.id}`,
+              [collection.name]: `../#/collection/${collection.id}`,
+            }"
+          />
           <check-out
             v-if="collection"
             class="ml-auto"
@@ -75,16 +53,13 @@
                   :collection="collection"
                 />
               </div>
-
               <!-- Right side card -->
               <collection-report-info-card :info="info" />
             </div>
             <!-- facts data -->
-            <!-- <div
-              class="row"
-              v-if="factsData && Object.keys(factsData).length > 0">
-              <facts-table :attribute="factsData"></facts-table>
-            </div> -->
+            <div class="row" v-if="facts && facts.length > 0">
+              <facts-table class="w-100 px-3" :attribute="facts"></facts-table>
+            </div>
           </div>
         </div>
       </div>
@@ -96,9 +71,8 @@
 <script setup>
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
-import { Spinner } from "../../../molgenis-components";
+import { Breadcrumb, Spinner } from "../../../molgenis-components";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
-import Breadcrumb from "../components/micro-components/BreadcrumbComponent.vue";
 import CollectionReportInfoCard from "../components/report-components/CollectionReportInfoCard.vue";
 import ReportCollectionDetails from "../components/report-components/ReportCollectionDetails.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
@@ -107,12 +81,14 @@ import { collectionReportInformation } from "../functions/viewmodelMapper";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
 import { useSettingsStore } from "../stores/settingsStore";
+import FactsTable from "../components/report-components/FactsTable.vue";
 
 const settingsStore = useSettingsStore();
 const collectionStore = useCollectionStore();
 const qualitiesStore = useQualitiesStore();
 
 const collection = ref({});
+const facts = ref({});
 const route = useRoute();
 
 let loaded = ref(false);
@@ -121,6 +97,10 @@ const collectionsPromise = collectionStore
   .getCollectionReport(route.params.id)
   .then((result) => {
     collection.value = result.Collections.length ? result.Collections[0] : {};
+    facts.value =
+      result.CollectionFacts && result.CollectionFacts.length
+        ? result.CollectionFacts
+        : {};
   });
 const qualitiesPromise = qualitiesStore.getQualityStandardInformation();
 Promise.all([qualitiesPromise, collectionsPromise]).then(() => {
@@ -152,10 +132,6 @@ function wrapBioschema(schemaData) {
     schemaData
   )}<\/script>`;
 }
-// factsData() {
-//   // TODO rework this so that facts are stand-alone, this is a workaround because @ReportCollectionDetails
-//   return { value: this.collection.facts };
-// }
 </script>
 
 <style scoped>

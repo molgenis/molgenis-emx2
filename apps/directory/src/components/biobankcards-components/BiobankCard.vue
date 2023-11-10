@@ -5,7 +5,7 @@
         'border border-secondary': biobankInSelection,
         'back-side': showCollections,
       },
-      fullSize ? 'biobank-card-large' : 'biobank-card',
+      'biobank-card',
     ]"
   >
     <section class="d-flex flex-column align-items-center">
@@ -172,7 +172,7 @@ import {
 } from "../../functions/viewmodelMapper";
 import ViewGenerator from "../generators/ViewGenerator.vue";
 import CollectionSelector from "../checkout-components/CollectionSelector.vue";
-import InfoPopover from "../popovers/InfoPopover.vue";
+import { InfoPopover } from "molgenis-components";
 import MatchesOn from "../biobankcards-components/MatchesOn.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useQualitiesStore } from "../../stores/qualitiesStore";
@@ -339,10 +339,6 @@ export default {
 
 .biobank-card {
   width: 25rem;
-}
-
-.biobank-card-large {
-  width: 90%;
 }
 
 .biobank-card > header,

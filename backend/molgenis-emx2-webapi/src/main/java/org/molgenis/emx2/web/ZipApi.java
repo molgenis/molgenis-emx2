@@ -38,6 +38,9 @@ public class ZipApi {
     // hide constructor
   }
 
+  static final String APPLICATION_ZIP_MIME_TYPE = "application/zip";
+  static final String CONTENT_DISPOSITION = "Content-Disposition";
+
   public static void create() {
     // schema level operations
     final String schemaPath = "/:schema/api/zip"; // NOSONAR
@@ -59,16 +62,15 @@ public class ZipApi {
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Schema schema = getSchema(request);
+      String fileName = schema.getMetadata().getName() + System.currentTimeMillis() + ".zip";
+
+      response.type(APPLICATION_ZIP_MIME_TYPE);
+      response.header(CONTENT_DISPOSITION, "attachment; filename=" + fileName);
+
       Path zipFile = tempDir.resolve("download.zip");
       MolgenisIO.toZipFile(zipFile, schema, includeSystemColumns);
       outputStream.write(Files.readAllBytes(zipFile));
-      response.type("application/zip");
-      response.header(
-          "Content-Disposition",
-          "attachment; filename="
-              + schema.getMetadata().getName()
-              + System.currentTimeMillis()
-              + ".zip");
+
       return "Export success";
     } finally {
       try (Stream<Path> files = Files.walk(tempDir)) {
@@ -126,18 +128,19 @@ public class ZipApi {
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
-      Path zipFile = tempDir.resolve("download.zip");
-      MolgenisIO.toZipFile(zipFile, table, includeSystemColumns);
-      outputStream.write(Files.readAllBytes(zipFile));
-      response.type("application/zip");
-      response.header(
-          "Content-Disposition",
-          "attachment; filename="
-              + table.getSchema().getMetadata().getName()
+      String tableName =
+          table.getSchema().getMetadata().getName()
               + "_"
               + table.getName()
               + System.currentTimeMillis()
-              + ".zip");
+              + ".zip";
+      response.type(APPLICATION_ZIP_MIME_TYPE);
+      response.header(CONTENT_DISPOSITION, "attachment; filename=" + tableName);
+
+      Path zipFile = tempDir.resolve("download.zip");
+      MolgenisIO.toZipFile(zipFile, table, includeSystemColumns);
+      outputStream.write(Files.readAllBytes(zipFile));
+
       return "Export success";
     } finally {
       try (Stream<Path> files = Files.walk(tempDir)) {
@@ -151,6 +154,9 @@ public class ZipApi {
         Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT); // NOSONAR
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
+      response.type(APPLICATION_ZIP_MIME_TYPE);
+      response.header(CONTENT_DISPOSITION, "attachment; filename=reports.zip");
+
       FileUtils.getTempFile("download", ".zip");
       Path zipFile = tempDir.resolve("download.zip");
       TableStoreForCsvInZipFile store = new TableStoreForCsvInZipFile(zipFile);
@@ -160,8 +166,6 @@ public class ZipApi {
 
       // copy the zip to output
       outputStream.write(Files.readAllBytes(zipFile));
-      response.type("application/zip");
-      response.header("Content-Disposition", "attachment; filename=reports.zip");
       return "Export success";
     } finally {
       try (Stream<Path> files = Files.walk(tempDir)) {
@@ -182,7 +186,11 @@ public class ZipApi {
       String sql = (String) reportObject.get("sql");
       String name = (String) reportObject.get("name");
       List<Row> rows = schema.retrieveSql(sql, parameters);
-      store.writeTable(name, new ArrayList<>(rows.get(0).getColumnNames()), rows);
+      if (rows.size() > 0) {
+        store.writeTable(name, new ArrayList<>(rows.get(0).getColumnNames()), rows);
+      } else {
+        store.writeTable(name, new ArrayList<>(), rows);
+      }
     }
   }
 

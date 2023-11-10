@@ -25,44 +25,44 @@ import spark.staticfiles.StaticFilesConfiguration;
 
 public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
-  // map so we can track the sessions, necessary for 'clearCache' in case of schema changes
-  // session id is the key
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
 
   public MolgenisSessionManager() {
     createCustomJettyServerFactoryWithCustomSessionListener();
   }
 
-  /** Retrieve MolgenisSession for current request */
   public MolgenisSession getSession(Request request) {
-    // if new session create a MolgenisSession object
-    if (request.session().isNew()) {
-      // jetty session will manage session create/destroy, see handler in constructor
-      request.session(true);
+    String authTokenKey = findUsedAuthTokenKey(request);
+    if (authTokenKey != null) {
+      return getNonPersistedSessionBasedOnToken(request, authTokenKey);
+    } else {
+      return getPersistentSessionBasedOnSessionId(request);
     }
+  }
 
-    // get the session
+  private MolgenisSession getPersistentSessionBasedOnSessionId(Request request) {
+    if (request.session().isNew()) {
+      request.session(true); // see createCustomJettyServerFactoryWithCustomSessionListener
+    }
     MolgenisSession session = sessions.get(request.session().id());
     if (session.getSessionUser() == null) {
       throw new MolgenisException(
           "Invalid session found with user == null. This should not happen so please report as a bug");
     } else {
-      // check if we should apply a token
-      String authTokenKey = findUsedAuthTokenKey(request);
-      if (authTokenKey != null) {
-        String user =
-            JWTgenerator.getUserFromToken(session.getDatabase(), request.headers(authTokenKey));
-        if (!session.getDatabase().getActiveUser().equals(user)) {
-          session.getDatabase().setActiveUser(user);
-        }
-      }
-
       logger.info(
           "get session for user({}) and key ({})",
           session.getSessionUser(),
           request.session().id());
     }
     return session;
+  }
+
+  private MolgenisSession getNonPersistedSessionBasedOnToken(Request request, String authTokenKey) {
+    SqlDatabase database = new SqlDatabase(false);
+    database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
+    String user = JWTgenerator.getUserFromToken(database, request.headers(authTokenKey));
+    database.setActiveUser(user);
+    return new MolgenisSession(database);
   }
 
   /**

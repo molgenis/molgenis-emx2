@@ -41,34 +41,13 @@ export function flattenObject(object: Record<string, any>): string {
   }
 }
 
-export function getPrimaryKey(
-  row: IRow,
-  tableMetadata: ITableMetaData
-): Record<string, any> | null {
-  //we only have pkey when the record has been saved
-  if (!row["mg_insertedOn"] || !tableMetadata?.columns) {
-    return null;
-  } else {
-    return tableMetadata.columns.reduce(
-      (accum: Record<string, any>, column: IColumn) => {
-        const cellValue = row[column.id];
-        if (column.key === 1 && cellValue) {
-          accum[column.id] = cellValue;
-        }
-        return accum;
-      },
-      {}
-    );
-  }
-}
-
 export async function convertRowToPrimaryKey(
   row: IRow,
-  tableName: string,
-  schemaName: string
+  tableId: string,
+  schemaId: string
 ): Promise<Record<string, any>> {
-  const client = Client.newClient(schemaName);
-  const tableMetadata = await client.fetchTableMetaData(tableName);
+  const client = Client.newClient(schemaId);
+  const tableMetadata = await client.fetchTableMetaData(tableId);
   if (!tableMetadata?.columns) {
     throw new Error("Empty columns in metadata");
   } else {
@@ -80,7 +59,7 @@ export async function convertRowToPrimaryKey(
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
-            column.refSchema || schemaName
+            column.refSchemaId || schemaId
           );
         }
         return accum;
@@ -90,19 +69,15 @@ export async function convertRowToPrimaryKey(
   }
 }
 
-async function getKeyValue(
-  cellValue: any,
-  column: IColumn,
-  schemaName: string
-) {
+async function getKeyValue(cellValue: any, column: IColumn, schemaId: string) {
   if (typeof cellValue === "string") {
     return cellValue;
   } else {
-    if (column.refTable) {
+    if (column.refTableId) {
       return await convertRowToPrimaryKey(
         cellValue,
-        column.refTable,
-        schemaName
+        column.refTableId,
+        schemaId
       );
     }
   }
@@ -145,7 +120,7 @@ export function flipSign(value: string): string | null {
 const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
 
 export function getBigIntError(value: string): string | undefined {
-  if (value === "-" || isInvalidBigInt(value)) {
+  if (isInvalidBigInt(value)) {
     return BIG_INT_ERROR;
   } else {
     return undefined;
@@ -153,68 +128,11 @@ export function getBigIntError(value: string): string | undefined {
 }
 
 export function isInvalidBigInt(value: string): boolean {
-  return (
-    value !== null &&
-    (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
-  );
-}
-
-export function convertToCamelCase(string: string): string {
-  const words = string.trim().split(/\s+/);
-  let result = "";
-  words.forEach((word: string, index: number) => {
-    if (index === 0) {
-      result += word.charAt(0).toLowerCase();
-    } else {
-      result += word.charAt(0).toUpperCase();
-    }
-    if (word.length > 1) {
-      result += word.slice(1);
-    }
-  });
-  return result;
-}
-
-export function convertToPascalCase(string: string): string {
-  const words = string.trim().split(/\s+/);
-  let result = "";
-  words.forEach((word: string) => {
-    result += word.charAt(0).toUpperCase();
-    if (word.length > 1) {
-      result += word.slice(1);
-    }
-  });
-  return result;
-}
-
-export function getLocalizedLabel(
-  tableOrColumnMetadata: ITableMetaData | IColumn,
-  locale?: string
-): string {
-  let label;
-  if (tableOrColumnMetadata?.labels) {
-    label = tableOrColumnMetadata.labels.find(
-      (el) => el.locale === locale
-    )?.value;
-    if (!label) {
-      label = tableOrColumnMetadata.labels.find(
-        (el) => el.locale === "en"
-      )?.value;
-    }
-  }
-  if (!label) {
-    label = tableOrColumnMetadata.name;
-  }
-  return label;
-}
-
-export function getLocalizedDescription(
-  tableOrColumnMetadata: ITableMetaData | IColumn,
-  locale: string
-): string | undefined {
-  if (tableOrColumnMetadata.descriptions) {
-    return tableOrColumnMetadata.descriptions.find((el) => el.locale === locale)
-      ?.value;
+  const isValidRegex = /^-?\d+$/;
+  if (Boolean(value) && isValidRegex.test(value)) {
+    return BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG);
+  } else {
+    return true;
   }
 }
 
@@ -225,17 +143,17 @@ export function applyJsTemplate(
   if (object === undefined || object === null) {
     return "";
   }
-  const names = Object.keys(object);
+  const ids = Object.keys(object);
   const vals = Object.values(object);
   try {
     // @ts-ignore
-    return new Function(...names, "return `" + labelTemplate + "`;")(...vals);
+    return new Function(...ids, "return `" + labelTemplate + "`;")(...vals);
   } catch (err: any) {
     // The template is not working, lets try and fail gracefully
     console.log(
       err.message +
         " we got keys:" +
-        JSON.stringify(names) +
+        JSON.stringify(ids) +
         " vals:" +
         JSON.stringify(vals) +
         " and template: " +
@@ -243,15 +161,15 @@ export function applyJsTemplate(
     );
 
     if (object.hasOwnProperty("primaryKey")) {
-      return flattenObject(object.primaryKey);
+      return flattenObject((object as any).primaryKey);
     }
 
     if (object.hasOwnProperty("name")) {
-      return object.name;
+      return (object as any).name;
     }
 
     if (object.hasOwnProperty("id")) {
-      return object.id;
+      return (object as any).id;
     }
     return flattenObject(object);
   }

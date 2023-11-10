@@ -1,5 +1,6 @@
 import Client from "../src/client/client.ts";
 import { request } from "../src/client/client.ts";
+import QueryEMX2 from "../src/queryEmx2/queryEmx2.js";
 
 //account
 import MolgenisAccount from "../src/components/account/MolgenisAccount.vue";
@@ -33,6 +34,7 @@ import ButtonAction from "../src/components/forms/ButtonAction.vue";
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
 import ButtonDanger from "../src/components/forms/ButtonDanger.vue";
 import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
+import HtmlDropdown from "../src/components/forms/HtmlDropdown.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import ConfirmModal from "../src/components/forms/ConfirmModal.vue";
@@ -51,6 +53,7 @@ import InputDate from "../src/components/forms/InputDate.vue";
 import InputDateTime from "../src/components/forms/InputDateTime.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
 import InputFile from "../src/components/forms/InputFile.vue";
+import InputEmail from "../src/components/forms/InputEmail.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
 import InputInt from "../src/components/forms/InputInt.vue";
@@ -73,7 +76,9 @@ import InputSelect from "../src/components/forms/InputSelect.vue";
 import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputText from "../src/components/forms/InputText.vue";
+import InfoPopover from "../src/components/forms/InfoPopover.vue";
 import LocaleSwitch from "../src/components/account/LocaleSwitch.vue";
+import TooltipComponent from "../src/components/forms/TooltipComponent.vue";
 import Tooltip from "../src/components/forms/Tooltip.vue";
 
 import MessageError from "../src/components/forms/MessageError.vue";
@@ -93,6 +98,7 @@ import Molgenis from "../src/components/layout/Molgenis.vue";
 import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
 import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
+import SimpleModal from "../src/components/layout/SimpleModal.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
 import Tab from "../src/components/layout/Tab.vue";
@@ -133,13 +139,12 @@ import TaskManager from "../src/components/task/TaskManager.vue";
 //utils
 import {
   deepClone,
-  convertToCamelCase,
-  convertToPascalCase,
-  getLocalizedDescription,
-  getLocalizedLabel,
   flattenObject,
   applyJsTemplate,
 } from "../src/components/utils";
+
+import { getRowErrors } from "../src/components/forms/formUtils/formUtils";
+
 import constants, { privacyConstants } from "../src/components/constants";
 
 export {
@@ -170,11 +175,13 @@ export {
   ButtonSubmit,
   Client,
   ConfirmModal,
+  DataDisplayCell,
   EditModal,
   FileDisplay,
   FormGroup,
   FormInput,
   FormMolgenis,
+  HtmlDropdown,
   IconAction,
   IconBar,
   IconDanger,
@@ -186,6 +193,7 @@ export {
   InputDate,
   InputDateTime,
   InputDecimal,
+  InputEmail,
   InputFile,
   InputGroup,
   InputInt,
@@ -208,6 +216,7 @@ export {
   InputSelectInplace,
   InputString,
   InputText,
+  InfoPopover,
   LocaleSwitch,
   MessageError,
   MessageSuccess,
@@ -224,9 +233,9 @@ export {
   LayoutForm,
   LayoutModal,
   Molgenis,
+  Pagination,
   Spinner,
   VueTemplate,
-  DataDisplayCell,
   AggregateTable,
   RoutedTableExplorer,
   TableExplorer,
@@ -240,6 +249,7 @@ export {
   TaskManager,
   TaskList,
   TextDisplay,
+  TooltipComponent,
   Tooltip,
   MolgenisAccount,
   MolgenisFooter,
@@ -247,11 +257,12 @@ export {
   MolgenisSession,
   MolgenisSignin,
   MolgenisSignup,
+  QueryEMX2,
   ReadMore,
   ShowHide,
   ShowMore,
+  SimpleModal,
   StringDisplay,
-  Pagination,
   RowButton,
   ListDisplay,
   ObjectDisplay,
@@ -260,10 +271,7 @@ export {
   constants,
   privacyConstants,
   request,
-  convertToPascalCase,
-  convertToCamelCase,
-  getLocalizedDescription,
-  getLocalizedLabel,
   flattenObject,
   applyJsTemplate,
+  getRowErrors,
 };

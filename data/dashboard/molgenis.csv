@@ -1,12 +1,12 @@
 tableName,tableType,tableExtends,columnName,columnType,key,required,refTable,refBack,semantics,description
-inclusionCriteria,,,,,,,,,,Define or modify inclusion criteria for each subgroup
+inclusionCriteria,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0500027,"An inclusion criterion (rule) is_a *eligibility criterion* which defines and states a condition which, if met, makes an entity suitable for a given task or participation in a given process. For instance, in a study protocol, inclusion criteria indicate the conditions that prospective subjects MUST meet to be eligible for participation in a study."
 inclusionCriteria,,,id,string,1,TRUE,,,http://purl.obolibrary.org/obo/NCIT_C25364,A unique ID used to identify a group
 inclusionCriteria,,,name,string,,,,,https://schema.org/name,A unique ID used to identify a group
-inclusionCriteria,,,criteria,heading,,,,,,An inclusion criteria
-inclusionCriteria,,,type,string,,,,,,"A variable to identify criteria for a specific group (e.g., ""genes"", ""disease"", etc.)"
+inclusionCriteria,,,criteria,heading,,,,,http://purl.obolibrary.org/obo/NCIT_C25466,"That which constitutes a standard from which a judgment can be established, a reference point against which other things can be evaluated, or a basis for comparison."
+inclusionCriteria,,,type,string,,,,,http://purl.obolibrary.org/obo/NCIT_C25284,Something distinguishable as an identifiable class based on common qualities
 inclusionCriteria,,,value,string,,,,,http://www.w3.org/ns/prov#value,"values used to select rows (IDs, codes, etc.)"
 inclusionCriteria,,,label,string,,,,,http://www.w3.org/2000/01/rdf-schema#label,additional context that describes the criteria
-dataproviders,,,,,,,,,,Information about organisations within the context of the project
+dataproviders,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0000947,Information about organisations within the context of the project
 dataproviders,,,providerIdentifier,string,1,TRUE,,,http://purl.obolibrary.org/obo/NCIT_C25364,
 dataproviders,,,organisation,ref,,,organisations,,http://purl.obolibrary.org/obo/NCIT_C25412,
 dataproviders,,,hasSubmittedData,bool,,,,,http://purl.obolibrary.org/obo/NCIT_C172872,"An indication that a file, record, or dataset has been sbmitted to a data repository"
@@ -24,4 +24,8 @@ organisations,ONTOLOGIES,,city,string,,,,,NCIT_C25160 http://purl.obolibrary.org
 organisations,ONTOLOGIES,,country,string,,,,,NCIT_C25464 http://purl.obolibrary.org/obo/NCIT_C25464,"A collective generic term that refers here to a wide variety of dependencies, areas of special sovereignty, uninhabited islands, and other entities in addition to the traditional countries or independent states."
 organisations,ONTOLOGIES,,latitude,decimal,,,,,NCIT_C68642 http://purl.obolibrary.org/obo/NCIT_C68642,The angular distance north or south between an imaginary line around a heavenly body parallel to its equator and the equator itself.
 organisations,ONTOLOGIES,,longitude,decimal,,,,,NCIT_C68643 http://purl.obolibrary.org/obo/NCIT_C68643,An imaginary great circle on the surface of a heavenly body passing through the poles at right angles to the equator.
-organisations,ONTOLOGIES,,providerInformation,refback,,,dataproviders,organisation,,
+organisations,ONTOLOGIES,,organisationType,string,,,,,http://purl.obolibrary.org/obo/NCIT_C25284,Something distinguishable as an identifiable class based on common qualities
+organisations,ONTOLOGIES,,providerInformation,refback,,,dataproviders,organisation,http://purl.obolibrary.org/obo/OBI_0000947,
+organisations,ONTOLOGIES,,imageUrl,string,,,,,http://purl.obolibrary.org/obo/NCIT_C95829,A URL-formatted web address for a set of images stored together.
+users,ONTOLOGIES,,,,,,,,,
+users,ONTOLOGIES,,organisation,ref,,,organisations,,,

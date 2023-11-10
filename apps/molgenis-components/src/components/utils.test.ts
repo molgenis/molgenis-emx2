@@ -5,6 +5,7 @@ import {
   deepClone,
   deepEqual,
   flattenObject,
+  getBigIntError,
   isNumericKey,
   isRefType,
 } from "./utils";
@@ -15,9 +16,9 @@ vi.mock("../client/client", () => {
   return {
     default: {
       newClient: () => ({
-        fetchTableMetaData: (tableName: string) => {
-          if (tableName === "Resources") return resourcesMetadata;
-          else if (tableName === "Contacts") return contactsMetadata;
+        fetchTableMetaData: (tableId: string) => {
+          if (tableId === "Resources") return resourcesMetadata;
+          else if (tableId === "Contacts") return contactsMetadata;
           else return {};
         },
       }),
@@ -178,5 +179,37 @@ describe("convertRowToPrimaryKey", () => {
     } catch (error) {
       expect((error as Error).message).toBe("Empty columns in metadata");
     }
+  });
+});
+
+describe("getBigIntError", () => {
+  const BIG_INT_ERROR = `Invalid value: must be value from -9223372036854775807 to 9223372036854775807`;
+
+  test("it should return undefined for a valid positive long", () => {
+    expect(getBigIntError("9223372036854775807")).toBeUndefined();
+  });
+
+  test("it should return undefined for a valid negative long", () => {
+    expect(getBigIntError("-9223372036854775807")).toBeUndefined();
+  });
+
+  test("it should return an error string for a too large long", () => {
+    expect(getBigIntError("9223372036854775808")).toEqual(BIG_INT_ERROR);
+  });
+
+  test("it should return an error string for a too small long", () => {
+    expect(getBigIntError("-9223372036854775808")).toEqual(BIG_INT_ERROR);
+  });
+
+  test("it should return an error for invalid input", () => {
+    expect(getBigIntError("randomtext")).toEqual(BIG_INT_ERROR);
+  });
+
+  test("it should return an error for empty inputs", () => {
+    expect(getBigIntError("")).toEqual(BIG_INT_ERROR);
+  });
+
+  test("it should return an error for only a minus", () => {
+    expect(getBigIntError("-")).toEqual(BIG_INT_ERROR);
   });
 });

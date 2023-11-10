@@ -15,7 +15,7 @@ const query = gql`
       name
       description
       website
-      logo ${loadGql(fileFragment)}
+      logo ${moduleToString(fileFragment)}
       acronym
       contacts {
         roleDescription
@@ -314,7 +314,7 @@ useHead({ title: network?.acronym || network?.name });
             network?.releaseDescription
           "
         >
-          <DefinitionList :items="accessConditionsItems" />
+          <CatalogueItemList :items="accessConditionsItems" />
         </ContentBlock>
 
         <ContentBlock
@@ -322,7 +322,7 @@ useHead({ title: network?.acronym || network?.name });
           title="Funding &amp; Citation requirements "
           v-if="network?.fundingStatement || network?.acknowledgements"
         >
-          <DefinitionList :items="fundingAndAcknowledgementItems" />
+          <CatalogueItemList :items="fundingAndAcknowledgementItems" />
         </ContentBlock>
 
         <TableContent

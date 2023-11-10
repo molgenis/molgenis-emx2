@@ -1,0 +1,43 @@
+name,definition,codesystem,code,ontologyTermURI
+"Next Generation Sequencing","Next Generation Sequencing","NCIT","C101293","http://purl.obolibrary.org/obo/NCIT_C101293"
+"Whole Genome Sequencing","Whole Genome Sequencing","NCIT","C101294","http://purl.obolibrary.org/obo/NCIT_C101294"
+"Whole Exome Sequencing","Whole Exome Sequencing","NCIT","C101295","http://purl.obolibrary.org/obo/NCIT_C101295"
+"Large-Scale Sequencing","Large-Scale Sequencing","NCIT","C19645","http://purl.obolibrary.org/obo/NCIT_C19645"
+"454 Sequencing","454 Sequencing","NCIT","C146809","http://purl.obolibrary.org/obo/NCIT_C146809"
+"ABI SOLiD Sequencing","ABI SOLiD Sequencing","NCIT","C146811","http://purl.obolibrary.org/obo/NCIT_C146811"
+"BGISEQ-500 Sequencing","BGISEQ-500 Sequencing","NCIT","C146812","http://purl.obolibrary.org/obo/NCIT_C146812"
+"Capillary Sequencing","Capillary Sequencing","NCIT","C146814","http://purl.obolibrary.org/obo/NCIT_C146814"
+"Complete Genomics Sequencing","Complete Genomics Sequencing","NCIT","C146815","http://purl.obolibrary.org/obo/NCIT_C146815"
+"Helicos Sequencing","Helicos Sequencing","NCIT","C146816","http://purl.obolibrary.org/obo/NCIT_C146816"
+"Illumina Sequencing","Illumina Sequencing","NCIT","C146817","http://purl.obolibrary.org/obo/NCIT_C146817"
+"Oxford Nanopore Sequencing","Oxford Nanopore Sequencing","NCIT","C146818","http://purl.obolibrary.org/obo/NCIT_C146818"
+"SMRT Sequencing","SMRT Sequencing","NCIT","C146819","http://purl.obolibrary.org/obo/NCIT_C146819"
+"Immune Repertoire Deep Sequencing","Immune Repertoire Deep Sequencing","NCIT","C158249","http://purl.obolibrary.org/obo/NCIT_C158249"
+"Targeted Transcriptome Sequencing","Targeted Transcriptome Sequencing","NCIT","C158252","http://purl.obolibrary.org/obo/NCIT_C158252"
+"Targeted Genome Sequencing","Targeted Genome Sequencing","NCIT","C158253","http://purl.obolibrary.org/obo/NCIT_C158253"
+"mRNA Sequencing","mRNA Sequencing","NCIT","C129432","http://purl.obolibrary.org/obo/NCIT_C129432"
+"Next Generation Targeted Sequencing","Next Generation Targeted Sequencing","NCIT","C130177","http://purl.obolibrary.org/obo/NCIT_C130177"
+"Sequence-based Typing","Sequence-based Typing","NCIT","C130180","http://purl.obolibrary.org/obo/NCIT_C130180"
+"Dideoxy Chain Termination DNA Sequencing","Dideoxy Chain Termination DNA Sequencing","NCIT","C19641","http://purl.obolibrary.org/obo/NCIT_C19641"
+"Shotgun Sequencing","Shotgun Sequencing","NCIT","C19646","http://purl.obolibrary.org/obo/NCIT_C19646"
+"Whole-Genome Shotgun Sequencing","Whole-Genome Shotgun Sequencing","NCIT","C19653","http://purl.obolibrary.org/obo/NCIT_C19653"
+"Radioactive Sequencing","Radioactive Sequencing","NCIT","C19658","http://purl.obolibrary.org/obo/NCIT_C19658"
+"Paired-End Sequencing","Paired-End Sequencing","NCIT","C150423","http://purl.obolibrary.org/obo/NCIT_C150423"
+"Second-strand Library Sequencing","Second-strand Library Sequencing","NCIT","C150426","http://purl.obolibrary.org/obo/NCIT_C150426"
+"Unstranded Library Sequencing","Unstranded Library Sequencing","NCIT","C150427","http://purl.obolibrary.org/obo/NCIT_C150427"
+"First-strand Library Sequencing","First-strand Library Sequencing","NCIT","C150428","http://purl.obolibrary.org/obo/NCIT_C150428"
+"Whole Transcriptome Sequencing","Whole Transcriptome Sequencing","NCIT","C124261","http://purl.obolibrary.org/obo/NCIT_C124261"
+"Population Sequencing","Population Sequencing","NCIT","C135457","http://purl.obolibrary.org/obo/NCIT_C135457"
+"Pyrosequencing","Pyrosequencing","NCIT","C99481","http://purl.obolibrary.org/obo/NCIT_C99481"
+"Ion Semiconductor Sequencing","Ion Semiconductor Sequencing","NCIT","C125894","http://purl.obolibrary.org/obo/NCIT_C125894"
+"Nucleic Acid Sequencing","Nucleic Acid Sequencing","NCIT","C18881","http://purl.obolibrary.org/obo/NCIT_C18881"
+"DNA Resequencing","DNA Resequencing","NCIT","C41254","http://purl.obolibrary.org/obo/NCIT_C41254"
+"DNA Sequencing","DNA Sequencing","NCIT","C153598","http://purl.obolibrary.org/obo/NCIT_C153598"
+"MicroRNA Sequencing","MicroRNA Sequencing","NCIT","C156057","http://purl.obolibrary.org/obo/NCIT_C156057"
+Reduced Representation Bisulfite Sequencing,Reduced Representation Bisulfite Sequencing,,RRBS,
+Single read,Single read,,SR,
+SR 35-bp,SR 35-bp,,,
+ssRNA-seq,ssRNA-seq,,,
+PE 150-bp,Paired-end 150-bp,,,
+Panel,Gene panel sequencing,,,
+Array,Genotyping array,,,

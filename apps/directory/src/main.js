@@ -20,10 +20,11 @@ if (import.meta.env.DEV) {
 import "@fortawesome/fontawesome-free/css/all.css";
 import "@fortawesome/fontawesome-free/js/all.js";
 
-const app = createApp(App);
+export const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
-app.use(VueGtag, { bootstrap: false });
+
+app.use(VueGtag, { bootstrap: false }, router);
 
 app.mount("#app");

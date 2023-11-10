@@ -2,7 +2,7 @@ import { IColumn } from "../../../Interfaces/IColumn";
 import { IRow } from "../../../Interfaces/IRow";
 import { ITableMetaData } from "../../../Interfaces/ITableMetaData";
 import constants from "../../constants.js";
-import { deepClone, convertToCamelCase, filterObject } from "../../utils";
+import { deepClone, filterObject } from "../../utils";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID, HEADING } = constants;
 
@@ -28,11 +28,19 @@ function getColumnError(
   // FIXME: longs are not checked
   const missesValue = value === undefined || value === null || value === "";
 
+  try {
+    if (!isColumnVisible(column, values, tableMetaData)) {
+      return undefined;
+    }
+  } catch (error) {
+    return error as string;
+  }
+
   if (column.columnType === AUTO_ID || column.columnType === HEADING) {
     return undefined;
   }
   if (column.required && (missesValue || isInvalidNumber)) {
-    return column.name + " is required";
+    return column.label + " is required";
   }
   if (missesValue) {
     return undefined;
@@ -53,7 +61,7 @@ function getColumnError(
     return getColumnValidationError(column.validation, values, tableMetaData);
   }
   if (isRefLinkWithoutOverlap(column, values)) {
-    return `value should match your selection in column '${column.refLink}'`;
+    return `value should match your selection in column '${column.refLinkId}'`;
   }
 
   return undefined;
@@ -86,7 +94,7 @@ function getColumnValidationError(
   }
 }
 
-function executeExpression(
+export function executeExpression(
   expression: string,
   values: Record<string, any>,
   tableMetaData: ITableMetaData
@@ -103,18 +111,20 @@ function executeExpression(
   // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function
   // FIXME: use es2021 instead of es2020 as you need it for replaceAll
   const func = new Function(
+    //@ts-ignore
     Object.keys(copy),
+    //@ts-ignore
     `return eval('${expression.replaceAll("'", '"')}');`
   );
   return func(...Object.values(copy));
 }
 
 function isRefLinkWithoutOverlap(column: IColumn, values: Record<string, any>) {
-  if (!column.refLink) {
+  if (!column.refLinkId) {
     return false;
   }
-  const columnRefLink = column.refLink;
-  const refLinkId = convertToCamelCase(columnRefLink);
+  const columnRefLink = column.refLinkId;
+  const refLinkId = columnRefLink;
 
   const value = values[column.id];
   const refValue = values[refLinkId];
@@ -151,31 +161,17 @@ function containsInvalidEmail(emails: any) {
 }
 
 export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
-  const keyColumnsNames = tableMetaData?.columns
+  const keyColumnsIds = tableMetaData?.columns
     ?.filter((column: IColumn) => column.key === 1)
-    .map((column: IColumn) => column.name);
+    .map((column: IColumn) => column.id);
 
-  return filterObject(rowData, (key) => !keyColumnsNames?.includes(key));
-}
-
-export function getPageHeadings(tableMetadata: ITableMetaData): string[] {
-  const columns: IColumn[] = tableMetadata?.columns
-    ? tableMetadata?.columns
-    : [];
-  const headings: string[] = columns
-    .filter((column) => column.columnType === HEADING)
-    .map((column) => column.name);
-  if (columns[0].columnType === HEADING) {
-    return headings;
-  } else {
-    return ["First chapter"].concat(headings);
-  }
+  return filterObject(rowData, (key) => !keyColumnsIds?.includes(key));
 }
 
 export function filterVisibleColumns(
   columns: IColumn[],
   visibleColumns: string[] | null
-) {
+): IColumn[] {
   if (!visibleColumns) {
     return columns;
   } else {
@@ -183,7 +179,24 @@ export function filterVisibleColumns(
   }
 }
 
-export function splitColumnNamesByHeadings(columns: IColumn[]): string[][] {
+export function isColumnVisible(
+  column: IColumn,
+  values: Record<string, any>,
+  tableMetadata: ITableMetaData
+): boolean {
+  const expression = column.visible;
+  if (expression) {
+    try {
+      return executeExpression(expression, values, tableMetadata);
+    } catch (error) {
+      throw `Invalid visibility expression, reason: ${error}`;
+    }
+  } else {
+    return true;
+  }
+}
+
+export function splitColumnIdsByHeadings(columns: IColumn[]): string[][] {
   return columns.reduce((accum, column) => {
     if (column.columnType === "HEADING") {
       accum.push([column.id]);

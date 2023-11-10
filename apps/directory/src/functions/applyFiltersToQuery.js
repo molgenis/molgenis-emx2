@@ -55,8 +55,8 @@ export async function applyFiltersToQuery(
         baseQuery
           .orFilter("collections.diagnosis_available.definition")
           .like(filterValue);
-        baseQuery.orFilter("collections.materials.name").like(filterValue);
-        baseQuery.orFilter("collections.materials.label").like(filterValue);
+
+        /** cant search in the searchbox on any filter that is set to 'adaptive' because the items will not show. */
         break;
       }
       case "ToggleFilter":

@@ -1,8 +1,8 @@
-name
-death
-emigration
-insurance coverage end
-practice deregistration
-loss to follow up
-end of treatment
-other
+order,name,code,parent,ontologyTermURI,definition
+1,Death,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029973/terms/200000029993,
+2,Emigration,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029973/terms/200000029994,
+3,Insurance coverage end,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029973/terms/200000029995,
+4,Practice deregistration,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029973/terms/200000029996,
+5,Loss to follow up,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029973/terms/200000029997,
+6,End of treatment,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029973/terms/200000029998,
+7,Other,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029973/terms/200000031068,

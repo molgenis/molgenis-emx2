@@ -6,7 +6,7 @@ import { useBiobanksStore } from "./biobanksStore";
 import { useSettingsStore } from "./settingsStore";
 import { useCheckoutStore } from "./checkoutStore";
 import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
-import QueryEMX2 from "../functions/queryEMX2";
+import { QueryEMX2 } from "molgenis-components";
 import { convertArrayToChunks } from "../functions/arrayUtilities";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
@@ -30,13 +30,26 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   let filters = ref({});
   let filterType = ref({});
   let filterOptionsCache = ref({});
-  let filterFacets = createFilters(settingsStore.config.filterFacets);
+  let filterFacets = ref({});
   const facetDetailsDictionary = ref({});
 
+  let filtersReadyToRender = ref(false);
+
+  watch(
+    () => settingsStore.configurationFetched,
+    (e) => {
+      filterFacets.value = createFilters(settingsStore.config.filterFacets);
+      filtersReadyToRender.value = true;
+    }
+  );
+
   const facetDetails = computed(() => {
-    if (!Object.keys(facetDetailsDictionary.value).length)
+    if (
+      !Object.keys(facetDetailsDictionary.value).length &&
+      settingsStore.configurationFetched
+    )
       /** extract the components types so we can use that in adding the correct query parts */
-      filterFacets.forEach((filterFacet) => {
+      filterFacets.value.forEach((filterFacet) => {
         facetDetailsDictionary.value[filterFacet.facetIdentifier] = {
           ...filterFacet,
         };
@@ -53,10 +66,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function getValuePropertyForFacet(facetIdentifier) {
     return facetDetails[facetIdentifier].filterValueAttribute;
-  }
-
-  function resetFilters() {
-    this.baseQuery.resetFilters();
   }
 
   const hasActiveFilters = computed(() => {
@@ -370,8 +379,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       value.length === 0
     ) {
       delete filters.value[filterName];
+      checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
     } else {
       filters.value[filterName] = value;
+
+      checkoutStore.setSearchHistory(
+        `${filterName} filtered on ${value.map((v) => v.text).join(", ")}`
+      );
     }
   }
 
@@ -396,7 +410,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   return {
     facetDetails,
-    resetFilters,
     updateFilter,
     clearAllFilters,
     updateOntologyFilter,
@@ -414,5 +427,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filtersReady,
     bookmarkWaitingForApplication,
     filterTriggeredBookmark,
+    filtersReadyToRender,
   };
 });

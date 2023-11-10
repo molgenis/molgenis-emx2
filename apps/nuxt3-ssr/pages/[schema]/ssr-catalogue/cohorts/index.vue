@@ -24,47 +24,47 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Areas of information",
-    refTable: "AreasOfInformationCohorts",
-    columnName: "areasOfInformation",
+    refTableId: "AreasOfInformationCohorts",
+    collumnId: "areasOfInformation",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
   },
   {
     title: "Data categories",
-    refTable: "DataCategories",
-    columnName: "dataCategories",
+    refTableId: "DataCategories",
+    collumnId: "dataCategories",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
   },
   {
     title: "Population age groups",
-    refTable: "AgeGroups",
-    columnName: "ageGroups",
+    refTableId: "AgeGroups",
+    collumnId: "ageGroups",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
   },
   {
     title: "Sample categories",
-    refTable: "SampleCategories",
-    columnName: "sampleCategories",
+    refTableId: "SampleCategories",
+    collumnId: "sampleCategories",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
   },
   {
     title: "Cohort Types",
-    refTable: "ResourceTypes",
-    columnName: "type",
+    refTableId: "ResourceTypes",
+    collumnId: "type",
     columnType: "ONTOLOGY",
     conditions: [],
   },
   {
     title: "Design",
-    refTable: "CohortDesigns",
-    columnName: "design",
+    refTableId: "CohortDesigns",
+    collumnId: "design",
     columnType: "ONTOLOGY",
     conditions: [],
   },
@@ -184,10 +184,7 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
                 buttonRightIcon="view-compact"
                 v-model:activeName="activeName"
               />
-              <SearchResultsViewTabsMobile
-                class="flex xl:hidden"
-                v-model:activeName="activeName"
-              >
+              <SearchResultsViewTabsMobile class="flex xl:hidden">
                 <FilterSidebar
                   title="Filters"
                   :filters="filters"

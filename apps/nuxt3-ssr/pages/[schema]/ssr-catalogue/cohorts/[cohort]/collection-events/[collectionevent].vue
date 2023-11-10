@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { Ref } from "vue";
-import query from "~~/gql/collectionEvent";
+import collectionEventGql from "~~/gql/collectionEvent";
 const config = useRuntimeConfig();
 const route = useRoute();
 
-if (query.loc?.source.body === undefined) {
-  throw "unable to load query: " + query.toString();
-}
-const queryValue = query.loc?.source.body;
+const query = moduleToString(collectionEventGql);
 
 let collectionEvent: Ref = ref();
 const { data: collectionEventData } = await useFetch(
@@ -16,7 +13,7 @@ const { data: collectionEventData } = await useFetch(
     baseURL: config.public.apiBase,
     method: "POST",
     body: {
-      query: queryValue,
+      query,
       variables: {
         id: route.params.cohort,
         name: route.params.collectionevent,
@@ -142,7 +139,7 @@ useHead({ title: collectionEvent?.name });
     <template #main>
       <ContentBlocks v-if="collectionEvent">
         <ContentBlock v-if="collectionEvent" id="details" title="Details">
-          <DefinitionList :items="items" :collapse-all="false" />
+          <CatalogueItemList :items="items" :collapse-all="false" />
         </ContentBlock>
         <ContentBlock
           v-if="collectionEvent.ageGroups"
@@ -186,7 +183,7 @@ useHead({ title: collectionEvent?.name });
             :tree="standardizedToolsTree"
             :collapse-all="false"
           />
-          <DefinitionList
+          <CatalogueItemList
             v-if="collectionEvent.standardizedToolsOther"
             class="mt-6"
             :items="[

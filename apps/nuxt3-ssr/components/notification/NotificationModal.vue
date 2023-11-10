@@ -38,7 +38,7 @@ onUnmounted(() => clearInterval(timeOutId));
     :type="type"
   >
     <ContentBlockModal :title="title" :subTitle="subTitle" :type="type">
-      <slot>{{ message }}</slot>
+      <slot></slot>
     </ContentBlockModal>
   </SideModal>
 </template>

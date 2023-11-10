@@ -10,13 +10,14 @@
       <input
         class="form-control"
         :class="{ 'is-invalid': errorMessage }"
-        @click="showSelect = true"
-        @focus="showSelect = true"
+        @click="showSelect = !this.readonly"
+        @focus="showSelect = !this.readonly"
         :value="applyJsTemplate(modelValue, refLabel)"
+        :readonly="readonly"
       />
       <template v-slot:append>
         <button
-          v-if="modelValue"
+          v-if="modelValue && !this.readonly"
           @click="$emit('update:modelValue', null)"
           class="btn btn-outline-primary"
           type="button"
@@ -28,15 +29,15 @@
       <LayoutModal v-if="showSelect" :title="title" @close="showSelect = false">
         <template v-slot:body>
           <TableSearch
-            :lookupTableName="tableName"
+            :tableId="tableId"
             :filter="filter"
-            :schemaName="schemaName"
+            :schemaId="schemaId"
             :canEdit="canEdit"
             @select="select($event)"
             @deselect="deselect(selectIdx)"
           >
             <template v-slot:rowheader="slotProps">
-              <ButtonAction @click="select(slotProps.rowkey)">
+              <ButtonAction @click="select(slotProps.rowKey)">
                 Select
               </ButtonAction>
             </template>
@@ -77,8 +78,8 @@ export default {
     InputGroup,
   },
   props: {
-    tableName: String,
-    schemaName: {
+    tableId: String,
+    schemaId: {
       type: String,
       required: false,
     },
@@ -98,14 +99,14 @@ export default {
   },
   computed: {
     title() {
-      return "Select " + this.tableName;
+      return "Select " + this.tableId; //todo need a label
     },
   },
   methods: {
     applyJsTemplate,
-    select(event) {
+    async select(event) {
       this.showSelect = false;
-      this.$emit("update:modelValue", event);
+      this.$emit("update:modelValue", await event);
     },
   },
 };
@@ -120,19 +121,35 @@ export default {
       <InputRefSelect
           id="input-ref-select-1"
           v-model="value1"
-          tableName="Pet"
-          schemaName="pet store"
+          tableId="Pet"
+          schemaId="pet store"
+          refLabel="${name}"
       />
       Selection: {{ value1 }}
     </div>
+
+    <div>
+      <label for="input-ref-select-1">Example readonly </label>
+      <InputRefSelect
+          id="input-ref-select-1b"
+          v-model="value1"
+          tableId="Pet"
+          schemaId="pet store"
+          refLabel="${name}"
+          :readonly="true"
+      />
+      Selection: {{ value1 }}
+    </div>
+
 
     <label for="input-ref-select-2" class="mt-3">Example with default value</label>
     <div>
       <InputRefSelect
           id="input-ref-select-2"
           v-model="value2"
-          tableName="Pet"
-          schemaName="pet store"
+          tableId="Pet"
+          schemaId="pet store"
+          refLabel="${name}"
       />
       Selection: {{ value2 }}
     </div>
@@ -142,9 +159,10 @@ export default {
       <InputRefSelect
           id="input-ref-select-3"
           v-model="value3"
-          tableName="Pet"
+          tableId="Pet"
           :filter="{category:{name: {equals:'dog'}}}"
-          schemaName="pet store"
+          schemaId="pet store"
+          refLabel="${name}"
       />
       Selection: {{ value3 }}
     </div>

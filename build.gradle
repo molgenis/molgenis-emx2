@@ -4,20 +4,18 @@
 
 plugins {
     id "java"
-    id "org.sonarqube" version "3.5.0.2730"
+    id "org.sonarqube" version "4.4.1.3373"
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'application'
-    id 'org.unbroken-dome.helm' version '1.7.0'
-    id 'org.unbroken-dome.helm-publish' version '1.7.0'
-    id 'org.unbroken-dome.helm-commands' version '1.7.0'
+    id 'fr.rozanc.helm' version '1.7.0-rzc.2'
+    id 'fr.rozanc.helm-publish' version '1.7.0-rzc.2'
+    id 'fr.rozanc.helm-commands' version '1.7.0-rzc.2'
     id 'com.palantir.docker' version '0.35.0'
 }
 
 allprojects {
-    if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version ||
-        //temporarily also compare to 'v' because we are remove this prefix
-        rootProject.nyxState.releaseScope.previousVersion == "v" + rootProject.version ) {
+    if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version) {
         version = rootProject.nyxState.releaseScope.previousVersion + "-SNAPSHOT"
     }
     else {
@@ -90,7 +88,7 @@ docker {
     name imageName
     tags tagName, 'latest'
     files shadowJar.archiveFile.get()
-    buildArgs(['JAR_FILE': shadowJar.archiveName])
+    buildArgs(['JAR_FILE': shadowJar.archiveFile.get().asFile.name])
 }
 tasks.dockerPrepare.dependsOn(shadowJar)
 

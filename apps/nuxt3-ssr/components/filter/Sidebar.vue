@@ -28,8 +28,8 @@ watch(props.filters, (filters) => {
     :class="{ 'bg-sidebar-gradient': !mobileDisplay }"
   >
     <h2
-      class="p-5 uppercase font-display text-heading-3xl"
-      :class="`text-search-filter-title${mobileDisplay ? '-mobile' : ''}`"
+      v-if="!mobileDisplay"
+      class="p-5 uppercase font-display text-heading-3xl text-search-filter-title"
     >
       {{ title }}
     </h2>
@@ -50,13 +50,13 @@ watch(props.filters, (filters) => {
         />
         <FilterOntology
           v-else-if="filter.columnType === 'ONTOLOGY'"
-          :table-name="filter.refTable"
+          :table-id="filter.refTableId"
           :mobileDisplay="mobileDisplay"
           v-model="filter.conditions"
         />
         <FilterList
           v-else-if="filter.columnType === 'REF_ARRAY'"
-          :table-name="filter.refTable"
+          :table-id="filter.refTableId"
           :key-field="filter.refFields.key"
           :name-field="filter.refFields.name"
           :descriptionField="filter.refFields.description"

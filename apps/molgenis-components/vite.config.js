@@ -17,7 +17,7 @@ let conf = {
         secure: false,
       },
       "^/graphql": {
-        target: `${BACKEND_LOCATION}/api`,
+        target: `${BACKEND_LOCATION}/pet store`,
         changeOrigin: true,
         secure: false,
       },

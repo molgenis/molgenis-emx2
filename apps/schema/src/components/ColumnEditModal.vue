@@ -62,9 +62,9 @@
               >
                 <InputSelect
                   id="column_refTable"
-                  v-model="column.refTable"
+                  v-model="column.refTableName"
                   :errorMessage="
-                    column.refTable === undefined || column.name === ''
+                    column.refTableName === undefined || column.name === ''
                       ? 'Referenced table is required'
                       : undefined
                   "
@@ -73,7 +73,7 @@
                 />
                 <InputSelect
                   id="column_refSchema"
-                  v-model="column.refSchema"
+                  v-model="column.refSchemaName"
                   :options="schemaNames"
                   @update:modelValue="loadRefSchema"
                   label="refSchema"
@@ -90,14 +90,14 @@
                 <InputSelect
                   id="column_refBack"
                   label="refBack"
-                  v-model="column.refBack"
-                  :options="refBackCandidates(column.refTable, table.name)"
+                  v-model="column.refBackName"
+                  :options="refBackCandidates(column.refTableName, table.name)"
                 />
               </div>
               <div
                 class="col-4"
                 v-if="
-                  column.refTable &&
+                  column.refTableName &&
                   (column.columnType === 'REF' ||
                     column.columnType === 'REF_ARRAY')
                 "
@@ -105,7 +105,7 @@
                 <InputSelect
                   v-if="refLinkCandidates.length > 0"
                   id="column_refLink"
-                  v-model="column.refLink"
+                  v-model="column.refLinkName"
                   :options="refLinkCandidates"
                   label="refLink"
                   description="refLink enables to define overlapping references, e.g. 'patientId', 'sampleId' (where sample also overlaps with patientId)"
@@ -126,6 +126,13 @@
                   id="column_readonly"
                   v-model="column.readonly"
                   label="isReadonly"
+                />
+              </div>
+              <div class="col-4" v-if="isEditable(column)">
+                <InputString
+                  id="column_default"
+                  v-model="column.defaultValue"
+                  label="defaultValue"
                 />
               </div>
             </div>
@@ -216,10 +223,13 @@
           <RowEdit
             id="form-edit"
             v-model="previewData"
-            :schemaMetaData="schema"
-            :tableMetaData="table"
-            :tableName="table.name"
+            :schemaMetaData="schemaWithIdsLabelsAndDescriptions"
+            :tableMetaData="tableWithIdsLabelsAndDescriptions"
+            :tableId="tableWithIdsLabelsAndDescriptions.id"
             :key="JSON.stringify(table)"
+            :applyDefaultValues="true"
+            :errorPerColumn="rowErrors"
+            @update:model-value="checkForErrors"
           />
           Values:
           {{ previewData }}
@@ -242,7 +252,7 @@
 
 <style>
 .column-scroll {
-  /** want to have columns not heigher than modal allows so we get seperate scroll bars for preview */
+  /** want to have columns not higher than modal allows so we get separate scroll bars for preview */
   max-height: calc(100vh - 240px);
   overflow-y: auto;
 }
@@ -250,24 +260,32 @@
 
 <script>
 import {
-  LayoutForm,
-  InputText,
-  InputTextLocalized,
-  InputString,
-  InputBoolean,
-  InputSelect,
-  IconAction,
-  LayoutModal,
   ButtonAction,
-  MessageWarning,
-  MessageError,
   ButtonAlt,
   Client,
-  Spinner,
+  IconAction,
+  InputBoolean,
+  InputSelect,
+  InputString,
+  InputText,
+  InputTextLocalized,
+  LayoutForm,
+  LayoutModal,
+  MessageError,
+  MessageWarning,
   RowEdit,
+  Spinner,
   deepClone,
+  getRowErrors,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
+import {
+  getLocalizedDescription,
+  getLocalizedLabel,
+  convertToPascalCase,
+  convertToCamelCase,
+  addTableIdsLabelsDescription,
+} from "../utils";
 
 const AUTO_ID = "AUTO_ID";
 
@@ -340,6 +358,7 @@ export default {
       loading: false,
       previewShow: false,
       previewData: {},
+      rowErrors: {},
     };
   },
   computed: {
@@ -366,6 +385,19 @@ export default {
         table.columns[index] = this.column;
       }
       return table;
+    },
+    //tableMetadata with the ids, labels, descriptions added (duplication of conversions normally done server side)
+    tableWithIdsLabelsAndDescriptions() {
+      return addTableIdsLabelsDescription(deepClone(this.originalTable));
+    },
+    //schema metadata with ids
+    schemaWithIdsLabelsAndDescriptions() {
+      const schema = deepClone(this.schema);
+      schema.id = schema.name;
+      schema.tables = schema.tables.map((table) => {
+        return addTableIdsLabelsDescription(table);
+      });
+      return schema;
     },
     //listing of related subclasses, used to indicate if column is part of subclass
     subclassNames() {
@@ -456,15 +488,18 @@ export default {
       const columns = schema.tables
         .filter((t) => t.name === fromTable)
         .map((t) => t.columns)[0];
-      return columns?.filter((c) => c.refTable === toTable).map((c) => c.name);
+      return columns
+        ?.filter((c) => c.refTableName === toTable)
+        .map((c) => c.name);
     },
     async loadRefSchema() {
       this.error = undefined;
       this.loading = true;
-      if (this.column.refSchema) {
-        this.client = Client.newClient(this.column.refSchema, this.$axios);
-        const schema = await this.client.fetchSchemaMetaData((error) => {
-          this.error = error;
+      if (this.column.refSchemaName) {
+        //todo, don't use client here because we need 'names' not 'ids'
+        this.client = Client.newClient(this.column.refSchemaName);
+        const schema = await this.client.fetchSchemaMetaData().catch((e) => {
+          this.error = e;
         });
         this.refSchema = schema;
       } else {
@@ -491,6 +526,9 @@ export default {
         !column.computed &&
         column.columnType !== AUTO_ID
       );
+    },
+    checkForErrors() {
+      this.rowErrors = getRowErrors(this.table, this.previewData);
     },
   },
   created() {

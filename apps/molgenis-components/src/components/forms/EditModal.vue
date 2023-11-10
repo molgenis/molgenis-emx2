@@ -12,7 +12,7 @@
               :id="id"
               v-model="rowData"
               :pkey="pkey"
-              :tableName="tableName"
+              :tableId="tableId"
               :tableMetaData="tableMetaData"
               :schemaMetaData="schemaMetaData"
               :visibleColumns="
@@ -21,8 +21,8 @@
                   : visibleColumns
               "
               :clone="clone"
-              :locale="locale"
               :errorPerColumn="rowErrors"
+              :applyDefaultValues="applyDefaultValues"
               @update:model-value="checkForErrors"
             />
           </div>
@@ -34,9 +34,9 @@
             <div class="mb-1">
               <b>Chapters</b>
             </div>
-            <div v-for="(heading, index) in pageHeadings">
+            <div v-for="(chapter, index) in columnsSplitByHeadings">
               <Tooltip
-                :name="`chapter-${heading}-error-tooltip`"
+                :name="`chapter-${chapter[0]}-error-tooltip`"
                 :value="
                   chapterStyleAndErrors[index].errorFields.length
                     ? `errors in:\n${chapterStyleAndErrors[index].errorFields}`
@@ -51,7 +51,7 @@
                   @click="setCurrentPage(index + 1)"
                   :style="chapterStyleAndErrors[index].style"
                 >
-                  {{ heading }}
+                  {{ getHeadingLabel(chapter[0]) }}
                 </button>
               </Tooltip>
             </div>
@@ -62,7 +62,7 @@
     <template #footer>
       <RowEditFooter
         :id="id + '-footer'"
-        :tableName="tableName"
+        :tableLabel="label"
         :errorMessage="errorMessage"
         :saveDisabledMessage="saveDisabledMessage"
         :saveDraftDisabledMessage="saveDraftDisabledMessage"
@@ -94,14 +94,16 @@
 </template>
 
 <script lang="ts">
+import { IColumn } from "../../Interfaces/IColumn";
 import { ISchemaMetaData } from "../../Interfaces/IMetaData";
+import { IRow } from "../../Interfaces/IRow";
 import { ISetting } from "../../Interfaces/ISetting";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { INewClient } from "../../client/IClient";
 import Client from "../../client/client";
 import constants from "../constants";
 import LayoutModal from "../layout/LayoutModal.vue";
-import { deepClone, getLocalizedLabel } from "../utils";
+import { deepClone } from "../utils";
 import ButtonAction from "./ButtonAction.vue";
 import RowEdit from "./RowEdit.vue";
 import RowEditFooter from "./RowEditFooter.vue";
@@ -109,11 +111,11 @@ import Tooltip from "./Tooltip.vue";
 import {
   filterVisibleColumns,
   getChapterStyle,
-  getPageHeadings,
   getRowErrors,
   getSaveDisabledMessage,
+  isColumnVisible,
   removeKeyColumns,
-  splitColumnNamesByHeadings,
+  splitColumnIdsByHeadings,
 } from "./formUtils/formUtils";
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
 
@@ -145,7 +147,7 @@ export default {
       type: String,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
@@ -153,7 +155,7 @@ export default {
       type: Boolean,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: true,
     },
@@ -173,37 +175,48 @@ export default {
       type: Object,
       default: () => null,
     },
-    locale: {
-      type: String,
-      default: () => "en",
-    },
     useChapters: {
       type: Boolean,
       default: () => null,
     },
+    applyDefaultValues: {
+      type: Boolean,
+    },
   },
   computed: {
     title() {
-      return `${this.titlePrefix} into table: ${this.label} (${this.tableName})`;
+      return `${this.titlePrefix} into table: ${this.label} (${this.tableId})`;
     },
     label() {
       if (this.tableMetaData) {
-        return getLocalizedLabel(this.tableMetaData);
+        return this.tableMetaData.label;
       }
-    },
-    pageHeadings() {
-      return getPageHeadings(this.tableMetaData);
     },
     titlePrefix() {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
     },
     columnsSplitByHeadings(): string[][] {
-      return splitColumnNamesByHeadings(
-        filterVisibleColumns(
-          this.tableMetaData?.columns || [],
-          this.visibleColumns as string[]
-        )
+      const filteredByVisibilityFilters = filterVisibleColumns(
+        this.tableMetaData?.columns || [],
+        this.visibleColumns as string[]
       );
+      const filteredByVisibilityExpressions =
+        filteredByVisibilityFilters.filter((column: IColumn) => {
+          try {
+            return isColumnVisible(column, this.rowData, this.tableMetaData);
+          } catch (error: any) {
+            this.rowErrors[column.id] = error;
+            return true;
+          }
+        });
+      const withoutMetadataColumns = filteredByVisibilityExpressions.filter(
+        (column: IColumn) => !column.id.startsWith("mg_")
+      );
+      const splitByHeadings = splitColumnIdsByHeadings(withoutMetadataColumns);
+      const filteredEmptyHeadings = splitByHeadings.filter(
+        (chapter: string[]) => chapter.length > 1
+      );
+      return filteredEmptyHeadings;
     },
     chapterStyleAndErrors(): IChapterInfo[] {
       return this.columnsSplitByHeadings.map((page: string[]): IChapterInfo => {
@@ -248,11 +261,11 @@ export default {
       let result;
       if (this.pkey && !this.clone) {
         result = await this.client
-          .updateDataRow(formData, this.tableName, this.schemaName)
+          .updateDataRow(formData, this.tableId, this.schemaId)
           .catch(this.handleSaveError);
       } else {
         result = await this.client
-          .insertDataRow(formData, this.tableName, this.schemaName)
+          .insertDataRow(formData, this.tableId, this.schemaId)
           .catch(this.handleSaveError);
       }
       if (result) {
@@ -270,7 +283,7 @@ export default {
       }
     },
     async fetchRowData() {
-      const result = await this.client?.fetchRowData(this.tableName, this.pkey);
+      const result = await this.client?.fetchRowData(this.tableId, this.pkey);
       if (!result) {
         this.errorMessage = `Error, unable to fetch data for this row (${this.pkey})`;
       } else {
@@ -285,10 +298,16 @@ export default {
       this.rowErrors = getRowErrors(this.tableMetaData, this.rowData);
       this.saveDisabledMessage = getSaveDisabledMessage(this.rowErrors);
     },
+    getHeadingLabel(headingId: string) {
+      const column = this.tableMetaData.columns.find(
+        (column) => column.id === headingId
+      );
+      return column?.label || column?.id || headingId;
+    },
   },
   async mounted() {
     this.loaded = false;
-    this.client = Client.newClient(this.schemaName);
+    this.client = Client.newClient(this.schemaId);
     this.schemaMetaData = await this.client.fetchSchemaMetaData();
     const settings: ISetting[] = await this.client.fetchSettings();
 
@@ -299,7 +318,7 @@ export default {
         )?.value !== "false";
     }
 
-    this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
+    this.tableMetaData = await this.client.fetchTableMetaData(this.tableId);
 
     if (this.pkey) {
       const rowData = await this.fetchRowData();
@@ -324,10 +343,6 @@ interface IChapterInfo {
 </script>
 
 <style scoped>
->>> .modal-body.bg-light {
-  overflow: hidden;
-}
-
 .chapter-menu {
   padding: 1rem;
   margin: -1rem -1rem -1rem 1rem;
@@ -345,26 +360,34 @@ interface IChapterInfo {
 </style>
 
 <docs>
-  <template>
+<template>
   <DemoItem label="Edit Modal">
-  <p>This component can be used in chapter mode split the form into multiple chapter based on headings.</p>
-  <div class="mt-2 mb-3">
-    Use the "isChaptersEnabled" schema setting to switch mode.
-    <div class="font-weight-bold">isChaptersEnabled: 
-      <input :disabled="loadFromBackend" type="checkbox" id="checkbox" v-model="useChapters" />
-    </div>
-    <div class="font-weight-bold">load from backend: 
-      <input type="checkbox" id="checkbox" v-model="loadFromBackend" />
+    <p>
+      This component can be used in chapter mode split the form into multiple
+      chapter based on headings.
+    </p>
+    <div class="mt-2 mb-3">
+      Use the "isChaptersEnabled" schema setting to switch mode.
+      <div class="font-weight-bold">
+        isChaptersEnabled:
+        <input
+          :disabled="loadFromBackend"
+          type="checkbox"
+          id="checkbox"
+          v-model="useChapters"
+        />
+      </div>
+      <div class="font-weight-bold">
+        load from backend:
+        <input type="checkbox" id="checkbox" v-model="loadFromBackend" />
+      </div>
     </div>
 
-
-  </div>
-  
     <button class="btn btn-primary" @click="isModalShown = !isModalShown">
-      Show {{ demoMode }} {{ tableName }}
+      Show {{ demoMode }} {{ tableId }}
     </button>
     <label for="table-selector" class="ml-5 pr-1">table</label>
-    <select id="table-selector" v-model="tableName">
+    <select id="table-selector" v-model="tableId">
       <option>Pet</option>
       <option>Order</option>
       <option>Category</option>
@@ -395,13 +418,13 @@ interface IChapterInfo {
     />
     <label for="clone" class="pl-1">Clone</label>
     <EditModal
-      :key="tableName + demoKey + demoMode + useChapters"
+      :key="tableId + demoKey + demoMode + useChapters"
       id="edit-modal"
-      :tableName="tableName"
+      :tableId="tableId"
       :pkey="demoKey"
       :clone="demoMode === 'clone'"
       :isModalShown="isModalShown"
-      :schemaName="schemaName"
+      :schemaId="schemaId"
       :useChapters="useChapters"
       @close="isModalShown = false"
     />
@@ -412,40 +435,43 @@ interface IChapterInfo {
 export default {
   data: function () {
     return {
-      schemaName: "pet store",
-      tableName: "Pet",
+      schemaId: "pet store",
+      tableId: "Pet",
       demoMode: "insert", // one of [insert, update, clone]
       demoKey: null, // empty in case of insert
       isModalShown: false,
       useChapters: true,
-      loadFromBackend: false
+      loadFromBackend: false,
     };
   },
   methods: {
     async reload() {
-      const client = this.$Client.newClient(this.schemaName);
-      const tableMetaData = await client.fetchTableMetaData(this.tableName);
-      const rowData = await client.fetchTableDataValues(this.tableName, {});
-      this.demoKey = this.demoMode === "insert" ? null : this.$utils.getPrimaryKey(rowData[0], tableMetaData);
+      const client = this.$Client.newClient(this.schemaId);
+      const rowData = await client.fetchTableDataValues(this.tableId, {});
+      this.demoKey =
+        this.demoMode === "insert"
+          ? null
+          : await client.convertRowToPrimaryKey(rowData[0], this.tableId);
       const settings = await client.fetchSettings();
-      if(this.loadFromBackend) {
-           this.useChapters =
-        settings.find((item) => item.key === this.$constants.IS_CHAPTERS_ENABLED_FIELD_NAME)?.value !==
-        "false";
+      if (this.loadFromBackend) {
+        this.useChapters =
+          settings.find(
+            (item) =>
+              item.key === this.$constants.IS_CHAPTERS_ENABLED_FIELD_NAME
+          )?.value !== "false";
       }
-   
-    }
+    },
   },
   watch: {
     demoMode() {
       this.reload();
     },
-    useChapters () {
+    useChapters() {
       this.reload();
     },
-    loadFromBackend () {
+    loadFromBackend() {
       this.reload();
-    }
+    },
   },
   mounted() {
     this.reload();

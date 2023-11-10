@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
+import static org.molgenis.emx2.Constants.SYS_COLUMN_NAME_PREFIX;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
@@ -25,7 +26,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   @DiffIgnore private boolean drop; // use this for migrations, i.e. explicit CREATE, ALTER, DROP
 
   // relationships
-  private String refSchema; // for cross schema references
+  private String refSchemaName; // for cross schema references
   private String refTable; // table referenced
   private String refLink; // to allow a reference value to depend on another reference.
   private String refLabel; // template string influencing how ref value is shown
@@ -41,6 +42,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
   private String[] semantics = null; // json ld expression
+  private String[] profiles = null; // comma-separated strings
+
   // todo implement below, or remove
   private Boolean readonly = false;
   private String defaultValue = null;
@@ -105,6 +108,15 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this;
   }
 
+  public String[] getProfiles() {
+    return profiles;
+  }
+
+  public Column setProfiles(String... profiles) {
+    this.profiles = profiles;
+    return this;
+  }
+
   /* copy constructor to prevent changes on in progress data */
   private void copy(Column column) {
     columnName = column.columnName;
@@ -120,7 +132,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     indexed = column.indexed;
     refTable = column.refTable;
     refLink = column.refLink;
-    refSchema = column.refSchema;
+    refSchemaName = column.refSchemaName;
     refBack = column.refBack;
     validation = column.validation;
     refLabel = column.refLabel;
@@ -128,6 +140,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     descriptions = column.descriptions;
     cascadeDelete = column.cascadeDelete;
     semantics = column.semantics;
+    profiles = column.profiles;
     visible = column.visible;
   }
 
@@ -175,13 +188,13 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public TableMetadata getRefTable() {
     SchemaMetadata schema = getSchema();
-    if (this.refSchema != null) {
+    if (this.refSchemaName != null) {
       try {
-        schema = getSchema().getDatabase().getSchema(this.refSchema).getMetadata();
+        schema = getSchema().getDatabase().getSchema(this.refSchemaName).getMetadata();
       } catch (Exception e) {
         throw new MolgenisException(
             "refSchema '"
-                + this.refSchema
+                + this.refSchemaName
                 + "' cannot be found for column '"
                 + getTableName()
                 + "."
@@ -201,10 +214,18 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
         return schema.getTableMetadata(this.refTable);
       }
     }
-    return null;
+    throw new MolgenisException(
+        "refTable " + this.refTable + " could not be found for column " + this.getQualifiedName());
   }
 
   public Column setRefTable(String refTable) {
+    if (refTable != null && !getColumnType().isReference()) {
+      throw new MolgenisException(
+          "Cannot set refTable for column '"
+              + getName()
+              + "': is not a reference but a "
+              + getColumnType());
+    }
     this.refTable = refTable;
     return this;
   }
@@ -392,8 +413,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   public List<Reference> getReferences() {
 
     // no ref
-    if (getRefTable() == null) {
-      return new ArrayList<>();
+    if (getRefTableName() == null) {
+      throw new MolgenisException(
+          "getReferences failed: column " + getQualifiedName() + " is not a reference");
     }
 
     List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
@@ -531,16 +553,16 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this;
   }
 
-  public String getRefSchema() {
-    if (refSchema != null) {
-      return refSchema;
-    } else if (getRefTable() != null) {
-      return getRefTable().getSchemaName();
-    } else return getSchemaName();
+  public String getRefSchemaName() {
+    if (refSchemaName != null) {
+      return refSchemaName;
+    } else {
+      return getSchemaName();
+    }
   }
 
-  public Column setRefSchema(String refSchema) {
-    this.refSchema = refSchema;
+  public Column setRefSchemaName(String refSchemaName) {
+    this.refSchemaName = refSchemaName;
     return this;
   }
 
@@ -602,6 +624,10 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return getColumnType().isFile();
   }
 
+  public boolean isSystemColumn() {
+    return this.getName().startsWith(SYS_COLUMN_NAME_PREFIX);
+  }
+
   public boolean isHeading() {
     return this.getColumnType().isHeading();
   }
@@ -623,7 +649,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public String getRootTableName() {
     TableMetadata table = this.getTable();
-    while (table.getInherit() != null) {
+    while (table.getInheritName() != null) {
       table = table.getInheritedTable();
     }
     return table.getTableName();
@@ -642,5 +668,13 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   @Override
   public int hashCode() {
     return Objects.hash(table, columnName);
+  }
+
+  public String getLabel() {
+    if (getLabels().get("en") != null) {
+      return getLabels().get("en");
+    } else {
+      return getName();
+    }
   }
 }

@@ -36,11 +36,7 @@
           />
           <a
             class="hoverIcon"
-            :href="'#'"
-            v-scroll-to="{
-              el: '#molgenis_tables_container',
-              offset: -200,
-            }"
+            :href="'#' + (table.name ? table.name.replaceAll(' ', '_') : '')"
           >
             scroll to top
           </a>
@@ -120,7 +116,7 @@
                       class="hoverIcon"
                     />
                   </td>
-                  <td>extends {{ subclass.inherit }}</td>
+                  <td>extends {{ subclass.inheritName }}</td>
                   <td>
                     {{ subclass.description }}
                   </td>
@@ -167,6 +163,8 @@
               tag="tbody"
               @end="applyPosition"
               item-key="name"
+              handle=".moveHandle"
+              :disabled="!isManager"
             >
               <template #item="{ element, index }">
                 <ColumnView

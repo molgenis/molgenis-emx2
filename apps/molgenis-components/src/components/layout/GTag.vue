@@ -5,6 +5,7 @@
 <script>
 import { setOptions, bootstrap } from "vue-gtag";
 import { pageview } from "vue-gtag";
+
 export default {
   name: "GTag",
   props: {
@@ -28,6 +29,11 @@ export default {
           pageview(to.fullPath);
         });
       }
+
+      bootstrap().then((gtag) => {
+        console.log("start analytics for tagId: " + tagId);
+      });
+
     },
   },
   async mounted() {

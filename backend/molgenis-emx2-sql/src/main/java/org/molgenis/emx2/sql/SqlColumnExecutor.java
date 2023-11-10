@@ -11,6 +11,8 @@ import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.createRefBackColumn
 import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.removeRefBackConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
+import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -112,6 +114,7 @@ public class SqlColumnExecutor {
       jooq.execute(
           "DROP INDEX {0}",
           name(oldColumn.getSchemaName(), table.getName() + "/" + oldColumn.getName()));
+      // and drop trigger
     }
 
     // change the type
@@ -262,12 +265,12 @@ public class SqlColumnExecutor {
     }
     // check table doesn't exist
     SchemaMetadata refSchema = schema;
-    if (column.getRefSchema() != null) {
-      if (schema.getDatabase().getSchema(column.getRefSchema()) == null) {
+    if (column.getRefSchemaName() != null) {
+      if (schema.getDatabase().getSchema(column.getRefSchemaName()) == null) {
         throw new MolgenisException(
-            "refSchema '" + column.getRefSchema() + "' does not exist or permission denied");
+            "refSchema '" + column.getRefSchemaName() + "' does not exist or permission denied");
       }
-      refSchema = schema.getDatabase().getSchema(column.getRefSchema()).getMetadata();
+      refSchema = schema.getDatabase().getSchema(column.getRefSchemaName()).getMetadata();
     }
     if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
       TableMetadata tm =
@@ -349,7 +352,7 @@ public class SqlColumnExecutor {
       throw new MolgenisException(
           String.format(
               "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK (tried to find: %s:%s)",
-              c.getTableName(), c.getName(), c.getRefSchema(), c.getRefTableName()));
+              c.getTableName(), c.getName(), c.getRefSchemaName(), c.getRefTableName()));
     }
     if (c.getRefLink() != null) {
       if (c.getTable().getColumn(c.getRefLink()) == null) {
@@ -443,10 +446,20 @@ public class SqlColumnExecutor {
   }
 
   public static void executeSetDefaultValue(DSLContext jooq, Column newColumn) {
-    if (newColumn.getDefaultValue() != null) {
+    if (newColumn.getDefaultValue() != null && newColumn.isReference()) {
+      // we can't do this for references yet
+      Object defaultValue = newColumn.getDefaultValue();
+      if (newColumn.getDefaultValue().startsWith("=")) {
+        defaultValue = executeJavascript(newColumn.getDefaultValue().substring(1));
+      }
+      defaultValue = getTypedValue(defaultValue, newColumn.getPrimitiveColumnType());
       jooq.alterTable(newColumn.getJooqTable())
           .alterColumn(newColumn.getJooqField())
-          .defaultValue(newColumn.getDefaultValue())
+          .defaultValue(defaultValue)
+          .execute();
+      jooq.update(newColumn.getJooqTable())
+          .set(newColumn.getJooqField(), defaultValue)
+          .where(newColumn.getJooqField().isNull())
           .execute();
     } else {
       // remove default

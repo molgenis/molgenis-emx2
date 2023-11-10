@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.Operator.*;
+import static org.molgenis.emx2.Privileges.VIEWER;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
@@ -11,6 +12,7 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
@@ -83,6 +85,7 @@ public class SqlQuery extends QueryBean {
               + " unknown for retrieve rows in schema "
               + schema.getName());
     }
+    checkHasViewPermission(table);
     String tableAlias = "root-" + table.getTableName();
 
     // if empty selection, we will add the default selection here, excl File and Refback
@@ -132,6 +135,13 @@ public class SqlQuery extends QueryBean {
       return result;
     } catch (Exception e) {
       throw new SqlMolgenisException(QUERY_FAILED, e);
+    }
+  }
+
+  private void checkHasViewPermission(SqlTableMetadata table) {
+    if (!table.getTableType().equals(TableType.ONTOLOGIES)
+        && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
+      throw new MolgenisException("Cannot retrieve rows: requires VIEWER permission");
     }
   }
 
@@ -289,6 +299,7 @@ public class SqlQuery extends QueryBean {
       SelectColumn select,
       Filter filters,
       String[] searchTerms) {
+    checkHasViewPermission(table);
     String subAlias = tableAlias + (parentColumn != null ? "-" + parentColumn.getName() : "");
     Collection<Field<?>> selection = jsonSubselectFields(table, subAlias, select);
     return jsonField(
@@ -482,6 +493,45 @@ public class SqlQuery extends QueryBean {
       search.add(
           field(name(table.getTableName(), searchColumnName(table.getTableName())))
               .likeIgnoreCase("%" + term + "%"));
+      // also search in ontology tables linked to current table
+      table.getColumns().stream()
+          .filter(Column::isOntology)
+          .forEach(
+              ontologyColumn -> {
+                Table<Record> ontologyTable = ontologyColumn.getRefTable().getJooqTable();
+                if (Boolean.TRUE.equals(ontologyColumn.isArray())) {
+                  // include if array overlap between ontology table and our selected values in our
+                  // ref_array
+                  search.add(
+                      condition(
+                          "{0} && ARRAY({1})",
+                          ontologyColumn.getJooqField(),
+                          DSL.select(field("name"))
+                              .from(ontologyTable)
+                              .where(
+                                  field(
+                                          name(
+                                              ontologyTable.getName(),
+                                              searchColumnName(ontologyTable.getName())))
+                                      .likeIgnoreCase("%" + term + "%"))));
+                } else {
+                  // include if our ref is in the ontology terms list that would be found given our
+                  // search terms
+                  search.add(
+                      ontologyColumn
+                          .getJooqField()
+                          .in(
+                              DSL.select(field("name"))
+                                  .from(ontologyTable)
+                                  .where(
+                                      field(
+                                              name(
+                                                  ontologyTable.getName(),
+                                                  searchColumnName(ontologyTable.getName())))
+                                          .likeIgnoreCase("%" + term + "%"))));
+                }
+              });
+
       TableMetadata parent = table.getInheritedTable();
       while (parent != null) {
         search.add(
@@ -590,7 +640,7 @@ public class SqlQuery extends QueryBean {
       }
     }
     return field((jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
-        .as(select.getColumn());
+        .as(column.getIdentifier());
   }
 
   private Field<?> jsonAggregateSelect(
@@ -604,8 +654,13 @@ public class SqlQuery extends QueryBean {
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        fields.add(count().as(COUNT_FIELD));
+        if (schema.hasActiveUserRole(VIEWER.toString())) {
+          fields.add(count().as(COUNT_FIELD));
+        } else {
+          fields.add(field("GREATEST(COUNT(*),{0})", 10L).as(COUNT_FIELD));
+        }
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
+        checkHasViewPermission(table);
         List<JSONEntry<?>> result = new ArrayList<>();
         for (SelectColumn sub : field.getSubselect()) {
           Column c = getColumnByName(table, sub.getColumn());
@@ -665,22 +720,55 @@ public class SqlQuery extends QueryBean {
     List<Field> groupByFields = new ArrayList<>();
     for (SelectColumn field : groupBy.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        selectFields.add(field("COUNT(*)"));
+        if (schema.hasActiveUserRole(VIEWER.toString())) {
+          selectFields.add(field("COUNT(*)"));
+        } else {
+          selectFields.add(field("GREATEST({0},COUNT(*))", 10L).as(COUNT_FIELD));
+        }
       } else {
-        Column c = getColumnByName(table, field.getColumn());
-        List<Field> subselectFields = new ArrayList<>();
+        Column col = getColumnByName(table, field.getColumn());
+
+        // can only group by ontology terms because not allowed to see other values, right?
+        if (!col.isOntology()) {
+          checkHasViewPermission(table);
+        }
+        // composite keys might have overlapping underlying columns via 'refLink'
+        // therefore we use a Set here.
+        Set<Field> subselectFields = new HashSet<>();
+
         // need pkey to allow for joining of the subqueries
-        subselectFields.addAll(
-            table.getPrimaryKeyFields().stream()
-                .map(f -> f.as(name("pkey_" + f.getName())))
-                .collect(Collectors.toList()));
-        selectFields.add(c.getJooqField().as(c.getIdentifier()));
+        table
+            .getPrimaryKeyColumns()
+            .forEach(
+                pkey -> {
+                  if (pkey.isReference()) {
+                    // use reference element to cover composite keys if applicable
+                    pkey.getReferences()
+                        .forEach(
+                            pkeyRef -> {
+                              subselectFields.add(
+                                  pkeyRef
+                                      .getJooqField()
+                                      .as(name("pkey_" + convertToCamelCase(pkeyRef.getName()))));
+                            });
+                  } else {
+                    subselectFields.add(
+                        pkey.getJooqField().as(name("pkey_" + pkey.getIdentifier())));
+                  }
+                });
+
+        if (col.isReference() && col.getReferences().size() > 1) {
+          selectFields.add(field(col.getIdentifier()));
+        } else {
+          selectFields.add(col.getJooqField().as(col.getIdentifier()));
+        }
+
         // in case of 'ref' we subselect
-        if (c.isRef()) {
+        if (col.isRef()) {
           subselectFields.add(
               jsonSubselect(
-                      (SqlTableMetadata) c.getRefTable(),
-                      c,
+                      (SqlTableMetadata) col.getRefTable(),
+                      col,
                       tableAlias,
                       field,
                       field.getFilter(),
@@ -688,28 +776,28 @@ public class SqlQuery extends QueryBean {
                   .as(name(field.getColumn())));
         }
         // in case of ref_array we must unnest the values
-        else if (c.isRefArray()) {
+        else if (col.isRefArray() || col.isRefback()) {
           subselectFields.add(
               // coalesce to also return the nulls
               field(
                       "jsonb_array_elements(coalesce(({0}),'[{}]'::jsonb))",
                       jsonSubselect(
-                          (SqlTableMetadata) c.getRefTable(),
-                          c,
+                          (SqlTableMetadata) col.getRefTable(),
+                          col,
                           tableAlias,
                           field,
                           field.getFilter(),
                           new String[0]))
-                  .as(name(c.getName()))
+                  .as(name(col.getName()))
                   .as(name(field.getColumn())));
         }
         // todo decide if we want to support non-ref types for group by. E.g date (group by year of
         // date)
         // if array we unnest
-        else if (c.getColumnType().isArray()) {
-          subselectFields.add(field("unnest({0})", c.getJooqField()).as(c.getJooqField()));
+        else if (col.getColumnType().isArray()) {
+          subselectFields.add(field("unnest({0})", col.getJooqField()).as(col.getJooqField()));
         } else {
-          subselectFields.add(c.getJooqField());
+          subselectFields.add(col.getJooqField());
         }
         if (condition != null) {
           subQuery.add(
@@ -721,7 +809,7 @@ public class SqlQuery extends QueryBean {
               jooq.select(subselectFields)
                   .from(tableWithInheritanceJoin(table).as(alias(tableAlias))));
         }
-        groupByFields.add(field(name(c.getName())));
+        groupByFields.add(field(name(col.getName())));
       }
     }
 
@@ -1261,10 +1349,12 @@ public class SqlQuery extends QueryBean {
     if (column == null) {
       // is reference?
       for (Column c : table.getColumns()) {
-        for (Reference ref : c.getReferences()) {
-          // can also request composite reference columns, can only be used on row level queries
-          if (ref.getName().equals(columnName)) {
-            return new Column(table, columnName, true).setType(ref.getPrimitiveType());
+        if (c.isReference()) {
+          for (Reference ref : c.getReferences()) {
+            // can also request composite reference columns, can only be used on row level queries
+            if (ref.getName().equals(columnName)) {
+              return new Column(table, columnName, true).setType(ref.getPrimitiveType());
+            }
           }
         }
       }

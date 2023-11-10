@@ -178,14 +178,14 @@ class SqlTable implements Table {
       database.getJooq().deleteFrom(t.getJooqTable()).execute();
     }
     // in case inherited we must also truncate parent
-    if (t.getMetadata().getInherit() != null) {
+    if (t.getMetadata().getInheritName() != null) {
       t.getInheritedTable().truncate(t.getMgTableClass(t.getMetadata()));
     }
     logger.info(database.getActiveUser() + " truncated table " + tableName);
   }
 
   private void truncate(String mg_table) {
-    if (getMetadata().getInherit() != null) {
+    if (getMetadata().getInheritName() != null) {
       getInheritedTable().truncate(mg_table);
     }
     db.getJooq().deleteFrom(getJooqTable()).where(field(MG_TABLECLASS).equal(mg_table)).execute();
@@ -369,10 +369,12 @@ class SqlTable implements Table {
         .filter(c -> !c.getName().equals(MG_INSERTEDBY) && !c.getName().equals(MG_INSERTEDON))
         .filter(
             c ->
-                AUTO_ID.equals(c.getColumnType()) || c.getComputed() != null || c.isReference()
-                    ? c.getReferences().stream()
-                        .anyMatch(r -> columnsProvided.contains(r.getName()))
-                    : columnsProvided.contains(c.getName()))
+                AUTO_ID.equals(c.getColumnType())
+                    || c.getComputed() != null
+                    || (c.isReference()
+                        ? c.getReferences().stream()
+                            .anyMatch(r -> columnsProvided.contains(r.getName()))
+                        : columnsProvided.contains(c.getName())))
         .toList();
   }
 
@@ -382,7 +384,7 @@ class SqlTable implements Table {
 
   private static int insertBatch(
       SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInherit() != null;
+    boolean inherit = table.getMetadata().getInheritName() != null;
     int count = 0;
     if (inherit) {
       SqlTable inheritedTable = table.getInheritedTable();
@@ -443,7 +445,7 @@ class SqlTable implements Table {
   }
 
   private static int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInherit() != null;
+    boolean inherit = table.getMetadata().getInheritName() != null;
     int count = 0;
     if (inherit) {
       SqlTable inheritedTable = table.getInheritedTable();
@@ -531,7 +533,7 @@ class SqlTable implements Table {
             deleteBatch(table, batch);
 
             // finally delete in superclass
-            if (table.getMetadata().getInherit() != null) {
+            if (table.getMetadata().getInheritName() != null) {
               table.getInheritedTable().delete(rows);
             }
 
@@ -681,9 +683,9 @@ class SqlTable implements Table {
           getSchema()
               .getDatabase()
               .getSchema(getMetadata().getImportSchema())
-              .getTable(getMetadata().getInherit());
+              .getTable(getMetadata().getInheritName());
     } else {
-      return (SqlTable) getSchema().getTable(getMetadata().getInherit());
+      return (SqlTable) getSchema().getTable(getMetadata().getInheritName());
     }
   }
 

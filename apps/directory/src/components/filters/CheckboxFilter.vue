@@ -62,6 +62,11 @@ export default {
       type: [Function],
       required: true,
     },
+    currentlyActive: {
+      type: Boolean,
+      required: false,
+      default: () => false,
+    },
     /**
      * An array that contains values of options
      * which is used to only show the checkboxes that match
@@ -86,9 +91,16 @@ export default {
   },
   data() {
     return {
-      selection: [],
       resolvedOptions: [],
+      reducedOptions: [],
     };
+  },
+  watch: {
+    optionsFilter(newValue) {
+      if (!this.currentlyActive || this.filterSelection.length === 0) {
+        this.reducedOptions = newValue;
+      }
+    },
   },
   computed: {
     uiText() {
@@ -102,9 +114,15 @@ export default {
       }
     },
     checkboxOptions() {
-      if (this.optionsFilter && this.optionsFilter.length) {
-        return this.resolvedOptions.filter((option) =>
-          this.optionsFilter.includes(option.value)
+      if (this.reducedOptions.length) {
+        const selectedValues = this.filterSelection.map(
+          (selection) => selection.value
+        );
+
+        return this.resolvedOptions.filter(
+          (option) =>
+            this.reducedOptions.includes(option.value) ||
+            selectedValues.includes(option.value)
         );
       } else {
         return this.resolvedOptions;
@@ -129,6 +147,8 @@ export default {
     },
   },
   created() {
+    this.reducedOptions = this.optionsFilter || [];
+
     this.options().then((response) => {
       this.resolvedOptions = response;
     });

@@ -182,47 +182,49 @@ public class WebApiSmokeTests {
 
     // full table header present in exported table metadata
     String header =
-        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,validation,visible,computed,semantics,label,description\r\n";
+        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description\r\n";
 
     // add new table with description and semantics as metadata
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,TestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,TestSem,,TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,TestSem,,,TestDesc\r\n");
 
     // update table without new description or semantics, values should be untouched
     addUpdateTableAndCompare(
-        header, "tableName\r\nTestMetaTable", "TestMetaTable,,,,,,,,,,,,,,,TestSem,,TestDesc\r\n");
+        header,
+        "tableName\r\nTestMetaTable",
+        "TestMetaTable,,,,,,,,,,,,,,,,TestSem,,,TestDesc\r\n");
 
     // update only description, semantics should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,description\r\nTestMetaTable,NewTestDesc",
-        "TestMetaTable,,,,,,,,,,,,,,,TestSem,,NewTestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,TestSem,,,NewTestDesc\r\n");
 
     // make semantics empty by not supplying a value, description  should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,semantics\r\nTestMetaTable,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,NewTestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,NewTestDesc\r\n");
 
     // make description empty while also adding a new value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,NewTestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,NewTestSem,,\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,NewTestSem,,,\r\n");
 
     // empty both description and semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,\r\n");
 
     // add description value, and string array value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
-        "TestMetaTable,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,,TestDesc\r\n");
   }
 
   /**
@@ -802,40 +804,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testLinkedDataApi() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/jsonld");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/ttl");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/jsonld/Category");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/ttl/Category");
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(400)
-        .when()
-        .get("http://localhost:" + PORT + "/pet store/api/ttl/doesnotexist");
-  }
-
-  @Test
   public void testFDPDistribution() {
     given()
         .sessionId(SESSION_ID)
@@ -1127,6 +1095,52 @@ public class WebApiSmokeTests {
             .getBody()
             .asString();
     assertTrue(result.contains("[]"), "script should be unscheduled");
+  }
+
+  @Test
+  void testRedirectOnJSONLDEndpoint() {
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("/pet store/api/rdf?format=jsonld"))
+        .when()
+        .get("/pet store/api/jsonld");
+
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("/pet store/api/rdf/Pet?format=jsonld"))
+        .when()
+        .get("/pet store/api/jsonld/Pet");
+  }
+
+  @Test
+  void testRedirectOnTTLEndpoint() {
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("/pet store/api/rdf?format=ttl"))
+        .when()
+        .get("/pet store/api/ttl");
+
+    given()
+        .sessionId(SESSION_ID)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("/pet store/api/rdf/Pet?format=ttl"))
+        .when()
+        .get("/pet store/api/ttl/Pet");
   }
 
   @Test

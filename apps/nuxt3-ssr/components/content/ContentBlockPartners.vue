@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { IPartner } from "~/interfaces/types";
+
 defineProps<{
   title: string;
   description?: string;

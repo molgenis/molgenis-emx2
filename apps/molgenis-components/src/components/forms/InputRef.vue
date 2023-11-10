@@ -28,24 +28,15 @@
           v-for="(row, index) in data"
           :key="index"
         >
-          <input
-            :id="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
-            :name="id"
-            type="radio"
-            :value="getPrimaryKey(row, tableMetaData)"
-            :checked="isSelected(row)"
-            @change="
-              $emit('update:modelValue', getPrimaryKey(row, tableMetaData))
-            "
-            class="form-check-input"
-            :class="{ 'is-invalid': errorMessage }"
+          <InputRefItem
+            :id="id"
+            :row="row"
+            :tableId="tableId"
+            :client="client"
+            :selection="modelValue"
+            :errorMessage="errorMessage"
+            @update:modelValue="select"
           />
-          <label
-            class="form-check-label"
-            :for="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
-          >
-            {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
-          </label>
         </div>
         <ButtonAlt
           class="pl-0"
@@ -60,12 +51,12 @@
         <template v-slot:body>
           <TableSearch
             :selection="[modelValue]"
-            :lookupTableName="tableName"
+            :lookuptableId="tableId"
             :filter="filter"
             @select="select($event)"
             @deselect="clearValue"
             @close="loadOptions"
-            :schemaName="schemaName"
+            :schemaId="schemaId"
             :showSelect="true"
             :limit="10"
             :canEdit="canEdit"
@@ -86,7 +77,8 @@ import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
-import { flattenObject, getPrimaryKey, convertToPascalCase } from "../utils";
+import InputRefItem from "./InputRefItem.vue";
+import { flattenObject } from "../utils";
 
 export default {
   name: "InputRef",
@@ -96,9 +88,10 @@ export default {
     LayoutModal,
     FormGroup,
     ButtonAlt,
+    InputRefItem,
   },
   props: {
-    schemaName: {
+    schemaId: {
       required: false,
       type: String,
     },
@@ -106,16 +99,12 @@ export default {
     multipleColumns: Boolean,
     itemsPerColumn: { type: Number, default: 12 },
     maxNum: { type: Number, default: 11 },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    /**
-     * Whether or not the buttons are show to edit the referenced table
-     *  */
     canEdit: {
       type: Boolean,
-      required: false,
       default: () => false,
     },
   },
@@ -125,22 +114,17 @@ export default {
       showSelect: false,
       data: [],
       count: 0,
-      tableMetaData: null,
     };
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     title() {
-      return "Select " + this.tableName;
+      return "Select " + this.tableId;
     },
     showMultipleColumns() {
       return this.multipleColumns && this.count > this.itemsPerColumn;
     },
   },
   methods: {
-    getPrimaryKey,
     clearValue() {
       this.$emit("update:modelValue", null);
     },
@@ -153,12 +137,6 @@ export default {
     closeSelect() {
       this.loadOptions();
       this.showSelect = false;
-    },
-    isSelected(row) {
-      return (
-        this.getPrimaryKey(row, this.tableMetaData)?.name ===
-        (this.modelValue ? this.modelValue.name : "")
-      );
     },
     flattenObject,
     async loadOptions() {
@@ -179,8 +157,7 @@ export default {
     },
   },
   async created() {
-    this.client = Client.newClient(this.schemaName);
-    this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
+    this.client = Client.newClient(this.schemaId);
     await this.loadOptions();
   },
 };
@@ -189,7 +166,8 @@ export default {
 <docs>
 <template>
   <div>
-    You have to be have server running and be signed in for this to work
+    You have to be have server running and be signed in for this to work.
+    Note: this component is currently only used in the RefFilter. For inputting Ref entries in forms, InputRefList is used.
      <div class="border-bottom mb-3 p-2">
        <h5>synced demo props: </h5>
          <div>
@@ -199,14 +177,14 @@ export default {
          <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
-      <!-- normally you don't need schemaName, usually scope is all you need -->
+      <!-- normally you don't need schemaId, usually scope is all you need -->
       <InputRef
         id="input-ref"
         label="Standard ref input"
         v-model="value"
-        tableName="Pet"
+        tableId="Pet"
         description="Standard input"
-        schemaName="pet store"
+        schemaId="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ value }}
@@ -216,10 +194,10 @@ export default {
         id="input-ref-default"
         label="Ref with default value"
         v-model="defaultValue"
-        tableName="Pet"
+        tableId="Pet"
         description="This is a default value"
         :defaultValue="defaultValue"
-        schemaName="pet store"
+        schemaId="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ defaultValue }}
@@ -227,29 +205,31 @@ export default {
     <DemoItem>
       <InputRef
         id="input-ref-filter"
-        label="Ref input with pre set filter"
+        label="Ref input with pre set filter ( only cats)"
         v-model="filterValue"
-        tableName="Pet"
+        tableId="Pet"
         description="Filter by name"
         :filter="{ category: { name: { equals: 'cat' } } }"
-        schemaName="pet store"
+        schemaId="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ filterValue }}
+      <br />
+      Filter: { category: { name: { equals: 'cat' } } }
     </DemoItem>
     <DemoItem>
       <InputRef
-        id="input-ref"
+        id="input-ref-multi-column"
         label="Ref input with multiple columns"
         v-model="multiColumnValue"
-        tableName="Pet"
+        tableId="Pet"
         description="This is a multi column input"
-        schemaName="pet store"
+        schemaId="pet store"
         multipleColumns
         :itemsPerColumn="3"
         :canEdit="canEdit"
       />
-      Selection: {{ value }}
+      Selection: {{ multiColumnValue }}
     </DemoItem>
   </div>
 </template>
