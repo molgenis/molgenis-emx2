@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "molgenis-components": "*",
-    "core-js": "3.33.0",
+    "core-js": "3.33.2",
     "graphql-request": "5.2.0",
     "vue": "3.3.4",
     "vue-router": "4.2.5",
