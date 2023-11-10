@@ -24,7 +24,6 @@ export const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
-
 app.use(VueGtag, { bootstrap: false }, router);
 
 app.mount("#app");
