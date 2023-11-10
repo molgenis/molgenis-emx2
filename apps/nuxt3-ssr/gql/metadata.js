@@ -2,15 +2,12 @@ import gql from "graphql-tag";
 export default gql`
   {
     _schema {
-      name
+      id
+      label
       tables {
-        name
-        labels {
-          locale
-          value
-        }
-        tableType
         id
+        label
+        tableType
         descriptions {
           locale
           value
@@ -18,16 +15,12 @@ export default gql`
         schemaId
         semantics
         columns {
-          name
-          labels {
-            locale
-            value
-          }
           id
+          label
           columnType
           key
           refTableId
-          refSchema
+          refSchemaId
           refLinkId
           refLabel
           refLabelDefault
