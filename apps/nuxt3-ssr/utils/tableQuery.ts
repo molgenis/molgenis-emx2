@@ -101,7 +101,6 @@ export const buildRecordListQueryFields = (
   // suggested list fields that are part of this tableType
   const additionalFields: any = [
     "id",
-    "name",
     "label",
     "description",
     "pid",

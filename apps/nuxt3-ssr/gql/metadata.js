@@ -3,15 +3,11 @@ export default gql`
   {
     _schema {
       id
+      label
       tables {
-        name
-        label
-        labels {
-          locale
-          value
-        }
-        tableType
         id
+        label
+        tableType
         descriptions {
           locale
           value
@@ -19,12 +15,8 @@ export default gql`
         schemaId
         semantics
         columns {
-          name
-          labels {
-            locale
-            value
-          }
           id
+          label
           columnType
           key
           refTableId

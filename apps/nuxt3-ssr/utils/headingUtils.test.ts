@@ -17,7 +17,7 @@ describe("toHeadings", () => {
     };
 
     expect(toHeadings(tableMetaData)).toEqual([
-      { id: "test", columnType: "HEADING", name: "test" },
+      { id: "test", columnType: "HEADING", label: "test" },
     ]);
   });
 
