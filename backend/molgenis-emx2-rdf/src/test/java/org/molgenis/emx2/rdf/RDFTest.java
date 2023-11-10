@@ -223,6 +223,24 @@ public class RDFTest {
         iris.contains(subjectWithCompositeKey),
         "A Sample resource should have a key based on patient.firstName, patient.lastName and id");
   }
+
+  @Test
+  void testThatInstancesUseReferToDatasetWithTheRightPredicate() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.ofRow(petStore_nr1, "Pets", "pooky"), handler);
+    for (var iri : handler.resources.keySet()) {
+      // Select the triples for pooky
+      if (iri.stringValue().endsWith("pooky")) {
+
+        var pooky = handler.resources.get(iri);
+        assertTrue(
+            pooky.containsKey(RDFService.IRI_DATASET_PREDICATE),
+            "An instance of a Pet should refer back to the Collection using qb:dataSet");
+        assertFalse(
+            pooky.containsKey(RDFService.IRI_DATASET_CLASS), "qb:DataSet is not a predicate");
+      }
+    }
+  }
   /**
    * Helper method to reduce boilerplate code in the tests.<br>
    * <b>Note</b> this method delegates to the handler for the results of parsing.
