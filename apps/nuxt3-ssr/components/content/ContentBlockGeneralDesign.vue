@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ICohort } from "interfaces/types";
+import { ICohort } from "~/interfaces/types";
 
 const { cohort } = defineProps<{
   title: string;

@@ -7,7 +7,7 @@ import {
   getRowErrors,
   getSaveDisabledMessage,
   removeKeyColumns,
-  splitColumnNamesByHeadings,
+  splitColumnIdsByHeadings,
 } from "./formUtils";
 import { IColumn } from "../../../Interfaces/IColumn";
 const { AUTO_ID, HEADING } = constants;
@@ -37,7 +37,7 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "required",
-          name: "required",
+          label: "required",
           columnType: "STRING",
           required: true,
         },
@@ -53,7 +53,7 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "required",
-          name: "required",
+          label: "required",
           columnType: "DECIMAL",
           required: true,
         },
@@ -188,8 +188,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -205,8 +206,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -222,8 +224,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -239,8 +242,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -265,7 +269,7 @@ describe("getRowErrors", () => {
 describe("removeKeyColumns", () => {
   test("it should return the data without the data of the key columns", () => {
     const metaData = {
-      columns: [{ name: "key", key: 1 }, { name: "some" }],
+      columns: [{ id: "key", key: 1 }, { id: "some" }],
     } as ITableMetaData;
     const rowData = { some: "Data", key: "primaryKey" };
     const result = removeKeyColumns(metaData, rowData);
@@ -289,7 +293,7 @@ describe("filterVisibleColumns", () => {
   });
 });
 
-describe("splitColumnNamesByHeadings", () => {
+describe("splitColumnIdsByHeadings", () => {
   test("it should split all columns by the headings", () => {
     const columns = [
       { id: "heading1", columnType: HEADING },
@@ -298,7 +302,7 @@ describe("splitColumnNamesByHeadings", () => {
       { id: "string2", columnType: "STRING" },
       { id: "string3", columnType: "STRING" },
     ] as IColumn[];
-    const result = splitColumnNamesByHeadings(columns);
+    const result = splitColumnIdsByHeadings(columns);
     const expectedResult = [
       ["heading1", "string1"],
       ["heading2", "string2", "string3"],

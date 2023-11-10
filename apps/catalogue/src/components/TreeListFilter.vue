@@ -6,7 +6,7 @@
       <Spinner v-if="loading" />
       <div v-else class="ml-4" v-for="option in value.options">
         <input type="checkbox" v-model="option.checked" />
-        {{ option[value.refColumn] }}
+        {{ option[value.refColumnId] }}
       </div>
     </div>
   </div>
@@ -36,10 +36,10 @@ export default {
         this.loading = true;
         request(
           "graphql",
-          "{" + this.value.refTable + "{" + this.value.refColumn + "}}"
+          "{" + this.value.refTableId + "{" + this.value.refColumnId + "}}"
         )
           .then((data) => {
-            this.value.options = data[this.value.refTable];
+            this.value.options = data[this.value.refTableId];
           })
           .catch((error) => {
             this.graphqlError = error.response.errors[0].message;

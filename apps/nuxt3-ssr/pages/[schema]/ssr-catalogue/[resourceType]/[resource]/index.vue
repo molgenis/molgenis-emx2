@@ -8,36 +8,34 @@ import type {
 } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
-const resourceName: string = route.params.resourceType as string;
-const schemaName = route.params.schema.toString();
-const metadata = await fetchMetadata(schemaName);
+const tableId: string = route.params.resourceType as string;
+const schemaId = route.params.schema.toString();
+const metadata = await fetchMetadata(schemaId);
 
 const tableMetaDataFinderResult = metadata.tables.find(
-  (t: ITableMetaData) =>
-    t.id.toLocaleLowerCase() === resourceName.toLocaleLowerCase()
+  (t: ITableMetaData) => t.id === tableId
 );
 
 const tableMetaData = computed(() => {
   if (tableMetaDataFinderResult) {
     return tableMetaDataFinderResult;
   } else {
-    throw new Error(`Table metadata not found for ${resourceName}`);
+    throw new Error(`Table metadata not found for ${tableId}`);
   }
 });
 const resourceType = tableMetaData.value.id;
-const externalSchemaNames: string[] = extractExternalSchemas(metadata);
-const externalSchemas = await Promise.all(
-  externalSchemaNames.map(fetchMetadata)
-);
+const schemaIds: string[] = extractExternalSchemas(metadata);
+
+const externalSchemas = await Promise.all(schemaIds.map(fetchMetadata));
 const schemas = externalSchemas.reduce(
   (acc: Record<string, ISchemaMetaData>, schema) => {
-    acc[schema.name] = schema;
+    acc[schema.id] = schema;
     return acc;
   },
-  { [schemaName]: metadata }
+  { [schemaId]: metadata }
 );
 
-const fields = buildRecordDetailsQueryFields(schemas, schemaName, resourceType);
+const fields = buildRecordDetailsQueryFields(schemas, schemaId, tableId);
 
 const { key } = useQueryParams();
 
@@ -117,15 +115,15 @@ function buildTOC(sections: ISection[]) {
 }
 
 function sectionTitle(section: ISection) {
-  return section.meta.descriptions
-    ? section.meta.descriptions[0].value
-    : section.meta.name;
+  return section.meta.description
+    ? section.meta.description
+    : section.meta.label;
 }
 
 let crumbs: Record<string, string> = {
   Home: `/${route.params.schema}/ssr-catalogue`,
 };
-crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${resourceName}`;
+crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${tableId}`;
 </script>
 
 <template>

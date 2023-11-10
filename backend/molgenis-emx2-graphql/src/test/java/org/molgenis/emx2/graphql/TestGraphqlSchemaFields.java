@@ -125,7 +125,25 @@ public class TestGraphqlSchemaFields {
             .textValue());
 
     // remove value
-    execute("mutation{drop(settings:[{table:\"Pet\", key:\"test\"}]){message}}");
+    execute("mutation{drop(settings:[{tableId:\"Pet\", key:\"test\"}]){message}}");
+
+    assertEquals(0, schema.getTable("Pet").getMetadata().getSettings().size());
+    assertEquals(
+        0,
+        execute("{_schema{tables{settings{key,value}}}}").at("/_schema/tables/2/settings").size());
+
+    // or using tableId
+    // add value
+    execute("mutation{change(settings:[{tableId:\"Pet\",key:\"test\",value:\"blaat\"}]){message}}");
+
+    assertEquals(
+        "blaat",
+        execute("{_schema{tables{settings{key,value}}}}")
+            .at("/_schema/tables/2/settings/0/value")
+            .textValue());
+
+    // remove value
+    execute("mutation{drop(settings:[{tableId:\"Pet\", key:\"test\"}]){message}}");
 
     assertEquals(0, schema.getTable("Pet").getMetadata().getSettings().size());
     assertEquals(
