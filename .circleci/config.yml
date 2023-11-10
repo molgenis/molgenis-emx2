@@ -78,17 +78,17 @@ jobs:
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
 
-  ##  - run:
-  ##      name: build and test java
-  ##      command: |
-  ##        ./gradlew test --no-daemon
+    - run:
+        name: build and test java
+        command: |
+          ./gradlew test --no-daemon
 
-  ##  - run:
-  ##      name: test e2e
-  ##      command: |
-  ##        npx playwright install --with-deps
-  ##        npm install -D @playwright/test
-  ##        set CI=true && npx playwright test --config e2e --project=chromium
+    - run:
+        name: test e2e
+        command: |
+          npx playwright install --with-deps
+          npm install -D @playwright/test
+          set CI=true && npx playwright test --config e2e --project=chromium
 
 
     # to switch to release add following
@@ -96,32 +96,32 @@ jobs:
     #    ./gradlew checkFormat spotlessCheck test jacocoMergedReport sonarqube ci \
     #    -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
     #    -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
-    ##- run:
-    ##    name: release, push docker, push python
-    ##    command: |
-    ##      if [ "${CIRCLE_BRANCH}" = "master" ]; then
-    ##        ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release \
-    ##        -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-    ##        -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
-    ##      else
-    ##        echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-    ##        ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release publishPython \
-    ##        -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-    ##        -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-    ##        -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
-    ##      fi
-    ##      export $( cat build/ci.properties | xargs )
-    ##      if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
-    ##        docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
-    ##        docker push molgenis/ssr-catalogue-snapshot --all-tags
-    ##      else
-    ##        docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
-    ##        docker push molgenis/ssr-catalogue --all-tags
-    ##      fi
-    ##    environment:
-    ##      MOLGENIS_POSTGRES_USER: molgenis
-    ##      MOLGENIS_POSTGRES_PASS: molgenis
-    ##      MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
+    - run:
+        name: release, push docker, push python
+        command: |
+          if [ "${CIRCLE_BRANCH}" = "master" ]; then
+            ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release \
+            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
+          else
+            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+            ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release publishPython \
+            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+            -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+          fi
+          export $( cat build/ci.properties | xargs )
+          if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+            docker push molgenis/ssr-catalogue-snapshot --all-tags
+          else
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
+            docker push molgenis/ssr-catalogue --all-tags
+          fi
+        environment:
+          MOLGENIS_POSTGRES_USER: molgenis
+          MOLGENIS_POSTGRES_PASS: molgenis
+          MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
 
     ##- run:
     ##    name: deploy preview or update dev to k8s
