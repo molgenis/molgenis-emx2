@@ -32,7 +32,7 @@ defineProps({
         <header class="flex items-center h-full sm:h-min">
           <div class="grow">
             <h2
-              class="min-w-[160px] inline-block mr-4 text-heading-base sm:text-heading-2xl font-extrabold text-blue-500"
+              class="min-w-[160px] inline-block mr-4 text-heading-base sm:text-heading-3xl font-extrabold text-blue-500"
             >
               <a :href="url" class="hover:underline hover:bg-blue-50">
                 {{ title }}

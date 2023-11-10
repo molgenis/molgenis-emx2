@@ -2,7 +2,7 @@
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
-const pageSize = 20;
+const pageSize = 10;
 
 useHead({ title: "Networks" });
 
@@ -23,21 +23,29 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Countries",
-    refTable: "Countries",
-    columnName: "countries",
+    refTableId: "Countries",
+    columnId: "countries",
     columnType: "ONTOLOGY",
     conditions: [],
   },
   {
     title: "Organisations",
-    columnName: "leadOrganisation",
+    columnId: "dataCategories",
     columnType: "REF_ARRAY",
-    refTable: "Organisations",
+    refTableId: "Organisations",
     refFields: {
       key: "id",
       name: "id",
       description: "name",
     },
+    conditions: [],
+  },
+  {
+    title: "Topics",
+    refTableId: "AgeGroups",
+    columnId: "ageGroups",
+    columnType: "ONTOLOGY",
+    filterTable: "collectionEvents",
     conditions: [],
   },
 ]);

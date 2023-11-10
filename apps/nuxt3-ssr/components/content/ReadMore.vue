@@ -12,7 +12,7 @@ const { text, cutoff } = withDefaults(
 let truncate = ref(true);
 </script>
 <template>
-  <p v-if="test" class="text-body-base my-5 xl:block hidden">
+  <p v-if="text" class="text-body-base my-5 xl:block hidden">
     {{ truncate ? `${text?.substring(0, cutoff)}...` : text }}
     <button
       v-if="truncate && text && text.length > cutoff"

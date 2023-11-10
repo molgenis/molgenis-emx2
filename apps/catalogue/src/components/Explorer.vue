@@ -26,7 +26,12 @@
                   <label>Limit search to:</label>
                   <InputCheckbox
                     class="custom-control-inline ml-2"
-                    :options="['Collections', 'Tables', 'Variables', 'Topics']"
+                    :options="[
+                      'Collections',
+                      'Datasets',
+                      'Variables',
+                      'Topics',
+                    ]"
                   />
                 </div>
               </form>
@@ -46,8 +51,8 @@
             <li>
               <router-link
                 class="nav-link"
-                :class="{ active: selected == 'Tables' }"
-                to="tables"
+                :class="{ active: selected == 'Datasets' }"
+                to="datasets"
               >
                 Dataset ({{ datasetCount }})
               </router-link>
@@ -114,48 +119,48 @@ export default {
       filters: [
         {
           name: "Topic",
-          refTable: "Topics",
+          refTableId: "Topics",
           columnType: "REF",
         },
         {
           name: "Population",
-          refTable: "InclusionCriteria",
+          refTableId: "InclusionCriteria",
           columnType: "REF",
         },
         {
           name: "Inclusion Criteria",
-          refTable: "InclusionCriteria",
+          refTableId: "InclusionCriteria",
           columnType: "REF",
         },
 
         {
           name: "Number Of Participants",
-          refTable: "AgeCategories",
+          refTableId: "AgeCategories",
           columnType: "REF",
         },
         {
           name: "Recruitment age",
-          refTable: "AgeCategories",
+          refTableId: "AgeCategories",
           columnType: "REF",
         },
         {
           name: "Country",
-          refTable: "InclusionCriteria",
+          refTableId: "InclusionCriteria",
           columnType: "REF",
         },
         {
           name: "Host organisation",
-          refTable: "Institutes",
+          refTableId: "Institutes",
           columnType: "REF",
         },
         {
           name: "Format",
-          refTable: "Formats",
+          refTableId: "Formats",
           columnType: "REF",
         },
         {
           name: "Unit",
-          refTable: "Units",
+          refTableId: "Units",
           columnType: "REF",
         },
       ],

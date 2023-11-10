@@ -4,9 +4,12 @@ import { getKey } from "~/utils/variableUtils";
 
 const props = defineProps<{
   variable: IVariable;
+  schema: string;
 }>();
+
 const route = useRoute();
 const variableKey = computed(() => getKey(props.variable));
+
 const resourcePathId = resourceIdPath(variableKey.value);
 </script>
 

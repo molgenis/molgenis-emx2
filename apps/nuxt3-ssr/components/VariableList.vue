@@ -22,24 +22,34 @@ let filters: IFilter[] = reactive([
     initialCollapsed: false,
   },
   {
-    title: "Resource",
-    refTable: "Resources",
-    columnName: "resource",
-    columnType: "REF_ARRAY",
-    conditions: [],
-  },
-  {
-    title: "Dataset",
-    refTable: "Datasets",
-    columnName: "dataset",
-    columnType: "REF_ARRAY",
-    conditions: [],
-  },
-  {
-    title: "Formats",
-    refTable: "Formats",
-    columnName: "format",
+    title: "Topics",
+    refTableId: "Keywords",
+    columnId: "keywords",
     columnType: "ONTOLOGY",
+    conditions: [],
+  },
+  {
+    title: "Networks",
+    columnId: "networks",
+    columnType: "REF_ARRAY",
+    refTableId: "Networks",
+    refFields: {
+      key: "id",
+      name: "id",
+      description: "name",
+    },
+    conditions: [],
+  },
+  {
+    title: "Cohorts",
+    refTableId: "Cohorts",
+    columnNId: "cohorts",
+    columnType: "REF_ARRAY",
+    refFields: {
+      key: "id",
+      name: "id",
+      description: "name",
+    },
     conditions: [],
   },
 ]);
@@ -126,7 +136,7 @@ const filter = computed(() => {
   let result = {
     ...buildQueryFilter(filters, search.value),
     ...typeFilter,
-  }
+  };
   if (route.params.catalogue) {
     result._and["networks"] = { resource: { equals: route.params.catalogue } };
   }
@@ -153,8 +163,7 @@ watch(filters, () => {
   setCurrentPage(1);
 });
 
-<<<<<<< HEAD:apps/nuxt3-ssr/components/VariableList.vue
-let activeName = ref("detailed");
+let activeName = ref("list");
 
 let crumbs: any = {};
 if (route.params.catalogue) {
@@ -166,8 +175,7 @@ if (route.params.catalogue) {
     Home: `/${route.params.schema}/ssr-catalogue`,
   };
 }
-=======
-let activeName = ref("list");
+
 let pageIcon = computed(() => {
   switch (activeName.value) {
     case "list":
@@ -176,7 +184,6 @@ let pageIcon = computed(() => {
       return "image-table";
   }
 });
->>>>>>> aa7f6a1088dfbd33b71efc4c403b3e1479d918f9:apps/nuxt3-ssr/pages/[schema]/ssr-catalogue/variables/index.vue
 </script>
 
 <template>

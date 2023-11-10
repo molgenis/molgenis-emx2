@@ -13,17 +13,48 @@ const statusPerCohort = computed(
   () => calcHarmonizationStatus([props.variable], props.cohorts)[0]
 );
 
+const activeCohortId = computed(() => props.cohorts[activeIndex.value].id);
+
 const activeMappingDescription = computed(() => {
-  const activeCohortId = props.cohorts[activeIndex.value].id;
-  if (!props.variable.mappings) {
-    return "No description";
-  } else {
-    const activeCohortMapping = props.variable?.mappings.find(
-      (mapping) => mapping.sourceDataset.resource.id === activeCohortId
-    );
-    return activeCohortMapping?.description;
-  }
+  const activeCohortMapping = props.variable?.mappings?.find(
+    (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+  );
+  return activeCohortMapping?.description || "No description";
 });
+
+const variablesUsed = computed(() => {
+  return props.variable.mappings
+    ?.filter(
+      (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+    )
+    .map((mapping) => {
+      const sourceVariables = mapping.sourceVariables
+        ? mapping.sourceVariables.map((variable: { name: string }) => {
+            return {
+              name: variable.name,
+              resource: {
+                id: mapping.source.id,
+              },
+              dataset: mapping.sourceDataset,
+            };
+          })
+        : [];
+      const sourceVariablesOtherDatasets = mapping.sourceVariablesOtherDatasets
+        ? mapping.sourceVariablesOtherDatasets
+        : [];
+      return [...sourceVariables, ...sourceVariablesOtherDatasets];
+    })
+    .flatMap((x) => x);
+});
+
+const syntax = computed(() => {
+  return props.variable.mappings?.find(
+    (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+  )?.syntax;
+});
+
+let activeVariableKey = ref();
+let showSidePanel = computed(() => activeVariableKey.value?.name);
 </script>
 
 <template>
@@ -41,31 +72,6 @@ const activeMappingDescription = computed(() => {
     </HorizontalScrollHelper>
   </div>
 
-  <!-- {{ variable.mappings }} -->
-  <!-- :items="[
-      {
-        label: 'Cohort',
-        content: cohorts[activeIndex].id,
-      },
-      {
-        label: 'Harmonization status',
-        content: statusPerCohort[activeIndex],
-      },
-      {
-        label: 'Description',
-        content: activeMappingDescription,
-      },
-      {
-        label: 'Variables used',
-        content: 'None',
-      },
-      {
-        label: 'Syntax',
-        content: variable.mappings?.find(
-          (mapping) => mapping.sourceDataset.resource.id === cohorts[activeIndex].id
-        )?.syntax || 'None',
-      },
-    ]" -->
   <DefinitionList>
     <DefinitionListTerm>Cohort</DefinitionListTerm>
     <DefinitionListDefinition>
@@ -83,16 +89,41 @@ const activeMappingDescription = computed(() => {
     }}</DefinitionListDefinition>
 
     <DefinitionListTerm>Variables used</DefinitionListTerm>
-    <DefinitionListDefinition> None </DefinitionListDefinition>
+
+    <DefinitionListDefinition v-if="variable.mappings">
+      <ul>
+        <li v-for="variableUsed in variablesUsed">
+          <a
+            class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 cursor-pointer"
+            @click="activeVariableKey = getKey(variableUsed)"
+          >
+            <BaseIcon
+              name="caret-right"
+              class="inline"
+              style="margin-left: -8px"
+            />
+            {{ variableUsed.name }}
+          </a>
+        </li>
+      </ul>
+    </DefinitionListDefinition>
+    <DefinitionListDefinition v-else>None</DefinitionListDefinition>
 
     <DefinitionListTerm>Syntax</DefinitionListTerm>
-    <DefinitionListDefinition>
-      {{
-        variable.mappings?.find(
-          (mapping) =>
-            mapping.sourceDataset.resource.id === cohorts[activeIndex].id
-        )?.syntax || "None"
-      }}
-    </DefinitionListDefinition>
+    <DefinitionListDefinition v-if="!syntax">None</DefinitionListDefinition>
   </DefinitionList>
+  <CodeBlock v-if="syntax" class="mt-2">{{ syntax }}</CodeBlock>
+
+  <SideModal
+    :key="JSON.stringify(activeVariableKey)"
+    :show="showSidePanel"
+    :fullScreen="false"
+    :slideInRight="true"
+    @close="activeVariableKey = null"
+    buttonAlignment="right"
+  >
+    <template v-if="activeVariableKey">
+      <VariableDisplay :variableKey="activeVariableKey" />
+    </template>
+  </SideModal>
 </template>

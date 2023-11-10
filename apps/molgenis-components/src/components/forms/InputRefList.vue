@@ -17,8 +17,9 @@
           />
         </div>
         <ButtonAlt
-          v-if="modelValue && modelValue.length"
+          v-if="modelValue?.length"
           class="pl-1"
+          icon="fa fa-clear"
           @click="clearValue"
         >
           clear selection
@@ -51,25 +52,38 @@
             {{ applyJsTemplate(row, refLabel) }}
           </label>
         </div>
-        <ButtonAlt
-          class="pl-0"
-          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-          icon="fa fa-search"
-          @click="openSelect"
-        >
-          {{ count > maxNum ? `view all ${count} options.` : "view as table" }}
-        </ButtonAlt>
+        <div v-if="canEdit">
+          <Tooltip value="New entry">
+            <RowButtonAdd
+              id="add-entry"
+              :tableName="tableName"
+              :schemaName="schemaName"
+            />
+          </Tooltip>
+        </div>
+        <div>
+          <ButtonAlt
+            class="pl-0"
+            :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
+            icon="fa fa-search"
+            @click="openSelect"
+          >
+            {{
+              count > maxNum ? `view all ${count} options.` : "view as table"
+            }}
+          </ButtonAlt>
+        </div>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
           <TableSearch
             v-model:selection="selection"
             @update:selection="$emit('update:modelValue', $event)"
-            :lookupTableName="tableName"
+            :tableId="tableId"
             :filter="filter"
             @select="emitSelection"
             @deselect="deselect"
-            :schemaName="schemaName"
+            :schemaId="schemaId"
             :showSelect="true"
             :limit="10"
             :canEdit="canEdit"
@@ -83,20 +97,20 @@
   </FormGroup>
 </template>
 
-<script>
-import Client from "../../client/client.ts";
-import Spinner from "../layout/Spinner.vue";
-import BaseInput from "./baseInputs/BaseInput.vue";
-import TableSearch from "../tables/TableSearch.vue";
+<script lang="ts">
+import { IRow } from "../../Interfaces/IRow";
+import { IQueryMetaData } from "../../client/IQueryMetaData";
+import Client from "../../client/client";
+import FilterWell from "../filters/FilterWell.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
+import Spinner from "../layout/Spinner.vue";
+import RowButtonAdd from "../tables/RowButtonAdd.vue";
+import TableSearch from "../tables/TableSearch.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
-import FilterWell from "../filters/FilterWell.vue";
-import {
-  convertToPascalCase,
-  convertRowToPrimaryKey,
-  applyJsTemplate,
-} from "../utils";
+import { convertRowToPrimaryKey, applyJsTemplate } from "../utils";
+import Tooltip from "./Tooltip.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 
 export default {
   extends: BaseInput,
@@ -118,9 +132,11 @@ export default {
     FormGroup,
     ButtonAlt,
     Spinner,
+    RowButtonAdd,
+    Tooltip,
   },
   props: {
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -128,7 +144,7 @@ export default {
     orderby: Object,
     multipleColumns: Boolean,
     maxNum: { type: Number, default: 11 },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
@@ -136,21 +152,14 @@ export default {
       type: String,
       required: true,
     },
-    /**
-     * Whether or not the buttons are show to edit the referenced table
-     *  */
     canEdit: {
       type: Boolean,
-      required: false,
       default: () => false,
     },
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     title() {
-      return "Select " + this.tableName;
+      return "Select " + this.tableMetadata.label;
     },
     showMultipleColumns() {
       const itemsPerColumn = 12;
@@ -159,7 +168,7 @@ export default {
   },
   methods: {
     applyJsTemplate,
-    deselect(key) {
+    deselect(key: any) {
       this.selection.splice(key, 1);
       this.emitSelection();
     },
@@ -179,25 +188,21 @@ export default {
     },
     async loadOptions() {
       this.loading = true;
-      const options = {
+      const options: IQueryMetaData = {
         limit: this.maxNum,
+        filter: this.filter,
+        orderby: this.orderby,
       };
-      if (this.filter) {
-        options["filter"] = this.filter;
-      }
-      if (this.orderby) {
-        options["orderby"] = this.orderby;
-      }
       const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
       this.count = response[this.tableId + "_agg"].count;
 
       await Promise.all(
-        this.data.map(async (row) => {
+        this.data.map(async (row: IRow) => {
           row.primaryKey = await convertRowToPrimaryKey(
             row,
             this.tableId,
-            this.schemaName
+            this.schemaId
           );
         })
       ).then(() => (this.loading = false));
@@ -216,13 +221,14 @@ export default {
   },
   async created() {
     //should be created, not mounted, so we are before the watchers
-    this.client = Client.newClient(this.schemaName);
-    this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
+    this.client = Client.newClient(this.schemaId);
+    this.tableMetaData = await this.client.fetchTableMetaData(this.tableId);
     await this.loadOptions();
     if (!this.modelValue) {
       this.selection = [];
     }
   },
+  emits: ["optionsLoaded"],
 };
 </script>
 
@@ -239,14 +245,14 @@ export default {
       <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
-      <!-- normally you don't need schemaName, it will use graphql on current path-->
+      <!-- normally you don't need schemaId, it will use graphql on current path-->
       <InputRefList
           id="input-ref-list"
           label="Standard ref input list"
           v-model="value"
-          tableName="Pet"
+          tableId="Pet"
           description="Standard input"
-          schemaName="pet store"
+          schemaId="pet store"
           :canEdit="canEdit"
           refLabel="${name}"
       />
@@ -257,10 +263,10 @@ export default {
           id="input-ref-list-default"
           label="Ref input list with default value"
           v-model="defaultValue"
-          tableName="Pet"
+          tableId="Pet"
           description="This is a default value"
           :defaultValue="defaultValue"
-          schemaName="pet store"
+          schemaId="pet store"
           :canEdit="canEdit"
           refLabel="${name}"
       />
@@ -271,10 +277,10 @@ export default {
           id="input-ref-list-filter"
           label="Ref input list with pre set filter"
           v-model="filterValue"
-          tableName="Pet"
+          tableId="Pet"
           description="Filter by name"
           :filter="{ category: { name: { equals: 'dog' } } }"
-          schemaName="pet store"
+          schemaId="pet store"
           :canEdit="canEdit"
           refLabel="${name}"
       />
@@ -285,9 +291,9 @@ export default {
           id="input-ref-list"
           label="Ref input list with multiple columns"
           v-model="multiColumnValue"
-          tableName="Pet"
+          tableId="Pet"
           description="This is a multi column input"
-          schemaName="pet store"
+          schemaId="pet store"
           multipleColumns
           :canEdit="canEdit"
           refLabel="${name}"

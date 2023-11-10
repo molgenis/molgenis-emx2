@@ -8,10 +8,10 @@
       <thead>
         <th
           v-for="col in visibleColumns.filter((c) => c.columnType != 'HEADING')"
-          :key="col.name"
+          :key="col.id"
           scope="col"
         >
-          <h6 class="mb-0">{{ col.name }}</h6>
+          <h6 class="mb-0">{{ col.label }}</h6>
         </th>
       </thead>
       <tbody>
@@ -24,12 +24,14 @@
             v-for="col in visibleColumns.filter(
               (c) => c.columnType != 'HEADING'
             )"
-            :key="idx + col.name"
+            :key="idx + col.id"
             style="cursor: pointer"
           >
             <div v-if="col.key === 1">
               <a href="" @click="handleRowClick(row)">{{
-                renderValue(row, col)[0]
+                Array.isArray(renderValue(row, col))
+                  ? renderValue(row, col)[0]
+                  : renderValue(row, col)
               }}</a>
             </div>
             <div
@@ -41,7 +43,7 @@
               <RouterLink
                 v-if="row[col.id]"
                 :to="{
-                  name: convertToPascalCase(col.refTable) + '-details',
+                  name: col.refTableId + '-details',
                   params: routeParams(col, row[col.id]),
                 }"
               >
@@ -51,14 +53,14 @@
             <span
               v-else-if="
                 'REF_ARRAY' == col.columnType ||
-                ('REFBACK' === col.columnType && Array.isArray(row[col.name]))
+                ('REFBACK' === col.columnType && Array.isArray(row[col.id]))
               "
             >
-              <span v-for="(val, idx) in row[col.name]" :key="idx">
+              <span v-for="(val, idx) in row[col.id]" :key="idx">
                 <RouterLink
                   v-if="val"
                   :to="{
-                    name: convertToPascalCase(col.refTable) + '-details',
+                    name: col.refTableId + '-details',
                     params: routeParams(col, val),
                   }"
                 >
@@ -69,15 +71,15 @@
             <div
               v-else
               v-for="(value, idx2) in renderValue(row, col)"
-              :key="idx + col.name + idx2"
+              :key="idx + col.id + idx2"
             >
               <div v-if="'TEXT' === col.columnType">
                 <ReadMore :text="value" />
               </div>
               <div v-else-if="'FILE' === col.columnType">
-                <a v-if="row[col.name].id" :href="row[col.name].url">
-                  {{ col.name }}.{{ row[col.name].extension }} ({{
-                    renderNumber(row[col.name].size)
+                <a v-if="row[col.id].id" :href="row[col.id].url">
+                  {{ col.id }}.{{ row[col.id].extension }} ({{
+                    renderNumber(row[col.id].size)
                   }}b)
                 </a>
               </div>
@@ -95,8 +97,6 @@ import {
   Spinner,
   ReadMore,
   Client,
-  convertToCamelCase,
-  convertToPascalCase,
   flattenObject,
   applyJsTemplate,
 } from "molgenis-components";
@@ -107,13 +107,13 @@ export default {
     ReadMore,
   },
   props: {
-    table: {
+    tableId: {
       type: String,
       required: true,
     },
     refLabel: String,
-    /** name of the column in the other table */
-    refBack: String,
+    /** id of the column in the other table */
+    refBackId: String,
     /** pkey of the current table that refback should point to */
     pkey: Object,
   },
@@ -124,20 +124,25 @@ export default {
     };
   },
   methods: {
-    convertToPascalCase,
     handleRowClick(row) {
+      let params = {};
+      params.id = row.id ? row.id : this.pkey.id;
+      params.resource = row.id || this.pkey.id;
+      if (row.name) params.name = row.id;
+      if (row.source?.id) params.source = row.source.id;
+      if (row.sourceDataset?.name)
+        params.sourceDataset = row.sourceDataset.name;
+      if (row.target.id) params.target = row.target?.id;
+      if (row.targetDataset?.name)
+        params.targetDataset = row.targetDataset.name;
       //good guessing the parameters :-)
       this.$router.push({
-        name: convertToPascalCase(this.table) + "-details",
-        params: {
-          id: row.id ? row.id : this.pkey.id,
-          resource: row.id ? row.id : this.pkey.id,
-          name: row.name,
-        },
+        name: this.tableId + "-details",
+        params,
       });
     },
     routeParams(column, value) {
-      if (column.name === "datasets") {
+      if (column.id === "datasets") {
         let result = {
           resource: value.resource.id,
           name: value.name,
@@ -166,8 +171,8 @@ export default {
         col.columnType == "ONTOLOGY_ARRAY"
       ) {
         return row[col.id].map((v) => {
-          if (col.name === "tables") {
-            //hack, ideally we start setting refLabel in configuration!
+          if (col.id === "datasets") {
+            //hack, ideally we start setting refLabel in configuration! <= actually we do
             return v.name;
           } else if (col.refLabel) {
             return applyJsTemplate(v, col.refLabel);
@@ -191,19 +196,19 @@ export default {
   computed: {
     graphqlFilter() {
       var result = new Object();
-      result[convertToCamelCase(this.refBack)] = {
+      result[this.refBackId] = {
         equals: this.pkey,
       };
       return result;
     },
-    visibleColumnNames() {
-      return this.visibleColumns.map((c) => c.name);
+    visibleColumnIds() {
+      return this.visibleColumns.map((c) => c.id);
     },
     visibleColumns() {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.name != this.refBack && !c.name.startsWith("mg_")
+          (c) => c.id != this.refBackId && !c.id.startsWith("mg_")
         );
       }
       return [];
@@ -211,8 +216,8 @@ export default {
   },
   async created() {
     this.client = Client.newClient();
-    this.tableMetadata = await this.client.fetchTableMetaData(this.table);
-    this.refBackData = await this.client.fetchTableDataValues(this.table, {
+    this.tableMetadata = await this.client.fetchTableMetaData(this.tableId);
+    this.refBackData = await this.client.fetchTableDataValues(this.tableId, {
       filter: this.graphqlFilter,
     });
   },

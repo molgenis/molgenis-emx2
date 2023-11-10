@@ -126,7 +126,7 @@ these translate to foreign keys, and array of foreign key with triggers protecti
 ### refTable
 
 This metadata is used to define relationships between tables. When columnType is 'ref' or 'ref_array' then you must provide refTable. In simple cases, this is
-all you need. The value of refTable should a defined tableName. Default value: empty
+all you need. The value of refTable should a defined tableName. N.B. if your columnType is not of a 'ref' than having refTable will produce an error. Default value: empty
 
 A simple reference:
 

@@ -6,8 +6,8 @@ const router = useRouter();
 
 const pageSize = 10;
 const resourceName: string = route.params.resourceType as string;
-const schemaName = route.params.schema.toString();
-const metadata = await fetchMetadata(schemaName);
+const schemaId = route.params.schema.toString();
+const metadata = await fetchMetadata(schemaId);
 
 const tableMetaData = computed(() => {
   const result = metadata.tables.find(
@@ -15,7 +15,7 @@ const tableMetaData = computed(() => {
       t.id.toLocaleLowerCase() === resourceName.toLocaleLowerCase()
   );
   if (!result) {
-    throw new Error(`Table ${resourceName} not found in schema ${schemaName}`);
+    throw new Error(`Table ${resourceName} not found in schema ${schemaId}`);
   }
   return result;
 });
@@ -24,19 +24,17 @@ const resourceType = tableMetaData.value.id;
 
 const resourceAgg: string = resourceType + "_agg";
 
-const externalSchemaNames: string[] = extractExternalSchemas(metadata);
-const externalSchemas = await Promise.all(
-  externalSchemaNames.map(fetchMetadata)
-);
+const externalschemaIds: string[] = extractExternalSchemas(metadata);
+const externalSchemas = await Promise.all(externalschemaIds.map(fetchMetadata));
 const schemas = externalSchemas.reduce(
   (acc: Record<string, ISchemaMetaData>, schema) => {
-    acc[schema.name] = schema;
+    acc[schema.id] = schema;
     return acc;
   },
-  { [schemaName]: metadata }
+  { [schemaId]: metadata }
 );
 
-const description = tableMetaData.value?.descriptions?.[0]?.value;
+const description = tableMetaData.value?.description;
 
 let activeName = ref("detailed");
 let filters: IFilter[] = reactive([
@@ -70,8 +68,8 @@ watch(filters, () => {
 // build resource query for cards
 
 const fields = buildRecordListQueryFields(
-  tableMetaData.value.name,
-  schemaName,
+  tableMetaData.value.id,
+  schemaId,
   schemas
 );
 
@@ -111,8 +109,8 @@ const { data, pending, error, refresh } = await useFetch(
 function buildRecordId(record: any) {
   return extractKeyFromRecord(
     record,
-    tableMetaData.value.name,
-    schemaName,
+    tableMetaData.value.id,
+    schemaId,
     schemas
   );
 }
@@ -166,7 +164,7 @@ let crumbs: Record<string, string> = {
               >
                 <ResourceCard
                   :resource="resource"
-                  :schema="schemaName"
+                  :schema="schemaId"
                   :resource-name="resourceName"
                   :compact="activeName !== 'detailed'"
                   :resourceId="buildRecordId(resource)"

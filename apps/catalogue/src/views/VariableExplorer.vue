@@ -7,7 +7,7 @@
           <InputRefList
             id="networks-input-ref"
             label="Networks"
-            tableName="Networks"
+            tableId="Networks"
             v-model="networks"
             refLabel="${id}"
           ></InputRefList>
@@ -18,16 +18,16 @@
             label="Topics"
             v-model="keywords"
             :isMultiSelect="true"
-            tableName="Keywords"
+            tableId="Keywords"
             :show-expanded="true"
-            schemaName="CatalogueOntologies"
+            schemaId="CatalogueOntologies"
           />
         </div>
         <div class="bg-white px-1">
           <InputRefList
             id="cohorts-input-ref"
             label="Cohorts"
-            tableName="Cohorts"
+            tableId="Cohorts"
             v-model="cohorts"
             refLabel="${id}"
             :maxNum="100"

@@ -45,8 +45,11 @@ const query = gql`
       models {
         id
       }
-      cohorts_agg{count}
-      cohorts {
+    }
+    Cohorts_agg(filter: { networks: { id: { equals: [$id] } } }) {
+      count
+    }
+    cohorts {
         id, name, type {name}, description
       }
       dataSources_agg{count}
@@ -299,6 +302,13 @@ if (route.params.catalogue) {
           title="Description"
           :description="network?.description"
         />
+
+        <ContentBlockGeneralDesign
+          id="GeneralDesign"
+          title="General Design"
+          :description="network?.designDescription"
+          :cohort="network"
+        />
         <ContentBlockAttachedFiles
           v-if="network?.documentation?.length"
           id="Files"
@@ -355,10 +365,10 @@ if (route.params.catalogue) {
         </ContentBlock>
 
         <TableContent
-          v-if="network.cohorts_agg?.count > 0"
+          v-if="networkData.data.Cohorts_agg.count > 0"
           id="cohorts"
           title="Cohorts"
-          description="Cohort studies connected in this network"
+          description="A list of cohorts you can explore."
           :headers="[
             { id: 'name', label: 'Name', singleLine: true },
             { id: 'design', label: 'Design' },
@@ -370,7 +380,7 @@ if (route.params.catalogue) {
           :rowMapper="cohortMapper"
           v-slot="slotProps"
         >
-          {{ slotProps }}
+          <CohortDisplay :id="slotProps.id" />
         </TableContent>
 
         <TableContent

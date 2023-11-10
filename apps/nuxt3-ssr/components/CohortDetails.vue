@@ -143,7 +143,6 @@ const query = gql`
     }
   }
 `;
-
 const variables = { id: route.params.cohort };
 
 let cohort: ICohort;

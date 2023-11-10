@@ -34,7 +34,7 @@ public class TestOntologyTableIsGenerated {
               column("name").setPkey(),
               column("code")
                   .setType(ColumnType.ONTOLOGY)
-                  .setRefSchema(TestOntologyTableIsGenerated.class.getSimpleName() + "2")
+                  .setRefSchemaName(TestOntologyTableIsGenerated.class.getSimpleName() + "2")
                   .setRefTable("CodeTable")));
       fail("should fail if refSchema doesn't exit");
     } catch (Exception e) {
@@ -66,7 +66,7 @@ public class TestOntologyTableIsGenerated {
             column("name").setPkey(),
             column("code")
                 .setType(ColumnType.ONTOLOGY)
-                .setRefSchema(TestOntologyTableIsGenerated.class.getSimpleName())
+                .setRefSchemaName(TestOntologyTableIsGenerated.class.getSimpleName())
                 .setRefTable("CodeTable")));
     // should not create a table but use external one
     assertNull(s.getTable("CodeTable"));
@@ -78,7 +78,7 @@ public class TestOntologyTableIsGenerated {
             column("name").setPkey(),
             column("code")
                 .setType(ColumnType.ONTOLOGY)
-                .setRefSchema(TestOntologyTableIsGenerated.class.getSimpleName())
+                .setRefSchemaName(TestOntologyTableIsGenerated.class.getSimpleName())
                 .setRefTable("CodeTable3")));
 
     assertNotNull(

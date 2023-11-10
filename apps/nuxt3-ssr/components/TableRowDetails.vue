@@ -9,8 +9,8 @@ import type {
 const config = useRuntimeConfig();
 const route = useRoute();
 const resourceName: string = route.params.resourceType as string;
-const schemaName = route.params.schema.toString();
-const metadata = await fetchMetadata(schemaName);
+const schemaId = route.params.schema.toString();
+const metadata = await fetchMetadata(schemaId);
 
 const tableMetaDataFinderResult = metadata.tables.find(
   (t: ITableMetaData) =>
@@ -25,19 +25,17 @@ const tableMetaData = computed(() => {
   }
 });
 const resourceType = tableMetaData.value.id;
-const externalSchemaNames: string[] = extractExternalSchemas(metadata);
-const externalSchemas = await Promise.all(
-  externalSchemaNames.map(fetchMetadata)
-);
+const schemaIds: string[] = extractExternalSchemas(metadata);
+const externalSchemas = await Promise.all(schemaIds.map(fetchMetadata));
 const schemas = externalSchemas.reduce(
   (acc: Record<string, ISchemaMetaData>, schema) => {
-    acc[schema.name] = schema;
+    acc[schema.id] = schema;
     return acc;
   },
-  { [schemaName]: metadata }
+  { [schemaId]: metadata }
 );
 
-const fields = buildRecordDetailsQueryFields(schemas, schemaName, resourceType);
+const fields = buildRecordDetailsQueryFields(schemas, schemaId, resourceType);
 
 const { key } = useQueryParams();
 
@@ -117,10 +115,9 @@ function buildTOC(sections: ISection[]) {
 }
 
 function sectionTitle(section: ISection) {
-  let temp = section.meta.labels
-    ? section.meta.labels[0].value
-    : section.meta.name;
-  return temp.charAt(0).toUpperCase() + temp.substr(1);
+  return section.meta.description
+    ? section.meta.description
+    : section.meta.label;
 }
 
 let crumbs: Record<string, string> = {
