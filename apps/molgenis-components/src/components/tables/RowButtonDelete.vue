@@ -3,10 +3,11 @@
     <RowButton type="delete" @delete="isModalShown = true" />
     <ConfirmModal
       v-if="isModalShown"
-      :title="'Delete from ' + tableName"
+      :title="'Delete from ' + tableId"
       actionLabel="Delete"
       actionType="danger"
-      :tableName="tableName"
+      :tableId="tableId"
+      :tableLable="tableLabel"
       :pkey="pkey"
       @close="handleClose"
       @confirmed="handleExecuteDelete"
@@ -27,14 +28,18 @@ export default {
       type: String,
       required: true,
     },
-    tableName: {
+    tableId: {
+      type: String,
+      required: true,
+    },
+    tableLabel: {
       type: String,
       required: true,
     },
     pkey: {
       type: Object,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -48,14 +53,14 @@ export default {
   methods: {
     async handleExecuteDelete() {
       if (!this.client) {
-        this.client = Client.newClient(this.schemaName);
+        this.client = Client.newClient(this.schemaId);
       }
       await this.client
-        .deleteRow(this.pkey, this.tableName)
+        .deleteRow(this.pkey, this.tableId)
         .then(() => {
           this.$emit("success", {
             deletedKey: this.pkey,
-            deleteFrom: this.tableName,
+            deleteFrom: this.tableId,
           });
         })
         .catch((error) => {
@@ -84,9 +89,10 @@ export default {
     <div>
       <RowButtonDelete
           id="row-delete-btn-sample"
-          tableName="Pet"
+          tableId="Pet"
+          tableLabel="Pet"
           :pkey="{name: 'pooky'}"
-          schemaName="pet store"
+          schemaId="pet store"
           @error="handleError"
           @success="handleSuccess"
       />

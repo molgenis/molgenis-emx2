@@ -15,7 +15,7 @@ export default gql`
           locale
           value
         }
-        externalSchema
+        schemaId
         semantics
         columns {
           name
@@ -26,12 +26,12 @@ export default gql`
           id
           columnType
           key
-          refTable
+          refTableId
           refSchema
-          refLink
+          refLinkId
           refLabel
           refLabelDefault
-          refBack
+          refBackId
           required
           readonly
           semantics

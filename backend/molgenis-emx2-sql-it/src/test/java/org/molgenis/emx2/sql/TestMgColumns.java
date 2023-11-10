@@ -54,7 +54,7 @@ public class TestMgColumns {
     t =
         schema.create(
             table("MgDraftSub", column("required").setRequired(true), column("notrequired"))
-                .setInherit("MgDraftSuper"));
+                .setInheritName("MgDraftSuper"));
 
     try {
       t.insert(row("id", 1, "notrequired", "somevalue1"));
@@ -86,7 +86,7 @@ public class TestMgColumns {
     assertTrue(r.getDateTime(MG_INSERTEDON).compareTo(r.getDateTime(MG_UPDATEDON)) < 0);
 
     // to make sure also test with subclass
-    t = schema.create(table("UpdatedOnSub").setInherit("UpdatedOn"));
+    t = schema.create(table("UpdatedOnSub").setInheritName("UpdatedOn"));
 
     t.insert(row("id", 2));
     r = t.retrieveRows().get(0);

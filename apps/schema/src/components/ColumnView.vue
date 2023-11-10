@@ -54,28 +54,7 @@
       {{ column.table }}
     </td>
     <td class="bg-white">
-      <span v-if="column.refTable">
-        {{ column.columnType.toLowerCase() }}({{
-          column.refSchema ? column.refSchema + "." : ""
-        }}{{ column.refTable
-        }}<span v-if="column.refBack">, refBack={{ column.refBack }}</span>
-        <span v-if="column.refLink">, refLink={{ column.refLink }}</span
-        >)
-      </span>
-      <span v-else>
-        {{ column.columnType.toLowerCase() }}
-      </span>
-      <span v-if="column.required === true || column.required === 'true'">
-        required
-      </span>
-      <span v-if="column.readonly === true || column.readonly === 'true'">
-        readonly
-      </span>
-      <span v-if="column.defaultValue">
-        defaultValue='{{ column.defaultValue }}'
-      </span>
-      <span v-if="column.refLabel"> refLabel='{{ column.refLabel }}' </span>
-      <span v-if="column.computed"> computed="{{ column.computed }}"</span>
+      <ColumnDefinition :column="column" />
     </td>
     <td class="bg-white">
       <table v-if="column.labels" class="table-borderless">
@@ -109,11 +88,13 @@ span {
 <script>
 import columnTypes from "../columnTypes.js";
 import ColumnEditModal from "./ColumnEditModal.vue";
+import ColumnDefinition from "./ColumnDefinition.vue";
 import { IconDanger, IconBar, IconAction } from "molgenis-components";
 
 export default {
   components: {
     ColumnEditModal,
+    ColumnDefinition,
     IconDanger,
     IconBar,
     IconAction,

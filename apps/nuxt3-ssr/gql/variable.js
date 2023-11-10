@@ -3,6 +3,15 @@ export default gql`
   query Variables($filter: VariablesFilter) {
     Variables(filter: $filter) {
       name
+      resource {
+        name
+      }
+      dataset {
+        name
+        resource {
+          id
+        }
+      }
       label
       description
       unit {
@@ -14,16 +23,28 @@ export default gql`
       mappings {
         syntax
         description
-        source {
-          id
+        match {
           name
         }
-        match {
+        source {
+          id
           name
         }
         sourceDataset {
           resource {
             id
+          }
+        }
+        sourceVariables {
+          name
+        }
+        sourceVariablesOtherDatasets {
+          name
+          dataset {
+            name
+            resource {
+              id
+            }
           }
         }
       }
