@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "vite": "4.3.9",
-    "@vitejs/plugin-vue": "4.4.0",
+    "@vitejs/plugin-vue": "4.4.1",
     "prettier": "2.8.8"
   },
   "browserslist": [
