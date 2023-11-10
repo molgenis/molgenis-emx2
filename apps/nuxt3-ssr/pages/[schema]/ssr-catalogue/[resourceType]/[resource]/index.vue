@@ -29,7 +29,7 @@ const schemaIds: string[] = extractExternalSchemas(metadata);
 const externalSchemas = await Promise.all(schemaIds.map(fetchMetadata));
 const schemas = externalSchemas.reduce(
   (acc: Record<string, ISchemaMetaData>, schema) => {
-    acc[schema.name] = schema;
+    acc[schema.id] = schema;
     return acc;
   },
   { [schemaId]: metadata }
