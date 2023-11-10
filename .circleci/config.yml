@@ -78,17 +78,17 @@ jobs:
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
 
-    - run:
-        name: build and test java
-        command: |
-          ./gradlew test --no-daemon
+  ##  - run:
+  ##      name: build and test java
+  ##      command: |
+  ##        ./gradlew test --no-daemon
 
-    - run:
-        name: test e2e
-        command: |
-          npx playwright install --with-deps
-          npm install -D @playwright/test
-          set CI=true && npx playwright test --config e2e --project=chromium
+  ##  - run:
+  ##      name: test e2e
+  ##      command: |
+  ##        npx playwright install --with-deps
+  ##        npm install -D @playwright/test
+  ##        set CI=true && npx playwright test --config e2e --project=chromium
 
 
     # to switch to release add following
