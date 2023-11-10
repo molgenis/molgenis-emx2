@@ -2,9 +2,10 @@ import gql from "graphql-tag";
 export default gql`
   {
     _schema {
-      name
+      id
       tables {
         name
+        label
         labels {
           locale
           value
@@ -27,7 +28,7 @@ export default gql`
           columnType
           key
           refTableId
-          refSchema
+          refSchemaId
           refLinkId
           refLabel
           refLabelDefault

@@ -254,6 +254,7 @@ export interface IColumn {
 }
 
 export interface ITableMetaData {
+  name: string;
   id: string;
   label: string;
   description?: string;

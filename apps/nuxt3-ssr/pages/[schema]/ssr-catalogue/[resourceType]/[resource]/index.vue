@@ -8,34 +8,34 @@ import type {
 } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
-const resourceName: string = route.params.resourceType as string;
+const tableId: string = route.params.resourceType as string;
 const schemaId = route.params.schema.toString();
 const metadata = await fetchMetadata(schemaId);
 
 const tableMetaDataFinderResult = metadata.tables.find(
-  (t: ITableMetaData) =>
-    t.id.toLocaleLowerCase() === resourceName.toLocaleLowerCase()
+  (t: ITableMetaData) => t.id === tableId
 );
 
 const tableMetaData = computed(() => {
   if (tableMetaDataFinderResult) {
     return tableMetaDataFinderResult;
   } else {
-    throw new Error(`Table metadata not found for ${resourceName}`);
+    throw new Error(`Table metadata not found for ${tableId}`);
   }
 });
 const resourceType = tableMetaData.value.id;
 const schemaIds: string[] = extractExternalSchemas(metadata);
+
 const externalSchemas = await Promise.all(schemaIds.map(fetchMetadata));
 const schemas = externalSchemas.reduce(
   (acc: Record<string, ISchemaMetaData>, schema) => {
-    acc[schema.id] = schema;
+    acc[schema.name] = schema;
     return acc;
   },
   { [schemaId]: metadata }
 );
 
-const fields = buildRecordDetailsQueryFields(schemas, schemaId, resourceType);
+const fields = buildRecordDetailsQueryFields(schemas, schemaId, tableId);
 
 const { key } = useQueryParams();
 
@@ -123,7 +123,7 @@ function sectionTitle(section: ISection) {
 let crumbs: Record<string, string> = {
   Home: `/${route.params.schema}/ssr-catalogue`,
 };
-crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${resourceName}`;
+crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${tableId}`;
 </script>
 
 <template>

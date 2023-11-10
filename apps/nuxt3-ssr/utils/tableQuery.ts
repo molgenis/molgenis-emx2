@@ -14,24 +14,18 @@ export const buildRecordDetailsQueryFields = (
 ): string => {
   const schemaMetaData = schemas[schemaId];
   const tableMetaData = schemaMetaData.tables.find(
-    (t: ITableMetaData) =>
-      t.id.toLocaleLowerCase() === tableId.toLocaleLowerCase()
+    (t: ITableMetaData) => t.id === tableId
   );
 
   const allColumns = tableMetaData?.columns;
   const dataColumns = allColumns
-    ?.filter((c) => !c.name.startsWith("mg_"))
+    ?.filter((c) => !c.id.startsWith("mg_"))
     .filter((c) => c.columnType !== "HEADING");
 
   const refTableQueryFields = (refColumn: IColumn): string => {
     const refTableMetaData = schemas[
-      refColumn.refSchema || schemaId
-    ].tables.find(
-      (t: ITableMetaData) =>
-        t.id.toLocaleLowerCase() ===
-        // @ts-ignore we know that refTable is not undefined
-        refColumn.refTableId.toLocaleLowerCase()
-    );
+      refColumn.refSchemaId || schemaId
+    ].tables.find((t: ITableMetaData) => t.id === refColumn.refTableId);
 
     const allRefColumns = refTableMetaData?.columns;
 
@@ -195,8 +189,8 @@ export const extractExternalSchemas = (schemaMetaData: ISchemaMetaData) => {
     ...new Set(
       schemaMetaData.tables.reduce((acc: string[], table: ITableMetaData) => {
         table.columns.forEach((column: IColumn) => {
-          if (column.refSchema) {
-            acc.push(column.refSchema);
+          if (column.refSchemaId) {
+            acc.push(column.refSchemaId);
           }
         });
         return acc;
@@ -272,8 +266,7 @@ export const getTableMetaData = (
   tableId: string
 ): ITableMetaData => {
   const tableMetaData = schemaMetaData.tables.find(
-    (t: ITableMetaData) =>
-      t.name.toLocaleLowerCase() === tableId.toLocaleLowerCase()
+    (t: ITableMetaData) => t.id === tableId
   );
 
   if (tableMetaData === undefined) {

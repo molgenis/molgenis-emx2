@@ -29,7 +29,7 @@ const tables = computed(() =>
             <TableRow>
               <TableCell>
                 <NuxtLink :to="`/${schemaId}/ssr-catalogue/${table.id}`">{{
-                  table.id
+                  table.name
                 }}</NuxtLink></TableCell
               >
               <TableCell
