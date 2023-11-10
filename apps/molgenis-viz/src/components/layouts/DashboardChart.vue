@@ -1,5 +1,6 @@
 <template>
   <div class="dashboard-box">
+    <!-- Layout component for visualization -->
     <slot></slot>
   </div>
 </template>

@@ -1,6 +1,7 @@
 <template>
   <div class="dashboard-container">
     <div class="dashboard-content">
+      <!-- main dashboard content -->
       <slot></slot>
     </div>
   </div>

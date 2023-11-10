@@ -15,7 +15,8 @@ import InputSearch from "../src/components/forms/InputSearch.vue";
 
 // layout components
 import Dashboard from "../src/components/layouts/Dashboard.vue";
-import DashboardBox from "../src/components/layouts/DashboardBox.vue";
+import DashboardChart from "../src/components/layouts/DashboardChart.vue";
+import DashboardRow from "../src/components/layouts/DashboardRow.vue";
 import Page from "../src/components/layouts/Page.vue";
 import PageFooter from "../src/components/layouts/PageFooter.vue";
 import PageFooterMeta from "../src/components/layouts/PageFooterMeta.vue";
@@ -65,7 +66,8 @@ export {
 
   // layouts
   Dashboard,
-  DashboardBox,
+  DashboardChart,
+  DashboardRow,
   Page,
   PageFooter,
   PageFooterMeta,
