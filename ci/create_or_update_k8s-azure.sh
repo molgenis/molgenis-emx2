@@ -25,6 +25,7 @@ sleep 15s
 kubectl create namespace $NAME
 helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set ingress.hosts[0].host=${NAME}.dev.molgenis.net \
+--set spec.tls[0].hosts[0]=${NAME}.dev.molgenis.net \
 --set adminPassword=admin \
 --set image.tag=${TAG_NAME} \
 --set image.repository=${REPO} \
