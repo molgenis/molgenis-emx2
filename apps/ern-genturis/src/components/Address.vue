@@ -1,12 +1,14 @@
 <template>
   <address :class="cssClassNames">
-    <span><strong>Radboud university medical center</strong></span>
+    <span><strong>University Medical Centre Groningen</strong></span>
     <span>GENTURIS registry</span>
-    <span>Department of Human Genetics</span>
-    <span>Geert Grooteplein Zuid 10</span>
-    <span>6525 GA Nijmegen</span>
+    <span>Department of Medical Genetics</span>
+    <span>Antonius Deusinglaan 1</span>
+    <span>9713 AV Groningen</span>
     <span>The Netherlands</span>
-    <a href="mailto:genturis-registry@radboudumc.nl" v-if="showEmail">genturis-registry@radboudumc.nl</a>
+    <a href="mailto:genturis-registry@umcg.nl" v-if="showEmail">
+      genturis-registry@umcg.nl
+    </a>
   </address>
 </template>
 
@@ -16,20 +18,20 @@ import { computed } from "vue";
 const props = defineProps({
   centerText: {
     type: Boolean,
-    default: false
+    default: false,
   },
   showEmail: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 const cssClassNames = computed(() => {
-  const css = ['address'];
+  const css = ["address"];
   if (props.centerText) {
-    css.push('address-text-center');
+    css.push("address-text-center");
   }
-  return css.join(' ');
+  return css.join(" ");
 });
 </script>
 
@@ -43,11 +45,11 @@ const cssClassNames = computed(() => {
   strong {
     color: $gray-900;
   }
-  
+
   span {
     display: block;
   }
-  
+
   &.address-text-center {
     text-align: center;
   }
