@@ -56,7 +56,7 @@ watch(props.filters, (filters) => {
         />
         <FilterList
           v-else-if="filter.columnType === 'REF_ARRAY'"
-          :table-name="filter.refTable"
+          :table-id="filter.refTableId"
           :key-field="filter.refFields.key"
           :name-field="filter.refFields.name"
           :descriptionField="filter.refFields.description"

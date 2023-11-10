@@ -23,7 +23,7 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Countries",
-    refTable: "Countries",
+    refTableId: "Countries",
     columnId: "countries",
     columnType: "ONTOLOGY",
     conditions: [],
@@ -42,7 +42,7 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Topics",
-    refTable: "AgeGroups",
+    refTableId: "AgeGroups",
     columnId: "ageGroups",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",

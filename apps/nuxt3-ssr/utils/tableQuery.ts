@@ -151,7 +151,7 @@ const buildKeyFields = (
         if (isValueType(column)) {
           acc.push(column.id);
         } else if (isRefType(column)) {
-          if (!column.refTable) {
+          if (!column.refTableId) {
             throw new Error(
               "refTable is undefined for refColumn with id " +
                 column.id +
@@ -163,8 +163,8 @@ const buildKeyFields = (
             acc.push(column.id);
             acc.push(
               buildKeyFields(
-                column.refTable,
-                column.refSchema || schemaId,
+                column.refTableId,
+                column.refSchemaId || schemaId,
                 schemas
               )
             );
@@ -219,7 +219,7 @@ export const extractKeyFromRecord = (
       if (isValueType(column)) {
         acc[column.id] = record[column.id];
       } else if (isRefType(column)) {
-        if (!column.refTable) {
+        if (!column.refTableId) {
           throw new Error(
             "refTable is undefined for refColumn with id " +
               column.id +
@@ -230,8 +230,8 @@ export const extractKeyFromRecord = (
         } else {
           acc[column.id] = extractKeyFromRecord(
             record[column.id],
-            column.refTable,
-            column.refSchema || schemaId,
+            column.refTableId,
+            column.refSchemaId || schemaId,
             schemas
           );
         }

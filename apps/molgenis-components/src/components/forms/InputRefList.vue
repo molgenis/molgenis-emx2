@@ -17,8 +17,9 @@
           />
         </div>
         <ButtonAlt
-          v-if="modelValue && modelValue.length"
+          v-if="modelValue?.length"
           class="pl-1"
+          icon="fa fa-clear"
           @click="clearValue"
         >
           clear selection
@@ -51,14 +52,27 @@
             {{ applyJsTemplate(row, refLabel) }}
           </label>
         </div>
-        <ButtonAlt
-          class="pl-0"
-          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-          icon="fa fa-search"
-          @click="openSelect"
-        >
-          {{ count > maxNum ? `view all ${count} options.` : "view as table" }}
-        </ButtonAlt>
+        <div v-if="canEdit">
+          <Tooltip value="New entry">
+            <RowButtonAdd
+              id="add-entry"
+              :tableName="tableName"
+              :schemaName="schemaName"
+            />
+          </Tooltip>
+        </div>
+        <div>
+          <ButtonAlt
+            class="pl-0"
+            :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
+            icon="fa fa-search"
+            @click="openSelect"
+          >
+            {{
+              count > maxNum ? `view all ${count} options.` : "view as table"
+            }}
+          </ButtonAlt>
+        </div>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
@@ -83,16 +97,20 @@
   </FormGroup>
 </template>
 
-<script>
-import Client from "../../client/client.ts";
-import Spinner from "../layout/Spinner.vue";
-import BaseInput from "./baseInputs/BaseInput.vue";
-import TableSearch from "../tables/TableSearch.vue";
+<script lang="ts">
+import { IRow } from "../../Interfaces/IRow";
+import { IQueryMetaData } from "../../client/IQueryMetaData";
+import Client from "../../client/client";
+import FilterWell from "../filters/FilterWell.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
+import Spinner from "../layout/Spinner.vue";
+import RowButtonAdd from "../tables/RowButtonAdd.vue";
+import TableSearch from "../tables/TableSearch.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
-import FilterWell from "../filters/FilterWell.vue";
 import { convertRowToPrimaryKey, applyJsTemplate } from "../utils";
+import Tooltip from "./Tooltip.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 
 export default {
   extends: BaseInput,
@@ -114,6 +132,8 @@ export default {
     FormGroup,
     ButtonAlt,
     Spinner,
+    RowButtonAdd,
+    Tooltip,
   },
   props: {
     schemaId: {
@@ -132,12 +152,8 @@ export default {
       type: String,
       required: true,
     },
-    /**
-     * Whether or not the buttons are show to edit the referenced table
-     *  */
     canEdit: {
       type: Boolean,
-      required: false,
       default: () => false,
     },
   },
@@ -152,7 +168,7 @@ export default {
   },
   methods: {
     applyJsTemplate,
-    deselect(key) {
+    deselect(key: any) {
       this.selection.splice(key, 1);
       this.emitSelection();
     },
@@ -172,21 +188,17 @@ export default {
     },
     async loadOptions() {
       this.loading = true;
-      const options = {
+      const options: IQueryMetaData = {
         limit: this.maxNum,
+        filter: this.filter,
+        orderby: this.orderby,
       };
-      if (this.filter) {
-        options["filter"] = this.filter;
-      }
-      if (this.orderby) {
-        options["orderby"] = this.orderby;
-      }
       const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
       this.count = response[this.tableId + "_agg"].count;
 
       await Promise.all(
-        this.data.map(async (row) => {
+        this.data.map(async (row: IRow) => {
           row.primaryKey = await convertRowToPrimaryKey(
             row,
             this.tableId,
