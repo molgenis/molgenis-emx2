@@ -31,7 +31,7 @@
           <InputRefItem
             :id="id"
             :row="row"
-            :tableName="tableName"
+            :tableId="tableId"
             :client="client"
             :selection="modelValue"
             :errorMessage="errorMessage"
@@ -51,12 +51,12 @@
         <template v-slot:body>
           <TableSearch
             :selection="[modelValue]"
-            :lookupTableName="tableName"
+            :lookuptableId="tableId"
             :filter="filter"
             @select="select($event)"
             @deselect="clearValue"
             @close="loadOptions"
-            :schemaName="schemaName"
+            :schemaId="schemaId"
             :showSelect="true"
             :limit="10"
             :canEdit="canEdit"
@@ -78,7 +78,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import InputRefItem from "./InputRefItem.vue";
-import { flattenObject, convertToPascalCase } from "../utils";
+import { flattenObject } from "../utils";
 
 export default {
   name: "InputRef",
@@ -91,7 +91,7 @@ export default {
     InputRefItem,
   },
   props: {
-    schemaName: {
+    schemaId: {
       required: false,
       type: String,
     },
@@ -99,7 +99,7 @@ export default {
     multipleColumns: Boolean,
     itemsPerColumn: { type: Number, default: 12 },
     maxNum: { type: Number, default: 11 },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
@@ -117,11 +117,8 @@ export default {
     };
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     title() {
-      return "Select " + this.tableName;
+      return "Select " + this.tableId;
     },
     showMultipleColumns() {
       return this.multipleColumns && this.count > this.itemsPerColumn;
@@ -160,7 +157,7 @@ export default {
     },
   },
   async created() {
-    this.client = Client.newClient(this.schemaName);
+    this.client = Client.newClient(this.schemaId);
     await this.loadOptions();
   },
 };
@@ -180,14 +177,14 @@ export default {
          <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
-      <!-- normally you don't need schemaName, usually scope is all you need -->
+      <!-- normally you don't need schemaId, usually scope is all you need -->
       <InputRef
         id="input-ref"
         label="Standard ref input"
         v-model="value"
-        tableName="Pet"
+        tableId="Pet"
         description="Standard input"
-        schemaName="pet store"
+        schemaId="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ value }}
@@ -197,10 +194,10 @@ export default {
         id="input-ref-default"
         label="Ref with default value"
         v-model="defaultValue"
-        tableName="Pet"
+        tableId="Pet"
         description="This is a default value"
         :defaultValue="defaultValue"
-        schemaName="pet store"
+        schemaId="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ defaultValue }}
@@ -210,10 +207,10 @@ export default {
         id="input-ref-filter"
         label="Ref input with pre set filter ( only cats)"
         v-model="filterValue"
-        tableName="Pet"
+        tableId="Pet"
         description="Filter by name"
         :filter="{ category: { name: { equals: 'cat' } } }"
-        schemaName="pet store"
+        schemaId="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ filterValue }}
@@ -225,9 +222,9 @@ export default {
         id="input-ref-multi-column"
         label="Ref input with multiple columns"
         v-model="multiColumnValue"
-        tableName="Pet"
+        tableId="Pet"
         description="This is a multi column input"
-        schemaName="pet store"
+        schemaId="pet store"
         multipleColumns
         :itemsPerColumn="3"
         :canEdit="canEdit"

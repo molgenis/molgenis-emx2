@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { INetwork } from "~/interfaces/types";
+
 defineProps<{
   title: string;
   description: string;

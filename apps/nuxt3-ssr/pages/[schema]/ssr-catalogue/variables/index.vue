@@ -23,16 +23,16 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Topics",
-    refTable: "Keywords",
-    columnName: "keywords",
+    refTableId: "Keywords",
+    columnId: "keywords",
     columnType: "ONTOLOGY",
     conditions: [],
   },
   {
     title: "Networks",
-    columnName: "networks",
+    columnId: "networks",
     columnType: "REF_ARRAY",
-    refTable: "Networks",
+    refTableId: "Networks",
     refFields: {
       key: "id",
       name: "id",
@@ -42,8 +42,8 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Cohorts",
-    refTable: "Cohorts",
-    columnName: "cohorts",
+    refTableId: "Cohorts",
+    columnNId: "cohorts",
     columnType: "REF_ARRAY",
     refFields: {
       key: "id",

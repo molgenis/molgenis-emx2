@@ -1,8 +1,8 @@
 <template>
   <div>
     <TableExplorer
-      :tableName="tableName"
-      :schemaName="schemaName"
+      :tableId="tableId"
+      :schemaId="schemaId"
       :canView="canView"
       :canEdit="canEdit"
       :canManage="canManage"
@@ -21,7 +21,6 @@
       :showLimit="getLimit()"
       :showOrderBy="getOrderBy()"
       :showOrder="getOrder()"
-      :locale="locale"
       @rowClick="$emit('rowClick', $event)"
     >
       <template v-slot:rowcolheader>
@@ -54,11 +53,11 @@ export default {
     };
   },
   props: {
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -73,10 +72,6 @@ export default {
     canManage: {
       type: Boolean,
       default: () => false,
-    },
-    locale: {
-      type: String,
-      default: () => "en",
     },
     showFilters: {
       type: Array,
@@ -211,7 +206,7 @@ export default {
             case "REFBACK":
             case "ONTOLOGY":
             case "ONTOLOGY_ARRAY":
-              query[column.name] = JSON.stringify(conditions);
+              query[column.id] = JSON.stringify(conditions);
               break;
             case "DATE":
             case "DATETIME":
@@ -220,16 +215,16 @@ export default {
             case "DECIMAL":
               const result = conditions.map((v) => v.join("..")).join(",");
               if (result !== "..") {
-                query[column.name] = result;
+                query[column.id] = result;
               } else {
-                delete query[column.name];
+                delete query[column.id];
               }
               break;
             default:
-              query[column.name] = conditions.join(",");
+              query[column.id] = conditions.join(",");
           }
         } else {
-          delete query[column.name];
+          delete query[column.id];
         }
       });
       this.updateRoute(query);
@@ -271,8 +266,8 @@ export default {
       <routed-table-explorer
         id="my-table-explorer"
         :key="dynamicKey"
-        :tableName="table"
-        :schemaName="schema"
+        :tableId="table"
+        :schemaId="schema"
         :canEdit="canEdit"
         :canView="canView"
       />

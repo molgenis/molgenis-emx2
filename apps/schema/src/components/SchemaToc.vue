@@ -36,9 +36,7 @@
             <a
               :href="'#'"
               v-scroll-to="{
-                el:
-                  '#' +
-                  (subtable.name ? subtable.name.replaceAll(' ', '_') : ''),
+                el: '#' + (table.name ? table.name.replaceAll(' ', '_') : ''),
                 offset: -50,
               }"
               >{{ subtable.name }}</a
