@@ -49,3 +49,4 @@ steps:
     JVM_OPTS: -Xmx3200m
     NODE_OPTIONS: "--max-old-space-size=4096"
     GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+    CI: true

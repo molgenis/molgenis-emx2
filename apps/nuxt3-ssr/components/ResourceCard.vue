@@ -6,7 +6,7 @@ const props = withDefaults(
   defineProps<{
     resource: any;
     schema: string;
-    resourceName: string;
+    tableId: string;
     compact?: boolean;
     resourceId: Record<string, string>;
   }>(),

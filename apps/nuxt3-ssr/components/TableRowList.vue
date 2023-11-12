@@ -5,17 +5,14 @@ const route = useRoute();
 const router = useRouter();
 
 const pageSize = 10;
-const resourceName: string = route.params.resourceType as string;
+const tableId: string = route.params.resourceType as string;
 const schemaId = route.params.schema.toString();
 const metadata = await fetchMetadata(schemaId);
 
 const tableMetaData = computed(() => {
-  const result = metadata.tables.find(
-    (t: ITableMetaData) =>
-      t.id.toLocaleLowerCase() === resourceName.toLocaleLowerCase()
-  );
+  const result = metadata.tables.find((t: ITableMetaData) => t.id === tableId);
   if (!result) {
-    throw new Error(`Table ${resourceName} not found in schema ${schemaId}`);
+    throw new Error(`Table with id ${tableId} not found in schema ${schemaId}`);
   }
   return result;
 });
@@ -39,7 +36,7 @@ const description = tableMetaData.value?.description;
 let activeName = ref("detailed");
 let filters: IFilter[] = reactive([
   {
-    title: `Search in ${resourceName}`,
+    title: `Search in ${tableMetaData.value.name}`,
     columnType: "_SEARCH",
     search: "",
     searchTables: [],
@@ -96,7 +93,7 @@ console.log("query: ", query.value);
 const { data, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
   {
-    key: `${resourceName}-list-${offset.value}`,
+    key: `${tableId}-list-${offset.value}`,
     baseURL: config.public.apiBase,
     method: "POST",
     body: {
@@ -165,7 +162,7 @@ let crumbs: Record<string, string> = {
                 <ResourceCard
                   :resource="resource"
                   :schema="schemaId"
-                  :resource-name="resourceName"
+                  :table-id="tableMetaData.id"
                   :compact="activeName !== 'detailed'"
                   :resourceId="buildRecordId(resource)"
                 />
@@ -173,7 +170,7 @@ let crumbs: Record<string, string> = {
             </CardList>
             <div v-else class="flex justify-center pt-3">
               <span class="py-15 text-blue-500">
-                No {{ resourceName }} found with current filters
+                No {{ tableMetaData.name }} found with current filters
               </span>
             </div>
           </SearchResultsList>
