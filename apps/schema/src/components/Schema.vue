@@ -107,6 +107,7 @@ import {
   addOldNamesAndRemoveMeta,
   convertToSubclassTables,
 } from "../utils.ts";
+import gql from "graphql-tag";
 
 export default {
   components: {
