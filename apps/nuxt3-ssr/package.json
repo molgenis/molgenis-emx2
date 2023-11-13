@@ -43,6 +43,7 @@
     "floating-vue": "^2.0.0-beta.20",
     "node-fetch-native": "1.4.0",
     "vite": "4.0.5",
-    "vue": "3.3.4"
+    "vue": "3.3.4",
+    "meta-data-utils": "*"
   }
 }
