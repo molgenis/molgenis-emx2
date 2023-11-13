@@ -52,29 +52,29 @@
             {{ applyJsTemplate(row, refLabel) }}
           </label>
         </div>
-        <div v-if="canEdit">
-          <Tooltip value="New entry">
-            <RowButtonAdd
-              id="add-entry"
-              :tableId="tableId"
-              :schemaId="schemaId"
-            />
-          </Tooltip>
-        </div>
-        <div>
-          <ButtonAlt
-            class="pl-0"
-            :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-            icon="fa fa-search"
-            @click="openSelect"
-          >
-            {{
-              count > maxNum
-                ? `show all ${count} options with details`
-                : "more details"
-            }}
-          </ButtonAlt>
-        </div>
+      </div>
+      <div v-if="canEdit">
+        <Tooltip value="New entry">
+          <RowButtonAdd
+            id="add-entry"
+            :tableId="tableId"
+            :schemaId="schemaId"
+          />
+        </Tooltip>
+      </div>
+      <div>
+        <ButtonAlt
+          class="pl-0"
+          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
+          icon="fa fa-search"
+          @click="openSelect"
+        >
+          {{
+            count > maxNum
+              ? `show all ${count} options with details`
+              : "more details"
+          }}
+        </ButtonAlt>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
@@ -164,7 +164,7 @@ export default {
       return "Select " + this.tableMetadata.label;
     },
     showMultipleColumns() {
-      const itemsPerColumn = 12;
+      const itemsPerColumn = 3;
       return this.multipleColumns && this.count > itemsPerColumn;
     },
   },
@@ -310,7 +310,7 @@ export default {
         tableId="Pet"
         description="This is a multi column input"
         schemaId="pet store"
-        maxNum="3"
+        :maxNum="3"
         :canEdit="canEdit"
         refLabel="${name}"
       />
