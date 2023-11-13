@@ -39,7 +39,7 @@
 38,Diagnostic codes vocabulary: ICD-9,ICD-9,,Diagnostic codes vocabulary,
 39,Diagnostic codes vocabulary: ICD-10,ICD-10,,Diagnostic codes vocabulary,
 40,Diagnostic codes vocabulary: ICD,ICD,,Diagnostic codes vocabulary,
-41,Diagnostic codes vocabulary: ICD11,ICD11,,Diagnostic codes vocabulary,
+41,Diagnostic codes vocabulary: ICD-11,ICD-11,,Diagnostic codes vocabulary,
 42,Diagnostic codes vocabulary: ICD-10-CM,ICD-10-CM,,Diagnostic codes vocabulary,
 43,Diagnostic codes vocabulary: ICD-9-CM,ICD-9-CM,,Diagnostic codes vocabulary,
 44,Diagnostic codes vocabulary: ICPC,ICPC,,Diagnostic codes vocabulary,
@@ -67,7 +67,7 @@
 66,Cause of death vocabulary: ICD-9,ICD-9,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032179
 67,Cause of death vocabulary: ICD-10,ICD-10,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032180
 68,Cause of death vocabulary: ICD,ICD,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032181
-69,Cause of death vocabulary: ICD-11,ICD11,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030108
+69,Cause of death vocabulary: ICD-11,ICD-11,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030108
 70,Cause of death vocabulary: ICD-10-CM,ICD-10-CM,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032182
 71,Cause of death vocabulary: ICD-9-CM,ICD-9-CM,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032209
 72,Cause of death vocabulary: ICPC,ICPC,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030105
@@ -143,7 +143,7 @@
 142,Indication vocabulary: ICD-9,ICD-9,,Indication vocabulary,
 143,Indication vocabulary: ICD-10,ICD-10,,Indication vocabulary ,
 144,Indication vocabulary: ICD,ICD,,Indication vocabulary,
-145,Indication vocabulary: ICD11,ICD11,,Indication vocabulary,
+145,Indication vocabulary: ICD-11,ICD-11,,Indication vocabulary,
 146,Indication vocabulary: ICD-10-CM,ICD-10-CM,,Indication vocabulary,
 147,Indication vocabulary: ICD-9-CM,ICD-9-CM,,Indication vocabulary,
 148,Indication vocabulary: ICPC,ICPC,,Indication vocabulary,
@@ -172,7 +172,7 @@
 171,Procedures vocabulary: ICD-9,ICD-9,,Procedures vocabulary,
 172,Procedures vocabulary: ICD-10,ICD-10,,Procedures vocabulary,
 173,Procedures vocabulary: ICD,ICD,,Procedures vocabulary,
-174,Procedures vocabulary: ICD11,ICD11,,Procedures vocabulary,
+174,Procedures vocabulary: ICD-11,ICD-11,,Procedures vocabulary,
 175,Procedures vocabulary: ICD-10-CM,ICD-10-CM,,Procedures vocabulary,
 176,Procedures vocabulary: ICD-9-CM,ICD-9-CM,,Procedures vocabulary,
 177,Procedures vocabulary: ICPC,ICPC,,Procedures vocabulary,
