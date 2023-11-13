@@ -5,6 +5,7 @@
     "skipLibCheck": true,
     "paths": {
       "vite": ["./node_modules/vite"]
-    }
+    },
+    "moduleResolution": "Bundler"
   }
 }

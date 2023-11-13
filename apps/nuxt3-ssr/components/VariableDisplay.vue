@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { KeyObject } from "~/interfaces/types";
 import variableQuery from "~~/gql/variable";
+import { KeyObject } from "meta-data-utils";
+import { buildFilterFromKeysObject } from "meta-data-utils";
 
 const query = moduleToString(variableQuery);
 
