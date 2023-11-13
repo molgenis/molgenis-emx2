@@ -7,13 +7,25 @@ const props = defineProps<{
   cohorts: { id: string }[];
 }>();
 
+const cohortsWithMapping = computed(() => {
+  return props.cohorts
+    .map((cohort) => {
+      const status = calcHarmonizationStatus([props.variable], [cohort])[0][0];
+      return {
+        cohort,
+        status,
+      };
+    })
+    .filter(({ status }) => status !== "unmapped");
+});
+
 const activeIndex = ref(0);
 
 const statusPerCohort = computed(
-  () => calcHarmonizationStatus([props.variable], props.cohorts)[0]
+  () => calcHarmonizationStatus([props.variable], cohortsWithMapping.value.map((cwm => cwm.cohort)))[0]
 );
 
-const activeCohortId = computed(() => props.cohorts[activeIndex.value].id);
+const activeCohortId = computed(() => cohortsWithMapping.value[activeIndex.value].cohort.id);
 
 const activeMappingDescription = computed(() => {
   const activeCohortMapping = props.variable?.mappings?.find(
@@ -62,11 +74,11 @@ let showSidePanel = computed(() => activeVariableKey.value?.name);
     <HorizontalScrollHelper add-fade add-scroll-button>
       <div class="flex flex-nowrap">
         <Tab
-          v-for="(cohort, index) in cohorts"
+          v-for="(cohortWithMapping, index) in cohortsWithMapping"
           :active="index === activeIndex"
           @click="activeIndex = index"
         >
-          {{ cohort.id }}
+          {{ cohortWithMapping.cohort.id }}
         </Tab>
       </div>
     </HorizontalScrollHelper>
@@ -75,7 +87,7 @@ let showSidePanel = computed(() => activeVariableKey.value?.name);
   <DefinitionList>
     <DefinitionListTerm>Cohort</DefinitionListTerm>
     <DefinitionListDefinition>
-      {{ cohorts[activeIndex].id }}
+      {{ cohortsWithMapping[activeIndex].cohort.id }}
     </DefinitionListDefinition>
 
     <DefinitionListTerm>Harmonization status</DefinitionListTerm>
