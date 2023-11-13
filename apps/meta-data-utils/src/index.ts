@@ -13,7 +13,6 @@ export {
 
 export type {
   IColumn,
-  ILocale,
   ISetting,
   ISchemaMetaData,
   ITableMetaData,

@@ -17,11 +17,14 @@
   },
   "scripts": {
     "dev": "vite",
+    "test": "vitest",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier src --write --config ../.prettierrc.js"
   },
   "devDependencies": {
     "vite": "4.4.5",
-    "vite-plugin-dts": "3.6.3"
+    "vite-plugin-dts": "3.6.3",
+    "vitest": "0.34.6"
   }
 }

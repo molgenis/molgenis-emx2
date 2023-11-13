@@ -30,6 +30,7 @@
     "jsdom": "22.1.0",
     "nuxt": "3.7.4",
     "nuxt-proxy": "0.4.1",
+    "meta-data-utils": "*",
     "postcss": "8.4.31",
     "postcss-custom-properties": "13.3.2",
     "prettier": "2.8.8",
