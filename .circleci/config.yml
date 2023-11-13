@@ -136,8 +136,9 @@ jobs:
           fi
 
     - run:
-        name: deploy preview or update dev to azure 
+        name: deploy preview or update dev to azure
         command: |
+          export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh
           if [ "${CIRCLE_BRANCH}" = "master" ]
           then
