@@ -19,7 +19,7 @@
             class="mb-0 align-text-bottom text-nowrap"
             @click="onColumnClick(col)"
           >
-            {{ col.label }}
+            {{ col.label || col.name || col.id }}
             <slot name="colheader" :col="col" />
           </h6>
         </th>
