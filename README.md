@@ -1,12 +1,12 @@
 [![CircleCI](https://circleci.com/gh/molgenis/molgenis-emx2.svg?style=shield)](https://circleci.com/gh/molgenis/molgenis-emx2) 
 [![Build Status](https://dev.azure.com/molgenis/molgenis-emx2/_apis/build/status/molgenis.molgenis-emx2?branchName=master)](https://dev.azure.com/molgenis/molgenis-emx2/_build/latest?definitionId=1&branchName=master)[![Quality
 Status](https://sonarcloud.io/api/project_badges/measure?project=molgenis_molgenis-emx2&metric=alert_status)](https://sonarcloud.io/dashboard?id=molgenis_molgenis-emx2)
-[![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=molgenis_molgenis-emx2&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=molgenis_molgenis-emx2)
+[![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=molgenis_molgenis-emx2&metric=coverage)](https://sonarcloud.io/project/overview?id=molgenis_molgenis-emx2)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 ![Docker Pulls](https://img.shields.io/docker/pulls/molgenis/molgenis-emx2)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 ![Twitter Follow](https://img.shields.io/twitter/follow/molgenis?style=social)
-
+  
 # MOLGENIS EMX2 FAIR scientific data platform 
 
 The world's most customizable platform for (scientific) data and FAIR principles (findability, accessibility, interoperability and reusability).

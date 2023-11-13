@@ -21,7 +21,10 @@ public class GraphqlDatabaseFieldFactory {
   public static final GraphQLType outputSchemasType =
       new GraphQLObjectType.Builder()
           .name("SchemaInfo")
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(ID).type(Scalars.GraphQLString))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(LABEL).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(DESCRIPTION)
@@ -145,6 +148,9 @@ public class GraphqlDatabaseFieldFactory {
               List<Map<String, String>> result = new ArrayList<>();
               for (SchemaInfo schemaInfo : database.getSchemaInfos()) {
                 HashMap<String, String> fields = new HashMap<>();
+                fields.put("id", schemaInfo.tableSchema()); // todo if we want identifier here
+                fields.put(
+                    "label", schemaInfo.tableSchema()); // todo if we want something else than name
                 fields.put("name", schemaInfo.tableSchema());
                 if (!Objects.isNull(schemaInfo.description())) {
                   fields.put("description", schemaInfo.description());

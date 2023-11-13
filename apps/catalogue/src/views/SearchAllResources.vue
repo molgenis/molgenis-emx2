@@ -12,7 +12,7 @@
           label="Areas of Information"
           v-model="areasFilter"
           :isMultiSelect="true"
-          tableName="AreasOfInformationCohorts"
+          tableId="AreasOfInformationCohorts"
           :show-expanded="true"
           schemaName="CatalogueOntologies"
         />
@@ -21,7 +21,7 @@
           label="Sample categories"
           v-model="samplesFilter"
           :isMultiSelect="true"
-          tableName="Sample categories"
+          tableId="SampleCategories"
           :show-expanded="true"
           schemaName="CatalogueOntologies"
         />
@@ -30,7 +30,7 @@
           label="Diseases"
           v-model="diseasesFilter"
           :isMultiSelect="true"
-          tableName="Diseases"
+          tableId="Diseases"
           :show-expanded="true"
           schemaName="CatalogueOntologies"
         />

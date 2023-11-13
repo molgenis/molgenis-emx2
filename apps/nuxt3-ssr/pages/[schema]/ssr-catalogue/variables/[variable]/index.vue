@@ -1,66 +1,25 @@
 <script setup lang="ts">
-import { gql } from "graphql-request";
-import type { IVariable } from "~/interfaces/types";
+import variableQuery from "~~/gql/variable";
+import type { IVariable, IVariableMappings } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 
-const query = gql`
-  query Variables($name: String) {
-    Variables(filter: { name: { equals: [$name] } }) {
-      name
-      label
-      description
-      unit {
-        name
-      }
-      format {
-        name
-      }
-      mappings {
-        source {
-          id
-          name
-        }
-        match {
-          name
-        }
-        sourceDataset {
-          name
-        }
-      }
-      repeats {
-        name
-        mappings {
-          source {
-            id
-            name
-          }
-          match {
-            name
-          }
-          sourceDataset {
-            name
-          }
-        }
-      }
-    }
-    RepeatedVariables_agg(
-      filter: { isRepeatOf: { name: { equals: [$name] } } }
-    ) {
-      count
-    }
-  }
-`;
+const query = moduleToString(variableQuery);
+const { key } = useQueryParams();
+const filter = buildFilterFromKeysObject(key);
 
-const variables = { name: route.params.variable };
-let variable: IVariable;
+let variable: VariableDetailsWithMapping;
+let cohorts: { id: string }[];
+
+type VariableDetailsWithMapping = IVariable &
+  IVariableMappings & { nRepeats: number };
 
 const { data, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
   {
     baseURL: config.public.apiBase,
     method: "POST",
-    body: { query, variables },
+    body: { query, variables: { filter } },
   }
 );
 
@@ -70,13 +29,15 @@ watch(data, setData, {
 });
 
 function setData(data: any) {
-  variable = data?.data?.Variables[0];
+  variable = data?.data?.Variables[0] as VariableDetailsWithMapping;
   variable.nRepeats = data?.data?.RepeatedVariables_agg.count;
+  cohorts = data?.data?.Cohorts;
 }
 
 let tocItems = reactive([
   { label: "Description", id: "description" },
-  { label: "Harmonization status", id: "harmonization-per-cohort" },
+  { label: "Per cohort harmonization", id: "harmonization-per-cohort" },
+  { label: "Harmonization details", id: "harmonization-details-per-cohort" },
 ]);
 </script>
 
@@ -107,7 +68,7 @@ let tocItems = reactive([
           title="Description"
           :description="variable?.description"
         >
-          <DefinitionList
+          <CatalogueItemList
             :items="[
               {
                 label: 'Unit',
@@ -123,28 +84,29 @@ let tocItems = reactive([
               },
             ]"
           >
-          </DefinitionList>
+          </CatalogueItemList>
         </ContentBlock>
+
         <ContentBlock
           id="harmonization-per-cohort"
           title="Harmonization status per Cohort"
           description="Overview of the harmonization status per Cohort"
         >
-          <div class="grid grid-cols-3 gap-4">
-            <div
-              v-for="mapping in variable?.mappings"
-              class="inline-flex gap-1 group text-icon text-breadcrumb-arrow"
-            >
-              <BaseIcon name="completed" :width="24" class="text-green-500" />
-              <NuxtLink
-                :to="`/${route.params.schema}/ssr-catalogue/cohorts/${mapping.source.id}`"
-              >
-                <span class="text-body-base text-blue-500 hover:underline">{{
-                  mapping.source.id
-                }}</span>
-              </NuxtLink>
-            </div>
-          </div>
+          <HarmonizationListPerVariable
+            :variable="variable"
+            :cohorts="cohorts"
+          />
+        </ContentBlock>
+
+        <ContentBlock
+          id="harmonization-details-per-cohort"
+          title="Harmonization details per Cohort"
+          description="Select a Cohort to see the details of the harmonization"
+        >
+          <HarmonizationVariableDetails
+            :variable="variable"
+            :cohorts="cohorts"
+          />
         </ContentBlock>
       </ContentBlocks>
     </template>

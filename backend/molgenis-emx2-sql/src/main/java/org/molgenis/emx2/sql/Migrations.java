@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 12;
+  private static final int SOFTWARE_DATABASE_VERSION = 13;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
@@ -87,6 +87,10 @@ public class Migrations {
 
           if (version < 12)
             executeMigrationFile(tdb, "migration12.sql", "add defaultValue in metadata schema");
+
+          if (version < 13)
+            executeMigrationFile(
+                tdb, "migration13.sql", "remove default value for mg_tableclass columns");
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);

@@ -4,50 +4,47 @@ import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
-import { convertToPascalCase, deepClone } from "../components/utils";
+import { deepClone } from "../components/utils";
 import { IClient, INewClient } from "./IClient";
 import { IQueryMetaData } from "./IQueryMetaData";
-import { columnNames } from "./queryBuilder";
+import { getColumnIds } from "./queryBuilder";
 
 // application wide cache for schema meta data
 const schemaCache = new Map<string, ISchemaMetaData>();
 
 export { request };
 const client: IClient = {
-  newClient: (schemaName?: string): INewClient => {
+  newClient: (schemaId?: string): INewClient => {
     return {
       insertDataRow,
       updateDataRow,
-      deleteRow: async (rowKey: IRow, tableName: string) => {
-        return deleteRow(rowKey, tableName, schemaName);
+      deleteRow: async (rowKey: IRow, tableId: string) => {
+        return deleteRow(rowKey, tableId, schemaId);
       },
-      deleteAllTableData: async (tableName: string) => {
-        return deleteAllTableData(tableName, schemaName);
+      deleteAllTableData: async (tableId: string) => {
+        return deleteAllTableData(tableId, schemaId);
       },
       fetchSchemaMetaData: async () => {
-        return fetchSchemaMetaData(schemaName);
+        return fetchSchemaMetaData(schemaId);
       },
-      fetchTableMetaData: async (
-        tableName: string
-      ): Promise<ITableMetaData> => {
-        const schema = await fetchSchemaMetaData(schemaName);
+      fetchTableMetaData: async (tableId: string): Promise<ITableMetaData> => {
+        const schema = await fetchSchemaMetaData(schemaId);
         return deepClone(schema).tables.find(
-          (table: ITableMetaData) => table.id === convertToPascalCase(tableName)
+          (table: ITableMetaData) => table.id === tableId
         );
       },
       fetchTableData: async (
         tableId: string,
         properties: IQueryMetaData = {}
       ) => {
-        const schemaMetaData = await fetchSchemaMetaData(schemaName);
+        const schemaMetaData = await fetchSchemaMetaData(schemaId);
         return fetchTableData(tableId, properties, schemaMetaData);
       },
       fetchTableDataValues: async (
-        tableName: string,
+        tableId: string,
         properties: IQueryMetaData = {}
       ) => {
-        const schemaMetaData = await fetchSchemaMetaData(schemaName);
-        const tableId = convertToPascalCase(tableName);
+        const schemaMetaData = await fetchSchemaMetaData(schemaId);
         const dataResp = await fetchTableData(
           tableId,
           properties,
@@ -56,15 +53,14 @@ const client: IClient = {
         return dataResp[tableId];
       },
       fetchRowData: async (
-        tableName: string,
+        tableId: string,
         rowId: IRow,
         expandLevel: number = 1
       ) => {
-        const tableId = convertToPascalCase(tableName);
-        const schemaMetaData = await fetchSchemaMetaData(schemaName);
+        const schemaMetaData = await fetchSchemaMetaData(schemaId);
         const tableMetaData = schemaMetaData.tables.find(
           (table) =>
-            table.id === tableId && table.externalSchema === schemaMetaData.name
+            table.id === tableId && table.schemaId === schemaMetaData.id
         );
         const filter = tableMetaData?.columns
           ?.filter((column) => column.key === 1)
@@ -74,7 +70,7 @@ const client: IClient = {
           }, {});
         const resultArray = (
           await fetchTableData(
-            tableName,
+            tableId,
             {
               filter,
             },
@@ -90,39 +86,39 @@ const client: IClient = {
         }
       },
       fetchAggregateData: async (
-        tableName: string,
-        selectedColumn: { name: string; column: string },
-        selectedRow: { name: string; column: string },
+        tableId: string,
+        selectedColumn: { id: string; column: string }, //should these be id?
+        selectedRow: { id: string; column: string }, //should these be id?
         filter: Object
       ) => {
         const aggregateQuery = `
-        query ${tableName}_groupBy($filter: ${tableName}Filter){
-          ${tableName}_groupBy(filter: $filter) {
+        query ${tableId}_groupBy($filter: ${tableId}Filter){
+          ${tableId}_groupBy(filter: $filter) {
             count,
-            ${selectedColumn.name} {
+            ${selectedColumn.id} {
               ${selectedColumn.column}
             },
-            ${selectedRow.name} {
+            ${selectedRow.id} {
               ${selectedRow.column}
             }
           }
         }`;
-        return request(graphqlURL(schemaName), aggregateQuery, { filter });
+        return request(graphqlURL(schemaId), aggregateQuery, { filter });
       },
       saveTableSettings: async (settings: ISetting[]) => {
         return request(
-          graphqlURL(schemaName),
+          graphqlURL(schemaId),
           `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
           { settings }
         );
       },
       fetchSettings: async () => {
-        return fetchSettings(schemaName);
+        return fetchSettings(schemaId);
       },
       fetchSettingValue: async (name: string) => {
-        const settings = await fetchSettings(schemaName);
+        const settings = await fetchSettings(schemaId);
         const setting = settings.find(
-          (setting: ISetting) => setting.key == name
+          (setting: ISetting) => setting.key === name
         );
         if (setting) {
           return JSON.parse(setting.value);
@@ -142,7 +138,7 @@ const client: IClient = {
           },
         };
 
-        await request(graphqlURL(schemaName), createMutation, variables).catch(
+        await request(graphqlURL(schemaId), createMutation, variables).catch(
           (e) => {
             console.error(e);
           }
@@ -151,8 +147,11 @@ const client: IClient = {
       clearCache: () => {
         schemaCache.clear();
       },
-      convertRowToPrimaryKey: async (row: IRow, tableName: string) => {
-        return convertRowToPrimaryKey(row, tableName, schemaName);
+      convertRowToPrimaryKey: async (row: IRow, tableId: string) => {
+        return convertRowToPrimaryKey(row, tableId, schemaId);
+      },
+      fetchOntologyOptions: async (tableName: string) => {
+        return fetchOntologyOptions(tableName, schemaId);
       },
     };
   },
@@ -160,113 +159,90 @@ const client: IClient = {
 export default client;
 
 const metaDataQuery = `{
-_schema {
-  name,
-  tables {
-    name,
-    labels {
-      locale,
-      value
-    },
-    tableType,
+  _schema {
     id,
-    descriptions {
-      locale,
-      value
-    },
-    externalSchema,
-    semantics,
-    columns {
-      name,
-      labels {
-        locale,
-        value
-      },
+    tables {
+      schemaId,
       id,
-      columnType,
-      key,
-      refTable,
-      refSchema,
-      refLink,
-      refLabel,
-      refLabelDefault,
-      refBack,
-      required,
-      defaultValue,
-      readonly,
+      label, 
+      description,
+      tableType,
+      schemaId,
       semantics,
-      descriptions{
-        locale,
-        value
-      },
-      position,
-      computed,
-      visible,
-      validation
-    }
-    settings { 
-      key,
-      value 
+      columns {
+        id,
+        label,
+        description,
+        columnType,
+        key,
+        refTableId,
+        refSchemaId,
+        refLinkId,
+        refLabel,
+        refLabelDefault,
+        refBackId,
+        required,
+        defaultValue,
+        readonly,
+        semantics,
+        position,
+        computed,
+        visible,
+        validation
+      }
+      settings { 
+        key,
+        value 
+      }
     }
   }
-}}`;
+}`;
 
-const graphqlURL = (schemaName?: string) => {
-  return schemaName ? "/" + schemaName + "/graphql" : "graphql";
+const graphqlURL = (schemaId?: string) => {
+  return schemaId ? "/" + schemaId + "/graphql" : "graphql";
 };
 
-const insertDataRow = (
-  rowData: IRow,
-  tableName: string,
-  schemaName: string
-) => {
-  const tableId = convertToPascalCase(tableName);
+const insertDataRow = (rowData: IRow, tableId: string, schemaId: string) => {
   const formData = toFormData(rowData);
   const query = `mutation insert($value:[${tableId}Input]){insert(${tableId}:$value){message}}`;
   formData.append("query", query);
-  return axios.post(graphqlURL(schemaName), formData);
+  return axios.post(graphqlURL(schemaId), formData);
 };
 
-const updateDataRow = (
-  rowData: IRow,
-  tableName: string,
-  schemaName: string
-) => {
-  const tableId = convertToPascalCase(tableName);
+const updateDataRow = (rowData: IRow, tableId: string, schemaId: string) => {
   const formData = toFormData(rowData);
   const query = `mutation update($value:[${tableId}Input]){update(${tableId}:$value){message}}`;
   formData.append("query", query);
-  return axios.post(graphqlURL(schemaName), formData);
+  return axios.post(graphqlURL(schemaId), formData);
 };
 
-const deleteRow = async (row: IRow, tableName: string, schemaName?: string) => {
-  const tableId = convertToPascalCase(tableName);
+const deleteRow = async (row: IRow, tableId: string, schemaId?: string) => {
   const query = `mutation delete($pkey:[${tableId}Input]){delete(${tableId}:$pkey){message}}`;
-  const key = await convertRowToPrimaryKey(row, tableName, schemaName);
+  const key = await convertRowToPrimaryKey(row, tableId, schemaId);
   const variables = { pkey: [key] };
-  return axios.post(graphqlURL(schemaName), { query, variables });
+  return axios.post(graphqlURL(schemaId), { query, variables });
 };
 
-const deleteAllTableData = (tableName: string, schemaName?: string) => {
-  const query = `mutation {truncate(tables:"${tableName}"){message}}`;
-  return axios.post(graphqlURL(schemaName), { query });
+const deleteAllTableData = (tableId: string, schemaId?: string) => {
+  const query = `mutation {truncate(tables:"${tableId}"){message}}`;
+  return axios.post(graphqlURL(schemaId), { query });
 };
 
 const fetchSchemaMetaData = async (
-  schemaName?: string
+  schemaId?: string
 ): Promise<ISchemaMetaData> => {
-  const currentSchemaName = schemaName ? schemaName : "CACHE_OF_CURRENT_SCHEMA";
-  if (schemaCache.has(currentSchemaName)) {
-    return schemaCache.get(currentSchemaName) as ISchemaMetaData;
+  const currentschemaId = schemaId ? schemaId : "CACHE_OF_CURRENT_SCHEMA";
+  if (schemaCache.has(currentschemaId)) {
+    return schemaCache.get(currentschemaId) as ISchemaMetaData;
   }
   return await axios
-    .post(graphqlURL(schemaName), { query: metaDataQuery })
+    .post(graphqlURL(schemaId), { query: metaDataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
       const schema = result.data.data._schema;
-      if (schemaName == null) {
-        schemaCache.set(currentSchemaName, schema);
+      if (schemaId == null) {
+        schemaCache.set(currentschemaId, schema);
       }
-      schemaCache.set(schema.name, schema);
+      schemaCache.set(schema.id, schema);
       return deepClone(schema);
     })
     .catch((error: AxiosError) => {
@@ -276,12 +252,11 @@ const fetchSchemaMetaData = async (
 };
 
 const fetchTableData = async (
-  tableName: string,
+  tableId: string,
   properties: IQueryMetaData,
   metaData: ISchemaMetaData,
   expandLevel: number = 2
 ) => {
-  const tableId = convertToPascalCase(tableName);
   const limit = properties.limit ? properties.limit : 20;
   const offset = properties.offset ? properties.offset : 0;
 
@@ -289,8 +264,8 @@ const fetchTableData = async (
     ? ',search:"' + properties.searchTerms.trim() + '"'
     : "";
 
-  const schemaName = metaData.name;
-  const cNames = columnNames(schemaName, tableId, metaData, expandLevel);
+  const schemaId = metaData.id;
+  const columnIds = getColumnIds(schemaId, tableId, metaData, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
           filter:$filter,
@@ -299,7 +274,7 @@ const fetchTableData = async (
           orderby:$orderby
           )
           {
-            ${cNames}
+            ${columnIds}
           }
           ${tableId}_agg( filter:$filter${search} ) {
             count
@@ -309,7 +284,7 @@ const fetchTableData = async (
   const filter = properties.filter ? properties.filter : {};
   const orderby = properties.orderby ? properties.orderby : {};
   const resp = await axios
-    .post(graphqlURL(schemaName), {
+    .post(graphqlURL(schemaId), {
       query: tableDataQuery,
       variables: { filter, orderby },
     })
@@ -320,8 +295,35 @@ const fetchTableData = async (
   return resp?.data.data;
 };
 
-const fetchSettings = async (schemaName?: string) => {
-  return (await request(graphqlURL(schemaName), "{_settings{key, value}}"))
+const fetchOntologyOptions = async (
+  tableId: string,
+  schemaId: string | undefined
+) => {
+  const tableDataQuery = `query ${tableId} {
+        ${tableId}(
+          limit:100000
+          )
+          {
+          	order 
+            name 
+            label 
+            parent { order name label } 
+            children { order name label parent { name } } 
+          }
+        }`;
+  const resp = await axios
+    .post(graphqlURL(schemaId), {
+      query: tableDataQuery,
+    })
+    .catch((error: AxiosError) => {
+      console.log(error);
+      throw error;
+    });
+  return resp?.data.data[tableId];
+};
+
+const fetchSettings = async (schemaId?: string) => {
+  return (await request(graphqlURL(schemaId), "{_settings{key, value}}"))
     ._settings;
 };
 
@@ -382,14 +384,13 @@ const toFormData = (rowData: IRow) => {
 
 async function convertRowToPrimaryKey(
   row: IRow,
-  tableName: string,
-  schemaName?: string
+  tableId: string,
+  schemaId?: string
 ): Promise<Record<string, any>> {
-  const schema = await fetchSchemaMetaData(schemaName);
+  const schema = await fetchSchemaMetaData(schemaId);
   const tableMetadata = schema.tables.find(
     (table: ITableMetaData) =>
-      table.id === convertToPascalCase(tableName) &&
-      table.externalSchema === schema.name
+      table.id === tableId && table.schemaId === schema.id
   );
   if (!tableMetadata?.columns) {
     throw new Error("Empty columns in metadata");
@@ -402,7 +403,7 @@ async function convertRowToPrimaryKey(
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
-            column.refSchema || schema.name
+            column.refSchemaId || schema.id
           );
         }
         return accum;
@@ -414,16 +415,16 @@ async function convertRowToPrimaryKey(
   async function getKeyValue(
     cellValue: any,
     column: IColumn,
-    schemaName: string
+    schemaId: string
   ) {
     if (typeof cellValue === "string") {
       return cellValue;
     } else {
-      if (column.refTable) {
+      if (column.refTableId) {
         return await convertRowToPrimaryKey(
           cellValue,
-          column.refTable,
-          schemaName
+          column.refTableId,
+          schemaId
         );
       }
     }

@@ -36,7 +36,7 @@ public class TestTruncate {
     assertEquals(0, table1.retrieveRows().size());
 
     // create with subclass
-    Table table2 = schema.create(table("Table2").setInherit("Table1").add(column("col1")));
+    Table table2 = schema.create(table("Table2").setInheritName("Table1").add(column("col1")));
     table1.insert(row("name", "a"));
     table2.insert(row("name", "b", "col1", "checkb"));
     assertEquals(2, table1.retrieveRows().size());
@@ -53,7 +53,7 @@ public class TestTruncate {
     assertEquals(0, table2.retrieveRows().size());
 
     // create with subclass of a subclass
-    Table table3 = schema.create(table("Table3").setInherit("Table2").add(column("col2")));
+    Table table3 = schema.create(table("Table3").setInheritName("Table2").add(column("col2")));
     table1.insert(row("name", "a"));
     table2.insert(row("name", "b", "col1", "checkb"));
     table3.insert(row("name", "c", "col1", "checkc", "col2", "checkc"));

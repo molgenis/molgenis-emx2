@@ -2,8 +2,8 @@
   <div>Manage scripts</div>
   <RoutedTableExplorer
     v-if="session"
-    tableName="Scripts"
-    schemaName="_SYSTEM_"
+    tableId="Scripts"
+    schemaId="_SYSTEM_"
     :canEdit="true"
     :canManage="false"
   >

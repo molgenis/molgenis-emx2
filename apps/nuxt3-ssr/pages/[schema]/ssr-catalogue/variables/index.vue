@@ -23,16 +23,16 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Topics",
-    refTable: "Topics",
-    columnName: "topics",
+    refTableId: "Keywords",
+    columnId: "keywords",
     columnType: "ONTOLOGY",
     conditions: [],
   },
   {
     title: "Networks",
-    columnName: "networks",
+    columnId: "networks",
     columnType: "REF_ARRAY",
-    refTable: "Organisations",
+    refTableId: "Networks",
     refFields: {
       key: "id",
       name: "id",
@@ -42,10 +42,14 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Cohorts",
-    refTable: "Cohorts",
-    columnName: "cohorts",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
+    refTableId: "Cohorts",
+    columnNId: "cohorts",
+    columnType: "REF_ARRAY",
+    refFields: {
+      key: "id",
+      name: "id",
+      description: "name",
+    },
     conditions: [],
   },
 ]);
@@ -60,6 +64,15 @@ const query = computed(() => {
   query Variables($filter:VariablesFilter, $orderby:Variablesorderby){
     Variables(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       name
+      resource {
+        id
+      }
+      dataset {
+        name
+        resource {
+          id
+        }
+      }
       label
       description
       mappings {
@@ -117,8 +130,14 @@ const query = computed(() => {
 });
 
 const orderby = { label: "ASC" };
+const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
 
-const filter = computed(() => buildQueryFilter(filters, search.value));
+const filter = computed(() => {
+  return {
+    ...buildQueryFilter(filters, search.value),
+    ...typeFilter,
+  };
+});
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
@@ -140,7 +159,7 @@ watch(filters, () => {
   setCurrentPage(1);
 });
 
-let activeName = ref("harmonization");
+let activeName = ref("list");
 let pageIcon = computed(() => {
   switch (activeName.value) {
     case "list":
