@@ -97,6 +97,10 @@
                     <div class="card-text">
                       <h5>Contact Information</h5>
                       <ReportDetailsList :reportDetails="contact" />
+                      <template v-if="alsoKnownIn.length > 0">
+                        <h5>Also Known In</h5>
+                        <ReportDetailsList :reportDetails="alsoKnownIn" />
+                      </template>
                     </div>
                   </div>
                 </div>
@@ -121,6 +125,7 @@ import ReportTitle from "../components/report-components/ReportTitle.vue";
 import {
   getCollectionDetails,
   mapContactInfo,
+  mapAlsoKnownIn,
 } from "../functions/viewmodelMapper";
 import { useNetworkStore } from "../stores/networkStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
@@ -148,6 +153,7 @@ const biobanks = computed(() => networkReport.value.biobanks);
 const biobanksAvailable = computed(() => biobanks.value?.length);
 const network = computed(() => networkReport.value.network);
 const contact = computed(() => mapContactInfo(network.value));
+const alsoKnownIn = computed(() => mapAlsoKnownIn(network.value));
 
 function filterCollections() {
   return (

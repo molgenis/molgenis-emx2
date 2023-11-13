@@ -2,12 +2,8 @@ import { useSettingsStore } from "../stores/settingsStore";
 import { sortCollectionsByName } from "./sorting";
 
 export const getName = (contact) => {
-  const {
-    title_before_name,
-    first_name,
-    last_name,
-    title_after_name,
-  } = contact;
+  const { title_before_name, first_name, last_name, title_after_name } =
+    contact;
 
   let name = "";
 
@@ -61,8 +57,8 @@ export function mapRange(min, max, unit) {
   } else if (max) {
     range = `< ${max} `;
   }
-  if (range.length > 0 && unit && unit.length) {
-    range += unit.map((unit) => unit.label).join();
+  if (range.length > 0 && unit?.label) {
+    range += unit.label;
   } else {
     range = undefined;
   }
@@ -298,6 +294,12 @@ export const collectionReportInformation = (collection) => {
     };
   }
 
+  if (collection.also_known) {
+    collectionReport.also_known = collection.also_known
+      ? mapAlsoKnownIn(collection)
+      : undefined;
+  }
+
   if (collection.biobank) {
     collectionReport.biobank = {
       id: collection.biobank.id,
@@ -305,7 +307,7 @@ export const collectionReportInformation = (collection) => {
       juridical_person: collection.biobank.juridical_person,
       country: collection.country.label || collection.country.name,
       report: `/biobank/${collection.biobank.id}`,
-      website: mapUrl(collection.biobank.url),
+      website: collection.biobank.url,
       email: collection.biobank.contact
         ? collection.biobank.contact.email
         : undefined,
@@ -321,7 +323,7 @@ export const collectionReportInformation = (collection) => {
     });
   }
 
-  collectionReport.certifications = mapObjArray(collection.quality);
+  collectionReport.certifications = mapQualityStandards(collection.quality);
 
   collectionReport.collaboration = [];
 
@@ -365,12 +367,36 @@ export const getNameOfHead = (head) => {
 
   return name !== "" ? name.trim() : undefined;
 };
-
+         
+export const mapHeadInfo = (instance) => {
+  if (instance.head) {
+    return {
+      name: {
+        value: getName(instance.head),
+        type: "string",
+      },
+      website: { value: mapUrl(instance.head.url), type: "url" },
+      email: {
+        value: instance.head.email,
+        type: "email",
+      },
+      country: {
+        value: instance.head.country
+          ? instance.head.country.label || instance.head.country.name
+          : undefined,
+        type: "string",
+      },
+    };
+  } else {
+    return {};
+  }
+};
+                
 export const mapContactInfo = (instance) => {
   if (instance.contact) {
     return {
       name: {
-        value: getNameOfHead(instance.contact),
+        value: getName(instance.contact),
         type: "string",
       },
       website: { value: mapUrl(instance.contact.url), type: "url" },
@@ -389,4 +415,28 @@ export const mapContactInfo = (instance) => {
   } else {
     return {};
   }
+};
+
+export const mapAlsoKnownIn = (instance) => {
+  let arr = [];
+
+  if (instance.also_known) {
+    for (const item of instance.also_known) {
+      arr.push({ value: item.url, type: "url", label: item.name_system });
+    }
+  }
+
+  return arr;
+};
+
+export const mapQualityStandards = (instance) => {
+  let arr = [];
+
+  if (instance) {
+    for (const quality of instance) {
+      arr.push(quality.quality_standard.label);
+    }
+  }
+
+  return arr;
 };
