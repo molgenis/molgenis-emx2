@@ -1,8 +1,9 @@
-.app-page, .app-footer {
+.app-page,
+.app-footer {
   font-size: 13pt;
   font-family: $font-family;
 }
-  
+
 .app-page {
   .page-header {
     .background-image-filter {
@@ -18,8 +19,7 @@
       }
 
       h2 {
-        margin-top: 1.4em;
-        margin-bottom: 0.8em;
+        margin-bottom: 0.3em;
       }
 
       ul {
@@ -44,15 +44,72 @@
 
 .genturis-logo {
   display: block;
-  width: 175px;
+
+  &.logo-center {
+    margin: 1em auto;
+  }
+
+  &.logo-small {
+    width: 175px;
+  }
 
   &.logo-medium {
     width: 250px;
   }
 
   &.logo-large {
-    display: block;
-    margin: 1em auto;
     width: 325px;
+  }
+}
+
+#genturisQuickLinks {
+  .nav-item {
+    .link-card {
+      height: auto;
+      
+      .card-content {
+        padding: 1.7em;
+      }
+    }
+
+    &:nth-child(1) {
+      .link-card {
+        background-color: $blue-700;
+      }
+    }
+    
+    &:nth-child(2) {
+      .card-background-filter {
+        background-color: $blue-green-800;
+        opacity: 0.65;
+      }
+    }
+    
+    &:nth-child(3) {
+      .card-background-filter {
+        background-color: $blue-800;
+        opacity: 0.65;
+      }
+    }
+  }
+}
+
+#genturisFooter {
+  .links-container {
+    background-color: $gray-800;
+    color: $gray-100;
+    
+    .footer-list-title {
+      color: $gray-000;
+    }
+  }
+  
+  .genturis-logo {
+    background-color: $gray-000;
+    padding: 0.4em;
+  }
+  
+  .citation-container {
+    background-color: $blue-050;
   }
 }

@@ -15,7 +15,7 @@
     >
       <img
         src="/genturis-registry-logo.png"
-        class="genturis-logo logo-large"
+        class="genturis-logo logo-medium logo-center"
         alt="ERN Genturis Registry - Registry for Genetic Tumour Risk Syndromes"
       />
       <h2 id="genturis-section-welcome-title">
@@ -38,6 +38,7 @@
         quick links: learn more about ERN GENTURIS
       </h2>
       <QuickLinks
+        id="genturisQuickLinks"
         aria-labelledby="quicklinks-card-title"
         :data="[
           { name: 'about', label: 'About Us' },

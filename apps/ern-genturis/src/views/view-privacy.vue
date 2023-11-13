@@ -11,7 +11,6 @@
     <PageSection
       id="genturis-privacy-google"
       aria-labelledby="genturis-privacy-google-title"
-      width="large"
     >
       <h2 id="genturis-privacy-google-title">Google analytics</h2>
       <p>
@@ -48,7 +47,6 @@
     <PageSection
       id="genturis-privacy-eservices"
       aria-labelledby="genturis-privacy-eservices-title"
-      width="large"
     >
       <h2 id="genturis-privacy-eservices-title">E-Services</h2>
       <p>
@@ -69,7 +67,6 @@
     <PageSection
       id="genturis-privacy-access"
       aria-labelledby="genturis-privacy-access-title"
-      width="large"
     >
       <h2 id="genturis-privacy-access-title">
         Who has access to your information?
@@ -89,7 +86,6 @@
     <PageSection
       id="genturis-privacy-contact"
       aria-labelledby="genturis-privacy-contact-title"
-      width="large"
     >
       <h2 id="genturis-privacy-contact-title">Contact</h2>
       <p>
@@ -106,7 +102,6 @@
     <PageSection
       id="genturis-privacy-links"
       aria-labelledby="genturis-privacy-links-title"
-      width="large"
     >
       <h2 id="genturis-privacy-links-title">Third Party Links</h2>
       <p>

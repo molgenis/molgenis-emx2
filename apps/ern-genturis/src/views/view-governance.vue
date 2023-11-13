@@ -11,7 +11,7 @@
     <PageSection
       id="genturis-section-governance"
       aria-labelledby="genturis-section-governance-title"
-      width="large"
+      :verticalPadding="2"
     >
       <h2 id="genturis-section-governance-title">
         The Registry Steering Committee
@@ -46,7 +46,7 @@
     <PageSection
       id="genturis-section-support"
       aria-labelledby="genturis-section-support-title"
-      width="large"
+      :verticalPadding="1"
     >
       <h2 id="genturis-section-support-title">Support Team</h2>
       <p>
@@ -59,7 +59,7 @@
     <PageSection
       id="genturis-section-management"
       aria-labelledby="genturis-section-management-title"
-      width="large"
+      :verticalPadding="2"
     >
       <h2 id="genturis-section-management-title">General Management</h2>
       <p>
@@ -71,7 +71,7 @@
     <PageSection
       id="genturis-section-dac"
       aria-labelledby="genturis-section-dac-title"
-      width="large"
+      :verticalPadding="1"
     >
       <h2 id="genturis-section-dac-title">Data Access Committee</h2>
       <p>
