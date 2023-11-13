@@ -221,7 +221,7 @@ Documentation,,file,file,,,,,,,,,Optional file attachment containing the documen
 Linked resources,,,,,,,,,,,,Links between datasource and databank,EMA,,
 Linked resources,,main resource,ref,1,TRUE,,RWE resources,,,,,,EMA,DatasourceDatabanks,datasource
 Linked resources,,linked resource,ref,1,TRUE,,RWE resources,,,,,,EMA,DatasourceDatabanks,databank
-Linked resources,,other linked resource,,1,TRUE,,,,,,,"if other linked data source, enter the name of the data source (default = not applicable)",EMA,,
+Linked resources,,other linked resource,,,,,,,,,,"if other linked data source, enter the name of the data source (default = not applicable)",EMA,,
 Linked resources,,linkage strategy,ontology,,,CatalogueOntologies,Linkage strategies,,,,,The linkage method that was used to link data banks. One entry per data bank,EMA,DatasourceDatabanks,linkageStrategy
 Linked resources,,linkage variable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank",EMA,DatasourceDatabanks,linkageVariable
 Linked resources,,linkage variable unique,bool,,,,,,,,,"If a single variable is used to link a data bank to others, is the variable a unique identifier? One entry per data bank",,DatasourceDatabanks,linkageVariableUnique
