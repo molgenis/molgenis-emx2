@@ -1,8 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { catalogueMetadata, catalogueOntologies, petStoreMetadata } from "./test-resources/metadata";
+import {
+  catalogueMetadata,
+  catalogueOntologies,
+  petStoreMetadata,
+} from "./test-resources/metadata";
 import { buildRecordDetailsQueryFields } from "../src/tableQuery";
-
-
 
 describe("buildRecordDetailsQueryFields", () => {
   it("should return the query fields simple schema (pet store)", () => {
