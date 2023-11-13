@@ -164,7 +164,7 @@ export default {
       return "Select " + this.tableMetadata.label;
     },
     showMultipleColumns() {
-      const itemsPerColumn = 3;
+      const itemsPerColumn = 12;
       return this.multipleColumns && this.count > itemsPerColumn;
     },
   },
