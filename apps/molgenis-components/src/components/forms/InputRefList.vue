@@ -39,7 +39,7 @@
           :key="index"
         >
           <input
-            :id="`${id}-${row.name}`"
+            :id="`${id}-${row.primaryKey}`"
             :name="id"
             type="checkbox"
             :value="row.primaryKey"
@@ -48,45 +48,47 @@
             class="form-check-input"
             :class="{ 'is-invalid': errorMessage }"
           />
-          <label class="form-check-label" :for="`${id}-${row.name}`">
+          <label class="form-check-label" :for="`${id}-${row.primaryKey}`">
             {{ applyJsTemplate(row, refLabel) }}
           </label>
         </div>
-        <div v-if="canEdit">
-          <Tooltip value="New entry">
-            <RowButtonAdd
-              id="add-entry"
-              :tableName="tableName"
-              :schemaName="schemaName"
-            />
-          </Tooltip>
-        </div>
-        <div>
-          <ButtonAlt
-            class="pl-0"
-            :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-            icon="fa fa-search"
-            @click="openSelect"
-          >
-            {{
-              count > maxNum ? `view all ${count} options.` : "view as table"
-            }}
-          </ButtonAlt>
-        </div>
+      </div>
+      <div v-if="canEdit">
+        <Tooltip value="New entry">
+          <RowButtonAdd
+            id="add-entry"
+            :tableId="tableId"
+            :schemaId="schemaId"
+          />
+        </Tooltip>
+      </div>
+      <div>
+        <ButtonAlt
+          class="pl-0"
+          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
+          icon="fa fa-search"
+          @click="openSelect"
+        >
+          {{
+            count > maxNum
+              ? `show all ${count} options with details`
+              : "more details"
+          }}
+        </ButtonAlt>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
           <TableSearch
             v-model:selection="selection"
-            @update:selection="$emit('update:modelValue', $event)"
+            :schemaId="schemaId"
             :tableId="tableId"
+            :canEdit="canEdit"
+            :showSelect="true"
             :filter="filter"
+            :limit="10"
+            @update:selection="$emit('update:modelValue', $event)"
             @select="emitSelection"
             @deselect="deselect"
-            :schemaId="schemaId"
-            :showSelect="true"
-            :limit="10"
-            :canEdit="canEdit"
           />
         </template>
         <template v-slot:footer>
@@ -121,7 +123,7 @@ export default {
       data: [],
       selection: this.modelValue,
       count: 0,
-      tableMetaData: null,
+      tableMetadata: null,
       loading: false,
     };
   },
@@ -222,7 +224,7 @@ export default {
   async created() {
     //should be created, not mounted, so we are before the watchers
     this.client = Client.newClient(this.schemaId);
-    this.tableMetaData = await this.client.fetchTableMetaData(this.tableId);
+    this.tableMetadata = await this.client.fetchTableMetaData(this.tableId);
     await this.loadOptions();
     if (!this.modelValue) {
       this.selection = [];
@@ -233,88 +235,102 @@ export default {
 </script>
 
 <docs>
-<template>
+  <template>
   <div>
     You have to be have server running and be signed in for this to work
     <div class="border-bottom mb-3 p-2">
-      <h5>synced demo props: </h5>
+      <h5>synced demo props:</h5>
       <div>
         <label for="canEdit" class="pr-1">can edit: </label>
-        <input type="checkbox" id="canEdit" v-model="canEdit">
+        <input type="checkbox" id="canEdit" v-model="canEdit" />
       </div>
       <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
       <!-- normally you don't need schemaId, it will use graphql on current path-->
       <InputRefList
-          id="input-ref-list"
-          label="Standard ref input list"
-          v-model="value"
-          tableId="Pet"
-          description="Standard input"
-          schemaId="pet store"
-          :canEdit="canEdit"
-          refLabel="${name}"
+        id="input-ref-list"
+        label="Standard ref input list"
+        v-model="value"
+        tableId="Pet"
+        description="Standard input"
+        schemaId="pet store"
+        :canEdit="canEdit"
+        refLabel="${name}"
       />
       Selection: {{ value }}
     </DemoItem>
     <DemoItem>
       <InputRefList
-          id="input-ref-list-default"
-          label="Ref input list with default value"
-          v-model="defaultValue"
-          tableId="Pet"
-          description="This is a default value"
-          :defaultValue="defaultValue"
-          schemaId="pet store"
-          :canEdit="canEdit"
-          refLabel="${name}"
+        id="input-ref-list-default"
+        label="Ref input list with default value"
+        v-model="defaultValue"
+        tableId="Pet"
+        description="This is a default value"
+        :defaultValue="defaultValue"
+        schemaId="pet store"
+        :canEdit="canEdit"
+        refLabel="${name}"
       />
       Selection: {{ defaultValue }}
     </DemoItem>
     <DemoItem>
       <InputRefList
-          id="input-ref-list-filter"
-          label="Ref input list with pre set filter"
-          v-model="filterValue"
-          tableId="Pet"
-          description="Filter by name"
-          :filter="{ category: { name: { equals: 'dog' } } }"
-          schemaId="pet store"
-          :canEdit="canEdit"
-          refLabel="${name}"
+        id="input-ref-list-filter"
+        label="Ref input list with pre set filter"
+        v-model="filterValue"
+        tableId="Pet"
+        description="Filter by name"
+        :filter="{ category: { name: { equals: 'dog' } } }"
+        schemaId="pet store"
+        :canEdit="canEdit"
+        refLabel="${name}"
       />
       Selection: {{ filterValue }}
     </DemoItem>
     <DemoItem>
       <InputRefList
-          id="input-ref-list"
-          label="Ref input list with multiple columns"
-          v-model="multiColumnValue"
-          tableId="Pet"
-          description="This is a multi column input"
-          schemaId="pet store"
-          multipleColumns
-          :canEdit="canEdit"
-          refLabel="${name}"
-
+        id="input-ref-list"
+        label="Ref input list with multiple columns"
+        v-model="multiColumnValue"
+        tableId="Pet"
+        description="This is a multi column input"
+        schemaId="pet store"
+        multipleColumns
+        :canEdit="canEdit"
+        refLabel="${name}"
       />
       Selection: {{ multiColumnValue }}
+    </DemoItem>
+    <DemoItem>
+      <InputRefList
+        id="input-ref-list"
+        label="Ref input list more than the max number shown"
+        v-model="maxNumValue"
+        tableId="Pet"
+        description="This is a multi column input"
+        schemaId="pet store"
+        :maxNum="3"
+        :canEdit="canEdit"
+        refLabel="${name}"
+      />
+      Selection: {{ maxNumValue }}
     </DemoItem>
   </div>
 </template>
 
 <script>
-  export default {
-    data: function () {
-      return {
-        value: null,
-        defaultValue: [{name: "pooky"}, {name: "spike"}],
-        filterValue: [{name: "spike"}],
-        multiColumnValue: null,
-        canEdit: false
-      };
-    },
-  };
+export default {
+  data: function () {
+    return {
+      value: null,
+      defaultValue: [{ name: "pooky" }, { name: "spike" }],
+      filterValue: [{ name: "spike" }],
+      multiColumnValue: null,
+      maxNumValue: null,
+      canEdit: false,
+    };
+  },
+};
 </script>
 </docs>
