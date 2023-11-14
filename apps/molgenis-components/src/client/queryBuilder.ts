@@ -44,7 +44,7 @@ export const getColumnIds = (
           ) +
           " }";
       } else if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
-        result = result + " " + col.id + " {name, label}";
+        result += result + " " + col.id + " {name, label}";
       } else if (col.columnType === "FILE") {
         result += ` ${col.id} { id, size, extension, url }`;
       } else if (col.columnType !== "HEADING") {
