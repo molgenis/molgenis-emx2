@@ -79,28 +79,28 @@
         treatment of patients and to reduce variation in clinical outcomes
         across patients.
       </p>
-      <ul>
+      <ol>
         <li>
-          To provide a sustainable, user-friendly and interoperable web-based
+          <p>To provide a sustainable, user-friendly and interoperable web-based
           registry platform that facilitates standardised registration of data
           on patients with a genturis known at participating Full Member and
           Affiliated Partner Health Care Providers (HCPs) of the ERN GENTURIS as
-          well as other HCPs.
+          well as other HCPs.</p>
         </li>
-        <li>To facilitate <strong>sharing of data</strong> across Europe.</li>
+        <li><p>To facilitate <strong>sharing of data</strong> across Europe.</p></li>
         <li>
-          To be a <strong>unique source of data</strong> of a large number of
-          patients with a genturis or patients highly suspected of a genturis.
-        </li>
-        <li>
-          To enable <strong>European research</strong> ranging from basic
-          research to clinical trials on genturis.
+          <p>To be a <strong>unique source of data</strong> of a large number of
+          patients with a genturis or patients highly suspected of a genturis.</p>
         </li>
         <li>
-          To accelerate the generation of <strong>new knowledge</strong> on
-          genturis through collaborative research.
+          <p>To enable <strong>European research</strong> ranging from basic
+          research to clinical trials on genturis.</p>
         </li>
-      </ul>
+        <li>
+          <p>To accelerate the generation of <strong>new knowledge</strong> on
+          genturis through collaborative research.</p>
+        </li>
+      </ol>
     </PageSection>
     <PageSection
       id="genturis-section-contact"

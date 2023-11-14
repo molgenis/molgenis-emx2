@@ -26,6 +26,5 @@
 </template>
 
 <script setup>
-import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
-import FileList from "../components/FileList.vue";
+import { Page, PageHeader, PageSection, FileList } from "molgenis-viz";
 </script>
