@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { IFilter } from "~/interfaces/types";
+
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
@@ -24,47 +26,47 @@ let filters: IFilter[] = reactive([
   },
   {
     title: "Areas of information",
-    refTable: "AreasOfInformationCohorts",
-    columnName: "areasOfInformation",
+    refTableId: "AreasOfInformationCohorts",
+    columnId: "areasOfInformation",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
   },
   {
     title: "Data categories",
-    refTable: "DataCategories",
-    columnName: "dataCategories",
+    refTableId: "DataCategories",
+    columnId: "dataCategories",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
   },
   {
     title: "Population age groups",
-    refTable: "AgeGroups",
-    columnName: "ageGroups",
+    refTableId: "AgeGroups",
+    columnId: "ageGroups",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
   },
   {
     title: "Sample categories",
-    refTable: "SampleCategories",
-    columnName: "sampleCategories",
+    refTableId: "SampleCategories",
+    columnId: "sampleCategories",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
   },
   {
     title: "Cohort Types",
-    refTable: "ResourceTypes",
-    columnName: "type",
+    refTableId: "ResourceTypes",
+    columnId: "type",
     columnType: "ONTOLOGY",
     conditions: [],
   },
   {
     title: "Design",
-    refTable: "CohortDesigns",
-    columnName: "design",
+    refTableId: "CohortDesigns",
+    columnId: "design",
     columnType: "ONTOLOGY",
     conditions: [],
   },
@@ -176,7 +178,7 @@ if (route.params.catalogue) {
         <template #header>
           <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader
-            title="Cohorts"
+            :title="`Cohorts (${data?.data?.Cohorts_agg.count})`"
             description="Group of individuals sharing a defining demographic characteristic."
           >
             <template #prefix>

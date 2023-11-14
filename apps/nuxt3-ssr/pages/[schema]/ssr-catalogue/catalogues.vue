@@ -141,7 +141,7 @@ let activeName = ref("detailed");
                 v-for="network in data?.data?.Networks"
                 :key="network.name"
               >
-                <NetworkCard
+                <CatalogueCard
                   :network="network"
                   :schema="route.params.schema"
                   :compact="activeName !== 'detailed'"

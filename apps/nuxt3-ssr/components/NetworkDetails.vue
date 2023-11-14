@@ -63,9 +63,7 @@ const query = gql`
     }
   }
 `;
-const variables = route.params.network
-  ? { id: route.params.network }
-  : { id: route.params.catalogue };
+const variables = { id: route.params.network };
 
 let network: INetwork;
 
@@ -153,10 +151,10 @@ let tocItems = computed(() => {
     });
   }
 
-  if (network?.cohorts_agg.count > 0) {
+  if (networkData.value.data.Cohorts_agg.count > 0) {
     tableOffContents.push({ label: "Cohorts", id: "cohorts" });
   }
-  if (network?.dataSources_agg.count > 0) {
+  if (networkData?.dataSources_agg.count > 0) {
     tableOffContents.push({ label: "Data sources", id: "datasources" });
   }
 
@@ -286,7 +284,7 @@ if (route.params.catalogue) {
     </template>
     <template #side>
       <SideNavigation
-        :title="network.acronym"
+        :title="network?.acronym || network?.name"
         :image="network?.logo?.url"
         :items="tocItems"
       />

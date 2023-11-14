@@ -102,50 +102,50 @@ function percentageLongitudinal(
         icon="demography"
         title="Cohort studies"
         :count="data.data.Cohorts_agg.count"
-        :link="`${route.path}/browse/cohorts`"
+        :link="`/${route.params.schema}/ssr-catalogue/browse/cohorts`"
       />
       <LandingCardSecondary
         icon="database"
         title="Data sources"
         :count="data.data.DataSources_agg.count"
-        :link="`${route.path}/browse/datasources`"
+        :link="`/${route.params.schema}/ssr-catalogue/browse/datasources`"
       />
       <LandingCardSecondary
         icon="hub"
         title="Networks"
         :count="data.data.Networks_agg.count"
-        :link="`${route.path}/browse/networks`"
+        :link="`/${route.params.schema}/ssr-catalogue/browse/networks`"
       />
       <LandingCardSecondary
         icon="institution"
         title="Organisations"
         :count="data.data.Organisations_agg.count"
-        :link="`${route.path}/browse/organisations`"
+        :link="`/${route.params.schema}/ssr-catalogue/browse/organisations`"
       />
       <LandingCardSecondary
         icon="dataset"
         title="Datasets"
         :count="data.data.Cohorts_agg.count"
-        :link="`${route.path}/browse/datasets`"
+        :link="`/${route.params.schema}/ssr-catalogue/browse/datasets`"
       />
       <LandingCardSecondary
         icon="list"
         title="Collected variables"
         :count="data.data.Networks_agg.count"
-        :link="`${route.path}/browse/variables`"
+        :link="`/${route.params.schema}/ssr-catalogue/browse/variables`"
       />
       <!-- todo must split in collected and harmonized -->
       <LandingCardSecondary
         icon="harmonized-variables"
         title="Harmonized variables"
         :count="data.data.Organisations_agg.count"
-        :link="`${route.path}/browse/variables`"
+        :link="`/${route.params.schema}/ssr-catalogue/browse/variables`"
       />
       <LandingCardSecondary
         icon="dataset-linked"
         title="Standards"
         :count="data.data.Models_agg.count"
-        :link="`${route.path}/browse/models`"
+        :link="`/${route.params.schema}/ssr-catalogue/browse/models`"
       />
       <LandingCardSecondary
         icon="person"
