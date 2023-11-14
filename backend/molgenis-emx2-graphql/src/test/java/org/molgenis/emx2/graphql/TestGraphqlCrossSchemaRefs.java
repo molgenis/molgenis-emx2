@@ -1,7 +1,6 @@
 package org.molgenis.emx2.graphql;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -40,6 +39,9 @@ public class TestGraphqlCrossSchemaRefs {
 
   @Test
   public void test() throws IOException {
+    // schema should NOT return external tables, regression test for #2982 and #2983
+    assertFalse(execute("{_schema{tables{name}}}").toString().contains("Parent"));
+
     assertEquals(
         "parent1", execute("{Child{name,parent{name}}}").at("/Child/0/parent/name").asText());
 
