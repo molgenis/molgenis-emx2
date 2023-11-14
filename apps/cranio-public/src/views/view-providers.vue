@@ -15,7 +15,7 @@
         the list below, you can view the dashboards that you have access to.
       </p>
     </PageSection>
-    <PageSection class="section-bg-light-blue" :verticalPadding="2">
+    <PageSection class="bg-blue-050" :verticalPadding="2">
       <h2>View Providers</h2>
       <MessageBox type="error" v-if="error">
         <p>Unable to retrieve data {{ error }}</p>
@@ -26,15 +26,17 @@
           class="provider"
           :data-provider-id="provider.id"
         >
-          <div class="name">
+          <div class="provider-data name">
             <h3>{{ provider.name }}</h3>
           </div>
-          <div class="location">
-            <p class="city">{{ provider.city }}</p>
-            <p class="country">{{ provider.country }}</p>
+          <div class="provider-data city">
+            <p>{{ provider.city }}</p>
           </div>
-          <div class="link">
-            <a :href="`/${provider.id}/`">
+          <div class="provider-data country">
+            <p>{{ provider.country }}</p>
+          </div>
+          <div class="provider-data link">
+            <a :href="`/${provider.schemaName}/`">
               <span>View</span>
               <LinkIcon />
             </a>
@@ -47,136 +49,137 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import Breadcrumbs from "../components/breadcrumbs.vue";
-import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
-
+import Breadcrumbs from "../components/breadcrumbs.vue";
+import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
 import { ChevronRightIcon as LinkIcon } from "@heroicons/vue/24/outline";
 
 let error = ref(false);
-let schemas = ref([]);
 let providers = ref([]);
 
-async function getSchemas() {
+async function getOrganisations() {
   const query = gql`
     {
-      _schemas {
+      Organisations(filter: { hasSchema: { equals: true } }) {
         name
+        city
+        country
+        providerInformation {
+          providerIdentifier
+        }
+        schemaName
       }
     }
   `;
-  const response = await request("/graphql", query);
-  schemas.value = response._schemas
-    .map((schema) => schema.name)
-    .filter((schema) => schema !== "CranioStats");
-}
-
-async function getOrganisations() {
-  const filters = schemas.value.map((schema) => {
-    return `{
-      providerInformation: {
-        providerIdentifier: { equals: "${schema}"}
-      }
-    }`;
-  });
-
-  const query = gql`{
-    Organisations (
-      filter: {
-        _or: [${filters}]
-      }
-    ) {
-      name
-      city
-      country
-      latitude
-      longitude
-      providerInformation {
-        providerIdentifier
-        hasSubmittedData
-      }
-    }
-  }`;
 
   const response = await request("../api/graphql", query);
   providers.value = response.Organisations.map((row) => {
-    return { ...row, id: row.providerInformation[0].providerIdentifier };
-  }).sort((current, next) => {
-    return current.name < next.name ? -1 : 1;
-  });
-}
-
-async function loadData() {
-  await getSchemas();
-  await getOrganisations();
+    return {
+      id: row.providerInformation[0].providerIdentifier,
+      ...row,
+    };
+  }).sort((current, next) => (current.name < next.name ? -1 : 1));
 }
 
 onMounted(() => {
-  loadData().catch((err) => (error.value = err));
+  getOrganisations().catch((err) => (error.value = err));
 });
 </script>
 
 <style lang="scss">
+$borderRadius: 24pt;
+
 .provider-listings {
   padding: 1em 0;
 
-  $borderRadius: 24pt;
-
   .provider {
     display: grid;
-    grid-template-columns: repeat(2, 1fr) 100px;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    box-sizing: content-box;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      "name name"
+      "city country"
+      "link link";
+    gap: 1em;
     background-color: $gray-000;
-    padding: 1em;
-    margin-bottom: 1.3em;
     border-radius: $borderRadius;
+    box-sizing: content-box;
+    padding: 1em 1.5em;
+    margin-bottom: 1.3em;
 
     &:last-child {
       margin-bottom: 0;
     }
 
-    div {
+    .provider-data {
       flex-grow: 1;
       font-size: 13pt;
+      p {
+        margin-bottom: 0;
+      }
     }
 
     .name {
-      padding: 0 1.5em;
+      grid-area: name;
+      word-break: break-word;
+
       h3 {
-        text-align: left;
-        color: $blue-900;
         font-size: 13pt;
+        color: $blue-800;
       }
     }
 
-    .location {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      p {
-        margin: 0;
-        color: $blue-700;
-      }
+    .city {
+      grid-area: city;
+      text-align: right;
+    }
+
+    .country {
+      grid-area: country;
     }
 
     .link {
+      grid-area: link;
+
       a {
         display: block;
         text-align: center;
-        padding: 8px 0;
         border-radius: $borderRadius;
         background-color: $ern-cranio-primary;
+        padding: 0.6em 0.2em;
         color: $gray-000;
         @include textTransform(bold);
-        font-size: 10pt;
+        font-size: 0.85rem;
+        text-decoration: none;
 
         svg {
-          width: 11pt;
-          stroke-width: 3px;
-          margin-top: -4px;
+          margin-top: -2px;
+          width: 12px;
+          height: 12px;
+          path {
+            stroke-width: 5px;
+          }
         }
+      }
+    }
+
+    @media (min-width: 636px) {
+      grid-template-columns: 2fr 1fr 1fr 100px;
+      grid-template-areas: "name city country link";
+      gap: 0.2em;
+      .name {
+        h3 {
+          text-align: left;
+        }
+      }
+      .city {
+        text-align: center;
+      }
+
+      .country {
+        text-align: center;
       }
     }
   }

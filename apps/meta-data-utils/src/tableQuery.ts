@@ -1,9 +1,10 @@
 import {
-  IColumn,
-  ISchemaMetaData,
-  ITableMetaData,
-  KeyObject,
-} from "~~/interfaces/types";
+  isValueType,
+  isRefType,
+  isArrayType,
+  isFileType,
+} from "./fieldHelpers";
+import { ISchemaMetaData, ITableMetaData, IColumn, KeyObject } from "./types";
 
 const FILE_FRAGMENT = "{ id, size, extension, url }";
 

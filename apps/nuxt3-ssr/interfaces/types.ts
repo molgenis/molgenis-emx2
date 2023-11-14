@@ -1,3 +1,10 @@
+import {
+  IColumn,
+  ISetting,
+  ISchemaMetaData,
+  ITableMetaData,
+  KeyObject,
+} from "meta-data-utils";
 export interface IResource {
   id: string;
   pid: string;
@@ -182,11 +189,6 @@ export interface IOntologyNode extends ITreeNode {
   ontologyTermURI?: string;
 }
 
-interface ISetting {
-  key: string;
-  value: string;
-}
-
 interface IBaseFilter {
   title: string;
   initialCollapsed?: boolean;
@@ -231,46 +233,6 @@ export enum INotificationType {
   info,
 }
 
-export interface IColumn {
-  columnType: string;
-  id: string;
-  label: string;
-  computed?: string;
-  conditions?: string[];
-  description?: string;
-  key?: number;
-  position?: number;
-  readonly?: string;
-  refBackId?: string;
-  refLabel?: string;
-  refLabelDefault?: string;
-  refLinkId?: string;
-  refSchemaId?: string;
-  refTableId?: string;
-  required?: boolean;
-  semantics?: string[];
-  validation?: string;
-  visible?: string;
-}
-
-export interface ITableMetaData {
-  id: string;
-  label: string;
-  description?: string;
-  tableType: string;
-  columns: IColumn[];
-  schemaId: string;
-  semantics?: string[];
-  settings?: ISetting[];
-}
-
-export interface ISchemaMetaData {
-  id: string;
-  label: string;
-  description?: string;
-  tables: ITableMetaData[];
-}
-
 export interface ISectionField {
   meta: IColumn;
   value: any;
@@ -280,12 +242,6 @@ export interface ISection {
   meta: IColumn;
   fields: ISectionField[];
 }
-
-// workaround needed as circular references are not supported for records
-export type KeyObject = {
-  [key: string]: KeyObject | string;
-};
-
 export interface IMapping {
   syntax: string;
   description: string;

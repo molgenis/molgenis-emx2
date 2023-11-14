@@ -3,8 +3,7 @@ import { defineNuxtConfig } from "nuxt/config";
 
 const devProxy = {
   options: {
-    target:
-      process.env.PROXY_TARGET || "https://data-catalogue.molgeniscloud.org/", // 'http://localhost:8080/',
+    target: process.env.PROXY_TARGET || "http://localhost:8080/",
     pathFilter: ["**/*/graphql", "**/api/file/**", "**/api/message/**"],
     changeOrigin: true,
     secure: false,
@@ -13,7 +12,7 @@ const devProxy = {
 };
 
 const config = {
-  modules: ["nuxt-proxy", "@nuxt/image-edge"],
+  modules: ["nuxt-proxy", "@nuxt/image"],
   devtools: { enabled: true },
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side

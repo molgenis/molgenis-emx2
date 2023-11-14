@@ -1,7 +1,7 @@
 <template>
   <div class="value-showcase">
     <div class="icon">
-      <slot></slot>
+      <slot name="icon"></slot>
     </div>
     <h2 class="title">{{ title }}</h2>
     <p class="description">{{ description }}</p>
@@ -24,9 +24,17 @@ const props = defineProps({
 <style lang="scss">
 .value-showcase {
   display: grid;
-  grid-template-areas:
-    "icon title"
-    "icon description";
+  grid-template-areas: "icon" "title" "description";
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 0.3em;
+
+  @media (min-width: 712px) {
+    grid-template-areas: "icon title" "icon description";
+    align-items: center;
+    text-align: left;
+  }
 
   .icon {
     grid-area: icon;
@@ -36,7 +44,7 @@ const props = defineProps({
     margin-right: 1em;
 
     svg {
-      $size: 24pt;
+      $size: 28pt;
       width: $size;
       height: $size;
     }
@@ -45,7 +53,7 @@ const props = defineProps({
   .title {
     grid-area: title;
     font-weight: bold;
-    font-size: 14pt;
+    font-size: 15pt;
     margin: 0;
   }
 

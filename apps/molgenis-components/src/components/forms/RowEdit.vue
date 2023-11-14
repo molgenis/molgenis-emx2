@@ -9,7 +9,7 @@
       :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
       :label="column.label"
-      :schemaId="column.refSchemaId ? column.refSchemaId : schemaMetaData.id"
+      :schemaId="column.refSchemaId || schemaMetaData.id"
       :pkey="pkey"
       :readonly="
         column.readonly ||
@@ -17,7 +17,7 @@
         (column.computed !== undefined && column.computed.trim() !== '')
       "
       :refBackId="column.refBackId"
-      :refLabel="column.refLabel ? column.refLabel : column.refLabelDefault"
+      :refLabel="column.refLabel || column.refLabelDefault"
       :required="column.required"
       :tableId="column.refTableId"
       :canEdit="canEdit"

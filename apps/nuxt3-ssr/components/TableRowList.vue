@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { IFilter, ISchemaMetaData, ITableMetaData } from "~/interfaces/types";
+import type { ISchemaMetaData, ITableMetaData } from "meta-data-utils";
+import type { IFilter } from "~~/interfaces/types";
+import {
+  buildRecordListQueryFields,
+  extractExternalSchemas,
+  extractKeyFromRecord,
+} from "meta-data-utils";
+
 const config = useRuntimeConfig();
 const route = useRoute();
 const router = useRouter();
