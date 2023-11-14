@@ -1,6 +1,6 @@
 <template>
   <ProviderDashboard>
-    <h2 class="dashboard-h2">General overview for your centers</h2>
+    <h2 class="dashboard-h2">General overview for your center</h2>
     <DashboardBox class="mb-4">
       <InputLabel id="yearOfBirthFilter" label="Filter data by year of birth" />
       <select
