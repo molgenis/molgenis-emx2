@@ -1,3 +1,11 @@
+
+// set svg icon dimensions
+@mixin setIconSize($size: 18pt) {
+  width: $size;
+  height: $size;
+}
+
+// apply uppercase treatment to text elements
 @mixin textTransform($weight: 400) {
   text-transform: uppercase;
   font-size: 11pt;
@@ -5,6 +13,7 @@
   letter-spacing: 0.08em;
 }
 
+// properly hide elements visually
 @mixin visuallyHidden {
   position: absolute;
   clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
@@ -16,10 +25,10 @@
   white-space: nowrap;
 }
 
+// apply uppercase treatment to href elements
 @mixin linkTextTransform {
-  font-size: 11pt;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
+  @include textTransform;
+
   a {
     text-decoration: none;
 
@@ -29,18 +38,22 @@
   }
 }
 
+// position all child elements to the top left corner
 @mixin flexStartAll {
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
 }
 
+// position all child elements: top center
 @mixin flexStartCenter {
   display: flex;
   justify-content: flex-start;
   align-items: center;
 }
 
+
+// center all child elements
 @mixin flexCenterAll {
   display: flex;
   justify-content: center;

@@ -39,6 +39,9 @@ import PieChart2 from "../src/components/viz/PieChart2.vue";
 import ProgressMeter from "../src/components/viz/ProgressMeter.vue";
 import ScatterPlot from "../src/components/viz/ScatterPlot.vue";
 
+// views
+import FileList from "../src/components/FileList.vue";
+
 // data
 import WorldGeoJson from "../src/data/world.geo.json";
 
@@ -93,6 +96,9 @@ export {
 
   // datasets
   WorldGeoJson,
+  
+  // views
+  FileList,
 
   // utils
   asDataObject,
