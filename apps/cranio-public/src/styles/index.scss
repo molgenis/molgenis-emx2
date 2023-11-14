@@ -26,11 +26,11 @@
   }
 
   .page-section {
-    &.section-bg-light-blue {
+    &.bg-blue-050 {
       background-color: $blue-050;
     }
 
-    &.section-bg-light-gray {
+    &.bg-gray-050 {
       background-color: $gray-050;
     }
 
@@ -44,6 +44,16 @@
         @include textTransform(bold);
         margin: 0 auto;
         margin-top: 1em;
+      }
+    }
+
+    a,
+    p,
+    li {
+      .heroicons {
+        $size: 18px;
+        width: $size;
+        height: $size;
       }
     }
   }

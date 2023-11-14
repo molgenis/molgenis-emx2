@@ -1,6 +1,6 @@
 <template>
   <ProviderDashboard>
-    <h2 class="dashboard-h2">General overview for all centers</h2>
+    <h2 class="dashboard-h2">General overview for your center</h2>
     <DashboardBox class="mb-4">
       <InputLabel id="yearOfBirthFilter" label="Filter data by year of birth" />
       <select
@@ -13,9 +13,9 @@
       </select>
     </DashboardBox>
     <DashboardChartLayout :columns="1">
-      <DashboardBox id="type-of-craniosynostosis">
+      <DashboardBox>
         <ColumnChart
-          chartId="craniosynostosis-types"
+          chartId="cs-center-type-of-craniosynostosis"
           title="Type of craniosynostosis"
           :chartData="craniosynostosisTypes"
           xvar="type"
@@ -61,30 +61,13 @@
         />
       </DashboardBox>
     </DashboardChartLayout>
-    <h3 class="dashboard-h3">Patients Overview</h3>
-    <DashboardChartLayout :columns="1">
-      <DashboardBox>
-        <ColumnChart
-          chartId="countryOfResidence"
-          title="Patients by country of residence"
-          description="Total number of patients residing in each country"
-          :chartData="countryOfResidence"
-          xvar="country"
-          yvar="value"
-          :yMax="100"
-          :yTickValues="[0, 25, 50, 75, 100]"
-          :chartHeight="225"
-          :columnColorPalette="colors.countries"
-        />
-      </DashboardBox>
-    </DashboardChartLayout>
   </ProviderDashboard>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { DashboardBox, InputLabel, ColumnChart } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
+import { DashboardBox, ColumnChart, InputLabel } from "molgenis-viz";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
@@ -92,12 +75,12 @@ const props = defineProps({
   organization: Object,
 });
 
-// generate random data
+// define random data
 import { randomInt } from "d3";
-import generateColors from "../utils/palette";
+import generateColors from "../utils/palette.js";
 
+let csTotalCases = ref(0);
 let craniosynostosisTypes = ref([]);
-let countryOfResidence = ref([]);
 let affectedSuture = ref([]);
 let sutureTypes = ref([]);
 let showSutureTypes = ref(false);
@@ -106,7 +89,6 @@ let colors = ref({
   craniosynostosis: {},
   affectedSuture: {},
   sutureType: {},
-  countries: {},
 });
 
 /// generate random data for craniosynostosis types
@@ -154,17 +136,6 @@ function setSutureTypes() {
   });
 }
 
-// generate random data for "country of residence"
-function setCountryOfResidence() {
-  const types = ["NL", "FR", "GE", "ES", "PO", "SE"];
-  colors.value.countries = generateColors(types);
-  countryOfResidence.value = types
-    .map((country) => {
-      return { country: country, value: randomInt(10, 100)() };
-    })
-    .sort((a, b) => (a.country < b.country ? -1 : 1));
-}
-
 // set update sutute type selection
 function updateSutureTypes(value) {
   const total = JSON.parse(value).count;
@@ -180,33 +151,13 @@ function updateSutureTypes(value) {
   showSutureTypes.value = true;
 }
 
-setCraniosynostosisTypes();
-setAffectedSuture();
-setCountryOfResidence();
-setSutureTypes();
-
 function onYearOfBirthFilter() {
   setCraniosynostosisTypes();
   setAffectedSuture();
-  setCountryOfResidence();
   setSutureTypes();
 }
-</script>
 
-<style lang="scss">
-.chart-axis-x-angled-text {
-  .chart-axes {
-    .chart-axis-x {
-      .tick {
-        text {
-          @media (min-width: 835px) {
-            transform: rotate(-20deg);
-            transform-origin: 0 -10%;
-            text-anchor: end;
-          }
-        }
-      }
-    }
-  }
-}
-</style>
+setCraniosynostosisTypes();
+setAffectedSuture();
+setSutureTypes();
+</script>

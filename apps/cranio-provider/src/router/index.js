@@ -6,7 +6,7 @@ import ProviderOverview from "../views/provider-overview.vue";
 import ProviderCsApp from "../views/provider-cs-app.vue";
 import ProvidersCsAllGeneral from "../views/provider-cs-all-general.vue";
 import ProvidersCsAllSurgical from "../views/provider-cs-all-surgical.vue";
-import ProvidersCsCenterGeneral from "../views/provider-cs-center-overview.vue";
+import ProvidersCsCenterGeneral from "../views/provider-cs-center-general.vue";
 import ProvidersCsCenterSurgical from "../views/provider-cs-center-surgical.vue";
 
 // cleft lip and palate pages (id: `-clp-`)
@@ -17,7 +17,8 @@ import ProviderClpAllCenters from "../views/provider-clp-all-centers.vue";
 import ProviderGeneticDeafness from "../views/provider-genetic-deafness.vue";
 import ProviderLarnyxcleft from "../views/provider-larnyxcleft.vue";
 
-// For new routes, use the property `meta` to define the document title
+import ErrorPage from "../views/view-404.vue";
+
 // E.g., {..., meta: {title: 'My Page'}}
 const project = "ERN CRANIO";
 
@@ -121,6 +122,13 @@ const router = createRouter({
       meta: {
         title: "Larnyxcleft",
       },
+    },
+
+    // error
+    {
+      name: "404",
+      path: "/:pathMatch(.*)*",
+      component: ErrorPage,
     },
   ],
   scrollBehavior(to, from, savedPosition) {

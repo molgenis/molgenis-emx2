@@ -1,77 +1,61 @@
 <template>
   <ProviderDashboard>
-    <h2 class="dashboard-h2">Overview "level 1" outcomes</h2>
-    <DashboardChartLayout :columns="2">
-      <DashboardBox id="clp-outcome-cleft-q" class="mb-4 mt-4">
+    <h2 class="dashboard-h2 mb-4">
+      Overview of patients {{ ageGroupFilter }} years old (n={{ totalCases }})
+    </h2>
+    <DashboardBox class="mb-4">
+      <h3>Options</h3>
+      <InputLabel
+        id="yearOfBirthFilter"
+        label="Year of birth"
+        description="Limit the results by year of birth"
+      />
+      <select
+        class="inputs select"
+        id="yearOfBirthFilter"
+        @change="onYearOfBirthFilter"
+      >
+        <option value="3-4" selected>3-4 years</option>
+        <option value="5-6">5-6 years</option>
+        <option value="8-9">8-9 years</option>
+        <option value="10-12">10-12 years</option>
+        <option value="18+">18+ years</option>
+      </select>
+    </DashboardBox>
+    <DashboardChartLayout :columns="1">
+      <DashboardBox
+        id="clp-outcome-cleft-q"
+        class="mb-4 mt-4"
+        v-if="showCleftOutcomes"
+      >
         <GroupedColumnChart
           chartId="clp-outcome-cleft-q-hcp-ern"
-          title="Cleft-Q Outcomes after treatment"
+          title="Cleft-Q Outcomes"
           :chartData="cleftOutcomes"
           group="group"
           xvar="category"
           yvar="value"
           :yMax="100"
           :yTickValues="[0, 25, 50, 75, 100]"
-          :columnFillPalette="{
-            'Your Center': '#b2e2e2',
-            'ERN Average': '#66c2a4',
-          }"
+          :columnFillPalette="colors"
           :chartHeight="250"
         />
       </DashboardBox>
-      <DashboardBox id="clp-outcome-cleft-q" class="mb-4 mt-4">
+      <DashboardBox
+        id="clp-outcome-cleft-q"
+        class="mb-4 mt-4"
+        v-if="showIcsOutcomes"
+      >
         <GroupedColumnChart
           chartId="clp-outcome-ics-hcp-ern"
-          title="ICS Outcomes after treatment"
+          title="ICS Outcomes"
           :chartData="icsOutcomes"
           group="group"
           xvar="category"
           yvar="value"
-          :yMax="100"
-          :yTickValues="[0, 25, 50, 75, 100]"
-          :columnFillPalette="{
-            'Your Center': '#b2e2e2',
-            'ERN Average': '#66c2a4',
-          }"
-          :chartHeight="250"
-        />
-      </DashboardBox>
-    </DashboardChartLayout>
-    <h2 class="dashboard-h2">Overview of speech outcomes</h2>
-    <DashboardChartLayout :columns="2">
-      <DashboardBox class="mt-4 mb-4">
-        <GroupedColumnChart
-          chartId="clp-outcome-speech-pcc"
-          title="PCC Scores after treatment"
-          :chartData="speechPccOutcomes"
-          group="group"
-          xvar="category"
-          yvar="value"
-          :yMax="20"
-          xAxisLabel="Age (yrs)"
-          :yTickValues="[0, 5, 10, 15, 20]"
-          :columnFillPalette="{
-            'Your Center': '#b2e2e2',
-            'ERN Average': '#66c2a4',
-          }"
-          :chartHeight="250"
-        />
-      </DashboardBox>
-      <DashboardBox class="mt-4 mb-4">
-        <GroupedColumnChart
-          chartId="clp-outcome-speech-vpc"
-          title="VPC Scores after treatment"
-          :chartData="speechVpcOutcomes"
-          group="group"
-          xvar="category"
-          yvar="value"
-          :yMax="20"
-          xAxisLabel="Age (yrs)"
-          :yTickValues="[0, 5, 10, 15, 20]"
-          :columnFillPalette="{
-            'Your Center': '#b2e2e2',
-            'ERN Average': '#66c2a4',
-          }"
+          :yMax="10"
+          :yTickValues="[0, 5, 10]"
+          :columnFillPalette="colors"
           :chartHeight="250"
         />
       </DashboardBox>
@@ -81,60 +65,54 @@
 
 <script setup>
 import { ref } from "vue";
-import { DashboardBox, GroupedColumnChart } from "molgenis-viz";
+import { DashboardBox, GroupedColumnChart, InputLabel } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
-const props = defineProps({
-  user: String,
-  organization: Object,
-});
-
 // generate random data for display purposes
 import { randomGroupDataset } from "../utils/devtools";
+let cleftOutcomes = ref([]);
+let icsOutcomes = ref([]);
+let showCleftOutcomes = ref(false);
+let showIcsOutcomes = ref(true);
+let ageGroupFilter = ref("3-4");
+let totalCases = ref(0);
 
-let cleftOutcomes = ref(
-  randomGroupDataset(
+const colors = { "Your Center": "#66c2a4", "ERN Average": "#9f6491" };
+
+function setOutcomesData() {
+  cleftOutcomes.value = randomGroupDataset(
     ["Your Center", "ERN Average"],
     ["Jaw", "Lip", "School", "Social", "Speech"],
-    1,
+    5,
     100
-  )
-);
+  );
 
-let icsOutcomes = ref(
-  randomGroupDataset(
+  icsOutcomes.value = randomGroupDataset(
     ["Your Center", "ERN Average"],
-    ["Jaw", "Lip", "School", "Social", "Speech"],
+    ["Average total score", "Total score"],
     1,
-    100
-  )
-);
+    10
+  );
 
-let speechPccOutcomes = ref(
-  randomGroupDataset(
-    ["Your Center", "ERN Average"],
-    ["3", "5-6", "8-12", "18+"],
-    1,
-    20
-  )
-);
-
-let speechVpcOutcomes = ref(
-  randomGroupDataset(
-    ["Your Center", "ERN Average"],
-    ["3", "5-6", "8-12", "18+"],
-    1,
-    20
-  )
-);
-</script>
-
-<style lang="scss">
-#provider-clp {
-  .provider-visualizations {
-    grid-template-columns: 1fr 1fr;
-    margin-bottom: 2em;
+  if (showCleftOutcomes.value) {
+    totalCases.value = cleftOutcomes.value
+      .map((row) => row.value)
+      .reduce((sum, value) => sum + value, 0);
+  } else {
+    totalCases.value = icsOutcomes.value
+      .map((row) => row.value)
+      .reduce((sum, value) => sum + value, 0);
   }
 }
-</style>
+
+function onYearOfBirthFilter(event) {
+  const ageGroup = event.target.value;
+  ageGroupFilter.value = ageGroup;
+  showCleftOutcomes.value = ["8-9", "10-12", "18+"].includes(ageGroup);
+  showIcsOutcomes.value = ["3-4", "5-6"].includes(ageGroup);
+  setOutcomesData();
+}
+
+setOutcomesData();
+</script>
