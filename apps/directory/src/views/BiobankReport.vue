@@ -87,6 +87,10 @@
                           v-for="network in networks"
                           :key="network.id"
                         ></report-details-list>
+                        <template v-if="alsoKnownIn.length > 0">
+                          <h5>Also Known In</h5>
+                          <ReportDetailsList :reportDetails="alsoKnownIn" />
+                        </template>
                         <h5
                           v-if="
                             quality &&
@@ -99,10 +103,6 @@
                         <report-details-list
                           :reportDetails="quality"
                         ></report-details-list>
-                        <template v-if="alsoKnownIn.length > 0">
-                          <h5>Also Known In</h5>
-                          <ReportDetailsList :reportDetails="alsoKnownIn" />
-                        </template>
                       </ul>
                     </div>
                   </div>

@@ -9,12 +9,12 @@
               <template v-if="info.head">
                 <li>
                   <span class="font-weight-bold mr-1">Head/PI:</span>
-                  <span>{{ info.head }}</span>
+                  <div>{{ info.head }}</div>
                 </li>
               </template>
               <li v-if="info.contact.name">
                 <span class="font-weight-bold mr-1">Contact:</span>
-                <span>{{ info.contact.name }}</span>
+                <div>{{ info.contact.name }}</div>
               </li>
               <li v-if="info.contact.email">
                 <span
