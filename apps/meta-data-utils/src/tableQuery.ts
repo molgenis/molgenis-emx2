@@ -1,31 +1,43 @@
-import {
+import type {
   IColumn,
   ISchemaMetaData,
   ITableMetaData,
   KeyObject,
-} from "~~/interfaces/types";
+} from "./types";
+import {
+  isValueType,
+  isArrayType,
+  isFileType,
+  isRefType,
+} from "./fieldHelpers";
 
 const FILE_FRAGMENT = "{ id, size, extension, url }";
 
 export const buildRecordDetailsQueryFields = (
   schemas: Record<string, ISchemaMetaData>,
-  schemaId: string,
+  schemaName: string,
   tableId: string
 ): string => {
-  const schemaMetaData = schemas[schemaId];
+  const schemaMetaData = schemas[schemaName];
   const tableMetaData = schemaMetaData.tables.find(
-    (t: ITableMetaData) => t.id === tableId
+    (t: ITableMetaData) =>
+      t.id.toLocaleLowerCase() === tableId.toLocaleLowerCase()
   );
 
   const allColumns = tableMetaData?.columns;
   const dataColumns = allColumns
-    ?.filter((c) => !c.id.startsWith("mg_"))
+    ?.filter((c) => !c.name.startsWith("mg_"))
     .filter((c) => c.columnType !== "HEADING");
 
   const refTableQueryFields = (refColumn: IColumn): string => {
     const refTableMetaData = schemas[
-      refColumn.refSchemaId || schemaId
-    ].tables.find((t: ITableMetaData) => t.id === refColumn.refTableId);
+      refColumn.refSchema || schemaName
+    ].tables.find(
+      (t: ITableMetaData) =>
+        t.id.toLocaleLowerCase() ===
+        // @ts-ignore we know that refTable is not undefined
+        convertToPascalCase(refColumn.refTable).toLocaleLowerCase()
+    );
 
     const allRefColumns = refTableMetaData?.columns;
 
@@ -80,19 +92,19 @@ export const buildRecordDetailsQueryFields = (
 };
 
 export const buildRecordListQueryFields = (
-  tableId: string,
-  schemaId: string,
+  tableName: string,
+  schemaName: string,
   schemas: Record<string, ISchemaMetaData>
 ) => {
-  const keyFields = buildKeyFields(tableId, schemaId, schemas);
-  const tableMetaData = getTableMetaData(schemas[schemaId], tableId);
+  const keyFields = buildKeyFields(tableName, schemaName, schemas);
+  const tableMetaData = getTableMetaData(schemas[schemaName], tableName);
 
   if (tableMetaData === undefined) {
     throw new Error(
-      "buildRecordListQueryFields; tableMetaData is undefined for tableId " +
-        tableId +
+      "buildRecordListQueryFields; tableMetaData is undefined for tableName " +
+        tableName +
         " in schema " +
-        schemaId
+        schemaName
     );
   }
 
@@ -101,6 +113,7 @@ export const buildRecordListQueryFields = (
   // suggested list fields that are part of this tableType
   const additionalFields: any = [
     "id",
+    "name",
     "label",
     "description",
     "pid",
@@ -131,12 +144,12 @@ const fieldsToQueryString = (fields: string[][]): string => {
 };
 
 const buildKeyFields = (
-  tableId: string,
-  schemaId: string,
+  tableName: string,
+  schemaName: string,
   schemas: Record<string, ISchemaMetaData>
 ) => {
-  const schemaMetaData = schemas[schemaId];
-  const tableMetaData = getTableMetaData(schemaMetaData, tableId);
+  const schemaMetaData = schemas[schemaName];
+  const tableMetaData = getTableMetaData(schemaMetaData, tableName);
 
   const keyFields = tableMetaData.columns.reduce(
     (acc: any, column: IColumn) => {
@@ -144,20 +157,20 @@ const buildKeyFields = (
         if (isValueType(column)) {
           acc.push(column.id);
         } else if (isRefType(column)) {
-          if (!column.refTableId) {
+          if (!column.refTable) {
             throw new Error(
               "refTable is undefined for refColumn with id " +
                 column.id +
                 " in table " +
-                tableId +
+                tableName +
                 ""
             );
           } else {
             acc.push(column.id);
             acc.push(
               buildKeyFields(
-                column.refTableId,
-                column.refSchemaId || schemaId,
+                column.refTable,
+                column.refSchema || schemaName,
                 schemas
               )
             );
@@ -188,8 +201,8 @@ export const extractExternalSchemas = (schemaMetaData: ISchemaMetaData) => {
     ...new Set(
       schemaMetaData.tables.reduce((acc: string[], table: ITableMetaData) => {
         table.columns.forEach((column: IColumn) => {
-          if (column.refSchemaId) {
-            acc.push(column.refSchemaId);
+          if (column.refSchema) {
+            acc.push(column.refSchema);
           }
         });
         return acc;
@@ -200,31 +213,31 @@ export const extractExternalSchemas = (schemaMetaData: ISchemaMetaData) => {
 
 export const extractKeyFromRecord = (
   record: any,
-  tableId: string,
+  tableName: string,
   schemaId: string,
   schemas: Record<string, ISchemaMetaData>
 ) => {
   const schemaMetaData = schemas[schemaId];
-  const tableMetaData = getTableMetaData(schemaMetaData, tableId);
+  const tableMetaData = getTableMetaData(schemaMetaData, tableName);
 
   const key = tableMetaData.columns.reduce((acc: any, column: IColumn) => {
     if (column.key === 1 && record[column.id]) {
       if (isValueType(column)) {
         acc[column.id] = record[column.id];
       } else if (isRefType(column)) {
-        if (!column.refTableId) {
+        if (!column.refTable) {
           throw new Error(
             "refTable is undefined for refColumn with id " +
               column.id +
               " in table " +
-              tableId +
+              tableName +
               ""
           );
         } else {
           acc[column.id] = extractKeyFromRecord(
             record[column.id],
-            column.refTableId,
-            column.refSchemaId || schemaId,
+            column.refTable,
+            column.refSchema || schemaId,
             schemas
           );
         }
@@ -262,16 +275,29 @@ export const buildFilterFromKeysObject = (keys: KeyObject) => {
 
 export const getTableMetaData = (
   schemaMetaData: ISchemaMetaData,
-  tableId: string
+  tableName: string
 ): ITableMetaData => {
   const tableMetaData = schemaMetaData.tables.find(
-    (t: ITableMetaData) => t.id === tableId
+    (t: ITableMetaData) =>
+      t.name.toLocaleLowerCase() === tableName.toLocaleLowerCase()
   );
 
   if (tableMetaData === undefined) {
-    const msg = "ERROR: tableMetaData is undefined for tableId " + tableId;
+    const msg = "ERROR: tableMetaData is undefined for tableName " + tableName;
     console.log(msg);
     throw new Error(msg);
   }
   return tableMetaData;
 };
+
+function convertToPascalCase(string: string): string {
+  const words = string.trim().split(/\s+/);
+  let result = "";
+  words.forEach((word: string) => {
+    result += word.charAt(0).toUpperCase();
+    if (word.length > 1) {
+      result += word.slice(1);
+    }
+  });
+  return result;
+}
