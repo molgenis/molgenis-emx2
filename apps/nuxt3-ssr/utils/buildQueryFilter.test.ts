@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 import { buildQueryFilter } from "./buildQueryFilter";
-import { IFilter } from "~/interfaces/types";
+import { type IFilter } from "~/interfaces/types";
 
 describe("buildQueryFilter", () => {
   let filters: IFilter[] = [

@@ -4,6 +4,7 @@ import cohortsQuery from "~~/gql/cohorts";
 import datasourcesQuery from "~~/gql/datasources";
 import variablesQuery from "~~/gql/variables";
 import fileFragment from "~~/gql/fragments/file";
+import type { INetwork } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 

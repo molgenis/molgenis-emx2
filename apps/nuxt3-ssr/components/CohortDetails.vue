@@ -1,8 +1,4 @@
 <script setup lang="ts">
-const props = defineProps({
-  cohort: { type: Object },
-});
-
 import { gql } from "graphql-request";
 import subcohortsQuery from "~~/gql/subcohorts";
 import collectionEventsQuery from "~~/gql/collectionEvents";
@@ -322,7 +318,7 @@ if (route.params.catalogue) {
 } else {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/browse`;
-  crumbs["Cohorts"] = `/${route.params.schema}/ssr-catalogue/cohorts}`;
+  crumbs["Cohorts"] = `/${route.params.schema}/ssr-catalogue/browse/cohorts`;
 }
 </script>
 <template>

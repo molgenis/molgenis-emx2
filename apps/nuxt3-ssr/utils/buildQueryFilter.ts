@@ -1,4 +1,4 @@
-import { IFilter } from "~/interfaces/types";
+import { type IFilter } from "~/interfaces/types";
 
 const buildFilterVariables = (filters: IFilter[]) => {
   const filtersVariables = filters.reduce<

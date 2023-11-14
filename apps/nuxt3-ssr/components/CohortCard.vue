@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const route = useRoute();
 import type { ICohort } from "~/interfaces/types";
 let truncate = ref(true);
 const cutoff = 250;
@@ -37,8 +36,6 @@ const headerClasses = computed(() => {
 const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
 });
-
-const url = `cohorts/${props.cohort.id}`;
 </script>
 
 <template>
@@ -47,7 +44,7 @@ const url = `cohorts/${props.cohort.id}`;
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="url"
+            :to="`/${schema}/ssr-catalogue/browse/cohorts/${cohort.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ cohort?.acronym || cohort?.name }}
@@ -66,7 +63,7 @@ const url = `cohorts/${props.cohort.id}`;
           class="text-blue-500 xl:justify-end"
         />
         -->
-        <NuxtLink :to="url">
+        <NuxtLink :to="`/${schema}/ssr-catalogue/browse/cohorts/${cohort.id}`">
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"

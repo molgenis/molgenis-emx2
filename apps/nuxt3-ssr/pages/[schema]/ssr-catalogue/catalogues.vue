@@ -92,6 +92,8 @@ function setCurrentPage(pageNumber: number) {
 watch(filters, () => {
   setCurrentPage(1);
 });
+
+let activeName = ref("detailed");
 </script>
 
 <template>

@@ -14,6 +14,8 @@ const props = withDefaults(
   }
 );
 
+const catalogue = route.params.catalogue || "browse";
+
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
 });
@@ -58,7 +60,7 @@ const links = [
           class="items-center flex justify-center"
           :class="[compact ? 'w-50px h-50px' : 'h-full w-full']"
         >
-          <NuxtLink :to="`${route.path}/../${network.id}`">
+          <NuxtLink :to="`/${schema}/ssr-catalogue/${network.id}`">
             <img :src="network?.logo?.url" />
           </NuxtLink>
         </div>

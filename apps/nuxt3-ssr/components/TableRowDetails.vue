@@ -13,8 +13,6 @@ const config = useRuntimeConfig();
 const route = useRoute();
 const tableId: string = route.params.resourceType as string;
 const schemaId = route.params.schema.toString();
-const catalogueId = (route.params.catalogue as string) || null;
-
 const metadata = await fetchMetadata(schemaId);
 
 const tableMetaDataFinderResult = metadata.tables.find(
