@@ -94,6 +94,7 @@ import BackgroundGradient from "./components/BackgroundGradient.vue";
 import { hash } from ".fingerprint.js";
 
 const config = useRuntimeConfig();
+const route = useRoute();
 
 const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics", {
   maxAge: 34560000,

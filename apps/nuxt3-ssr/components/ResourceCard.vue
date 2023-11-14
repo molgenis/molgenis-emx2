@@ -13,7 +13,7 @@ const props = withDefaults(
   }>(),
   {
     compact: false,
-    catalogue: "browse",
+    catalogue: "all",
   }
 );
 

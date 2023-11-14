@@ -41,7 +41,7 @@ async function fetchRows() {
   count.value = resp.data[`${props.type}_agg`].count;
 }
 
-await fetchRows();
+fetchRows();
 
 watch(orderByColumn, () => {
   orderby = {

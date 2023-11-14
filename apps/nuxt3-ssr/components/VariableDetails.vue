@@ -52,7 +52,7 @@ if (route.params.catalogue) {
 } else {
   crumbs = {
     Home: `/${route.params.schema}/ssr-catalogue`,
-    Variables: `/${route.params.schema}/ssr-catalogue/browse/variables`,
+    Variables: `/${route.params.schema}/ssr-catalogue/all/variables`,
   };
 }
 </script>

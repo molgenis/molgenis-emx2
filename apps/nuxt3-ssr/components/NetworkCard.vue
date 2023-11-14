@@ -14,7 +14,7 @@ const props = withDefaults(
   }
 );
 
-const catalogue = route.params.catalogue || "browse";
+const catalogue = route.params.catalogue || "all";
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";

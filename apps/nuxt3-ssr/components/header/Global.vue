@@ -10,11 +10,11 @@ const menu = [
     ? undefined
     : { label: "Catalogues", link: `/${schema}/ssr-catalogue/catalogues` },
   config.public.cohortOnly
-    ? { label: "Cohorts", link: `/${schema}/ssr-catalogue/browse/cohorts` }
-    : { label: "Resources", link: `/${schema}/ssr-catalogue/browse` },
+    ? { label: "Cohorts", link: `/${schema}/ssr-catalogue/all/cohorts` }
+    : { label: "Resources", link: `/${schema}/ssr-catalogue/all` },
   config.public.cohortOnly
     ? undefined
-    : { label: "Variables", link: `/${schema}/ssr-catalogue/browse/variables` },
+    : { label: "Variables", link: `/${schema}/ssr-catalogue/all/variables` },
 
   // { label: "Statistical Methods", link: "#" },
   // { label: "Tables", link: "#" },

@@ -122,7 +122,7 @@ function buildRecordId(record: any) {
 }
 let crumbs: Record<string, string> = {
   Home: `/${route.params.schema}/ssr-catalogue`,
-  Browse: `/${route.params.schema}/ssr-catalogue/browse`,
+  Browse: `/${route.params.schema}/ssr-catalogue/all`,
 };
 </script>
 <template>

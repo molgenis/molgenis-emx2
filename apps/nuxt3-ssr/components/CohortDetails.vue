@@ -187,7 +187,7 @@ function datasetMapper(item: any) {
     id: item.name,
     name: item.name,
     description: item.descriptions,
-    _path: `/${route.params.schema}/ssr-catalogue/browse/datasets`,
+    _path: `/${route.params.schema}/ssr-catalogue/all/datasets`,
   };
 }
 
@@ -318,8 +318,8 @@ if (route.params.catalogue) {
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts`;
 } else {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
-  crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/browse`;
-  crumbs["Cohorts"] = `/${route.params.schema}/ssr-catalogue/browse/cohorts`;
+  crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
+  crumbs["Cohorts"] = `/${route.params.schema}/ssr-catalogue/all/cohorts`;
 }
 </script>
 <template>

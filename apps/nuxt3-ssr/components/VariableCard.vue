@@ -8,7 +8,7 @@ const props = withDefaults(
     schema: string;
     catalogue: string;
   }>(),
-  { catalogue: "browse" }
+  { catalogue: "all" }
 );
 
 const variableKey = computed(() => getKey(props.variable));

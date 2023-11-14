@@ -27,7 +27,7 @@ const links = [
               <ReferenceCard
                 v-for="link in links"
                 :key="link"
-                :url="'browse/' + link"
+                :url="'all/' + link"
                 :title="link"
               ></ReferenceCard>
             </CardList>

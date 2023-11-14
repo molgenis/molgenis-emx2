@@ -125,11 +125,11 @@ function sectionTitle(section: ISection) {
 
 let crumbs: Record<string, string> = {
   Home: `/${route.params.schema}/ssr-catalogue`,
-  Browse: `/${route.params.schema}/ssr-catalogue/browse`,
+  Browse: `/${route.params.schema}/ssr-catalogue/all`,
 };
 crumbs[
   resourceType
-] = `/${route.params.schema}/ssr-catalogue/browse/${resourceType}`;
+] = `/${route.params.schema}/ssr-catalogue/all/${resourceType}`;
 </script>
 
 <template>
