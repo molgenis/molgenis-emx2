@@ -5,20 +5,21 @@ The `<UnorderedList />` component is primarily used in the `<PageFooter />` comp
 ## Props
 
 <!-- @vuese:UnorderedList:props:start -->
-
-| Name       | Description                                                                   | Type                            | Required | Default  |
-| ---------- | ----------------------------------------------------------------------------- | ------------------------------- | -------- | -------- |
-| listLayout | determine if the list should be rendered vertically (default) or horizontally | `'vertical' / 'horizontal'`     | `false`  | vertical |
-| listType   | Choose the icon that separates each link                                      | `'none' / 'circle' / 'square' ` | `false`  | `circle` |
+|Name|Description|Type|Required|Default|
+|---|---|---|---|---|
+|listLayout|determine if the list should be rendered vertically (default) or horizontally|`'vertical' / 'horizontal'`|`false`|vertical|
+|listType|Choose the icon that separates each link|`'none' / 'circle' / 'square' `|`false`|`circle`|
 
 <!-- @vuese:UnorderedList:props:end -->
+
 
 ## Slots
 
 <!-- @vuese:UnorderedList:slots:start -->
-
-| Name    | Description  | Default Slot Content |
-| ------- | ------------ | -------------------- |
-| default | list content | -                    |
+|Name|Description|Default Slot Content|
+|---|---|---|
+|default|list content|-|
 
 <!-- @vuese:UnorderedList:slots:end -->
+
+
