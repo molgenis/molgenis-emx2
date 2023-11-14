@@ -26,7 +26,7 @@ const catalogue = data.value.data?.Networks[0];
 
 const menu = [
   {
-    label: "dashboard",
+    label: `${catalogue.id}`,
     link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}`,
   },
 ];
@@ -49,10 +49,11 @@ menu.push({
   label: "Variables",
   link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}/variables`,
 });
-menu.push({
-  label: "About",
-  link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}/about`,
-}),
+// todo
+// menu.push({
+//   label: "About",
+//   link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}/about`,
+// }),
   menu.push({
     label: "Other catalogues",
     link: `/${route.params.schema}/ssr-catalogue`,

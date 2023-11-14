@@ -126,50 +126,50 @@ const catalogue = data.value.data?.Networks[0];
           icon="demography"
           title="Cohort studies"
           :count="data.data.Cohorts_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${catalogue}/cohorts`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogue.id}/cohorts`"
         />
         <LandingCardSecondary
           icon="database"
           title="Data sources"
           :count="data.data.DataSources_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${catalogue}/datasources`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogue.id}/datasources`"
         />
         <LandingCardSecondary
           icon="hub"
           title="Networks"
           :count="data.data.Networks_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${catalogue}/networks`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogue.id}/networks`"
         />
         <LandingCardSecondary
           icon="institution"
           title="Organisations"
           :count="data.data.Organisations_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${catalogue}/organisations`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogue.id}/organisations`"
         />
         <LandingCardSecondary
           icon="dataset"
           title="Datasets"
           :count="data.data.Cohorts_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${catalogue}/datasets`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogue.id}/datasets`"
         />
         <LandingCardSecondary
           icon="list"
           title="Collected variables"
           :count="data.data.Networks_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${catalogue}/variables`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogue.id}/variables`"
         />
         <!-- todo must split in collected and harmonized -->
         <LandingCardSecondary
           icon="harmonized-variables"
           title="Harmonized variables"
           :count="data.data.Organisations_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${catalogue}/variables`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogue.id}/variables`"
         />
         <LandingCardSecondary
           icon="dataset-linked"
           title="Standards"
           :count="data.data.Models_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${catalogue}/models`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogue.id}/models`"
         />
       </LandingSecondary>
     </LayoutsLandingPage>

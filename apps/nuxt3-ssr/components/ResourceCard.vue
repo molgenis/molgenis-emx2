@@ -8,14 +8,15 @@ const props = withDefaults(
     schema: string;
     tableId: string;
     compact?: boolean;
-    catalogue?: string;
     resourceId: Record<string, string>;
   }>(),
   {
     compact: false,
-    catalogue: "all",
   }
 );
+
+const route = useRoute();
+const catalogue = route.params.catalogue || 'all';
 
 const resourceIdPath = computed(() => {
   return (
