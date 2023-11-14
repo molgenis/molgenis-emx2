@@ -46,7 +46,7 @@ const query = `{
       }`
 console.log(query);
 const { data, pending, error, refresh } = await useFetch(
-    `/${route.params.schema}/catalogue/graphql`,
+    `/${route.params.schema}/api/graphql`,
     {
       baseURL: config.public.apiBase,
       method: "POST",

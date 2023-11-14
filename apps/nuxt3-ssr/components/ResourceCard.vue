@@ -8,10 +8,12 @@ const props = withDefaults(
     schema: string;
     tableId: string;
     compact?: boolean;
+    catalogue?: string;
     resourceId: Record<string, string>;
   }>(),
   {
     compact: false,
+    catalogue: "browse",
   }
 );
 
@@ -50,7 +52,7 @@ const iconStarClasses = computed(() => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`${resourceName}/${resourceIdPath}`"
+            :to="`/${schema}/ssr-catalogue/${catalogue}/${tableId}/${resourceIdPath}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ resource?.acronym || resource?.name }}
@@ -69,7 +71,9 @@ const iconStarClasses = computed(() => {
               class="text-blue-500 xl:justify-end"
             />
             -->
-        <NuxtLink :to="`${resourceName}/${resourceIdPath}`">
+        <NuxtLink
+          :to="`/${schema}/ssr-catalogue/${catalogue}/${tableId}/${resourceIdPath}`"
+        >
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"

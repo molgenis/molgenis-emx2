@@ -1,10 +1,12 @@
 <script setup lang="ts">
-const route = useRoute();
-
+const props = defineProps<{
+  schema: string;
+  baseURL: string;
+}>();
 const config = useRuntimeConfig();
 
 const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${props.schema}/api/graphql`,
   {
     baseURL: config.public.apiBase,
     method: "POST",
@@ -80,14 +82,14 @@ function percentageLongitudinal(
         title="Catalogues"
         description="Browse selected resources per network, topic, study or organisation."
         :count="data.data.Networks_agg.count"
-        :link="`${route.path}/catalogues`"
+        :link="`${baseURL}/catalogues`"
       />
       <LandingCardPrimary
         image="patient-list"
         title="Resources"
         description="Browse in all resources: cohorts, biobanks and databanks"
         :count="data.data.DataResources_agg.count"
-        :link="`${route.path}/browse`"
+        :link="`${baseURL}/browse`"
       />
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
@@ -95,7 +97,7 @@ function percentageLongitudinal(
         title="Variables"
         description="A listing of all collected, harmonized and standard variables."
         :count="data.data.Variables_agg.count"
-        :link="`${route.path}/browse/variables`"
+        :link="`${baseURL}/browse/variables`"
       />
     </LandingPrimary>
     <LandingSecondary>
@@ -103,50 +105,50 @@ function percentageLongitudinal(
         icon="demography"
         title="Cohort studies"
         :count="data.data.Cohorts_agg.count"
-        :link="`${route.path}/browse/cohorts`"
+        :link="`${baseURL}/browse/cohorts`"
       />
       <LandingCardSecondary
         icon="database"
         title="Data sources"
         :count="data.data.DataSources_agg.count"
-        :link="`${route.path}/browse/datasources`"
+        :link="`${path}/browse/datasources`"
       />
       <LandingCardSecondary
         icon="hub"
         title="Networks"
         :count="data.data.Networks_agg.count"
-        :link="`${route.path}/browse/networks`"
+        :link="`${baseURL}/browse/networks`"
       />
       <LandingCardSecondary
         icon="institution"
         title="Organisations"
         :count="data.data.Organisations_agg.count"
-        :link="`${route.path}/browse/organisations`"
+        :link="`${baseURL}/browse/organisations`"
       />
       <LandingCardSecondary
         icon="dataset"
         title="Datasets"
         :count="data.data.Cohorts_agg.count"
-        :link="`${route.path}/browse/datasets`"
+        :link="`${baseURL}/browse/datasets`"
       />
       <LandingCardSecondary
         icon="list"
         title="Collected variables"
         :count="data.data.Networks_agg.count"
-        :link="`${route.path}/browse/variables`"
+        :link="`${baseURL}/browse/variables`"
       />
       <!-- todo must split in collected and harmonized -->
       <LandingCardSecondary
         icon="harmonized-variables"
         title="Harmonized variables"
         :count="data.data.Organisations_agg.count"
-        :link="`${route.path}/browse/variables`"
+        :link="`${baseURL}/browse/variables`"
       />
       <LandingCardSecondary
         icon="dataset-linked"
         title="Standards"
         :count="data.data.Models_agg.count"
-        :link="`${route.path}/browse/models`"
+        :link="`${baseURL}/browse/models`"
       />
       <LandingCardSecondary
         icon="person"

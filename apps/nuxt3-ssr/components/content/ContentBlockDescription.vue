@@ -1,12 +1,8 @@
-<script setup>
-defineProps({
-  title: {
-    type: String,
-  },
-  description: {
-    type: String,
-  },
-});
+<script setup lang="ts">
+defineProps<{
+  title: string;
+  description?: string;
+}>();
 </script>
 
 <template>

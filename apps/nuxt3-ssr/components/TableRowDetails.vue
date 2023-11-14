@@ -6,6 +6,7 @@ import {
   buildRecordDetailsQueryFields,
   extractExternalSchemas,
   buildFilterFromKeysObject,
+  isEmpty,
 } from "meta-data-utils";
 
 const config = useRuntimeConfig();
@@ -17,7 +18,7 @@ const catalogueId = (route.params.catalogue as string) || null;
 const metadata = await fetchMetadata(schemaId);
 
 const tableMetaDataFinderResult = metadata.tables.find(
-  (t: ITableMetaData) => t.id === tableId
+  (t: ITableMetaData) => t.id.toLowerCase() === tableId.toLowerCase()
 );
 
 const tableMetaData = computed(() => {
@@ -125,10 +126,12 @@ function sectionTitle(section: ISection) {
 }
 
 let crumbs: Record<string, string> = {
-  Home: "../../.",
-  Browse: `../../browse`,
+  Home: `/${route.params.schema}/ssr-catalogue`,
+  Browse: `/${route.params.schema}/ssr-catalogue/browse`,
 };
-crumbs[resourceType] = `../${resourceType}`;
+crumbs[
+  resourceType
+] = `/${route.params.schema}/ssr-catalogue/browse/${resourceType}`;
 </script>
 
 <template>

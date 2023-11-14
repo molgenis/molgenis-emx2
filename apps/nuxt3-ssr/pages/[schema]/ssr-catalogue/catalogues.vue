@@ -73,7 +73,7 @@ const orderby = { acronym: "ASC" };
 
 const filter = computed(() => buildQueryFilter(filters, search.value));
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+let graphqlURL = computed(() => `/${route.params.schema}/api/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   key: `networks-${offset.value}`,
   baseURL: config.public.apiBase,
@@ -92,8 +92,6 @@ function setCurrentPage(pageNumber: number) {
 watch(filters, () => {
   setCurrentPage(1);
 });
-
-let activeName = ref("detailed");
 </script>
 
 <template>

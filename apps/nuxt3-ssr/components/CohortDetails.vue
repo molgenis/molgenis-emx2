@@ -313,20 +313,24 @@ const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
 
 const crumbs: any = {};
 if (route.params.catalogue) {
-  crumbs[`${route.params.catalogue}`] = `${route.path}/../..`;
-  crumbs["Cohorts"] = `${route.path}/..`;
+  crumbs[
+    `${route.params.catalogue}`
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+  crumbs[
+    "Cohorts"
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts`;
 } else {
-  crumbs["Home"] = `${route.path}/../../..`;
-  crumbs["Browse"] = `${route.path}/../..`;
-  crumbs["Cohorts"] = `${route.path}/..`;
+  crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
+  crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/browse`;
+  crumbs["Cohorts"] = `/${route.params.schema}/ssr-catalogue/cohorts}`;
 }
 </script>
 <template>
   <LayoutsDetailPage>
     <template #header>
       <PageHeader
-        :title="cohort?.acronym || cohort?.name"
-        :description="cohort?.acronym ? cohort?.name : ''"
+        :title="cohort?.acronym || cohort.name"
+        :description="cohort?.acronym ? cohort.name : ''"
       >
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
@@ -349,7 +353,7 @@ if (route.params.catalogue) {
           :image="cohort?.logo?.url"
           :link="cohort?.website"
           :contact="cohort?.contactEmail"
-          :contact-name="cohort?.name"
+          :contact-name="cohort.name"
           :contact-message-filter="messageFilter"
         />
         <ContentBlockDescription
