@@ -41,6 +41,7 @@ import ScatterPlot from "../src/components/viz/ScatterPlot.vue";
 
 // views
 import FileList from "../src/components/FileList.vue";
+import QuickLinks from "../src/components/QuickLinks.vue";
 
 // data
 import WorldGeoJson from "../src/data/world.geo.json";
@@ -99,6 +100,7 @@ export {
   
   // views
   FileList,
+  QuickLinks,
 
   // utils
   asDataObject,
