@@ -1,4 +1,4 @@
-import { type DocumentNode } from "graphql";
+import { DocumentNode } from "graphql";
 
 const ONTOLOGIES_SCHEMA_NAME = "CatalogueOntologies";
 

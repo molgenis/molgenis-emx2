@@ -1,4 +1,4 @@
-import { type DocumentNode } from "graphql";
+import { DocumentNode } from "graphql";
 
 export const fetchGql = (
   query: string | DocumentNode,
@@ -18,13 +18,9 @@ export const fetchGql = (
   const route = useRoute();
   const config = useRuntimeConfig();
   const schema = schemaId ? schemaId : route.params.schema;
-  return $fetch(`/${schema}/api/graphql`, {
+  return $fetch(`/${schema}/catalogue/graphql`, {
     method: "POST",
     baseURL: config.public.apiBase,
     body,
-  }).catch((e) => {
-    console.log(e);
-    console.log(queryValue);
-    throw e;
   });
 };

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const route = useRoute();
 import { INetwork } from "~/interfaces/types";
 
 defineProps<{
@@ -17,7 +16,7 @@ defineProps<{
         :imageUrl="network?.logo?.url"
         :title="network?.name"
         :description="network?.description"
-        :url="`/${route.params.schema}/ssr-catalogue/browse/${network.id}`"
+        :url="network.website"
         :links="[{ title: 'Read more', url: network.website }]"
       />
     </ReferenceCardList>

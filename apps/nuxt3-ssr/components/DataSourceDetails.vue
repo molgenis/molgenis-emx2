@@ -4,10 +4,6 @@ defineProps({
 });
 
 import { gql } from "graphql-request";
-import subcohortsQuery from "~~/gql/subcohorts";
-import collectionEventsQuery from "~~/gql/collectionEvents";
-import ontologyFragment from "~~/gql/fragments/ontology";
-import fileFragment from "~~/gql/fragments/file";
 const config = useRuntimeConfig();
 const route = useRoute();
 

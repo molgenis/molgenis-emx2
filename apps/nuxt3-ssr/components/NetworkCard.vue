@@ -72,7 +72,7 @@ const links = [
           <div :class="titleContainerClasses" class="">
             <h2 class="min-w-[160px] mr-4 md:inline-block block">
               <NuxtLink
-                :to="`/${route.params.schema}/ssr-catalogue/${catalogue}/networks/${network.id}`"
+                :to="`/${schema}/ssr-catalogue/${catalogue}/networks/${network.id}`"
                 class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
               >
                 {{ network?.acronym || network?.name }}
