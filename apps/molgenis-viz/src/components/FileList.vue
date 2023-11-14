@@ -110,15 +110,9 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-
-@mixin iconSize($size: 18pt) {
-  width: $size;
-  height: $size;
-}
-
 .file-list-error {
   .heroicons {
-    @include iconSize;
+    @include setIconSize(24px);
   }
 }
 
@@ -126,10 +120,10 @@ onMounted(() => {
   list-style: none;
   padding: 0;
   margin: 0 auto;
-  $border-radius: 16pt;
+  $border-radius: 8pt;
   
   .heroicons {
-    @include iconSize;
+    @include setIconSize(24px);
     path {
       stroke-width: 2;
     }
@@ -163,14 +157,14 @@ onMounted(() => {
     }
 
     .file-url {
-      background-color: $blue-300;
-      color: $gray-000;
+      background-color: $blue-800;
+      color: $gray-050;
       border-radius: 0 $border-radius $border-radius 0;
 
       &:hover,
       &:focus {
-        background-color: $blue-800;
-        color: $blue-050;
+        background-color: $yellow-400;
+        color: $blue-800;
       }
     }
   }
