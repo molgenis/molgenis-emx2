@@ -6,20 +6,23 @@
       subtitle="ERN for rare complex craniofacial anomalies and ear, nose and throat (ENT) disorders"
       imageSrc="banner-diagnoses.jpg"
     />
-    <PageSection aria-labelledby="welcome-section-title" :verticalPadding="3">
+    <PageSection aria-labelledby="welcome-section-title" :verticalPadding="2">
       <h2 id="welcome-section-title">Welcome to ERN CRANIO Registry</h2>
       <p>
-        The <strong>ERN CRANIO</strong> registry is the European registry
-        focused on the outcome of treatment using standardised diagnosis
-        specific outcome sets (starting with craniosynostosis and cleft
-        lip/palate) - including patient reported outcome measures and outcomes
-        on patients' quality of life.
+        <strong>ERN CRANIO</strong> is establishing a European-wide registry to
+        monitor treatment outcomes for rare craniofacial anomalies and ENT
+        disorders like craniosynostosis and cleft lip/palate. This registry
+        gathers patient data securely from across Europe, improving our
+        understanding and treatment of these conditions, fostering research, and
+        enhancing patient care. It covers a range of disorders and involves
+        collaboration with European specialists to define relevant outcome
+        measures.
       </p>
     </PageSection>
     <PageSection
       aria-labelledby="quicklinks-card-title"
-      :verticalPadding="3"
-      class="section-bg-light-blue"
+      :verticalPadding="2"
+      class="bg-blue-050"
     >
       <h2 class="visually-hidden" id="quicklinks-card-title">quick links</h2>
       <div class="quicklink-cards">
@@ -52,8 +55,8 @@
       <p>
         In case of any questions regarding the ERN CRANIO registry, please send
         us an email.
-        <a href="mailto:ern-cranio@erasmusmc.nl" class="button-link"
-          >Contact Us</a
+        <a href="mailto:ern-cranio@erasmusmc.nl" class="button-link">
+          Contact Us </a
         >.
       </p>
     </PageSection>

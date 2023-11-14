@@ -138,14 +138,14 @@ import { Accordion } from "molgenis-viz";
 
         &:hover,
         &:focus {
-          color: $ern-cranio-primary;
+          color: $cranio-primary;
         }
       }
 
       &.link-selected {
-        border-left-color: $ern-cranio-primary;
+        border-left-color: $cranio-primary;
         a {
-          color: $ern-cranio-primary;
+          color: $cranio-primary;
         }
       }
     }

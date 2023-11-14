@@ -4,10 +4,10 @@
     <EditModal
       v-if="isModalShown"
       :id="id + 'edit-modal'"
-      :tableName="tableName"
+      :tableId="tableId"
       :pkey="pkey"
       :isModalShown="isModalShown"
-      :schemaName="schemaName"
+      :schemaId="schemaId"
       :visibleColumns="visibleColumns"
       @close="handleClose"
     />
@@ -24,11 +24,11 @@ export default {
       type: String,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -62,9 +62,9 @@ export default {
     <div>
       <RowButtonEdit
           id="row-edit-btn-sample"
-          tableName="Pet"
+          tableId="Pet"
           :pkey="{name: 'pooky'}"
-          schemaName="pet store"
+          schemaId="pet store"
       />
     </div>
   </div>
@@ -74,9 +74,9 @@ export default {
     <div>
       <RowButtonEdit
           id="row-edit-btn-sample"
-          tableName="Pet"
+          tableId="Pet"
           :pkey="{name: 'pooky'}"
-          schemaName="pet store"
+          schemaId="pet store"
           :visibleColumns="['name']"
       />
     </div>

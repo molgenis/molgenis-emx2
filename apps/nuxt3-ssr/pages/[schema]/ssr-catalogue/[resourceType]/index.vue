@@ -1,21 +1,25 @@
 <script setup lang="ts">
-import { IFilter, ISchemaMetaData, ITableMetaData } from "~/interfaces/types";
+import type { ISchemaMetaData, ITableMetaData } from "meta-data-utils";
+import type { IFilter } from "~~/interfaces/types";
+import {
+  buildRecordListQueryFields,
+  extractExternalSchemas,
+  extractKeyFromRecord,
+} from "meta-data-utils";
+
 const config = useRuntimeConfig();
 const route = useRoute();
 const router = useRouter();
 
 const pageSize = 10;
-const resourceName: string = route.params.resourceType as string;
-const schemaName = route.params.schema.toString();
-const metadata = await fetchMetadata(schemaName);
+const tableId: string = route.params.resourceType as string;
+const schemaId = route.params.schema.toString();
+const metadata = await fetchMetadata(schemaId);
 
 const tableMetaData = computed(() => {
-  const result = metadata.tables.find(
-    (t: ITableMetaData) =>
-      t.id.toLocaleLowerCase() === resourceName.toLocaleLowerCase()
-  );
+  const result = metadata.tables.find((t: ITableMetaData) => t.id === tableId);
   if (!result) {
-    throw new Error(`Table ${resourceName} not found in schema ${schemaName}`);
+    throw new Error(`Table with id ${tableId} not found in schema ${schemaId}`);
   }
   return result;
 });
@@ -24,24 +28,22 @@ const resourceType = tableMetaData.value.id;
 
 const resourceAgg: string = resourceType + "_agg";
 
-const externalSchemaNames: string[] = extractExternalSchemas(metadata);
-const externalSchemas = await Promise.all(
-  externalSchemaNames.map(fetchMetadata)
-);
+const externalschemaIds: string[] = extractExternalSchemas(metadata);
+const externalSchemas = await Promise.all(externalschemaIds.map(fetchMetadata));
 const schemas = externalSchemas.reduce(
   (acc: Record<string, ISchemaMetaData>, schema) => {
-    acc[schema.name] = schema;
+    acc[schema.id] = schema;
     return acc;
   },
-  { [schemaName]: metadata }
+  { [schemaId]: metadata }
 );
 
-const description = tableMetaData.value?.descriptions?.[0]?.value;
+const description = tableMetaData.value?.description;
 
 let activeName = ref("detailed");
 let filters: IFilter[] = reactive([
   {
-    title: `Search in ${resourceName}`,
+    title: `Search in ${tableMetaData.value.name}`,
     columnType: "_SEARCH",
     search: "",
     searchTables: [],
@@ -70,8 +72,8 @@ watch(filters, () => {
 // build resource query for cards
 
 const fields = buildRecordListQueryFields(
-  tableMetaData.value.name,
-  schemaName,
+  tableMetaData.value.id,
+  schemaId,
   schemas
 );
 
@@ -98,7 +100,7 @@ console.log("query: ", query.value);
 const { data, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
   {
-    key: `${resourceName}-list-${offset.value}`,
+    key: `${tableId}-list-${offset.value}`,
     baseURL: config.public.apiBase,
     method: "POST",
     body: {
@@ -111,8 +113,8 @@ const { data, pending, error, refresh } = await useFetch(
 function buildRecordId(record: any) {
   return extractKeyFromRecord(
     record,
-    tableMetaData.value.name,
-    schemaName,
+    tableMetaData.value.id,
+    schemaId,
     schemas
   );
 }
@@ -127,7 +129,7 @@ function buildRecordId(record: any) {
         <template #header>
           <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader
-            :title="resourceName"
+            :title="tableMetaData.name"
             :description="description"
             icon="image-link"
           >
@@ -163,8 +165,8 @@ function buildRecordId(record: any) {
               >
                 <ResourceCard
                   :resource="resource"
-                  :schema="schemaName"
-                  :resource-name="resourceName"
+                  :schema="schemaId"
+                  :table-id="tableMetaData.id"
                   :compact="activeName !== 'detailed'"
                   :resourceId="buildRecordId(resource)"
                 />
@@ -172,7 +174,7 @@ function buildRecordId(record: any) {
             </CardList>
             <div v-else class="flex justify-center pt-3">
               <span class="py-15 text-blue-500">
-                No {{ resourceName }} found with current filters
+                No {{ tableMetaData.name }} found with current filters
               </span>
             </div>
           </SearchResultsList>

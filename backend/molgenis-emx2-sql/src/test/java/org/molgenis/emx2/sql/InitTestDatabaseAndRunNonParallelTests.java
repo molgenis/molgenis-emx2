@@ -100,7 +100,7 @@ class InitTestDatabaseAndRunNonParallelTests {
     Schema testSchemm =
         database.dropCreateSchema(InitTestDatabaseAndRunNonParallelTests.class.getSimpleName());
     testSchemm.getMetadata().create(table("pet", column("name").setPkey()));
-    testSchemm.getMetadata().create(table("cat").setInherit("pet"));
+    testSchemm.getMetadata().create(table("cat").setInheritName("pet"));
 
     executeMigrationFile(
         database, "migration9.sql", "database migration: schema metadata visible for aggregator");

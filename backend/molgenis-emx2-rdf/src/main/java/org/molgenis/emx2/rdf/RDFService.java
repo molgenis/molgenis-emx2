@@ -74,7 +74,10 @@ public class RDFService {
   public static final String NAMESPACE_DCTERMS = "http://purl.org/dc/terms/";
   public static final IRI IRI_DATABASE_TABLE =
       Values.iri("http://semanticscience.org/resource/SIO_000754");
-  public static final IRI IRI_DATASET = Values.iri("http://purl.org/linked-data/cube#DataSet");
+  public static final IRI IRI_DATASET_CLASS =
+      Values.iri("http://purl.org/linked-data/cube#DataSet");
+  public static final IRI IRI_DATASET_PREDICATE =
+      Values.iri("http://purl.org/linked-data/cube#dataSet");
   public static final IRI IRI_CONTROLLED_VOCABULARY =
       Values.iri("http://purl.obolibrary.org/obo/NCIT_C48697");
   /**
@@ -299,7 +302,7 @@ public class RDFService {
   private void describeTable(final ModelBuilder builder, final Table table) {
     final IRI subject = getTableIRI(table);
     builder.add(subject, RDF.TYPE, OWL.CLASS);
-    builder.add(subject, RDFS.SUBCLASSOF, IRI_DATASET);
+    builder.add(subject, RDFS.SUBCLASSOF, IRI_DATASET_CLASS);
     builder.add(subject, RDFS.SUBCLASSOF, IRI_DATABASE_TABLE);
     builder.add(subject, RDFS.SUBCLASSOF, OWL.THING);
     // Specify the tables that this table inherits from.
@@ -433,7 +436,7 @@ public class RDFService {
       } else {
         builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
       }
-      builder.add(subject, IRI_DATASET, tableIRI);
+      builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
 
       for (final Column column : table.getMetadata().getColumns()) {
         // Exclude the system columns like mg_insertedBy

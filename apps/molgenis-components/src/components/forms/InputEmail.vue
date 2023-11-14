@@ -95,7 +95,7 @@ span:hover .hoverIcon {
       <InputEmail id="input-email2" :readonly="true" value="info@molgenis.org"
                    description="Should not be able to edit this"/>
       <b>additionalValidValidationStrings: user, admin, anonymous</b>
-      <InputEmail id="input-email2" v-model="value" :additionalValidValidationStrings="['user', 'admin', 'anonymous']"
+      <InputEmail id="input-email3" v-model="value" :additionalValidValidationStrings="['user', 'admin', 'anonymous']"
                    description="validates email addresses with additional valid 'user', 'admin', 'anonymous' strings "/>
       <b>string length</b>
       <InputEmail id="input-email5" v-model="value" :stringLength="8" label="maximum stringLength (4)"/>

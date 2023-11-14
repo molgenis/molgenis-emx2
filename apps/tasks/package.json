@@ -9,7 +9,7 @@
     "format": "prettier src  --write --config ../.prettierrc.js"
   },
   "dependencies": {
-    "core-js": "3.33.0",
+    "core-js": "3.33.2",
     "graphql-request": "5.2.0",
     "molgenis-components": "*",
     "vue": "3.3.4",
@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "vite": "4.3.9",
-    "@vitejs/plugin-vue": "4.4.0",
+    "@vitejs/plugin-vue": "4.4.1",
     "prettier": "2.8.8"
   },
   "browserslist": [

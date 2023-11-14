@@ -30,7 +30,7 @@ public class Schema {
     Collections.sort(list);
     // add these tables
     for (TableMetadata t : list) {
-      tables.add(new Table(schema, t, minimal));
+      tables.add(new Table(t, minimal));
     }
   }
 
@@ -42,7 +42,7 @@ public class Schema {
             .collect(Collectors.toMap(Setting::key, Setting::value)));
     for (Table t : this.tables) {
       TableMetadata tm = s.create(table(t.getName()));
-      tm.setInherit(t.getInherit());
+      tm.setInheritName(t.getInheritName());
       tm.setSettings(
           t.getSettings().stream()
               .filter(d -> d.value() != null)

@@ -26,7 +26,6 @@ public class FAIRDataPointDistributionNotInDatasetTest {
   static Schema fairDataHub_distribnotindataset;
 
   @BeforeAll
-  @Disabled
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     fairDataHub_distribnotindataset = database.dropCreateSchema("fairDataHub_distribnotindataset");

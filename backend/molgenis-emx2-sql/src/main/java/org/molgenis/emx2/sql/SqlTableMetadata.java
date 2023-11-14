@@ -44,7 +44,7 @@ class SqlTableMetadata extends TableMetadata {
         tm.alterColumn(c);
       } else {
         Column newColumn = new Column(tm, c);
-        if (tm.getInherit() != null
+        if (tm.getInheritName() != null
             && tm.getInheritedTable().getColumn(c.getName()) != null
             // this column is replicated in all subclass tables
             && !c.getName().equals(MG_TABLECLASS)) {
@@ -54,7 +54,7 @@ class SqlTableMetadata extends TableMetadata {
                   + "."
                   + c.getName()
                   + ": column exists in inherited class "
-                  + tm.getInherit());
+                  + tm.getInheritName());
         }
         checkNoColumnWithSameNameExistsInSubclass(c.getName(), tm, tm.getJooq());
 
@@ -154,16 +154,16 @@ class SqlTableMetadata extends TableMetadata {
               + column.getName()
               + "' does not exist");
     }
-    if (getInherit() != null && getInheritedTable().getColumn(columnName) != null) {
+    if (getInheritName() != null && getInheritedTable().getColumn(columnName) != null) {
       throw new MolgenisException(
           "Alter column "
               + getTableName()
               + "."
               + columnName
               + " failed: column is part of inherited table "
-              + getInherit());
+              + getInheritName());
     }
-    if (getInherit() != null && getInheritedTable().getColumn(column.getName()) != null) {
+    if (getInheritName() != null && getInheritedTable().getColumn(column.getName()) != null) {
       throw new MolgenisException(
           "Rename column from "
               + getTableName()
@@ -176,7 +176,7 @@ class SqlTableMetadata extends TableMetadata {
               + " failed: column '"
               + column.getName()
               + "' is part of inherited table "
-              + getInherit());
+              + getInheritName());
     }
     getDatabase()
         .tx(
@@ -322,19 +322,19 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public TableMetadata setInherit(String otherTable) {
+  public TableMetadata setInheritName(String otherTable) {
     long start = System.currentTimeMillis();
-    if (getInherit() != null && getInherit().equals(otherTable)) {
+    if (getInheritName() != null && getInheritName().equals(otherTable)) {
       return this; // nothing to do
     }
-    if (getInherit() != null) {
+    if (getInheritName() != null) {
       throw new MolgenisException(
           "Table '"
               + getTableName()
               + "'can only extend one table. Therefore it cannot extend '"
               + otherTable
               + "' because it already extends other table '"
-              + getInherit()
+              + getInheritName()
               + "'");
     }
     TableMetadata other;
@@ -376,7 +376,7 @@ class SqlTableMetadata extends TableMetadata {
                         getImportSchema() != null ? getImportSchema() : getSchemaName(),
                         otherTable)));
     log(start, "set inherit on ");
-    super.setInherit(otherTable);
+    super.setInheritName(otherTable);
     return this;
   }
 
@@ -392,7 +392,7 @@ class SqlTableMetadata extends TableMetadata {
         (SqlTableMetadata) db.getSchema(schemaName).getTable(tableName).getMetadata();
     TableMetadata om = db.getSchema(inheritSchema).getTable(inheritedName).getMetadata();
     executeSetInherit(jooq, tm, om);
-    tm.inherit = inheritedName;
+    tm.inheritName = inheritedName;
     MetadataUtils.saveTableMetadata(jooq, tm);
     return tm;
   }

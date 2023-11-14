@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { IOntologyNode } from "~/interfaces/types";
+
 const { tree } = withDefaults(
   defineProps<{
     tree: IOntologyNode[];
