@@ -20,7 +20,7 @@ export const getColumnIds = (
   rootLevel = true
 ) => {
   let result = "";
-  getTable(schemaId, tableId, metaData.tables)?.columns?.forEach((col) => {
+  getTable(schemaId, tableId, metaData.tables).columns.forEach((col) => {
     //we always expand the subfields of key=1, but other 'ref' fields only if they do not break server
     if (expandLevel > 0 || col.key == 1) {
       if (
@@ -29,14 +29,16 @@ export const getColumnIds = (
       ) {
         //skip
       } else if (["REF", "REF_ARRAY", "REFBACK"].includes(col.columnType)) {
-        result =
-          result +
+        if (col.refTableId == null) {
+          throw "refTableId missing for column" + tableId + "." + col.id;
+        }
+        result +=
           " " +
           col.id +
           " {" +
           getColumnIds(
             col.refSchemaId || schemaId,
-            col.refTableId || tableId,
+            col.refTableId,
             metaData,
             //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
             expandLevel - 1,
@@ -44,7 +46,7 @@ export const getColumnIds = (
           ) +
           " }";
       } else if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
-        result += result + " " + col.id + " {name, label}";
+        result += ` ${col.id}  {name, label}`;
       } else if (col.columnType === "FILE") {
         result += ` ${col.id} { id, size, extension, url }`;
       } else if (col.columnType !== "HEADING") {
@@ -64,5 +66,7 @@ const getTable = (
   const result = tableStore.find(
     (table) => table.id === tableId && table.schemaId === schemaId
   );
+  if (result == null)
+    throw `getTable(${schemaId},${tableId},tableStore) failed`;
   return result;
 };
