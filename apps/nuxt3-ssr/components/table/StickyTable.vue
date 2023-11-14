@@ -37,10 +37,12 @@
             <slot name="row" :value="{ row, rowIndex }">{{ row }}</slot>
           </th>
           <td
-            class="relative whitespace-nowrap vertical-hover-bar border-b"
+            class="relative whitespace-nowrap border-b"
             v-for="(column, columnIndex) of columns"
             :key="`td-${columnIndex}`"
+            @mouseover="calculateVerticalBarHeight($event)"
           >
+            <div class="vertical-hover-bar"></div>
             <div class="z-10">
               <slot name="cell" :value="{ row, column, rowIndex, columnIndex }">
               </slot>
@@ -67,15 +69,30 @@ const props = defineProps({
     rows: Array,
   },
 });
+
+function calculateVerticalBarHeight(event) {
+  const td = event.target.closest("td");
+  const table = event.target.closest("table");
+  const bar = td.querySelector(".vertical-hover-bar");
+  const offset = -(
+    table.offsetHeight -
+    (td.getBoundingClientRect().top - table.getBoundingClientRect().top) -
+    td.offsetHeight
+  );
+  bar.style.bottom = Math.floor(offset) + "px";
+}
 </script>
 
 <style scoped>
 table.table-auto tbody tr:hover th {
   background-color: rgb(244, 244, 244);
 }
-.vertical-hover-bar:hover::before {
+td:hover .vertical-hover-bar {
+  display: block;
+}
+
+.vertical-hover-bar {
   z-index: -1;
-  content: "";
   position: absolute;
   pointer-events: none;
   left: 0;
@@ -84,6 +101,7 @@ table.table-auto tbody tr:hover th {
   bottom: -99999px;
   background-color: rgb(244, 244, 244);
   border: 1px solid rgb(226, 226, 226);
+  display: none;
 }
 
 th:first-child::before {
