@@ -1,8 +1,9 @@
 <template>
-  <MessageBox type="error" v-if="error">
+  <MessageBox type="error" v-if="error" class="file-list-error">
+    <p><strong>Unable to retrieve files</strong></p>
     <p>{{ error }}</p>
   </MessageBox>
-  <MessageBox type="error" v-else-if="!files && !error">
+  <MessageBox type="error" v-else-if="!files && !error" class="file-list-error">
     <div class="p-2">
       <p>
         No files are available for download. To import files, follow the
@@ -35,7 +36,7 @@
   </MessageBox>
   <ul class="file-list" v-else>
     <li class="file" v-for="file in files" :key="file[path].id">
-      <p class="file-element file-name">{{ file[name] }}</p>
+      <p class="file-element file-name">{{ file[filename] }}</p>
       <p class="file-element file-format">
         {{ file[path].extension }}
       </p>
@@ -43,7 +44,7 @@
         {{ Math.round((file[path].size / 1000) * 100) / 100 }} KB
       </p>
       <a class="file-element file-url" :href="file[path].url">
-        <span class="visually-hidden">Download {{ file[name] }}</span>
+        <span class="visually-hidden">Download {{ file[filename] }}</span>
         <ArrowDownTrayIcon class="heroicons" />
       </a>
     </li>
@@ -79,7 +80,6 @@ const props = defineProps({
     type: String,
     required: true
   }
-  
 });
 
 async function getFiles() {
@@ -93,24 +93,47 @@ async function getFiles() {
         url
       }
     }
-  }`
+  }`;
   const response = await request("../api/graphql", query);
-  files.value = response[props.table]
+  files.value = response[props.table];
 }
 
-
 onMounted(() => {
-  getFiles().catch(err => error.value = err);
-})
-
+  getFiles().catch(err => {
+    if (!err.response.errors.length) {
+      error.value = err;
+    } else {
+      error.value = err.response.errors[0].message;
+    }
+  });
+});
 </script>
 
 <style lang="scss">
+
+@mixin iconSize($size: 18pt) {
+  width: $size;
+  height: $size;
+}
+
+.file-list-error {
+  .heroicons {
+    @include iconSize;
+  }
+}
+
 .file-list {
   list-style: none;
   padding: 0;
   margin: 0 auto;
   $border-radius: 16pt;
+  
+  .heroicons {
+    @include iconSize;
+    path {
+      stroke-width: 2;
+    }
+  }
 
   .file {
     display: grid;
@@ -143,15 +166,6 @@ onMounted(() => {
       background-color: $blue-300;
       color: $gray-000;
       border-radius: 0 $border-radius $border-radius 0;
-
-      .heroicons {
-        $size: 18pt;
-        width: $size;
-        height: $size;
-        path {
-          stroke-width: 2;
-        }
-      }
 
       &:hover,
       &:focus {

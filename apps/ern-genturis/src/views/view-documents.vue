@@ -11,6 +11,8 @@
     <PageSection
       id="genturis-section-documents"
       aria-labelledby="genturis-section-documents-title"
+      class="bg-gray-050"
+      :verticalPadding="2"
     >
       <h2 id="genturis-section-documents-title">Documents</h2>
       <p>Download additional information about the GENTURIS Registry.</p>

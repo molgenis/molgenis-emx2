@@ -37,6 +37,15 @@
   }
 }
 
+.message-box { 
+  .message-text {
+    padding: 1em;
+    p {
+      margin-bottom: 0;
+    }
+  }
+}
+
 .genturis-header {
   filter: saturate(90%);
   height: 28em;
