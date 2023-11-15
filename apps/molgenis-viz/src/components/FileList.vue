@@ -6,29 +6,29 @@
   <MessageBox type="error" v-else-if="!files && !error" class="file-list-error">
     <div class="p-2">
       <p>
-        No files are available for download. To import files, follow the
-        steps outlines below.
+        No files are available for download. To import files, follow the steps
+        outlines below.
       </p>
       <ol>
         <li>Navigate to the <a href="../tables/#/Files">Files table</a></li>
         <li>
-          Create a new record by clicking the add new record button
-          (<PlusIcon class="heroicons" />) located in the top left corner of
-          the table.
+          Create a new record by clicking the add new record button (<PlusIcon
+            class="heroicons"
+          />) located in the top left corner of the table.
         </li>
         <li>
-          In the form that appears, enter as much information about the file
-          as necessary. Make sure all required fields are completed.
+          In the form that appears, enter as much information about the file as
+          necessary. Make sure all required fields are completed.
         </li>
         <li>
-          To import your file, see the input field for the column "path".
-          This is used for selecting and importing a file into MOLGENIS.
-          Click the "browse" button to find and select your file. Click the
-          import button to import your file.
+          To import your file, see the input field for the column "path". This
+          is used for selecting and importing a file into MOLGENIS. Click the
+          "browse" button to find and select your file. Click the import button
+          to import your file.
         </li>
         <li>
-          When you have finished, click "save". Your file will be added as a
-          new record in the table.
+          When you have finished, click "save". Your file will be added as a new
+          record in the table.
         </li>
       </ol>
       <p>Repeat the process for each file.</p>
@@ -62,31 +62,30 @@ let error = ref(null);
 let files = ref([]);
 
 const props = defineProps({
-  
   // name of the table in the schema that contains the file metadata
   table: {
     type: String,
-    required: true
+    required: true,
   },
-  
+
   // name of the column that contains the file names to display
   filename: {
-    type :String,
-    required: true
+    type: String,
+    required: true,
   },
-  
+
   // name of the column that contains the location of the file
   path: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 
 async function getFiles() {
   const query = gql`{
     ${props.table} {
-      ${ props.filename }
-      ${ props.path } {
+      ${props.filename}
+      ${props.path} {
         id
         size
         extension
@@ -99,7 +98,7 @@ async function getFiles() {
 }
 
 onMounted(() => {
-  getFiles().catch(err => {
+  getFiles().catch((err) => {
     if (!err.response.errors.length) {
       error.value = err;
     } else {
@@ -121,7 +120,7 @@ onMounted(() => {
   padding: 0;
   margin: 0 auto;
   $border-radius: 8pt;
-  
+
   .heroicons {
     @include setIconSize(24px);
     path {
