@@ -464,7 +464,7 @@ export default {
             id="ontology-example"
             columnType="ONTOLOGY"
             label="Example ontology input"
-            tableId="Category"
+            tableId="Tag"
             v-model="ontologyValue"
             :schemaId="schemaId"
         />
@@ -477,7 +477,7 @@ export default {
             id="ontology-array-example"
             columnType="ONTOLOGY_ARRAY"
             label="Example ontology array input"
-            tableId="Category"
+            tableId="Tag"
             v-model="ontologyArrayValue"
             :schemaId="schemaId"
         />
