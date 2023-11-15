@@ -1,5 +1,9 @@
 <template>
-  <div role="region relative overflow-hidden">
+  <div
+    role="region relative overflow-hidden"
+    ref="scrollElement"
+    @scroll.passive="scroll"
+  >
     <table class="table-auto relative z-0">
       <thead>
         <tr>
@@ -52,10 +56,12 @@
       </tbody>
     </table>
     <div
-      class="flex items-center justify-items-end absolute z-100 right-0 inset-y-0 w-10 bg-gradient-to-r from-transparent to-white pointer-events-none transition-opacity"
+      v-if="!scrollYAtEnd"
+      class="flex items-center justify-items-end absolute z-100 right-0 inset-y-0 w-10 bg-gradient-to-r from-[rgba(255,255,255,0)] to-white pointer-events-none transition-opacity"
     ></div>
     <div
-      class="flex items-center justify-items-end absolute z-100 bottom-0 inset-x-0 h-10 bg-gradient-to-b from-transparent to-white pointer-events-none transition-opacity"
+      v-if="!scrollXAtEnd"
+      class="flex items-center justify-items-end absolute z-100 bottom-0 inset-x-0 h-10 bg-gradient-to-b from-[rgba(255,255,255,0)] to-white pointer-events-none transition-opacity"
     ></div>
   </div>
 </template>
@@ -70,7 +76,20 @@ const props = defineProps({
   },
 });
 
-function calculateVerticalBarHeight(event) {
+let scrollXAtEnd = ref(false);
+let scrollYAtEnd = ref(false);
+let scrollElement = ref();
+
+function scroll(event: Event) {
+  let target = event.target as HTMLInputElement;
+  scrollXAtEnd.value =
+    target.scrollTop + target.offsetHeight >= target.scrollHeight;
+  scrollYAtEnd.value =
+    target.scrollLeft + target.offsetWidth >= target.scrollWidth;
+}
+
+function calculateVerticalBarHeight(event: MouseEvent) {
+  if (event.target === null) return;
   const td = event.target.closest("td");
   const table = event.target.closest("table");
   const bar = td.querySelector(".vertical-hover-bar");
