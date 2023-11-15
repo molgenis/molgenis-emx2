@@ -1,31 +1,29 @@
 <script setup lang="ts">
-import type { IVariable, IVariableMappings } from "~/interfaces/types";
+import type {
+  HarmonizationStatus,
+  IVariable,
+  IVariableMappings,
+} from "~/interfaces/types";
 
 type VariableDetailsWithMapping = IVariable & IVariableMappings;
 const props = defineProps<{
   variable: VariableDetailsWithMapping;
-  cohorts: { id: string }[];
+  cohortsWithMapping: { cohort: { id: string }; status: HarmonizationStatus }[];
 }>();
-
-const cohortsWithMapping = computed(() => {
-  return props.cohorts
-    .map((cohort) => {
-      const status = calcHarmonizationStatus([props.variable], [cohort])[0][0];
-      return {
-        cohort,
-        status,
-      };
-    })
-    .filter(({ status }) => status !== "unmapped");
-});
 
 const activeIndex = ref(0);
 
 const statusPerCohort = computed(
-  () => calcHarmonizationStatus([props.variable], cohortsWithMapping.value.map((cwm => cwm.cohort)))[0]
+  () =>
+    calcHarmonizationStatus(
+      [props.variable],
+      props.cohortsWithMapping.map((cwm) => cwm.cohort)
+    )[0]
 );
 
-const activeCohortId = computed(() => cohortsWithMapping.value[activeIndex.value].cohort.id);
+const activeCohortId = computed(
+  () => props.cohortsWithMapping[activeIndex.value].cohort.id
+);
 
 const activeMappingDescription = computed(() => {
   const activeCohortMapping = props.variable?.mappings?.find(

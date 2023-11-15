@@ -1,23 +1,9 @@
 <script setup lang="ts">
-import type { IVariable, IVariableMappings } from "~/interfaces/types";
+import type { HarmonizationStatus } from "~/interfaces/types";
 
-type VariableDetailsWithMapping = IVariable & IVariableMappings;
-const props = defineProps<{
-  variable: VariableDetailsWithMapping;
-  cohorts: { id: string }[];
+defineProps<{
+  cohortsWithMapping: { cohort: { id: string }; status: HarmonizationStatus }[];
 }>();
-
-const cohortsWithMapping = computed(() => {
-  return props.cohorts
-    .map((cohort) => {
-      const status = calcHarmonizationStatus([props.variable], [cohort])[0][0];
-      return {
-        cohort,
-        status,
-      };
-    })
-    .filter(({ status }) => status !== "unmapped");
-});
 </script>
 <template>
   <div class="grid grid-cols-3 gap-4">
