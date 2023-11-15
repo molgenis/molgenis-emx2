@@ -19,7 +19,7 @@
     "vue-scrollto": "2.20.0",
     "vuedraggable": "4.1.0",
     "nomnoml": "1.6.2",
-    "mermaid": "10.6.0"
+    "mermaid": "10.6.1"
   },
   "devDependencies": {
     "vite": "4.3.9",
