@@ -50,13 +50,13 @@ watch(props.filters, (filters) => {
         />
         <FilterOntology
           v-else-if="filter.columnType === 'ONTOLOGY'"
-          :table-name="filter.refTable"
+          :table-id="filter.refTableId"
           :mobileDisplay="mobileDisplay"
           v-model="filter.conditions"
         />
         <FilterList
           v-else-if="filter.columnType === 'REF_ARRAY'"
-          :table-name="filter.refTable"
+          :table-id="filter.refTableId"
           :key-field="filter.refFields.key"
           :name-field="filter.refFields.name"
           :descriptionField="filter.refFields.description"

@@ -15,84 +15,61 @@
     >
       <h2 id="section-intro-title">ERN CRANIO registry</h2>
       <p>
-        In 2019, ERN CRANIO responded to a call under the third programme for
-        the union's action in the field of health (2014-2020) and applied for
-        financial support to develop a patient registry. The network has
-        successfully obtained this support to develop this registry.
+        The ERN CRANIO Registry is a cutting-edge, secure web-based application
+        with a mission to establish a patient registry tailored to evaluate
+        clinical and patient-reported outcomes, ultimately advancing long-term
+        treatment strategies for individuals affected by rare craniofacial and
+        ENT disorders.
       </p>
       <p>
-        ERN CRANIO is developing a registry focused on the outcome of treatment
-        using standardised diagnosis specific outcome sets (starting with
-        craniosynostosis and cleft lip/palate) - including patient reported
-        outcome measures and outcomes on patients' quality of life.
+        This objective is achieved by systematically collecting standardized
+        disease-specific data as an integral part of the standard treatment
+        process.
       </p>
       <p>
-        To support the goals of ERN CRANIO, to pool together disease-specific
-        expertise, knowledge and resources from across Europe, a European-wide
-        registry is being developed for patients with rare and complex
-        craniofacial anomalies, and ENT disorders. This registry allows for
-        secure collection of patient data from across Europe, which will improve
-        the understanding and treatment of these conditions. It will also
-        facilitate research and lead to better care for these patients.
+        Identifying the most effective treatment outcomes empowers a
+        comprehensive analysis of predictive factors, placing a specific
+        emphasis on the type and timing of surgical interventions within each
+        unique center. The result is the generation of robust recommendations
+        for best clinical practices, benefiting not only ERN CRANIO centers but
+        extending this knowledge to a broader healthcare community.
       </p>
       <p>
-        The registry covers a wide range of rare craniofacial anomalies and ENT
-        disorders, including craniosynostosis, cleft lip and palate, rare
-        genetic deafness, craniofacial microsomia, and orodental anomalies. For
-        each diagnosis, a group of European specialists worked together to reach
-        consensus on relevant outcome measures and treatment endpoints. This
-        will allow for comparison of care on a level not previously seen, which
-        will greatly increase opportunities for improvement.
+        Patient data is gathered encompassing the severity of the phenotype,
+        diagnostic methods employed, treatment modalities, and a diverse range
+        of clinical and patient-reported outcomes.
       </p>
       <p>
-        The registry was built and is hosted in collaboration with MOLGENIS, a
-        company that specializes in registry development and support. The
-        platform is user-friendly and provides the highest levels of patient
-        data security. Additionally, it supports FAIR interfaces for data
-        exchange.
+        In a collaborative partnership with MOLGENIS, an expert in registry
+        development and support, the registry is built and hosted, further
+        enhancing its functionality by supporting FAIR interfaces for seamless
+        data exchange.
       </p>
       <p>
-        Currently the datasets used for craniosynostosis, and cleft lip and
-        palate are ready for implementation. The ERN CRANIO registry team and
-        European specialists are currently working on finalizing datasets for
-        rare genetic deafness and craniofacial microsomia. In case of any
-        questions regarding the ERN CRANIO registry, please email to:
-        <a href="mailto:ern-cranio@erasmusmc.nl">ern-cranio@erasmusmc.nl</a>.
+        To ensure utmost data security, all information incorporated into the
+        ERN CRANIO Registry is pseudonymized through the ERDRI SPIDER tool,
+        safeguarding it with the highest levels of patient data security.
       </p>
-      <DataTable
-        tableId="workstreams"
-        :data="data"
-        :columnOrder="['workstream', 'ERN CRANIO dataset manager']"
-        :enableRowHighlighting="false"
-      />
+      <p>
+        At present, datasets for Craniosynostosis and Cleft/Lip and Palate are
+        ready for immediate implementation.
+      </p>
+      <p>
+        Concurrently, the ERN CRANIO Registry team is diligently working to
+        finalize datasets for rare genetic deafness and craniofacial microsomia,
+        broadening the scope of this invaluable resource.
+      </p>
+      <p>
+        For any questions regarding ERN CRANIO registry, please email:
+        <a href="mailto:ern-cranioregistry@erasmusmc.nl"
+          >ern-cranioregistry@erasmusmc.nl</a
+        >.
+      </p>
     </PageSection>
   </Page>
 </template>
 
 <script setup>
-import { Page, PageHeader, PageSection, DataTable } from "molgenis-viz";
+import { Page, PageHeader, PageSection } from "molgenis-viz";
 import Breadcrumbs from "../components/breadcrumbs.vue";
-
-const data = [
-  {
-    workstream: "Craniosynostosis",
-    "ERN CRANIO dataset manager": "Linda Gaillard",
-  },
-  {
-    workstream: "Cleft lip and Palate",
-    "ERN CRANIO dataset manager": "Philip van der Goes & Victor van Roey",
-  },
-  {
-    workstream: "Rare genetic deafness",
-    "ERN CRANIO dataset manager": "Philip van der Goes",
-  },
-  {
-    workstream: "Craniofacial microsomia",
-    "ERN CRANIO dataset manager": "Linda Gaillard & Victor van Roey",
-  },
-  {
-    workstream: "Orodental anomalies",
-    "ERN CRANIO dataset manager": "Philip van der Goes",
-  },
-];
 </script>

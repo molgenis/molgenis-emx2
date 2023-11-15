@@ -1,6 +1,7 @@
 import { ITableMetaData } from "./ITableMetaData";
 
 export interface ISchemaMetaData {
-  name: string;
+  id: string;
+  label: string;
   tables: ITableMetaData[];
 }

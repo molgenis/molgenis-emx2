@@ -94,7 +94,6 @@ import IAggregateData from "./IAggregateData";
 import Client from "../../client/client";
 import InputSelect from "../forms/InputSelect.vue";
 import { IColumn } from "../../Interfaces/IColumn";
-import { convertToCamelCase } from "../utils";
 import { INewClient } from "../../client/IClient";
 
 export default defineComponent({
@@ -105,7 +104,7 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: true,
     },
@@ -113,7 +112,7 @@ export default defineComponent({
       type: Array,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
@@ -149,13 +148,13 @@ export default defineComponent({
       this.aggregateData = {};
       const responseData = await this.client
         .fetchAggregateData(
-          this.tableName,
+          this.tableId,
           {
-            name: convertToCamelCase(this.selectedColumn),
+            id: this.selectedColumn,
             column: "name",
           },
           {
-            name: convertToCamelCase(this.selectedRow),
+            id: this.selectedRow,
             column: "name",
           },
           this.graphqlFilter
@@ -163,8 +162,8 @@ export default defineComponent({
         .catch((error) => {
           this.errorMessage = error;
         });
-      if (responseData && responseData[this.tableName + "_groupBy"]) {
-        responseData[this.tableName + "_groupBy"].forEach((item: any) =>
+      if (responseData && responseData[this.tableId + "_groupBy"]) {
+        responseData[this.tableId + "_groupBy"].forEach((item: any) =>
           this.addItem(item)
         );
         this.noResults = !this.columns.length;
@@ -174,10 +173,8 @@ export default defineComponent({
       this.loading = false;
     },
     addItem(item: any) {
-      const column: string =
-        item[convertToCamelCase(this.selectedColumn)].name || "not specified";
-      const row: string =
-        item[convertToCamelCase(this.selectedRow)].name || "not specified";
+      const column: string = item[this.selectedColumn].name || "not specified";
+      const row: string = item[this.selectedRow].name || "not specified";
 
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
@@ -212,7 +209,7 @@ export default defineComponent({
     },
   },
   mounted() {
-    this.client = Client.newClient(this.schemaName);
+    this.client = Client.newClient(this.schemaId);
     this.initialize();
   },
 });
@@ -225,27 +222,37 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
         column.columnType.startsWith("ONTOLOGY")
       );
     })
-    .map((column: IColumn) => column.name);
+    .map((column: IColumn) => column.id);
 }
 </script>
 
 <docs>
 <template>
   <demo-item>
-    <label>AggregateTable</label>
+    <label>AggregateTable with canview=false</label>
     <AggregateTable
-      tableName="Pet"
-      schemaName="pet store"
+      tableId="Pet"
+      schemaId="pet store"
       :allColumns="allColumns"
       :minimumValue="1"
+      :canView="false"
+    />
+    <label>AggregateTable with canview=true</label>
+    <AggregateTable
+      tableId="Pet"
+      schemaId="pet store"
+      :allColumns="allColumns"
+      :minimumValue="1"
+      :canView="true"
     />
     <label>AggregateTable with filters set</label>
     <AggregateTable
-      tableName="Pet"
-      schemaName="pet store"
+      tableId="Pet"
+      schemaId="pet store"
       :allColumns="allColumns"
       :minimumValue="1"
       :graphqlFilter="graphqlFilter"
+      :canView="true"
     />
   </demo-item>
 </template>
@@ -256,19 +263,19 @@ export default {
     return {
       allColumns: [
         {
-          name: "name",
+          id: "name",
           columnType: "STRING",
         },
         {
-          name: "category bla",
+          id: "category",
           columnType: "REF",
         },
         {
-          name: "tags",
+          id: "tags",
           columnType: "ONTOLOGY_ARRAY",
         },
         {
-          name: "orders",
+          id: "orders",
           columnType: "REFBACK",
         },
       ],

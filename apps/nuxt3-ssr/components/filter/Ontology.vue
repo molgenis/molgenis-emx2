@@ -1,6 +1,6 @@
 <script setup>
 const props = defineProps({
-  tableName: {
+  tableId: {
     type: String,
   },
   isMultiSelect: {
@@ -25,26 +25,26 @@ const emit = defineEmits(["update:modelValue"]);
 let data = [];
 if (!props.options) {
   const query = `
-    query 
-    ${props.tableName}( $filter:${props.tableName}Filter, $orderby:${props.tableName}orderby )
-    {   
-      ${props.tableName}( filter:$filter, limit:100000,  offset:0, orderby:$orderby )  
-        {          
+    query
+    ${props.tableId}( $filter:${props.tableId}Filter, $orderby:${props.tableId}orderby )
+    {
+      ${props.tableId}( filter:$filter, limit:100000,  offset:0, orderby:$orderby )
+        {
           order
-          name 
-          code 
+          name
+          code
           parent{ name }
-          ontologyTermURI 
-          definition 
+          ontologyTermURI
+          definition
           children{ name }
-        }       
-      ${props.tableName}_agg( filter:$filter ) { count }
+        }
+      ${props.tableId}_agg( filter:$filter ) { count }
       }
   `;
   let resp = await fetchOntology(query);
 
-  data = resp?.data[props.tableName];
-  let count = resp?.data[props.tableName + "_agg"].count;
+  data = resp?.data[props.tableId];
+  let count = resp?.data[props.tableId + "_agg"].count;
 } else {
   data = props.options;
 }

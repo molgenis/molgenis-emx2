@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ISectionField } from "interfaces/types";
+import { ISectionField } from "~/interfaces/types";
 defineProps<{
   field: ISectionField;
 }>();

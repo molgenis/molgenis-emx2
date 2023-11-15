@@ -23,7 +23,7 @@
 
     <td
       v-for="col in columns"
-      :key="col.name + isSelected"
+      :key="col.id + isSelected"
       style="cursor: pointer"
       :style="col.showColumn ? '' : 'display: none'"
       @click="
@@ -53,7 +53,7 @@ export default {
       required: true,
     },
     columns: { type: Array, required: true },
-    tableName: { type: String, required: true },
+    tableId: { type: String, required: true },
     client: { type: Object, required: true },
     showSelect: { type: Boolean, required: false },
     selection: { type: Array, required: false },
@@ -79,7 +79,7 @@ export default {
   methods: {
     isRefType,
     async convertRowToPrimaryKey(row) {
-      return await this.client.convertRowToPrimaryKey(row, this.tableName);
+      return await this.client.convertRowToPrimaryKey(row, this.tableId);
     },
     onColumnClick(column) {
       this.$emit("column-click", column);
@@ -107,7 +107,7 @@ export default {
   },
   mounted() {
     this.client
-      .convertRowToPrimaryKey(this.row, this.tableName)
+      .convertRowToPrimaryKey(this.row, this.tableId)
       .then((result) => {
         this.rowKey = result;
       })

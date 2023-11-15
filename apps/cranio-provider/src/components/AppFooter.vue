@@ -6,13 +6,13 @@
           <p><strong>ERN CRANIO</strong></p>
           <UnorderedList listType="none">
             <li>
-              <router-link :to="{ name: 'home' }"> Home </router-link>
+              <a href="/CranioStats/cranio-public/#/">Home</a>
             </li>
             <li>
-              <router-link :to="{ name: 'about' }"> About </router-link>
+              <a href="/CranioStats/cranio-public/#/about">About</a>
             </li>
             <li>
-              <router-link :to="{ name: 'dashboard' }"> Dashboard </router-link>
+              <a href="/CranioStats/cranio-public/#/dashboard">Dashboard</a>
             </li>
           </UnorderedList>
         </div>
@@ -20,21 +20,22 @@
           <p><strong>For Members</strong></p>
           <UnorderedList listType="none">
             <li>
-              <router-link :to="{ name: 'providers', params: { id: orgId } }">
-                Member Sign in
-              </router-link>
+              <a href="/CranioStats/cranio-public/#/Providers">Providers</a>
+            </li>
+            <li>
+              <a href="/CranioStats/cranio-public/#/Documents">Documents</a>
             </li>
           </UnorderedList>
         </div>
         <div class="footer-column footer-logos">
           <UnorderedList listType="none">
             <li id="project-logo-link">
-              <router-link :to="{ name: 'home' }">
+              <a href="/CranioStats/cranio-public/#/">
                 <img
                   src="/ern-cranio-logo.png"
                   alt="ERN CRANIO: European Reference Network for rare and/or complex craniofacial anomalies and ear, nose and throat (ENT) disorders"
                 />
-              </router-link>
+              </a>
             </li>
             <li>
               <a href="https://www.molgenis.org">
@@ -69,7 +70,7 @@ const props = defineProps(viewProps);
 
   .footer-container {
     color: $gray-800;
-    background-color: $gray-050;
+    background-color: $gray-000;
   }
 
   .footer-content {

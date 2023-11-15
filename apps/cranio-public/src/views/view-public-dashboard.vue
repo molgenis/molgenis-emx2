@@ -40,7 +40,7 @@
       </DashboardBox>
       <DashboardBox class="viz-map">
         <GeoMercator
-          chartId="dataProvidersMap"
+          chartId="data-providers-map"
           title="Data Providers"
           :geojson="WorldGeoJson"
           :chartData="providers"
@@ -54,10 +54,7 @@
           }"
           :tooltipTemplate="
             (row) => {
-              return `
-              <p class='title'>${row.name}</p>
-              <p class='location'>${row.city}, ${row.country}</p>
-            `;
+              return `<p class='title'>${row.name}</p><p class='location'>${row.city}, ${row.country}</p>`;
             }
           "
           :enableLegendClicks="true"
@@ -124,14 +121,15 @@ async function getStatsByComponent() {
   `;
 
   const response = await request("../api/graphql", query);
-  const data = await response.Components;
-  return data;
+  const data = response.Components;
+  stats.value = data;
 }
 
 async function getOrganisations() {
   const query = `{
     Organisations {
       name
+      code
       city
       country
       latitude
@@ -144,7 +142,7 @@ async function getOrganisations() {
   }`;
 
   const response = await request("../api/graphql", query);
-  const data = await response.Organisations.map((row) => {
+  const data = response.Organisations.map((row) => {
     return {
       ...row,
       hasSubmittedData: row.providerInformation[0].hasSubmittedData
@@ -152,12 +150,12 @@ async function getOrganisations() {
         : "No Data",
     };
   });
-  return data;
+  providers.value = data;
 }
 
 async function loadData() {
-  stats.value = await getStatsByComponent();
-  providers.value = await getOrganisations();
+  await getStatsByComponent();
+  await getOrganisations();
 }
 
 onMounted(() => {
@@ -244,7 +242,7 @@ onMounted(() => {
   }
 }
 
-#dataProvidersMap + .d3-viz-legend {
+#data-providers-map + .d3-viz-legend {
   top: auto;
   bottom: 0;
   box-shadow: 4px -2px 4px 2px hsla(0, 0%, 0%, 0.2);
