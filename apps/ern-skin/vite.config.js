@@ -14,6 +14,7 @@ export default defineConfig(() => {
           @import "../molgenis-viz/src/styles/palettes.scss";
           @import "../molgenis-viz/src/styles/variables.scss";
           @import "../molgenis-viz/src/styles/mixins.scss";
+          @import "src/styles/variables.scss";
         `,
         },
       },
