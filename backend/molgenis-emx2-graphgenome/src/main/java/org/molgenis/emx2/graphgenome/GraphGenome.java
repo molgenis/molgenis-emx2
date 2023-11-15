@@ -9,6 +9,7 @@ import static org.molgenis.emx2.graphgenome.Semantics.*;
 import java.io.OutputStream;
 import java.util.*;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Table;
@@ -17,7 +18,7 @@ import org.molgenis.emx2.rdf.RDFService;
 
 public class GraphGenome extends RDFService {
 
-  public GraphGenome(String baseURL, String rdfAPIpath, String format) {
+  public GraphGenome(String baseURL, String rdfAPIpath, RDFFormat format) {
     super(baseURL, rdfAPIpath, format);
   }
 

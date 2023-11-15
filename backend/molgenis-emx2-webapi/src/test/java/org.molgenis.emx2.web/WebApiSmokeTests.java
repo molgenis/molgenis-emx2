@@ -1098,47 +1098,39 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  void testRedirectOnJSONLDEndpoint() {
+  void testJSONLDonJSONLDEndpoint() {
     given()
         .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
         .expect()
-        .statusCode(302)
-        .header("Location", is("/pet store/api/rdf?format=jsonld"))
+        .contentType("Application/ld+json")
+        .statusCode(200)
         .when()
         .get("/pet store/api/jsonld");
 
     given()
         .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
         .expect()
-        .statusCode(302)
-        .header("Location", is("/pet store/api/rdf/Pet?format=jsonld"))
+        .contentType("Application/ld+json")
+        .statusCode(200)
         .when()
         .get("/pet store/api/jsonld/Pet");
   }
 
   @Test
-  void testRedirectOnTTLEndpoint() {
+  void testTurtleOnTTLEndpoint() {
     given()
         .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
         .expect()
-        .statusCode(302)
-        .header("Location", is("/pet store/api/rdf?format=ttl"))
+        .contentType("text/turtle")
+        .statusCode(200)
         .when()
         .get("/pet store/api/ttl");
 
     given()
         .sessionId(SESSION_ID)
-        .redirects()
-        .follow(false)
         .expect()
-        .statusCode(302)
-        .header("Location", is("/pet store/api/rdf/Pet?format=ttl"))
+        .contentType("test/turtle")
+        .statusCode(200)
         .when()
         .get("/pet store/api/ttl/Pet");
   }

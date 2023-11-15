@@ -27,7 +27,7 @@ public class GraphGenomeApi {
   private static int graphGenomeForDatabase(Request request, Response response) throws IOException {
     List<Table> tables = getTableFromAllSchemas("GenomicVariations", request);
     OutputStream outputStream = response.raw().getOutputStream();
-    String format = request.queryParams("format");
+
     String gene = request.queryParams("gene");
     String assembly = request.queryParams("assembly");
     String ucscgenome = request.queryParams("ucscgenome");
@@ -39,6 +39,7 @@ public class GraphGenomeApi {
             + (StringUtils.isNotEmpty(request.servletPath())
                 ? "/" + request.servletPath() + "/"
                 : "/");
+    var format = RDFApi.selectFormat(request);
     new GraphGenome(baseURL, RDFApi.RDF_API_LOCATION, format)
         .graphGenomeAsRDF(
             outputStream, gene, assembly, ucscgenome, GRAPH_GENOME_API_LOCATION, tables);
