@@ -214,20 +214,12 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-
-@mixin chartTitle {
-  font-size: 1.1rem;
-  padding: 0;
-  margin-bottom: 0.5em;
-  text-align: center;
-}
-
 .d3-viz {
   &.d3-pie, &.d3-geo-mercator {
     .chart-context {
       text-align: center;
       .chart-title {
-        @include chartTitle;
+        @include setChartTitle;
       }
     }
   }
@@ -235,7 +227,7 @@ onMounted(() => {
   
   &.d3-column-chart {
     .chart-title {
-      @include chartTitle;
+      @include setChartTitle;
     }
   }
 }
@@ -259,7 +251,7 @@ onMounted(() => {
 
 #diseaseGroupEnrollment {
   caption {
-    @include chartTitle;
+    @include setChartTitle;
   }
   thead {
     th {
