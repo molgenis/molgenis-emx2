@@ -57,7 +57,7 @@ public class Emx2 {
 
       // load table metadata, this is when columnName is empty
       if (r.getString(COLUMN_NAME) == null) {
-        schema.getTableMetadata(tableName).setInherit(r.getString(TABLE_EXTENDS));
+        schema.getTableMetadata(tableName).setInheritName(r.getString(TABLE_EXTENDS));
         schema.getTableMetadata(tableName).setImportSchema(r.getString(REF_SCHEMA));
         schema.getTableMetadata(tableName).setSemantics(r.getStringArray(SEMANTICS, false));
         schema.getTableMetadata(tableName).setProfiles(r.getStringArray(PROFILES, false));
@@ -104,7 +104,7 @@ public class Emx2 {
           if (r.notNull(COLUMN_TYPE))
             column.setType(ColumnType.valueOf(r.getString(COLUMN_TYPE).toUpperCase().trim()));
           if (r.notNull(KEY)) column.setKey(r.getInteger(KEY));
-          if (r.notNull(REF_SCHEMA)) column.setRefSchema(r.getString(REF_SCHEMA));
+          if (r.notNull(REF_SCHEMA)) column.setRefSchemaName(r.getString(REF_SCHEMA));
           if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
           if (r.notNull(REF_LINK)) column.setRefLink(r.getString(REF_LINK));
           if (r.notNull(REF_BACK)) column.setRefBack(r.getString(REF_BACK));
@@ -215,7 +215,7 @@ public class Emx2 {
       Row row = new Row();
       // set null columns to ensure sensible order
       row.setString(TABLE_NAME, t.getTableName());
-      row.setString(TABLE_EXTENDS, t.getInherit());
+      row.setString(TABLE_EXTENDS, t.getInheritName());
       row.setString(TABLE_TYPE, null);
       row.setString(COLUMN_NAME, null);
       row.setString(COLUMN_TYPE, null);
@@ -260,8 +260,8 @@ public class Emx2 {
         if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
         if (c.getDefaultValue() != null) row.setString(DEFAULT_VALUE, c.getDefaultValue());
         if (c.getKey() > 0) row.setInt(KEY, c.getKey());
-        if (c.getRefSchema() != null && !c.getRefSchema().equals(c.getSchemaName()))
-          row.setString(REF_SCHEMA, c.getRefSchema());
+        if (c.getRefSchemaName() != null && !c.getRefSchemaName().equals(c.getSchemaName()))
+          row.setString(REF_SCHEMA, c.getRefSchemaName());
         if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
         if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
         if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());

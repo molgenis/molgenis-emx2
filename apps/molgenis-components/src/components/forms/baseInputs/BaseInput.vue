@@ -12,7 +12,7 @@ export default {
     },
     /**
      * Name of the element. For example used by the server to identify the fields in form submits.
-     * relates to EMX2 columnName
+     * relates to EMX2 columnId
      */
     name: {
       type: String,

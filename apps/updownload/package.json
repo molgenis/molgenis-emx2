@@ -11,13 +11,13 @@
   },
   "dependencies": {
     "molgenis-components": "*",
-    "core-js": "3.33.0",
+    "core-js": "3.33.2",
     "graphql-request": "5.2.0",
     "vue": "3.3.4"
   },
   "devDependencies": {
     "vite": "4.3.9",
-    "@vitejs/plugin-vue": "4.4.0",
+    "@vitejs/plugin-vue": "4.4.1",
     "prettier": "2.8.8"
   },
   "browserslist": [

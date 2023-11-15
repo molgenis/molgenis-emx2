@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = withDefaults(
   defineProps<{
-    tableName: string;
+    tableId: string;
     nameField?: string;
     keyField?: string;
     descriptionField?: string;
@@ -25,13 +25,13 @@ interface IOption {
 
 const query = `
     query 
-    ${props.tableName}( $filter:${props.tableName}Filter )
+    ${props.tableId}( $filter:${props.tableId}Filter )
     {   
-        ${props.tableName}( filter:$filter, limit:100000,  offset:0, orderby:{${props.nameField}: ASC} )  
+        ${props.tableId}( filter:$filter, limit:100000,  offset:0, orderby:{${props.nameField}: ASC} )
         {          
             ${props.keyField} ${props.nameField} ${props.descriptionField}
         }       
-        ${props.tableName}_agg( filter:$filter ) { count }
+        ${props.tableId}_agg( filter:$filter ) { count }
         }
     `;
 
@@ -39,7 +39,7 @@ const options: IOption[] = (
   await fetchGql(query).catch((e) => {
     console.error(e);
   })
-)?.data[props.tableName]?.map((respItem) => {
+)?.data[props.tableId]?.map((respItem: any) => {
   const selectedKeyValues = props.modelValue.map(
     (selectedItem) => selectedItem[props.keyField]
   );

@@ -113,7 +113,6 @@ import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "click-outside-vue3";
-import { convertToPascalCase } from "../utils.ts";
 import Spinner from "../layout/Spinner.vue";
 
 /**
@@ -153,11 +152,11 @@ export default {
       type: Boolean,
       default: false,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: false,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -180,9 +179,6 @@ export default {
     };
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     rootTerms() {
       if (this.terms) {
         let result = Object.values(this.terms).filter(
@@ -197,7 +193,7 @@ export default {
     orderByObject() {
       if (
         this.tableMetadata &&
-        this.tableMetadata.columns.some((c) => c.name === "order")
+        this.tableMetadata.columns.some((c) => c.id === "order")
       ) {
         return { order: "ASC" };
       } else {
@@ -500,11 +496,9 @@ export default {
     },
   },
   async mounted() {
-    if (this.tableName) {
-      const client = Client.newClient(this.schemaName);
-      this.data = (
-        await client.fetchTableData(this.tableName, { limit: this.limit || 20 })
-      )[this.tableId];
+    if (this.tableId) {
+      const client = Client.newClient(this.schemaId);
+      this.data = await client.fetchOntologyOptions(this.tableId);
     }
   },
   created() {
@@ -568,8 +562,8 @@ function getSelectedChildNodes(term) {
           label="Ontology select with backend data"
           description="please choose your options in tree below"
           v-model="value3"
-          tableName="Tag"
-          schemaName="pet store"
+          tableId="Tag"
+          schemaId="pet store"
       />
       <div>You selected: {{ value3 }}</div>
     </demo-item>
@@ -582,8 +576,8 @@ function getSelectedChildNodes(term) {
           description="please choose your options in tree below"
           v-model="value4"
           :isMultiSelect="true"
-          tableName="Tag"
-          schemaName="pet store"
+          tableId="Tag"
+          schemaId="pet store"
       />
       <div>You selected: {{ value4 }}</div>
     </demo-item>

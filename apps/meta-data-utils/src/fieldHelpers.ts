@@ -1,4 +1,4 @@
-import type { IColumn } from "~~/interfaces/types";
+import { IColumn } from "./types";
 
 export const fieldTypes = () => {
   return [
@@ -37,7 +37,7 @@ export const fieldTypes = () => {
 
 export const isEmpty = (obj: object) => {
   for (const prop in obj) {
-    if (Object.hasOwn(obj, prop)) {
+    if (Object.hasOwnProperty.call(obj, prop)) {
       return false;
     }
   }

@@ -22,8 +22,10 @@ public class GraphqlConstants {
   public static final String DESCRIPTIONS = "descriptions";
   public static final String OLD_NAME = "oldName";
   public static final String DROP = "drop";
-  public static final String EXTERNAL_SCHEMA = "externalSchema";
-  public static final String INHERIT = "inherit";
+  public static final String SCHEMA_NAME = "schemaName";
+  public static final String SCHEMA_ID = "schemaId";
+  public static final String INHERIT_NAME = "inheritName";
+  public static final String INHERIT_ID = "inheritId";
   public static final String INHERITED = "inherited";
   public static final String FILTER = "Filter";
   public static final String TABLES = "tables";
@@ -41,6 +43,7 @@ public class GraphqlConstants {
   public static final String ORDERBY = "orderby";
   public static final String KEYS = "keys";
   public static final String LABEL = "label";
+  public static final String DESCRIPTION = "description";
   public static final String COUNT = "count";
   public static final String SCHEMAS = "schemas";
   public static final String TASK_ID = "id";
@@ -61,6 +64,15 @@ public class GraphqlConstants {
   public static final String TABLENAME = "tableName";
   public static final String OLD_ROW_DATA = "oldRowData";
   public static final String NEW_ROW_DATA = "newRowData";
+  public static final String REF_SCHEMA_NAME = "refSchemaName";
+  public static final String REF_TABLE_NAME = "refTableName";
+  public static final String REF_LINK_NAME = "refLinkName";
+  public static final String REF_BACK_NAME = "refBackName";
+  public static final String REF_SCHEMA_ID = "refSchemaId";
+  public static final String REF_TABLE_ID = "refTableId";
+  public static final String REF_LINK_ID = "refLinkId";
+  public static final String REF_BACK_ID = "refBackId";
+  public static final String TABLE_ID = "tableId";
 
   private GraphqlConstants() {
     // hide constructor

@@ -1,17 +1,19 @@
+import { IFilter } from "~/interfaces/types";
+
 const buildFilterVariables = (filters: IFilter[]) => {
   const filtersVariables = filters.reduce<
-    Record<string, Record<string, object | string>>
+    Record<string, Record<string, any | string>>
   >((accum, filter) => {
-    if (filter.columnName && filter?.conditions?.length) {
+    if (filter.columnId && filter?.conditions?.length) {
       if (filter.filterTable) {
         if (!accum[filter.filterTable]) {
           accum[filter.filterTable] = {};
         }
-        accum[filter.filterTable][filter.columnName] = {
+        accum[filter.filterTable][filter.columnId] = {
           equals: filter.conditions,
         };
       } else {
-        accum[filter.columnName] = { equals: filter.conditions };
+        accum[filter.columnId] = { equals: filter.conditions };
       }
     }
 
