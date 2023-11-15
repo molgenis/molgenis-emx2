@@ -4,9 +4,9 @@
     <EditModal
       v-if="isModalShown"
       :id="id + 'add-modal'"
-      :tableName="tableName"
+      :tableId="tableId"
       :isModalShown="isModalShown"
-      :schemaName="schemaName"
+      :schemaId="schemaId"
       :defaultValue="defaultValue"
       :visibleColumns="visibleColumns"
       :applyDefaultValues="true"
@@ -26,11 +26,11 @@ export default {
       type: String,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -65,8 +65,8 @@ export default {
     <div>
       <RowButtonAdd
           id="row-add-btn-sample"
-          tableName="Pet"
-          schemaName="pet store"
+          tableId="Pet"
+          schemaId="pet store"
       />
     </div>
   </div>

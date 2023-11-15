@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ISectionField } from "interfaces/types";
+import { ISectionField, IOntologyNode } from "~/interfaces/types";
 const { field } = defineProps<{
   field: ISectionField;
 }>();
 
-const asSting = computed(() => {
-  return field.value?.map((item) => item.name).join(", ");
+const asString = computed(() => {
+  return field.value?.map((item): any => item.name).join(", ");
 });
 </script>
 
 <template>
-  <p>{{ asSting }}</p>
+  <p>{{ asString }}</p>
 </template>

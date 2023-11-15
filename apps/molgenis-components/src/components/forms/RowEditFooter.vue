@@ -33,7 +33,7 @@
           @click="$emit('save')"
           :disabled="Boolean(saveDisabledMessage)"
         >
-          Save {{ tableName }}
+          Save {{ tableLabel }}
         </ButtonAction>
       </Tooltip>
     </div>
@@ -51,17 +51,17 @@ import { toRefs } from "vue";
 
 const props = withDefaults(
   defineProps<{
-    tableName?: string;
+    tableLabel?: string;
     successMessage?: string;
     errorMessage?: string;
     saveDraftDisabledMessage?: string;
     saveDisabledMessage?: string;
   }>(),
-  { tableName: "" }
+  { tableLabel: "" }
 );
 
 const {
-  tableName,
+  tableLabel,
   successMessage,
   errorMessage,
   saveDraftDisabledMessage,
@@ -82,7 +82,7 @@ const {
     </DemoItem>
     <DemoItem>
       <label for="sample-table-name">With table name</label>
-      <RowEditFooter id="sample-table-name" tableName="Pets" />
+      <RowEditFooter id="sample-table-name" tableLabel="Pets" />
     </DemoItem>
     <DemoItem>
       <label for="sample-success-msg">With success message</label>

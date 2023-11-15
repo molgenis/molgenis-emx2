@@ -24,7 +24,7 @@ export default {
   extends: BaseInput,
   props: {
     id: { required: true, type: String },
-    tableName: { required: true, type: String },
+    tableId: { required: true, type: String },
     row: { required: true, type: Object },
     selection: { required: false, type: Object },
     client: { required: true, type: Object },
@@ -44,7 +44,7 @@ export default {
   },
   mounted() {
     this.client
-      .convertRowToPrimaryKey(this.row, this.tableName)
+      .convertRowToPrimaryKey(this.row, this.tableId)
       .then((rowKey: IRow) => {
         this.rowKey = rowKey;
       });

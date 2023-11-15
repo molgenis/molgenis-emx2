@@ -582,7 +582,9 @@ public class GraphqlTableFieldFactory {
                         + (s.getName().endsWith("_agg")
                             ? "_agg"
                             : s.getName().endsWith("_groupBy") ? "_groupBy" : ""),
-                    convertMapSelection(column.get().getRefTable(), s.getSelectionSet()));
+                    convertMapSelection(
+                        column.get().isReference() ? column.get().getRefTable() : null,
+                        s.getSelectionSet()));
             // get limit and offset for the selection
             Map<String, Object> args = s.getArguments();
             if (args.containsKey(GraphqlConstants.FILTER_ARGUMENT)) {

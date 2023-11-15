@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 import { buildQueryFilter } from "./buildQueryFilter";
+import { IFilter } from "~/interfaces/types";
 
 describe("buildQueryFilter", () => {
   let filters: IFilter[] = [
@@ -13,8 +14,8 @@ describe("buildQueryFilter", () => {
     },
     {
       title: "Sample categories",
-      refTable: "SampleCategories",
-      columnName: "sampleCategories",
+      refTableId: "SampleCategories",
+      columnId: "sampleCategories",
       columnType: "ONTOLOGY",
       filterTable: "collectionEvents",
       conditions: [{ name: "Adipocytes" }, { name: "Myocytes, Cardiac" }],

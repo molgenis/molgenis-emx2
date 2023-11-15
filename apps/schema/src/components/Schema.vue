@@ -107,6 +107,7 @@ import {
   addOldNamesAndRemoveMeta,
   convertToSubclassTables,
 } from "../utils.ts";
+import gql from "graphql-tag";
 
 export default {
   components: {
@@ -187,7 +188,7 @@ export default {
         }
       });
       tables.forEach((table) => {
-        delete table.externalSchema;
+        delete table.schemaId;
         table.columns = table.columns
           ? table.columns.filter((column) => column.table === table.name)
           : [];

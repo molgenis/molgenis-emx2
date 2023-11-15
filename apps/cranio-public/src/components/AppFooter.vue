@@ -24,6 +24,9 @@
                 View Providers
               </router-link>
             </li>
+            <li>
+              <router-link :to="{ name: 'documents' }"> Documents </router-link>
+            </li>
           </UnorderedList>
         </div>
         <div class="footer-column footer-logos">

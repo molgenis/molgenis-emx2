@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { IOntologyNode } from "~/interfaces/types";
+
 const { node, collapseAll } = withDefaults(
   defineProps<{
     node: IOntologyNode;

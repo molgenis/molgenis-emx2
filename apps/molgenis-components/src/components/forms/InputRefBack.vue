@@ -3,7 +3,7 @@
     <Spinner v-if="isLoading" />
     <TableMolgenis
       v-else-if="hasPrimaryKey"
-      :schemaName="schemaName"
+      :schemaId="schemaId"
       :data="data"
       :columns="visibleColumns"
       :table-metadata="tableMetadata"
@@ -15,7 +15,7 @@
           v-bind="$props"
           :canEdit="canEdit"
           :reload="reload"
-          :schemaName="schemaName"
+          :schemaId="schemaId"
         />
         <RowButton
           v-if="canEdit"
@@ -34,9 +34,9 @@
         <RowButton
           v-if="canEdit"
           type="edit"
-          :table="tableName"
-          :schemaName="schemaName"
-          :visible-columns="visibleColumnNames"
+          :table="tableId"
+          :schemaId="schemaId"
+          :visible-columns="visibleColumnIds"
           :pkey="slotProps.rowKey"
           @close="reload"
           @edit="handleRowAction('edit', slotProps.rowKey)"
@@ -44,10 +44,10 @@
         <RowButton
           v-if="canEdit"
           type="clone"
-          :table="tableName"
-          :schemaName="schemaName"
+          :table="tableId"
+          :schemaId="schemaId"
           :pkey="slotProps.rowKey"
-          :visible-columns="visibleColumnNames"
+          :visible-columns="visibleColumnIds"
           @close="reload"
           @clone="handleRowAction('clone', slotProps.rowKey)"
         />
@@ -66,22 +66,23 @@
     <EditModal
       v-if="isEditModalShown"
       :isModalShown="true"
-      :id="tableName + '-edit-modal'"
-      :tableName="tableName"
+      :id="tableId + '-edit-modal'"
+      :tableId="tableId"
       :pkey="editRowPrimaryKey"
       :visibleColumns="visibleColumns"
       :clone="editMode === 'clone'"
-      :schemaName="schemaName"
+      :schemaId="schemaId"
       :defaultValue="defaultValue"
       @close="handleModalClose"
     />
 
     <ConfirmModal
       v-if="isDeleteModalShown"
-      :title="'Delete from ' + tableName"
+      :title="'Delete from ' + tableId"
       actionLabel="Delete"
       actionType="danger"
-      :tableName="tableName"
+      :tableId="tableId"
+      :tableLabel="tableMetadata.label"
       :pkey="editRowPrimaryKey"
       @close="isDeleteModalShown = false"
       @confirmed="handleExecuteDelete"
@@ -94,7 +95,7 @@ import Client from "../../client/client.ts";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
 import TableMolgenis from "../tables/TableMolgenis.vue";
-import { convertToCamelCase, deepEqual } from "../utils";
+import { deepEqual } from "../utils";
 import ConfirmModal from "./ConfirmModal.vue";
 import FormGroup from "./FormGroup.vue";
 import MessageError from "./MessageError.vue";
@@ -115,12 +116,12 @@ export default {
   },
   props: {
     /** name of the table from which is referred back to this field */
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    /** name of the column in the other table */
-    refBack: {
+    /** id of the column in the other table */
+    refBackId: {
       type: String,
       required: true,
     },
@@ -132,7 +133,7 @@ export default {
       type: [Object, null],
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -162,19 +163,19 @@ export default {
   computed: {
     graphqlFilter() {
       return {
-        [convertToCamelCase(this.refBack)]: {
+        [this.refBackId]: {
           equals: this.pkey,
         },
       };
     },
-    visibleColumnNames() {
+    visibleColumnIds() {
       return this.visibleColumns.map((c) => c.id);
     },
     visibleColumns() {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.id != this.refBack && !c.id.startsWith("mg_")
+          (c) => c.id != this.refBackId && !c.id.startsWith("mg_")
         );
       }
       return [];
@@ -186,7 +187,7 @@ export default {
   methods: {
     async reload() {
       this.isLoading = true;
-      this.data = await this.client.fetchTableDataValues(this.tableName, {
+      this.data = await this.client.fetchTableDataValues(this.tableId, {
         filter: this.graphqlFilter,
       });
       this.isLoading = false;
@@ -207,7 +208,7 @@ export default {
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
       await this.client
-        .deleteRow(this.editRowPrimaryKey, this.tableName)
+        .deleteRow(this.editRowPrimaryKey, this.tableId)
         .catch(this.handleError)
         .then(this.reload());
       let newValue = this.modelValue.filter(
@@ -225,13 +226,13 @@ export default {
     },
   },
   mounted: async function () {
-    this.client = Client.newClient(this.schemaName);
+    this.client = Client.newClient(this.schemaId);
     this.isLoading = true;
     this.tableMetadata = await this.client
-      .fetchTableMetaData(this.tableName)
-      .catch((error) => (this.errorMessage = error.message));
+      .fetchTableMetaData(this.tableId)
+      .catch((error) => (this.graphqlError = error.message));
     this.defaultValue = new Object();
-    this.defaultValue[convertToCamelCase(this.refBack)] = await this.pkey;
+    this.defaultValue[this.refBackId] = await this.pkey;
     await this.reload();
   },
 };
@@ -251,10 +252,10 @@ export default {
       <InputRefBack
           id="refback1"
           label="Orders"
-          tableName="Order"
-          refBack="pet"
+          tableId="Order"
+          refBackId="pet"
           :pkey=null
-          schemaName="pet store"
+          schemaId="pet store"
       />
     </div>
 
@@ -263,8 +264,8 @@ export default {
       <InputRefBack
           id="refback1"
           label="Orders"
-          tableName="Order"
-          refBack="pet"
+          tableId="Order"
+          refBackId="pet"
           :pkey={}
           schemaName="pet store"
       />
@@ -276,10 +277,10 @@ export default {
       <InputRefBack
           id="refback2"
           label="Orders"
-          tableName="Order"
-          refBack="pet"
+          tableId="Order"
+          refBackId="pet"
           :pkey="{name:'spike'}"
-          schemaName="pet store"
+          schemaId="pet store"
       />
     </div>
 
@@ -289,10 +290,10 @@ export default {
           id="refback3"
           canEdit
           label="Orders"
-          tableName="Order"
-          refBack="pet"
+          tableId="Order"
+          refBackId="pet"
           :pkey="{name:'spike'}"
-          schemaName="pet store"
+          schemaId="pet store"
       />
     </div>
   </div>

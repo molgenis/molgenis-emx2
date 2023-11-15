@@ -15,7 +15,7 @@
     <div v-if="count > 0 || search || (session && session.email == 'admin')">
       <InputSearch
         id="groups-search-input"
-        placeholder="search by name"
+        placeholder="search in schemas"
         v-model="search"
       />
       <label>{{ count }} databases found</label>
@@ -28,10 +28,10 @@
               @click="openCreateSchema"
             />
           </th>
-          <th @click="changeSortOrder('name')" class="sort-col">
-            name
+          <th @click="changeSortOrder('label')" class="sort-col">
+            label
             <IconAction
-              v-if="sortOrder && sortColumn === 'name'"
+              v-if="sortOrder && sortColumn === 'label'"
               :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
               class="d-inline p-0 hide-icon"
             />
@@ -51,31 +51,31 @@
           </th>
         </thead>
         <tbody>
-          <tr v-for="schema in schemasFilteredAndSorted" :key="schema.name">
+          <tr v-for="schema in schemasFilteredAndSorted" :key="schema.id">
             <td>
               <div style="display: flex">
                 <IconAction
                   v-if="session && session.email == 'admin'"
                   icon="edit"
-                  @click="openEditSchema(schema.name, schema.description)"
+                  @click="openEditSchema(schema.id, schema.description)"
                 />
                 <IconDanger
                   v-if="session && session.email == 'admin'"
                   icon="trash"
-                  @click="openDeleteSchema(schema.name)"
+                  @click="openDeleteSchema(schema.id)"
                 />
               </div>
             </td>
             <td>
-              <a :href="'/' + schema.name">{{ schema.name }}</a>
+              <a :href="'/' + schema.id">{{ schema.label }}</a>
             </td>
             <td>
               {{ schema.description }}
             </td>
             <td v-if="showChangeColumn">
               <LastUpdateField
-                v-if="changelogSchemas.includes(schema.name)"
-                :schema="schema.name"
+                v-if="changelogSchemas.includes(schema.id)"
+                :schema="schema.id"
                 @input="
                   (i) => {
                     schema.update = new Date(i);
@@ -91,12 +91,12 @@
       <SchemaDeleteModal
         v-if="showDeleteSchema"
         @close="closeDeleteSchema"
-        :schemaName="showDeleteSchema"
+        :schemaId="showDeleteSchema"
       />
       <SchemaEditModal
         v-if="showEditSchema"
         @close="closeEditSchema"
-        :schemaName="showEditSchema"
+        :schemaId="showEditSchema"
         :schemaDescription="editDescription"
       />
     </div>
@@ -182,15 +182,15 @@ export default {
       this.showCreateSchema = false;
       this.getSchemaList();
     },
-    openDeleteSchema(schemaName) {
-      this.showDeleteSchema = schemaName;
+    openDeleteSchema(schemaId) {
+      this.showDeleteSchema = schemaId;
     },
     closeDeleteSchema() {
       this.showDeleteSchema = null;
       this.getSchemaList();
     },
-    openEditSchema(schemaName, schemaDescription) {
-      this.showEditSchema = schemaName;
+    openEditSchema(schemaId, schemaDescription) {
+      this.showEditSchema = schemaId;
       this.editDescription = schemaDescription;
     },
     closeEditSchema() {
@@ -200,7 +200,7 @@ export default {
     },
     getSchemaList() {
       this.loading = true;
-      request("graphql", "{_schemas{name description}}")
+      request("graphql", "{_schemas{id,label,description}}")
         .then((data) => {
           this.schemas = data._schemas;
           this.loading = false;
@@ -216,12 +216,12 @@ export default {
     fetchChangelogStatus() {
       this.schemas.forEach((schema) => {
         request(
-          `/${schema.name}/settings/graphql`,
+          `/${schema.id}/settings/graphql`,
           `{_settings (keys: ["isChangelogEnabled"]){ key, value }}`
         )
           .then((data) => {
             if (data._settings[0].value.toLowerCase() === "true") {
-              this.changelogSchemas.push(schema.name);
+              this.changelogSchemas.push(schema.id);
             }
           })
           .catch((error) => {
@@ -236,7 +236,7 @@ export default {
         filtered = this.schemas.filter((s) =>
           terms.every(
             (v) =>
-              s.name.toLowerCase().includes(v) ||
+              s.id.toLowerCase().includes(v) ||
               (s.description && s.description.toLowerCase().includes(v))
           )
         );
@@ -255,11 +255,11 @@ export default {
             return -1;
           }
           {
-            return a.name.localeCompare(b.name);
+            return a.id.localeCompare(b.id);
           }
         });
       } else {
-        sorted = unsorted.sort((a, b) => a.name.localeCompare(b.name));
+        sorted = unsorted.sort((a, b) => a.id.localeCompare(b.id));
       }
 
       if (this.sortOrder === "DESC") {
@@ -267,13 +267,13 @@ export default {
       }
       return sorted;
     },
-    changeSortOrder(columnName) {
-      if (this.sortColumn === columnName) {
+    changeSortOrder(columnId) {
+      if (this.sortColumn === columnId) {
         // reverse the sort
         this.sortOrder = this.sortOrder === "ASC" ? "DESC" : "ASC";
       } else {
         this.sortOrder = "ASC";
-        this.sortColumn = columnName;
+        this.sortColumn = columnId;
       }
     },
     handleLastUpdateChange() {

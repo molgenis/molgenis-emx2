@@ -1,10 +1,11 @@
 <template>
-  <span v-if="column.refTable">
+  <span v-if="column.key">key={{ column.key }}</span>
+  <span v-if="column.refTableName">
     {{ column.columnType.toLowerCase() }}({{
-      column.refSchema ? column.refSchema + "." : ""
-    }}{{ column.refTable
-    }}<span v-if="column.refBack">, refBack={{ column.refBack }}</span>
-    <span v-if="column.refLink">, refLink={{ column.refLink }}</span
+      column.refSchemaName ? column.refSchemaName + "." : ""
+    }}{{ column.refTableName
+    }}<span v-if="column.refBackName">, refBack={{ column.refBackName }}</span>
+    <span v-if="column.refLinkName">, refLink={{ column.refLinkName }}</span
     >)
   </span>
   <span v-else>

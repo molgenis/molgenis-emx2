@@ -1,6 +1,5 @@
 import gql from "graphql-tag";
-import { deepClone } from "molgenis-components";
-import { renderSvg } from "nomnoml";
+import { deepClone, ITableMetaData, IColumn } from "molgenis-components";
 
 export const schemaQuery = gql`
   {
@@ -12,9 +11,9 @@ export const schemaQuery = gql`
       name
       tables {
         name
+        schemaName
         tableType
-        inherit
-        externalSchema
+        inheritName
         labels {
           locale
           value
@@ -25,7 +24,6 @@ export const schemaQuery = gql`
         }
         semantics
         columns {
-          id
           name
           labels {
             locale
@@ -36,10 +34,10 @@ export const schemaQuery = gql`
           columnType
           inherited
           key
-          refSchema
-          refTable
-          refLink
-          refBack
+          refSchemaName
+          refTableName
+          refLinkName
+          refBackName
           refLabel
           required
           readonly
@@ -65,11 +63,7 @@ export function addOldNamesAndRemoveMeta(rawSchema: any) {
     //normal tables
     let tables = !schema.tables
       ? []
-      : schema.tables.filter(
-          (table) =>
-            table.tableType !== "ONTOLOGIES" &&
-            table.externalSchema === schema.name
-        );
+      : schema.tables.filter((table) => table.tableType !== "ONTOLOGIES");
     tables.forEach((t) => {
       t.oldName = t.name;
       if (t.columns) {
@@ -88,8 +82,7 @@ export function addOldNamesAndRemoveMeta(rawSchema: any) {
       ? []
       : schema.tables.filter(
           (table) =>
-            table.tableType === "ONTOLOGIES" &&
-            table.externalSchema === schema.name
+            table.tableType === "ONTOLOGIES" && table.schemaName === schema.name
         );
     //set old name so we can delete them properly
     schema.ontologies.forEach((o) => {
@@ -107,7 +100,7 @@ export function convertToSubclassTables(rawSchema: any) {
   //columns of subclasses should be put in root tables, sorted by position
   // this because position can only edited in context of root table
   schema.tables.forEach((table) => {
-    if (table.inherit === undefined) {
+    if (table.inheritName === undefined) {
       getSubclassTables(schema, table.name).forEach((subclass) => {
         //get columns from subclass tables
         table.columns.push(...subclass.columns);
@@ -131,7 +124,9 @@ export function convertToSubclassTables(rawSchema: any) {
 }
 
 export function getSubclassTables(schema, tableName) {
-  let subclasses = schema.tables.filter((table) => table.inherit === tableName);
+  let subclasses = schema.tables.filter(
+    (table) => table.inheritName === tableName
+  );
   return subclasses.concat(
     subclasses
       .map((table) => {
@@ -139,4 +134,85 @@ export function getSubclassTables(schema, tableName) {
       })
       .flat(1)
   );
+}
+
+export function convertToCamelCase(string: string): string {
+  if (!string) return string;
+  const words = string.trim().split(/\s+/);
+  let result = "";
+  words.forEach((word: string, index: number) => {
+    if (index === 0) {
+      result += word.charAt(0).toLowerCase();
+    } else {
+      result += word.charAt(0).toUpperCase();
+    }
+    if (word.length > 1) {
+      result += word.slice(1);
+    }
+  });
+  return result;
+}
+
+export function convertToPascalCase(string: string): string {
+  if (!string) return string;
+  const words = string.trim().split(/\s+/);
+  let result = "";
+  words.forEach((word: string) => {
+    result += word.charAt(0).toUpperCase();
+    if (word.length > 1) {
+      result += word.slice(1);
+    }
+  });
+  return result;
+}
+
+export function getLocalizedLabel(
+  tableOrColumnMetadata: ITableMetaData | IColumn,
+  locale?: string
+): string {
+  let label;
+  if (tableOrColumnMetadata?.labels) {
+    label = tableOrColumnMetadata.labels.find(
+      (el) => el.locale === locale
+    )?.value;
+    if (!label) {
+      label = tableOrColumnMetadata.labels.find(
+        (el) => el.locale === "en"
+      )?.value;
+    }
+  }
+  if (!label) {
+    label = tableOrColumnMetadata.name;
+  }
+  return label;
+}
+
+export function getLocalizedDescription(
+  tableOrColumnMetadata: ITableMetaData | IColumn,
+  locale: string
+): string | undefined {
+  if (tableOrColumnMetadata.descriptions) {
+    return tableOrColumnMetadata.descriptions.find((el) => el.locale === locale)
+      ?.value;
+  }
+}
+
+export function addTableIdsLabelsDescription(originalTable: ITableMetaData) {
+  const table = deepClone(originalTable);
+  table.id = convertToPascalCase(table.name);
+  table.label = getLocalizedLabel(table);
+  table.description = getLocalizedDescription(table, "en");
+  table.schemaId = table.schemaName;
+  table.inheritId = convertToPascalCase(table.inheritName);
+  table.columns = table.columns.map((column) => {
+    column.id = convertToCamelCase(column.name);
+    column.label = getLocalizedLabel(column, "en");
+    column.description = getLocalizedDescription(column, "en");
+    column.refTableId = convertToPascalCase(column.refTableName);
+    column.refLinkId = convertToCamelCase(column.refLinkName);
+    column.refSchemaId = column.refSchemaName; //todo, might change later
+    column.refBackId = convertToCamelCase(column.refBackName);
+    return column;
+  });
+  return table;
 }

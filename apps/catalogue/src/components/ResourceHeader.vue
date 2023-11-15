@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="p-2 mb-2" :class="headerCss" v-if="resource">
-      {{ tableName }}
+      {{ tableLabel }}
     </div>
     <div class="row">
       <div class="col">
@@ -26,7 +26,7 @@
 export default {
   props: {
     resource: Object,
-    tableName: String,
+    tableLabel: String,
     headerCss: String,
   },
 };

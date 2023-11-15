@@ -46,7 +46,7 @@ export default {
               column.columnType.includes("ONTOLOGY")
             ) {
               result += `${column.name}: ${column.columnType.toLowerCase()}(${
-                column.refTable
+                column.refTableName
               })`;
             } else {
               result += `${column.name}: ${column.columnType.toLowerCase()}`;
@@ -89,7 +89,7 @@ export default {
               res += `[<table> ${subclass.name}`;
               res += this.nomnomColumnsForTable(table, subclass.name);
               res += "]\n";
-              res += `[<table>${subclass.inherit}]<:-[<table>${subclass.name}]\n`;
+              res += `[<table>${subclass.inheritName}]<:-[<table>${subclass.name}]\n`;
             });
           }
         });
@@ -111,14 +111,14 @@ export default {
                 (column.columnType === "ONTOLOGY" ||
                   column.columnType === "ONTOLOGY_ARRAY")
               ) {
-                const type = column.refSchema ? "externalo" : "ontology";
-                res += `[<${type}>${column.refTable}]<- ${column.name} [<table>${table.name}]\n`;
+                const type = column.refSchemaName ? "externalo" : "ontology";
+                res += `[<${type}>${column.refTableName}]<- ${column.name} [<table>${table.name}]\n`;
               } else if (
                 column.columnType === "REF_ARRAY" ||
                 column.columnType === "REF"
               ) {
-                const type = column.refSchema ? "external" : "table";
-                res += `[<${type}>${column.refTable}]<- ${column.name} [<table>${table.name}]\n`;
+                const type = column.refSchemaName ? "external" : "table";
+                res += `[<${type}>${column.refTableName}]<- ${column.name} [<table>${table.name}]\n`;
               }
             });
         }

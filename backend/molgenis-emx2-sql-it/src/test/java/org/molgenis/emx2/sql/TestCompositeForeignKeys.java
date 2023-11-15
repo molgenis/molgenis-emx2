@@ -87,7 +87,7 @@ public class TestCompositeForeignKeys {
       System.out.println("errored correctly: " + e);
     }
 
-    schema.create(table("Student").setInherit("Person"));
+    schema.create(table("Student").setInheritName("Person"));
     Table s = schema.getTable("Student");
     s.insert(
         new Row()
@@ -269,7 +269,7 @@ public class TestCompositeForeignKeys {
       System.out.println("errored correctly: " + e);
     }
 
-    schema.create(table("Student").setInherit("Person"));
+    schema.create(table("Student").setInheritName("Person"));
     Table s = schema.getTable("Student");
     s.insert(
         new Row()

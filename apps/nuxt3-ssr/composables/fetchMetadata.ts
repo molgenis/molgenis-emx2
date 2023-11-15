@@ -1,20 +1,20 @@
 import { StorageSerializers, useSessionStorage } from "@vueuse/core";
 
-import { ISchemaMetaData } from "~/interfaces/types";
 import metadataGql from "~~/gql/metadata";
+import { ISchemaMetaData } from "meta-data-utils";
 
 const query = moduleToString(metadataGql);
 
-export default async (schemaName: string): Promise<ISchemaMetaData> => {
+export default async (schemaId: string): Promise<ISchemaMetaData> => {
   const config = useRuntimeConfig();
 
   // Use sessionStorage to cache data
-  const cached = useSessionStorage<ISchemaMetaData>(schemaName, null, {
+  const cached = useSessionStorage<ISchemaMetaData>(schemaId, null, {
     serializer: StorageSerializers.object,
   });
 
   if (!cached.value) {
-    const resp = await $fetch(`/${schemaName}/graphql`, {
+    const resp = await $fetch(`/${schemaId}/graphql`, {
       method: "POST",
       baseURL: config.public.apiBase,
       body: {
@@ -28,14 +28,14 @@ export default async (schemaName: string): Promise<ISchemaMetaData> => {
       console.log("handel error ");
       throw createError({
         ...error,
-        statusMessage: `Could not fetch metadata for schema ${schemaName}`,
+        statusMessage: `Could not fetch metadata for schema ${schemaId}`,
       });
     }
 
     // Update the cache
     cached.value = data._schema;
   } else {
-    console.log(`Getting value from cache for schema ${schemaName}`);
+    console.log(`Getting value from cache for schema ${schemaId}`);
   }
 
   return cached.value;
