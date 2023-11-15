@@ -1129,7 +1129,7 @@ public class WebApiSmokeTests {
     given()
         .sessionId(SESSION_ID)
         .expect()
-        .contentType("test/turtle")
+        .contentType("text/turtle")
         .statusCode(200)
         .when()
         .get("/pet store/api/ttl/Pet");
