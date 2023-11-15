@@ -1,3 +1,10 @@
+// set chart title
+@mixin setChartTitle($size: 1.1rem) {
+  font-size: 1.1rem;
+  padding: 0;
+  margin-bottom: 0.5em;
+  text-align: center;
+}
 
 // set svg icon dimensions
 @mixin setIconSize($size: 18pt) {
@@ -38,6 +45,23 @@
   }
 }
 
+// style <a> element as a link
+@mixin setLinkAsButton(
+  $width: 100%,
+  $background-color: $blue-600,
+  $color: $gray-000,
+  $border-radius: 12pt
+) {
+  display: block;
+  width: $width;
+  padding: 0.6em 0;
+  background-color: none;
+  text-align: center;
+  background-color: $background-color;
+  color: $color;
+  border-radius: $border-radius;
+}
+
 // position all child elements to the top left corner
 @mixin flexStartAll {
   display: flex;
@@ -51,7 +75,6 @@
   justify-content: flex-start;
   align-items: center;
 }
-
 
 // center all child elements
 @mixin flexCenterAll {
