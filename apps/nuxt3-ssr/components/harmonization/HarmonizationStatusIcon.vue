@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { HarmonizationStatus } from "~/interfaces/types";
 
-const props = defineProps<{
-  status: HarmonizationStatus;
-}>();
+const props = withDefaults(
+  defineProps<{
+    status: HarmonizationStatus;
+    size: string;
+  }>(),
+  { size: "8" }
+);
 
 const tableClass = computed(() => {
   switch (props.status) {
@@ -40,8 +44,8 @@ const fillClass = computed(() => {
 </script>
 <template>
   <div
-    class="w-8 h-8 p-1 justify-center items-center inline-flex"
-    :class="tableClass"
+    class="p-1 justify-center items-center inline-flex"
+    :class="`w-${size} h-${size} ${tableClass}`"
   >
     <BaseIcon v-if="iconName" :name="iconName" :class="fillClass" />
   </div>

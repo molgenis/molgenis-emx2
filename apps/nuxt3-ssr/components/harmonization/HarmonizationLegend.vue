@@ -1,10 +1,13 @@
 <template>
   <div class="flex">
     <div class="flex items-center h-16">
-      <HarmonizationStatusIcon status="unmapped" class="mr-1" /> No Data
-      <HarmonizationStatusIcon status="complete" class="mr-1 ml-6" /> Completed
-      <HarmonizationStatusIcon status="partial" class="mr-1 ml-6" /> Partial
-      <a class="ml-6 mr-4 hover:underline text-blue-500 cursor-help"
+      <HarmonizationStatusIcon size="5" status="complete" class="mr-1 ml-6" />
+      Completed
+      <HarmonizationStatusIcon size="5" status="partial" class="mr-1 ml-6" />
+      Partial
+      <HarmonizationStatusIcon size="5" status="unmapped" class="mr-1 ml-6" />
+      No Data
+      <a class="ml-6 mr-8 hover:underline text-blue-500 cursor-help"
         >About statuses</a
       >
     </div>
