@@ -120,7 +120,7 @@
 </template>
 
 <script setup>
-import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
+import { Page, PageHeader, PageSection } from "molgenis-viz";
 import QuickLinks from "../components/QuickLinks.vue";
 import Address from "../components/Address.vue";
 </script>
