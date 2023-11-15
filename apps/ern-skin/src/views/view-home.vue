@@ -19,30 +19,33 @@
       </p>
     </PageSection>
     <PageSection
-      class="quick-links"
-      width="large"
+      class="quick-links bg-blue-100"
       aria-labelledby="quicklinks-card-title"
+      :verticalPadding="2"
     >
       <h2 class="visually-hidden" id="quicklinks-card-title">
         quick links: learn more about ERN Skin
       </h2>
-      <QuickLinks
-        id="skinQuickLinks"
-        aria-labelledby="quicklinks-card-title"
-        :data="[
-          { name: 'about', label: 'About Us' },
-          {
-            name: 'documents',
-            label: 'Documents',
-          },
-          {
-            name: 'dashboard',
-            label: 'Dashboard',
-          },
-        ]"
-        name="name"
-        label="label"
-      />
+      <div class="quicklink-cards">
+        <LinkCard id="quicklinks-about">
+          <InformationCircleIcon />
+          <h3>About</h3>
+          <p>Learn more about the ERRAS registry</p>
+          <router-link :to="{ name: 'about' }">Read more</router-link>
+        </LinkCard>
+        <LinkCard id="quicklink-dashboard">
+          <PresentationChartLineIcon />
+          <h3>Registry Dashboard</h3>
+          <p>View a summary of the entire registry</p>
+          <router-link :to="{ name: 'dashboard' }">View Dashboard</router-link>
+        </LinkCard>
+        <LinkCard id="quicklink-dashboard">
+          <DocumentTextIcon />
+          <h3>View Documents</h3>
+          <p>Find and download ERRAS documents</p>
+          <router-link :to="{ name: 'documents' }">View Documents</router-link>
+        </LinkCard>
+      </div>
     </PageSection>
     <PageSection
       id="section-aims"
@@ -112,5 +115,95 @@
 </template>
 
 <script setup>
-import { Page, PageHeader, PageSection, QuickLinks } from "molgenis-viz";
+import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
+import {
+  InformationCircleIcon,
+  PresentationChartLineIcon,
+  DocumentTextIcon,
+} from "@heroicons/vue/24/outline";
 </script>
+
+<style lang="scss">
+.quicklink-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2em;
+
+  .link-card {
+    flex-grow: 1;
+    background-color: $gray-000;
+    color: currentColor;
+    border-radius: 12pt;
+    text-align: center;
+
+    .card-content {
+      svg {
+        display: block;
+        margin: 0 auto;
+        margin-bottom: 1.5em;
+        @include setIconSize(26pt);
+      }
+
+      h3 {
+        font-size: 1.1rem;
+      }
+
+      p {
+        margin: 0;
+        color: $gray-600;
+        font-size: 1.1rem;
+      }
+
+      a {
+        margin-top: 1em;
+        font-size: 0.85rem;
+      }
+    }
+
+    &:nth-child(1) {
+      .card-content {
+        svg {
+          path {
+            stroke: $erras-blue;
+          }
+        }
+
+        a {
+          @include setLinkAsButton($background-color: $erras-blue);
+        }
+      }
+    }
+
+    &:nth-child(2) {
+      .card-content {
+        svg {
+          path {
+            stroke: $erras-green;
+          }
+        }
+
+        a {
+          @include setLinkAsButton($background-color: $erras-green);
+        }
+      }
+    }
+
+    &:nth-child(3) {
+      .card-content {
+        svg {
+          path {
+            stroke: $erras-orange;
+          }
+        }
+
+        a {
+          @include setLinkAsButton($background-color: $erras-orange);
+        }
+      }
+    }
+  }
+}
+</style>

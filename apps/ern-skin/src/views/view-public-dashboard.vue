@@ -6,9 +6,15 @@
         <p>Unable to retrieve data. {{ error }}</p>
       </MessageBox>
     </div>
-    <Dashboard :verticalPadding="0" :horizontalPadding="2" v-else>
+    <Dashboard
+      class="bg-blue-100"
+      :verticalPadding="0"
+      :horizontalPadding="2"
+      v-else
+    >
       <DashboardRow :columns="1">
         <DataValueHighlights
+          id="skinRegistryHighlights"
           title="ERN Skin at a glance"
           :data="registryHighlights"
         />
@@ -60,6 +66,7 @@
             "
             :zoomLimits="[0.3, 10]"
             :enableLegendClicks="true"
+            :chartHeight="440"
           />
         </DashboardChart>
         <DashboardChart>
@@ -77,13 +84,15 @@
             chartId="registryPatientsByAgeGroup"
             title="Number of patients by age category"
             :chartData="ageByGroup"
+            columnFill="#02818a"
             xvar="category"
             yvar="value"
             xAxisLineBreaker=";"
             :yMax="ageByGroupMax"
             :yTickValues="ageByGroupTicks"
             :chartHeight="225"
-            :chartMargins="{ top: 20, right: 0, bottom: 40, left: 40 }"
+            :chartMargins="{ top: 10, right: 5, bottom: 40, left: 25 }"
+            :columnPaddingInner="0.2"
           />
         </DashboardChart>
         <DashboardChart>
@@ -174,6 +183,7 @@ async function getStatistics() {
           label
           value
           valueOrder
+          description
         }
       }
     }
@@ -198,15 +208,20 @@ async function getStatistics() {
 
   ageByGroup.value = data
     .filter((row) => row.name === "age")[0]
-    ["statistics"].map((row) => {
+    ["statistics"].sort((current, next) =>
+      current.valueOrder < next.valueOrder ? -1 : 1
+    )
+    .map((row) => {
       return {
         ...row,
         category: `${row.label};${row.description}`,
       };
     });
 
-  ageByGroupMax.value = Math.round(d3.max(ageByGroup.value, row => row.value) / 10 ) * 10;
-  ageByGroupTicks.value = seqAlong(0, ageByGroupMax.value, 5);
+  const maxvalue = d3.max(ageByGroup.value, (row) => row.value);
+  ageByGroupMax.value = Math.round(maxvalue / 10) * 10;
+
+  ageByGroupTicks.value = seqAlong(0, ageByGroupMax.value, 2);
 
   const patientsBySex = data
     .filter((row) => row.name === "sex")[0]
@@ -232,3 +247,98 @@ onMounted(() => {
     .finally(() => (loading.value = false));
 });
 </script>
+
+<style lang="scss">
+.d3-viz {
+  &.d3-pie,
+  &.d3-geo-mercator {
+    .chart-context {
+      text-align: center;
+      .chart-title {
+        @include setChartTitle;
+      }
+    }
+  }
+
+  &.d3-column-chart {
+    .chart-title {
+      @include setChartTitle;
+    }
+  }
+}
+
+#ernSkinOrganisationsMap {
+  & + .d3-viz-legend {
+    padding: 0.6em 0.8em;
+    label {
+      margin-bottom: 0;
+    }
+  }
+}
+
+#registryPatientsByGroup {
+  caption {
+    @include setChartTitle;
+  }
+  thead {
+    th {
+      font-size: 0.8rem;
+    }
+  }
+  tbody {
+    td {
+      font-size: 0.88rem;
+      padding: 0.5em 0.4em;
+    }
+  }
+}
+
+#skinRegistryHighlights {
+  .data-highlight {
+    padding: 0.8em 1em;
+    .data-label {
+      margin-bottom: 0.15em;
+      font-size: 0.75rem;
+      color: $gray-000;
+    }
+
+    .data-value {
+      &::after {
+        font-size: 1.8rem;
+      }
+    }
+  }
+}
+
+#registryPatientsByAgeGroup {
+  .chart-area {
+    .chart-axes {
+      .tick {
+        text {
+          tspan {
+            font-size: 0.8em;
+          }
+        }
+      }
+    }
+  }
+}
+
+#registryPatientsBySexAtBirth {
+  .chart-area {
+    .pie-labels {
+      .pie-label-text {
+        font-size: 0.7rem !important;
+      }
+    }
+  }
+}
+
+.d3-pie > .chart-legend {
+  .legend-item {
+    .item-label {
+      font-size: 0.95rem;
+    }
+  }
+}
+</style>
