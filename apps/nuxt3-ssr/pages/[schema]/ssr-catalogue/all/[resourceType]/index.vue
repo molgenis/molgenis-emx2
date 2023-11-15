@@ -1,3 +1,0 @@
-<template>
-  <TableRowList />
-</template>

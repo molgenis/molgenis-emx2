@@ -7,14 +7,11 @@ if (useRoute) {
 const menu = [
   { label: "Home", link: `/${schema}/ssr-catalogue` },
   config.public.cohortOnly
-    ? undefined
-    : { label: "Catalogues", link: `/${schema}/ssr-catalogue/catalogues` },
-  config.public.cohortOnly
     ? { label: "Cohorts", link: `/${schema}/ssr-catalogue/all/cohorts` }
-    : { label: "Resources", link: `/${schema}/ssr-catalogue/all` },
+    : { label: "All resources", link: `/${schema}/ssr-catalogue/all` },
   config.public.cohortOnly
     ? undefined
-    : { label: "Variables", link: `/${schema}/ssr-catalogue/all/variables` },
+    : { label: "All variables", link: `/${schema}/ssr-catalogue/all/variables` },
 
   // { label: "Statistical Methods", link: "#" },
   // { label: "Tables", link: "#" },

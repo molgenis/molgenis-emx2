@@ -49,7 +49,7 @@ menu.push({
   label: "Variables",
   link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}/variables`,
 });
-// todo
+// todoswqki
 // menu.push({
 //   label: "About",
 //   link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}/about`,
