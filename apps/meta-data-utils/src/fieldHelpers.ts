@@ -1,4 +1,4 @@
-import type { IColumn } from "./types";
+import { IColumn } from "./types";
 
 export const fieldTypes = () => {
   return [

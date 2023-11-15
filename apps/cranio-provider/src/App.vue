@@ -11,7 +11,9 @@
         <PageHeader
           title="ERN CRANIO Registry"
           :subtitle="provider.name"
-          :imageSrc="provider.imageUrl"
+          :imageSrc="
+            provider.imageUrl ? provider.imageUrl : 'banner-diagnoses.jpg'
+          "
         />
         <PageSection
           class="section-bg-light-gray"
@@ -22,8 +24,9 @@
           </h2>
           <MessageBox type="warning">
             <p>
-              All data presented in the dashboard is randomly generated for
-              display purposes only.
+              This dashboard is currently under development. All data shown in
+              the following visualisations have been randomly generated for
+              demonstration purposes.
             </p>
           </MessageBox>
         </PageSection>
@@ -36,6 +39,7 @@
         </Dashboard>
       </div>
     </Page>
+    <AppFooter />
   </Molgenis>
 </template>
 
@@ -51,6 +55,7 @@ import {
   LoadingScreen,
 } from "molgenis-viz";
 import ProviderSidebar from "./components/ProviderSidebar.vue";
+import AppFooter from "./components/AppFooter.vue";
 
 import gql from "graphql-tag";
 import { request } from "graphql-request";

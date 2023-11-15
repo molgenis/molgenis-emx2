@@ -7,29 +7,22 @@ export interface ISetting {
   value: string;
 }
 
-export interface ILocale {
-  locale: string;
-  value: string;
-}
-
 export interface IColumn {
   columnType: string;
   id: string;
-  name: string;
+  label: string;
   computed?: string;
   conditions?: string[];
-  descriptions?: ILocale[];
+  description?: string;
   key?: number;
-  labels?: ILocale[];
   position?: number;
-  readonly?: boolean;
-  defaultValue?: string;
-  refBack?: string;
+  readonly?: string;
+  refBackId?: string;
   refLabel?: string;
   refLabelDefault?: string;
-  refLink?: string;
-  refSchema?: string;
-  refTable?: string;
+  refLinkId?: string;
+  refSchemaId?: string;
+  refTableId?: string;
   required?: boolean;
   semantics?: string[];
   validation?: string;
@@ -38,17 +31,18 @@ export interface IColumn {
 
 export interface ITableMetaData {
   id: string;
-  name: string;
+  label: string;
+  description?: string;
   tableType: string;
   columns: IColumn[];
-  descriptions?: ILocale[];
-  externalSchema: string;
-  labels?: ILocale[];
+  schemaId: string;
   semantics?: string[];
   settings?: ISetting[];
 }
 
 export interface ISchemaMetaData {
-  name: string;
+  id: string;
+  label: string;
+  description?: string;
   tables: ITableMetaData[];
 }

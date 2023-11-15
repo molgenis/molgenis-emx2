@@ -16,10 +16,9 @@
     "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./assets/icons -o ./assets/minified-icons --config ./svgo.config.js && node ./scripts/create_vue_components_from_icons.js"
   },
   "devDependencies": {
-    "@nuxt/devtools": "0.8.5",
-    "@nuxt/image-edge": "1.0.0-rc.3-28282346.a10323e",
-    "@nuxt/test-utils": "3.7.4",
-    "@nuxt/vite-builder": "3.7.4",
+    "@nuxt/image": "1.0.0",
+    "@nuxt/test-utils": "3.8.0",
+    "@nuxt/vite-builder": "3.8.0",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.8",
     "@types/node": "16.18.61",
@@ -28,22 +27,22 @@
     "autoprefixer": "10.4.16",
     "graphql-tag": "2.12.6",
     "jsdom": "22.1.0",
-    "nuxt": "3.7.4",
+    "nuxt": "3.8.0",
     "nuxt-proxy": "0.4.1",
+    "meta-data-utils": "*",
     "postcss": "8.4.31",
     "postcss-custom-properties": "13.3.2",
     "prettier": "2.8.8",
     "shelljs": "^0.8.5",
     "svgo": "2.8.0",
     "tailwindcss": "3.3.5",
-    "vitest": "^0.34.0"
+    "vitest": "^0.34.0",
+    "vue": "^3.3.8"
   },
   "dependencies": {
     "@vueuse/core": "10.5.0",
     "floating-vue": "^2.0.0-beta.20",
-    "node-fetch-native": "1.4.0",
-    "vite": "4.0.5",
-    "vue": "3.3.4",
-    "meta-data-utils": "*"
+    "meta-data-utils": "*",
+    "vite": "4.0.5"
   }
 }
