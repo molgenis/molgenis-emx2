@@ -40,7 +40,11 @@
 
     a {
       &.button-link {
-        @include buttonLink(300px);
+        @include setLinkAsButton(
+          $width: 300px,
+          $background-color: $ern-cranio-primary,
+          $border-radius: 32pt
+        );
         @include textTransform(bold);
         margin: 0 auto;
         margin-top: 1em;
@@ -51,18 +55,14 @@
     p,
     li {
       .heroicons {
-        $size: 18px;
-        width: $size;
-        height: $size;
+        @include setIconSize(18pt);
       }
     }
   }
 }
 .message-box {
   .message-text {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 1em 0.8em;
     p {
       margin: 0;
     }
@@ -109,9 +109,7 @@
       display: block;
       margin: 0 auto;
       margin-bottom: 1.5em;
-      $size: 26pt;
-      height: $size;
-      width: $size;
+      @include setIconSize(26pt);
 
       * {
         stroke: $ern-cranio-primary;
@@ -130,52 +128,55 @@
 
     a {
       margin-top: 1em;
-      @include buttonLink;
+      @include setLinkAsButton(
+        $background-color: $ern-cranio-primary,
+        $border-radius: 32pt
+      );
       font-size: 10pt;
     }
   }
 }
 
-.provider-dashboard-container {
-  font-size: 13pt;
+// .provider-dashboard-container {
+//   font-size: 13pt;
 
-  .dashboard-content {
-    display: grid;
-    grid-template-columns: 350px 1fr;
-    align-items: flex-start;
-    justify-content: flex-start;
+//   .dashboard-content {
+//     display: grid;
+//     grid-template-columns: 350px 1fr;
+//     align-items: flex-start;
+//     justify-content: flex-start;
 
-    .dashboard-chart-layout {
-      margin-bottom: 2em;
-    }
+//     .dashboard-chart-layout {
+//       margin-bottom: 2em;
+//     }
 
-    .dashboard-box {
-      box-sizing: content-box;
-      padding: 1.3em;
+//     .dashboard-box {
+//       box-sizing: content-box;
+//       padding: 1.3em;
 
-      h3,
-      .d3-viz .chart-title,
-      .d3-progress-meter .chart-title span {
-        font-size: 14pt;
-        font-weight: 400;
-      }
+//       h3,
+//       .d3-viz .chart-title,
+//       .d3-progress-meter .chart-title span {
+//         font-size: 14pt;
+//         font-weight: 400;
+//       }
 
-      p {
-        margin-bottom: 0;
-      }
+//       p {
+//         margin-bottom: 0;
+//       }
 
-      .d3-progress-meter {
-        .chart-title {
-          margin: 0;
-          span {
-            font-size: 14pt;
-          }
-        }
+//       .d3-progress-meter {
+//         .chart-title {
+//           margin: 0;
+//           span {
+//             font-size: 14pt;
+//           }
+//         }
 
-        .chart {
-          margin: 0;
-        }
-      }
-    }
-  }
-}
+//         .chart {
+//           margin: 0;
+//         }
+//       }
+//     }
+//   }
+// }
