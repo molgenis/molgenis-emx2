@@ -105,6 +105,34 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     return setting.key === settingKey;
   })?.value;
 }
+
+let title = computed(() => {
+  if(catalogue?.name) {
+    return `${catalogue.acronym ? catalogue.acronym + ':' : ''} ${catalogue.name}`;
+  }
+  else if(getSettingValue('CATALOGUE_LANDING_TITLE', data.value.data._settings) ) {
+    return getSettingValue('CATALOGUE_LANDING_TITLE', data.value.data._settings);
+  } else {
+    return 'European Networks Health Data & Cohort Catalogue.'
+  }
+});
+
+let description = computed(() => {
+  if(catalogue?.description) {
+    return catalogue.description;
+  }
+  else if( getSettingValue(
+      'CATALOGUE_LANDING_DESCRIPTION',
+      data.value.data._settings
+  ) ) {
+    getSettingValue(
+        'CATALOGUE_LANDING_DESCRIPTION',
+        data.value.data._settings
+    );
+  } else {
+    return 'Browse metadata for data resources in this catalogue.'
+  }
+});
 </script>
 
 <template>
@@ -112,29 +140,15 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     <LayoutsLandingPage class="w-10/12 pt-8">
       <PageHeader
         class="mx-auto lg:w-7/12 text-center"
-        :title="
-          `${catalogue?.acronym ? catalogue.acronym + ':' : ''} ${
-            catalogue?.name ? catalogue.name : ''
-          }` ||
-          getSettingValue('CATALOGUE_LANDING_TITLE', data.data._settings) ||
-          'European Networks Health Data & Cohort Catalogue.'
-        "
-        :description="
-          catalogue.description ||
-          getSettingValue(
-            'CATALOGUE_LANDING_DESCRIPTION',
-            data.data._settings
-          ) ||
-          'Browse metadata for data resources in this catalogue.'
-        "
-      ></PageHeader>
+        :title="title"
+        :description="description"></PageHeader>
       <LandingPrimary>
         <LandingCardPrimary
           image="demography"
           title="Cohorts"
           :description="
             'Browse ' +
-            catalogue.id +
+           cat +
             ' catalogued population and disease specific cohort studies'
           "
           :count="data.data.Cohorts_agg.count"
@@ -145,7 +159,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           title="Data sources"
           :description="
             'Browse ' +
-            catalogue.id +
+            cat +
             ' catalogued health and population databanks and registries'
           "
           :count="data.data.DataSources_agg.count"
@@ -155,7 +169,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           image="checklist"
           title="Variables"
           :description="
-            'A listing of ' + catalogue.id + ' harmonized variables.'
+            'A listing of ' + cat + ' harmonized variables.'
           "
           :count="data.data.Variables_agg.count"
           :link="`/${route.params.schema}/ssr-catalogue/${cat}/variables`"

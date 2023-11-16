@@ -59,6 +59,14 @@ let search = computed(() => {
   return filters.find((f) => f.columnType === "_SEARCH").search;
 });
 
+const modelQuery = computed(() => {
+  return `
+  query Networks($filter:ModelsFilter) {
+    Networks(filter:$filter){models{id}}
+  }
+  `;
+})
+
 const query = computed(() => {
   return `
   query Variables($filter:VariablesFilter, $orderby:Variablesorderby){
@@ -129,6 +137,21 @@ const query = computed(() => {
   `;
 });
 
+let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+const modelFilter = router.params.catalogue === 'all' ? {} : { resource: { id: {equals: route.params.catalogue}} };
+const { modelData, modelPending, modelError, modelRefresh } = await useFetch(graphqlURL.value, {
+  key: `models`,
+  baseURL: config.public.apiBase,
+  method: "POST",
+  body: {
+    modelQuery,
+    variables: { modelFilter },
+  },
+});
+
+console.log('found')
+console.log(modelData)
+
 const orderby = { label: "ASC" };
 const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
 
@@ -137,13 +160,12 @@ const filter = computed(() => {
     ...buildQueryFilter(filters, search.value),
     ...typeFilter,
   };
-  if (route.params.catalogue) {
-    result._and["networks"] = { resource: { equals: route.params.catalogue } };
-  }
+  // if ("all" !== route.params.catalogue) {
+  //   result._and["resource"] = { equals: modelData.value.data.Networks[0]?.models.map(m -> m.id) };
+  // }
   return result;
 });
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   key: `variables-${offset.value}`,
   baseURL: config.public.apiBase,

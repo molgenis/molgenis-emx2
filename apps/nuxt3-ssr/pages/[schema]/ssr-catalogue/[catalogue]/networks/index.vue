@@ -79,7 +79,14 @@ const query = computed(() => {
 
 const orderby = { acronym: "ASC" };
 
-const filter = computed(() => buildQueryFilter(filters, search.value));
+//todo, make this filter work for subcatalogu => networks can not yet be networked
+const filter = computed(() => {
+  let result = buildQueryFilter(filters, search.value);
+  if ("all" !== route.params.catalogue) {
+    result._and["networks"] = { id: { equals: route.params.catalogue } };
+  }
+  return result;
+});
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {

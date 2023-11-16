@@ -74,7 +74,7 @@ const orderby = { acronym: "ASC" };
 
 const filter = computed(() => {
   let result = buildQueryFilter(filters, search.value);
-  if (route.params.catalogue) {
+  if ("all" !== route.params.catalogue) {
     result._and["networks"] = { id: { equals: route.params.catalogue } };
   }
   return result;

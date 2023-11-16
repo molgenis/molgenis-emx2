@@ -76,7 +76,7 @@ menu.push({
         <Logo
           :link="`/${route.params.schema}/ssr-catalogue/${cat}`"
           :image="
-            catalogue.logo?.url ||
+            catalogue?.logo?.url ||
             '/_nuxt-styles/img/molgenis-logo-blue-small.svg'
           "
         />
@@ -96,7 +96,7 @@ menu.push({
           <div class="absolute -translate-x-1/2 left-1/2">
             <LogoMobile
               :link="`/${route.params.schema}/ssr-catalogue/${cat}`"
-              :image="catalogue.logo?.url"
+              :image="catalogue?.logo?.url"
             />
           </div>
 
