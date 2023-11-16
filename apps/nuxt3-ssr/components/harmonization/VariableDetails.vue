@@ -102,7 +102,8 @@ let showSidePanel = computed(() => activeVariableKey.value?.name);
 
     <DefinitionListDefinition v-if="variable.mappings">
       <ul>
-        <li v-for="variableUsed in variablesUsed">
+        <li v-if="!variablesUsed?.length">None</li>
+        <li v-else v-for="variableUsed in variablesUsed">
           <a
             class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 cursor-pointer"
             @click="activeVariableKey = getKey(variableUsed)"
