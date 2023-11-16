@@ -39,8 +39,7 @@ public class TestGraphqlCrossSchemaRefs {
 
   @Test
   public void test() throws IOException {
-    // schema should NOT return external tables, regression test for #2982 and #2983
-    assertFalse(execute("{_schema{tables{name}}}").toString().contains("Parent"));
+    assertFalse(execute("{_schema{tables{name}}}").toString().contains("Parent"), "schema should NOT return external tables, regression test for #2982 and #2983");
 
     assertEquals(
         "parent1", execute("{Child{name,parent{name}}}").at("/Child/0/parent/name").asText());
