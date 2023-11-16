@@ -16,11 +16,7 @@
     >
       <h2 id="genturis-section-documents-title">Documents</h2>
       <p>Download additional information about the GENTURIS Registry.</p>
-      <FileList
-        table="Files"
-        filename="name"
-        path="path"
-      />
+      <FileList table="Files" filename="name" path="path" />
     </PageSection>
   </Page>
 </template>

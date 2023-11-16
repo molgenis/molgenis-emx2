@@ -11,7 +11,13 @@
         <p>Unable to load dashboard. {{ error }}</p>
       </MessageBox>
     </PageSection>
-    <Dashboard id="publicDashboard" class="bg-blue-100" :verticalPadding="0" :horizontalPadding="3" v-else>
+    <Dashboard
+      id="publicDashboard"
+      class="bg-blue-100"
+      :verticalPadding="0"
+      :horizontalPadding="3"
+      v-else
+    >
       <MessageBox type="warning">
         <p>
           The data displayed in the charts below was created for demonstration
@@ -38,7 +44,11 @@
         </DashboardChart>
       </DashboardRow>
       <DashboardRow :columns="1">
-        <DashboardChart id="provider-map" :verticalPadding="0" :horizontalPadding="0">
+        <DashboardChart
+          id="provider-map"
+          :verticalPadding="0"
+          :horizontalPadding="0"
+        >
           <GeoMercator
             chartId="expert-centers-map"
             :geojson="WorldGeoJson"
@@ -185,7 +195,7 @@ onMounted(() => {
     caption {
       @include setChartTitle;
     }
-    
+
     td {
       padding: 0.5em 0.3em;
       font-size: 0.9em;

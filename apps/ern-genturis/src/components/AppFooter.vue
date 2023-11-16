@@ -122,10 +122,9 @@ let manifest = ref({});
 
 onMounted(() => {
   if (props.showMolgenisMeta) {
-    manifest.value = getManifest()
+    manifest.value = getManifest();
   }
-})
-
+});
 </script>
 
 <style lang="scss">

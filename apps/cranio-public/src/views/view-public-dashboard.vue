@@ -200,7 +200,6 @@ onMounted(() => {
 #cranioPublicDashboard {
   .dashboard-content {
     .dashboard-box {
-
       &.viz-map {
         h3 {
           margin-top: 1em;
@@ -226,10 +225,11 @@ onMounted(() => {
 }
 
 #workstreamSummary {
-  th, td {
+  th,
+  td {
     padding: 0.6em 0.3em;
     font-size: 1rem;
-    
+
     &[data-column-name="percent"] {
       text-align: right;
     }
@@ -240,14 +240,14 @@ onMounted(() => {
   .d3-pie {
     .chart-legend {
       .legend-item {
-       .text-item {
-        .item-label {
-          font-size: 1rem;
+        .text-item {
+          .item-label {
+            font-size: 1rem;
+          }
         }
-       } 
       }
     }
-    
+
     .chart {
       .chart-area {
         .pie-labels {

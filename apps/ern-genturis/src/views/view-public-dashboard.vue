@@ -8,7 +8,7 @@
     </div>
     <Dashboard :verticalPadding="0" :horizontalPadding="2" v-else>
       <DashboardRow id="registryHighlights" :columns="1">
-        <DataValueHighlights 
+        <DataValueHighlights
           title="ern genturis registry at a glance"
           :data="registryHighlights"
         />
@@ -79,7 +79,7 @@
             xAxisLabel="Age groups"
             yAxisLabel="Number of patients"
             :chartHeight="225"
-            :chartMargins="{top: 10, right: 0, bottom: 60, left: 60}"
+            :chartMargins="{ top: 10, right: 0, bottom: 60, left: 60 }"
             :columnPaddingInner="0.2"
           />
         </DashboardChart>
@@ -183,15 +183,17 @@ async function getStats() {
 
   const age = data.filter((row) => row.name === "barchart-age");
   ageAtInclusion.value = age[0]["statistics"];
-  
-  const maxValue = d3.max(ageAtInclusion.value, row => row.value)
-  const ymax = Math.round( maxValue / 10) * 10;
+
+  const maxValue = d3.max(ageAtInclusion.value, (row) => row.value);
+  const ymax = Math.round(maxValue / 10) * 10;
   ageAtInclusionTicks.value = seqAlongBy(0, ymax, 25);
 
   enrollmentData.value = data
-    .filter((row) => row.name === "table-enrollment-disease-group")[0]["statistics"]
-    .filter(row => row.label !== 'Undetermined' && row.value !== 0)
-    .sort((current,next) => current.valueOrder < next.valueOrder ? -1 : 1)
+    .filter((row) => row.name === "table-enrollment-disease-group")[0]
+    ["statistics"].filter(
+      (row) => row.label !== "Undetermined" && row.value !== 0
+    )
+    .sort((current, next) => (current.valueOrder < next.valueOrder ? -1 : 1))
     .map((row) => {
       return {
         ...row,
@@ -215,7 +217,8 @@ onMounted(() => {
 
 <style lang="scss">
 .d3-viz {
-  &.d3-pie, &.d3-geo-mercator {
+  &.d3-pie,
+  &.d3-geo-mercator {
     .chart-context {
       text-align: center;
       .chart-title {
@@ -223,8 +226,7 @@ onMounted(() => {
       }
     }
   }
-  
-  
+
   &.d3-column-chart {
     .chart-title {
       @include setChartTitle;
@@ -232,7 +234,7 @@ onMounted(() => {
   }
 }
 
-#sexAtBirthChart { 
+#sexAtBirthChart {
   .chart-area {
     .pie-labels {
       .pie-label-text {
@@ -262,7 +264,7 @@ onMounted(() => {
     td {
       font-size: 0.9rem;
       padding: 0.6em 0.2em;
-      
+
       &[data-value="Undetermined"],
       &[data-value="Undetermined"] + td {
         background-color: $gray-000;
@@ -282,7 +284,7 @@ onMounted(() => {
         margin-bottom: 0.15em;
         font-size: 0.75rem;
       }
-      
+
       .data-value {
         &::after {
           font-size: 1.8rem;
