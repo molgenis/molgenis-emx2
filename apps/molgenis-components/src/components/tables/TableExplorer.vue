@@ -88,19 +88,13 @@
               </div>
               <div>
                 <span class="fixed-width">jsonld</span>
-                <ButtonAlt
-                  :href="
-                    '/' + schemaId + '/api/rdf/' + tableId + '?format=jsonld'
-                  "
-                >
+                <ButtonAlt :href="'/' + schemaId + '/api/jsonld/' + tableId">
                   all rows
                 </ButtonAlt>
               </div>
               <div>
                 <span class="fixed-width">ttl</span>
-                <ButtonAlt
-                  :href="'/' + schemaId + '/api/rdf/' + tableId + '?format=ttl'"
-                >
+                <ButtonAlt :href="'/' + schemaId + '/api/ttl/' + tableId">
                   all rows
                 </ButtonAlt>
               </div>

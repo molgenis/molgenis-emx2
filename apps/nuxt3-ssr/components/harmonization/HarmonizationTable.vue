@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ICohort, IVariableWithMappings } from "~/interfaces/types";
 import { getKey } from "~/utils/variableUtils";
+import StickyTable from "../table/StickyTable.vue";
 const route = useRoute();
 
 const props = defineProps<{
@@ -30,45 +31,46 @@ let activeVariablePath = computed(() =>
 </script>
 
 <template>
-  <div class="pb-5 relative">
+  <div class="mb-7 relative">
     <HarmonizationLegend class="flex-row-reverse" />
-
-    <!-- temp 'fix' for table y overflow -->
-    <div class="overflow-x-auto max-w-table">
-      <table class="table-auto">
-        <thead>
-          <tr class="border-y-2">
-            <th></th>
-            <th
-              v-for="cohort in cohorts"
-              class="align-bottom hover:bg-button-outline-hover border-x-2"
-            >
-              <div
-                class="text-blue-500 font-normal rotate-180 [writing-mode:vertical-lr] py-2"
-              >
-                {{ cohort.id }}
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="(variable, rowIndex) in variables"
-            class="border-b-2 hover:bg-button-outline-hover"
+    <div class="overflow-x-auto xl:max-w-table border-t">
+      <StickyTable
+        :columns="cohorts"
+        :rows="variables"
+        class="h-screen overflow-auto"
+      >
+        <template #column="columnProps">
+          <div
+            class="hover:bg-gray-100 text-blue-500 font-normal min-w-[2rem] rotate-180 [writing-mode:vertical-lr] max-h-title min-h-title hover:max-h-none truncate hover:text-clip hover:overflow-visible"
           >
-            <td
-              class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 border-r-2 px-2 cursor-pointer"
-              @click="activeRowIndex = rowIndex"
+            <span
+              class="hover:bg-gray-100 hover:flex items-center justify-items-end align-middle min-w-[2rem] hover:z-50 py-2"
             >
-              {{ variable.name }}
-            </td>
-            <HarmonizationTableCell
-              v-for="(_, colIndex) in cohorts"
-              :status="statusMap[rowIndex][colIndex]"
-            ></HarmonizationTableCell>
-          </tr>
-        </tbody>
-      </table>
+              {{ columnProps.value.id }}
+            </span>
+          </div>
+        </template>
+
+        <template #row="rowProps">
+          <div
+            class="text-body-base text-blue-500 font-normal hover:underline px-2 cursor-pointer truncate hover:text-clip hover:overflow-visible"
+            @click="activeRowIndex = rowProps.value.rowIndex"
+          >
+            <span
+              class="hover:bg-gray-100 hover:inline-block hover:border-r hover:pr-3 z-50"
+            >
+              {{ rowProps.value.row.name }}
+            </span>
+          </div>
+        </template>
+
+        <template #cell="cell">
+          <HarmonizationTableCellStatusIcon
+            :status="statusMap[cell.value.rowIndex][cell.value.columnIndex]"
+            @click="activeRowIndex = cell.value.rowIndex"
+          ></HarmonizationTableCellStatusIcon>
+        </template>
+      </StickyTable>
     </div>
 
     <SideModal
