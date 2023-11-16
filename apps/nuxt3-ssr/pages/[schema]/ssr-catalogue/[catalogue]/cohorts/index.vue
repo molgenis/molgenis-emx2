@@ -241,7 +241,7 @@ if (route.params.catalogue) {
         <template v-if="data?.data?.Cohorts?.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
+            :totalPages="data?.data?.Cohorts_agg.count"
             @update="setCurrentPage($event)"
           />
         </template>

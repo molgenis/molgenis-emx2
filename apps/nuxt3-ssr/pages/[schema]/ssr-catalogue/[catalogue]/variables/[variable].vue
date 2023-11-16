@@ -78,6 +78,7 @@ if (cohortsWithMapping.value.length > 0) {
     id: "harmonization-details-no-mapping",
   });
 }
+}
 </script>
 
 <template>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type {IFilter} from "~/interfaces/types";
+
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
@@ -57,9 +59,7 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   },
 });
 
-watch(filters, () => {
-  setCurrentPage(1);
-});
+console.log(data)
 
 let activeName = ref("compact");
 </script>
@@ -73,14 +73,16 @@ let activeName = ref("compact");
       <template #suffix>
         <div class="relative justify-center flex flex-col md:flex-row">
           <div class="flex flex-col items-center max-w-sm">
-            <Button label="Browse all catalogues" :to="`/${route.params.schema}/ssr-catalogue/all`" />
+            <NuxtLink :to="`/${route.params.schema}/ssr-catalogue/all`">
+              <Button label="Browse all catalogues" />
+            </NuxtLink>
           </div>
           <div class="flex flex-col items-center max-w-sm ml-3">
-            <Button
-              type="outline"
-              label="Browse a specific catalogue"
-              href="#subcatalogues"
-            />
+            <NuxtLink href="#subcatalogues">
+              <Button
+                type="outline"
+                label="Browse a specific catalogue"/>
+            </NuxtLink>
           </div>
         </div>
       </template>

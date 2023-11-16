@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type {ISetting} from "meta-data-utils";
+
 const route = useRoute();
 const config = useRuntimeConfig();
 
@@ -176,11 +178,11 @@ let description = computed(() => {
         />
       </LandingPrimary>
       <LandingSecondary>
-        <LandingCardSecondary icon="people">
+        <LandingCardSecondary icon="people" v-if="data.data.Cohorts_agg?.sum?.numberOfParticipants">
           <b>
             {{
               new Intl.NumberFormat("nl-NL").format(
-                data.data.Cohorts_agg.sum.numberOfParticipants
+                data.data.Cohorts_agg?.sum?.numberOfParticipants
               )
             }}
             {{
@@ -199,11 +201,11 @@ let description = computed(() => {
           }}
         </LandingCardSecondary>
 
-        <LandingCardSecondary icon="colorize">
+        <LandingCardSecondary icon="colorize" v-if="data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples">
           <b
             >{{
               new Intl.NumberFormat("nl-NL").format(
-                data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
+                data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples
               )
             }}
             {{
@@ -222,7 +224,7 @@ let description = computed(() => {
           }}
         </LandingCardSecondary>
 
-        <LandingCardSecondary icon="schedule">
+        <LandingCardSecondary icon="schedule" v-if="data.data.Cohorts_groupBy && data.data.Cohorts_agg.count">
           <b
             >{{
               getSettingValue(
@@ -246,7 +248,7 @@ let description = computed(() => {
           cross-sectional.
         </LandingCardSecondary>
 
-        <LandingCardSecondary icon="viewTable">
+        <LandingCardSecondary icon="viewTable" v-if="data.data.Subcohorts_agg.count">
           <b>
             {{ data.data.Subcohorts_agg.count }}
             {{
