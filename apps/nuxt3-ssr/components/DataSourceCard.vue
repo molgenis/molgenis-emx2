@@ -38,9 +38,6 @@ const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
 });
 
-let url = props.catalogue
-  ? `/${props.schema}/ssr-catalogue/${props.catalogue}/datasources/${props.datasource.id}`
-  : `/${props.schema}/ssr-catalogue/datasources/${props.datasource.id}`;
 </script>
 
 <template>
@@ -49,7 +46,7 @@ let url = props.catalogue
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="url"
+            :to="`/${schema}/ssr-catalogue/${catalogue}/datasources/${datasource.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ datasource?.acronym || datasource?.name }}
@@ -68,7 +65,7 @@ let url = props.catalogue
           class="text-blue-500 xl:justify-end"
         />
         -->
-        <NuxtLink :to="`/${schema}/ssr-catalogue/datasources/${datasource.id}`">
+        <NuxtLink :to="`/${schema}/ssr-catalogue/${catalogue}/datasources/${datasource.id}`">
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"

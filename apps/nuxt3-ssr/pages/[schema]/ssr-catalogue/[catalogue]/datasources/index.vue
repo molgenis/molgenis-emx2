@@ -37,6 +37,21 @@ let filters: IFilter[] = reactive([
   },
 ]);
 
+if('all' === route.params.catalogue) {
+  filters.push( {
+    title: "Networks",
+    columnId: "networks",
+    columnType: "REF_ARRAY",
+    refTableId: "Networks",
+    refFields: {
+      key: "id",
+      name: "id",
+      description: "name",
+    },
+    conditions: [],
+  })
+}
+
 let search = computed(() => {
   // @ts-ignore
   return filters.find((f) => f.columnType === "_SEARCH").search;
@@ -66,7 +81,7 @@ const orderby = { acronym: "ASC" };
 const filter = computed(() => {
   let result = buildQueryFilter(filters, search.value);
   if ("all" !== route.params.catalogue) {
-    result._and["networks"] = { id: { equals: route.params.catalogue } };
+    result["networks"] = { id: { equals: route.params.catalogue } };
   }
   return result;
 });
