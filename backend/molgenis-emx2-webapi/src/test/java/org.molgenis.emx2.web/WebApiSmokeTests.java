@@ -1102,7 +1102,7 @@ public class WebApiSmokeTests {
     given()
         .sessionId(SESSION_ID)
         .expect()
-        .contentType("Application/ld+json")
+        .contentType("application/ld+json")
         .statusCode(200)
         .when()
         .get("/pet store/api/jsonld");
@@ -1110,7 +1110,7 @@ public class WebApiSmokeTests {
     given()
         .sessionId(SESSION_ID)
         .expect()
-        .contentType("Application/ld+json")
+        .contentType("application/ld+json")
         .statusCode(200)
         .when()
         .get("/pet store/api/jsonld/Pet");
