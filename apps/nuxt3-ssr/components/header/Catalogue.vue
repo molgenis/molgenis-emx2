@@ -75,7 +75,7 @@ menu.push({
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
           :link="`/${route.params.schema}/ssr-catalogue/${cat}`"
-          :image="catalogue.logo?.url || `/assets/logos/molgenis-logo-blue-small.svg`"
+          :image="catalogue.logo?.url || '/_nuxt-styles/img/molgenis-logo-blue-small.svg'"
         />
         <MainNavigation :navigation="menu" :invert="true" />
         <!--  <div class="w-[450px]">

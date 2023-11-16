@@ -13,25 +13,6 @@ let filters: IFilter[] = reactive([
     search: "",
     initialCollapsed: false,
   },
-  {
-    title: "Countries",
-    refTable: "Countries",
-    columnName: "countries",
-    columnType: "ONTOLOGY",
-    conditions: [],
-  },
-  {
-    title: "Organisations",
-    columnName: "leadOrganisation",
-    columnType: "REF_ARRAY",
-    refTable: "Organisations",
-    refFields: {
-      key: "id",
-      name: "id",
-      description: "name",
-    },
-    conditions: [],
-  },
 ]);
 
 let search = computed(() => {
@@ -87,7 +68,7 @@ let activeName = ref("compact");
   <LayoutsLandingPage>
     <PageHeader
       title="health research data and sample catalogue"
-      description="MOLGENIS catalogue community project integrates health research data and sample cataloguing efforts from research projects and topic networks while reducing duplicated efforts"
+      description="The MOLGENIS catalogue community unites health research data and sample catalogues from diverse research projects and topic networks enabling integrated search while improving sustainability and reducing duplicated efforts"
     >
       <template #suffix>
         <div class="relative justify-center flex flex-col md:flex-row">
@@ -95,7 +76,7 @@ let activeName = ref("compact");
             <Button label="Browse all catalogues" :to="`${route.path}/all`"/>
           </div>
           <div class="flex flex-col items-center max-w-sm ml-3">
-            <Button type="outline" label="Browse specific catalogue" href="#subcatalogues" />
+            <Button type="outline" label="Browse a specific catalogue" href="#subcatalogues" />
           </div>
         </div>
       </template>
