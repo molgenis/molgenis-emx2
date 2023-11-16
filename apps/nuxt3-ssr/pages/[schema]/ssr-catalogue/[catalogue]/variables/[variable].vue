@@ -48,6 +48,7 @@ if (route.params.catalogue) {
     Home: `/${route.params.schema}/ssr-catalogue`,
     Variables: `/${route.params.schema}/ssr-catalogue/all/variables`,
   };
+}
 
   const cohortsWithMapping = computed(() => {
   return cohorts
@@ -77,7 +78,6 @@ if (cohortsWithMapping.value.length > 0) {
     label: "Harmonization",
     id: "harmonization-details-no-mapping",
   });
-}
 }
 </script>
 

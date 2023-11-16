@@ -27,18 +27,7 @@ let filters: IFilter[] = reactive([
     columnId: "keywords",
     columnType: "ONTOLOGY",
     conditions: [],
-  },
-  {
-    title: "Cohorts",
-    refTableId: "Cohorts",
-    columnNId: "cohorts",
-    columnType: "REF_ARRAY",
-    refFields: {
-      key: "id",
-      name: "id",
-      description: "name",
-    },
-    conditions: [],
+    initialCollapsed: false,
   },
 ]);
 
@@ -146,7 +135,6 @@ const filter = computed(() => {
 
   return result;
 });
-console.log(JSON.stringify(filter.value))
 
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   key: `variables-${offset.value}`,
