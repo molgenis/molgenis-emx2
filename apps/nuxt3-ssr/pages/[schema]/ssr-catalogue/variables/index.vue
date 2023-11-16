@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IFilter } from "../../../../interfaces/types";
+import type { IFilter } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
