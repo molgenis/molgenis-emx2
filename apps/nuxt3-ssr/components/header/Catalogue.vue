@@ -22,32 +22,32 @@ const { data, pending, error, refresh } = await useFetch(
     body: { query },
   }
 );
-const catalogue = data.value.data?.Networks[0];
+const catalogue = cat === 'all' ? {} : data.value.data?.Networks[0];
 
 const menu = [
   {
-    label: `${catalogue.id}`,
-    link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}`,
+    label: `${catalogue.id || 'home'}`,
+    link: `/${route.params.schema}/ssr-catalogue/${cat}`,
   },
 ];
 if (catalogue.cohorts_agg?.count > 0)
   menu.push({
     label: "Cohorts",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}/cohorts`,
+    link: `/${route.params.schema}/ssr-catalogue/${cat}/cohorts`,
   });
 if (catalogue.dataSources_agg?.count > 0)
   menu.push({
     label: "Data sources",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}/datasources`,
+    link: `/${route.params.schema}/ssr-catalogue/${cat}/datasources`,
   });
 if (data.value.data.Variables_agg?.count > 0)
   menu.push({
     label: "Variables",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}/variables`,
+    link: `/${route.params.schema}/ssr-catalogue/${cat}/variables`,
   });
 menu.push({
   label: "Variables",
-  link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}/variables`,
+  link: `/${route.params.schema}/ssr-catalogue/${cat}/variables`,
 });
 // todoswqki
 // menu.push({
@@ -74,7 +74,7 @@ menu.push({
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
-          :link="`/${route.params.schema}/ssr-catalogue/${catalogue.id}`"
+          :link="`/${route.params.schema}/ssr-catalogue/${cat}`"
           :image="catalogue.logo?.url"
         />
         <MainNavigation :navigation="menu" :invert="true" />
@@ -92,7 +92,7 @@ menu.push({
 
           <div class="absolute -translate-x-1/2 left-1/2">
             <LogoMobile
-              :link="`/${route.params.schema}/ssr-catalogue/${catalogue.id}`"
+              :link="`/${route.params.schema}/ssr-catalogue/${cat}`"
               :image="catalogue.logo?.url"
             />
           </div>

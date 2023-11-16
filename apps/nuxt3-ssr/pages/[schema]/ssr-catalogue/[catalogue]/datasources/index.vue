@@ -77,7 +77,6 @@ const filter = computed(() => {
   if (route.params.catalogue) {
     result._and["networks"] = { id: { equals: route.params.catalogue } };
   }
-  console.log(result);
   return result;
 });
 

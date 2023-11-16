@@ -13,13 +13,13 @@ let truncate = ref(true);
 </script>
 <template>
   <p v-if="text" class="text-body-base my-5 xl:block hidden">
-    {{ truncate ? `${text?.substring(0, cutoff)}...` : text }}
+    {{ truncate ? `${text?.substring(0, cutoff)}` : text }}
     <button
       v-if="truncate && text && text.length > cutoff"
       class="underline italic"
       @click="truncate = false"
     >
-      read more
+      ...
     </button>
     <button
       v-else-if="!truncate && text && text.length > cutoff"
@@ -37,7 +37,7 @@ let truncate = ref(true);
       class="underline italic"
       @click="truncate = false"
     >
-      read more
+      ...
     </button>
     <button
       v-else-if="!truncate && text && text.length > cutoff"

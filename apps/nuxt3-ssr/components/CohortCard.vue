@@ -12,7 +12,6 @@ const props = withDefaults(
   }>(),
   {
     compact: false,
-    catalogue: "all"
   }
 );
 

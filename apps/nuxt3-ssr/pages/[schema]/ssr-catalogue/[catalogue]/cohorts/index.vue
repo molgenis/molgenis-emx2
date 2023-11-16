@@ -107,7 +107,14 @@ const query = computed(() => {
 
 const orderby = { acronym: "ASC" };
 
-const filter = computed(() => buildQueryFilter(filters, search.value));
+const filter = computed(() => {
+  let result = buildQueryFilter(filters, search.value);
+  if ('all' !== route.params.catalogue) {
+    result._and["networks"] = { id: { equals: route.params.catalogue } };
+  }
+  return result;
+});
+
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
@@ -219,6 +226,7 @@ if (route.params.catalogue) {
                 <CohortCard
                   :cohort="cohort"
                   :schema="route.params.schema"
+                  :catalogue="route.params.catalogue"
                   :compact="activeName !== 'detailed'"
                 />
               </CardListItem>
