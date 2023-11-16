@@ -1,6 +1,6 @@
 // set chart title
-@mixin setChartTitle($size: 1.1rem) {
-  font-size: 1.1rem;
+@mixin setChartTitle($font-size: 1.1rem) {
+  font-size: $font-size;
   padding: 0;
   margin-bottom: 0.5em;
   text-align: center;
