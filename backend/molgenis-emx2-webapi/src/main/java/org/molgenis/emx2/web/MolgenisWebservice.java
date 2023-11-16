@@ -100,7 +100,6 @@ public class MolgenisWebservice {
     JsonYamlApi.create();
     TaskApi.create();
     GraphqlApi.createGraphQLservice(sessionManager);
-    LinkedDataFragmentsApi.create(sessionManager);
     RDFApi.create(sessionManager);
     GraphGenomeApi.create(sessionManager);
     BeaconApi.create(sessionManager);
