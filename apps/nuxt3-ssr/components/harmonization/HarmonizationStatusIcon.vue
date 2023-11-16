@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import { HarmonizationStatus } from "~/interfaces/types";
+import type {
+  HarmonizationIconSize,
+  HarmonizationStatus,
+} from "~/interfaces/types";
 
 const props = withDefaults(
   defineProps<{
     status: HarmonizationStatus;
-    size: string;
+    size: HarmonizationIconSize;
   }>(),
-  { size: "8" }
+  { size: "large" }
 );
+
+const tailwindIconSize = computed(() => (props.size === "large" ? "8" : "5"));
 
 const tableClass = computed(() => {
   switch (props.status) {
@@ -45,7 +50,7 @@ const fillClass = computed(() => {
 <template>
   <div
     class="p-1 justify-center items-center inline-flex"
-    :class="`w-${size} h-${size} ${tableClass}`"
+    :class="`w-${tailwindIconSize} h-${tailwindIconSize} ${tableClass}`"
   >
     <BaseIcon v-if="iconName" :name="iconName" :class="fillClass" />
   </div>

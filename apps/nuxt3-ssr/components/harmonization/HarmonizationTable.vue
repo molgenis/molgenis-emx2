@@ -32,7 +32,7 @@ let activeVariablePath = computed(() =>
 
 <template>
   <div class="mb-7 relative">
-    <HarmonizationLegend class="flex-row-reverse" />
+    <HarmonizationLegend class="flex-row-reverse" size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
       <StickyTable
         :columns="cohorts"
