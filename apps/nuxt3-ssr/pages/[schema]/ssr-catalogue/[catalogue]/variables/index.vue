@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { IFilter } from "~/interfaces/types";
+
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
@@ -6,12 +8,37 @@ const pageSize = 30;
 
 useHead({ title: "Variables" });
 
+type view = "list" | "harmonization";
+
 const currentPage = ref(1);
+const activeName = ref((route.query.view as view | undefined) || "list");
+
+watch([currentPage, activeName], () => {
+  router.push({
+    path: route.path,
+    query: { page: currentPage.value, view: activeName.value },
+  });
+});
+
+function setCurrentPage(pageNumber: number) {
+  currentPage.value = pageNumber;
+}
+
 if (route.query?.page) {
   const queryPageNumber = Number(route.query?.page);
   currentPage.value =
     typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1;
 }
+
+let pageIcon = computed(() => {
+  switch (activeName.value) {
+    case "list":
+      return "image-diagram-2";
+    case "harmonization":
+      return "image-table";
+  }
+});
+
 let offset = computed(() => (currentPage.value - 1) * pageSize);
 
 let filters: IFilter[] = reactive([
@@ -148,15 +175,9 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   },
 });
 
-function setCurrentPage(pageNumber: number) {
-  router.push({ path: route.path, query: { page: pageNumber } });
-  currentPage.value = pageNumber;
-}
-
 watch(filters, () => {
   setCurrentPage(1);
 });
-
 let activeName = ref("list");
 
 let crumbs: any = {};
@@ -250,10 +271,7 @@ let pageIcon = computed(() => {
           </SearchResultsList>
         </template>
 
-        <template
-          #pagination
-          v-if="activeName === 'list' && data?.data?.Variables?.length > 0"
-        >
+        <template #pagination v-if="data?.data?.Variables?.length > 0">
           <Pagination
             :current-page="currentPage"
             :totalPages="Math.ceil(data?.data?.Variables_agg.count / pageSize)"

@@ -1,9 +1,11 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { IColumn } from "../Interfaces/IColumn";
-import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { IRow } from "../Interfaces/IRow";
-import { ISetting } from "../Interfaces/ISetting";
-import { ITableMetaData } from "../Interfaces/ITableMetaData";
+import {
+  IColumn,
+  ITableMetaData,
+  ISchemaMetaData,
+  ISetting,
+} from "meta-data-utils";
 import { deepClone } from "../components/utils";
 import { IClient, INewClient } from "./IClient";
 import { IQueryMetaData } from "./IQueryMetaData";
@@ -59,12 +61,12 @@ const client: IClient = {
       ) => {
         const schemaMetaData = await fetchSchemaMetaData(schemaId);
         const tableMetaData = schemaMetaData.tables.find(
-          (table) =>
+          (table: ITableMetaData) =>
             table.id === tableId && table.schemaId === schemaMetaData.id
         );
         const filter = tableMetaData?.columns
-          ?.filter((column) => column.key === 1)
-          .reduce((accum: any, column) => {
+          ?.filter((column: IColumn) => column.key === 1)
+          .reduce((accum: any, column: IColumn) => {
             accum[column.id] = { equals: rowId[column.id] };
             return accum;
           }, {});
