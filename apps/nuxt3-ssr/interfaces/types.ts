@@ -264,3 +264,5 @@ export interface IMapping {
 }
 
 export type HarmonizationStatus = "unmapped" | "partial" | "complete";
+
+export type HarmonizationIconSize = "small" | "large";

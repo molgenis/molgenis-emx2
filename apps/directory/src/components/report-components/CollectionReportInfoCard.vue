@@ -9,12 +9,12 @@
               <template v-if="info.head">
                 <li>
                   <span class="font-weight-bold mr-1">Head/PI:</span>
-                  <span>{{ info.head }}</span>
+                  <div>{{ info.head }}</div>
                 </li>
               </template>
               <li v-if="info.contact.name">
                 <span class="font-weight-bold mr-1">Contact:</span>
-                <span>{{ info.contact.name }}</span>
+                <div>{{ info.contact.name }}</div>
               </li>
               <li v-if="info.contact.email">
                 <span
@@ -66,7 +66,7 @@
                     aria-hidden="true"
                   ></span>
                   <a
-                    :href="info.biobank.website"
+                    :href="info.biobank.url"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -88,6 +88,10 @@
                 <span class="biobank-id">{{ info.biobank.id }}</span>
               </li>
             </ul>
+          </template>
+          <template v-if="info.also_known">
+            <h5>Also Known In</h5>
+            <ReportDetailsList :reportDetails="info.also_known" />
           </template>
           <template v-if="info.networks && info.networks.length > 0">
             <h5>Networks</h5>
@@ -159,6 +163,7 @@
 <script setup>
 import { computed, toRefs } from "vue";
 import { useSettingsStore } from "../../stores/settingsStore";
+import ReportDetailsList from "../../components/report-components/ReportDetailsList.vue";
 
 const settingsStore = useSettingsStore();
 const uiText = computed(() => settingsStore.uiText);

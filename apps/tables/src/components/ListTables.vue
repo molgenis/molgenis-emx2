@@ -9,8 +9,7 @@
     <div v-else>
       Download all tables:
       <a href="../api/zip">zip</a> | <a href="../api/excel">excel</a> |
-      <a href="../api/rdf?format=jsonld">jsonld</a> |
-      <a href="../api/rdf?format=ttl">ttl</a><br />
+      <a href="../api/jsonld">jsonld</a> | <a href="../api/ttl">ttl</a><br />
       <InputSearch
         id="tables-list-search-input"
         placeholder="search in tables"

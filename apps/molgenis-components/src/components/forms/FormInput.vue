@@ -27,7 +27,6 @@ import InputHeading from "../forms/InputHeading.vue";
 import InputInt from "../forms/InputInt.vue";
 import InputLong from "../forms/InputLong.vue";
 import InputOntology from "../forms/InputOntology.vue";
-import InputRef from "../forms/InputRef.vue";
 import InputRefBack from "../forms/InputRefBack.vue";
 import InputRefSelect from "../forms/InputRefSelect.vue";
 import InputString from "../forms/InputString.vue";
@@ -136,7 +135,6 @@ export default {
     InputText,
     InputHeading,
     InputOntology,
-    InputRef,
     InputRefBack,
     InputRefSelect,
   },
@@ -464,7 +462,7 @@ export default {
             id="ontology-example"
             columnType="ONTOLOGY"
             label="Example ontology input"
-            tableId="Category"
+            tableId="Tag"
             v-model="ontologyValue"
             :schemaId="schemaId"
         />
@@ -477,7 +475,7 @@ export default {
             id="ontology-array-example"
             columnType="ONTOLOGY_ARRAY"
             label="Example ontology array input"
-            tableId="Category"
+            tableId="Tag"
             v-model="ontologyArrayValue"
             :schemaId="schemaId"
         />
