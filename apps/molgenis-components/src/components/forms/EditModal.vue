@@ -97,7 +97,7 @@
 import { IColumn } from "../../Interfaces/IColumn";
 import { ISchemaMetaData } from "../../Interfaces/IMetaData";
 import { IRow } from "../../Interfaces/IRow";
-import { ISetting } from "../../Interfaces/ISetting";
+import { ISetting } from "meta-data-utils";;
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { INewClient } from "../../client/IClient";
 import Client from "../../client/client";
