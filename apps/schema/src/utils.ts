@@ -206,7 +206,7 @@ export function addTableIdsLabelsDescription(originalTable: ITableMetaData) {
   table.inheritId = convertToPascalCase(table.inheritName);
   table.columns = table.columns.map((column) => {
     column.id = convertToCamelCase(column.name);
-    column.label = getLocalizedLabel(column, "en");
+    column.label = getLocalizedLabel(column, "en") || column.name;
     column.description = getLocalizedDescription(column, "en");
     column.refTableId = convertToPascalCase(column.refTableName);
     column.refLinkId = convertToCamelCase(column.refLinkName);
