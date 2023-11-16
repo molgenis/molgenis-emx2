@@ -1,8 +1,8 @@
 <template>
-  <nav class="quick-links">
-    <ol class="quick-links-nav">
+  <nav :class="containerClasses">
+    <ol :class="navClasses">
       <li class="nav-item" v-for="row in data">
-        <LinkCard :imageSrc="imageSrc ? row[imageSrc] : null" :height="height">
+        <LinkCard :imageSrc="imageSrc ? row[imageSrc] : null">
           <router-link :to="{ name: row[name] }">{{ row[label] }}</router-link>
         </LinkCard>
       </li>
@@ -13,7 +13,8 @@
 </template>
 
 <script setup>
-import { LinkCard } from "molgenis-viz";
+import { computed } from "vue";
+import LinkCard from "./LinkCard.vue";
 
 const props = defineProps({
   // an array of objects containing hrefs, labels, and background image paths
@@ -42,15 +43,33 @@ const props = defineProps({
     type: String,
   },
 
-  // Specify the vertical height of the LinkCard components
-  height: {
-    type: String,
-    default: "medium",
+  // if True, child elements will be wrapped by row
+  shouldWrap: {
+    type: Boolean,
+    default: false,
+  },
+
+  // specify the space between child elements
+  linkGap: {
+    type: Number,
+    // `1`
+    default: 1,
     validator: (value) => {
-      const options = ["xsmall", "small", "medium", "large"];
-      return options.includes(value);
+      return value >= 0 && value <= 5;
     },
   },
+});
+
+const containerClasses = computed(() => {
+  const css = ["quick-links"];
+  if (props.shouldWrap) {
+    css.push("quick-links-wrapped");
+  }
+  return css.join(" ");
+});
+
+const navClasses = computed(() => {
+  return `quick-links-nav gap-${props.linkGap}`;
 });
 </script>
 
@@ -69,6 +88,12 @@ const props = defineProps({
 
     .link-card {
       width: 100%;
+    }
+  }
+
+  &.quick-links-wrapped {
+    .quick-links-nav {
+      flex-wrap: wrap;
     }
   }
 }

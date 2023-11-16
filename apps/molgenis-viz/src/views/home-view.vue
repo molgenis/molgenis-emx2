@@ -26,7 +26,7 @@
       </p>
     </PageSection>
     <PageSection
-      class="bkg-light"
+      class="bg-gray-050"
       :verticalPadding="2"
       aria-labelledby="components-title"
     >
@@ -42,58 +42,69 @@
         ), and used in the examples.
       </p>
       <MessageBox v-if="error || !confirmed">
+        <p><strong>Unable to confirm schema configuration.</strong></p>
         <p>
-          Unable to confirm schema configuration. Please recreate the schema. If
-          an error persists, please open a new issue on GitHub. {{ error }}
+          Please recreate the schema. If an error persists, please open a new
+          issue on GitHub. {{ error }}
         </p>
       </MessageBox>
-      <div class="link-container" v-else>
-        <LinkCard imageSrc="bar-chart-header.jpg">
-          <router-link :to="{ name: 'bar-chart' }"> Bar Chart </router-link>
-        </LinkCard>
-        <LinkCard imageSrc="column-chart-header.jpg">
-          <router-link :to="{ name: 'column-chart' }">
-            Column Chart
-          </router-link>
-        </LinkCard>
-        <LinkCard imageSrc="table-header.jpg">
-          <router-link :to="{ name: 'datatable' }"> Data Table </router-link>
-        </LinkCard>
-        <LinkCard imageSrc="highlights-header.jpg">
-          <router-link :to="{ name: 'data-highlights' }">
-            Data Highlights
-          </router-link>
-        </LinkCard>
-        <LinkCard imageSrc="map-header.jpg">
-          <router-link :to="{ name: 'geo-mercator' }">
-            GeoMercator
-          </router-link>
-        </LinkCard>
-        <LinkCard imageSrc="grouped-column-chart-header.jpg">
-          <router-link :to="{ name: 'grouped-column-chart' }">
-            Grouped Column Chart
-          </router-link>
-        </LinkCard>
-        <LinkCard imageSrc="legend-header.jpg">
-          <router-link :to="{ name: 'chart-legend' }"> Legends </router-link>
-        </LinkCard>
-        <LinkCard imageSrc="pie-chart-header.jpg">
-          <router-link :to="{ name: 'pie-chart' }"> Pie Chart </router-link>
-        </LinkCard>
-        <LinkCard imageSrc="pie-chart-header.jpg">
-          <router-link :to="{ name: 'pie-chart-2' }"> Pie Chart2 </router-link>
-        </LinkCard>
-        <LinkCard imageSrc="scatter-plot-header.jpg">
-          <router-link :to="{ name: 'scatter-plot' }">
-            Scatter Plot
-          </router-link>
-        </LinkCard>
-        <LinkCard imageSrc="gauge-chart-header.jpg">
-          <router-link :to="{ name: 'progress-charts' }">
-            Progress Charts
-          </router-link>
-        </LinkCard>
-      </div>
+      <QuickLinks
+        id="visualisation-links"
+        :data="[
+          {
+            to: 'bar-chart',
+            label: 'Bar Chart',
+            image: '/bar-chart-header.jpg',
+          },
+          {
+            to: 'column-chart',
+            label: 'Column Chart',
+            image: '/column-chart-header.jpg',
+          },
+          { to: 'datatable', label: 'Data Table', image: '/table-header.jpg' },
+          {
+            to: 'data-highlights',
+            label: 'Data Highlights',
+            image: '/highlights-header.jpg',
+          },
+          {
+            to: 'geo-mercator',
+            label: 'Geo Mercator',
+            image: '/map-header.jpg',
+          },
+          {
+            to: 'grouped-column-chart',
+            label: 'Grouped Column Chart',
+            image: '/grouped-column-chart-header.jpg',
+          },
+          { to: 'chart-legend', label: 'Legends', image: '/legend-header.jpg' },
+          {
+            to: 'pie-chart',
+            label: 'Pie Chart',
+            image: '/pie-chart-header.jpg',
+          },
+          {
+            to: 'pie-chart-2',
+            label: 'Pie Chart 2',
+            image: '/pie-chart-header.jpg',
+          },
+          {
+            to: 'scatter-plot',
+            label: 'Scatter Plot',
+            image: '/scatter-plot-header.jpg',
+          },
+          {
+            to: 'progress-charts',
+            label: 'Progress Charts',
+            image: '/gauge-chart-header.jpg',
+          },
+        ]"
+        name="to"
+        label="label"
+        image-src="image"
+        cardHeight="auto"
+        :should-wrap="true"
+      />
     </PageSection>
   </Page>
 </template>
@@ -106,7 +117,7 @@ import gql from "graphql-tag";
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";
 import PageSection from "../components/layouts/PageSection.vue";
-import LinkCard from "../components/display/LinkCard.vue";
+import QuickLinks from "../components/display/QuickLinks.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 
 let loading = ref(true);
@@ -127,7 +138,13 @@ async function confirmSchema() {
 
 onMounted(() => {
   confirmSchema()
-    .catch((err) => (error.value = err))
+    .catch((err) => {
+      if (err.response) {
+        error.value = err.response.errors[0].message;
+      } else {
+        error.value = err;
+      }
+    })
     .finally(() => (loading.value = false));
 });
 </script>
@@ -135,27 +152,5 @@ onMounted(() => {
 <style lang="scss">
 .home-page-header.header-image-background {
   background-position: 0 60%;
-}
-.link-container {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 2em;
-
-  .link-card {
-    height: 6em;
-    border-radius: 12px;
-    background-color: transparent;
-    flex-grow: 1;
-
-    a {
-      color: $green-050;
-    }
-    .card-background-filter {
-      border-radius: 12px;
-      background-color: $blue-700;
-      opacity: 0.5;
-    }
-  }
 }
 </style>

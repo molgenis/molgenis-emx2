@@ -50,14 +50,12 @@ export default {
 
 <style lang="scss">
 .message-box {
-  box-sizing: border-box;
   display: flex;
-  border-radius: 6px;
+  border-radius: 0;
   justify-content: flex-start;
   align-items: stretch;
   margin: 12px 0;
 
-  $size: 32px;
   .message-icon {
     display: flex;
     justify-content: center;
@@ -65,14 +63,17 @@ export default {
     padding: 12px;
     border-radius: 6px 0 0 6px;
     svg {
-      height: $size;
-      width: $size;
+      @include setIconSize($size: 32px);
       stroke-width: 2px;
     }
   }
 
   .message-text {
-    padding: 0 12px;
+    padding: 1.1em;
+
+    p {
+      margin-bottom: 0;
+    }
 
     * {
       color: inherit;

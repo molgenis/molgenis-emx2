@@ -1,11 +1,13 @@
 // display components
 import Accordion from "../src/components/display/Accordion.vue";
 import ActionLink from "../src/components/display/ActionLink.vue";
+import FileList from "../src/components/display/FileList.vue";
 import InfoCard from "../src/components/display/InfoCard.vue";
 import LinkCard from "../src/components/display/LinkCard.vue";
 import LoadingScreen from "../src/components/display/LoadingScreen.vue";
 import MessageBox from "../src/components/display/MessageBox.vue";
 import MolgenisLogo from "../src/components/display/MolgenisLogo.vue";
+import QuickLinks from "../src/components/display/QuickLinks.vue";
 import UnorderedList from "../src/components/display/UnorderedList.vue";
 
 // forms
@@ -38,10 +40,6 @@ import PieChart from "../src/components/viz/PieChart.vue";
 import PieChart2 from "../src/components/viz/PieChart2.vue";
 import ProgressMeter from "../src/components/viz/ProgressMeter.vue";
 import ScatterPlot from "../src/components/viz/ScatterPlot.vue";
-
-// views
-import FileList from "../src/components/FileList.vue";
-import QuickLinks from "../src/components/QuickLinks.vue";
 
 // data
 import WorldGeoJson from "../src/data/world.geo.json";
