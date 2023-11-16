@@ -295,14 +295,18 @@ public class RDFService {
 
   private void describeColumns(
       final ModelBuilder builder, final Table table, final String columnName) {
-    for (final Column column : table.getMetadata().getColumns()) {
-      // Exclude the system columns like mg_insertedBy
-      if (column.isSystemColumn()) {
-        continue;
+    if (table.getMetadata().getTableType() == TableType.DATA) {
+      for (final Column column : table.getMetadata().getColumns()) {
+        // Exclude the system columns like mg_insertedBy
+        if (column.isSystemColumn()) {
+          continue;
+        }
+        if (columnName == null || columnName.equals(column.getName())) {
+          describeColumn(builder, column);
+        }
       }
-      if (columnName == null || columnName.equals(column.getName())) {
-        describeColumn(builder, column);
-      }
+    } else {
+      // For ontology tables we don't define the columns as predicates.
     }
   }
 
@@ -387,25 +391,51 @@ public class RDFService {
     final IRI tableIRI = getTableIRI(table);
     for (final Row row : getRows(table, rowId)) {
       IRI subject = getIriForRow(row, table.getMetadata());
-      builder.add(subject, RDF.TYPE, tableIRI);
+
       if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
         builder.add(subject, RDF.TYPE, IRI_CODED_VALUE_DATATYPE);
+        builder.add(subject, RDF.TYPE, OWL.CLASS);
+        builder.add(subject, RDFS.SUBCLASSOF, tableIRI);
+
+        if (row.getString("name") != null) {
+          builder.add(subject, RDFS.LABEL, Values.literal(row.getString("name")));
+        }
+        if (row.getString("label") != null) {
+          builder.add(subject, RDFS.LABEL, Values.literal(row.getString("label")));
+        }
+        if (row.getString("code") != null) {
+          builder.add(subject, SKOS.NOTATION, Values.literal(row.getString("code")));
+        }
+        if (row.getString("codesystem") != null) {
+          builder.add(
+              subject, IRI_CONTROLLED_VOCABULARY, Values.literal(row.getString("codesystem")));
+        }
+        if (row.getString("definition") != null) {
+          builder.add(subject, RDFS.ISDEFINEDBY, Values.literal(row.getString("definition")));
+        }
         if (row.getString(ONTOLOGY_TERM_URI) != null) {
-          builder.add(subject, RDFS.ISDEFINEDBY, iri(row.getString(ONTOLOGY_TERM_URI)));
+          builder.add(subject, OWL.SAMEAS, Values.iri(row.getString(ONTOLOGY_TERM_URI)));
+        }
+        if (row.getString("parent") != null) {
+          String parentRowId = row.getString("parent");
+          Row parent = getRows(table, parentRowId).get(0);
+          IRI object = getIriForRow(parent, table.getMetadata());
+          builder.add(subject, RDFS.SUBCLASSOF, object);
         }
       } else {
+        builder.add(subject, RDF.TYPE, tableIRI);
         builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
-      }
-      builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
+        builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
 
-      for (final Column column : table.getMetadata().getColumns()) {
-        // Exclude the system columns like mg_insertedBy
-        if (column.isSystemColumn()) {
-          continue;
-        }
-        IRI columnIRI = getColumnIRI(column);
-        for (final Value value : formatValue(row, column)) {
-          builder.add(subject, columnIRI, value);
+        for (final Column column : table.getMetadata().getColumns()) {
+          // Exclude the system columns like mg_insertedBy
+          if (column.isSystemColumn()) {
+            continue;
+          }
+          IRI columnIRI = getColumnIRI(column);
+          for (final Value value : formatValue(row, column)) {
+            builder.add(subject, columnIRI, value);
+          }
         }
       }
     }
