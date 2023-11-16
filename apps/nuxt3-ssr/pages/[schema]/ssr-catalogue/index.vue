@@ -73,15 +73,23 @@ let activeName = ref("compact");
       <template #suffix>
         <div class="relative justify-center flex flex-col md:flex-row">
           <div class="flex flex-col items-center max-w-sm">
-            <Button label="Browse all catalogues" :to="`${route.path}/all`"/>
+            <Button label="Browse all catalogues" :to="`${route.path}/all`" />
           </div>
           <div class="flex flex-col items-center max-w-sm ml-3">
-            <Button type="outline" label="Browse a specific catalogue" href="#subcatalogues" />
+            <Button
+              type="outline"
+              label="Browse a specific catalogue"
+              href="#subcatalogues"
+            />
           </div>
         </div>
       </template>
     </PageHeader>
-    <PageHeader title="" description="Select a catalogue below:"  id="subcatalogues">
+    <PageHeader
+      title=""
+      description="Select a catalogue below:"
+      id="subcatalogues"
+    >
       <template #suffix>
         <SearchResultsViewTabs
           class="hidden xl:flex"
@@ -113,13 +121,15 @@ let activeName = ref("compact");
             :compact="activeName !== 'detailed'"
           />
         </CardListItem>
-        <CardListItem
-            key="all"
-        >
+        <CardListItem key="all">
           <CatalogueCard
-              :network="{id: 'all', acronym: 'all', name: 'browse all catalogues'}"
-              :schema="route.params.schema"
-              :compact="activeName !== 'detailed'"
+            :network="{
+              id: 'all',
+              acronym: 'all',
+              name: 'browse all catalogues',
+            }"
+            :schema="route.params.schema"
+            :compact="activeName !== 'detailed'"
           />
         </CardListItem>
       </CardList>

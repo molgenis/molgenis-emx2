@@ -38,11 +38,11 @@ const props = defineProps({
     type: Boolean,
   },
   to: {
-    type: Object
+    type: Object,
   },
   href: {
-    type: String
-  }
+    type: String,
+  },
 });
 
 const COLOR_MAPPING = {
@@ -84,17 +84,18 @@ const iconPositionClass = computed(() => {
   return ICON_POSITION_MAPPING[props.iconPosition];
 });
 
-const getComponent = computed( () => {
-  return props.to || props.href ? resolveComponent('NuxtLink') : "button";
+const getComponent = computed(() => {
+  return props.to || props.href ? resolveComponent("NuxtLink") : "button";
 });
-
 </script>
 
 <template>
-  <component :is="getComponent"
+  <component
+    :is="getComponent"
     :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
     class="flex items-center border rounded-full"
-             :to="to" :href="href"
+    :to="to"
+    :href="href"
   >
     <span v-if="icon">
       <BaseIcon :name="icon" />
