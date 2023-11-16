@@ -123,22 +123,23 @@ function sectionTitle(section: ISection) {
     : section.meta.label;
 }
 
-let crumbs: Record<string, string> = {}
-if(route.params.catalogue) {
-  crumbs[route.params.catalogue.toString()] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+let crumbs: Record<string, string> = {};
+if (route.params.catalogue) {
   crumbs[
-      resourceType
-      ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${resourceType}`;
+    route.params.catalogue.toString()
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+  crumbs[
+    resourceType
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${resourceType}`;
 } else {
   crumbs = {
     Home: `/${route.params.schema}/ssr-catalogue`,
-    Browse: `/${route.params.schema}/ssr-catalogue/all`
-  }
+    Browse: `/${route.params.schema}/ssr-catalogue/all`,
+  };
   crumbs[
-      resourceType
-      ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType}`;
-};
-
+    resourceType
+  ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType}`;
+}
 </script>
 
 <template>

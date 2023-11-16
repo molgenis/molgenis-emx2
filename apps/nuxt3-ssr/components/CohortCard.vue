@@ -63,7 +63,9 @@ const iconStarClasses = computed(() => {
           class="text-blue-500 xl:justify-end"
         />
         -->
-        <NuxtLink :to="`/${schema}/ssr-catalogue/${catalogue}/cohorts/${cohort.id}`">
+        <NuxtLink
+          :to="`/${schema}/ssr-catalogue/${catalogue}/cohorts/${cohort.id}`"
+        >
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"

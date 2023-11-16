@@ -22,11 +22,11 @@ const { data, pending, error, refresh } = await useFetch(
     body: { query },
   }
 );
-const catalogue = cat === 'all' ? {} : data.value.data?.Networks[0];
+const catalogue = cat === "all" ? {} : data.value.data?.Networks[0];
 
 const menu = [
   {
-    label: `${catalogue.id || 'home'}`,
+    label: `${catalogue.id || "home"}`,
     link: `/${route.params.schema}/ssr-catalogue/${cat}`,
   },
 ];
@@ -54,10 +54,10 @@ menu.push({
 //   label: "About",
 //   link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}/about`,
 // }),
-  menu.push({
-    label: "Other catalogues",
-    link: `/${route.params.schema}/ssr-catalogue`,
-  });
+menu.push({
+  label: "Other catalogues",
+  link: `/${route.params.schema}/ssr-catalogue`,
+});
 
 // { label: "Databanks", link: `/${schema}/ssr-catalogue/databanks` },
 // config.public.cohortOnly
@@ -75,7 +75,7 @@ menu.push({
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
           :link="`/${route.params.schema}/ssr-catalogue/${cat}`"
-          :image="catalogue.logo?.url"
+          :image="catalogue.logo?.url || `/assets/logos/molgenis-logo-blue-small.svg`"
         />
         <MainNavigation :navigation="menu" :invert="true" />
         <!--  <div class="w-[450px]">

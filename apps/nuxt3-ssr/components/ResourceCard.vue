@@ -16,7 +16,7 @@ const props = withDefaults(
 );
 
 const route = useRoute();
-const catalogue = route.params.catalogue || 'all';
+const catalogue = route.params.catalogue || "all";
 
 const resourceIdPath = computed(() => {
   return (

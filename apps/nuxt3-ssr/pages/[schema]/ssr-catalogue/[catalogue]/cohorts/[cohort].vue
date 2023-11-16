@@ -5,7 +5,7 @@ import collectionEventsQuery from "~~/gql/collectionEvents";
 import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
-import type {ICohort} from "~/interfaces/types";
+import type { ICohort } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 

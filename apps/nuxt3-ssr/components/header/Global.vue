@@ -11,7 +11,10 @@ const menu = [
     : { label: "All resources", link: `/${schema}/ssr-catalogue/all` },
   config.public.cohortOnly
     ? undefined
-    : { label: "All variables", link: `/${schema}/ssr-catalogue/all/variables` },
+    : {
+        label: "All variables",
+        link: `/${schema}/ssr-catalogue/all/variables`,
+      },
 
   // { label: "Statistical Methods", link: "#" },
   // { label: "Tables", link: "#" },

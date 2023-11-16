@@ -120,12 +120,16 @@ function buildRecordId(record: any) {
     schemas
   );
 }
-let crumbs: Record<string, string> = {}
-if(route.params.catalogue) {
-  crumbs[route.params.catalogue.toString()] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+let crumbs: Record<string, string> = {};
+if (route.params.catalogue) {
+  crumbs[
+    route.params.catalogue.toString()
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 } else {
- crumbs = { Home: `/${route.params.schema}/ssr-catalogue`,
-      Browse: `/${route.params.schema}/ssr-catalogue/all`}
+  crumbs = {
+    Home: `/${route.params.schema}/ssr-catalogue`,
+    Browse: `/${route.params.schema}/ssr-catalogue/all`,
+  };
 }
 </script>
 <template>

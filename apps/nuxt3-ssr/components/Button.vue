@@ -2,6 +2,7 @@
 <script setup>
 import BaseIcon from "./BaseIcon.vue";
 import { computed } from "vue";
+import NuxtLink from "#app/components/nuxt-link";
 
 const props = defineProps({
   type: {
@@ -36,6 +37,12 @@ const props = defineProps({
   disabled: {
     type: Boolean,
   },
+  to: {
+    type: Object
+  },
+  href: {
+    type: String
+  }
 });
 
 const COLOR_MAPPING = {
@@ -76,16 +83,22 @@ const sizeClasses = computed(() => {
 const iconPositionClass = computed(() => {
   return ICON_POSITION_MAPPING[props.iconPosition];
 });
+
+const getComponent = computed( () => {
+  return props.to || props.href ? resolveComponent('NuxtLink') : "button";
+});
+
 </script>
 
 <template>
-  <button
+  <component :is="getComponent"
     :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
     class="flex items-center border rounded-full"
+             :to="to" :href="href"
   >
     <span v-if="icon">
       <BaseIcon :name="icon" />
     </span>
     <span>{{ label }}<slot /></span>
-  </button>
+  </component>
 </template>

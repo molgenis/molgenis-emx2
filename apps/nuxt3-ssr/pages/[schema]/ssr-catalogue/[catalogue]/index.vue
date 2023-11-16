@@ -3,10 +3,11 @@ const route = useRoute();
 const config = useRuntimeConfig();
 
 const cat = route.params.catalogue;
-const networkFilter = 'all' === cat ? '' : `(filter:{id:{equals:"${cat}"}})`;
-const resourceFilter = 'all' === cat ? '' : `(filter:{networks:{id:{equals:"${cat}"}}})`;
-const variablesFilter = 'all' === cat ? '' : `(filter:{resource:{id:{equals:"${cat}"}}})`; //todo: better mapping from variable to network
-
+const networkFilter = "all" === cat ? "" : `(filter:{id:{equals:"${cat}"}})`;
+const resourceFilter =
+  "all" === cat ? "" : `(filter:{networks:{id:{equals:"${cat}"}}})`;
+const variablesFilter =
+  "all" === cat ? "" : `(filter:{resource:{id:{equals:"${cat}"}}})`; //todo: better mapping from variable to network
 
 const query = `{
         Networks${networkFilter} {
@@ -73,27 +74,27 @@ const query = `{
           key
           value
         }
-      }`
+      }`;
 console.log(query);
 const { data, pending, error, refresh } = await useFetch(
-    `/${route.params.schema}/api/graphql`,
-    {
-      baseURL: config.public.apiBase,
-      method: "POST",
-      body: { query },
-    }
+  `/${route.params.schema}/api/graphql`,
+  {
+    baseURL: config.public.apiBase,
+    method: "POST",
+    body: { query },
+  }
 );
-console.log(data)
-const catalogue = 'all' === cat ? {} : data.value.data?.Networks[0] ;
+console.log(data);
+const catalogue = "all" === cat ? {} : data.value.data?.Networks[0];
 
 function percentageLongitudinal(
-    cohortsGroupBy: { count: number; design: { name: string } }[],
-    total: number
+  cohortsGroupBy: { count: number; design: { name: string } }[],
+  total: number
 ) {
   const nLongitudinal = cohortsGroupBy.reduce(
-      (accum, group) =>
-          group?.design?.name === "Longitudinal" ? accum + group.count : accum,
-      0
+    (accum, group) =>
+      group?.design?.name === "Longitudinal" ? accum + group.count : accum,
+    0
   );
 
   return Math.round((nLongitudinal / total) * 100);
@@ -104,25 +105,28 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     return setting.key === settingKey;
   })?.value;
 }
-
 </script>
 
 <template>
   <Main>
     <LayoutsLandingPage class="w-10/12 pt-8">
       <PageHeader
-          class="mx-auto lg:w-7/12 text-center"
-          :title="`${catalogue?.acronym ? catalogue.acronym + ':' : ''} ${
-          catalogue?.name ? catalogue.name : ''
-        }` ||
-        getSettingValue('CATALOGUE_LANDING_TITLE', data.data._settings) ||
-        'European Networks Health Data & Cohort Catalogue.'
-      "
-          :description="
+        class="mx-auto lg:w-7/12 text-center"
+        :title="
+          `${catalogue?.acronym ? catalogue.acronym + ':' : ''} ${
+            catalogue?.name ? catalogue.name : ''
+          }` ||
+          getSettingValue('CATALOGUE_LANDING_TITLE', data.data._settings) ||
+          'European Networks Health Data & Cohort Catalogue.'
+        "
+        :description="
           catalogue.description ||
-        getSettingValue('CATALOGUE_LANDING_DESCRIPTION', data.data._settings) ||
-        'Browse metadata for data resources in this catalogue.'
-      "
+          getSettingValue(
+            'CATALOGUE_LANDING_DESCRIPTION',
+            data.data._settings
+          ) ||
+          'Browse metadata for data resources in this catalogue.'
+        "
       ></PageHeader>
       <LandingPrimary>
         <LandingCardPrimary
@@ -162,20 +166,20 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           <b>
             {{
               new Intl.NumberFormat("nl-NL").format(
-                  data.data.Cohorts_agg.sum.numberOfParticipants
+                data.data.Cohorts_agg.sum.numberOfParticipants
               )
             }}
             {{
               getSettingValue(
-                  "CATALOGUE_LANDING_PARTICIPANTS_LABEL",
-                  data.data._settings
+                "CATALOGUE_LANDING_PARTICIPANTS_LABEL",
+                data.data._settings
               ) || "Participants"
             }}
           </b>
           <br />{{
             getSettingValue(
-                "CATALOGUE_LANDING_PARTICIPANTS_TEXT",
-                data.data._settings
+              "CATALOGUE_LANDING_PARTICIPANTS_TEXT",
+              data.data._settings
             ) ||
             "The cumulative number of participants of all (sub)cohorts combined."
           }}
@@ -183,22 +187,22 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 
         <LandingCardSecondary icon="colorize">
           <b
-          >{{
+            >{{
               new Intl.NumberFormat("nl-NL").format(
-                  data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
+                data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
               )
             }}
             {{
               getSettingValue(
-                  "CATALOGUE_LANDING_SAMPLES_LABEL",
-                  data.data._settings
+                "CATALOGUE_LANDING_SAMPLES_LABEL",
+                data.data._settings
               ) || "Samples"
             }}</b
           >
           <br />{{
             getSettingValue(
-                "CATALOGUE_LANDING_SAMPLES_TEXT",
-                data.data._settings
+              "CATALOGUE_LANDING_SAMPLES_TEXT",
+              data.data._settings
             ) ||
             "The cumulative number of participants with samples collected of all (sub)cohorts combined"
           }}
@@ -206,23 +210,24 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 
         <LandingCardSecondary icon="schedule">
           <b
-          >{{
+            >{{
               getSettingValue(
-                  "CATALOGUE_LANDING_DESIGN_LABEL",
-                  data.data._settings
+                "CATALOGUE_LANDING_DESIGN_LABEL",
+                data.data._settings
               ) || "Longitudinal"
             }}
             {{
               percentageLongitudinal(
-                  data.data.Cohorts_groupBy,
-                  data.data.Cohorts_agg.count
+                data.data.Cohorts_groupBy,
+                data.data.Cohorts_agg.count
               )
             }}%</b
           ><br />{{
             getSettingValue(
-                "CATALOGUE_LANDING_DESIGN_TEXT",
-                data.data._settings
-            ) || "Percentage of longitudinal datasets. The remaining datasets are"
+              "CATALOGUE_LANDING_DESIGN_TEXT",
+              data.data._settings
+            ) ||
+            "Percentage of longitudinal datasets. The remaining datasets are"
           }}
           cross-sectional.
         </LandingCardSecondary>
@@ -232,16 +237,16 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
             {{ data.data.Subcohorts_agg.count }}
             {{
               getSettingValue(
-                  "CATALOGUE_LANDING_SUBCOHORTS_LABEL",
-                  data.data._settings
+                "CATALOGUE_LANDING_SUBCOHORTS_LABEL",
+                data.data._settings
               ) || "Subcohorts"
             }}
           </b>
           <br />
           {{
             getSettingValue(
-                "CATALOGUE_LANDING_SUBCOHORTS_TEXT",
-                data.data._settings
+              "CATALOGUE_LANDING_SUBCOHORTS_TEXT",
+              data.data._settings
             ) || "The total number of subcohorts included"
           }}
         </LandingCardSecondary>
