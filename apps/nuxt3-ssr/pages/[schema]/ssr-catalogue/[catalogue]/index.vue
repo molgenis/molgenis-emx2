@@ -5,14 +5,22 @@ const route = useRoute();
 const config = useRuntimeConfig();
 
 const cat = route.params.catalogue;
-const networkFilter = "all" === cat ? "" : `(filter:{id:{equals:"${cat}"}})`;
-const resourceFilter =
-  "all" === cat ? "" : `(filter:{networks:{id:{equals:"${cat}"}}})`;
-const variablesFilter =
-  "all" === cat ? "" : `(filter:{resource:{id:{equals:"${cat}"}}})`; //todo: better mapping from variable to network
 
-const query = `{
-        Networks${networkFilter} {
+let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+
+const modelFilter = cat === 'all' ? {} : {id:{equals: cat}}
+const modelQuery = `
+  query Networks($filter:NetworksFilter) {
+    Networks(filter:$filter){models{id}}
+  }`;
+
+const models = await fetchGql(
+    modelQuery,
+    {filter: modelFilter}
+);
+
+const query = `query MyQuery($networkFilter:NetworksFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CohortsFilter,$subcohortsFilter:SubcohortsFilter,$dataSourcesFilter:DataSourcesFilter){
+        Networks(filter:$networkFilter) {
               id,
               acronym,
               name,
@@ -20,23 +28,23 @@ const query = `{
               logo {url}
               dataSources_agg{count}
        }
-        Variables_agg${variablesFilter} {
+        Variables_agg(filter:$variablesFilter) {
           count
         }
-        Cohorts_agg${resourceFilter} {
+        Cohorts_agg(filter:$cohortsFilter) {
           count
           sum {
             numberOfParticipants
             numberOfParticipantsWithSamples
           }
         }
-        DataSources_agg${resourceFilter} {
+        DataSources_agg(filter:$dataSourcesFilter) {
           count
         }
         Datasets_agg {
           count
         }
-        Subcohorts_agg(filter:{resource:{id:{equals:"${cat}"}}}){
+        Subcohorts_agg(filter:$subcohortsFilter){
           count
         }
         Networks_agg {
@@ -48,7 +56,7 @@ const query = `{
         Models_agg {
           count
         }
-        Cohorts_groupBy${resourceFilter} {
+        Cohorts_groupBy(filter:$cohortsFilter) {
           count
           design {
             name
@@ -78,16 +86,25 @@ const query = `{
         }
       }`;
 console.log(query);
-const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/api/graphql`,
-  {
-    baseURL: config.public.apiBase,
-    method: "POST",
-    body: { query },
-  }
+
+const networkFilter = "all" === cat ? "" : `(filter:{id:{equals:"${cat}"}})`;
+const resourceFilter =
+    "all" === cat ? "" : `(filter:{networks:{id:{equals:"${cat}"}}})`;
+const variablesFilter =
+    "all" === cat ? "" : `(filter:{resource:{id:{equals:"${cat}"}}})`; //todo: better mapping from variable to network
+
+const data = await fetchGql(
+  query,
+    {
+      networksFilter: 'all' === cat ? {} : {id:{equals:cat}},
+      variablesFilter: 'all' === cat ? {} : {resource: {id: {equals: models.data.Networks[0].models.map(m => m.id)}}},
+      cohortsFilter: {},
+      subcohortsFilter: {},
+      dataSourcesFilter: {}
+    }
 );
 console.log(data);
-const catalogue = "all" === cat ? {} : data.value.data?.Networks[0];
+const catalogue = "all" === cat ? {} : data.data?.Networks[0];
 
 function percentageLongitudinal(
   cohortsGroupBy: { count: number; design: { name: string } }[],
@@ -110,7 +127,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 
 let title = computed(() => {
   if (catalogue?.name) {
-    return `${catalogue.acronym ? catalogue.acronym + ":" : ""} ${
+    return `${catalogue.acronym && catalogue.acronym !== catalogue.name ? catalogue.acronym + ":" : ""} ${
       catalogue.name
     }`;
   } else if (

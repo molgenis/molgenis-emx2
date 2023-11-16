@@ -53,21 +53,26 @@
       <slot name="footer">
         <div class="bg-footer p-6">
           <div class="mt-5 mb-0 text-center text-title text-body-lg">
-            This database was created using the
+            This database was created using
             <a
               class="text-body-base text-footer-link hover:underline"
               href="http://molgenis.org"
-              >MOLGENIS</a
-            >&nbsp;
-            <a
+              >MOLGENIS.org</a>
+            (<a
               class="text-body-base text-footer-link hover:underline"
               href="http://github.com/molgenis/molgenis-emx2"
             >
-              Github </a
+              github </a
             >).
           </div>
           <div class="mb-0 text-center lg:pb-5 text-title text-body-lg">
             Please cite
+            <a
+                class="text-body-base text-footer-link hover:underline"
+                href="https://www.ncbi.nlm.nih.gov/pubmed/32243569"
+            >
+              Swertz & Gini (2022)
+            </a>,
             <a
               class="text-body-base text-footer-link hover:underline"
               href="https://www.ncbi.nlm.nih.gov/pubmed/30165396"
