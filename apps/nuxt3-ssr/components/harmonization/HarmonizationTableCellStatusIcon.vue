@@ -1,22 +1,18 @@
 <script setup lang="ts">
 import { HarmonizationStatus } from "~/interfaces/types";
 
-const props = withDefaults(
-  defineProps<{
-    status: HarmonizationStatus;
-    size: string;
-  }>(),
-  { size: "8" }
-);
+const props = defineProps<{
+  status: HarmonizationStatus;
+}>();
 
 const tableClass = computed(() => {
   switch (props.status) {
     case "unmapped":
-      return "border ";
+      return "";
     case "partial":
-      return "bg-yellow-200";
+      return "bg-yellow-200 hover:bg-yellow-800";
     case "complete":
-      return "bg-green-500";
+      return "bg-green-500 hover:bg-blue-700";
   }
 });
 
@@ -36,17 +32,17 @@ const fillClass = computed(() => {
     case "unmapped":
       return "";
     case "partial":
-      return "text-yellow-800 fill-current";
+      return "text-yellow-800 fill-current hover:text-white";
     case "complete":
-      return "text-green-800 fill-current";
+      return "text-green-800 fill-current hover:text-white";
   }
 });
 </script>
 <template>
   <div
-    class="p-1 justify-center items-center inline-flex"
-    :class="`w-${size} h-${size} ${tableClass}`"
+    class="absolute inset-x-0 -top-px -bottom-px justify-center items-center inline-flex"
+    :class="tableClass + ' ' + fillClass"
   >
-    <BaseIcon v-if="iconName" :name="iconName" :class="fillClass" />
+    <BaseIcon v-if="iconName" :name="iconName" />
   </div>
 </template>
