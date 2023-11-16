@@ -42,7 +42,7 @@ const resourcePathId = resourceIdPath(variableKey.value);
         />
         -->
         <NuxtLink
-          :to="`/${schema}/ssr-catalogue//${catalogue}/variables/${resourcePathId}`"
+          :to="`/${schema}/ssr-catalogue/${catalogue}/variables/${resourcePathId}`"
         >
           <IconButton
             icon="arrow-right"

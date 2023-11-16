@@ -30,17 +30,17 @@ const menu = [
     link: `/${route.params.schema}/ssr-catalogue/${cat}`,
   },
 ];
-if (catalogue.cohorts_agg?.count > 0)
+if (cat === 'all' || catalogue.cohorts_agg?.count > 0)
   menu.push({
     label: "Cohorts",
     link: `/${route.params.schema}/ssr-catalogue/${cat}/cohorts`,
   });
-if (catalogue.dataSources_agg?.count > 0)
+if (cat === 'all' || catalogue.dataSources_agg?.count > 0)
   menu.push({
     label: "Data sources",
     link: `/${route.params.schema}/ssr-catalogue/${cat}/datasources`,
   });
-if (data.value.data.Variables_agg?.count > 0)
+if (cat === 'all' || data.value.data.Variables_agg?.count > 0)
   menu.push({
     label: "Variables",
     link: `/${route.params.schema}/ssr-catalogue/${cat}/variables`,

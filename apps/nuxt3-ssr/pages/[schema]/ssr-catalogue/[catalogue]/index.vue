@@ -98,9 +98,9 @@ const data = await fetchGql(
     {
       networksFilter: 'all' === cat ? {} : {id:{equals:cat}},
       variablesFilter: 'all' === cat ? {} : {resource: {id: {equals: models.data.Networks[0].models.map(m => m.id)}}},
-      cohortsFilter: {},
-      subcohortsFilter: {},
-      dataSourcesFilter: {}
+      cohortsFilter: 'all' === cat ? {} : {networks:{id:{equals: cat}}},
+      subcohortsFilter: 'all' === cat ? {} : {resource:{id:{equals:"cannot make a filter, todo fix data model"}}},
+      dataSourcesFilter: 'all' === cat ? {} : {networks:{id:{equals: cat}}}
     }
 );
 console.log(data);
@@ -131,14 +131,14 @@ let title = computed(() => {
       catalogue.name
     }`;
   } else if (
-    getSettingValue("CATALOGUE_LANDING_TITLE", data.value.data._settings)
+    getSettingValue("CATALOGUE_LANDING_TITLE", data.data._settings)
   ) {
     return getSettingValue(
       "CATALOGUE_LANDING_TITLE",
-      data.value.data._settings
+      data.data._settings
     );
   } else {
-    return "European Networks Health Data & Cohort Catalogue.";
+    return "Browse all catalogue contents";
   }
 });
 
@@ -146,11 +146,11 @@ let description = computed(() => {
   if (catalogue?.description) {
     return catalogue.description;
   } else if (
-    getSettingValue("CATALOGUE_LANDING_DESCRIPTION", data.value.data._settings)
+    getSettingValue("CATALOGUE_LANDING_DESCRIPTION", data.data._settings)
   ) {
-    getSettingValue("CATALOGUE_LANDING_DESCRIPTION", data.value.data._settings);
+    getSettingValue("CATALOGUE_LANDING_DESCRIPTION", data.data._settings);
   } else {
-    return "Browse metadata for data resources in this catalogue.";
+    return "Select one of the content categories listed below.";
   }
 });
 </script>
@@ -164,32 +164,30 @@ let description = computed(() => {
         :description="description"
       ></PageHeader>
       <LandingPrimary>
-        <LandingCardPrimary
+        <LandingCardPrimary v-if="cat === 'all' || data.data.Cohorts_agg.count > 0"
           image="demography"
           title="Cohorts"
           :description="
-            'Browse ' +
             cat +
-            ' catalogued population and disease specific cohort studies'
+            ' cohort studies'
           "
           :count="data.data.Cohorts_agg.count"
           :link="`/${route.params.schema}/ssr-catalogue/${cat}/cohorts`"
         />
-        <LandingCardPrimary
+        <LandingCardPrimary v-if="cat === 'all' || data.data.DataSources_agg.count > 0"
           image="clinical"
           title="Data sources"
           :description="
-            'Browse ' +
             cat +
-            ' catalogued health and population databanks and registries'
+            ' databanks and registries'
           "
           :count="data.data.DataSources_agg.count"
           :link="`/${route.params.schema}/ssr-catalogue/${cat}/datasources`"
         />
-        <LandingCardPrimary
+        <LandingCardPrimary v-if="cat === 'all' || data.data.Variables_agg.count"
           image="checklist"
           title="Variables"
-          :description="'A listing of ' + cat + ' harmonized variables.'"
+          :description="cat + ' harmonized variables.'"
           :count="data.data.Variables_agg.count"
           :link="`/${route.params.schema}/ssr-catalogue/${cat}/variables`"
         />

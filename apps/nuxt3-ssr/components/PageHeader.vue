@@ -12,6 +12,10 @@ defineProps({
   icon: {
     type: String,
   },
+  truncate: {
+    type: Boolean,
+    default: true
+  }
 });
 </script>
 
@@ -35,7 +39,8 @@ defineProps({
         </div>
       </div>
       <p v-if="description" class="mt-1 mb-0 text-center lg:mb-5 text-body-lg">
-        <ContentReadMore :text="description" />
+        <ContentReadMore v-if="truncate" :text="description" />
+        <span v-else>{{description}}</span>
       </p>
     </div>
     <slot name="suffix"></slot>

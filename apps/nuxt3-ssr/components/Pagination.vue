@@ -4,7 +4,7 @@ import { computed } from "vue";
 
 const props = defineProps({
   currentPage: {
-    type: String,
+    type: Number,
     required: true,
   },
   totalPages: {

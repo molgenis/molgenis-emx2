@@ -29,18 +29,6 @@ let filters: IFilter[] = reactive([
     conditions: [],
   },
   {
-    title: "Networks",
-    columnId: "networks",
-    columnType: "REF_ARRAY",
-    refTableId: "Networks",
-    refFields: {
-      key: "id",
-      name: "id",
-      description: "name",
-    },
-    conditions: [],
-  },
-  {
     title: "Cohorts",
     refTableId: "Cohorts",
     columnNId: "cohorts",
@@ -59,13 +47,16 @@ let search = computed(() => {
   return filters.find((f) => f.columnType === "_SEARCH").search;
 });
 
-const modelQuery = computed(() => {
-  return `
-  query Networks($filter:ModelsFilter) {
+const modelFilter = route.params.catalogue === 'all' ? {} : {id:{equals: route.params.catalogue}}
+const modelQuery = `
+  query Networks($filter:NetworksFilter) {
     Networks(filter:$filter){models{id}}
-  }
-  `;
-});
+  }`;
+
+const models = await fetchGql(
+    modelQuery,
+    {filter: modelFilter}
+);
 
 const query = computed(() => {
   return `
@@ -138,25 +129,8 @@ const query = computed(() => {
 });
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
-const modelFilter =
-  router.params.catalogue === "all"
-    ? {}
-    : { resource: { id: { equals: route.params.catalogue } } };
-const { modelData, modelPending, modelError, modelRefresh } = await useFetch(
-  graphqlURL.value,
-  {
-    key: `models`,
-    baseURL: config.public.apiBase,
-    method: "POST",
-    body: {
-      modelQuery,
-      variables: { modelFilter },
-    },
-  }
-);
 
 console.log("found");
-console.log(modelData);
 
 const orderby = { label: "ASC" };
 const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
@@ -165,12 +139,14 @@ const filter = computed(() => {
   let result = {
     ...buildQueryFilter(filters, search.value),
     ...typeFilter,
-  };
-  // if ("all" !== route.params.catalogue) {
-  //   result._and["resource"] = { equals: modelData.value.data.Networks[0]?.models.map(m -> m.id) };
-  // }
+  }
+  if ("all" !== route.params.catalogue) {
+    result["resource"]["id"] = { equals:  models.data.Networks[0].models.map(m => m.id) };
+  }
+
   return result;
 });
+console.log(JSON.stringify(filter.value))
 
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   key: `variables-${offset.value}`,
@@ -271,6 +247,7 @@ let pageIcon = computed(() => {
                 <VariableCard
                   :variable="variable"
                   :schema="route.params.schema"
+                  :catalogue="route.params.catalogue"
                 />
               </CardListItem>
             </CardList>

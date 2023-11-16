@@ -69,7 +69,7 @@
             Please cite
             <a
                 class="text-body-base text-footer-link hover:underline"
-                href="https://www.ncbi.nlm.nih.gov/pubmed/32243569"
+                href="https://www.ncbi.nlm.nih.gov/pubmed/36463884"
             >
               Swertz & Gini (2022)
             </a>,
