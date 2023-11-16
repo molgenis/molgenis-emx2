@@ -34,7 +34,6 @@ import DecimalFilter from "./DecimalFilter.vue";
 import DateFilter from "./DateFilter.vue";
 import DateTimeFilter from "./DateTimeFilter.vue";
 import BooleanFilter from "./BooleanFilter.vue";
-import RefFilter from "./RefFilter.vue";
 import RefListFilter from "./RefListFilter.vue";
 import OntologyFilter from "./OntologyFilter.vue";
 import LongFilter from "./LongFilter.vue";
@@ -79,7 +78,6 @@ export default {
     DateFilter,
     DateTimeFilter,
     BooleanFilter,
-    RefFilter,
     RefListFilter,
     OntologyFilter,
   },

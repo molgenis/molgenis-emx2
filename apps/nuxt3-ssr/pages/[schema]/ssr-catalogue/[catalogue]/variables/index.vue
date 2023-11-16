@@ -65,7 +65,7 @@ const modelQuery = computed(() => {
     Networks(filter:$filter){models{id}}
   }
   `;
-})
+});
 
 const query = computed(() => {
   return `
@@ -138,19 +138,25 @@ const query = computed(() => {
 });
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
-const modelFilter = router.params.catalogue === 'all' ? {} : { resource: { id: {equals: route.params.catalogue}} };
-const { modelData, modelPending, modelError, modelRefresh } = await useFetch(graphqlURL.value, {
-  key: `models`,
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: {
-    modelQuery,
-    variables: { modelFilter },
-  },
-});
+const modelFilter =
+  router.params.catalogue === "all"
+    ? {}
+    : { resource: { id: { equals: route.params.catalogue } } };
+const { modelData, modelPending, modelError, modelRefresh } = await useFetch(
+  graphqlURL.value,
+  {
+    key: `models`,
+    baseURL: config.public.apiBase,
+    method: "POST",
+    body: {
+      modelQuery,
+      variables: { modelFilter },
+    },
+  }
+);
 
-console.log('found')
-console.log(modelData)
+console.log("found");
+console.log(modelData);
 
 const orderby = { label: "ASC" };
 const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };

@@ -107,30 +107,31 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 }
 
 let title = computed(() => {
-  if(catalogue?.name) {
-    return `${catalogue.acronym ? catalogue.acronym + ':' : ''} ${catalogue.name}`;
-  }
-  else if(getSettingValue('CATALOGUE_LANDING_TITLE', data.value.data._settings) ) {
-    return getSettingValue('CATALOGUE_LANDING_TITLE', data.value.data._settings);
+  if (catalogue?.name) {
+    return `${catalogue.acronym ? catalogue.acronym + ":" : ""} ${
+      catalogue.name
+    }`;
+  } else if (
+    getSettingValue("CATALOGUE_LANDING_TITLE", data.value.data._settings)
+  ) {
+    return getSettingValue(
+      "CATALOGUE_LANDING_TITLE",
+      data.value.data._settings
+    );
   } else {
-    return 'European Networks Health Data & Cohort Catalogue.'
+    return "European Networks Health Data & Cohort Catalogue.";
   }
 });
 
 let description = computed(() => {
-  if(catalogue?.description) {
+  if (catalogue?.description) {
     return catalogue.description;
-  }
-  else if( getSettingValue(
-      'CATALOGUE_LANDING_DESCRIPTION',
-      data.value.data._settings
-  ) ) {
-    getSettingValue(
-        'CATALOGUE_LANDING_DESCRIPTION',
-        data.value.data._settings
-    );
+  } else if (
+    getSettingValue("CATALOGUE_LANDING_DESCRIPTION", data.value.data._settings)
+  ) {
+    getSettingValue("CATALOGUE_LANDING_DESCRIPTION", data.value.data._settings);
   } else {
-    return 'Browse metadata for data resources in this catalogue.'
+    return "Browse metadata for data resources in this catalogue.";
   }
 });
 </script>
@@ -141,14 +142,15 @@ let description = computed(() => {
       <PageHeader
         class="mx-auto lg:w-7/12 text-center"
         :title="title"
-        :description="description"></PageHeader>
+        :description="description"
+      ></PageHeader>
       <LandingPrimary>
         <LandingCardPrimary
           image="demography"
           title="Cohorts"
           :description="
             'Browse ' +
-           cat +
+            cat +
             ' catalogued population and disease specific cohort studies'
           "
           :count="data.data.Cohorts_agg.count"
@@ -168,9 +170,7 @@ let description = computed(() => {
         <LandingCardPrimary
           image="checklist"
           title="Variables"
-          :description="
-            'A listing of ' + cat + ' harmonized variables.'
-          "
+          :description="'A listing of ' + cat + ' harmonized variables.'"
           :count="data.data.Variables_agg.count"
           :link="`/${route.params.schema}/ssr-catalogue/${cat}/variables`"
         />

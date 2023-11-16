@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
@@ -238,6 +239,36 @@ public class RDFTest {
             "An instance of a Pet should refer back to the Collection using qb:dataSet");
         assertFalse(
             pooky.containsKey(RDFService.IRI_DATASET_CLASS), "qb:DataSet is not a predicate");
+      }
+    }
+  }
+
+  @Test
+  void testThatColumnPredicatesAreNotSubClasses() throws IOException {
+    var database_column = Values.iri("http://semanticscience.org/resource/SIO_000757");
+    var measure_property = Values.iri("http://purl.org/linked-data/cube#MeasureProperty");
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(petStore_nr1, "Pet", "name"), handler);
+    for (var subject : handler.resources.keySet()) {
+      if (subject.stringValue().endsWith("/column/name")) {
+        var subclasses = handler.resources.get(subject).getOrDefault(RDFS.SUBCLASSOF, Set.of());
+        assertFalse(
+            subclasses.contains(database_column), "We don't model as a SIO database column.");
+        assertFalse(subclasses.contains(measure_property), "Measure property should not be used");
+        assertTrue(subclasses.isEmpty(), "Predicates are not classes but properties.");
+      }
+    }
+  }
+
+  @Test
+  void testThatInstancesAreNotASIODatabaseRow() throws IOException {
+    var database_row = Values.iri("http://semanticscience.org/resource/SIO_001187");
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.ofRow(petStore_nr1, "Pet", "pooky"), handler);
+    for (var subject : handler.resources.keySet()) {
+      if (subject.stringValue().endsWith("/pooky")) {
+        var types = handler.resources.get(subject).get(RDF.TYPE);
+        assertFalse(types.contains(database_row), "We don't model as a SIO database row.");
       }
     }
   }

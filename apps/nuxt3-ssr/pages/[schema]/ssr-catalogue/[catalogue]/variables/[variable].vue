@@ -35,12 +35,6 @@ function setData(data: any) {
   cohorts = data?.data?.Cohorts;
 }
 
-let tocItems = reactive([
-  { label: "Description", id: "description" },
-  { label: "Per cohort harmonization", id: "harmonization-per-cohort" },
-  { label: "Harmonization details", id: "harmonization-details-per-cohort" },
-]);
-
 let crumbs: any = {};
 if (route.params.catalogue) {
   crumbs[
@@ -54,6 +48,35 @@ if (route.params.catalogue) {
     Home: `/${route.params.schema}/ssr-catalogue`,
     Variables: `/${route.params.schema}/ssr-catalogue/all/variables`,
   };
+
+  const cohortsWithMapping = computed(() => {
+  return cohorts
+    .map((cohort) => {
+      const status = calcHarmonizationStatus([variable], [cohort])[0][0];
+      return {
+        cohort,
+        status,
+      };
+    })
+    .filter(({ status }) => status !== "unmapped");
+});
+
+let tocItems = reactive([{ label: "Description", id: "description" }]);
+
+if (cohortsWithMapping.value.length > 0) {
+  tocItems.push({
+    label: "Harmonization status per Cohort",
+    id: "harmonization-per-cohort",
+  });
+  tocItems.push({
+    label: "Harmonization details per Cohort",
+    id: "harmonization-details-per-cohort",
+  });
+} else {
+  tocItems.push({
+    label: "Harmonization",
+    id: "harmonization-details-no-mapping",
+  });
 }
 </script>
 
@@ -99,25 +122,34 @@ if (route.params.catalogue) {
         </ContentBlock>
 
         <ContentBlock
+          v-if="cohortsWithMapping.length > 0"
           id="harmonization-per-cohort"
           title="Harmonization status per Cohort"
           description="Overview of the harmonization status per Cohort"
         >
           <HarmonizationListPerVariable
-            :variable="variable"
-            :cohorts="cohorts"
+            :cohortsWithMapping="cohortsWithMapping"
           />
         </ContentBlock>
 
         <ContentBlock
+          v-if="cohortsWithMapping.length > 0"
           id="harmonization-details-per-cohort"
           title="Harmonization details per Cohort"
           description="Select a Cohort to see the details of the harmonization"
         >
           <HarmonizationVariableDetails
             :variable="variable"
-            :cohorts="cohorts"
+            :cohortsWithMapping="cohortsWithMapping"
           />
+        </ContentBlock>
+
+        <ContentBlock
+          v-if="cohortsWithMapping.length === 0"
+          id="harmonization-details-no-mapping"
+          title="Harmonization"
+          description="No mapping found for this variable"
+        >
         </ContentBlock>
       </ContentBlocks>
     </template>
