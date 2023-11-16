@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type {IFilter} from "~/interfaces/types";
+
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
@@ -126,14 +128,12 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
     underConstructionNotice.value = setting.value;
   }
 });
+
 const crumbs: any = {};
-if (route.params.catalogue) {
-  crumbs[
+ crumbs[
     route.params.catalogue
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-} else {
-  crumbs["Home"] = `/${route.params.schema}/ssr-catalogue`;
-}
+
 </script>
 
 <template>
@@ -148,6 +148,7 @@ if (route.params.catalogue) {
           <PageHeader
             title="Data sources"
             description="Group of individuals sharing a defining demographic characteristic."
+            icon="image-link"
           >
             <template #prefix>
               <BreadCrumbs :crumbs="crumbs" current="cohorts" />

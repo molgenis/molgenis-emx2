@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type {IFilter} from "~/interfaces/types";
+
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
@@ -25,7 +27,7 @@ let filters: IFilter[] = reactive([
   {
     title: "Areas of information",
     refTableId: "AreasOfInformationCohorts",
-    collumnId: "areasOfInformation",
+    columnId: "areasOfInformation",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
@@ -33,7 +35,7 @@ let filters: IFilter[] = reactive([
   {
     title: "Data categories",
     refTableId: "DataCategories",
-    collumnId: "dataCategories",
+    columnId: "dataCategories",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
@@ -41,7 +43,7 @@ let filters: IFilter[] = reactive([
   {
     title: "Population age groups",
     refTableId: "AgeGroups",
-    collumnId: "ageGroups",
+    columnId: "ageGroups",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
@@ -49,7 +51,7 @@ let filters: IFilter[] = reactive([
   {
     title: "Sample categories",
     refTableId: "SampleCategories",
-    collumnId: "sampleCategories",
+    columnId: "sampleCategories",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
     conditions: [],
@@ -110,7 +112,7 @@ const orderby = { acronym: "ASC" };
 const filter = computed(() => {
   let result = buildQueryFilter(filters, search.value);
   if ("all" !== route.params.catalogue) {
-    result._and["networks"] = { id: { equals: route.params.catalogue } };
+    result["networks"] = { id: { equals: route.params.catalogue } };
   }
   return result;
 });
@@ -125,6 +127,10 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
     variables: { orderby, filter },
   },
 });
+if (error) {
+  console.log(error);
+  console.log(query);
+}
 
 function setCurrentPage(pageNumber: number) {
   router.push({ path: route.path, query: { page: pageNumber } });
@@ -153,14 +159,10 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
 });
 
 const crumbs: any = {};
-if (route.params.catalogue) {
   crumbs[
-    `${route.params.catalogue}`
+    route.params.catalogue
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-} else {
-  crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
-  crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/browse`;
-}
+
 </script>
 
 <template>
@@ -241,7 +243,9 @@ if (route.params.catalogue) {
         <template v-if="data?.data?.Cohorts?.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="data?.data?.Cohorts_agg.count"
+            :totalPages="
+              Math.ceil(data?.data?.Cohorts_agg.count / pageSize)
+            "
             @update="setCurrentPage($event)"
           />
         </template>
