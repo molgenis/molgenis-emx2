@@ -73,7 +73,7 @@ let activeName = ref("compact");
       <template #suffix>
         <div class="relative justify-center flex flex-col md:flex-row">
           <div class="flex flex-col items-center max-w-sm">
-            <Button label="Browse all catalogues" :to="`${route.path}/all`" />
+            <Button label="Browse all catalogues" :to="`/${route.params.schema}/ssr-catalogue/all`" />
           </div>
           <div class="flex flex-col items-center max-w-sm ml-3">
             <Button
