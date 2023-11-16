@@ -95,7 +95,7 @@ function changeCurrentPage(event) {
     </a>
     <div class="px-4 tracking-widest sm:px-5" :class="textClasses">Page</div>
     <input
-      class="sm:px-12 px-7.5 text-center border rounded-pagination text-pagination-input h-15 flex items-center tracking-widest bg-white"
+      class="sm:px-12 px-7.5 w-32 text-center border rounded-pagination text-pagination-input h-15 flex items-center tracking-widest bg-white"
       :value="currentPage"
       @change="changeCurrentPage"
       :class="borderClasses"
