@@ -28,14 +28,14 @@
             :columnOrder="['workstream', 'percent']"
           />
         </DashboardChart>
-        <DashboardChart>
+        <DashboardChart id="sexAtBirthChart">
           <PieChart2
             chartId="cranio-sex-at-birth"
             title="Patients by sex at birth"
             :chartData="sexAtBirth"
             :asDonutChart="true"
             :enableLegendHovering="true"
-            :chartHeight="250"
+            :chartHeight="185"
             legendPosition="bottom"
           />
         </DashboardChart>
@@ -198,11 +198,8 @@ onMounted(() => {
 
 <style lang="scss">
 #cranioPublicDashboard {
-  font-size: 13pt;
-
   .dashboard-content {
     .dashboard-box {
-      box-sizing: content-box;
 
       &.viz-map {
         h3 {
@@ -213,9 +210,7 @@ onMounted(() => {
 
       caption,
       h3 {
-        text-align: center;
-        font-size: 16pt;
-        padding: 0;
+        @include setChartTitle($font-size: 1.15rem);
       }
 
       &.viz-table,
@@ -226,6 +221,41 @@ onMounted(() => {
 
     @media (min-width: 1524px) {
       max-width: 60vw;
+    }
+  }
+}
+
+#workstreamSummary {
+  th, td {
+    padding: 0.6em 0.3em;
+    font-size: 1rem;
+    
+    &[data-column-name="percent"] {
+      text-align: right;
+    }
+  }
+}
+
+#sexAtBirthChart {
+  .d3-pie {
+    .chart-legend {
+      .legend-item {
+       .text-item {
+        .item-label {
+          font-size: 1rem;
+        }
+       } 
+      }
+    }
+    
+    .chart {
+      .chart-area {
+        .pie-labels {
+          .pie-label-text {
+            font-size: 0.8rem !important;
+          }
+        }
+      }
     }
   }
 }
