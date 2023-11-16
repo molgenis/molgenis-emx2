@@ -37,7 +37,6 @@ const headerClasses = computed(() => {
 const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
 });
-
 </script>
 
 <template>
@@ -65,7 +64,9 @@ const iconStarClasses = computed(() => {
           class="text-blue-500 xl:justify-end"
         />
         -->
-        <NuxtLink :to="`/${schema}/ssr-catalogue/${catalogue}/datasources/${datasource.id}`">
+        <NuxtLink
+          :to="`/${schema}/ssr-catalogue/${catalogue}/datasources/${datasource.id}`"
+        >
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {IFilter} from "~/interfaces/types";
+import type { IFilter } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -159,10 +159,9 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
 });
 
 const crumbs: any = {};
-  crumbs[
-    route.params.catalogue
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-
+crumbs[
+  route.params.catalogue
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
 
 <template>
@@ -243,9 +242,7 @@ const crumbs: any = {};
         <template v-if="data?.data?.Cohorts?.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="
-              Math.ceil(data?.data?.Cohorts_agg.count / pageSize)
-            "
+            :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
             @update="setCurrentPage($event)"
           />
         </template>

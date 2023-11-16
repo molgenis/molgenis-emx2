@@ -36,16 +36,16 @@ let search = computed(() => {
   return filters.find((f) => f.columnType === "_SEARCH").search;
 });
 
-const modelFilter = route.params.catalogue === 'all' ? {} : {id:{equals: route.params.catalogue}}
+const modelFilter =
+  route.params.catalogue === "all"
+    ? {}
+    : { id: { equals: route.params.catalogue } };
 const modelQuery = `
   query Networks($filter:NetworksFilter) {
     Networks(filter:$filter){models{id}}
   }`;
 
-const models = await fetchGql(
-    modelQuery,
-    {filter: modelFilter}
-);
+const models = await fetchGql(modelQuery, { filter: modelFilter });
 
 const query = computed(() => {
   return `
@@ -128,9 +128,11 @@ const filter = computed(() => {
   let result = {
     ...buildQueryFilter(filters, search.value),
     ...typeFilter,
-  }
+  };
   if ("all" !== route.params.catalogue) {
-    result["resource"]["id"] = { equals:  models.data.Networks[0].models.map(m => m.id) };
+    result["resource"]["id"] = {
+      equals: models.data.Networks[0].models.map((m) => m.id),
+    };
   }
 
   return result;

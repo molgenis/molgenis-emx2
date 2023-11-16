@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {ISetting} from "meta-data-utils";
+import type { ISetting } from "meta-data-utils";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -8,16 +8,13 @@ const cat = route.params.catalogue;
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 
-const modelFilter = cat === 'all' ? {} : {id:{equals: cat}}
+const modelFilter = cat === "all" ? {} : { id: { equals: cat } };
 const modelQuery = `
   query Networks($filter:NetworksFilter) {
     Networks(filter:$filter){models{id}}
   }`;
 
-const models = await fetchGql(
-    modelQuery,
-    {filter: modelFilter}
-);
+const models = await fetchGql(modelQuery, { filter: modelFilter });
 
 const query = `query MyQuery($networkFilter:NetworksFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CohortsFilter,$subcohortsFilter:SubcohortsFilter,$dataSourcesFilter:DataSourcesFilter){
         Networks(filter:$networkFilter) {
@@ -89,20 +86,31 @@ console.log(query);
 
 const networkFilter = "all" === cat ? "" : `(filter:{id:{equals:"${cat}"}})`;
 const resourceFilter =
-    "all" === cat ? "" : `(filter:{networks:{id:{equals:"${cat}"}}})`;
+  "all" === cat ? "" : `(filter:{networks:{id:{equals:"${cat}"}}})`;
 const variablesFilter =
-    "all" === cat ? "" : `(filter:{resource:{id:{equals:"${cat}"}}})`; //todo: better mapping from variable to network
+  "all" === cat ? "" : `(filter:{resource:{id:{equals:"${cat}"}}})`; //todo: better mapping from variable to network
 
-const data = await fetchGql(
-  query,
-    {
-      networksFilter: 'all' === cat ? {} : {id:{equals:cat}},
-      variablesFilter: 'all' === cat ? {} : {resource: {id: {equals: models.data.Networks[0].models.map(m => m.id)}}},
-      cohortsFilter: 'all' === cat ? {} : {networks:{id:{equals: cat}}},
-      subcohortsFilter: 'all' === cat ? {} : {resource:{id:{equals:"cannot make a filter, todo fix data model"}}},
-      dataSourcesFilter: 'all' === cat ? {} : {networks:{id:{equals: cat}}}
-    }
-);
+const data = await fetchGql(query, {
+  networksFilter: "all" === cat ? {} : { id: { equals: cat } },
+  variablesFilter:
+    "all" === cat
+      ? {}
+      : {
+          resource: {
+            id: { equals: models.data.Networks[0].models.map((m) => m.id) },
+          },
+        },
+  cohortsFilter: "all" === cat ? {} : { networks: { id: { equals: cat } } },
+  subcohortsFilter:
+    "all" === cat
+      ? {}
+      : {
+          resource: {
+            id: { equals: "cannot make a filter, todo fix data model" },
+          },
+        },
+  dataSourcesFilter: "all" === cat ? {} : { networks: { id: { equals: cat } } },
+});
 console.log(data);
 const catalogue = "all" === cat ? {} : data.data?.Networks[0];
 
@@ -127,16 +135,13 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
 
 let title = computed(() => {
   if (catalogue?.name) {
-    return `${catalogue.acronym && catalogue.acronym !== catalogue.name ? catalogue.acronym + ":" : ""} ${
-      catalogue.name
-    }`;
-  } else if (
-    getSettingValue("CATALOGUE_LANDING_TITLE", data.data._settings)
-  ) {
-    return getSettingValue(
-      "CATALOGUE_LANDING_TITLE",
-      data.data._settings
-    );
+    return `${
+      catalogue.acronym && catalogue.acronym !== catalogue.name
+        ? catalogue.acronym + ":"
+        : ""
+    } ${catalogue.name}`;
+  } else if (getSettingValue("CATALOGUE_LANDING_TITLE", data.data._settings)) {
+    return getSettingValue("CATALOGUE_LANDING_TITLE", data.data._settings);
   } else {
     return "Browse all catalogue contents";
   }
@@ -164,27 +169,24 @@ let description = computed(() => {
         :description="description"
       ></PageHeader>
       <LandingPrimary>
-        <LandingCardPrimary v-if="cat === 'all' || data.data.Cohorts_agg.count > 0"
+        <LandingCardPrimary
+          v-if="cat === 'all' || data.data.Cohorts_agg.count > 0"
           image="demography"
           title="Cohorts"
-          :description="
-            cat +
-            ' cohort studies'
-          "
+          :description="cat + ' cohort studies'"
           :count="data.data.Cohorts_agg.count"
           :link="`/${route.params.schema}/ssr-catalogue/${cat}/cohorts`"
         />
-        <LandingCardPrimary v-if="cat === 'all' || data.data.DataSources_agg.count > 0"
+        <LandingCardPrimary
+          v-if="cat === 'all' || data.data.DataSources_agg.count > 0"
           image="clinical"
           title="Data sources"
-          :description="
-            cat +
-            ' databanks and registries'
-          "
+          :description="cat + ' databanks and registries'"
           :count="data.data.DataSources_agg.count"
           :link="`/${route.params.schema}/ssr-catalogue/${cat}/datasources`"
         />
-        <LandingCardPrimary v-if="cat === 'all' || data.data.Variables_agg.count"
+        <LandingCardPrimary
+          v-if="cat === 'all' || data.data.Variables_agg.count"
           image="checklist"
           title="Variables"
           :description="cat + ' harmonized variables.'"
@@ -193,7 +195,10 @@ let description = computed(() => {
         />
       </LandingPrimary>
       <LandingSecondary>
-        <LandingCardSecondary icon="people" v-if="data.data.Cohorts_agg?.sum?.numberOfParticipants">
+        <LandingCardSecondary
+          icon="people"
+          v-if="data.data.Cohorts_agg?.sum?.numberOfParticipants"
+        >
           <b>
             {{
               new Intl.NumberFormat("nl-NL").format(
@@ -216,7 +221,10 @@ let description = computed(() => {
           }}
         </LandingCardSecondary>
 
-        <LandingCardSecondary icon="colorize" v-if="data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples">
+        <LandingCardSecondary
+          icon="colorize"
+          v-if="data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples"
+        >
           <b
             >{{
               new Intl.NumberFormat("nl-NL").format(
@@ -239,7 +247,10 @@ let description = computed(() => {
           }}
         </LandingCardSecondary>
 
-        <LandingCardSecondary icon="schedule" v-if="data.data.Cohorts_groupBy && data.data.Cohorts_agg.count">
+        <LandingCardSecondary
+          icon="schedule"
+          v-if="data.data.Cohorts_groupBy && data.data.Cohorts_agg.count"
+        >
           <b
             >{{
               getSettingValue(
@@ -263,7 +274,10 @@ let description = computed(() => {
           cross-sectional.
         </LandingCardSecondary>
 
-        <LandingCardSecondary icon="viewTable" v-if="data.data.Subcohorts_agg.count">
+        <LandingCardSecondary
+          icon="viewTable"
+          v-if="data.data.Subcohorts_agg.count"
+        >
           <b>
             {{ data.data.Subcohorts_agg.count }}
             {{

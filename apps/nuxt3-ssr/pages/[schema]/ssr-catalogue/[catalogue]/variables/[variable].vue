@@ -50,7 +50,7 @@ if (route.params.catalogue) {
   };
 }
 
-  const cohortsWithMapping = computed(() => {
+const cohortsWithMapping = computed(() => {
   return cohorts
     .map((cohort) => {
       const status = calcHarmonizationStatus([variable], [cohort])[0][0];

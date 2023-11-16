@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {IFilter} from "~/interfaces/types";
+import type { IFilter } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -59,7 +59,7 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   },
 });
 
-console.log(data)
+console.log(data);
 
 let activeName = ref("compact");
 </script>
@@ -72,11 +72,14 @@ let activeName = ref("compact");
       :truncate="false"
     >
       <template #suffix>
-        <div class="relative justify-center flex flex-col md:flex-row text-title">
+        <div
+          class="relative justify-center flex flex-col md:flex-row text-title"
+        >
           <div class="flex flex-col items-center max-w-sm">
             <NuxtLink :to="`/${route.params.schema}/ssr-catalogue/all`">
               <Button label="Search all catalogues" />
-            </NuxtLink> or select a specific catalogue below
+            </NuxtLink>
+            or select a specific catalogue below
           </div>
         </div>
       </template>
@@ -95,9 +98,9 @@ let activeName = ref("compact");
         </CardListItem>
       </CardList>
       <div v-else class="flex justify-center pt-3">
-              <span class="py-15 text-blue-500">
-                No Networks found with current filters
-              </span>
+        <span class="py-15 text-blue-500">
+          No Networks found with current filters
+        </span>
       </div>
     </SearchResultsList>
   </LayoutsLandingPage>

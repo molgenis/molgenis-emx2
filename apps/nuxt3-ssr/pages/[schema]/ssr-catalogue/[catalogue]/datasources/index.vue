@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {IFilter} from "~/interfaces/types";
+import type { IFilter } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -39,8 +39,8 @@ let filters: IFilter[] = reactive([
   },
 ]);
 
-if('all' === route.params.catalogue) {
-  filters.push( {
+if ("all" === route.params.catalogue) {
+  filters.push({
     title: "Networks",
     columnId: "networks",
     columnType: "REF_ARRAY",
@@ -51,7 +51,7 @@ if('all' === route.params.catalogue) {
       description: "name",
     },
     conditions: [],
-  })
+  });
 }
 
 let search = computed(() => {
@@ -130,10 +130,9 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
 });
 
 const crumbs: any = {};
- crumbs[
-    route.params.catalogue
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-
+crumbs[
+  route.params.catalogue
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
 
 <template>
