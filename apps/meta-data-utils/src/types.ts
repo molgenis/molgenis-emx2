@@ -27,10 +27,10 @@ export interface IColumn {
   semantics?: string[];
   validation?: string;
   visible?: string;
-  table?: String;
-  name?: String;
-  inherited?: Boolean;
-  defaultValue?: String;
+  table?: string;
+  name?: string;
+  inherited?: boolean;
+  defaultValue?: string;
 }
 
 export interface ITableMetaData {
