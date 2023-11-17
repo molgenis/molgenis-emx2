@@ -41,62 +41,66 @@
         <a href="../tables/#/Organisations"> Organisations table </a>
         ), and used in the examples.
       </p>
-      <MessageBox v-if="error || !confirmed">
+      <MessageBox v-if="error || !confirmed" type="error">
         <p><strong>Unable to confirm schema configuration.</strong></p>
         <p>
-          Please recreate the schema. If an error persists, please open a new
-          issue on GitHub. {{ error }}
+          Unable to display demo components. It is likely that the schema is not
+          yet created. Return to the main home page, sign in, and create a new
+          schema using the "ERN_DASHBOARD" template. Make sure the example data
+          is loaded.
         </p>
+        <code>{{ error }}</code>
       </MessageBox>
       <QuickLinks
+        v-else
         id="visualisation-links"
         :data="[
           {
             to: 'bar-chart',
             label: 'Bar Chart',
-            image: '/bar-chart-header.jpg',
+            image: 'bar-chart-header.jpg',
           },
           {
             to: 'column-chart',
             label: 'Column Chart',
-            image: '/column-chart-header.jpg',
+            image: 'column-chart-header.jpg',
           },
-          { to: 'datatable', label: 'Data Table', image: '/table-header.jpg' },
+          { to: 'datatable', label: 'Data Table', image: 'table-header.jpg' },
           {
             to: 'data-highlights',
             label: 'Data Highlights',
-            image: '/highlights-header.jpg',
+            image: 'highlights-header.jpg',
           },
           {
             to: 'geo-mercator',
             label: 'Geo Mercator',
-            image: '/map-header.jpg',
+            image: 'map-header.jpg',
           },
           {
             to: 'grouped-column-chart',
             label: 'Grouped Column Chart',
-            image: '/grouped-column-chart-header.jpg',
+            image: 'grouped-column-chart-header.jpg',
           },
-          { to: 'chart-legend', label: 'Legends', image: '/legend-header.jpg' },
+          { to: 'chart-legend', label: 'Legends', image: 'legend-header.jpg' },
           {
             to: 'pie-chart',
             label: 'Pie Chart',
-            image: '/pie-chart-header.jpg',
+            image: 'pie-chart-header.jpg',
           },
           {
             to: 'pie-chart-2',
             label: 'Pie Chart 2',
-            image: '/pie-chart-header.jpg',
+            image: 'pie-chart-header.jpg',
           },
           {
             to: 'scatter-plot',
             label: 'Scatter Plot',
-            image: '/scatter-plot-header.jpg',
+            image: 'scatter-plot-header.jpg',
           },
           {
             to: 'progress-charts',
             label: 'Progress Charts',
-            image: '/gauge-chart-header.jpg',
+            image: 'gauge-chart-header.jpg',
           },
         ]"
         name="to"

@@ -70,7 +70,7 @@
       </ul>
       <img
         id="img-genturis-disease-groups"
-        src="genturis-disease-groups.png"
+        src="/genturis-disease-groups.png"
         alt="thematic disease groups included in the genturis registry"
       />
       <p>
