@@ -31,6 +31,93 @@ def signin():
         }
     """
 
+def create_schema():
+    """GraphQL query to create a new schema. Function must contain name in the
+    posted data.
+    
+    @example
+    ```py
+    import requests
+    requests.post(...,
+        json={
+            'query': graphql.create_schema(),
+            'variables': {'name': ...}
+        }
+    )
+    ```
+    """
+    return """
+        mutation(
+            $name: String,
+            $description: String,
+            $template: String,
+            $includeDemoData: Boolean
+        ) {
+            createSchema(
+                name: $name,
+                description: $description,
+                template: $template,
+                includeDemoData: $includeDemoData
+              ) {
+                  status
+                  message
+                  taskId
+            }
+        }
+    """
+
+def delete_schema():
+    """GraphQL query for deleting a schema. Function must include the name of
+    the schema
+    
+    @example
+    ```py
+    import requests
+    requests.post(...,
+        json={
+            'query': graphql.delete_schema(),
+            'variables': {'name': ...}
+        }
+    )
+    ```
+    """
+    return """
+        mutation($name:String) {
+            deleteSchema(name: $name) {
+                status
+                message
+                taskId
+            }
+        }
+    """
+
+
+def update_schema():
+    """GraphQL query to update a schema description. Function must include
+    the name of the schema and description in the posted data.
+    
+    @example
+    ```py
+    import requests
+    requests.post(...,
+        json={
+            'query': graphql.update_schema(),
+            'variables': {'name': ..., 'description', ...}
+        }
+    )
+    ```
+    """
+    return """
+        mutation($name: String, $description: String) {
+            updateSchema(name: $name, description: $description) {
+                status
+                message
+                taskId
+            }
+        }
+    """
+
+
 def list_schemas():
     """GraphQL query to view all available schemas."""
     return """
