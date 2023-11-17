@@ -109,22 +109,6 @@ class Client:
                       f"\n{response_json.get('message')}"
             log.error(message)
             raise SigninError(message)
-
-    def signout(self):
-        """Signs the client out of the EMX2 server."""
-        response = self.session.post(
-            url=self.api_graphql,
-            json={'query': queries.signout()}
-        )        
-        
-        status = response.json().get('data', {}).get('signout', {}).get('status')
-        if status == 'SUCCESS':
-            print(f"User '{self.username}' is signed out of '{self.url}'.")
-            self.signin_status = 'signed out'
-        else:
-            print(f"Unable to sign out of {self.url}.")
-            message = response.json().get('errors')[0].get('message')
-            print(message)
             
     @property
     def status(self):

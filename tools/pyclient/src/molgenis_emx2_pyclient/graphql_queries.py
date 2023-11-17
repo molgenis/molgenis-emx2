@@ -31,19 +31,6 @@ def signin():
         }
     """
 
-
-def signout():
-    """GraphQL mutation to sign out and close the session."""
-    return """
-        mutation {
-            signout {
-                status
-                message
-            }
-        }
-    """
-
-
 def list_schemas():
     """GraphQL query to view all available schemas."""
     return """
