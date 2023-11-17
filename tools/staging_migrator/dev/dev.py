@@ -23,7 +23,7 @@ def main():
     username = os.environ.get('MG_USERNAME')
     password = os.environ.get('MG_PASSWORD')
 
-    with StagingMigrator(url='https://ype.molgeniscloud.org',
+    with StagingMigrator(url='https://emx2.dev.molgenis.org',
                          staging_area='TestCohort', catalogue='catalogue') as migrator:
         migrator.signin(username, password)
         print(migrator.status)
