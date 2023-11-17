@@ -55,7 +55,7 @@
 import { ref, onMounted } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
-import { MessageBox } from "molgenis-viz";
+import MessageBox from "./MessageBox.vue";
 import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/vue/24/outline";
 
 let error = ref(null);
