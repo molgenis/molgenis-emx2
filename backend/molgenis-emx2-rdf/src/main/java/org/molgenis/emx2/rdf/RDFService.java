@@ -124,7 +124,10 @@ public class RDFService {
     this.rdfFormat = format == null ? RDFFormat.TURTLE : format;
 
     this.config = new WriterConfig();
-    this.config.set(BasicWriterSettings.INLINE_BLANK_NODES, true);
+    // Rio documentation says that it takes a lot of memory for large datasets and should be set to
+    // false. Setting this to off brought down the time to download the CatalogueOntologies to
+    // seconds.
+    this.config.set(BasicWriterSettings.INLINE_BLANK_NODES, false);
   }
 
   /**
@@ -417,10 +420,10 @@ public class RDFService {
           builder.add(subject, OWL.SAMEAS, Values.iri(row.getString(ONTOLOGY_TERM_URI)));
         }
         if (row.getString("parent") != null) {
-          String parentRowId = row.getString("parent");
-          Row parent = getRows(table, parentRowId).get(0);
-          IRI object = getIriForRow(parent, table.getMetadata());
-          builder.add(subject, RDFS.SUBCLASSOF, object);
+          List<IRI> parents = getIriValue(row, table.getMetadata().getColumn("parent"));
+          for (var parent : parents) {
+            builder.add(subject, RDFS.SUBCLASSOF, parent);
+          }
         }
       } else {
         builder.add(subject, RDF.TYPE, tableIRI);
