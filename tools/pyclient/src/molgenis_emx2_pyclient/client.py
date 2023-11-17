@@ -367,3 +367,104 @@ class Client:
                 with open(filename, "wb") as f:
                     f.write(response.content)
                 log.info(f"Exported data from table {table} in schema {current_schema} to '{filename}'.")
+
+    def createSchema(self, schema: str = None, description: str = None, template: str = None, includeDemoData: bool = None):
+        """Create a new schema
+        
+        :param schema: the name of the new schema
+        :type schema: str
+        :param description: additional text that provides context for a schema
+        :type description: str
+        :param template: (optional) the name of a template to set as the schema
+        :type template: str
+        :param includeDemoData: If true and a template schema is selected, any example data will be loaded into the schema
+        :type includeDemoData: bool
+        """
+        query = queries.create_schema()
+        variables = {'name': schema, 'description': description, 'template': template, 'includeDemoData': includeDemoData}
+        response = self.session.post(
+           url=f"{self.url}/{schema}/graphql",
+           json={'query': query, 'variables': variables}
+        )
+        
+        response_json = response.get('data').get('createSchema')
+        if response_json.get('status') == 'SUCCESS':
+            message = response_json.get('message')
+            log.info(message)
+            print(message)
+        else:
+            if 'error' in response:
+                message = response.get('error').get('errors')[0].get('message')
+                log.error(message)
+            else:
+                message = f"Failed to create schema '{schema}'"
+                log.error(message)
+                
+    def deleteSchema(self, schema: str = None):
+        """Delete a schema
+        
+        :param schema: the name of the new schema
+        :type schema: str
+        """
+        query = queries.delete_schema()
+        variables = {'name': schema}
+        response = self.session.post(
+            url=f"{self.url}/{schema}/graphql",
+            json={'query': query, 'variables': variables}
+        )
+        
+        response_json = response.get('data').get('deleteSchema')
+        if response_json.get('status') == 'SUCCESS':
+            message = response_json.get('message')
+            log.info(message)
+            print(message)
+        else:
+            if 'error' in response:
+                message = response.get('error').get('errors')[0].get('message')
+                log.error(message)
+            else:
+                message = f"Failed to create schema '{schema}'"
+                log.error(message)
+    
+    def updateSchema(self, schema: str = None, description: str = None):
+        """Update a schema's description
+        
+        :param schema: the name of the new schema
+        :type schema: str
+        :param description: additional text that provides context for a schema
+        :type description: str
+        """
+        query = queries.update_schema()
+        variables = {'name': schema, 'descrition': description}
+        response = self.session.post(
+            url=f"{self.url}/{schema}/graphql",
+            json={'query': query, 'variables': variables}
+        )
+        
+        response_json = response.get('data').get('updateSchema')
+        if response_json.get('status') == 'SUCCESS':
+            message = response_json.get('message')
+            log.info(message)
+            print(message)
+        else:
+            if 'error' in response:
+                message = response.get('error').get('errors')[0].get('message')
+                log.error(message)
+            else:
+                message = f"Failed to update schema '{schema}'"
+                log.error(message)
+                
+    def recreateSchema(self, schema: str = None, description: str = None, template: str = None, includeDemoData: bool = None):
+        """Delete a schema and recreate it""" 
+    
+        currentDescription = "..."
+        self.deleteSchema(schema=schema)
+        self.createSchema(
+            schema = schema,
+            description = currentDescription,
+            template = template,
+            includeDemoData = includeDemoData
+        )
+        
+        
+        
