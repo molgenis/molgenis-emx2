@@ -5,6 +5,7 @@ const route = useRoute();
 const config = useRuntimeConfig();
 
 const cat = route.params.catalogue;
+console.log("cat=" + cat);
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 
@@ -16,8 +17,8 @@ const modelQuery = `
 
 const models = await fetchGql(modelQuery, { filter: modelFilter });
 
-const query = `query MyQuery($networkFilter:NetworksFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CohortsFilter,$subcohortsFilter:SubcohortsFilter,$dataSourcesFilter:DataSourcesFilter){
-        Networks(filter:$networkFilter) {
+const query = `query MyQuery($networksFilter:NetworksFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CohortsFilter,$subcohortsFilter:SubcohortsFilter,$dataSourcesFilter:DataSourcesFilter){
+        Networks(filter:$networksFilter) {
               id,
               acronym,
               name,
@@ -82,13 +83,6 @@ const query = `query MyQuery($networkFilter:NetworksFilter,$variablesFilter:Vari
           value
         }
       }`;
-console.log(query);
-
-const networkFilter = "all" === cat ? "" : `(filter:{id:{equals:"${cat}"}})`;
-const resourceFilter =
-  "all" === cat ? "" : `(filter:{networks:{id:{equals:"${cat}"}}})`;
-const variablesFilter =
-  "all" === cat ? "" : `(filter:{resource:{id:{equals:"${cat}"}}})`; //todo: better mapping from variable to network
 
 const data = await fetchGql(query, {
   networksFilter: "all" === cat ? {} : { id: { equals: cat } },
@@ -97,7 +91,11 @@ const data = await fetchGql(query, {
       ? {}
       : {
           resource: {
-            id: { equals: models.data.Networks[0].models.map((m) => m.id) },
+            id: {
+              equals: models.data.Networks[0].models
+                ? models.data.Networks[0].models.map((m) => m.id)
+                : "no models match so no results expected",
+            },
           },
         },
   cohortsFilter: "all" === cat ? {} : { networks: { id: { equals: cat } } },

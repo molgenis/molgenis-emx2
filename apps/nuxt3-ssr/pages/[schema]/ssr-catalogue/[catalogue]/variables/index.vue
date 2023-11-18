@@ -178,7 +178,6 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
 watch(filters, () => {
   setCurrentPage(1);
 });
-let activeName = ref("list");
 
 let crumbs: any = {};
 if (route.params.catalogue) {
@@ -190,15 +189,6 @@ if (route.params.catalogue) {
     Home: `/${route.params.schema}/ssr-catalogue`,
   };
 }
-
-let pageIcon = computed(() => {
-  switch (activeName.value) {
-    case "list":
-      return "image-diagram-2";
-    case "harmonization":
-      return "image-table";
-  }
-});
 </script>
 
 <template>
