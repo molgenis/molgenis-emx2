@@ -20,7 +20,7 @@ public class CatalogueSiteMapTest {
     Schema schema = mock(Schema.class);
     Table table = mock(Table.class);
     Query query = mock(Query.class);
-    List<Row> row = Collections.singletonList(new Row("pid", "my-cohort-pid"));
+    List<Row> row = Collections.singletonList(new Row("id", "my-cohort-id"));
     when(schema.getTable("Cohorts")).thenReturn(table);
     when(table.select(any())).thenReturn(query);
     when(query.retrieveRows()).thenReturn(row);
@@ -30,7 +30,7 @@ public class CatalogueSiteMapTest {
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             + "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" >\n"
             + "  <url>\n"
-            + "    <loc>https://my/base/url/ssr-catalogue/Cohorts/my-cohort-pid</loc>\n"
+            + "    <loc>https://my/base/url/ssr-catalogue/all/cohorts/my-cohort-id</loc>\n"
             + "  </url>\n"
             + "</urlset>";
     assertEquals(expected, catalogueSiteMap.buildSiteMap());
