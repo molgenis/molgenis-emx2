@@ -40,15 +40,11 @@ if (cat === "all" || catalogue.dataSources_agg?.count > 0)
     label: "Data sources",
     link: `/${route.params.schema}/ssr-catalogue/${cat}/datasources`,
   });
-if (cat === "all" || data.value.data.Variables_agg?.count > 0)
+if (cat === "all" || catalogue.Variables_agg?.count > 0)
   menu.push({
     label: "Variables",
     link: `/${route.params.schema}/ssr-catalogue/${cat}/variables`,
   });
-menu.push({
-  label: "Variables",
-  link: `/${route.params.schema}/ssr-catalogue/${cat}/variables`,
-});
 // todoswqki
 // menu.push({
 //   label: "About",

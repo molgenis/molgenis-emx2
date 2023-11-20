@@ -169,7 +169,7 @@ let description = computed(() => {
       <LandingPrimary>
         <LandingCardPrimary
           v-if="cat === 'all' || data.data.Cohorts_agg.count > 0"
-          image="demography"
+          image="image-link"
           title="Cohorts"
           :description="cat + ' cohort studies'"
           :count="data.data.Cohorts_agg.count"
@@ -177,7 +177,7 @@ let description = computed(() => {
         />
         <LandingCardPrimary
           v-if="cat === 'all' || data.data.DataSources_agg.count > 0"
-          image="clinical"
+          image="data-warehouse"
           title="Data sources"
           :description="cat + ' databanks and registries'"
           :count="data.data.DataSources_agg.count"
@@ -185,7 +185,7 @@ let description = computed(() => {
         />
         <LandingCardPrimary
           v-if="cat === 'all' || data.data.Variables_agg.count"
-          image="checklist"
+          image="image-diagram-2"
           title="Variables"
           :description="cat + ' harmonized variables.'"
           :count="data.data.Variables_agg.count"
