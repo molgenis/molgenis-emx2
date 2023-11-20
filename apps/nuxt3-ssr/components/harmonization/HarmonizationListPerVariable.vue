@@ -1,23 +1,20 @@
 <script setup lang="ts">
-import type { IVariable, IVariableMappings } from "~/interfaces/types";
+import type { HarmonizationStatus } from "~/interfaces/types";
 
-type VariableDetailsWithMapping = IVariable & IVariableMappings;
-const props = defineProps<{
-  variable: VariableDetailsWithMapping;
-  cohorts: { id: string }[];
+defineProps<{
+  cohortsWithMapping: { cohort: { id: string }; status: HarmonizationStatus }[];
 }>();
-
-const harmonizationPerCohort = computed(
-  () => calcHarmonizationStatus([props.variable], props.cohorts)[0]
-);
 </script>
 <template>
   <div class="grid grid-cols-3 gap-4">
     <div>
       <ul>
-        <li v-for="(cohort, index) in cohorts.slice(0, 10)" class="pb-2">
+        <li
+          v-for="{ cohort, status } in cohortsWithMapping.slice(0, 10)"
+          class="pb-2"
+        >
           <div class="flex items-center gap-2">
-            <HarmonizationStatusIcon :status="harmonizationPerCohort[index]" />
+            <HarmonizationStatusIcon :status="status" />
             <span>{{ cohort.id }}</span>
           </div>
         </li>
@@ -25,9 +22,12 @@ const harmonizationPerCohort = computed(
     </div>
     <div>
       <ul>
-        <li v-for="(cohort, index) in cohorts.slice(10, 20)" class="pb-2">
+        <li
+          v-for="{ cohort, status } in cohortsWithMapping.slice(10, 20)"
+          class="pb-2"
+        >
           <div class="flex items-center gap-2">
-            <HarmonizationStatusIcon :status="harmonizationPerCohort[index]" />
+            <HarmonizationStatusIcon :status="status" />
             <span>{{ cohort.id }}</span>
           </div>
         </li>
@@ -35,9 +35,12 @@ const harmonizationPerCohort = computed(
     </div>
     <div>
       <ul>
-        <li v-for="(cohort, index) in cohorts.slice(20, 30)" class="pb-2">
+        <li
+          v-for="{ cohort, status } in cohortsWithMapping.slice(20, 30)"
+          class="pb-2"
+        >
           <div class="flex items-center gap-2">
-            <HarmonizationStatusIcon :status="harmonizationPerCohort[index]" />
+            <HarmonizationStatusIcon :status="status" />
             <span>{{ cohort.id }}</span>
           </div>
         </li>

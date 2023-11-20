@@ -3,7 +3,7 @@ import path from "path";
 import docTagPlugin from "./docs-plugin.js";
 import vue from "@vitejs/plugin-vue";
 
-const BACKEND_LOCATION = process.env.PROXY_API || "http://localhost:8080/";
+const BACKEND_LOCATION = process.env.PROXY_API || "https://emx2.dev.molgenis.org";
 
 // basic build conf fo both library and showCase builds
 let conf = {

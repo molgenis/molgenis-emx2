@@ -46,22 +46,6 @@ import org.molgenis.emx2.utils.TypeUtils;
  * </ul>
  */
 public class RDFService {
-  private static final Map<String, RDFFormat> RDF_FILE_FORMATS =
-      Map.of(
-          "ttl",
-          RDFFormat.TURTLE,
-          "n3",
-          RDFFormat.N3,
-          "ntriples",
-          RDFFormat.NTRIPLES,
-          "nquads",
-          RDFFormat.NQUADS,
-          "xml",
-          RDFFormat.RDFXML,
-          "trig",
-          RDFFormat.TRIG,
-          "jsonld",
-          RDFFormat.JSONLD);
   private static final DateTimeFormatter dateTimeFormatter =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
   public static final IRI LDP_CONTAINS = Values.iri("http://www.w3.org/ns/ldp#contains");
@@ -86,13 +70,6 @@ public class RDFService {
    */
   public static final IRI IRI_OBSERVING =
       Values.iri("http://semanticscience.org/resource/SIO_001055");
-  /** NCIT:C25474 = Data */
-  public static final IRI IRI_DATA = Values.iri("http://purl.obolibrary.org/obo/NCIT_C25474");
-  /** NCIT:C21270 = Ontology */
-  public static final IRI IRI_ONTOLOGY = Values.iri("http://purl.obolibrary.org/obo/NCIT_C21270");
-  /** SIO:000757 = database column */
-  public static final IRI IRI_DATABASE_COLUMN =
-      Values.iri("http://semanticscience.org/resource/SIO_000757");
 
   public static final String SEMANTICS_ID_URL_STRING =
       "http://semanticscience.org/resource/SIO_000115";
@@ -106,12 +83,6 @@ public class RDFService {
       Values.iri("http://semanticscience.org/resource/SIO_000750");
 
   public static final IRI IRI_MOLGENIS = Values.iri("https://molgenis.org");
-  public static final IRI IRI_MEASURE_PROPERTY =
-      Values.iri("http://purl.org/linked-data/cube#MeasureProperty");
-  /** SIO:001187 = database row */
-  public static final IRI IRI_DATABASE_ROW =
-      Values.iri("http://semanticscience.org/resource/SIO_001187");
-
   public static final String ONTOLOGY_TERM_URI = "ontologyTermURI";
 
   private final WriterConfig config;
@@ -132,7 +103,7 @@ public class RDFService {
    * @param rdfAPIPath the path fragment for the RDF service within a Schema
    * @param format the requested RDF document type
    */
-  public RDFService(final String baseURL, final String rdfAPIPath, final String format) {
+  public RDFService(final String baseURL, final String rdfAPIPath, final RDFFormat format) {
     // Ensure that the base URL has a trailing "/" so we can use it easily to
     // construct URL paths.
     if (baseURL.trim().endsWith("/")) {
@@ -150,15 +121,7 @@ public class RDFService {
       temp = temp + "/";
     }
     this.rdfAPIPath = temp;
-
-    if (format == null) {
-      this.rdfFormat = RDFFormat.TURTLE;
-    } else {
-      if (!RDF_FILE_FORMATS.containsKey(format)) {
-        throw new MolgenisException("Format unknown. Use any of: " + RDF_FILE_FORMATS.keySet());
-      }
-      this.rdfFormat = RDF_FILE_FORMATS.get(format);
-    }
+    this.rdfFormat = format == null ? RDFFormat.TURTLE : format;
 
     this.config = new WriterConfig();
     this.config.set(BasicWriterSettings.INLINE_BLANK_NODES, true);
@@ -363,8 +326,6 @@ public class RDFService {
       builder.add(subject, RDF.TYPE, OWL.DATATYPEPROPERTY);
       builder.add(subject, RDFS.RANGE, columnTypeToXSD(column.getColumnType()));
     }
-    builder.add(subject, RDFS.SUBCLASSOF, IRI_DATABASE_COLUMN);
-    builder.add(subject, RDFS.SUBCLASSOF, IRI_MEASURE_PROPERTY);
     builder.add(subject, RDFS.LABEL, column.getName());
     builder.add(subject, RDFS.DOMAIN, getTableIRI(column.getTable().getTable()));
     if (column.getSemantics() != null) {
@@ -427,7 +388,6 @@ public class RDFService {
     for (final Row row : getRows(table, rowId)) {
       IRI subject = getIriForRow(row, table.getMetadata());
       builder.add(subject, RDF.TYPE, tableIRI);
-      builder.add(subject, RDF.TYPE, IRI_DATABASE_ROW);
       if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
         builder.add(subject, RDF.TYPE, IRI_CODED_VALUE_DATATYPE);
         if (row.getString(ONTOLOGY_TERM_URI) != null) {

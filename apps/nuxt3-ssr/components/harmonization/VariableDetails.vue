@@ -1,19 +1,29 @@
 <script setup lang="ts">
-import type { IVariable, IVariableMappings } from "~/interfaces/types";
+import type {
+  HarmonizationStatus,
+  IVariable,
+  IVariableMappings,
+} from "~/interfaces/types";
 
 type VariableDetailsWithMapping = IVariable & IVariableMappings;
 const props = defineProps<{
   variable: VariableDetailsWithMapping;
-  cohorts: { id: string }[];
+  cohortsWithMapping: { cohort: { id: string }; status: HarmonizationStatus }[];
 }>();
 
 const activeIndex = ref(0);
 
 const statusPerCohort = computed(
-  () => calcHarmonizationStatus([props.variable], props.cohorts)[0]
+  () =>
+    calcHarmonizationStatus(
+      [props.variable],
+      props.cohortsWithMapping.map((cwm) => cwm.cohort)
+    )[0]
 );
 
-const activeCohortId = computed(() => props.cohorts[activeIndex.value].id);
+const activeCohortId = computed(
+  () => props.cohortsWithMapping[activeIndex.value].cohort.id
+);
 
 const activeMappingDescription = computed(() => {
   const activeCohortMapping = props.variable?.mappings?.find(
@@ -62,11 +72,11 @@ let showSidePanel = computed(() => activeVariableKey.value?.name);
     <HorizontalScrollHelper add-fade add-scroll-button>
       <div class="flex flex-nowrap">
         <Tab
-          v-for="(cohort, index) in cohorts"
+          v-for="(cohortWithMapping, index) in cohortsWithMapping"
           :active="index === activeIndex"
           @click="activeIndex = index"
         >
-          {{ cohort.id }}
+          {{ cohortWithMapping.cohort.id }}
         </Tab>
       </div>
     </HorizontalScrollHelper>
@@ -75,7 +85,7 @@ let showSidePanel = computed(() => activeVariableKey.value?.name);
   <DefinitionList>
     <DefinitionListTerm>Cohort</DefinitionListTerm>
     <DefinitionListDefinition>
-      {{ cohorts[activeIndex].id }}
+      {{ cohortsWithMapping[activeIndex].cohort.id }}
     </DefinitionListDefinition>
 
     <DefinitionListTerm>Harmonization status</DefinitionListTerm>
@@ -92,7 +102,8 @@ let showSidePanel = computed(() => activeVariableKey.value?.name);
 
     <DefinitionListDefinition v-if="variable.mappings">
       <ul>
-        <li v-for="variableUsed in variablesUsed">
+        <li v-if="!variablesUsed?.length">None</li>
+        <li v-else v-for="variableUsed in variablesUsed">
           <a
             class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 cursor-pointer"
             @click="activeVariableKey = getKey(variableUsed)"

@@ -12,13 +12,14 @@
   "dependencies": {
     "core-js": "3.33.2",
     "graphql-request": "5.2.0",
+    "graphql-tag": "2.12.6",
     "molgenis-components": "*",
-    "vue": "3.3.4",
+    "vue": "3.3.8",
     "vue-router": "4.2.5",
     "vue-scrollto": "2.20.0",
     "vuedraggable": "4.1.0",
     "nomnoml": "1.6.2",
-    "mermaid": "10.6.0"
+    "mermaid": "10.6.1"
   },
   "devDependencies": {
     "vite": "4.3.9",
