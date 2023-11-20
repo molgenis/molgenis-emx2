@@ -93,8 +93,8 @@
 
 <script setup lang="ts">
 import BackgroundGradient from "./components/BackgroundGradient.vue";
-import { hash } from ".fingerprint.js";
-
+import { hash } from "./.fingerprint.js";
+const route = useRoute();
 const config = useRuntimeConfig();
 
 const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics", {
@@ -114,9 +114,13 @@ function setAnalyticsCookie(value: boolean) {
 }
 
 let themeFilename = "styles";
-if (config.public.emx2Theme) {
+if (route.query.theme) {
+  themeFilename += `.${ route.query.theme }`;
+}
+else if (config.public.emx2Theme) {
   themeFilename += `.${config.public.emx2Theme}`;
 }
+
 if (hash) {
   themeFilename += `.${hash}`;
 }

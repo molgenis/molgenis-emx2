@@ -1,6 +1,13 @@
 <script setup lang="ts">
+import type { ISetting } from "meta-data-utils";
+
 const route = useRoute();
 const config = useRuntimeConfig();
+
+const cohortOnly = computed(() => {
+  const routeSetting = route.query["cohort-only"] as string;
+  return routeSetting === "true" || config.public.cohortOnly;
+});
 
 const { data, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
@@ -110,7 +117,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
       />
       <LandingCardPrimary
-        v-if="!config.public.cohortOnly"
+        v-if="!cohortOnly"
         image="image-diagram"
         title="Networks"
         :description="
@@ -127,7 +134,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         :link="`/${route.params.schema}/ssr-catalogue/networks/`"
       />
       <LandingCardPrimary
-        v-if="!config.public.cohortOnly"
+        v-if="!cohortOnly"
         image="image-diagram-2"
         title="Variables"
         :description="
