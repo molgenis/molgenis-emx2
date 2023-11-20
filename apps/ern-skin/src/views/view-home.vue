@@ -4,7 +4,7 @@
       class="project-header main-header"
       title="ERN-Skin Registry"
       subtitle="Registry for Rare and Undiagnosed Skin Diseases"
-      imageSrc="/app-header-background.png"
+      imageSrc="app-header-background.png"
     />
     <PageSection
       id="section-welcome"
@@ -134,6 +134,7 @@ import {
 
   .link-card {
     flex-grow: 1;
+    padding: 1em;
     background-color: $gray-000;
     color: currentColor;
     border-radius: 12pt;
@@ -204,6 +205,10 @@ import {
         }
       }
     }
+  }
+  
+  @media (min-width: 936px) {
+    flex-wrap: nowrap;
   }
 }
 </style>

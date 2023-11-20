@@ -4,7 +4,7 @@
       class="project-header main-header"
       title="ERN-Skin"
       subtitle="Download Documents"
-      imageSrc="/app-header-background.png"
+      imageSrc="app-header-background.png"
     />
     <PageSection
       id="section-documents"

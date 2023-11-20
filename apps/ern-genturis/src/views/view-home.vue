@@ -45,12 +45,12 @@
           {
             name: 'documents',
             label: 'Documents',
-            image: '/bkg-image-documents.jpg',
+            image: 'bkg-image-documents.jpg',
           },
           {
             name: 'dashboard',
             label: 'Dashboard',
-            image: '/bkg-image-dashboard.jpg',
+            image: 'bkg-image-dashboard.jpg',
           },
         ]"
         name="name"
