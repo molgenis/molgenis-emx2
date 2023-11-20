@@ -1,7 +1,5 @@
 /* eslint-disable no-undef */
-
 module.exports = {
-  //format for latest svgo:
   plugins: [
     {
       name: "convertColors",
