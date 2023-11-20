@@ -77,6 +77,6 @@ public class TestLoaders {
   public void test9DirectoryLoader() {
     Schema networkStaging = database.createSchema(DIRECTORY_TEST);
     AvailableDataModels.BIOBANK_DIRECTORY.install(networkStaging, true);
-    assertEquals(33, networkStaging.getTableNames().size());
+    assertEquals(32, networkStaging.getTableNames().size());
   }
 }
