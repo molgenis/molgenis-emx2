@@ -27,12 +27,21 @@ task format(type: YarnTask, dependsOn: yarn_install) {
     args = ['run', 'nx', 'format:write']
 }
 
-task checkFormat(type: YarnTask, dependsOn: yarn_install) {
+task checkFormat(type: YarnTask, dependsOn: format) {
     outputs.upToDateWhen { false }
     args = ['run', 'nx', 'format:check']
 }
 
-task buildJavascript(type: YarnTask, dependsOn: yarn_install) {
+task testJavaScript(type: YarnTask, dependsOn: checkFormat) {
+    file("${project.projectDir}").eachDir { dir ->
+        var moduleName = dir.name
+        if ( ['molgenis-components', 'nuxt3-ssr'].contains(moduleName)) {
+            args = ['run', 'nx', 'test-ci', moduleName]
+        }
+    }
+}
+
+task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
     environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
     args = ['run', 'nx', 'run-many', '--target=format:write,build,build-showcase', "--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}", '--verbose']
     doLast {
