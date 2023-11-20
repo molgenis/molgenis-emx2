@@ -1,4 +1,4 @@
-import { KeyObject } from "~/interfaces/types";
+import type{ KeyObject } from "meta-data-utils";
 
 export const transformToKeyObject = (keyObjectAsString: string): KeyObject =>
   JSON.parse(keyObjectAsString);
