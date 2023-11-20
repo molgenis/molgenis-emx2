@@ -6,6 +6,8 @@ import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
@@ -13,6 +15,7 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.RunMolgenisEmx2.CATALOGUE_DEMO;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -1220,5 +1223,47 @@ public class WebApiSmokeTests {
       Thread.sleep(1000);
     }
     return firstJob;
+  }
+
+  @Test
+  public void graphqlEqualsKeyFilterShouldConvertIdentifiersToColumnNames() {
+    String schemaName = "testKeyFilterWhenSpacesInNames";
+    Schema schema = db.dropCreateSchema(schemaName);
+    schema.addMember("anonymous", "Viewer"); // otherwise not available in graphql
+
+    schema.create(
+        table("Contacts", column("First Name").setPkey(), column("Last name").setPkey()),
+        table(
+            "Cohorts",
+            column("id").setPkey(),
+            column("contacts").setType(REF_ARRAY).setRefTable("Contacts")));
+
+    schema.getTable("Contacts").insert(row("First Name", "Donald", "Last name", "Duck"));
+    schema
+        .getTable("Cohorts")
+        .insert(
+            row("id", "My Cohorts", "contacts.First Name", "Donald", "contacts.Last name", "Duck"));
+
+    String graphql =
+        """
+  query {
+  Cohorts(filter: { contacts: { equals: { firstName:"Donald" , lastName:"Duck"} } }) {
+    name
+    contacts {
+      firstName, lastName
+    }
+  }
+}
+""";
+
+    String result =
+        given()
+            .when()
+            .body("{\"query\":" + graphql + "}")
+            .post(schemaName + "/api/graphql")
+            .getBody()
+            .asString();
+
+    assertTrue(result.contains("Donald"));
   }
 }
