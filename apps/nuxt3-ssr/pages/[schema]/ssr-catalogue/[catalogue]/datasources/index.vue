@@ -147,7 +147,7 @@ crumbs[
           <PageHeader
             title="Data sources"
             description="Group of individuals sharing a defining demographic characteristic."
-            icon="image-link"
+            icon="data-warehouse"
           >
             <template #prefix>
               <BreadCrumbs :crumbs="crumbs" current="cohorts" />
