@@ -19,6 +19,7 @@ const menu = [
   // { label: "Statistical Methods", link: "#" },
   // { label: "Tables", link: "#" },
   // { label: "Manuals", link: "#" },
+  config.public.cohortOnly ? undefined :
   { label: "About", link: `/${schema}/ssr-catalogue/about` },
 ].filter((item) => item !== undefined);
 </script>

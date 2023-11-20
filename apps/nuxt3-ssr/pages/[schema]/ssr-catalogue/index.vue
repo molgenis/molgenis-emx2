@@ -68,18 +68,20 @@ let activeName = ref("compact");
   <LayoutsLandingPage>
     <PageHeader
       title="health research data and sample catalogue"
-      description="MOLGENIS catalogue unites European research projects and networks cataloguing efforts, improving sustainability and reducing duplicated efforts. Use the button to search accross all catalogues, or to select and individual project or network catalogue below:"
+      description="MOLGENIS catalogue unites European research projects and networks cataloguing efforts."
       :truncate="false"
     >
       <template #suffix>
         <div
           class="relative justify-center flex flex-col md:flex-row text-title"
         >
-          <div class="flex flex-col items-center max-w-sm">
+          <div class="flex flex-col items-center max-w-sm lg:mt-5">
             <NuxtLink :to="`/${route.params.schema}/ssr-catalogue/all`">
               <Button label="Search all catalogues" />
             </NuxtLink>
-            or select a specific catalogue below
+            <p class="mt-1 mb-0 text-center lg:mt-10 text-body-lg">
+              or select a specific catalogue below:
+            </p>
           </div>
         </div>
       </template>
