@@ -220,15 +220,7 @@ public class MolgenisWebservice {
   /** get database either from session or based on token */
   // helper method used in multiple places
   public static Table getTable(Request request) {
-    String schemaName = request.params(SCHEMA);
-    Schema schema =
-        sessionManager.getSession(request).getDatabase().getSchema(sanitize(schemaName));
-    if (schema == null) {
-      throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
-    }
-    Table table = schema.getTable(sanitize(request.params(TABLE)));
-    if (table == null) throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
-    return table;
+    return getTable(request, request.params(TABLE));
   }
 
   /** alternative version for getTable */
@@ -239,7 +231,7 @@ public class MolgenisWebservice {
     if (schema == null) {
       throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
     } else {
-      return schema.getTable(sanitize(tableName));
+      return schema.getTableById(sanitize(tableName));
     }
   }
 
