@@ -1,8 +1,8 @@
 /* eslint-disable no-undef */
-const { extendDefaultPlugins } = require("svgo");
 
 module.exports = {
-  plugins: extendDefaultPlugins([
+  //format for latest svgo:
+  plugins: [
     {
       name: "convertColors",
       params: {
@@ -15,5 +15,5 @@ module.exports = {
         currentColor: true,
       },
     },
-  ]),
+  ],
 };
