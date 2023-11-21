@@ -201,7 +201,7 @@ let description = computed(() => {
             (!cohortOnly && cat === 'all') ||
             data.data.DataSources_agg.count > 0
           "
-          image="data-warehouse"
+          image="image-data-warehouse"
           title="Data sources"
           :description="
             getSettingValue(
