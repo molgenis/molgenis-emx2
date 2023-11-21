@@ -23,6 +23,7 @@ const config = {
       siteTitle: "Data Catalogue",
       analyticsKey: "",
       cohortOnly: false,
+      debug: true
     },
   },
   nitro: {
