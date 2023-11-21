@@ -35,6 +35,14 @@ function setData(data: any) {
   cohorts = data?.data?.Cohorts;
 }
 
+let crumbs: any = {};
+crumbs[
+  `${route.params.catalogue}`
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+crumbs[
+  "variables"
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables`;
+
 const cohortsWithMapping = computed(() => {
   return cohorts
     .map((cohort) => {
@@ -71,12 +79,7 @@ if (cohortsWithMapping.value.length > 0) {
     <template #header>
       <PageHeader :title="variable?.name" :description="variable?.label">
         <template #prefix>
-          <BreadCrumbs
-            :crumbs="{
-              Home: `/${route.params.schema}/ssr-catalogue`,
-              Variables: `/${route.params.schema}/ssr-catalogue/variables`,
-            }"
-          />
+          <BreadCrumbs :crumbs="crumbs" />
         </template>
         <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />

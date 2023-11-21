@@ -87,7 +87,7 @@ let activeVariablePath = computed(() =>
 
       <template #footer>
         <NuxtLink
-          :to="`/${route.params.schema}/ssr-catalogue/variables/${activeVariablePath}`"
+          :to="`/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables/${activeVariablePath}`"
         >
           <Button type="primary" size="small" label="More details " />
         </NuxtLink>

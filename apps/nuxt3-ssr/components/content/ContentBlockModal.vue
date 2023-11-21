@@ -38,7 +38,7 @@ const bgClass = computed(() => {
       {{ title }}
     </h2>
     <div class="mb-5 prose max-w-none" v-if="description">
-      <div v-html="description"></div>
+      <ContentReadMore :value="description" />
     </div>
     <slot></slot>
   </section>

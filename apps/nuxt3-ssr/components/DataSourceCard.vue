@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { ICohort } from "~/interfaces/types";
+const route = useRoute();
+import type { IResource } from "~/interfaces/types";
 let truncate = ref(true);
 const cutoff = 250;
 
 const props = withDefaults(
   defineProps<{
-    cohort: ICohort;
+    datasource: IResource;
     schema: string;
     compact?: boolean;
     catalogue?: string;
@@ -44,15 +45,15 @@ const iconStarClasses = computed(() => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/ssr-catalogue/${catalogue}/cohorts/${cohort.id}`"
+            :to="`/${schema}/ssr-catalogue/${catalogue}/datasources/${datasource.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
-            {{ cohort?.acronym || cohort?.name }}
+            {{ datasource?.acronym || datasource?.name }}
           </NuxtLink>
         </h2>
 
         <span :class="subtitleClasses" class="mr-4 text-body-base">
-          {{ cohort?.acronym ? cohort?.name : "" }}
+          {{ datasource?.acronym ? datasource?.name : "" }}
         </span>
       </div>
       <div class="flex">
@@ -64,7 +65,7 @@ const iconStarClasses = computed(() => {
         />
         -->
         <NuxtLink
-          :to="`/${schema}/ssr-catalogue/${catalogue}/cohorts/${cohort.id}`"
+          :to="`/${schema}/ssr-catalogue/${catalogue}/datasources/${datasource.id}`"
         >
           <IconButton
             icon="arrow-right"
@@ -75,26 +76,16 @@ const iconStarClasses = computed(() => {
     </header>
 
     <div v-if="!compact">
-      <ContentReadMore :text="cohort.description" :cutoff="cutoff" />
+      <ContentReadMore :text="datasource.description" :cutoff="cutoff" />
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
-        <div>
+        <div v-if="datasource?.type?.length > 0">
           <dt class="flex-auto block text-gray-600">Type</dt>
-          <dd>{{ cohort?.type?.map((type) => type.name).join(",") }}</dd>
+          <dd>{{ datasource?.type?.map((type) => type.name).join(",") }}</dd>
         </div>
-        <div>
-          <dt class="flex-auto block text-gray-600">Design</dt>
-          <dd>{{ cohort?.design?.name }}</dd>
-        </div>
-        <div>
+        <div v-if="datasource?.numberOfParticipants">
           <dt class="flex-auto block text-gray-600">Participants</dt>
-          <dd>{{ cohort?.numberOfParticipants }}</dd>
-        </div>
-        <div>
-          <dt class="flex-auto block text-gray-600">Duration</dt>
-          <dd>
-            {{ startEndYear(cohort?.startYear, cohort?.endYear) }}
-          </dd>
+          <dd>{{ datasource?.numberOfParticipants }}</dd>
         </div>
       </dl>
     </div>
