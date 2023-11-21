@@ -32,6 +32,7 @@ const config = {
 };
 
 if (process.env.NODE_ENV === "development") {
+  // @ts-ignore
   config.proxy = devProxy;
 }
 
