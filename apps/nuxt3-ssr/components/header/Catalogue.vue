@@ -1,6 +1,12 @@
-<script setup>
+<script setup lang="ts">
 const route = useRoute();
 const config = useRuntimeConfig();
+
+
+const cohortOnly = computed(() => {
+  const routeSetting = route.query["cohort-only"] as string;
+  return routeSetting === "true" || config.public.cohortOnly;
+});
 
 const cat = route.params.catalogue;
 const query = `{
@@ -35,25 +41,28 @@ if (cat === "all" || catalogue.cohorts_agg?.count > 0)
     label: "Cohorts",
     link: `/${route.params.schema}/ssr-catalogue/${cat}/cohorts`,
   });
-if (cat === "all" || catalogue.dataSources_agg?.count > 0)
+if (!cohortOnly && cat === "all" || catalogue.dataSources_agg?.count > 0)
   menu.push({
     label: "Data sources",
     link: `/${route.params.schema}/ssr-catalogue/${cat}/datasources`,
   });
-if (cat === "all" || catalogue.Variables_agg?.count > 0)
+if (!cohortOnly && cat === "all" || catalogue.Variables_agg?.count > 0)
   menu.push({
     label: "Variables",
     link: `/${route.params.schema}/ssr-catalogue/${cat}/variables`,
   });
-// todoswqki
-// menu.push({
-//   label: "About",
-//   link: `/${route.params.schema}/ssr-catalogue/${catalogue.id}/about`,
-// }),
-menu.push({
-  label: "Other catalogues",
-  link: `/${route.params.schema}/ssr-catalogue`,
-});
+if(cohortOnly) {
+  menu.push({
+    label: "About",
+    link: `/${route.params.schema}/ssr-catalogue/${cat}/about`,
+  });
+}
+    if(!cohortOnly) {
+      menu.push({
+        label: "Other catalogues",
+        link: `/${route.params.schema}/ssr-catalogue`,
+      });
+    }
 
 // { label: "Databanks", link: `/${schema}/ssr-catalogue/databanks` },
 // config.public.cohortOnly

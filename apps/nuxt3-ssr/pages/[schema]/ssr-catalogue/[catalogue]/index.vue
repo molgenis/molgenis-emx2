@@ -7,6 +7,11 @@ const config = useRuntimeConfig();
 const cat = route.params.catalogue;
 console.log("cat=" + cat);
 
+const cohortOnly = computed(() => {
+  const routeSetting = route.query["cohort-only"] as string;
+  return routeSetting === "true" || config.public.cohortOnly;
+});
+
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 
 const modelFilter = cat === "all" ? {} : { id: { equals: cat } };
@@ -66,6 +71,8 @@ const query = `query MyQuery($networksFilter:NetworksFilter,$variablesFilter:Var
           "CATALOGUE_LANDING_DESCRIPTION"
           "CATALOGUE_LANDING_COHORTS_CTA"
           "CATALOGUE_LANDING_COHORTS_TEXT"
+          "CATALOGUE_LANDING_DATASOURCES_CTA"
+          "CATALOGUE_LANDING_DATASOURCES_TEXT"
           "CATALOGUE_LANDING_NETWORKS_CTA"
           "CATALOGUE_LANDING_NETWORKS_TEXT"
           "CATALOGUE_LANDING_VARIABLES_CTA"
@@ -151,7 +158,7 @@ let description = computed(() => {
   } else if (
     getSettingValue("CATALOGUE_LANDING_DESCRIPTION", data.data._settings)
   ) {
-    getSettingValue("CATALOGUE_LANDING_DESCRIPTION", data.data._settings);
+    return getSettingValue("CATALOGUE_LANDING_DESCRIPTION", data.data._settings);
   } else {
     return "Select one of the content categories listed below.";
   }
@@ -171,24 +178,45 @@ let description = computed(() => {
           v-if="cat === 'all' || data.data.Cohorts_agg.count > 0"
           image="image-link"
           title="Cohorts"
-          :description="cat + ' cohort studies'"
+          :description="getSettingValue(
+            'CATALOGUE_LANDING_COHORTS_TEXT',
+            data.data._settings
+          ) || ' A complete overview of '+cat+' cohorts and biobanks.'"
+          :callToAction="
+          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
+        "
           :count="data.data.Cohorts_agg.count"
           :link="`/${route.params.schema}/ssr-catalogue/${cat}/cohorts`"
         />
         <LandingCardPrimary
-          v-if="cat === 'all' || data.data.DataSources_agg.count > 0"
+          v-if="!cohortOnly && cat === 'all' || data.data.DataSources_agg.count > 0"
           image="data-warehouse"
           title="Data sources"
-          :description="cat + ' databanks and registries'"
+          :description="getSettingValue(
+            'CATALOGUE_LANDING_DATASOURCES_TEXT',
+            data.data._settings
+          ) || cat + ' databanks and registries'"
+          :callToAction="
+          getSettingValue('CATALOGUE_LANDING_DATASOURCES_CTA', data.data._settings)
+        "
           :count="data.data.DataSources_agg.count"
           :link="`/${route.params.schema}/ssr-catalogue/${cat}/datasources`"
         />
         <LandingCardPrimary
-          v-if="cat === 'all' || data.data.Variables_agg.count"
+          v-if="!cohortOnly && cat === 'all' || data.data.Variables_agg.count > 0"
           image="image-diagram-2"
           title="Variables"
-          :description="cat + ' harmonized variables.'"
+          :description="getSettingValue(
+            'CATALOGUE_LANDING_VARIABLES_TEXT',
+            data.data._settings
+          ) || cat + ' harmonized variables.'"
           :count="data.data.Variables_agg.count"
+          :callToAction="
+          getSettingValue(
+            'CATALOGUE_LANDING_VARIABLES_CTA',
+            data.data._settings
+          )
+        "
           :link="`/${route.params.schema}/ssr-catalogue/${cat}/variables`"
         />
       </LandingPrimary>
