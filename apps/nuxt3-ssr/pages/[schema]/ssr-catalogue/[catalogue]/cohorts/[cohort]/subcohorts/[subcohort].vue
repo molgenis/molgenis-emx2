@@ -30,9 +30,17 @@ watch(
   }
 );
 
+const cohortOnly = computed(() => {
+  const routeSetting = route.query["cohort-only"] as string;
+  return routeSetting === "true" || config.public.cohortOnly;
+});
 const pageCrumbs: any = {};
-pageCrumbs[route.params.catalogue] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-pageCrumbs['Cohorts'] =`/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts`;
+pageCrumbs[
+  cohortOnly ? "home" : route.params.catalogue
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+pageCrumbs[
+  "Cohorts"
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts`;
 
 // @ts-ignore
 pageCrumbs[

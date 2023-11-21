@@ -308,10 +308,14 @@ useHead({ title: cohort?.acronym || cohort?.name });
 
 const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
 
+const cohortOnly = computed(() => {
+  const routeSetting = route.query["cohort-only"] as string;
+  return routeSetting === "true" || config.public.cohortOnly;
+});
 const crumbs: any = {};
 if (route.params.catalogue) {
   crumbs[
-    `${route.params.catalogue}`
+    cohortOnly ? "home" : route.params.catalogue
   ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
   crumbs[
     "Cohorts"

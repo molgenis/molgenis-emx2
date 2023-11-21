@@ -10,8 +10,8 @@ const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
   return routeSetting === "true" || config.public.cohortOnly;
 });
-if(cohortOnly) {
-  await navigateTo(`/${route.params.schema}/ssr-catalogue/all`)
+if (cohortOnly) {
+  await navigateTo(`/${route.params.schema}/ssr-catalogue/all`);
 }
 
 useHead({ title: "Catalogues" });

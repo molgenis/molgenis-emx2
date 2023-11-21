@@ -158,9 +158,13 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
   }
 });
 
+const cohortOnly = computed(() => {
+  const routeSetting = route.query["cohort-only"] as string;
+  return routeSetting === "true" || config.public.cohortOnly;
+});
 const crumbs: any = {};
 crumbs[
-  route.params.catalogue
+  cohortOnly ? "home" : route.params.catalogue
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
 

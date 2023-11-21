@@ -180,15 +180,9 @@ watch(filters, () => {
 });
 
 let crumbs: any = {};
-if (route.params.catalogue) {
-  crumbs[
-    `${route.params.catalogue}`
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-} else {
-  crumbs = {
-    Home: `/${route.params.schema}/ssr-catalogue`,
-  };
-}
+crumbs[
+  `${route.params.catalogue}`
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
 
 <template>
