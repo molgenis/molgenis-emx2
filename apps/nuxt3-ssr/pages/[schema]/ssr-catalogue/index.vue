@@ -58,9 +58,6 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
     variables: { orderby, filter },
   },
 });
-
-console.log(data);
-
 let activeName = ref("compact");
 </script>
 

@@ -10,8 +10,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.$router.options.scrollBehavior = async (to, from, savedPosition) => {
     let position: ScrollPosition = savedPosition || undefined;
 
-    console.log({ savedPosition });
-
     if (
       !position &&
       from &&
