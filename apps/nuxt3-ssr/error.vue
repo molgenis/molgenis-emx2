@@ -51,9 +51,6 @@ useHead({
 
               <div v-if="error.message" class="py-5 text-xl">
                 <p>Message: {{ error.message }}</p>
-                <p>Details: <pre>
-                  {{error}}
-                </pre></p>
               </div>
               <div class="py-5">
                 <Button @click="$router.go(-1)" label="Go back" size="medium" />
