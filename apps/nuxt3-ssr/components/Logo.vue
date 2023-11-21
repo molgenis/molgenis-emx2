@@ -6,7 +6,8 @@ defineProps<{
 }>();
 
 const config = useRuntimeConfig();
-const logoFileName = config.public.emx2Logo;
+const route = useRoute();
+const logoFileName = (route.query.logo as string) || config.public.emx2Logo;
 
 // load the svg data from the assets folder
 let svg = shallowRef();
