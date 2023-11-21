@@ -30,15 +30,14 @@ watch(
   }
 );
 
-const pageCrumbs: any = {
-  Home: `/${route.params.schema}/ssr-catalogue`,
-  Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
-};
+const pageCrumbs: any = {};
+pageCrumbs[route.params.catalogue] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+pageCrumbs['Cohorts'] =`/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts`;
 
 // @ts-ignore
 pageCrumbs[
   route.params.cohort
-] = `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}`;
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts/${route.params.cohort}`;
 
 function renderList(
   list: any[],
