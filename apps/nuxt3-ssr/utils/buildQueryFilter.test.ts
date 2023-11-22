@@ -23,38 +23,38 @@ describe("buildQueryFilter", () => {
   ];
 
   it("should add the search command to each of the filter tables combining them using a OR ", () => {
-    // const expectedFilter = {
-    //   _and: {
-    //     _or: [
-    //       {
-    //         _search: "test",
-    //       },
-    //       {
-    //         collectionEvents: {
-    //           _search: "test",
-    //         },
-    //       },
-    //       {
-    //         subcohorts: {
-    //           _search: "test",
-    //         },
-    //       },
-    //     ],
-    //     collectionEvents: {
-    //       sampleCategories: {
-    //         equals: [
-    //           {
-    //             name: "Adipocytes",
-    //           },
-    //           {
-    //             name: "Myocytes, Cardiac",
-    //           },
-    //         ],
-    //       },
-    //     },
-    //   },
-    // };
-    // const result = buildQueryFilter(filters, "test");
-    // expect(result).toEqual(expectedFilter);
+    const expectedFilter = {
+      _and: {
+        _or: [
+          {
+            _search: "test",
+          },
+          {
+            collectionEvents: {
+              _search: "test",
+            },
+          },
+          {
+            subcohorts: {
+              _search: "test",
+            },
+          },
+        ],
+        collectionEvents: {
+          sampleCategories: {
+            equals: [
+              {
+                name: "Adipocytes",
+              },
+              {
+                name: "Myocytes, Cardiac",
+              },
+            ],
+          },
+        },
+      },
+    };
+    const result = buildQueryFilter(filters, "test");
+    expect(result).toEqual(expectedFilter);
   });
 });
