@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import type { IFilter } from "~/interfaces/types";
 
+//add redirect middleware for cohortOnly to skip this page
+definePageMeta({
+  middleware: [
+    function (to, from) {
+      const config = useRuntimeConfig();
+      if(config.public.cohortOnly === true)
+      {
+        return navigateTo(`/${to.params.schema}/ssr-catalogue/all`);
+      }
+    }]
+})
+
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 20;
 
-const cohortOnly = computed(() => {
-  const routeSetting = route.query["cohort-only"] as string;
-  return routeSetting === "true" || config.public.cohortOnly;
-});
-if (cohortOnly === true) {
-  await navigateTo(`/${route.params.schema}/ssr-catalogue/all`);
-}
+const cohortOnly = route.query["cohort-only"]  === "true" || config.public.cohortOnly;
 
 useHead({ title: "Catalogues" });
 
