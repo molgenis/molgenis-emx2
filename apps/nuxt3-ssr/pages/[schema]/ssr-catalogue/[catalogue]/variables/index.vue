@@ -54,30 +54,7 @@ let filters: IFilter[] = reactive([
     columnId: "keywords",
     columnType: "ONTOLOGY",
     conditions: [],
-  },
-  {
-    title: "Networks",
-    columnId: "networks",
-    columnType: "REF_ARRAY",
-    refTableId: "Networks",
-    refFields: {
-      key: "id",
-      name: "id",
-      description: "name",
-    },
-    conditions: [],
-  },
-  {
-    title: "Cohorts",
-    refTableId: "Cohorts",
-    columnNId: "cohorts",
-    columnType: "REF_ARRAY",
-    refFields: {
-      key: "id",
-      name: "id",
-      description: "name",
-    },
-    conditions: [],
+    initialCollapsed: false,
   },
 ]);
 
@@ -85,6 +62,17 @@ let search = computed(() => {
   // @ts-ignore
   return filters.find((f) => f.columnType === "_SEARCH").search;
 });
+
+const modelFilter =
+  route.params.catalogue === "all"
+    ? {}
+    : { id: { equals: route.params.catalogue } };
+const modelQuery = `
+  query Networks($filter:NetworksFilter) {
+    Networks(filter:$filter){models{id}}
+  }`;
+
+const models = await fetchGql(modelQuery, { filter: modelFilter });
 
 const query = computed(() => {
   return `
@@ -121,10 +109,10 @@ const query = computed(() => {
         match {
           name
         }
-      } 
+      }
       repeats {
         name
-        mappings {   
+        mappings {
           match {
             name
           }
@@ -156,17 +144,27 @@ const query = computed(() => {
   `;
 });
 
+let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+
+console.log("found");
+
 const orderby = { label: "ASC" };
 const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
 
 const filter = computed(() => {
-  return {
+  let result = {
     ...buildQueryFilter(filters, search.value),
     ...typeFilter,
   };
+  if ("all" !== route.params.catalogue) {
+    result["resource"]["id"] = {
+      equals: models.data.Networks[0].models.map((m) => m.id),
+    };
+  }
+
+  return result;
 });
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   key: `variables-${offset.value}`,
   baseURL: config.public.apiBase,
@@ -180,6 +178,11 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
 watch(filters, () => {
   setCurrentPage(1);
 });
+
+let crumbs: any = {};
+crumbs[
+  `${route.params.catalogue}`
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
 
 <template>
@@ -196,6 +199,9 @@ watch(filters, () => {
             description="A complete overview of available variables."
             :icon="pageIcon"
           >
+            <template #prefix>
+              <BreadCrumbs :crumbs="crumbs" current="variables" />
+            </template>
             <template #suffix>
               <SearchResultsViewTabs
                 class="hidden xl:flex"
@@ -236,6 +242,7 @@ watch(filters, () => {
                 <VariableCard
                   :variable="variable"
                   :schema="route.params.schema"
+                  :catalogue="route.params.catalogue"
                 />
               </CardListItem>
             </CardList>

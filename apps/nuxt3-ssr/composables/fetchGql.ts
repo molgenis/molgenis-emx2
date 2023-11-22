@@ -1,4 +1,4 @@
-import { DocumentNode } from "graphql";
+import { type DocumentNode } from "graphql";
 
 export const fetchGql = (
   query: string | DocumentNode,
@@ -6,7 +6,6 @@ export const fetchGql = (
   schemaId?: string
 ) => {
   const queryValue = typeof query !== "string" ? moduleToString(query) : query;
-
   let body: { query: string; variables?: object } = {
     query: queryValue,
   };

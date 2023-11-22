@@ -2,14 +2,17 @@
 import { gql } from "graphql-request";
 import subcohortsQuery from "~~/gql/subcohorts";
 import collectionEventsQuery from "~~/gql/collectionEvents";
+import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
+import type { ICohort } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 
 const query = gql`
   query Cohorts($id: String) {
     Cohorts(filter: { id: { equals: [$id] } }) {
+      id
       acronym
       name
       description
@@ -125,6 +128,9 @@ const query = gql`
         url
         file ${moduleToString(fileFragment)}
       }
+      datasets {
+        name
+      }
     }
     CollectionEvents_agg(filter: { resource: { id: { equals: [$id] } } }) {
       count
@@ -172,7 +178,16 @@ function collectionEventMapper(item: any) {
     })(),
     numberOfParticipants: item.numberOfParticipants,
     _renderComponent: "CollectionEventDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/collection-events/${item.name}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts/${route.params.cohort}/collection-events/${item.name}`,
+  };
+}
+
+function datasetMapper(item: any) {
+  return {
+    id: item.name,
+    name: item.name,
+    description: item.descriptions,
+    _path: `/${route.params.schema}/ssr-catalogue/all/datasets`,
   };
 }
 
@@ -183,7 +198,7 @@ function subcohortMapper(subcohort: any) {
     description: subcohort.description,
     numberOfParticipants: subcohort.numberOfParticipants,
     _renderComponent: "SubCohortDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/subcohorts/${subcohort.name}`,
+    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts/${route.params.cohort}/subcohorts/${subcohort.name}`,
   };
 }
 
@@ -292,21 +307,34 @@ let fundingAndAcknowledgementItems = computed(() => {
 useHead({ title: cohort?.acronym || cohort?.name });
 
 const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
+
+const cohortOnly = computed(() => {
+  const routeSetting = route.query["cohort-only"] as string;
+  return routeSetting === "true" || config.public.cohortOnly;
+});
+const crumbs: any = {};
+if (route.params.catalogue) {
+  crumbs[
+    cohortOnly ? "home" : route.params.catalogue
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+  crumbs[
+    "Cohorts"
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts`;
+} else {
+  crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
+  crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
+  crumbs["Cohorts"] = `/${route.params.schema}/ssr-catalogue/all/cohorts`;
+}
 </script>
 <template>
   <LayoutsDetailPage>
     <template #header>
       <PageHeader
-        :title="cohort?.acronym || cohort?.name"
-        :description="cohort?.acronym ? cohort?.name : ''"
+        :title="cohort?.acronym || cohort.name"
+        :description="cohort?.acronym ? cohort.name : ''"
       >
         <template #prefix>
-          <BreadCrumbs
-            :crumbs="{
-              Home: `/${route.params.schema}/ssr-catalogue`,
-              Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
-            }"
-          />
+          <BreadCrumbs :crumbs="crumbs" />
         </template>
         <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />
@@ -326,7 +354,7 @@ const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
           :image="cohort?.logo?.url"
           :link="cohort?.website"
           :contact="cohort?.contactEmail"
-          :contact-name="cohort?.name"
+          :contact-name="cohort.name"
           :contact-message-filter="messageFilter"
         />
         <ContentBlockDescription
@@ -402,6 +430,24 @@ const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
           v-slot="slotProps"
         >
           <CollectionEventDisplay :id="slotProps.id" />
+        </TableContent>
+
+        <TableContent
+          v-if="cohort.datasets"
+          id="Datasets"
+          title="Datasets"
+          description="List of datasets for this resource"
+          :headers="[
+            { id: 'name', label: 'Name' },
+            { id: 'description', label: 'Description', singleLine: true },
+          ]"
+          type="Datasets"
+          :query="datasetQuery"
+          :filter="{ id: route.params.cohort }"
+          :rowMapper="datasetMapper"
+          v-slot="slotProps"
+        >
+          {{ slotProps }}
         </TableContent>
 
         <ContentBlockPartners

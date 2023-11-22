@@ -35,15 +35,21 @@ watch(
 
 let tocItems = reactive([{ label: "Details", id: "details" }]);
 
-const pageCrumbs: any = {
-  Home: `/${route.params.schema}/ssr-catalogue`,
-  Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
-};
-
+const cohortOnly = computed(() => {
+  const routeSetting = route.query["cohort-only"] as string;
+  return routeSetting === "true" || config.public.cohortOnly;
+});
+const pageCrumbs: any = {};
+pageCrumbs[
+  cohortOnly ? "home" : route.params.catalogue
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+pageCrumbs[
+  "Cohorts"
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts`;
 // @ts-ignore
 pageCrumbs[
   route.params.cohort
-] = `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}`;
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts/${route.params.cohort}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);

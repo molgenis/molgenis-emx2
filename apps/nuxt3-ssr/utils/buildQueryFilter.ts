@@ -1,4 +1,4 @@
-import { IFilter } from "~/interfaces/types";
+import { type IFilter } from "~/interfaces/types";
 
 const buildFilterVariables = (filters: IFilter[]) => {
   const filtersVariables = filters.reduce<
@@ -41,5 +41,5 @@ export const buildQueryFilter = (filters: IFilter[], searchString?: string) => {
         filterBuilder["_or"].push({ [sub]: { _search: searchString } });
       });
   }
-  return { _and: filterBuilder };
+  return filterBuilder;
 };
