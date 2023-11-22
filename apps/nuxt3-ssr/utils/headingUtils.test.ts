@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 import { toHeadings, toSectionsMap } from "./headingUtils";
-import { ITableMetaData } from "meta-data-utils";
+import type { ITableMetaData } from "meta-data-utils";
 
 describe("toHeadings", () => {
   it("should return only the heading columns", () => {

@@ -1,10 +1,4 @@
-import {
-  IColumn,
-  ISetting,
-  ISchemaMetaData,
-  ITableMetaData,
-  KeyObject,
-} from "meta-data-utils";
+import type { IColumn } from "meta-data-utils";
 export interface IResource {
   id: string;
   pid: string;
