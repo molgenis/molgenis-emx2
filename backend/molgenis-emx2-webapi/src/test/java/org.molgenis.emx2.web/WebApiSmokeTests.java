@@ -90,7 +90,7 @@ public class WebApiSmokeTests {
 
     // Always create test database from scratch to avoid instability due to side effects.
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
-    db.createSchema(PET_STORE_SCHEMA);
+    schema = db.createSchema(PET_STORE_SCHEMA);
     PetStoreLoader petStoreLoader = new PetStoreLoader();
     petStoreLoader.load(schema, true);
 
