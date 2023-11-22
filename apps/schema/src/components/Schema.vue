@@ -88,7 +88,7 @@ table {
 </style>
 
 <script>
-import { request } from "graphql-request";
+import { request, gql } from "graphql-request";
 import SchemaView from "./SchemaView.vue";
 import SchemaToc from "./SchemaToc.vue";
 import SchemaDiagram from "./SchemaDiagram.vue";
@@ -107,7 +107,6 @@ import {
   addOldNamesAndRemoveMeta,
   convertToSubclassTables,
 } from "../utils.ts";
-import gql from "graphql-tag";
 
 export default {
   components: {

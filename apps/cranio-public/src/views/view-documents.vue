@@ -70,8 +70,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
+import { request, gql } from "graphql-request";
 import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
 import Breadcrumbs from "../components/breadcrumbs.vue";
 import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/vue/24/outline";

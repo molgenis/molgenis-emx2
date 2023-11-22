@@ -95,8 +95,7 @@ import {
 } from "molgenis-viz";
 
 import Breadcrumbs from "../components/breadcrumbs.vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
+import { request, gql } from "graphql-request";
 
 let loading = ref(true);
 let error = ref(false);

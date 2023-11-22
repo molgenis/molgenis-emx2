@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import { gql } from "graphql-request";
 export default gql`
   query Cohorts($id: String) {
     Cohorts(filter: { id: { equals: [$id] } }) {

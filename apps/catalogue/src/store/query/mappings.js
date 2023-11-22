@@ -1,4 +1,5 @@
-import gql from "graphql-tag";
+import { gql } from "graphql-request";
+
 export default gql`
   query VariableMappings($filter: VariableMappingsFilter) {
     VariableMappings(limit: 200, filter: $filter) {
