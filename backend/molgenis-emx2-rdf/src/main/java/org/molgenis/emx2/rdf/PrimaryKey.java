@@ -63,6 +63,10 @@ class PrimaryKey {
     return and(filters);
   }
 
+  List<NameValuePair> getKeys() {
+    return keys;
+  }
+
   static class NameValuePairComparator implements Comparator<NameValuePair> {
 
     @Override
