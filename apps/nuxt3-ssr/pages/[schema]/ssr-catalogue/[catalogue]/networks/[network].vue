@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
 import cohortsQuery from "~~/gql/cohorts";
+import datasourcesQuery from "~~/gql/datasources";
 import variablesQuery from "~~/gql/variables";
 import fileFragment from "~~/gql/fragments/file";
+import type { INetwork } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -31,22 +33,33 @@ const query = gql`
           name
         }
       }
-      leadOrganisation {            
-         name          
+      leadOrganisation {
+         name
       }
-      startYear      
-      endYear    
-      fundingStatement     
-      acknowledgements   
-      additionalOrganisations {          
-        name        
-      }  
+      startYear
+      endYear
+      fundingStatement
+      acknowledgements
+      additionalOrganisations {
+        name
+      }
       models {
         id
       }
     }
     Cohorts_agg(filter: { networks: { id: { equals: [$id] } } }) {
       count
+    }
+    cohorts {
+        id, name, type {name}, description
+      }
+      dataSources_agg{count}
+      dataSources {
+        id, name, type {name}, description
+      }
+      databanks {
+        id, name, type {name}  description
+      }
     }
   }
 `;
@@ -99,10 +112,7 @@ async function fetchVariableCount(models: { id: string }[]) {
 }
 
 let tocItems = computed(() => {
-  let tableOffContents = [
-    { label: "Description", id: "Description" },
-    { label: "General design", id: "GeneralDesign" },
-  ];
+  let tableOffContents = [{ label: "Description", id: "Description" }];
   if (network?.documentation) {
     tableOffContents.push({ label: "Attached files", id: "Files" });
   }
@@ -143,6 +153,9 @@ let tocItems = computed(() => {
 
   if (networkData.value.data.Cohorts_agg.count > 0) {
     tableOffContents.push({ label: "Cohorts", id: "cohorts" });
+  }
+  if (networkData?.dataSources_agg.count > 0) {
+    tableOffContents.push({ label: "Data sources", id: "datasources" });
   }
 
   if (networkVariablesCount.value > 0) {
@@ -205,6 +218,23 @@ function cohortMapper(cohort: {
   };
 }
 
+function dataSourcesMapper(dataSource: {
+  id: string;
+  acronym: string;
+  name: string;
+  numberOfParticipants: string;
+  type: { name: string };
+}) {
+  return {
+    id: dataSource.id,
+    name: dataSource.name,
+    type: dataSource.type?.name,
+    numberOfParticipants: dataSource.numberOfParticipants,
+    _renderComponent: "DataSourceDisplay",
+    _path: `/${route.params.schema}/ssr-catalogue/datasources/${dataSource.id}`,
+  };
+}
+
 function variableMapper(variable: {
   name: string;
   label: string;
@@ -223,6 +253,19 @@ function variableMapper(variable: {
 }
 
 useHead({ title: network?.acronym || network?.name });
+
+const crumbs = {};
+if (route.params.catalogue) {
+  crumbs[
+    `${route.params.catalogue}`
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+  crumbs[
+    "about"
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/about`;
+} else {
+  crumbs["Home"] = `/${route.params.schema}/ssr-catalogue`;
+  crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
+}
 </script>
 <template>
   <LayoutsDetailPage>
@@ -232,12 +275,7 @@ useHead({ title: network?.acronym || network?.name });
         :description="network?.acronym ? network?.name : ''"
       >
         <template #prefix>
-          <BreadCrumbs
-            :crumbs="{
-              Home: `/${route.params.schema}/ssr-catalogue`,
-              Networks: `/${route.params.schema}/ssr-catalogue/networks`,
-            }"
-          />
+          <BreadCrumbs :crumbs="crumbs" />
         </template>
         <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />
@@ -246,7 +284,7 @@ useHead({ title: network?.acronym || network?.name });
     </template>
     <template #side>
       <SideNavigation
-        :title="network.acronym"
+        :title="network?.acronym || network?.name"
         :image="network?.logo?.url"
         :items="tocItems"
       />
@@ -342,6 +380,25 @@ useHead({ title: network?.acronym || network?.name });
           v-slot="slotProps"
         >
           <CohortDisplay :id="slotProps.id" />
+        </TableContent>
+
+        <TableContent
+          v-if="network.dataSources_agg?.count > 0"
+          id="datasources"
+          title="Data sources"
+          description="Datasources connected in this network"
+          :headers="[
+            { id: 'name', label: 'Name', singleLine: true },
+            { id: 'type', label: 'type' },
+            { id: 'numberOfParticipants', label: 'Number of participants' },
+          ]"
+          type="DataSources"
+          :query="datasourcesQuery"
+          :filter="{ id: network.id }"
+          :rowMapper="dataSourcesMapper"
+          v-slot="slotProps"
+        >
+          {{ slotProps }}
         </TableContent>
 
         <TableContent

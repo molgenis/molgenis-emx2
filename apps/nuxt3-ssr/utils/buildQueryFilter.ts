@@ -41,5 +41,5 @@ export const buildQueryFilter = (filters: IFilter[], searchString?: string) => {
         filterBuilder["_or"].push({ [sub]: { _search: searchString } });
       });
   }
-  return { _and: filterBuilder };
+  return filterBuilder;
 };

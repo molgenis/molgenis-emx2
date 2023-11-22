@@ -6,6 +6,7 @@ import {
   buildRecordDetailsQueryFields,
   extractExternalSchemas,
   buildFilterFromKeysObject,
+  isEmpty,
 } from "meta-data-utils";
 
 const config = useRuntimeConfig();
@@ -15,7 +16,7 @@ const schemaId = route.params.schema.toString();
 const metadata = await fetchMetadata(schemaId);
 
 const tableMetaDataFinderResult = metadata.tables.find(
-  (t: ITableMetaData) => t.id === tableId
+  (t: ITableMetaData) => t.id.toLowerCase() === tableId.toLowerCase()
 );
 
 const tableMetaData = computed(() => {
@@ -122,10 +123,23 @@ function sectionTitle(section: ISection) {
     : section.meta.label;
 }
 
-let crumbs: Record<string, string> = {
-  Home: `/${route.params.schema}/ssr-catalogue`,
-};
-crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${tableId}`;
+let crumbs: Record<string, string> = {};
+if (route.params.catalogue) {
+  crumbs[
+    route.params.catalogue.toString()
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+  crumbs[
+    resourceType
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${resourceType}`;
+} else {
+  crumbs = {
+    Home: `/${route.params.schema}/ssr-catalogue`,
+    Browse: `/${route.params.schema}/ssr-catalogue/all`,
+  };
+  crumbs[
+    resourceType
+  ] = `/${route.params.schema}/ssr-catalogue/all/${resourceType}`;
+}
 </script>
 
 <template>
@@ -133,7 +147,7 @@ crumbs[resourceType] = `/${route.params.schema}/ssr-catalogue/${tableId}`;
     <template #header>
       <PageHeader :title="resource?.name" :description="resource?.label">
         <template #prefix>
-          <BreadCrumbs :crumbs="crumbs" />
+          <BreadCrumbs :crumbs="crumbs" :current="resource.id" />
         </template>
         <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />

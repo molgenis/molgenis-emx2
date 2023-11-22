@@ -17,7 +17,9 @@ const schemaId = route.params.schema.toString();
 const metadata = await fetchMetadata(schemaId);
 
 const tableMetaData = computed(() => {
-  const result = metadata.tables.find((t: ITableMetaData) => t.id === tableId);
+  const result = metadata.tables.find(
+    (t: ITableMetaData) => t.id.toLowerCase() === tableId.toLowerCase()
+  );
   if (!result) {
     throw new Error(`Table with id ${tableId} not found in schema ${schemaId}`);
   }
@@ -98,7 +100,7 @@ const filter = computed(() => buildQueryFilter(filters, search.value));
 
 console.log("query: ", query.value);
 const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/api/graphql`,
   {
     key: `${tableId}-list-${offset.value}`,
     baseURL: config.public.apiBase,
@@ -118,6 +120,17 @@ function buildRecordId(record: any) {
     schemas
   );
 }
+let crumbs: Record<string, string> = {};
+if (route.params.catalogue) {
+  crumbs[
+    route.params.catalogue.toString()
+  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+} else {
+  crumbs = {
+    Home: `/${route.params.schema}/ssr-catalogue`,
+    Browse: `/${route.params.schema}/ssr-catalogue/all`,
+  };
+}
 </script>
 <template>
   <LayoutsSearchPage>
@@ -128,11 +141,10 @@ function buildRecordId(record: any) {
       <SearchResults>
         <template #header>
           <!-- <NavigationIconsMobile :link="" /> -->
-          <PageHeader
-            :title="tableMetaData.name"
-            :description="description"
-            icon="image-link"
-          >
+          <PageHeader :title="tableMetaData.label" :description="description">
+            <template #prefix>
+              <BreadCrumbs :crumbs="crumbs" :current="resourceType" />
+            </template>
             <template #suffix>
               <SearchResultsViewTabs
                 class="hidden xl:flex"

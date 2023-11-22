@@ -39,12 +39,12 @@ public class GraphqlDatabaseFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("deleteSchema")
         .type(typeForMutationResult)
-        .argument(GraphQLArgument.newArgument().name(NAME).type(Scalars.GraphQLString))
+        .argument(GraphQLArgument.newArgument().name(ID).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String name = dataFetchingEnvironment.getArgument("name");
-              database.dropSchema(name);
-              return new GraphqlApiMutationResult(SUCCESS, "Schema %s dropped", name);
+              String id = dataFetchingEnvironment.getArgument(ID);
+              database.dropSchema(id); // id and name are still equal, might change in future
+              return new GraphqlApiMutationResult(SUCCESS, "Schema %s dropped", id);
             });
   }
 

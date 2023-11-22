@@ -2,10 +2,12 @@
 <script setup lang="ts">
 defineProps<{
   link?: string;
+  image?: string;
 }>();
 
 const config = useRuntimeConfig();
-const logoFileName = config.public.emx2Logo;
+const route = useRoute();
+const logoFileName = (route.query.logo as string) || config.public.emx2Logo;
 
 // load the svg data from the assets folder
 let svg = shallowRef();
@@ -19,7 +21,13 @@ if (logoFileName) {
     <span class="sr-only">Go to home</span>
 
     <i v-if="svg" v-html="svg"></i>
-
+    <img
+      v-else-if="image"
+      :src="image"
+      width="200"
+      height="50"
+      class="bg-white"
+    />
     <svg
       v-else
       xmlns="http://www.w3.org/2000/svg"

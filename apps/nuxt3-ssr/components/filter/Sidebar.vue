@@ -14,11 +14,9 @@ const props = defineProps({
 
 watch(props.filters, (filters) => {
   const search = filters.filter((f) => f.columnType === "_SEARCH")[0].search;
-  console.log("search: " + search);
   const conditions = JSON.stringify(
     filters.filter((f) => f?.conditions?.length).map((f) => f.conditions)
   );
-  console.log("filter conditions: " + conditions);
 });
 </script>
 

@@ -5,17 +5,23 @@ if (useRoute) {
   schema = useRoute().params.schema;
 }
 const menu = [
-  { label: "Cohorts", link: `/${schema}/ssr-catalogue/cohorts` },
+  { label: "Home", link: `/${schema}/ssr-catalogue` },
+  config.public.cohortOnly
+    ? { label: "Cohorts", link: `/${schema}/ssr-catalogue/all/cohorts` }
+    : { label: "All resources", link: `/${schema}/ssr-catalogue/all` },
   config.public.cohortOnly
     ? undefined
-    : { label: "Networks", link: `/${schema}/ssr-catalogue/networks` },
-  config.public.cohortOnly
-    ? undefined
-    : { label: "Variables", link: `/${schema}/ssr-catalogue/variables` },
+    : {
+        label: "All variables",
+        link: `/${schema}/ssr-catalogue/all/variables`,
+      },
+
   // { label: "Statistical Methods", link: "#" },
   // { label: "Tables", link: "#" },
   // { label: "Manuals", link: "#" },
-  { label: "About", link: `/${schema}/ssr-catalogue/about` },
+  config.public.cohortOnly
+    ? undefined
+    : { label: "About", link: `/${schema}/ssr-catalogue/about` },
 ].filter((item) => item !== undefined);
 </script>
 

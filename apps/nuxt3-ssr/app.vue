@@ -9,7 +9,8 @@
     </div>
     <div class="z-30 relative min-h-screen flex flex-col">
       <slot name="header">
-        <AppHeader />
+        <HeaderCatalogue v-if="route.params.catalogue" />
+        <HeaderGlobal v-else />
       </slot>
       <main class="mb-auto">
         <BottomModal
@@ -52,37 +53,39 @@
       <slot name="footer">
         <div class="bg-footer p-6">
           <div class="mt-5 mb-0 text-center text-title text-body-lg">
-            This database was created using the
+            This database was created using
             <a
               class="text-body-base text-footer-link hover:underline"
               href="http://molgenis.org"
-              >MOLGENIS</a
-            >&nbsp;
-            <a
+              >MOLGENIS.org</a>
+            (<a
               class="text-body-base text-footer-link hover:underline"
               href="http://github.com/molgenis/molgenis-emx2"
             >
-              molgenis-emx2
-            </a>
-            open source software (license:
-            <a
-              class="text-body-base text-footer-link hover:underline"
-              href="https://github.com/molgenis/molgenis-emx2/blob/master/LICENSE"
-              >LGPLv3</a
+              github </a
             >).
           </div>
           <div class="mb-0 text-center lg:pb-5 text-title text-body-lg">
             Please cite
             <a
+                class="text-body-base text-footer-link hover:underline"
+                href="https://www.ncbi.nlm.nih.gov/pubmed/36463884"
+            >
+              Swertz & Gini (2022)
+            </a>,
+            <a
               class="text-body-base text-footer-link hover:underline"
               href="https://www.ncbi.nlm.nih.gov/pubmed/30165396"
             >
-              Van der Velde et al (2018)</a
-            >
+              Van der Velde et al (2018)
+            </a>
             or
-            <a href="https://www.ncbi.nlm.nih.gov/pubmed/21210979">
-              Swertz et al (2010)</a
+            <a
+              class="text-body-base text-footer-link hover:underline"
+              href="https://www.ncbi.nlm.nih.gov/pubmed/21210979"
             >
+              Swertz et al (2010)
+            </a>
             on use.
           </div>
         </div>
@@ -93,8 +96,8 @@
 
 <script setup lang="ts">
 import BackgroundGradient from "./components/BackgroundGradient.vue";
-import { hash } from ".fingerprint.js";
-
+import { hash } from "./.fingerprint.js";
+const route = useRoute();
 const config = useRuntimeConfig();
 
 const isAnalyticsAllowedCookie = useCookie("mg_allow_analytics", {
@@ -114,9 +117,13 @@ function setAnalyticsCookie(value: boolean) {
 }
 
 let themeFilename = "styles";
-if (config.public.emx2Theme) {
+if (route.query.theme) {
+  themeFilename += `.${ route.query.theme }`;
+}
+else if (config.public.emx2Theme) {
   themeFilename += `.${config.public.emx2Theme}`;
 }
+
 if (hash) {
   themeFilename += `.${hash}`;
 }
