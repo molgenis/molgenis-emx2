@@ -49,8 +49,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
+import { request, gql } from "graphql-request";
 import Breadcrumbs from "../components/breadcrumbs.vue";
 import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
 import { ChevronRightIcon as LinkIcon } from "@heroicons/vue/24/outline";

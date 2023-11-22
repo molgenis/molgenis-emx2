@@ -65,8 +65,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { request } from "graphql-request";
-import gql from "graphql-tag";
+import { request, gql } from "graphql-request";
 import { randomNormal } from "d3";
 
 import Page from "../components/layouts/Page.vue";

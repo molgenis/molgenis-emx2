@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import { gql } from "graphql-request";
 import { deepClone, ITableMetaData, IColumn } from "molgenis-components";
 
 export const schemaQuery = gql`

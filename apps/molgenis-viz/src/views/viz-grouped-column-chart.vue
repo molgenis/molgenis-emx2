@@ -60,8 +60,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { request } from "graphql-request";
-import gql from "graphql-tag";
+import { request, gql } from "graphql-request";
 
 import Page from "../components/layouts/Page.vue";
 import PageHeader from "../components/layouts/PageHeader.vue";

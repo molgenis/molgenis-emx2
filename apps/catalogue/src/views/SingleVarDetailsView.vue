@@ -72,8 +72,7 @@
 import VariableDetails from "../components/VariableDetails.vue";
 import { fetchResources } from "../store/repository/resourceRepository";
 import HarmonizationCell from "../components/harmonization/HarmonizationCell.vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
+import { request, gql } from "graphql-request";
 
 export default {
   name: "SingleVarDetailsView",

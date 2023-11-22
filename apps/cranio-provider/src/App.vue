@@ -57,8 +57,7 @@ import {
 import ProviderSidebar from "./components/ProviderSidebar.vue";
 import AppFooter from "./components/AppFooter.vue";
 
-import gql from "graphql-tag";
-import { request } from "graphql-request";
+import { request, gql } from "graphql-request";
 
 const session = ref(null);
 const page = ref(null);
