@@ -33,7 +33,7 @@ export const buildQueryFilter = (filters: IFilter[], searchString?: string) => {
       ...filterBuilder,
       ...{ _or: [{ _search: searchString }] },
     };
-    // expand the search to the subtabels
+    // expand the search to the subtables
     // @ts-ignore (dynamic object)
     filters
       .find((f) => f.columnType === "_SEARCH")
