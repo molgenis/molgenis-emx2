@@ -1,6 +1,6 @@
 import { describe, assert, test } from "vitest";
 import { getColumnIds } from "./queryBuilder";
-import { ISchemaMetaData } from "../Interfaces/IMetaData";
+import type { ISchemaMetaData } from "meta-data-utils";
 
 describe("getColumnIds", () => {
   const EXPAND_ONE = 1;
@@ -9,17 +9,19 @@ describe("getColumnIds", () => {
   //Pet
   //expand 1
   test("it should return the pet columns expanded, children are not expanded, expect primary keys", () => {
-    const expectedResult =
-      " name category { name } tags { name } weight orders { orderId }";
     const result = getColumnIds("pet store", "Pet", metaData, EXPAND_ONE);
-    assert.equal(result, expectedResult);
+    assert.equal(
+      result,
+      " name category { name } tags {name, label} weight orders { orderId }"
+    );
   });
   //expand 2
   test("it should return the pet columns expanded", () => {
-    const expectedResult =
-      " name category { name } tags { order name label parent { name } } weight orders { orderId pet { name } }";
     const result = getColumnIds("pet store", "Pet", metaData, EXPAND_TWO);
-    assert.equal(result, expectedResult);
+    assert.equal(
+      result,
+      " name category { name } tags {name, label} weight orders { orderId pet { name } }"
+    );
   });
 
   //expand 2

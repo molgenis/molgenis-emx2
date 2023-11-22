@@ -1,5 +1,4 @@
-import { ISchemaMetaData } from "../Interfaces/IMetaData";
-import { ITableMetaData } from "../Interfaces/ITableMetaData";
+import type { ITableMetaData, ISchemaMetaData, IColumn } from "meta-data-utils";
 
 /**
  * @param {String} schemaId - schema where initial table is in
@@ -20,7 +19,7 @@ export const getColumnIds = (
   rootLevel = true
 ) => {
   let result = "";
-  getTable(schemaId, tableId, metaData.tables)?.columns?.forEach((col) => {
+  getTable(schemaId, tableId, metaData.tables)?.columns?.forEach((col: IColumn) => {
     //we always expand the subfields of key=1, but other 'ref' fields only if they do not break server
     if (expandLevel > 0 || col.key == 1) {
       if (

@@ -83,12 +83,13 @@ jobs:
         command: |
           ./gradlew test --no-daemon
 
-    - run:
-        name: test e2e
-        command: |
-          npx playwright install --with-deps
-          npm install -D @playwright/test
-          set CI=true && npx playwright test --config e2e --project=chromium
+      # disable until chrome binary downloads are fixed
+#    - run:
+#        name: test e2e
+#        command: |
+#          npx playwright install --with-deps
+#          npm install -D @playwright/test
+#          set CI=true && npx playwright test --config e2e --project=chromium
 
 
     # to switch to release add following
