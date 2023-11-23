@@ -9,7 +9,7 @@
     <tr v-for="table in tables" :key="table.id">
       <td>
         <router-link :to="table.id">{{
-          table.label === undefined || table.id
+          table.label === null || table.id
         }}</router-link>
       </td>
       <td>{{ table.description }}</td>
