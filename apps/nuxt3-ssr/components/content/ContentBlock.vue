@@ -13,7 +13,7 @@ defineProps<{
       {{ title }}
     </h2>
     <div class="mb-5 prose max-w-none" v-if="description">
-      <ContentReadMore :value="description" />
+      <ContentReadMore :text="description" />
     </div>
     <slot></slot>
   </section>
