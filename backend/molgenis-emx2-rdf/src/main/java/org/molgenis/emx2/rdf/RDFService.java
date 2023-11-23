@@ -2,19 +2,15 @@ package org.molgenis.emx2.rdf;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.FilterBean.and;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.RDFUtils.*;
 
 import com.google.common.net.UrlEscapers;
 import java.io.OutputStream;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
@@ -447,11 +443,8 @@ public class RDFService {
   private List<Row> getRows(final Table table, final String rowId) {
     Query query = table.query();
     if (rowId != null) {
-      if (table.getMetadata().getPrimaryKeyFields().size() > 1) {
-        query.where(decodeRowIdToFilter(rowId));
-      } else {
-        query.where(f(table.getMetadata().getPrimaryKeyColumns().get(0).getName(), EQUALS, rowId));
-      }
+      PrimaryKey key = PrimaryKey.makePrimaryKeyFromEncodedKey(rowId);
+      query.where(key.getFilter());
     }
     // If a table is extended then we get only those rows that are for the base table.
     if (table.getMetadata().getColumnNames().contains("mg_tableclass")) {
@@ -459,18 +452,6 @@ public class RDFService {
       query.where(f("mg_tableclass", EQUALS, tableName));
     }
     return query.retrieveRows();
-  }
-
-  private Filter decodeRowIdToFilter(final String rowId) {
-    try {
-      final List<NameValuePair> params =
-          URLEncodedUtils.parse(new URI("?" + rowId), StandardCharsets.UTF_8);
-      final List<Filter> filters =
-          params.stream().map(param -> f(param.getName(), EQUALS, param.getValue())).toList();
-      return and(filters);
-    } catch (Exception e) {
-      throw new MolgenisException("Decode row to filter failed for id " + rowId);
-    }
   }
 
   private IRI getIriForRow(final Row row, final TableMetadata metadata) {
@@ -490,13 +471,8 @@ public class RDFService {
       }
     }
     final Namespace ns = getSchemaNamespace(metadata.getTable().getSchema());
-    if (keyParts.size() == 1) {
-      final String value = UrlEscapers.urlPathSegmentEscaper().escape(keyParts.get(0).getValue());
-      return Values.iri(ns, tableName + "/" + value);
-    } else {
-      final String parameters = URLEncodedUtils.format(keyParts, StandardCharsets.UTF_8);
-      return Values.iri(ns, tableName + "?" + parameters);
-    }
+    PrimaryKey key = new PrimaryKey(keyParts);
+    return Values.iri(ns, tableName + "/" + key.getEncodedValue());
   }
 
   private List<IRI> getIriValue(final Row row, final Column column) {
@@ -520,13 +496,8 @@ public class RDFService {
     }
 
     for (final var item : items.values()) {
-      if (item.size() == 1) {
-        final String value = UrlEscapers.urlPathSegmentEscaper().escape(item.get(0).getValue());
-        iris.add(Values.iri(ns, tableName + "/" + value));
-      } else if (item.size() > 1) {
-        final String parameters = URLEncodedUtils.format(item, StandardCharsets.UTF_8);
-        iris.add(Values.iri(ns, tableName + "?" + parameters));
-      }
+      PrimaryKey key = new PrimaryKey(item);
+      iris.add(Values.iri(ns, tableName + "/" + key.getEncodedValue()));
     }
     return List.copyOf(iris);
   }

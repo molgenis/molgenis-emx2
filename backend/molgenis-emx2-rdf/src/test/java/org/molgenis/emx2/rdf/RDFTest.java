@@ -30,6 +30,13 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RDFTest {
 
+  /**
+   * Encoded id for the Pet pooky. The id string is composed by base64 encoding the id columns and
+   * their values separately. Column names and values are separated by an ampersand and multiple
+   * column / value pairs by a semicolon. Colums are sorted alphabetically for a stable order.
+   */
+  public static final String POOKY_ROWID = "bmFtZQ==&cG9va3k=";
+
   static Database database;
   static List<Schema> petStoreSchemas;
   static final String RDF_API_LOCATION = "/api/rdf";
@@ -244,7 +251,7 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(compositeKeyTest), handler);
     var subjectWithCompositeKey =
-        "http://localhost:8080/RDFTest/api/rdf/Samples?patient.firstName=Donald&patient.lastName=Duck&id=sample1";
+        "http://localhost:8080/RDFTest/api/rdf/Samples/aWQ=&c2FtcGxlMQ==;cGF0aWVudC5maXJzdE5hbWU=&RG9uYWxk;cGF0aWVudC5sYXN0TmFtZQ==&RHVjaw==";
     var iris = handler.resources.keySet().stream().map(Objects::toString).toList();
     assertTrue(
         iris.contains(subjectWithCompositeKey),
@@ -254,10 +261,11 @@ public class RDFTest {
   @Test
   void testThatRowCanBeFetchedByCompositeKey() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    var rowId = "patient.firstName=Donald&patient.lastName=Duck&id=sample1";
+    // Encoded version of patient.firstName=Donald & patient.lastName=Duck & id=sample1
+    var rowId =
+        "aWQ=&c2FtcGxlMQ==;cGF0aWVudC5maXJzdE5hbWU=&RG9uYWxk;cGF0aWVudC5sYXN0TmFtZQ==&RHVjaw==";
     getAndParseRDF(Selection.ofRow(compositeKeyTest, "Samples", rowId), handler);
-    var subjectWithCompositeKey =
-        "http://localhost:8080/RDFTest/api/rdf/Samples?patient.firstName=Donald&patient.lastName=Duck&id=sample1";
+    var subjectWithCompositeKey = "http://localhost:8080/RDFTest/api/rdf/Samples/" + rowId;
     var iris = handler.resources.keySet().stream().map(Objects::toString).toList();
     assertTrue(
         iris.contains(subjectWithCompositeKey),
@@ -267,10 +275,10 @@ public class RDFTest {
   @Test
   void testThatInstancesUseReferToDatasetWithTheRightPredicate() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.ofRow(petStore_nr1, "Pets", "pooky"), handler);
+    getAndParseRDF(Selection.ofRow(petStore_nr1, "Pet", POOKY_ROWID), handler);
     for (var iri : handler.resources.keySet()) {
       // Select the triples for pooky
-      if (iri.stringValue().endsWith("pooky")) {
+      if (iri.stringValue().endsWith(POOKY_ROWID)) {
 
         var pooky = handler.resources.get(iri);
         assertTrue(
@@ -303,9 +311,9 @@ public class RDFTest {
   void testThatInstancesAreNotASIODatabaseRow() throws IOException {
     var database_row = Values.iri("http://semanticscience.org/resource/SIO_001187");
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.ofRow(petStore_nr1, "Pet", "pooky"), handler);
+    getAndParseRDF(Selection.ofRow(petStore_nr1, "Pet", POOKY_ROWID), handler);
     for (var subject : handler.resources.keySet()) {
-      if (subject.stringValue().endsWith("/pooky")) {
+      if (subject.stringValue().endsWith(POOKY_ROWID)) {
         var types = handler.resources.get(subject).get(RDF.TYPE);
         assertFalse(types.contains(database_row), "We don't model as a SIO database row.");
       }
