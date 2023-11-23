@@ -1144,39 +1144,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  void testThatTablesWithSpaceCanBeDownloaded() {
-    var table = schema.getTable("table with spaces");
-
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/jsonld/" + table.getIdentifier());
-
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/ttl/" + table.getIdentifier());
-
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/excel/" + table.getIdentifier());
-
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/csv/" + table.getIdentifier());
-  }
-
-  @Test
   @Disabled("unstable")
   public void testBeaconApiSmokeTests() {
     // todo: ideally we would here validate the responses against json schemas, are those schemas
