@@ -8,7 +8,9 @@
     </thead>
     <tr v-for="table in tables" :key="table.id">
       <td>
-        <router-link :to="table.id">{{ table.label || table.id }}</router-link>
+        <router-link :to="table.id">{{
+          table.label === undefined || table.id
+        }}</router-link>
       </td>
       <td>{{ table.description }}</td>
     </tr>
