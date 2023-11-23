@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { computed } from "vue";
-
 interface ButtonProps {
   label: string,
   type?: 'button' | 'reset' | 'submit',
@@ -19,31 +17,26 @@ const props = withDefaults(
   }
 );
 
-const hasPrimaryHierarchy = computed(() => {
-  return ['submit'].includes(props.type) || props.context === 'primary';
-})
-
 </script>
 
 <template>
   <button
     :type="type"
-    :disabled="isDisabled"
-    :class="`
-      block
-      w-full
-      text-center
-      ${ 
-        hasPrimaryHierarchy
-          ? 'bg-blue-800 text-blue-50 hover:bg-blue-700'
-          : 'bg-gray-100 text-blue-800 hover:bg-gray-200'
-        }
-      ${
-        isDisabled
-        ? 'bg-gray-400 text-gray-600 [&_span]'
-        : ''
-      }
-      rounded-2xl
+    :data-type="type"
+    :disabled="isDisabled"    
+    :class="`block w-full text-center rounded-full
+      
+    data-[type='button']:bg-gray-100 
+    data-[type='button']:text-blue-800 
+    data-[type='button']:hover:bg-gray-200
+      
+    data-[type='submit']:bg-blue-800 
+    data-[type='submit']:text-blue-50 
+    data-[type='submit']:hover:bg-blue-700
+      
+    [&:disabled]:bg-gray-400
+    [&:disabled]:text-gray-600 
+    [&:disabled]:hover:bg-gray-400
     `"
   >
   <div class="block w-full px-3 py-3">
