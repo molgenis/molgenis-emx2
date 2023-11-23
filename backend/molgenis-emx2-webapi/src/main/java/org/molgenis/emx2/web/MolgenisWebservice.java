@@ -225,7 +225,11 @@ public class MolgenisWebservice {
    * @throws MolgenisException if the table or the schema is not found or accessible.
    */
   public static Table getTableById(Request request) {
-    return getTableById(request, request.params(TABLE));
+    Table table = getTableById(request, request.params(TABLE));
+    if (table == null) {
+      throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
+    }
+    return table;
   }
 
   /**
@@ -233,7 +237,7 @@ public class MolgenisWebservice {
    *
    * @param request the request
    * @return the table object corresponding to the table id. Never null.
-   * @throws MolgenisException if the table or the schema is not found or accessible.
+   * @throws MolgenisException if the schema is not found or accessible.
    */
   public static Table getTableById(Request request, String tableName) {
     String schemaName = request.params(SCHEMA);
@@ -242,11 +246,7 @@ public class MolgenisWebservice {
     if (schema == null) {
       throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
     }
-    Table table = schema.getTableById(sanitize(request.params(TABLE)));
-    if (table == null) {
-      throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
-    }
-    return table;
+    return schema.getTableById(sanitize(tableName));
   }
 
   public static String sanitize(String string) {
