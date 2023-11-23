@@ -375,6 +375,29 @@ public class RDFTest {
           "Ontology tables should use standard predicates from RDF Schema.");
     }
   }
+
+  @Test
+  void testThatURLColumnsAreObjectProperties() throws IOException {
+    var schema = database.dropCreateSchema("Website");
+    var table = schema.create(table("Websites", column("website", ColumnType.HYPERLINK).setKey(1)));
+    table.insert(row("website", "https://www.molgenis.org/"));
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(schema, table.getName()), handler);
+    boolean isObjectProperty = false;
+    for (var subject : handler.resources.keySet()) {
+      if (subject.stringValue().contains("/column/website")) {
+        var types = handler.resources.get(subject).get(RDF.TYPE);
+
+        for (var type : types) {
+          if (type.equals(OWL.OBJECTPROPERTY)) {
+            isObjectProperty = true;
+          }
+        }
+      }
+    }
+    assertTrue(isObjectProperty, "The column website should be defined as a Object Property.");
+    database.dropSchema("Website");
+  }
   /**
    * Helper method to reduce boilerplate code in the tests.<br>
    * <b>Note</b> this method delegates to the handler for the results of parsing.
