@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { gql } from "graphql-request";
+import { gql } from "graphql-tag";
 import cohortsQuery from "~~/gql/cohorts";
 import datasourcesQuery from "~~/gql/datasources";
 import variablesQuery from "~~/gql/variables";

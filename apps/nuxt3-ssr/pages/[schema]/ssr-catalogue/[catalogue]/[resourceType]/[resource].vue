@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { gql } from "graphql-request";
+import { gql } from "graphql-tag";
 import type { ITableMetaData, ISchemaMetaData, IColumn } from "meta-data-utils";
 import type { ISection } from "~~/interfaces/types";
 import {

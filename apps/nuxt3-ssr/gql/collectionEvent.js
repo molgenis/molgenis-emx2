@@ -1,4 +1,4 @@
-import { gql } from "graphql-request";
+import { gql } from "graphql-tag";
 
 export default gql`
   query CollectionEvent($id: String, $name: String) {
