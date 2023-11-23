@@ -439,6 +439,11 @@ public class RDFService {
           IRI columnIRI = getColumnIRI(column);
           for (final Value value : formatValue(row, column)) {
             builder.add(subject, columnIRI, value);
+            if (column.getColumnType().equals(ColumnType.HYPERLINK)
+                || column.getColumnType().equals(ColumnType.HYPERLINK_ARRAY)) {
+              var resource = Values.iri(value.stringValue());
+              builder.add(resource, RDFS.LABEL, Values.literal(value.stringValue()));
+            }
           }
         }
       }

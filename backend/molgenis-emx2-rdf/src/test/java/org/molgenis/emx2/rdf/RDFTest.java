@@ -384,6 +384,7 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(schema, table.getName()), handler);
     boolean isObjectProperty = false;
+    boolean linkHasLabel = false;
     for (var subject : handler.resources.keySet()) {
       if (subject.stringValue().contains("/column/website")) {
         var types = handler.resources.get(subject).get(RDF.TYPE);
@@ -394,7 +395,16 @@ public class RDFTest {
           }
         }
       }
+      if (subject.stringValue().equals("https://www.molgenis.org/")) {
+        var labels = handler.resources.get(subject).get(RDFS.LABEL);
+        for (var label : labels) {
+          if (label.stringValue().equals("https://www.molgenis.org/")) {
+            linkHasLabel = true;
+          }
+        }
+      }
     }
+    assertTrue(linkHasLabel, "The link should have a label to make it easer to read.");
     assertTrue(isObjectProperty, "The column website should be defined as a Object Property.");
     database.dropSchema("Website");
   }
