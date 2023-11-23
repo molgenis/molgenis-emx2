@@ -17,20 +17,25 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandler;
 import org.eclipse.rdf4j.rio.Rio;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RDFTest {
+
+  /**
+   * Encoded id for the Pet pooky. The id string is composed by base64 encoding the id columns and
+   * their values separately. Column names and values are separated by an ampersand and multiple
+   * column / value pairs by a semicolon. Colums are sorted alphabetically for a stable order.
+   */
+  public static final String POOKY_ROWID = "bmFtZQ==&cG9va3k=";
 
   static Database database;
   static List<Schema> petStoreSchemas;
@@ -38,6 +43,7 @@ public class RDFTest {
   static Schema petStore_nr1;
   static Schema petStore_nr2;
   static Schema compositeKeyTest;
+  static Schema ontologyTest;
 
   static RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
 
@@ -51,7 +57,7 @@ public class RDFTest {
     petStoreLoader.load(petStore_nr2, true);
     petStoreSchemas = List.of(petStore_nr1, petStore_nr2);
 
-    Database database = TestDatabaseFactory.getTestDatabase();
+    // Test schema for composite keys
     compositeKeyTest = database.dropCreateSchema(RDFTest.class.getSimpleName());
     compositeKeyTest.create(
         table("Patients", column("firstName").setPkey(), column("lastName").setPkey()),
@@ -78,6 +84,45 @@ public class RDFTest {
                 "Duck",
                 "someNonKeyRef.id",
                 "sample1"));
+
+    // Test schema for ontologies
+    ontologyTest = database.dropCreateSchema("OntologyTest");
+    ontologyTest.create(table("Diseases").setTableType(TableType.ONTOLOGIES));
+    ontologyTest
+        .getTable("Diseases")
+        .insert(
+            row(
+                "order",
+                0,
+                "name",
+                "U07",
+                "label",
+                "Emergency Use of U07",
+                "codesystem",
+                "ICD-10",
+                "code",
+                "U07",
+                "ontologyTermURI",
+                "https://icd.who.int/browse10/2019/en#/U07",
+                "definition",
+                "Codes used by WHO for the provisional assignment of new diseases of uncertain etiology."),
+            row(
+                "order",
+                1,
+                "name",
+                "U07.1",
+                "label",
+                "COVID-19",
+                "parent",
+                "U07",
+                "codesystem",
+                "ICD-10",
+                "code",
+                "U07.1",
+                "ontologyTermURI",
+                "https://icd.who.int/browse10/2019/en#/U07.1",
+                "definition",
+                "COVID-19 NOS"));
   }
 
   @AfterAll
@@ -86,6 +131,7 @@ public class RDFTest {
     database.dropSchema(petStore_nr1.getName());
     database.dropSchema(petStore_nr2.getName());
     database.dropSchema(compositeKeyTest.getName());
+    database.dropSchema(ontologyTest.getName());
   }
 
   @Test
@@ -205,7 +251,7 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(compositeKeyTest), handler);
     var subjectWithCompositeKey =
-        "http://localhost:8080/RDFTest/api/rdf/Samples?patient.firstName=Donald&patient.lastName=Duck&id=sample1";
+        "http://localhost:8080/RDFTest/api/rdf/Samples/aWQ=&c2FtcGxlMQ==;cGF0aWVudC5maXJzdE5hbWU=&RG9uYWxk;cGF0aWVudC5sYXN0TmFtZQ==&RHVjaw==";
     var iris = handler.resources.keySet().stream().map(Objects::toString).toList();
     assertTrue(
         iris.contains(subjectWithCompositeKey),
@@ -215,10 +261,11 @@ public class RDFTest {
   @Test
   void testThatRowCanBeFetchedByCompositeKey() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    var rowId = "patient.firstName=Donald&patient.lastName=Duck&id=sample1";
+    // Encoded version of patient.firstName=Donald & patient.lastName=Duck & id=sample1
+    var rowId =
+        "aWQ=&c2FtcGxlMQ==;cGF0aWVudC5maXJzdE5hbWU=&RG9uYWxk;cGF0aWVudC5sYXN0TmFtZQ==&RHVjaw==";
     getAndParseRDF(Selection.ofRow(compositeKeyTest, "Samples", rowId), handler);
-    var subjectWithCompositeKey =
-        "http://localhost:8080/RDFTest/api/rdf/Samples?patient.firstName=Donald&patient.lastName=Duck&id=sample1";
+    var subjectWithCompositeKey = "http://localhost:8080/RDFTest/api/rdf/Samples/" + rowId;
     var iris = handler.resources.keySet().stream().map(Objects::toString).toList();
     assertTrue(
         iris.contains(subjectWithCompositeKey),
@@ -228,10 +275,10 @@ public class RDFTest {
   @Test
   void testThatInstancesUseReferToDatasetWithTheRightPredicate() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.ofRow(petStore_nr1, "Pets", "pooky"), handler);
+    getAndParseRDF(Selection.ofRow(petStore_nr1, "Pet", POOKY_ROWID), handler);
     for (var iri : handler.resources.keySet()) {
       // Select the triples for pooky
-      if (iri.stringValue().endsWith("pooky")) {
+      if (iri.stringValue().endsWith(POOKY_ROWID)) {
 
         var pooky = handler.resources.get(iri);
         assertTrue(
@@ -264,12 +311,68 @@ public class RDFTest {
   void testThatInstancesAreNotASIODatabaseRow() throws IOException {
     var database_row = Values.iri("http://semanticscience.org/resource/SIO_001187");
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.ofRow(petStore_nr1, "Pet", "pooky"), handler);
+    getAndParseRDF(Selection.ofRow(petStore_nr1, "Pet", POOKY_ROWID), handler);
     for (var subject : handler.resources.keySet()) {
-      if (subject.stringValue().endsWith("/pooky")) {
+      if (subject.stringValue().endsWith(POOKY_ROWID)) {
         var types = handler.resources.get(subject).get(RDF.TYPE);
         assertFalse(types.contains(database_row), "We don't model as a SIO database row.");
       }
+    }
+  }
+
+  /**
+   * Ontology tables are describing classes.
+   *
+   * @see <a href="https://github.com/molgenis/molgenis-emx2/issues/2984">Issue #2997</a>
+   * @throws IOException
+   */
+  @Test
+  void testThatOntologyTermsAreClasses() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(ontologyTest, "Diseases"), handler);
+    for (var subject : handler.resources.keySet()) {
+      if (subject.stringValue().endsWith("/Diseases/U07.1")) {
+        var types = handler.resources.get(subject).get(RDF.TYPE);
+        assertTrue(types.contains(OWL.CLASS), "Ontology tables define classes");
+      }
+    }
+  }
+
+  @Test
+  void testThatOntologyTermsUseRDFSchema() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(ontologyTest, "Diseases"), handler);
+    for (var subject : handler.resources.keySet()) {
+      if (subject.stringValue().endsWith("/Diseases/U07.1")) {
+        var data = handler.resources.get(subject);
+        assertTrue(data.containsKey(RDFS.LABEL), "The class should have a label");
+        assertTrue(
+            data.containsKey(RDFS.SUBCLASSOF),
+            "Children should be defined as a subClass of a parent Class");
+        assertTrue(
+            data.containsKey(OWL.SAMEAS),
+            "URLs to the canonical version should be defined a owl:sameAs");
+        assertTrue(
+            data.containsKey(RDFS.ISDEFINEDBY), "Definition should be given as rdsf:isDefinedBy");
+        assertTrue(data.containsKey(SKOS.NOTATION), "Code should be defined as a skos:Notation");
+      }
+    }
+  }
+
+  /**
+   * Ontology tables are describing classes and their properties are described using RDF Schema.
+   *
+   * @see <a href="https://github.com/molgenis/molgenis-emx2/issues/2997">Issue #2997</a>
+   * @throws IOException
+   */
+  @Test
+  void testThatOntologyTermsDonNotDefineColumnsAsPredicates() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(petStore_nr1, "Tag"), handler);
+    for (var subject : handler.resources.keySet()) {
+      assertFalse(
+          subject.stringValue().contains("/Tag/column/"),
+          "Ontology tables should use standard predicates from RDF Schema.");
     }
   }
   /**
