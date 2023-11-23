@@ -485,12 +485,21 @@ public class RDFService {
     for (final Reference reference : column.getReferences()) {
       final String localColumn = reference.getName();
       final String targetColumn = reference.getPath().get(0);
-      final String[] values = row.getStringArray(localColumn);
-      if (values != null) {
-        for (int i = 0; i < values.length; i++) {
-          var keyValuePairs = items.getOrDefault(i, new ArrayList<>());
-          keyValuePairs.add(new BasicNameValuePair(targetColumn, values[i]));
-          items.put(i, keyValuePairs);
+      if (column.isArray()) {
+        final String[] values = row.getStringArray(localColumn);
+        if (values != null) {
+          for (int i = 0; i < values.length; i++) {
+            var keyValuePairs = items.getOrDefault(i, new ArrayList<>());
+            keyValuePairs.add(new BasicNameValuePair(targetColumn, values[i]));
+            items.put(i, keyValuePairs);
+          }
+        }
+      } else {
+        final String value = row.getString(localColumn);
+        if (value != null) {
+          var keyValuePairs = items.getOrDefault(0, new ArrayList<>());
+          keyValuePairs.add(new BasicNameValuePair(targetColumn, value));
+          items.put(0, keyValuePairs);
         }
       }
     }

@@ -122,7 +122,23 @@ public class RDFTest {
                 "ontologyTermURI",
                 "https://icd.who.int/browse10/2019/en#/U07.1",
                 "definition",
-                "COVID-19 NOS"));
+                "COVID-19 NOS"),
+            row(
+                "order",
+                2,
+                "name",
+                "C00-C75 Malignant neoplasms, stated or presumed to be primary, of specified sites, except of lymphoid, haematopoietic and related tissue",
+                "code",
+                "C00-C75"),
+            row(
+                "order",
+                3,
+                "name",
+                "C00-C14 Malignant neoplasms of lip, oral cavity and pharynx",
+                "parent",
+                "C00-C75 Malignant neoplasms, stated or presumed to be primary, of specified sites, except of lymphoid, haematopoietic and related tissue",
+                "code",
+                "C00-C14"));
   }
 
   @AfterAll
@@ -375,6 +391,20 @@ public class RDFTest {
           "Ontology tables should use standard predicates from RDF Schema.");
     }
   }
+
+  @Test
+  void testThatURLsAreNotSplitForOntologyParentItem() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(ontologyTest), handler);
+    var subject =
+        Values.iri(
+            "http://localhost:8080/OntologyTest/api/rdf/Diseases/bmFtZQ==&QzAwLUMxNCBNYWxpZ25hbnQgbmVvcGxhc21zIG9mIGxpcCwgb3JhbCBjYXZpdHkgYW5kIHBoYXJ5bng=");
+
+    var parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
+    assertEquals(
+        2, parents.size(), "This disease should only be a subclass of Diseases and C00-C75");
+  }
+
   /**
    * Helper method to reduce boilerplate code in the tests.<br>
    * <b>Note</b> this method delegates to the handler for the results of parsing.
