@@ -217,9 +217,25 @@ public class MolgenisWebservice {
         .writeValueAsString(api);
   }
 
-  /** get database either from session or based on token */
-  // helper method used in multiple places
+  /**
+   * Get the table specified in the request parameter "table".
+   *
+   * @param request the request
+   * @return the table object corresponding to the table id. Never null.
+   * @throws MolgenisException if the table or the schema is not found or accessible.
+   */
   public static Table getTableById(Request request) {
+    return getTableById(request, request.params(TABLE));
+  }
+
+  /**
+   * Get the table by its id.
+   *
+   * @param request the request
+   * @return the table object corresponding to the table id. Never null.
+   * @throws MolgenisException if the table or the schema is not found or accessible.
+   */
+  public static Table getTableById(Request request, String tableName) {
     String schemaName = request.params(SCHEMA);
     Schema schema =
         sessionManager.getSession(request).getDatabase().getSchema(sanitize(schemaName));
@@ -227,20 +243,10 @@ public class MolgenisWebservice {
       throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
     }
     Table table = schema.getTableById(sanitize(request.params(TABLE)));
-    if (table == null) throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
-    return table;
-  }
-
-  /** alternative version for getTable */
-  public static Table getTableById(Request request, String tableName) {
-    String schemaName = request.params(SCHEMA);
-    Schema schema =
-        sessionManager.getSession(request).getDatabase().getSchema(sanitize(schemaName));
-    if (schema == null) {
-      throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
-    } else {
-      return schema.getTable(sanitize(tableName));
+    if (table == null) {
+      throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
     }
+    return table;
   }
 
   public static String sanitize(String string) {
