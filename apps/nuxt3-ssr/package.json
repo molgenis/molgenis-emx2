@@ -26,11 +26,11 @@
     "@vitejs/plugin-vue": "4.4.1",
     "@vue/test-utils": "2.4.2",
     "autoprefixer": "10.4.16",
-    "graphql-request": "5.2.0",
+    "graphql-request": "6.1.0",
     "jsdom": "22.1.0",
+    "meta-data-utils": "*",
     "nuxt": "3.8.1",
     "nuxt-proxy": "0.4.1",
-    "meta-data-utils": "*",
     "postcss": "8.4.31",
     "postcss-custom-properties": "13.3.2",
     "prettier": "2.8.8",
@@ -43,6 +43,7 @@
   "dependencies": {
     "@vueuse/core": "10.5.0",
     "floating-vue": "^2.0.0-beta.20",
+    "graphql-tag": "2.12.6",
     "meta-data-utils": "*",
     "vite": "4.0.5"
   }

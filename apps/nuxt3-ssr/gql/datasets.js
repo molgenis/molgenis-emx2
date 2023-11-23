@@ -1,4 +1,4 @@
-import { gql } from "graphql-request";
+import { gql } from "graphql-tag";
 
 export default gql`
   query Datasets($id: String) {
