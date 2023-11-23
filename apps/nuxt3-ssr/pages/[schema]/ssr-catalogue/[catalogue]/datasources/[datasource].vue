@@ -3,7 +3,7 @@ defineProps({
   datasource: { type: Object },
 });
 
-import { gql } from "graphql-request";
+import { gql } from "graphql-tag";
 const config = useRuntimeConfig();
 const route = useRoute();
 
