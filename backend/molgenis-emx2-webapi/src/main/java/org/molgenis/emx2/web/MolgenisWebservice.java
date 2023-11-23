@@ -217,30 +217,36 @@ public class MolgenisWebservice {
         .writeValueAsString(api);
   }
 
-  /** get database either from session or based on token */
-  // helper method used in multiple places
-  public static Table getTable(Request request) {
-    String schemaName = request.params(SCHEMA);
-    Schema schema =
-        sessionManager.getSession(request).getDatabase().getSchema(sanitize(schemaName));
-    if (schema == null) {
-      throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
+  /**
+   * Get the table specified in the request parameter "table".
+   *
+   * @param request the request
+   * @return the table object corresponding to the table id. Never null.
+   * @throws MolgenisException if the table or the schema is not found or accessible.
+   */
+  public static Table getTableById(Request request) {
+    Table table = getTableById(request, request.params(TABLE));
+    if (table == null) {
+      throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
     }
-    Table table = schema.getTable(sanitize(request.params(TABLE)));
-    if (table == null) throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
     return table;
   }
 
-  /** alternative version for getTable */
-  public static Table getTable(Request request, String tableName) {
+  /**
+   * Get the table by its id.
+   *
+   * @param request the request
+   * @return the table object corresponding to the table id. Never null.
+   * @throws MolgenisException if the schema is not found or accessible.
+   */
+  public static Table getTableById(Request request, String tableName) {
     String schemaName = request.params(SCHEMA);
     Schema schema =
         sessionManager.getSession(request).getDatabase().getSchema(sanitize(schemaName));
     if (schema == null) {
       throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
-    } else {
-      return schema.getTable(sanitize(tableName));
     }
+    return schema.getTableById(sanitize(tableName));
   }
 
   public static String sanitize(String string) {

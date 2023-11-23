@@ -49,6 +49,7 @@ public class WebApiSmokeTests {
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
+  public static final String TABLE_WITH_SPACES = "table with spaces";
   public static final String PET_STORE_SCHEMA = "pet store";
   public static String SESSION_ID; // to toss around a session for the tests
   private static Database db;
@@ -98,7 +99,9 @@ public class WebApiSmokeTests {
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
-    schema.create(table("table with spaces", column("name", STRING).setKey(1)));
+    if (schema.getTable(TABLE_WITH_SPACES) == null) {
+      schema.create(table(TABLE_WITH_SPACES, column("name", STRING).setKey(1)));
+    }
   }
 
   @AfterAll
@@ -1211,6 +1214,39 @@ public class WebApiSmokeTests {
     //
     //    result = given().get("/api/fdp/distribution/profile").getBody().asString();
     //    assertTrue(result.contains("todo"));
+  }
+
+  @Test
+  void testThatTablesWithSpaceCanBeDownloaded() {
+    var table = schema.getTable(TABLE_WITH_SPACES);
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/jsonld/" + table.getIdentifier());
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/ttl/" + table.getIdentifier());
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/excel/" + table.getIdentifier());
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/csv/" + table.getIdentifier());
   }
 
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
