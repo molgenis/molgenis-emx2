@@ -567,12 +567,12 @@ video {
   margin: auto;
 }
 
-.ml-6 {
-  margin-left: 1.5rem;
+.ml-2 {
+  margin-left: 0.5rem;
 }
 
-.ml-9 {
-  margin-left: 2.25rem;
+.ml-5 {
+  margin-left: 1.25rem;
 }
 
 .mt-2 {
@@ -1443,8 +1443,28 @@ video {
   border-radius: 9999px;
 }
 
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
 .rounded-textarea-input {
   border-radius: 20px;
+}
+
+.rounded-md {
+  border-radius: 0.375rem;
+}
+
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+
+.rounded-2xl {
+  border-radius: 1rem;
+}
+
+.rounded-3xl {
+  border-radius: 1.5rem;
 }
 
 .border {
@@ -29243,6 +29263,10 @@ video {
   background-origin: content-box;
 }
 
+.p-4 {
+  padding: 1rem;
+}
+
 .px-5 {
   padding-left: 1.25rem;
   padding-right: 1.25rem;
@@ -29276,6 +29300,26 @@ video {
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+}
+
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
 
 .pl-3 {
@@ -29398,6 +29442,18 @@ video {
 
 .tracking-widest {
   letter-spacing: 0.1em;
+}
+
+.tracking-tighter {
+  letter-spacing: -0.05em;
+}
+
+.tracking-tight {
+  letter-spacing: -0.025em;
+}
+
+.tracking-wide {
+  letter-spacing: 0.025em;
 }
 
 .text-black {
@@ -33733,6 +33789,31 @@ video {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
+.hover\:bg-blue-700:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(29 78 216 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-blue-100:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(173 214 255 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-blue-50:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(225 240 255 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-gray-100:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(244 244 244 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-gray-200:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(226 226 226 / var(--tw-bg-opacity));
+}
+
 .hover\:text-button-disabled-hover:hover {
   --tw-text-opacity: 1;
   color: rgb(109 109 109 / var(--tw-text-opacity));
@@ -33806,9 +33887,18 @@ video {
   font-weight: 600;
 }
 
+.\[\&_label\]\:text-green-800 label {
+  --tw-text-opacity: 1;
+  color: rgb(52 157 99 / var(--tw-text-opacity));
+}
+
 .\[\&_label\]\:text-red-500 label {
   --tw-text-opacity: 1;
   color: rgb(225 79 98 / var(--tw-text-opacity));
+}
+
+.\[\&_span\]\:font-normal span {
+  font-weight: 400;
 }
 
 .\[\&_svg\>path\]\:fill-green-800 svg>path {

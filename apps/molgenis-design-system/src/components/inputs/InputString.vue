@@ -3,7 +3,8 @@ import { ref } from "vue";
 import { CheckCircleIcon, ExclamationTriangleIcon } from "@heroicons/vue/24/solid";
 
 interface Props {
-  id: string;
+  id: string,
+  type?: 'text' | 'search' | 'number' | 'email' | 'password' | 'tel' | 'url',
   label: string,
   placeholder?: string,
   isDisabled?: boolean,
@@ -16,6 +17,7 @@ interface Props {
 const props = withDefaults(
   defineProps<Props>(),
   {
+    type: 'text',
     isValid: false,
     isDisabled: false,
     isRequired: false,
@@ -29,27 +31,27 @@ const modelValue = ref("");
 <template>
   <div 
     :class="`
-      flex flex-row justify-center items-center w-full border-2 py-2 rounded-full
-      [&:first-child]:focus-within:border-gray-600
+      flex flex-row justify-center items-center w-full border-2 py-2 rounded-md
+      ${!isValid && !hasError && !isDisabled ? '[&:first-child]:focus-within:border-gray-600' : ''}
       ${isDisabled ? 'bg-gray-200/10': ''}
       ${hasError ? 'border-red-500 [&_label]:text-red-500 [&_label]:font-semibold [&_svg>path]:fill-red-500' : ''}
-      ${isValid ? 'border-green-800 [&_svg>path]:fill-green-800' : ''}
+      ${isValid ? 'border-green-800 [&_svg>path]:fill-green-800 [&_label]:text-green-800' : ''}
     `"
   >
-  <div class="flex flex-col-reverse w-5/6">
+  <div class="grow flex flex-col-reverse w-5/6">
     <input
       v-model="modelValue"
-      type="text"
+      :type="type"
       :id="id"
       :placeholder="placeholder"
       :required="isRequired"
       :disabled="isDisabled"
-      class="peer grow block w-[90%] py-1 pl-3 ml-6 bg-transparent focus:outline-none"
+      class="peer grow block w-[90%] py-1 pl-3 ml-2 bg-transparent focus:outline-none"
     />
     <label
       :for="id"
       class="
-        block ml-9 grow 
+        block ml-5 grow 
         peer-required:after:content-['*']
         peer-required:after:text-red-500
         peer-disabled:text-gray-400
