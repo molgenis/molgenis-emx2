@@ -28,13 +28,16 @@
       </template>
       <template v-slot:column-logos>
         <li id="genturis-logo-link">
-          <a href="">
+          <a href="https://www.genturis.eu/">
             <img
               src="/genturis-registry-logo.png"
               class="genturis-logo logo-small"
-              alt="Registry for the European Reference Network on genetic tumour risk syndromes"
+              alt="registry for the european reference network on genetic tumour risk syndromes"
             />
           </a>
+        </li>
+        <li id="genturis-funding-logo">
+          <img src="ern-funded-by-eu.svg" alt="european reference network funded by the european union"/>
         </li>
       </template>
       <template v-slot:site-citation>

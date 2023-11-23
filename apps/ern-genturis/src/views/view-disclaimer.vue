@@ -12,6 +12,7 @@
       id="genturis-section-disclaimer"
       aria-labelledyby="genturis-section-disclaimer-title"
       :verticalPadding="2"
+      width="large"
     >
       <h2 id="genturis-section-disclaimer-title">Disclaimer</h2>
       <p>

@@ -12,6 +12,7 @@
       id="genturis-section-welcome"
       aria-labelledby="genturis-section-welcome-title"
       :verticalPadding="2"
+      width="large"
     >
       <img
         src="/genturis-registry-logo.png"
@@ -63,6 +64,7 @@
       class="bg-gray-050"
       aria-labelledby="genturis-section-aims-title"
       :verticalPadding="2"
+      width="large"
     >
       <h2 id="genturis-section-aims-title">Aims of the GENTURIS registry</h2>
       <p>
@@ -116,6 +118,7 @@
       id="genturis-section-contact"
       aria-labelledby="genturis-section-contact-title"
       :verticalPadding="2"
+      width="large"
     >
       <h2 id="genturis-section-contact-title">Contact</h2>
       <p>

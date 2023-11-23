@@ -12,6 +12,7 @@
       id="genturis-section-about"
       aria-labelledby="genturis-section-about-title"
       :verticalPadding="2"
+      width="large"
     >
       <h2 id="genturis-section-about-title">About the GENTURIS registry</h2>
       <p>
@@ -96,6 +97,7 @@
       id="genturis-section-committee"
       aria-labelledby="genturis-section-committee-title"
       :verticalPadding="2"
+      width="large"
     >
       <h2 id="genturis-section-committee-title">
         The GENTURIS registry steering committee
@@ -126,6 +128,7 @@
       id="genturis-section-partners"
       aria-labelledby="genturis-section-partners-title"
       :verticalPadding="2"
+      width="large"
     >
       <h2 id="genturis-section-partners-title">GENTURIS Registry Partners</h2>
       <p>

@@ -6,7 +6,7 @@
         <p>Unable to retrieve data {{ error }}</p>
       </MessageBox>
     </div>
-    <Dashboard :verticalPadding="0" :horizontalPadding="2" v-else>
+    <Dashboard id="genturisPublicDashboard" :verticalPadding="0" :horizontalPadding="2" v-else>
       <DashboardRow id="registryHighlights" :columns="1">
         <DataValueHighlights
           title="ern genturis registry at a glance"
@@ -290,6 +290,14 @@ onMounted(() => {
           font-size: 1.8rem;
         }
       }
+    }
+  }
+}
+
+#genturisPublicDashboard {
+  .dashboard-content {
+    @media (min-width: 1800px) {
+      max-width: 60vw;
     }
   }
 }
