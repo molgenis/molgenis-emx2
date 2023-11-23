@@ -33,12 +33,8 @@ task checkFormat(type: YarnTask, dependsOn: format) {
 }
 
 task testJavaScript(type: YarnTask, dependsOn: checkFormat) {
-    file("${project.projectDir}").eachDir { dir ->
-        var moduleName = dir.name
-        if ( ['molgenis-components', 'nuxt3-ssr'].contains(moduleName)) {
-            args = ['run', 'nx', 'test-ci', moduleName]
-        }
-    }
+    outputs.upToDateWhen { false }
+    args = ['run', 'nx', 'run-many', '--target=test-ci']
 }
 
 task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
