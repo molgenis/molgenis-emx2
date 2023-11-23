@@ -146,8 +146,6 @@ const query = computed(() => {
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 
-console.log("found");
-
 const orderby = { label: "ASC" };
 const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
 
