@@ -114,8 +114,7 @@
 </template>
 
 <script setup>
-import gql from "graphql-tag";
-import { request } from "graphql-request";
+import { request, gql } from "graphql-request";
 import { ref, watch, onBeforeMount } from "vue";
 import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
 import { ButtonAlt, ButtonOutline } from "molgenis-components";

@@ -12,8 +12,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
+import { request, gql } from "graphql-request";
 
 let manifest = ref({});
 

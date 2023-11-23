@@ -1,4 +1,5 @@
-import gql from "graphql-tag";
+import { gql } from "graphql-request";
+
 export default gql`
   query Variables($filter: VariablesFilter) {
     Variables(filter: $filter) {

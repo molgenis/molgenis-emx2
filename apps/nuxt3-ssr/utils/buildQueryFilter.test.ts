@@ -4,7 +4,7 @@ import { buildQueryFilter } from "./buildQueryFilter";
 import type { IFilter } from "~/interfaces/types";
 
 describe("buildQueryFilter", () => {
-  let filters: IFilter[] = [
+  const filters: IFilter[] = [
     {
       title: "Search in cohorts",
       columnType: "_SEARCH",
@@ -54,7 +54,7 @@ describe("buildQueryFilter", () => {
         },
       },
     };
-    const filterString = buildQueryFilter(filters, "test");
-    expect(expectedFilter).toEqual(filterString);
+    const result = buildQueryFilter(filters, "test");
+    expect(result).toEqual(expectedFilter);
   });
 });
