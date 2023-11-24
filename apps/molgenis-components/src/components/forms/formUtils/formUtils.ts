@@ -1,6 +1,5 @@
-import { IColumn } from "../../../Interfaces/IColumn";
+import type { IColumn, ITableMetaData } from "meta-data-utils";
 import { IRow } from "../../../Interfaces/IRow";
-import { ITableMetaData } from "../../../Interfaces/ITableMetaData";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
 
@@ -10,7 +9,7 @@ export function getRowErrors(
   tableMetaData: ITableMetaData,
   rowData: Record<string, any>
 ) {
-  return tableMetaData.columns.reduce((accum, column) => {
+  return tableMetaData.columns.reduce((accum, column: IColumn) => {
     accum[column.id] = getColumnError(column, rowData, tableMetaData);
     return accum;
   }, {} as Record<string, string | undefined>);
