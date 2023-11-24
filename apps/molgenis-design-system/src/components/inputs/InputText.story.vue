@@ -1,14 +1,14 @@
 <template>
-  <Story title="Inputs/String" :layout="{ type: 'grid', width: '400px' }">
+  <Story title="Inputs/Text" :layout="{ type: 'grid', width: '400px' }">
     <Variant title="Default">
-      <InputString
+      <InputText
         id="search-patients-default"
         :label="label"
         :placeholder="placeholder"
       />
     </Variant>
     <Variant title="Disabled">
-      <InputString
+      <InputText
         id="search-patients-disabled"
         :label="label"
         :placeholder="placeholder"
@@ -16,7 +16,7 @@
       />
     </Variant>
     <Variant title="Required">
-      <InputString
+      <InputText
         id="search-patients-required"
         :label="label"
         :placeholder="placeholder"
@@ -24,7 +24,7 @@
       />
     </Variant>
     <Variant title="Valid">
-      <InputString
+      <InputText
         id="search-patients-valid"
         :label="label"
         :placeholder="placeholder"
@@ -32,7 +32,7 @@
       />
     </Variant>
     <Variant title="Error">
-      <InputString
+      <InputText
         id="search-patients-error"
         :label="label"
         :placeholder="placeholder"
@@ -42,7 +42,7 @@
   </Story>
 </template>
 <script setup lang="ts">
-import InputString from "./InputString.vue";
+import InputText from "./InputText.vue";
 
 const label="Search for patients"
 const placeholder="Enter one or more identifiers; e.g., 'A-001' or 'A-001,A-002'"

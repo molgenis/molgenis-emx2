@@ -1,9 +1,20 @@
 <template>
   <div class="flex items-start gap-1">
-    <input :id="id" type="checkbox" :name="name" :value="value" class="mt-1 mr-1 accent-blue-700"/>
-    <label :for="id" class="" :data-description="description !== undefined">
-      <span class="block data-[description='true']:font-bold">{{ label }}</span>
-      <span v-if="description" class="block leading-5 text-gray-600">{{ description }}</span>
+    <input
+      :id="id"
+      type="checkbox"
+      :name="name"
+      :value="value"
+      class="mt-1 mr-1 accent-blue-700"
+      :checked="checked"
+    />
+    <label :for="id" :data-description="description !== undefined">
+      <span class="block data-[description='true']:font-bold">
+        {{ label }}
+      </span>
+      <span v-if="description" class="block leading-5 text-gray-600">
+        {{ description }}
+      </span>
     </label>
   </div>
 </template>
@@ -15,8 +26,14 @@ interface Props {
   name?: string,
   value?: string
   description?: string,
+  checked?: boolean
 }
 
-defineProps<Props>()
+const props = withDefaults(
+  defineProps<Props>(),
+  {
+    checked: false
+  }
+);
 
 </script>
