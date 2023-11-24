@@ -326,8 +326,13 @@ public class RDFService {
       Table refTable = column.getRefTable().getTable();
       builder.add(subject, RDFS.RANGE, getTableIRI(refTable));
     } else {
-      builder.add(subject, RDF.TYPE, OWL.DATATYPEPROPERTY);
-      builder.add(subject, RDFS.RANGE, columnTypeToXSD(column.getColumnType()));
+      var type = column.getColumnType();
+      if (type == ColumnType.HYPERLINK || type == ColumnType.HYPERLINK_ARRAY) {
+        builder.add(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
+      } else {
+        builder.add(subject, RDF.TYPE, OWL.DATATYPEPROPERTY);
+        builder.add(subject, RDFS.RANGE, columnTypeToXSD(column.getColumnType()));
+      }
     }
     builder.add(subject, RDFS.LABEL, column.getName());
     builder.add(subject, RDFS.DOMAIN, getTableIRI(column.getTable().getTable()));
@@ -434,6 +439,11 @@ public class RDFService {
           IRI columnIRI = getColumnIRI(column);
           for (final Value value : formatValue(row, column)) {
             builder.add(subject, columnIRI, value);
+            if (column.getColumnType().equals(ColumnType.HYPERLINK)
+                || column.getColumnType().equals(ColumnType.HYPERLINK_ARRAY)) {
+              var resource = Values.iri(value.stringValue());
+              builder.add(resource, RDFS.LABEL, Values.literal(value.stringValue()));
+            }
           }
         }
       }
