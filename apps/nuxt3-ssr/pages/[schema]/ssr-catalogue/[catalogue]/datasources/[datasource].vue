@@ -1,196 +1,25 @@
 <script setup lang="ts">
-defineProps({
-  datasource: { type: Object },
-});
-
-import { gql } from "graphql-request";
-const config = useRuntimeConfig();
 const route = useRoute();
 
-const query = gql`
-  query DataSources($id: String) {
-    DataSources(filter: { id: { equals: [$id] } }) {
-      id
-      acronym
-      name
-      description
-      website
-      logo {
-        url
-      }
-      leadOrganisation {
-        acronym
-      }
-      type {
-        name
-      }
-      countries {
-        name
-        order
-      }
-      regions {
-        name
-        order
-      }
-      numberOfParticipants
-      numberOfParticipantsWithSamples
-      networks {
-        id
-        name
-        description
-        website
-        logo {
-          id
-          size
-          extension
-          url
-        }
-      }
-      contacts {
-        roleDescription
-        firstName
-        lastName
-        prefix
-        initials
-        email
-        title {
-          name
-        }
-        organisation {
-          name
-        }
-      }
-      fundingStatement
-      acknowledgements
-      documentation {
-        name
-        description
-        url
-        file {
-          id
-          size
-          extension
-          url
-        }
-      }
-    }
-  }
-`;
-
-const variables = { id: route.params.datasource };
-
-let datasource: any;
-
-const {
-  data: datasourceData,
-  pending,
-  error,
-  refresh,
-} = await useFetch(`/${route.params.schema}/catalogue/graphql`, {
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: { query, variables },
+const { data } = await useAsyncGql({
+  operation: "dataSource",
+  variables: { id: route.params.datasource as string },
 });
 
-console.log(query);
-console.log(datasourceData);
-
-watch(datasourceData, setData, {
-  deep: true,
-  immediate: true,
+const dataSource = computed(() => {
+  return data.value.DataSources[0];
 });
-
-function setData(data: any) {
-  datasource = data?.data?.DataSources[0];
-}
 
 let tocItems = computed(() => {
   let tableOffContents = [
-    { label: "Description", id: "Description" },
-    { label: "General design", id: "GeneralDesign" },
+    { label: "Description", id: "description" },
+    { label: "Overview", id: "overview" },
+    { label: "Population", id: "population" },
   ];
-  if (datasource?.contacts) {
-    tableOffContents.push({
-      label: "Contact & contributors",
-      id: "Contributors",
-    });
-  }
-  if (datasource?.networks) {
-    tableOffContents.push({ label: "Networks", id: "Networks" });
-  }
-  if (datasource?.additionalOrganisations) {
-    tableOffContents.push({ label: "Partners", id: "Partners" });
-  }
-
-  if (
-    datasource?.dataAccessConditions?.length ||
-    datasource?.dataAccessConditionsDescription ||
-    datasource?.releaseDescription ||
-    datasource?.linkageOptions
-  ) {
-    tableOffContents.push({
-      label: "Access Conditions",
-      id: "access-conditions",
-    });
-  }
-
-  if (datasource?.fundingStatement || datasource?.acknowledgements) {
-    tableOffContents.push({
-      label: "Funding & Citation requirements ",
-      id: "funding-and-acknowledgement",
-    });
-  }
-
-  if (datasource?.documentation) {
-    tableOffContents.push({ label: "Attached files", id: "Files" });
-  }
-
   return tableOffContents;
 });
 
-let accessConditionsItems = computed(() => {
-  let items = [];
-  if (datasource?.dataAccessConditions?.length) {
-    items.push({
-      label: "Conditions",
-      content: datasource.dataAccessConditions.map((c) => c.name),
-    });
-  }
-  if (datasource?.releaseDescription) {
-    items.push({
-      label: "Release",
-      content: datasource.releaseDescription,
-    });
-  }
-  if (datasource?.linkageOptions) {
-    items.push({
-      label: "Linkage options",
-      content: datasource.linkageOptions,
-    });
-  }
-
-  return items;
-});
-
-let fundingAndAcknowledgementItems = computed(() => {
-  let items = [];
-  if (datasource?.fundingStatement) {
-    items.push({
-      label: "Funding",
-      content: datasource.fundingStatement,
-    });
-  }
-  if (datasource?.acknowledgements) {
-    items.push({
-      label: "Citation requirements ",
-      content: datasource.acknowledgements,
-    });
-  }
-
-  return items;
-});
-
-useHead({ title: datasource?.acronym || datasource?.name });
+useHead({ title: dataSource.value?.acronym || dataSource.value?.name });
 
 const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
 
@@ -211,109 +40,105 @@ if (route.params.catalogue) {
   <LayoutsDetailPage>
     <template #header>
       <PageHeader
-        :title="datasource?.acronym || datasource?.name"
-        :description="datasource?.acronym ? datasource?.name : ''"
+        :title="dataSource?.acronym || dataSource?.name"
+        :description="dataSource?.acronym ? dataSource?.name : ''"
       >
         <template #prefix>
-          <BreadCrumbs :crumbs="crumbs" :current="datasource.id" />
+          <BreadCrumbs :crumbs="crumbs" :current="dataSource?.id" />
         </template>
-        <!-- <template #title-suffix>
+        <template #title-suffix>
           <IconButton icon="star" label="Favorite" />
-        </template> -->
+        </template>
       </PageHeader>
     </template>
     <template #side>
       <SideNavigation
-        :title="datasource?.acronym || datasource?.name"
-        :image="datasource?.logo?.url"
+        :title="dataSource?.acronym || dataSource?.name"
+        :image="dataSource?.logo?.url"
         :items="tocItems"
       />
     </template>
     <template #main>
-      <ContentBlocks v-if="datasource">
+      <ContentBlocks v-if="data">
         <ContentBlockIntro
-          :image="datasource?.logo?.url"
-          :link="datasource?.website"
-          :contact="datasource?.contactEmail"
-          :contact-name="datasource?.name"
+          :image="dataSource?.logo?.url"
+          :link="dataSource?.website"
+          :contact="dataSource?.contactEmail"
+          :contact-name="dataSource?.name"
           :contact-message-filter="messageFilter"
         />
         <ContentBlockDescription
-          id="Description"
+          id="description"
           title="Description"
-          :description="datasource?.description"
+          :description="dataSource?.description"
         />
 
-        <ContentBlockGeneralDesign
-          id="GeneralDesign"
-          title="General Design"
-          :description="datasource?.designDescription"
-          :cohort="datasource"
-        />
-
-        <ContentBlockContact
-          v-if="datasource?.contacts"
-          id="Contributors"
-          title="Contact and Contributors"
-          :contributors="datasource?.contacts"
-        />
-
-        <!-- <ContentBlockVariables
-          id="Variables"
-          title="Variables &amp; Topics"
-          description="Explantation about variables and the functionality seen here."
-        /> -->
-
-        <ContentBlockData
-          id="AvailableData"
-          title="Available Data &amp; Samples"
-          :collectionEvents="datasource?.collectionEvents"
-        />
-
-        <ContentBlockPartners
-          v-if="datasource?.additionalOrganisations"
-          id="Partners"
-          title="Partners"
-          description=""
-          :partners="datasource?.additionalOrganisations"
-        />
-
-        <ContentBlockNetwork
-          v-if="datasource?.networks"
-          id="Networks"
-          title="Networks"
-          description="Networks Explanation about networks from this cohort and the functionality seen here."
-          :networks="datasource?.networks"
-        />
-
-        <ContentBlock
-          id="access-conditions"
-          title="Access conditions"
-          :description="datasource?.dataAccessConditionsDescription"
-          v-if="
-            datasource?.dataAccessConditions?.length ||
-            datasource?.dataAccessConditionsDescription ||
-            datasource?.releaseDescription
-          "
-        >
-          <DefinitionList :items="accessConditionsItems" />
+        <ContentBlock title="Overview" id="overview">
+          <CatalogueItemList
+            :items="[
+              { label: 'Id', content: dataSource.name },
+              { label: 'Acronym', content: dataSource.acronym },
+              { label: 'Name', content: dataSource.name },
+              { label: 'Type', content: dataSource.type, type: 'ONTOLOGY' },
+              { label: 'Keywords', content: dataSource.keywords },
+              { label: 'Website', content: dataSource.website },
+              {
+                label: 'Lead organisation',
+                content: dataSource.leadOrganisation[0].name,
+              },
+              { label: 'Description', content: dataSource.description },
+              {
+                label: 'Date established',
+                content: dataSource.dateEstablished,
+              },
+              {
+                label: 'Start data collection',
+                content: dataSource.startDataCollection,
+              },
+              { label: 'Logo', content: dataSource.logo },
+            ]"
+          />
         </ContentBlock>
 
-        <ContentBlock
-          id="funding-and-acknowledgement"
-          title="Funding &amp; Citation requirements "
-          v-if="datasource?.fundingStatement || datasource?.acknowledgements"
-        >
-          <DefinitionList :items="fundingAndAcknowledgementItems" />
+        <ContentBlock title="Population" id="population">
+          <CatalogueItemList
+            :items="[
+              {
+                label: 'Number of participants',
+                content: dataSource.numberOfParticipants,
+              },
+              {
+                label: 'Countries',
+                content: dataSource.countries,
+                type: 'ONTOLOGY',
+              },
+              {
+                label: 'Population age groups',
+                content: dataSource.populationAgeGroups,
+                type: 'ONTOLOGY',
+              },
+              {
+                label: 'Population entry',
+                content: dataSource.populationEntry,
+                type: 'ONTOLOGY',
+              },
+              {
+                label: 'Population exit other',
+                content: dataSource.populationExitOther,
+              },
+              {
+                label: 'Population disease',
+                content: dataSource.populationAgeGroups,
+                type: 'ONTOLOGY',
+              },
+            ]"
+          />
         </ContentBlock>
 
-        <ContentBlockAttachedFiles
-          v-if="datasource?.documentation?.length"
-          id="Files"
-          title="Attached Files"
-          :documents="datasource.documentation"
-        />
-      </ContentBlocks> </template
-    >f
+        <ContentBlock title="debug" v-if="(route.query.debug as string)">
+          <pre>{{ dataSource }}</pre>
+        </ContentBlock>
+      </ContentBlocks>
+    </template>
   </LayoutsDetailPage>
 </template>
