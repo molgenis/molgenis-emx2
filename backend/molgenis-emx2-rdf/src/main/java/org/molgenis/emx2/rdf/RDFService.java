@@ -4,6 +4,7 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.rdf.RDFUtils.*;
 
 import com.google.common.net.UrlEscapers;
@@ -502,9 +503,6 @@ public class RDFService {
   }
 
   private List<IRI> getIriValue(final Row row, final Column column) {
-    final TableMetadata target = column.getRefTable();
-    final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(target.getIdentifier());
-    final Namespace ns = getSchemaNamespace(target.getTable().getSchema());
 
     final Set<IRI> iris = new HashSet<>();
     final Map<Integer, List<NameValuePair>> items = new HashMap<>();
@@ -532,7 +530,35 @@ public class RDFService {
 
     for (final var item : items.values()) {
       PrimaryKey key = new PrimaryKey(item);
-      iris.add(Values.iri(ns, tableName + "/" + key.getEncodedValue()));
+      final TableMetadata target = column.getRefTable();
+      final Database database = target.getSchema().getDatabase();
+
+      // If the table has a mg_tableclass column then the row might actually be from a child table
+      if (target.getColumnNames().contains("mg_tableclass")) {
+        // Retrieve the rows mg_tableclass to figure out the child table.
+        var query = target.getTable().query();
+        query.select(s("mg_tableclass"));
+        query.where(key.getFilter());
+        for (var referencedRow : query.retrieveRows()) {
+          var parts = referencedRow.getString("mg_tableclass").split("\\.");
+          // mg_tableclass consists of the schema "." tablename.
+          if (parts.length == 2) {
+            var schema = database.getSchema(parts[0]);
+            Namespace ns = getSchemaNamespace(schema);
+            Table table = schema.getTable(parts[1]);
+            String tableName = UrlEscapers.urlPathSegmentEscaper().escape(table.getIdentifier());
+            iris.add(Values.iri(ns, tableName + "/" + key.getEncodedValue()));
+          } else {
+            throw new MolgenisException(
+                "mg_tableclass data is malformed. Expected schema.table but got "
+                    + referencedRow.getString("mg_tableclass"));
+          }
+        }
+      } else {
+        Namespace ns = getSchemaNamespace(target.getTable().getSchema());
+        String tableName = UrlEscapers.urlPathSegmentEscaper().escape(target.getIdentifier());
+        iris.add(Values.iri(ns, tableName + "/" + key.getEncodedValue()));
+      }
     }
     return List.copyOf(iris);
   }

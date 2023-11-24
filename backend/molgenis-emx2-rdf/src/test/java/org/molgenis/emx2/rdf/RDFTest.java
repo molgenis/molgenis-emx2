@@ -453,6 +453,47 @@ public class RDFTest {
     assertEquals(0, instancesWithOutALabel, "All instances should have a label.");
   }
 
+  @Test
+  void testThatARowInAnExtendedClassIsReferencedByTheCorrectIRI() throws IOException {
+    var schema = database.dropCreateSchema("catalogue");
+    schema.create(
+        table(
+            "Resources",
+            column("id", ColumnType.STRING).setKey(1),
+            column("name", ColumnType.STRING)));
+    schema.create(table("Extended Resources").setInheritName("Resources"));
+    schema.create(
+        table(
+            "Subcohorts",
+            column("id", ColumnType.STRING).setKey(1),
+            column("resource", ColumnType.REF).setRefTable("Resources")));
+
+    schema.getTable("Resources").insert(row("id", "1", "name", "resource in root"));
+    schema
+        .getTable("Extended Resources")
+        .insert(row("id", "2", "name", "resource in inherited table"));
+    schema
+        .getTable("Subcohorts")
+        .insert(row("id", "1", "resource", "1"), row("id", "2", "resource", "2"));
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(schema), handler);
+    var resource1 = Values.iri("http://localhost:8080/catalogue/api/rdf/Subcohorts/aWQ=&MQ==");
+    var resource2 = Values.iri("http://localhost:8080/catalogue/api/rdf/Subcohorts/aWQ=&Mg==");
+    var resourcePredicate =
+        Values.iri("http://localhost:8080/catalogue/api/rdf/Subcohorts/column/resource");
+    for (var resource : handler.resources.get(resource1).get(resourcePredicate)) {
+      assertTrue(
+          resource.stringValue().contains("/Resources/"),
+          "Rows from the resources table should have a Resources IRI");
+    }
+    for (var resource : handler.resources.get(resource2).get(resourcePredicate)) {
+      assertTrue(
+          resource.stringValue().contains("/ExtendedResources/"),
+          "Rows from the Extended Resources table should have an ExtendedResources IRI.");
+    }
+    database.dropSchema(schema.getName());
+  }
+
   /**
    * Helper method to reduce boilerplate code in the tests.<br>
    * <b>Note</b> this method delegates to the handler for the results of parsing.
