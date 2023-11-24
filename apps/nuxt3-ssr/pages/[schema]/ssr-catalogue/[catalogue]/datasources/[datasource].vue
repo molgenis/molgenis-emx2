@@ -77,7 +77,6 @@ const query = gql`
   }
 `;
 
-console.log("id=" + route.params.datasource);
 const variables = { id: route.params.datasource };
 
 let datasource: any;

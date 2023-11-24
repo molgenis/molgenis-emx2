@@ -6,13 +6,14 @@ import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
-import static org.molgenis.emx2.RunMolgenisEmx2.CATALOGUE_DEMO;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -48,6 +49,8 @@ public class WebApiSmokeTests {
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
+  public static final String TABLE_WITH_SPACES = "table with spaces";
+  public static final String PET_STORE_SCHEMA = "pet store";
   public static String SESSION_ID; // to toss around a session for the tests
   private static Database db;
   private static Schema schema;
@@ -86,18 +89,26 @@ public class WebApiSmokeTests {
             .post("api/graphql")
             .sessionId();
 
-    // should be created
-    schema = db.getSchema("pet store");
+    // Always create test database from scratch to avoid instability due to side effects.
+    db.dropSchemaIfExists(PET_STORE_SCHEMA);
+    schema = db.createSchema(PET_STORE_SCHEMA);
+    PetStoreLoader petStoreLoader = new PetStoreLoader();
+    petStoreLoader.load(schema, true);
+
     // grant a user permission
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
+    if (schema.getTable(TABLE_WITH_SPACES) == null) {
+      schema.create(table(TABLE_WITH_SPACES, column("name", STRING).setKey(1)));
+    }
   }
 
   @AfterAll
   public static void after() {
     MolgenisWebservice.stop();
-    db.dropSchemaIfExists(CATALOGUE_DEMO);
+    // Always clean up database to avoid instability due to side effects.
+    db.dropSchemaIfExists(PET_STORE_SCHEMA);
   }
 
   @Test
@@ -359,7 +370,7 @@ public class WebApiSmokeTests {
     String schemaJson2 =
         given().sessionId(SESSION_ID).when().get("/pet store json/api/json").asString();
 
-    assertEquals(schemaJson, schemaJson2.replace("pet store json", "pet store"));
+    assertEquals(schemaJson, schemaJson2.replace("pet store json", PET_STORE_SCHEMA));
 
     String schemaYaml = given().sessionId(SESSION_ID).when().get("/pet store/api/yaml").asString();
 
@@ -376,7 +387,7 @@ public class WebApiSmokeTests {
     String schemaYaml2 =
         given().sessionId(SESSION_ID).when().get("/pet store yaml/api/yaml").asString();
 
-    assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", "pet store"));
+    assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", PET_STORE_SCHEMA));
   }
 
   @Test
@@ -794,7 +805,7 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/cat");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/bmFtZQ==&Y2F0");
     given()
         .sessionId(SESSION_ID)
         .expect()
@@ -1203,6 +1214,39 @@ public class WebApiSmokeTests {
     //
     //    result = given().get("/api/fdp/distribution/profile").getBody().asString();
     //    assertTrue(result.contains("todo"));
+  }
+
+  @Test
+  void testThatTablesWithSpaceCanBeDownloaded() {
+    var table = schema.getTable(TABLE_WITH_SPACES);
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/jsonld/" + table.getIdentifier());
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/ttl/" + table.getIdentifier());
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/excel/" + table.getIdentifier());
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/csv/" + table.getIdentifier());
   }
 
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {

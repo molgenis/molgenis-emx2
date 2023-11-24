@@ -5,7 +5,6 @@ import static org.molgenis.emx2.web.CsvApi.getDownloadColumns;
 import static org.molgenis.emx2.web.CsvApi.getDownloadRows;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
 import static org.molgenis.emx2.web.ZipApi.generateReportsToStore;
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -96,7 +95,7 @@ public class ExcelApi {
   }
 
   static String getExcelTable(Request request, Response response) throws IOException {
-    Table table = getTable(request);
+    Table table = MolgenisWebservice.getTableById(request);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {

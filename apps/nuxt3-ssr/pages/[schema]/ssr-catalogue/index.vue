@@ -1,20 +1,26 @@
 <script setup lang="ts">
 import type { IFilter } from "~/interfaces/types";
 
-const route = useRoute();
-const router = useRouter();
-const config = useRuntimeConfig();
-const pageSize = 20;
-
-const cohortOnly = computed(() => {
-  const routeSetting = route.query["cohort-only"] as string;
-  return routeSetting === "true" || config.public.cohortOnly;
+//add redirect middleware for cohortOnly to skip this page
+definePageMeta({
+  middleware: [
+    function (to, from) {
+      const cohortOnly =
+        to.query["cohort-only"] === "true" ||
+        useRuntimeConfig().public.cohortOnly;
+      if (cohortOnly) {
+        return navigateTo(`/${to.params.schema}/ssr-catalogue/all`, {
+          replace: true,
+        });
+      }
+    },
+  ],
 });
-if (cohortOnly) {
-  await navigateTo(`/${route.params.schema}/ssr-catalogue/all`);
-}
 
 useHead({ title: "Catalogues" });
+
+const route = useRoute();
+const config = useRuntimeConfig();
 
 let filters: IFilter[] = reactive([
   {
@@ -99,7 +105,7 @@ let activeName = ref("compact");
         >
           <CatalogueCard
             :network="network"
-            :schema="route.params.schema"
+            :schema="route.params.schema as string"
             :compact="activeName !== 'detailed'"
           />
         </CardListItem>

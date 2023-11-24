@@ -28,9 +28,8 @@
 </template>
 
 <script lang="ts">
-import { IColumn } from "../../Interfaces/IColumn";
-import { IRow } from "../../Interfaces/IRow";
-import { ITableMetaData } from "../../Interfaces/ITableMetaData";
+import type { IColumn, ITableMetaData } from "meta-data-utils";
+import type { IRow } from "../../Interfaces/IRow";
 import constants from "../constants.js";
 import { deepClone } from "../utils";
 import FormInput from "./FormInput.vue";
