@@ -430,6 +430,7 @@ public class RDFService {
         builder.add(subject, RDF.TYPE, tableIRI);
         builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
         builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
+        builder.add(subject, RDFS.LABEL, getLabelForRow(row, table.getMetadata()));
 
         for (final Column column : table.getMetadata().getColumns()) {
           // Exclude the system columns like mg_insertedBy
@@ -448,6 +449,14 @@ public class RDFService {
         }
       }
     }
+  }
+
+  private String getLabelForRow(final Row row, final TableMetadata metadata) {
+    List<String> primaryKeyValues = new ArrayList<>();
+    for (Column column : metadata.getPrimaryKeyColumns()) {
+      primaryKeyValues.add(row.getString(column.getName()));
+    }
+    return String.join(" ", primaryKeyValues);
   }
 
   private List<Row> getRows(final Table table, final String rowId) {
