@@ -25,6 +25,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.datamodels.DataCatalogueLoader;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -405,6 +406,17 @@ public class RDFTest {
         2, parents.size(), "This disease should only be a subclass of Diseases and C00-C75");
   }
 
+  @Test
+  void testThatSameIRIisAlwaysUsed() throws IOException {
+    // Use the catalogue schema since this has all the different issues.
+    var schema = database.dropCreateSchema("datacatalogue");
+    DataCatalogueLoader loader = new DataCatalogueLoader();
+    loader.load(schema, true);
+
+    database.dropSchema(schema.getName());
+  }
+
+  @Test
   void testThatURLColumnsAreObjectProperties() throws IOException {
     var schema = database.dropCreateSchema("Website");
     var table = schema.create(table("Websites", column("website", ColumnType.HYPERLINK).setKey(1)));
