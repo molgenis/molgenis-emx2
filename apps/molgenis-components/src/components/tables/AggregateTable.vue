@@ -93,8 +93,8 @@ import TableStickyHeaders from "./TableStickyHeaders.vue";
 import IAggregateData from "./IAggregateData";
 import Client from "../../client/client";
 import InputSelect from "../forms/InputSelect.vue";
-import { IColumn } from "../../Interfaces/IColumn";
 import { INewClient } from "../../client/IClient";
+import type { IColumn } from "meta-data-utils";
 
 export default defineComponent({
   name: "AggregateTable",
