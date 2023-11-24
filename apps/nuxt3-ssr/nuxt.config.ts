@@ -23,11 +23,14 @@ const config: NuxtConfig = {
       siteTitle: "Data Catalogue",
       analyticsKey: "",
       cohortOnly: false,
-      GQL_HOST: devProxy.options.target + 'catalogue/graphql',
+      GQL_HOST: devProxy.options.target + "catalogue/graphql",
     },
   },
   nitro: {
     compressPublicAssets: { brotli: true },
+  },
+  "graphql-client": {
+    codegen: process.env.NODE_ENV === "development",
   },
 };
 
