@@ -4,17 +4,15 @@ import type { ISetting } from "meta-data-utils";
 const route = useRoute();
 const config = useRuntimeConfig();
 
-const cat = route.params.catalogue;
-console.log("cat=" + cat);
+const catalogueRouteParam = route.params.catalogue;
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
-  return routeSetting === "true" || config.public.cohortOnly;
+  return routeSetting == "true" || config.public.cohortOnly;
 });
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
-
-const modelFilter = cat === "all" ? {} : { id: { equals: cat } };
+const modelFilter =
+  catalogueRouteParam === "all" ? {} : { id: { equals: catalogueRouteParam } };
 const modelQuery = `
   query Networks($filter:NetworksFilter) {
     Networks(filter:$filter){models{id}}
@@ -92,9 +90,12 @@ const query = `query MyQuery($networksFilter:NetworksFilter,$variablesFilter:Var
       }`;
 
 const data = await fetchGql(query, {
-  networksFilter: "all" === cat ? {} : { id: { equals: cat } },
+  networksFilter:
+    "all" === catalogueRouteParam
+      ? {}
+      : { id: { equals: catalogueRouteParam } },
   variablesFilter:
-    "all" === cat
+    "all" === catalogueRouteParam
       ? {}
       : {
           resource: {
@@ -105,19 +106,25 @@ const data = await fetchGql(query, {
             },
           },
         },
-  cohortsFilter: "all" === cat ? {} : { networks: { id: { equals: cat } } },
+  cohortsFilter:
+    "all" === catalogueRouteParam
+      ? {}
+      : { networks: { id: { equals: catalogueRouteParam } } },
   subcohortsFilter:
-    "all" === cat
+    "all" === catalogueRouteParam
       ? {}
       : {
           resource: {
             id: { equals: "cannot make a filter, todo fix data model" },
           },
         },
-  dataSourcesFilter: "all" === cat ? {} : { networks: { id: { equals: cat } } },
+  dataSourcesFilter:
+    "all" === catalogueRouteParam
+      ? {}
+      : { networks: { id: { equals: catalogueRouteParam } } },
 });
-console.log(data);
-const catalogue = "all" === cat ? {} : data.data?.Networks[0];
+
+const catalogue = "all" === catalogueRouteParam ? {} : data.data?.Networks[0];
 
 function percentageLongitudinal(
   cohortsGroupBy: { count: number; design: { name: string } }[],
@@ -178,14 +185,17 @@ let description = computed(() => {
       ></PageHeader>
       <LandingPrimary>
         <LandingCardPrimary
-          v-if="cat === 'all' || data.data.Cohorts_agg.count > 0"
+          v-if="data.data.Cohorts_agg.count > 0"
           image="image-link"
           title="Cohorts"
           :description="
             getSettingValue(
               'CATALOGUE_LANDING_COHORTS_TEXT',
               data.data._settings
-            ) || ' A complete overview of ' + cat + ' cohorts and biobanks.'
+            ) ||
+            ' A complete overview of ' +
+              catalogueRouteParam +
+              ' cohorts and biobanks.'
           "
           :callToAction="
             getSettingValue(
@@ -194,20 +204,17 @@ let description = computed(() => {
             )
           "
           :count="data.data.Cohorts_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${cat}/cohorts`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`"
         />
         <LandingCardPrimary
-          v-if="
-            (!cohortOnly && cat === 'all') ||
-            data.data.DataSources_agg.count > 0
-          "
+          v-if="data.data.DataSources_agg.count > 0 && !cohortOnly"
           image="image-data-warehouse"
           title="Data sources"
           :description="
             getSettingValue(
               'CATALOGUE_LANDING_DATASOURCES_TEXT',
               data.data._settings
-            ) || cat + ' databanks and registries'
+            ) || catalogueRouteParam + ' databanks and registries'
           "
           :callToAction="
             getSettingValue(
@@ -216,19 +223,17 @@ let description = computed(() => {
             )
           "
           :count="data.data.DataSources_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${cat}/datasources`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/datasources`"
         />
         <LandingCardPrimary
-          v-if="
-            (!cohortOnly && cat === 'all') || data.data.Variables_agg.count > 0
-          "
+          v-if="data.data.Variables_agg.count > 0 && !cohortOnly"
           image="image-diagram-2"
           title="Variables"
           :description="
             getSettingValue(
               'CATALOGUE_LANDING_VARIABLES_TEXT',
               data.data._settings
-            ) || cat + ' harmonized variables.'
+            ) || catalogueRouteParam + ' harmonized variables.'
           "
           :count="data.data.Variables_agg.count"
           :callToAction="
@@ -237,7 +242,7 @@ let description = computed(() => {
               data.data._settings
             )
           "
-          :link="`/${route.params.schema}/ssr-catalogue/${cat}/variables`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`"
         />
       </LandingPrimary>
       <LandingSecondary>
@@ -346,38 +351,38 @@ let description = computed(() => {
           icon="demography"
           title="Cohort studies"
           :count="data.data.Cohorts_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${cat}/cohorts`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`"
         />
         <LandingCardSecondary
           icon="database"
           title="Data sources"
           :count="data.data.DataSources_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${cat}/datasources`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/datasources`"
         />
 
         <LandingCardSecondary
           icon="hub"
           title="Networks"
           :count="data.data.Networks_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${cat}/networks`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`"
         />
         <LandingCardSecondary
           icon="institution"
           title="Organisations"
           :count="data.data.Organisations_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${cat}/organisations`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/organisations`"
         />
         <LandingCardSecondary
           icon="dataset"
           title="Datasets"
           :count="data.data.Cohorts_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${cat}/datasets`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/datasets`"
         />
         <LandingCardSecondary
           icon="list"
           title="Collected variables"
           :count="data.data.Networks_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${cat}/variables`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`"
         />-->
         <!-- todo must split in collected and harmonized -->
         <!--
@@ -385,13 +390,13 @@ let description = computed(() => {
           icon="harmonized-variables"
           title="Harmonized variables"
           :count="data.data.Variables_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${cat}/variables`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`"
         />
         <LandingCardSecondary
           icon="dataset-linked"
           title="Standards"
           :count="data.data.Models_agg.count"
-          :link="`/${route.params.schema}/ssr-catalogue/${cat}/models`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/models`"
         />-->
       </LandingSecondary>
     </LayoutsLandingPage>

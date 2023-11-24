@@ -1,5 +1,5 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
-import { defineNuxtConfig } from "nuxt/config";
+import { defineNuxtConfig, type NuxtConfig } from "nuxt/config";
 
 const devProxy = {
   options: {
@@ -11,7 +11,7 @@ const devProxy = {
   },
 };
 
-const config = {
+const config: NuxtConfig = {
   modules: ["nuxt-proxy", "@nuxt/image"],
   devtools: { enabled: true },
   runtimeConfig: {
@@ -23,7 +23,6 @@ const config = {
       siteTitle: "Data Catalogue",
       analyticsKey: "",
       cohortOnly: false,
-      debug: true
     },
   },
   nitro: {
@@ -32,7 +31,6 @@ const config = {
 };
 
 if (process.env.NODE_ENV === "development") {
-  // @ts-ignore
   config.proxy = devProxy;
 }
 

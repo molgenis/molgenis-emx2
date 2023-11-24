@@ -5,23 +5,22 @@ import type { IFilter } from "~/interfaces/types";
 definePageMeta({
   middleware: [
     function (to, from) {
-      const config = useRuntimeConfig();
-      if (config.public.cohortOnly === true) {
-        return navigateTo(`/${to.params.schema}/ssr-catalogue/all`);
+      const cohortOnly =
+        to.query["cohort-only"] === "true" ||
+        useRuntimeConfig().public.cohortOnly;
+      if (cohortOnly) {
+        return navigateTo(`/${to.params.schema}/ssr-catalogue/all`, {
+          replace: true,
+        });
       }
     },
   ],
 });
 
-const route = useRoute();
-const router = useRouter();
-const config = useRuntimeConfig();
-const pageSize = 20;
-
-const cohortOnly =
-  route.query["cohort-only"] === "true" || config.public.cohortOnly;
-
 useHead({ title: "Catalogues" });
+
+const route = useRoute();
+const config = useRuntimeConfig();
 
 let filters: IFilter[] = reactive([
   {
@@ -106,7 +105,7 @@ let activeName = ref("compact");
         >
           <CatalogueCard
             :network="network"
-            :schema="route.params.schema"
+            :schema="route.params.schema as string"
             :compact="activeName !== 'detailed'"
           />
         </CardListItem>
