@@ -310,9 +310,15 @@ public class RDFService {
   }
 
   private IRI getColumnIRI(final Column column) {
-    // TODO: In case of a column that is defined in a parent table the IRI should be the same
-    final TableMetadata table = column.getTable();
-    final Schema schema = table.getTable().getSchema();
+    TableMetadata table = column.getTable();
+    Schema schema = table.getTable().getSchema();
+    final Database db = schema.getDatabase();
+    while (table.getLocalColumn(column.getName()) == null) {
+      var inherited = table.getInheritedTable();
+      // Don't use the copy from the inherited table metadata, because that might not be complete.
+      schema = db.getSchema(inherited.getSchemaName());
+      table = schema.getTable(inherited.getTableName()).getMetadata();
+    }
     final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(table.getIdentifier());
     final String columnName = UrlEscapers.urlPathSegmentEscaper().escape(column.getIdentifier());
     final Namespace ns = getSchemaNamespace(schema);

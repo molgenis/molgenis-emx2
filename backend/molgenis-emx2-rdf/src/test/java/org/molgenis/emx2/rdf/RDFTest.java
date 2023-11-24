@@ -434,7 +434,7 @@ public class RDFTest {
     assertFalse(
         handler.resources.containsKey(websitePredicateER),
         "There should not be a predicate for the column in the Extended Resources table");
-    assertTrue(
+    assertFalse(
         handler.resources.containsKey(websitePredicateDR),
         "There should not be a predicate for the column in the Data Resources table");
     database.dropSchema(schema.getName());
