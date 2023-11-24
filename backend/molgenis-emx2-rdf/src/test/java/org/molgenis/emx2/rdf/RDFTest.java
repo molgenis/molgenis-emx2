@@ -473,6 +473,22 @@ public class RDFTest {
     database.dropSchema("Website");
   }
 
+  @Test
+  void testThatAllInstancesHaveALabel() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(petStore_nr1), handler);
+    int instancesWithOutALabel = 0;
+    for (var resource : handler.resources.keySet()) {
+      var labels = handler.resources.get(resource).get(RDFS.LABEL);
+      if (labels.isEmpty()) {
+        System.err.println(
+            "Each resource should have a label. " + resource.stringValue() + " has none.");
+        instancesWithOutALabel += 1;
+      }
+    }
+    assertEquals(0, instancesWithOutALabel, "All instances should have a label.");
+  }
+
   /**
    * Helper method to reduce boilerplate code in the tests.<br>
    * <b>Note</b> this method delegates to the handler for the results of parsing.
