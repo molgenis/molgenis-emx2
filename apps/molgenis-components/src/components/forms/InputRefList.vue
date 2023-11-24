@@ -48,7 +48,7 @@
             class="form-check-input"
             :class="{ 'is-invalid': errorMessage }"
           />
-          <label class="form-check-label" :for="`${id}-${row.primaryKey}`">
+          <label class="form-check-label" :for="`${id}-${row.primaryKey}`" @click.prevent="toggle(row.primaryKey)">
             {{ applyJsTemplate(row, refLabel) }}
           </label>
         </div>
@@ -183,6 +183,14 @@ export default {
     },
     openSelect() {
       this.showSelect = true;
+    },
+    toggle(value: any) {
+      if(this.selection?.includes(value)) {
+        this.selection = this.selection.filter(v => v !== value);
+      } else {
+        this.selection =[...this.selection,value];
+      }
+      this.emitSelection();
     },
     closeSelect() {
       this.loadOptions();
