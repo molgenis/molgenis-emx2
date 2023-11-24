@@ -6,19 +6,20 @@ definePageMeta({
   middleware: [
     function (to, from) {
       const config = useRuntimeConfig();
-      if(config.public.cohortOnly === true)
-      {
+      if (config.public.cohortOnly === true) {
         return navigateTo(`/${to.params.schema}/ssr-catalogue/all`);
       }
-    }]
-})
+    },
+  ],
+});
 
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 20;
 
-const cohortOnly = route.query["cohort-only"]  === "true" || config.public.cohortOnly;
+const cohortOnly =
+  route.query["cohort-only"] === "true" || config.public.cohortOnly;
 
 useHead({ title: "Catalogues" });
 
