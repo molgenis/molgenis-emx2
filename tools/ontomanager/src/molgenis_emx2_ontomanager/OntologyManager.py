@@ -7,13 +7,14 @@ from time import sleep
 
 import numpy as np
 import pandas as pd
-from molgenis_emx2_pyclient.client import Client
+from molgenis_emx2_pyclient import Client
 from requests import Response
 from tqdm import tqdm
 
 from .constants import ontology_columns
 from .exceptions import OntomanagerException, DuplicateKeyException, MissingPkeyException, NoSuchNameException, \
-    NoSuchTableException, UpdateItemsException, SigninError, InvalidDatabaseException, ParentReferenceException
+    NoSuchTableException, UpdateItemsException, SigninError, InvalidDatabaseException, ParentReferenceException, \
+    UsageReferenceException
 from .graphql_queries import Queries
 from .utils import generate_action_id
 
@@ -510,6 +511,8 @@ class OntologyManager(Client):
                 raise DuplicateKeyException(message)
             if '.parent REFERENCES ' in message:
                 raise ParentReferenceException(message)
+            if 'is still referenced from table' in message:
+                raise UsageReferenceException(message)
             raise OntomanagerException(message)
         else:
             log.info(f"Successfully {verbs[1]} {variables[next(iter(variables))]['name']}.")

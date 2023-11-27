@@ -45,3 +45,7 @@ class InvalidDatabaseException(OntomanagerException):
 
 class ParentReferenceException(OntomanagerException):
     """Thrown when an ontology item to be deleted is referenced by a child term."""
+
+
+class UsageReferenceException(OntomanagerException):
+    """Thrown when an ontology item to be deleted is referenced in a table."""
