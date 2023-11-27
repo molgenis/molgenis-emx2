@@ -31,6 +31,17 @@ def signin():
         }
     """
 
+def signout():
+    """GraphQL mutation to sign out and close the session."""
+    return """
+        mutation {
+            signout {
+                status
+                message
+            }
+        }
+    """
+
 def create_schema():
     """GraphQL query to create a new schema. Function must contain name in the
     posted data.
