@@ -252,6 +252,31 @@ if (route.params.catalogue) {
           </CatalogueItemList>
         </ContentBlock>
 
+        <ContentBlock title="Updates" id="updates">
+          <CatalogueItemList
+            :items="[
+              {
+                label: 'preservation',
+                content: dataSource.preservation,
+              },
+              {
+                label: 'preservationDuration',
+                content: dataSource.preservationDuration,
+              },
+              {
+                label: 'refreshPeriod',
+                content: dataSource.refreshPeriod,
+                type: 'ONTOLOGY',
+              },
+              {
+                label: 'dateLastRefresh',
+                content: dataSource.dateLastRefresh,
+              },
+            ]"
+          >
+          </CatalogueItemList>
+        </ContentBlock>
+
         <ContentBlock title="debug" v-if="(route.query.debug as string)">
           <pre>{{ dataSource }}</pre>
         </ContentBlock>

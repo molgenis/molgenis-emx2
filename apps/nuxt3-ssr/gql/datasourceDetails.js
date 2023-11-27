@@ -214,6 +214,17 @@ export default gql`
       biospecimenAccessConditions
       governanceDetails
       approvalForPublication
+      preservation
+      preservationDuration
+      refreshPeriod {
+        name
+        order
+        code
+        parent {
+          code
+        }
+      }
+      dateLastRefresh
     }
   }
 `;
