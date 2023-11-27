@@ -1,9 +1,14 @@
 <script setup lang="ts">
 const route = useRoute();
+const config = useRuntimeConfig();
 
 const { data } = await useAsyncGql({
   operation: "dataSource",
   variables: { id: route.params.datasource as string },
+  options: {
+    host: config.public.apiBase,
+    schema: route.params.schema as string,
+  },
 });
 
 const dataSource = computed(() => {

@@ -17,13 +17,12 @@ const config: NuxtConfig = {
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side
     public: {
-      apiBase: "http://localhost:3000/", //'https://emx2.molgeniscloud.org/',
+      apiBase: "http://localhost:3000/", // set to api server in production,
       emx2Theme: "",
       emx2Logo: "",
       siteTitle: "Data Catalogue",
       analyticsKey: "",
       cohortOnly: false,
-      GQL_HOST: devProxy.options.target + "catalogue/graphql",
     },
   },
   nitro: {
@@ -31,6 +30,13 @@ const config: NuxtConfig = {
   },
   "graphql-client": {
     codegen: process.env.NODE_ENV === "development",
+    clients: {
+      default: {
+        host: "http://localhost:3000/catalogue/graphql",
+        introspectionHost:
+          "https://data-catalogue.molgeniscloud.org/catalogue/graphql",
+      },
+    },
   },
 };
 
