@@ -4,11 +4,14 @@ const query = moduleToString(datasourceGql);
 const route = useRoute();
 const config = useRuntimeConfig();
 
-const { data } = await useFetch(`/${route.params.schema}/catalogue/graphql`, {
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: { query, variables: { id: route.params.datasource as string } },
-});
+const { data, error } = await useFetch(
+  `/${route.params.schema}/catalogue/graphql`,
+  {
+    baseURL: config.public.apiBase,
+    method: "POST",
+    body: { query, variables: { id: route.params.datasource as string } },
+  }
+);
 
 const dataSource = computed(() => {
   return data.value.data.DataSources[0];
@@ -19,6 +22,8 @@ let tocItems = computed(() => {
     { label: "Description", id: "description" },
     { label: "Overview", id: "overview" },
     { label: "Population", id: "population" },
+    { label: "Contents", id: "contents" },
+    { label: "Linkage", id: "linkage" },
   ];
   return tableOffContents;
 });
@@ -63,7 +68,10 @@ if (route.params.catalogue) {
       />
     </template>
     <template #main>
-      <ContentBlocks v-if="data">
+      <div v-if="error">
+        {{ error }}
+      </div>
+      <ContentBlocks v-if="dataSource">
         <ContentBlockIntro
           :image="dataSource?.logo?.url"
           :link="dataSource?.website"
@@ -137,6 +145,55 @@ if (route.params.catalogue) {
               },
             ]"
           />
+        </ContentBlock>
+
+        <ContentBlock title="Contents" id="contents">
+          <CatalogueItemList
+            :items="[
+              {
+                label: 'Datasets',
+                content: dataSource.datasets,
+              },
+              {
+                label: 'Areas of information',
+                content: dataSource.areasOfInformation,
+                type: 'ONTOLOGY',
+              },
+              {
+                label: 'Quality of life other',
+                content: dataSource.qualityOfLifeOther,
+              },
+              {
+                label: 'Languages',
+                content: dataSource.languages,
+                type: 'ONTOLOGY',
+              },
+              {
+                label: 'Record trigger',
+                content: dataSource.recordTrigger,
+              },
+            ]"
+          />
+        </ContentBlock>
+
+        <ContentBlock title="Linkage" id="linkage">
+          <CatalogueItemList
+            :items="[
+              {
+                label: 'Linkage possibility',
+                content: dataSource.linkagePossibility,
+              },
+              {
+                label: 'Linkage description',
+                content: dataSource.linkageDescription,
+              },
+              {
+                label: 'Linked resources',
+                content: dataSource.linkedResources,
+              },
+            ]"
+          >
+          </CatalogueItemList>
         </ContentBlock>
 
         <ContentBlock title="debug" v-if="(route.query.debug as string)">
