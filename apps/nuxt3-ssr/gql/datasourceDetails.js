@@ -1,0 +1,60 @@
+import gql from "graphql-tag";
+
+export default gql`
+  query dataSource($id: String) {
+    DataSources(filter: { id: { equals: [$id] } }) {
+      id
+      acronym
+      name
+      description
+      website
+      keywords
+      leadOrganisation {
+        id
+        name
+      }
+      type {
+        name
+      }
+      dateEstablished
+      startDataCollection
+      logo {
+        url
+      }
+      numberOfParticipants
+      countries {
+        name
+        order
+        code
+        parent {
+          code
+        }
+      }
+      populationAgeGroups {
+        name
+        order
+        code
+        parent {
+          code
+        }
+      }
+      populationEntry {
+        name
+        order
+        code
+        parent {
+          code
+        }
+      }
+      populationExitOther
+      populationDisease {
+        name
+        order
+        code
+        parent {
+          code
+        }
+      }
+    }
+  }
+`;

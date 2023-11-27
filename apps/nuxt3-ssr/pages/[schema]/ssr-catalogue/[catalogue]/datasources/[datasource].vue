@@ -1,18 +1,17 @@
 <script setup lang="ts">
+import datasourceGql from "~~/gql/datasourceDetails";
+const query = moduleToString(datasourceGql);
 const route = useRoute();
 const config = useRuntimeConfig();
 
-const { data } = await useAsyncGql({
-  operation: "dataSource",
-  variables: { id: route.params.datasource as string },
-  options: {
-    host: config.public.apiBase,
-    schema: route.params.schema as string,
-  },
+const { data } = await useFetch(`/${route.params.schema}/catalogue/graphql`, {
+  baseURL: config.public.apiBase,
+  method: "POST",
+  body: { query, variables: { id: route.params.datasource as string } },
 });
 
 const dataSource = computed(() => {
-  return data.value.DataSources[0];
+  return data.value.data.DataSources[0];
 });
 
 let tocItems = computed(() => {

@@ -44,7 +44,6 @@
     "@vueuse/core": "10.5.0",
     "floating-vue": "^2.0.0-beta.20",
     "meta-data-utils": "*",
-    "nuxt-graphql-client": "0.2.31",
     "vite": "4.0.5"
   }
 }
