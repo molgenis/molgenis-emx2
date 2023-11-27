@@ -48,7 +48,11 @@
             class="form-check-input"
             :class="{ 'is-invalid': errorMessage }"
           />
-          <label class="form-check-label" :for="`${id}-${row.primaryKey}`" @click.prevent="toggle(row.primaryKey)">
+          <label
+            class="form-check-label"
+            :for="`${id}-${row.primaryKey}`"
+            @click.prevent="toggle(row.primaryKey)"
+          >
             {{ applyJsTemplate(row, refLabel) }}
           </label>
         </div>
@@ -59,6 +63,7 @@
             id="add-entry"
             :tableId="tableId"
             :schemaId="schemaId"
+            @update:newRow="selectNewRow"
           />
         </Tooltip>
       </div>
@@ -86,7 +91,7 @@
             :showSelect="true"
             :filter="filter"
             :limit="10"
-            @update:selection="$emit('update:modelValue', $event)"
+            @update:selection="handleUpdateSelection"
             @select="emitSelection"
             @deselect="deselect"
           />
@@ -178,6 +183,10 @@ export default {
       this.selection = [];
       this.emitSelection();
     },
+    handleUpdateSelection(event: IRow[]) {
+      this.selection = event;
+      this.emitSelection;
+    },
     emitSelection() {
       this.$emit("update:modelValue", this.selection);
     },
@@ -185,10 +194,12 @@ export default {
       this.showSelect = true;
     },
     toggle(value: any) {
-      if(this.selection?.includes(value)) {
-        this.selection = this.selection.filter(v => v !== value);
+      if (this.selection?.includes(value)) {
+        this.selection = this.selection.filter(
+          (selectedValue: any) => selectedValue !== value
+        );
       } else {
-        this.selection =[...this.selection,value];
+        this.selection = [...this.selection, value];
       }
       this.emitSelection();
     },
@@ -217,6 +228,9 @@ export default {
         })
       ).then(() => (this.loading = false));
       this.$emit("optionsLoaded", this.data);
+    },
+    selectNewRow(newRow: IRow) {
+      this.selection.push(newRow);
     },
   },
   watch: {
