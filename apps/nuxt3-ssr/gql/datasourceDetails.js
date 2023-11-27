@@ -174,6 +174,46 @@ export default gql`
           localName
         }
       }
+      dataHolder {
+        id
+        pid
+        acronym
+        name
+        type {
+          name
+        }
+      }
+      dAPs {
+        populationSubsetOther
+        isDataAccessProvider {
+          name
+        }
+        organisation {
+          id
+        }
+        resource {
+          id
+        }
+      }
+      informedConsent {
+        name
+        order
+        code
+        parent {
+          code
+        }
+      }
+      informedConsentOther
+      accessIdentifiableData
+      accessIdentifiableDataRoute
+      accessSubjectDetails
+      accessSubjectDetailsRoute
+      auditPossible
+      standardOperatingProcedures
+      biospecimenAccess
+      biospecimenAccessConditions
+      governanceDetails
+      approvalForPublication
     }
   }
 `;

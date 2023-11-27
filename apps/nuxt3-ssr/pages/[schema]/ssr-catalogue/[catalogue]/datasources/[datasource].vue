@@ -24,6 +24,8 @@ let tocItems = computed(() => {
     { label: "Population", id: "population" },
     { label: "Contents", id: "contents" },
     { label: "Linkage", id: "linkage" },
+    { label: "Access", id: "access" },
+    { label: "Updates", id: "updates" },
   ];
   return tableOffContents;
 });
@@ -54,9 +56,6 @@ if (route.params.catalogue) {
       >
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" :current="dataSource?.id" />
-        </template>
-        <template #title-suffix>
-          <IconButton icon="star" label="Favorite" />
         </template>
       </PageHeader>
     </template>
@@ -190,6 +189,63 @@ if (route.params.catalogue) {
               {
                 label: 'Linked resources',
                 content: dataSource.linkedResources,
+              },
+            ]"
+          >
+          </CatalogueItemList>
+        </ContentBlock>
+
+        <ContentBlock title="Access" id="access">
+          <CatalogueItemList
+            :items="[
+              {
+                label: 'Data holder',
+                content: dataSource.dataHolder,
+              },
+              {
+                label: 'DAPs',
+                content: dataSource.dAPs,
+              },
+              {
+                label: 'Informed consent',
+                content: dataSource.informedConsent,
+                type: 'ONTOLOGY',
+              },
+              {
+                label: 'accessIdentifiableData',
+                content: dataSource.accessIdentifiableData,
+              },
+              {
+                label: 'accessIdentifiableDataRoute',
+                content: dataSource.accessIdentifiableDataRoute,
+              },
+              {
+                label: 'accessSubjectDetails',
+                content: dataSource.accessSubjectDetails,
+              },
+              {
+                label: 'auditPossible',
+                content: dataSource.auditPossible,
+              },
+              {
+                label: 'standardOperatingProcedures',
+                content: dataSource.standardOperatingProcedures,
+              },
+              {
+                label: 'biospecimenAccess',
+                content: dataSource.biospecimenAccess,
+              },
+              {
+                label: 'biospecimenAccessConditions',
+                content: dataSource.biospecimenAccessConditions,
+              },
+              {
+                label: 'governanceDetails',
+                content: dataSource.governanceDetails,
+              },
+              {
+                label: 'approvalForPublication',
+                content: dataSource.approvalForPublication,
               },
             ]"
           >
