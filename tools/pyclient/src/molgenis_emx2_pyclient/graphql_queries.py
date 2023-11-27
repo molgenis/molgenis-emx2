@@ -134,12 +134,93 @@ def list_schemas():
     return """
         {
             _schemas {
+                id
                 name
+                label
                 description
             }
         }
     """
 
+
+def list_schema_meta():
+    """GraphQL query to view metadata about a schema including the definition of tables and columns, as well as schema settings and members."""
+    return """
+      { 
+        _schema {
+            id
+            name
+            label
+            tables {
+                name
+                label
+                description
+                labels {
+                    locale
+                    value
+                }
+                id
+                schemaName
+                schemaId
+                inheritName
+                inheritId
+                descriptions {
+                    locale
+                    value
+                }
+                columns {
+                    table
+                    name
+                    description
+                    labels {
+                        locale
+                        value
+                    }
+                    id
+                    descriptions {
+                        locale
+                        value
+                    }
+                    position
+                    columnType
+                    inherited
+                    key
+                    required
+                    defaultValue
+                    refSchemaId
+                    refSchemaName
+                    refTableName
+                    refTableId
+                    refLinkName
+                    refBackId
+                    refLabel
+                    validation
+                    visible
+                    readonly
+                    computed
+                    semantics
+                }
+                settings {
+                    key
+                    value
+                }
+                semantics
+                tableType
+            }
+            members {
+                email
+                role
+            }
+            settings {
+                key
+                value
+            }
+            roles {
+                name
+            }
+        }
+      }
+    """
 
 def list_tables():
     """GraphQL query to list the tables in a schema."""
