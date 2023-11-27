@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import datasourceGql from "~~/gql/datasourceDetails";
+import datasetQuery from "~~/gql/datasets";
 const query = moduleToString(datasourceGql);
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -22,6 +23,7 @@ let tocItems = computed(() => {
     { label: "Description", id: "description" },
     { label: "Overview", id: "overview" },
     { label: "Population", id: "population" },
+    { label: "Datasets", id: "datasets" },
     { label: "Contents", id: "contents" },
     { label: "Linkage", id: "linkage" },
     { label: "Access", id: "access" },
@@ -36,7 +38,7 @@ let tocItems = computed(() => {
 
 useHead({ title: dataSource.value?.acronym || dataSource.value?.name });
 
-const messageFilter = `{"filter": {"id":{"equals":"${route.params.cohort}"}}}`;
+const messageFilter = `{"filter": {"id":{"equals":"${route.params.datasource}"}}}`;
 
 const crumbs: any = {};
 if (route.params.catalogue) {
@@ -49,6 +51,15 @@ if (route.params.catalogue) {
 } else {
   crumbs["Home"] = `/${route.params.schema}/ssr-catalogue`;
   crumbs["Data sources"] = `/${route.params.schema}/ssr-catalogue/datasources`;
+}
+
+function datasetMapper(item: { name: string; description: string }) {
+  return {
+    id: item.name,
+    name: item.name,
+    description: item.description,
+    _path: `/${route.params.schema}/ssr-catalogue/all/datasets`,
+  };
 }
 </script>
 <template>
@@ -150,13 +161,27 @@ if (route.params.catalogue) {
           />
         </ContentBlock>
 
+        <TableContent
+          v-if="dataSource.datasets"
+          id="datasets"
+          title="Datasets"
+          description="List of datasets for this resource"
+          :headers="[
+            { id: 'name', label: 'Name' },
+            { id: 'description', label: 'Description', singleLine: true },
+          ]"
+          type="Datasets"
+          :query="datasetQuery"
+          :filter="{ id: route.params.datasource }"
+          :rowMapper="datasetMapper"
+          v-slot="slotProps"
+        >
+          <DatasetDisplay :id="slotProps.id" />
+        </TableContent>
+
         <ContentBlock title="Contents" id="contents">
           <CatalogueItemList
             :items="[
-              {
-                label: 'Datasets',
-                content: dataSource.datasets,
-              },
               {
                 label: 'Areas of information',
                 content: dataSource.areasOfInformation,
