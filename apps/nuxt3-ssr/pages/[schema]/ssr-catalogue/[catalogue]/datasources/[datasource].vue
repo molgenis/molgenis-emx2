@@ -26,6 +26,10 @@ let tocItems = computed(() => {
     { label: "Linkage", id: "linkage" },
     { label: "Access", id: "access" },
     { label: "Updates", id: "updates" },
+    { label: "Quality", id: "quality" },
+    { label: "Standards", id: "standards" },
+    { label: "Information", id: "information" },
+    { label: "Collaborations", id: "collaborations" },
   ];
   return tableOffContents;
 });
@@ -212,39 +216,39 @@ if (route.params.catalogue) {
                 type: 'ONTOLOGY',
               },
               {
-                label: 'accessIdentifiableData',
+                label: 'Access identifiable data',
                 content: dataSource.accessIdentifiableData,
               },
               {
-                label: 'accessIdentifiableDataRoute',
+                label: 'Access identifiable data route',
                 content: dataSource.accessIdentifiableDataRoute,
               },
               {
-                label: 'accessSubjectDetails',
+                label: 'Access subject details',
                 content: dataSource.accessSubjectDetails,
               },
               {
-                label: 'auditPossible',
+                label: 'Audit possible',
                 content: dataSource.auditPossible,
               },
               {
-                label: 'standardOperatingProcedures',
+                label: 'Standard operating procedures',
                 content: dataSource.standardOperatingProcedures,
               },
               {
-                label: 'biospecimenAccess',
+                label: 'Biospecimen access',
                 content: dataSource.biospecimenAccess,
               },
               {
-                label: 'biospecimenAccessConditions',
+                label: 'Biospecimen access conditions',
                 content: dataSource.biospecimenAccessConditions,
               },
               {
-                label: 'governanceDetails',
+                label: 'Governance details',
                 content: dataSource.governanceDetails,
               },
               {
-                label: 'approvalForPublication',
+                label: 'Approval for publication',
                 content: dataSource.approvalForPublication,
               },
             ]"
@@ -256,21 +260,133 @@ if (route.params.catalogue) {
           <CatalogueItemList
             :items="[
               {
-                label: 'preservation',
+                label: 'Preservation',
                 content: dataSource.preservation,
               },
               {
-                label: 'preservationDuration',
+                label: 'Preservation duration',
                 content: dataSource.preservationDuration,
               },
               {
-                label: 'refreshPeriod',
+                label: 'Refresh period',
                 content: dataSource.refreshPeriod,
                 type: 'ONTOLOGY',
               },
               {
-                label: 'dateLastRefresh',
+                label: 'DateLast refresh',
                 content: dataSource.dateLastRefresh,
+              },
+            ]"
+          >
+          </CatalogueItemList>
+        </ContentBlock>
+
+        <ContentBlock title="Quality" id="quality">
+          <CatalogueItemList
+            :items="[
+              {
+                label: 'Qualification',
+                content: dataSource.qualification,
+              },
+              {
+                label: 'Qualifications description',
+                content: dataSource.qualificationsDescription,
+              },
+              {
+                label: 'Access for validation',
+                content: dataSource.accessForValidation,
+              },
+              {
+                label: 'Quality validation frequency',
+                content: dataSource.qualityValidationFrequency,
+              },
+              {
+                label: 'Quality validation methods',
+                content: dataSource.qualityValidationMethods,
+              },
+              {
+                label: 'Correction methods',
+                content: dataSource.correctionMethods,
+              },
+              {
+                label: 'Quality validation results',
+                content: dataSource.qualityValidationResults,
+              },
+            ]"
+          >
+          </CatalogueItemList>
+        </ContentBlock>
+
+        <ContentBlock title="standards" id="standards">
+          <CatalogueItemList
+            :items="[
+              {
+                label: 'Cdms',
+                content: dataSource.cdms,
+              },
+              {
+                label: 'Cdms other',
+                content: dataSource.cdmsOther,
+              },
+            ]"
+          >
+          </CatalogueItemList>
+        </ContentBlock>
+
+        <ContentBlock title="information" id="information">
+          <CatalogueItemList
+            :items="[
+              {
+                label: 'Design paper',
+                content: dataSource.designPaper,
+              },
+              {
+                label: 'Publications',
+                content: dataSource.publications,
+              },
+              {
+                label: 'DesignPaper',
+                content: dataSource.designPaper,
+              },
+              {
+                label: 'Informed consent type',
+                content: dataSource.informedConsentType,
+              },
+              {
+                label: 'Funding sources',
+                content: dataSource.fundingSources,
+              },
+              {
+                label: 'Funding statement',
+                content: dataSource.fundingStatement,
+              },
+              {
+                label: 'Acknowledgements',
+                content: dataSource.acknowledgements,
+              },
+              {
+                label: 'Documentation',
+                content: dataSource.documentation,
+              },
+              {
+                label: 'Supplementary Information',
+                content: dataSource.supplementaryInformation,
+              },
+            ]"
+          >
+          </CatalogueItemList>
+        </ContentBlock>
+
+        <ContentBlock title="collaborations" id="collaborations">
+          <CatalogueItemList
+            :items="[
+              {
+                label: 'Networks',
+                content: dataSource.networks,
+              },
+              {
+                label: 'Studies',
+                content: dataSource.studies,
               },
             ]"
           >

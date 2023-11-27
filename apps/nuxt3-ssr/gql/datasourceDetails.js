@@ -225,6 +225,58 @@ export default gql`
         }
       }
       dateLastRefresh
+      qualification
+      qualificationsDescription
+      accessForValidation
+      qualityValidationFrequency
+      qualityValidationMethods
+      correctionMethods
+      qualityValidationResults
+      cdms {
+        source {
+          id
+          name
+        }
+
+        sourceVersion
+        target {
+          id
+        }
+        mappingStatus {
+          name
+        }
+        eTLFrequency
+      }
+      cdmsOther
+      designPaper {
+        doi
+        title
+      }
+      publications {
+        doi
+        title
+      }
+      informedConsentType {
+        name
+      }
+      fundingSources {
+        name
+      }
+      fundingStatement
+      acknowledgements
+      documentation {
+        name
+        description
+      }
+      supplementaryInformation
+      networks {
+        id
+        name
+      }
+      studies {
+        id
+        name
+      }
     }
   }
 `;
