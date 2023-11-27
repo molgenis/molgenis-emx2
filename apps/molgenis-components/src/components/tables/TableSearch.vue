@@ -112,7 +112,6 @@ export default {
       type: String,
       required: true,
     },
-    /** two-way binding of the selection */
     selection: { type: Array, default: () => [] },
     /** enables checkbox to select rows */
     showSelect: {
@@ -161,6 +160,8 @@ export default {
   },
   methods: {
     select(value: IRow) {
+      this.selection.push(value);
+      this.$emit("update:selection", this.selection);
       this.$emit("select", value);
     },
     deselect(value: IRow) {
