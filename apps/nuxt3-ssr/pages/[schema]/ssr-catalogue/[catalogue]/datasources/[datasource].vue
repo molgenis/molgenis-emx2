@@ -143,7 +143,7 @@ if (route.params.catalogue) {
               },
               {
                 label: 'Population disease',
-                content: dataSource.populationAgeGroups,
+                content: dataSource.populationDisease,
                 type: 'ONTOLOGY',
               },
             ]"

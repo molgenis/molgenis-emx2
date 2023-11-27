@@ -1,4 +1,6 @@
 import gql from "graphql-tag";
+import ontologyFragment from "~~/gql/fragments/ontology";
+import fileFragment from "~~/gql/fragments/file";
 
 export default gql`
   query dataSource($id: String) {
@@ -13,48 +15,16 @@ export default gql`
         id
         name
       }
-      type {
-        name
-      }
+      type ${moduleToString(ontologyFragment)}
       dateEstablished
       startDataCollection
-      logo {
-        url
-      }
+      logo ${moduleToString(fileFragment)}
       numberOfParticipants
-      countries {
-        name
-        order
-        code
-        parent {
-          code
-        }
-      }
-      populationAgeGroups {
-        name
-        order
-        code
-        parent {
-          code
-        }
-      }
-      populationEntry {
-        name
-        order
-        code
-        parent {
-          code
-        }
-      }
+      countries ${moduleToString(ontologyFragment)}
+      populationAgeGroups ${moduleToString(ontologyFragment)}
+      populationEntry ${moduleToString(ontologyFragment)}
       populationExitOther
-      populationDisease {
-        name
-        order
-        code
-        parent {
-          code
-        }
-      }
+      populationDisease ${moduleToString(ontologyFragment)}
       datasets {
         resource {
           id
@@ -74,30 +44,8 @@ export default gql`
         }
         name
         label
-        unitOfObservation {
-          order
-          name
-          label
-          parent {
-            name
-          }
-          codesystem
-          code
-          ontologyTermURI
-          definition
-        }
-        keywords {
-          order
-          name
-          label
-          parent {
-            name
-          }
-          codesystem
-          code
-          ontologyTermURI
-          definition
-        }
+        unitOfObservation ${moduleToString(ontologyFragment)}
+        keywords ${moduleToString(ontologyFragment)}
         description
         numberOfRows
         mappedTo {
@@ -149,14 +97,7 @@ export default gql`
         sinceVersion
         untilVersion
       }
-      areasOfInformation {
-        name
-        order
-        code
-        parent {
-          code
-        }
-      }
+      areasOfInformation ${moduleToString(ontologyFragment)}
       qualityOfLifeOther
       languages {
         name
@@ -195,14 +136,7 @@ export default gql`
           id
         }
       }
-      informedConsent {
-        name
-        order
-        code
-        parent {
-          code
-        }
-      }
+      informedConsent ${moduleToString(ontologyFragment)}
       informedConsentOther
       accessIdentifiableData
       accessIdentifiableDataRoute
@@ -216,14 +150,7 @@ export default gql`
       approvalForPublication
       preservation
       preservationDuration
-      refreshPeriod {
-        name
-        order
-        code
-        parent {
-          code
-        }
-      }
+      refreshPeriod ${moduleToString(ontologyFragment)}
       dateLastRefresh
       qualification
       qualificationsDescription
@@ -242,9 +169,7 @@ export default gql`
         target {
           id
         }
-        mappingStatus {
-          name
-        }
+        mappingStatus ${moduleToString(ontologyFragment)}
         eTLFrequency
       }
       cdmsOther
@@ -256,9 +181,7 @@ export default gql`
         doi
         title
       }
-      informedConsentType {
-        name
-      }
+      informedConsentType ${moduleToString(ontologyFragment)}
       fundingSources {
         name
       }
