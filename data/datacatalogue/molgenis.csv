@@ -4,7 +4,7 @@ Catalogues,,,,,,,,,,,,A collection of resources within a consortium or about a c
 Catalogues,,id,,1,TRUE,,,,,,,Internal identifier,,,
 Catalogues,,name,text,2,TRUE,,,,,,,Catalogue name,,,
 Catalogues,,lead network,ref,,,,Networks,,,,,Lead network for this catalogue,,,
-Catalogues,,additional networks,ref,,,,Networks,,,,,Other networks involved with this catalogue,,,
+Catalogues,,additional networks,ref_array,,,,Networks,,,,,Other networks involved with this catalogue,,,
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",EMA,,
 Organisations,Resources,,,,,,,,,,,Research departments and research groups,EMA,,
 Extended resources,Resources,,,,,,,,,,,,EMA,,
