@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { IFilter } from "~/interfaces/types";
+import router from "#app/plugins/router";
 
 //add redirect middleware for cohortOnly to skip this page
 definePageMeta({
@@ -38,41 +39,49 @@ let search = computed(() => {
 
 const query = computed(() => {
   return `
-  query Networks($filter:NetworksFilter, $orderby:Networksorderby){
-    Networks(filter:$filter  orderby:$orderby) {
-      id
-      name
-      acronym
-      description
-      logo {
+  query Catalogues($filter:CataloguesFilter){
+    Catalogues(filter:$filter) {
+      network {
         id
-        size
-        extension
-        url
+        name
+        acronym
+        description
+        logo {
+          id
+          size
+          extension
+          url
+        }
       }
+      type {name}
     }
-    Networks_agg (filter:$filter){
+    Catalogues_agg (filter:$filter){
       count
     }
   }
   `;
 });
 
-const orderby = { acronym: "ASC" };
-
 const filter = computed(() => buildQueryFilter(filters, search.value));
 
 let graphqlURL = computed(() => `/${route.params.schema}/api/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
-  key: `networks`,
+  key: `catalogues`,
   baseURL: config.public.apiBase,
   method: "POST",
   body: {
     query,
-    variables: { orderby, filter },
+    variables: { filter },
   },
 });
 let activeName = ref("compact");
+
+const thematicCatalogues = computed(() => {
+  return data.value.data?.Catalogues?.filter((c) => c.type.name === "topic");
+});
+const projectCatalogues = computed(() => {
+  return data.value.data?.Catalogues?.filter((c) => c.type.name === "project");
+});
 </script>
 
 <template>
@@ -97,24 +106,15 @@ let activeName = ref("compact");
         </div>
       </template>
     </PageHeader>
-    <SearchResultsList>
-      <CardList v-if="data?.data?.Networks?.length > 0">
-        <CardListItem
-          v-for="network in data?.data?.Networks"
-          :key="network.name"
-        >
-          <CatalogueCard
-            :network="network"
-            :schema="route.params.schema as string"
-            :compact="activeName !== 'detailed'"
-          />
-        </CardListItem>
-      </CardList>
-      <div v-else class="flex justify-center pt-3">
-        <span class="py-15 text-blue-500">
-          No Networks found with current filters
-        </span>
-      </div>
-    </SearchResultsList>
+    <ContentBlockCatalogues
+      title="Thematic catalogues"
+      description="Catalogues focussed on a particular team developed by a collaboration of projects, networks and/or organisations"
+      :catalogues="thematicCatalogues"
+    />
+    <ContentBlockCatalogues
+      title="Project catalogues"
+      description="Catalogues maintained by individual research projects or consortia, such as EC RIA."
+      :catalogues="projectCatalogues"
+    />
   </LayoutsLandingPage>
 </template>
