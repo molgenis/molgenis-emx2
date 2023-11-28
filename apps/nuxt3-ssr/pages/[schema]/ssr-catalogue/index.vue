@@ -76,10 +76,14 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
 let activeName = ref("compact");
 
 const thematicCatalogues = computed(() => {
-  return data.value.data?.Catalogues?.filter((c) => c.type?.name === "topic");
+  let result = data.value.data?.Catalogues?.filter((c) => c.type?.name === "theme");
+   result.sort((a,b) => a.network.id.localeCompare(b.network.id))
+  return result;
 });
 const projectCatalogues = computed(() => {
-  return data.value.data?.Catalogues?.filter((c) => c.type?.name === "project");
+  let result = data.value.data?.Catalogues?.filter((c) => c.type?.name === "project");
+  result.sort((a,b) => a.network.id.localeCompare(b.network.id))
+  return result;
 });
 </script>
 
@@ -87,7 +91,7 @@ const projectCatalogues = computed(() => {
   <LayoutsLandingPage>
     <PageHeader
       title="health research data and sample catalogue"
-      description="MOLGENIS catalogue unites European research projects and networks cataloguing efforts."
+      description="MOLGENIS catalogue unites European research projects and networks cataloguing efforts:"
       :truncate="false"
     >
       <template #suffix>
@@ -107,7 +111,7 @@ const projectCatalogues = computed(() => {
     </PageHeader>
     <ContentBlockCatalogues
       title="Thematic catalogues"
-      description="Catalogues focussed on a particular team developed by a collaboration of projects, networks and/or organisations"
+      description="Catalogues focussed on a particular team developed by a collaboration of projects, networks and/or organisations:"
       :catalogues="thematicCatalogues"
     />
     <ContentBlockCatalogues

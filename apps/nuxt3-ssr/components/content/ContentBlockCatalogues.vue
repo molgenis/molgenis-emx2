@@ -31,7 +31,7 @@ const props = defineProps<{
           "
         >
           <TableCell class="hidden sm:table-cell">
-            <div class="items-center flex justify-center w-50px h-50px">
+            <div class="items-center flex justify-center w-32">
               <img :src="catalogue.network?.logo?.url" />
             </div>
           </TableCell>
