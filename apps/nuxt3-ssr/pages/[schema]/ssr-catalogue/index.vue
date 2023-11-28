@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { IFilter } from "~/interfaces/types";
-import router from "#app/plugins/router";
 
 //add redirect middleware for cohortOnly to skip this page
 definePageMeta({
