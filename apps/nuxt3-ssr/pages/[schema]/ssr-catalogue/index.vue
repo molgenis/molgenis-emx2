@@ -77,10 +77,10 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
 let activeName = ref("compact");
 
 const thematicCatalogues = computed(() => {
-  return data.value.data?.Catalogues?.filter((c) => c.type.name === "topic");
+  return data.value.data?.Catalogues?.filter((c) => c.type?.name === "topic");
 });
 const projectCatalogues = computed(() => {
-  return data.value.data?.Catalogues?.filter((c) => c.type.name === "project");
+  return data.value.data?.Catalogues?.filter((c) => c.type?.name === "project");
 });
 </script>
 

@@ -23,7 +23,7 @@ const props = defineProps<{
       <template #body>
         <TableRow
           v-for="catalogue in catalogues"
-          :key="catalogue.network.name"
+          :key="catalogue.network.id"
           @click="
             navigateTo(
               `/${route.params.schema}/ssr-catalogue/${catalogue.network.id}`
@@ -43,7 +43,7 @@ const props = defineProps<{
             >
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            {{ catalogue.network.name }}
+            {{ catalogue.network?.name }}
           </TableCell>
           <TableCell>
             <IconButton icon="arrow-right" class="text-blue-500" />
