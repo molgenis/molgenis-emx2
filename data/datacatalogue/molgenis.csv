@@ -1,10 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,tableName_old,columnName_old
 Version,,,,,,,,,,,,3.9,EMA,,
-Catalogues,,,,,,,,,,,,A collection of resources within a consortium or about a common topic,,,
-Catalogues,,id,,1,TRUE,,,,,,,Internal identifier,,,
-Catalogues,,name,text,2,TRUE,,,,,,,Catalogue name,,,
-Catalogues,,lead network,ref,,,,Networks,,,,,Lead network for this catalogue,,,
-Catalogues,,additional networks,ref_array,,,,Networks,,,,,Other networks involved with this catalogue,,,
+Catalogues,,,,,,,,,,,,A collection of resources within a network or consortium or about a common topic,,,
+Catalogues,,network,ref,1,TRUE,,,,,,,Network or consortium that leads this catalogue,,,
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",EMA,,
 Organisations,Resources,,,,,,,,,,,Research departments and research groups,EMA,,
 Extended resources,Resources,,,,,,,,,,,,EMA,,
