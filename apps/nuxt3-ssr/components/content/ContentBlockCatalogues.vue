@@ -36,10 +36,9 @@ const props = defineProps<{
             </div>
           </TableCell>
           <TableCell>
-            <a
-              href="#"
+            <span
               class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
-              >{{ catalogue.network.id }}</a
+              >{{ catalogue.network.id }}</span
             >
           </TableCell>
           <TableCell class="hidden sm:table-cell">

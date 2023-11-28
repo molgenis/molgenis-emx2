@@ -6,7 +6,8 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 10;
 
-useHead({ title: "Data sources" });
+const catalogue = route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+useHead({ title: catalogue + "Data sources" });
 
 const currentPage = ref(1);
 if (route.query?.page) {

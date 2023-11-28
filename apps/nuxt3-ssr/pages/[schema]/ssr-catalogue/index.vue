@@ -17,7 +17,7 @@ definePageMeta({
   ],
 });
 
-useHead({ title: "Catalogues" });
+useHead({ title: "MOLGENIS catalogue | start" });
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -90,8 +90,8 @@ const projectCatalogues = computed(() => {
 <template>
   <LayoutsLandingPage>
     <PageHeader
-      title="health research data and sample catalogue"
-      description="MOLGENIS catalogue unites European research projects and networks cataloguing efforts:"
+      title="European Health Research Data and Sample Catalogue"
+      description="A collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens health."
       :truncate="false"
     >
       <template #suffix>

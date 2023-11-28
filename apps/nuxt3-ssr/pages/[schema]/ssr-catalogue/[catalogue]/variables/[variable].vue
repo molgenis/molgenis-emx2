@@ -72,6 +72,9 @@ if (cohortsWithMapping.value.length > 0) {
     id: "harmonization-details-no-mapping",
   });
 }
+
+const catalogue = route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+useHead({ title: catalogue + variable?.name });
 </script>
 
 <template>

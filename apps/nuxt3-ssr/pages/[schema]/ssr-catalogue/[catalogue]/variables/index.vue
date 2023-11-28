@@ -6,7 +6,8 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 30;
 
-useHead({ title: "Variables" });
+const catalogue = route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+useHead({ title: catalogue + "Variables" });
 
 type view = "list" | "harmonization";
 
