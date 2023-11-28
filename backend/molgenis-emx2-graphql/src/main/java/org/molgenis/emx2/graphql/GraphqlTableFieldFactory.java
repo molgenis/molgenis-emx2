@@ -780,16 +780,16 @@ public class GraphqlTableFieldFactory {
     String rowInputType = getTableTypeIdentifier(table);
     if (rowInputTypes.get(rowInputType) == null) {
       // in case of self reference
-      rowInputTypes.put(rowInputType, GraphQLTypeReference.typeRef(rowInputType));
+      rowInputTypes.put(rowInputType, GraphQLTypeReference.typeRef(rowInputType + INPUT));
       GraphQLInputObjectType.Builder inputBuilder =
           GraphQLInputObjectType.newInputObject().name(rowInputType + INPUT);
       for (Column col : table.getColumnsWithoutHeadings()) {
         GraphQLInputType type;
         if (col.isReference()) {
           if (col.isRef()) {
-            type = getPrimaryKeyInput(col.getRefTable());
+            type = rowInputType(col.getRefTable());
           } else {
-            type = GraphQLList.list(getPrimaryKeyInput(col.getRefTable()));
+            type = GraphQLList.list(rowInputType(col.getRefTable()));
           }
         } else {
           ColumnType columnType = col.getPrimitiveColumnType();
