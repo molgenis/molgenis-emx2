@@ -33,7 +33,8 @@ class Client:
         self.username = None
 
         self.session = requests.Session()
-        
+
+        self.schemas = self.get_schemas()
         self.default_schema = schema
 
     def __str__(self):
@@ -139,9 +140,10 @@ class Client:
         )
         return message
 
-    @property
-    def schemas(self):
-        """List the databases present on the server."""
+    def get_schemas(self):
+        """Returns the schemas on the database for this user as a list of dictionaries
+        containing for each schema the id, name, label and description.
+        """
         query = queries.list_schemas()
 
         response = self.session.post(
@@ -152,6 +154,11 @@ class Client:
         response_json: dict = response.json()
         schemas = response_json['data']['_schemas']
         return schemas
+
+    @property
+    def schema_names(self):
+        """Returns a list of the names of the schemas."""
+        return [schema['name'] for schema in self.schemas]
 
     @property
     def version(self):
@@ -274,7 +281,7 @@ class Client:
         """
         current_schema = self._set_schema(schema=schema)
 
-        if current_schema not in self.schemas:
+        if current_schema not in self.schema_names:
             raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
 
         if not self._table_in_schema(table, current_schema):
@@ -311,7 +318,7 @@ class Client:
         """
         current_schema = self._set_schema(schema=schema)
 
-        if current_schema not in self.schemas:
+        if current_schema not in self.schema_names:
             raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
 
         if not self._table_in_schema(table, current_schema):
@@ -348,7 +355,7 @@ class Client:
         """
         current_schema = self._set_schema(schema=schema)
         
-        if current_schema not in self.schemas:
+        if current_schema not in self.schema_names:
             raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
 
         if not self._table_in_schema(table, current_schema):
@@ -381,7 +388,7 @@ class Client:
         """
         current_schema = self._set_schema(schema=schema)
 
-        if current_schema not in self.schemas:
+        if current_schema not in self.schema_names:
             raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
 
         if table is not None and not self._table_in_schema(table, current_schema):
@@ -518,9 +525,7 @@ class Client:
         
         :return
         """
-        schemas = self.schemas
-        schema_names = [schema['name'] for schema in schemas]
-        if schema not in schema_names:
+        if schema not in self.schema_names:
             message = f"Schema '{schema}' does not exist"
             log.error(message)
             raise NoSuchSchemaException(message)
