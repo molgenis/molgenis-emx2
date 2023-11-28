@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -15,8 +14,9 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 
-public class QueryTests {
+public class SqlQueryWithRefTests {
 
   static Database database;
 
@@ -47,7 +47,7 @@ public class QueryTests {
 
   @Test
   void testQueryNotRef() throws IOException {
-    var schema = database.dropCreateSchema("test_query_by");
+    var schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
     var resources =
         schema.create(table("Resources", column("id", STRING).setKey(1), column("name", STRING)));
     var datasets =
@@ -67,7 +67,7 @@ public class QueryTests {
 
   @Test
   void testQueryByRefCompound() throws IOException {
-    var schema = database.dropCreateSchema("test_query_by");
+    var schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
     var resources =
         schema.create(
             table("Resources", column("id", STRING).setPkey(), column("name", STRING).setPkey()));
@@ -90,7 +90,7 @@ public class QueryTests {
 
   @Test
   void testQueryByRefCompound2() throws IOException {
-    var schema = database.dropCreateSchema("test_query_by");
+    var schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
     var resources =
         schema.create(
             table("Resources", column("id", STRING).setPkey(), column("name", STRING).setPkey()));
@@ -105,16 +105,14 @@ public class QueryTests {
         row("id", "1", "resource.id", "1", "resource.name", "resource1"),
         row("id", "2", "resource.id", "2", "resource.name", "resource2"));
     var query = datasets.query();
-    var expectedException = false;
-    try {
-      query.where(f("resource", EQUALS, "1"));
-      var rows = query.retrieveRows();
-    } catch (Exception ex) {
-      expectedException = true;
-    }
-    assertTrue(
-        expectedException,
-        "Expected an exception when querying by field resource instead of resource.id.");
+
+    query.where(f("resource", EQUALS, "1"));
+    assertThrows(
+        MolgenisException.class,
+        () -> {
+          query.retrieveRows();
+        },
+        "Expected an exception when querying by field resource instead of resource.id");
     database.dropSchema(schema.getName());
   }
 }
