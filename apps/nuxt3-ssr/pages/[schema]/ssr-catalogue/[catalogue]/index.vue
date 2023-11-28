@@ -28,6 +28,7 @@ const query = `query MyQuery($networksFilter:NetworksFilter,$variablesFilter:Var
               description,
               logo {url}
               dataSources_agg{count}
+              networks_agg{count}
        }
         Variables_agg(filter:$variablesFilter) {
           count
@@ -113,11 +114,7 @@ const data = await fetchGql(query, {
   subcohortsFilter:
     "all" === catalogueRouteParam
       ? {}
-      : {
-          resource: {
-            id: { equals: "cannot make a filter, todo fix data model" },
-          },
-        },
+      : {},
   dataSourcesFilter:
     "all" === catalogueRouteParam
       ? {}
@@ -125,6 +122,7 @@ const data = await fetchGql(query, {
 });
 
 const catalogue = "all" === catalogueRouteParam ? {} : data.data?.Networks[0];
+const networksCount : number = "all" === catalogueRouteParam ? data.data?.Networks_agg.count : data.data?.Networks[0].networks_agg.count;
 
 function percentageLongitudinal(
   cohortsGroupBy: { count: number; design: { name: string } }[],
@@ -224,6 +222,25 @@ let description = computed(() => {
           "
           :count="data.data.DataSources_agg.count"
           :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/datasources`"
+        />
+        <LandingCardPrimary
+            v-if="networksCount > 0 && !cohortOnly"
+            image="image-diagram-2"
+            title="Networks"
+            :description="
+            getSettingValue(
+              'CATALOGUE_LANDING_NETWORKS_TEXT',
+              data.data._settings
+            ) || catalogueRouteParam + ' networks.'
+          "
+            :count="networksCount"
+            :callToAction="
+            getSettingValue(
+              'CATALOGUE_LANDING_NETWORKS_CTA',
+              data.data._settings
+            )
+          "
+            :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`"
         />
         <LandingCardPrimary
           v-if="data.data.Variables_agg.count > 0 && !cohortOnly"
