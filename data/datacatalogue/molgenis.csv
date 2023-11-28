@@ -2,6 +2,7 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Version,,,,,,,,,,,,3.9,EMA,,
 Catalogues,,,,,,,,,,,,A collection of resources within a network or consortium or about a common topic,,,
 Catalogues,,network,ref,1,TRUE,,Networks,,,,,Network or consortium that leads this catalogue,,,
+Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,,Type of catalogue,,,
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",EMA,,
 Organisations,Resources,,,,,,,,,,,Research departments and research groups,EMA,,
 Extended resources,Resources,,,,,,,,,,,,EMA,,
