@@ -145,6 +145,7 @@ async def main():
         try:
             client.update_schema(schema='myNewSchema', description='I forgot the description')
             print(client.schema_names)
+            print(client.schemas)
         except GraphQLException as e:
             print(e)
         

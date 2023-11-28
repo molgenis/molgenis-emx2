@@ -110,6 +110,7 @@ class Client:
                       f"\n{response_json.get('message')}"
             log.error(message)
             raise SigninError(message)
+        self.schemas = self.get_schemas()
         
     def signout(self):
         """Signs the client out of the EMX2 server."""
@@ -248,6 +249,8 @@ class Client:
         args = {key: params[key] for key in keys if (key != 'self') and (key is not None)}
         if 'schema' in args.keys():
             args['name'] = args.pop('schema')
+        if 'include_demo_data' in args.keys():
+            args['includeDemoData'] = args.pop('include_demo_data')
         return args
 
     def _table_in_schema(self, table: str, schema: str) -> bool:
@@ -476,6 +479,7 @@ class Client:
             mutation='createSchema',
             fallback_error_message=f"Failed to create schema '{schema}'"
         )
+        self.schemas = self.get_schemas()
               
     def delete_schema(self, schema: str = None):
         """Delete a schema
@@ -499,6 +503,7 @@ class Client:
             mutation='deleteSchema',
             fallback_error_message=f"Failed to delete schema '{schema}'"
         )
+        self.schemas = self.get_schemas()
 
     def update_schema(self, schema: str = None, description: str = None):
         """Update a schema's description
@@ -524,6 +529,7 @@ class Client:
             mutation='updateSchema',
             fallback_error_message=f"Failed to update schema '{schema}'"
         )
+        self.schemas = self.get_schemas()
                 
     def recreate_schema(self, schema: str = None, description: str = None, template: str = None,
                         include_demo_data: bool = None):
@@ -560,6 +566,7 @@ class Client:
             message = f"Failed to recreate '{schema}'"
             log.error(message)
             print(message)
-        
+
+        self.schemas = self.get_schemas()
         
         
