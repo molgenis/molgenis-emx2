@@ -544,6 +544,9 @@ class Client:
         :param include_demo_data: If true and a template schema is selected,
                                 any example data will be loaded into the schema
         :type include_demo_data: bool
+        
+        :returns: a success or error message
+        :rtype: string
         """
         if schema not in self.schema_names:
             message = f"Schema '{schema}' does not exist"
@@ -568,5 +571,36 @@ class Client:
             print(message)
 
         self.schemas = self.get_schemas()
+        
+    def get_schema_metadata(self, schema: str = None):
+        """Retrieve a schema's metadata
+        
+        :param schema: the name of the new schema
+        :type schema: str
+        
+        :returns: schema metadata
+        :rtype: dict
+        """
+        current_schema = schema if schema is not None else self.default_schema
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
+        
+        query = queries.list_schema_meta()
+        response = self.session.post(
+           url=f"{self.url}/{current_schema}/api/graphql",
+           json={'query': query}
+        )
+        
+        response_json = response.json()
+
+        if 'id' not in response_json.get('data').get('_schema'):
+          message = f"Unable to retrieve metadata for schema '{current_schema}'"
+          log.error(message)
+          raise GraphQLException(message)
+        
+        metadata = response_json.get('data').get('_schema')
+        return metadata
+        
+        
         
         
