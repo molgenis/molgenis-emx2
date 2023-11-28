@@ -35,9 +35,6 @@ class Client:
         self.session = requests.Session()
         
         self.default_schema = schema
-        
-        self.schemas = None
-        self.schema_names = None
 
     def __str__(self):
         return self.url
@@ -153,10 +150,7 @@ class Client:
         )
 
         response_json: dict = response.json()
-
         schemas = response_json['data']['_schemas']
-        self.schema_names = [schema['name'] for schema in schemas]
-
         return schemas
 
     @property
@@ -190,6 +184,7 @@ class Client:
         if data is not None:
             return pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
 
+    @staticmethod
     def _set_schema(self, schema: str):
         """Returns the default schema or user-specified schema
         
@@ -201,30 +196,48 @@ class Client:
         """
         return schema if schema else self.default_schema
     
-    def _validate_graphql_response(self, response: dict, fallback_error_message: str):
+    @staticmethod
+    def _graphql_validate_response(response_json: dict, mutation: str, fallback_error_message: str):
         """Validates a GraphQL response and print the appropriate message
         
-        :param response: a graphql response from the server
-        :type response: dict
+        :param response_json: a graphql response from the server
+        :type response_json: dict
+        :param mutation: the name of the graphql mutation executed
+        :type mutation: str
         :param fallback_error_message: a failback error message
-        :type fallback_error_message: string
-        
+        :type fallback_error_message: str
+      
         :returns: a success or error message
         :rtype: string
         """
-        if response.get('status') == 'SUCCESS':
-            message = response.get('message')
-            log.info(message)
+        response_keys = response_json.keys()
+        if 'error' not in response_keys and 'data' not in response_keys:
+            message = fallback_error_message
+            log.error(message)
             print(message)
+
+        elif 'error' in response_keys:
+            message = response_json.get('error').errors[0].get('message')
+            log.error(message)
+            raise GraphQLException(message)
+      
         else:
-            if 'error' in response:
-                message = response.get('error').get('errors')[0].get('message')
-                log.error(message)
-                raise GraphQLException(message)
+            if response_json.get('data').get(mutation).get('status') == 'SUCCESS':
+                message = response_json.get('data').get(mutation).get('message')
+                log.info(message)
+                print(message)
             else:
-                message = fallback_error_message
+                message = f"Failed to validate response for {mutation}"
                 log.error(message)
-                raise GraphQLException(message)
+                print(message)
+            
+    @staticmethod
+    def _format_optional_params(params: dict = None) :
+        keys = params.keys()
+        args = { key: params[key] for key in keys if (key != 'self') and (key is not None) }
+        if 'schema' in args.keys():
+            args['name'] = args.pop('schema')
+        return args
 
     def _table_in_schema(self, table: str, schema: str) -> bool:
         """Checks whether the requested table is present in the schema.
@@ -429,14 +442,19 @@ class Client:
         :rtype: string
         """
         query = queries.create_schema()
-        variables = {'name': schema, 'description': description, 'template': template, 'includeDemoData': includeDemoData}
+        variables = self._format_optional_params(params=locals())
+        
         response = self.session.post(
-           url=f"{self.url}/{schema}/graphql",
+           url=f"{self.url}/api/graphql",
            json={'query': query, 'variables': variables}
         )
         
-        response_json = response.get('data').get('createSchema')
-        self._validate_graphql_response(response_json, f"Failed to create schema '{schema}'")
+        response_json = response.json()
+        self._graphql_validate_response(
+            response_json=response_json,
+            mutation='createSchema',
+            fallback_error_message= f"Failed to create schema '{schema}'"
+        )
               
     def deleteSchema(self, schema: str = None):
         """Delete a schema
@@ -448,14 +466,18 @@ class Client:
         :rtype: string
         """
         query = queries.delete_schema()
-        variables = {'name': schema}
+        variables = {'id': schema}
         response = self.session.post(
-            url=f"{self.url}/{schema}/graphql",
+            url=f"{self.url}/api/graphql",
             json={'query': query, 'variables': variables}
         )
         
-        response_json = response.get('data').get('deleteSchema')
-        self._validate_graphql_response(response_json, f"Failed to delete schema '{schema}'")
+        response_json = response.json()
+        self._graphql_validate_response(
+            response_json=response_json,
+            mutation='deleteSchema',
+            fallback_error_message=f"Failed to delete schema '{schema}'"
+        )
 
     def updateSchema(self, schema: str = None, description: str = None):
         """Update a schema's description
@@ -469,14 +491,18 @@ class Client:
         :rtype: string
         """
         query = queries.update_schema()
-        variables = {'name': schema, 'descrition': description}
+        variables = {'name': schema, 'description': description}
         response = self.session.post(
-            url=f"{self.url}/{schema}/graphql",
+            url=f"{self.url}/api/graphql",
             json={'query': query, 'variables': variables}
         )
         
-        response_json = response.get('data').get('updateSchema')
-        self._validate_graphql_response(response_json, f"Failed to update schema '{schema}'")
+        response_json = response.json()
+        self._graphql_validate_response(
+            response_json=response_json,
+            mutation='updateSchema',
+            fallback_error_message=f"Failed to update schema '{schema}'"
+        )
                 
     def recreateSchema(self, schema: str = None, description: str = None, template: str = None, includeDemoData: bool = None):
         """Recreate a schema
@@ -492,7 +518,9 @@ class Client:
         
         :return
         """
-        if schema not in self.schema_names:
+        schemas = self.schemas
+        schema_names = [schema['name'] for schema in schemas]
+        if schema not in schema_names:
             message = f"Schema '{schema}' does not exist"
             log.error(message)
             raise NoSuchSchemaException(message)
@@ -501,16 +529,13 @@ class Client:
         schema_description = description if description else schema_meta.get('description', None)
 
         try:
-          response_delete = self.deleteSchema(schema=schema)
-          self._validate_graphql_response(response_delete, f"Failed to delete schema '${schema}'")
-        
-          response_create = self.createSchema(
+          self.deleteSchema(schema=schema)
+          self.createSchema(
               schema = schema,
               description = schema_description,
               template = template,
               includeDemoData = includeDemoData
           )
-          self._validate_graphql_response(response_create, f"Failed to create schema '{schema}'")
 
         except GraphQLException:
             message = f"Failed to recreate '{schema}'"

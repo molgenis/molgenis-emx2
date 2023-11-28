@@ -87,14 +87,14 @@ def delete_schema():
     requests.post(...,
         json={
             'query': graphql.delete_schema(),
-            'variables': {'name': ...}
+            'variables': {'id': ...}
         }
     )
     ```
     """
     return """
-        mutation($name:String) {
-            deleteSchema(name: $name) {
+        mutation($id:String) {
+            deleteSchema(id: $id) {
                 status
                 message
                 taskId
