@@ -290,10 +290,11 @@ export default {
     },
     deselect(item) {
       if (this.isMultiSelect) {
-        let term = this.terms[item];
+        let term = this.terms[item.name];
+
         term.selected = false;
         //also deselect all its children
-        this.getAllChildren(this.terms[item]).forEach(
+        this.getAllChildren(this.terms[item.name]).forEach(
           (childTerm) => (childTerm.selected = false)
         );
         //also its deselect its parents, might be partial
