@@ -215,7 +215,7 @@ class Client:
         :type response_json: dict
         :param mutation: the name of the graphql mutation executed
         :type mutation: str
-        :param fallback_error_message: a failback error message
+        :param fallback_error_message: a fallback error message
         :type fallback_error_message: str
       
         :returns: a success or error message
@@ -243,9 +243,9 @@ class Client:
                 print(message)
             
     @staticmethod
-    def _format_optional_params(params: dict = None) :
+    def _format_optional_params(params: dict = None):
         keys = params.keys()
-        args = { key: params[key] for key in keys if (key != 'self') and (key is not None) }
+        args = {key: params[key] for key in keys if (key != 'self') and (key is not None)}
         if 'schema' in args.keys():
             args['name'] = args.pop('schema')
         return args
@@ -371,7 +371,7 @@ class Client:
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
 
-        response = self.session.get(url=f"{self.url}/{schema}/api/csv/{table}")
+        response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table}")
 
         if response.status_code != 200:
             message = f"Failed to retrieve data from '{current_schema}::{table}'." \
@@ -445,7 +445,8 @@ class Client:
                     f.write(response.content)
                 log.info(f"Exported data from table {table} in schema {current_schema} to '{filename}'.")
 
-    def createSchema(self, schema: str = None, description: str = None, template: str = None, includeDemoData: bool = None):
+    def create_schema(self, schema: str = None, description: str = None, template: str = None,
+                      include_demo_data: bool = None):
         """Create a new schema
         
         :param schema: the name of the new schema
@@ -454,8 +455,9 @@ class Client:
         :type description: str
         :param template: (optional) the name of a template to set as the schema
         :type template: str
-        :param includeDemoData: If true and a template schema is selected, any example data will be loaded into the schema
-        :type includeDemoData: bool
+        :param include_demo_data: If true and a template schema is selected, 
+                                any example data will be loaded into the schema
+        :type include_demo_data: bool
         
         :returns: a success or error message
         :rtype: string
@@ -472,10 +474,10 @@ class Client:
         self._graphql_validate_response(
             response_json=response_json,
             mutation='createSchema',
-            fallback_error_message= f"Failed to create schema '{schema}'"
+            fallback_error_message=f"Failed to create schema '{schema}'"
         )
               
-    def deleteSchema(self, schema: str = None):
+    def delete_schema(self, schema: str = None):
         """Delete a schema
         
         :param schema: the name of the new schema
@@ -498,7 +500,7 @@ class Client:
             fallback_error_message=f"Failed to delete schema '{schema}'"
         )
 
-    def updateSchema(self, schema: str = None, description: str = None):
+    def update_schema(self, schema: str = None, description: str = None):
         """Update a schema's description
         
         :param schema: the name of the new schema
@@ -523,7 +525,8 @@ class Client:
             fallback_error_message=f"Failed to update schema '{schema}'"
         )
                 
-    def recreateSchema(self, schema: str = None, description: str = None, template: str = None, includeDemoData: bool = None):
+    def recreate_schema(self, schema: str = None, description: str = None, template: str = None,
+                        include_demo_data: bool = None):
         """Recreate a schema
         
         :param schema: the name of the new schema
@@ -532,10 +535,9 @@ class Client:
         :type description: str
         :param template: (optional) the name of a template to set as the schema
         :type template: str
-        :param includeDemoData: If true and a template schema is selected, any example data will be loaded into the schema
-        :type includeDemoData: bool
-        
-        :return
+        :param include_demo_data: If true and a template schema is selected,
+                                any example data will be loaded into the schema
+        :type include_demo_data: bool
         """
         if schema not in self.schema_names:
             message = f"Schema '{schema}' does not exist"
@@ -546,13 +548,13 @@ class Client:
         schema_description = description if description else schema_meta.get('description', None)
 
         try:
-          self.deleteSchema(schema=schema)
-          self.createSchema(
-              schema = schema,
-              description = schema_description,
-              template = template,
-              includeDemoData = includeDemoData
-          )
+            self.delete_schema(schema=schema)
+            self.create_schema(
+                schema=schema,
+                description=schema_description,
+                template=template,
+                include_demo_data=include_demo_data
+            )
 
         except GraphQLException:
             message = f"Failed to recreate '{schema}'"

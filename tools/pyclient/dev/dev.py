@@ -19,7 +19,8 @@ import pandas as pd
 from dotenv import load_dotenv
 
 from tools.pyclient.src.molgenis_emx2_pyclient import Client
-from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException, GraphQLException
+from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import (NoSuchSchemaException, NoSuchTableException,
+                                                                  GraphQLException)
 
 
 async def main():
@@ -129,35 +130,35 @@ async def main():
         client.delete(schema='pet store', table='Pet', file='demodata/Pet.csv')
         client.delete(schema='pet store', table='Tag', file='demodata/Tag.csv')
 
-    # Connect to server and create, update, and drop schemas,
+    # Connect to server and create, update, and drop schemas
     with Client('https://emx2.dev.molgenis.org/') as client:
         client.signin(username, password)
         
-        # create a schema
+        # Create a schema
         try:
-          client.createSchema(schema='myNewSchema')
-          client.schemas
+            client.create_schema(schema='myNewSchema')
+            print(client.schema_names)
         except GraphQLException as e:
             print(e)
             
-        # update the description
+        # Update the description
         try:
-          client.updateSchema(schema='myNewSchema', description='I forgot the description')
-          client.schemas
+            client.update_schema(schema='myNewSchema', description='I forgot the description')
+            print(client.schema_names)
         except GraphQLException as e:
             print(e)
         
-        # recreate the schema: delete and create
+        # Recreate the schema: delete and create
         try:
-          client.recreateSchema(schema='myNewSchema')
-          client.schemas
+            client.recreate_schema(schema='myNewSchema')
+            print(client.schema_names)
         except GraphQLException as e:
             print(e)
         
-        # delete the schema
+        # Delete the schema
         try:
-          client.deleteSchema(schema='myNewSchema')
-          client.schemas
+            client.delete_schema(schema='myNewSchema')
+            print(client.schema_names)
         except GraphQLException as e:
             print(e)
 
