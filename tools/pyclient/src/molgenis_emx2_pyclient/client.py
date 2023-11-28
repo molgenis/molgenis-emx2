@@ -26,16 +26,16 @@ class Client:
         A Client class instances is created with a server url.
         """
         self._as_context_manager = False
-        self.url = utils.parse_url(url)
+        self.url: str = utils.parse_url(url)
         self.api_graphql = self.url + "/api/graphql"
 
-        self.signin_status = 'unknown'
-        self.username = None
+        self.signin_status: str = 'unknown'
+        self.username: str | None = None
 
-        self.session = requests.Session()
+        self.session: requests.Session = requests.Session()
 
-        self.schemas = self.get_schemas()
-        self.default_schema = schema
+        self.schemas: list = self.get_schemas()
+        self.default_schema: str = self._set_schema(schema)
 
     def __str__(self):
         return self.url
@@ -112,20 +112,20 @@ class Client:
             raise SigninError(message)
         
     def signout(self):
-      """Signs the client out of the EMX2 server."""
-      response = self.session.post(
-          url=self.api_graphql,
-          json={'query': queries.signout()}
-      )        
+        """Signs the client out of the EMX2 server."""
+        response = self.session.post(
+            url=self.api_graphql,
+            json={'query': queries.signout()}
+        )
 
-      status = response.json().get('data', {}).get('signout', {}).get('status')
-      if status == 'SUCCESS':
-          print(f"User '{self.username}' is signed out of '{self.url}'.")
-          self.signin_status = 'signed out'
-      else:
-          print(f"Unable to sign out of {self.url}.")
-          message = response.json().get('errors')[0].get('message')
-          print(message)
+        status = response.json().get('data', {}).get('signout', {}).get('status')
+        if status == 'SUCCESS':
+            print(f"User '{self.username}' is signed out of '{self.url}'.")
+            self.signin_status = 'signed out'
+        else:
+            print(f"Unable to sign out of {self.url}.")
+            message = response.json().get('errors')[0].get('message')
+            print(message)
             
     @property
     def status(self):
@@ -191,9 +191,9 @@ class Client:
         if data is not None:
             return pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
 
-    @staticmethod
-    def _set_schema(self, schema: str):
-        """Returns the default schema or user-specified schema
+    def _set_schema(self, schema: str) -> str:
+        """Sets the default schema to the schema supplied as argument.
+        Raises NoSuchSchemaException if the schema cannot be found on the server.
         
         :param schema: name of a schema
         :type schema: str
@@ -201,7 +201,11 @@ class Client:
         :returns: a schema name
         :rtype: str
         """
-        return schema if schema else self.default_schema
+        if schema not in [*self.schema_names, None]:
+            raise NoSuchSchemaException(f"Schema '{schema}' not found on server.")
+        self.default_schema = schema
+
+        return schema
     
     @staticmethod
     def _graphql_validate_response(response_json: dict, mutation: str, fallback_error_message: str):
@@ -279,7 +283,9 @@ class Client:
         :returns: status message or response
         :rtype: str
         """
-        current_schema = self._set_schema(schema=schema)
+        current_schema = schema
+        if current_schema is None:
+            current_schema = self.default_schema
 
         if current_schema not in self.schema_names:
             raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
@@ -316,7 +322,9 @@ class Client:
         :returns: status message or response
         :rtype: str
         """
-        current_schema = self._set_schema(schema=schema)
+        current_schema = schema
+        if current_schema is None:
+            current_schema = self.default_schema
 
         if current_schema not in self.schema_names:
             raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
@@ -353,7 +361,9 @@ class Client:
         :returns: list of dictionaries, status message or data frame
         :rtype: list | pd.DataFrame
         """
-        current_schema = self._set_schema(schema=schema)
+        current_schema = schema
+        if current_schema is None:
+            current_schema = self.default_schema
         
         if current_schema not in self.schema_names:
             raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
@@ -361,7 +371,7 @@ class Client:
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
 
-        response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table}")
+        response = self.session.get(url=f"{self.url}/{schema}/api/csv/{table}")
 
         if response.status_code != 200:
             message = f"Failed to retrieve data from '{current_schema}::{table}'." \
@@ -386,7 +396,9 @@ class Client:
         :type fmt: str
         
         """
-        current_schema = self._set_schema(schema=schema)
+        current_schema = schema
+        if current_schema is None:
+            current_schema = self.default_schema
 
         if current_schema not in self.schema_names:
             raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
