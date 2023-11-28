@@ -5,18 +5,20 @@
       :key="term.name + term.selected + term.expanded"
     >
       <!--show if selected or search-->
-      <i
-        class="fa-fw pl-2 pt-1 ml-3"
-        role="button"
-        :class="getExpandState(term)"
-        @click.stop="toggleExpand(term)"
-      />
-      <i
-        class="fa-fw text-primary pl-2 pt-1"
-        :class="getSelectState(term)"
-        @click.stop="toggleSelect(term)"
-        role="button"
-      />
+      <span @click.stop="toggleExpand(term)">
+        <i
+          class="fa-fw pl-2 pt-1 ml-3"
+          role="button"
+          :class="getExpandState(term)"
+        />
+      </span>
+      <span @click.stop="toggleSelect(term)">
+        <i
+          class="fa-fw text-primary pl-2 pt-1"
+          :class="getSelectState(term)"
+          role="button"
+        />
+      </span>
       <span
         @click.stop="toggleExpandOrSelect(term)"
         class="flex-grow-1 pl-2"

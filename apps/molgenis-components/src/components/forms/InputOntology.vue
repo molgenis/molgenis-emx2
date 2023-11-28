@@ -91,7 +91,7 @@
           @deselect="deselect"
           @toggleExpand="toggleExpand"
           style="max-height: 100vh"
-          class="pt-2 pl-0 dropdown-item"
+          class="pt-2 pl-0"
         />
         <Spinner v-else-if="loading" />
         <div v-else>No results found</div>
