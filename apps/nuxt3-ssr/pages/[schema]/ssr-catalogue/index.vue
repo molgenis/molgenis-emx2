@@ -17,7 +17,7 @@ definePageMeta({
   ],
 });
 
-useHead({ title: "MOLGENIS catalogue | start" });
+useHead({ title: "Health Data and Samples Catalogue" });
 
 const route = useRoute();
 const config = useRuntimeConfig();
