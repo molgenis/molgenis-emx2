@@ -10,13 +10,12 @@ import static org.molgenis.emx2.Operator.NOT_EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 
-public class SqlQueryWithRefTests {
+class SqlQueryWithRefTests {
 
   static Database database;
 
@@ -26,8 +25,8 @@ public class SqlQueryWithRefTests {
   }
 
   @Test
-  void testQueryByRef() throws IOException {
-    var schema = database.dropCreateSchema("test_query_by");
+  void testQueryByRef() {
+    var schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
     var resources =
         schema.create(table("Resources", column("id", STRING).setKey(1), column("name", STRING)));
     var datasets =
@@ -46,7 +45,7 @@ public class SqlQueryWithRefTests {
   }
 
   @Test
-  void testQueryNotRef() throws IOException {
+  void testQueryNotRef() {
     var schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
     var resources =
         schema.create(table("Resources", column("id", STRING).setKey(1), column("name", STRING)));
@@ -66,7 +65,7 @@ public class SqlQueryWithRefTests {
   }
 
   @Test
-  void testQueryByRefCompound() throws IOException {
+  void testQueryByRefCompound() {
     var schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
     var resources =
         schema.create(
@@ -89,7 +88,7 @@ public class SqlQueryWithRefTests {
   }
 
   @Test
-  void testQueryByRefCompound2() throws IOException {
+  void testQueryByRefCompound2() {
     var schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
     var resources =
         schema.create(
@@ -109,9 +108,7 @@ public class SqlQueryWithRefTests {
     query.where(f("resource", EQUALS, "1"));
     assertThrows(
         MolgenisException.class,
-        () -> {
-          query.retrieveRows();
-        },
+        query::retrieveRows,
         "Expected an exception when querying by field resource instead of resource.id");
     database.dropSchema(schema.getName());
   }
