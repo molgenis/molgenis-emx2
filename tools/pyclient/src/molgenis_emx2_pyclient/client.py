@@ -36,8 +36,7 @@ class Client:
         
         self.default_schema = schema
         
-        self.schemas = None
-        self.schema_names = None
+        self.schemas = self.get_schemas()
 
     def __str__(self):
         return self.url
@@ -142,9 +141,10 @@ class Client:
         )
         return message
 
-    @property
-    def schemas(self):
-        """List the databases present on the server."""
+    def get_schemas(self) -> list:
+        """Returns the schemas as a list of dictionary containing
+        for each schema the id, name, label and description.
+        """
         query = queries.list_schemas()
 
         response = self.session.post(
@@ -155,9 +155,13 @@ class Client:
         response_json: dict = response.json()
 
         schemas = response_json['data']['_schemas']
-        self.schema_names = [schema['name'] for schema in schemas]
 
         return schemas
+
+    @property
+    def schema_names(self) -> list:
+        """Returns the names of the schemas on the database for this user."""
+        return [schema['name'] for schema in self.schemas]
 
     @property
     def version(self):
