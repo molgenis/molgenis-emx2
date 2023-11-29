@@ -12,9 +12,7 @@
       <span class="block data-[description='true']:font-bold">
         {{ label }}
       </span>
-      <span v-if="description" class="block leading-5 text-gray-600">
-        {{ description }}
-      </span>
+      <slot name="description"></slot>
     </label>
   </div>
 </template>
