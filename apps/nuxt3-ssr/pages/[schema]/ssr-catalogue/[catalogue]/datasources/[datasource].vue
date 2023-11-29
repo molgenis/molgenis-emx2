@@ -162,7 +162,6 @@ function datasetMapper(item: { name: string; description: string }) {
         </ContentBlock>
 
         <TableContent
-          v-if="dataSource.datasets"
           id="datasets"
           title="Datasets"
           description="List of datasets for this resource"
@@ -375,11 +374,13 @@ function datasetMapper(item: { name: string; description: string }) {
               },
               {
                 label: 'Informed consent type',
-                content: dataSource.informedConsentType,
+                content: dataSource.informedConsentType.name,
               },
               {
                 label: 'Funding sources',
-                content: dataSource.fundingSources,
+                content: dataSource.fundingSources.map((fundingSource: any) => {
+                  return fundingSource.name;
+                }),
               },
               {
                 label: 'Funding statement',
