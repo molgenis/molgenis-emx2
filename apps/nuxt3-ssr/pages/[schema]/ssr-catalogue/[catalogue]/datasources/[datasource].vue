@@ -405,13 +405,13 @@ function datasetMapper(item: { name: string; description: string }) {
             :items="[
               {
                 label: 'Networks',
-                content: dataSource.networks.map((network: any) => {
+                content: dataSource.networks?.map((network: any) => {
                   return `${network.name} (${network.id})`;
                 })
               },
               {
                 label: 'Studies',
-                content: dataSource.studies.map((study: any) => {
+                content: dataSource.studies?.map((study: any) => {
                   return `${study.name} (${study.id})`;
                 }),
               },
