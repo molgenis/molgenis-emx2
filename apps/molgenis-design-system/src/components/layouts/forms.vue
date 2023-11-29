@@ -5,13 +5,12 @@
         <component
           :is="formTitleHierarchy"
           :class="`
-          text-${6 - parseInt(formTitleHierarchy.replace('h', ''))}xl
+          text-heading-${6 - parseInt(formTitleHierarchy.replace('h', ''))}xl
           font-semibold
           `"
         >
           <span>{{ title }}</span>
         </component>
-        <p v-if="description">{{ description }}</p>
         <div class="my-2 pb-4 border-b">
           <slot name="context"></slot>
         </div>
@@ -30,7 +29,6 @@
 interface FormProps {
   id: string;
   title?: string;
-  description?: string;
   formTitleHierarchy?: "h2" | "h3" | "h4" | "h5" | "h6";
 }
 

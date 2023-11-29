@@ -24,17 +24,15 @@
       </Form>
     </Variant>
     <Variant title="Full example">
-      <Form
-        id="patientSearch"
-        title="Search for patients"
-        description="Apply one or more of the following filters to create a subset of the registry."
-      >
+      <Form id="patientSearch" title="Search for patients">
         <template v-slot:context>
           <p>
             There are over 50k+ patients in the registry. The data comes from
             organisations (e.g., universities, hospitals, medical practices,
             governments, etc.) in many countries. Data is submitted to the
-            registry using structured forms and validated upon submission.
+            registry using structured forms and validated upon submission. Apply
+            one or more of the following filters to create a subset of the
+            registry.
           </p>
         </template>
         <template v-slot:inputs>
@@ -42,13 +40,19 @@
           <CheckboxGroup
             id="countryInput"
             title="Select Countries"
-            description="Data comes from many countries. If you would like to limit the results to one or more countries, then select them below."
             :data="options"
             row_id="rowId"
             row_label="country"
             row_value="code"
             row_checked="default"
-          />
+          >
+            <template v-slot:description>
+              <p>
+                Data comes from many countries. If you would like to limit the
+                results to one or more countries, then select them below.
+              </p>
+            </template>
+          </CheckboxGroup>
         </template>
       </Form>
     </Variant>

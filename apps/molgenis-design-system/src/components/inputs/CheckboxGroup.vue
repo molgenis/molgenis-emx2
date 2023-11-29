@@ -2,10 +2,8 @@
   <div :id="id">
     <fieldset>
       <legend>
-        <span class="block">{{ title }}</span>
-        <span class="bloc" v-if="description">
-          {{ description }}
-        </span>
+        <span class="block text-heading-base font-semibold">{{ title }}</span>
+        <slot name="description"></slot>
       </legend>
       <div v-if="data.length" class="mt-2 [&>div]:mb-2">
         <Checkbox
@@ -14,11 +12,12 @@
           :label="row[row_label]"
           :name="name"
           :value="row_value !== undefined ? row[row_value] : ''"
-          :description="
-            row_description !== undefined ? row[row_description] : ''
-          "
           :checked="row_checked !== undefined ? row[row_checked] : false"
-        />
+        >
+          <template v-slot:description v-if="row_description">
+            <span>{{ row[row_description] }}</span>
+          </template>
+        </Checkbox>
       </div>
     </fieldset>
   </div>
@@ -30,8 +29,7 @@ import Checkbox from "./Checkbox.vue";
 interface Props {
   id: string;
   title: string;
-  description?: string;
-  name?: string;
+  name: string;
   data: any[];
   row_id: string;
   row_label: string;
