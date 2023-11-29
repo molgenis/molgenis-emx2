@@ -7,6 +7,9 @@ module.exports = {
       pattern: /^bg-/,
     },
     {
+      pattern: /^p[xy]-/,
+    },
+    {
       pattern: /^text-/,
     },
     {
@@ -33,6 +36,8 @@ module.exports = {
       "heading-lg": ["1.125rem", "1.2"],
       "heading-base": ["1rem", "1.2"],
       "heading-sm": ["0.875rem", "1.2"],
+      "heading-xs": ["0.875rem", "1.2"],
+      "heading-xs": ["0.75rem", "1.2"],
       "body-lg": ["1.125rem", "1.8"],
       "body-base": ["1rem", "1.8"],
       "body-sm": ["0.875rem", "1.8"],

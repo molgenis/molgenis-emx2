@@ -1,18 +1,30 @@
 <script setup lang="ts">
+enum Sizes {
+  xs='xs',
+  sm='sm',
+  base='base',
+  lg='lg',
+  xl='xl',
+  '2xl'='2xl',
+  '3xl'='3xl',
+};
+
+const buttonSizes = Object.values(Sizes);
+
 interface ButtonProps {
   label: string,
-  type?: 'button' | 'reset' | 'submit',
-  context?: 'primary' | 'secondary' | 'outline' | 'none', 
-  size?: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl', 
+  type: 'button' | 'reset' | 'submit',
+  context?: 'primary' | 'secondary' | 'outline' | 'tertiary', 
+  size?: Sizes, 
   isDisabled?: boolean
 }
 
-const props = withDefaults(
+withDefaults(
   defineProps<ButtonProps>(),
   {
     type: 'button',
     context: 'secondary',
-    size: 'base',
+    size: Sizes.base,
     isDisabled: false
   }
 );
@@ -23,25 +35,48 @@ const props = withDefaults(
   <button
     :type="type"
     :data-type="type"
+    :data-context="context"
     :disabled="isDisabled"    
-    :class="`block w-full text-center rounded-full
+    :class="`
+      block
+      w-full
+      border
+      rounded-full
+      border-transparent
+      text-center
+      hover:brightness-110
+
+    data-[context='primary']:bg-button-primary
+    data-[context='primary']:text-button-primary
+    data-[context='secondary']:bg-button-secondary
+    data-[context='secondary']:text-button-secondary
+    data-[context='outline']:bg-button-outline
+    data-[context='outline']:text-button-outline
+    data-[context='outline']:border-button-outline
+    data-[context='tertiary']:bg-button-tertiary
+    data-[context='tertiary']:text-button-tertiary
       
-    data-[type='button']:bg-gray-100 
-    data-[type='button']:text-blue-800 
-    data-[type='button']:hover:bg-gray-200
-      
-    data-[type='submit']:bg-blue-800 
-    data-[type='submit']:text-blue-50 
-    data-[type='submit']:hover:bg-blue-700
-      
-    [&:disabled]:bg-gray-400
-    [&:disabled]:text-gray-600 
-    [&:disabled]:hover:bg-gray-400
+    [&:disabled]:bg-button-disabled
+    [&:disabled]:text-button-disabled
+    [&:disabled]:hover:filter-none
     `"
   >
-  <div class="block w-full px-3 py-3">
-      <slot name="button-icon"></slot>
-      <span :class="`uppercase font-semibold tracking-widest text-heading-${size}`">
+  <div 
+    :class="`
+      block w-full px-3
+      py-${buttonSizes.findIndex((value) => value === size)}
+      [&_svg]:mr-2
+    `"
+  >
+      <slot name="icon"></slot>
+      <span
+        :class="`
+          uppercase
+          font-semibold
+          tracking-widest
+          text-heading-${size}
+        `"
+      >
         {{ label }}
       </span>
   </div>
