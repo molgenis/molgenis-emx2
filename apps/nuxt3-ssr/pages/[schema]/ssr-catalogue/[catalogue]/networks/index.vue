@@ -142,7 +142,11 @@ let activeName = ref("detailed");
                 class="flex xl:hidden"
                 v-model:activeName="activeName"
               >
-                <FilterSidebar title="Filters" :filters="filters" />
+                <FilterSidebar
+                  title="Filters"
+                  :filters="filters"
+                  :mobileDisplay="true"
+                />
               </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>
