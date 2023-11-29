@@ -185,7 +185,7 @@ export default {
     },
     handleUpdateSelection(event: IRow[]) {
       this.selection = event;
-      this.emitSelection;
+      this.emitSelection();
     },
     emitSelection() {
       this.$emit("update:modelValue", this.selection);
@@ -230,7 +230,11 @@ export default {
       this.$emit("optionsLoaded", this.data);
     },
     selectNewRow(newRow: IRow) {
-      this.selection.push(newRow);
+      if (!this.loading) {
+        this.loadOptions();
+      }
+      this.selection.push({ name: newRow.name });
+      this.emitSelection();
     },
   },
   watch: {
