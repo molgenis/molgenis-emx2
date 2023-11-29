@@ -222,11 +222,12 @@ function datasetMapper(item: { name: string; description: string }) {
         </ContentBlock>
 
         <ContentBlock title="Access" id="access">
+        
           <CatalogueItemList
             :items="[
               {
                 label: 'Data holder',
-                content: dataSource.dataHolder,
+                content: dataSource.dataHolder?.name,
               },
               {
                 label: 'DAPs',
