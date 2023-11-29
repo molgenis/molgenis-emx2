@@ -44,6 +44,7 @@
 <script setup lang="ts">
 import InputText from "./InputText.vue";
 
-const label="Search for patients"
-const placeholder="Enter one or more identifiers; e.g., 'A-001' or 'A-001,A-002'"
+const label = "Search for patients";
+const placeholder =
+  "Enter one or more identifiers; e.g., 'A-001' or 'A-001,A-002'";
 </script>

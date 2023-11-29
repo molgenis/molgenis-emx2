@@ -1,5 +1,8 @@
 <template>
-  <Story title="Inputs/Checkbox Group" :layout="{ type: 'grid', width: '400px' }">
+  <Story
+    title="Inputs/Checkbox Group"
+    :layout="{ type: 'grid', width: '400px' }"
+  >
     <Variant title="Checkbox Group">
       <CheckboxGroup
         id="groupInput1"
@@ -32,32 +35,32 @@ import CheckboxGroup from "./CheckboxGroup.vue";
 
 const data = [
   {
-    rowId: 'T001',
-    topping: 'Mozzarella',
-    value: 'mozzarella',
-    desc: 'Slices of our fresh mozzerella',
-    default: true
+    rowId: "T001",
+    topping: "Mozzarella",
+    value: "mozzarella",
+    desc: "Slices of our fresh mozzerella",
+    default: true,
   },
   {
-    rowId: 'T002',
-    topping: 'Tomatoes',
-    value: 'tomatoes',
-    desc: 'Perfectly ripe cherry tomatoes from our garden',
-    default: false
+    rowId: "T002",
+    topping: "Tomatoes",
+    value: "tomatoes",
+    desc: "Perfectly ripe cherry tomatoes from our garden",
+    default: false,
   },
   {
-    rowId: 'T003',
-    topping: 'Basil',
-    value: 'basil',
-    desc: 'Fresh basil grown from our garden',
-    default: true
+    rowId: "T003",
+    topping: "Basil",
+    value: "basil",
+    desc: "Fresh basil grown from our garden",
+    default: true,
   },
   {
-    rowId: 'T004',
-    topping: 'Chilies',
-    value: 'chilies',
-    desc: 'Spice up your pizza with Tepin Chilies',
-    default: true
+    rowId: "T004",
+    topping: "Chilies",
+    value: "chilies",
+    desc: "Spice up your pizza with Tepin Chilies",
+    default: true,
   },
-]
+];
 </script>

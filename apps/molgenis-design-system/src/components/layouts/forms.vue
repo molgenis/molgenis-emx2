@@ -3,9 +3,9 @@
     <form>
       <div v-if="title" class="mb-4">
         <component
-        :is="formTitleHierarchy"
-        :class="`
-          text-${6-parseInt(formTitleHierarchy.replace('h',''))}xl
+          :is="formTitleHierarchy"
+          :class="`
+          text-${6 - parseInt(formTitleHierarchy.replace('h', ''))}xl
           font-semibold
           `"
         >
@@ -28,17 +28,13 @@
 
 <script setup lang="ts">
 interface FormProps {
-  id: string,
-  title?: string,
-  description?: string,
-  formTitleHierarchy?: 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
+  id: string;
+  title?: string;
+  description?: string;
+  formTitleHierarchy?: "h2" | "h3" | "h4" | "h5" | "h6";
 }
 
-withDefaults(
-  defineProps<FormProps>(),
-  {
-    formTitleHierarchy: 'h3'
-  }
-)
-
+withDefaults(defineProps<FormProps>(), {
+  formTitleHierarchy: "h3",
+});
 </script>

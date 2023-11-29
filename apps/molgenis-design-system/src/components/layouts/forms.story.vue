@@ -1,5 +1,5 @@
 <template>
-  <Story title="Layouts/Forms" :layout="{type: 'grid', width: '500px' }">
+  <Story title="Layouts/Forms" :layout="{ type: 'grid', width: '500px' }">
     <Variant title="Default">
       <Form
         id="default-form"
@@ -29,46 +29,47 @@
         title="Search for patients"
         description="Apply one or more of the following filters to create a subset of the registry."
       >
-      <template v-slot:context>
-        <p>There are over 50k+ patients in the registry. The data comes from organisations (e.g., universities, hospitals, medical practices, governments, etc.) in many countries. Data is submitted to the registry using structured forms and validated upon submission.</p>
-      </template>
-      <template v-slot:inputs>
-        <InputText
-          id="patient-search-all"
-          type="search"
-          label="Search all"
-        />
-        <CheckboxGroup
-          id="countryInput"
-          title="Select Countries"
-          description="Data comes from many countries. If you would like to limit the results to one or more countries, then select them below."
-          :data="options"
-          row_id="rowId"
-          row_label="country"
-          row_value="code"
-          row_checked="default"
-        />
-      </template>
+        <template v-slot:context>
+          <p>
+            There are over 50k+ patients in the registry. The data comes from
+            organisations (e.g., universities, hospitals, medical practices,
+            governments, etc.) in many countries. Data is submitted to the
+            registry using structured forms and validated upon submission.
+          </p>
+        </template>
+        <template v-slot:inputs>
+          <InputText id="patient-search-all" type="search" label="Search all" />
+          <CheckboxGroup
+            id="countryInput"
+            title="Select Countries"
+            description="Data comes from many countries. If you would like to limit the results to one or more countries, then select them below."
+            :data="options"
+            row_id="rowId"
+            row_label="country"
+            row_value="code"
+            row_checked="default"
+          />
+        </template>
       </Form>
     </Variant>
   </Story>
 </template>
 
 <script setup lang="ts">
-import Form from './forms.vue';
-import InputText from '../inputs/InputText.vue';
-import CheckboxGroup from '../inputs/CheckboxGroup.vue';
+import Form from "./forms.vue";
+import InputText from "../inputs/InputText.vue";
+import CheckboxGroup from "../inputs/CheckboxGroup.vue";
+import Button from "../inputs/Buttons.vue";
 
 const options = [
-  { rowId: 'AU', country: 'Australia', code: 'AU', default: true },
-  { rowId: 'BE', country: 'Belgium', code: 'BE' },
-  { rowId: 'CA', country: 'Canada', code: 'CA' },
-  { rowId: 'MX', country: 'Mexico', code: 'MX' },
-  { rowId: 'NL', country: 'Netherlands', code: 'NL', default: true },
-  { rowId: 'UK', country: 'United Kingdom', code: 'UK' },
-  { rowId: 'US', country: 'United States', code: 'US' },
-]
-
+  { rowId: "AU", country: "Australia", code: "AU", default: true },
+  { rowId: "BE", country: "Belgium", code: "BE" },
+  { rowId: "CA", country: "Canada", code: "CA" },
+  { rowId: "MX", country: "Mexico", code: "MX" },
+  { rowId: "NL", country: "Netherlands", code: "NL", default: true },
+  { rowId: "UK", country: "United Kingdom", code: "UK" },
+  { rowId: "US", country: "United States", code: "US" },
+];
 </script>
 
 <docs lang="md">
@@ -86,22 +87,22 @@ import { Form } from "molgenis-design-system";
 
 The form component takes the following arguments.
 
-| Name | Type | Required | Description | Default
-|:-----|:-----|:-------- |:------------|:-------
-| id   | string | `true` | unique identifier for the form | ---
-| title | string | `false` | a title that describes the purpose of the form | ---
-| description | string | `false` | content that provides additional context to the form | ---
-| formTitleHierarchy | string | `h3` | modify the heading level for the form from `h2:h6` | `h3`
+| Name               | Type   | Required | Description                                          | Default |
+| :----------------- | :----- | :------- | :--------------------------------------------------- | :------ |
+| id                 | string | `true`   | unique identifier for the form                       | ---     |
+| title              | string | `false`  | a title that describes the purpose of the form       | ---     |
+| description        | string | `false`  | content that provides additional context to the form | ---     |
+| formTitleHierarchy | string | `h3`     | modify the heading level for the form from `h2:h6`   | `h3`    |
 
 #### Slots
 
 In addition, there are two slots that are designed to separate form inputs from buttons. Use the `<template>` element and the following slot names to create the content in the form.
 
-| Name | Vue Slot | Description
-|:-----|:---------|:--------
-| Context | `v-slot:context` | Additional text to be displayed after the title and the description
-| Inputs | `v-slot:inputs` | Form content such as inputs, filters, etc.
-| Actions | `v-slot:actions` | Form actions including "submit", "search", etc.
+| Name    | Vue Slot         | Description                                                         |
+| :------ | :--------------- | :------------------------------------------------------------------ |
+| Context | `v-slot:context` | Additional text to be displayed after the title and the description |
+| Inputs  | `v-slot:inputs`  | Form content such as inputs, filters, etc.                          |
+| Actions | `v-slot:actions` | Form actions including "submit", "search", etc.                     |
 
 ### Example
 
@@ -111,7 +112,7 @@ import { Form } from "molgenis-design-system";
 </script>
 
 <template>
-  <Form 
+  <Form
     id="search"
     title="Search data"
     description="Search for data using one or more of the following filters. If no results are found, remove or adjust the search paramaters"
@@ -128,6 +129,4 @@ import { Form } from "molgenis-design-system";
   </Form>
 </template>
 ```
-
-
 </docs>

@@ -1,34 +1,30 @@
 <script setup lang="ts">
 enum Sizes {
-  xs='xs',
-  sm='sm',
-  base='base',
-  lg='lg',
-  xl='xl',
-  '2xl'='2xl',
-  '3xl'='3xl',
-};
+  xs = "xs",
+  sm = "sm",
+  base = "base",
+  lg = "lg",
+  xl = "xl",
+  "2xl" = "2xl",
+  "3xl" = "3xl",
+}
 
 const buttonSizes = Object.values(Sizes);
 
 interface ButtonProps {
-  label: string,
-  type: 'button' | 'reset' | 'submit',
-  context?: 'primary' | 'secondary' | 'outline' | 'tertiary', 
-  size?: Sizes, 
-  isDisabled?: boolean
+  label: string;
+  type: "button" | "reset" | "submit";
+  context?: "primary" | "secondary" | "outline" | "tertiary";
+  size?: Sizes;
+  isDisabled?: boolean;
 }
 
-withDefaults(
-  defineProps<ButtonProps>(),
-  {
-    type: 'button',
-    context: 'secondary',
-    size: Sizes.base,
-    isDisabled: false
-  }
-);
-
+withDefaults(defineProps<ButtonProps>(), {
+  type: "button",
+  context: "secondary",
+  size: Sizes.base,
+  isDisabled: false,
+});
 </script>
 
 <template>
@@ -36,7 +32,7 @@ withDefaults(
     :type="type"
     :data-type="type"
     :data-context="context"
-    :disabled="isDisabled"    
+    :disabled="isDisabled"
     :class="`
       block
       w-full
@@ -61,13 +57,13 @@ withDefaults(
     [&:disabled]:hover:filter-none
     `"
   >
-  <div 
-    :class="`
+    <div
+      :class="`
       block w-full px-3
       py-${buttonSizes.findIndex((value) => value === size)}
       [&_svg]:mr-2
     `"
-  >
+    >
       <slot name="icon"></slot>
       <span
         :class="`
@@ -79,6 +75,6 @@ withDefaults(
       >
         {{ label }}
       </span>
-  </div>
+    </div>
   </button>
 </template>

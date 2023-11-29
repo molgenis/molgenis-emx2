@@ -14,7 +14,9 @@
           :label="row[row_label]"
           :name="name"
           :value="row_value !== undefined ? row[row_value] : ''"
-          :description="row_description !== undefined ? row[row_description] : ''"    
+          :description="
+            row_description !== undefined ? row[row_description] : ''
+          "
           :checked="row_checked !== undefined ? row[row_checked] : false"
         />
       </div>
@@ -23,19 +25,19 @@
 </template>
 
 <script setup lang="ts">
-import Checkbox from './Checkbox.vue';
+import Checkbox from "./Checkbox.vue";
 
 interface Props {
-  id: string,
-  title: string,
-  description?: string,
-  name?: string,
-  data: any[],
-  row_id: string,
-  row_label: string,
-  row_value?: string,
-  row_description?: string,
-  row_checked?: string
+  id: string;
+  title: string;
+  description?: string;
+  name?: string;
+  data: any[];
+  row_id: string;
+  row_label: string;
+  row_value?: string;
+  row_description?: string;
+  row_checked?: string;
 }
 
 defineProps<Props>();

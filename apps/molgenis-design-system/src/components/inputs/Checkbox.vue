@@ -19,19 +19,15 @@
 
 <script setup lang="ts">
 interface Props {
-  id: string,
-  label: string,
-  name?: string,
-  value?: string
-  description?: string,
-  checked?: boolean
+  id: string;
+  label: string;
+  name?: string;
+  value?: string;
+  description?: string;
+  checked?: boolean;
 }
 
-const props = withDefaults(
-  defineProps<Props>(),
-  {
-    checked: false
-  }
-);
-
+const props = withDefaults(defineProps<Props>(), {
+  checked: false,
+});
 </script>
