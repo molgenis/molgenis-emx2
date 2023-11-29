@@ -374,11 +374,11 @@ function datasetMapper(item: { name: string; description: string }) {
               },
               {
                 label: 'Informed consent type',
-                content: dataSource.informedConsentType.name,
+                content: dataSource.informedConsentType?.name,
               },
               {
                 label: 'Funding sources',
-                content: dataSource.fundingSources.map((fundingSource: any) => {
+                content: dataSource.fundingSources?.map((fundingSource: any) => {
                   return fundingSource.name;
                 }),
               },
