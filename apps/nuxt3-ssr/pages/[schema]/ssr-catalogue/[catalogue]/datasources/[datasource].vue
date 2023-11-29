@@ -221,7 +221,6 @@ function datasetMapper(item: { name: string; description: string }) {
         </ContentBlock>
 
         <ContentBlock title="Access" id="access">
-        
           <CatalogueItemList
             :items="[
               {
@@ -406,11 +405,15 @@ function datasetMapper(item: { name: string; description: string }) {
             :items="[
               {
                 label: 'Networks',
-                content: dataSource.networks,
+                content: dataSource.networks.map((network: any) => {
+                  return `${network.name} (${network.id})`;
+                })
               },
               {
                 label: 'Studies',
-                content: dataSource.studies,
+                content: dataSource.studies.map((study: any) => {
+                  return `${study.name} (${study.id})`;
+                }),
               },
             ]"
           >
