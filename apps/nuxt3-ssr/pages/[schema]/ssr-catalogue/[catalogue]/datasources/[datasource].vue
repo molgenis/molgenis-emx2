@@ -112,7 +112,6 @@ function datasetMapper(item: { name: string; description: string }) {
                 label: 'Lead organisation',
                 content: dataSource.leadOrganisation[0].name,
               },
-              { label: 'Description', content: dataSource.description },
               {
                 label: 'Date established',
                 content: dataSource.dateEstablished,
@@ -121,7 +120,6 @@ function datasetMapper(item: { name: string; description: string }) {
                 label: 'Start data collection',
                 content: dataSource.startDataCollection,
               },
-              { label: 'Logo', content: dataSource.logo },
             ]"
           />
         </ContentBlock>
