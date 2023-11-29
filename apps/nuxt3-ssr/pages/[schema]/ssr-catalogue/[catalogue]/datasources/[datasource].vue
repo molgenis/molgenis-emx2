@@ -164,7 +164,7 @@ function datasetMapper(item: { name: string; description: string }) {
           description="List of datasets for this resource"
           :headers="[
             { id: 'name', label: 'Name' },
-            { id: 'description', label: 'Description', singleLine: true },
+            { id: 'description', label: 'Description' },
           ]"
           type="Datasets"
           :query="datasetQuery"
