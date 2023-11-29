@@ -58,7 +58,6 @@ function datasetMapper(item: { name: string; description: string }) {
     id: item.name,
     name: item.name,
     description: item.description,
-    _path: `/${route.params.schema}/ssr-catalogue/all/datasets`,
   };
 }
 </script>
