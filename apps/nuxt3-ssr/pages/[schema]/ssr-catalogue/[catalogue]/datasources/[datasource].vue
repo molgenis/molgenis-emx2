@@ -102,7 +102,6 @@ function datasetMapper(item: { name: string; description: string }) {
         <ContentBlock title="Overview" id="overview">
           <CatalogueItemList
             :items="[
-              { label: 'Id', content: dataSource.name },
               { label: 'Acronym', content: dataSource.acronym },
               { label: 'Name', content: dataSource.name },
               { label: 'Type', content: dataSource.type, type: 'ONTOLOGY' },
