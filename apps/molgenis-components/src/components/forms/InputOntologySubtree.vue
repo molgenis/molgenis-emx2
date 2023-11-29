@@ -88,11 +88,11 @@ export default {
       return childNames;
     },
     getSelectState(term) {
-      if (term.selected == "complete") {
+      if (term.selected === "complete") {
         return this.isMultiSelect
           ? "fas fa-check-square"
           : "fas fa-check-circle";
-      } else if (term.selected == "partial") {
+      } else if (term.selected === "partial") {
         return this.isMultiSelect ? "far fa-check-square" : "far fa-circle";
       } else {
         return this.isMultiSelect ? "far fa-square" : "far fa-circle";
@@ -111,7 +111,7 @@ export default {
     toggleSelect(term) {
       //if selecting then also expand
       //if deselection we keep it open
-      if (term.selected == "complete") {
+      if (term.selected === "complete") {
         this.$emit("deselect", term.name);
       } else {
         this.$emit("select", term.name);
