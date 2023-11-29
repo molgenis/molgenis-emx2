@@ -671,7 +671,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public String getLabel() {
-    if (getLabels().get("en") != null) {
+    if (getLabels().get("en") != null && !getLabels().get("en").trim().equals("")) {
       return getLabels().get("en");
     } else {
       return getName();

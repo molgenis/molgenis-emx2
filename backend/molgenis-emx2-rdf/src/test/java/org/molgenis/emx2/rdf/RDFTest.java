@@ -122,7 +122,23 @@ public class RDFTest {
                 "ontologyTermURI",
                 "https://icd.who.int/browse10/2019/en#/U07.1",
                 "definition",
-                "COVID-19 NOS"));
+                "COVID-19 NOS"),
+            row(
+                "order",
+                2,
+                "name",
+                "C00-C75 Malignant neoplasms, stated or presumed to be primary, of specified sites, except of lymphoid, haematopoietic and related tissue",
+                "code",
+                "C00-C75"),
+            row(
+                "order",
+                3,
+                "name",
+                "C00-C14 Malignant neoplasms of lip, oral cavity and pharynx",
+                "parent",
+                "C00-C75 Malignant neoplasms, stated or presumed to be primary, of specified sites, except of lymphoid, haematopoietic and related tissue",
+                "code",
+                "C00-C14"));
   }
 
   @AfterAll
@@ -377,6 +393,54 @@ public class RDFTest {
   }
 
   @Test
+  void testThatURLsAreNotSplitForOntologyParentItem() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(ontologyTest), handler);
+    var subject =
+        Values.iri(
+            "http://localhost:8080/OntologyTest/api/rdf/Diseases/bmFtZQ==&QzAwLUMxNCBNYWxpZ25hbnQgbmVvcGxhc21zIG9mIGxpcCwgb3JhbCBjYXZpdHkgYW5kIHBoYXJ5bng=");
+
+    var parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
+    assertEquals(
+        2, parents.size(), "This disease should only be a subclass of Diseases and C00-C75");
+  }
+
+  @Test
+  void testThatSameColumnIRIisAlwaysUsed() throws IOException {
+    // Use example from the catalogue schema since this has all the different issues.
+    var schema = database.dropCreateSchema("iriTest");
+    schema.create(
+        table(
+            "Resources",
+            column("id", ColumnType.STRING).setKey(1),
+            column("website", ColumnType.HYPERLINK)));
+    schema.create(table("Extended Resources").setInheritName("Resources"));
+    schema.create(table("Data Resources").setInheritName("Extended Resources"));
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(schema), handler);
+    // The table Data Resources extends Extended Resources, which extends Resources.
+    // Resources defines the column website. There should only be one predicate for
+    // Resources/column/website and the other tables should use this predicate.
+    var websitePredicate =
+        Values.iri("http://localhost:8080/iriTest/api/rdf/Resources/column/website");
+    var websitePredicateER =
+        Values.iri("http://localhost:8080/iriTest/api/rdf/ExtendedResources/column/website");
+    var websitePredicateDR =
+        Values.iri("http://localhost:8080/iriTest/api/rdf/DataResources/column/website");
+
+    assertTrue(
+        handler.resources.containsKey(websitePredicate),
+        "There should be a predicate for the column in the Resources (base) table");
+    assertFalse(
+        handler.resources.containsKey(websitePredicateER),
+        "There should not be a predicate for the column in the Extended Resources table");
+    assertFalse(
+        handler.resources.containsKey(websitePredicateDR),
+        "There should not be a predicate for the column in the Data Resources table");
+    database.dropSchema(schema.getName());
+  }
+
+  @Test
   void testThatURLColumnsAreObjectProperties() throws IOException {
     var schema = database.dropCreateSchema("Website");
     var table = schema.create(table("Websites", column("website", ColumnType.HYPERLINK).setKey(1)));
@@ -408,6 +472,23 @@ public class RDFTest {
     assertTrue(isObjectProperty, "The column website should be defined as a Object Property.");
     database.dropSchema("Website");
   }
+
+  @Test
+  void testThatAllInstancesHaveALabel() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(petStore_nr1), handler);
+    int instancesWithOutALabel = 0;
+    for (var resource : handler.resources.keySet()) {
+      var labels = handler.resources.get(resource).get(RDFS.LABEL);
+      if (labels.isEmpty()) {
+        System.err.println(
+            "Each resource should have a label. " + resource.stringValue() + " has none.");
+        instancesWithOutALabel += 1;
+      }
+    }
+    assertEquals(0, instancesWithOutALabel, "All instances should have a label.");
+  }
+
   /**
    * Helper method to reduce boilerplate code in the tests.<br>
    * <b>Note</b> this method delegates to the handler for the results of parsing.

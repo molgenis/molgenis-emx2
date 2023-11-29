@@ -310,9 +310,15 @@ public class RDFService {
   }
 
   private IRI getColumnIRI(final Column column) {
-    // TODO: In case of a column that is defined in a parent table the IRI should be the same
-    final TableMetadata table = column.getTable();
-    final Schema schema = table.getTable().getSchema();
+    TableMetadata table = column.getTable();
+    Schema schema = table.getTable().getSchema();
+    final Database db = schema.getDatabase();
+    while (table.getLocalColumn(column.getName()) == null) {
+      var inherited = table.getInheritedTable();
+      // Don't use the copy from the inherited table metadata, because that might not be complete.
+      schema = db.getSchema(inherited.getSchemaName());
+      table = schema.getTable(inherited.getTableName()).getMetadata();
+    }
     final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(table.getIdentifier());
     final String columnName = UrlEscapers.urlPathSegmentEscaper().escape(column.getIdentifier());
     final Namespace ns = getSchemaNamespace(schema);
@@ -430,6 +436,7 @@ public class RDFService {
         builder.add(subject, RDF.TYPE, tableIRI);
         builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
         builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
+        builder.add(subject, RDFS.LABEL, Values.literal(getLabelForRow(row, table.getMetadata())));
 
         for (final Column column : table.getMetadata().getColumns()) {
           // Exclude the system columns like mg_insertedBy
@@ -448,6 +455,21 @@ public class RDFService {
         }
       }
     }
+  }
+
+  private String getLabelForRow(final Row row, final TableMetadata metadata) {
+    List<String> primaryKeyValues = new ArrayList<>();
+    for (Column column : metadata.getPrimaryKeyColumns()) {
+      if (column.isReference()) {
+        for (final Reference reference : column.getReferences()) {
+          final String value = row.getString(reference.getName());
+          primaryKeyValues.add(value);
+        }
+      } else {
+        primaryKeyValues.add(row.getString(column.getName()));
+      }
+    }
+    return String.join(" ", primaryKeyValues);
   }
 
   private List<Row> getRows(final Table table, final String rowId) {
@@ -495,12 +517,21 @@ public class RDFService {
     for (final Reference reference : column.getReferences()) {
       final String localColumn = reference.getName();
       final String targetColumn = reference.getPath().get(0);
-      final String[] values = row.getStringArray(localColumn);
-      if (values != null) {
-        for (int i = 0; i < values.length; i++) {
-          var keyValuePairs = items.getOrDefault(i, new ArrayList<>());
-          keyValuePairs.add(new BasicNameValuePair(targetColumn, values[i]));
-          items.put(i, keyValuePairs);
+      if (column.isArray()) {
+        final String[] values = row.getStringArray(localColumn);
+        if (values != null) {
+          for (int i = 0; i < values.length; i++) {
+            var keyValuePairs = items.getOrDefault(i, new ArrayList<>());
+            keyValuePairs.add(new BasicNameValuePair(targetColumn, values[i]));
+            items.put(i, keyValuePairs);
+          }
+        }
+      } else {
+        final String value = row.getString(localColumn);
+        if (value != null) {
+          var keyValuePairs = items.getOrDefault(0, new ArrayList<>());
+          keyValuePairs.add(new BasicNameValuePair(targetColumn, value));
+          items.put(0, keyValuePairs);
         }
       }
     }
