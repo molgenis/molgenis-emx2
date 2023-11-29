@@ -18,4 +18,13 @@ export default defineConfig({
       },
     },
   },
+  theme: {
+    title: "Molgenis Design",
+    defaultColorScheme: "light",
+    favicon: "/molgenis.ico",
+    logo: {
+      light: "/molgenis_logo.png",
+      dark: "/molgenis_logo_white.png"
+    }
+  }
 });
