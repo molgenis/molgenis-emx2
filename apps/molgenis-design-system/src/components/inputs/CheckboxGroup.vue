@@ -6,9 +6,10 @@
         <slot name="description"></slot>
       </legend>
       <div v-if="data.length" class="mt-2 [&>div]:mb-2">
-        <Checkbox
+        <InputOption
           v-for="row in data"
           :id="`${id}-${row[row_id]}`"
+          :type="type"
           :label="row[row_label]"
           :name="name"
           :value="row_value !== undefined ? row[row_value] : ''"
@@ -17,26 +18,32 @@
           <template v-slot:description v-if="row_description">
             <span>{{ row[row_description] }}</span>
           </template>
-        </Checkbox>
+        </InputOption>
       </div>
     </fieldset>
   </div>
 </template>
 
 <script setup lang="ts">
-import Checkbox from "./Checkbox.vue";
+import InputOption from "./Checkbox.vue";
 
 interface Props {
-  id: string;
-  title: string;
-  name: string;
-  data: any[];
-  row_id: string;
-  row_label: string;
-  row_value?: string;
-  row_description?: string;
-  row_checked?: string;
+  id: string,
+  title: string,
+  type: 'checkbox' | 'radio',
+  name: string,
+  data: any[],
+  row_id: string,
+  row_label: string,
+  row_value?: string,
+  row_description?: string,
+  row_checked?: string,
 }
 
-defineProps<Props>();
+withDefaults(
+  defineProps<Props>(),
+  {
+    type: 'checkbox'
+  }
+);
 </script>

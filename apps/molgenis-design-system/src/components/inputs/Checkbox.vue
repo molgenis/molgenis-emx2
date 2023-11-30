@@ -2,14 +2,14 @@
   <div class="flex items-start gap-1">
     <input
       :id="id"
-      type="checkbox"
+      :type="type"
       :name="name"
       :value="value"
       class="mt-1 mr-1 accent-blue-700"
       :checked="checked"
     />
     <label :for="id" :data-description="description !== undefined">
-      <span class="block data-[description='true']:font-bold">
+      <span class="block">
         {{ label }}
       </span>
       <slot name="description"></slot>
@@ -20,6 +20,7 @@
 <script setup lang="ts">
 interface Props {
   id: string;
+  type: 'checkbox' | 'radio',
   label: string;
   name?: string;
   value?: string;
@@ -27,7 +28,11 @@ interface Props {
   checked?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  checked: false,
-});
+withDefaults(
+  defineProps<Props>(),
+  {
+    type: 'checkbox',
+    checked: false,
+  }
+);
 </script>
