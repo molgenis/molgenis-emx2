@@ -1,79 +1,99 @@
+<template>
+  <div>
+    <label :for="id">
+      <span
+        :data-required="required"
+        :data-valid="valid"
+        :data-error="hasError"
+        class="
+          block
+          mb-1
+          data-[required='true']:after:content-['*'] 
+          data-[required='true']:after:text-[0.9em]
+          data-[required='true']:after:text-red-500
+          data-[required='true']:after:font-bold
+          data-[required='true']:after:ml-1
+          
+          data-[valid='true']:text-green-800
+          data-[error='true']:text-red-500 
+        "
+      >
+        {{ label }}
+      </span>
+      <slot name="description"></slot>
+    </label>
+    <div
+      :data-disabled="disabled"
+      :data-valid="valid"
+      :data-error="hasError"
+      class="
+        flex
+        flex-row
+        w-full
+        items-center
+        mt-1
+        border
+        rounded-md
+        
+        focus-within:border-gray-600
+        data-[valid='true']:border-green-800
+        data-[error='true']:border-red-500
+        data-[disabled='true']:bg-gray-200/10
+      "
+    >
+      <div class="w-5/6">
+        <input
+          :id="id"
+          :type="type"
+          :placeholder="placeholder"
+          :required="required"
+          :disabled="disabled"
+          class="w-full py-2 pl-3 bg-transparent focus:outline-none"
+        />
+      </div>      
+      <div 
+        :data-error="hasError"
+        :data-valid="valid"
+        class="w-1/6 data-[error='true']:text-red-500 data-[valid='true']:text-green-800"
+      >
+        <component 
+          :is="
+            valid ? CheckCircleIcon : (hasError ? ExclamationTriangleIcon : null)
+          "
+          class="m-auto w-[1.2rem]"
+        />
+      </div>
+    </div>
+    <div v-if="hasError" class="w-full md:w-[92%] m-auto mt-2">
+      <p class="text-red-500">{{ error }}</p>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/vue/24/solid";
 
 interface Props {
-  id: string;
+  id: string,
   type?: "text" | "search" | "number" | "email" | "password" | "tel" | "url";
   label: string;
   placeholder?: string;
-  isDisabled?: boolean;
-  isRequired?: boolean;
-  isValid?: boolean;
+  disabled?: boolean;
+  required?: boolean;
+  valid?: boolean;
   hasError?: boolean;
   error?: string;
 }
 
 withDefaults(defineProps<Props>(), {
   type: "text",
-  isValid: false,
-  isDisabled: false,
-  isRequired: false,
+  disabled: false,
+  required: false,
+  valid: false,
   hasError: false,
 });
-</script>
 
-<template>
-  <div
-    :class="`
-      flex flex-row justify-center items-center w-full border-2 py-2 rounded-md
-      ${
-        !isValid && !hasError && !isDisabled
-          ? '[&:first-child]:focus-within:border-gray-600'
-          : ''
-      }
-      ${isDisabled ? 'bg-gray-200/10' : ''}
-      ${
-        hasError
-          ? 'border-red-500 [&_label]:text-red-500 [&_label]:font-semibold [&_svg>path]:fill-red-500'
-          : ''
-      }
-      ${
-        isValid
-          ? 'border-green-800 [&_svg>path]:fill-green-800 [&_label]:text-green-800'
-          : ''
-      }
-    `"
-  >
-    <div class="grow flex flex-col-reverse w-5/6">
-      <input
-        :type="type"
-        :id="id"
-        :placeholder="placeholder"
-        :required="isRequired"
-        :disabled="isDisabled"
-        class="peer grow block w-[90%] py-1 pl-3 ml-2 bg-transparent focus:outline-none"
-      />
-      <label
-        :for="id"
-        class="block ml-5 grow peer-required:after:content-['*'] peer-required:after:text-red-500 peer-disabled:text-gray-400"
-      >
-        {{ label }}
-      </label>
-    </div>
-    <div class="w-1/6 [&_svg]:w-[1.5rem]">
-      <component
-        :is="
-          isValid ? CheckCircleIcon : hasError ? ExclamationTriangleIcon : null
-        "
-        class="m-auto"
-      />
-    </div>
-  </div>
-  <div v-if="hasError" class="w-full md:w-[92%] m-auto mt-2">
-    <p class="text-red-500 font-semibold">{{ error }}</p>
-  </div>
-</template>
+</script>

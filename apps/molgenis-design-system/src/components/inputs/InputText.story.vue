@@ -12,7 +12,7 @@
         id="search-patients-disabled"
         :label="label"
         :placeholder="placeholder"
-        :is-disabled="true"
+        :disabled="true"
       />
     </Variant>
     <Variant title="Required">
@@ -20,15 +20,19 @@
         id="search-patients-required"
         :label="label"
         :placeholder="placeholder"
-        :is-required="true"
-      />
+        :required="true"
+      >
+        <template v-slot:description>
+          <p class="text-gray-600/80">Search for patient identifier, affiliation, etc.</p>
+        </template>
+      </InputText>
     </Variant>
     <Variant title="Valid">
       <InputText
         id="search-patients-valid"
         :label="label"
         :placeholder="placeholder"
-        :is-valid="true"
+        :valid="true"
       />
     </Variant>
     <Variant title="Error">
@@ -37,6 +41,7 @@
         :label="label"
         :placeholder="placeholder"
         :has-error="true"
+        error="Search term cannot be blank"
       />
     </Variant>
   </Story>
