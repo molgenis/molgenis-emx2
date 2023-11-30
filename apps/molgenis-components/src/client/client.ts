@@ -31,10 +31,15 @@ const client: IClient = {
         return schemasMap[schemaId || "CACHE_OF_CURRENT_SCHEMA"];
       },
       fetchTableMetaData: async (tableId: string): Promise<ITableMetaData> => {
-        const schema = await fetchSchemaMetaData(schemaId);
-        return deepClone(schema).tables.find(
+        const schemasMap = await fetchSchemaMetaData(schemaId);
+        const schema = schemasMap[schemaId || "CACHE_OF_CURRENT_SCHEMA"];
+        const tableMetaData = schema.tables.find(
           (table: ITableMetaData) => table.id === tableId
         );
+        if (!tableMetaData) {
+          throw new Error(`Table ${tableId} not found in schema ${schemaId}`);
+        }
+        return tableMetaData;
       },
       fetchTableData: async (
         tableId: string,
@@ -55,7 +60,7 @@ const client: IClient = {
         const schemaMetaDataMap = await fetchSchemaMetaData();
         const dataResp = await fetchTableData(
           tableId,
-          schemaId || "CACHE_OF_CURRENT_SCHEMA",
+          schemaId || schemaMetaDataMap["CACHE_OF_CURRENT_SCHEMA"].id,
           properties,
           schemaMetaDataMap
         );
