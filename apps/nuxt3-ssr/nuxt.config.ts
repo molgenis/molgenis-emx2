@@ -21,7 +21,7 @@ const config: NuxtConfig = {
       apiBase: "http://localhost:3000/", //'https://emx2.molgeniscloud.org/',
       emx2Theme: "",
       emx2Logo: "",
-      siteTitle: "Data Catalogue",
+      siteTitle: "MOLGENIS",
       analyticsKey: "",
       cohortOnly: false,
     },
