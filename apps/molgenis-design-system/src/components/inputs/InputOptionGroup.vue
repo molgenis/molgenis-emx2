@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import InputOption from "./Checkbox.vue";
+import InputOption from "./InputOption.vue";
 
 interface Props {
   id: string,
