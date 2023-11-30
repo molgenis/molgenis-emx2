@@ -112,7 +112,7 @@ const projectCatalogues = computed(() => {
     <ContentBlockCatalogues
         v-if="thematicCatalogues.length > 0"
       title="Thematic catalogues"
-      description="Catalogues focussed on a particular team developed by a collaboration of projects, networks and/or organisations:"
+      description="Catalogues focused on a particular theme, developed by a collaboration of projects, networks and/or organisations:"
       :catalogues="thematicCatalogues"
     />
     <ContentBlockCatalogues
