@@ -65,7 +65,7 @@ const filter = computed(() => buildQueryFilter(filters, search.value));
 
 let graphqlURL = computed(() => `/${route.params.schema}/api/graphql`);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
-  key: `catalogues`,
+  key: 'catalogues',
   baseURL: config.public.apiBase,
   method: "POST",
   body: {
@@ -76,12 +76,12 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
 let activeName = ref("compact");
 
 const thematicCatalogues = computed(() => {
-  let result = data.value.data?.Catalogues?.filter((c) => c.type?.name === "theme");
+  let result = data?.value?.data?.Catalogues ? data.value?.data?.Catalogues?.filter((c) => c.type?.name === "theme") : [];
    result.sort((a,b) => a.network.id.localeCompare(b.network.id))
   return result;
 });
 const projectCatalogues = computed(() => {
-  let result = data.value.data?.Catalogues?.filter((c) => c.type?.name === "project");
+  let result =  data?.value?.data?.Catalogues ? data.value?.data?.Catalogues?.filter((c) => c.type?.name === "project") : [];
   result.sort((a,b) => a.network.id.localeCompare(b.network.id))
   return result;
 });
@@ -100,9 +100,9 @@ const projectCatalogues = computed(() => {
         >
           <div class="flex flex-col items-center max-w-sm lg:mt-5">
             <NuxtLink :to="`/${route.params.schema}/ssr-catalogue/all`">
-              <Button label="Search all catalogues" />
+              <Button label="Search all" />
             </NuxtLink>
-            <p class="mt-1 mb-0 text-center lg:mt-10 text-body-lg">
+            <p class="mt-1 mb-0 text-center lg:mt-10 text-body-lg" v-if="thematicCatalogues.length > 0 || projectCatalogues.length > 0 ">
               or select a specific catalogue below:
             </p>
           </div>
@@ -110,11 +110,13 @@ const projectCatalogues = computed(() => {
       </template>
     </PageHeader>
     <ContentBlockCatalogues
+        v-if="thematicCatalogues.length > 0"
       title="Thematic catalogues"
       description="Catalogues focussed on a particular team developed by a collaboration of projects, networks and/or organisations:"
       :catalogues="thematicCatalogues"
     />
     <ContentBlockCatalogues
+        v-if="projectCatalogues.length > 0"
       title="Project catalogues"
       description="Catalogues maintained by individual research projects or consortia, such as EC RIA."
       :catalogues="projectCatalogues"

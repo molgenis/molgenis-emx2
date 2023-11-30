@@ -6,8 +6,8 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 10;
 
-const catalogue = route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-useHead({ title: catalogue + "Cohorts" });
+const titlePrefix = route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+useHead({ title: titlePrefix + "Cohorts" });
 
 const currentPage = ref(1);
 if (route.query?.page) {
