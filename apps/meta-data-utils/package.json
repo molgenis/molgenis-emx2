@@ -18,6 +18,7 @@
   "scripts": {
     "dev": "vite",
     "test": "vitest",
+    "test-ci": "vitest run",
     "build": "vite build",
     "preview": "vite preview",
     "format": "prettier src test --write --config ../.prettierrc.js"
