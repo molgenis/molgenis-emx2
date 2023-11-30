@@ -3,7 +3,8 @@ import { defineNuxtConfig, type NuxtConfig } from "nuxt/config";
 
 const devProxy = {
   options: {
-    target: process.env.PROXY_TARGET || "https://emx2.dev.molgenis.org/", // 'http://localhost:8080/',
+    target:
+      process.env.PROXY_TARGET || "https://data-catalogue.molgeniscloud.org/", // 'http://localhost:8080/',
     pathFilter: ["**/*/graphql", "**/api/file/**", "**/api/message/**"],
     changeOrigin: true,
     secure: false,

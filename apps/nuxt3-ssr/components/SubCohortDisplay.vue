@@ -88,7 +88,7 @@ if (subcohort?.mainMedicalCondition) {
   items.push({
     label: "Main medical condition",
     type: "ONTOLOGY",
-    content: buildOntologyTree(subcohort.mainMedicalCondition),
+    content: subcohort.mainMedicalCondition,
   });
 }
 
@@ -96,7 +96,7 @@ if (subcohort?.comorbidity) {
   items.push({
     label: "Comorbidity",
     type: "ONTOLOGY",
-    content: buildOntologyTree(subcohort.comorbidity),
+    content: subcohort.comorbidity,
   });
 }
 
@@ -104,7 +104,7 @@ if (subcohort?.countries) {
   items.push({
     label: "Population",
     type: "ONTOLOGY",
-    content: buildOntologyTree(subcohort.countries),
+    content: subcohort.countries,
   });
 }
 
