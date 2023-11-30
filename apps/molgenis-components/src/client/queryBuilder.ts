@@ -19,7 +19,13 @@ export const getColumnIds = (
   rootLevel = true
 ) => {
   let result = "";
-  getTable(schemaId, tableId, metaDataMap[schemaId].tables)?.columns?.forEach(
+  const schemaMetaData = metaDataMap[schemaId];
+  if (!schemaMetaData) {
+    throw new Error(
+      `Expectation error in queryBuilder.getColumnIds, Schema ${schemaId} not found in metaDataMap`
+    );
+  }
+  getTable(schemaId, tableId, schemaMetaData.tables)?.columns?.forEach(
     (col: IColumn) => {
       //we always expand the subfields of key=1, but other 'ref' fields only if they do not break server
       if (expandLevel > 0 || col.key == 1) {

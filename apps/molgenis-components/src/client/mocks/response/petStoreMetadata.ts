@@ -1,5 +1,6 @@
+import type { ISchemaMetaData } from "meta-data-utils";
 // test meta data with mg_columns removed
-export const petStoreMetaMock = {
+export const petStoreMetaMock: ISchemaMetaData = {
   id: "pet store",
   label: "Pet store",
   tables: [

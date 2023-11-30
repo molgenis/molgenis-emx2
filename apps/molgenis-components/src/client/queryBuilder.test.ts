@@ -1,6 +1,8 @@
 import { describe, assert, test } from "vitest";
 import { getColumnIds } from "./queryBuilder";
-import { petStoreMetaMock as metaData } from "./mocks/petStoreMetaMock";
+import { petStoreMetaMock as metaData } from "./mocks/response/petStoreMetadata";
+import { catalogueMetadata } from "./mocks/response/catalogueMetadata";
+import { catalogueOntologiesMetadata } from "./mocks/response/catalogueOntologiesMetadata";
 import type { ISchemaMetaData } from "meta-data-utils";
 
 describe("getColumnIds", () => {
@@ -50,5 +52,21 @@ describe("getColumnIds", () => {
       " order name label parent { order name label parent { name } } children { order name label parent { name } }";
     const result = getColumnIds("pet store", "Tag", metaDataMap, EXPAND_TWO);
     assert.equal(result, expectedResult);
+  });
+
+  test("it should use the passed metaData map to resolve metaData from linked schema's", () => {
+    const meta: Record<string, ISchemaMetaData> = {
+      "catalogue-demo": catalogueMetadata,
+      CatalogueOntologies: catalogueOntologiesMetadata,
+    };
+    const columnIds = getColumnIds(
+      "catalogue-demo",
+      "Cohorts",
+      meta,
+      EXPAND_TWO
+    );
+
+    // sample result
+    assert.include(columnIds, "contactEmail contacts { resource { id }");
   });
 });
