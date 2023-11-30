@@ -201,13 +201,13 @@ export default {
     };
   },
   async mounted() {
-    const client = Client.newClient("pet store");
+    const client = Client.newClient("testCohort");
     const metaData = await client.fetchSchemaMetaData();
     const petColumns = metaData.tables.find(
-      (t) => t.id === "Pet"
+      (t) => t.id === "Contacts"
     ).columns;
     this.columns = petColumns.filter((c) => !c.id.startsWith("mg_"));
-    this.remoteTableData = (await client.fetchTableData("Pet")).Pet;
+    this.remoteTableData = (await client.fetchTableData("Contacts")).Pet;
   },
 };
 </script>
