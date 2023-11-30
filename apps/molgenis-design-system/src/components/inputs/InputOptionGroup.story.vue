@@ -22,6 +22,7 @@
         type="checkbox"
         title="How would like us to notify you?"
         name="group-2"
+        :required="true"
         :data="notificationOptions"
         row_id="id"
         row_label="type"
@@ -56,6 +57,7 @@
         type="radio"
         title="How would like us to notify you?"
         name="radio-group-2"
+        :required="true"
         :data="notificationOptions"
         row_id="id"
         row_label="type"
@@ -105,18 +107,19 @@ radio inputs.
 
 The following attributes are available.
 
-| Name            | Type   | Required | Description                                         | Default    |
-| :-------------- | :----- | :------- | :-------------------------------------------------- | :--------- |
-| id              | string | `true`   | a unique identifier for the checkbox group          | ---        |
-| type            | string | `true`   | input type, `'checkbox' \| 'radio'`                 | `checkbox` | 
-| title           | string | `true`   | short text that describes the checkbox group        | ---        |
-| name            | string | `true`   | a unique name that groups all child checkboxes      | ---        |
-| data            | array  | `true`   | an array of objects containing all checkbox options | ---        |
-| row_id          | string | `true`   | property that contains the ID                       | ---        |
-| row_label       | string | `true`   | property that contains the label                    | ---        |
-| row_value       | string | `false`  | property that contains the value                    | ---        |
-| row_description | string | `false`  | property that contains the description              | ---        |
-| row_checked     | string | `false`  | property that contains the checked status           | `false`    |
+| Name            | Type    | Required | Description                                         | Default    |
+| :-------------- | :------ | :------- | :-------------------------------------------------- | :--------- |
+| id              | string  | `true`   | a unique identifier for the checkbox group          | ---        |
+| type            | string  | `true`   | input type, `'checkbox' \| 'radio'`                 | `checkbox` | 
+| title           | string  | `true`   | short text that describes the checkbox group        | ---        |
+| name            | string  | `true`   | a unique name that groups all child checkboxes      | ---        |
+| required        | boolean | `false`  | If true, the input will be required                 | `false`    |
+| data            | array   | `true`   | an array of objects containing all checkbox options | ---        |
+| row_id          | string  | `true`   | property that contains the ID                       | ---        |
+| row_label       | string  | `true`   | property that contains the label                    | ---        |
+| row_value       | string  | `false`  | property that contains the value                    | ---        |
+| row_description | string  | `false`  | property that contains the description              | ---        |
+| row_checked     | string  | `false`  | property that contains the checked status           | `false`    |
 
 ### Slots
 

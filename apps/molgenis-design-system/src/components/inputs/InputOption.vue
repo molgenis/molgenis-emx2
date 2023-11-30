@@ -5,10 +5,20 @@
       :type="type"
       :name="name"
       :value="value"
-      class="mt-1 mr-1 accent-blue-700"
+      class="peer mt-1 mr-1 accent-blue-700"
       :checked="checked"
+      :required="required"
     />
-    <label :for="id" :data-description="description !== undefined">
+    <label
+      :for="id"
+      class="
+        peer-required:[&>span]:after:content-['*'] 
+        peer-required:[&>span]:after:text-[0.9em]
+      peer-required:[&>span]:after:text-red-500
+        peer-required:[&>span]:after:font-bold
+        peer-required:[&>span]:after:ml-1
+      "
+      >
       <span class="block">
         {{ label }}
       </span>
@@ -26,13 +36,13 @@ interface Props {
   value?: string;
   description?: string;
   checked?: boolean;
+  required?: boolean,
 }
 
 withDefaults(
   defineProps<Props>(),
   {
-    type: 'checkbox',
-    checked: false,
+    type: 'checkbox'
   }
 );
 </script>

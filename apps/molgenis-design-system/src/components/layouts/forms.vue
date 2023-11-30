@@ -11,7 +11,7 @@
         >
           <span>{{ title }}</span>
         </component>
-        <div class="my-2 pb-4 border-b">
+        <div class="my-2 pb-4">
           <slot name="context"></slot>
         </div>
       </div>

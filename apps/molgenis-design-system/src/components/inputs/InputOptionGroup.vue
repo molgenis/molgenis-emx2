@@ -2,7 +2,21 @@
   <div :id="id">
     <fieldset>
       <legend>
-        <span class="block text-heading-base font-semibold">{{ title }}</span>
+        <span
+          :data-required="required"
+          class="
+            block
+            text-heading-base
+            font-semibold mb-1
+            data-[required='true']:after:content-['*']
+            data-[required='true']:after:text-[0.9em]
+            data-[required='true']:after:font-bold
+            data-[required='true']:after:ml-1
+            data-[required='true']:after:text-red-500
+          "
+        >
+          {{ title }}
+        </span>
         <slot name="description"></slot>
       </legend>
       <div v-if="data.length" class="mt-2 [&>div]:mb-2">
@@ -32,6 +46,7 @@ interface Props {
   title: string,
   type: 'checkbox' | 'radio',
   name: string,
+  required?: boolean,
   data: any[],
   row_id: string,
   row_label: string,
@@ -43,7 +58,8 @@ interface Props {
 withDefaults(
   defineProps<Props>(),
   {
-    type: 'checkbox'
+    type: 'checkbox',
+    required: false
   }
 );
 </script>

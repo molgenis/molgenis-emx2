@@ -7,8 +7,13 @@
         label="Do you agree to the terms and conditions?"
       />
     </Variant>
-    <Variant title="Single Checkbox with description">
-      <InputOption type="checkbox" id="input-2" label="Do you agree to the terms and conditions?">
+    <Variant title="Single Checkbox with description and required">
+      <InputOption
+        id="input-2"
+        type="checkbox"
+        label="Do you agree to the terms and conditions?"
+        :required="true"
+      >
         <template v-slot:description>
           <p class="[&_a]:text-blue-500 [&_a]:underline [&_a]:decoration-1">
             By agreeing, you have read the
@@ -20,9 +25,23 @@
     </Variant>
     <Variant title="Radio Inputs">
       <p class="font-semibold">Do you agree to the terms and conditions?</p>
-      <InputOption type="radio" name="agreement" id="radio-yes" label="Yes, I do" />
-      <InputOption type="radio" name="agreement" id="radio-no" label="No, I do not" />
-      <p class="mt-2"><strong>Developers Note</strong>: You can use this component to manually create input groups, but it is strongly recommended to use the InputOptionGroup component instead.</p>
+      <InputOption
+        type="radio"
+        name="agreement"
+        id="radio-yes"
+        label="Yes, I do"
+      />
+      <InputOption
+        type="radio"
+        name="agreement"
+        id="radio-no"
+        label="No, I do not"
+      />
+      <p class="mt-2">
+        <strong>Developers Note</strong>: You can use this component to
+        manually create input groups, but it is strongly recommended to
+        use the InputOptionGroup component instead.
+      </p>
     </Variant>
   </Story>
 </template>
@@ -45,14 +64,15 @@ or you can use the `<InputOptionGroup>` component.
 
 The following attributes are available.
 
-| Name    | Type    | Required | Description                                   | Default      |
-| :------ | :------ | :------- | :-------------------------------------------- | :----------- |
-| id      | string  | `true`   | a unique identifier for the checkbox          | ---          |
-| type    | string  | `true`   | input type, `'checkbox' \| 'radio'`           | `checkbox`   | 
-| label   | string  | `true`   | text that describes the checkbox              | ---          |
-| name    | string  | `false`  | a name the links multiple checkboxes          | ---          |
-| value   | string  | `false`  | a value that represents the checkbox          | `true/false` |
-| checked | boolean | `true`   | If true, the input will be checked by default | `false`      |
+| Name     | Type    | Required | Description                                   | Default      |
+| :------- | :------ | :------- | :-------------------------------------------- | :----------- |
+| id       | string  | `true`   | a unique identifier for the checkbox          | ---          |
+| type     | string  | `true`   | input type, `'checkbox' \| 'radio'`           | `checkbox`   | 
+| label    | string  | `true`   | text that describes the checkbox              | ---          |
+| name     | string  | `false`  | a name the links multiple checkboxes          | ---          |
+| value    | string  | `false`  | a value that represents the checkbox          | `true/false` |
+| checked  | boolean | `false`  | If true, the input will be checked            | `false`      |
+| required | boolean | `false`  | If true, the input will be required           | `false`      |
 
 #### Slots
 
