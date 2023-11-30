@@ -26,8 +26,9 @@ const client: IClient = {
       deleteAllTableData: async (tableId: string) => {
         return deleteAllTableData(tableId, schemaId);
       },
-      fetchSchemaMetaData: async () => {
-        return fetchSchemaMetaData(schemaId);
+      fetchSchemaMetaData: async (): Promise<ISchemaMetaData> => {
+        const schemasMap = await fetchSchemaMetaData(schemaId);
+        return schemasMap[schemaId || "CACHE_OF_CURRENT_SCHEMA"];
       },
       fetchTableMetaData: async (tableId: string): Promise<ITableMetaData> => {
         const schema = await fetchSchemaMetaData(schemaId);
@@ -39,18 +40,24 @@ const client: IClient = {
         tableId: string,
         properties: IQueryMetaData = {}
       ) => {
-        const schemaMetaData = await fetchSchemaMetaData(schemaId);
-        return fetchTableData(tableId, properties, schemaMetaData);
+        const schemaMetaDataMap = await fetchSchemaMetaData();
+        return fetchTableData(
+          tableId,
+          schemaId || "CACHE_OF_CURRENT_SCHEMA",
+          properties,
+          schemaMetaDataMap
+        );
       },
       fetchTableDataValues: async (
         tableId: string,
         properties: IQueryMetaData = {}
       ) => {
-        const schemaMetaData = await fetchSchemaMetaData(schemaId);
+        const schemaMetaDataMap = await fetchSchemaMetaData();
         const dataResp = await fetchTableData(
           tableId,
+          schemaId || "CACHE_OF_CURRENT_SCHEMA",
           properties,
-          schemaMetaData
+          schemaMetaDataMap
         );
         return dataResp[tableId];
       },
@@ -59,7 +66,10 @@ const client: IClient = {
         rowId: IRow,
         expandLevel: number = 1
       ) => {
-        const schemaMetaData = await fetchSchemaMetaData(schemaId);
+        const schemaMetaDataMap = await fetchSchemaMetaData();
+        const schemaMetaData =
+          schemaMetaDataMap[schemaId || "CACHE_OF_CURRENT_SCHEMA"];
+
         const tableMetaData = schemaMetaData.tables.find(
           (table: ITableMetaData) =>
             table.id === tableId && table.schemaId === schemaMetaData.id
@@ -73,10 +83,11 @@ const client: IClient = {
         const resultArray = (
           await fetchTableData(
             tableId,
+            schemaId || "CACHE_OF_CURRENT_SCHEMA",
             {
               filter,
             },
-            schemaMetaData,
+            schemaMetaDataMap,
             expandLevel
           )
         )[tableId];
@@ -232,21 +243,43 @@ const deleteAllTableData = (tableId: string, schemaId?: string) => {
 
 const fetchSchemaMetaData = async (
   schemaId?: string
-): Promise<ISchemaMetaData> => {
-  const currentschemaId = schemaId ? schemaId : "CACHE_OF_CURRENT_SCHEMA";
-  if (schemaCache.has(currentschemaId)) {
-    return schemaCache.get(currentschemaId) as ISchemaMetaData;
+): Promise<Record<string, ISchemaMetaData>> => {
+  const currentSchemaId = schemaId ? schemaId : "CACHE_OF_CURRENT_SCHEMA";
+  if (schemaCache.has(currentSchemaId)) {
+    return Object.fromEntries(schemaCache);
   }
   return await axios
     .post(graphqlURL(schemaId), { query: metaDataQuery })
-    .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
-      const schema = result.data.data._schema;
-      if (schemaId == null) {
-        schemaCache.set(currentschemaId, schema);
+    .then(
+      async (result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
+        const schema = result.data.data._schema;
+        const cacheKey = schemaId ? schemaId : currentSchemaId;
+        schemaCache.set(cacheKey, schema);
+
+        // create if list of linked schemas
+        const linkedSchemasIds = schema.tables.reduce(
+          (accum: string[], table: ITableMetaData) => {
+            table.columns.forEach((column: IColumn) => {
+              if (column.refSchemaId && !accum.includes(column.refSchemaId)) {
+                accum.push(column.refSchemaId);
+              }
+            });
+            return accum;
+          },
+          []
+        );
+
+        // fetch metaData for all linked schemas
+        await Promise.all(
+          linkedSchemasIds.map(async (linkedSchemasId: string) => {
+            const schemaMap = await fetchSchemaMetaData(linkedSchemasId);
+            schemaCache.set(linkedSchemasId, schemaMap[linkedSchemasId]);
+          })
+        );
+
+        return Object.fromEntries(schemaCache);
       }
-      schemaCache.set(schema.id, schema);
-      return deepClone(schema);
-    })
+    )
     .catch((error: AxiosError) => {
       console.log(error);
       throw error;
@@ -255,8 +288,9 @@ const fetchSchemaMetaData = async (
 
 const fetchTableData = async (
   tableId: string,
+  tableSchemaId: string,
   properties: IQueryMetaData,
-  metaData: ISchemaMetaData,
+  metaDataMap: Record<string, ISchemaMetaData>,
   expandLevel: number = 2
 ) => {
   const limit = properties.limit ? properties.limit : 20;
@@ -266,8 +300,12 @@ const fetchTableData = async (
     ? ',search:"' + properties.searchTerms.trim() + '"'
     : "";
 
-  const schemaId = metaData.id;
-  const columnIds = getColumnIds(schemaId, tableId, metaData, expandLevel);
+  const columnIds = getColumnIds(
+    tableSchemaId,
+    tableId,
+    metaDataMap,
+    expandLevel
+  );
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
           filter:$filter,
@@ -286,7 +324,7 @@ const fetchTableData = async (
   const filter = properties.filter ? properties.filter : {};
   const orderby = properties.orderby ? properties.orderby : {};
   const resp = await axios
-    .post(graphqlURL(schemaId), {
+    .post(graphqlURL(tableSchemaId), {
       query: tableDataQuery,
       variables: { filter, orderby },
     })
@@ -389,7 +427,9 @@ async function convertRowToPrimaryKey(
   tableId: string,
   schemaId?: string
 ): Promise<Record<string, any>> {
-  const schema = await fetchSchemaMetaData(schemaId);
+  const schema = (await fetchSchemaMetaData(schemaId))[
+    schemaId || "CACHE_OF_CURRENT_SCHEMA"
+  ];
   const tableMetadata = schema.tables.find(
     (table: ITableMetaData) =>
       table.id === tableId && table.schemaId === schema.id
