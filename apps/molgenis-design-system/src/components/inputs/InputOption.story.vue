@@ -30,6 +30,7 @@
         name="agreement"
         id="radio-yes"
         label="Yes, I do"
+        :checked="true"
       />
       <InputOption
         type="radio"

@@ -45,6 +45,7 @@
         row_id="id"
         row_label="type"
         row_value="type"
+        row_checked="default"
       >
         <template v-slot:description>
           <p>Choose your preferred method of contact. You can change your notification settings at any time.</p>
@@ -63,6 +64,7 @@
         row_label="type"
         row_value="type"
         row_description="info"
+        row_checked="default"
       >
         <template v-slot:description>
           <p>Choose your preferred method of contact. You can change your notification settings at any time.</p>
@@ -91,7 +93,6 @@ const notificationOptions = [
     id: "n-03",
     type: "Post",
     info: "You will receive paper copies to your home address",
-    default: true,
   },
 ];
 </script>

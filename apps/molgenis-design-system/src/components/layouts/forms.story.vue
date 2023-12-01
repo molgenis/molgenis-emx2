@@ -23,104 +23,11 @@
         </template>
       </Form>
     </Variant>
-    <Variant title="Full example">
-      <Form id="patientSearch" title="Search for patients">
-        <template v-slot:context>
-          <p class="leading-relaxed">
-            There are over 50k+ patients in the registry. The data comes from
-            organisations (e.g., universities, hospitals, medical practices,
-            governments, etc.) in many countries. Apply
-            one or more of the following filters to create a subset of the
-            registry.
-          </p>
-        </template>
-        <template v-slot:inputs>
-          <InputText
-            id="patient-search-all"
-            type="search"
-            label="Search all"
-            :is-required="true"
-          />
-          <InputOptionGroup
-            id="countryInput"
-            type="checkbox"
-            name="countries"
-            title="Select Countries"
-            :required="true"
-            :data="countries"
-            row_id="rowId"
-            row_label="country"
-            row_value="code"
-            row_checked="default"
-          >
-            <template v-slot:description>
-              <p class="leading-relaxed">
-                Data comes from many countries. If you would like to limit the
-                results to one or more countries, then select them below.
-              </p>
-            </template>
-          </InputOptionGroup>
-          <InputOptionGroup
-            id="searchStrictness"
-            :required="true"
-            type="radio"
-            name="search-strictness"
-            title="Specify the level of strictness"
-            :data="[
-              {
-                id: 'level-1',
-                name: 'Basic',
-                definition: 'Very minimal filters are applied'
-              },
-              {
-                id: 'level-2',
-                name: 'Standard',
-                definition: 'Our standard filters will be applied',
-                checked: true
-              },
-              {
-                id: 'level-3',
-                name: 'Strict',
-                definition: 'Our strongest methods will be applied'
-              },
-            ]"
-            row_id="id"
-            row_label="name"
-            row_value="name"
-            row_description="definition"
-            row_checked="checked"
-          >
-            <template v-slot:description>
-              <p class="leading-relaxed">Adjust the level of specificity of the search parameters.</p>
-            </template>
-          </InputOptionGroup>
-        </template>
-        <template v-slot:actions>
-          <div class="flex flex-col gap-3">
-            <Button type="submit" context="secondary" label="Search" />
-            <Button type="reset" context="outline" label="Reset" />
-          </div>
-        </template>
-      </Form>
-    </Variant>
   </Story>
 </template>
 
 <script setup lang="ts">
 import Form from "./forms.vue";
-import InputText from "../inputs/InputText.vue";
-import InputOptionGroup from "../inputs/InputOptionGroup.vue";
-import Button from "../inputs/Buttons.vue";
-
-const countries = [
-  { rowId: "AU", country: "Australia", code: "AU", default: true },
-  { rowId: "BE", country: "Belgium", code: "BE" },
-  { rowId: "CA", country: "Canada", code: "CA" },
-  { rowId: "MX", country: "Mexico", code: "MX" },
-  { rowId: "NL", country: "Netherlands", code: "NL", default: true },
-  { rowId: "UK", country: "United Kingdom", code: "UK" },
-  { rowId: "US", country: "United States", code: "US" },
-];
 </script>
 
 <docs lang="md">

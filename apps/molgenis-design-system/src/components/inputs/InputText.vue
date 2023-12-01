@@ -1,70 +1,79 @@
 <template>
-  <div>
+  <div
+    :id="`text-input-${id}`"
+    :data-disabled="disabled"
+    :data-required="required"
+    :data-valid="valid"
+    :data-error="error !== undefined"
+    class="group"
+  >
     <label :for="id">
-      <span
-        :data-required="required"
-        :data-valid="valid"
-        :data-error="hasError"
-        class="
-          block
-          mb-1
-          data-[required='true']:after:content-['*'] 
-          data-[required='true']:after:text-[0.9em]
-          data-[required='true']:after:text-red-500
-          data-[required='true']:after:font-bold
-          data-[required='true']:after:ml-1
-          
-          data-[valid='true']:text-green-800
-          data-[error='true']:text-red-500 
-        "
-      >
+      <span class="
+        block mb-1
+        group-data-[required='true']:after:content-['*']
+        group-data-[required='true']:after:text-[0.9em]
+        group-data-[required='true']:after:text-red-500
+        group-data-[required='true']:after:font-bold
+        group-data-[required='true']:after:ml-1
+        
+        group-data-[valid='true']:text-green-800
+        group-data-[error='true']:text-red-500
+      ">
         {{ label }}
       </span>
       <slot name="description"></slot>
     </label>
-    <div
-      :data-disabled="disabled"
-      :data-valid="valid"
-      :data-error="hasError"
+    <div 
       class="
         flex
         flex-row
         w-full
         items-center
-        mt-1
+        mt-2
         border
         rounded-md
         
-        focus-within:border-gray-600
-        data-[valid='true']:border-green-800
-        data-[error='true']:border-red-500
-        data-[disabled='true']:bg-gray-200/10
+        group-data-[disabled='true']:bg-gray-200/30
+        group-data-[valid='true']:border-green-800
+        group-data-[error='true']:border-red-500
       "
     >
       <div class="w-5/6">
         <input
           :id="id"
           :type="type"
+          :value="value"
           :placeholder="placeholder"
           :required="required"
           :disabled="disabled"
-          class="w-full py-2 pl-3 bg-transparent focus:outline-none"
+          class="
+            w-full
+            py-2
+            pl-3
+            bg-transparent
+            focus:outline-none
+            group-data-[disabled='true']:text-gray-600/80
+          "
         />
       </div>      
       <div 
-        :data-error="hasError"
+        :data-error="error !== 'undefined'"
         :data-valid="valid"
-        class="w-1/6 data-[error='true']:text-red-500 data-[valid='true']:text-green-800"
+        class="w-1/6 
+        group-data-[error='true']:text-red-500 
+        group-data-[valid='true']:text-green-800
+        group-data-[disabled='true']:text-gray-600/50
+        "
       >
         <component 
           :is="
-            valid ? CheckCircleIcon : (hasError ? ExclamationTriangleIcon : null)
+            valid ? CheckCircleIcon : (error ? ExclamationTriangleIcon : ( disabled ? NoSymbolIcon : null))
           "
           class="m-auto w-[1.2rem]"
         />
       </div>
     </div>
-    <div v-if="hasError" class="w-full md:w-[92%] m-auto mt-2">
+    <div v-if="error" class="w-full mt-2">
       <p class="text-red-500">{{ error }}</p>
     </div>
   </div>
@@ -74,17 +83,18 @@
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
+  NoSymbolIcon
 } from "@heroicons/vue/24/solid";
 
 interface Props {
   id: string,
   type?: "text" | "search" | "number" | "email" | "password" | "tel" | "url";
   label: string;
+  value?: string,
   placeholder?: string;
   disabled?: boolean;
   required?: boolean;
-  valid?: boolean;
-  hasError?: boolean;
+  valid?: boolean,  
   error?: string;
 }
 
@@ -92,8 +102,7 @@ withDefaults(defineProps<Props>(), {
   type: "text",
   disabled: false,
   required: false,
-  valid: false,
-  hasError: false,
+  valid: false
 });
 
 </script>
