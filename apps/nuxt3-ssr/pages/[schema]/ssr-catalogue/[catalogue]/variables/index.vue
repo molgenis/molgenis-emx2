@@ -6,7 +6,8 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 30;
 
-useHead({ title: "Variables" });
+const titlePrefix = route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+useHead({ title: titlePrefix + "Variables" });
 
 type view = "list" | "harmonization";
 
@@ -215,7 +216,11 @@ crumbs[
                 class="flex xl:hidden"
                 v-model:activeName="activeName"
               >
-                <FilterSidebar title="Filters" :filters="filters" />
+                <FilterSidebar
+                  title="Filters"
+                  :filters="filters"
+                  :mobileDisplay="true"
+                />
               </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>

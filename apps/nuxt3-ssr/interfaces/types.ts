@@ -171,6 +171,11 @@ export interface INetwork {
   website?: string;
 }
 
+export interface ICatalogue {
+  network: INetwork;
+  type: IOntologyNode;
+}
+
 interface ITreeNode {
   name: string;
   children?: ITreeNode[];

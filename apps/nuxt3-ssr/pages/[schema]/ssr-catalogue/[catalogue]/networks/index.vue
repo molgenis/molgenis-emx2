@@ -6,7 +6,8 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 10;
 
-useHead({ title: "Networks" });
+const titlePrefix = route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+useHead({ title: titlePrefix + "Networks" });
 
 const currentPage = ref(1);
 if (route.query?.page) {
@@ -142,7 +143,11 @@ let activeName = ref("detailed");
                 class="flex xl:hidden"
                 v-model:activeName="activeName"
               >
-                <FilterSidebar title="Filters" :filters="filters" />
+                <FilterSidebar
+                  title="Filters"
+                  :filters="filters"
+                  :mobileDisplay="true"
+                />
               </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>
