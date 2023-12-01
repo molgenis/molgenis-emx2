@@ -6,8 +6,10 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 10;
 
-const titlePrefix = route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-useHead({ title: titlePrefix + "Networks" });
+const scoped = route.params.catalogue !== "all";
+const catalogue = scoped ? route.params.catalogue : undefined;
+
+useHead({ title: scoped ? `${catalogue} networks` : "Networks" });
 
 const currentPage = ref(1);
 if (route.query?.page) {
@@ -58,40 +60,54 @@ let search = computed(() => {
   return filters.find((f) => f.columnType === "_SEARCH").search;
 });
 
-const query = computed(() => {
-  return `
-  query Networks($filter:NetworksFilter, $orderby:Networksorderby){
-    Networks(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+const cardFields = `id
+    name
+    acronym
+    description
+    logo {
       id
-      name
-      acronym
-      description
-      logo {
-        id
-        size
-        extension
-        url
-      }
-    }
-    Networks_agg (filter:$filter){
-      count
+      size
+      extension
+      url
+    }`;
+
+const query = computed(() => {
+  if (scoped) {
+    return `
+query items($filter: NetworksFilter, $orderby: Networksorderby) {
+  Networks(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+    id
+    networks {
+      ${cardFields}
     }
   }
-  `;
+}
+    `;
+  } else {
+    return `
+query items($filter:NetworksFilter, $orderby:Networksorderby){
+  Networks(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+    ${cardFields}
+  }
+  Networks_agg (filter:$filter){
+    count
+  }
+}
+    `;
+  }
 });
 
 const orderby = { acronym: "ASC" };
 
-//todo, make this filter work for subcatalogu => networks can not yet be networked
 const filter = computed(() => {
-  let result = buildQueryFilter(filters, search.value);
-  if ("all" !== route.params.catalogue) {
-    result._and["networks"] = { id: { equals: route.params.catalogue } };
-  }
-  return result;
+  const queryFilter = buildQueryFilter(filters, search.value);
+  return scoped
+    ? { ...queryFilter, ...{ id: { equals: catalogue } } }
+    : queryFilter;
 });
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+const graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+console.log(query.value);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   key: `networks-${offset.value}`,
   baseURL: config.public.apiBase,
@@ -100,6 +116,10 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
     query,
     variables: { orderby, filter },
   },
+});
+
+watch(error, () => {
+  console.log("error on data fetch: ", error.value);
 });
 
 function setCurrentPage(pageNumber: number) {
@@ -112,6 +132,18 @@ watch(filters, () => {
 });
 
 let activeName = ref("detailed");
+
+const numberOfNetworks = computed(() => {
+  return scoped
+    ? data?.value?.data?.Networks[0]?.networks?.length
+    : data?.value?.data?.Networks_agg?.count;
+});
+
+const networks = computed(() => {
+  return scoped
+    ? data.value?.data?.Networks[0]?.networks.slice(offset, pageSize)
+    : data.value?.data?.Networks;
+});
 </script>
 
 <template>
@@ -156,11 +188,8 @@ let activeName = ref("detailed");
         <template #search-results>
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
-            <CardList v-if="data?.data?.Networks?.length > 0">
-              <CardListItem
-                v-for="network in data?.data?.Networks"
-                :key="network.name"
-              >
+            <CardList v-if="networks.length > 0">
+              <CardListItem v-for="network in networks" :key="network.name">
                 <NetworkCard
                   :network="network"
                   :schema="route.params.schema"
@@ -176,10 +205,10 @@ let activeName = ref("detailed");
           </SearchResultsList>
         </template>
 
-        <template v-if="data?.data?.Networks?.length > 0" #pagination>
+        <template v-if="networks?.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.Networks_agg.count / pageSize)"
+            :totalPages="Math.ceil(numberOfNetworks / pageSize)"
             @update="setCurrentPage($event)"
           />
         </template>
