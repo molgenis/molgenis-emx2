@@ -61,7 +61,8 @@ let search = computed(() => {
 const query = computed(() => {
   return `
   query Networks($filter:NetworksFilter, $orderby:Networksorderby){
-    Networks(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+  Networks(filter:{id:{equals:$catalogue}}){
+    networks(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
       name
       acronym
@@ -73,10 +74,10 @@ const query = computed(() => {
         url
       }
     }
-    Networks_agg (filter:$filter){
+    networks_agg (filter:$filter){
       count
     }
-  }
+  }}
   `;
 });
 
