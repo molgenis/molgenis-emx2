@@ -74,7 +74,9 @@ export default {
             )
           );
       } else {
-        return this.schema.tables          .filter((table) => table.schemaId === this.schema.id);
+        return this.schema.tables.filter(
+          (table) => table.schemaId === this.schema.id
+        );
       }
     },
     tables() {
