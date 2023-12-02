@@ -251,11 +251,21 @@ public class GraphqlTableFieldFactory {
             tableBuilder.field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(id + "_agg")
-                    .type(createTableAggregationType(col.getRefTable())));
+                    .type(createTableAggregationType(col.getRefTable()))
+                    .argument(
+                        GraphQLArgument.newArgument()
+                            .name(GraphqlConstants.FILTER_ARGUMENT)
+                            .type(getTableFilterInputType(col.getRefTable()))
+                            .build()));
             tableBuilder.field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(id + "_groupBy")
-                    .type(createTableGroupByType(col.getRefTable())));
+                    .type(GraphQLList.list(createTableGroupByType(col.getRefTable())))
+                    .argument(
+                        GraphQLArgument.newArgument()
+                            .name(GraphqlConstants.FILTER_ARGUMENT)
+                            .type(getTableFilterInputType(col.getRefTable()))
+                            .build()));
             break;
           default:
             throw new UnsupportedOperationException(
@@ -349,7 +359,6 @@ public class GraphqlTableFieldFactory {
               .field(GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sum));
         }
       }
-
       tableAggTypes.put(tableAggregationType, builder.build());
     }
     return tableAggTypes.get(tableAggregationType);
