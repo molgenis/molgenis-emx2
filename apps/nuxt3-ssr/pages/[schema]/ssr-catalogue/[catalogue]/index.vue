@@ -23,28 +23,16 @@ const modelQuery = `
 const modelFilter = scoped ? { id: { equals: catalogueRouteParam } } : {};
 const models = await fetchGql(modelQuery, { filter: modelFilter });
 
-const networksQuery = scoped
-  ? `Networks(filter:$networksFilter) {
-              id,
-              networks {
-                acronym,
-                name,
-                description,
-                logo {url}
-                dataSources_agg{count}
-              }
-       }`
-  : `Networks(filter:$networksFilter) {
+const query = `query MyQuery($networksFilter:NetworksFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CohortsFilter,$subcohortsFilter:SubcohortsFilter,$dataSourcesFilter:DataSourcesFilter){
+        Networks(filter:$networksFilter) {
               id,
               acronym,
               name,
               description,
               logo {url}
               dataSources_agg{count}
-       }`;
-
-const query = `query MyQuery($networksFilter:NetworksFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CohortsFilter,$subcohortsFilter:SubcohortsFilter,$dataSourcesFilter:DataSourcesFilter){
-        ${networksQuery}
+              networks_agg{count}
+       }
         Variables_agg(filter:$variablesFilter) {
           count
         }
@@ -190,7 +178,7 @@ let description = computed(() => {
 
 const numberOfNetworks = computed(() => {
   return scoped
-    ? data.data.Networks[0]?.networks?.length
+    ? data.data.Networks[0]?.networks_agg.count
     : data.data.Networks_agg?.count;
 });
 

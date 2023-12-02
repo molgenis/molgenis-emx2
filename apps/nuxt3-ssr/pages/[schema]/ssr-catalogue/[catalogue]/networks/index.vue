@@ -27,31 +27,17 @@ let filters: IFilter[] = reactive([
     initialCollapsed: false,
   },
   {
-    title: "Countries",
-    refTableId: "Countries",
-    columnId: "countries",
+    title: "Type",
+    columnId: "type",
     columnType: "ONTOLOGY",
-    conditions: [],
-  },
-  {
-    title: "Organisations",
-    columnId: "dataCategories",
-    columnType: "REF_ARRAY",
-    refTableId: "Organisations",
+    refTableId: "NetworkTypes",
     refFields: {
-      key: "id",
-      name: "id",
+      key: "name",
+      name: "name",
       description: "name",
     },
     conditions: [],
-  },
-  {
-    title: "Topics",
-    refTableId: "AgeGroups",
-    columnId: "ageGroups",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
+    initialCollapsed: false,
   },
 ]);
 
@@ -74,11 +60,14 @@ const cardFields = `id
 const query = computed(() => {
   if (scoped) {
     return `
-query items($filter: NetworksFilter, $orderby: Networksorderby) {
-  Networks(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+query items($catalogueFilter: NetworksFilter, $filter: NetworksFilter $orderby: Networksorderby) {
+  Networks(filter: $catalogueFilter) {
     id
-    networks {
+    networks(limit: ${pageSize} offset: ${offset.value} orderby:$orderby filter:$filter) {
       ${cardFields}
+    }
+    networks_agg(filter:$filter) {
+      count
     }
   }
 }
@@ -100,11 +89,10 @@ query items($filter:NetworksFilter, $orderby:Networksorderby){
 const orderby = { acronym: "ASC" };
 
 const filter = computed(() => {
-  const queryFilter = buildQueryFilter(filters, search.value);
-  return scoped
-    ? { ...queryFilter, ...{ id: { equals: catalogue } } }
-    : queryFilter;
+  return buildQueryFilter(filters, search.value);
 });
+
+const catalogueFilter = scoped ? { id: { equals: catalogue } } : undefined;
 
 const graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 console.log(query.value);
@@ -114,7 +102,7 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   method: "POST",
   body: {
     query,
-    variables: { orderby, filter },
+    variables: { orderby, filter, catalogueFilter },
   },
 });
 
@@ -135,15 +123,20 @@ let activeName = ref("detailed");
 
 const numberOfNetworks = computed(() => {
   return scoped
-    ? data?.value?.data?.Networks[0]?.networks?.length
+    ? data?.value?.data?.Networks[0]?.networks_agg.count
     : data?.value?.data?.Networks_agg?.count;
 });
 
 const networks = computed(() => {
   return scoped
-    ? data.value?.data?.Networks[0]?.networks.slice(offset, pageSize)
+    ? data.value?.data?.Networks[0]?.networks
     : data.value?.data?.Networks;
 });
+
+const crumbs: any = {};
+crumbs[
+    route.params.catalogue
+    ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
 
 <template>
@@ -160,6 +153,9 @@ const networks = computed(() => {
             description="Collaborations of multiple institutions and/or cohorts with a common objective."
             icon="image-diagram"
           >
+            <template #prefix>
+              <BreadCrumbs :crumbs="crumbs" current="networks" />
+            </template>
             <template #suffix>
               <SearchResultsViewTabs
                 class="hidden xl:flex"
@@ -188,7 +184,7 @@ const networks = computed(() => {
         <template #search-results>
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
-            <CardList v-if="networks.length > 0">
+            <CardList v-if="networks?.length > 0">
               <CardListItem v-for="network in networks" :key="network.name">
                 <NetworkCard
                   :network="network"
