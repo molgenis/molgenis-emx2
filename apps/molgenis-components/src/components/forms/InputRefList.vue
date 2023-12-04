@@ -233,7 +233,7 @@ export default {
       if (!this.loading) {
         this.loadOptions();
       }
-      this.selection.push({ name: newRow.name });
+      this.selection.push(newRow);
       this.emitSelection();
     },
   },

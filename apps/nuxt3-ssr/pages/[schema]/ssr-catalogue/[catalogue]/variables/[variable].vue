@@ -73,7 +73,8 @@ if (cohortsWithMapping.value.length > 0) {
   });
 }
 
-const titlePrefix = route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+const titlePrefix =
+  route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
 useHead({ title: titlePrefix + variable?.name });
 </script>
 

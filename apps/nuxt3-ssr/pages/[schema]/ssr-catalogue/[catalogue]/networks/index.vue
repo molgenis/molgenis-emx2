@@ -6,7 +6,8 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 10;
 
-const titlePrefix = route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+const titlePrefix =
+  route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
 useHead({ title: titlePrefix + "Networks" });
 
 const currentPage = ref(1);

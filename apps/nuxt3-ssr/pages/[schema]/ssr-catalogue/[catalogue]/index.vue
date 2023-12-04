@@ -6,8 +6,9 @@ const config = useRuntimeConfig();
 
 const catalogueRouteParam = route.params.catalogue;
 
-const titlePrefix = route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-useHead({ title: titlePrefix + ' catalogue' });
+const titlePrefix =
+  route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+useHead({ title: titlePrefix + " catalogue" });
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
