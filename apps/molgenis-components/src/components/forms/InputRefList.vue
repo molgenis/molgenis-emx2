@@ -112,9 +112,14 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButtonAdd from "../tables/RowButtonAdd.vue";
 import TableSearch from "../tables/TableSearch.vue";
-import FormGroup from "./FormGroup.vue";
+import {
+  applyJsTemplate,
+  convertRowToPrimaryKey,
+  deepClone,
+  deepEqual,
+} from "../utils";
 import ButtonAlt from "./ButtonAlt.vue";
-import { convertRowToPrimaryKey, applyJsTemplate, deepClone } from "../utils";
+import FormGroup from "./FormGroup.vue";
 import Tooltip from "./Tooltip.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
 
@@ -174,8 +179,10 @@ export default {
   },
   methods: {
     applyJsTemplate,
-    deselect(key: IRow) {
-      this.selection.splice(key, 1);
+    async deselect(key: IRow) {
+      this.selection = this.selection.filter(
+        (row: IRow) => !deepEqual(row, key)
+      );
       this.emitSelection();
     },
     clearValue() {
@@ -183,11 +190,11 @@ export default {
       this.emitSelection();
     },
     handleUpdateSelection(newSelection: IRow[]) {
-      this.selection = newSelection;
+      this.selection = [...newSelection];
       this.emitSelection();
     },
     select(newRow: IRow) {
-      this.selection.push(newRow);
+      this.selection = [...this.selection, newRow];
       this.emitSelection();
     },
     emitSelection() {
