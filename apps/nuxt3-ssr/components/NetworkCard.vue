@@ -36,20 +36,22 @@ const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
 });
 
-const links = [
-  {
-    title: "Network",
-    url: `/${props.schema}/ssr-catalogue/${catalogue}/networks/${props.network.id}`,
-  },
-  {
-    title: "Cohorts",
-    url: `/${props.schema}/ssr-catalogue/${catalogue}/networks/${props.network.id}#cohorts`,
-  },
-  {
-    title: "Variables",
-    url: `/${props.schema}/ssr-catalogue/${catalogue}/networks/${props.network.id}#variables`,
-  },
-];
+//TODO: morris believes we don't need this anymore with the catalogues.
+//instead we would like to link to their catalogues, if applicable?
+const links = []
+//   {
+//     title: "Network",
+//     url: `/${props.schema}/ssr-catalogue/${catalogue}/networks/${props.network.id}`,
+//   },
+//   {
+//     title: "Cohorts",
+//     url: `/${props.schema}/ssr-catalogue/${catalogue}/networks/${props.network.id}#cohorts`,
+//   },
+//   {
+//     title: "Variables",
+//     url: `/${props.schema}/ssr-catalogue/${catalogue}/networks/${props.network.id}#variables`,
+//   },
+// ];
 </script>
 
 <template>
