@@ -129,8 +129,8 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
     variables: { orderby, filter },
   },
 });
-if (error) {
-  console.log(error);
+if (error.value) {
+  console.log(error.value);
   console.log(query);
 }
 
