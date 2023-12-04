@@ -16,6 +16,14 @@ public class TestTableColumnLabels {
   }
 
   @Test
+  void testTableDescription() {
+    TableMetadata tm = new TableMetadata("Foo").setDescription("Foo1");
+    assertEquals(tm.getDescription(), "Foo1");
+    tm = new TableMetadata("Foo").setDescription("Foo2", "en");
+    assertEquals(tm.getDescription(), "Foo2");
+  }
+
+  @Test
   void testTableColumn() {
     Column cm = new Column("Foo");
     assertEquals(cm.getLabel(), "Foo");
