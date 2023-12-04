@@ -11,6 +11,7 @@ const catalogue = scoped ? route.params.catalogue : undefined;
 
 useHead({ title: scoped ? `${catalogue} networks` : "Networks" });
 
+
 const currentPage = ref(1);
 if (route.query?.page) {
   const queryPageNumber = Number(route.query?.page);
