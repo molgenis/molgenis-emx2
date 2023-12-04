@@ -10,10 +10,10 @@
       <div>
         <div v-if="count > maxNum">
           <FilterWell
-            v-for="(item, key) in selection"
-            :key="JSON.stringify(item)"
-            :label="applyJsTemplate(item, refLabel)"
-            @click="deselect(key)"
+            v-for="selectedRow in selection"
+            :key="JSON.stringify(selectedRow)"
+            :label="applyJsTemplate(selectedRow, refLabel)"
+            @click="deselect(selectedRow)"
           />
         </div>
         <ButtonAlt
