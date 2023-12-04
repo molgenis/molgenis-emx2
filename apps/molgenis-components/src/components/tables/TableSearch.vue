@@ -18,7 +18,6 @@
           :columns="columnsVisible"
           :data="data"
           :showSelect="showSelect"
-          @update:selection="$emit('update:selection', $event)"
           @select="select"
           @deselect="deselect"
         >
@@ -160,8 +159,6 @@ export default {
   },
   methods: {
     select(value: IRow) {
-      this.selection.push(value);
-      this.$emit("update:selection", this.selection);
       this.$emit("select", value);
     },
     deselect(value: IRow) {

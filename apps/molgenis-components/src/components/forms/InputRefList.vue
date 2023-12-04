@@ -63,7 +63,7 @@
             id="add-entry"
             :tableId="tableId"
             :schemaId="schemaId"
-            @update:newRow="selectNewRow"
+            @update:newRow="select"
           />
         </Tooltip>
       </div>
@@ -91,8 +91,7 @@
             :showSelect="true"
             :filter="filter"
             :limit="10"
-            @update:selection="handleUpdateSelection"
-            @select="emitSelection"
+            @select="select"
             @deselect="deselect"
           />
         </template>
@@ -183,8 +182,12 @@ export default {
       this.selection = [];
       this.emitSelection();
     },
-    handleUpdateSelection(event: IRow[]) {
-      this.selection = event;
+    handleUpdateSelection(newSelection: IRow[]) {
+      this.selection = newSelection;
+      this.emitSelection();
+    },
+    select(newRow: IRow) {
+      this.selection.push(newRow);
       this.emitSelection();
     },
     emitSelection() {
@@ -228,10 +231,6 @@ export default {
         })
       ).then(() => (this.loading = false));
       this.$emit("optionsLoaded", this.data);
-    },
-    selectNewRow(newRow: IRow) {
-      this.selection.push(newRow);
-      this.emitSelection();
     },
   },
   watch: {
