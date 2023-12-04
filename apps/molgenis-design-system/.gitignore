@@ -6,4 +6,5 @@ dist-ssr
 showCase
 gen-docs
 gen
-assets/css
+assets/**/*.css
+!assets/**/main.css
