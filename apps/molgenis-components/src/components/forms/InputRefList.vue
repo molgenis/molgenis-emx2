@@ -115,7 +115,7 @@ import RowButtonAdd from "../tables/RowButtonAdd.vue";
 import TableSearch from "../tables/TableSearch.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
-import { convertRowToPrimaryKey, applyJsTemplate } from "../utils";
+import { convertRowToPrimaryKey, applyJsTemplate, deepClone } from "../utils";
 import Tooltip from "./Tooltip.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
 
@@ -126,7 +126,7 @@ export default {
       client: null,
       showSelect: false,
       data: [],
-      selection: this.modelValue,
+      selection: deepClone(this.modelValue),
       count: 0,
       tableMetadata: null,
       loading: false,
@@ -175,7 +175,7 @@ export default {
   },
   methods: {
     applyJsTemplate,
-    deselect(key: any) {
+    deselect(key: IRow) {
       this.selection.splice(key, 1);
       this.emitSelection();
     },
@@ -193,10 +193,10 @@ export default {
     openSelect() {
       this.showSelect = true;
     },
-    toggle(value: any) {
+    toggle(value: IRow) {
       if (this.selection?.includes(value)) {
         this.selection = this.selection.filter(
-          (selectedValue: any) => selectedValue !== value
+          (selectedValue: IRow) => selectedValue !== value
         );
       } else {
         this.selection = [...this.selection, value];
@@ -230,16 +230,13 @@ export default {
       this.$emit("optionsLoaded", this.data);
     },
     selectNewRow(newRow: IRow) {
-      if (!this.loading) {
-        this.loadOptions();
-      }
       this.selection.push(newRow);
       this.emitSelection();
     },
   },
   watch: {
     modelValue() {
-      this.selection = this.modelValue;
+      this.selection = deepClone(this.modelValue);
     },
     filter() {
       if (!this.loading) {
@@ -256,7 +253,7 @@ export default {
       this.selection = [];
     }
   },
-  emits: ["optionsLoaded"],
+  emits: ["optionsLoaded", "update:modelValue"],
 };
 </script>
 
