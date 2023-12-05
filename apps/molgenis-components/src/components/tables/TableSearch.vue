@@ -11,7 +11,6 @@
       </form>
       <Spinner v-if="loading" />
       <div v-else>
-        {{ JSON.stringify(selection, null, 2) }}
         <TableMolgenis
           :schemaId="schemaId"
           :selection="selection"
