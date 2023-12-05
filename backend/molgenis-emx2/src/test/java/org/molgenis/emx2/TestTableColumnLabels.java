@@ -18,7 +18,9 @@ public class TestTableColumnLabels {
 
   @Test
   void testTableDescription() {
-    assertNull(new TableMetadata("Foo").getDescription(), "when no description then table.description should return null");
+    assertNull(
+        new TableMetadata("Foo").getDescription(),
+        "when no description then table.description should return null");
     TableMetadata tm = new TableMetadata("Foo").setDescription("Foo1");
     assertEquals(tm.getDescription(), "Foo1");
     tm = new TableMetadata("Foo").setDescription("Foo2", "en");
