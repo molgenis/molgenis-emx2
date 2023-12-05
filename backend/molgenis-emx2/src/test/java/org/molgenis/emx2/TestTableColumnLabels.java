@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +18,7 @@ public class TestTableColumnLabels {
 
   @Test
   void testTableDescription() {
+    assertNull(new TableMetadata("Foo").getDescription(), "when no description it should be null");
     TableMetadata tm = new TableMetadata("Foo").setDescription("Foo1");
     assertEquals(tm.getDescription(), "Foo1");
     tm = new TableMetadata("Foo").setDescription("Foo2", "en");
