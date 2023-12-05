@@ -21,6 +21,7 @@
             label="Username"
             :disabled="true"
             value="Test"
+            :title_is_heading="true"
           >
             <template v-slot:description>
               <p>
@@ -39,6 +40,7 @@
                 {name: 'UK.002'},
               ]"
               option_label="name"
+              :title_is_heading="true"
             >
               <template v-slot:description>
                 <p class="leading-relaxed text-gray-600">
@@ -54,6 +56,7 @@
               type="search"
               label="Search database"
               :required="true"
+              :title_is_heading="true"
             >
               <template v-slot:description>
                 <p class="leading-relaxed text-gray-600">
@@ -74,6 +77,7 @@
               row_label="country"
               row_value="code"
               row_checked="default"
+              :title_is_heading="true"
             >
               <template v-slot:description>
                 <p class="leading-relaxed text-gray-600">
@@ -113,6 +117,7 @@
               row_value="name"
               row_description="definition"
               row_checked="checked"
+              :title_is_heading="true"
             >
               <template v-slot:description>
                 <p class="leading-relaxed text-gray-600">

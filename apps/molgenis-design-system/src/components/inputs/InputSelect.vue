@@ -5,6 +5,7 @@
     :data-disabled="disabled"
     :data-valid="valid"
     :data-error="error !== undefined && error !== ''"
+    :data-title-is-heading="title_is_heading"
     class="group"
     >
     <div class="flex flex-row flex-nowrap w-full items-center mb-1">
@@ -14,6 +15,10 @@
             class="
             block
             mb-1
+            
+            group-data-[title-is-heading='true']:text-heading-base
+            group-data-[title-is-heading='true']:font-semibold
+            
             group-data-[required='true']:after:content-['*']
             group-data-[required='true']:after:text-[0.9em]
             group-data-[required='true']:after:text-red-500
@@ -26,6 +31,7 @@
           >
             {{ label }}
           </span>
+          <slot name="description"></slot>
         </label>
       </div>
       <div
@@ -39,9 +45,10 @@
           group-data-[disabled='true']:text-gray-600/50
         "
       >
-        <component 
-          :is="valid ? CheckCircleIcon : (error ? ExclamationTriangleIcon : ( disabled ? NoSymbolIcon : null))" 
-          class="w-[1.2rem] h-[1.2rem]"
+        <InputStateIcon
+          :valid="valid"
+          :error="error !== undefined"
+          :disabled="disabled"
         />
       </div>
     </div>
@@ -64,7 +71,7 @@
         :disabled="disabled"
         class="block w-full p-1 pl-4 border-none outline-none bg-transparent"
       >
-        <option value="">&mdash; Select &mdash;</option>
+        <option disabled></option>
         <option
           v-for="row in options"
           :value="option_value ? row[option_value] : row[option_label]"
@@ -81,13 +88,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-
-import {
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  NoSymbolIcon
-} from "@heroicons/vue/24/solid";
-
+import InputStateIcon from "../icons/InputStateIcon.vue";
   
 interface Props {
   id: string,
@@ -99,12 +100,12 @@ interface Props {
   
   options: any[],
   option_label: string,
-  option_value?: string
+  option_value?: string,
   
+  title_is_heading?: boolean,
 }
 
 defineProps<Props>();
-
 const modelValue = ref("");
 
 </script>

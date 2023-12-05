@@ -5,97 +5,110 @@
     :data-required="required"
     :data-valid="valid"
     :data-error="error !== undefined"
+    :data-title-is-heading="title_is_heading"
     class="group"
   >
-    <label :for="id">
-      <span class="
-        block mb-1
-        group-data-[required='true']:after:content-['*']
-        group-data-[required='true']:after:text-[0.9em]
-        group-data-[required='true']:after:text-red-500
-        group-data-[required='true']:after:font-bold
-        group-data-[required='true']:after:ml-1
-        
-        group-data-[valid='true']:text-green-800
-        group-data-[error='true']:text-red-500
-      ">
-        {{ label }}
-      </span>
-      <slot name="description"></slot>
-    </label>
-    <div 
-      class="
-        flex
-        flex-row
-        w-full
-        items-center
-        mt-2
-        border
-        rounded-md
-        
-        group-data-[disabled='true']:bg-gray-200/30
-        group-data-[valid='true']:border-green-800
-        group-data-[error='true']:border-red-500
-      "
-    >
+    <div class="flex flex-row flex-nowrap w-full items-center mb-1">
       <div class="w-5/6">
-        <input
-          :id="id"
-          :type="type"
-          :value="value"
-          :placeholder="placeholder"
-          :required="required"
-          :disabled="disabled"
-          class="
-            w-full
-            py-2
-            pl-3
-            bg-transparent
-            focus:outline-none
-            group-data-[disabled='true']:text-gray-600/80
-          "
-        />
-      </div>      
-      <div 
-        :data-error="error !== 'undefined'"
-        :data-valid="valid"
-        class="w-1/6 
-        group-data-[error='true']:text-red-500 
-        group-data-[valid='true']:text-green-800
-        group-data-[disabled='true']:text-gray-600/50
+        <label :for="id">
+          <span 
+            class="
+            block
+            mb-1
+            
+            group-data-[title-is-heading='true']:text-heading-base
+            group-data-[title-is-heading='true']:font-semibold
+            
+            group-data-[required='true']:after:content-['*']
+            group-data-[required='true']:after:text-[0.9em]
+            group-data-[required='true']:after:text-red-500
+            group-data-[required='true']:after:font-bold
+            group-data-[required='true']:after:ml-1
+            
+            group-data-[valid='true']:text-green-800
+            group-data-[error='true']:text-red-500
+            "
+          >
+            {{ label }}
+          </span>
+          <slot name="description"></slot>
+        </label>
+      </div>
+      <div
+        class="
+          w-1/6
+          flex
+          place-content-end
+          pr-1
+          group-data-[error='true']:text-red-500 
+          group-data-[valid='true']:text-green-800
+          group-data-[disabled='true']:text-gray-600/50
         "
       >
-        <component 
-          :is="
-            valid ? CheckCircleIcon : (error ? ExclamationTriangleIcon : ( disabled ? NoSymbolIcon : null))
-          "
-          class="m-auto w-[1.2rem]"
+        <InputStateIcon
+          :valid="valid"
+          :error="error !== undefined"
+          :disabled="disabled"
         />
       </div>
     </div>
-    <div v-if="error" class="w-full mt-2">
-      <p class="text-red-500">{{ error }}</p>
-    </div>
+    <div 
+      class="
+        flex
+        items-center
+        mt-2
+        p-1
+        border
+        rounded-md
+        focus-within:border-gray-600
+        group-data-[valid='true']:border-green-800
+        group-data-[error='true']:border-red-500
+        group-data-[disabled='true']:bg-gray-200/50
+      "
+    >
+      <MagnifyingGlassIcon 
+        v-if="type === 'search'"
+        class="m-1 w-[1.25rem] h-[1.25rem] text-gray-600"
+      />
+      <input
+        :id="id"
+        :type="type"
+        :value="value"
+        :placeholder="placeholder"
+        :required="required"
+        :disabled="disabled"
+        class="
+          w-full
+          py-1
+          pl-4
+          pr-1
+          bg-transparent
+          focus:outline-none
+          group-data-[disabled='true']:text-gray-600/80
+        "
+      />
+    </div>      
+  </div>
+  <div v-if="error" class="w-full mt-2">
+    <p class="text-red-500">{{ error }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import {
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  NoSymbolIcon
-} from "@heroicons/vue/24/solid";
+import InputStateIcon from "../icons/InputStateIcon.vue";
+import { MagnifyingGlassIcon } from "@heroicons/vue/24/solid";
 
 interface Props {
   id: string,
-  type?: "text" | "search" | "number" | "email" | "password" | "tel" | "url";
+  type?: 'date' | 'datetime-local' | 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'time' | 'url';
   label: string;
   value?: string,
   placeholder?: string;
   disabled?: boolean;
   required?: boolean;
-  valid?: boolean,  
+  valid?: boolean,
   error?: string;
+  title_is_heading?: boolean,
 }
 
 withDefaults(defineProps<Props>(), {

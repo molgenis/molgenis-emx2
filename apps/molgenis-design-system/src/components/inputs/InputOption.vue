@@ -5,7 +5,7 @@
       :type="type"
       :name="name"
       :value="value"
-      class="peer mt-1 mr-1 accent-blue-700"
+      class="peer mt-1 mr-1 ml-1 accent-blue-700"
       :checked="checked"
       :required="required"
     />

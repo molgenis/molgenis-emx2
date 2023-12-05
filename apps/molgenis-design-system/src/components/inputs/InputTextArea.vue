@@ -5,6 +5,7 @@
     :data-disabled="disabled"
     :data-valid="valid"
     :data-error="error !== undefined"
+    :data-title-is-heading="title_is_heading"
     class="group"
   >
     <div class="flex flex-row flex-nowrap w-full items-center">
@@ -13,6 +14,11 @@
           <span
             class="
               block
+              mb-1
+              
+              group-data[title-is-heading='true']:text-heading-base
+              group-data[title-is-heading='true']:font-semibold
+              
               group-data-[required='true']:after:content-['*']
               group-data-[required='true']:after:text-[0.9em]
               group-data-[required='true']:after:text-red-500
@@ -30,13 +36,19 @@
       </div>
       <div
         class="
-          w-1/6 
+          w-1/6
+          flex
+          place-content-end
+          pr-1
           group-data-[error='true']:text-red-500 
-        group-data-[valid='true']:text-green-800"
+          group-data-[valid='true']:text-green-800
+          group-data-[disabled='true']:text-gray-600/50
+        "
       >
-        <component 
-          :is="valid ? CheckCircleIcon : (error ? ExclamationTriangleIcon : null)"
-          class="m-auto w-[1.2rem]"
+        <InputStateIcon
+          :valid="valid"
+          :error="error !== undefined"
+          :disabled="disabled"
         />
       </div>
     </div>
@@ -69,11 +81,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-
-import {
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/vue/24/solid";
+import InputStateIcon from "../icons/InputStateIcon.vue";
 
 interface Props {
   id: string,
@@ -83,7 +91,8 @@ interface Props {
   required?: boolean,
   disabled?: boolean,
   valid?: boolean,
-  error?: string
+  error?: string,
+  title_is_heading?: boolean,
 }
 
 

@@ -1,13 +1,16 @@
 <template>
   <div :id="id">
+    
     <fieldset>
       <legend>
         <span
           :data-required="required"
+          :data-title-is-heading="title_is_heading"
           class="
             block
-            text-heading-base
-            font-semibold mb-1
+            mb-1
+            data-[title-is-heading='true']:text-heading-base
+            data-[title-is-heading='true']:font-semibold
             data-[required='true']:after:content-['*']
             data-[required='true']:after:text-[0.9em]
             data-[required='true']:after:font-bold
@@ -53,6 +56,7 @@ interface Props {
   row_value?: string,
   row_description?: string,
   row_checked?: string,
+  title_is_heading?: boolean,
 }
 
 withDefaults(

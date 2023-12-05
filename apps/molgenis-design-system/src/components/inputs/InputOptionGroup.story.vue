@@ -10,6 +10,7 @@
         row_id="id"
         row_label="type"
         row_value="type"
+        :title_is_heading="true"
       >
         <template v-slot:description>
           <p>You can change your notification settings at any time.</p>
@@ -29,6 +30,7 @@
         row_value="type"
         row_description="info"
         row_checked="default"
+        :title_is_heading="true"
       >
         <template v-slot:description>
           <p>You can change your notification settings at any time.</p>
@@ -46,6 +48,7 @@
         row_label="type"
         row_value="type"
         row_checked="default"
+        :title_is_heading="true"
       >
         <template v-slot:description>
           <p>Choose your preferred method of contact. You can change your notification settings at any time.</p>
@@ -65,6 +68,7 @@
         row_value="type"
         row_description="info"
         row_checked="default"
+        :title_is_heading="true"
       >
         <template v-slot:description>
           <p>Choose your preferred method of contact. You can change your notification settings at any time.</p>
@@ -121,6 +125,7 @@ The following attributes are available.
 | row_value       | string  | `false`  | property that contains the value                    | ---        |
 | row_description | string  | `false`  | property that contains the description              | ---        |
 | row_checked     | string  | `false`  | property that contains the checked status           | `false`    |
+| title_is_heading | boolean | `false`  | If true, the title will be styled as a heading     | `false`    |
 
 ### Slots
 

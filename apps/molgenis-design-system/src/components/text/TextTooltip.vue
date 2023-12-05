@@ -23,7 +23,7 @@
         w-[12rem]
         absolute
         top-7
-        -left-8
+        -left-10
         py-1
         px-3
         m-auto

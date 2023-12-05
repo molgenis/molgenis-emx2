@@ -40,8 +40,70 @@
         id="search-patients-error"
         :label="label"
         :placeholder="placeholder"
-        :has-error="true"
         error="Search term cannot be blank"
+      />
+    </Variant>
+    <Variant title="Type - Search">
+      <TextInput
+        id="type-search"
+        label="Search"
+        type="search"
+      />
+    </Variant>
+    <Variant title="Type - Email">
+      <TextInput
+        id="type-email"
+        label="Enter your email"
+        type="email"
+      />
+    </Variant>
+    <Variant title="Type - Password">
+      <TextInput
+        id="type-password"
+        label="Enter your password"
+        type="password"
+      />
+    </Variant>
+    <Variant title="Type - Tel">
+      <TextInput
+        id="type-tel"
+        label="Enter your telephone number"
+        type="tel"
+      />
+    </Variant>
+    <Variant title="Type - Url">
+      <TextInput
+        id="type-url"
+        label="Enter a URL"
+        type="url"
+      />
+    </Variant>
+    <Variant title="Type - Number">
+      <TextInput
+        id="type-number"
+        label="Enter a number"
+        type="number"
+      />
+    </Variant>
+    <Variant title="Type - Date">
+      <TextInput
+        id="type-date"
+        label="Enter a date"
+        type="date"
+      />
+    </Variant>
+    <Variant title="Type - Datetime local">
+      <TextInput
+        id="type-datetime-local"
+        label="Enter a date and time"
+        type="datetime-local"
+      />
+    </Variant>
+    <Variant title="Type - Time">
+      <TextInput
+        id="type-time"
+        label="Enter a time"
+        type="time"
       />
     </Variant>
   </Story>
@@ -50,8 +112,7 @@
 import TextInput from "./InputText.vue";
 
 const label = "Search for patients";
-const placeholder =
-  "Enter one or more identifiers; e.g., 'A-001' or 'A-001,A-002'";
+const placeholder = "'A-001' or 'A-001,A-002'";
 </script>
 
 <docs lang="md">
@@ -67,7 +128,7 @@ The following attributes are available.
 | Name            | Type    | Required | Description                                         | Default    |
 | :-------------- | :------ | :------- | :-------------------------------------------------- | :--------- |
 | id   | string  | `true`   | a unique identifier for the checkbox group          | ---        |
-| type | string  | `true`   | text input type, `'text' \| 'search' \| 'number' \| 'email' \| 'password' \| 'tel' \| 'url'` | `'text'` |
+| type | string  | `true`   | text input type, `'date' \| 'datetime-local' \| 'email' \| 'number' \| 'password' \| 'search' \| 'tel' \| 'text' \| 'time' \| 'url'` | `'text'` |
 | label | string | `true` | text that describes the input | --- 
 | placeholder | string | `false` | placeholder text to display | ---
 | disabled | boolean | `false` | if true, the input will be disabled | `false` |
