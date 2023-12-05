@@ -104,7 +104,7 @@ public class ImportTableTask extends Task {
                   .map(Field::getName)
                   .collect(Collectors.joining(","));
           task.addSubTask("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").setError();
-        } else {
+        } else if (!keyValue.equals("null")) {
           keys.add(keyValue);
         }
         task.setProgress(++index);
