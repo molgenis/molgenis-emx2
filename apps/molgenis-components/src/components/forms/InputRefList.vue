@@ -8,7 +8,7 @@
   >
     <div>
       <div>
-        <div v-if="count > maxNum">
+        <div>
           <FilterWell
             v-for="selectedRow in selection"
             :key="JSON.stringify(selectedRow)"
@@ -63,7 +63,7 @@
             id="add-entry"
             :tableId="tableId"
             :schemaId="schemaId"
-            @update:newRow="select"
+            @update:newRow="selectNew"
           />
         </Tooltip>
       </div>
@@ -93,6 +93,7 @@
             :limit="10"
             @select="select"
             @deselect="deselect"
+            @update:newRow="selectNew"
           />
         </template>
         <template v-slot:footer>
@@ -179,7 +180,7 @@ export default {
   },
   methods: {
     applyJsTemplate,
-    async deselect(key: IRow) {
+    deselect(key: IRow) {
       this.selection = this.selection.filter(
         (row: IRow) => !deepEqual(row, key)
       );
@@ -196,6 +197,16 @@ export default {
     select(newRow: IRow) {
       this.selection = [...this.selection, newRow];
       this.emitSelection();
+    },
+    async selectNew(newRow: IRow) {
+      const rowKey = await convertRowToPrimaryKey(
+        newRow,
+        this.tableId,
+        this.schemaId
+      );
+      this.selection = [...this.selection, rowKey];
+      this.emitSelection();
+      this.loadOptions();
     },
     emitSelection() {
       this.$emit("update:modelValue", this.selection);

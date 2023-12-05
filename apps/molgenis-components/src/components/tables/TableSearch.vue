@@ -11,6 +11,7 @@
       </form>
       <Spinner v-if="loading" />
       <div v-else>
+        {{ JSON.stringify(selection, null, 2) }}
         <TableMolgenis
           :schemaId="schemaId"
           :selection="selection"
@@ -32,7 +33,7 @@
               :tableId="tableId"
               :schemaId="schemaId"
               @close="loadData"
-              @update:newRow="select"
+              @update:newRow="selectNew"
               class="d-inline p-0"
             />
           </template>
@@ -161,6 +162,9 @@ export default {
     select(value: IRow) {
       this.$emit("select", value);
     },
+    selectNew(value: IRow) {
+      this.$emit("update:newRow", value);
+    },
     deselect(value: IRow) {
       this.$emit("deselect", value);
     },
@@ -194,6 +198,7 @@ export default {
   async mounted() {
     this.loadData();
   },
+  emits: ["select", "update:newRow", "deselect"],
 };
 </script>
 
