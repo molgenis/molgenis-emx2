@@ -343,7 +343,7 @@ Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables gro
 Datasets,,description,text,,,,,,,,,description of the role/function of this table,,,
 Datasets,,number of rows,int,,,,,,,,,count of the numbe of records in this table,,,
 Datasets,,mapped to,refback,,,,Dataset mappings,,source dataset,,,common dataset models this dataset has been mapped into,,,
-Datasets,,mapped from,refback,,,,Dataset mappings,,target dataset,,,source datasets that have been mapped to this harmonized dataset,,TargetTables,dataDictionary
+Datasets,,mapped from,refback,,,,Dataset mappings,,target dataset,,,source datasets that have been mapped to this harmonized dataset,,,
 Datasets,,since version,,,,,,,,,,When this dataset was introduced,,,
 Datasets,,until version,,,,,,,,,,When this dataset was removed if applicable,,,
 All variables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead",,,
