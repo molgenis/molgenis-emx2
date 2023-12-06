@@ -76,6 +76,7 @@
         :value="value"
         :placeholder="placeholder"
         :required="required"
+        :aria-required="required"
         :disabled="disabled"
         class="
           w-full

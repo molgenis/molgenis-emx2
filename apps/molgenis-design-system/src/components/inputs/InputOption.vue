@@ -8,6 +8,7 @@
       class="peer mt-1 mr-1 ml-1 accent-blue-700"
       :checked="checked"
       :required="required"
+      :aria-required="required"
     />
     <label
       :for="id"

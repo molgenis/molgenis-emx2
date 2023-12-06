@@ -58,6 +58,7 @@
       :rows="rows"
       :required="required"
       :disabled="disabled"
+      :aria-required="required"
       :placeholder="placeholder"
       class="
         w-full

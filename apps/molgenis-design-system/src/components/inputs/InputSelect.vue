@@ -68,6 +68,7 @@
         v-model="modelValue"
         :id="id"
         :required="required"
+        :aria-required="required"
         :disabled="disabled"
         class="block w-full p-1 pl-4 border-none outline-none bg-transparent"
       >
