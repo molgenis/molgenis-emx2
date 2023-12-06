@@ -27,13 +27,6 @@ function getColumnError(
   // FIXME: this function should also check all array types
   // FIXME: longs are not checked
 
-  const isMissingValue = (value: any): boolean => {
-    if (Array.isArray(value)) {
-      return value.some(element => isMissingValue(element));
-    }
-    return value === undefined || value === null || value === "";
-  };
-
   const missesValue = isMissingValue(value);
 
   try {
@@ -74,6 +67,14 @@ function getColumnError(
 
   return undefined;
 }
+
+function isMissingValue(value: any): boolean {
+  if (Array.isArray(value)) {
+    return value.some(element => isMissingValue(element));
+  }
+  return value === undefined || value === null || value === "";
+}
+
 
 function isInValidNumericValue(columnType: string, value: number) {
   if (["DECIMAL", "INT"].includes(columnType)) {
