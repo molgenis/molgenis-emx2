@@ -44,7 +44,11 @@ export default {
 </script>
 
 <style scoped>
+dialog {
+  visibility: hidden;
+}
 dialog[open]:not(dialog[open="false"]) {
+  visibility: visible;
   position: fixed;
   width: 100%;
   height: 100%;
