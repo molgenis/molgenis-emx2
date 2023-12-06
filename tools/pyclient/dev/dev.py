@@ -100,8 +100,8 @@ async def main():
         }]
 
         # Import new data
-        client.save(schema='pet store', table='Tag', data=new_tags)
-        client.save(schema='pet store', table='Pet', data=new_pets)
+        client.save_schema(name='pet store', table='Tag', data=new_tags)
+        client.save_schema(name='pet store', table='Pet', data=new_pets)
 
         # Retrieve records
         tags_data = client.get(schema='pet store', table='Tag', as_df=True)
@@ -124,8 +124,8 @@ async def main():
         pd.DataFrame(new_pets).to_csv('demodata/Pet.csv', index=False)
 
         # Import files
-        client.save(schema='pet store', table='Tag', file='demodata/Tag.csv')
-        client.save(schema='pet store', table='Pet', file='demodata/Pet.csv')
+        client.save_schema(name='pet store', table='Tag', file='demodata/Tag.csv')
+        client.save_schema(name='pet store', table='Pet', file='demodata/Pet.csv')
 
         client.delete(schema='pet store', table='Pet', file='demodata/Pet.csv')
         client.delete(schema='pet store', table='Tag', file='demodata/Tag.csv')
@@ -136,14 +136,14 @@ async def main():
         
         # Create a schema
         try:
-            client.create_schema(schema='myNewSchema')
+            client.create_schema(name='myNewSchema')
             print(client.schema_names)
         except GraphQLException as e:
             print(e)
             
         # Update the description
         try:
-            client.update_schema(schema='myNewSchema', description='I forgot the description')
+            client.update_schema(name='myNewSchema', description='I forgot the description')
             print(client.schema_names)
             print(client.schemas)
         except GraphQLException as e:
@@ -151,14 +151,14 @@ async def main():
         
         # Recreate the schema: delete and create
         try:
-            client.recreate_schema(schema='myNewSchema')
+            client.recreate_schema(name='myNewSchema')
             print(client.schema_names)
         except GraphQLException as e:
             print(e)
         
         # Delete the schema
         try:
-            client.delete_schema(schema='myNewSchema')
+            client.delete_schema(name='myNewSchema')
             print(client.schema_names)
         except GraphQLException as e:
             print(e)

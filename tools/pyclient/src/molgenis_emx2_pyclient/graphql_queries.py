@@ -31,6 +31,7 @@ def signin():
         }
     """
 
+
 def signout():
     """GraphQL mutation to sign out and close the session."""
     return """
@@ -41,6 +42,7 @@ def signout():
             }
         }
     """
+
 
 def create_schema():
     """GraphQL query to create a new schema. Function must contain name in the
@@ -76,6 +78,7 @@ def create_schema():
             }
         }
     """
+
 
 def delete_schema():
     """GraphQL query for deleting a schema. Function must include the name of
@@ -144,7 +147,9 @@ def list_schemas():
 
 
 def list_schema_meta():
-    """GraphQL query to view metadata about a schema including the definition of tables and columns, as well as schema settings and members."""
+    """GraphQL query to view metadata about a schema including
+    the definition of tables and columns, as well as schema settings and members.
+    """
     return """
       { 
         _schema {
@@ -221,6 +226,7 @@ def list_schema_meta():
         }
       }
     """
+
 
 def list_tables():
     """GraphQL query to list the tables in a schema."""

@@ -192,21 +192,21 @@ class Client:
         if data is not None:
             return pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
 
-    def _set_schema(self, schema: str) -> str:
+    def _set_schema(self, name: str) -> str:
         """Sets the default schema to the schema supplied as argument.
         Raises NoSuchSchemaException if the schema cannot be found on the server.
         
-        :param schema: name of a schema
-        :type schema: str
+        :param name: name of a schema
+        :type name: str
         
         :returns: a schema name
         :rtype: str
         """
-        if schema not in [*self.schema_names, None]:
-            raise NoSuchSchemaException(f"Schema '{schema}' not found on server.")
-        self.default_schema = schema
+        if name not in [*self.schema_names, None]:
+            raise NoSuchSchemaException(f"Schema '{name}' not found on server.")
+        self.default_schema = name
 
-        return schema
+        return name
     
     @staticmethod
     def _graphql_validate_response(response_json: dict, mutation: str, fallback_error_message: str):
@@ -244,11 +244,11 @@ class Client:
                 print(message)
             
     @staticmethod
-    def _format_optional_params(params: dict = None):
-        keys = params.keys()
-        args = {key: params[key] for key in keys if (key != 'self') and (key is not None)}
-        if 'schema' in args.keys():
-            args['name'] = args.pop('schema')
+    def _format_optional_params(**kwargs):
+        keys = kwargs.keys()
+        args = {key: kwargs[key] for key in keys if (key != 'self') and (key is not None)}
+        if 'name' in args.keys():
+            args['name'] = args.pop('name')
         if 'include_demo_data' in args.keys():
             args['includeDemoData'] = args.pop('include_demo_data')
         return args
@@ -271,11 +271,11 @@ class Client:
                          response.json().get('data').get('_schema').get('tables')]
         return table in schema_tables
     
-    def save(self, schema: str = None, table: str = None, file: str = None, data: list = None):
+    def save_schema(self, name: str = None, table: str = None, file: str = None, data: list = None):
         """Imports or updates records in a table of a named schema.
         
-        :param schema: name of a schema
-        :type schema: str
+        :param name: name of a schema
+        :type name: str
         :param table: the name of the table
         :type table: str
         :param file: location of the file containing records to import or update
@@ -286,7 +286,7 @@ class Client:
         :returns: status message or response
         :rtype: str
         """
-        current_schema = schema
+        current_schema = name
         if current_schema is None:
             current_schema = self.default_schema
 
@@ -448,12 +448,12 @@ class Client:
                     f.write(response.content)
                 log.info(f"Exported data from table {table} in schema {current_schema} to '{filename}'.")
 
-    def create_schema(self, schema: str = None, description: str = None, template: str = None,
+    def create_schema(self, name: str = None, description: str = None, template: str = None,
                       include_demo_data: bool = None):
         """Create a new schema
         
-        :param schema: the name of the new schema
-        :type schema: str
+        :param name: the name of the new schema
+        :type name: str
         :param description: additional text that provides context for a schema
         :type description: str
         :param template: (optional) the name of a template to set as the schema
@@ -466,7 +466,8 @@ class Client:
         :rtype: string
         """
         query = queries.create_schema()
-        variables = self._format_optional_params(params=locals())
+        variables = self._format_optional_params(name=name, description=description,
+                                                 template=template, include_demo_data=include_demo_data)
         
         response = self.session.post(
            url=f"{self.url}/api/graphql",
@@ -477,21 +478,21 @@ class Client:
         self._graphql_validate_response(
             response_json=response_json,
             mutation='createSchema',
-            fallback_error_message=f"Failed to create schema '{schema}'"
+            fallback_error_message=f"Failed to create schema '{name}'"
         )
         self.schemas = self.get_schemas()
               
-    def delete_schema(self, schema: str = None):
+    def delete_schema(self, name: str = None):
         """Delete a schema
         
-        :param schema: the name of the new schema
-        :type schema: str
+        :param name: the name of the new schema
+        :type name: str
         
         :returns: a success or error message
         :rtype: string
         """
         query = queries.delete_schema()
-        variables = {'id': schema}
+        variables = {'id': name}
         response = self.session.post(
             url=f"{self.url}/api/graphql",
             json={'query': query, 'variables': variables}
@@ -501,15 +502,15 @@ class Client:
         self._graphql_validate_response(
             response_json=response_json,
             mutation='deleteSchema',
-            fallback_error_message=f"Failed to delete schema '{schema}'"
+            fallback_error_message=f"Failed to delete schema '{name}'"
         )
         self.schemas = self.get_schemas()
 
-    def update_schema(self, schema: str = None, description: str = None):
+    def update_schema(self, name: str = None, description: str = None):
         """Update a schema's description
         
-        :param schema: the name of the new schema
-        :type schema: str
+        :param name: the name of the new schema
+        :type name: str
         :param description: additional text that provides context for a schema
         :type description: str
         
@@ -517,7 +518,7 @@ class Client:
         :rtype: string
         """
         query = queries.update_schema()
-        variables = {'name': schema, 'description': description}
+        variables = {'name': name, 'description': description}
         response = self.session.post(
             url=f"{self.url}/api/graphql",
             json={'query': query, 'variables': variables}
@@ -527,16 +528,16 @@ class Client:
         self._graphql_validate_response(
             response_json=response_json,
             mutation='updateSchema',
-            fallback_error_message=f"Failed to update schema '{schema}'"
+            fallback_error_message=f"Failed to update schema '{name}'"
         )
         self.schemas = self.get_schemas()
                 
-    def recreate_schema(self, schema: str = None, description: str = None, template: str = None,
+    def recreate_schema(self, name: str = None, description: str = None, template: str = None,
                         include_demo_data: bool = None):
         """Recreate a schema
         
-        :param schema: the name of the new schema
-        :type schema: str
+        :param name: the name of the new schema
+        :type name: str
         :param description: additional text that provides context for a schema
         :type description: str
         :param template: (optional) the name of a template to set as the schema
@@ -548,40 +549,40 @@ class Client:
         :returns: a success or error message
         :rtype: string
         """
-        if schema not in self.schema_names:
-            message = f"Schema '{schema}' does not exist"
+        if name not in self.schema_names:
+            message = f"Schema '{name}' does not exist"
             log.error(message)
             raise NoSuchSchemaException(message)
         
-        schema_meta = [db for db in self.schemas if db['name'] == schema][0]
+        schema_meta = [db for db in self.schemas if db['name'] == name][0]
         schema_description = description if description else schema_meta.get('description', None)
 
         try:
-            self.delete_schema(schema=schema)
+            self.delete_schema(name=name)
             self.create_schema(
-                schema=schema,
+                name=name,
                 description=schema_description,
                 template=template,
                 include_demo_data=include_demo_data
             )
 
         except GraphQLException:
-            message = f"Failed to recreate '{schema}'"
+            message = f"Failed to recreate '{name}'"
             log.error(message)
             print(message)
 
         self.schemas = self.get_schemas()
         
-    def get_schema_metadata(self, schema: str = None):
+    def get_schema_metadata(self, name: str = None):
         """Retrieve a schema's metadata
         
-        :param schema: the name of the new schema
-        :type schema: str
+        :param name: the name of the new schema
+        :type name: str
         
         :returns: schema metadata
         :rtype: dict
         """
-        current_schema = schema if schema is not None else self.default_schema
+        current_schema = name if name is not None else self.default_schema
         if current_schema not in self.schema_names:
             raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
         
@@ -594,13 +595,9 @@ class Client:
         response_json = response.json()
 
         if 'id' not in response_json.get('data').get('_schema'):
-          message = f"Unable to retrieve metadata for schema '{current_schema}'"
-          log.error(message)
-          raise GraphQLException(message)
+            message = f"Unable to retrieve metadata for schema '{current_schema}'"
+            log.error(message)
+            raise GraphQLException(message)
         
         metadata = response_json.get('data').get('_schema')
         return metadata
-        
-        
-        
-        
