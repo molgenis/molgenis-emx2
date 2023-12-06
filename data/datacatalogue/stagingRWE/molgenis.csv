@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Version,,,,,,,,,,,,3.8,EMA
+Version,,,,,,,,,,,,3.10,EMA
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",EMA
 Extended resources,Resources,,,,,,,,,,,,EMA
 Data resources,Extended resources,,,,,,,,,,,Resources for data,EMA
@@ -112,13 +112,13 @@ RWE resources,,quality validation methods,text,,,,,,,,,What methods or processes
 RWE resources,,correction methods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?,
 RWE resources,,quality validation results,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results",
 RWE resources,,standards,heading,,,,,,,,,Use of standard data models and ontologies,
-RWE resources,,cdms,ref_array,,,,Mappings,,source,,,Common data models used or ETL-ed to by this data source,
+RWE resources,,cdms,ref_array,,,,Mappings,,,,,Common data models used or ETL-ed to by this data source,
 RWE resources,,cdms other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source",EMA
 Databanks,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",
 Databanks,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",
 Data resources,,information,heading,,,,,,,,,Other information,
-Data resources,,design paper,refback,,,,Publications,,resource,,,Publication(s) that describe(s) the design of this resource,
-Extended resources,,publications,refback,,,,Publications,,resource,,,Other publication(s) about this resource,EMA
+Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource,
+Extended resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,EMA
 Data resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?,
 RWE resources,,funding sources,ontology_array,,,CatalogueOntologies,Funding types,,,,,Specify the main financial support sources for the data source in the last 3 years. Select all that apply,EMA
 Extended resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,EMA
