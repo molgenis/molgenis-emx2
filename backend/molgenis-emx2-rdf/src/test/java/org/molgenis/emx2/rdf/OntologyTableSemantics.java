@@ -42,9 +42,8 @@ public class OntologyTableSemantics {
      * Situation before: the 'Tag' ontology table has the default annotation of NCIT:C48697
      * (Controlled Vocabulary)
      */
-    System.out.println(result);
     assertTrue(
-        result.contains("rdfs:subClassOf qb:DataSet, sio:SIO_000754, owl:Thing;"),
+        result.contains("rdfs:subClassOf qb:DataSet, owl:Thing;"),
         "Tag should be a subclass of the given classes");
     assertTrue(
         result.contains("PetStore:Tag a owl:Class;"), "Tag should be an instance of owl:Class");
@@ -74,7 +73,7 @@ public class OntologyTableSemantics {
      * ontology
      */
     assertTrue(
-        result.contains("rdfs:subClassOf qb:DataSet, sio:SIO_000754, owl:Thing;"),
+        result.contains("rdfs:subClassOf qb:DataSet, owl:Thing;"),
         "Tag should be a subclass of the given classes");
     assertTrue(
         result.contains("PetStore:Tag a owl:Class;"), "Tag should be an instance of owl:Class");

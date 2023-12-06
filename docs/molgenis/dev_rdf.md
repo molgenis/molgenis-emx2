@@ -31,14 +31,22 @@ One particular row from a table within a schema can be retrieved by adding a row
 For example: `<server>/pet%20store/api/rdf/Pet/spike`
 
 ## RDF data formats
-Using the `format` parameter, RDF can be exported in one of many available formats. The `format` parameter is passed through the URL, for instance `<server>/pet%20store/api/rdf?format=xml`.
- If this parameter is not specified, the default format (`ttl`) will be automatically chosen. So, for instance, `<server>/pet%20store/api/rdf/Pet/spike` returns the exact same result as `<server>/pet%20store/api/rdf/Pet/spike?format=ttl`.
+Using the content negotiation, RDF can be exported in one of many available formats. For example the following curl command will download the pet store in jsonld:
 
-The available formats are:
-- `ttl` (Turtle, Terse RDF Triple Language, https://www.w3.org/TR/turtle/)
-- `n3` (Notation 3, https://www.w3.org/TeamSubmission/n3/)
-- `nquads` (N-Quads, https://www.w3.org/TR/n-quads/)
-- `ntriples` (N-Triples, https://www.w3.org/TR/n-triples/)
-- `trig` (TriG, https://www.w3.org/TR/trig/)
-- `xml` (RDF/XML, https://www.w3.org/TR/rdf-syntax-grammar/)
-- `jsonld` (JSON-based Serialization for Linked Data, https://www.w3.org/TR/json-ld11/)
+`curl -H 'Accept: application/ld+json' <server>/pet%20store/api/rdf`
+
+The default format is Turtle, but by passing one of the following mime types in the `Accept:` header you can select a different format.
+
+The recognized mime types are:
+- `text/turtle` (Turtle, Terse RDF Triple Language, https://www.w3.org/TR/turtle/)
+- `text/n3` (Notation 3, https://www.w3.org/TeamSubmission/n3/)
+- `application/n-quads` (N-Quads, https://www.w3.org/TR/n-quads/)
+- `application/n-triples` (N-Triples, https://www.w3.org/TR/n-triples/)
+- `application/trig` (TriG, https://www.w3.org/TR/trig/)
+- `application/rdf+xml` (RDF/XML, https://www.w3.org/TR/rdf-syntax-grammar/)
+- `application/ld+json` (JSON-based Serialization for Linked Data, https://www.w3.org/TR/json-ld11/)
+
+### Convenience APIs
+As a convience there are APIs to always download in Turtle or JSON-LD:
+- /api/ttl Downloads always in Turtle
+- /api/jsonld Downloads always in JSON-LD

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 defineProps<{
   icon: string;
+  count?: number | string;
+  title: string;
+  link?: string;
 }>();
 </script>
 <template>
@@ -11,6 +14,16 @@ defineProps<{
       <BaseIcon :name="icon" :width="32" class="text-title" />
     </span>
     <p class="mt-1 mb-0 lg:mb-5 text-body-lg">
+      <NuxtLink :to="link" :class="{ 'hover:underline': link }">
+        <b>
+          {{
+            typeof count === "number"
+              ? new Intl.NumberFormat("nl-NL").format(count)
+              : count
+          }}
+          {{ title }}<br v-if="title" />
+        </b>
+      </NuxtLink>
       <slot></slot>
     </p>
   </div>

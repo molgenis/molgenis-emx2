@@ -98,7 +98,7 @@ if (collectionEvent?.areasOfInformation?.length) {
   items.push({
     label: "Areas of information",
     type: "ONTOLOGY",
-    content: buildOntologyTree(collectionEvent.areasOfInformation),
+    content: collectionEvent.areasOfInformation,
   });
 }
 
@@ -106,7 +106,7 @@ if (collectionEvent?.dataCategories?.length) {
   items.push({
     label: "Data Categories",
     type: "ONTOLOGY",
-    content: buildOntologyTree(collectionEvent.dataCategories),
+    content: collectionEvent.dataCategories,
   });
 }
 
@@ -114,7 +114,7 @@ if (collectionEvent?.sampleCategories?.length) {
   items.push({
     label: "Sample categories",
     type: "ONTOLOGY",
-    content: buildOntologyTree(collectionEvent.sampleCategories),
+    content: collectionEvent.sampleCategories,
   });
 }
 

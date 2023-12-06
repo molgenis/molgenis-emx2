@@ -15,34 +15,19 @@ export const useQualitiesStore = defineStore("qualitiesStore", () => {
       if (!waitingOnResults.value) {
         waitingOnResults.value = true;
 
-        let labQualitiesResult = await new QueryEMX2(graphqlEndpoint)
-          .table("LaboratoryStandards")
+        let qualityStandardsQueryResult = await new QueryEMX2(graphqlEndpoint)
+          .table("QualityStandards")
           .select(["name", "label", "definition"])
-          .orderBy("LaboratoryStandards", "name", "asc")
           .execute();
 
-        let labQualities = labQualitiesResult.LaboratoryStandards;
-
-        let operationQualitiesResult = await new QueryEMX2(graphqlEndpoint)
-          .table("OperationalStandards")
-          .select(["name", "label", "definition"])
-          .orderBy("OperationalStandards", "name", "asc")
-          .execute();
-
-        let operationQualities = operationQualitiesResult.OperationalStandards;
-
-        const allQualities = labQualities.concat(operationQualities);
-        const qualityNameDictionary = {};
-
-        for (const quality of allQualities) {
-          if (!qualityNameDictionary[quality.name]) {
-            qualityNameDictionary[quality.name] = {
+        if (qualityStandardsQueryResult.QualityStandards) {
+          for (const quality of qualityStandardsQueryResult.QualityStandards) {
+            this.qualityStandardsDictionary[quality.name] = {
               label: quality.label,
-              definition: quality.definition,
+              definition: quality.definition
             };
           }
         }
-        this.qualityStandardsDictionary = qualityNameDictionary;
         waitingOnResults.value = false;
       }
     }

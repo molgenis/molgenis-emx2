@@ -1,10 +1,4 @@
-import {
-  IColumn,
-  ISetting,
-  ISchemaMetaData,
-  ITableMetaData,
-  KeyObject,
-} from "meta-data-utils";
+import type { IColumn } from "meta-data-utils";
 export interface IResource {
   id: string;
   pid: string;
@@ -177,6 +171,11 @@ export interface INetwork {
   website?: string;
 }
 
+export interface ICatalogue {
+  network: INetwork;
+  type: IOntologyNode;
+}
+
 interface ITreeNode {
   name: string;
   children?: ITreeNode[];
@@ -264,3 +263,5 @@ export interface IMapping {
 }
 
 export type HarmonizationStatus = "unmapped" | "partial" | "complete";
+
+export type HarmonizationIconSize = "small" | "large";

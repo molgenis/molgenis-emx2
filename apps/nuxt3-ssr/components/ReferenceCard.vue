@@ -50,7 +50,7 @@ defineProps({
         </header>
 
         <p class="text-body-base my-5 hidden sm:block">
-          {{ description }}
+          <ContentReadMore :value="description" />
         </p>
 
         <a

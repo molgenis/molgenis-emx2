@@ -105,6 +105,12 @@ module.exports = {
       minWidth: {
         95: "23.75rem",
       },
+      maxHeight: {
+        title: "10rem",
+      },
+      minHeight: {
+        title: "10rem",
+      },
       maxWidth: {
         lg: "88.75rem", // 970+380+30+20+20
         tooltip: "10.5rem",
@@ -112,6 +118,7 @@ module.exports = {
         sm: "20rem",
         xs: "15rem",
         table: "60.7rem",
+        title: "10rem",
       },
       backgroundImage: {
         "sidebar-gradient":

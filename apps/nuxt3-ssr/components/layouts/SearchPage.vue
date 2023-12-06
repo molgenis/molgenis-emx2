@@ -9,7 +9,7 @@ import Container from "./../Container.vue";
       <aside class="xl:min-w-95 xl:w-95 hidden xl:block">
         <slot name="side"></slot>
       </aside>
-      <div class="xl:pl-7.5 xl:grow">
+      <div class="xl:pl-7.5 xl:max-w-[54rem] 2xl:grow 2xl:max-w-none">
         <slot name="main"></slot>
       </div>
     </div>
