@@ -68,7 +68,7 @@ function getColumnError(
   return undefined;
 }
 
-function isMissingValue(value: any): boolean {
+export function isMissingValue(value: any): boolean {
   if (Array.isArray(value)) {
     return value.some(element => isMissingValue(element));
   }
