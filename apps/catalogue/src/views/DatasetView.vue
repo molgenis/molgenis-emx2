@@ -13,13 +13,12 @@
     </div>
     <h6 class="d-inline">{{ resourceType }}:&nbsp;</h6>
     <RouterLink
-      :to="{
-        name: resourceType + '-details',
+        :to="{
+        name: convertToPascalCase(resourceType) + '-details',
         params: { id: resource },
       }"
-      >{{ dataset.resource.id }}
+    >{{ dataset.resource.id }}
     </RouterLink>
-    /
     <h1>Dataset: {{ dataset.name }}</h1>
     <p>{{ dataset.description ? dataset.description : "Description: N/A" }}</p>
 
@@ -48,7 +47,7 @@
       This dataset is mapped to the following standards:
       <RowButtonAdd
         id="add-mapping"
-        table-name="Dataset Mappings"
+        table-id="Dataset Mappings"
         :default-value="{
           source: { id: dataset.resource.id },
           sourceDataset: {
@@ -121,7 +120,7 @@ export default {
     ...mapGetters(["canEdit", "canManage"]),
     resourceType() {
       if (this.dataset) {
-        return this.dataset.resource.mg_tableclass.split(".")[1];
+        return this.dataset.resource.mg_tableclass.split('.')[1];
       }
     },
   },
@@ -201,6 +200,18 @@ export default {
           this.loading = false;
         });
     },
+    convertToPascalCase(string) {
+      if (!string) return string;
+      const words = string.trim().split(/\s+/);
+      let result = "";
+      words.forEach((word) => {
+        result += word.charAt(0).toUpperCase();
+        if (word.length > 1) {
+          result += word.slice(1);
+        }
+      });
+      return result;
+    }
   },
   created() {
     this.reload();

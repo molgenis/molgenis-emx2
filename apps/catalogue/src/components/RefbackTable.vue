@@ -126,15 +126,17 @@ export default {
   methods: {
     handleRowClick(row) {
       let params = {};
-      params.id = row.id ? row.id : this.pkey.id;
+      params.id = row.id || this.pkey.id;
       params.resource = row.id || this.pkey.id;
-      if (row.name) params.name = row.id;
+      if (row.name) params.name = row.name;
       if (row.source?.id) params.source = row.source.id;
       if (row.sourceDataset?.name)
         params.sourceDataset = row.sourceDataset.name;
-      if (row.target.id) params.target = row.target?.id;
+      if (row.target?.id) params.target = row.target?.id;
       if (row.targetDataset?.name)
         params.targetDataset = row.targetDataset.name;
+      console.log('hoi '+JSON.stringify(row)+ " => "+JSON.stringify(params))
+
       //good guessing the parameters :-)
       this.$router.push({
         name: this.tableId + "-details",
