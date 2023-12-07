@@ -72,8 +72,9 @@
                     <div class="card-text">
                       <h5>Contact Information</h5>
                       <ul class="right-content-list">
-
-                        <li><span class="font-weight-bold mr-1">Head/PI:</span></li>
+                        <li>
+                          <span class="font-weight-bold mr-1">Head/PI:</span>
+                        </li>
                         <report-details-list
                           :reportDetails="head"
                         ></report-details-list>
