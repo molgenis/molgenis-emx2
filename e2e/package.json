@@ -8,6 +8,7 @@
     "@playwright/test": "1.39.0"
   },
   "scripts": {
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "codegen": "playwright codegen localhost:8080"
   }
 }
