@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("Create and Remove a new Database", async ({ page }) => {
+test("Create and remove a new database with template", async ({ page }) => {
   await page.goto("http://localhost:8080/apps/central/");
   await page.goto("http://localhost:8080/apps/central/#/");
   await page.getByRole("button", { name: "Sign in" }).click();
