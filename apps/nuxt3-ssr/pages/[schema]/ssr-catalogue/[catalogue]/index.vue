@@ -6,22 +6,21 @@ const config = useRuntimeConfig();
 
 const catalogueRouteParam = route.params.catalogue;
 
-const titlePrefix =
-  route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-useHead({ title: titlePrefix + " catalogue" });
+const scoped = route.params.catalogue !== "all";
+const catalogue = scoped ? route.params.catalogue : undefined;
+
+useHead({ title: scoped ? `${catalogue} Catalogue` : "Catalogue" });
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
   return routeSetting == "true" || config.public.cohortOnly;
 });
 
-const modelFilter =
-  catalogueRouteParam === "all" ? {} : { id: { equals: catalogueRouteParam } };
 const modelQuery = `
   query Networks($filter:NetworksFilter) {
     Networks(filter:$filter){models{id}}
   }`;
-
+const modelFilter = scoped ? { id: { equals: catalogueRouteParam } } : {};
 const models = await fetchGql(modelQuery, { filter: modelFilter });
 
 const query = `query MyQuery($networksFilter:NetworksFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CohortsFilter,$subcohortsFilter:SubcohortsFilter,$dataSourcesFilter:DataSourcesFilter){
@@ -32,6 +31,7 @@ const query = `query MyQuery($networksFilter:NetworksFilter,$variablesFilter:Var
               description,
               logo {url}
               dataSources_agg{count}
+              networks_agg{count}
        }
         Variables_agg(filter:$variablesFilter) {
           count
@@ -128,8 +128,6 @@ const data = await fetchGql(query, {
       : { networks: { id: { equals: catalogueRouteParam } } },
 });
 
-const catalogue = "all" === catalogueRouteParam ? {} : data.data?.Networks[0];
-
 function percentageLongitudinal(
   cohortsGroupBy: { count: number; design: { name: string } }[],
   total: number
@@ -176,6 +174,16 @@ let description = computed(() => {
   } else {
     return "Select one of the content categories listed below.";
   }
+});
+
+const numberOfNetworks = computed(() => {
+  return scoped
+    ? data.data.Networks[0]?.networks_agg.count
+    : data.data.Networks_agg?.count;
+});
+
+const networks = computed(() => {
+  return scoped ? data.data.Networks[0]?.networks : data.data.Networks;
 });
 </script>
 
@@ -248,7 +256,28 @@ let description = computed(() => {
           "
           :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`"
         />
+
+        <LandingCardPrimary
+          v-if="numberOfNetworks > 0 && !cohortOnly"
+          image="image-diagram-2"
+          title="Networks"
+          :description="
+            getSettingValue(
+              'CATALOGUE_LANDING_NETWORKS_TEXT',
+              data.data._settings
+            ) || 'Networks'
+          "
+          :count="numberOfNetworks"
+          :callToAction="
+            getSettingValue(
+              'CATALOGUE_LANDING_NETWORKS_CTA',
+              data.data._settings
+            )
+          "
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`"
+        />
       </LandingPrimary>
+
       <LandingSecondary>
         <LandingCardSecondary
           icon="people"
