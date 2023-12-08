@@ -415,7 +415,7 @@ Submissions,,submitter organisation,ref,,,,Organisations,,,,,Organisation of sub
 Submissions,,submitter role,ontology,,,CatalogueOntologies,Submitter roles,,,,,Role of submitter in organisation,,,
 Submissions,,submitter role other,text,,,,,,,,,"Role of submitter in organisation, if other than above",,,
 Submissions,,submission type,ontology,,,CatalogueOntologies,Submission types,,,,,"Type of submission, e.g. 'new entry', 'correction'",EMA,,
-Submissions,,submission description,text,,,,Submission types,,,,,"Description of the submission, if applicable",EMA,,
+Submissions,,submission description,text,,,,,,,,,"Description of the submission, if applicable",EMA,,
 Submissions,,responsible persons,text,,,,,,,,,List of responsible persons related to this submission,,,
 Submissions,,acceptance date,datetime,,,,,,,,,Date submission was accepted,EMA,,
 External identifiers,,resource,ref,1,TRUE,,Extended resources,,,,,Resource that this external identifier belongs to,EMA,,
