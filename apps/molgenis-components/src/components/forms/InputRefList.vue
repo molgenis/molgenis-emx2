@@ -8,12 +8,12 @@
   >
     <div>
       <div>
-        <div v-if="count > maxNum">
+        <div>
           <FilterWell
-            v-for="(item, key) in selection"
-            :key="JSON.stringify(item)"
-            :label="applyJsTemplate(item, refLabel)"
-            @click="deselect(key)"
+            v-for="selectedRow in selection"
+            :key="JSON.stringify(selectedRow)"
+            :label="applyJsTemplate(selectedRow, refLabel)"
+            @click="deselect(selectedRow)"
           />
         </div>
         <ButtonAlt
@@ -63,6 +63,7 @@
             id="add-entry"
             :tableId="tableId"
             :schemaId="schemaId"
+            @update:newRow="selectNew"
           />
         </Tooltip>
       </div>
@@ -90,9 +91,9 @@
             :showSelect="true"
             :filter="filter"
             :limit="10"
-            @update:selection="$emit('update:modelValue', $event)"
-            @select="emitSelection"
+            @select="select"
             @deselect="deselect"
+            @update:newRow="selectNew"
           />
         </template>
         <template v-slot:footer>
@@ -112,9 +113,14 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButtonAdd from "../tables/RowButtonAdd.vue";
 import TableSearch from "../tables/TableSearch.vue";
-import FormGroup from "./FormGroup.vue";
+import {
+  applyJsTemplate,
+  convertRowToPrimaryKey,
+  deepClone,
+  deepEqual,
+} from "../utils";
 import ButtonAlt from "./ButtonAlt.vue";
-import { convertRowToPrimaryKey, applyJsTemplate } from "../utils";
+import FormGroup from "./FormGroup.vue";
 import Tooltip from "./Tooltip.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
 
@@ -125,7 +131,7 @@ export default {
       client: null,
       showSelect: false,
       data: [],
-      selection: this.modelValue,
+      selection: deepClone(this.modelValue),
       count: 0,
       tableMetadata: null,
       loading: false,
@@ -174,13 +180,33 @@ export default {
   },
   methods: {
     applyJsTemplate,
-    deselect(key: any) {
-      this.selection.splice(key, 1);
+    deselect(key: IRow) {
+      this.selection = this.selection.filter(
+        (row: IRow) => !deepEqual(row, key)
+      );
       this.emitSelection();
     },
     clearValue() {
       this.selection = [];
       this.emitSelection();
+    },
+    handleUpdateSelection(newSelection: IRow[]) {
+      this.selection = [...newSelection];
+      this.emitSelection();
+    },
+    select(newRow: IRow) {
+      this.selection = [...this.selection, newRow];
+      this.emitSelection();
+    },
+    async selectNew(newRow: IRow) {
+      const rowKey = await convertRowToPrimaryKey(
+        newRow,
+        this.tableId,
+        this.schemaId
+      );
+      this.selection = [...this.selection, rowKey];
+      this.emitSelection();
+      this.loadOptions();
     },
     emitSelection() {
       this.$emit("update:modelValue", this.selection);
@@ -188,9 +214,11 @@ export default {
     openSelect() {
       this.showSelect = true;
     },
-    toggle(value: any) {
+    toggle(value: IRow) {
       if (this.selection?.includes(value)) {
-        this.selection = this.selection.filter((v) => v !== value);
+        this.selection = this.selection.filter(
+          (selectedValue: IRow) => selectedValue !== value
+        );
       } else {
         this.selection = [...this.selection, value];
       }
@@ -225,7 +253,7 @@ export default {
   },
   watch: {
     modelValue() {
-      this.selection = this.modelValue;
+      this.selection = deepClone(this.modelValue);
     },
     filter() {
       if (!this.loading) {
@@ -242,7 +270,7 @@ export default {
       this.selection = [];
     }
   },
-  emits: ["optionsLoaded"],
+  emits: ["optionsLoaded", "update:modelValue"],
 };
 </script>
 
