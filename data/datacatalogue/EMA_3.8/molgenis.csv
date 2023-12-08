@@ -172,7 +172,7 @@ Databanks,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabu
 Databanks,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",,Databanks,ETLstandardVocabulariesOther
 Data resources,,information,heading,,,,,,,,,Other information,,,
 Data resources,,design paper,refback,,,,Publications,,resource,,,Publication(s) that describe(s) the design of this resource,,,
-Extended resources,,publications,ref_array,,,,Publications,,resource,,,Other publication(s) about this resource,EMA,,
+Extended resources,,publications,refback,,,,Publications,,resource,,,Other publication(s) about this resource,EMA,,
 Data resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?,,,
 RWE resources,,funding sources,ontology_array,,,CatalogueOntologies,Funding types,,,,,Specify the main financial support sources for the data source in the last 3 years. Select all that apply,EMA,,
 Studies,,funding scheme,ontology_array,,,CatalogueOntologies,Study funding,,,,,The source of funding for the study. Select all that apply,EMA,,
