@@ -24,7 +24,7 @@ export const useQualitiesStore = defineStore("qualitiesStore", () => {
           for (const quality of qualityStandardsQueryResult.QualityStandards) {
             this.qualityStandardsDictionary[quality.name] = {
               label: quality.label,
-              definition: quality.definition
+              definition: quality.definition,
             };
           }
         }
