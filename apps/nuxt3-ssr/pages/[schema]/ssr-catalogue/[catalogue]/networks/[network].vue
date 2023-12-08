@@ -3,7 +3,7 @@ import { gql } from "graphql-request";
 import cohortsQuery from "~~/gql/cohorts";
 import variablesQuery from "~~/gql/variables";
 import fileFragment from "~~/gql/fragments/file";
-import type {INetwork} from "~/interfaces/types";
+import type { INetwork } from "~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -251,9 +251,10 @@ function variableMapper(variable: {
 useHead({ title: network?.acronym || network?.name });
 
 const crumbs = {};
-crumbs[route.params.catalogue] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+crumbs[
+  route.params.catalogue
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
-
 </script>
 <template>
   <LayoutsDetailPage>
