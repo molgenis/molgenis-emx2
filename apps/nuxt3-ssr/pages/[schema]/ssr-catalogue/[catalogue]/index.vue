@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ISetting } from "meta-data-utils";
+import type { IMgError } from "~~/interfaces/types";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -106,7 +107,7 @@ const dataSourcesFilter = scoped
   ? { networks: { id: { equals: catalogueRouteParam } } }
   : undefined;
 
-const { data, error } = await useAsyncData(
+const { data, error } = await useAsyncData<any, IMgError>(
   `lading-page-${catalogueRouteParam}`,
   async () => {
     const models = await $fetch(`/${route.params.schema}/catalogue/graphql`, {
@@ -153,7 +154,9 @@ const { data, error } = await useAsyncData(
 );
 
 if (error.value) {
-  console.log("Error on landing-page data fetch: ", error.value);
+  const contextMsg = "Error on landing-page data fetch";
+  logError(error.value, contextMsg);
+  throw new Error(contextMsg);
 }
 
 function percentageLongitudinal(
