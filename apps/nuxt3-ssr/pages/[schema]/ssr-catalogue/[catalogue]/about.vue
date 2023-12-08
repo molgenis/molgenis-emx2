@@ -17,6 +17,8 @@
           { id: 'privacy', label: 'Privacy' },
           { id: 'terms', label: 'Terms' },
           { id: 'other', label: 'Links' },
+
+          { id: 'version', label: 'Version' },
         ]"
       />
     </template>
@@ -277,11 +279,46 @@
             >
           </p>
         </ContentBlock>
+
+        <ContentBlock id="version" title="Version">
+          <DefinitionList>
+            <template v-for="[term, definition] in Object.entries(manifest)">
+              <DefinitionListTerm>{{ term }}</DefinitionListTerm>
+              <DefinitionListDefinition>
+                {{ definition }}
+              </DefinitionListDefinition>
+            </template>
+          </DefinitionList>
+        </ContentBlock>
       </ContentBlocks>
     </template>
   </LayoutsDetailPage>
 </template>
 
-<script setup>
+<script setup lang="ts">
 useHead({ title: "About" });
+const { data, error } = await useFetch(
+  `/${useRoute().params.schema}/api/graphql`,
+  {
+    key: `manifest`,
+    baseURL: useRuntimeConfig().public.apiBase,
+    method: "POST",
+    body: {
+      query: ` 
+    {
+      _manifest {
+        ImplementationVersion
+        SpecificationVersion
+        DatabaseVersion
+      }
+    }`,
+    },
+  }
+);
+if (error.value) {
+  console.log(error.value);
+  throw new Error(error.value.message);
+}
+
+const manifest = computed(() => data.value.data._manifest);
 </script>
