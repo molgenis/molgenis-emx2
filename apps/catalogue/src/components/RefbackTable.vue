@@ -135,7 +135,9 @@ export default {
       if (row.target?.id) params.target = row.target?.id;
       if (row.targetDataset?.name)
         params.targetDataset = row.targetDataset.name;
-      console.log('hoi '+JSON.stringify(row)+ " => "+JSON.stringify(params))
+      console.log(
+        "hoi " + JSON.stringify(row) + " => " + JSON.stringify(params)
+      );
 
       //good guessing the parameters :-)
       this.$router.push({

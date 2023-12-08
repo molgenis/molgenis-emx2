@@ -13,11 +13,11 @@
     </div>
     <h6 class="d-inline">{{ resourceType }}:&nbsp;</h6>
     <RouterLink
-        :to="{
+      :to="{
         name: convertToPascalCase(resourceType) + '-details',
         params: { id: resource },
       }"
-    >{{ dataset.resource.id }}
+      >{{ dataset.resource.id }}
     </RouterLink>
     <h1>Dataset: {{ dataset.name }}</h1>
     <p>{{ dataset.description ? dataset.description : "Description: N/A" }}</p>
@@ -120,7 +120,7 @@ export default {
     ...mapGetters(["canEdit", "canManage"]),
     resourceType() {
       if (this.dataset) {
-        return this.dataset.resource.mg_tableclass.split('.')[1];
+        return this.dataset.resource.mg_tableclass.split(".")[1];
       }
     },
   },
@@ -211,7 +211,7 @@ export default {
         }
       });
       return result;
-    }
+    },
   },
   created() {
     this.reload();
