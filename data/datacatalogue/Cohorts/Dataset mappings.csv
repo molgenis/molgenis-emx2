@@ -1,4 +1,6 @@
 source,source dataset,target,target dataset,order,description,syntax
+DHL,CPA1,OOM_CDM,EVENTS,,,
+DHL,CPA2,OOM_CDM,EVENTS,,,
 AP,AP,OOM_CDM,VISIT_OCCURRENCE,,"For each record 
  ● Create a record of VISIT_OCCURRENCE and label the records with a unique code stored in visit_occurrence_id (primary key)
  ● Copy the values of AP into VISIT_OCCURRENCE according to the following table",
