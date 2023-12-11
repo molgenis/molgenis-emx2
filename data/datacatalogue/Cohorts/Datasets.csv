@@ -1,4 +1,6 @@
 resource,name,label,unit of observation,keywords,description,number of rows,since version,until version
+DHL,CPA2,,,,,,1.0,
+DHL,CPA1,,,,,,1.0,
 ANAGRAFICA,ANAGRAFICA,,,,,,1.0,
 AP,AP,,,,,,1.0,
 ARS_ANAG_MED_RES_storico,ARS_ANAG_MED_RES_storico,,,,,,1.0,

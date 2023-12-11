@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
 import cohortsQuery from "~~/gql/cohorts";
-import datasourcesQuery from "~~/gql/datasources";
 import variablesQuery from "~~/gql/variables";
 import fileFragment from "~~/gql/fragments/file";
 import type { INetwork } from "~/interfaces/types";
@@ -46,13 +45,10 @@ const query = gql`
       models {
         id
       }
-    }
-    Cohorts_agg(filter: { networks: { id: { equals: [$id] } } }) {
-      count
-    }
-    cohorts {
+      cohorts {
         id, name, type {name}, description
       }
+      cohorts_agg{count}
       dataSources_agg{count}
       dataSources {
         id, name, type {name}, description
@@ -108,7 +104,7 @@ async function fetchVariableCount(models: { id: string }[]) {
     body: { query, variables: networkVariablesFilter.value },
   });
 
-  networkVariablesCount.value = data.value.data.Variables_agg.count;
+  networkVariablesCount.value = data.value?.data.Variables_agg.count;
 }
 
 let tocItems = computed(() => {
@@ -151,10 +147,10 @@ let tocItems = computed(() => {
     });
   }
 
-  if (networkData.value.data.Cohorts_agg.count > 0) {
+  if (network?.cohorts_agg.count > 0) {
     tableOffContents.push({ label: "Cohorts", id: "cohorts" });
   }
-  if (networkData?.dataSources_agg.count > 0) {
+  if (network?.dataSources_agg.count > 0) {
     tableOffContents.push({ label: "Data sources", id: "datasources" });
   }
 
@@ -170,7 +166,7 @@ let accessConditionsItems = computed(() => {
   if (network?.dataAccessConditions?.length) {
     items.push({
       label: "Conditions",
-      content: cohort.dataAccessConditions.map((c) => c.name),
+      content: network.dataAccessConditions.map((c) => c.name),
     });
   }
   if (network?.releaseDescription) {
@@ -255,17 +251,10 @@ function variableMapper(variable: {
 useHead({ title: network?.acronym || network?.name });
 
 const crumbs = {};
-if (route.params.catalogue) {
-  crumbs[
-    `${route.params.catalogue}`
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
-  crumbs[
-    "about"
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/about`;
-} else {
-  crumbs["Home"] = `/${route.params.schema}/ssr-catalogue`;
-  crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
-}
+crumbs[
+  route.params.catalogue
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+crumbs["Networks"] = `/${route.params.schema}/ssr-catalogue/networks`;
 </script>
 <template>
   <LayoutsDetailPage>
@@ -364,7 +353,7 @@ if (route.params.catalogue) {
         </ContentBlock>
 
         <TableContent
-          v-if="networkData.data.Cohorts_agg.count > 0"
+          v-if="network.cohorts_agg?.count > 0"
           id="cohorts"
           title="Cohorts"
           description="A list of cohorts you can explore."
@@ -383,7 +372,7 @@ if (route.params.catalogue) {
         </TableContent>
 
         <TableContent
-          v-if="network.dataSources_agg?.count > 0"
+          v-if="network?.dataSources_agg?.count > 0"
           id="datasources"
           title="Data sources"
           description="Datasources connected in this network"

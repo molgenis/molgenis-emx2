@@ -575,7 +575,7 @@ public class SqlQuery extends QueryBean {
                     column,
                     tableAlias,
                     select,
-                    null,
+                    select.getFilter(),
                     new String[0])
                 .as(convertToCamelCase(select.getColumn())));
       } else if (column.isReference() && select.getColumn().endsWith("_groupBy")) {
@@ -586,7 +586,7 @@ public class SqlQuery extends QueryBean {
                     column,
                     tableAlias,
                     select,
-                    null,
+                    select.getFilter(),
                     new String[0])
                 .as(convertToCamelCase(select.getColumn())));
       } else if (column.isReference()) {

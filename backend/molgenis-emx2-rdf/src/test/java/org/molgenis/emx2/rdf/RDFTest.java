@@ -45,8 +45,6 @@ public class RDFTest {
   static Schema compositeKeyTest;
   static Schema ontologyTest;
 
-  static RDFService rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
-
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
@@ -58,7 +56,7 @@ public class RDFTest {
     petStoreSchemas = List.of(petStore_nr1, petStore_nr2);
 
     // Test schema for composite keys
-    compositeKeyTest = database.dropCreateSchema(RDFTest.class.getSimpleName());
+    compositeKeyTest = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_compositeKey");
     compositeKeyTest.create(
         table("Patients", column("firstName").setPkey(), column("lastName").setPkey()),
         table(
@@ -267,7 +265,9 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(compositeKeyTest), handler);
     var subjectWithCompositeKey =
-        "http://localhost:8080/RDFTest/api/rdf/Samples/aWQ=&c2FtcGxlMQ==;cGF0aWVudC5maXJzdE5hbWU=&RG9uYWxk;cGF0aWVudC5sYXN0TmFtZQ==&RHVjaw==";
+        "http://localhost:8080/"
+            + compositeKeyTest.getName()
+            + "/api/rdf/Samples/aWQ=&c2FtcGxlMQ==;cGF0aWVudC5maXJzdE5hbWU=&RG9uYWxk;cGF0aWVudC5sYXN0TmFtZQ==&RHVjaw==";
     var iris = handler.resources.keySet().stream().map(Objects::toString).toList();
     assertTrue(
         iris.contains(subjectWithCompositeKey),
@@ -281,7 +281,8 @@ public class RDFTest {
     var rowId =
         "aWQ=&c2FtcGxlMQ==;cGF0aWVudC5maXJzdE5hbWU=&RG9uYWxk;cGF0aWVudC5sYXN0TmFtZQ==&RHVjaw==";
     getAndParseRDF(Selection.ofRow(compositeKeyTest, "Samples", rowId), handler);
-    var subjectWithCompositeKey = "http://localhost:8080/RDFTest/api/rdf/Samples/" + rowId;
+    var subjectWithCompositeKey =
+        "http://localhost:8080/" + compositeKeyTest.getName() + "/api/rdf/Samples/" + rowId;
     var iris = handler.resources.keySet().stream().map(Objects::toString).toList();
     assertTrue(
         iris.contains(subjectWithCompositeKey),
@@ -489,6 +490,66 @@ public class RDFTest {
     assertEquals(0, instancesWithOutALabel, "All instances should have a label.");
   }
 
+  @Test
+  void testSubClassesForInheritedTable() throws IOException {
+    Schema schema = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_InheritTable");
+    Table root = schema.create(table("root", column("id").setPkey()));
+    Table child = schema.create(table("child", column("name")).setInheritName("root"));
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(schema, child.getName()), handler);
+    var rootIRI =
+        Values.iri(
+            "http://localhost:8080/" + schema.getName() + "/api/rdf/" + root.getIdentifier());
+    var childIRI =
+        Values.iri(
+            "http://localhost:8080/" + schema.getName() + "/api/rdf/" + child.getIdentifier());
+    var cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
+    var subclasses = handler.resources.get(childIRI).get(RDFS.SUBCLASSOF);
+    assertEquals(
+        2,
+        subclasses.size(),
+        "Tables that inherit from another table are expected to be only a subclass of that table and DataSet.\n"
+            + "Actual result: "
+            + subclasses);
+    assertTrue(subclasses.contains(rootIRI), "Table is expected to be a subclass of it's parent");
+    assertFalse(
+        subclasses.contains(OWL.THING),
+        "Subclasses are not expected to be a direct subclass of owl:Thing");
+    assertTrue(
+        subclasses.contains(cubeDataSetIRI),
+        "Subclasses are expected to be a subclass of cube@DataSet");
+  }
+
+  @Test
+  void testSubClassRootTables() throws IOException {
+    Schema schema = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_RootTable");
+    Table root = schema.create(table("root", column("id").setPkey()));
+    Table child = schema.create(table("child", column("name")).setInheritName("root"));
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(schema, root.getName()), handler);
+    var rootIRI =
+        Values.iri(
+            "http://localhost:8080/" + schema.getName() + "/api/rdf/" + root.getIdentifier());
+    var childIRI =
+        Values.iri(
+            "http://localhost:8080/" + schema.getName() + "/api/rdf/" + child.getIdentifier());
+    var cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
+    var subclasses = handler.resources.get(rootIRI).get(RDFS.SUBCLASSOF);
+    assertEquals(
+        2,
+        subclasses.size(),
+        "Tables that do not inherit from another table are expected to be only a subclass owl:Thing and cube#DataSet.\n"
+            + "Actual result: "
+            + subclasses);
+    assertFalse(subclasses.contains(rootIRI), "Table can't be its own parent.");
+    assertTrue(
+        subclasses.contains(OWL.THING),
+        "Subclasses are not expected to be a direct subclass of owl:Thing");
+    assertTrue(
+        subclasses.contains(cubeDataSetIRI),
+        "Subclasses are expected to be a subclass of cube@DataSet");
+  }
+
   /**
    * Helper method to reduce boilerplate code in the tests.<br>
    * <b>Note</b> this method delegates to the handler for the results of parsing.
@@ -499,6 +560,7 @@ public class RDFTest {
    */
   private void getAndParseRDF(Selection selection, RDFHandler handler) throws IOException {
     OutputStream outputStream = new ByteArrayOutputStream();
+    var rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
     rdf.describeAsRDF(
         outputStream, selection.table, selection.rowId, selection.columnName, selection.schemas);
     String result = outputStream.toString();
