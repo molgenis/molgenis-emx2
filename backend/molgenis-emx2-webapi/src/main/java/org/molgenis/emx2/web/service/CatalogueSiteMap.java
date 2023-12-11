@@ -39,11 +39,11 @@ public class CatalogueSiteMap {
 
       resourceTypes.forEach(
           resource -> {
-            List<String> pids = getResourcePids(schema, resource);
-            pids.forEach(
-                pid -> {
+            List<String> ids = getResourceIds(schema, resource);
+            ids.forEach(
+                id -> {
                   try {
-                    wsg.addUrl(urlForResource(resourceBasePath, resource, pid));
+                    wsg.addUrl(urlForResource(resourceBasePath, resource, id));
                   } catch (MalformedURLException e) {
                     logger.error(
                         "Failed to generate sitemap url (schema: ("
@@ -51,7 +51,7 @@ public class CatalogueSiteMap {
                             + " , resource: "
                             + resource
                             + " , pid: "
-                            + pid,
+                            + id,
                         e);
                   }
                 });
@@ -65,19 +65,19 @@ public class CatalogueSiteMap {
     }
   }
 
-  private List<String> getResourcePids(Schema schema, String resourceName) {
+  private List<String> getResourceIds(Schema schema, String resourceName) {
     Table table = schema.getTable(resourceName);
     if (table == null) {
       return Collections.emptyList();
     }
-    List<Row> rows = table.select(s("pid")).retrieveRows();
-    return rows.stream().map(row -> row.getString("pid")).toList();
+    List<Row> rows = table.select(s("id")).retrieveRows();
+    return rows.stream().map(row -> row.getString("id")).toList();
   }
 
   private WebSitemapUrl urlForResource(
       String resourceBasePath, String resourceName, String resourceId)
       throws MalformedURLException {
-    return new WebSitemapUrl.Options(resourceBasePath + "/" + resourceName + "/" + resourceId)
+    return new WebSitemapUrl.Options(resourceBasePath + "/all/" + resourceName + "/" + resourceId)
         .build();
   }
 }

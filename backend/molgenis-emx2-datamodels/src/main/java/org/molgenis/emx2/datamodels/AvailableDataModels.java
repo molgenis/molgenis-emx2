@@ -10,6 +10,7 @@ public enum AvailableDataModels {
   PET_STORE(new PetStoreLoader()),
   FAIR_DATA_HUB(new FAIRDataHubLoader()),
   RD3(new Rd3Loader()),
+  JRC_COMMON_DATA_ELEMENTS(new JRCCDELoader()),
   ERN_DASHBOARD(new DashboardLoader()),
   ERN_CRANIO(new ErnCranioLoader()),
   BIOBANK_DIRECTORY(new BiobankDirectoryLoader());

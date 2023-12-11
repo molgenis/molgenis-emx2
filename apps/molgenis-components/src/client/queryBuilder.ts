@@ -19,40 +19,40 @@ export const getColumnIds = (
   rootLevel = true
 ) => {
   let result = "";
-  getTable(schemaId, tableId, metaData.tables)?.columns?.forEach((col: IColumn) => {
-    //we always expand the subfields of key=1, but other 'ref' fields only if they do not break server
-    if (expandLevel > 0 || col.key == 1) {
-      if (
-        !rootLevel &&
-        ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)
-      ) {
-        //skip
-      } else if (["REF", "REF_ARRAY", "REFBACK"].includes(col.columnType)) {
-        if (col.refTableId == null) {
-          throw "refTableId missing for column" + tableId + "." + col.id;
+  getTable(schemaId, tableId, metaData.tables)?.columns?.forEach(
+    (col: IColumn) => {
+      //we always expand the subfields of key=1, but other 'ref' fields only if they do not break server
+      if (expandLevel > 0 || col.key == 1) {
+        if (
+          !rootLevel &&
+          ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)
+        ) {
+          //skip
+        } else if (["REF", "REF_ARRAY", "REFBACK"].includes(col.columnType)) {
+          result =
+            result +
+            " " +
+            col.id +
+            " {" +
+            getColumnIds(
+              col.refSchemaId || schemaId,
+              col.refTableId,
+              metaData,
+              //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
+              expandLevel - 1,
+              false
+            ) +
+            " }";
+        } else if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
+          result = result + " " + col.id + " {name, label}";
+        } else if (col.columnType === "FILE") {
+          result += ` ${col.id} { id, size, extension, url }`;
+        } else if (col.columnType !== "HEADING") {
+          result += ` ${col.id}`;
         }
-        result +=
-          " " +
-          col.id +
-          " {" +
-          getColumnIds(
-            col.refSchemaId || schemaId,
-            col.refTableId,
-            metaData,
-            //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
-            expandLevel - 1,
-            false
-          ) +
-          " }";
-      } else if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
-        result += ` ${col.id}  {name, label}`;
-      } else if (col.columnType === "FILE") {
-        result += ` ${col.id} { id, size, extension, url }`;
-      } else if (col.columnType !== "HEADING") {
-        result += ` ${col.id}`;
       }
     }
-  });
+  );
 
   return result;
 };

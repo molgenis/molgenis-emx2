@@ -1,242 +1,134 @@
 <script setup lang="ts">
+import type { IFilter } from "~/interfaces/types";
+
+//add redirect middleware for cohortOnly to skip this page
+definePageMeta({
+  middleware: [
+    function (to, from) {
+      const cohortOnly =
+        to.query["cohort-only"] === "true" ||
+        useRuntimeConfig().public.cohortOnly;
+      if (cohortOnly) {
+        return navigateTo(`/${to.params.schema}/ssr-catalogue/all`, {
+          replace: true,
+        });
+      }
+    },
+  ],
+});
+
+useHead({ title: "Health Data and Samples Catalogue" });
+
 const route = useRoute();
 const config = useRuntimeConfig();
 
-const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+let filters: IFilter[] = reactive([
   {
-    baseURL: config.public.apiBase,
-    method: "POST",
-    body: {
-      query: `{
-        Variables_agg {
-          count
+    title: "Search in catalogues",
+    columnType: "_SEARCH",
+    search: "",
+    initialCollapsed: false,
+  },
+]);
+
+let search = computed(() => {
+  // @ts-ignore
+  return filters.find((f) => f.columnType === "_SEARCH").search;
+});
+
+const query = computed(() => {
+  return `
+  query Catalogues($filter:CataloguesFilter){
+    Catalogues(filter:$filter) {
+      network {
+        id
+        name
+        acronym
+        description
+        logo {
+          id
+          size
+          extension
+          url
         }
-        Cohorts_agg { 
-          count
-          sum {
-            numberOfParticipants
-            numberOfParticipantsWithSamples 
-          }
-        }
-        Subcohorts_agg {
-          count
-        }
-        Networks_agg { 
-          count
-        }
-        Cohorts_groupBy {
-          count 
-          design {
-            name
-          }
-        }
-        _settings (keys: [
-          "NOTICE_SETTING_KEY"
-          "CATALOGUE_LANDING_TITLE" 
-          "CATALOGUE_LANDING_DESCRIPTION" 
-          "CATALOGUE_LANDING_COHORTS_CTA"
-          "CATALOGUE_LANDING_COHORTS_TEXT"
-          "CATALOGUE_LANDING_NETWORKS_CTA"
-          "CATALOGUE_LANDING_NETWORKS_TEXT"
-          "CATALOGUE_LANDING_VARIABLES_CTA"
-          "CATALOGUE_LANDING_VARIABLES_TEXT"
-          "CATALOGUE_LANDING_PARTICIPANTS_LABEL"
-          "CATALOGUE_LANDING_PARTICIPANTS_TEXT"
-          "CATALOGUE_LANDING_SAMPLES_LABEL"
-          "CATALOGUE_LANDING_SAMPLES_TEXT"
-          "CATALOGUE_LANDING_DESIGN_LABEL"
-          "CATALOGUE_LANDING_DESIGN_TEXT"
-          "CATALOGUE_LANDING_SUBCOHORTS_LABEL"
-          "CATALOGUE_LANDING_SUBCOHORTS_TEXT"
-        ]){ 
-          key
-          value 
-        }
-      }`,
-    },
+      }
+      type {name}
+    }
+    Catalogues_agg (filter:$filter){
+      count
+    }
   }
-);
+  `;
+});
 
-function percentageLongitudinal(
-  cohortsGroupBy: { count: number; design: { name: string } }[],
-  total: number
-) {
-  const nLongitudinal = cohortsGroupBy.reduce(
-    (accum, group) =>
-      group?.design?.name === "Longitudinal" ? accum + group.count : accum,
-    0
-  );
+const filter = computed(() => buildQueryFilter(filters, search.value));
 
-  return Math.round((nLongitudinal / total) * 100);
-}
+let graphqlURL = computed(() => `/${route.params.schema}/api/graphql`);
+const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
+  key: "catalogues",
+  baseURL: config.public.apiBase,
+  method: "POST",
+  body: {
+    query,
+    variables: { filter },
+  },
+});
+let activeName = ref("compact");
 
-function getSettingValue(settingKey: string, settings: ISetting[]) {
-  return settings.find((setting: { key: string; value: string }) => {
-    return setting.key === settingKey;
-  })?.value;
-}
+const thematicCatalogues = computed(() => {
+  let result = data?.value?.data?.Catalogues
+    ? data.value?.data?.Catalogues?.filter((c) => c.type?.name === "theme")
+    : [];
+  result.sort((a, b) => a.network.id.localeCompare(b.network.id));
+  return result;
+});
+const projectCatalogues = computed(() => {
+  let result = data?.value?.data?.Catalogues
+    ? data.value?.data?.Catalogues?.filter((c) => c.type?.name === "project")
+    : [];
+  result.sort((a, b) => a.network.id.localeCompare(b.network.id));
+  return result;
+});
 </script>
+
 <template>
-  <LayoutsLandingPage class="w-10/12 pt-8">
+  <LayoutsLandingPage>
     <PageHeader
-      class="mx-auto lg:w-7/12 text-center"
-      :title="
-        getSettingValue('CATALOGUE_LANDING_TITLE', data.data._settings) ||
-        'European Networks Health Data & Cohort Catalogue.'
-      "
-      :description="
-        getSettingValue('CATALOGUE_LANDING_DESCRIPTION', data.data._settings) ||
-        'Browse and manage metadata for data resources, such as cohorts, registries, biobanks, and multi-center collaborations thereof such as networks, common data models and studies.'
-      "
-    ></PageHeader>
-
-    <div
-      class="bg-white relative justify-around flex flex-col md:flex-row px-5 py-12 antialiased lg:pb-10 lg:px-0 rounded-t-3px rounded-b-landing shadow-primary"
+      title="European Health Research Data and Sample Catalogue"
+      description="A collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens health."
+      :truncate="false"
     >
-      <LandingCardPrimary
-        image="image-link"
-        title="Cohorts"
-        :description="
-          getSettingValue(
-            'CATALOGUE_LANDING_COHORTS_TEXT',
-            data.data._settings
-          ) || 'A complete overview of all cohorts and biobanks.'
-        "
-        :callToAction="
-          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
-        "
-        :count="data.data.Cohorts_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
-      />
-      <LandingCardPrimary
-        v-if="!config.public.cohortOnly"
-        image="image-diagram"
-        title="Networks"
-        :description="
-          getSettingValue(
-            'CATALOGUE_LANDING_NETWORKS_TEXT',
-            data.data._settings
-          ) ||
-          'Collaborations of multiple institutions and/or cohorts with a common objective.'
-        "
-        :callToAction="
-          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', data.data._settings)
-        "
-        :count="data.data.Networks_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/networks/`"
-      />
-      <LandingCardPrimary
-        v-if="!config.public.cohortOnly"
-        image="image-diagram-2"
-        title="Variables"
-        :description="
-          getSettingValue(
-            'CATALOGUE_LANDING_VARIABLES_TEXT',
-            data.data._settings
-          ) || 'A complete overview of available variables.'
-        "
-        :callToAction="
-          getSettingValue(
-            'CATALOGUE_LANDING_VARIABLES_CTA',
-            data.data._settings
-          )
-        "
-        :count="data.data.Variables_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/variables/`"
-      />
-    </div>
-
-    <div
-      class="justify-around flex flex-col md:flex-row pt-5 pb-5 lg:pb-10 lg:px-0"
-    >
-      <LandingCardSecondary icon="people">
-        <b>
-          {{
-            new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg.sum.numberOfParticipants
-            )
-          }}
-          {{
-            getSettingValue(
-              "CATALOGUE_LANDING_PARTICIPANTS_LABEL",
-              data.data._settings
-            ) || "Participants"
-          }}
-        </b>
-        <br />{{
-          getSettingValue(
-            "CATALOGUE_LANDING_PARTICIPANTS_TEXT",
-            data.data._settings
-          ) ||
-          "The cumulative number of participants of all (sub)cohorts combined."
-        }}
-      </LandingCardSecondary>
-
-      <LandingCardSecondary icon="colorize">
-        <b
-          >{{
-            new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
-            )
-          }}
-          {{
-            getSettingValue(
-              "CATALOGUE_LANDING_SAMPLES_LABEL",
-              data.data._settings
-            ) || "Samples"
-          }}</b
+      <template #suffix>
+        <div
+          class="relative justify-center flex flex-col md:flex-row text-title"
         >
-        <br />{{
-          getSettingValue(
-            "CATALOGUE_LANDING_SAMPLES_TEXT",
-            data.data._settings
-          ) ||
-          "The cumulative number of participants with samples collected of all (sub)cohorts combined"
-        }}
-      </LandingCardSecondary>
-
-      <LandingCardSecondary icon="schedule">
-        <b
-          >{{
-            getSettingValue(
-              "CATALOGUE_LANDING_DESIGN_LABEL",
-              data.data._settings
-            ) || "Longitudinal"
-          }}
-          {{
-            percentageLongitudinal(
-              data.data.Cohorts_groupBy,
-              data.data.Cohorts_agg.count
-            )
-          }}%</b
-        ><br />{{
-          getSettingValue(
-            "CATALOGUE_LANDING_DESIGN_TEXT",
-            data.data._settings
-          ) || "Percentage of longitudinal datasets. The remaining datasets are"
-        }}
-        cross-sectional.
-      </LandingCardSecondary>
-
-      <LandingCardSecondary icon="viewTable">
-        <b>
-          {{ data.data.Subcohorts_agg.count }}
-          {{
-            getSettingValue(
-              "CATALOGUE_LANDING_SUBCOHORTS_LABEL",
-              data.data._settings
-            ) || "Subcohorts"
-          }}
-        </b>
-        <br />
-        {{
-          getSettingValue(
-            "CATALOGUE_LANDING_SUBCOHORTS_TEXT",
-            data.data._settings
-          ) || "The total number of subcohorts included"
-        }}
-      </LandingCardSecondary>
-    </div>
+          <div class="flex flex-col items-center max-w-sm lg:mt-5">
+            <NuxtLink :to="`/${route.params.schema}/ssr-catalogue/all`">
+              <Button label="Search all" />
+            </NuxtLink>
+            <p
+              class="mt-1 mb-0 text-center lg:mt-10 text-body-lg"
+              v-if="
+                thematicCatalogues.length > 0 || projectCatalogues.length > 0
+              "
+            >
+              or select a specific catalogue below:
+            </p>
+          </div>
+        </div>
+      </template>
+    </PageHeader>
+    <ContentBlockCatalogues
+      v-if="thematicCatalogues.length > 0"
+      title="Thematic catalogues"
+      description="Catalogues focused on a particular theme, developed by a collaboration of projects, networks and/or organisations:"
+      :catalogues="thematicCatalogues"
+    />
+    <ContentBlockCatalogues
+      v-if="projectCatalogues.length > 0"
+      title="Project catalogues"
+      description="Catalogues maintained by individual research projects or consortia, such as EC RIA."
+      :catalogues="projectCatalogues"
+    />
   </LayoutsLandingPage>
 </template>

@@ -1,5 +1,4 @@
 import { describe, expect, test } from "vitest";
-import { ITableMetaData } from "../../../Interfaces/ITableMetaData";
 import constants from "../../constants.js";
 import {
   filterVisibleColumns,
@@ -8,8 +7,9 @@ import {
   getSaveDisabledMessage,
   removeKeyColumns,
   splitColumnIdsByHeadings,
+  isMissingValue,
 } from "./formUtils";
-import { IColumn } from "../../../Interfaces/IColumn";
+import type { ITableMetaData, IColumn } from "meta-data-utils";
 const { AUTO_ID, HEADING } = constants;
 
 describe("getRowErrors", () => {
@@ -338,5 +338,27 @@ describe("getSaveDisabledMessage", () => {
     const rowErrors = { id1: "some error", id2: "another error" };
     const result = getSaveDisabledMessage(rowErrors);
     expect(result).to.equal("There are 2 error(s) preventing saving");
+  });
+});
+
+describe("isMissingValue", () => {
+  test("should return true if variable is considered to be missing", () => {
+    expect(isMissingValue(undefined)).toBe(true);
+    expect(isMissingValue(null)).toBe(true);
+    expect(isMissingValue("")).toBe(true);
+  });
+
+  test("should return false if variable is considered not to be missing", () => {
+    expect(isMissingValue(0)).toBe(false);
+    expect(isMissingValue(false)).toBe(false);
+    expect(isMissingValue("field1")).toBe(false);
+  });
+
+  test("should handle (nested) arrays correctly", () => {
+    expect(isMissingValue([0])).toBe(false);
+    expect(isMissingValue([1, 2, 3])).toBe(false);
+    expect(isMissingValue([null, "field1", ""])).toBe(true);
+    expect(isMissingValue([["field1", "field2"], "field3"])).toBe(false);
+    expect(isMissingValue([[undefined, "field1"], "field2"])).toBe(true);
   });
 });

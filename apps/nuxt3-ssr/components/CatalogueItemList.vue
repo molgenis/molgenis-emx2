@@ -62,7 +62,7 @@ function showAsFile(item: DefinitionListItem) {
       <dd class="col-span-2" :class="{ 'mb-2.5': small }">
         <ContentOntology
           v-if="item?.type === 'ONTOLOGY'"
-          :tree="item.content"
+          :tree="buildOntologyTree(item.content)"
           :collapse-all="true"
         ></ContentOntology>
 

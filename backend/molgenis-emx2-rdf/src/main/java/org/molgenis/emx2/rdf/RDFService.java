@@ -2,19 +2,15 @@ package org.molgenis.emx2.rdf;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.FilterBean.and;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.RDFUtils.*;
 
 import com.google.common.net.UrlEscapers;
 import java.io.OutputStream;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
@@ -124,7 +120,10 @@ public class RDFService {
     this.rdfFormat = format == null ? RDFFormat.TURTLE : format;
 
     this.config = new WriterConfig();
-    this.config.set(BasicWriterSettings.INLINE_BLANK_NODES, true);
+    // Rio documentation says that it takes a lot of memory for large datasets and should be set to
+    // false. Setting this to off brought down the time to download the CatalogueOntologies to
+    // seconds.
+    this.config.set(BasicWriterSettings.INLINE_BLANK_NODES, false);
   }
 
   /**
@@ -266,15 +265,13 @@ public class RDFService {
     final IRI subject = getTableIRI(table);
     builder.add(subject, RDF.TYPE, OWL.CLASS);
     builder.add(subject, RDFS.SUBCLASSOF, IRI_DATASET_CLASS);
-    builder.add(subject, RDFS.SUBCLASSOF, IRI_DATABASE_TABLE);
-    builder.add(subject, RDFS.SUBCLASSOF, OWL.THING);
-    // Specify the tables that this table inherits from.
     Table parent = table.getInheritedTable();
-    while (parent != null) {
+    // A table is a subclass of owl:Thing or of it's direct parent
+    if (parent == null) {
+      builder.add(subject, RDFS.SUBCLASSOF, OWL.THING);
+    } else {
       builder.add(subject, RDFS.SUBCLASSOF, getTableIRI(parent));
-      parent = parent.getInheritedTable();
     }
-
     if (table.getMetadata().getSemantics() != null) {
       for (final String tableSemantics : table.getMetadata().getSemantics()) {
         builder.add(subject, RDFS.ISDEFINEDBY, iri(tableSemantics));
@@ -295,21 +292,31 @@ public class RDFService {
 
   private void describeColumns(
       final ModelBuilder builder, final Table table, final String columnName) {
-    for (final Column column : table.getMetadata().getColumns()) {
-      // Exclude the system columns like mg_insertedBy
-      if (column.isSystemColumn()) {
-        continue;
+    if (table.getMetadata().getTableType() == TableType.DATA) {
+      for (final Column column : table.getMetadata().getColumns()) {
+        // Exclude the system columns like mg_insertedBy
+        if (column.isSystemColumn()) {
+          continue;
+        }
+        if (columnName == null || columnName.equals(column.getName())) {
+          describeColumn(builder, column);
+        }
       }
-      if (columnName == null || columnName.equals(column.getName())) {
-        describeColumn(builder, column);
-      }
+    } else {
+      // For ontology tables we don't define the columns as predicates.
     }
   }
 
   private IRI getColumnIRI(final Column column) {
-    // TODO: In case of a column that is defined in a parent table the IRI should be the same
-    final TableMetadata table = column.getTable();
-    final Schema schema = table.getTable().getSchema();
+    TableMetadata table = column.getTable();
+    Schema schema = table.getTable().getSchema();
+    final Database db = schema.getDatabase();
+    while (table.getLocalColumn(column.getName()) == null) {
+      var inherited = table.getInheritedTable();
+      // Don't use the copy from the inherited table metadata, because that might not be complete.
+      schema = db.getSchema(inherited.getSchemaName());
+      table = schema.getTable(inherited.getTableName()).getMetadata();
+    }
     final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(table.getIdentifier());
     final String columnName = UrlEscapers.urlPathSegmentEscaper().escape(column.getIdentifier());
     final Namespace ns = getSchemaNamespace(schema);
@@ -323,8 +330,13 @@ public class RDFService {
       Table refTable = column.getRefTable().getTable();
       builder.add(subject, RDFS.RANGE, getTableIRI(refTable));
     } else {
-      builder.add(subject, RDF.TYPE, OWL.DATATYPEPROPERTY);
-      builder.add(subject, RDFS.RANGE, columnTypeToXSD(column.getColumnType()));
+      var type = column.getColumnType();
+      if (type == ColumnType.HYPERLINK || type == ColumnType.HYPERLINK_ARRAY) {
+        builder.add(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
+      } else {
+        builder.add(subject, RDF.TYPE, OWL.DATATYPEPROPERTY);
+        builder.add(subject, RDFS.RANGE, columnTypeToXSD(column.getColumnType()));
+      }
     }
     builder.add(subject, RDFS.LABEL, column.getName());
     builder.add(subject, RDFS.DOMAIN, getTableIRI(column.getTable().getTable()));
@@ -387,38 +399,82 @@ public class RDFService {
     final IRI tableIRI = getTableIRI(table);
     for (final Row row : getRows(table, rowId)) {
       IRI subject = getIriForRow(row, table.getMetadata());
-      builder.add(subject, RDF.TYPE, tableIRI);
+
       if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
         builder.add(subject, RDF.TYPE, IRI_CODED_VALUE_DATATYPE);
+        builder.add(subject, RDF.TYPE, OWL.CLASS);
+        builder.add(subject, RDFS.SUBCLASSOF, tableIRI);
+
+        if (row.getString("name") != null) {
+          builder.add(subject, RDFS.LABEL, Values.literal(row.getString("name")));
+        }
+        if (row.getString("label") != null) {
+          builder.add(subject, RDFS.LABEL, Values.literal(row.getString("label")));
+        }
+        if (row.getString("code") != null) {
+          builder.add(subject, SKOS.NOTATION, Values.literal(row.getString("code")));
+        }
+        if (row.getString("codesystem") != null) {
+          builder.add(
+              subject, IRI_CONTROLLED_VOCABULARY, Values.literal(row.getString("codesystem")));
+        }
+        if (row.getString("definition") != null) {
+          builder.add(subject, RDFS.ISDEFINEDBY, Values.literal(row.getString("definition")));
+        }
         if (row.getString(ONTOLOGY_TERM_URI) != null) {
-          builder.add(subject, RDFS.ISDEFINEDBY, iri(row.getString(ONTOLOGY_TERM_URI)));
+          builder.add(subject, OWL.SAMEAS, Values.iri(row.getString(ONTOLOGY_TERM_URI)));
+        }
+        if (row.getString("parent") != null) {
+          List<IRI> parents = getIriValue(row, table.getMetadata().getColumn("parent"));
+          for (var parent : parents) {
+            builder.add(subject, RDFS.SUBCLASSOF, parent);
+          }
         }
       } else {
+        builder.add(subject, RDF.TYPE, tableIRI);
         builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
-      }
-      builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
+        builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
+        builder.add(subject, RDFS.LABEL, Values.literal(getLabelForRow(row, table.getMetadata())));
 
-      for (final Column column : table.getMetadata().getColumns()) {
-        // Exclude the system columns like mg_insertedBy
-        if (column.isSystemColumn()) {
-          continue;
-        }
-        IRI columnIRI = getColumnIRI(column);
-        for (final Value value : formatValue(row, column)) {
-          builder.add(subject, columnIRI, value);
+        for (final Column column : table.getMetadata().getColumns()) {
+          // Exclude the system columns like mg_insertedBy
+          if (column.isSystemColumn()) {
+            continue;
+          }
+          IRI columnIRI = getColumnIRI(column);
+          for (final Value value : formatValue(row, column)) {
+            builder.add(subject, columnIRI, value);
+            if (column.getColumnType().equals(ColumnType.HYPERLINK)
+                || column.getColumnType().equals(ColumnType.HYPERLINK_ARRAY)) {
+              var resource = Values.iri(value.stringValue());
+              builder.add(resource, RDFS.LABEL, Values.literal(value.stringValue()));
+            }
+          }
         }
       }
     }
   }
 
+  private String getLabelForRow(final Row row, final TableMetadata metadata) {
+    List<String> primaryKeyValues = new ArrayList<>();
+    for (Column column : metadata.getPrimaryKeyColumns()) {
+      if (column.isReference()) {
+        for (final Reference reference : column.getReferences()) {
+          final String value = row.getString(reference.getName());
+          primaryKeyValues.add(value);
+        }
+      } else {
+        primaryKeyValues.add(row.getString(column.getName()));
+      }
+    }
+    return String.join(" ", primaryKeyValues);
+  }
+
   private List<Row> getRows(final Table table, final String rowId) {
     Query query = table.query();
     if (rowId != null) {
-      if (table.getMetadata().getPrimaryKeyFields().size() > 1) {
-        query.where(decodeRowIdToFilter(rowId));
-      } else {
-        query.where(f(table.getMetadata().getPrimaryKeyColumns().get(0).getName(), EQUALS, rowId));
-      }
+      PrimaryKey key = PrimaryKey.makePrimaryKeyFromEncodedKey(rowId);
+      query.where(key.getFilter());
     }
     // If a table is extended then we get only those rows that are for the base table.
     if (table.getMetadata().getColumnNames().contains("mg_tableclass")) {
@@ -426,18 +482,6 @@ public class RDFService {
       query.where(f("mg_tableclass", EQUALS, tableName));
     }
     return query.retrieveRows();
-  }
-
-  private Filter decodeRowIdToFilter(final String rowId) {
-    try {
-      final List<NameValuePair> params =
-          URLEncodedUtils.parse(new URI("?" + rowId), StandardCharsets.UTF_8);
-      final List<Filter> filters =
-          params.stream().map(param -> f(param.getName(), EQUALS, param.getValue())).toList();
-      return and(filters);
-    } catch (Exception e) {
-      throw new MolgenisException("Decode row to filter failed for id " + rowId);
-    }
   }
 
   private IRI getIriForRow(final Row row, final TableMetadata metadata) {
@@ -457,13 +501,8 @@ public class RDFService {
       }
     }
     final Namespace ns = getSchemaNamespace(metadata.getTable().getSchema());
-    if (keyParts.size() == 1) {
-      final String value = UrlEscapers.urlPathSegmentEscaper().escape(keyParts.get(0).getValue());
-      return Values.iri(ns, tableName + "/" + value);
-    } else {
-      final String parameters = URLEncodedUtils.format(keyParts, StandardCharsets.UTF_8);
-      return Values.iri(ns, tableName + "?" + parameters);
-    }
+    PrimaryKey key = new PrimaryKey(keyParts);
+    return Values.iri(ns, tableName + "/" + key.getEncodedValue());
   }
 
   private List<IRI> getIriValue(final Row row, final Column column) {
@@ -476,24 +515,28 @@ public class RDFService {
     for (final Reference reference : column.getReferences()) {
       final String localColumn = reference.getName();
       final String targetColumn = reference.getPath().get(0);
-      final String[] values = row.getStringArray(localColumn);
-      if (values != null) {
-        for (int i = 0; i < values.length; i++) {
-          var keyValuePairs = items.getOrDefault(i, new ArrayList<>());
-          keyValuePairs.add(new BasicNameValuePair(targetColumn, values[i]));
-          items.put(i, keyValuePairs);
+      if (column.isArray()) {
+        final String[] values = row.getStringArray(localColumn);
+        if (values != null) {
+          for (int i = 0; i < values.length; i++) {
+            var keyValuePairs = items.getOrDefault(i, new ArrayList<>());
+            keyValuePairs.add(new BasicNameValuePair(targetColumn, values[i]));
+            items.put(i, keyValuePairs);
+          }
+        }
+      } else {
+        final String value = row.getString(localColumn);
+        if (value != null) {
+          var keyValuePairs = items.getOrDefault(0, new ArrayList<>());
+          keyValuePairs.add(new BasicNameValuePair(targetColumn, value));
+          items.put(0, keyValuePairs);
         }
       }
     }
 
     for (final var item : items.values()) {
-      if (item.size() == 1) {
-        final String value = UrlEscapers.urlPathSegmentEscaper().escape(item.get(0).getValue());
-        iris.add(Values.iri(ns, tableName + "/" + value));
-      } else if (item.size() > 1) {
-        final String parameters = URLEncodedUtils.format(item, StandardCharsets.UTF_8);
-        iris.add(Values.iri(ns, tableName + "?" + parameters));
-      }
+      PrimaryKey key = new PrimaryKey(item);
+      iris.add(Values.iri(ns, tableName + "/" + key.getEncodedValue()));
     }
     return List.copyOf(iris);
   }

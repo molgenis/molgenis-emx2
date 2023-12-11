@@ -49,7 +49,7 @@ public class TestLoaders {
   public void test2DataCatalogueLoader() {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     AvailableDataModels.DATA_CATALOGUE.install(dataCatalogue, true);
-    assertEquals(32, dataCatalogue.getTableNames().size());
+    assertEquals(33, dataCatalogue.getTableNames().size());
 
     // test composite pkey having refs that are linked via refLink
     dataCatalogue
@@ -77,6 +77,6 @@ public class TestLoaders {
   public void test9DirectoryLoader() {
     Schema networkStaging = database.createSchema(DIRECTORY_TEST);
     AvailableDataModels.BIOBANK_DIRECTORY.install(networkStaging, true);
-    assertEquals(33, networkStaging.getTableNames().size());
+    assertEquals(32, networkStaging.getTableNames().size());
   }
 }

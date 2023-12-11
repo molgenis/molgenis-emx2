@@ -8,6 +8,7 @@ const props = withDefaults(
     cohort: ICohort;
     schema: string;
     compact?: boolean;
+    catalogue?: string;
   }>(),
   {
     compact: false,
@@ -43,7 +44,7 @@ const iconStarClasses = computed(() => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/ssr-catalogue/cohorts/${cohort.id}`"
+            :to="`/${schema}/ssr-catalogue/${catalogue}/cohorts/${cohort.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ cohort?.acronym || cohort?.name }}
@@ -62,7 +63,9 @@ const iconStarClasses = computed(() => {
           class="text-blue-500 xl:justify-end"
         />
         -->
-        <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${cohort.id}`">
+        <NuxtLink
+          :to="`/${schema}/ssr-catalogue/${catalogue}/cohorts/${cohort.id}`"
+        >
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"
@@ -72,25 +75,7 @@ const iconStarClasses = computed(() => {
     </header>
 
     <div v-if="!compact">
-      <p class="text-body-base my-5 xl:block hidden">
-        {{ cohort?.description }}
-      </p>
-
-      <p v-if="cohort?.description" class="text-body-base mt-5 block xl:hidden">
-        {{
-          truncate
-            ? `${cohort?.description?.substring(0, cutoff)}...`
-            : cohort?.description
-        }}
-      </p>
-
-      <button
-        v-if="truncate && cohort?.description?.length > cutoff"
-        class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
-        @click="truncate = false"
-      >
-        Read more
-      </button>
+      <ContentReadMore :text="cohort.description" :cutoff="cutoff" />
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>

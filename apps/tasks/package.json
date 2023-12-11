@@ -9,10 +9,10 @@
     "format": "prettier src  --write --config ../.prettierrc.js"
   },
   "dependencies": {
-    "core-js": "3.33.2",
+    "core-js": "3.34.0",
     "graphql-request": "5.2.0",
     "molgenis-components": "*",
-    "vue": "3.3.4",
+    "vue": "3.3.8",
     "vue-router": "4.2.5"
   },
   "devDependencies": {

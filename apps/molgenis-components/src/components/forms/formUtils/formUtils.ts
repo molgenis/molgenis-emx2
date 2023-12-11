@@ -1,6 +1,5 @@
-import { IColumn } from "../../../Interfaces/IColumn";
+import type { IColumn, ITableMetaData } from "meta-data-utils";
 import { IRow } from "../../../Interfaces/IRow";
-import { ITableMetaData } from "../../../Interfaces/ITableMetaData";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
 
@@ -10,7 +9,7 @@ export function getRowErrors(
   tableMetaData: ITableMetaData,
   rowData: Record<string, any>
 ) {
-  return tableMetaData.columns.reduce((accum, column) => {
+  return tableMetaData.columns.reduce((accum, column: IColumn) => {
     accum[column.id] = getColumnError(column, rowData, tableMetaData);
     return accum;
   }, {} as Record<string, string | undefined>);
@@ -18,18 +17,19 @@ export function getRowErrors(
 
 function getColumnError(
   column: IColumn,
-  values: Record<string, any>,
+  rowData: Record<string, any>,
   tableMetaData: ITableMetaData
 ) {
-  const value = values[column.id];
+  const value = rowData[column.id];
   const type = column.columnType;
   const isInvalidNumber = isInValidNumericValue(type, value);
   // FIXME: this function should also check all array types
   // FIXME: longs are not checked
-  const missesValue = value === undefined || value === null || value === "";
+
+  const missesValue = isMissingValue(value);
 
   try {
-    if (!isColumnVisible(column, values, tableMetaData)) {
+    if (!isColumnVisible(column, rowData, tableMetaData)) {
       return undefined;
     }
   } catch (error) {
@@ -58,13 +58,20 @@ function getColumnError(
     return "Invalid hyperlink";
   }
   if (column.validation) {
-    return getColumnValidationError(column.validation, values, tableMetaData);
+    return getColumnValidationError(column.validation, rowData, tableMetaData);
   }
-  if (isRefLinkWithoutOverlap(column, values)) {
+  if (isRefLinkWithoutOverlap(column, rowData)) {
     return `value should match your selection in column '${column.refLinkId}'`;
   }
 
   return undefined;
+}
+
+export function isMissingValue(value: any): boolean {
+  if (Array.isArray(value)) {
+    return value.some((element) => isMissingValue(element));
+  }
+  return value === undefined || value === null || value === "";
 }
 
 function isInValidNumericValue(columnType: string, value: number) {

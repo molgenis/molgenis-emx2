@@ -130,6 +130,7 @@ export default {
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",
         "RD3",
+        "JRC_COMMON_DATA_ELEMENTS",
         "ERN_DASHBOARD",
         "ERN_CRANIO",
         "BIOBANK_DIRECTORY",

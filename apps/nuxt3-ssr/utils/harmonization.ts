@@ -1,4 +1,4 @@
-import {
+import type {
   HarmonizationStatus,
   IVariableWithMappings,
   IVariableBase,

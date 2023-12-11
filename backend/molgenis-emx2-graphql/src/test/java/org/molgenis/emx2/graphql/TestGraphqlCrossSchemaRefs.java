@@ -39,7 +39,9 @@ public class TestGraphqlCrossSchemaRefs {
 
   @Test
   public void test() throws IOException {
-    assertFalse(execute("{_schema{tables{name}}}").toString().contains("Parent"), "schema should NOT return external tables, regression test for #2982 and #2983");
+    assertFalse(
+        execute("{_schema{tables{name}}}").toString().contains("Parent"),
+        "schema should NOT return external tables, regression test for #2982 and #2983");
 
     assertEquals(
         "parent1", execute("{Child{name,parent{name}}}").at("/Child/0/parent/name").asText());
@@ -53,6 +55,14 @@ public class TestGraphqlCrossSchemaRefs {
             .at("/save/message")
             .asText()
             .contains("upserted"));
+  }
+
+  @Test
+  void testCrossSchemaTablesAreInSchemaEndpoint() throws IOException {
+    String result =
+        execute("{_schema{tables{name,id,schemaName,schemaId}}}").at("/_schema").toString();
+    assertTrue(result.contains(schemaName1));
+    assertTrue(result.contains(schemaName2));
   }
 
   private JsonNode execute(String query) throws IOException {

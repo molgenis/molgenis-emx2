@@ -10,3 +10,5 @@ order,name,code,parent,ontologyTermURI,definition
 ,event,,,,
 ,observation,,,,
 ,prescription,,,,
+,surgery,,,,
+,treatment,,,,

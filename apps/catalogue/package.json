@@ -10,11 +10,11 @@
     "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "dependencies": {
-    "core-js": "3.33.2",
+    "core-js": "3.34.0",
     "graphql-request": "5.2.0",
     "import": "^0.0.6",
     "molgenis-components": "*",
-    "vue": "3.3.4",
+    "vue": "3.3.8",
     "vue-router": "4.2.5",
     "vue-tabler-icons": "2.21.0",
     "vue-scrollto": "2.20.0",

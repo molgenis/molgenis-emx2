@@ -575,7 +575,7 @@ public class SqlQuery extends QueryBean {
                     column,
                     tableAlias,
                     select,
-                    null,
+                    select.getFilter(),
                     new String[0])
                 .as(convertToCamelCase(select.getColumn())));
       } else if (column.isReference() && select.getColumn().endsWith("_groupBy")) {
@@ -586,7 +586,7 @@ public class SqlQuery extends QueryBean {
                     column,
                     tableAlias,
                     select,
-                    null,
+                    select.getFilter(),
                     new String[0])
                 .as(convertToCamelCase(select.getColumn())));
       } else if (column.isReference()) {
@@ -1023,7 +1023,6 @@ public class SqlQuery extends QueryBean {
 
   private Condition whereConditionsFilter(TableMetadata table, String tableAlias, Filter filters) {
     List<Condition> conditions = new ArrayList<>();
-
     if (Operator.OR.equals(filters.getOperator())) {
       conditions.add(
           or(
@@ -1038,6 +1037,12 @@ public class SqlQuery extends QueryBean {
                   .toList()));
     } else {
       Column column = getColumnByName(table, filters.getColumn());
+      if (column.isReference() && column.getReferences().size() > 1) {
+        throw new MolgenisException(
+            "Filter of '"
+                + column.getName()
+                + " not supported for compound key, use individual elements.");
+      }
       if (!filters.getSubfilters().isEmpty()) {
         for (Filter subfilter : filters.getSubfilters()) {
           if (column.isReference()) {
@@ -1110,6 +1115,8 @@ public class SqlQuery extends QueryBean {
         return whereConditionArrayEquals(name, operator, toDateTimeArray(values));
       case JSONB_ARRAY:
         return whereConditionArrayEquals(name, operator, toJsonbArray(values));
+      case REF:
+        return whereConditionRefEquals(name, operator, values);
       default:
         throw new SqlQueryException(
             SqlQuery.QUERY_FAILED
@@ -1120,6 +1127,35 @@ public class SqlQuery extends QueryBean {
                 + " not supported for type "
                 + type);
     }
+  }
+
+  private Condition whereConditionRefEquals(Name columnName, Operator operator, Object[] values) {
+    if (EQUALS.equals(operator)) {
+      if (values.length == 1) {
+        return field(columnName).eq(values[0]);
+      } else {
+        throw new SqlQueryException(
+            SqlQuery.QUERY_FAILED
+                + "Filter of '"
+                + columnName
+                + " failed: operator "
+                + operator
+                + " not supported for multiple values.");
+      }
+    } else if (NOT_EQUALS.equals(operator)) {
+      List<Condition> conditions = new ArrayList<>();
+      for (var value : values) {
+        conditions.add(field(columnName).ne(value));
+      }
+      return and(conditions);
+    }
+    throw new SqlQueryException(
+        SqlQuery.QUERY_FAILED
+            + "Filter of '"
+            + columnName
+            + " failed: operator "
+            + operator
+            + " not supported for REF.");
   }
 
   private static Condition whereConditionEquals(

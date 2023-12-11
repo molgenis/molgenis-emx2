@@ -1,7 +1,7 @@
 <template>
-  <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
-      d="m8.462 11.463 6-6 1.075 1.075-4.95 4.925 4.925 4.925-1.075 1.074-5.975-6Z"
+      d="M8.46211 11.4625L14.4621 5.46252L15.5371 6.53752L10.5871 11.4625L15.5121 16.3875L14.4371 17.4625L8.46211 11.4625Z"
       fill="currentColor"
     />
   </svg>
