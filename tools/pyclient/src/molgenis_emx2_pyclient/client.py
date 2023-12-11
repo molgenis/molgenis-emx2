@@ -152,6 +152,9 @@ class Client:
             json={'query': query}
         )
 
+        if response.status_code == 404:
+            raise ServerNotFoundError(f"Server with url '{self.url}'")
+
         response_json: dict = response.json()
         schemas = response_json['data']['_schemas']
         return schemas
@@ -448,7 +451,9 @@ class Client:
                     f.write(response.content)
                 log.info(f"Exported data from table {table} in schema {current_schema} to '{filename}'.")
 
-    def create_schema(self, name: str = None, description: str = None, template: str = None,
+    def create_schema(self, name: str = None,
+                      description: str = None,
+                      template: str = None,
                       include_demo_data: bool = None):
         """Create a new schema
         
@@ -493,6 +498,7 @@ class Client:
         """
         query = queries.delete_schema()
         variables = {'id': name}
+
         response = self.session.post(
             url=f"{self.url}/api/graphql",
             json={'query': query, 'variables': variables}
@@ -519,6 +525,7 @@ class Client:
         """
         query = queries.update_schema()
         variables = {'name': name, 'description': description}
+
         response = self.session.post(
             url=f"{self.url}/api/graphql",
             json={'query': query, 'variables': variables}
@@ -532,9 +539,11 @@ class Client:
         )
         self.schemas = self.get_schemas()
                 
-    def recreate_schema(self, name: str = None, description: str = None, template: str = None,
+    def recreate_schema(self, name: str = None,
+                        description: str = None,
+                        template: str = None,
                         include_demo_data: bool = None):
-        """Recreate a schema
+        """Recreates a schema
         
         :param name: the name of the new schema
         :type name: str
