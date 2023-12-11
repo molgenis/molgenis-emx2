@@ -42,7 +42,7 @@ if (catalogueRouteParam === "all" || catalogue.cohorts_agg?.count > 0)
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`,
   });
 if (
-  (!cohortOnly && catalogueRouteParam === "all") ||
+  (!cohortOnly.value && catalogueRouteParam === "all") ||
   catalogue.dataSources_agg?.count > 0
 )
   menu.push({
@@ -50,34 +50,25 @@ if (
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/datasources`,
   });
 if (
-  (!cohortOnly && catalogueRouteParam === "all") ||
+  (!cohortOnly.value && catalogueRouteParam === "all") ||
   catalogue.Variables_agg?.count > 0
 )
   menu.push({
     label: "Variables",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
   });
-if (cohortOnly) {
+if (cohortOnly.value) {
   menu.push({
     label: "About",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about`,
   });
 }
-if (!cohortOnly) {
+if (!cohortOnly.value) {
   menu.push({
     label: "Other catalogues",
     link: `/${route.params.schema}/ssr-catalogue`,
   });
 }
-
-// { label: "Databanks", link: `/${schema}/ssr-catalogue/databanks` },
-// config.public.cohortOnly
-//     ? undefined
-//     : ,
-// // { label: "Statistical Methods", link: "#" },
-// // { label: "Tables", link: "#" },
-// // { label: "Manuals", link: "#" },
-// { label: "About", link: `/${schema}/ssr-catalogue/about` },
 </script>
 
 <template>
