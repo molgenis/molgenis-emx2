@@ -5,11 +5,13 @@ plugins {
     id "com.github.node-gradle.node" version "7.0.1"
 }
 
+def isCI = System.getenv('CI') ? true : false
+
 def nodeSpec = {
     version = '19.9.0'
     yarnVersion = '1.22.19'
     npmVersion = "9.5.1"
-    download = System.getenv('CI') ? false : true
+    download = !isCI
 }
 
 node {
@@ -23,22 +25,20 @@ task cleanJavascript(type: YarnTask, dependsOn: yarn_install) {
 clean.dependsOn cleanJavascript
 
 task format(type: YarnTask, dependsOn: yarn_install) {
-    outputs.upToDateWhen { false }
-    args = ['run', 'nx', 'format:write']
+    if (!isCI) {
+        outputs.upToDateWhen { false }
+        args = ['run', 'nx', 'run-many','--target=format']
+    }
 }
 
 task checkFormat(type: YarnTask, dependsOn: format) {
     outputs.upToDateWhen { false }
-    args = ['run', 'nx', 'format:check']
+    args = ['run', 'nx', 'run-many','--target=checkFormat']
 }
 
 task testJavaScript(type: YarnTask, dependsOn: checkFormat) {
-    file("${project.projectDir}").eachDir { dir ->
-        var moduleName = dir.name
-        if ( ['molgenis-components', 'nuxt3-ssr'].contains(moduleName)) {
-            args = ['run', 'nx', 'test-ci', moduleName]
-        }
-    }
+    outputs.upToDateWhen { false }
+    args = ['run', 'nx', 'run-many', '--target=test-ci']
 }
 
 task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {

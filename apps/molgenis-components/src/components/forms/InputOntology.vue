@@ -21,7 +21,7 @@
           class="btn btn-sm btn-primary text-white mr-1"
           v-for="selectedTerm in selectionWithoutChildren"
           :key="selectedTerm"
-          @click.stop="deselect(selectedTerm)"
+          @click.stop="deselect(selectedTerm.name)"
         >
           {{ selectedTerm.label ? selectedTerm.label : selectedTerm.name }}
           <span class="fa fa-times"></span>
@@ -91,7 +91,7 @@
           @deselect="deselect"
           @toggleExpand="toggleExpand"
           style="max-height: 100vh"
-          class="pt-2 pl-0 dropdown-item"
+          class="pt-2 pl-0"
         />
         <Spinner v-else-if="loading" />
         <div v-else>No results found</div>
@@ -265,7 +265,7 @@ export default {
       if (!this.isMultiSelect) {
         //deselect other items
         Object.keys(this.terms).forEach(
-          (key) => (this.terms[key].selected = false)
+          (key) => (this.terms[key].selected = "unselected")
         );
       }
       let term = this.terms[item];
@@ -277,7 +277,11 @@ export default {
         );
         //select parent(s) if all siblings are selected
         this.getParents(term).forEach((parent) => {
-          if (parent.children.every((childTerm) => childTerm.selected)) {
+          if (
+            parent.children.every(
+              (childTerm) => childTerm.selected === "complete"
+            )
+          ) {
             parent.selected = "complete";
           } else {
             parent.selected = "partial";
@@ -291,23 +295,23 @@ export default {
     deselect(item) {
       if (this.isMultiSelect) {
         let term = this.terms[item];
-        term.selected = false;
+        term.selected = "unselected";
         //also deselect all its children
         this.getAllChildren(this.terms[item]).forEach(
-          (childTerm) => (childTerm.selected = false)
+          (childTerm) => (childTerm.selected = "unselected")
         );
         //also its deselect its parents, might be partial
         this.getParents(term).forEach((parent) => {
-          if (parent.children.some((child) => child.selected)) {
+          if (parent.children.some((child) => child.selected === "complete")) {
             parent.selected = "partial";
           } else {
-            parent.selected = false;
+            parent.selected = "unselected";
           }
         });
       } else {
         //non-list, deselect all
         Object.keys(this.terms).forEach(
-          (key) => (this.terms[key].selected = false)
+          (key) => (this.terms[key].selected = "unselected")
         );
       }
       this.emitValue();
@@ -316,7 +320,9 @@ export default {
     },
     clearSelection() {
       if (this.terms) {
-        Object.values(this.terms).forEach((term) => (term.selected = false));
+        Object.values(this.terms).forEach(
+          (term) => (term.selected = "unselected")
+        );
       }
       this.emitValue();
       this.$refs.search.focus();
@@ -337,7 +343,7 @@ export default {
     applySelection(value) {
       //deselect all
       Object.keys(this.terms).forEach(
-        (key) => (this.terms[key].selected = false)
+        (key) => (this.terms[key].selected = "unselected")
       );
       //apply selection to the tree
       if (value && this.isMultiSelect) {
@@ -356,7 +362,11 @@ export default {
               );
               //select parent(s) if all siblings are selected
               this.getParents(term).forEach((parent) => {
-                if (parent.children.every((childTerm) => childTerm.selected)) {
+                if (
+                  parent.children.every(
+                    (childTerm) => childTerm.selected === "complete"
+                  )
+                ) {
                   parent.selected = "complete";
                 } else {
                   parent.selected = "partial";
@@ -463,7 +473,7 @@ export default {
             terms[e.name] = {
               name: e.name,
               visible: true,
-              selected: false,
+              selected: "unselected",
               definition: e.definition,
               code: e.code,
               codesystem: e.codesystem,
@@ -478,7 +488,7 @@ export default {
               terms[e.parent.name] = {
                 name: e.parent.name,
                 visible: true,
-                selected: false,
+                selected: "unselected",
               };
             }
             // if first child then add children array
@@ -591,7 +601,7 @@ function getSelectedChildNodes(term) {
           :showExpanded="true"
           description="please choose your options in tree below"
           :options="options"
-          :isMultiSelect="false"
+          :isMultiSelect="unselected"
       />
       <div>You selected: {{ value5 }}</div>
     </demo-item>

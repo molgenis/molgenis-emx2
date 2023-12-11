@@ -2,14 +2,14 @@ dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-rdf')
     implementation project(':backend:molgenis-emx2-graphql')
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-api:4.3.7'
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-jsonld:4.3.7'
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-turtle:4.3.7'
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-n3:4.3.7'
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-trig:4.3.7'
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-rdfxml:4.3.7'
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-ntriples:4.3.7'
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-nquads:4.3.7'
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-api:4.3.8'
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-jsonld:4.3.8'
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-turtle:4.3.8'
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-n3:4.3.8'
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-trig:4.3.8'
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-rdfxml:4.3.8'
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-ntriples:4.3.8'
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-nquads:4.3.8'
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-datamodels')
     testImplementation project(':backend:molgenis-emx2-io')

@@ -6,7 +6,10 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 10;
 
-useHead({ title: "Networks" });
+const scoped = route.params.catalogue !== "all";
+const catalogue = scoped ? route.params.catalogue : undefined;
+
+useHead({ title: scoped ? `${catalogue} networks` : "Networks" });
 
 const currentPage = ref(1);
 if (route.query?.page) {
@@ -24,31 +27,17 @@ let filters: IFilter[] = reactive([
     initialCollapsed: false,
   },
   {
-    title: "Countries",
-    refTableId: "Countries",
-    columnId: "countries",
+    title: "Type",
+    columnId: "type",
     columnType: "ONTOLOGY",
-    conditions: [],
-  },
-  {
-    title: "Organisations",
-    columnId: "dataCategories",
-    columnType: "REF_ARRAY",
-    refTableId: "Organisations",
+    refTableId: "NetworkTypes",
     refFields: {
-      key: "id",
-      name: "id",
+      key: "name",
+      name: "name",
       description: "name",
     },
     conditions: [],
-  },
-  {
-    title: "Topics",
-    refTableId: "AgeGroups",
-    columnId: "ageGroups",
-    columnType: "ONTOLOGY",
-    filterTable: "collectionEvents",
-    conditions: [],
+    initialCollapsed: false,
   },
 ]);
 
@@ -57,48 +46,68 @@ let search = computed(() => {
   return filters.find((f) => f.columnType === "_SEARCH").search;
 });
 
-const query = computed(() => {
-  return `
-  query Networks($filter:NetworksFilter, $orderby:Networksorderby){
-    Networks(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+const cardFields = `id
+    name
+    acronym
+    description
+    logo {
       id
-      name
-      acronym
-      description
-      logo {
-        id
-        size
-        extension
-        url
-      }
+      size
+      extension
+      url
+    }`;
+
+const query = computed(() => {
+  if (scoped) {
+    return `
+query items($catalogueFilter: NetworksFilter, $filter: NetworksFilter $orderby: Networksorderby) {
+  Networks(filter: $catalogueFilter) {
+    id
+    networks(limit: ${pageSize} offset: ${offset.value} orderby:$orderby filter:$filter) {
+      ${cardFields}
     }
-    Networks_agg (filter:$filter){
+    networks_agg(filter:$filter) {
       count
     }
   }
-  `;
+}
+    `;
+  } else {
+    return `
+query items($filter:NetworksFilter, $orderby:Networksorderby){
+  Networks(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+    ${cardFields}
+  }
+  Networks_agg (filter:$filter){
+    count
+  }
+}
+    `;
+  }
 });
 
 const orderby = { acronym: "ASC" };
 
-//todo, make this filter work for subcatalogu => networks can not yet be networked
 const filter = computed(() => {
-  let result = buildQueryFilter(filters, search.value);
-  if ("all" !== route.params.catalogue) {
-    result._and["networks"] = { id: { equals: route.params.catalogue } };
-  }
-  return result;
+  return buildQueryFilter(filters, search.value);
 });
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+const catalogueFilter = scoped ? { id: { equals: catalogue } } : undefined;
+
+const graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+console.log(query.value);
 const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
   key: `networks-${offset.value}`,
   baseURL: config.public.apiBase,
   method: "POST",
   body: {
     query,
-    variables: { orderby, filter },
+    variables: { orderby, filter, catalogueFilter },
   },
+});
+
+watch(error, () => {
+  console.log("error on data fetch: ", error.value);
 });
 
 function setCurrentPage(pageNumber: number) {
@@ -111,6 +120,23 @@ watch(filters, () => {
 });
 
 let activeName = ref("detailed");
+
+const numberOfNetworks = computed(() => {
+  return scoped
+    ? data?.value?.data?.Networks[0]?.networks_agg.count
+    : data?.value?.data?.Networks_agg?.count;
+});
+
+const networks = computed(() => {
+  return scoped
+    ? data.value?.data?.Networks[0]?.networks
+    : data.value?.data?.Networks;
+});
+
+const crumbs: any = {};
+crumbs[
+  route.params.catalogue
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
 
 <template>
@@ -127,6 +153,9 @@ let activeName = ref("detailed");
             description="Collaborations of multiple institutions and/or cohorts with a common objective."
             icon="image-diagram"
           >
+            <template #prefix>
+              <BreadCrumbs :crumbs="crumbs" current="networks" />
+            </template>
             <template #suffix>
               <SearchResultsViewTabs
                 class="hidden xl:flex"
@@ -142,7 +171,11 @@ let activeName = ref("detailed");
                 class="flex xl:hidden"
                 v-model:activeName="activeName"
               >
-                <FilterSidebar title="Filters" :filters="filters" />
+                <FilterSidebar
+                  title="Filters"
+                  :filters="filters"
+                  :mobileDisplay="true"
+                />
               </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>
@@ -151,11 +184,8 @@ let activeName = ref("detailed");
         <template #search-results>
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
-            <CardList v-if="data?.data?.Networks?.length > 0">
-              <CardListItem
-                v-for="network in data?.data?.Networks"
-                :key="network.name"
-              >
+            <CardList v-if="networks?.length > 0">
+              <CardListItem v-for="network in networks" :key="network.name">
                 <NetworkCard
                   :network="network"
                   :schema="route.params.schema"
@@ -171,10 +201,10 @@ let activeName = ref("detailed");
           </SearchResultsList>
         </template>
 
-        <template v-if="data?.data?.Networks?.length > 0" #pagination>
+        <template v-if="networks?.length > 0" #pagination>
           <Pagination
             :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.Networks_agg.count / pageSize)"
+            :totalPages="Math.ceil(numberOfNetworks / pageSize)"
             @update="setCurrentPage($event)"
           />
         </template>

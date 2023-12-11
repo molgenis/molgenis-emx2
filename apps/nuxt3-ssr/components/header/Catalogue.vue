@@ -7,15 +7,15 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const cat = route.params.catalogue;
+const catalogueRouteParam = route.params.catalogue as string;
 const query = `{
-        Networks(filter:{id:{equals:"${cat}"}}) {
+        Networks(filter:{id:{equals:"${catalogueRouteParam}"}}) {
               id,
               dataSources_agg{count}
               cohorts_agg{count}
               logo{url}
        }
-       Variables_agg(filter:{resource:{id:{equals:"${cat}"}}}) {
+       Variables_agg(filter:{resource:{id:{equals:"${catalogueRouteParam}"}}}) {
           count
         }
     }`;
@@ -27,33 +27,40 @@ const { data, pending, error, refresh } = await useFetch(
     body: { query },
   }
 );
-const catalogue = cat === "all" ? {} : data.value.data?.Networks[0];
+const catalogue =
+  catalogueRouteParam === "all" ? {} : data.value.data?.Networks[0];
 
 const menu = [
   {
     label: `${catalogue.id || "home"}`,
-    link: `/${route.params.schema}/ssr-catalogue/${cat}`,
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
   },
 ];
-if (cat === "all" || catalogue.cohorts_agg?.count > 0)
+if (catalogueRouteParam === "all" || catalogue.cohorts_agg?.count > 0)
   menu.push({
     label: "Cohorts",
-    link: `/${route.params.schema}/ssr-catalogue/${cat}/cohorts`,
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`,
   });
-if ((!cohortOnly && cat === "all") || catalogue.dataSources_agg?.count > 0)
+if (
+  (!cohortOnly && catalogueRouteParam === "all") ||
+  catalogue.dataSources_agg?.count > 0
+)
   menu.push({
     label: "Data sources",
-    link: `/${route.params.schema}/ssr-catalogue/${cat}/datasources`,
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/datasources`,
   });
-if ((!cohortOnly && cat === "all") || catalogue.Variables_agg?.count > 0)
+if (
+  (!cohortOnly && catalogueRouteParam === "all") ||
+  catalogue.Variables_agg?.count > 0
+)
   menu.push({
     label: "Variables",
-    link: `/${route.params.schema}/ssr-catalogue/${cat}/variables`,
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
   });
 if (cohortOnly) {
   menu.push({
     label: "About",
-    link: `/${route.params.schema}/ssr-catalogue/${cat}/about`,
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about`,
   });
 }
 if (!cohortOnly) {
@@ -78,7 +85,7 @@ if (!cohortOnly) {
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
-          :link="`/${route.params.schema}/ssr-catalogue/${cat}`"
+          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`"
           :image="
             catalogue?.logo?.url ||
             '/_nuxt-styles/img/molgenis-logo-blue-small.svg'
@@ -99,7 +106,7 @@ if (!cohortOnly) {
 
           <div class="absolute -translate-x-1/2 left-1/2">
             <LogoMobile
-              :link="`/${route.params.schema}/ssr-catalogue/${cat}`"
+              :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`"
               :image="catalogue?.logo?.url"
             />
           </div>

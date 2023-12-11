@@ -4,7 +4,7 @@ const initialCollectionColumns = [
   {
     label: "Quality labels:",
     column: {
-      quality: [{ quality_standard: ["label"] }]
+      quality: [{ quality_standard: ["label"] }],
     },
     showOnBiobankCard: true,
   },
@@ -104,7 +104,7 @@ const initialCollectionColumns = [
       "parent_collection.id",
       "parent_collection.name",
       "also_known.url",
-      "also_known.name_system"
+      "also_known.name_system",
     ],
   },
 ];

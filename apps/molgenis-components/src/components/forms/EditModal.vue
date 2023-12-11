@@ -94,11 +94,13 @@
 </template>
 
 <script lang="ts">
-import { IColumn } from "../../Interfaces/IColumn";
-import { ISchemaMetaData } from "../../Interfaces/IMetaData";
-import { IRow } from "../../Interfaces/IRow";
-import { ISetting } from "meta-data-utils";;
-import { ITableMetaData } from "../../Interfaces/ITableMetaData";
+import type {
+  IColumn,
+  ISchemaMetaData,
+  ISetting,
+  ITableMetaData,
+} from "meta-data-utils";
+import type { IRow } from "../../Interfaces/IRow";
 import { INewClient } from "../../client/IClient";
 import Client from "../../client/client";
 import constants from "../constants";
@@ -193,7 +195,13 @@ export default {
       }
     },
     titlePrefix() {
-      return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
+      if (this.pkey && this.clone) {
+        return "copy";
+      } else if (this.pkey) {
+        return "update";
+      } else {
+        return "insert";
+      }
     },
     columnsSplitByHeadings(): string[][] {
       const filteredByVisibilityFilters = filterVisibleColumns(
@@ -269,6 +277,7 @@ export default {
           .catch(this.handleSaveError);
       }
       if (result) {
+        this.$emit("update:newRow", formData);
         this.handleClose();
       }
     },

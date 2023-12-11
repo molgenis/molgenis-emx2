@@ -6,7 +6,9 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 30;
 
-useHead({ title: "Variables" });
+const titlePrefix =
+  route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
+useHead({ title: titlePrefix + "Variables" });
 
 type view = "list" | "harmonization";
 
@@ -146,8 +148,6 @@ const query = computed(() => {
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 
-console.log("found");
-
 const orderby = { label: "ASC" };
 const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
 
@@ -217,7 +217,11 @@ crumbs[
                 class="flex xl:hidden"
                 v-model:activeName="activeName"
               >
-                <FilterSidebar title="Filters" :filters="filters" />
+                <FilterSidebar
+                  title="Filters"
+                  :filters="filters"
+                  :mobileDisplay="true"
+                />
               </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>

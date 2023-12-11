@@ -1,9 +1,10 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
-import { defineNuxtConfig } from "nuxt/config";
+import { defineNuxtConfig, type NuxtConfig } from "nuxt/config";
 
 const devProxy = {
   options: {
-    target: process.env.PROXY_TARGET || "https://emx2.dev.molgenis.org/", // 'http://localhost:8080/',
+    target:
+      process.env.PROXY_TARGET || "https://data-catalogue.molgeniscloud.org/", // 'http://localhost:8080/',
     pathFilter: ["**/*/graphql", "**/api/file/**", "**/api/message/**"],
     changeOrigin: true,
     secure: false,
@@ -11,7 +12,7 @@ const devProxy = {
   },
 };
 
-const config = {
+const config: NuxtConfig = {
   modules: ["nuxt-proxy", "@nuxt/image"],
   devtools: { enabled: true },
   runtimeConfig: {
@@ -20,10 +21,9 @@ const config = {
       apiBase: "http://localhost:3000/", //'https://emx2.molgeniscloud.org/',
       emx2Theme: "",
       emx2Logo: "",
-      siteTitle: "Data Catalogue",
+      siteTitle: "MOLGENIS",
       analyticsKey: "",
       cohortOnly: false,
-      debug: true
     },
   },
   nitro: {
@@ -32,7 +32,6 @@ const config = {
 };
 
 if (process.env.NODE_ENV === "development") {
-  // @ts-ignore
   config.proxy = devProxy;
 }
 

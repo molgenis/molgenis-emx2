@@ -144,7 +144,7 @@ function setActiveSideModal(value: string) {
             <!-- pass row id to allow slot implementer to fetch data and render side modal body data -->
             <slot :id="row.id"></slot>
 
-            <template #footer>
+            <template v-if="row._path" #footer>
               <NuxtLink :to="row._path">
                 <Button type="secondary" size="small" label="Detail page" />
               </NuxtLink>

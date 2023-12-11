@@ -1,5 +1,4 @@
 import { describe, expect, test } from "vitest";
-import { ITableMetaData } from "../../../Interfaces/ITableMetaData";
 import constants from "../../constants.js";
 import {
   filterVisibleColumns,
@@ -10,7 +9,7 @@ import {
   splitColumnIdsByHeadings,
   isMissingValue
 } from "./formUtils";
-import { IColumn } from "../../../Interfaces/IColumn";
+import type { ITableMetaData, IColumn } from "meta-data-utils";
 const { AUTO_ID, HEADING } = constants;
 
 describe("getRowErrors", () => {

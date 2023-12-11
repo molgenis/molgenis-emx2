@@ -37,7 +37,7 @@ public class Table {
   public Table(TableMetadata tableMetadata, boolean minimal) {
     this.name = tableMetadata.getTableName();
     this.label = tableMetadata.getLabel();
-    this.description = tableMetadata.getLabels().get("en");
+    this.description = tableMetadata.getDescription();
     this.labels =
         tableMetadata.getLabels().entrySet().stream()
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))

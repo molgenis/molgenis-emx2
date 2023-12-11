@@ -11,7 +11,7 @@ export const initialBiobankColumns = [
   {
     label: "Quality labels:",
     column: {
-      quality: [{ quality_standard: ["label"] }]
+      quality: [{ quality_standard: ["label"] }],
     },
     showOnBiobankCard: true,
   },
@@ -21,39 +21,39 @@ export const initialBiobankColumns = [
     type: "array",
     showOnBiobankCard: true,
   },
-{
-  label: "Juridical person:",
+  {
+    label: "Juridical person:",
     column: "juridical_person",
-      type: "string",
-        showOnBiobankCard: true,
-  },
-{
-  label: "Biobank capabilities:",
-    column: { capabilities: ["name", "label"] },
-  type: "array",
+    type: "string",
     showOnBiobankCard: true,
   },
-/** properties that are required but should not be rendered as attributes */
-{
-  column: [
-    "name",
-    "head.title_before_name",
-    "head.first_name",
-    "head.last_name",
-    "head.role",
-    "contact.first_name",
-    "contact.last_name",
-    "contact.country.name",
-    "contact.country.label",
-    "country.label",
-    "network.name",
-    "network.id",
-    "url",
-    "withdrawn",
-    "collections.materials.name",
-    "also_known.url",
-    "also_known.name_system"
-  ],
+  {
+    label: "Biobank capabilities:",
+    column: { capabilities: ["name", "label"] },
+    type: "array",
+    showOnBiobankCard: true,
+  },
+  /** properties that are required but should not be rendered as attributes */
+  {
+    column: [
+      "name",
+      "head.title_before_name",
+      "head.first_name",
+      "head.last_name",
+      "head.role",
+      "contact.first_name",
+      "contact.last_name",
+      "contact.country.name",
+      "contact.country.label",
+      "country.label",
+      "network.name",
+      "network.id",
+      "url",
+      "withdrawn",
+      "collections.materials.name",
+      "also_known.url",
+      "also_known.name_system",
+    ],
   },
 ];
 
