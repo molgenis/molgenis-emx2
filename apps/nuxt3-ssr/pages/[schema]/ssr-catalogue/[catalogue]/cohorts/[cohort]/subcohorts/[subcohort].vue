@@ -36,7 +36,7 @@ const cohortOnly = computed(() => {
 });
 const pageCrumbs: any = {};
 pageCrumbs[
-  cohortOnly ? "home" : route.params.catalogue
+  cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 pageCrumbs[
   "Cohorts"
@@ -44,7 +44,7 @@ pageCrumbs[
 
 // @ts-ignore
 pageCrumbs[
-  route.params.cohort
+  route.params.cohort as string
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts/${route.params.cohort}`;
 
 function renderList(

@@ -69,11 +69,10 @@ function getColumnError(
 
 export function isMissingValue(value: any): boolean {
   if (Array.isArray(value)) {
-    return value.some(element => isMissingValue(element));
+    return value.some((element) => isMissingValue(element));
   }
   return value === undefined || value === null || value === "";
 }
-
 
 function isInValidNumericValue(columnType: string, value: number) {
   if (["DECIMAL", "INT"].includes(columnType)) {
