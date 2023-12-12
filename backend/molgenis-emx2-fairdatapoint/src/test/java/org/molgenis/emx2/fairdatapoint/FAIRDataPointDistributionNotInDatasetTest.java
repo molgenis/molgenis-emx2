@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.datamodels.FAIRDataHubLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 

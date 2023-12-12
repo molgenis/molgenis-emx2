@@ -14,7 +14,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp.EJP_VP_IndividualsQuery;
-import org.molgenis.emx2.datamodels.FAIRDataHubLoader;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
