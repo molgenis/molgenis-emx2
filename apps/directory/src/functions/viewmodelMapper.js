@@ -2,8 +2,12 @@ import { useSettingsStore } from "../stores/settingsStore";
 import { sortCollectionsByName } from "./sorting";
 
 export const getName = (contact) => {
-  const { title_before_name, first_name, last_name, title_after_name } =
-    contact;
+  const {
+    title_before_name,
+    first_name,
+    last_name,
+    title_after_name,
+  } = contact;
 
   let name = "";
 
@@ -367,7 +371,7 @@ export const getNameOfHead = (head) => {
 
   return name !== "" ? name.trim() : undefined;
 };
-         
+
 export const mapHeadInfo = (instance) => {
   if (instance.head) {
     return {
@@ -391,7 +395,7 @@ export const mapHeadInfo = (instance) => {
     return {};
   }
 };
-                
+
 export const mapContactInfo = (instance) => {
   if (instance.contact) {
     return {

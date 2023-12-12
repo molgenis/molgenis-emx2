@@ -166,7 +166,7 @@ const cohortOnly = computed(() => {
 });
 const crumbs: any = {};
 crumbs[
-  cohortOnly ? "home" : route.params.catalogue
+  cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
 

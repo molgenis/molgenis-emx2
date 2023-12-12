@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { Ref } from "vue";
 import collectionEventGql from "~~/gql/collectionEvent";
+import type {
+  IDefinitionListItem,
+  IMgError,
+  ITreeNode,
+} from "~~/interfaces/types";
 const config = useRuntimeConfig();
 const route = useRoute();
 
 const query = moduleToString(collectionEventGql);
 
-let collectionEvent: Ref = ref();
-const { data: collectionEventData } = await useFetch(
+const { data, error } = await useFetch<any, IMgError>(
   `/${route.params.schema}/catalogue/graphql`,
   {
     baseURL: config.public.apiBase,
@@ -20,17 +23,16 @@ const { data: collectionEventData } = await useFetch(
       },
     },
   }
-).catch((e) => console.log(e));
+);
 
-watch(
-  collectionEventData,
-  function setData(data: any) {
-    collectionEvent = data?.data?.CollectionEvents[0];
-  },
-  {
-    deep: true,
-    immediate: true,
-  }
+if (error.value) {
+  const contextMsg = "Error fetching data for collection-event detail page";
+  logError(error.value, contextMsg);
+  throw new Error(contextMsg);
+}
+
+const collectionEvent: any = computed(
+  () => data.value.data.CollectionEvents[0]
 );
 
 let tocItems = reactive([{ label: "Details", id: "details" }]);
@@ -41,14 +43,14 @@ const cohortOnly = computed(() => {
 });
 const pageCrumbs: any = {};
 pageCrumbs[
-  cohortOnly ? "home" : route.params.catalogue
+  cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 pageCrumbs[
   "Cohorts"
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts`;
 // @ts-ignore
 pageCrumbs[
-  route.params.cohort
+  route.params.cohort as string
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/cohorts/${route.params.cohort}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
@@ -57,74 +59,76 @@ function renderList(list: any[], itemMapper: (a: any) => string) {
 
 const toName = (item: any) => item.name;
 
-const items = [];
-if (collectionEvent?.subcohorts?.length) {
+const items: IDefinitionListItem[] = [];
+if (collectionEvent.value?.subcohorts?.length) {
   items.push({
     label: "Subcohorts",
-    content: renderList(collectionEvent?.subcohorts, toName),
+    content: renderList(collectionEvent.value?.subcohorts, toName),
   });
 }
 
-if (collectionEvent?.startYear || collectionEvent?.endYear) {
+if (collectionEvent.value?.startYear || collectionEvent.value?.endYear) {
   items.push({
     label: "Start/end year",
     content: filters.startEndYear(
-      collectionEvent.startYear && collectionEvent.startYear.name
-        ? collectionEvent.startYear.name
+      collectionEvent.value.startYear && collectionEvent.value.startYear.name
+        ? collectionEvent.value.startYear.name
         : null,
-      collectionEvent.endYear && collectionEvent.endYear.name
-        ? collectionEvent.endYear.name
+      collectionEvent.value.endYear && collectionEvent.value.endYear.name
+        ? collectionEvent.value.endYear.name
         : null
     ),
   });
 }
 
-if (collectionEvent?.ageGroups?.length) {
+if (collectionEvent.value?.ageGroups?.length) {
   tocItems.push({ label: "Age categories", id: "age_categories" });
 }
 
-if (collectionEvent?.numberOfParticipants) {
+if (collectionEvent.value?.numberOfParticipants) {
   items.push({
     label: "Number of participants",
-    content: collectionEvent?.numberOfParticipants,
+    content: collectionEvent.value?.numberOfParticipants,
   });
 }
 
-let dataCategoriesTree = [];
-if (collectionEvent?.dataCategories?.length) {
-  dataCategoriesTree = buildOntologyTree(collectionEvent.dataCategories);
+let dataCategoriesTree: ITreeNode[] = [];
+if (collectionEvent.value?.dataCategories?.length) {
+  dataCategoriesTree = buildOntologyTree(collectionEvent.value.dataCategories);
   tocItems.push({ label: "Data categories", id: "data_categories" });
 }
 
-if (collectionEvent?.sampleCategories?.length) {
+if (collectionEvent.value?.sampleCategories?.length) {
   items.push({
     label: "Sample categories",
-    content: renderList(collectionEvent?.sampleCategories, toName),
+    content: renderList(collectionEvent.value?.sampleCategories, toName),
   });
 }
 
-let areasOfInformationTree = [];
-if (collectionEvent?.areasOfInformation?.length) {
+let areasOfInformationTree: ITreeNode[] = [];
+if (collectionEvent.value?.areasOfInformation?.length) {
   areasOfInformationTree = buildOntologyTree(
-    collectionEvent.areasOfInformation
+    collectionEvent.value.areasOfInformation
   );
   tocItems.push({ label: "Areas of information", id: "areas_of_information" });
 }
 
-let standardizedToolsTree = [];
-if (collectionEvent.standardizedTools) {
-  standardizedToolsTree = buildOntologyTree(collectionEvent.standardizedTools);
+let standardizedToolsTree: ITreeNode[] = [];
+if (collectionEvent.value.standardizedTools) {
+  standardizedToolsTree = buildOntologyTree(
+    collectionEvent.value.standardizedTools
+  );
   tocItems.push({ label: "Standardized tools", id: "standardized_tools" });
 }
 
-if (collectionEvent?.coreVariables?.length) {
+if (collectionEvent.value?.coreVariables?.length) {
   items.push({
     label: "Core variables",
-    content: collectionEvent?.coreVariables,
+    content: collectionEvent.value?.coreVariables,
   });
 }
 
-useHead({ title: collectionEvent?.name });
+useHead({ title: collectionEvent.value?.name });
 </script>
 
 <template>
