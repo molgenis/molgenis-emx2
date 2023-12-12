@@ -542,8 +542,8 @@ public class GraphqlTableFieldFactory {
   }
 
   private static Filter createKeyFilter(TableMetadata table, Map<String, Object> map) {
-    Objects.nonNull(table);
-    Objects.nonNull(map);
+    Objects.requireNonNull(table);
+    Objects.requireNonNull(map);
     List<Filter> result = new ArrayList<>();
     for (Map.Entry<String, Object> entry : map.entrySet()) {
       Optional<Column> column = findColumnById(table, entry.getKey());
