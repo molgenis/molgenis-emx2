@@ -625,12 +625,14 @@ public class TestGraphqlSchemaFields {
           table(
               "Some",
               column("id").setPkey(),
-              column("person").setType(REF).setRefTable("Person details"),
-              column("persons").setType(REF_ARRAY).setRefTable("Person details")));
+              column("Person details").setType(REF).setRefTable("Person details"),
+              column("Persons details").setType(REF_ARRAY).setRefTable("Person details")));
 
       grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
       execute(
           "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\",someNumber: 6}){message}}");
+      execute(
+          "mutation{insert(Some:{id:\"one\",personDetails:{firstName:\"blaata\",last_name:\"blaata2\"},personsDetails:[{firstName:\"blaata\",last_name:\"blaata2\"}]}){message}}");
 
       int count = execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue();
 
@@ -676,7 +678,14 @@ public class TestGraphqlSchemaFields {
       assertEquals(6, agg.at("/PersonDetails_agg/min/someNumber").asInt());
       assertEquals(6, agg.at("/PersonDetails_agg/max/someNumber").asInt());
 
+      // equals key filters
+      JsonNode sub =
+          execute(
+              "{Some(filter:{personDetails:{equals:{firstName:\"blaata\",last_name:\"blaata2\"}}}){id}}");
+      assertEquals("one", sub.at("/Some/0/id").asText());
+
       // delete
+      execute("mutation{delete(Some:{id:\"one\"}){message}}");
       execute(
           "mutation{delete(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\"}){message}}");
       assertEquals(
