@@ -18,12 +18,12 @@ OutputFormat: TypeAlias = Literal['csv', 'xlsx']
 
 class Client:
     """
-    Use the Client object to log in to a Molgenis server and perform operations on the server.
-    Specify a default schema
+    Use the Client object to log in to a Molgenis EMX2 server
+    and perform operations on the server.
     """
     def __init__(self, url: str, schema: str = None) -> None:
         """
-        A Client class instances is created with a server url.
+        Initializes a Client object with a server url.
         """
         self._as_context_manager = False
         self.url: str = utils.parse_url(url)
@@ -61,7 +61,7 @@ class Client:
         self.session.close()
 
     def signin(self, username: str, password: str):
-        """Signs in to Molgenis and retrieves session cookie.
+        """Signs in to the EMX2 server and retrieves session cookie.
 
         :param username: the username or email address for an account on this server
         :type username: str
@@ -130,7 +130,9 @@ class Client:
             
     @property
     def status(self):
-        """View client information"""
+        """Shows the sign-in status of the user, the server version
+        and the schemas that the user can interact with.
+        """
         schemas = '\n\t'.join(self.schema_names)
         message = (
           f"Host: {self.url}\n"
@@ -166,7 +168,7 @@ class Client:
 
     @property
     def version(self):
-        """List the current EMX2 version on the server"""
+        """Lists the current EMX2 version on the server"""
         query = queries.version_number()
         response = self.session.post(
             url=self.api_graphql,
@@ -213,7 +215,7 @@ class Client:
     
     @staticmethod
     def _graphql_validate_response(response_json: dict, mutation: str, fallback_error_message: str):
-        """Validates a GraphQL response and print the appropriate message
+        """Validates a GraphQL response and prints the appropriate message.
         
         :param response_json: a graphql response from the server
         :type response_json: dict
@@ -248,6 +250,7 @@ class Client:
             
     @staticmethod
     def _format_optional_params(**kwargs):
+        """Parses optional keyword arguments to a format suitable for GraphQL queries."""
         keys = kwargs.keys()
         args = {key: kwargs[key] for key in keys if (key != 'self') and (key is not None)}
         if 'name' in args.keys():
@@ -313,8 +316,8 @@ class Client:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
 
-    def delete(self, schema: str = None, table: str = None, file: str = None, data: list = None):
-        """Deletes records from table.
+    def delete_records(self, schema: str = None, table: str = None, file: str = None, data: list = None):
+        """Deletes records from a table.
         
         :param schema: name of a schema
         :type schema: str
@@ -392,7 +395,7 @@ class Client:
         return response_data
 
     def export(self, schema: str = None, table: str = None, fmt: OutputFormat = 'csv'):
-        """Export data from a schema to a file in the desired format.
+        """Exports data from a schema to a file in the desired format.
         
         :param schema: the name of the schema
         :type schema: str
@@ -455,7 +458,7 @@ class Client:
                       description: str = None,
                       template: str = None,
                       include_demo_data: bool = None):
-        """Create a new schema
+        """Creates a new schema on the EMX2 server.
         
         :param name: the name of the new schema
         :type name: str
@@ -488,7 +491,7 @@ class Client:
         self.schemas = self.get_schemas()
               
     def delete_schema(self, name: str = None):
-        """Delete a schema
+        """Deletes a schema from the EMX2 server.
         
         :param name: the name of the new schema
         :type name: str
@@ -513,7 +516,7 @@ class Client:
         self.schemas = self.get_schemas()
 
     def update_schema(self, name: str = None, description: str = None):
-        """Update a schema's description
+        """Updates a schema's description.
         
         :param name: the name of the new schema
         :type name: str
@@ -543,7 +546,8 @@ class Client:
                         description: str = None,
                         template: str = None,
                         include_demo_data: bool = None):
-        """Recreates a schema
+        """Recreates a schema on the EMX2 server by deleting and subsequently
+        creating it without data on the EMX2 server.
         
         :param name: the name of the new schema
         :type name: str
@@ -583,7 +587,7 @@ class Client:
         self.schemas = self.get_schemas()
         
     def get_schema_metadata(self, name: str = None):
-        """Retrieve a schema's metadata
+        """Retrieves a schema's metadata.
         
         :param name: the name of the new schema
         :type name: str

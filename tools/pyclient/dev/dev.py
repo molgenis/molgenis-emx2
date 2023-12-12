@@ -111,8 +111,8 @@ async def main():
 
         # Drop records
         tags_to_remove = [{'name': row['name']} for row in new_tags if row['name'] == 'canis']
-        client.delete(schema='pet store', table='Pet', data=new_pets)
-        client.delete(schema='pet store', table='Tag', data=tags_to_remove)
+        client.delete_records(schema='pet store', table='Pet', data=new_pets)
+        client.delete_records(schema='pet store', table='Tag', data=tags_to_remove)
 
         # ///////////////////////////////////////
 
@@ -127,8 +127,8 @@ async def main():
         client.save_schema(name='pet store', table='Tag', file='demodata/Tag.csv')
         client.save_schema(name='pet store', table='Pet', file='demodata/Pet.csv')
 
-        client.delete(schema='pet store', table='Pet', file='demodata/Pet.csv')
-        client.delete(schema='pet store', table='Tag', file='demodata/Tag.csv')
+        client.delete_records(schema='pet store', table='Pet', file='demodata/Pet.csv')
+        client.delete_records(schema='pet store', table='Tag', file='demodata/Tag.csv')
 
     # Connect to server and create, update, and drop schemas
     with Client('https://emx2.dev.molgenis.org/') as client:
