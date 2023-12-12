@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 
@@ -28,7 +29,7 @@ public class FAIRDataPointDistributionNotInDatasetTest {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     fairDataHub_distribnotindataset = database.dropCreateSchema("fairDataHub_distribnotindataset");
-    FAIRDataHubLoader fairDataHubLoader = new FAIRDataHubLoader();
+    ProfileLoader fairDataHubLoader = new ProfileLoader("fairdatahub/FAIRDataHub.yaml");
     fairDataHubLoader.load(fairDataHub_distribnotindataset, true);
   }
 

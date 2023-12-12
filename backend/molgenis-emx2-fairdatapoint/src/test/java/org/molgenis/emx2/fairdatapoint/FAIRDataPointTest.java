@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
@@ -30,7 +31,7 @@ public class FAIRDataPointTest {
     fdpSchema = database.dropCreateSchema("fdpTest");
     Schema fairDataHub_nr1 = database.dropCreateSchema("fairDataHub_nr1");
     Schema fairDataHub_nr2 = database.dropCreateSchema("fairDataHub_nr2 with a whitespace");
-    FAIRDataHubLoader fairDataHubLoader = new FAIRDataHubLoader();
+    ProfileLoader fairDataHubLoader = new ProfileLoader("fairdatahub/FAIRDataHub.yaml");
     fairDataHubLoader.load(fairDataHub_nr1, true);
     fairDataHubLoader.load(fairDataHub_nr2, true);
     fairDataHubSchemas = new Schema[2];

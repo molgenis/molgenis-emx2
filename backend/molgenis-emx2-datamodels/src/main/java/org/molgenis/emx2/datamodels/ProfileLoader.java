@@ -11,7 +11,7 @@ public class ProfileLoader extends AbstractDataLoader {
   // the classpath location of your config YAML file
   private String configLocation;
 
-  protected ProfileLoader(String configLocation) {
+  public ProfileLoader(String configLocation) {
     this.configLocation = configLocation;
   }
 

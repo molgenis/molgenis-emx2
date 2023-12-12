@@ -11,6 +11,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -58,7 +59,7 @@ public class OntologyTableSemantics {
         Emx2.fromRowList(
             CsvTableReader.read(
                 new InputStreamReader(
-                    FAIRDataHubLoader.class
+                    ProfileLoader.class
                         .getClassLoader()
                         .getResourceAsStream("OntologyTableSemanticsTestFile.csv"))));
     petStoreSchema.migrate(metadata);
