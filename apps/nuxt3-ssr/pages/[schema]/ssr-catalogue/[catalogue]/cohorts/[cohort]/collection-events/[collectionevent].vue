@@ -85,6 +85,10 @@ if (collectionEvent.value?.ageGroups?.length) {
   tocItems.push({ label: "Age categories", id: "age_categories" });
 }
 
+if (collectionEvent.value?.coreVariables?.length) {
+  tocItems.push({ label: "Core variables", id: "core_variables" });
+}
+
 if (collectionEvent.value?.numberOfParticipants) {
   items.push({
     label: "Number of participants",
@@ -121,13 +125,6 @@ if (collectionEvent.value.standardizedTools) {
   tocItems.push({ label: "Standardized tools", id: "standardized_tools" });
 }
 
-if (collectionEvent.value?.coreVariables?.length) {
-  items.push({
-    label: "Core variables",
-    content: collectionEvent.value?.coreVariables,
-  });
-}
-
 useHead({ title: collectionEvent.value?.name });
 </script>
 
@@ -151,6 +148,19 @@ useHead({ title: collectionEvent.value?.name });
         <ContentBlock v-if="collectionEvent" id="details" title="Details">
           <CatalogueItemList :items="items" :collapse-all="false" />
         </ContentBlock>
+
+        <ContentBlock
+          v-if="collectionEvent?.coreVariables"
+          id="core_variables"
+          title="Core variables"
+        >
+          <ul class="grid gap-1 pl-4 list-disc list-outside">
+            <li v-for="coreVariable in collectionEvent.coreVariables.sort()">
+              {{ coreVariable }}
+            </li>
+          </ul>
+        </ContentBlock>
+
         <ContentBlock
           v-if="collectionEvent.ageGroups"
           id="age_categories"
