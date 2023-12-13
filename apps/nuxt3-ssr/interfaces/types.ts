@@ -58,6 +58,7 @@ export interface ICohort {
   fundingStatement?: string;
   acknowledgements?: string;
   documentation?: IDocumentation[];
+  datasets: {name: string}[]
 }
 
 export interface IVariableBase {
