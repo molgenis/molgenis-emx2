@@ -156,6 +156,7 @@ useHead({ title: collectionEvent.value?.name });
             :collapse-all="false"
           />
         </ContentBlock>
+
         <ContentBlock
           v-if="collectionEvent?.coreVariables"
           id="core_variables"
