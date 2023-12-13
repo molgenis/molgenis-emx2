@@ -206,7 +206,7 @@ import {
       }
     }
   }
-  
+
   @media (min-width: 936px) {
     flex-wrap: nowrap;
   }

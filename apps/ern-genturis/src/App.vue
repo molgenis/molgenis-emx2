@@ -37,7 +37,10 @@
           </a>
         </li>
         <li id="genturis-funding-logo">
-          <img src="/ern-funded-by-eu.svg" alt="european reference network funded by the european union"/>
+          <img
+            src="/ern-funded-by-eu.svg"
+            alt="european reference network funded by the european union"
+          />
         </li>
       </template>
       <template v-slot:site-citation>
