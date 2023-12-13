@@ -81,6 +81,10 @@ if (collectionEvent.value?.startYear || collectionEvent.value?.endYear) {
   });
 }
 
+if (collectionEvent.value.sampleCategories?.length) {
+  tocItems.push({ label: "Sample categories", id: "sample_categories" });
+}
+
 if (collectionEvent.value?.ageGroups?.length) {
   tocItems.push({ label: "Age categories", id: "age_categories" });
 }
@@ -100,13 +104,6 @@ let dataCategoriesTree: ITreeNode[] = [];
 if (collectionEvent.value?.dataCategories?.length) {
   dataCategoriesTree = buildOntologyTree(collectionEvent.value.dataCategories);
   tocItems.push({ label: "Data categories", id: "data_categories" });
-}
-
-if (collectionEvent.value?.sampleCategories?.length) {
-  items.push({
-    label: "Sample categories",
-    content: renderList(collectionEvent.value?.sampleCategories, toName),
-  });
 }
 
 let areasOfInformationTree: ITreeNode[] = [];
@@ -147,6 +144,17 @@ useHead({ title: collectionEvent.value?.name });
       <ContentBlocks v-if="collectionEvent">
         <ContentBlock v-if="collectionEvent" id="details" title="Details">
           <CatalogueItemList :items="items" :collapse-all="false" />
+        </ContentBlock>
+
+        <ContentBlock
+          v-if="collectionEvent.sampleCategories"
+          id="sample_categories"
+          title="Sample categories"
+        >
+          <ContentOntology
+            :tree="buildOntologyTree(collectionEvent.sampleCategories)"
+            :collapse-all="false"
+          />
         </ContentBlock>
 
         <ContentBlock
