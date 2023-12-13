@@ -14,7 +14,7 @@
         shape="circle"
       />
       {{ primaryColor }}
-      <label><b>Choose the menu bar color</b></label
+      <br /><br /><label><b>Choose the menu bar color</b></label
       ><br />
       <ColorPicker
         class="mb-2"
@@ -23,6 +23,7 @@
         shape="circle"
       />
       {{ menubarColor }}
+      <br />
       <InputString
         id="theme-url-input"
         label="Set logo url"
@@ -97,7 +98,7 @@ export default {
       let settingsAlter = [];
       let settingsDrop = [];
       let cssUrl = "theme.css?";
-      if (this.primaryColor || this.menubar) {
+      if (this.primaryColor || this.menubarColor) {
         if (this.primaryColor)
           cssUrl += "primaryColor=" + this.primaryColor.substr(1) + "&";
         if (this.menubarColor)
