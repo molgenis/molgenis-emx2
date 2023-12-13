@@ -54,55 +54,7 @@
       <QuickLinks
         v-else
         id="visualisation-links"
-        :data="[
-          {
-            to: 'bar-chart',
-            label: 'Bar Chart',
-            image: 'bar-chart-header.jpg',
-          },
-          {
-            to: 'column-chart',
-            label: 'Column Chart',
-            image: 'column-chart-header.jpg',
-          },
-          { to: 'datatable', label: 'Data Table', image: 'table-header.jpg' },
-          {
-            to: 'data-highlights',
-            label: 'Data Highlights',
-            image: 'highlights-header.jpg',
-          },
-          {
-            to: 'geo-mercator',
-            label: 'Geo Mercator',
-            image: 'map-header.jpg',
-          },
-          {
-            to: 'grouped-column-chart',
-            label: 'Grouped Column Chart',
-            image: 'grouped-column-chart-header.jpg',
-          },
-          { to: 'chart-legend', label: 'Legends', image: 'legend-header.jpg' },
-          {
-            to: 'pie-chart',
-            label: 'Pie Chart',
-            image: 'pie-chart-header.jpg',
-          },
-          {
-            to: 'pie-chart-2',
-            label: 'Pie Chart 2',
-            image: 'pie-chart-header.jpg',
-          },
-          {
-            to: 'scatter-plot',
-            label: 'Scatter Plot',
-            image: 'scatter-plot-header.jpg',
-          },
-          {
-            to: 'progress-charts',
-            label: 'Progress Charts',
-            image: 'gauge-chart-header.jpg',
-          },
-        ]"
+        :data="links"
         name="to"
         label="label"
         image-src="image"
@@ -127,6 +79,56 @@ import MessageBox from "../components/display/MessageBox.vue";
 let loading = ref(true);
 let error = ref(null);
 let confirmed = ref(false);
+
+const links = [
+  {
+    to: "bar-chart",
+    label: "Bar Chart",
+    image: "bar-chart-header.jpg",
+  },
+  {
+    to: "column-chart",
+    label: "Column Chart",
+    image: "column-chart-header.jpg",
+  },
+  { to: "datatable", label: "Data Table", image: "table-header.jpg" },
+  {
+    to: "data-highlights",
+    label: "Data Highlights",
+    image: "highlights-header.jpg",
+  },
+  {
+    to: "geo-mercator",
+    label: "Geo Mercator",
+    image: "map-header.jpg",
+  },
+  {
+    to: "grouped-column-chart",
+    label: "Grouped Column Chart",
+    image: "grouped-column-chart-header.jpg",
+  },
+  { to: "chart-legend", label: "Legends", image: "legend-header.jpg" },
+  {
+    to: "pie-chart",
+    label: "Pie Chart",
+    image: "pie-chart-header.jpg",
+  },
+  {
+    to: "pie-chart-2",
+    label: "Pie Chart 2",
+    image: "pie-chart-header.jpg",
+  },
+  {
+    to: "scatter-plot",
+    label: "Scatter Plot",
+    image: "scatter-plot-header.jpg",
+  },
+  {
+    to: "progress-charts",
+    label: "Progress Charts",
+    image: "gauge-chart-header.jpg",
+  },
+];
 
 async function confirmSchema() {
   const query = gql`

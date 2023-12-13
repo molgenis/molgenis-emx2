@@ -1,4 +1,3 @@
-
 // asDataObject
 // Transform a dataset (i.e., array of objects) to an key-value object
 // This is useful for preparing data for d3 visualisations such as pie charts
