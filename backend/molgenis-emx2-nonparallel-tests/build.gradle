@@ -1,0 +1,4 @@
+dependencies {
+    testImplementation project(':backend:molgenis-emx2')
+    testImplementation project(':backend:molgenis-emx2-sql')
+}

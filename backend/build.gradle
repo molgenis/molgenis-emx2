@@ -92,8 +92,13 @@ subprojects {
 
 
     if (project.name != "molgenis-emx2-sql") {
+        //so we always first init database
         test.dependsOn(":backend:molgenis-emx2-sql:test")
     } else {
+        // molgenis-emx2-nonparallel-tests should not run in parallel (and not depend on itself)
+        if(project.name != "molgenis-emx2-nonparallel-tests" && project.name != "molgenis-emx2-sql") {
+            test.mustRunAfter(":backend:molgenis-emx2-tests:test")
+        }
         //don't cache database init
         test.outputs.upToDateWhen { false }
     }
