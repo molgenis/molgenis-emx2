@@ -7,9 +7,11 @@
 
 Data manager of a network needs to check their network information.
 
-# Description
+# Goal
 
-The data manager of the network Athlete needs to check following:
+The data manager of the network Athlete needs to check following steps.
+
+# Steps
 
 | Action | Expected result |
 | -------| ----------------|

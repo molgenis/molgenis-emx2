@@ -38,15 +38,17 @@ The manual test is formatted as markdown and minimally should contain the follow
 
 - Number
 - Role
-- Description
-- Action(s)
-- Expected result(s)
+- Goal
+- Steps
+  - Action(s)
+  - Expected result(s)
 
 ### Catalogue manual test results
 
 The result of these manual tests are saved 'management server' emx2. The following attributes are saved.
 
 - Number
+- Version emx2
 - Role
 - Description
 - Passed: yes/no
