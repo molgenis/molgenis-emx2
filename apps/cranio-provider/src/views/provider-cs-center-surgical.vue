@@ -2,17 +2,19 @@
   <ProviderDashboard>
     <h2 class="dashboard-h2">Surgical overview for your center</h2>
     <h3 class="dashboard-h3">Surgical complications</h3>
-    <DashboardBox>
-      <InputLabel id="surgeryTypeInput" label="Select a type of surgery" />
-      <select id="surgeryTypeInput" @change="onSurgeryTypeInput">
-        <option>Extracranial procedures</option>
-        <option>Hydrocephalus</option>
-        <option>Midface</option>
-        <option>Vault</option>
-      </select>
-    </DashboardBox>
-    <DashboardChartLayout :columns="1">
-      <DashboardBox>
+    <DashboardRow :columns="1">
+      <DashboardChart>
+        <InputLabel id="surgeryTypeInput" label="Select a type of surgery" />
+        <select id="surgeryTypeInput" @change="onSurgeryTypeInput">
+          <option>Extracranial procedures</option>
+          <option>Hydrocephalus</option>
+          <option>Midface</option>
+          <option>Vault</option>
+        </select>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart>
         <GroupedColumnChart
           chartId="cs-center-surgical-complications-combined"
           title="Surgical complications"
@@ -25,40 +27,42 @@
           :columnFillPalette="palette"
           :chartHeight="200"
         />
-      </DashboardBox>
-    </DashboardChartLayout>
+      </DashboardChart>
+    </DashboardRow>
     <h2 class="dashboard-h2">Surgical interventions by diagnosis</h2>
-    <DashboardBox>
-      <InputLabel id="diagnosisInput" label="Select a diagnosis" />
-      <select id="diagnosisInput" @change="onDiagnosisInput">
-        <option value="ORPHA:87">Apert syndrome</option>
-        <option value="ORPHA:207">Crouzon syndrome</option>
-        <option value="ORPHA:93262">
-          Crouzon syndrome-acanthosis nigricans syndrome
-        </option>
-        <option value="OSNEW1">ERF-related craniosynostosis syndrome</option>
-        <option value="ORPHA:53271">Muenke syndrome</option>
-        <option value="ORPHA:3366">
-          Non-syndromic metopic craniosynostosis
-        </option>
-        <option value="ORPHA:35093">
-          Non-syndromic sagittal craniosynostosis
-        </option>
-        <option value="ORPHA:620102">
-          Non-syndromic unicoronal craniosynostosis
-        </option>
-        <option value="ORPHA:620113">
-          Non-syndromic unilambdoid craniosynostosis
-        </option>
-        <option value="ORPHA:794">Saethre-Chotzen syndrome</option>
-        <option value="OSNEW5">TCF12-related craniosynostosis</option>
-        <option value="ORPHA:620198">
-          non-syndromic multistural craniosynostosis
-        </option>
-      </select>
-    </DashboardBox>
-    <DashboardChartLayout :columns="1">
-      <DashboardBox>
+    <DashboardRow :columns="2">
+      <DashboardChart>
+        <InputLabel id="diagnosisInput" label="Select a diagnosis" />
+        <select id="diagnosisInput" @change="onDiagnosisInput">
+          <option value="ORPHA:87">Apert syndrome</option>
+          <option value="ORPHA:207">Crouzon syndrome</option>
+          <option value="ORPHA:93262">
+            Crouzon syndrome-acanthosis nigricans syndrome
+          </option>
+          <option value="OSNEW1">ERF-related craniosynostosis syndrome</option>
+          <option value="ORPHA:53271">Muenke syndrome</option>
+          <option value="ORPHA:3366">
+            Non-syndromic metopic craniosynostosis
+          </option>
+          <option value="ORPHA:35093">
+            Non-syndromic sagittal craniosynostosis
+          </option>
+          <option value="ORPHA:620102">
+            Non-syndromic unicoronal craniosynostosis
+          </option>
+          <option value="ORPHA:620113">
+            Non-syndromic unilambdoid craniosynostosis
+          </option>
+          <option value="ORPHA:794">Saethre-Chotzen syndrome</option>
+          <option value="OSNEW5">TCF12-related craniosynostosis</option>
+          <option value="ORPHA:620198">
+            non-syndromic multistural craniosynostosis
+          </option>
+        </select>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart>
         <PieChart2
           chartId="cs-center-surgical-interventions"
           title="Surgical Interventions"
@@ -72,10 +76,10 @@
           :chartScale="0.4"
           :valuesArePercents="false"
         />
-      </DashboardBox>
-    </DashboardChartLayout>
-    <DashboardChartLayout :columns="1">
-      <DashboardBox>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart>
         <GroupedColumnChart
           chartId="cs-center-age-at-first-surgery-combined"
           title="Age at first surgery"
@@ -92,21 +96,21 @@
           :chartHeight="225"
           :chartMargins="{ top: 10, right: 0, bottom: 60, left: 30 }"
         />
-      </DashboardBox>
-    </DashboardChartLayout>
+      </DashboardChart>
+    </DashboardRow>
   </ProviderDashboard>
 </template>
 
 <script setup>
 import { ref } from "vue";
 import {
-  DashboardBox,
+  DashboardRow,
+  DashboardChart,
   GroupedColumnChart,
   InputLabel,
   PieChart2,
 } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
-import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
   user: String,

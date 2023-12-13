@@ -1,18 +1,20 @@
 <template>
   <ProviderDashboard>
-    <DashboardBox id="provider-overview-welcome" class="mb-4">
-      <h2 class="dashboard-title">
-        Welcome to <span>{{ providerName }}'s</span> dashboard!
-      </h2>
-      <p>
-        Pages are grouped by workstream. You can view an overview of patients
-        your centre has submitted to the ERN Cranio registry, and you can
-        compare the results of your centre against the entire registry. On the
-        current page, you will find a snapshot of your centre as of today.
-      </p>
-    </DashboardBox>
-    <DashboardChartLayout :columns="1">
-      <DashboardBox
+    <DashboardRow :columns="1">
+      <DashboardChart id="provider-overview-welcome">
+        <h2 class="dashboard-title">
+          Welcome to <span>{{ providerName }}'s</span> dashboard!
+        </h2>
+        <p>
+          Pages are grouped by workstream. You can view an overview of patients
+          your centre has submitted to the ERN Cranio registry, and you can
+          compare the results of your centre against the entire registry. On the
+          current page, you will find a snapshot of your centre as of today.
+        </p>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart
         id="provider-overview-patients-submitted"
         class="center-showcase"
       >
@@ -24,10 +26,10 @@
             <UserCircleIcon />
           </template>
         </ValueShowcase>
-      </DashboardBox>
-    </DashboardChartLayout>
-    <DashboardChartLayout :columns="2">
-      <DashboardBox id="provider-overview-patients-by-workstream">
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="2">
+      <DashboardChart id="provider-overview-patients-by-workstream">
         <PieChart2
           chartId="patientsByWorkstream"
           title="Patients by workstream"
@@ -43,8 +45,8 @@
           :enableClicks="true"
           @slice-clicked="updateSelection"
         />
-      </DashboardBox>
-      <DashboardBox
+      </DashboardChart>
+      <DashboardChart
         id="provider-overview-patients-by-sex-at-birth"
         v-if="showSexAtBirth"
       >
@@ -60,18 +62,17 @@
           :chartScale="0.85"
           :valuesArePercents="false"
         />
-      </DashboardBox>
-    </DashboardChartLayout>
+      </DashboardChart>
+    </DashboardRow>
   </ProviderDashboard>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { UserGroupIcon, UserCircleIcon } from "@heroicons/vue/24/outline";
-import { DashboardBox, PieChart2 } from "molgenis-viz";
+import { UserCircleIcon } from "@heroicons/vue/24/outline";
+import { DashboardRow, DashboardChart, PieChart2 } from "molgenis-viz";
 
 import ProviderDashboard from "../components/ProviderDashboard.vue";
-import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 import ValueShowcase from "../components/ValueShowcase.vue";
 
 import viewProps from "../data/props";
