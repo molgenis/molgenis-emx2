@@ -56,7 +56,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
     if (idsMissing.length) {
       const missingCollectionQuery = new QueryEMX2(graphqlEndpoint)
         .table("Collections")
-        .select(["id", "name", "biobank.name"])
+        .select(["id", "name", "biobank.name", "also_known.url"])
         .where("id")
         .orLike(idsMissing);
       const result = await missingCollectionQuery.execute();

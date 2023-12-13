@@ -1,7 +1,7 @@
 package org.molgenis.emx2.graphgenome;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.molgenis.emx2.datamodels.FAIRDataHubLoader.createSchema;
+import static org.molgenis.emx2.datamodels.AbstractDataLoader.createSchema;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -23,6 +23,7 @@ public class GraphGenomeTest {
   static Database database;
   static List<Table> genomicVariationsTables;
   static final String GRAPH_GENOME_API_LOCATION = "/api/graphgenome";
+  static final String RDF_API_LOCATION = "/api/rdf";
 
   @BeforeAll
   public static void setup() {
@@ -37,7 +38,9 @@ public class GraphGenomeTest {
   public void TestForGene() {
     OutputStream outputStream = new ByteArrayOutputStream();
     new GraphGenome(
-            "http://localhost:8080/api/graphgenome?gene=TERC&assembly=GRCh37&ucscgenome=hg19", null)
+            "http://localhost:8080/api/graphgenome?gene=TERC&assembly=GRCh37&ucscgenome=hg19",
+            RDF_API_LOCATION,
+            null)
         .graphGenomeAsRDF(
             outputStream,
             "TERC",

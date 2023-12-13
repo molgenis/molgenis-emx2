@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Ref } from "vue";
-import query from "~~/gql/collectionEvent";
+import collectionEventGql from "~~/gql/collectionEvent";
 import ContentBlockModal from "./content/ContentBlockModal.vue";
+import type { IDefinitionListItem, IMgError } from "~~/interfaces/types";
 
 const { id: collectionEventName } = defineProps<{
   id: string;
@@ -9,47 +9,40 @@ const { id: collectionEventName } = defineProps<{
 
 const config = useRuntimeConfig();
 const route = useRoute();
+const query = moduleToString(collectionEventGql);
 
-if (query.loc?.source.body === undefined) {
-  throw "unable to load query: " + query.toString();
-}
-const queryValue = query.loc?.source.body;
-
-let collectionEvent: Ref<ICollectionEvent | undefined> = ref();
-
-const { data: collectionEventData } = await useFetch(
+const { data, error } = await useFetch<any, IMgError>(
   `/${route.params.schema}/catalogue/graphql`,
   {
+    key: `collection-event-${route.params.cohort}-${collectionEventName}`,
     baseURL: config.public.apiBase,
     method: "POST",
     body: {
-      query: queryValue,
+      query,
       variables: {
         id: route.params.cohort,
         name: collectionEventName,
       },
     },
   }
-).catch((e) => console.log(e));
+);
 
-watch(
-  collectionEventData,
-  (data) => {
-    collectionEvent = data?.data?.CollectionEvents[0];
-  },
-  {
-    deep: true,
-    immediate: true,
-  }
+if (error.value) {
+  const contextMsg = "Error fetching data for collection-event preview fetch";
+  logError(error.value, contextMsg);
+  throw new Error(contextMsg);
+}
+
+const collectionEvent: any = computed(
+  () => data.value.data.CollectionEvents[0]
 );
 
 const pageCrumbs: any = {
   Cohorts: `/${route.params.schema}/ssr-catalogue`,
 };
 
-// @ts-ignore
 pageCrumbs[
-  route.params.cohort
+  route.params.cohort as string
 ] = `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
@@ -58,74 +51,67 @@ function renderList(list: any[], itemMapper: (a: any) => string) {
 
 const toName = (item: any) => item.name;
 
-const items = [];
+const items: IDefinitionListItem[] = [];
 
-if (collectionEvent?.subcohorts?.length) {
+if (collectionEvent.value?.subcohorts?.length) {
   items.push({
     label: "Subcohorts",
-    content: renderList(collectionEvent?.subcohorts, toName),
+    content: renderList(collectionEvent.value?.subcohorts, toName),
   });
 }
 
-if (collectionEvent?.numberOfParticipants) {
+if (collectionEvent.value?.numberOfParticipants) {
   items.push({
     label: "Number of participants",
-    content: collectionEvent?.numberOfParticipants,
+    content: collectionEvent.value?.numberOfParticipants,
   });
 }
 
-if (collectionEvent?.startYear || collectionEvent?.endYear) {
+if (collectionEvent.value?.startYear || collectionEvent.value?.endYear) {
   items.push({
     label: "Start/end year",
     content: filters.startEndYear(
-      collectionEvent.startYear && collectionEvent.startYear.name
-        ? collectionEvent.startYear.name
+      collectionEvent.value.startYear && collectionEvent.value.startYear.name
+        ? collectionEvent.value.startYear.name
         : null,
-      collectionEvent.endYear && collectionEvent.endYear.name
-        ? collectionEvent.endYear.name
+      collectionEvent.value.endYear && collectionEvent.value.endYear.name
+        ? collectionEvent.value.endYear.name
         : null
     ),
   });
 }
 
-if (collectionEvent?.ageGroups?.length) {
+if (collectionEvent.value?.ageGroups?.length) {
   items.push({
     label: "Age categories",
     content: renderList(
-      removeChildIfParentSelected(collectionEvent.ageGroups),
+      removeChildIfParentSelected(collectionEvent.value.ageGroups),
       toName
     ),
   });
 }
 
-if (collectionEvent?.areasOfInformation?.length) {
+if (collectionEvent.value?.areasOfInformation?.length) {
   items.push({
     label: "Areas of information",
     type: "ONTOLOGY",
-    content: buildOntologyTree(collectionEvent.areasOfInformation),
+    content: collectionEvent.value.areasOfInformation,
   });
 }
 
-if (collectionEvent?.dataCategories?.length) {
+if (collectionEvent.value?.dataCategories?.length) {
   items.push({
     label: "Data Categories",
     type: "ONTOLOGY",
-    content: buildOntologyTree(collectionEvent.dataCategories),
+    content: collectionEvent.value.dataCategories,
   });
 }
 
-if (collectionEvent?.sampleCategories?.length) {
+if (collectionEvent.value?.sampleCategories?.length) {
   items.push({
     label: "Sample categories",
     type: "ONTOLOGY",
-    content: buildOntologyTree(collectionEvent.sampleCategories),
-  });
-}
-
-if (collectionEvent?.coreVariables?.length) {
-  items.push({
-    label: "Core variables",
-    content: collectionEvent?.coreVariables,
+    content: collectionEvent.value.sampleCategories,
   });
 }
 </script>
@@ -136,6 +122,6 @@ if (collectionEvent?.coreVariables?.length) {
     :title="collectionEvent?.name"
     :description="collectionEvent?.description"
   >
-    <DefinitionList :items="items" :small="true" />
+    <CatalogueItemList :items="items" :small="true" />
   </ContentBlockModal>
 </template>

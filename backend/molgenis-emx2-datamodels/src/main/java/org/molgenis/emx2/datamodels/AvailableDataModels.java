@@ -8,8 +8,10 @@ public enum AvailableDataModels {
   DATA_CATALOGUE_NETWORK_STAGING(new DataCatalogueNetworkStagingLoader()),
   DATA_CATALOGUE(new DataCatalogueLoader()),
   PET_STORE(new PetStoreLoader()),
-  FAIR_DATA_HUB(new FAIRDataHubLoader()),
-  RD3(new Rd3Loader()),
+  FAIR_DATA_HUB(new ProfileLoader("fairdatahub/FAIRDataHub.yaml")),
+  RD3(new ProfileLoader("fairdatahub/RD3.yaml")),
+  JRC_COMMON_DATA_ELEMENTS(new ProfileLoader("fairdatahub/JRC-CDE.yaml")),
+  BEACON_V2(new ProfileLoader("fairdatahub/BeaconV2.yaml")),
   ERN_DASHBOARD(new DashboardLoader()),
   ERN_CRANIO(new ErnCranioLoader()),
   BIOBANK_DIRECTORY(new BiobankDirectoryLoader());

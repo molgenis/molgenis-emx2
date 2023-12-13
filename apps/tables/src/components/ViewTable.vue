@@ -1,10 +1,10 @@
 <template>
   <div v-if="schema">
-    <router-link v-if="schema" to="/"> &lt; {{ schema.name }} </router-link> /
+    <router-link v-if="schema" to="/"> &lt; {{ schema.id }} </router-link> /
     {{ table }}
     <RoutedTableExplorer
-      :tableName="table"
-      :schemaName="schema.name"
+      :tableId="table"
+      :schemaId="schema.id"
       :canView="canView"
       :canEdit="canEdit"
       :canManage="canManage"

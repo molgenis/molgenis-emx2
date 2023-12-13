@@ -1,5 +1,5 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
-import { defineNuxtConfig } from "nuxt/config";
+import { defineNuxtConfig, type NuxtConfig } from "nuxt/config";
 
 const devProxy = {
   options: {
@@ -12,8 +12,8 @@ const devProxy = {
   },
 };
 
-const config = {
-  modules: ["nuxt-proxy", "@nuxt/image-edge"],
+const config: NuxtConfig = {
+  modules: ["nuxt-proxy", "@nuxt/image"],
   devtools: { enabled: true },
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side
@@ -21,7 +21,7 @@ const config = {
       apiBase: "http://localhost:3000/", //'https://emx2.molgeniscloud.org/',
       emx2Theme: "",
       emx2Logo: "",
-      siteTitle: "Data Catalogue",
+      siteTitle: "MOLGENIS",
       analyticsKey: "",
       cohortOnly: false,
     },

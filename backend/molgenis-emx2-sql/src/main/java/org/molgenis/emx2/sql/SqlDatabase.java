@@ -279,6 +279,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public SqlSchema getSchema(String name) {
+    if (name == null) throw new MolgenisException("Schema name was null or empty");
     if (schemaCache.containsKey(name)) {
       return new SqlSchema(this, schemaCache.get(name));
     } else {

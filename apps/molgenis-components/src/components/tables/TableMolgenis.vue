@@ -10,7 +10,7 @@
         </th>
         <th
           v-for="col in dataColumns"
-          :key="col.name + col.showColumn"
+          :key="col.id + col.showColumn"
           scope="col"
           class="column-drag-header"
           :style="col.showColumn ? '' : 'display: none'"
@@ -19,7 +19,7 @@
             class="mb-0 align-text-bottom text-nowrap"
             @click="onColumnClick(col)"
           >
-            {{ col.name }}
+            {{ col.label }}
             <slot name="colheader" :col="col" />
           </h6>
         </th>
@@ -35,7 +35,7 @@
           <TableRow
             :row="row"
             :columns="dataColumns"
-            :tableName="tableName || tableMetadata.name"
+            :tableId="tableId || tableMetadata.id"
             :client="client"
             :showSelect="showSelect"
             :selection="selection"
@@ -84,21 +84,21 @@ import { toRaw } from "vue";
 export default {
   components: { TableRow },
   props: {
-    /** selection, two-way binded*/
     selection: { type: Array, required: false },
-    /** column metadata, two-way binded to allow for reorder */
+    /** column metadata, two-way binded to allow for reorder
+     * TODO: handle this through events since props are meant to be 1-way
+     */
     columns: { type: Array, default: () => [] },
-    /** not two way binded, table metadata */
     tableMetadata: { type: Object, required: false },
-    /** if tableMetadata is not supplied table name should be set */
-    tableName: { type: String, required: false },
+    /** if tableMetadata is not supplied table id should be set */
+    tableId: { type: String, required: false },
     data: { type: Array, default: () => [] },
     showSelect: { type: Boolean, default: false },
-    schemaName: { type: String, required: true },
+    schemaId: { type: String, required: false },
   },
   data() {
     return {
-      client: Client.newClient(this.schemaName),
+      client: Client.newClient(this.schemaId),
     };
   },
   computed: {
@@ -163,8 +163,8 @@ export default {
         v-model:selection="selection"
         v-model:columns="columns"
         :data="remoteTableData"
-        tableName="Pet"
-        schemaName="pet store"
+        tableId="Pet"
+        schemaId="pet store"
         :showSelect="canSelect"
       />
     </DemoItem>
@@ -172,8 +172,8 @@ export default {
       <label class="font-italic">Example without data</label>
       <table-molgenis
           :data="[]"
-          tableName="Pet"
-          schemaName="pet store"
+          tableId="Pet"
+          schemaId="pet store"
           v-model:columns="columns"
       />
     </DemoItem>
@@ -181,8 +181,8 @@ export default {
       <label class="font-italic">Example without data and columns</label>
       <table-molgenis
           :data="[]"
-          tableName="Pet"
-          schemaName="pet store"
+          tableId="Pet"
+          schemaId="pet store"
       />
     </DemoItem>
   </div>
@@ -204,9 +204,9 @@ export default {
     const client = Client.newClient("pet store");
     const metaData = await client.fetchSchemaMetaData();
     const petColumns = metaData.tables.find(
-      (t) => t.name === "Pet"
+      (t) => t.id === "Pet"
     ).columns;
-    this.columns = petColumns.filter((c) => !c.name.startsWith("mg_"));
+    this.columns = petColumns.filter((c) => !c.id.startsWith("mg_"));
     this.remoteTableData = (await client.fetchTableData("Pet")).Pet;
   },
 };

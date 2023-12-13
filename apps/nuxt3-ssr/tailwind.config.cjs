@@ -105,13 +105,20 @@ module.exports = {
       minWidth: {
         95: "23.75rem",
       },
+      maxHeight: {
+        title: "10rem",
+      },
+      minHeight: {
+        title: "10rem",
+      },
       maxWidth: {
         lg: "88.75rem", // 970+380+30+20+20
         tooltip: "10.5rem",
         none: "none",
         sm: "20rem",
         xs: "15rem",
-        table: "60.7rem"
+        table: "60.7rem",
+        title: "10rem",
       },
       backgroundImage: {
         "sidebar-gradient":
@@ -145,6 +152,9 @@ module.exports = {
         "pagination-hover": theme("colors.blue.900"),
         footer: theme("colors.blue.800"),
         "modal-footer": theme("colors.blue.800"),
+        tab: theme("colors.blue.50"),
+        "tab-hover": theme("colors.blue.500"),
+        "tab-active": theme("colors.blue.500"),
       }),
       textColor: ({ theme }) => ({
         "button-primary": theme("colors.gray.900"),
@@ -220,7 +230,7 @@ module.exports = {
         "search-input": "9999px",
         "search-button": "9999px",
         pagination: "9999px",
-        landing: "50px"
+        landing: "50px",
       },
       opacity: {
         "background-gradient": 100,

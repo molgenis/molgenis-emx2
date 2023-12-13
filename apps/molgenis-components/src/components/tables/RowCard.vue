@@ -7,7 +7,7 @@
             v-if="canEdit"
             type="edit"
             class="d-inline"
-            :table="tableName"
+            :tableId="tableId"
             :pkey="getKey(row)"
             @close="$emit('reload')"
             @edit="$emit('edit', row)"
@@ -16,7 +16,7 @@
             v-if="canEdit"
             type="delete"
             class="mt-0"
-            :table="tableName"
+            :tableId="tableId"
             :pkey="getKey(row)"
             @close="$emit('reload')"
             @delete="$emit('delete', row)"
@@ -27,7 +27,7 @@
           <template v-for="col in columns" :key="col.id">
             <template v-if="showItem(row, col)">
               <dt v-if="showItem(row, col)" class="pr-3 pb-1">
-                {{ col.name }}
+                {{ col.label }}
               </dt>
               <dd class="pl-3" v-if="showItem(row, col)">
                 <RenderValue :col="col" :row="row" />
@@ -75,7 +75,7 @@ export default {
   },
   props: {
     columns: Array,
-    tableName: String,
+    tableId: String,
     row: Object,
     template: String,
     canEdit: Boolean,
@@ -85,7 +85,7 @@ export default {
       let result = {};
       this.columns
         .filter((c) => c.key == 1)
-        .map((c) => (result[c.name] = row[c.name]));
+        .map((c) => (result[c.id] = row[c.id]));
       return result;
     },
     showItem(row, col) {

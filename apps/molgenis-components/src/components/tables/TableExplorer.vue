@@ -1,9 +1,9 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <h1 v-if="showHeader && tableMetadata">{{ localizedLabel }}</h1>
+    <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.label }}</h1>
     <p v-if="showHeader && tableMetadata">
-      {{ localizedDescription }}
+      {{ tableMetadata.label }}
     </p>
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
@@ -40,13 +40,13 @@
             <div>
               <div>
                 <span class="fixed-width">zip</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableId"
+                <ButtonAlt :href="'/' + schemaId + '/api/zip/' + tableId"
                   >all rows</ButtonAlt
                 >
               </div>
               <div>
                 <span class="fixed-width">csv</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableId"
+                <ButtonAlt :href="'/' + schemaId + '/api/csv/' + tableId"
                   >all rows</ButtonAlt
                 >
                 <span v-if="Object.keys(graphqlFilter).length > 0">
@@ -54,7 +54,7 @@
                   <ButtonAlt
                     :href="
                       '/' +
-                      schemaName +
+                      schemaId +
                       '/api/csv/' +
                       tableId +
                       '?filter=' +
@@ -67,7 +67,7 @@
               </div>
               <div>
                 <span class="fixed-width">excel</span>
-                <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableId"
+                <ButtonAlt :href="'/' + schemaId + '/api/excel/' + tableId"
                   >all rows</ButtonAlt
                 >
                 <span v-if="Object.keys(graphqlFilter).length > 0">
@@ -75,7 +75,7 @@
                   <ButtonAlt
                     :href="
                       '/' +
-                      schemaName +
+                      schemaId +
                       '/api/excel/' +
                       tableId +
                       '?filter=' +
@@ -88,21 +88,13 @@
               </div>
               <div>
                 <span class="fixed-width">jsonld</span>
-                <ButtonAlt
-                  :href="
-                    '/' + schemaName + '/api/rdf/' + tableId + '?format=jsonld'
-                  "
-                >
+                <ButtonAlt :href="'/' + schemaId + '/api/jsonld/' + tableId">
                   all rows
                 </ButtonAlt>
               </div>
               <div>
                 <span class="fixed-width">ttl</span>
-                <ButtonAlt
-                  :href="
-                    '/' + schemaName + '/api/rdf/' + tableId + '?format=ttl'
-                  "
-                >
+                <ButtonAlt :href="'/' + schemaId + '/api/ttl/' + tableId">
                   all rows
                 </ButtonAlt>
               </div>
@@ -169,7 +161,7 @@
         <TableSettings
           v-if="tableMetadata"
           :tableMetadata="tableMetadata"
-          :schemaName="schemaName"
+          :schemaId="schemaId"
           @update:settings="reloadMetadata"
         />
 
@@ -184,7 +176,7 @@
         <FilterSidebar
           :filters="columns"
           @updateFilters="emitConditions"
-          :schemaName="schemaName"
+          :schemaId="schemaId"
         />
       </div>
       <div
@@ -204,8 +196,8 @@
             v-if="view === View.AGGREGATE"
             :canView="canView"
             :allColumns="columns"
-            :tableName="tableName"
-            :schemaName="schemaName"
+            :tableId="tableId"
+            :schemaId="schemaId"
             :minimumValue="1"
             :graphqlFilter="graphqlFilter"
           />
@@ -215,7 +207,7 @@
             id="cards"
             :data="dataRows"
             :columns="columns"
-            :table-name="tableName"
+            :tableId="tableId"
             :canEdit="canEdit"
             :template="cardTemplate"
             @click="$emit('rowClick', $event)"
@@ -223,12 +215,12 @@
             @edit="
               handleRowAction(
                 'edit',
-                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
               )
             "
             @delete="
               handleDeleteRowRequest(
-                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
               )
             "
           />
@@ -237,7 +229,7 @@
             id="records"
             :data="dataRows"
             :columns="columns"
-            :table-name="tableName"
+            :tableId="tableId"
             :canEdit="canEdit"
             :template="recordTemplate"
             @click="$emit('rowClick', $event)"
@@ -245,22 +237,22 @@
             @edit="
               handleRowAction(
                 'edit',
-                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
               )
             "
             @delete="
               handleDeleteRowRequest(
-                convertRowToPrimaryKey($event, tableMetadata.name, schemaName)
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
               )
             "
           />
           <TableMolgenis
             v-if="view === View.TABLE"
-            :schemaName="schemaName"
+            :schemaId="schemaId"
             :selection="selectedItems"
             @update:selection="selectedItems = $event"
             :columns="columns"
-            @update:colums="columns = $event"
+            @update:columns="columns = $event"
             :table-metadata="tableMetadata"
             :data="dataRows"
             :showSelect="showSelect"
@@ -275,8 +267,8 @@
               <RowButton
                 v-if="canEdit"
                 type="add"
-                :table="tableName"
-                :schemaName="schemaName"
+                :tableId="tableId"
+                :schemaId="schemaId"
                 @add="handleRowAction('add')"
                 class="d-inline p-0"
               />
@@ -298,8 +290,8 @@
                     'edit',
                     convertRowToPrimaryKey(
                       slotProps.row,
-                      tableMetadata.name,
-                      schemaName
+                      tableMetadata.id,
+                      schemaId
                     )
                   )
                 "
@@ -312,8 +304,8 @@
                     'clone',
                     convertRowToPrimaryKey(
                       slotProps.row,
-                      tableMetadata.name,
-                      schemaName
+                      tableMetadata.id,
+                      schemaId
                     )
                   )
                 "
@@ -325,8 +317,8 @@
                   handleDeleteRowRequest(
                     convertRowToPrimaryKey(
                       slotProps.row,
-                      tableMetadata.name,
-                      schemaName
+                      tableMetadata.id,
+                      schemaId
                     )
                   )
                 "
@@ -339,8 +331,8 @@
                 :rowKey="
                   convertRowToPrimaryKey(
                     slotProps.row,
-                    tableMetadata.name,
-                    schemaName
+                    tableMetadata.id,
+                    schemaId
                   )
                 "
               />
@@ -353,22 +345,23 @@
     <EditModal
       v-if="isEditModalShown"
       :isModalShown="true"
-      :id="tableName + '-edit-modal'"
-      :tableName="tableName"
+      :id="tableId + '-edit-modal'"
+      :tableId="tableId"
+      :tableLabel="tableMetadata.label"
       :pkey="editRowPrimaryKey"
       :clone="editMode === 'clone'"
-      :schemaName="schemaName"
+      :schemaId="schemaId"
       @close="handleModalClose"
-      :locale="locale"
       :apply-default-values="editMode === 'add'"
     />
 
     <ConfirmModal
       v-if="isDeleteModalShown"
-      :title="'Delete from ' + tableName"
+      :title="'Delete from ' + tableMetadata.label"
       actionLabel="Delete"
       actionType="danger"
-      :tableName="tableName"
+      :tableId="tableId"
+      :tableLabel="tableMetadata.label"
       :pkey="editRowPrimaryKey"
       @close="isDeleteModalShown = false"
       @confirmed="handleExecuteDelete"
@@ -376,19 +369,20 @@
 
     <ConfirmModal
       v-if="isDeleteAllModalShown"
-      :title="'Truncate ' + tableName"
+      :title="'Truncate ' + tableMetadata.label"
       actionLabel="Truncate"
       actionType="danger"
-      :tableName="tableName"
+      :tableId="tableId"
+      :tableLabel="tableMetadata.label"
       @close="isDeleteAllModalShown = false"
       @confirmed="handelExecuteDeleteAll"
     >
       <p>
-        Truncate <strong>{{ tableName }}</strong>
+        Truncate <strong>{{ tableMetadata.label }}</strong>
       </p>
       <p>
         Are you sure that you want to delete ALL rows in table '{{
-          tableName
+          tableMetadata.label
         }}'?
       </p>
     </ConfirmModal>
@@ -396,7 +390,7 @@
       v-if="refSideModalProps"
       :column="refSideModalProps.column"
       :rows="refSideModalProps.rows"
-      :schema="this.schemaName"
+      :schema="this.schemaId"
       @onClose="refSideModalProps = undefined"
       :showDataOwner="canManage"
     />
@@ -425,14 +419,7 @@ import InputSelect from "../forms/InputSelect.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
-import {
-  convertToPascalCase,
-  convertRowToPrimaryKey,
-  deepClone,
-  getLocalizedDescription,
-  getLocalizedLabel,
-  isRefType,
-} from "../utils";
+import { convertRowToPrimaryKey, deepClone, isRefType } from "../utils";
 import AggregateTable from "./AggregateTable.vue";
 import Pagination from "./Pagination.vue";
 import RecordCards from "./RecordCards.vue";
@@ -517,11 +504,11 @@ export default {
     };
   },
   props: {
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -581,21 +568,8 @@ export default {
       type: Boolean,
       default: () => false,
     },
-    locale: {
-      type: String,
-      default: () => "en",
-    },
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
-    localizedLabel() {
-      return getLocalizedLabel(this.tableMetadata, this.locale);
-    },
-    localizedDescription() {
-      return getLocalizedDescription(this.tableMetadata, this.locale);
-    },
     View() {
       return View;
     },
@@ -647,7 +621,7 @@ export default {
     async handelExecuteDeleteAll() {
       this.isDeleteAllModalShown = false;
       const resp = await this.client
-        .deleteAllTableData(this.tableMetadata.name)
+        .deleteAllTableData(this.tableMetadata.id)
         .catch(this.handleError);
       if (resp) {
         this.reload();
@@ -694,14 +668,11 @@ export default {
     },
     emitColumns(event) {
       this.columns = event;
-      this.$emit(
-        "updateShowColumns",
-        getColumnNames(this.columns, "showColumn")
-      );
+      this.$emit("updateShowColumns", getColumnIds(this.columns, "showColumn"));
     },
     emitFilters(event) {
       this.columns = event;
-      this.$emit("updateShowFilters", getColumnNames(event, "showFilter"));
+      this.$emit("updateShowFilters", getColumnIds(event, "showFilter"));
     },
     emitConditions() {
       this.page = 1;
@@ -733,16 +704,16 @@ export default {
     setTableMetadata(newTableMetadata) {
       this.columns = newTableMetadata.columns.map((column) => {
         const showColumn = this.showColumns.length
-          ? this.showColumns.includes(column.name)
-          : !column.name.startsWith("mg_");
+          ? this.showColumns.includes(column.id)
+          : !column.id.startsWith("mg_");
         const conditions = getCondition(
           column.columnType,
-          this.urlConditions[column.name]
+          this.urlConditions[column.id]
         );
         return {
           ...column,
           showColumn,
-          showFilter: this.showFilters.includes(column.name),
+          showFilter: this.showFilters.includes(column.id),
           conditions,
         };
       });
@@ -757,9 +728,9 @@ export default {
       this.tableMetadata = newTableMetadata;
     },
     async reloadMetadata() {
-      this.client = Client.newClient(this.schemaName);
+      this.client = Client.newClient(this.schemaId);
       const newTableMetadata = await this.client
-        .fetchTableMetaData(this.tableName)
+        .fetchTableMetaData(this.tableId)
         .catch(this.handleError);
       this.setTableMetadata(newTableMetadata);
       if (this.canView) {
@@ -774,7 +745,7 @@ export default {
         ? { [this.orderByColumn]: this.order }
         : {};
       const dataResponse = await this.client
-        .fetchTableData(this.tableName, {
+        .fetchTableData(this.tableId, {
           limit: this.limit,
           offset: offset,
           filter: this.graphqlFilter,
@@ -803,10 +774,10 @@ export default {
   ],
 };
 
-function getColumnNames(columns, property) {
+function getColumnIds(columns, property) {
   return columns
     .filter((column) => column[property] && column.columnType !== "HEADING")
-    .map((column) => column.name);
+    .map((column) => column.id);
 }
 
 function getCondition(columnType, condition) {
@@ -908,8 +879,8 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
       <label>Read only example</label>
       <table-explorer
         id="my-table-explorer"
-        tableName="Pet"
-        schemaName="pet store"
+        tableId="Pet"
+        schemaId="pet store"
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"
@@ -920,7 +891,6 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
         :canEdit="canEdit"
         :canManage="canManage"
         :canView="true"
-        :locale="locale"
       />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
@@ -949,7 +919,6 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
         showOrderBy: 'name',
         canEdit: false,
         canManage: false,
-        locale: 'en'
       }
     },
   }

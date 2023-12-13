@@ -1,4 +1,4 @@
-import { KeyObject } from "~/interfaces/types";
+import type { KeyObject } from "meta-data-utils";
 
 export const transformToKeyObject = (keyObjectAsString: string): KeyObject =>
   JSON.parse(keyObjectAsString);
@@ -15,4 +15,8 @@ export const buildValueKey = (keyObject: KeyObject): string => {
     },
     ""
   );
+};
+
+export const resourceIdPath = (keyObject: KeyObject) => {
+  return buildValueKey(keyObject) + "?keys=" + JSON.stringify(keyObject);
 };

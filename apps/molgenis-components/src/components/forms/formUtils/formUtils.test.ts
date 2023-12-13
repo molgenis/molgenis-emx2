@@ -1,5 +1,4 @@
 import { describe, expect, test } from "vitest";
-import { ITableMetaData } from "../../../Interfaces/ITableMetaData";
 import constants from "../../constants.js";
 import {
   filterVisibleColumns,
@@ -7,9 +6,10 @@ import {
   getRowErrors,
   getSaveDisabledMessage,
   removeKeyColumns,
-  splitColumnNamesByHeadings,
+  splitColumnIdsByHeadings,
+  isMissingValue,
 } from "./formUtils";
-import { IColumn } from "../../../Interfaces/IColumn";
+import type { ITableMetaData, IColumn } from "meta-data-utils";
 const { AUTO_ID, HEADING } = constants;
 
 describe("getRowErrors", () => {
@@ -37,7 +37,7 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "required",
-          name: "required",
+          label: "required",
           columnType: "STRING",
           required: true,
         },
@@ -53,7 +53,7 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "required",
-          name: "required",
+          label: "required",
           columnType: "DECIMAL",
           required: true,
         },
@@ -188,8 +188,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -205,8 +206,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -222,8 +224,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -239,8 +242,9 @@ describe("getRowErrors", () => {
       columns: [
         {
           id: "overlap",
+          label: "overlap",
           columnType: "REF",
-          refLink: "refLinkId",
+          refLinkId: "refLinkId",
         },
       ],
     } as ITableMetaData;
@@ -265,7 +269,7 @@ describe("getRowErrors", () => {
 describe("removeKeyColumns", () => {
   test("it should return the data without the data of the key columns", () => {
     const metaData = {
-      columns: [{ name: "key", key: 1 }, { name: "some" }],
+      columns: [{ id: "key", key: 1 }, { id: "some" }],
     } as ITableMetaData;
     const rowData = { some: "Data", key: "primaryKey" };
     const result = removeKeyColumns(metaData, rowData);
@@ -289,7 +293,7 @@ describe("filterVisibleColumns", () => {
   });
 });
 
-describe("splitColumnNamesByHeadings", () => {
+describe("splitColumnIdsByHeadings", () => {
   test("it should split all columns by the headings", () => {
     const columns = [
       { id: "heading1", columnType: HEADING },
@@ -298,7 +302,7 @@ describe("splitColumnNamesByHeadings", () => {
       { id: "string2", columnType: "STRING" },
       { id: "string3", columnType: "STRING" },
     ] as IColumn[];
-    const result = splitColumnNamesByHeadings(columns);
+    const result = splitColumnIdsByHeadings(columns);
     const expectedResult = [
       ["heading1", "string1"],
       ["heading2", "string2", "string3"],
@@ -334,5 +338,27 @@ describe("getSaveDisabledMessage", () => {
     const rowErrors = { id1: "some error", id2: "another error" };
     const result = getSaveDisabledMessage(rowErrors);
     expect(result).to.equal("There are 2 error(s) preventing saving");
+  });
+});
+
+describe("isMissingValue", () => {
+  test("should return true if variable is considered to be missing", () => {
+    expect(isMissingValue(undefined)).toBe(true);
+    expect(isMissingValue(null)).toBe(true);
+    expect(isMissingValue("")).toBe(true);
+  });
+
+  test("should return false if variable is considered not to be missing", () => {
+    expect(isMissingValue(0)).toBe(false);
+    expect(isMissingValue(false)).toBe(false);
+    expect(isMissingValue("field1")).toBe(false);
+  });
+
+  test("should handle (nested) arrays correctly", () => {
+    expect(isMissingValue([0])).toBe(false);
+    expect(isMissingValue([1, 2, 3])).toBe(false);
+    expect(isMissingValue([null, "field1", ""])).toBe(true);
+    expect(isMissingValue([["field1", "field2"], "field3"])).toBe(false);
+    expect(isMissingValue([[undefined, "field1"], "field2"])).toBe(true);
   });
 });

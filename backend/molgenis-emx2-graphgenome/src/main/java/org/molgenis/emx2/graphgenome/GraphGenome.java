@@ -9,6 +9,7 @@ import static org.molgenis.emx2.graphgenome.Semantics.*;
 import java.io.OutputStream;
 import java.util.*;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Table;
@@ -17,8 +18,8 @@ import org.molgenis.emx2.rdf.RDFService;
 
 public class GraphGenome extends RDFService {
 
-  public GraphGenome(String requestURL, String format) {
-    super(requestURL, format);
+  public GraphGenome(String baseURL, String rdfAPIpath, RDFFormat format) {
+    super(baseURL, rdfAPIpath, format);
   }
 
   public static final int DNA_PADDING = 10;
@@ -109,11 +110,11 @@ public class GraphGenome extends RDFService {
       sortedVariants.sort(new SortByPosition());
 
       // prep RDF export
-      String apiContext = getHost() + graphGenomeApiLocation;
+      String apiContext = getBaseURL() + graphGenomeApiLocation;
       ModelBuilder builder = new ModelBuilder();
       // todo, can this be done in superclass so describe root doesn't need to be public
-      describeRoot(builder, getHost());
-      host = getHost();
+      describeRoot(builder);
+      host = getBaseURL();
 
       String apiContextGene =
           addGeneNode(

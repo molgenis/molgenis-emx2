@@ -14,11 +14,9 @@ const props = defineProps({
 
 watch(props.filters, (filters) => {
   const search = filters.filter((f) => f.columnType === "_SEARCH")[0].search;
-  console.log("search: " + search);
   const conditions = JSON.stringify(
     filters.filter((f) => f?.conditions?.length).map((f) => f.conditions)
   );
-  console.log("filter conditions: " + conditions);
 });
 </script>
 
@@ -50,13 +48,13 @@ watch(props.filters, (filters) => {
         />
         <FilterOntology
           v-else-if="filter.columnType === 'ONTOLOGY'"
-          :table-name="filter.refTable"
+          :table-id="filter.refTableId"
           :mobileDisplay="mobileDisplay"
           v-model="filter.conditions"
         />
         <FilterList
           v-else-if="filter.columnType === 'REF_ARRAY'"
-          :table-name="filter.refTable"
+          :table-id="filter.refTableId"
           :key-field="filter.refFields.key"
           :name-field="filter.refFields.name"
           :descriptionField="filter.refFields.description"

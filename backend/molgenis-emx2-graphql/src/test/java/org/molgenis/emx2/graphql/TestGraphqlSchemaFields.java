@@ -125,7 +125,25 @@ public class TestGraphqlSchemaFields {
             .textValue());
 
     // remove value
-    execute("mutation{drop(settings:[{table:\"Pet\", key:\"test\"}]){message}}");
+    execute("mutation{drop(settings:[{tableId:\"Pet\", key:\"test\"}]){message}}");
+
+    assertEquals(0, schema.getTable("Pet").getMetadata().getSettings().size());
+    assertEquals(
+        0,
+        execute("{_schema{tables{settings{key,value}}}}").at("/_schema/tables/2/settings").size());
+
+    // or using tableId
+    // add value
+    execute("mutation{change(settings:[{tableId:\"Pet\",key:\"test\",value:\"blaat\"}]){message}}");
+
+    assertEquals(
+        "blaat",
+        execute("{_schema{tables{settings{key,value}}}}")
+            .at("/_schema/tables/2/settings/0/value")
+            .textValue());
+
+    // remove value
+    execute("mutation{drop(settings:[{tableId:\"Pet\", key:\"test\"}]){message}}");
 
     assertEquals(0, schema.getTable("Pet").getMetadata().getSettings().size());
     assertEquals(
@@ -306,6 +324,13 @@ public class TestGraphqlSchemaFields {
             .doubleValue(),
         0.0f);
 
+    // nested agg with filter
+    assertEquals(
+        1,
+        execute("{User{pets_agg(filter:{name:{equals:\"pooky\"}}){count}}}")
+            .at("/User/0/pets_agg/count")
+            .intValue());
+
     // subfilters
     result =
         execute(
@@ -370,7 +395,12 @@ public class TestGraphqlSchemaFields {
     assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
     assert (result.at("/Pet_groupBy/1/orders/orderId").textValue().contains("ORDER:"));
 
-    // N.B. in case arrays are involved total might more than count!!!
+    // apply nested filter
+    result =
+        execute(
+            "{User{username,pets_groupBy(filter:{name:{equals:\"the very hungry caterpillar\"}}){count,tags{name}}}}");
+    assertEquals(1, result.at("/User/0/pets_groupBy/0/count").intValue());
+    assertEquals("green", result.at("/User/0/pets_groupBy/0/tags/name").textValue());
   }
 
   @Test

@@ -1,26 +1,35 @@
-import { ICohort, IMapping, HarmonizationStatus } from "~/interfaces/types";
+import type {
+  HarmonizationStatus,
+  IVariableWithMappings,
+  IVariableBase,
+} from "~/interfaces/types";
 
-interface IRepeatingVariableWithMapping {
-  name: string;
-  label: string;
-  description: string;
-  mappings?: IMapping[];
-  repeats?: {
-    name: string;
-    mappings: IMapping[];
-  }[];
-}
+type IRepeatingVariableWithMapping = IVariableWithMappings;
+type INonRepeatingVariableWithMapping = IVariableBase & IVariableWithMappings;
 
-interface INonRepeatingVariableWithMapping {
-  name: string;
-  label: string;
-  description: string;
-  mappings?: IMapping[];
-}
+export const calcHarmonizationStatus = (
+  variables: IVariableWithMappings[],
+  cohorts: { id: string }[]
+) => {
+  return variables.map((v) => {
+    return cohorts.map((c) => {
+      if (!Array.isArray(v.mappings)) {
+        // no mapping
+        return "unmapped";
+      } else if (v.repeats) {
+        // handle repeats
+        return calcStatusForRepeatingVariable(v, c);
+      } else {
+        // handle non repeating
+        return calcStatusForSingleVariable(v, c);
+      }
+    });
+  });
+};
 
-export const calcStatusForSingleVariable = (
+const calcStatusForSingleVariable = (
   variable: INonRepeatingVariableWithMapping,
-  cohort: ICohort
+  cohort: { id: string }
 ): HarmonizationStatus => {
   const resourceMapping = variable.mappings?.find((mapping) => {
     return mapping.sourceDataset.resource.id === cohort.id;
@@ -40,9 +49,9 @@ export const calcStatusForSingleVariable = (
   }
 };
 
-export const calcStatusForRepeatingVariable = (
+const calcStatusForRepeatingVariable = (
   variable: IRepeatingVariableWithMapping,
-  cohort: ICohort
+  cohort: { id: string }
 ): HarmonizationStatus => {
   const statusList = !variable.repeats
     ? []

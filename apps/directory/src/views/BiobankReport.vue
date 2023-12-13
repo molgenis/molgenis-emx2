@@ -71,27 +71,40 @@
                   <div class="card-body">
                     <div class="card-text">
                       <h5>Contact Information</h5>
-                      <report-details-list
-                        :reportDetails="contact"
-                      ></report-details-list>
-                      <h5 v-if="networks && networks.length > 0">Networks</h5>
-                      <report-details-list
-                        :reportDetails="network"
-                        v-for="network in networks"
-                        :key="network.id"
-                      ></report-details-list>
-                      <h5
-                        v-if="
-                          quality &&
-                          quality.Certification &&
-                          quality.Certification.value.length > 0
-                        "
-                      >
-                        Quality
-                      </h5>
-                      <report-details-list
-                        :reportDetails="quality"
-                      ></report-details-list>
+                      <ul class="right-content-list">
+                        <li>
+                          <span class="font-weight-bold mr-1">Head/PI:</span>
+                        </li>
+                        <report-details-list
+                          :reportDetails="head"
+                        ></report-details-list>
+                        <span class="font-weight-bold mr-1">Contact:</span>
+                        <report-details-list
+                          :reportDetails="contact"
+                        ></report-details-list>
+                        <h5 v-if="networks && networks.length > 0">Networks</h5>
+                        <report-details-list
+                          :reportDetails="network"
+                          v-for="network in networks"
+                          :key="network.id"
+                        ></report-details-list>
+                        <template v-if="alsoKnownIn.length > 0">
+                          <h5>Also Known In</h5>
+                          <ReportDetailsList :reportDetails="alsoKnownIn" />
+                        </template>
+                        <h5
+                          v-if="
+                            quality &&
+                            quality.Certification &&
+                            quality.Certification.value.length > 0
+                          "
+                        >
+                          Quality
+                        </h5>
+                        <report-details-list
+                          :reportDetails="quality"
+                        ></report-details-list>
+                      </ul>
                     </div>
                   </div>
                 </div>
@@ -120,9 +133,11 @@ import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
 import {
   getBiobankDetails,
   getCollectionDetails,
+  mapHeadInfo,
   mapContactInfo,
   mapNetworkInfo,
-  mapObjArray,
+  mapQualityStandards,
+  mapAlsoKnownIn,
 } from "../functions/viewmodelMapper";
 import { useBiobanksStore } from "../stores/biobanksStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
@@ -186,15 +201,25 @@ export default {
         ? mapNetworkInfo(this.biobank)
         : [];
     },
+    head() {
+      return this.biobankDataAvailable && this.biobank.head
+        ? mapHeadInfo(this.biobank)
+        : {};
+    },
     contact() {
       return this.biobankDataAvailable && this.biobank.contact
         ? mapContactInfo(this.biobank)
         : {};
     },
+    alsoKnownIn() {
+      return this.biobankDataAvailable && this.biobank.also_known
+        ? mapAlsoKnownIn(this.biobank)
+        : {};
+    },
     quality() {
       return {
         Certification: {
-          value: mapObjArray(this.biobank.quality),
+          value: mapQualityStandards(this.biobank.quality),
           type: "list",
         },
       };

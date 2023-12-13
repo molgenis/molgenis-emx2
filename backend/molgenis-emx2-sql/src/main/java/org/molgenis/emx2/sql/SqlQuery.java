@@ -12,6 +12,7 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
@@ -492,6 +493,45 @@ public class SqlQuery extends QueryBean {
       search.add(
           field(name(table.getTableName(), searchColumnName(table.getTableName())))
               .likeIgnoreCase("%" + term + "%"));
+      // also search in ontology tables linked to current table
+      table.getColumns().stream()
+          .filter(Column::isOntology)
+          .forEach(
+              ontologyColumn -> {
+                Table<Record> ontologyTable = ontologyColumn.getRefTable().getJooqTable();
+                if (Boolean.TRUE.equals(ontologyColumn.isArray())) {
+                  // include if array overlap between ontology table and our selected values in our
+                  // ref_array
+                  search.add(
+                      condition(
+                          "{0} && ARRAY({1})",
+                          ontologyColumn.getJooqField(),
+                          DSL.select(field("name"))
+                              .from(ontologyTable)
+                              .where(
+                                  field(
+                                          name(
+                                              ontologyTable.getName(),
+                                              searchColumnName(ontologyTable.getName())))
+                                      .likeIgnoreCase("%" + term + "%"))));
+                } else {
+                  // include if our ref is in the ontology terms list that would be found given our
+                  // search terms
+                  search.add(
+                      ontologyColumn
+                          .getJooqField()
+                          .in(
+                              DSL.select(field("name"))
+                                  .from(ontologyTable)
+                                  .where(
+                                      field(
+                                              name(
+                                                  ontologyTable.getName(),
+                                                  searchColumnName(ontologyTable.getName())))
+                                          .likeIgnoreCase("%" + term + "%"))));
+                }
+              });
+
       TableMetadata parent = table.getInheritedTable();
       while (parent != null) {
         search.add(
@@ -535,7 +575,7 @@ public class SqlQuery extends QueryBean {
                     column,
                     tableAlias,
                     select,
-                    null,
+                    select.getFilter(),
                     new String[0])
                 .as(convertToCamelCase(select.getColumn())));
       } else if (column.isReference() && select.getColumn().endsWith("_groupBy")) {
@@ -546,7 +586,7 @@ public class SqlQuery extends QueryBean {
                     column,
                     tableAlias,
                     select,
-                    null,
+                    select.getFilter(),
                     new String[0])
                 .as(convertToCamelCase(select.getColumn())));
       } else if (column.isReference()) {
@@ -983,7 +1023,6 @@ public class SqlQuery extends QueryBean {
 
   private Condition whereConditionsFilter(TableMetadata table, String tableAlias, Filter filters) {
     List<Condition> conditions = new ArrayList<>();
-
     if (Operator.OR.equals(filters.getOperator())) {
       conditions.add(
           or(
@@ -998,6 +1037,12 @@ public class SqlQuery extends QueryBean {
                   .toList()));
     } else {
       Column column = getColumnByName(table, filters.getColumn());
+      if (column.isReference() && column.getReferences().size() > 1) {
+        throw new MolgenisException(
+            "Filter of '"
+                + column.getName()
+                + " not supported for compound key, use individual elements.");
+      }
       if (!filters.getSubfilters().isEmpty()) {
         for (Filter subfilter : filters.getSubfilters()) {
           if (column.isReference()) {
@@ -1070,6 +1115,8 @@ public class SqlQuery extends QueryBean {
         return whereConditionArrayEquals(name, operator, toDateTimeArray(values));
       case JSONB_ARRAY:
         return whereConditionArrayEquals(name, operator, toJsonbArray(values));
+      case REF:
+        return whereConditionRefEquals(name, operator, values);
       default:
         throw new SqlQueryException(
             SqlQuery.QUERY_FAILED
@@ -1080,6 +1127,35 @@ public class SqlQuery extends QueryBean {
                 + " not supported for type "
                 + type);
     }
+  }
+
+  private Condition whereConditionRefEquals(Name columnName, Operator operator, Object[] values) {
+    if (EQUALS.equals(operator)) {
+      if (values.length == 1) {
+        return field(columnName).eq(values[0]);
+      } else {
+        throw new SqlQueryException(
+            SqlQuery.QUERY_FAILED
+                + "Filter of '"
+                + columnName
+                + " failed: operator "
+                + operator
+                + " not supported for multiple values.");
+      }
+    } else if (NOT_EQUALS.equals(operator)) {
+      List<Condition> conditions = new ArrayList<>();
+      for (var value : values) {
+        conditions.add(field(columnName).ne(value));
+      }
+      return and(conditions);
+    }
+    throw new SqlQueryException(
+        SqlQuery.QUERY_FAILED
+            + "Filter of '"
+            + columnName
+            + " failed: operator "
+            + operator
+            + " not supported for REF.");
   }
 
   private static Condition whereConditionEquals(
@@ -1309,10 +1385,12 @@ public class SqlQuery extends QueryBean {
     if (column == null) {
       // is reference?
       for (Column c : table.getColumns()) {
-        for (Reference ref : c.getReferences()) {
-          // can also request composite reference columns, can only be used on row level queries
-          if (ref.getName().equals(columnName)) {
-            return new Column(table, columnName, true).setType(ref.getPrimitiveType());
+        if (c.isReference()) {
+          for (Reference ref : c.getReferences()) {
+            // can also request composite reference columns, can only be used on row level queries
+            if (ref.getName().equals(columnName)) {
+              return new Column(table, columnName, true).setType(ref.getPrimitiveType());
+            }
           }
         }
       }

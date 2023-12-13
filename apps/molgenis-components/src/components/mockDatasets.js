@@ -2,22 +2,17 @@ export const contactsMetadata = {
   name: "Contacts",
   tableType: "DATA",
   id: "Contacts",
-  externalSchema: "Catalogue",
+  schemaId: "Catalogue",
   columns: [
     {
       name: "resource",
       id: "resource",
       columnType: "REF",
       key: 1,
-      refTable: "Resources",
+      refTableId: "Resources",
       refLabelDefault: "${id}",
       required: true,
-      descriptions: [
-        {
-          locale: "en",
-          value: "Resource the contact is affiliated with",
-        },
-      ],
+      description: "Resource the contact is affiliated with",
       position: 179,
     },
     {
@@ -26,12 +21,7 @@ export const contactsMetadata = {
       columnType: "STRING",
       key: 1,
       required: true,
-      descriptions: [
-        {
-          locale: "en",
-          value: "First name of the contact person",
-        },
-      ],
+      description: "First name of the contact person",
       position: 182,
     },
     {
@@ -40,36 +30,21 @@ export const contactsMetadata = {
       columnType: "STRING",
       key: 1,
       required: true,
-      descriptions: [
-        {
-          locale: "en",
-          value: "Last name of the contact person",
-        },
-      ],
+      description: "Last name of the contact person",
       position: 183,
     },
     {
       name: "email",
       id: "email",
       columnType: "STRING",
-      descriptions: [
-        {
-          locale: "en",
-          value: "Contact's email address",
-        },
-      ],
+      descriptions: "Contact's email address",
       position: 188,
     },
     {
       name: "orcid",
       id: "orcid",
       columnType: "STRING",
-      descriptions: [
-        {
-          locale: "en",
-          value: "Orcid of the contact person",
-        },
-      ],
+      description: "Orcid of the contact person",
       position: 189,
     },
     {
@@ -85,14 +60,9 @@ export const resourcesMetadata = {
   name: "Resources",
   tableType: "DATA",
   id: "Resources",
-  descriptions: [
-    {
-      locale: "en",
-      value:
-        "Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",
-    },
-  ],
-  externalSchema: "Catalogue",
+  description:
+    "Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",
+  schemaId: "Catalogue",
   columns: [
     {
       name: "id",
@@ -100,12 +70,7 @@ export const resourcesMetadata = {
       columnType: "STRING",
       key: 1,
       required: true,
-      descriptions: [
-        {
-          locale: "en",
-          value: "Internal identifier",
-        },
-      ],
+      description: "Internal identifier",
       position: 1,
     },
     {
@@ -114,24 +79,14 @@ export const resourcesMetadata = {
       columnType: "TEXT",
       key: 3,
       required: true,
-      descriptions: [
-        {
-          locale: "en",
-          value: "Name used in European projects",
-        },
-      ],
+      description: "Name used in European projects",
       position: 4,
     },
     {
       name: "description",
       id: "description",
       columnType: "TEXT",
-      descriptions: [
-        {
-          locale: "en",
-          value: "Short description",
-        },
-      ],
+      description: "Short description",
       position: 31,
     },
     {

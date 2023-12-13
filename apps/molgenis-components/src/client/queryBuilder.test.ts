@@ -1,31 +1,33 @@
 import { describe, assert, test } from "vitest";
-import { columnNames } from "./queryBuilder";
-import { ISchemaMetaData } from "../Interfaces/IMetaData";
+import { getColumnIds } from "./queryBuilder";
+import type { ISchemaMetaData } from "meta-data-utils";
 
-describe("columnNames", () => {
+describe("getColumnIds", () => {
   const EXPAND_ONE = 1;
   const EXPAND_TWO = 2;
 
   //Pet
   //expand 1
   test("it should return the pet columns expanded, children are not expanded, expect primary keys", () => {
-    const expectedResult =
-      " name category { name } tags { name } weight orders { orderId }";
-    const result = columnNames("pet store", "Pet", metaData, EXPAND_ONE);
-    assert.equal(result, expectedResult);
+    const result = getColumnIds("pet store", "Pet", metaData, EXPAND_ONE);
+    assert.equal(
+      result,
+      " name category { name } tags {name, label} weight orders { orderId }"
+    );
   });
   //expand 2
   test("it should return the pet columns expanded", () => {
-    const expectedResult =
-      " name category { name } tags { order name label parent { name } } weight orders { orderId pet { name } }";
-    const result = columnNames("pet store", "Pet", metaData, EXPAND_TWO);
-    assert.equal(result, expectedResult);
+    const result = getColumnIds("pet store", "Pet", metaData, EXPAND_TWO);
+    assert.equal(
+      result,
+      " name category { name } tags {name, label} weight orders { orderId pet { name } }"
+    );
   });
 
   //expand 2
   test("it should return the order columns expanded, only arrays are not expanded beyond level 0 (so 'pet.tags' is missing)", () => {
     const expectedResult = " orderId pet { name category { name } weight }";
-    const result = columnNames("pet store", "Order", metaData, EXPAND_TWO);
+    const result = getColumnIds("pet store", "Order", metaData, EXPAND_TWO);
     assert.equal(result, expectedResult);
   });
 
@@ -34,31 +36,32 @@ describe("columnNames", () => {
   test("it should return the ontology columns expanded, only children array are not expanded beyond level 0", () => {
     const expectedResult =
       " order name label parent { name } children { name }";
-    const result = columnNames("pet store", "Tag", metaData, EXPAND_ONE);
+    const result = getColumnIds("pet store", "Tag", metaData, EXPAND_ONE);
     assert.equal(result, expectedResult);
   });
   //expand 2
   test("it should return the ontology columns expanded, only children array are not expanded beyond level 0", () => {
     const expectedResult =
       " order name label parent { order name label parent { name } } children { order name label parent { name } }";
-    const result = columnNames("pet store", "Tag", metaData, EXPAND_TWO);
+    const result = getColumnIds("pet store", "Tag", metaData, EXPAND_TWO);
     assert.equal(result, expectedResult);
   });
 });
 
 // test meta data with mg_columns removed
 const metaData: ISchemaMetaData = {
-  name: "pet store",
+  id: "pet store",
+  label: "Pet store",
   tables: [
     {
-      name: "Category",
+      label: "Category",
       tableType: "DATA",
       id: "Category",
-      externalSchema: "pet store",
+      schemaId: "pet store",
       columns: [
         {
-          name: "name",
           id: "name",
+          label: "Name",
           columnType: "STRING",
           key: 1,
           required: true,
@@ -66,207 +69,174 @@ const metaData: ISchemaMetaData = {
       ],
     },
     {
-      name: "Order",
+      label: "Order",
       tableType: "DATA",
       id: "Order",
-      externalSchema: "pet store",
+      schemaId: "pet store",
       columns: [
         {
-          name: "orderId",
           id: "orderId",
+          label: "Order id",
           columnType: "STRING",
           key: 1,
           required: true,
         },
         {
-          name: "pet",
           id: "pet",
+          label: "Pet",
           columnType: "REF",
-          refTable: "Pet",
+          refTableId: "Pet",
           refLabelDefault: "${name}",
           position: 1,
         },
       ],
     },
     {
-      name: "Pet",
-      tableType: "DATA",
       id: "Pet",
-      descriptions: [
-        {
-          locale: "en",
-          value: "My pet store example table",
-        },
-      ],
-      externalSchema: "pet store",
+      tableType: "DATA",
+      label: "Pet",
+      description: "My pet store example table",
+      schemaId: "pet store",
       columns: [
         {
-          name: "name",
           id: "name",
+          label: "Name",
           columnType: "STRING",
           key: 1,
           required: true,
-          descriptions: [
-            {
-              locale: "en",
-              value: "the name",
-            },
-          ],
+          description: "the name",
         },
         {
-          name: "category",
           id: "category",
+          label: "Category",
           columnType: "REF",
-          refTable: "Category",
+          refTableId: "Category",
           refLabelDefault: "${name}",
           required: true,
           position: 1,
         },
 
         {
-          name: "tags",
           id: "tags",
+          label: "Tags",
           columnType: "ONTOLOGY_ARRAY",
-          refTable: "Tag",
+          refTableId: "Tag",
           refLabelDefault: "${name}",
           position: 5,
         },
         {
-          name: "weight",
           id: "weight",
+          label: "Weight",
           columnType: "DECIMAL",
           required: true,
           position: 6,
         },
         {
-          name: "orders",
           id: "orders",
+          label: "Orders",
           columnType: "REFBACK",
-          refTable: "Order",
+          refTableId: "Order",
           refLabelDefault: "${orderId}",
-          refBack: "pet",
+          refBackId: "pet",
           position: 7,
         },
       ],
     },
     {
-      name: "Tag",
-      tableType: "ONTOLOGIES",
       id: "Tag",
-      externalSchema: "pet store",
+      label: "Tag",
+      tableType: "ONTOLOGIES",
+      schemaId: "pet store",
       columns: [
         {
-          name: "order",
           id: "order",
+          label: "Order",
           columnType: "INT",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C42680"],
-          descriptions: [
-            {
-              locale: "en",
-              value: "Order of this term within the code system",
-            },
-          ],
+          description: "Order of this term within the code system",
         },
         {
-          name: "name",
           id: "name",
+          label: "Name",
           columnType: "STRING",
           key: 1,
           required: true,
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C42614"],
-          descriptions: [
-            {
-              locale: "en",
-              value: "Unique name of the term within this table",
-            },
-          ],
+          description: "Unique name of the term within this table",
           position: 1,
         },
         {
-          name: "label",
           id: "label",
+          label: "Label",
           columnType: "STRING",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C45561"],
-          descriptions: [
-            {
-              locale: "en",
-              value:
-                "User-friendly label for this term. Should be unique in parent",
-            },
-          ],
+          description:
+            "User-friendly label for this term. Should be unique in parent",
+
           position: 2,
         },
         {
-          name: "parent",
           id: "parent",
+          label: "Parent",
           columnType: "REF",
-          refTable: "Tag",
+          refTableId: "Tag",
           refLabelDefault: "${name}",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C80013"],
-          descriptions: [
-            {
-              locale: "en",
-              value: "The parent term, in case this code exists in a hierarchy",
-            },
-          ],
+          description:
+            "The parent term, in case this code exists in a hierarchy",
           position: 3,
         },
 
         {
-          name: "children",
           id: "children",
+          label: "Children",
           columnType: "REFBACK",
-          refTable: "Tag",
+          refTableId: "Tag",
           refLabelDefault: "${name}",
-          refBack: "parent",
+          refBackId: "parent",
           semantics: ["http://purl.obolibrary.org/obo/NCIT_C90504"],
-          descriptions: [
-            {
-              locale: "en",
-              value:
-                "Child terms, in case this term is the parent of other terms",
-            },
-          ],
+          description:
+            "Child terms, in case this term is the parent of other terms",
           position: 8,
         },
       ],
     },
     {
-      name: "User",
-      tableType: "DATA",
       id: "User",
-      externalSchema: "pet store",
+      label: "User",
+      tableType: "DATA",
+      schemaId: "pet store",
       columns: [
         {
-          name: "username",
           id: "username",
+          label: "User name",
           columnType: "STRING",
           key: 1,
           required: true,
         },
         {
-          name: "firstName",
           id: "firstName",
+          label: "First name",
           columnType: "STRING",
           position: 1,
         },
         {
-          name: "lastName",
           id: "lastName",
+          label: "Last name",
           columnType: "STRING",
           position: 2,
         },
         {
-          name: "picture",
           id: "picture",
+          label: "Picture",
           columnType: "FILE",
           position: 3,
         },
         {
-          name: "pets",
           id: "pets",
+          label: "Pets",
           columnType: "REF_ARRAY",
-          refTable: "Pet",
+          refTableId: "Pet",
           refLabelDefault: "${name}",
           position: 8,
         },

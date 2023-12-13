@@ -67,7 +67,6 @@ import InputRangeDateTime from "../src/components/forms/InputRangeDateTime.vue";
 import InputRangeDecimal from "../src/components/forms/InputRangeDecimal.vue";
 import InputRangeInt from "../src/components/forms/InputRangeInt.vue";
 import InputRangeLong from "../src/components/forms/InputRangeLong.vue";
-import InputRef from "../src/components/forms/InputRef.vue";
 import InputRefBack from "../src/components/forms/InputRefBack.vue";
 import InputRefList from "../src/components/forms/InputRefList.vue";
 import InputRefSelect from "../src/components/forms/InputRefSelect.vue";
@@ -139,10 +138,6 @@ import TaskManager from "../src/components/task/TaskManager.vue";
 //utils
 import {
   deepClone,
-  convertToCamelCase,
-  convertToPascalCase,
-  getLocalizedDescription,
-  getLocalizedLabel,
   flattenObject,
   applyJsTemplate,
 } from "../src/components/utils";
@@ -211,7 +206,6 @@ export {
   InputRangeDateTime,
   InputRangeInt,
   InputRangeLong,
-  InputRef,
   InputRefBack,
   InputRefList,
   InputRefSelect,
@@ -275,10 +269,6 @@ export {
   constants,
   privacyConstants,
   request,
-  convertToPascalCase,
-  convertToCamelCase,
-  getLocalizedDescription,
-  getLocalizedLabel,
   flattenObject,
   applyJsTemplate,
   getRowErrors,

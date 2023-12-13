@@ -438,20 +438,24 @@ export default {
                 }
               } else {
                 if (collapsedFact[column] !== fact[column]) {
-                  if (isNaN(collapsedFact[column]) && isNaN(fact[column])) {
+                  if (
+                    isFinite(collapsedFact[column]) &&
+                    isFinite(fact[column])
+                  ) {
+                    collapsedFact[column] =
+                      collapsedFact[column] + fact[column];
+                  } else if (fact[column] !== "Unknown") {
                     collapsedFact[column] = [
                       collapsedFact[column],
                       fact[column],
                     ];
-                  } else {
-                    collapsedFact[column] =
-                      collapsedFact[column] + fact[column];
                   }
                 }
               }
             }
           }
         }
+
         collapsedFact.number_of_donors = "Available";
         collapsedFacts.push(collapsedFact);
       }

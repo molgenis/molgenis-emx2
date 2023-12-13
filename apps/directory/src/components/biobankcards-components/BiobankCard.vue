@@ -376,4 +376,16 @@ article section {
   height: 100%;
   width: 100%;
 }
+
+.right-content-list {
+  list-style-type: none;
+  margin-left: -2.5rem;
+}
+.right-content-list:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+.right-content-list li {
+  margin-bottom: 0.5rem;
+}
 </style>

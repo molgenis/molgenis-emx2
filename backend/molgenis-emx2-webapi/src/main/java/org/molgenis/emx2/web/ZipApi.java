@@ -3,7 +3,6 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.web.Constants.TABLE;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
@@ -122,7 +121,7 @@ public class ZipApi {
   }
 
   static String getZipTable(Request request, Response response) throws IOException {
-    Table table = getTable(request);
+    Table table = MolgenisWebservice.getTableById(request);
     boolean includeSystemColumns = includeSystemColumns(request);
     if (table == null) throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);

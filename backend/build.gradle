@@ -53,18 +53,18 @@ subprojects {
         implementation 'org.pac4j:pac4j-http:5.4.5'
         implementation 'org.pac4j:spark-pac4j:5.0.0'
         implementation 'org.javers:javers-core:6.14.0'
-        implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
+        implementation 'com.nimbusds:nimbus-jose-jwt:9.37'
 
         //also used outside test
-        implementation 'org.junit.jupiter:junit-jupiter:5.10.0'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+        implementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
         testImplementation 'org.mockito:mockito-core:5.6.0'
         //allows to set environment variables in test
         testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
     }
 
     jacoco {
-        toolVersion = "0.8.10"
+        toolVersion = "0.8.11"
     }
     jacocoTestReport {
         reports {

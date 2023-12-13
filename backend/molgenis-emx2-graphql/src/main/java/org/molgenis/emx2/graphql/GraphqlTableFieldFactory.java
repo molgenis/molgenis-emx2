@@ -251,11 +251,21 @@ public class GraphqlTableFieldFactory {
             tableBuilder.field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(id + "_agg")
-                    .type(createTableAggregationType(col.getRefTable())));
+                    .type(createTableAggregationType(col.getRefTable()))
+                    .argument(
+                        GraphQLArgument.newArgument()
+                            .name(GraphqlConstants.FILTER_ARGUMENT)
+                            .type(getTableFilterInputType(col.getRefTable()))
+                            .build()));
             tableBuilder.field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(id + "_groupBy")
-                    .type(createTableGroupByType(col.getRefTable())));
+                    .type(GraphQLList.list(createTableGroupByType(col.getRefTable())))
+                    .argument(
+                        GraphQLArgument.newArgument()
+                            .name(GraphqlConstants.FILTER_ARGUMENT)
+                            .type(getTableFilterInputType(col.getRefTable()))
+                            .build()));
             break;
           default:
             throw new UnsupportedOperationException(
@@ -349,7 +359,6 @@ public class GraphqlTableFieldFactory {
               .field(GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sum));
         }
       }
-
       tableAggTypes.put(tableAggregationType, builder.build());
     }
     return tableAggTypes.get(tableAggregationType);
@@ -582,7 +591,9 @@ public class GraphqlTableFieldFactory {
                         + (s.getName().endsWith("_agg")
                             ? "_agg"
                             : s.getName().endsWith("_groupBy") ? "_groupBy" : ""),
-                    convertMapSelection(column.get().getRefTable(), s.getSelectionSet()));
+                    convertMapSelection(
+                        column.get().isReference() ? column.get().getRefTable() : null,
+                        s.getSelectionSet()));
             // get limit and offset for the selection
             Map<String, Object> args = s.getArguments();
             if (args.containsKey(GraphqlConstants.FILTER_ARGUMENT)) {
@@ -778,16 +789,16 @@ public class GraphqlTableFieldFactory {
     String rowInputType = getTableTypeIdentifier(table);
     if (rowInputTypes.get(rowInputType) == null) {
       // in case of self reference
-      rowInputTypes.put(rowInputType, GraphQLTypeReference.typeRef(rowInputType));
+      rowInputTypes.put(rowInputType, GraphQLTypeReference.typeRef(rowInputType + INPUT));
       GraphQLInputObjectType.Builder inputBuilder =
           GraphQLInputObjectType.newInputObject().name(rowInputType + INPUT);
       for (Column col : table.getColumnsWithoutHeadings()) {
         GraphQLInputType type;
         if (col.isReference()) {
           if (col.isRef()) {
-            type = getPrimaryKeyInput(col.getRefTable());
+            type = rowInputType(col.getRefTable());
           } else {
-            type = GraphQLList.list(getPrimaryKeyInput(col.getRefTable()));
+            type = GraphQLList.list(rowInputType(col.getRefTable()));
           }
         } else {
           ColumnType columnType = col.getPrimitiveColumnType();

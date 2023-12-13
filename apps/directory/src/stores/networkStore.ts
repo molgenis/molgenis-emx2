@@ -32,6 +32,8 @@ export const useNetworkStore = defineStore("networkStore", () => {
         "contact.email",
         "contact.role",
         "contact.country.label",
+        "also_known.url",
+        "also_known.name_system",
       ])
       .where("id")
       .like(netWorkId);

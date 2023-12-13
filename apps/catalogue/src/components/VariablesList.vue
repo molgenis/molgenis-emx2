@@ -11,7 +11,7 @@
           v-for="variable in variables"
           :key="variable.resource.id + variable.dataset.name + variable.name"
           :variable="variable"
-          :tableName="tableName"
+          :datasetName="datasetName"
         />
       </div>
     </div>
@@ -46,7 +46,7 @@ export default {
   },
   props: {
     resourceId: String,
-    tableName: String,
+    datasetName: String,
     topic: String,
     version: String,
   },
@@ -69,8 +69,8 @@ export default {
           resource: { id: { equals: this.resourceId } },
         };
       }
-      if (this.tableName) {
-        filter.table = { name: { equals: this.tableName } };
+      if (this.datasetName) {
+        filter.dataset = { name: { equals: this.datasetName } };
       }
       if (this.search) {
         filter._search = this.search;

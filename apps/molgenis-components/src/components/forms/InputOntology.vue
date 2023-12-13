@@ -19,11 +19,11 @@
       >
         <span
           class="btn btn-sm btn-primary text-white mr-1"
-          v-for="v in selectionWithoutChildren"
-          :key="v"
-          @click.stop="deselect(v)"
+          v-for="selectedTerm in selectionWithoutChildren"
+          :key="selectedTerm"
+          @click.stop="deselect(selectedTerm.name)"
         >
-          {{ v }}
+          {{ selectedTerm.label ? selectedTerm.label : selectedTerm.name }}
           <span class="fa fa-times"></span>
         </span>
         <i
@@ -83,15 +83,15 @@
           found {{ searchResultCount }} terms.
         </span>
         <InputOntologySubtree
-          :key="key"
           v-if="rootTerms.length > 0"
-          style="max-height: 100vh"
-          class="pt-2 pl-0 dropdown-item"
+          :key="key"
           :terms="rootTerms"
           :isMultiSelect="isMultiSelect"
           @select="select"
           @deselect="deselect"
           @toggleExpand="toggleExpand"
+          style="max-height: 100vh"
+          class="pt-2 pl-0"
         />
         <Spinner v-else-if="loading" />
         <div v-else>No results found</div>
@@ -113,7 +113,6 @@ import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "click-outside-vue3";
-import { convertToPascalCase } from "../utils.ts";
 import Spinner from "../layout/Spinner.vue";
 
 /**
@@ -153,11 +152,11 @@ export default {
       type: Boolean,
       default: false,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: false,
     },
-    schemaName: {
+    schemaId: {
       type: String,
       required: false,
     },
@@ -180,9 +179,6 @@ export default {
     };
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     rootTerms() {
       if (this.terms) {
         let result = Object.values(this.terms).filter(
@@ -197,7 +193,7 @@ export default {
     orderByObject() {
       if (
         this.tableMetadata &&
-        this.tableMetadata.columns.some((c) => c.name === "order")
+        this.tableMetadata.columns.some((c) => c.id === "order")
       ) {
         return { order: "ASC" };
       } else {
@@ -206,32 +202,20 @@ export default {
     },
     selectionWithoutChildren() {
       //include key so it triggers on it
+      let result = [];
       if (this.key) {
         //navigate the tree, recurse into children if parent is not selected
-        let result = [];
         Object.values(this.rootTerms).forEach((term) => {
-          result.push(...this.getSelectedChildNodes(term));
+          result.push(...getSelectedChildNodes(term));
         });
-        return result;
       }
-      return [];
+      return result;
     },
   },
   methods: {
     toggleExpand(term) {
       this.terms[term].expanded = !this.terms[term].expanded;
       this.key++;
-    },
-    getSelectedChildNodes(term) {
-      let result = [];
-      if (term.selected === "complete") {
-        result.push(term.name);
-      } else if (term.children) {
-        term.children.forEach((childTerm) =>
-          result.push(...this.getSelectedChildNodes(childTerm))
-        );
-      }
-      return result;
     },
     loseFocusWhenClickedOutside() {
       if (this.focus && !this.showExpanded) {
@@ -281,7 +265,7 @@ export default {
       if (!this.isMultiSelect) {
         //deselect other items
         Object.keys(this.terms).forEach(
-          (key) => (this.terms[key].selected = false)
+          (key) => (this.terms[key].selected = "unselected")
         );
       }
       let term = this.terms[item];
@@ -293,7 +277,11 @@ export default {
         );
         //select parent(s) if all siblings are selected
         this.getParents(term).forEach((parent) => {
-          if (parent.children.every((childTerm) => childTerm.selected)) {
+          if (
+            parent.children.every(
+              (childTerm) => childTerm.selected === "complete"
+            )
+          ) {
             parent.selected = "complete";
           } else {
             parent.selected = "partial";
@@ -307,23 +295,23 @@ export default {
     deselect(item) {
       if (this.isMultiSelect) {
         let term = this.terms[item];
-        term.selected = false;
+        term.selected = "unselected";
         //also deselect all its children
         this.getAllChildren(this.terms[item]).forEach(
-          (childTerm) => (childTerm.selected = false)
+          (childTerm) => (childTerm.selected = "unselected")
         );
         //also its deselect its parents, might be partial
         this.getParents(term).forEach((parent) => {
-          if (parent.children.some((child) => child.selected)) {
+          if (parent.children.some((child) => child.selected === "complete")) {
             parent.selected = "partial";
           } else {
-            parent.selected = false;
+            parent.selected = "unselected";
           }
         });
       } else {
         //non-list, deselect all
         Object.keys(this.terms).forEach(
-          (key) => (this.terms[key].selected = false)
+          (key) => (this.terms[key].selected = "unselected")
         );
       }
       this.emitValue();
@@ -332,7 +320,9 @@ export default {
     },
     clearSelection() {
       if (this.terms) {
-        Object.values(this.terms).forEach((term) => (term.selected = false));
+        Object.values(this.terms).forEach(
+          (term) => (term.selected = "unselected")
+        );
       }
       this.emitValue();
       this.$refs.search.focus();
@@ -353,7 +343,7 @@ export default {
     applySelection(value) {
       //deselect all
       Object.keys(this.terms).forEach(
-        (key) => (this.terms[key].selected = false)
+        (key) => (this.terms[key].selected = "unselected")
       );
       //apply selection to the tree
       if (value && this.isMultiSelect) {
@@ -372,7 +362,11 @@ export default {
               );
               //select parent(s) if all siblings are selected
               this.getParents(term).forEach((parent) => {
-                if (parent.children.every((childTerm) => childTerm.selected)) {
+                if (
+                  parent.children.every(
+                    (childTerm) => childTerm.selected === "complete"
+                  )
+                ) {
                   parent.selected = "complete";
                 } else {
                   parent.selected = "partial";
@@ -479,7 +473,7 @@ export default {
             terms[e.name] = {
               name: e.name,
               visible: true,
-              selected: false,
+              selected: "unselected",
               definition: e.definition,
               code: e.code,
               codesystem: e.codesystem,
@@ -494,7 +488,7 @@ export default {
               terms[e.parent.name] = {
                 name: e.parent.name,
                 visible: true,
-                selected: false,
+                selected: "unselected",
               };
             }
             // if first child then add children array
@@ -512,11 +506,9 @@ export default {
     },
   },
   async mounted() {
-    if (this.tableName) {
-      const client = Client.newClient(this.schemaName);
-      this.data = (
-        await client.fetchTableData(this.tableName, { limit: this.limit || 20 })
-      )[this.tableId];
+    if (this.tableId) {
+      const client = Client.newClient(this.schemaId);
+      this.data = await client.fetchOntologyOptions(this.tableId);
     }
   },
   created() {
@@ -529,6 +521,18 @@ export default {
     }
   },
 };
+
+function getSelectedChildNodes(term) {
+  let result = [];
+  if (term.selected === "complete") {
+    result.push(term);
+  } else if (term.children) {
+    term.children.forEach((childTerm) =>
+      result.push(...getSelectedChildNodes(childTerm))
+    );
+  }
+  return result;
+}
 </script>
 
 <docs>
@@ -541,13 +545,7 @@ export default {
           v-model="value1"
           label="My ontology select"
           description="please choose your options in tree below"
-          :options="[
-          { name: 'pet' },
-          { name: 'cat', parent: { name: 'pet' } },
-          { name: 'dog', parent: { name: 'pet' } },
-          { name: 'cattle' },
-          { name: 'cow', parent: { name: 'cattle' } },
-        ]"
+          :options="options"
           :isMultiSelect="true"
       />
       <div>You selected: {{ value1 }}</div>
@@ -561,13 +559,7 @@ export default {
           label="My ontology select expanded"
           :showExpanded="true"
           description="please choose your options in tree below"
-          :options="[
-          { name: 'pet' },
-          { name: 'cat', parent: { name: 'pet' } },
-          { name: 'dog', parent: { name: 'pet' } },
-          { name: 'cattle' },
-          { name: 'cow', parent: { name: 'cattle' } },
-        ]"
+          :options="options"
           :isMultiSelect="true"
       />
       <div>You selected: {{ value2 }}</div>
@@ -580,8 +572,8 @@ export default {
           label="Ontology select with backend data"
           description="please choose your options in tree below"
           v-model="value3"
-          tableName="Tag"
-          schemaName="pet store"
+          tableId="Tag"
+          schemaId="pet store"
       />
       <div>You selected: {{ value3 }}</div>
     </demo-item>
@@ -594,8 +586,8 @@ export default {
           description="please choose your options in tree below"
           v-model="value4"
           :isMultiSelect="true"
-          tableName="Tag"
-          schemaName="pet store"
+          tableId="Tag"
+          schemaId="pet store"
       />
       <div>You selected: {{ value4 }}</div>
     </demo-item>
@@ -608,14 +600,8 @@ export default {
           label="My ontology select expanded"
           :showExpanded="true"
           description="please choose your options in tree below"
-          :options="[
-          { name: 'pet' },
-          { name: 'cat', parent: { name: 'pet' } },
-          { name: 'dog', parent: { name: 'pet' } },
-          { name: 'cattle' },
-          { name: 'cow', parent: { name: 'cattle' } },
-        ]"
-          :isMultiSelect="false"
+          :options="options"
+          :isMultiSelect="unselected"
       />
       <div>You selected: {{ value5 }}</div>
     </demo-item>
@@ -629,7 +615,14 @@ export default {
         value2: null,
         value3: null,
         value4: null,
-        value5: null
+        value5: null,
+        options: [
+          { name: 'pet' },
+          { name: 'cat', parent: { name: 'pet' }, label: 'kitty' },
+          { name: 'dog', parent: { name: 'pet' }, label: 'doggo' },
+          { name: 'cattle' },
+          { name: 'cow', parent: { name: 'cattle' } },
+        ]
       };
     },
   };

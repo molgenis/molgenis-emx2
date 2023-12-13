@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Ref } from "vue";
-import query from "~~/gql/subcohort";
+import subcohortGql from "~~/gql/subcohort";
 import ContentBlockModal from "./content/ContentBlockModal.vue";
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -9,10 +9,7 @@ const { id } = defineProps<{
   id: string;
 }>();
 
-if (query.loc?.source.body === undefined) {
-  throw "unable to load query: " + query.toString();
-}
-const queryValue = query.loc?.source.body;
+const query = moduleToString(subcohortGql);
 
 let subcohort: Ref = ref();
 const { data: subcohortData } = await useFetch(
@@ -21,7 +18,7 @@ const { data: subcohortData } = await useFetch(
     baseURL: config.public.apiBase,
     method: "POST",
     body: {
-      query: queryValue,
+      query: query,
       variables: { id: route.params.cohort, name: id },
     },
   }
@@ -91,7 +88,7 @@ if (subcohort?.mainMedicalCondition) {
   items.push({
     label: "Main medical condition",
     type: "ONTOLOGY",
-    content: buildOntologyTree(subcohort.mainMedicalCondition),
+    content: subcohort.mainMedicalCondition,
   });
 }
 
@@ -99,7 +96,7 @@ if (subcohort?.comorbidity) {
   items.push({
     label: "Comorbidity",
     type: "ONTOLOGY",
-    content: buildOntologyTree(subcohort.comorbidity),
+    content: subcohort.comorbidity,
   });
 }
 
@@ -107,7 +104,7 @@ if (subcohort?.countries) {
   items.push({
     label: "Population",
     type: "ONTOLOGY",
-    content: buildOntologyTree(subcohort.countries),
+    content: subcohort.countries,
   });
 }
 
@@ -127,6 +124,6 @@ if (subcohort?.inclusionCriteria) {
     :title="subcohort?.name"
     :description="subcohort?.description"
   >
-    <DefinitionList :items="items" :small="true" />
+    <CatalogueItemList :items="items" :small="true" />
   </ContentBlockModal>
 </template>

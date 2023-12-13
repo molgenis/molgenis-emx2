@@ -24,7 +24,7 @@
     <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
       <template v-slot:body>
         <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-        Are you sure you want to delete database '{{ schemaName }}'?
+        Are you sure you want to delete database '{{ schemaId }}'?
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
@@ -58,7 +58,7 @@ export default {
     Spinner,
   },
   props: {
-    schemaName: String,
+    schemaId: String,
   },
   data: function () {
     return {
@@ -83,9 +83,9 @@ export default {
       this.success = null;
       request(
         this.endpoint,
-        `mutation deleteSchema($name:String){deleteSchema(name:$name){message}}`,
+        `mutation deleteSchema($id:String){deleteSchema(id:$id){message}}`,
         {
-          name: this.schemaName,
+          id: this.schemaId,
         }
       )
         .then((data) => {

@@ -2,36 +2,29 @@ import gql from "graphql-tag";
 export default gql`
   {
     _schema {
-      name
+      id
+      label
       tables {
-        name
-        labels {
-          locale
-          value
-        }
-        tableType
         id
+        label
+        tableType
         descriptions {
           locale
           value
         }
-        externalSchema
+        schemaId
         semantics
         columns {
-          name
-          labels {
-            locale
-            value
-          }
           id
+          label
           columnType
           key
-          refTable
-          refSchema
-          refLink
+          refTableId
+          refSchemaId
+          refLinkId
           refLabel
           refLabelDefault
-          refBack
+          refBackId
           required
           readonly
           semantics

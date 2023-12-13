@@ -1,71 +1,80 @@
 <template>
   <ProviderDashboard>
+    <h2 class="dashboard-h2">General overview for all centers</h2>
     <DashboardBox class="mb-4">
-      <h2>General overview for all centers</h2>
-      <p>The following charts provides a general overview for all centers.</p>
-      <InputLabel
+      <InputLabel id="yearOfBirthFilter" label="Filter data by year of birth" />
+      <select
+        class="inputs select"
         id="yearOfBirthFilter"
-        label="Year of birth"
-        description="Limit the results by year of birth"
-      />
-      <select class="inputs select" id="yearOfBirthFilter">
+        @change="onYearOfBirthFilter"
+      >
         <option value="all">All Patients</option>
-        <option v-for="year in yearOfBirthOptions" :value="year">
-          {{ year }}
-        </option>
+        <option value="2023" selected>2023</option>
       </select>
     </DashboardBox>
-    <DashboardChartLayout :columns="2">
+    <DashboardChartLayout :columns="1">
       <DashboardBox id="type-of-craniosynostosis">
-        <PieChart2
-          chartId="cs-types"
+        <ColumnChart
+          chartId="craniosynostosis-types"
           title="Type of craniosynostosis"
-          :chartData="csTypes"
-          :chartHeight="200"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :chartScale="0.9"
+          :chartData="craniosynostosisTypes"
+          xvar="type"
+          yvar="count"
+          :columnColorPalette="colors.craniosynostosis"
+          :chartHeight="300"
         />
       </DashboardBox>
+    </DashboardChartLayout>
+    <h3 class="dashboard-h3">Suture Overview</h3>
+    <p class="dashboard-text">
+      Click a category in the "Affected suture" chart to view more information.
+    </p>
+    <DashboardChartLayout :columns="2">
       <DashboardBox>
-        <PieChart2
-          chartId="cs-affected-sutures"
-          title="Affected Suture"
+        <ColumnChart
+          chartId="craniosynostosis-affected-sutures"
+          title="Affected suture"
+          class="chart-axis-x-angled-text"
           :chartData="affectedSuture"
-          :chartHeight="200"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :chartScale="0.9"
+          xvar="category"
+          yvar="count"
+          :yMax="50"
+          :yTickValues="[0, 10, 20, 30, 40, 50]"
+          :columnColorPalette="colors.affectedSuture"
+          :chartHeight="275"
+          :enableClicks="true"
+          @column-clicked="updateSutureTypes"
+          :chartMargins="{ top: 20, right: 10, bottom: 85, left: 60 }"
         />
       </DashboardBox>
-      <DashboardBox>
-        <PieChart2
-          chartId="geneticDiagnosisAvailability"
-          title="Genetic Diagnosis"
-          :chartData="geneticDiagnosis"
-          :chartColors="{
-            Available: '#426fab',
-            'Not Available': '#f3f4ff',
-          }"
-          :chartHeight="200"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :chartScale="0.85"
+      <DashboardBox v-if="showSutureTypes">
+        <ColumnChart
+          chartId="suture-types"
+          class="chart-axis-x-angled-text"
+          title="Multiple suture synostosis"
+          :chartData="sutureTypes"
+          xvar="type"
+          yvar="count"
+          :columnColorPalette="colors.sutureType"
+          :chartHeight="275"
+          :chartMargins="{ top: 20, right: 10, bottom: 85, left: 60 }"
         />
       </DashboardBox>
+    </DashboardChartLayout>
+    <h3 class="dashboard-h3">Patients Overview</h3>
+    <DashboardChartLayout :columns="1">
       <DashboardBox>
         <ColumnChart
           chartId="countryOfResidence"
           title="Patients by country of residence"
+          description="Total number of patients residing in each country"
           :chartData="countryOfResidence"
           xvar="country"
           yvar="value"
           :yMax="100"
           :yTickValues="[0, 25, 50, 75, 100]"
-          :chartHeight="250"
+          :chartHeight="225"
+          :columnColorPalette="colors.countries"
         />
       </DashboardBox>
     </DashboardChartLayout>
@@ -74,7 +83,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { DashboardBox, PieChart2, InputLabel, ColumnChart } from "molgenis-viz";
+import { DashboardBox, InputLabel, ColumnChart } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
@@ -83,38 +92,121 @@ const props = defineProps({
   organization: Object,
 });
 
+// generate random data
 import { randomInt } from "d3";
+import generateColors from "../utils/palette";
 
-let yearOfBirthOptions = ref(Array.from({ length: 16 }, (v, i) => 1980 + i));
+let craniosynostosisTypes = ref([]);
+let countryOfResidence = ref([]);
+let affectedSuture = ref([]);
+let sutureTypes = ref([]);
+let showSutureTypes = ref(false);
 
-let csTypes = ref({
-  Syndromic: 45,
-  "Non-syndromic": 20,
-  Familial: 15,
-  Metabolic: 13,
-  Iatrogenic: 7,
+let colors = ref({
+  craniosynostosis: {},
+  affectedSuture: {},
+  sutureType: {},
+  countries: {},
 });
 
-let affectedSuture = ref({
-  Sagittal: 35,
-  Metopic: 14,
-  Unicoronal: 13,
-  Unilambdoid: 13,
-  Frontosphenoidal: 13,
-  Multiple: 12,
-});
+/// generate random data for craniosynostosis types
+function setCraniosynostosisTypes() {
+  const types = [
+    "Familial",
+    "Iatrogenic",
+    "Metabolic",
+    "Non-syndromic",
+    "Syndromic",
+  ];
+  colors.value.craniosynostosis = generateColors(types);
+  craniosynostosisTypes.value = types.map((type) => {
+    return { type: type, count: randomInt(10, 42)() };
+  });
+}
 
-let geneticDiagnosis = ref({
-  Available: 60,
-  "Not Available": 40,
-});
+// generate random data for affected suture
+function setAffectedSuture() {
+  const types = [
+    "Frontosphenoidal",
+    "Metopic",
+    "Multiple",
+    "Sagittal",
+    "Unicoronal",
+    "Unilambdoid",
+  ];
+  colors.value.affectedSuture = generateColors(types);
+  affectedSuture.value = types.map((category) => {
+    return { category: category, count: randomInt(10, 50)() };
+  });
+}
 
-let countryOfResidence = ref([
-  { country: "NL", value: randomInt(10, 100)() },
-  { country: "FR", value: randomInt(10, 100)() },
-  { country: "GE", value: randomInt(10, 100)() },
-  { country: "ES", value: randomInt(10, 100)() },
-  { country: "PO", value: randomInt(10, 100)() },
-  { country: "SE", value: randomInt(10, 100)() },
-]);
+function setSutureTypes() {
+  const types = [
+    "bicoronal",
+    "bilambdoid",
+    "bilambdoid+sagittal",
+    "pansynostosis",
+    "other",
+  ];
+  colors.value.sutureType = generateColors(types);
+  sutureTypes.value = types.map((type) => {
+    return { type: type, count: randomInt(3, 27)() };
+  });
+}
+
+// generate random data for "country of residence"
+function setCountryOfResidence() {
+  const types = ["NL", "FR", "GE", "ES", "PO", "SE"];
+  colors.value.countries = generateColors(types);
+  countryOfResidence.value = types
+    .map((country) => {
+      return { country: country, value: randomInt(10, 100)() };
+    })
+    .sort((a, b) => (a.country < b.country ? -1 : 1));
+}
+
+// set update sutute type selection
+function updateSutureTypes(value) {
+  const total = JSON.parse(value).count;
+  const types = sutureTypes.value.map((entry) => entry.type);
+  let currentTotal = total;
+  sutureTypes.value = types.map((type, i) => {
+    const randomValue =
+      i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
+    currentTotal -= randomValue;
+    return { type: type, count: randomValue };
+  });
+  console.log(sutureTypes.value);
+  showSutureTypes.value = true;
+}
+
+setCraniosynostosisTypes();
+setAffectedSuture();
+setCountryOfResidence();
+setSutureTypes();
+
+function onYearOfBirthFilter() {
+  setCraniosynostosisTypes();
+  setAffectedSuture();
+  setCountryOfResidence();
+  setSutureTypes();
+}
 </script>
+
+<style lang="scss">
+.chart-axis-x-angled-text {
+  .chart-axes {
+    .chart-axis-x {
+      .tick {
+        text {
+          @media (min-width: 835px) {
+            transform: rotate(-20deg);
+            transform-origin: 0 -10%;
+            text-anchor: end;
+          }
+        }
+      }
+    }
+  }
+}
+</style>

@@ -9,7 +9,7 @@ models:   fairdatahub/beaconv2/molgenis.csv,
           fairdatahub/ontologies/SEMANTICS.csv
 
 profiles: DCAT,
-          RD3,
+          DCAT files add-on,
           FAIR Genomes,
           FAIR Genomes metabolomics add-on,
           Beacon v2,

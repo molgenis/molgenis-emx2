@@ -1,3 +1,4 @@
+import type { IColumn } from "meta-data-utils";
 export interface IResource {
   id: string;
   pid: string;
@@ -59,30 +60,52 @@ export interface ICohort {
   documentation?: IDocumentation[];
 }
 
-export interface IVariable {
+export interface IVariableBase {
   name: string;
-  label: string;
+  resource: {
+    id: string;
+  };
+  dataset: {
+    name: string;
+    resource: {
+      id: string;
+    };
+  };
+  label?: string;
   description?: string;
-  unit?: IOntologyNode;
-  format?: IOntologyNode;
-  nRepeats?: number;
 }
 
-interface IFile {
+export interface IVariableDetails {
+  unit?: IOntologyNode;
+  format?: IOntologyNode;
+}
+
+export interface IVariableMappings {
+  mappings?: IMapping[];
+  repeats?: {
+    name: string;
+    mappings: IMapping[];
+  }[];
+}
+
+export type IVariable = IVariableBase & IVariableDetails;
+export type IVariableWithMappings = IVariable & IVariableMappings;
+
+export interface IFile {
   id?: string;
   size?: number;
   extension?: string;
   url?: string;
 }
 
-interface IDocumentation {
+export interface IDocumentation {
   name: string;
   description: string;
   url: string;
   file: IFile;
 }
 
-interface IPartner {
+export interface IPartner {
   id: string;
   acronym: string;
   website: string;
@@ -91,7 +114,7 @@ interface IPartner {
   logo: IUrlObject;
 }
 
-interface IContributor {
+export interface IContributor {
   roleDescription: string;
   firstName: string;
   lastName: string;
@@ -110,7 +133,7 @@ interface IUrlObject {
   url: string;
 }
 
-interface ICollectionEvent {
+export interface ICollectionEvent {
   name: string;
   description: string;
   startYear: INameObject;
@@ -148,21 +171,21 @@ export interface INetwork {
   website?: string;
 }
 
-interface ITreeNode {
+export interface ICatalogue {
+  network: INetwork;
+  type: IOntologyNode;
+}
+
+export interface ITreeNode {
   name: string;
   children?: ITreeNode[];
   parent?: string;
 }
 
-interface IOntologyNode extends ITreeNode {
+export interface IOntologyNode extends ITreeNode {
   code?: string;
   definition?: string;
   ontologyTermURI?: string;
-}
-
-interface ISetting {
-  key: string;
-  value: string;
 }
 
 interface IBaseFilter {
@@ -177,15 +200,15 @@ interface ISearchFilter extends IBaseFilter {
 
 export interface IFilter extends IBaseFilter {
   columnType: "_SEARCH" | "ONTOLOGY" | "REF_ARRAY";
-  refTable?: string;
-  columnName?: string;
+  refTableId?: string;
+  columnId?: string;
   filterTable?: string;
   conditions?: [] | { [key: string]: string }[];
   searchTables?: string[];
   search?: string;
 }
 
-interface IFormField {
+export interface IFormField {
   name: string;
   label: string;
   fieldValue: string; // value is taken by vue reactivity
@@ -194,7 +217,7 @@ interface IFormField {
   message?: string;
 }
 
-interface IContactFormData {
+export interface IContactFormData {
   recipientsFilter: string;
   subject: string;
   body: string;
@@ -209,51 +232,6 @@ export enum INotificationType {
   info,
 }
 
-export interface ILocale {
-  locale: string;
-  value: string;
-}
-
-export interface IColumn {
-  columnType: string;
-  id: string;
-  name: string;
-  computed?: string;
-  conditions?: string[];
-  descriptions?: ILocale[];
-  key?: number;
-  labels?: ILocale[];
-  position?: number;
-  readonly?: string;
-  refBack?: string;
-  refLabel?: string;
-  refLabelDefault?: string;
-  refLink?: string;
-  refSchema?: string;
-  refTable?: string;
-  required?: boolean;
-  semantics?: string[];
-  validation?: string;
-  visible?: string;
-}
-
-export interface ITableMetaData {
-  id: string;
-  name: string;
-  tableType: string;
-  columns: IColumn[];
-  descriptions?: ILocale[];
-  externalSchema: string;
-  labels?: ILocale[];
-  semantics?: string[];
-  settings?: ISetting[];
-}
-
-export interface ISchemaMetaData {
-  name: string;
-  tables: ITableMetaData[];
-}
-
 export interface ISectionField {
   meta: IColumn;
   value: any;
@@ -263,31 +241,39 @@ export interface ISection {
   meta: IColumn;
   fields: ISectionField[];
 }
-
-// workaround needed as circular references are not supported for records
-export type KeyObject = {
-  [key: string]: KeyObject | string;
-};
-
 export interface IMapping {
+  syntax: string;
+  description: string;
+  match: {
+    name: string;
+  };
+  source: {
+    id: string;
+    name: string;
+  };
   sourceDataset: {
     resource: {
       id: string;
     };
     name: string;
   };
-  targetVariable: {
-    dataset: {
-      resource: {
-        id: string;
-      };
-      name: string;
-    };
-    name: string;
-  };
-  match: {
-    name: string;
-  };
+  sourceVariables: IVariableBase[] | IVariable[];
+  targetVariable: IVariableBase[] | IVariable[];
+  sourceVariablesOtherDatasets: IVariableBase[] | IVariable[];
 }
 
 export type HarmonizationStatus = "unmapped" | "partial" | "complete";
+
+export type HarmonizationIconSize = "small" | "large";
+export interface IMgError {
+  message: string;
+  statusCode: number;
+  data: { errors: { message: string }[] };
+}
+
+export interface IDefinitionListItem {
+  label: string;
+  tooltip?: string;
+  type?: string;
+  content: any;
+}

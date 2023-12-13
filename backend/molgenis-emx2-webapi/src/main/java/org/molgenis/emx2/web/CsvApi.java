@@ -58,7 +58,7 @@ public class CsvApi {
 
     if (fileNameMatchesTable) {
       // so we assume it isn't meta data
-      int count = MolgenisWebservice.getTable(request, fileName).save(getRowList(request));
+      int count = MolgenisWebservice.getTableById(request, fileName).save(getRowList(request));
       response.status(200);
       response.type(ACCEPT_CSV);
       return "imported number of rows: " + count;
@@ -88,7 +88,7 @@ public class CsvApi {
   }
 
   private static String tableRetrieve(Request request, Response response) throws IOException {
-    Table table = MolgenisWebservice.getTable(request);
+    Table table = MolgenisWebservice.getTableById(request);
     TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeperator(request));
     store.writeTable(
         table.getName(), getDownloadColumns(request, table), getDownloadRows(request, table));
@@ -124,7 +124,7 @@ public class CsvApi {
   }
 
   private static String tableUpdate(Request request, Response response) {
-    int count = MolgenisWebservice.getTable(request).save(getRowList(request));
+    int count = MolgenisWebservice.getTableById(request).save(getRowList(request));
     response.status(200);
     response.type(ACCEPT_CSV);
     return "" + count;
@@ -135,7 +135,7 @@ public class CsvApi {
   }
 
   private static String tableDelete(Request request, Response response) {
-    int count = MolgenisWebservice.getTable(request).delete(getRowList(request));
+    int count = MolgenisWebservice.getTableById(request).delete(getRowList(request));
     response.type(ACCEPT_CSV);
     response.status(200);
     return "" + count;
