@@ -6,12 +6,12 @@ import org.molgenis.emx2.datamodels.profiles.Profiles;
 import org.molgenis.emx2.datamodels.profiles.SchemaFromProfile;
 import org.molgenis.emx2.io.MolgenisIO;
 
-public abstract class ProfileLoader extends AbstractDataLoader {
+public class ProfileLoader extends AbstractDataLoader {
 
   // the classpath location of your config YAML file
   private String configLocation;
 
-  protected ProfileLoader(String configLocation) {
+  public ProfileLoader(String configLocation) {
     this.configLocation = configLocation;
   }
 
