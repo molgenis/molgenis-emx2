@@ -20,6 +20,52 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   );
 
   let facetBiobankColumnDetails = ref([]);
+  let biobankCards = ref([]);
+  let waitingForResponse = ref(false);
+
+  const collectionColumns = collectionStore.getCollectionColumns();
+  const biobankProperties = biobankColumns
+    .flatMap((biobankColumn) => biobankColumn.column)
+    .concat({ collections: collectionColumns });
+
+  const baseQuery = new QueryEMX2(graphqlEndpoint)
+    .table("Biobanks")
+    .select([...biobankCardGraphql, ...getFacetColumnDetails()])
+    .orderBy("Biobanks", "name", "asc")
+    .orderBy("collections", "id", "asc");
+
+  const activeBiobanksCards = computed(() => {
+    return biobankCards.filter((card) => !card.withdrawn);
+  });
+
+  const biobankCardsHaveResults = computed(() => {
+    return (
+      !waitingForResponse.value &&
+      biobankCards.value &&
+      biobankCards.value.length > 0
+    );
+  });
+
+  const biobankCardsBiobankCount = computed(() => {
+    return activeBiobanksCards.value.length;
+  });
+
+  const biobankCardsCollectionCount = computed(() => {
+    return activeBiobanksCards.value
+      .filter((bc) => bc.collections)
+      .flatMap((biobank) => biobank.collections).length;
+  });
+
+  const biobankCardsSubcollectionCount = computed(() => {
+    if (!activeBiobanksCards.value.length) return 0;
+    const collections = activeBiobanksCards.value
+      .filter((bc) => bc.collections)
+      .flatMap((biobank) => biobank.collections);
+    if (!collections.length) return 0;
+    return collections
+      .filter((c) => c.sub_collections)
+      .flatMap((collection) => collection.sub_collections).length;
+  });
 
   function getFacetColumnDetails() {
     if (!facetBiobankColumnDetails.value.length) {
@@ -55,21 +101,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
     return facetBiobankColumnDetails;
   }
-
-  const collectionColumns = collectionStore.getCollectionColumns();
-
-  const biobankProperties = biobankColumns
-    .flatMap((biobankColumn) => biobankColumn.column)
-    .concat({ collections: collectionColumns });
-
-  let biobankCards = ref([]);
-  let waitingForResponse = ref(false);
-
-  const baseQuery = new QueryEMX2(graphqlEndpoint)
-    .table("Biobanks")
-    .select([...biobankCardGraphql, ...getFacetColumnDetails()])
-    .orderBy("Biobanks", "name", "asc")
-    .orderBy("collections", "id", "asc");
 
   /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
   async function getBiobankCards() {
@@ -113,9 +144,8 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   }
 
   function getPresentFilterOptions(facetIdentifier) {
-    const { applyToColumn, adaptive } = filtersStore.facetDetails[
-      facetIdentifier
-    ];
+    const { applyToColumn, adaptive } =
+      filtersStore.facetDetails[facetIdentifier];
 
     if (!biobankCards.value.length || !adaptive) return [];
 
@@ -170,41 +200,13 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return [...new Set(valuesKnown)];
   }
 
-  const biobankCardsHaveResults = computed(() => {
-    return (
-      !waitingForResponse.value &&
-      biobankCards.value &&
-      biobankCards.value.length > 0
-    );
-  });
-
-  const biobankCardsBiobankCount = computed(() => {
-    return biobankCards.value.length;
-  });
-
-  const biobankCardsCollectionCount = computed(() => {
-    return biobankCards.value
-      .filter((bc) => bc.collections)
-      .flatMap((biobank) => biobank.collections).length;
-  });
-
-  const biobankCardsSubcollectionCount = computed(() => {
-    if (!biobankCards.value.length) return 0;
-    const collections = biobankCards.value
-      .filter((bc) => bc.collections)
-      .flatMap((biobank) => biobank.collections);
-    if (!collections.length) return 0;
-    return collections
-      .filter((c) => c.sub_collections)
-      .flatMap((collection) => collection.sub_collections).length;
-  });
-
   return {
     updateBiobankCards,
     getBiobankCards,
     getBiobank,
     getPresentFilterOptions,
     waiting: waitingForResponse,
+    activeBiobanksCards,
     biobankCardsHaveResults,
     biobankCardsBiobankCount,
     biobankCardsCollectionCount,
