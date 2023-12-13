@@ -2,11 +2,14 @@ import type { UseFetchOptions } from "nuxt/app";
 import { defu } from "defu";
 import { type DocumentNode } from "graphql";
 
+interface UseGqlFetchOptions<T> extends UseFetchOptions<T> {
+  variables?: object;
+  schemaId?: string;
+}
+
 export function useGqlFetch<T, E>(
   query: string | Ref<string> | DocumentNode,
-  variables?: object,
-  schemaId?: string,
-  options: UseFetchOptions<T> = {}
+  options: UseGqlFetchOptions<T> = {}
 ) {
   const config = useRuntimeConfig();
 
@@ -20,14 +23,13 @@ export function useGqlFetch<T, E>(
     query: queryString,
   };
 
-  const variablesValue = isRef(variables)
-    ? (variables.value as object)
-    : variables;
-
-  if (variables) {
+  if (options.variables) {
+    const variablesValue = isRef(options.variables)
+      ? (options.variables.value as object)
+      : options.variables;
     body.variables = variablesValue;
   }
-  const schema = schemaId ?? useRoute().params.schema;
+  const schema = options.schemaId ?? useRoute().params.schema;
   const url = `/${schema}/catalogue/graphql`;
   const defaults: UseFetchOptions<T> = {
     baseURL: config.public.apiBase,

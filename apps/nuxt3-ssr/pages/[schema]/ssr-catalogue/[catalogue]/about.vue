@@ -296,29 +296,36 @@
 </template>
 
 <script setup lang="ts">
+import type { IMgError } from "~~/interfaces/types";
+
 useHead({ title: "About" });
-const { data, error } = await useFetch(
-  `/${useRoute().params.schema}/api/graphql`,
-  {
-    key: `manifest`,
-    baseURL: useRuntimeConfig().public.apiBase,
-    method: "POST",
-    body: {
-      query: ` 
-    {
+
+interface IManifestResponse {
+  data: {
+    _manifest: {
+      ImplementationVersion: string;
+      SpecificationVersion: string;
+      DatabaseVersion: string;
+    };
+  };
+}
+const { data, error } = await useGqlFetch<IManifestResponse, IMgError>(
+  ` 
+    query manifest{
       _manifest {
         ImplementationVersion
         SpecificationVersion
         DatabaseVersion
       }
     }`,
-    },
-  }
+  { key: "manifest" }
 );
+
 if (error.value) {
-  console.log(error.value);
-  throw new Error(error.value.message);
+  throw new Error("Error on about-page data fetch");
 }
 
-const manifest = computed(() => data.value.data._manifest);
+const manifest = computed(
+  () => (data.value as IManifestResponse).data._manifest ?? {}
+);
 </script>

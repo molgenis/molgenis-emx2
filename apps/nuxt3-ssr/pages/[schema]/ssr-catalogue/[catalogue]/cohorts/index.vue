@@ -120,13 +120,11 @@ const filter = computed(() => {
 });
 
 const { data, error } = await useGqlFetch<any, IMgError>(query, {
-  orderby,
-  filter,
+  variables: { filter, orderby },
 });
 
 if (error.value) {
-  const contextMsg = "Error on landing-page data fetch";
-  throw new Error(contextMsg);
+  throw new Error("Error on cohorts-page data fetch");
 }
 
 function setCurrentPage(pageNumber: number) {
