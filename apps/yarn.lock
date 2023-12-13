@@ -2860,10 +2860,10 @@
   resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.3.8.tgz#f044942142e1d3a395f24132e6203a784838542d"
   integrity sha512-8PGwybFwM4x8pcfgqEQFy70NaQxASvOC5DJwLQfpArw1UDfUXrJkdxD3BhVTMS+0Lef/TU7YO0Jvr0jJY8T+mw==
 
-"@vue/test-utils@2.4.2":
-  version "2.4.2"
-  resolved "https://registry.yarnpkg.com/@vue/test-utils/-/test-utils-2.4.2.tgz#43ce99c4e2eab0adbf1220257dc9974bc5ae38a7"
-  integrity sha512-07lLjpG1o9tEBoWQfVOFhDT7+WFCdDeECoeSdzOuVgIi6nxb2JDLGNNOV6+3crPpyg/jMlIocj96UROcgomiGg==
+"@vue/test-utils@2.4.3":
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/@vue/test-utils/-/test-utils-2.4.3.tgz#d86786d809f918c77fb9e1fafaa2438af37c17d3"
+  integrity sha512-F4K7mF+ad++VlTrxMJVRnenKSJmO6fkQt2wpRDiKDesQMkfpniGWsqEi/JevxGBo2qEkwwjvTUAoiGJLNx++CA==
   dependencies:
     js-beautify "^1.14.9"
     vue-component-type-helpers "^1.8.21"
