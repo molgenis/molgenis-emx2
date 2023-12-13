@@ -5,22 +5,13 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ButtonAction } from "molgenis-components";
+import { ref } from "vue";
 
-export default {
-  components: {
-    ButtonAction,
-  },
-  data() {
-    return {
-      count: 0,
-    };
-  },
-  methods: {
-    plusOne() {
-      this.count++;
-    },
-  },
-};
+let count = ref(0);
+
+function plusOne() {
+  count.value++;
+}
 </script>

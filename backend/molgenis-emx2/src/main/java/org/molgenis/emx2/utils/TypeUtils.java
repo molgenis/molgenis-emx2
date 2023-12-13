@@ -1,15 +1,10 @@
 package org.molgenis.emx2.utils;
 
-import static org.jooq.impl.DSL.cast;
-
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
@@ -20,12 +15,11 @@ import java.util.stream.Stream;
 import org.jooq.DataType;
 import org.jooq.JSONB;
 import org.jooq.impl.SQLDataType;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.*;
 
 public class TypeUtils {
   private static final String LOOSE_PARSER_FORMAT =
-      "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
+      "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSSSS][.SSSSSSS][.SSSSSS][.SSSSS][.SSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
 
   protected TypeUtils() {
     // hide public constructor
@@ -159,15 +153,16 @@ public class TypeUtils {
   }
 
   public static Double toDecimal(Object v) {
-    if (v instanceof String) {
-      String value = toString(v);
-      if (value != null) {
-        return Double.parseDouble(value);
-      } else {
+    if (v == null) return null;
+    if (v instanceof String string) {
+      if ("".equals(string)) {
         return null;
+      } else {
+        return Double.parseDouble(string);
       }
     }
-    if (v instanceof BigDecimal) return ((BigDecimal) v).doubleValue();
+    if (v instanceof BigDecimal bigDecimal) return bigDecimal.doubleValue();
+    if (v instanceof Integer integer) return Double.valueOf(integer);
     return (Double) v;
   }
 
@@ -182,7 +177,8 @@ public class TypeUtils {
     // otherwise try to use string value
     String value = toString(v);
     if (value != null) {
-      return LocalDate.parse(v.toString());
+      LocalDateTime ldt = toDateTime(v);
+      if (ldt != null) return ldt.toLocalDate();
     }
     return null;
   }
@@ -203,9 +199,13 @@ public class TypeUtils {
       value = value.replace(" ", "T");
       TemporalAccessor temporalAccessor =
           DateTimeFormatter.ofPattern(LOOSE_PARSER_FORMAT)
-              .parseBest(value, ZonedDateTime::from, LocalDate::from);
+              .parseBest(value, ZonedDateTime::from, LocalDateTime::from, LocalDate::from);
       if (temporalAccessor instanceof ZonedDateTime) {
         return ((ZonedDateTime) temporalAccessor).toLocalDateTime();
+      } else if (temporalAccessor instanceof LocalDateTime) {
+        return (LocalDateTime) temporalAccessor;
+      } else if (temporalAccessor instanceof LocalDate) {
+        return ((LocalDate) temporalAccessor).atStartOfDay();
       }
       return LocalDateTime.parse(value);
     } else {
@@ -401,19 +401,9 @@ public class TypeUtils {
       case DECIMAL_ARRAY:
         return TypeUtils.toDecimalArray(v);
       case TEXT:
-        String text = TypeUtils.toText(v);
-        if (text != null) {
-          return cast(text, SQLDataType.VARCHAR);
-        } else {
-          return null;
-        }
+        return TypeUtils.toText(v);
       case TEXT_ARRAY:
-        String[] textArray = TypeUtils.toTextArray(v);
-        if (textArray != null) {
-          return cast(textArray, SQLDataType.VARCHAR.getArrayDataType());
-        } else {
-          return null;
-        }
+        return TypeUtils.toTextArray(v);
       case DATE:
         return TypeUtils.toDate(v);
       case DATE_ARRAY:
@@ -470,6 +460,105 @@ public class TypeUtils {
       return result.toString().trim();
     } else {
       return null;
+    }
+  }
+
+  public static boolean isNull(Object value, ColumnType type) {
+    Object typedValue = getTypedValue(value, type);
+    if (type.isArray()) {
+      return typedValue == null || ((Object[]) typedValue).length == 0;
+    }
+    return typedValue == null;
+  }
+
+  public static LocalDateTime millisecondsToLocalDateTime(long milliseconds) {
+    if (milliseconds > 0) {
+      return LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.systemDefault());
+    } else {
+      return null;
+    }
+  }
+
+  public static Iterable<Row> convertToRows(TableMetadata metadata, List<Map<String, Object>> map) {
+    List<Row> rows = new ArrayList<>();
+    for (Map<String, Object> object : map) {
+      Row row = new Row();
+      for (Column column : metadata.getColumns()) {
+        if (object.containsKey(column.getIdentifier())) {
+          if (column.isRef()) {
+            convertRefToRow((Map<String, Object>) object.get(column.getIdentifier()), row, column);
+          } else if (column.isReference()) {
+            // REFBACK, REF_ARRAY
+            convertRefArrayToRow(
+                (List<Map<String, Object>>) object.get(column.getIdentifier()), row, column);
+          } else if (column.isFile()) {
+            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(column.getIdentifier());
+            if (bfw == null || !bfw.isSkip()) {
+              // also necessary in case of 'null' to ensure all file metadata fields are made empty
+              // skip is used when use submitted only metadata (that they received in query)
+              row.setBinary(
+                  column.getName(), (BinaryFileWrapper) object.get(column.getIdentifier()));
+            }
+          } else {
+            row.set(column.getName(), object.get(column.getIdentifier()));
+          }
+        }
+      }
+      rows.add(row);
+    }
+    return rows;
+  }
+
+  protected static void convertRefArrayToRow(
+      List<Map<String, Object>> list, Row row, Column column) {
+
+    List<Reference> refs = column.getReferences();
+    for (Reference ref : refs) {
+      if (!ref.isOverlapping()) {
+        if (!list.isEmpty()) {
+          row.set(ref.getName(), getRefValueFromList(ref.getPath(), list));
+        } else {
+          row.set(ref.getName(), new ArrayList<>());
+        }
+      }
+    }
+  }
+
+  private static List<Object> getRefValueFromList(
+      List<String> path, List<Map<String, Object>> list) {
+    List<Object> result = new ArrayList<>();
+    for (Map<String, Object> map : list) {
+      Object value = getRefValueFromMap(path, map);
+      if (value != null) {
+        result.add(value);
+      }
+    }
+    return result;
+  }
+
+  private static Object getRefValueFromMap(List<String> path, Map<String, Object> map) {
+    if (path.size() == 1) {
+      return map.get(path.get(0));
+    } else {
+      // should be > 1 and value should be of type map
+      Object value = map.get(path.get(0));
+      if (value != null) {
+        return getRefValueFromMap(path.subList(1, path.size()), (Map<String, Object>) value);
+      }
+      return null;
+    }
+  }
+
+  protected static void convertRefToRow(Map<String, Object> map, Row row, Column column) {
+    for (Reference ref : column.getReferences()) {
+      if (!ref.isOverlapping()) {
+        String name = ref.getName();
+        if (map == null) {
+          row.set(name, null);
+        } else {
+          row.set(ref.getName(), getRefValueFromMap(ref.getPath(), map));
+        }
+      }
     }
   }
 }

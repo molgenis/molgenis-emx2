@@ -4,13 +4,14 @@
       <span v-if="schema.tables && schema.tables?.length > 0">
         <span v-for="(table, index) in schema.tables" :key="index">
           <TableView
-            v-if="table.inherit === undefined"
+            v-if="table.inheritName === undefined"
             v-model="schema.tables[index]"
             :schema="schema"
             :schemaNames="schemaNames"
             @update:modelValue="$emit('update:modelValue', schema)"
             @delete="deleteTable(index)"
             :isManager="isManager"
+            :locales="locales"
           />
         </span>
       </span>
@@ -79,6 +80,9 @@ export default {
     isManager: {
       type: Boolean,
       default: false,
+    },
+    locales: {
+      type: Array,
     },
   },
   data() {

@@ -1,6 +1,6 @@
 const state = {
   isLoading: false,
-  graphqlURL: 'graphql',
+  graphqlURL: "graphql",
   session: null,
   schema: null,
   variables: [],
@@ -9,19 +9,20 @@ const state = {
   keywords: [],
   filters: [
     {
-      name: "keywords",
+      id: "keywords",
       conditions: [],
     },
     {
-      name: "networks",
+      id: "networks",
       conditions: [],
     },
     {
-      name: "cohorts",
+      id: "cohorts",
       conditions: [],
     },
   ],
   resources: [],
+  cohorts: [],
   variableMappings: {},
   searchInput: "",
 };

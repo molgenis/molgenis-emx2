@@ -3,18 +3,22 @@ package org.molgenis.emx2.json;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
 
 public class Table {
   private String name;
+  private String label;
+  private String description;
   private String oldName;
   private boolean drop;
   private String[] pkey;
-  private String inherit;
-  private String description;
-  private String externalSchema;
+  private String inheritId;
+  private String inheritName;
+  private List<LanguageValue> labels = new ArrayList<>();
+  private List<LanguageValue> descriptions = new ArrayList<>();
+  private String schemaName;
+  private String schemaId;
   private Collection<String[]> unique = new ArrayList<>();
   private Collection<Column> columns = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
@@ -26,25 +30,36 @@ public class Table {
     // for json serialisation
   }
 
-  public Table(SchemaMetadata schema, TableMetadata tableMetadata) {
-    this(schema, tableMetadata, false);
+  public Table(TableMetadata tableMetadata) {
+    this(tableMetadata, false);
   }
 
-  public Table(SchemaMetadata schema, TableMetadata tableMetadata, boolean minimal) {
+  public Table(TableMetadata tableMetadata, boolean minimal) {
     this.name = tableMetadata.getTableName();
+    this.label = tableMetadata.getLabel();
+    this.description = tableMetadata.getDescription();
+    this.labels =
+        tableMetadata.getLabels().entrySet().stream()
+            .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
+            .toList();
     this.id = tableMetadata.getIdentifier();
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
-    this.inherit = tableMetadata.getInherit();
-    this.description = tableMetadata.getDescription();
+    if (tableMetadata.getInheritName() != null) {
+      this.inheritId = tableMetadata.getInheritedTable().getIdentifier();
+      this.inheritName = tableMetadata.getInheritName();
+    }
+    this.descriptions =
+        tableMetadata.getDescriptions().entrySet().stream()
+            .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
+            .toList();
     this.semantics = tableMetadata.getSemantics();
     this.settings =
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .toList();
-    if (!tableMetadata.getSchemaName().equals(schema.getName())) {
-      this.externalSchema = tableMetadata.getSchemaName();
-    }
+    this.schemaName = tableMetadata.getSchemaName();
+    this.schemaId = tableMetadata.getSchema().getName(); // todo? getIdentifier?
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
       this.columns.add(new Column(column, tableMetadata, minimal));
     }
@@ -91,20 +106,20 @@ public class Table {
     this.pkey = pkey;
   }
 
-  public String getInherit() {
-    return inherit;
+  public String getInheritId() {
+    return inheritId;
   }
 
-  public void setInherit(String inherit) {
-    this.inherit = inherit;
+  public void setInheritId(String inheritId) {
+    this.inheritId = inheritId;
   }
 
-  public String getDescription() {
-    return description;
+  public List<LanguageValue> getDescriptions() {
+    return descriptions;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
+  public void setDescriptions(List<LanguageValue> descriptions) {
+    this.descriptions = descriptions;
   }
 
   public List<Setting> getSettings() {
@@ -115,12 +130,12 @@ public class Table {
     this.settings = settings;
   }
 
-  public String getExternalSchema() {
-    return externalSchema;
+  public String getSchemaName() {
+    return schemaName;
   }
 
-  public void setExternalSchema(String externalSchema) {
-    this.externalSchema = externalSchema;
+  public void setSchemaName(String schemaName) {
+    this.schemaName = schemaName;
   }
 
   public String[] getSemantics() {
@@ -153,5 +168,45 @@ public class Table {
 
   public void setTableType(TableType tableType) {
     this.tableType = tableType;
+  }
+
+  public List<LanguageValue> getLabels() {
+    return labels;
+  }
+
+  public void setLabels(List<LanguageValue> labels) {
+    this.labels = labels;
+  }
+
+  public String getInheritName() {
+    return inheritName;
+  }
+
+  public void setInheritName(String inheritName) {
+    this.inheritName = inheritName;
+  }
+
+  public String getLabel() {
+    return label;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getSchemaId() {
+    return schemaId;
+  }
+
+  public void setSchemaId(String schemaId) {
+    this.schemaId = schemaId;
   }
 }

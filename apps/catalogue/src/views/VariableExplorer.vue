@@ -7,8 +7,9 @@
           <InputRefList
             id="networks-input-ref"
             label="Networks"
-            tableName="Networks"
+            tableId="Networks"
             v-model="networks"
+            refLabel="${id}"
           ></InputRefList>
         </div>
         <div v-if="hasKeywords" class="bg-white px-1">
@@ -17,21 +18,21 @@
             label="Topics"
             v-model="keywords"
             :isMultiSelect="true"
-            tableName="Keywords"
+            tableId="Keywords"
             :show-expanded="true"
+            schemaId="CatalogueOntologies"
           />
         </div>
         <div class="bg-white px-1">
           <InputRefList
             id="cohorts-input-ref"
             label="Cohorts"
-            tableName="Cohorts"
+            tableId="Cohorts"
             v-model="cohorts"
+            refLabel="${id}"
             :maxNum="100"
-            :orderBy="{ pid: 'ASC' }"
-            :filter="
-              network ? { networks: { pid: { equals: network } } } : null
-            "
+            :orderby="{ id: 'ASC' }"
+            :filter="network ? { networks: { id: { equals: network } } } : null"
           ></InputRefList>
         </div>
       </div>
@@ -55,7 +56,10 @@
           </div>
           <div class="row">
             <div class="col-12">
-              <filter-wells :filters="filtersFiltered" />
+              <filter-wells
+                :filters="filtersFiltered"
+                @updateFilters="fetchVariables"
+              />
             </div>
           </div>
           <div class="row">
@@ -83,12 +87,14 @@
                   </router-link>
                 </li>
               </ul>
-              <template v-if="$route.query.tab === 'harmonization'">
-                <harmonization-view />
-              </template>
-              <template v-else>
-                <variables-details-view :network="network" />
-              </template>
+              <variables-details-view
+                :network="network"
+                v-show="$route.query.tab !== 'harmonization'"
+              />
+              <harmonization-view
+                :network="network"
+                v-show="$route.query.tab === 'harmonization'"
+              />
             </div>
           </div>
         </div>
@@ -106,6 +112,7 @@ import {
   InputOntology,
   InputRefList,
   FilterWells,
+  Spinner,
 } from "molgenis-components";
 
 export default {
@@ -117,6 +124,7 @@ export default {
     InputOntology,
     FilterWells,
     InputRefList,
+    Spinner,
   },
   props: {
     network: {
@@ -125,7 +133,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(["filters"]),
+    ...mapState(["filters", "isLoading"]),
     ...mapGetters([
       "variables",
       "variableCount",
@@ -204,15 +212,16 @@ export default {
     },
   },
   async created() {
+    this.$store.commit("setSearchInput", "");
     await this.fetchSchema();
+    if (this.network) {
+      this.setSelectedNetworks([{ id: this.network }]);
+    }
+    await this.fetchKeywords();
     if (!this.variables.length) {
       // Only on initial creation
-      this.fetchVariables();
+      await this.fetchVariables();
     }
-    if (this.network) {
-      this.setSelectedNetworks([{ pid: this.network }]);
-    }
-    this.fetchKeywords();
   },
 };
 </script>

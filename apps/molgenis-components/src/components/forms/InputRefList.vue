@@ -8,17 +8,18 @@
   >
     <div>
       <div>
-        <div v-if="count > maxNum">
+        <div>
           <FilterWell
-            v-for="(item, key) in selection"
-            :key="JSON.stringify(item)"
-            :label="flattenObject(item)"
-            @click="deselect(key)"
+            v-for="selectedRow in selection"
+            :key="JSON.stringify(selectedRow)"
+            :label="applyJsTemplate(selectedRow, refLabel)"
+            @click="deselect(selectedRow)"
           />
         </div>
         <ButtonAlt
-          v-if="modelValue && modelValue.length"
+          v-if="modelValue?.length"
           class="pl-1"
+          icon="fa fa-clear"
           @click="clearValue"
         >
           clear selection
@@ -29,48 +30,70 @@
           showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
         "
       >
+        <Spinner v-if="loading" />
         <div
+          v-else
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           v-for="(row, index) in data"
           :key="index"
         >
           <input
-            :id="`${id}-${row.name}`"
+            :id="`${id}-${row.primaryKey}`"
             :name="id"
             type="checkbox"
-            :value="getPrimaryKey(row, tableMetaData)"
+            :value="row.primaryKey"
             v-model="selection"
             @change="emitSelection"
             class="form-check-input"
             :class="{ 'is-invalid': errorMessage }"
           />
-          <label class="form-check-label" :for="`${id}-${row.name}`">
-            {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
+          <label
+            class="form-check-label"
+            :for="`${id}-${row.primaryKey}`"
+            @click.prevent="toggle(row.primaryKey)"
+          >
+            {{ applyJsTemplate(row, refLabel) }}
           </label>
         </div>
+      </div>
+      <div v-if="canEdit">
+        <Tooltip value="New entry">
+          <RowButtonAdd
+            id="add-entry"
+            :tableId="tableId"
+            :schemaId="schemaId"
+            @update:newRow="selectNew"
+          />
+        </Tooltip>
+      </div>
+      <div>
         <ButtonAlt
           class="pl-0"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           icon="fa fa-search"
           @click="openSelect"
         >
-          {{ count > maxNum ? `view all ${count} options.` : "view as table" }}
+          {{
+            count > maxNum
+              ? `show all ${count} options with details`
+              : "more details"
+          }}
         </ButtonAlt>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
           <TableSearch
             v-model:selection="selection"
-            @update:selection="$emit('update:modelValue', $event)"
-            :lookupTableName="tableName"
-            :filter="filter"
-            @select="emitSelection"
-            @deselect="deselect"
-            :graphqlURL="graphqlURL"
-            :showSelect="true"
-            :limit="10"
+            :schemaId="schemaId"
+            :tableId="tableId"
             :canEdit="canEdit"
+            :showSelect="true"
+            :filter="filter"
+            :limit="10"
+            @select="select"
+            @deselect="deselect"
+            @update:newRow="selectNew"
           />
         </template>
         <template v-slot:footer>
@@ -81,15 +104,25 @@
   </FormGroup>
 </template>
 
-<script>
-import Client from "../../client/client.js";
-import BaseInput from "./baseInputs/BaseInput.vue";
-import TableSearch from "../tables/TableSearch.vue";
-import LayoutModal from "../layout/LayoutModal.vue";
-import FormGroup from "./FormGroup.vue";
-import ButtonAlt from "./ButtonAlt.vue";
+<script lang="ts">
+import { IRow } from "../../Interfaces/IRow";
+import { IQueryMetaData } from "../../client/IQueryMetaData";
+import Client from "../../client/client";
 import FilterWell from "../filters/FilterWell.vue";
-import {convertToPascalCase, flattenObject, getPrimaryKey} from "../utils";
+import LayoutModal from "../layout/LayoutModal.vue";
+import Spinner from "../layout/Spinner.vue";
+import RowButtonAdd from "../tables/RowButtonAdd.vue";
+import TableSearch from "../tables/TableSearch.vue";
+import {
+  applyJsTemplate,
+  convertRowToPrimaryKey,
+  deepClone,
+  deepEqual,
+} from "../utils";
+import ButtonAlt from "./ButtonAlt.vue";
+import FormGroup from "./FormGroup.vue";
+import Tooltip from "./Tooltip.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 
 export default {
   extends: BaseInput,
@@ -98,9 +131,10 @@ export default {
       client: null,
       showSelect: false,
       data: [],
-      selection: this.modelValue,
+      selection: deepClone(this.modelValue),
       count: 0,
-      tableMetaData: null,
+      tableMetadata: null,
+      loading: false,
     };
   },
   components: {
@@ -109,34 +143,35 @@ export default {
     LayoutModal,
     FormGroup,
     ButtonAlt,
+    Spinner,
+    RowButtonAdd,
+    Tooltip,
   },
   props: {
-    graphqlURL: {
-      default: "graphql",
+    schemaId: {
       type: String,
+      required: false,
     },
     filter: Object,
+    orderby: Object,
     multipleColumns: Boolean,
     maxNum: { type: Number, default: 11 },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    /**
-     * Whether or not the buttons are show to edit the referenced table
-     *  */
+    refLabel: {
+      type: String,
+      required: true,
+    },
     canEdit: {
       type: Boolean,
-      required: false,
       default: () => false,
     },
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     title() {
-      return "Select " + this.tableName;
+      return "Select " + this.tableMetadata.label;
     },
     showMultipleColumns() {
       const itemsPerColumn = 12;
@@ -144,14 +179,34 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey,
-    deselect(key) {
-      this.selection.splice(key, 1);
+    applyJsTemplate,
+    deselect(key: IRow) {
+      this.selection = this.selection.filter(
+        (row: IRow) => !deepEqual(row, key)
+      );
       this.emitSelection();
     },
     clearValue() {
       this.selection = [];
       this.emitSelection();
+    },
+    handleUpdateSelection(newSelection: IRow[]) {
+      this.selection = [...newSelection];
+      this.emitSelection();
+    },
+    select(newRow: IRow) {
+      this.selection = [...this.selection, newRow];
+      this.emitSelection();
+    },
+    async selectNew(newRow: IRow) {
+      const rowKey = await convertRowToPrimaryKey(
+        newRow,
+        this.tableId,
+        this.schemaId
+      );
+      this.selection = [...this.selection, rowKey];
+      this.emitSelection();
+      this.loadOptions();
     },
     emitSelection() {
       this.$emit("update:modelValue", this.selection);
@@ -159,66 +214,89 @@ export default {
     openSelect() {
       this.showSelect = true;
     },
+    toggle(value: IRow) {
+      if (this.selection?.includes(value)) {
+        this.selection = this.selection.filter(
+          (selectedValue: IRow) => selectedValue !== value
+        );
+      } else {
+        this.selection = [...this.selection, value];
+      }
+      this.emitSelection();
+    },
     closeSelect() {
       this.loadOptions();
       this.showSelect = false;
     },
-    flattenObject,
     async loadOptions() {
-      const options = {
+      this.loading = true;
+      const options: IQueryMetaData = {
         limit: this.maxNum,
+        filter: this.filter,
+        orderby: this.orderby,
       };
-      const response = await this.client.fetchTableData(
-        this.tableId,
-        options
-      );
+      const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
       this.count = response[this.tableId + "_agg"].count;
+
+      await Promise.all(
+        this.data.map(async (row: IRow) => {
+          row.primaryKey = await convertRowToPrimaryKey(
+            row,
+            this.tableId,
+            this.schemaId
+          );
+        })
+      ).then(() => (this.loading = false));
+      this.$emit("optionsLoaded", this.data);
     },
   },
   watch: {
     modelValue() {
-      this.selection = this.modelValue;
-    }
+      this.selection = deepClone(this.modelValue);
+    },
+    filter() {
+      if (!this.loading) {
+        this.loadOptions();
+      }
+    },
   },
-  async mounted() {
-    this.client = Client.newClient(this.graphqlURL);
-    const allMetaData = await this.client.fetchMetaData();
-    this.tableMetaData = allMetaData.tables.find(
-      (table) => table.id === this.tableId
-    );
-
+  async created() {
+    //should be created, not mounted, so we are before the watchers
+    this.client = Client.newClient(this.schemaId);
+    this.tableMetadata = await this.client.fetchTableMetaData(this.tableId);
     await this.loadOptions();
-
     if (!this.modelValue) {
       this.selection = [];
     }
   },
+  emits: ["optionsLoaded", "update:modelValue"],
 };
 </script>
 
 <docs>
-<template>
+  <template>
   <div>
     You have to be have server running and be signed in for this to work
     <div class="border-bottom mb-3 p-2">
-      <h5>synced demo props: </h5>
-        <div>
-          <label for="canEdit" class="pr-1">can edit: </label>
-          <input type="checkbox" id="canEdit" v-model="canEdit">
-        </div>
-        <p class="font-italic">view in table mode to see edit action buttons</p>
+      <h5>synced demo props:</h5>
+      <div>
+        <label for="canEdit" class="pr-1">can edit: </label>
+        <input type="checkbox" id="canEdit" v-model="canEdit" />
+      </div>
+      <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
-      <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+      <!-- normally you don't need schemaId, it will use graphql on current path-->
       <InputRefList
         id="input-ref-list"
         label="Standard ref input list"
         v-model="value"
-        tableName="Pet"
+        tableId="Pet"
         description="Standard input"
-        graphqlURL="/pet store/graphql"
+        schemaId="pet store"
         :canEdit="canEdit"
+        refLabel="${name}"
       />
       Selection: {{ value }}
     </DemoItem>
@@ -227,11 +305,12 @@ export default {
         id="input-ref-list-default"
         label="Ref input list with default value"
         v-model="defaultValue"
-        tableName="Pet"
+        tableId="Pet"
         description="This is a default value"
         :defaultValue="defaultValue"
-        graphqlURL="/pet store/graphql"
+        schemaId="pet store"
         :canEdit="canEdit"
+        refLabel="${name}"
       />
       Selection: {{ defaultValue }}
     </DemoItem>
@@ -240,11 +319,12 @@ export default {
         id="input-ref-list-filter"
         label="Ref input list with pre set filter"
         v-model="filterValue"
-        tableName="Pet"
+        tableId="Pet"
         description="Filter by name"
-        :filter="{ category: { name: { equals: 'pooky' } } }"
-        graphqlURL="/pet store/graphql"
+        :filter="{ category: { name: { equals: 'dog' } } }"
+        schemaId="pet store"
         :canEdit="canEdit"
+        refLabel="${name}"
       />
       Selection: {{ filterValue }}
     </DemoItem>
@@ -253,13 +333,28 @@ export default {
         id="input-ref-list"
         label="Ref input list with multiple columns"
         v-model="multiColumnValue"
-        tableName="Pet"
+        tableId="Pet"
         description="This is a multi column input"
-        graphqlURL="/pet store/graphql"
+        schemaId="pet store"
         multipleColumns
         :canEdit="canEdit"
+        refLabel="${name}"
       />
       Selection: {{ multiColumnValue }}
+    </DemoItem>
+    <DemoItem>
+      <InputRefList
+        id="input-ref-list"
+        label="Ref input list more than the max number shown"
+        v-model="maxNumValue"
+        tableId="Pet"
+        description="This is a multi column input"
+        schemaId="pet store"
+        :maxNum="3"
+        :canEdit="canEdit"
+        refLabel="${name}"
+      />
+      Selection: {{ maxNumValue }}
     </DemoItem>
   </div>
 </template>
@@ -272,7 +367,8 @@ export default {
       defaultValue: [{ name: "pooky" }, { name: "spike" }],
       filterValue: [{ name: "spike" }],
       multiColumnValue: null,
-      canEdit: false
+      maxNumValue: null,
+      canEdit: false,
     };
   },
 };

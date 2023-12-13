@@ -1,8 +1,9 @@
 {
   "private": true,
   "workspaces": [
+    "meta-data-utils",
     "catalogue",
-    "catalogue3",
+    "directory",
     "settings",
     "central",
     "schema",
@@ -12,7 +13,20 @@
     "graphql-playground",
     "nuxt3-ssr",
     "molgenis-components",
-    "helloworld"
-   ]
+    "molgenis-viz",
+    "cranio-public",
+    "cranio-provider",
+    "ern-genturis",
+    "ern-ithaca",
+    "ern-reconnet",
+    "ern-skin",
+    "helloworld",
+    "reports",
+    "tasks",
+    "gportal"
+  ],
+  "devDependencies": {
+    "nx": "16.10.0",
+    "nx-cloud": "latest"
+  }
 }
-

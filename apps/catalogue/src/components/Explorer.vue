@@ -26,7 +26,12 @@
                   <label>Limit search to:</label>
                   <InputCheckbox
                     class="custom-control-inline ml-2"
-                    :options="['Collections', 'Tables', 'Variables', 'Topics']"
+                    :options="[
+                      'Collections',
+                      'Datasets',
+                      'Variables',
+                      'Topics',
+                    ]"
                   />
                 </div>
               </form>
@@ -46,10 +51,10 @@
             <li>
               <router-link
                 class="nav-link"
-                :class="{ active: selected == 'Tables' }"
-                to="tables"
+                :class="{ active: selected == 'Datasets' }"
+                to="datasets"
               >
-                Tables ({{ tableCount }})
+                Dataset ({{ datasetCount }})
               </router-link>
             </li>
             <li>
@@ -103,7 +108,7 @@ export default {
       topics: [],
       databanksCount: 0,
       variableCount: 0,
-      tableCount: 0,
+      datasetCount: 0,
       limit: 20,
       page: 1,
       search: "",
@@ -114,48 +119,48 @@ export default {
       filters: [
         {
           name: "Topic",
-          refTable: "Topics",
+          refTableId: "Topics",
           columnType: "REF",
         },
         {
           name: "Population",
-          refTable: "InclusionCriteria",
+          refTableId: "InclusionCriteria",
           columnType: "REF",
         },
         {
           name: "Inclusion Criteria",
-          refTable: "InclusionCriteria",
+          refTableId: "InclusionCriteria",
           columnType: "REF",
         },
 
         {
           name: "Number Of Participants",
-          refTable: "AgeCategories",
+          refTableId: "AgeCategories",
           columnType: "REF",
         },
         {
           name: "Recruitment age",
-          refTable: "AgeCategories",
+          refTableId: "AgeCategories",
           columnType: "REF",
         },
         {
           name: "Country",
-          refTable: "InclusionCriteria",
+          refTableId: "InclusionCriteria",
           columnType: "REF",
         },
         {
           name: "Host organisation",
-          refTable: "Institutes",
+          refTableId: "Institutes",
           columnType: "REF",
         },
         {
           name: "Format",
-          refTable: "Formats",
+          refTableId: "Formats",
           columnType: "REF",
         },
         {
           name: "Unit",
-          refTable: "Units",
+          refTableId: "Units",
           columnType: "REF",
         },
       ],
@@ -210,8 +215,8 @@ export default {
       }
       request(
         "graphql",
-        `query countQuery($cFilter:CollectionsFilter,$vFilter:VariablesFilter,$tFilter:TablesFilter){Collections_agg(${search}filter:$cFilter){count}
-        ,Variables_agg(${search}filter:$vFilter){count},Tables_agg(${search}filter:$tFilter){count}}`,
+        `query countQuery($cFilter:CollectionsFilter,$vFilter:VariablesFilter,$tFilter:DatasetsFilter){Collections_agg(${search}filter:$cFilter){count}
+        ,Variables_agg(${search}filter:$vFilter){count},Datasets_agg(${search}filter:$tFilter){count}}`,
         {
           cFilter: filter,
           vFilter: filter,
@@ -223,7 +228,7 @@ export default {
         .then((data) => {
           this.variableCount = data.Variables_agg.count;
           this.resourceCount = data.Collections_agg.count;
-          this.tableCount = data.Tables_agg.count;
+          this.DatasetCount = data.Datasets_agg.count;
         })
         .catch((error) => {
           this.graphqlError = error.response.errors[0].message;

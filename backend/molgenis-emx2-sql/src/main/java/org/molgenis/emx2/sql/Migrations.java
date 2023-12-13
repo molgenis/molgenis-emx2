@@ -4,15 +4,15 @@ import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
-import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.createMgTableClassCannotUpdateCheck;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.MG_TABLECLASS_UPDATE;
 
 import java.io.IOException;
-import org.jooq.DSLContext;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.jooq.*;
 import org.jooq.Record;
-import org.jooq.Result;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 7;
+  private static final int SOFTWARE_DATABASE_VERSION = 14;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
@@ -73,6 +73,28 @@ public class Migrations {
             executeMigration7(
                 (SqlDatabase) tdb,
                 "refactor settings, rename molgenis_version table to database_metadata");
+
+          if (version < 8) executeMigrationFile(tdb, "migration8.sql", "add labels column");
+
+          if (version < 9)
+            executeMigrationFile(
+                tdb, "migration9.sql", "update row level policy for schema metadata");
+
+          if (version < 10)
+            executeMigrationFile(tdb, "migration10.sql", "add Aggregate role for each schema");
+
+          if (version < 11) executeMigrationFile(tdb, "migration11.sql", "add profile metadata");
+
+          if (version < 12)
+            executeMigrationFile(tdb, "migration12.sql", "add defaultValue in metadata schema");
+
+          if (version < 13)
+            executeMigrationFile(
+                tdb, "migration13.sql", "remove default value for mg_tableclass columns");
+
+          if (version < 14) {
+            executeMigrationFile(tdb, "migration14.sql", "cleanup column_metadata ref column");
+          }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
@@ -142,7 +164,7 @@ public class Migrations {
       ((SqlDatabase) db).getJooq().execute(sql);
       logger.debug(message + "(file = " + sqlFile);
     } catch (IOException e) {
-      throw new MolgenisException(e.getMessage());
+      throw new MolgenisException("Execute migration failed", e);
     }
   }
 
@@ -151,16 +173,57 @@ public class Migrations {
   }
 
   static void migration5addMgTableclassUpdateTrigger(SqlDatabase db) {
-    // should add trigger to all root tables, identfied by having MG_TABLCLASS column
-    for (String schemaName : db.getSchemaNames()) {
-      Schema schema = db.getSchema(schemaName);
-      for (String tableName : schema.getTableNames()) {
-        TableMetadata tableMetadata = schema.getTable(tableName).getMetadata();
-        if (tableMetadata.getLocalColumnNames().contains(MG_TABLECLASS)) {
-          createMgTableClassCannotUpdateCheck((SqlTableMetadata) tableMetadata, db.getJooq());
-          logger.debug(
-              "added mg_tableclass update trigger for table "
-                  + tableMetadata.getJooqTable().getName());
+    // should add trigger to all root tables, identfied by having MG_TABLECLASS column
+    DSLContext jooq = db.getJooq();
+    // all schemas, except MOLGENIS
+    for (org.jooq.Table table : jooq.meta().getTables()) {
+      for (Field field : table.fields()) {
+        if (field.getName().equals(MG_TABLECLASS)) {
+          // rewrite of createMgTableClassCannotUpdateCheck
+          // such that it doesn't use the metadata schema because that gives errors if migration is
+          // not yet executed, savvy?
+          String functionName = table.getName() + MG_TABLECLASS_UPDATE;
+          List<TableField> keyFields = ((UniqueKey) table.getKeys().get(0)).getFields();
+          String keyColumns =
+              keyFields.stream()
+                  .map(keyField -> keyField.getName())
+                  .collect(Collectors.joining(","));
+          String keyValues =
+              keyFields.stream()
+                  .map(keyField -> "OLD." + name(keyField.getName()))
+                  .collect(Collectors.joining("||','||"));
+
+          jooq.execute("DROP TRIGGER IF EXISTS {0} ON {1};", name(functionName), table);
+          jooq.execute(
+              "DROP FUNCTION IF EXISTS {0}", name(table.getSchema().getName(), functionName));
+
+          jooq.execute(
+              "CREATE FUNCTION {0}() RETURNS trigger AS $BODY$ "
+                  + "\nBEGIN"
+                  + "\n\tIF OLD.{1} <> NEW.{1} THEN"
+                  + "\n\t\tRAISE EXCEPTION USING ERRCODE='23505'"
+                  + ", MESSAGE = 'insert or update on table ' || NEW.{1} || ' violates primary key constraint'"
+                  + ", DETAIL = 'Duplicate key: ('||{2}||')=('|| {3} ||') already exists in inherited table ' || OLD.{1};"
+                  + "\n\tEND IF;"
+                  + "\n\tRETURN NEW;"
+                  + "\nEND; $BODY$ LANGUAGE plpgsql;",
+              name(table.getSchema().getName(), functionName),
+              name(MG_TABLECLASS),
+              inline(keyColumns),
+              keyword(keyValues));
+
+          jooq.execute(
+              "CREATE CONSTRAINT TRIGGER {0} "
+                  + "\n\tAFTER UPDATE OF {1} ON {2}"
+                  + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
+                  + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
+              name(functionName),
+              name(MG_TABLECLASS),
+              table,
+              name(table.getSchema().getName(), functionName));
+
+          logger.info(
+              "migration 5 added mg_tableclass update trigger for table " + table.getName());
         }
       }
     }

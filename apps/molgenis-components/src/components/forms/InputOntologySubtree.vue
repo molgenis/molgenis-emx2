@@ -5,31 +5,37 @@
       :key="term.name + term.selected + term.expanded"
     >
       <!--show if selected or search-->
-      <i
-        class="fa-fw pl-2 pt-1 ml-3"
-        role="button"
-        :class="getExpandState(term)"
-        @click.stop="toggleExpand(term)"
-      />
-      <i
-        class="fa-fw text-primary pl-2 pt-1"
-        :class="getSelectState(term)"
-        @click.stop="toggleSelect(term)"
-        role="button"
-      />
+      <span @click.stop="toggleExpand(term)">
+        <i
+          class="fa-fw pl-2 pt-1 ml-3"
+          role="button"
+          :class="getExpandState(term)"
+        />
+      </span>
+      <span @click.stop="toggleSelect(term)">
+        <i
+          class="fa-fw text-primary pl-2 pt-1"
+          :class="getSelectState(term)"
+          role="button"
+        />
+      </span>
       <span
         @click.stop="toggleExpandOrSelect(term)"
         class="flex-grow-1 pl-2"
         role="button"
       >
         {{ term.label ? term.label : term.name }}
+        <span v-if="term.code">
+          (<span v-if="term.codesystem"> {{ term.codesystem }}: </span>
+          {{ term.code }})
+        </span>
         <small v-if="term.definition" class="text-muted">
-          <i> - {{ term.definition }}</i></small
-        >
-        <span v-if="term.children && countVisibleChildren(term) > 0"
-          >({{ countVisibleChildren(term) }})</span
-        ></span
-      >
+          <i> - {{ term.definition }}</i>
+        </small>
+        <span v-if="term.children && countVisibleChildren(term) > 0">
+          ({{ countVisibleChildren(term) }})
+        </span>
+      </span>
       <InputOntologySubtree
         v-if="term.expanded"
         :terms="term.children"
@@ -82,11 +88,11 @@ export default {
       return childNames;
     },
     getSelectState(term) {
-      if (term.selected == "complete") {
+      if (term.selected === "complete") {
         return this.isMultiSelect
           ? "fas fa-check-square"
           : "fas fa-check-circle";
-      } else if (term.selected == "partial") {
+      } else if (term.selected === "partial") {
         return this.isMultiSelect ? "far fa-check-square" : "far fa-circle";
       } else {
         return this.isMultiSelect ? "far fa-square" : "far fa-circle";
@@ -105,7 +111,7 @@ export default {
     toggleSelect(term) {
       //if selecting then also expand
       //if deselection we keep it open
-      if (term.selected == "complete") {
+      if (term.selected === "complete") {
         this.$emit("deselect", term.name);
       } else {
         this.$emit("select", term.name);

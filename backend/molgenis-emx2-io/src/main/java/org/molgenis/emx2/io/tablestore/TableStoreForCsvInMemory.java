@@ -13,8 +13,13 @@ public class TableStoreForCsvInMemory implements TableStore {
   private Character separator;
 
   public TableStoreForCsvInMemory() {
+    this(',');
+  }
+
+  public TableStoreForCsvInMemory(Character seperator) {
+    Objects.requireNonNull(seperator);
     store = new LinkedHashMap<>();
-    separator = ',';
+    separator = seperator;
   }
 
   @Override
@@ -35,7 +40,7 @@ public class TableStoreForCsvInMemory implements TableStore {
         }
       }
       if (rows.iterator().hasNext()) {
-        CsvTableWriter.write(rows, bufferedWriter, separator);
+        CsvTableWriter.write(rows, columnNames, bufferedWriter, separator);
       } else {
         // only header in case no rows provided
         writer.write(columnNames.stream().collect(Collectors.joining("" + separator)));
@@ -70,5 +75,9 @@ public class TableStoreForCsvInMemory implements TableStore {
   @Override
   public Collection<String> tableNames() {
     return this.store.keySet();
+  }
+
+  public String getCsvString(String tableName) {
+    return this.store.get(tableName);
   }
 }

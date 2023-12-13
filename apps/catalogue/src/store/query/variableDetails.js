@@ -1,7 +1,8 @@
 import gql from "graphql-tag";
+
 export default gql`
-  query TargetVariables($filter: TargetVariablesFilter) {
-    TargetVariables(limit: 1, filter: $filter) {
+  query Variables($filter: VariablesFilter) {
+    Variables(limit: 1, filter: $filter) {
       name
       label
       description
@@ -24,26 +25,21 @@ export default gql`
         match {
           name
         }
-        fromDataDictionary {
-          resource {
-            pid
-          }
+        source {
+          id
         }
-        fromVariable {
+        sourceVariables {
           name
         }
-        fromVariablesOtherTables {
-          table {
+        sourceVariablesOtherDatasets {
+          dataset {
             name
           }
           name
         }
-        fromTable {
-          dataDictionary {
-            resource {
-              pid
-            }
-            version
+        sourceDataset {
+          resource {
+            id
           }
           name
         }
@@ -56,20 +52,15 @@ export default gql`
           match {
             name
           }
-          fromDataDictionary {
-            resource {
-              pid
-            }
+          source {
+            id
           }
-          fromVariable {
+          sourceVariables {
             name
           }
-          fromTable {
-            dataDictionary {
-              resource {
-                pid
-              }
-              version
+          sourceDataset {
+            resource {
+              id
             }
             name
           }

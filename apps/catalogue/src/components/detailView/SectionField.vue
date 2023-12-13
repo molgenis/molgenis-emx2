@@ -2,7 +2,7 @@
   <div class="m-2 showcontainer row">
     <sectionFieldLabel
       class="col-4"
-      :label="field.meta.name"
+      :label="field.meta.label"
       :tooltip="field.description"
       :color="color"
     ></sectionFieldLabel>
@@ -27,11 +27,10 @@ import RefArrayFieldValue from "./RefArrayFieldValue.vue";
 import OntologyFieldValue from "./OntologyFieldValue.vue";
 import RefFieldValue from "./RefFieldValue.vue";
 import TextFieldValue from "./TextFieldValue.vue";
-import {
-  StringDisplay,
-  FileDisplay,
-  ObjectDisplay,
-} from "molgenis-components";
+import HyperlinkFieldValue from "./HyperlinkFieldValue.vue";
+import EmailFieldValue from "./EmailFieldValue.vue";
+import LinkedResourcesFieldValue from "./LinkedResourcesFieldValue.vue";
+import { StringDisplay, FileDisplay, ObjectDisplay } from "molgenis-components";
 
 export default {
   name: "SectionField",
@@ -46,6 +45,9 @@ export default {
     RefArrayFieldValue,
     OntologyFieldValue,
     RefFieldValue,
+    HyperlinkFieldValue,
+    EmailFieldValue,
+    LinkedResourcesFieldValue,
   },
   props: {
     field: {
@@ -59,6 +61,11 @@ export default {
   },
   computed: {
     fieldTypeComponentName() {
+      //custom views
+      if (this.field.meta.refTableId === "LinkedResources") {
+        return "LinkedResourcesFieldValue";
+      }
+      //standard views
       return {
         STRING: "StringDisplay",
         BOOL: "StringDisplay",
@@ -71,6 +78,8 @@ export default {
         HEADING: "StringDisplay",
         JSONB: "TextFieldValue",
         TEXT: "TextFieldValue",
+        HYPERLINK: "HyperlinkFieldValue",
+        EMAIL: "EmailFieldValue",
         BOOL_ARRAY: "SectionArrayValue",
         UUID_ARRAY: "SectionArrayValue",
         STRING_ARRAY: "SectionArrayValue",

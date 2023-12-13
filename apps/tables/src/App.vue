@@ -28,11 +28,11 @@ export default {
   },
   computed: {
     title() {
-      if (this.schema) return this.schema.name + " / Tables";
+      if (this.schema) return this.schema.label + " / Tables";
       return "Tables";
     },
-    schemaName() {
-      if (this.schema) return this.schema.name;
+    schemaId() {
+      if (this.schema) return this.schema.id;
       return null;
     },
   },
@@ -43,7 +43,7 @@ export default {
       this.error = null;
       request(
         "graphql",
-        "{_schema{name,tables{id,name,tableType,externalSchema,description,columns{name,columnType,key,refTable,required,description}}}}"
+        "{_schema{id,label,tables{id,label,tableType,schemaId,description,columns{id,label,columnType,key,refTableId,required,description}}}}"
       )
         .then((data) => {
           this.schema = data._schema;

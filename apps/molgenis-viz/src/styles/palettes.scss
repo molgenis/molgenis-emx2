@@ -1,0 +1,180 @@
+$gray-900: #0a0a0a;
+$gray-800: #252525;
+$gray-700: #404040;
+$gray-600: #5c5c5c;
+$gray-500: #777777;
+$gray-400: #929292;
+$gray-300: #adadad;
+$gray-200: #c9c9c9;
+$gray-100: #e4e4e4;
+$gray-050: #f6f6f6;
+$gray-000: #ffffff;
+
+$blue-green-900: #309bc2;
+$blue-green-800: #45a5c8;
+$blue-green-700: #5ab0cf;
+$blue-green-600: #70bad5;
+$blue-green-500: #85c4db;
+$blue-green-400: #9acfe2;
+$blue-green-300: #afd9e8;
+$blue-green-200: #c5e3ee;
+$blue-green-100: #daeef5;
+$blue-green-050: #eff8fb;
+
+$blue-900: #163d89;
+$blue-800: #2d5095;
+$blue-700: #4463a1;
+$blue-600: #5b76ac;
+$blue-500: #7289b8;
+$blue-400: #889dc4;
+$blue-300: #9fb0d0;
+$blue-200: #b6c3db;
+$blue-100: #cdd6e7;
+$blue-050: #e4e9f3;
+
+$red-900: #ae2509;
+$red-800: #b73d24;
+$red-700: #c05540;
+$red-600: #c96e5b;
+$red-500: #d28676;
+$red-400: #db9e92;
+$red-300: #e4b6ad;
+$red-200: #edcfc8;
+$red-100: #f6e7e4;
+$red-050: #ffffff;
+
+$green-900: #0c4237;
+$green-800: #26564c;
+$green-700: #3f6a61;
+$green-600: #597e77;
+$green-500: #73928c;
+$green-400: #8ca7a1;
+$green-300: #a6bbb6;
+$green-200: #c0cfcc;
+$green-100: #d9e3e1;
+$green-050: #f3f7f6;
+
+$yellow-400: #f5c900;
+$yellow-300: #f4d233;
+$yellow-200: #f3da65;
+$yellow-100: #f2e398;
+$yellow-050: #f1ebca;
+
+$gray-transparent-900: hsla(0, 0%, 0%, 0.9);
+$gray-transparent-800: hsla(0, 0%, 0%, 0.8);
+$gray-transparent-700: hsla(0, 0%, 0%, 0.7);
+$gray-transparent-600: hsla(0, 0%, 0%, 0.6);
+$gray-transparent-500: hsla(0, 0%, 0%, 0.5);
+$gray-transparent-400: hsla(0, 0%, 0%, 0.4);
+$gray-transparent-300: hsla(0, 0%, 0%, 0.3);
+$gray-transparent-200: hsla(0, 0%, 0%, 0.2);
+$gray-transparent-100: hsla(0, 0%, 0%, 0.1);
+$gray-transparent-050: hsla(0, 0%, 0%, 0.05);
+
+$molgenis-blue-800: hsl(218, 98%, 52%);
+$molgenis-blue-050: hsl(218, 98%, 98%);
+
+.bg-gray-900 {
+  background-color: $gray-900;
+}
+
+.bg-gray-800 {
+  background-color: $gray-800;
+}
+
+.bg-gray-700 {
+  background-color: $gray-700;
+}
+
+.bg-gray-600 {
+  background-color: $gray-600;
+}
+
+.bg-gray-500 {
+  background-color: $gray-500;
+}
+
+.bg-gray-400 {
+  background-color: $gray-400;
+}
+
+.bg-gray-300 {
+  background-color: $gray-300;
+}
+
+.bg-gray-200 {
+  background-color: $gray-200;
+}
+
+.bg-gray-100 {
+  background-color: $gray-100;
+}
+
+.bg-gray-050 {
+  background-color: $gray-050;
+}
+
+.bg-gray-000 {
+  background-color: $gray-000;
+}
+
+.bg-blue-green-900 {
+  background-color: $blue-green-900;
+}
+.bg-blue-green-800 {
+  background-color: $blue-green-800;
+}
+.bg-blue-green-700 {
+  background-color: $blue-green-700;
+}
+.bg-blue-green-600 {
+  background-color: $blue-green-600;
+}
+.bg-blue-green-500 {
+  background-color: $blue-green-500;
+}
+.bg-blue-green-400 {
+  background-color: $blue-green-400;
+}
+.bg-blue-green-300 {
+  background-color: $blue-green-300;
+}
+.bg-blue-green-200 {
+  background-color: $blue-green-200;
+}
+.bg-blue-green-100 {
+  background-color: $blue-green-100;
+}
+.bg-blue-green-050 {
+  background-color: $blue-green-050;
+}
+.bg-blue-900 {
+  background-color: $blue-900;
+}
+.bg-blue-800 {
+  background-color: $blue-800;
+}
+.bg-blue-700 {
+  background-color: $blue-700;
+}
+.bg-blue-600 {
+  background-color: $blue-600;
+}
+.bg-blue-500 {
+  background-color: $blue-500;
+}
+.bg-blue-400 {
+  background-color: $blue-400;
+}
+.bg-blue-300 {
+  background-color: $blue-300;
+}
+.bg-blue-200 {
+  background-color: $blue-200;
+}
+.bg-blue-100 {
+  background-color: $blue-100;
+}
+.bg-blue-050 {
+  background-color: $blue-050;
+}

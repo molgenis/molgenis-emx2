@@ -2,8 +2,10 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Privileges.*;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jooq.DDLQuery;
@@ -23,29 +25,35 @@ class SqlSchemaMetadataExecutor {
     step.execute();
 
     String schemaName = schema.getName();
-    String member = getRolePrefix(schemaName) + VIEWER;
+    String aggregator = getRolePrefix(schemaName) + AGGREGATOR;
+    String viewer = getRolePrefix(schemaName) + VIEWER;
     String editor = getRolePrefix(schemaName) + EDITOR;
     String manager = getRolePrefix(schemaName) + MANAGER;
     String owner = getRolePrefix(schemaName) + Privileges.OWNER;
 
-    db.addRole(member);
+    db.addRole(aggregator);
+    db.addRole(viewer);
     db.addRole(editor);
     db.addRole(manager);
     db.addRole(owner);
 
-    // make editor also member
-    db.getJooq().execute("GRANT {0} TO {1}", name(member), name(editor));
+    // make viewer also aggregator
+    db.getJooq().execute("GRANT {0} TO {1}", name(aggregator), name(viewer));
 
-    // make manager also editor and member
+    // make editor also viewer
+    db.getJooq().execute("GRANT {0} TO {1}", name(viewer), name(editor));
+
+    // make manager also editor, viewer and aggregator
     db.getJooq()
         .execute(
-            "GRANT {0},{1} TO {2} WITH ADMIN OPTION", name(member), name(editor), name(manager));
+            "GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION",
+            name(aggregator), name(viewer), name(editor), name(manager));
 
     // make owner also editor, manager, member
     db.getJooq()
         .execute(
-            "GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION",
-            name(member), name(editor), name(manager), name(owner));
+            "GRANT {0},{1},{2},{3} TO {4} WITH ADMIN OPTION",
+            name(aggregator), name(viewer), name(editor), name(manager), name(owner));
 
     String currentUser = db.getJooq().fetchOne("SELECT current_user").get(0, String.class);
     String sessionUser = db.getJooq().fetchOne("SELECT session_user").get(0, String.class);
@@ -59,7 +67,8 @@ class SqlSchemaMetadataExecutor {
     db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(sessionUser));
 
     // grant the permissions
-    db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(member));
+    db.getJooq()
+        .execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(aggregator));
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
 
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
@@ -196,19 +205,28 @@ class SqlSchemaMetadataExecutor {
 
   static void executeDropSchema(SqlDatabase db, String schemaName) {
     try {
-      // remove changelog triggers
-      ChangeLogExecutor.disableChangeLog(db, db.getSchema(schemaName).getMetadata());
-      // remove settings
-      db.getJooq().dropSchema(name(schemaName)).cascade().execute();
-      // TODO if there are custom roles
+      Schema schema = db.getSchema(schemaName);
+      // reload because we must have latest state
+      ((SqlSchemaMetadata) schema.getMetadata()).reload();
+
+      // remove changelog triggers + table
+      ChangeLogExecutor.disableChangeLog(db, schema.getMetadata());
+      ChangeLogExecutor.executeDropChangeLogTableForSchema(db, schema);
+
+      // remove tables individually to trigger foreign key error if appropriate
+      List<Table> tables = db.getSchema(schemaName).getTablesSorted();
+      Collections.reverse(tables);
+      tables.forEach(table -> executeDropTable(db.getJooq(), table.getMetadata()));
+
+      // drop schema
+      db.getJooq().dropSchema(name(schemaName)).execute();
+
       for (String role : executeGetRoles(db.getJooq(), schemaName)) {
-        db.getJooq().execute("DROP ROLE {0}", name(getRolePrefix(schemaName) + role));
+        db.getJooq().execute("DROP ROLE IF EXISTS {0}", name(getRolePrefix(schemaName) + role));
       }
       MetadataUtils.deleteSchema(db.getJooq(), schemaName);
-    } catch (MolgenisException me) {
-      throw new MolgenisException("Drop schema failed", me);
-    } catch (DataAccessException dae) {
-      throw new SqlMolgenisException("Drop schema failed", dae);
+    } catch (Exception e) {
+      throw new SqlMolgenisException("Drop schema failed", e);
     }
   }
 }

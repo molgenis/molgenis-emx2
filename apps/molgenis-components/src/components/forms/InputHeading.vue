@@ -1,33 +1,45 @@
 <template>
   <div>
-    <span v-if="!focusLabel" class="d-flex form-group bg-white rounded pt-4 pb-1 mb-1">
+    <span
+      v-if="!focusLabel"
+      class="d-flex form-group bg-white rounded pt-4 pb-1 mb-1"
+    >
       <h1>{{ label }}</h1>
       <IconAction
-          v-if="(inplace || editMeta)"
-          class="hoverIcon align-top"
-          icon="pencil-alt"
-          @click="toggleFocusLabel"
+        v-if="inplace || editMeta"
+        class="hoverIcon align-top"
+        icon="pencil-alt"
+        @click="toggleFocusLabel"
       />
     </span>
-    <input v-else :value="label" class="form-control" @input="$emit('update:label',$event.target.value)"
-           @blur="toggleFocusLabel"/>
-    <div v-if="!focusDescription" class="d-flex form-group bg-white rounded pb-1 mb-1">
+    <input
+      v-else
+      :value="label"
+      class="form-control"
+      @input="$emit('update:label', $event.target.value)"
+      @blur="toggleFocusLabel"
+    />
+    <div
+      v-if="!focusDescription"
+      class="d-flex form-group bg-white rounded pb-1 mb-1"
+    >
       <p>{{ description }}</p>
-     <IconAction
-         v-if="(inplace || editMeta)"
-         class="hoverIcon align-top"
-         icon="pencil-alt"
-         @click="toggleFocusDescription"
-     />
+      <IconAction
+        v-if="inplace || editMeta"
+        class="hoverIcon align-top"
+        icon="pencil-alt"
+        @click="toggleFocusDescription"
+      />
     </div>
-    <textarea v-else
-              :value="description"
-              :class="{
+    <textarea
+      v-else
+      :value="description"
+      :class="{
         'form-control': true,
       }"
-        :aria-describedby="id + 'Help'"
-        @input="$emit('update:description', $event.target.value)"
-        @blur="toggleFocusDescription"
+      :aria-describedby="id + 'Help'"
+      @input="$emit('update:description', $event.target.value)"
+      @blur="toggleFocusDescription"
     />
   </div>
 </template>
@@ -40,7 +52,7 @@ import IconAction from "./IconAction.vue";
  * Otherwise it uses same mechanism as other input hence name 'InputHeader'
  */
 export default {
-  components: {IconAction},
+  components: { IconAction },
   props: {
     inplace: Boolean,
     label: String,
@@ -49,7 +61,7 @@ export default {
     editMeta: Boolean,
   },
   data() {
-    return {focusLabel: false, focusDescription: false};
+    return { focusLabel: false, focusDescription: false };
   },
   methods: {
     toggleFocusLabel() {
@@ -61,15 +73,15 @@ export default {
     stripHtml(input) {
       if (input) {
         return input.replace(
-            /(<\/?(?:h1|h2|h3|h4|p|label|a)[^>]*>)|<[^>]+>/gi,
-            '$1',
+          /(<\/?(?:h1|h2|h3|h4|p|label|a)[^>]*>)|<[^>]+>/gi,
+          "$1"
         );
       } else {
         return input;
       }
     },
   },
-  emits: ['update:description', 'update:label'],
+  emits: ["update:description", "update:label"],
 };
 </script>
 

@@ -1,14 +1,12 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.*;
-import static org.molgenis.emx2.Constants.IS_OIDC_ENABLED;
 import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.INHERITED;
 import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
-import static org.molgenis.emx2.graphql.GraphqlConstants.ROLES;
 import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,15 +20,34 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlSchemaMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GraphqlSchemaFieldFactory {
+  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
 
   public static final GraphQLInputObjectType inputSettingsMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisSettingsInput")
           .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(TABLE_ID)
+                  .type(Scalars.GraphQLString)
+                  .description("Optional, if a setting should be applied on level of tableId"))
+          .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(VALUE).type(Scalars.GraphQLString))
+          .build();
+  public static final GraphQLInputObjectType inputLanguageValueType =
+      new GraphQLInputObjectType.Builder()
+          .name("MolgenisLanguageValueInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(LOCALE)
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(VALUE).type(Scalars.GraphQLString))
           .build();
@@ -38,6 +55,16 @@ public class GraphqlSchemaFieldFactory {
       new GraphQLObjectType.Builder()
           .name("MolgenisSettingsType")
           .field(GraphQLFieldDefinition.newFieldDefinition().name(KEY).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.VALUE)
+                  .type(Scalars.GraphQLString))
+          .build();
+  public static final GraphQLType outputLanguageValueType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisLanguageValueType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(LOCALE).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.VALUE)
@@ -82,7 +109,9 @@ public class GraphqlSchemaFieldFactory {
       new GraphQLInputObjectType.Builder()
           .name("DropSettingsInput")
           .field(
-              GraphQLInputObjectField.newInputObjectField().name(TABLE).type(Scalars.GraphQLString))
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(TABLE_ID)
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .build();
@@ -112,12 +141,24 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.LABEL)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(LABELS)
+                  .type(GraphQLList.list(outputLanguageValueType)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(DESCRIPTION)
-                  .type(Scalars.GraphQLString))
+                  .name(DESCRIPTIONS)
+                  .type(GraphQLList.list(outputLanguageValueType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(COLUMN_POSITION)
@@ -140,6 +181,14 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(DEFAULT_VALUE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(REF_SCHEMA_ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(REF_SCHEMA_NAME)
                   .type(Scalars.GraphQLString))
           .field(
@@ -148,15 +197,31 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(REF_LINK)
+                  .name(REF_TABLE_ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(REF_BACK)
+                  .name(REF_LINK_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(REF_LINK_ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(REF_BACK_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(REF_BACK_ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(REF_LABEL)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(REF_LABEL_DEFAULT)
                   .type(Scalars.GraphQLString))
           // TODO
           //          .field(
@@ -177,6 +242,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(COMPUTED)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(SEMANTICS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .build();
@@ -189,20 +258,40 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.LABEL)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(LABELS)
+                  .type(GraphQLList.list(outputLanguageValueType)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.EXTERNAL_SCHEMA)
+                  .name(GraphqlConstants.SCHEMA_NAME)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.INHERIT)
+                  .name(GraphqlConstants.SCHEMA_ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(DESCRIPTION)
+                  .name(GraphqlConstants.INHERIT_NAME)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.INHERIT_ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(DESCRIPTIONS)
+                  .type(GraphQLList.list(outputLanguageValueType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.COLUMNS)
@@ -223,7 +312,10 @@ public class GraphqlSchemaFieldFactory {
   private static final GraphQLObjectType outputMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisSchema")
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(ID).type(Scalars.GraphQLString))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(LABEL).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLES)
@@ -260,8 +352,8 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.ID)
-                  .type(Scalars.GraphQLString))
+                  .name(LABELS)
+                  .type(GraphQLList.list(inputLanguageValueType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(COLUMN_TYPE)
@@ -280,6 +372,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
+                  .name(DEFAULT_VALUE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(REF_SCHEMA_NAME)
                   .type(Scalars.GraphQLString))
           .field(
@@ -288,11 +384,11 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(REF_LINK)
+                  .name(REF_LINK_NAME)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(REF_BACK)
+                  .name(REF_BACK_NAME)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
@@ -302,10 +398,6 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(OLD_NAME)
                   .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(INHERITED)
-                  .type(Scalars.GraphQLBoolean))
           // TODO
           //          .field(
           //              GraphQLInputObjectField.newInputObjectField()
@@ -313,8 +405,8 @@ public class GraphqlSchemaFieldFactory {
           //                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(DESCRIPTION)
-                  .type(Scalars.GraphQLString))
+                  .name(DESCRIPTIONS)
+                  .type(GraphQLList.list(inputLanguageValueType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(VALIDATION_EXPRESSION)
@@ -327,6 +419,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(READONLY)
                   .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(COMPUTED)
+                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(SEMANTICS)
@@ -343,8 +439,8 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.ID)
-                  .type(Scalars.GraphQLString))
+                  .name(LABELS)
+                  .type(GraphQLList.list(inputLanguageValueType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(OLD_NAME)
@@ -353,12 +449,12 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField().name(DROP).type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(INHERIT)
+                  .name(INHERIT_NAME)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(DESCRIPTION)
-                  .type(Scalars.GraphQLString))
+                  .name(DESCRIPTIONS)
+                  .type(GraphQLList.list(inputLanguageValueType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(SEMANTICS)
@@ -374,6 +470,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_TYPE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(SCHEMA_NAME)
                   .type(Scalars.GraphQLString))
           .build();
 
@@ -406,7 +506,10 @@ public class GraphqlSchemaFieldFactory {
       result.put(SETTINGS, mapSettingsToGraphql((schema.getMetadata().getSettings())));
 
       // add name
+      result.put(
+          ID, schema.getMetadata().getName()); // todo, think if we want to switch to identifier
       result.put(NAME, schema.getMetadata().getName());
+      result.put(LABEL, schema.getMetadata().getName());
       return result;
     };
   }
@@ -489,8 +592,8 @@ public class GraphqlSchemaFieldFactory {
     List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
     if (settings != null) {
       for (Map<String, String> setting : settings) {
-        if (setting.get(TABLE) != null) {
-          Table table = schema.getTable(setting.get(TABLE));
+        if (setting.get(TABLE_ID) != null) {
+          Table table = schema.getTableById(setting.get(TABLE_ID));
           if (table == null) {
             throw new MolgenisException(
                 "Cannot remove setting because table " + setting.get(TABLE + " does not exist"));
@@ -672,9 +775,30 @@ public class GraphqlSchemaFieldFactory {
     if (settings != null) {
       settings.forEach(
           entry -> {
-            schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+            if (entry.get(TABLE_ID) != null) {
+              Table table = schema.getTableById(entry.get(TABLE_ID));
+              if (table == null)
+                throw new MolgenisException(
+                    "changeSettings failed: Table with id="
+                        + entry.get(TABLE_ID)
+                        + " cannot be found");
+              table.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+            } else {
+              schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+            }
           });
     }
+  }
+
+  private Map<String, String> convertKeyValueListToMap(List<Map<String, String>> keyValueList) {
+    Map<String, String> keyValueMap = new LinkedHashMap<>();
+    if (keyValueList != null) {
+      keyValueList.forEach(
+          entry -> {
+            keyValueMap.put(entry.get(KEY), entry.get(VALUE));
+          });
+    }
+    return keyValueMap;
   }
 
   public GraphQLFieldDefinition dropMutation(Schema schema) {
@@ -711,5 +835,70 @@ public class GraphqlSchemaFieldFactory {
                 .name(GraphqlConstants.TABLES)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .build();
+  }
+
+  public GraphQLFieldDefinition schemaReportsField(Schema schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_reports")
+        .type(
+            GraphQLObjectType.newObject()
+                .name("MolgenisSqlQuery")
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(DATA)
+                        .type(Scalars.GraphQLString))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(COUNT)
+                        .type(Scalars.GraphQLInt)))
+        .argument(GraphQLArgument.newArgument().name(ID).type(Scalars.GraphQLInt))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(PARAMETERS)
+                .type(GraphQLList.list(inputSettingsMetadataType)))
+        .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt))
+        .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              Integer id = null;
+              Map<String, Object> result = new LinkedHashMap<>();
+              try {
+                String reportsJson = schema.getMetadata().getSetting("reports");
+                logger.info("REPORT value: " + reportsJson);
+                if (reportsJson != null) {
+                  id = dataFetchingEnvironment.getArgument(ID);
+                  Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
+                  Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
+                  Map<String, String> parameters =
+                      convertKeyValueListToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
+                  List<Map<String, Object>> reportList =
+                      new ObjectMapper().readValue(reportsJson, List.class);
+                  Map<String, Object> report = reportList.get(id);
+                  String sql = report.get("sql") + " LIMIT " + limit + " OFFSET " + offset;
+                  String countSql =
+                      String.format("select count(*) from (%s) as count", report.get("sql"));
+                  result.put(DATA, convertToJson(schema.retrieveSql(sql, parameters)));
+                  result.put(
+                      COUNT,
+                      schema.retrieveSql(countSql, parameters).get(0).get("count", Integer.class));
+                }
+                return result;
+              } catch (Exception e) {
+                throw new MolgenisException("Retrieve of report '" + id + "' failed ", e);
+              }
+            })
+        .build();
+  }
+
+  private String convertToJson(List<Row> rows) {
+    try {
+      List<Map<String, Object>> result = new ArrayList<>();
+      for (Row row : rows) {
+        result.add(row.getValueMap());
+      }
+      return new ObjectMapper().writeValueAsString(result);
+    } catch (Exception e) {
+      throw new MolgenisException("Cannot convert sql result set to json", e);
+    }
   }
 }

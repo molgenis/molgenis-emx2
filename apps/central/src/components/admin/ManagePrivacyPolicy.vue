@@ -15,7 +15,7 @@
         id="privacy-policy-text"
         v-model="policyText"
         placeholder="Enter the privacy policy"
-        :readonly="(policyLevel !== CUSTOM)"
+        :readonly="policyLevel !== CUSTOM"
       />
     </div>
     <button type="button" class="btn btn-primary" @click="save">Save</button>

@@ -4,21 +4,22 @@ import static org.molgenis.emx2.Operator.*;
 
 public class Constants {
 
+  public static final String SYS_COLUMN_NAME_PREFIX = "mg_";
   public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE_";
   public static final String MG_ROLE_PREFIX = "MG_ROLE_";
   public static final String MG_USER_PREFIX = "MG_USER_";
 
   public static final String COMPOSITE_REF_SEPARATOR = ".";
-  public static final String REF_SCHEMA_NAME = "refSchema";
-  public static final String REF_TABLE_NAME = "refTable";
   public static final String REF_LINK = "refLink";
   public static final String REF_LABEL = "refLabel";
+  public static final String REF_LABEL_DEFAULT = "refLabelDefault";
   public static final String REF_BACK = "refBack";
   public static final String CASCADE_DELETE = "cascadeDelete";
   public static final String TABLE = "table";
   public static final String COLUMN = "column";
   public static final String FORM = "form";
   public static final String READONLY = "readonly";
+  public static final String COMPUTED = "computed";
   public static final String VISIBLE_EXPRESSION = "visible";
   public static final String DESCRIPTION = "description";
   public static final String IS_CHANGELOG_ENABLED = "isChangelogEnabled";
@@ -55,6 +56,7 @@ public class Constants {
   public static final String MOLGENIS_OIDC_CLIENT_NAME = "MOLGENIS_OIDC_CLIENT_NAME";
   public static final String MOLGENIS_OIDC_DISCOVERY_URI = "MOLGENIS_OIDC_DISCOVERY_URI";
   public static final String MOLGENIS_OIDC_CALLBACK_URL = "MOLGENIS_OIDC_CALLBACK_URL";
+  public static final String MOLGENIS_INCLUDE_CATALOGUE_DEMO = "MOLGENIS_INCLUDE_CATALOGUE_DEMO";
 
   public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
 
@@ -62,6 +64,8 @@ public class Constants {
   public static final String OIDC_CALLBACK_PATH = "_callback";
   public static final String ASYNC = "async";
   public static final String ANONYMOUS = "anonymous";
+  public static final String LOCALES = "locales";
+  public static final String LOCALES_DEFAULT = "[\"en\"]";
 
   protected static final Operator[] EXISTS_OPERATIONS = {};
   protected static final Operator[] ORDINAL_OPERATORS = {EQUALS, NOT_EQUALS, BETWEEN, NOT_BETWEEN};
@@ -72,11 +76,11 @@ public class Constants {
 
   // RFC 5322, see http://emailregex.com/
   protected static final String EMAIL_REGEX =
-      "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]"
-          + "+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\""
+      "(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]"
+          + "+(?:\\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|\""
           + "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")"
-          + "@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.)"
-          + "{3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\"
+          + "@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.)"
+          + "{3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\"
           + "[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
   // thank you to
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
@@ -92,6 +96,11 @@ public class Constants {
   public static final String PRIVACY_POLICY_TEXT = "PrivacyPolicyText";
   public static final String PRIVACY_POLICY_TEXT_DEFAULT = "Privacy data + medical";
   public static final String IS_PRIVACY_POLICY_ENABLED = "isPrivacyPolicyEnabled";
+  public static final String COMPUTED_AUTOID_TOKEN = "${mg_autoid}";
+  public static final String SYSTEM_SCHEMA = "_SYSTEM_";
+
+  public static final String CONTACT_RECIPIENTS_QUERY_SETTING_KEY = "contactRecipientsQuery";
+  public static final String CONTACT_BCC_ADDRESS = "contactBccAddress";
 
   private Constants() {
     // hide constructor

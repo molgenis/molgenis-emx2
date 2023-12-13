@@ -4,13 +4,10 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
+public class PetStoreLoader extends AbstractDataLoader {
 
   public static final String CATEGORY = "Category";
   public static final String TAG = "Tag";
@@ -31,8 +28,8 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
   public static final String SPECIES = "species";
   public static final String MAMMALS = "mammals";
 
-  @Override
-  public void load(Schema schema, boolean includeDemoData) {
+  public SchemaMetadata getSchemaMetadata() {
+    SchemaMetadata schema = new SchemaMetadata();
     schema.create(table(CATEGORY).add(column(NAME).setPkey()));
 
     schema.create(
@@ -52,16 +49,18 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
 
     schema.create(
         table(ORDER)
-            .add(column(ORDER_ID).setPkey())
+            .add(column(ORDER_ID).setPkey().setType(AUTO_ID).setComputed("ORDER:${mg_autoid}"))
             .add(column("pet").setType(REF).setRefTable(PET))
-            .add(column(QUANTITY).setType(LONG).setValidation("{quantity} >= 1"))
-            .add(column(PRICE).setType(DECIMAL).setValidation("{price} >= 1"))
+            .add(
+                column(QUANTITY)
+                    .setType(LONG)
+                    .setValidation("if(quantity < 1) 'quantity should be >= 1'"))
+            .add(column(PRICE).setType(DECIMAL).setValidation("price >= 1"))
             .add(column(COMPLETE).setType(BOOL)) // todo: default false
             .add(column(STATUS))); // todo enum: placed, approved, delivered
 
     // refBack
     schema
-        .getMetadata()
         .getTableMetadata(PET)
         .add(column("orders").setType(REFBACK).setRefTable(ORDER).setRefBack("pet"));
 
@@ -77,6 +76,12 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
             .add(column("userStatus").setType(INT))
             .add(column("pets").setType(REF_ARRAY).setRefTable(PET)));
 
+    return schema;
+  }
+
+  @Override
+  void loadInternalImplementation(Schema schema, boolean includeDemoData) {
+    schema.migrate(getSchemaMetadata());
     if (includeDemoData) {
       loadExampleData(schema);
     }
@@ -87,15 +92,19 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
     final String shopmanager = "shopmanager";
     final String shopowner = "shopowner";
 
-    // initual user
+    // initialize users
+    if (!schema.getDatabase().hasUser(shopmanager)) {
+      schema.getDatabase().setUserPassword(shopmanager, shopmanager);
+    }
+    if (!schema.getDatabase().hasUser(shopviewer)) {
+      schema.getDatabase().setUserPassword(shopviewer, shopviewer);
+    }
+    if (!schema.getDatabase().hasUser(shopowner)) {
+      schema.getDatabase().setUserPassword(shopowner, shopowner);
+    }
     schema.addMember(shopmanager, "Manager");
-    schema.getDatabase().setUserPassword(shopmanager, shopmanager);
-
     schema.addMember(shopviewer, "Viewer");
-    schema.getDatabase().setUserPassword(shopviewer, shopviewer);
-
     schema.addMember(shopowner, "Owner");
-    schema.getDatabase().setUserPassword(shopowner, shopowner);
 
     schema
         .getTable(CATEGORY)
@@ -179,14 +188,12 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
         .getTable(ORDER)
         .insert(
             new Row()
-                .set(ORDER_ID, "1")
                 .set("pet", "pooky")
                 .set(QUANTITY, 1l)
                 .set(PRICE, 9.99)
                 .set(COMPLETE, true)
                 .set(STATUS, "delivered"),
             new Row()
-                .set(ORDER_ID, "2")
                 .set("pet", "spike")
                 .set(PRICE, 14.99)
                 .set(QUANTITY, 7l)
@@ -201,5 +208,11 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
                 .set("pets", "spike,pooky,the very hungry caterpillar,fire ant"));
 
     schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
+
+    schema
+        .getMetadata()
+        .setSetting(
+            "reports",
+            "[{\"id\":0,\"name\":\"pet report\",\"sql\":\"select * from \\\"Pet\\\"\"},{\"id\":1,\"name\":\"pet report with parameters\",\"sql\":\"select * from \\\"Pet\\\" p where p.name=ANY(${name:string_array})\"}]");
   }
 }

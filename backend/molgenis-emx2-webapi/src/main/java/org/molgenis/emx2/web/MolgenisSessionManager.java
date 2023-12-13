@@ -7,10 +7,10 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.ThreadPool;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.JWTgenerator;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.tasks.ScriptTableListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.ExceptionMapper;
@@ -25,44 +25,60 @@ import spark.staticfiles.StaticFilesConfiguration;
 
 public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
-  // map so we can track the sessions, necessary for 'clearCache' in case of schema changes
-  // session id is the key
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
 
   public MolgenisSessionManager() {
     createCustomJettyServerFactoryWithCustomSessionListener();
   }
 
-  /** Retrieve MolgenisSession for current request */
   public MolgenisSession getSession(Request request) {
-    // if new session create a MolgenisSession object
-    if (request.session().isNew()) {
-      // jetty session will manage session create/destroy, see handler in constructor
-      request.session(true);
+    String authTokenKey = findUsedAuthTokenKey(request);
+    if (authTokenKey != null) {
+      return getNonPersistedSessionBasedOnToken(request, authTokenKey);
+    } else {
+      return getPersistentSessionBasedOnSessionId(request);
     }
+  }
 
-    // get the session
+  private MolgenisSession getPersistentSessionBasedOnSessionId(Request request) {
+    if (request.session().isNew()) {
+      request.session(true); // see createCustomJettyServerFactoryWithCustomSessionListener
+    }
     MolgenisSession session = sessions.get(request.session().id());
     if (session.getSessionUser() == null) {
       throw new MolgenisException(
           "Invalid session found with user == null. This should not happen so please report as a bug");
     } else {
-      // check if we should apply a token
-      if (request.headers("x-molgenis-token") != null) {
-        String user =
-            JWTgenerator.getUserFromToken(
-                session.getDatabase(), request.headers("x-molgenis-token"));
-        if (!session.getDatabase().getActiveUser().equals(user)) {
-          session.getDatabase().setActiveUser(user);
-        }
-      }
-
       logger.info(
           "get session for user({}) and key ({})",
           session.getSessionUser(),
           request.session().id());
     }
     return session;
+  }
+
+  private MolgenisSession getNonPersistedSessionBasedOnToken(Request request, String authTokenKey) {
+    SqlDatabase database = new SqlDatabase(false);
+    database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
+    String user = JWTgenerator.getUserFromToken(database, request.headers(authTokenKey));
+    database.setActiveUser(user);
+    return new MolgenisSession(database);
+  }
+
+  /**
+   * From the request, get the name of the auth token key that was used to supply the auth token in
+   * the header, or return null if none of the options are present.
+   *
+   * @param request
+   * @return
+   */
+  public String findUsedAuthTokenKey(Request request) {
+    for (String authTokenKey : Constants.MOLGENIS_TOKEN) {
+      if (request.headers(authTokenKey) != null) {
+        return authTokenKey;
+      }
+    }
+    return null;
   }
 
   /**
@@ -129,8 +145,9 @@ public class MolgenisSessionManager {
       public void sessionCreated(HttpSessionEvent httpSessionEvent) {
         logger.info("Initializing session");
         // create private database wrapper to session
-        Database database = new SqlDatabase(false);
+        SqlDatabase database = new SqlDatabase(false);
         database.setActiveUser("anonymous"); // set default use to "anonymous"
+        database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
 
         // create session and add to sessions lists so we can also access all active
         // sessions

@@ -2,6 +2,7 @@ package org.molgenis.emx2;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface Schema {
 
@@ -24,6 +25,10 @@ public interface Schema {
   void dropTable(String name);
 
   Query query(String tableName);
+
+  List<Row> retrieveSql(String sql);
+
+  List<Row> retrieveSql(String sql, Map<String, ?> params);
 
   Query agg(String tableName);
 
@@ -60,4 +65,10 @@ public interface Schema {
   List<Change> getChanges(int limit);
 
   Integer getChangesCount();
+
+  String getSettingValue(String key);
+
+  boolean hasSetting(String emailHost);
+
+  Table getTableById(String id);
 }

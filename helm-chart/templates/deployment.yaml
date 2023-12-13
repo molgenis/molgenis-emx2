@@ -40,6 +40,8 @@ spec:
                   key: databasepassword
             - name: MOLGENIS_POSTGRES_URI
               value: jdbc:postgresql://localhost/{{ .Values.database.name }}
+            - name: MOLGENIS_INCLUDE_CATALOGUE_DEMO
+              value: {{ .Values.catalogue.includeCatalogueDemo | quote }}
 {{- if .Values.oidc.enabled  }}
             - name: MOLGENIS_OIDC_CLIENT_ID
               value: {{ .Values.oidc.client_id }}
@@ -73,6 +75,9 @@ spec:
                   key: postgrespassword
             - name: POSTGRES_USER
               value: {{ .Values.postgres.username }}
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+
           ports:
             - containerPort: 5432
           volumeMounts:
@@ -80,6 +85,22 @@ spec:
               mountPath: /var/lib/postgresql/data
             - name: postgres-initdb
               mountPath: /docker-entrypoint-initdb.d
+        - image: "{{ .Values.ssrCatalogue.image.repository }}:{{ .Values.image.tag }}"
+          name: ssr-catalogue
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NUXT_PUBLIC_API_BASE
+              value: {{ .Values.ssrCatalogue.environment.apiBase }}
+            - name: NUXT_PUBLIC_EMX2_THEME
+              value: {{ .Values.ssrCatalogue.environment.theme }}
+            - name: NUXT_PUBLIC_EMX2_LOGO
+              value: {{ .Values.ssrCatalogue.environment.logo }}
+            - name: NUXT_PUBLIC_SITE_TITLE
+              value: {{ .Values.ssrCatalogue.environment.siteTitle | quote }}
+            - name: NUXT_PUBLIC_ANALYTICS_KEY
+              value: {{ .Values.ssrCatalogue.environment.analyticsKey | quote }}
       volumes:
         - name: postgres-initdb
           configMap:

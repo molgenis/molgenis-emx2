@@ -1,32 +1,33 @@
 package org.molgenis.emx2.sql;
 
-import static junit.framework.TestCase.assertTrue;
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.StopWatch;
 
 public class TestGrantRolesToUsers {
   private static Database database;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test
+  @Tag("windowsFail")
   public void testGrantRevokeMembership() {
 
     Schema schema = database.dropCreateSchema("testGrantRevokeMembership");
-    List first = Arrays.asList("Viewer", "Editor", "Manager", "Owner");
+    List first = Arrays.asList("Aggregator", "Viewer", "Editor", "Manager", "Owner");
     List second = schema.getRoles();
     assertTrue(
         first.size() == second.size() && first.containsAll(second) && second.containsAll(first));
@@ -193,6 +194,7 @@ public class TestGrantRolesToUsers {
   }
 
   @Test
+  @Tag("windowsFail")
   public void testRole() {
     try {
       Schema schema = database.dropCreateSchema("testRole");
@@ -211,7 +213,7 @@ public class TestGrantRolesToUsers {
       assertEquals(OWNER.toString(), schema.getRoleForUser("testadmin"));
 
       assertTrue(schema.getInheritedRolesForUser("testadmin").contains(OWNER.toString()));
-      assertEquals(4, schema.getInheritedRolesForUser("testadmin").size());
+      assertEquals(5, schema.getInheritedRolesForUser("testadmin").size());
 
       database.setActiveUser("testadmin");
       assertEquals(OWNER.toString(), schema.getRoleForActiveUser());

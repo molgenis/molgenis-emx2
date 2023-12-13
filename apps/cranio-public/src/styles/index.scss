@@ -1,0 +1,138 @@
+.app-page,
+.page-footer {
+  font-family: Helvetica, sans-serif;
+
+  .page-header {
+    height: 15em;
+
+    &.ern-header {
+      height: 21em;
+
+      .header-content {
+        .header-title {
+          color: $gray-800;
+          font-size: 18pt;
+        }
+        .header-subtitle {
+          color: $gray-900;
+        }
+      }
+
+      .background-image-filter {
+        background-color: $ern-cranio-primary-alt;
+        opacity: 0.1;
+      }
+    }
+  }
+
+  .page-section {
+    &.bg-blue-050 {
+      background-color: $blue-050;
+    }
+
+    &.bg-gray-050 {
+      background-color: $gray-050;
+    }
+
+    &.section-text-center {
+      text-align: center;
+    }
+
+    a {
+      &.button-link {
+        @include setLinkAsButton(
+          $width: 300px,
+          $background-color: $ern-cranio-primary,
+          $border-radius: 32pt
+        );
+        @include textTransform(bold);
+        margin: 0 auto;
+        margin-top: 1em;
+      }
+    }
+
+    a,
+    p,
+    li {
+      .heroicons {
+        @include setIconSize(18pt);
+      }
+    }
+  }
+}
+.message-box {
+  .message-text {
+    padding: 1em 0.8em;
+    p {
+      margin: 0;
+    }
+
+    a {
+      text-decoration: underline;
+    }
+  }
+}
+
+.message-box-container {
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+.inputs {
+  display: block;
+  width: 100%;
+
+  &.select {
+    background-color: transparent;
+    padding: 0.8em 1em;
+    border: 1px solid $gray-700;
+    box-shadow: inset 0px 0px 2px 2px $gray-100;
+  }
+}
+
+.quicklink-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2em;
+
+  .link-card {
+    flex-grow: 1;
+    background-color: $gray-000;
+    color: currentColor;
+    border-radius: 12pt;
+    text-align: center;
+
+    svg {
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 1.5em;
+      @include setIconSize(26pt);
+
+      * {
+        stroke: $ern-cranio-primary;
+      }
+    }
+
+    h3 {
+      font-size: 13pt;
+    }
+
+    p {
+      margin: 0;
+      color: $gray-600;
+      font-size: 13pt;
+    }
+
+    a {
+      margin-top: 1em;
+      @include setLinkAsButton(
+        $background-color: $ern-cranio-primary,
+        $border-radius: 32pt
+      );
+      font-size: 10pt;
+    }
+  }
+}

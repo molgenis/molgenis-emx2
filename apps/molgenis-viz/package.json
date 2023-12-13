@@ -1,0 +1,47 @@
+{
+  "name": "molgenis-viz",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/molgenis-viz.umd.js",
+  "module": "./dist/molgenis-viz.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/molgenis-viz.es.js",
+      "require": "./dist/molgenis-viz.umd.js"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build-lib": "vite build -m lib",
+    "build": "vite build -m app --outDir showCase && vite build -m lib",
+    "serve": "vite serve",
+    "preview": "vite preview",
+    "docs": "vuese gen",
+    "docs:serve": "vuese serve",
+    "format": "prettier src  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+  },
+  "dependencies": {
+    "@heroicons/vue": "2.0.18",
+    "molgenis-components": "*",
+    "d3": "7.8.5",
+    "graphql-request": "^6.1.0",
+    "heroicons": "^2.0.18",
+    "vue": "3.3.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "4.4.1",
+    "@vuese/cli": "2.14.3",
+    "prettier": "2.8.8",
+    "sass": "1.69.5",
+    "vite": "4.3.9",
+    "vue-router": "4.2.5"
+  }
+}

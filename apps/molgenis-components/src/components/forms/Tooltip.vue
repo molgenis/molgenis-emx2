@@ -1,8 +1,13 @@
 <template>
-  <span class="mg-tooltip-container">
+  <span
+    class="mg-tooltip-container"
+    @mouseenter="showTooltip"
+    @mouseleave="destroyTooltip"
+    ref="tooltipContainer"
+  >
     <slot />
-    <div v-if="value" class="mg-tooltip">
-      <div class="mg-tooltiptext">
+    <div ref="toolTip" v-if="value && display">
+      <div class="mg-tooltip m-1">
         {{ value }}
       </div>
     </div>
@@ -12,42 +17,50 @@
 <style>
 /** https://www.w3schools.com/css/css_tooltip.asp */
 .mg-tooltip {
-  position: relative;
-  display: inline-block;
-}
-
-.mg-tooltip {
-  opacity: 0;
-  visibility: hidden;
-  transition: 0.3s
-}
-
-.mg-tooltip .mg-tooltiptext {
-  width: 15rem;
   background-color: #555;
   color: #fff;
-  text-align: center;
   border-radius: 6px;
-  padding: 0;
-  position: absolute;
-  z-index: 1;
-  top: -0.9rem;
-  margin-left: 0;
-  left: 105%;
-}
-
-.mg-tooltip-container:hover > .mg-tooltip {
-  visibility: visible;
-  opacity: 0.9;
-  transition: 0.4s
+  padding: 5px;
+  display: inline-block;
+  opacity: 0.8;
 }
 </style>
 
 <script>
+import { createPopper } from "@popperjs/core";
+
 export default {
   props: {
     /** the value of the tooltip. If left empty no tooltip is rendered */
     value: String,
+    /** placement of the tooltip conform popperjs. Also determines where the tooltip will stick in case screen is too small.
+     * See https://popper.js.org/docs/v1/#popperplacements--codeenumcode
+     */
+    placement: { type: String, default: "auto-end" },
+  },
+  data() {
+    return {
+      popperInstance: null,
+      display: false,
+    };
+  },
+  methods: {
+    async showTooltip() {
+      this.display = true;
+      await this.$nextTick();
+      const container = this.$refs["tooltipContainer"];
+      const tooltip = this.$refs["toolTip"];
+      if (container && tooltip) {
+        this.popperInstance = createPopper(container, tooltip, {
+          strategy: "fixed",
+          placement: this.placement,
+        });
+      }
+    },
+    async destroyTooltip() {
+      this.popperInstance?.destroy();
+      this.display = false;
+    },
   },
 };
 </script>
@@ -55,8 +68,14 @@ export default {
 <docs>
 <template>
   <demo-item>
-    <Tooltip value="this is a tooltip">
-      <IconAction icon="trash" @click="alert('clicked')"/>
+    <Tooltip value="this is quite a long tooltip so we can test that it actually renders with prevent overflow">
+      <IconAction icon="trash" @click="window.alert('clicked')"/>
+    </Tooltip>
+  </demo-item>
+  <demo-item>
+    <Tooltip :value="undefined">
+      <IconAction icon="trash" @click="window.alert('clicked')"/> 
+      Button with empty tooltip
     </Tooltip>
   </demo-item>
 </template>

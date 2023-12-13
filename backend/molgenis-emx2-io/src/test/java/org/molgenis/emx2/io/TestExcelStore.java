@@ -1,16 +1,18 @@
 package org.molgenis.emx2.io;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 
+@Tag("slow")
 public class TestExcelStore {
 
   @Test
@@ -29,8 +31,8 @@ public class TestExcelStore {
 
     Path excelFile = tmp.resolve("test.xlsx");
     TableStoreForXlsxFile store = new TableStoreForXlsxFile(excelFile);
-    store.writeTable("test", List.of(), rows);
-    store.writeTable("test2", List.of(), rows);
+    store.writeTable("test", List.of("id", "name"), rows);
+    store.writeTable("test2", List.of("id", "name"), rows);
 
     // and read
     store = new TableStoreForXlsxFile(excelFile);

@@ -17,7 +17,7 @@ public class HasSettings<T> implements HasSettingsInterface<T> {
     Map<String, String> settings = new LinkedHashMap<>();
     settings.putAll(getSettings());
     settings.remove(key);
-    this.settings = settings;
+    this.setSettings(settings);
     return (T) this;
   }
 
@@ -31,7 +31,9 @@ public class HasSettings<T> implements HasSettingsInterface<T> {
 
   @Override
   public T setSetting(String key, String value) {
-    return changeSettings(Map.of(key, value));
+    Map<String, String> changedSettings = new LinkedHashMap<>();
+    changedSettings.put(key, value);
+    return changeSettings(changedSettings);
   }
 
   @Override

@@ -1,6 +1,6 @@
 <template>
   <div v-if="schema" class="container">
-    <h1>Tables in '{{ schema.name }}'</h1>
+    <h1>Tables in '{{ schema.label }}'</h1>
     <MessageWarning v-if="!schema.tables">
       No tables found. You might want to go to design
       <a href="../schema/">design</a> or
@@ -12,7 +12,7 @@
       <a href="../api/jsonld">jsonld</a> | <a href="../api/ttl">ttl</a><br />
       <InputSearch
         id="tables-list-search-input"
-        placeholder="search by name"
+        placeholder="search in tables"
         v-model="search"
       />
       <h2>Data tables</h2>
@@ -64,17 +64,19 @@ export default {
       if (this.search && this.search.trim().length > 0) {
         let terms = this.search.toLowerCase().split(" ");
         return this.schema.tables
-          .filter((table) => !table.externalSchema)
+          .filter((table) => table.schemaId === this.schema.id)
           .filter((table) =>
             terms.every(
               (term) =>
-                table.name.toLowerCase().includes(term) ||
+                table.label.toLowerCase().includes(term) ||
                 (table.description &&
                   table.description.toLowerCase().includes(term))
             )
           );
       } else {
-        return this.schema.tables.filter((table) => !table.externalSchema);
+        return this.schema.tables.filter(
+          (table) => table.schemaId === this.schema.id
+        );
       }
     },
     tables() {

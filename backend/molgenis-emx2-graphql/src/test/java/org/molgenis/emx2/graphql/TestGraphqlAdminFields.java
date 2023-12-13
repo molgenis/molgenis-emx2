@@ -1,5 +1,7 @@
 package org.molgenis.emx2.graphql;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
@@ -7,9 +9,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.GraphQL;
 import java.io.IOException;
-import junit.framework.TestCase;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -19,9 +20,9 @@ public class TestGraphqlAdminFields {
 
   private static GraphQL grapql;
   private static Database database;
-  private static final String schemaName = TestGraphqlAdminFields.class.getName();
+  private static final String schemaName = TestGraphqlAdminFields.class.getSimpleName();
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     //    PetStoreExample.create(schema.getMetadata());
@@ -39,7 +40,7 @@ public class TestGraphqlAdminFields {
 
           try {
             JsonNode result = execute("{_admin{users{email} userCount}}");
-            TestCase.assertTrue(result.at("/_admin/userCount").intValue() > 0);
+            assertTrue(result.at("/_admin/userCount").intValue() > 0);
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
@@ -48,9 +49,9 @@ public class TestGraphqlAdminFields {
           grapql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
 
           try {
-            TestCase.assertEquals(null, execute("{_admin{userCount}}").textValue());
+            assertEquals(null, execute("{_admin{userCount}}").textValue());
           } catch (Exception e) {
-            TestCase.assertTrue(e.getMessage().contains("FieldUndefined"));
+            assertTrue(e.getMessage().contains("FieldUndefined"));
           }
           tdb.becomeAdmin();
         });

@@ -1,5 +1,8 @@
 <template>
-  <div class="sticky-top mr-n3 overflow-auto" style="top: 50px; height: 90vh">
+  <div
+    class="schema-toc sticky-top mr-n3 overflow-auto"
+    style="top: 50px; height: 90vh"
+  >
     <div class="hoverContainer">
       <label class="m-0">Tables:</label>
       <TableEditModal
@@ -33,9 +36,7 @@
             <a
               :href="'#'"
               v-scroll-to="{
-                el:
-                  '#' +
-                  (subtable.name ? subtable.name.replaceAll(' ', '_') : ''),
+                el: '#' + (table.name ? table.name.replaceAll(' ', '_') : ''),
                 offset: -50,
               }"
               >{{ subtable.name }}</a
@@ -77,6 +78,15 @@
     <p v-else><i>none defined</i></p>
   </div>
 </template>
+
+<style scoped>
+/*
+  Place below other sticky page component ( Schema.vue)
+*/
+div.schema-toc.sticky-top {
+  z-index: 998;
+}
+</style>
 
 <script>
 import TableEditModal from "./TableEditModal.vue";

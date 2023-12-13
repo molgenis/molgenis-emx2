@@ -1,38 +1,40 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestOntologyTableIsGenerated {
 
   private static Database db;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test
   public void testOntologyTableIsGenerated() {
-    Schema s = db.dropCreateSchema(TestOntologyTableIsGenerated.class.getSimpleName());
+    Schema s = null;
 
-    // test error is thrown if reschema doesn't exist
+    // test error is thrown if refschema doesn't exist
     try {
       if (db.getSchema(TestOntologyTableIsGenerated.class.getSimpleName() + "2") != null) {
         db.dropSchema(TestOntologyTableIsGenerated.class.getSimpleName() + "2");
       }
+      // delete this schema after other because of dependency
+      s = db.dropCreateSchema(TestOntologyTableIsGenerated.class.getSimpleName());
       s.create(
           table(
               "test",
               column("name").setPkey(),
               column("code")
                   .setType(ColumnType.ONTOLOGY)
-                  .setRefSchema(TestOntologyTableIsGenerated.class.getSimpleName() + "2")
+                  .setRefSchemaName(TestOntologyTableIsGenerated.class.getSimpleName() + "2")
                   .setRefTable("CodeTable")));
       fail("should fail if refSchema doesn't exit");
     } catch (Exception e) {
@@ -64,7 +66,7 @@ public class TestOntologyTableIsGenerated {
             column("name").setPkey(),
             column("code")
                 .setType(ColumnType.ONTOLOGY)
-                .setRefSchema(TestOntologyTableIsGenerated.class.getSimpleName())
+                .setRefSchemaName(TestOntologyTableIsGenerated.class.getSimpleName())
                 .setRefTable("CodeTable")));
     // should not create a table but use external one
     assertNull(s.getTable("CodeTable"));
@@ -76,7 +78,7 @@ public class TestOntologyTableIsGenerated {
             column("name").setPkey(),
             column("code")
                 .setType(ColumnType.ONTOLOGY)
-                .setRefSchema(TestOntologyTableIsGenerated.class.getSimpleName())
+                .setRefSchemaName(TestOntologyTableIsGenerated.class.getSimpleName())
                 .setRefTable("CodeTable3")));
 
     assertNotNull(

@@ -4,13 +4,17 @@
     <EditModal
       v-if="isModalShown"
       :id="id + 'add-modal'"
-      :tableName="tableName"
+      :tableId="tableId"
       :isModalShown="isModalShown"
-      :graphqlURL="graphqlURL"
+      :schemaId="schemaId"
+      :defaultValue="defaultValue"
+      :visibleColumns="visibleColumns"
+      :applyDefaultValues="true"
       @close="handleClose"
+      @update:newRow="(event) => $emit('update:newRow', event)"
     />
   </span>
-</template> 
+</template>
 
 <script>
 import RowButton from "./RowButton.vue";
@@ -23,14 +27,22 @@ export default {
       type: String,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    graphqlURL: {
+    schemaId: {
       type: String,
       required: false,
-      default: () => "graphql",
+    },
+    defaultValue: {
+      type: Object,
+      required: false,
+    },
+    visibleColumns: {
+      type: Array,
+      required: false,
+      default: () => null,
     },
   },
   data() {
@@ -48,16 +60,16 @@ export default {
 </script>
 
 <docs>
-  <template>
+<template>
+  <div>
+    <label for="row-add-btn-sample">composition of RowButton and EditModal configured for row add/insert</label>
     <div>
-      <label for="row-add-btn-sample">composition of RowButton and EditModal configured for row add/insert</label>
-      <div>
-        <RowButtonAdd 
-          id="row-add-btn-sample" 
-          tableName="Pet"
-          graphqlURL="/pet store/graphql"
-        />
-      </div>
+      <RowButtonAdd
+          id="row-add-btn-sample"
+          tableId="Pet"
+          schemaId="pet store"
+      />
     </div>
-  </template>
+  </div>
+</template>
 </docs>

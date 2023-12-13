@@ -3,10 +3,9 @@
     <th class="table-label text-nowrap" scope="row">
       {{ variable.name }}
     </th>
-
     <harmonization-cell
       v-for="resource in resources"
-      :key="resource.pid"
+      :key="resource.id"
       class="colored-grid-cell"
       :status="getCellClass(resource)"
     />
@@ -14,7 +13,6 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
 import HarmonizationCell from "../components/harmonization/HarmonizationCell.vue";
 
 export default {
@@ -26,52 +24,59 @@ export default {
   },
   data() {
     return {
-      resourceMappings: undefined,
       resourceStatusMap: undefined,
     };
   },
+  computed: {
+    resourceMappings() {
+      return this.variable?.mappings;
+    },
+  },
   methods: {
-    ...mapActions(["fetchMappings"]),
     getCellClass(cohort) {
       return this.resourceMappings ? this.getMatchStatus(cohort) : null;
     },
-    async fetchData() {
-      this.resourceMappings = await this.fetchMappings(this.variable);
-      this.resourceStatusMap = this.resources.reduce((statusMap, resource) => {
-        statusMap[resource.pid] = this.getMatchStatus(resource);
-        return statusMap;
-      }, {});
-    },
     getMatchStatus(resource) {
-      if (this.variable.repeats) {
+      if (this.variable.repeats && Array.isArray(this.resourceMappings)) {
         const statusList = this.variable.repeats.map((repeatedVariable) => {
           const resourceMapping = this.resourceMappings.find((mapping) => {
             return (
-              mapping.toVariable.name === repeatedVariable.name &&
-              mapping.fromTable.dataDictionary.resource.pid === resource.pid
+              mapping.targetVariable &&
+              mapping.targetVariable.name === repeatedVariable.name &&
+              mapping.source.id === resource.id
             );
           });
 
-          return resourceMapping ? resourceMapping.match.name : "zna";
+          return resourceMapping ? resourceMapping.match.name : "na";
         });
 
-        if (
-          statusList.includes("complete") &&
-          !statusList.includes("zna") &&
-          statusList.includes("partial")
-        ) {
+        const baseVariable = this.resourceMappings.find((mapping) => {
+          return (
+            mapping.targetVariable &&
+            mapping.targetVariable.name === this.variable.name &&
+            mapping.source.id === resource.id
+          );
+        });
+
+        if (baseVariable) {
+          statusList.push(baseVariable.match.name);
+        }
+        // If all repeats have a mapping and there are no 'NAs', variable is 'complete'
+        if (!statusList.includes("na")) {
           return "complete";
+          // If some repeats have a mapping but there are 'NAs', variable is 'partial'
         } else if (
           statusList.includes("partial") ||
-          (statusList.includes("complete") && statusList.includes("zna"))
+          statusList.includes("complete")
         ) {
           return "partial";
+          // Unmapped when no repeats have a mapping (only NAs)
         } else {
           return "unmapped";
         }
-      } else {
+      } else if (Array.isArray(this.resourceMappings)) {
         const resourceMapping = this.resourceMappings.find((mapping) => {
-          return mapping.fromTable.dataDictionary.resource.pid === resource.pid;
+          return mapping.source.id === resource.id;
         });
 
         if (!resourceMapping) {
@@ -90,9 +95,6 @@ export default {
         }
       }
     },
-  },
-  async mounted() {
-    await this.fetchData();
   },
 };
 </script>

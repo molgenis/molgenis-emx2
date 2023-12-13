@@ -3,8 +3,8 @@
     :id="id"
     :modelValue="condition"
     @update:modelValue="onUpdateCondition"
-    :tableName="tableName"
-    :graphqlURL="graphqlURL"
+    :tableId="tableId"
+    :schemaId="schemaId"
     :isMultiSelect="true"
     :showExpanded="true"
   />
@@ -25,11 +25,11 @@ export default {
       type: Object,
       required: false,
     },
-    graphqlURL: {
+    schemaId: {
       required: false,
       type: String,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },

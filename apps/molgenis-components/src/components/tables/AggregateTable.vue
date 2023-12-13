@@ -1,94 +1,118 @@
 <template>
   <div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">Aggregate</a>
-      <ul class="navbar-nav mr-auto">
-        <li>
-          <InputSelect
-            class="m-0 mr-2"
-            id="column-select"
-            :valueModel="selectedColumnHeader"
-            :options="columnHeaderProperties"
-            @update:modelValue="fetchData"
-          />
-        </li>
-        <li>
-          <InputSelect
-            class="m-0"
-            id="row-select"
-            v-model="selectedRowHeader"
-            :options="rowHeaderProperties"
-            @update:modelValue="fetchData"
-          />
-        </li>
-      </ul>
-    </nav>
     <Spinner v-if="loading" class="m-3" />
-    <TableStickyHeaders
-      v-else
-      :columns="columns"
-      :rows="rows"
-      :data="aggregateData"
-    >
-      <template #column="columnProps">
-        {{ columnProps.value }}
-      </template>
-      <template #row="rowProps">
-        {{ rowProps.value }}
-      </template>
-      <template #cell="cell">
-        <div v-if="!cell.value" class="text-center text-black-50">-</div>
-        <div v-else-if="cell.value < minimumValue">﹤{{ minimumValue }}</div>
-        <div v-else>{{ cell.value }}</div>
-      </template>
-    </TableStickyHeaders>
+    <div v-else-if="refColumns.length === 0" class="alert alert-warning">
+      Not enough input to create an aggregate table. Need at least 1 column with
+      permission that can be used as group by.
+    </div>
+    <div v-else class="border d-inline-block p-2 bg-white">
+      <div class="aggregate-options">
+        <table>
+          <tr>
+            <td>
+              <label
+                class="mx-2 col-form-label form-group mb-0 mr-3"
+                for="aggregate-column-select"
+              >
+                Column:
+              </label>
+            </td>
+            <td>
+              <InputSelect
+                class="mb-0"
+                id="aggregate-column-select"
+                v-model="selectedColumn"
+                @update:modelValue="fetchData"
+                :options="refColumns"
+                required
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label
+                class="mx-2 col-form-label form-group mb-0"
+                for="aggregate-row-select"
+              >
+                Row:
+              </label>
+            </td>
+            <td>
+              <InputSelect
+                class="mb-2"
+                id="aggregate-row-select"
+                v-model="selectedRow"
+                @update:modelValue="fetchData"
+                :options="refColumns"
+                required
+              />
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div v-if="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+      <div v-else-if="noResults" class="alert alert-warning">
+        No results found
+      </div>
+
+      <TableStickyHeaders
+        v-else
+        :columns="columns"
+        :rows="rows"
+        :data="aggregateData"
+        class="mb-n3"
+      >
+        <template #column="columnProps">
+          {{ columnProps.value }}
+        </template>
+        <template #row="rowProps">
+          {{ rowProps.value }}
+        </template>
+        <template #cell="cell">
+          <div v-if="!cell.value" class="text-center text-black-50">-</div>
+          <div v-else-if="cell.value < minimumValue">﹤{{ minimumValue }}</div>
+          <div v-else>{{ cell.value }}</div>
+        </template>
+      </TableStickyHeaders>
+    </div>
   </div>
 </template>
 
-<script>
-import { request } from "../../client/client.js";
-import TableStickyHeaders from "./TableStickyHeaders.vue";
+<style>
+.aggregate-options .float-right {
+  display: none;
+}
+</style>
 
-export default {
+<script lang="ts">
+import { defineComponent } from "vue";
+import TableStickyHeaders from "./TableStickyHeaders.vue";
+import IAggregateData from "./IAggregateData";
+import Client from "../../client/client";
+import InputSelect from "../forms/InputSelect.vue";
+import { INewClient } from "../../client/IClient";
+import type { IColumn } from "meta-data-utils";
+
+export default defineComponent({
   name: "AggregateTable",
-  components: { TableStickyHeaders },
+  components: { TableStickyHeaders, InputSelect },
   props: {
-    graphQlEndpoint: {
-      type: String,
-      default: "graphql",
+    canView: {
+      type: Boolean,
+      required: true,
     },
-    /** table to aggregate */
-    table: {
+    schemaId: {
       type: String,
       required: true,
     },
-    /** list of references(string) to a aggregate on */
-    columnHeaderProperties: {
+    allColumns: {
       type: Array,
       required: true,
     },
-    /** list of references(string) to a aggregate on */
-    rowHeaderProperties: {
-      type: Array,
-      required: true,
-    },
-    /** property of the table to aggregate mref/xref */
-    selectedColumnHeaderProperty: {
-      type: String,
-      required: true,
-    },
-    /** property of the mref/xref to display in the header cell */
-    columnHeaderNameProperty: {
-      type: String,
-      required: true,
-    },
-    /** property of the table to aggregate mref/xref */
-    selectedRowHeaderProperty: {
-      type: String,
-      required: true,
-    },
-    /** property of the mref/xref to display in the header cell */
-    rowHeaderNameProperty: {
+    tableId: {
       type: String,
       required: true,
     },
@@ -96,39 +120,61 @@ export default {
       type: Number,
       default: 1,
     },
+    graphqlFilter: {
+      type: Object,
+      default: {},
+    },
   },
   data: function () {
     return {
-      selectedColumnHeader: this.selectedColumnHeaderProperty,
-      selectedRowHeader: this.selectedRowHeaderProperty,
-      loading: true,
-      rows: [],
-      columns: [],
-      aggregateData: {},
+      selectedColumn: "",
+      selectedRow: "",
+      refColumns: [] as string[],
+      loading: false,
+      rows: [] as string[],
+      columns: [] as string[],
+      aggregateData: {} as IAggregateData,
+      noResults: false,
+      errorMessage: undefined,
+      client: {} as INewClient,
     };
   },
-  computed: {
-    tableName() {
-      return `${this.table}_groupBy`;
-    },
-    getAggregateQuery() {
-      return `{ 
-                ${this.tableName} {
-                  count,
-                  ${this.selectedColumnHeader} {
-                    ${this.columnHeaderNameProperty}
-                  },
-                  ${this.selectedRowHeader} {
-                    ${this.rowHeaderNameProperty}
-                  }
-                }
-              }`;
-    },
-  },
   methods: {
-    addItem(item) {
-      const column = item[this.selectedColumnHeader].name || "not specified";
-      const row = item[this.selectedRowHeader].name || "not specified";
+    async fetchData() {
+      this.loading = true;
+      this.errorMessage = undefined;
+      this.rows = [];
+      this.columns = [];
+      this.aggregateData = {};
+      const responseData = await this.client
+        .fetchAggregateData(
+          this.tableId,
+          {
+            id: this.selectedColumn,
+            column: "name",
+          },
+          {
+            id: this.selectedRow,
+            column: "name",
+          },
+          this.graphqlFilter
+        )
+        .catch((error) => {
+          this.errorMessage = error;
+        });
+      if (responseData && responseData[this.tableId + "_groupBy"]) {
+        responseData[this.tableId + "_groupBy"].forEach((item: any) =>
+          this.addItem(item)
+        );
+        this.noResults = !this.columns.length;
+      } else {
+        this.noResults = true;
+      }
+      this.loading = false;
+    },
+    addItem(item: any) {
+      const column: string = item[this.selectedColumn].name || "not specified";
+      const row: string = item[this.selectedRow].name || "not specified";
 
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
@@ -143,62 +189,99 @@ export default {
         this.rows.push(row);
       }
     },
-    async fetchData() {
-      this.loading = true;
-      this.rows = [];
-      this.columns = [];
-      this.aggregateData = {};
-
-      const responseData = await request(
-        this.graphQlEndpoint,
-        this.getAggregateQuery
-      ).catch((reason) => {
-        this.$emit("error", reason);
-      });
-
-      responseData[this.tableName].forEach((item) => this.addItem(item));
-      this.loading = false;
+    initialize() {
+      if (this.allColumns.length > 0) {
+        this.refColumns = getRefTypeColumns(
+          this.allColumns as IColumn[],
+          this.canView
+        );
+      }
+      if (this.refColumns?.length > 0) {
+        this.selectedColumn = this.refColumns[0];
+        this.selectedRow = this.refColumns[1] || this.refColumns[0];
+        this.fetchData();
+      }
     },
   },
-  created() {
-    this.fetchData();
+  watch: {
+    allColumns() {
+      this.initialize();
+    },
   },
-};
+  mounted() {
+    this.client = Client.newClient(this.schemaId);
+    this.initialize();
+  },
+});
+
+function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
+  return columns
+    .filter((column: IColumn) => {
+      return (
+        (column.columnType.startsWith("REF") && canView) ||
+        column.columnType.startsWith("ONTOLOGY")
+      );
+    })
+    .map((column: IColumn) => column.id);
+}
 </script>
 
 <docs>
 <template>
   <demo-item>
+    <label>AggregateTable with canview=false</label>
     <AggregateTable
-        :table="tableName"
-        :graphQlEndpoint="endpoint"
-        :columnHeaderProperties="selectableColumns"
-        :rowHeaderProperties="selectableColumns"
-        :selectedColumnHeaderProperty="columnName"
-        :columnHeaderNameProperty="columnNameProperty"
-        :selectedRowHeaderProperty="rowName"
-        :rowHeaderNameProperty="columnNameProperty"
-        :minimumValue="1"
-    >
-    </AggregateTable>
+      tableId="Pet"
+      schemaId="pet store"
+      :allColumns="allColumns"
+      :minimumValue="1"
+      :canView="false"
+    />
+    <label>AggregateTable with canview=true</label>
+    <AggregateTable
+      tableId="Pet"
+      schemaId="pet store"
+      :allColumns="allColumns"
+      :minimumValue="1"
+      :canView="true"
+    />
+    <label>AggregateTable with filters set</label>
+    <AggregateTable
+      tableId="Pet"
+      schemaId="pet store"
+      :allColumns="allColumns"
+      :minimumValue="1"
+      :graphqlFilter="graphqlFilter"
+      :canView="true"
+    />
   </demo-item>
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        selectableColumns: [
-          'category',
-          'tags',
-        ],
-        tableName: 'Pet',
-        endpoint: '/pet store/graphql',
-        columnName: 'category',
-        rowName: 'tags',
-        columnNameProperty: 'name',
-      };
-    },
-  };
+export default {
+  data() {
+    return {
+      allColumns: [
+        {
+          id: "name",
+          columnType: "STRING",
+        },
+        {
+          id: "category",
+          columnType: "REF",
+        },
+        {
+          id: "tags",
+          columnType: "ONTOLOGY_ARRAY",
+        },
+        {
+          id: "orders",
+          columnType: "REFBACK",
+        },
+      ],
+      graphqlFilter: { name: { like: ["pooky"] } },
+    };
+  },
+};
 </script>
 </docs>

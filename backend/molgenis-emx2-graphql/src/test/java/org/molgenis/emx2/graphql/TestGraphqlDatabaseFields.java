@@ -1,6 +1,6 @@
 package org.molgenis.emx2.graphql;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
@@ -10,10 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import graphql.GraphQL;
 import java.io.IOException;
-import junit.framework.TestCase;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -30,7 +28,7 @@ public class TestGraphqlDatabaseFields {
   private static TaskService taskService;
   private static final String schemaName = "TestGraphqlDatabaseFields";
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     taskService = new TaskServiceInMemory();
@@ -55,7 +53,7 @@ public class TestGraphqlDatabaseFields {
     result = execute("{_schemas{name}}").at("/data/_schemas").toString();
     assertTrue(result.contains(schemaName + "B"));
 
-    execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){message}}");
+    execute("mutation{deleteSchema(id:\"" + schemaName + "B\"){message}}");
     assertNull(database.getSchema(schemaName + "B"));
   }
 
@@ -63,12 +61,12 @@ public class TestGraphqlDatabaseFields {
   public void testCreateDatabaseSetting() throws IOException {
     String createSettingQuery =
         """
-            mutation {
-              change(settings:{key: "db-key-1", value: "db-value-1" }){
-                    message
-              }
-            }
-            """;
+                        mutation {
+                          change(settings:{key: "db-key-1", value: "db-value-1" }){
+                                message
+                          }
+                        }
+                        """;
 
     var result = execute(createSettingQuery);
 
@@ -85,12 +83,12 @@ public class TestGraphqlDatabaseFields {
   public void testDeleteDatabaseSetting() throws IOException {
     String createSettingQuery =
         """
-                mutation {
-                  drop(settings:{key: "db-key-1"}){
-                        message
-                  }
-                }
-                """;
+                        mutation {
+                          drop(settings:{key: "db-key-1"}){
+                                message
+                          }
+                        }
+                        """;
 
     var result = execute(createSettingQuery);
 
@@ -120,29 +118,29 @@ public class TestGraphqlDatabaseFields {
             + "\",password:\""
             + adminPass
             + "\") {message}}");
-    Assert.assertTrue(database.isAdmin());
+    assertTrue(database.isAdmin());
 
     if (database.hasUser("pietje")) database.removeUser("pietje");
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
     assertTrue(database.hasUser("pietje"));
     assertTrue(database.checkUserPassword("pietje", "blaat123"));
 
-    TestCase.assertTrue(
+    assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}")
             .at("/data/signin/message")
             .textValue()
             .contains("failed"));
     // still admin
-    Assert.assertTrue(database.isAdmin());
+    assertTrue(database.isAdmin());
 
-    TestCase.assertTrue(
+    assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}")
             .at("/data/signin/message")
             .textValue()
             .contains("Signed in"));
-    Assert.assertEquals("pietje", database.getActiveUser());
+    assertEquals("pietje", database.getActiveUser());
 
-    TestCase.assertTrue(
+    assertTrue(
         execute("mutation{changePassword(password:\"blaat124\"){message}}")
             .at("/data/changePassword/message")
             .textValue()
@@ -150,7 +148,7 @@ public class TestGraphqlDatabaseFields {
     assertTrue(database.checkUserPassword("pietje", "blaat124"));
 
     execute("mutation{signout{message}}");
-    Assert.assertEquals("anonymous", database.getActiveUser());
+    assertEquals("anonymous", database.getActiveUser());
 
     // back to superuser
     database.becomeAdmin();

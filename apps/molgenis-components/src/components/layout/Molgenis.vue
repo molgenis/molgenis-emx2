@@ -1,5 +1,10 @@
 <template>
   <div style="background-color: #f4f4f4">
+    <CookieWall
+      v-if="analyticsId"
+      :analyticsId="analyticsId"
+      :htmlContentString="cookieWallContent"
+    />
     <div style="min-height: calc(100vh - 70px)">
       <MolgenisMenu
         :logo="logoURLorDefault"
@@ -47,6 +52,8 @@ import MolgenisMenu from "./MolgenisMenu.vue";
 import MolgenisSession from "../account/MolgenisSession.vue";
 import MolgenisFooter from "./MolgenisFooter.vue";
 import Breadcrumb from "./Breadcrumb.vue";
+import CookieWall from "./CookieWall.vue";
+import { request, gql } from "graphql-request";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
@@ -57,6 +64,7 @@ export default {
     MolgenisMenu,
     MolgenisFooter,
     Breadcrumb,
+    CookieWall,
   },
   props: {
     menuItems: {
@@ -66,12 +74,22 @@ export default {
         {
           label: "Schema",
           href: "schema",
-          role: "Manager",
+          role: "Viewer",
         },
         {
           label: "Up/Download",
           href: "updownload",
-          role: "Editor",
+          role: "Viewer",
+        },
+        {
+          label: "Reports",
+          href: "reports",
+          role: "Viewer",
+        },
+        {
+          label: "Jobs & Scripts",
+          href: "tasks",
+          role: "Manager",
         },
         {
           label: "Graphql",
@@ -102,6 +120,8 @@ export default {
       logoURL: null,
       fullscreen: false,
       timestamp: Date.now(),
+      analyticsId: null,
+      cookieWallContent: null,
     };
   },
   computed: {
@@ -152,7 +172,7 @@ export default {
       );
     },
     menu() {
-      if (this.session && this.session.settings && this.session.settings.menu) {
+      if (this.session?.settings?.menu) {
         return this.session.settings.menu;
       } else {
         return this.menuItems;
@@ -163,10 +183,8 @@ export default {
     session: {
       deep: true,
       handler() {
-        if (this.session != undefined && this.session.settings) {
-          if (this.session.settings.logoURL) {
-            this.logoURL = this.session.settings.logoURL;
-          }
+        if (this.session?.settings?.logoURL) {
+          this.logoURL = this.session.settings.logoURL;
         }
         this.$emit("update:modelValue", this.session);
       },
@@ -178,6 +196,30 @@ export default {
     },
   },
   emits: ["update:modelValue", "error"],
+  created() {
+    request(
+      "graphql",
+      gql`
+        {
+          _settings {
+            key
+            value
+          }
+        }
+      `
+    ).then((data) => {
+      const analyticsSetting = data._settings.find(
+        (setting) => setting.key === "ANALYTICS_ID"
+      );
+      this.analyticsId = analyticsSetting ? analyticsSetting.value : null;
+      const analyticsCookieWallContentSetting = data._settings.find(
+        (setting) => setting.key === "ANALYTICS_COOKIE_WALL_CONTENT"
+      );
+      this.cookieWallContent = analyticsCookieWallContentSetting
+        ? analyticsCookieWallContentSetting.value
+        : null;
+    });
+  },
 };
 </script>
 

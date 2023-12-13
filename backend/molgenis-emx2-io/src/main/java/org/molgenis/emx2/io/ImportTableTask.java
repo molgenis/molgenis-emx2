@@ -146,7 +146,7 @@ public class ImportTableTask extends Task {
         }
         batch.add(row);
         index++;
-        if (batch.size() >= 1000) {
+        if (batch.size() >= 100) {
           table.save(batch);
           task.setProgress(index);
           task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());

@@ -1,7 +1,7 @@
 package org.molgenis.emx2.sql;
 
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
@@ -13,14 +13,14 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.time.LocalDate;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestInherits {
   private static Database db;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
   }
@@ -28,20 +28,22 @@ public class TestInherits {
   @Test
   public void testExtends() {
 
+    db.dropSchemaIfExists(
+        TestInherits.class.getSimpleName() + "1"); // is a related schema, drop that first
     Schema s = db.dropCreateSchema(TestInherits.class.getSimpleName());
 
     Table person = s.create(table("Person"));
 
     // test if fails if no primary key
     try {
-      s.create(table("Employee").setInherit(person.getName()));
+      s.create(table("Employee").setInheritName(person.getName()));
       fail("Should fail because does not have pkey");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
 
     try {
-      s.create(table("Employee").setInherit("fake_table"));
+      s.create(table("Employee").setInheritName("fake_table"));
       fail("Should fail");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -53,15 +55,25 @@ public class TestInherits {
 
     // create first extended table
     Table employee =
-        s.create(table("Employee").setInherit(person.getName()).add(column("salary").setType(INT)));
+        s.create(
+            table("Employee").setInheritName(person.getName()).add(column("salary").setType(INT)));
+
+    // check that mg_tableclass column doesn't have a default (regression #2936)
+    assertNull(employee.getMetadata().getColumn(MG_TABLECLASS).getDefaultValue());
 
     Table manager =
         s.create(
             table("Manager")
-                .setInherit("Employee")
+                .setInheritName("Employee")
                 .add(column("directs").setType(REF_ARRAY).setRefTable("Employee")));
 
-    Table ceo = s.create(table("CEO").setInherit("Manager"));
+    Schema otherSchema = db.createSchema(TestInherits.class.getSimpleName() + "1");
+    Table ceo =
+        otherSchema.create(
+            table("CEO")
+                .setInheritName("Manager")
+                .setImportSchema(s.getName())
+                .add(column("title")));
 
     // try to add column that already exists in parent
     try {
@@ -71,9 +83,34 @@ public class TestInherits {
       System.out.println("Errored correctly:\n" + e);
     }
 
+    // try to add column in superclass that already exists in any subclass
+    try {
+      person.getMetadata().add(column("salary").setType(DATE));
+      fail("should fail: cannot add column in superclass to name that already exists in subclass");
+    } catch (MolgenisException e) {
+      System.out.println("Errored correctly:\n" + e);
+    }
+
+    // try to rename column in superclass that already exists in any subclass
+    try {
+      person.getMetadata().alterColumn("birthDate", column("salary").setType(DATE));
+      fail("should fail: cannot rename column to superclass that already exists in subclass");
+    } catch (MolgenisException e) {
+      System.out.println("Errored correctly:\n" + e);
+    }
+
+    // try to alter name in superclass that already exists in any subclass IN OTHER SCHEMA
+    try {
+      person.getMetadata().add(column("title").setType(DATE));
+      fail(
+          "should fail: cannot add column in superclass to name that already exists in subclass IN OTHER SCHEMA");
+    } catch (MolgenisException e) {
+      System.out.println("Errored correctly:\n" + e);
+    }
+
     // try to extend twice
     try {
-      manager.getMetadata().setInherit("Student");
+      manager.getMetadata().setInheritName("Student");
       fail("should fail: cannot extend another table");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -81,7 +118,7 @@ public class TestInherits {
 
     // create another extended table
     s.create(
-        table("Student").setInherit(person.getName()).add(column("averageGrade").setType(INT)));
+        table("Student").setInheritName(person.getName()).add(column("averageGrade").setType(INT)));
 
     // test insert, retrieve
     Table studentTable = s.getTable("Student");
@@ -94,7 +131,7 @@ public class TestInherits {
             .setInt("salary", 100)
             .setDate("birthDate", LocalDate.of(2000, 12, 01)));
 
-    Table ceoTable = s.getTable("CEO"); // we use CEO to make it more difficult
+    Table ceoTable = otherSchema.getTable("CEO"); // we use CEO to make it more difficult
     Row managerRow =
         new Row()
             .setString("fullName", "Dagobert Duck")

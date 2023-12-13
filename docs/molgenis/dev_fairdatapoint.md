@@ -1,82 +1,37 @@
 # FAIR Data Point
+FAIR Data Point (FDP, [fairdatapoint.org](https://www.fairdatapoint.org)) is a metadata service that provides access to metadata following the FAIR principles via a REST API.
+Owners/publishers can use it to expose metadata of their digital objects, while consumers can discover information about offered digital objects.
+The FDP uses the W3C's [Data Catalog Vocabulaire (DCAT) version 2 model](https://www.w3.org/TR/vocab-dcat-2/) as the basis for its metadata content.
 
-FAIR Data Point (FDP, [fairdatapoint.org](https://www.fairdatapoint.org)) is currently being developed for MOLGENIS EMX2.
+FDP is implemented in MOLGENIS EMX2 in compliance with the latest v1.1 specification of FAIR Data Point available at [specs.fairdatapoint.org](https://specs.fairdatapoint.org/).
 For MOLGENIS EMX1, the FDP implementation guide can be found [here](https://molgenis.gitbooks.io/molgenis/content/guide-fair.html).
 
-The easiest way to enable FDP in MOLGENIS EMX2 is by uploading a FDP template into an EMX2 database.
-A prototype EMX2-FDP template (in XLSX format) is available [here](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/FairDataPointTemplate.xlsx).
-In addition to the FDP structure, this template includes an example implementation of a FDP developed for 'ERN-FAKE'.
+### Setup and configuration
+The easiest way to enable FDP in MOLGENIS EMX2 is by choosing 'FAIR_DATA_HUB' as a template for your database.
+This will add three tables that will define the content of your FAIR Data Point:
+[Catalog](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/fairdatapoint/demodata/Catalog.csv), [Dataset](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/fairdatapoint/demodata/Dataset.csv) and [Distribution](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/fairdatapoint/demodata/Distribution.csv).
+Loading the 'FAIR_DATA_HUB' template including the example data will result in a fully operational FAIR Data Point.
+The example data can be used as a reference on how to enter data into the system, but can be safely removed or replaced.
 
-How to import the template and access the FDP endpoints:
-* Upload the template into any schema, for instance, a schema called `erns` via `Up/Download`.
-* After successful import, the main FDP endpoint then becomes available at `/erns/api/jsonld/fdp_Metadata`.
-* This and other endpoints be accessed from the GUI via schema `erns` --> table `fdp_Metadata` --> `download` --> `jsonld`.
-* Other tables that are part of the FDP endpoints all start with `fdp_`:
-  * fdp_Catalog
-  * fdp_Country
-  * fdp_Dataset
-  * fdp_Distribution
-  * fdp_IRI
-  * fdp_Language
-  * fdp_Metadata
-  * fdp_Namespace
-  * fdp_Publisher
-  * fdp_RightsStatement
+After setting up these tables, this is how its contents are translated to the FDP structure:
+- Each Dataset contains a reference to one or multiple Catalogs via the `belongsToCatalog` field.
+  - These references can also be viewed in the referred-to Catalogs via the `dataset` field.
+- Each Distribution contains a reference to one or multiple Datasets via the `belongsToDataset` field.
+  - These references can also be viewed in the referred-to Datasets via the `distribution` field.
 
-Uploading this template, including the ERN-FAKE example, should result in the following `fdp_Metadata` endpoint when deployed at `localhost`.
-Obviously, we suggest removing or replacing this example when deploying to any publicly accessible databases.
+### API structure and traversal
+Adding rows to these tables and setting the right permissions will result in a FAIR Data Point endpoint at `<server>/api/fdp` with the following traversable layers:
+- The root endpoint, containing FDP catalogs
+- Catalog, containing FDP datasets (you can specify its contents via the Catalog table)
+- Dataset, containing FDP distributions (you can specify its contents via the Dataset table)
+- Distribution, containing either 
+  - Download URL of a Table for a particular format (13 currently available)
+  - File metadata including its format (selected from EDAM ontology)
+- A download URL that points to a particular API (e.g. CSV, JSON, ZIP, RDF, etc.)
 
-```
-{
-  "@context" : {
-    "fdp_Metadata" : "http://localhost/erns/fdp_Metadata",
-    "title" : "http://purl.org/dc/terms/title",
-    "hasVersion" : "http://purl.org/dc/terms/hasVersion",
-    "description" : "http://purl.org/dc/terms/description",
-    "publisher" : "http://purl.org/dc/terms/publisher",
-    "language" : "http://purl.org/dc/terms/language",
-    "license" : "http://purl.org/dc/terms/license",
-    "alternative" : "http://purl.org/dc/terms/alternative",
-    "conformsTo" : "http://purl.org/dc/terms/conformsTo",
-    "rights" : "http://purl.org/dc/terms/rights",
-    "issued" : [ "fdp:metadataIssued", "r3d:startDate" ],
-    "modified" : "fdp:metadataModified",
-    "institution" : "http://www.re3data.org/schema/3-0#institution",
-    "repositoryContact" : "http://www.re3data.org/schema/3-0#repositoryContact",
-    "repositoryType" : "http://www.re3data.org/schema/3-0#repositoryType",
-    "api" : "http://www.re3data.org/schema/3-0#api",
-    "certificate" : "http://www.re3data.org/schema/3-0#certificate",
-    "dataCatalog" : "http://www.re3data.org/schema/3-0#dataCatalog",
-    "country" : "http://www.re3data.org/schema/3-0#country",
-    "identifier" : "http://rdf.biosemantics.org/ontologies/fdp-o#metadataIdentifier"
-  },
-  "@id" : "http://localhost/erns/fdp_Metadata",
-  "fdp_Metadata" : [ {
-    "api" : "FAIR",
-    "title" : "ERN-FAKE Patient Registry FAIR Data Point",
-    "issued" : "2021-12-10",
-    "rights" : "restricted",
-    "country" : "NL",
-    "license" : "http://rdflicense.appspot.com/rdflicense/UNKNOWN",
-    "language" : "eng",
-    "mg_draft" : null,
-    "modified" : "2021-12-10",
-    "publisher" : "molgenis",
-    "conformsTo" : "https://www.w3.org/TR/vocab-dcat-2/",
-    "hasVersion" : "0.1",
-    "identifier" : "fdp_meta",
-    "alternative" : "ERN-FAKE Patient Registry FAIR Data Point implemented in MOLGENIS",
-    "certificate" : "USERTrust RSA Certification Authority",
-    "dataCatalog" : [ "http://localhost/erns/fdp_Catalog/fdp_cat" ],
-    "description" : "ERN-FAKE Patient Registry FAIR Data Point implemented in MOLGENIS",
-    "institution" : "ERN-FAKE",
-    "mg_updatedBy" : "admin",
-    "mg_updatedOn" : "2022-02-18T16:53:36.296116",
-    "mg_insertedBy" : "admin",
-    "mg_insertedOn" : "2022-02-18T16:53:36.296116",
-    "repositoryType" : "institutional",
-    "repositoryContact" : "Fake University Medical Center",
-    "@id" : "http://localhost/erns/fdp_Metadata/fdp_meta"
-  } ]
-}
-```
+A full example of traversal from root to data:
+- An FDP root `<server>/api/fdp`, containing
+- a catalog `<server>/api/fdp/catalog/fairdemo/catalogId01`, containing
+- a dataset `<server>/api/fdp/dataset/fairdemo/datasetId01`, available as 
+- a distribution `<server>/api/fdp/distribution/fairdemo/Analyses/rdf-ttl`, downloadable at
+- a particular location `<server>/api/rdf/Analyses?format=ttl`.

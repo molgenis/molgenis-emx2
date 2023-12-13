@@ -42,7 +42,10 @@ public class OpenApiYamlGenerator {
     api.security(securityRequirementList());
 
     // components
-    components.addSecuritySchemes("ApiKeyAuth", securityScheme());
+    for (int i = 0; i < MOLGENIS_TOKEN.length; i++) {
+      String authTokenKey = MOLGENIS_TOKEN[i];
+      components.addSecuritySchemes("ApiKeyAuth" + i, securityScheme(authTokenKey));
+    }
     components.addSchemas(PROBLEM, problemSchema());
     components.addResponses(PROBLEM, problemResponse());
 
@@ -95,11 +98,11 @@ public class OpenApiYamlGenerator {
     return tablePath;
   }
 
-  private static SecurityScheme securityScheme() {
+  private static SecurityScheme securityScheme(String authTokenKey) {
     return new SecurityScheme()
         .type(SecurityScheme.Type.APIKEY)
         .in(SecurityScheme.In.HEADER)
-        .name("x-molgenis-token");
+        .name(authTokenKey);
   }
 
   private static List<SecurityRequirement> securityRequirementList() {

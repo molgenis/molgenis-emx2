@@ -8,61 +8,65 @@
     <div>
       <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
     </div>
-    <div class="d-flex" style="gap: 0.5rem;">
+    <div class="d-flex" style="gap: 0.5rem">
       <slot></slot>
       <ButtonAlt @click="$emit('cancel')"> Close</ButtonAlt>
-      <ButtonOutline @click="$emit('saveDraft')"> Save draft</ButtonOutline>
       <Tooltip
-        name="disabled-tooltip"
-        :value="
-          isSaveDisabled ? 'Saving is only possible on the last chapter' : ''
-        "
+        name="disabled-draft-tooltip"
+        :value="saveDraftDisabledMessage ? saveDraftDisabledMessage : ''"
+        placement="bottom"
       >
-        <ButtonAction @click="$emit('save')" :disabled="isSaveDisabled">
-          Save {{ tableName }}
+        <ButtonOutline
+          @click="$emit('saveDraft')"
+          :disabled="Boolean(saveDraftDisabledMessage)"
+          class="mr-2 pr-3"
+        >
+          Save draft
+        </ButtonOutline>
+      </Tooltip>
+      <Tooltip
+        name="disabled-save-tooltip"
+        :value="saveDisabledMessage ? saveDisabledMessage : ''"
+        placement="bottom"
+      >
+        <ButtonAction
+          @click="$emit('save')"
+          :disabled="Boolean(saveDisabledMessage)"
+        >
+          Save {{ tableLabel }}
         </ButtonAction>
       </Tooltip>
     </div>
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import MessageError from "./MessageError.vue";
 import MessageSuccess from "./MessageSuccess.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import ButtonOutline from "./ButtonOutline.vue";
 import ButtonAction from "./ButtonAction.vue";
 import Tooltip from "./Tooltip.vue";
+import { toRefs } from "vue";
 
-export default {
-  name: "RowEditFooter",
-  components: {
-    ButtonAction,
-    ButtonAlt,
-    MessageError,
-    MessageSuccess,
-    ButtonOutline,
-    Tooltip,
-  },
-  props: {
-    tableName: {
-      type: String,
-      default: () => null,
-    },
-    successMessage: {
-      type: String,
-      default: () => null,
-    },
-    errorMessage: {
-      type: String,
-      default: () => null,
-    },
-    isSaveDisabled: {
-      type: Boolean,
-      default: () => false,
-    },
-  },
-};
+const props = withDefaults(
+  defineProps<{
+    tableLabel?: string;
+    successMessage?: string;
+    errorMessage?: string;
+    saveDraftDisabledMessage?: string;
+    saveDisabledMessage?: string;
+  }>(),
+  { tableLabel: "" }
+);
+
+const {
+  tableLabel,
+  successMessage,
+  errorMessage,
+  saveDraftDisabledMessage,
+  saveDisabledMessage,
+} = toRefs(props);
 </script>
 
 <docs>
@@ -78,7 +82,7 @@ export default {
     </DemoItem>
     <DemoItem>
       <label for="sample-table-name">With table name</label>
-      <RowEditFooter id="sample-table-name" tableName="Pets" />
+      <RowEditFooter id="sample-table-name" tableLabel="Pets" />
     </DemoItem>
     <DemoItem>
       <label for="sample-success-msg">With success message</label>
@@ -89,8 +93,12 @@ export default {
       <RowEditFooter id="sample-error-msg" errorMessage="We have a problem" />
     </DemoItem>
      <DemoItem>
-      <label for="sample-error-msg">With disabled tooltip</label>
-      <RowEditFooter id="sample-error-msg" :isSaveDisabled="true" />
+      <label for="sample-error-msg">With disabled save tooltip</label>
+      <RowEditFooter id="sample-error-msg" :saveDisabledMessage="'Disabled because it\'s an example'" />
+    </DemoItem>
+    <DemoItem>
+      <label for="sample-error-msg">With disabled draft tooltip</label>
+      <RowEditFooter id="sample-error-msg2" :saveDraftDisabledMessage="'Draft disabled because it\'s an example'" />
     </DemoItem>
   </div>
 </template>

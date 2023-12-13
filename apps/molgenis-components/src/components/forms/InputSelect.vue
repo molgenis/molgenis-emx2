@@ -17,10 +17,15 @@
       class="form-control"
       @change="$emit('update:modelValue', $event.target.value)"
     >
-      <option v-if="!required" :selected="modelValue === undefined" />
+      <option
+        v-if="!required"
+        :selected="modelValue === undefined || modelValue === null"
+      >
+        {{ placeholder }}
+      </option>
       <option
         v-for="(option, index) in options"
-        :key="index"
+        :key="index + option"
         :value="option"
         :selected="modelValue == option"
       >
@@ -50,7 +55,7 @@ export default {
     MessageError,
   },
   props: {
-    options: Array,
+    options: { type: Array, required: true },
   },
 };
 </script>
@@ -61,7 +66,7 @@ export default {
     <DemoItem>
       <InputSelect
         description="Normal select input"
-        id="input-select"
+        id="input-select-normal"
         label="Animals"
         v-model="check"
         :options="['lion', 'ape', 'monkey']"
@@ -82,7 +87,7 @@ export default {
     <DemoItem>
       <InputSelect
         description="Empty select input"
-        id="input-select"
+        id="input-select-empty"
         label="No animals"
         v-model="check"
         :options="[]"
@@ -90,7 +95,16 @@ export default {
     </DemoItem>
     <DemoItem>
       <InputSelect
-        id="input-select"
+          description="With default value 'ape'"
+          id="input-select-default"
+          label="Default value set"
+          v-model="defaultValue"
+          :options="['lion', 'ape', 'monkey']"
+      />
+    </DemoItem>
+    <DemoItem>
+      <InputSelect
+        id="input-select-readonly"
         label="Readonly"
         v-model="readonlyModel"
         :options="['lion', 'ape', 'monkey']"
@@ -107,7 +121,8 @@ export default {
       check: null,
       requiredCheck: null,
       empty: null,
-      readonlyModel: 'lion' 
+      defaultValue: 'ape',
+      readonlyModel: 'lion'
     };
   },
 };

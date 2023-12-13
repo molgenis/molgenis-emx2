@@ -7,7 +7,8 @@
   />
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
 import StringDisplay from "./cellTypes/StringDisplay.vue";
 import FileDisplay from "./cellTypes/FileDisplay.vue";
 import TextDisplay from "./cellTypes/TextDisplay.vue";
@@ -16,7 +17,7 @@ import ObjectDisplay from "./cellTypes/ObjectDisplay.vue";
 import EmailDisplay from "./cellTypes/EmailDisplay.vue";
 import HyperlinkDisplay from "./cellTypes/HyperlinkDisplay.vue";
 
-const typeMap = {
+const typeMap: { [key: string]: string } = {
   FILE: "FileDisplay",
   TEXT: "TextDisplay",
   REFBACK: "ListDisplay",
@@ -26,7 +27,7 @@ const typeMap = {
   HYPERLINK: "HyperlinkDisplay",
 };
 
-export default {
+export default defineComponent({
   name: "DataDisplayCell",
   components: {
     StringDisplay,
@@ -64,5 +65,5 @@ export default {
       );
     },
   },
-};
+});
 </script>

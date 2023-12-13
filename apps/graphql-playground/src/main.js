@@ -9,4 +9,3 @@ window.GraphQLPlayground.init(document.getElementById("root"), {
   },
   // options as 'endpoint' belong here
 });
-

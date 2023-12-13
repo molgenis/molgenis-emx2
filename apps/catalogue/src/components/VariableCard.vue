@@ -5,7 +5,7 @@
       <div class="card-text">
         <Property label="label">{{ variable.label }}</Property>
         <Property
-          v-if="!tableName"
+          v-if="!datasetName"
           :label="
             variable.release.resource.mg_tableclass.includes('Project')
               ? 'Project'
@@ -16,24 +16,24 @@
             :to="{
               name: 'databank',
               params: {
-                databankPid: variable.release.resource.pid,
+                databankid: variable.release.resource.id,
               },
             }"
           >
-            {{ variable.release.resource.pid }}
+            {{ variable.release.resource.id }}
           </RouterLink>
         </Property>
-        <Property v-if="!tableName" label="table">
+        <Property v-if="!datasetName" label="table">
           <RouterLink
             :to="{
               name: 'table',
               params: {
-                databankPid: variable.release.resource.pid,
-                tableName: variable.table.name,
+                resourceId: variable.resource.id,
+                datasetName: variable.dataset.name,
               },
             }"
           >
-            {{ variable.table.name }}
+            {{ variable.dataset.name }}
           </RouterLink>
         </Property>
         <Property label="format">
@@ -44,7 +44,7 @@
         </Property>
         <Property label="topics">
           {{
-            variable.topics ? variable.topics.map((t) => t.name).join(",") : ""
+            variable.topics ? variable.topics.map((t) => t.name).join(", ") : ""
           }}
         </Property>
         <Property label="description">
@@ -68,12 +68,10 @@
           <HarmonisationDetails
             v-for="h in variable.harmonisations"
             :key="JSON.stringify(h)"
-            :sourceCollection="h.sourceRelease.resource.pid"
-            :source-table="h.sourceTable.name"
-            :source-version="h.sourceRelease.version"
-            :target-resource="variable.release.resource.pid"
-            :target-version="variable.release.version"
-            :target-table="variable.table.name"
+            :sourceCollection="h.resource.id"
+            :source-dataset="h.sourceDataset.name"
+            :target-resource="variable.resource.id"
+            :target-dataset="variable.dataset.name"
             :target-variable="variable.name"
             :match="variable.match ? variable.match.name : 'unknown'"
           />
@@ -90,7 +88,7 @@ import Property from "./Property.vue";
 export default {
   props: {
     variable: Object,
-    tableName: String,
+    datasetName: String,
   },
   components: { HarmonisationDetails, Property },
 };

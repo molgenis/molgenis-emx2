@@ -11,9 +11,9 @@ export default {
       state.graphqlURL,
       `{
           _session { email,roles } _schema {
-            name, tables {
-              name, tableType, id, description, externalSchema, semantics, columns {
-                name, id, columnType, key, refTable, refLink, refLabel, refBack, required, 
+            id, label, tables {
+              id, label, tableType, description, schemaId, semantics, columns {
+                id, label, columnType, key, refTableId, refLinkId, refLabel, refBackId, required, 
                 semantics, description, position, validation, visible
               } settings { key, value }
             }
@@ -23,7 +23,6 @@ export default {
       .then((data) => {
         state.session = data._session;
         state.schema = data._schema;
-        state.isLoading = false;
       })
       .catch((error) => {
         if (Array.isArray(error.response.errors)) {
@@ -31,35 +30,80 @@ export default {
         } else {
           state.graphqlError = error;
         }
-        state.isLoading = false;
       });
+    state.isLoading = false;
   },
   fetchSchema: async ({ state, commit }) => {
     const resp = await request("graphql", schema).catch((e) => {
       console.error(e);
       state.isLoading = false;
     });
-    commit("setSchema", resp._schema.name);
-    return resp._schema.name;
+    commit("setSchema", resp._schema.id);
+    return resp._schema.id;
   },
   fetchVariables: async ({ state, commit, getters, dispatch }, offset = 0) => {
     state.isLoading = true;
+    commit("setVariableCount", "...loading count");
     const query = gql`
-            query TargetVariables($search: String, $filter: TargetVariablesFilter) {
-                TargetVariables(limit: 100, offset: ${offset}, search: $search, filter: $filter, orderby:{label: ASC}) {
+            query Variables($search: String, $filter: VariablesFilter) {
+                Variables(limit: 50, offset: ${offset}, search: $search, filter: $filter, orderby:{label: ASC}) {
+                  name
+                  keywords {
                     name
-                    dataDictionary {
-                        resource {
-                            pid
-                        }
-                        version
+                  }
+                  description
+                  unit {
+                    name
+                  }
+                  format {
+                    name
+                  }
+                  dataset {
+                    name
+                  }
+                  resource {
+                    id
+                    name
+                  }
+                  label
+                  repeats {
+                    name
+                  }
+                  mappings {
+                    source {
+                      id
                     }
-                    label
-                    repeats {
+                    targetVariable {
+                      name
+                    }
+                    targetDataset {
+                      resource {
+                        id
+                      }
+                    }
+                    sourceDataset {
+                      resource {
+                        id
+                      }
+                    }
+                    match {
+                      name
+                    }
+                    syntax
+                    description
+                    sourceVariablesOtherDatasets {
+                      dataset {
                         name
+                      }
+                      name
                     }
+                  }
+                  permittedValues {
+                    value
+                    label
+                  }
                 }
-                TargetVariables_agg(search: $search, filter: $filter) {
+                Variables_agg(search: $search, filter: $filter) {
                     count
                 }
             }
@@ -67,7 +111,9 @@ export default {
 
     let queryVariables = { filter: {} };
 
-    queryVariables.filter = {}; //all target variables are valid
+    queryVariables.filter = {
+      resource: { mg_tableclass: { like: ["Models"] } },
+    }; //all target variables are valid
 
     if (getters.selectedNetworks.length) {
       const networkModels = await dispatch(
@@ -75,11 +121,10 @@ export default {
         getters.selectedNetworks
       );
 
-      queryVariables.filter.dataDictionary = {
+      queryVariables.filter.resource = {
         equals: networkModels.map((model) => {
           return {
-            // version: "1.0.0",
-            resource: model,
+            id: model.id,
           };
         }),
       };
@@ -87,11 +132,9 @@ export default {
 
     if (getters.selectedCohorts.length) {
       queryVariables.filter.mappings = {
-        fromDataDictionary: {
-          resource: {
-            pid: {
-              equals: getters.selectedCohorts.map((cohort) => cohort.pid),
-            },
+        source: {
+          id: {
+            equals: getters.selectedCohorts.map((cohort) => cohort.id),
           },
         },
       };
@@ -108,7 +151,6 @@ export default {
 
     const resp = await request("graphql", query, queryVariables).catch((e) => {
       console.error(e);
-      state.isLoading = false;
     });
 
     // check if result is still the relevant
@@ -117,14 +159,14 @@ export default {
       getters.searchString === queryVariables.search
     ) {
       if (offset === 0) {
-        commit("setVariables", resp.TargetVariables);
+        commit("setVariables", resp.Variables);
       } else {
         // add for show more variables
-        commit("addVariables", resp.TargetVariables);
+        commit("addVariables", resp.Variables);
       }
-      commit("setVariableCount", resp.TargetVariables_agg.count);
-      state.isLoading = false;
+      commit("setVariableCount", resp.Variables_agg.count);
     }
+    state.isLoading = false;
 
     return resp.TargetVariables;
   },
@@ -135,8 +177,8 @@ export default {
 
   fetchVariableDetails: async (context, variable) => {
     const query = gql`
-      query TargetVariables($filter: TargetVariablesFilter) {
-        TargetVariables(limit: 1, filter: $filter) {
+      query TargetVariables($filter: VariablesFilter) {
+        Variables(limit: 1, filter: $filter, orderby: { name: ASC }) {
           name
           label
           format {
@@ -159,18 +201,19 @@ export default {
         }
       }
     `;
+
     const variables = {
       filter: {
         name: {
           equals: [`${variable.name}`],
         },
-        dataDictionary: {
+        dataset: {
           equals: [
             {
               resource: {
-                pid: variable.dataDictionary.resource.pid,
+                id: variable.resource.id,
               },
-              version: variable.dataDictionary.version,
+              name: variable.dataset.name,
             },
           ],
         },
@@ -181,22 +224,18 @@ export default {
       console.error(e)
     );
 
-    let variableDetails = resp.TargetVariables[0];
+    let variableDetails = resp.Variables[0];
 
     const mappingQuery = gql`
       query VariableMappings($filter: VariableMappingsFilter) {
-        VariableMappings(
-          filter: $filter
-          orderby: { fromDataDictionary: ASC }
-        ) {
-          fromTable {
-            dataDictionary {
-              resource {
-                pid
-              }
-              version
+        VariableMappings(filter: $filter, orderby: { source: ASC }) {
+          source {
+            id
+          }
+          sourceDataset {
+            resource {
+              id
             }
-            name
           }
           match {
             name
@@ -207,14 +246,14 @@ export default {
 
     const mappingQueryVariables = {
       filter: {
-        toVariable: {
+        targetVariable: {
           equals: [
             {
-              dataDictionary: {
-                resource: {
-                  pid: variable.dataDictionary.resource.pid,
-                },
-                version: variable.dataDictionary.version,
+              resource: {
+                id: variable.resource.id,
+              },
+              dataset: {
+                name: variable.dataset.name,
               },
               name: variable.name,
             },
@@ -229,22 +268,45 @@ export default {
       mappingQueryVariables
     ).catch((e) => console.error(e));
 
-    // Put list in to map, use pid as key
+    // Put list in to map, use id as key
     if (
       mappingQueryResp.VariableMappings &&
       mappingQueryResp.VariableMappings.length
     ) {
-      const mappingsByPid = mappingQueryResp.VariableMappings.reduce(
+      const mappingsById = mappingQueryResp.VariableMappings.reduce(
         (accum, item) => {
-          accum[item.fromTable.dataDictionary.resource.pid] = item;
+          accum[item.source.id] = item;
           return accum;
         },
         {}
       );
-      variableDetails.mappings = mappingsByPid;
+      variableDetails.mappings = mappingsById;
     }
 
     return variableDetails;
+  },
+
+  fetchCohorts: async ({ state, commit }) => {
+    if (state.cohorts.length) {
+      return state.cohorts;
+    }
+
+    const cohortQuery = gql`
+      query Cohorts {
+        Cohorts(orderby: { id: ASC }) {
+          id
+          networks {
+            id
+          }
+        }
+      }
+    `;
+
+    const cohortResp = await request("graphql", cohortQuery).catch((e) =>
+      console.error(e)
+    );
+    commit("setCohorts", cohortResp.Cohorts);
+    return state.cohorts;
   },
 
   fetchKeywords: async ({ state, commit }) => {
@@ -264,9 +326,10 @@ export default {
         }
       }
     `;
-    const keyWordResp = await request("graphql", keywordQuery).catch((e) =>
-      console.error(e)
-    );
+    const keyWordResp = await request(
+      "/CatalogueOntologies/graphql",
+      keywordQuery
+    ).catch((e) => console.error(e));
     commit("setKeywords", keyWordResp.Keywords);
     return state.keywords;
   },
@@ -283,18 +346,13 @@ export default {
     }
 
     const filter = {
-      toVariable: {
+      targetVariable: {
         name: {
           equals: nameFilter,
         },
-        dataDictionary: {
-          resource: {
-            equals: {
-              pid: variable.dataDictionary.resource.pid,
-            },
-          },
-          version: {
-            equals: variable.dataDictionary.version,
+        resource: {
+          equals: {
+            id: variable.resource.id,
           },
         },
       },
@@ -310,16 +368,16 @@ export default {
     const query = gql`
       query Networks($filter: NetworksFilter) {
         Networks(filter: $filter) {
-          pid
+          id
           models {
-            pid
+            id
           }
         }
       }
     `;
 
     const filter = {
-      pid: { equals: selectedNetworks.map((sn) => sn.pid) },
+      id: { equals: selectedNetworks.map((sn) => sn.id) },
     };
 
     const resp = await request("graphql", query, { filter }).catch((e) =>

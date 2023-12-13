@@ -44,6 +44,8 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
   public void release(Connection connection) {
     try {
       DSL.using(connection, SQLDialect.POSTGRES).execute("RESET ROLE");
+      // sql reports might have changes this, therefore ensure always reset
+      DSL.using(connection, SQLDialect.POSTGRES).execute("RESET search_path");
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("release of connection failed ", dae);
     }

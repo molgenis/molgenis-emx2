@@ -1,12 +1,12 @@
 package org.molgenis.emx2.sql;
 
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
@@ -16,7 +16,7 @@ public class TestMergeDrop {
   static Database db;
   static Schema schema;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestMergeDrop.class.getSimpleName());

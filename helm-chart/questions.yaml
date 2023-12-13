@@ -18,9 +18,26 @@ questions:
       - molgenis/molgenis-emx2-snapshot
     default: "molgenis/molgenis-emx2"
     group: "Provisioning"
+  - variable: ssrCatalogue.image.repository
+    label: SSR Catalogue Repository
+    description: "Specify a ssr catalogue repository"
+    type: enum
+    required: true
+    options:
+      - molgenis/ssr-catalogue
+      - molgenis/ssr-catalogue-snapshot
+    default: "molgenis/ssr-catalogue"
+    group: "Provisioning"
   - variable: image.tag
     label: Version
     description: "Specify a version of the application"
+    type: string
+    required: true
+    default: "latest"
+    group: "Provisioning"
+  - variable: ssrCatalogue.image.tag
+    label: SSR Catalogue image version
+    description: "Specify a version of the ssr catalogue application"
     type: string
     required: true
     default: "latest"
@@ -30,6 +47,34 @@ questions:
     description: "Specify an administrator password"
     type: password
     required: true
+    group: "Provisioning"
+  - variable: ssrCatalogue.environment.apiBase
+    label: emx2 backend api location
+    description: "Specify location to use for the api calls from the ssr catalogue"
+    type: string
+    required: true
+    default: "emx2.dev.molgenis.org"
+    group: "Provisioning"
+  - variable: ssrCatalogue.environment.theme
+    label: SSR catalogue theme
+    description: "Specify a theme name to use for the ssr catalogue"
+    type: string
+    required: false
+    default: ""
+    group: "Provisioning"
+  - variable: ssrCatalogue.environment.logo
+    label: emx2 backend api location
+    description: "Specify logo name to use for the ssr catalogue"
+    type: string
+    required: false
+    default: ""
+    group: "Provisioning"
+  - variable: ssrCatalogue.environment.analyticsKey
+    label: ssr catalogue analytics key
+    description: "Key for analytics call"
+    type: string
+    required: false
+    default: ""
     group: "Provisioning"
   - variable: oidc.enabled
     label: OIDC enabled

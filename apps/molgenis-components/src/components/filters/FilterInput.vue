@@ -2,14 +2,15 @@
   <div>
     <div v-if="isMultiConditionFilter">
       <component
-          :is="filterType"
-          :id="id"
-          :condition="conditions"
-          @updateCondition="updateCondition(index - 1, $event)"
-          :tableName="tableName"
-          :graphqlURL="graphqlURL"
+        :is="filterType"
+        :id="id"
+        :condition="conditions"
+        @updateCondition="updateCondition(index - 1, $event)"
+        :tableId="tableId"
+        :schemaId="schemaId"
+        :refLabel="refLabel"
       ></component>
-   </div>
+    </div>
     <div v-else v-for="index in fieldCount" :key="index">
       <component
         :is="filterType"
@@ -19,8 +20,8 @@
         @clearCondition="clearCondition(index - 1)"
         @addCondition="fieldCount++"
         :showAddButton="index === conditions.length"
-        :tableName="tableName"
-        :graphqlURL="graphqlURL"
+        :tableId="tableId"
+        :schemaId="schemaId"
       ></component>
     </div>
   </div>
@@ -33,10 +34,10 @@ import DecimalFilter from "./DecimalFilter.vue";
 import DateFilter from "./DateFilter.vue";
 import DateTimeFilter from "./DateTimeFilter.vue";
 import BooleanFilter from "./BooleanFilter.vue";
-import RefFilter from "./RefFilter.vue";
 import RefListFilter from "./RefListFilter.vue";
 import OntologyFilter from "./OntologyFilter.vue";
-import { deepClone } from "../utils.js";
+import LongFilter from "./LongFilter.vue";
+import { deepClone } from "../utils.ts";
 
 const filterTypeMap = {
   STRING: StringFilter,
@@ -53,8 +54,8 @@ const filterTypeMap = {
   INT_ARRAY: IntegerFilter,
   DECIMAL: DecimalFilter,
   DECIMAL_ARRAY: DecimalFilter,
-  LONG: StringFilter, //TODO: LongFilter is not implemented yet
-  LONG_ARRAY: StringFilter, //TODO: LongFilter is not implemented yet
+  LONG: LongFilter,
+  LONG_ARRAY: LongFilter,
   DATE: DateFilter,
   DATE_ARRAY: DateFilter,
   DATETIME: DateTimeFilter,
@@ -77,7 +78,6 @@ export default {
     DateFilter,
     DateTimeFilter,
     BooleanFilter,
-    RefFilter,
     RefListFilter,
     OntologyFilter,
   },
@@ -97,11 +97,15 @@ export default {
       type: Array,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: false,
     },
-    graphqlURL: {
+    schemaId: {
+      type: String,
+      required: false,
+    },
+    refLabel: {
       type: String,
       required: false,
     },
@@ -237,8 +241,8 @@ export default {
         <FilterInput
             id="filter-input-ontology"
             columnType="ONTOLOGY"
-            tableName="Tag"
-            graphqlURL="/pet store/graphql"
+            tableId="Tag"
+            schemaId="pet store"
             :conditions="conditions6"
             @updateConditions="conditions6 = $event"
         />
@@ -251,10 +255,11 @@ export default {
         <FilterInput
             id="filter-input-ref"
             columnType="REF"
-            tableName="Tag"
-            graphqlURL="/pet store/graphql"
+            tableId="Tag"
+            schemaId="pet store"
             :conditions="conditions7"
             @updateConditions="conditions7 = $event"
+            refLabel="${name}"
         />
         <div>conditions: {{ conditions7 }}</div>
       </demo-item>
@@ -265,10 +270,11 @@ export default {
         <FilterInput
             id="filter-input-reflist"
             columnType="REF_ARRAY"
-            tableName="Tag"
-            graphqlURL="/pet store/graphql"
+            tableId="Tag"
+            schemaId="pet store"
             :conditions="conditions8"
             @updateConditions="conditions8 = $event"
+            refLabel="${name}"
         />
         <div>conditions: {{ conditions8 }}</div>
       </demo-item>

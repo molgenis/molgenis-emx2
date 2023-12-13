@@ -11,10 +11,12 @@ import java.util.*;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
+import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.molgenis.emx2.utils.RandomString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final String ANONYMOUS = "anonymous";
   public static final String USER = "user";
   public static final String WITH = "with {} = {} ";
+  public static final int TEN_SECONDS = 10;
 
   // shared between all instances
   private static DataSource source;
@@ -62,6 +65,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         }
       };
 
+  // for acting on save/deletes on tables
+  private List<TableListener> tableListeners = new ArrayList<>();
+
   // copy constructor for transactions; only with its own jooq instance that contains tx
   private SqlDatabase(DSLContext jooq, SqlDatabase copy) {
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
@@ -85,7 +91,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public SqlDatabase(boolean init) {
     initDataSource();
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
-    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
+    final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
+    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, settings);
     if (init) {
       try {
         // elevate privileges for init (prevent reload)
@@ -152,6 +159,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
 
+      // get the settings
+      clearCache();
+
       if (getSetting(Constants.IS_OIDC_ENABLED) == null) {
         // use environment property unless overridden in settings
         this.setSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
@@ -168,6 +178,24 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       if (getSetting(Constants.PRIVACY_POLICY_TEXT) == null) {
         this.setSetting(Constants.PRIVACY_POLICY_TEXT, Constants.PRIVACY_POLICY_TEXT_DEFAULT);
       }
+
+      if (getSetting(Constants.LOCALES) == null) {
+        this.setSetting(Constants.LOCALES, Constants.LOCALES_DEFAULT);
+      }
+
+      String key = getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
+      if (key == null) {
+        key =
+            (String)
+                EnvironmentProperty.getParameter(
+                    Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
+      }
+      // validate the key, or generate a good one
+      if (key == null || key.getBytes().length < 32) {
+        key = new RandomString(32).nextString();
+      }
+      // save the key again
+      this.setSetting(Constants.MOLGENIS_JWT_SHARED_SECRET, key);
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
       if (!e.getMessage()
@@ -205,6 +233,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.tx(
         db -> {
           SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
+          validateSchemaIdentifierIsUnique(metadata, db);
           executeCreateSchema((SqlDatabase) db, metadata);
           // copy
           SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
@@ -218,6 +247,18 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     getListener().schemaChanged(name);
     this.log(start, "created schema " + name);
     return getSchema(name);
+  }
+
+  private static void validateSchemaIdentifierIsUnique(SchemaMetadata metadata, Database db) {
+    for (String name : db.getSchemaNames()) {
+      if (!metadata.getName().equals(name)
+          && metadata.getIdentifier().equals(new SchemaMetadata(name).getIdentifier())) {
+        throw new MolgenisException(
+            String.format(
+                "Cannot create/alter schema because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
+                metadata.getName(), name, metadata.getIdentifier()));
+      }
+    }
   }
 
   @Override
@@ -238,6 +279,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public SqlSchema getSchema(String name) {
+    if (name == null) throw new MolgenisException("Schema name was null or empty");
     if (schemaCache.containsKey(name)) {
       return new SqlSchema(this, schemaCache.get(name));
     } else {
@@ -322,33 +364,16 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public Database setSetting(String key, String value) {
+  public Database setSettings(Map<String, String> settings) {
     if (isAdmin()) {
-      super.setSetting(key, value);
-      // save the new setting
+      super.setSettings(settings);
       MetadataUtils.saveDatabaseSettings(jooq, getSettings());
-      this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(getJooq()));
       // force all sessions to reload
       this.listener.afterCommit();
-      return this;
     } else {
       throw new MolgenisException("Insufficient rights to create database level setting");
     }
-  }
-
-  @Override
-  public Database removeSetting(String key) {
-    if (isAdmin()) {
-      if (this.getSettings().containsKey(key)) {
-        super.removeSetting(key);
-        MetadataUtils.saveDatabaseSettings(getJooq(), super.getSettings());
-        // force all sessions to reload
-        this.listener.afterCommit();
-      }
-      return this;
-    } else {
-      throw new MolgenisException("Insufficient rights to delete database level setting");
-    }
+    return this;
   }
 
   @Override
@@ -501,6 +526,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     } else {
       // we create a new instance, isolated from 'this' until end of transaction
       SqlDatabase db = new SqlDatabase(jooq, this);
+      this.tableListeners.forEach(listener -> db.addTableListener(listener));
       try {
         jooq.transaction(
             config -> {
@@ -509,6 +535,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
               ctx.execute("SET CONSTRAINTS ALL DEFERRED");
               db.setJooq(ctx);
               transaction.run(db);
+              db.tableListenersExecutePostCommit();
             });
         // only when commit succeeds we copy state to 'this'
         this.sync(db);
@@ -518,11 +545,15 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         if (db.getListener().isDirty()) {
           this.getListener().afterCommit();
         }
-      } catch (DataAccessException e) {
-        throw new SqlMolgenisException("Transaction failed", e);
       } catch (Exception e) {
         throw new SqlMolgenisException("Transaction failed", e);
       }
+    }
+  }
+
+  private void tableListenersExecutePostCommit() {
+    for (TableListener tableListener : this.tableListeners) {
+      tableListener.executePostCommit();
     }
   }
 
@@ -642,6 +673,24 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       User user = MetadataUtils.loadUserMetadata(this, userName);
       // might not yet have any metadata saved
       return user != null ? user : new User(this, userName);
+    }
+    return null;
+  }
+
+  public void addTableListener(TableListener tableListener) {
+    this.tableListeners.add(tableListener);
+  }
+
+  public TableListener getTableListener(String schemaName, String tableName) {
+    Optional<TableListener> result =
+        tableListeners.stream()
+            .filter(
+                tableListener ->
+                    tableListener.getTableName().equals(tableName)
+                        && tableListener.getSchemaName().equals(schemaName))
+            .findFirst();
+    if (result.isPresent()) {
+      return result.get();
     }
     return null;
   }

@@ -24,7 +24,7 @@
         />
         <ButtonAction @click="updatePassword">Update password</ButtonAction>
         <h2 class="mt-4">Manage tokens</h2>
-        <TokenManager/>
+        <TokenManager />
       </LayoutForm>
     </template>
     <template v-slot:footer>
@@ -33,7 +33,7 @@
   </LayoutModal>
 </template>
 
-<script>
+<script lang="ts">
 import ButtonAction from "../forms/ButtonAction.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import MessageError from "../forms/MessageError.vue";
@@ -41,11 +41,11 @@ import MessageSuccess from "../forms/MessageSuccess.vue";
 import Spinner from "../layout/Spinner.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import InputPassword from "../forms/InputPassword.vue";
-import TokenManager from './TokenManager.vue';
+import TokenManager from "./TokenManager.vue";
+import { defineComponent } from "vue";
+import { request } from "../../client/client";
 
-import { request } from "../../client/client.js";
-
-export default {
+export default defineComponent({
   components: {
     LayoutModal,
     ButtonAlt,
@@ -54,18 +54,19 @@ export default {
     MessageError,
     MessageSuccess,
     Spinner,
-    TokenManager
+    TokenManager,
   },
   props: {
     user: String,
   },
   data() {
     return {
-      password: null,
-      password2: null,
+      password: null as null | string,
+      password2: null as null | string,
       loading: false,
-      graphqlError: null,
-      success: null,
+      graphqlError: null as null | string,
+      success: null as null | string,
+      error: null as null | string,
     };
   },
   methods: {
@@ -78,7 +79,7 @@ export default {
         const data = await request(
           "graphql",
           `mutation{changePassword(password: "${this.password}"){status,message}}`
-        ).catch((error) => {
+        ).catch((error): void => {
           this.graphqlError = JSON.stringify(error);
         });
 
@@ -96,7 +97,7 @@ export default {
     },
   },
   emits: ["cancel"],
-};
+});
 </script>
 
 <docs>

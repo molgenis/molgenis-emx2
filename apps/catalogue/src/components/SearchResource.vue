@@ -23,10 +23,10 @@ export default {
       default: () => "Institutions",
     },
     placeholder: {
-      type: String, 
+      type: String,
       required: false,
-      default: () => "Search"
-    }
+      default: () => "Search",
+    },
   },
   data() {
     return {
@@ -35,9 +35,9 @@ export default {
   },
   methods: {
     onSubmit() {
-      const route = { name: this.resourceType }
-      if(this.query) {
-        route.query = { q: this.query }
+      const route = { name: this.resourceType };
+      if (this.query) {
+        route.query = { q: this.query };
       }
       this.$router.push(route);
     },

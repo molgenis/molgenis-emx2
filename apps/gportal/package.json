@@ -1,0 +1,30 @@
+{
+  "name": "gportal",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "format": "prettier src  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+  },
+  "dependencies": {
+    "@heroicons/vue": "^2.0.18",
+    "graphql-request": "5.2.0",
+    "molgenis-components": "*",
+    "molgenis-viz": "*",
+    "vue": "3.3.8",
+    "vue-router": "4.2.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "4.4.1",
+    "prettier": "2.8.8",
+    "sass": "^1.63.5",
+    "vite": "4.3.9"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}

@@ -65,7 +65,6 @@ public class Mapper {
         if (f.isAnnotationPresent(ColumnAnnotation.class)) {
           ColumnAnnotation cm = f.getAnnotation(ColumnAnnotation.class);
           col.setRequired(cm.required());
-          col.setDescription(cm.description());
         }
         t.add(col);
       }

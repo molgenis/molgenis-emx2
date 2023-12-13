@@ -6,7 +6,11 @@
     <OntologyTerms :terms="resource.dataUseConditions" :color="color" />
     <h6>Data access conditions description</h6>
     <p>
-      {{ resource.dataAccessConditionsDescription ? resource.dataAccessConditionsDescription : "N/A" }}
+      {{
+        resource.dataAccessConditionsDescription
+          ? resource.dataAccessConditionsDescription
+          : "N/A"
+      }}
     </p>
     <h6>Fee required?</h6>
     <p>

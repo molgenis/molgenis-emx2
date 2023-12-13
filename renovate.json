@@ -4,6 +4,12 @@
   ],
   "packageRules": [ 
     {
+      "groupName":"com.squareup.okhttp3",
+      "matchPackagePrefixes": [
+        "com.squareup.okhttp3"
+      ]
+    },
+    {
       "matchPackageNames": ["vue-router"],
       "allowedVersions": ">=3.5"
     },
@@ -15,6 +21,19 @@
       "groupName": "org.pac4j",
       "matchPackagePrefixes": [
         "org.pac4j"
+      ]
+    },
+    {
+      "groupName": "nuxt",
+      "matchPackagePrefixes": [
+        "@nuxt",
+        "nuxt"
+      ]
+    },
+        {
+      "groupName": "vueuse",
+      "matchPackagePrefixes": [
+        "vueuse"
       ]
     },
     {
@@ -39,6 +58,12 @@
       "groupName": "org.graalvm.js",
       "matchPackagePrefixes": [
         "org.graalvm.js"
+      ]
+    },
+    {
+      "groupName": "org.apache.poi",
+      "matchPackagePrefixes": [
+        "org.apache.poi"
       ]
     }
   ]

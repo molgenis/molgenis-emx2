@@ -6,6 +6,7 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 import java.util.*;
+import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 
 public class SqlSchema implements Schema {
@@ -21,8 +22,9 @@ public class SqlSchema implements Schema {
   public SqlTable getTable(String name) {
     SqlTableMetadata tableMetadata = getMetadata().getTableMetadata(name);
     if (tableMetadata == null) return null;
-    if (tableMetadata.exists()) return new SqlTable(db, tableMetadata);
-    else return null;
+    if (tableMetadata.exists()) {
+      return new SqlTable(db, tableMetadata, db.getTableListener(getName(), name));
+    } else return null;
   }
 
   @Override
@@ -31,7 +33,9 @@ public class SqlSchema implements Schema {
     sortTableByDependency(tableMetadata);
     List<Table> result = new ArrayList<>();
     for (TableMetadata tm : tableMetadata) {
-      result.add(new SqlTable(db, (SqlTableMetadata) tm));
+      result.add(
+          new SqlTable(
+              db, (SqlTableMetadata) tm, db.getTableListener(getName(), tm.getTableName())));
     }
     return result;
   }
@@ -134,6 +138,20 @@ public class SqlSchema implements Schema {
   @Override
   public Query query(String tableName) {
     return getTable(tableName).query();
+  }
+
+  @Override
+  public List<Row> retrieveSql(String sql) {
+    return retrieveSql(sql, Map.of());
+  }
+
+  @Override
+  public List<Row> retrieveSql(String sql, Map<String, ?> parameters) {
+    if (getRoles().contains("Viewer")) {
+      return new SqlRawQueryForSchema(this).executeSql(sql, parameters);
+    } else {
+      throw new MolgenisException("No view permissions on this schema");
+    }
   }
 
   @Override
@@ -277,12 +295,12 @@ public class SqlSchema implements Schema {
         TableMetadata oldTable = targetSchema.getTable(mergeTable.getTableName()).getMetadata();
 
         // set inheritance
-        if (mergeTable.getInherit() != null) {
+        if (mergeTable.getInheritName() != null) {
           if (mergeTable.getImportSchema() != null) {
             oldTable.setImportSchema(mergeTable.getImportSchema());
           }
-          oldTable.setInherit(mergeTable.getInherit());
-        } else if (oldTable.getInherit() != null) {
+          oldTable.setInheritName(mergeTable.getInheritName());
+        } else if (oldTable.getInheritName() != null) {
           oldTable.removeInherit();
         }
 
@@ -290,8 +308,11 @@ public class SqlSchema implements Schema {
         if (!mergeTable.getSettings().isEmpty()) {
           oldTable.setSettings(mergeTable.getSettings());
         }
-        if (mergeTable.getDescription() != null) {
-          oldTable.setDescription(mergeTable.getDescription());
+        if (!mergeTable.getDescriptions().isEmpty()) {
+          oldTable.setDescriptions(mergeTable.getDescriptions());
+        }
+        if (!mergeTable.getLabels().isEmpty()) {
+          oldTable.setLabels(mergeTable.getLabels());
         }
         if (mergeTable.getSemantics() != null) {
           oldTable.setSemantics(mergeTable.getSemantics());
@@ -303,21 +324,18 @@ public class SqlSchema implements Schema {
         // add missing (except refback),
         // remove triggers if existing column if type changed
         // drop columns marked with 'drop'
-        for (Column newColumn : mergeTable.getColumns()) {
+        for (Column newColumn : mergeTable.getNonInheritedColumns()) {
           Column oldColumn =
               newColumn.getOldName() != null
-                  ? oldTable.getColumn(newColumn.getOldName())
-                  : oldTable.getColumn(newColumn.getName());
+                  ? oldTable.getLocalColumn(newColumn.getOldName())
+                  : oldTable.getLocalColumn(newColumn.getName());
 
           // drop columns that need dropping
           if (newColumn.isDrop()) {
             oldTable.dropColumn(oldColumn.getName());
           } else
           // if new column and not inherited
-          if (oldColumn == null
-              && !(oldTable.getInherit() != null
-                  && oldTable.getInheritedTable().getColumn(newColumn.getName()) != null)
-              && !newColumn.isRefback()) {
+          if (oldColumn == null && !newColumn.isRefback()) {
             oldTable.add(newColumn);
             created.add(newColumn.getTableName() + "." + newColumn.getName());
           } else
@@ -365,6 +383,11 @@ public class SqlSchema implements Schema {
         targetSchema.getTable(mergeTable.getOldName()).getMetadata().drop();
       }
     }
+
+    // finally, update settings if changes are provided
+    if (!mergeSchema.getSettings().isEmpty()) {
+      targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
+    }
   }
 
   public String getName() {
@@ -379,5 +402,30 @@ public class SqlSchema implements Schema {
   @Override
   public Integer getChangesCount() {
     return metadata.getChangesCount();
+  }
+
+  @Override
+  public String getSettingValue(String key) {
+    String setting = metadata.getSetting(key);
+    if (setting == null) {
+      throw new MolgenisException("Setting " + key + " not found");
+    }
+    return setting;
+  }
+
+  public boolean hasSetting(String key) {
+    return metadata.getSetting(key) != null;
+  }
+
+  @Override
+  public Table getTableById(String id) {
+    Optional<Table> table =
+        getTablesSorted().stream().filter(t -> t.getIdentifier().equals(id)).findFirst();
+    if (table.isPresent()) return table.get();
+    else return null;
+  }
+
+  public DSLContext getJooq() {
+    return ((SqlDatabase) getDatabase()).getJooq();
   }
 }

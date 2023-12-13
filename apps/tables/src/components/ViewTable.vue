@@ -1,12 +1,14 @@
 <template>
-  <div>
-    <router-link v-if="schema" to="/">
-      &lt; Back to {{ schema.name }}
-    </router-link>
+  <div v-if="schema">
+    <router-link v-if="schema" to="/"> &lt; {{ schema.id }} </router-link> /
+    {{ table }}
     <RoutedTableExplorer
-      :tableName="table"
+      :tableId="table"
+      :schemaId="schema.id"
+      :canView="canView"
       :canEdit="canEdit"
       :canManage="canManage"
+      :locale="session?.locale"
     />
   </div>
 </template>
@@ -24,23 +26,20 @@ export default {
     RoutedTableExplorer,
   },
   computed: {
+    canView() {
+      const isViewer =
+        this.session?.roles?.includes("Viewer") ||
+        this.activeTable.tableType === "ONTOLOGIES";
+      return isViewer || this.canEdit;
+    },
     canEdit() {
-      if (this.session) {
-        const isAdmin = this.session.email === "admin";
-        const roles = this.session.roles;
-        const isEditor = roles && roles.includes("Editor");
-        const isManager = roles && roles.includes("Manager");
-        return isAdmin || isEditor || isManager;
-      } else {
-        return false;
-      }
+      const isEditor = this.session?.roles?.includes("Editor");
+      return isEditor || this.canManage;
     },
     canManage() {
-      return (
-        this.session &&
-        (this.session.email === "admin" ||
-          this.session.roles.includes("Manager"))
-      );
+      const isAdmin = this.session?.email === "admin";
+      const isManager = this.session?.roles?.includes("Manager");
+      return isManager || isAdmin;
     },
     activeTable() {
       if (this.schema) {

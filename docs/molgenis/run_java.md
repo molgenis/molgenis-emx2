@@ -2,7 +2,7 @@
 
 Steps:
 
-* Install [Postgresql](https://www.postgresql.org/download/) (we use 14)
+* Install [Postgresql](https://www.postgresql.org/download/) (we use 15)
 * Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
     ```console
     psql postgres
@@ -14,7 +14,8 @@ Steps:
     grant all privileges on database molgenis to molgenis;
     ```
 * Install java (we use adopt [OpenJDK 17](https://adoptium.net/))
-* Download molgenis-emx2-version-all.jar from [releases](https://github.com/mswertz/molgenis-emx2/releases).
+* Optionally, if you want to use [scripts](use_scripts_jobs.md) then also install python3
+* Download molgenis-emx2-version-all.jar from [releases](https://github.com/molgenis/molgenis-emx2/releases).
 * Start molgenis-emx2 using command below (will run on 8080)
     ```console
     java -jar molgenis-emx2-<version>-all.jar

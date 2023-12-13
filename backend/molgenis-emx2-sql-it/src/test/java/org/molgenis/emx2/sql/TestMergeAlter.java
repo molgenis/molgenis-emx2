@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static junit.framework.TestCase.*;
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Row.row;
@@ -10,8 +9,8 @@ import static org.molgenis.emx2.TableMetadata.table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.jooq.DSLContext;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestMergeAlter {
@@ -26,7 +25,7 @@ public class TestMergeAlter {
   static Database db;
   static Schema schema;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestMergeAlter.class.getSimpleName());
@@ -255,6 +254,41 @@ public class TestMergeAlter {
     t.getMetadata().alterColumn("Name", t.getMetadata().getColumn("Name").setType(STRING));
     t.update(row("ID", "1", "Name", "bla2"));
     assertEquals("bla2", t.retrieveRows().get(0).getString("Name"));
+  }
+
+  @Test
+  void testNamesCannotHaveSameIdentifiers() {
+
+    assertThrows(
+        MolgenisException.class,
+        () -> db.createSchema("Test Merge Alter"),
+        "shouln't be able to create schame with name that converts to same identifier");
+
+    Table table = schema.create(table("my table", column("id").setPkey()));
+    assertThrows(
+        MolgenisException.class,
+        () -> {
+          schema.create(table("My table", column("id").setPkey()));
+        },
+        "shouldn't be able to create table with name that converts to same identifier");
+
+    Table otherTable = schema.create(table("my other table", column("id").setPkey()));
+    assertThrows(
+        MolgenisException.class,
+        () -> {
+          ((SqlSchemaMetadata) schema.getMetadata()).renameTable(table.getMetadata(), "My table");
+        },
+        "shouldn't be able to rename table with name that converts to same identifier");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> table.getMetadata().add(column("Id")),
+        "shouldn't be able to create column with name that converts to same identifier");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> table.getMetadata().alterColumn("id", column("Id")),
+        "shouldn't be able to rename column with name that converts to same identifier");
   }
 
   @Test

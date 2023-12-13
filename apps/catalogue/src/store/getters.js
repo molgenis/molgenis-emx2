@@ -35,22 +35,22 @@ export default {
       ? null
       : state.searchInput.trim(),
   selectedKeywords: (state) => {
-    return state.filters.find((filters) => filters.name === "keywords")
+    return state.filters.find((filters) => filters.id === "keywords")
       .conditions;
   },
   selectedNetworks: (state) => {
-    return state.filters.find((filters) => filters.name === "networks")
+    return state.filters.find((filters) => filters.id === "networks")
       .conditions;
   },
   selectedCohorts: (state) => {
-    return state.filters.find((filters) => filters.name === "cohorts")
-      .conditions;
+    return state.filters.find((filters) => filters.id === "cohorts").conditions;
   },
   resources: (state) => state.resources,
+  cohorts: (state) => state.cohorts,
   /**
    * @returns Grid like object o[x][y], where;
    *  x = variableName,
-   *  y = cohortPid
+   *  y = cohortId
    *  and cell value is match status
    *
    * @example
@@ -69,7 +69,7 @@ export default {
       if (!harmonizationGrid[varName]) {
         harmonizationGrid[varName] = {};
       }
-      const mappedCohort = mapping.fromTable.dataDictionary.resource.pid;
+      const mappedCohort = mapping.fromTable.dataDictionary.resource.id;
       harmonizationGrid[varName][mappedCohort] = mapping.match.name; // aka the cell value
     });
 

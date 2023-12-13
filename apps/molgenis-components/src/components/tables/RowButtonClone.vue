@@ -4,11 +4,11 @@
     <EditModal
       v-if="isModalShown"
       :id="id + 'edit-modal'"
-      :tableName="tableName"
+      :tableId="tableId"
       :pkey="pkey"
       :clone="true"
       :isModalShown="isModalShown"
-      :graphqlURL="graphqlURL"
+      :schemaId="schemaId"
       @close="handleClose"
     />
   </div>
@@ -26,7 +26,7 @@ export default {
       type: String,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
@@ -34,10 +34,9 @@ export default {
       type: Object,
       required: true,
     },
-    graphqlURL: {
+    schemaId: {
       type: String,
       required: false,
-      default: () => "graphql",
     },
   },
   data() {
@@ -61,9 +60,9 @@ export default {
     <div>
       <RowButtonClone
           id="row-clone-btn-sample"
-          tableName="Pet"
+          tableId="Pet"
           :pkey="{name: 'pooky'}"
-          graphqlURL="/pet store/graphql"
+          schemaId="pet store"
       />
     </div>
   </div>

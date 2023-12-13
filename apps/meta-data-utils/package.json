@@ -1,0 +1,32 @@
+{
+  "name": "meta-data-utils",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/meta-data-utils.umd.cjs",
+  "module": "dist/meta-data-utils.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/meta-data-utils.js",
+      "require": "./dist/meta-data-utils.umd.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest",
+    "test-ci": "vitest run",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format": "prettier src test --write --config ../.prettierrc.js"
+  },
+  "devDependencies": {
+    "prettier": "2.8.8",
+    "vite": "4.4.12",
+    "vite-plugin-dts": "3.6.4",
+    "vitest": "0.34.6"
+  }
+}

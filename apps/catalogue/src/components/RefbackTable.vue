@@ -1,39 +1,50 @@
 <template>
   <Spinner v-if="!tableMetadata" />
-  <div class="table-responsive" v-else-if="pkey && tableMetadata && refBackData">
+  <div
+    class="table-responsive"
+    v-else-if="pkey && tableMetadata && refBackData"
+  >
     <table class="table table-sm bg-white table-bordered table-hover">
       <thead>
         <th
           v-for="col in visibleColumns.filter((c) => c.columnType != 'HEADING')"
-          :key="col.name"
+          :key="col.id"
           scope="col"
         >
-          <h6 class="mb-0">{{ col.name }}</h6>
+          <h6 class="mb-0">{{ col.label }}</h6>
         </th>
       </thead>
       <tbody>
         <tr
           v-for="(row, idx) in refBackData"
           :key="idx + JSON.stringify(Object.keys(row))"
+          @click.prevent
         >
           <td
             v-for="col in visibleColumns.filter(
               (c) => c.columnType != 'HEADING'
             )"
-            :key="idx + col.name"
+            :key="idx + col.id"
             style="cursor: pointer"
           >
+            <div v-if="col.key === 1">
+              <a href="" @click="handleRowClick(row)">{{
+                Array.isArray(renderValue(row, col))
+                  ? renderValue(row, col)[0]
+                  : renderValue(row, col)
+              }}</a>
+            </div>
             <div
-              v-if="
+              v-else-if="
                 'REF' === col.columnType ||
-                ('REFBACK' === col.columnType && !Array.isArray(row[col.name]))
+                ('REFBACK' === col.columnType && !Array.isArray(row[col.id]))
               "
             >
               <RouterLink
-                v-if="row[col.name]"
+                v-if="row[col.id]"
                 :to="{
-                  name: col.refTable + '-details',
-                  params: routeParams(col, row[col.name]),
+                  name: col.refTableId + '-details',
+                  params: routeParams(col, row[col.id]),
                 }"
               >
                 {{ renderValue(row, col)[0] }}
@@ -42,14 +53,14 @@
             <span
               v-else-if="
                 'REF_ARRAY' == col.columnType ||
-                ('REFBACK' === col.columnType && Array.isArray(row[col.name]))
+                ('REFBACK' === col.columnType && Array.isArray(row[col.id]))
               "
             >
-              <span v-for="(val, idx) in row[col.name]" :key="idx">
+              <span v-for="(val, idx) in row[col.id]" :key="idx">
                 <RouterLink
                   v-if="val"
                   :to="{
-                    name: col.refTable + '-details',
+                    name: col.refTableId + '-details',
                     params: routeParams(col, val),
                   }"
                 >
@@ -60,15 +71,15 @@
             <div
               v-else
               v-for="(value, idx2) in renderValue(row, col)"
-              :key="idx + col.name + idx2"
+              :key="idx + col.id + idx2"
             >
               <div v-if="'TEXT' === col.columnType">
                 <ReadMore :text="value" />
               </div>
               <div v-else-if="'FILE' === col.columnType">
-                <a v-if="row[col.name].id" :href="row[col.name].url">
-                  {{ col.name }}.{{ row[col.name].extension }} ({{
-                    renderNumber(row[col.name].size)
+                <a v-if="row[col.id].id" :href="row[col.id].url">
+                  {{ col.id }}.{{ row[col.id].extension }} ({{
+                    renderNumber(row[col.id].size)
                   }}b)
                 </a>
               </div>
@@ -82,8 +93,13 @@
 </template>
 
 <script>
-import { Spinner, ReadMore } from "molgenis-components";
-import { Client } from "molgenis-components";
+import {
+  Spinner,
+  ReadMore,
+  Client,
+  flattenObject,
+  applyJsTemplate,
+} from "molgenis-components";
 
 export default {
   components: {
@@ -91,31 +107,57 @@ export default {
     ReadMore,
   },
   props: {
-    table: {
+    tableId: {
       type: String,
-      required: true
+      required: true,
     },
     refLabel: String,
-     /** name of the column in the other table */
-    refBack: String,
+    /** id of the column in the other table */
+    refBackId: String,
     /** pkey of the current table that refback should point to */
     pkey: Object,
   },
   data() {
     return {
       tableMetadata: null,
-      refBackData: null
-    }
+      refBackData: null,
+    };
   },
   methods: {
+    handleRowClick(row) {
+      let params = {};
+      params.id = row.id || this.pkey.id;
+      params.resource = row.id || this.pkey.id;
+      if (row.name) params.name = row.name;
+      if (row.source?.id) params.source = row.source.id;
+      if (row.sourceDataset?.name)
+        params.sourceDataset = row.sourceDataset.name;
+      if (row.target?.id) params.target = row.target?.id;
+      if (row.targetDataset?.name)
+        params.targetDataset = row.targetDataset.name;
+      console.log(
+        "hoi " + JSON.stringify(row) + " => " + JSON.stringify(params)
+      );
+
+      //good guessing the parameters :-)
+      this.$router.push({
+        name: this.tableId + "-details",
+        params,
+      });
+    },
     routeParams(column, value) {
-      if (column.name === "tables") {
+      if (column.id === "datasets") {
         let result = {
-          pid: value.dataDictionary.resource.pid,
-          version: value.dataDictionary.version,
+          resource: value.resource.id,
           name: value.name,
         };
         return result;
+      } else if (column.name === "contacts") {
+        return {
+          resource: value.resource.id,
+          firstName: value.firstName,
+          lastName: value.lastName,
+        };
       } else {
         return value;
       }
@@ -124,7 +166,7 @@ export default {
       this.$emit("click", value);
     },
     renderValue(row, col) {
-      if (row[col.name] === undefined) {
+      if (row[col.id] === undefined) {
         return [];
       }
       if (
@@ -132,75 +174,45 @@ export default {
         col.columnType == "REFBACK" ||
         col.columnType == "ONTOLOGY_ARRAY"
       ) {
-        return row[col.name].map((v) => {
-          if (col.name === "tables") {
-            //hack, ideally we start setting refLabel in configuration!
+        return row[col.id].map((v) => {
+          if (col.id === "datasets") {
+            //hack, ideally we start setting refLabel in configuration! <= actually we do
             return v.name;
           } else if (col.refLabel) {
-            return this.applyJsTemplate(col.refLabel, v);
+            return applyJsTemplate(v, col.refLabel);
           } else {
-            return this.flattenObject(v);
+            return applyJsTemplate(v, col.refLabelDefault);
           }
         });
       } else if (col.columnType == "REF" || col.columnType == "ONTOLOGY") {
         if (col.refLabel) {
-          return [this.applyJsTemplate(col.refLabel, row[col.name])];
+          return [applyJsTemplate(row[col.id], col.refLabel)];
         } else {
-          return [this.flattenObject(row[col.name])];
+          return applyJsTemplate(row[col.id], col.refLabelDefault);
         }
       } else if (col.columnType.includes("ARRAY")) {
-        return row[col.name];
+        return row[col.id];
       } else {
-        return [row[col.name]];
+        return [row[col.id]];
       }
-    },
-    applyJsTemplate(template, object) {
-      const names = Object.keys(object);
-      const vals = Object.values(object);
-      try {
-        return new Function(...names, "return `" + template + "`;")(...vals);
-      } catch (err) {
-        return (
-          err.message +
-          " we got keys:" +
-          JSON.stringify(names) +
-          " vals:" +
-          JSON.stringify(vals) +
-          " and template: " +
-          template
-        );
-      }
-    },
-    flattenObject(object) {
-      let result = "";
-      Object.keys(object).forEach((key) => {
-        if (object[key] === null) {
-          //nothing
-        } else if (typeof object[key] === "object") {
-          result += this.flattenObject(object[key]);
-        } else {
-          result += "." + object[key];
-        }
-      });
-      return result.replace(/^\./, "");
     },
   },
   computed: {
     graphqlFilter() {
       var result = new Object();
-      result[this.refBack] = {
+      result[this.refBackId] = {
         equals: this.pkey,
       };
       return result;
     },
-    visibleColumnNames() {
-      return this.visibleColumns.map((c) => c.name);
+    visibleColumnIds() {
+      return this.visibleColumns.map((c) => c.id);
     },
     visibleColumns() {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.name != this.refBack && !c.name.startsWith("mg_")
+          (c) => c.id != this.refBackId && !c.id.startsWith("mg_")
         );
       }
       return [];
@@ -208,8 +220,10 @@ export default {
   },
   async created() {
     this.client = Client.newClient();
-    this.tableMetadata = await this.client.fetchTableMetaData(this.table);
-    this.refBackData = await this.client.fetchTableDataValues(this.table, { filter: this.graphqlFilter });
+    this.tableMetadata = await this.client.fetchTableMetaData(this.tableId);
+    this.refBackData = await this.client.fetchTableDataValues(this.tableId, {
+      filter: this.graphqlFilter,
+    });
   },
 };
 </script>

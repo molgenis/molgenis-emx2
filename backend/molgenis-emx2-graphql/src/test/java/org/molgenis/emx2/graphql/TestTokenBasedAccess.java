@@ -1,10 +1,10 @@
 package org.molgenis.emx2.graphql;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.JWTgenerator;
+import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestTokenBasedAccess {

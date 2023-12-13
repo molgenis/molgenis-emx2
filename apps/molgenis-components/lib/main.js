@@ -1,5 +1,6 @@
-import Client from "../src/client/client.js";
-import { request } from "../src/client/client.js";
+import Client from "../src/client/client.ts";
+import { request } from "../src/client/client.ts";
+import QueryEMX2 from "../src/queryEmx2/queryEmx2.js";
 
 //account
 import MolgenisAccount from "../src/components/account/MolgenisAccount.vue";
@@ -27,11 +28,13 @@ import FilterWell from "../src/components/filters/FilterWell.vue";
 import FilterWells from "../src/components/filters/FilterWells.vue";
 
 //forms
+import InputTextLocalized from "../src/components/forms/InputTextLocalized.vue";
 import ArrayInput from "../src/components/forms/ArrayInput.vue";
 import ButtonAction from "../src/components/forms/ButtonAction.vue";
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
 import ButtonDanger from "../src/components/forms/ButtonDanger.vue";
 import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
+import HtmlDropdown from "../src/components/forms/HtmlDropdown.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import ConfirmModal from "../src/components/forms/ConfirmModal.vue";
@@ -50,6 +53,7 @@ import InputDate from "../src/components/forms/InputDate.vue";
 import InputDateTime from "../src/components/forms/InputDateTime.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
 import InputFile from "../src/components/forms/InputFile.vue";
+import InputEmail from "../src/components/forms/InputEmail.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
 import InputInt from "../src/components/forms/InputInt.vue";
@@ -62,7 +66,7 @@ import InputRangeDate from "../src/components/forms/InputRangeDate.vue";
 import InputRangeDateTime from "../src/components/forms/InputRangeDateTime.vue";
 import InputRangeDecimal from "../src/components/forms/InputRangeDecimal.vue";
 import InputRangeInt from "../src/components/forms/InputRangeInt.vue";
-import InputRef from "../src/components/forms/InputRef.vue";
+import InputRangeLong from "../src/components/forms/InputRangeLong.vue";
 import InputRefBack from "../src/components/forms/InputRefBack.vue";
 import InputRefList from "../src/components/forms/InputRefList.vue";
 import InputRefSelect from "../src/components/forms/InputRefSelect.vue";
@@ -71,7 +75,11 @@ import InputSelect from "../src/components/forms/InputSelect.vue";
 import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputText from "../src/components/forms/InputText.vue";
+import InfoPopover from "../src/components/forms/InfoPopover.vue";
+import LocaleSwitch from "../src/components/account/LocaleSwitch.vue";
+import TooltipComponent from "../src/components/forms/TooltipComponent.vue";
 import Tooltip from "../src/components/forms/Tooltip.vue";
+
 import MessageError from "../src/components/forms/MessageError.vue";
 import MessageSuccess from "../src/components/forms/MessageSuccess.vue";
 import MessageWarning from "../src/components/forms/MessageWarning.vue";
@@ -80,6 +88,8 @@ import RowEditFooter from "../src/components/forms/RowEditFooter.vue";
 
 //layout
 import Breadcrumb from "../src/components/layout/Breadcrumb.vue";
+import CookieWall from "../src/components/layout/CookieWall.vue";
+import GTag from "../src/components/layout/GTag.vue";
 import LayoutCard from "../src/components/layout/LayoutCard.vue";
 import LayoutForm from "../src/components/layout/LayoutForm.vue";
 import LayoutModal from "../src/components/layout/LayoutModal.vue";
@@ -87,8 +97,11 @@ import Molgenis from "../src/components/layout/Molgenis.vue";
 import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
 import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
+import SimpleModal from "../src/components/layout/SimpleModal.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
+import Tab from "../src/components/layout/Tab.vue";
+import Tabs from "../src/components/layout/Tabs.vue";
 import VueTemplate from "../src/components/layout/VueTemplate.vue";
 
 //tables
@@ -125,9 +138,12 @@ import TaskManager from "../src/components/task/TaskManager.vue";
 //utils
 import {
   deepClone,
-  convertToCamelCase,
-  convertToPascalCase,
+  flattenObject,
+  applyJsTemplate,
 } from "../src/components/utils";
+
+import { getRowErrors } from "../src/components/forms/formUtils/formUtils";
+
 import constants, { privacyConstants } from "../src/components/constants";
 
 export {
@@ -158,21 +174,25 @@ export {
   ButtonSubmit,
   Client,
   ConfirmModal,
+  DataDisplayCell,
   EditModal,
   FileDisplay,
   FormGroup,
   FormInput,
   FormMolgenis,
+  HtmlDropdown,
   IconAction,
   IconBar,
   IconDanger,
   Info,
+  InputTextLocalized,
   InlineInput,
   InputBoolean,
   InputCheckbox,
   InputDate,
   InputDateTime,
   InputDecimal,
+  InputEmail,
   InputFile,
   InputGroup,
   InputInt,
@@ -185,7 +205,7 @@ export {
   InputRangeDate,
   InputRangeDateTime,
   InputRangeInt,
-  InputRef,
+  InputRangeLong,
   InputRefBack,
   InputRefList,
   InputRefSelect,
@@ -194,6 +214,8 @@ export {
   InputSelectInplace,
   InputString,
   InputText,
+  InfoPopover,
+  LocaleSwitch,
   MessageError,
   MessageSuccess,
   RowButtonAdd,
@@ -203,13 +225,15 @@ export {
   RowButtonEdit,
   RowEditFooter,
   Breadcrumb,
+  CookieWall,
+  GTag,
   LayoutCard,
   LayoutForm,
   LayoutModal,
   Molgenis,
+  Pagination,
   Spinner,
   VueTemplate,
-  DataDisplayCell,
   AggregateTable,
   RoutedTableExplorer,
   TableExplorer,
@@ -218,9 +242,12 @@ export {
   TableStickyHeaders,
   SubTask,
   Task,
+  Tab,
+  Tabs,
   TaskManager,
   TaskList,
   TextDisplay,
+  TooltipComponent,
   Tooltip,
   MolgenisAccount,
   MolgenisFooter,
@@ -228,11 +255,12 @@ export {
   MolgenisSession,
   MolgenisSignin,
   MolgenisSignup,
+  QueryEMX2,
   ReadMore,
   ShowHide,
   ShowMore,
+  SimpleModal,
   StringDisplay,
-  Pagination,
   RowButton,
   ListDisplay,
   ObjectDisplay,
@@ -241,6 +269,7 @@ export {
   constants,
   privacyConstants,
   request,
-  convertToPascalCase,
-  convertToCamelCase,
+  flattenObject,
+  applyJsTemplate,
+  getRowErrors,
 };

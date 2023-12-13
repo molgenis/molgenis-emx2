@@ -3,10 +3,11 @@
     <RowButton type="delete" @delete="isModalShown = true" />
     <ConfirmModal
       v-if="isModalShown"
-      :title="'Delete from ' + tableName"
+      :title="'Delete from ' + tableId"
       actionLabel="Delete"
       actionType="danger"
-      :tableName="tableName"
+      :tableId="tableId"
+      :tableLable="tableLabel"
       :pkey="pkey"
       @close="handleClose"
       @confirmed="handleExecuteDelete"
@@ -17,7 +18,7 @@
 <script>
 import RowButton from "./RowButton.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 
 export default {
   name: "RowButtonDelete",
@@ -27,17 +28,20 @@ export default {
       type: String,
       required: true,
     },
-    tableName: {
+    tableId: {
+      type: String,
+      required: true,
+    },
+    tableLabel: {
       type: String,
       required: true,
     },
     pkey: {
       type: Object,
     },
-    graphqlURL: {
+    schemaId: {
       type: String,
       required: false,
-      default: () => "graphql",
     },
   },
   data() {
@@ -49,14 +53,14 @@ export default {
   methods: {
     async handleExecuteDelete() {
       if (!this.client) {
-        this.client = Client.newClient(this.graphqlURL);
+        this.client = Client.newClient(this.schemaId);
       }
-      this.client
-        .deleteRow(this.pkey, this.tableName)
+      await this.client
+        .deleteRow(this.pkey, this.tableId)
         .then(() => {
           this.$emit("success", {
             deletedKey: this.pkey,
-            deleteFrom: this.tableName,
+            deleteFrom: this.tableId,
           });
         })
         .catch((error) => {
@@ -85,9 +89,10 @@ export default {
     <div>
       <RowButtonDelete
           id="row-delete-btn-sample"
-          tableName="Pet"
+          tableId="Pet"
+          tableLabel="Pet"
           :pkey="{name: 'pooky'}"
-          graphqlURL="/pet store/graphql"
+          schemaId="pet store"
           @error="handleError"
           @success="handleSuccess"
       />

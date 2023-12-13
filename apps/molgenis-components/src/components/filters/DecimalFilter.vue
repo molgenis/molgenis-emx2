@@ -1,5 +1,9 @@
 <template>
-  <InputRangeDecimal :id="id" :modelValue="condition" @update:modelValue="onUpdateCondition">
+  <InputRangeDecimal
+    :id="id"
+    :modelValue="condition"
+    @update:modelValue="onUpdateCondition"
+  >
     <template v-slot:append>
       <button
         v-if="condition"

@@ -13,12 +13,7 @@
         :class="{ 'is-invalid': errorMessage }"
         :placeholder="placeholder"
         :required="required"
-        @update:modelValue="
-          $emit(
-            'update:modelValue',
-            $event
-          )
-        "
+        @update:modelValue="$emit('update:modelValue', $event)"
       />
       <template v-slot:append>
         <slot name="append" />

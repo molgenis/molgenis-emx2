@@ -17,6 +17,12 @@
           >
             {{ showDiagram ? "Hide" : "Show" }} Diagram
           </ButtonAction>
+          <ButtonAction href="./#/print" target="_blank" class="ml-2">
+            Show printable table
+          </ButtonAction>
+          <ButtonAction href="./#/print-list" target="_blank" class="ml-2">
+            Show printable list
+          </ButtonAction>
           <MessageError v-if="error" class="ml-2 m-0 p-2">
             {{ error }}
           </MessageError>
@@ -42,12 +48,24 @@
       </div>
       <div class="bg-white col ml-2 overflow-auto">
         <a id="molgenis_diagram_anchor"></a>
-        <NomnomDiagram :schema="schema" v-if="showDiagram" />
+        <InputBoolean
+          v-if="showDiagram"
+          id="showColumns"
+          label="Show columns"
+          :required="true"
+          v-model="showColumns"
+        />
+        <SchemaDiagram
+          :tables="schema.tables.filter((table) => table.tableType === 'DATA')"
+          :showColumns="showColumns"
+          v-if="showDiagram"
+        />
         <SchemaView
           :modelValue="schema"
           :schemaNames="schemaNames"
           @update:modelValue="handleInput"
           :isManager="isManager"
+          :locales="session?.settings?.locales"
         />
       </div>
     </div>
@@ -58,13 +76,22 @@
 table {
   table-layout: fixed;
 }
+
+/*
+  Work around for bootstrap 4 interaction effect with dropdown ( from Breadcrumb )
+  Use the available space between z layers to move the sticky app header below the menu dropdown and modals
+  1000 - 2 = 998
+*/
+.sticky-top {
+  z-index: 998;
+}
 </style>
 
 <script>
 import { request } from "graphql-request";
 import SchemaView from "./SchemaView.vue";
 import SchemaToc from "./SchemaToc.vue";
-import NomnomDiagram from "./NomnomDiagram.vue";
+import SchemaDiagram from "./SchemaDiagram.vue";
 import {
   ButtonAction,
   MessageError,
@@ -72,11 +99,19 @@ import {
   MessageWarning,
   Spinner,
   deepClone,
+  InputBoolean,
 } from "molgenis-components";
-import VueScrollTo from 'vue-scrollto';
+import VueScrollTo from "vue-scrollto";
+import {
+  schemaQuery,
+  addOldNamesAndRemoveMeta,
+  convertToSubclassTables,
+} from "../utils.ts";
+import gql from "graphql-tag";
 
 export default {
   components: {
+    InputBoolean,
     SchemaView,
     ButtonAction,
     MessageError,
@@ -84,7 +119,12 @@ export default {
     MessageSuccess,
     SchemaToc,
     Spinner,
-    NomnomDiagram,
+    SchemaDiagram,
+  },
+  props: {
+    session: {
+      type: Object,
+    },
   },
   data() {
     return {
@@ -95,6 +135,7 @@ export default {
       warning: null,
       success: null,
       showDiagram: false,
+      showColumns: false,
       schemaNames: [],
       dirty: false,
       key: Date.now(),
@@ -147,6 +188,7 @@ export default {
         }
       });
       tables.forEach((table) => {
+        delete table.schemaId;
         table.columns = table.columns
           ? table.columns.filter((column) => column.table === table.name)
           : [];
@@ -156,7 +198,13 @@ export default {
       tables.push(...schema.ontologies);
       request(
         "graphql",
-        `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message} }`,
+        gql`
+          mutation change($tables: [MolgenisTableInput]) {
+            change(tables: $tables) {
+              message
+            }
+          }
+        `,
         {
           tables: tables,
         }
@@ -182,13 +230,11 @@ export default {
     loadSchema() {
       this.error = null;
       this.loading = true;
-      request(
-        "graphql",
-        "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,readonly,description,semantics,validation,visible} } } }"
-      )
+      const query = schemaQuery;
+      request("graphql", query)
         .then((data) => {
-          this.rawSchema = this.addOldNamesAndRemoveMeta(data._schema);
-          this.schema = this.convertToSubclassTables(this.rawSchema);
+          this.rawSchema = addOldNamesAndRemoveMeta(data._schema);
+          this.schema = convertToSubclassTables(this.rawSchema);
           this.schemaNames = data._session.schemas;
           this.loading = false;
           this.key = Date.now();
@@ -203,90 +249,6 @@ export default {
           }
           this.loading = false;
         });
-    },
-    addOldNamesAndRemoveMeta(rawSchema) {
-      //deep copy to not change the input
-      const schema = deepClone(rawSchema);
-      if (schema) {
-        //normal tables
-        let tables = !schema.tables
-          ? []
-          : schema.tables.filter(
-              (table) =>
-                table.tableType !== "ONTOLOGIES" &&
-                table.externalSchema === undefined
-            );
-        tables.forEach((t) => {
-          t.oldName = t.name;
-          if (t.columns) {
-            t.columns = t.columns
-              .filter((c) => !c.name.startsWith("mg_"))
-              .map((c) => {
-                c.oldName = c.name;
-                return c;
-              })
-              .filter((c) => !c.inherited);
-          } else {
-            t.columns = [];
-          }
-        });
-        schema.ontologies = !schema.tables
-          ? []
-          : schema.tables.filter(
-              (table) =>
-                table.tableType === "ONTOLOGIES" &&
-                table.externalSchema === undefined
-            );
-        //set old name so we can delete them properly
-        schema.ontologies.forEach((o) => {
-          o.oldName = o.name;
-        });
-        schema.tables = tables;
-      }
-
-      return schema;
-    },
-    convertToSubclassTables(rawSchema) {
-      //deep copy to not change the input
-      const schema = deepClone(rawSchema);
-      //columns of subclasses should be put in root tables, sorted by position
-      // this because position can only edited in context of root table
-      schema.tables.forEach((table) => {
-        if (table.inherit === undefined) {
-          this.getSubclassTables(schema, table.name).forEach((subclass) => {
-            //get columns from subclass tables
-            table.columns.push(...subclass.columns);
-            //remove the columns from subclass table
-            subclass.columns = [];
-            subclass.oldName = subclass.name;
-            //add subclass to root table
-            if (!table.subclasses) {
-              table.subclasses = [subclass];
-            } else {
-              table.subclasses.push(subclass);
-            }
-          });
-        }
-        //sort
-        table.columns.sort((a, b) => a.position - b.position);
-      });
-      //remove the subclass tables
-      schema.tables = schema.tables.filter(
-        (table) => table.inherit === undefined
-      );
-      return schema;
-    },
-    getSubclassTables(schema, tableName) {
-      let subclasses = schema.tables.filter(
-        (table) => table.inherit === tableName
-      );
-      return subclasses.concat(
-        subclasses
-          .map((table) => {
-            return this.getSubclassTables(schema, table.name);
-          })
-          .flat(1)
-      );
     },
   },
   created() {

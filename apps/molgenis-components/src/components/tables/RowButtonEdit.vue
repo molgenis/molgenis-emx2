@@ -2,15 +2,17 @@
   <span>
     <RowButton type="edit" @edit="isModalShown = true" />
     <EditModal
+      v-if="isModalShown"
       :id="id + 'edit-modal'"
-      :tableName="tableName"
+      :tableId="tableId"
       :pkey="pkey"
       :isModalShown="isModalShown"
-      :graphqlURL="graphqlURL"
+      :schemaId="schemaId"
+      :visibleColumns="visibleColumns"
       @close="handleClose"
     />
   </span>
-</template> 
+</template>
 
 <script>
 import RowButton from "./RowButton.vue";
@@ -22,17 +24,21 @@ export default {
       type: String,
       required: true,
     },
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    graphqlURL: {
+    schemaId: {
       type: String,
       required: false,
-      default: () => "graphql",
     },
     pkey: {
       type: Object,
+    },
+    visibleColumns: {
+      type: Array,
+      required: false,
+      default: () => null,
     },
   },
   data() {
@@ -50,17 +56,30 @@ export default {
 </script>
 
 <docs>
-  <template>
+<template>
+  <div>
+    <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
     <div>
-      <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
-      <div>
-        <RowButtonEdit 
-          id="row-edit-btn-sample" 
-          tableName="Pet"
+      <RowButtonEdit
+          id="row-edit-btn-sample"
+          tableId="Pet"
           :pkey="{name: 'pooky'}"
-          graphqlURL="/pet store/graphql"
-        />
-      </div>
+          schemaId="pet store"
+      />
     </div>
-  </template>
+  </div>
+  <p>With only few columns visible</p>
+  <div>
+    <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
+    <div>
+      <RowButtonEdit
+          id="row-edit-btn-sample"
+          tableId="Pet"
+          :pkey="{name: 'pooky'}"
+          schemaId="pet store"
+          :visibleColumns="['name']"
+      />
+    </div>
+  </div>
+</template>
 </docs>

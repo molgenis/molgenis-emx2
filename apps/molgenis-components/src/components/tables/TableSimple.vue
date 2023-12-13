@@ -15,14 +15,14 @@
         <tr v-for="row in rows" :key="JSON.stringify(row)">
           <td v-if="hasColheader">
             <div style="display: flex">
-              <slot name="rowheader" :row="row" />
               <input
                 class="form-check form-check-inline mr-1"
                 v-if="selectColumn"
                 type="checkbox"
                 :checked="isSelected(row)"
-                @click="onRowClick(row)"
+                @click.stop="toggleSelect(row)"
               />
+              <slot name="rowheader" :row="row" />
             </div>
           </td>
           <td
@@ -36,7 +36,9 @@
                 {{ item }}
               </li>
             </ul>
-            <span v-else-if="row[col]">{{ flattenObject(row[col]) }}</span>
+            <span v-else-if="row[col] !== undefined">{{
+              flattenObject(row[col])
+            }}</span>
           </td>
         </tr>
       </tbody>
@@ -62,16 +64,13 @@ export default {
       selectedItems: [],
     };
   },
-  watch: {
-    selectedItems() {
-      this.$emit("input", this.selectedItems);
-    },
-  },
   created() {
-    if (this.defaultValue instanceof Array) {
+    if (Array.isArray(this.defaultValue)) {
       this.selectedItems = this.defaultValue;
-    } else {
+    } else if (this.defaultValue !== null) {
       this.selectedItems.push(this.defaultValue);
+    } else {
+      this.selectedItems = [];
     }
   },
   computed: {
@@ -89,7 +88,7 @@ export default {
   methods: {
     flattenObject(object) {
       let result = "";
-      if (typeof object === "object") {
+      if (object && object.length > 0 && typeof object === "object") {
         Object.keys(object).forEach((key) => {
           if (object[key] === null) {
             //nothing
@@ -99,33 +98,33 @@ export default {
             result += " " + object[key];
           }
         });
+        return result.replace(/^\./, "");
       } else {
-        result = object;
+        return object;
       }
-      return result.replace(/^\./, "");
     },
     isSelected(row) {
       return (
-        this.selectedItems != null &&
+        this.selectedItems !== null &&
         this.selectedItems.includes(row[this.selectColumn])
       );
     },
-    onRowClick(row) {
-      if (this.selectColumn) {
-        if (this.isSelected(row)) {
-          /** when a row is deselected */
-          this.selectedItems = this.selectedItems.filter(
-            (item) => item !== row[this.selectColumn]
-          );
-          this.$emit("deselect", row[this.selectColumn]);
-        } else {
-          /** when a row is selected */
-          this.selectedItems.push(row[this.selectColumn]);
-          this.$emit("select", row[this.selectColumn]);
-        }
+    toggleSelect(row) {
+      if (this.isSelected(row)) {
+        /** when a row is deselected */
+        this.selectedItems = this.selectedItems.filter(
+          (item) => item !== row[this.selectColumn]
+        );
+        this.$emit("deselect", row[this.selectColumn]);
       } else {
-        this.$emit("click", row);
+        /** when a row is selected */
+        this.selectedItems.push(row[this.selectColumn]);
+        this.$emit("select", row[this.selectColumn]);
       }
+      this.$emit("update:modelValue", this.selectedItems);
+    },
+    onRowClick(row) {
+      this.$emit("rowClick", row);
     },
   },
 };

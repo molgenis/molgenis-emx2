@@ -6,17 +6,17 @@
     <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     <Spinner v-if="loading" />
     <div v-else class="container">
-      <div>
+      <div class="mb-2">
         <IconAction @click="addItem" icon="plus" />
         <ButtonAlt @click="reset">Reset</ButtonAlt>
         <ButtonAction @click="saveSettings">Save</ButtonAction>
       </div>
-      <br />
       <MenuDesign
         :items="draft"
         :key="key"
         @change="sanitizeDraft"
         @add="addItem"
+        @delete="deleteItem"
       />
     </div>
     <div>
@@ -109,11 +109,14 @@ export default {
       this.draft.unshift({ label: "new", href: "" });
       this.updateKey();
     },
+    deleteItem(value) {
+      this.draft = this.draft.filter((item) => item.key !== value);
+    },
     updateKey() {
       this.key = Math.random().toString(36).substring(7);
     },
     reset() {
-      if (this.session && this.session.settings && this.session.settings.menu) {
+      if (this.session?.settings?.menu) {
         this.draft = JSON.parse(JSON.stringify(this.session.settings.menu));
       } else {
         //deep clone

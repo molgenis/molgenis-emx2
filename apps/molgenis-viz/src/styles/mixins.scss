@@ -1,0 +1,84 @@
+// set chart title
+@mixin setChartTitle($font-size: 1.1rem) {
+  font-size: $font-size;
+  padding: 0;
+  margin-bottom: 0.5em;
+  text-align: center;
+}
+
+// set svg icon dimensions
+@mixin setIconSize($size: 18pt) {
+  width: $size;
+  height: $size;
+}
+
+// apply uppercase treatment to text elements
+@mixin textTransform($weight: 400) {
+  text-transform: uppercase;
+  font-size: 11pt;
+  font-weight: $weight;
+  letter-spacing: 0.08em;
+}
+
+// properly hide elements visually
+@mixin visuallyHidden {
+  position: absolute;
+  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+  clip: rect(1px, 1px, 1px, 1px);
+  overflow: hidden;
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  white-space: nowrap;
+}
+
+// apply uppercase treatment to href elements
+@mixin linkTextTransform {
+  @include textTransform;
+
+  a {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// style <a> element as a link
+@mixin setLinkAsButton(
+  $width: 100%,
+  $background-color: $blue-600,
+  $color: $gray-000,
+  $border-radius: 12pt
+) {
+  display: block;
+  width: $width;
+  padding: 0.6em 0;
+  background-color: none;
+  text-align: center;
+  background-color: $background-color;
+  color: $color;
+  border-radius: $border-radius;
+}
+
+// position all child elements to the top left corner
+@mixin flexStartAll {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+// position all child elements: top center
+@mixin flexStartCenter {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+// center all child elements
+@mixin flexCenterAll {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

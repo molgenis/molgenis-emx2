@@ -15,40 +15,27 @@
       class="mg-dropdown-drop bg-white border rounded"
       ref="dropdown"
       v-click-outside="toggle"
+      @click="handleOnClick"
     >
       <slot :close="toggle" />
     </span>
   </span>
 </template>
 
-<style  scoped>
-span.mg-dropdown-drop {
-  /* bootstrap dropdown z-index */
-  z-index: 1000;
-}
-</style>
-
 <script>
 import vClickOutside from "click-outside-vue3";
-import Popper from "popper.js";
+import { createPopper } from "@popperjs/core";
 
 export default {
   directives: {
     clickOutside: vClickOutside.directive,
   },
   props: {
-    label: String,
-    icon: {
-      type: String,
-      required: false,
-      default: "",
-    },
-    isMenuItem: Boolean,
-    placement: {
-      type: String,
-      required: false,
-      default: () => "bottom-start",
-    },
+    label: { type: String, required: true },
+    icon: { type: String, default: "" },
+    isMenuItem: { type: Boolean, required: false },
+    placement: { type: String, default: "bottom-start" },
+    closeOnClick: { type: Boolean, default: false },
   },
   data() {
     return {
@@ -57,13 +44,18 @@ export default {
     };
   },
   methods: {
+    handleOnClick() {
+      if (this.closeOnClick) {
+        this.display = !this.display;
+      }
+    },
     async toggle() {
       this.display = !this.display;
       if (this.display) {
         await this.$nextTick();
         const dropDownBtn = this.$refs["showInputButton"];
         const dropDownContent = this.$refs["dropdown"];
-        this.popperInstance = new Popper(dropDownBtn, dropDownContent, {
+        this.popperInstance = createPopper(dropDownBtn, dropDownContent, {
           placement: this.placement,
           modifiers: { offset: { offset: "0,2px" } },
         });
@@ -74,6 +66,13 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+span.mg-dropdown-drop {
+  /* bootstrap dropdown z-index */
+  z-index: 1000;
+}
+</style>
 
 <docs>
 <template>
@@ -89,9 +88,17 @@ export default {
 
   <ButtonDropdown class="ml-3" label="with menu">
       <div>
-        <a class="dropdown-item" href="#">Action</a>
-        <a class="dropdown-item" href="#">Another action</a>
-        <a class="dropdown-item" href="#">Something else here</a>
+        <a class="dropdown-item">Action</a>
+        <a class="dropdown-item">Another action</a>
+        <a class="dropdown-item">Something else here</a>
+      </div>
+  </ButtonDropdown>
+
+  <ButtonDropdown :closeOnClick="true" class="ml-3" label="closes on click">
+      <div>
+        <a class="dropdown-item">Action</a>
+        <a class="dropdown-item">Another action</a>
+        <a class="dropdown-item">Something else here</a>
       </div>
   </ButtonDropdown>
 

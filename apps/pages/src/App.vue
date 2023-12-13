@@ -1,6 +1,6 @@
 <template>
   <Molgenis id="__top" v-model="session">
-    <router-view :session="session"/>
+    <router-view :session="session" />
   </Molgenis>
 </template>
 
@@ -9,12 +9,12 @@ import { Molgenis } from "molgenis-components";
 
 export default {
   components: {
-    Molgenis
+    Molgenis,
   },
   data() {
     return {
-      session: null
+      session: null,
     };
-  }
+  },
 };
 </script>

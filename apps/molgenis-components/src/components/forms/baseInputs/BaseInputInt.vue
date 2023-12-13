@@ -27,10 +27,9 @@ export default {
   methods: {
     emitIfValid(event) {
       const value = event.target.value;
-      if (value === "" || value === NaN) {
+      if (isNaN(value) || !value) {
         this.$emit("update:modelValue", null);
-      }
-      if (!isNaN(value)) {
+      } else {
         this.$emit("update:modelValue", parseInt(value));
       }
     },

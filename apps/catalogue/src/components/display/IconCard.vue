@@ -2,13 +2,17 @@
   <div class="card">
     <div class="card-body">
       <h5 class="card-title">
-        <component :is="icon" :size="iconSize.toString()" class="mg-card-icon" />
+        <component
+          :is="icon"
+          :size="iconSize.toString()"
+          class="mg-card-icon"
+        />
         {{ cardTitle }}
       </h5>
       <slot></slot>
     </div>
     <div v-if="footerText" class="card-footer">
-      <small class="text-muted">{{footerText}}</small>
+      <small class="text-muted">{{ footerText }}</small>
     </div>
   </div>
 </template>
@@ -42,10 +46,10 @@ export default {
       required: false,
     },
     iconSize: {
-        type: Number,
-        required: false,
-        default: () => 62
-    }
+      type: Number,
+      required: false,
+      default: () => 62,
+    },
   },
   components: {
     DatabaseIcon,
@@ -56,7 +60,7 @@ export default {
     NewsIcon,
     ClockIcon,
     AffiliateIcon,
-  }
+  },
 };
 </script>
 

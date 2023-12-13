@@ -1,33 +1,31 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.convertMapToFilterArray;
+import static org.molgenis.emx2.io.emx2.Emx2.getHeaders;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
+import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.Table;
+import java.util.Map;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import spark.Request;
 import spark.Response;
 
 public class CsvApi {
-
-  public static final String MUTATION_REQUEST = "mutationRequestType";
-  public static final String ERROR_MESSAGE = "errorMessageType";
-  public static final String SUCCESS_MESSAGE = "successMessageType";
-  public static final String CSV_OUTPUT = "csvOutputType";
-  public static final String META = "_meta";
-
   private CsvApi() {
     // hide constructor
   }
@@ -60,7 +58,7 @@ public class CsvApi {
 
     if (fileNameMatchesTable) {
       // so we assume it isn't meta data
-      int count = MolgenisWebservice.getTable(request, fileName).save(getRowList(request));
+      int count = MolgenisWebservice.getTableById(request, fileName).save(getRowList(request));
       response.status(200);
       response.type(ACCEPT_CSV);
       return "imported number of rows: " + count;
@@ -75,7 +73,11 @@ public class CsvApi {
   static String getMetadata(Request request, Response response) throws IOException {
     Schema schema = getSchema(request);
     StringWriter writer = new StringWriter();
-    CsvTableWriter.write(Emx2.toRowList(schema.getMetadata()), writer, getSeperator(request));
+    CsvTableWriter.write(
+        Emx2.toRowList(schema.getMetadata()),
+        getHeaders(schema.getMetadata()),
+        writer,
+        getSeperator(request));
     response.type(ACCEPT_CSV);
     String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
     response.header(
@@ -86,18 +88,43 @@ public class CsvApi {
   }
 
   private static String tableRetrieve(Request request, Response response) throws IOException {
-    Table table = MolgenisWebservice.getTable(request);
-    List<Row> rows = table.retrieveRows();
-    StringWriter writer = new StringWriter();
-    CsvTableWriter.write(rows, writer, getSeperator(request));
+    Table table = MolgenisWebservice.getTableById(request);
+    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeperator(request));
+    store.writeTable(
+        table.getName(), getDownloadColumns(request, table), getDownloadRows(request, table));
     response.type(ACCEPT_CSV);
     response.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
     response.status(200);
-    return writer.toString();
+    return store.getCsvString(table.getName());
+  }
+
+  public static List<String> getDownloadColumns(Request request, Table table) {
+    boolean includeSystem = includeSystemColumns(request);
+    return table.getMetadata().getDownloadColumnNames().stream()
+        .map(column -> column.getName())
+        .filter(name -> !name.startsWith("mg_") || includeSystem)
+        .toList();
+  }
+
+  public static List<Row> getDownloadRows(Request request, Table table)
+      throws JsonProcessingException {
+    Query q = table.query();
+    // extract filter argument if exists
+    if (request.queryParams(GraphqlConstants.FILTER_ARGUMENT) != null) {
+      // gonna use the graphql filter parser so we can easily reuse graphql table level filter
+      // expressions
+      q.where(
+          convertMapToFilterArray(
+              table.getMetadata(),
+              new ObjectMapper()
+                  .readValue(request.queryParams(GraphqlConstants.FILTER_ARGUMENT), Map.class)));
+    }
+    List<Row> rows = q.retrieveRows();
+    return rows;
   }
 
   private static String tableUpdate(Request request, Response response) {
-    int count = MolgenisWebservice.getTable(request).save(getRowList(request));
+    int count = MolgenisWebservice.getTableById(request).save(getRowList(request));
     response.status(200);
     response.type(ACCEPT_CSV);
     return "" + count;
@@ -108,7 +135,7 @@ public class CsvApi {
   }
 
   private static String tableDelete(Request request, Response response) {
-    int count = MolgenisWebservice.getTable(request).delete(getRowList(request));
+    int count = MolgenisWebservice.getTableById(request).delete(getRowList(request));
     response.type(ACCEPT_CSV);
     response.status(200);
     return "" + count;

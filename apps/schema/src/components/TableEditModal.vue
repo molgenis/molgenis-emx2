@@ -1,9 +1,8 @@
 <template>
   <LayoutModal
-    v-if="show === true"
+    v-if="modalVisible === true"
     :title="title"
-    @close="close"
-    :isCloseButtonShown="!isDisabled"
+    :isCloseButtonShown="false"
   >
     <template v-slot:body>
       <MessageWarning v-if="table.drop">Marked for deletion</MessageWarning>
@@ -13,15 +12,22 @@
         label="Name"
         :errorMessage="nameInvalid"
       />
-      <InputText
+      <InputTextLocalized
+        id="table_label"
+        v-model="table.labels"
+        label="label"
+        :locales="locales"
+      />
+      <InputTextLocalized
         id="table_description"
-        v-model="table.description"
-        label="Description"
+        v-model="table.descriptions"
+        label="description"
+        :locales="locales"
       />
       <InputSelect
         v-if="rootTable !== undefined"
         id="table_extends"
-        v-model="table.inherit"
+        v-model="table.inheritName"
         :required="true"
         :options="inheritOptions"
         :readonly="table.oldName !== undefined"
@@ -37,7 +43,9 @@
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="cancel">Cancel</ButtonAlt>
-      <ButtonAction @click="close" :disabled="isDisabled">Apply</ButtonAction>
+      <ButtonAction @click="emitOperation" :disabled="isDisabled"
+        >Apply</ButtonAction
+      >
     </template>
   </LayoutModal>
   <IconAction
@@ -51,7 +59,6 @@
 <script>
 import {
   InputString,
-  InputText,
   LayoutModal,
   IconAction,
   ButtonAction,
@@ -59,18 +66,19 @@ import {
   InputSelect,
   ButtonAlt,
   deepClone,
+  InputTextLocalized,
 } from "molgenis-components";
 
 export default {
   components: {
     LayoutModal,
     InputString,
-    InputText,
     IconAction,
     ButtonAction,
     MessageWarning,
     InputSelect,
     ButtonAlt,
+    InputTextLocalized,
   },
   props: {
     /** Existing Table metadata object entered as v-model. In case of a new table this should be left empty. */
@@ -97,13 +105,17 @@ export default {
     tableType: {
       type: String,
     },
+    locales: {
+      type: Array,
+      default: ["en"],
+    },
   },
   data: function () {
     return {
       /** copy of table metadata being edited now */
       table: {},
-      /** whether modal is shown */
-      show: false,
+      /** whether modal is visible */
+      modalVisible: false,
     };
   },
   computed: {
@@ -155,12 +167,12 @@ export default {
       return null;
     },
     subclassInvalid() {
-      return this.inheritOptions && this.table.inherit === undefined
+      return this.inheritOptions && this.table.inheritName === undefined
         ? "Extends is required in case of subclass"
         : null;
     },
     isDisabled() {
-      return this.nameInvalid || this.subclassInvalid;
+      return this.nameInvalid !== null || this.subclassInvalid !== null;
     },
   },
   methods: {
@@ -168,29 +180,26 @@ export default {
       if (!this.modelValue) {
         this.table = {};
       }
-      this.show = true;
+      this.modalVisible = true;
     },
-    close() {
-      this.show = false;
+    emitOperation() {
       this.$emit(this.operation, this.table);
+      this.modalVisible = false;
     },
     cancel() {
-      //set
+      this.reset();
+      this.modalVisible = false;
+    },
+    reset() {
       if (this.modelValue) {
         this.table = deepClone(this.modelValue);
       } else {
         this.table = {};
       }
-      this.show = false;
     },
   },
   created() {
-    //deep copy
-    if (this.modelValue) {
-      this.table = deepClone(this.modelValue);
-    } else {
-      this.table = {};
-    }
+    this.reset();
   },
   emits: ["add", "update:modelValue"],
 };

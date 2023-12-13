@@ -7,7 +7,7 @@
       :key="id + '-' + index"
       :row="row"
       :columns="columns"
-      :tableName="tableName"
+      :tableId="tableId"
       :can-edit="canEdit"
       :template="template"
       @reload="$emit('reload')"
@@ -18,19 +18,20 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
 import RowCard from "./RowCard.vue";
 
-export default {
+export default defineComponent({
   name: "RecordCards",
   components: { RowCard },
   props: {
     id: { type: String, required: true },
     data: { type: Array, default: () => [] },
     columns: { type: Array, default: () => [] },
-    tableName: { type: String, required: true },
+    tableId: { type: String, required: true },
     canEdit: { type: Boolean, default: false },
     template: { type: String, required: false },
   },
-};
+});
 </script>

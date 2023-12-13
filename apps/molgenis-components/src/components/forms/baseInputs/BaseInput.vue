@@ -12,7 +12,7 @@ export default {
     },
     /**
      * Name of the element. For example used by the server to identify the fields in form submits.
-     * relates to EMX2 columnName
+     * relates to EMX2 columnId
      */
     name: {
       type: String,
@@ -24,7 +24,7 @@ export default {
     },
     /**
      * Caption for an item in a user interface.
-     * relates to EMX2 columnName
+     * relates to EMX2 label
      */
     label: {
       type: String,
@@ -57,11 +57,7 @@ export default {
   },
   computed: {
     placeholderValue() {
-      return this.placeholder !== null &&
-        this.placeholder !== undefined &&
-        this.placeholder.length
-        ? this.placeholder
-        : this.label;
+      return this.placeholder;
     },
   },
   emits: ["update:modelValue"],

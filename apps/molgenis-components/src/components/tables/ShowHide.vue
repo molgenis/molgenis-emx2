@@ -13,7 +13,7 @@
       </b>
       <div v-for="(col, key) in columns" :key="key">
         <span v-if="exclude.length == 0 || !exclude.includes(col.columnType)">
-          <b class="ml-0" v-if="col.name == 'mg_draft'">
+          <b class="ml-0" v-if="col.id == 'mg_draft'">
             metadata (
             <ButtonAlt class="pl-0" @click="showAll(false)">all</ButtonAlt>
             <ButtonAlt class="p-0" @click="hideAll(false)">none</ButtonAlt>
@@ -29,10 +29,10 @@
                   : col[checkAttribute]
               "
               @input.prevent="change(key, !col[checkAttribute])"
-              :id="col.name"
+              :id="col.id"
             />
-            <label class="form-check-label" :for="col.name">
-              {{ col.name }}
+            <label class="form-check-label" :for="col.id">
+              {{ col.label }}
             </label>
           </div>
         </span>
@@ -83,8 +83,8 @@ export default {
       let update = JSON.parse(JSON.stringify(this.columns));
       for (var key in update) {
         if (
-          (data && !update[key].name.startsWith("mg_")) ||
-          (!data && update[key].name.startsWith("mg_"))
+          (data && !update[key].id.startsWith("mg_")) ||
+          (!data && update[key].id.startsWith("mg_"))
         ) {
           update[key][this.checkAttribute] = false;
         }
@@ -95,8 +95,8 @@ export default {
       let update = JSON.parse(JSON.stringify(this.columns));
       for (var key in update) {
         if (
-          (data && !update[key].name.startsWith("mg_")) ||
-          (!data && update[key].name.startsWith("mg_"))
+          (data && !update[key].id.startsWith("mg_")) ||
+          (!data && update[key].id.startsWith("mg_"))
         ) {
           update[key][this.checkAttribute] = true;
         }
@@ -146,7 +146,7 @@ export default {
     },
   },
   mounted: async function () {
-    const client = this.$Client.newClient("/pet store/graphql");
+    const client = this.$Client.newClient("pet store");
     const tableMetaData = await client.fetchTableMetaData("Pet");
     this.columns = tableMetaData.columns;
   },

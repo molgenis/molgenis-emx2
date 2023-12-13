@@ -1,62 +1,60 @@
 package org.molgenis.emx2.utils;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.script.*;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Engine;
+import org.graalvm.polyglot.HostAccess;
+import org.graalvm.polyglot.Value;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
 
 public class JavaScriptUtils {
 
-  private static ScriptEngine engine = new ScriptEngineManager().getEngineByName("graal.js");
-  private static Bindings valueBindings = engine.createBindings();
-  private static Map<String, CompiledScript> cache = new LinkedHashMap<>();
+  private static final Engine engine =
+      Engine.newBuilder()
+          .allowExperimentalOptions(true)
+          .option("engine.WarnInterpreterOnly", "false")
+          .build();
 
   private JavaScriptUtils() {
     // hide constructor
   }
 
-  public static String executeJavascriptOnValue(String script, Object value) {
-    try {
-      valueBindings.put("value", value);
-      return execute(script, valueBindings);
-    } catch (ScriptException e) {
-      throw new MolgenisException("Validation system failed", e);
-    }
+  public static Object executeJavascript(String script) {
+    return executeJavascript(script, Object.class);
   }
 
-  public static String executeJavascriptOnMap(String script, Map<String, Object> map) {
+  public static Object executeJavascript(String script, Class clazz) {
+    return executeJavascriptOnMap(script, null, clazz);
+  }
+
+  public static Object executeJavascriptOnMap(String script, Map<String, Object> values) {
+    return executeJavascriptOnMap(script, values, Object.class);
+  }
+
+  public static Object executeJavascriptOnMap(
+      String script, Map<String, Object> values, Class clazz) {
     try {
-      // ScriptEngine engine = new NashornScriptEngineFactory().getScriptEngine("--language=es6");
-      Bindings bindings = engine.createBindings();
-      for (Map.Entry<String, Object> col : map.entrySet()) {
-        bindings.put(col.getKey(), col.getValue());
+      final Context context =
+          Context.newBuilder("js")
+              .allowHostAccess(
+                  HostAccess.newBuilder()
+                      .allowArrayAccess(true)
+                      .allowListAccess(true)
+                      .allowMapAccess(true)
+                      .allowAllClassImplementations(true)
+                      .build())
+              .engine(engine)
+              .build();
+      Value bindings = context.getBindings("js");
+      if (values != null) {
+        for (Map.Entry<String, Object> entry : values.entrySet()) {
+          bindings.putMember(entry.getKey(), entry.getValue());
+        }
       }
-      return engine.eval(script, bindings).toString();
+      String scriptWithFixedRegex = script.replace("\\\\", "\\");
+      return context.eval("js", scriptWithFixedRegex).as(clazz);
     } catch (Exception e) {
-      throw new MolgenisException("Compute value failed on script [" + script + "]", e);
+      throw new MolgenisException("script failed: " + e.getMessage());
     }
-  }
-
-  public static String executeJavascriptOnRow(String script, Row row) {
-    try {
-      // ScriptEngine engine = new NashornScriptEngineFactory().getScriptEngine("--language=es6");
-      Bindings bindings = engine.createBindings();
-      for (Map.Entry<String, Object> col : row.getValueMap().entrySet()) {
-        bindings.put(col.getKey().replace("-", "$"), col.getValue());
-      }
-      return engine.eval(script, bindings).toString();
-    } catch (Exception e) {
-      throw new MolgenisException("Compute value failed on script [" + script + "]", e);
-    }
-  }
-
-  private static String execute(String script, Bindings bindings) throws ScriptException {
-    if (cache.get(script) == null) {
-      cache.put(script, ((Compilable) engine).compile(script));
-    }
-    Object result = cache.get(script).eval(bindings);
-    if (result != null) return result.toString();
-    else return null;
   }
 }

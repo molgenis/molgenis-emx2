@@ -8,7 +8,11 @@
       harmonization projects, EU projects or by navigating all cohorts directly
       below.
     </p>
-    <InputSearch id="networks-home-search-input" v-model="searchTerms" placeholder="search cohorts" />
+    <InputSearch
+      id="networks-home-search-input"
+      v-model="searchTerms"
+      placeholder="search cohorts"
+    />
     <div v-if="harmonizationNetworks.length > 0">
       <h2>Networks</h2>
       <p>
@@ -19,7 +23,7 @@
         <div
           class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
           v-for="network in harmonizationNetworks"
-          :key="network.pid"
+          :key="network.id"
         >
           <NetworkCard :network="network" />
         </div>
@@ -35,7 +39,7 @@
         <div
           class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
           v-for="network in consortiaNetworks"
-          :key="network.pid"
+          :key="network.id"
         >
           <NetworkCard :network="network" />
         </div>
@@ -48,13 +52,13 @@
         <div
           class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
           v-for="network in otherNetworks"
-          :key="network.pid"
+          :key="network.id"
         >
           <NetworkCard :network="network" />
         </div>
       </div>
     </div>
-    <div v-if="networks.length == 0">No networks found</div>
+    <div v-if="networks">No networks found</div>
   </div>
 </template>
 
@@ -119,15 +123,15 @@ export default {
     async fetchData() {
       const result = await request(
         "graphql",
-        `{Networks(orderby:{pid: ASC}${this.searchFilter})
+        `{Networks(orderby:{id: ASC}${this.searchFilter})
           {
+          id
           pid
           name
-          localName
           acronym
           website
           description
-          institution{
+          leadOrganisation{
           name
           }
           logo {
@@ -137,16 +141,13 @@ export default {
           endYear
           fundingStatement
           acknowledgements
-          partners {
-          institution {
-          name
-          }
-          department
+          leadOrganisation {
+            name
           }
           type {name}
           }}`
       ).catch((error) => console.log(error));
-  
+
       this.networks = result.Networks ? result.Networks : [];
     },
   },

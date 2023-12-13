@@ -4,19 +4,17 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
+import static org.molgenis.emx2.Constants.SYS_COLUMN_NAME_PREFIX;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
 
-public class Column implements Comparable<Column> {
+public class Column extends HasLabelsDescriptionsAndSettings<Column> implements Comparable<Column> {
 
   // basics
   private TableMetadata table; // table this column is part of
@@ -28,14 +26,11 @@ public class Column implements Comparable<Column> {
   @DiffIgnore private boolean drop; // use this for migrations, i.e. explicit CREATE, ALTER, DROP
 
   // relationships
-  private String refSchema; // for cross schema references
+  private String refSchemaName; // for cross schema references
   private String refTable; // table referenced
   private String refLink; // to allow a reference value to depend on another reference.
   private String refLabel; // template string influencing how ref value is shown
   private String refBack; // for REFBACK, indicate the column to be used for linkback
-
-  // options
-  private String description = null; // long description of the column
 
   @DiffIgnore
   private Integer position =
@@ -47,6 +42,8 @@ public class Column implements Comparable<Column> {
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
   private String[] semantics = null; // json ld expression
+  private String[] profiles = null; // comma-separated strings
+
   // todo implement below, or remove
   private Boolean readonly = false;
   private String defaultValue = null;
@@ -111,9 +108,19 @@ public class Column implements Comparable<Column> {
     return this;
   }
 
+  public String[] getProfiles() {
+    return profiles;
+  }
+
+  public Column setProfiles(String... profiles) {
+    this.profiles = profiles;
+    return this;
+  }
+
   /* copy constructor to prevent changes on in progress data */
   private void copy(Column column) {
     columnName = column.columnName;
+    labels = column.labels;
     oldName = column.oldName;
     drop = column.drop;
     columnType = column.columnType;
@@ -125,14 +132,15 @@ public class Column implements Comparable<Column> {
     indexed = column.indexed;
     refTable = column.refTable;
     refLink = column.refLink;
-    refSchema = column.refSchema;
+    refSchemaName = column.refSchemaName;
     refBack = column.refBack;
     validation = column.validation;
     refLabel = column.refLabel;
     computed = column.computed;
-    description = column.description;
+    descriptions = column.descriptions;
     cascadeDelete = column.cascadeDelete;
     semantics = column.semantics;
+    profiles = column.profiles;
     visible = column.visible;
   }
 
@@ -180,13 +188,13 @@ public class Column implements Comparable<Column> {
 
   public TableMetadata getRefTable() {
     SchemaMetadata schema = getSchema();
-    if (this.refSchema != null) {
+    if (this.refSchemaName != null) {
       try {
-        schema = getSchema().getDatabase().getSchema(this.refSchema).getMetadata();
+        schema = getSchema().getDatabase().getSchema(this.refSchemaName).getMetadata();
       } catch (Exception e) {
         throw new MolgenisException(
             "refSchema '"
-                + this.refSchema
+                + this.refSchemaName
                 + "' cannot be found for column '"
                 + getTableName()
                 + "."
@@ -206,10 +214,18 @@ public class Column implements Comparable<Column> {
         return schema.getTableMetadata(this.refTable);
       }
     }
-    return null;
+    throw new MolgenisException(
+        "refTable " + this.refTable + " could not be found for column " + this.getQualifiedName());
   }
 
   public Column setRefTable(String refTable) {
+    if (refTable != null && !getColumnType().isReference()) {
+      throw new MolgenisException(
+          "Cannot set refTable for column '"
+              + getName()
+              + "': is not a reference but a "
+              + getColumnType());
+    }
     this.refTable = refTable;
     return this;
   }
@@ -245,15 +261,6 @@ public class Column implements Comparable<Column> {
     return cascadeDelete;
   }
 
-  public String getDescription() {
-    return description;
-  }
-
-  public Column setDescription(String description) {
-    this.description = description;
-    return this;
-  }
-
   public String getDefaultValue() {
     return defaultValue;
   }
@@ -280,7 +287,7 @@ public class Column implements Comparable<Column> {
   public Column setCascadeDelete(Boolean cascadeDelete) {
     if (cascadeDelete && !isRef()) {
       throw new MolgenisException(
-          "Set casecadeDelete=true failed", "Columnn " + getName() + " must be of type REF");
+          "Set casecadeDelete=true failed: columnn " + getName() + " must be of type REF");
     }
     this.cascadeDelete = cascadeDelete;
     return this;
@@ -308,7 +315,7 @@ public class Column implements Comparable<Column> {
 
   public Column setType(ColumnType type) {
     if (type == null) {
-      throw new MolgenisException("Add column failed", "Type was null for column " + getName());
+      throw new MolgenisException("Add column failed: type was null for column " + getName());
     }
     this.columnType = type;
     return this;
@@ -406,8 +413,9 @@ public class Column implements Comparable<Column> {
   public List<Reference> getReferences() {
 
     // no ref
-    if (getRefTable() == null) {
-      return new ArrayList<>();
+    if (getRefTableName() == null) {
+      throw new MolgenisException(
+          "getReferences failed: column " + getQualifiedName() + " is not a reference");
     }
 
     List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
@@ -524,23 +532,20 @@ public class Column implements Comparable<Column> {
     } else return getColumnType().getBaseType();
   }
 
-  public String getRefLabelIfSet() {
+  public String getRefLabel() {
     return this.refLabel;
   }
 
-  public String getRefLabel() {
+  public String getRefLabelDefault() {
     if (!isReference()) return null;
-    if (refLabel == null) {
-      // we concat all columns unless already shown in another column
-      StringBuilder result = new StringBuilder();
-      for (Reference ref : getReferences()) {
-        if (!ref.isOverlapping()) {
-          result.append(".${" + ref.getPath().stream().collect(Collectors.joining(".")) + "}");
-        }
+    // we concat all columns unless already shown in another column
+    StringBuilder result = new StringBuilder();
+    for (Reference ref : getReferences()) {
+      if (!ref.isOverlapping()) {
+        result.append(".${" + ref.getPath().stream().collect(Collectors.joining(".")) + "}");
       }
-      return result.toString().replaceFirst("[.]", "");
     }
-    return refLabel;
+    return result.toString().replaceFirst("[.]", "");
   }
 
   public Column setRefLabel(String refLabel) {
@@ -548,16 +553,16 @@ public class Column implements Comparable<Column> {
     return this;
   }
 
-  public String getRefSchema() {
-    if (refSchema != null) {
-      return refSchema;
-    } else if (getRefTable() != null) {
-      return getRefTable().getSchemaName();
-    } else return getSchemaName();
+  public String getRefSchemaName() {
+    if (refSchemaName != null) {
+      return refSchemaName;
+    } else {
+      return getSchemaName();
+    }
   }
 
-  public Column setRefSchema(String refSchema) {
-    this.refSchema = refSchema;
+  public Column setRefSchemaName(String refSchemaName) {
+    this.refSchemaName = refSchemaName;
     return this;
   }
 
@@ -619,6 +624,10 @@ public class Column implements Comparable<Column> {
     return getColumnType().isFile();
   }
 
+  public boolean isSystemColumn() {
+    return this.getName().startsWith(SYS_COLUMN_NAME_PREFIX);
+  }
+
   public boolean isHeading() {
     return this.getColumnType().isHeading();
   }
@@ -638,6 +647,14 @@ public class Column implements Comparable<Column> {
     return this.getColumnType().equals(ONTOLOGY) || this.getColumnType().equals(ONTOLOGY_ARRAY);
   }
 
+  public String getRootTableName() {
+    TableMetadata table = this.getTable();
+    while (table.getInheritName() != null) {
+      table = table.getInheritedTable();
+    }
+    return table.getTableName();
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -651,5 +668,13 @@ public class Column implements Comparable<Column> {
   @Override
   public int hashCode() {
     return Objects.hash(table, columnName);
+  }
+
+  public String getLabel() {
+    if (getLabels().get("en") != null && !getLabels().get("en").trim().equals("")) {
+      return getLabels().get("en");
+    } else {
+      return getName();
+    }
   }
 }

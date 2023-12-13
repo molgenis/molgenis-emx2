@@ -1,5 +1,7 @@
 package org.molgenis.emx2;
 
+import static org.molgenis.emx2.Operator.AND;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -9,10 +11,12 @@ public class SelectColumn {
   private Map<String, SelectColumn> children = new LinkedHashMap<>();
   private int limit = 0;
   private int offset = 0;
+  private Filter filter;
   private Map<String, Order> orderBy = new LinkedHashMap<>();
 
   public SelectColumn(String column) {
     this.column = column;
+    this.filter = new FilterBean(AND);
   }
 
   public SelectColumn(String column, String... subselects) {
@@ -102,5 +106,14 @@ public class SelectColumn {
 
   public SelectColumn select(Collection<String> columnName) {
     return this.select(columnName.toArray(new String[columnName.size()]));
+  }
+
+  public SelectColumn where(Filter... filters) {
+    this.filter.addSubfilters(filters);
+    return this;
+  }
+
+  public Filter getFilter() {
+    return filter;
   }
 }

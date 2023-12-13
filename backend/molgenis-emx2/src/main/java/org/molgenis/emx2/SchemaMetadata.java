@@ -2,6 +2,7 @@ package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
 import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
 import org.molgenis.emx2.utils.TableSort;
@@ -50,6 +51,10 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
 
   public String getName() {
     return name;
+  }
+
+  public String getIdentifier() {
+    return convertToPascalCase(getName());
   }
 
   public void setName(String name) {
@@ -137,15 +142,46 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
 
   private void addExternalTablesRecursive(
       Map<String, TableMetadata> tables, TableMetadata current) {
-    if (current.getInheritedTable() != null && !tables.containsKey(current.getInherit())) {
-      tables.put(current.getInherit(), current.getInheritedTable());
-      addExternalTablesRecursive(tables, current.getInheritedTable());
-    }
-    for (Column c : current.getColumns()) {
-      if (c.isReference() && !tables.containsKey(c.getRefTableName())) {
-        tables.put(c.getRefTableName(), c.getRefTable());
-        addExternalTablesRecursive(tables, c.getRefTable());
+    if (current.getInheritedTable() != null) {
+      String scopeTableName = current.getInheritName();
+      if (!current.getInheritedTable().getSchemaName().equals(getName())) {
+        scopeTableName = current.getInheritedTable().getSchemaName() + "_" + scopeTableName;
+      }
+      if (!tables.containsKey(scopeTableName)) {
+        tables.put(scopeTableName, current.getInheritedTable());
+        addExternalTablesRecursive(tables, current.getInheritedTable());
       }
     }
+    for (Column c : current.getColumns()) {
+      if (c.isReference()) {
+        String scopeTableName = c.getRefTableName();
+        if (!getName().equals(c.getRefSchemaName())) {
+          scopeTableName = c.getRefSchemaName() + "_" + scopeTableName;
+        }
+        if (!tables.containsKey(scopeTableName)) {
+          tables.put(scopeTableName, c.getRefTable());
+          addExternalTablesRecursive(tables, c.getRefTable());
+        }
+      }
+    }
+  }
+
+  public Set<String> getLocales() {
+    // sorted on alphabet
+    Set<String> result = new TreeSet<>();
+    getTables()
+        .forEach(
+            table -> {
+              result.addAll(table.getLabels().keySet());
+              result.addAll(table.getDescriptions().keySet());
+              table
+                  .getColumns()
+                  .forEach(
+                      column -> {
+                        result.addAll(column.getLabels().keySet());
+                        result.addAll(column.getDescriptions().keySet());
+                      });
+            });
+    return result;
   }
 }

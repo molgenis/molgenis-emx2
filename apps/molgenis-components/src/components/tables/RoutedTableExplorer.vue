@@ -1,8 +1,9 @@
 <template>
   <div>
     <TableExplorer
-      :tableName="tableName"
-      :graphqlURL="graphqlURL"
+      :tableId="tableId"
+      :schemaId="schemaId"
+      :canView="canView"
       :canEdit="canEdit"
       :canManage="canManage"
       @updateConditions="updateConditions"
@@ -20,12 +21,26 @@
       :showLimit="getLimit()"
       :showOrderBy="getOrderBy()"
       :showOrder="getOrder()"
-    />
+      @rowClick="$emit('rowClick', $event)"
+    >
+      <template v-slot:rowcolheader>
+        <slot name="rowcolheader" />
+      </template>
+      <template v-slot:rowheader="slotProps">
+        <slot
+          name="rowheader"
+          :row="slotProps.row"
+          :metadata="slotProps.metadata"
+          :rowKey="slotProps.rowKey"
+        />
+      </template>
+    </TableExplorer>
   </div>
 </template>
 
 <script>
 import TableExplorer from "./TableExplorer.vue";
+import { deepClone } from "../utils";
 
 export default {
   name: "RoutedTableExplorer",
@@ -38,13 +53,17 @@ export default {
     };
   },
   props: {
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    graphqlURL: {
+    schemaId: {
       type: String,
-      default: () => "graphql",
+      required: false,
+    },
+    canView: {
+      type: Boolean,
+      default: () => true,
     },
     canEdit: {
       type: Boolean,
@@ -53,6 +72,14 @@ export default {
     canManage: {
       type: Boolean,
       default: () => false,
+    },
+    showFilters: {
+      type: Array,
+      default: () => [],
+    },
+    showColumns: {
+      type: Array,
+      default: () => [],
     },
   },
   methods: {
@@ -78,7 +105,7 @@ export default {
           return this.$route.query._col.split(",");
         }
       } else {
-        return [];
+        return deepClone(this.showColumns);
       }
     },
     getFilters() {
@@ -89,7 +116,7 @@ export default {
           return this.$route.query._filter.split(",");
         }
       } else {
-        return [];
+        return deepClone(this.showFilters);
       }
     },
     getPage() {
@@ -179,21 +206,25 @@ export default {
             case "REFBACK":
             case "ONTOLOGY":
             case "ONTOLOGY_ARRAY":
-              query[column.name] = JSON.stringify(conditions);
+              query[column.id] = JSON.stringify(conditions);
               break;
             case "DATE":
             case "DATETIME":
             case "INT":
+            case "LONG":
             case "DECIMAL":
-              query[column.name] = conditions
-                .map((v) => v.join(".."))
-                .join(",");
+              const result = conditions.map((v) => v.join("..")).join(",");
+              if (result !== "..") {
+                query[column.id] = result;
+              } else {
+                delete query[column.id];
+              }
               break;
             default:
-              query[column.name] = conditions.join(",");
+              query[column.id] = conditions.join(",");
           }
         } else {
-          delete query[column.name];
+          delete query[column.id];
         }
       });
       this.updateRoute(query);
@@ -204,6 +235,7 @@ export default {
       }
     },
   },
+  emits: ["rowClick"],
 };
 </script>
 
@@ -211,14 +243,55 @@ export default {
 <template>
   <div>
     <div class="border p-1 my-1">
-      <label>Read only example</label>
+    <div>
+     <label for="routed-table-explorer-can-edit">Can edit</label>
+     <input class="ml-1" id='routed-table-explorer-can-edit' type="checkbox" v-model="canEdit" />
+    </div>
+    <div>
+      <label for="routed-table-explorer-can-edit">Can view</label>
+      <input class="ml-1" id='routed-table-explorer-can-view' type="checkbox" v-model="canView" />
+    </div>
+    <div>
+     <label for="routed-table-explorer-schema">Schema</label>
+     <input class="ml-1" id='routed-table-explorer-schema' v-model="schema" />
+    </div>
+
+    <div>
+     <label for="routed-table-explorer-table">Table</label>
+     <input class="ml-1" id='routed-table-explorer-table' v-model="table" />
+    </div>
+
+    {{ schema }}  
+     
       <routed-table-explorer
         id="my-table-explorer"
-        tableName="Pet"
-        graphqlURL="/pet store/graphql"
+        :key="dynamicKey"
+        :tableId="table"
+        :schemaId="schema"
+        :canEdit="canEdit"
+        :canView="canView"
       />
     </div>
   </div>
 </template>
+
+<script>
+export default {
+    data() {
+      return {
+        canEdit: false,
+        canView: false,
+        schema: "pet store",
+        table: "Pet"
+      }
+    },
+    computed: {
+      dynamicKey() {
+        return "my-table-explorer" + this.schema + "_" + this.table +"_"+this.canView
+      },
+     
+    },
+  }
+</script>
 
 </docs>

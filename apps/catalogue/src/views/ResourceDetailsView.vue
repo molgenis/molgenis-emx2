@@ -1,5 +1,5 @@
 <template>
-  <div class="container bg-white" id="_top" v-if="resourceData">
+  <div class="container bg-white" id="_top" v-if="resourceData" :key="filter">
     <RowButton
       v-if="canEdit"
       type="edit"
@@ -9,23 +9,30 @@
     <EditModal
       v-if="canEdit"
       id="resource-edit-modal"
-      :tableName="table"
+      :tableId="tableId"
       :pkey="primaryTableKey"
       :isModalShown="isEditModalShown"
       @close="isEditModalShown = false"
     />
-
     <ButtonAlt @click="toggleNA" class="float-right text-white">
       {{ hideNA ? "Show" : "Hide" }} empty fields (N/A)
     </ButtonAlt>
     <ResourceHeader
       :resource="resourceData"
       :headerCss="'bg-' + color + ' text-white'"
-      :table-name="table"
+      :tableLabel="tableMetadata.label"
     />
     <div class="row p-2">
-      <div :class="'border border-' + color" class="col-10 p-0">
-        <div v-for="section in sections" :key="section.meta.name">
+      <div
+        :class="
+          'border border-' +
+          color +
+          ' ' +
+          (sectionLabels.length > 1 ? 'col-10' : 'col-12')
+        "
+        class="p-0"
+      >
+        <div v-for="section in sections" :key="section.meta.label">
           <section-card
             :section="section"
             :hideNA="hideNA"
@@ -35,9 +42,9 @@
         </div>
       </div>
       <section-index
-        v-if="sectionsNames.length > 1"
+        v-if="sectionLabels.length > 1"
         class="col-2"
-        :names="sectionsNames"
+        :names="sectionLabels"
         :color="color"
       />
     </div>
@@ -73,7 +80,7 @@ export default {
   },
   props: {
     color: { type: String, default: "primary" },
-    table: { type: String, required: true }, // resource table name
+    tableId: { type: String, required: true }, // resource table name
     filter: { type: Object, required: true }, // resource id filter
   },
   data() {
@@ -111,8 +118,8 @@ export default {
           return accum;
         }, []);
     },
-    sectionsNames() {
-      return this.sections.map((card) => card.meta.name);
+    sectionLabels() {
+      return this.sections.map((card) => card.meta.label);
     },
     primaryTableKey() {
       return this.tableMetadata.columns.reduce((accum, col) => {
@@ -128,16 +135,24 @@ export default {
     toggleNA() {
       this.hideNA = !this.hideNA;
     },
+    async reload() {
+      this.client = Client.newClient();
+      this.reloadMetadata();
+      this.tableMetadata = await this.client.fetchTableMetaData(this.tableId);
+      this.resourceData = (
+        await this.client.fetchTableDataValues(this.tableId, {
+          filter: this.filter,
+        })
+      )[0];
+    },
   },
-  async created() {
-    this.client = Client.newClient();
-    this.reloadMetadata();
-    this.tableMetadata = await this.client.fetchTableMetaData(this.table);
-    this.resourceData = (
-      await this.client.fetchTableDataValues(this.table, {
-        filter: this.filter,
-      })
-    )[0];
+  watch: {
+    async filter() {
+      await this.reload();
+    },
+  },
+  async mounted() {
+    await this.reload();
   },
 };
 </script>

@@ -1,12 +1,10 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.name }}</h1>
-
+    <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.label }}</h1>
     <p v-if="showHeader && tableMetadata">
-      {{ tableMetadata.description }}
+      {{ tableMetadata.label }}
     </p>
-
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
         <ShowHide
@@ -19,6 +17,7 @@
         />
 
         <ShowHide
+          v-if="view !== View.AGGREGATE"
           :columns="columns"
           @update:columns="emitColumns"
           checkAttribute="showColumn"
@@ -28,63 +27,126 @@
           :defaultValue="true"
         />
 
-        <ButtonDropdown label="download" icon="download" v-slot="scope">
+        <ButtonDropdown
+          v-if="canView"
+          label="download"
+          icon="download"
+          v-slot="scope"
+        >
           <form class="px-4 py-3" style="min-width: 15rem">
             <IconAction icon="times" @click="scope.close" class="float-right" />
 
             <h6>download</h6>
             <div>
               <div>
-                <ButtonAlt :href="'../api/zip/' + tableId">zip</ButtonAlt>
+                <span class="fixed-width">zip</span>
+                <ButtonAlt :href="'/' + schemaId + '/api/zip/' + tableId"
+                  >all rows</ButtonAlt
+                >
               </div>
               <div>
-                <ButtonAlt :href="'../api/excel/' + tableId">excel</ButtonAlt>
+                <span class="fixed-width">csv</span>
+                <ButtonAlt :href="'/' + schemaId + '/api/csv/' + tableId"
+                  >all rows</ButtonAlt
+                >
+                <span v-if="Object.keys(graphqlFilter).length > 0">
+                  |
+                  <ButtonAlt
+                    :href="
+                      '/' +
+                      schemaId +
+                      '/api/csv/' +
+                      tableId +
+                      '?filter=' +
+                      JSON.stringify(graphqlFilter)
+                    "
+                  >
+                    filtered rows
+                  </ButtonAlt>
+                </span>
               </div>
               <div>
-                <ButtonAlt :href="'../api/jsonld/' + tableId">
-                  jsonld
+                <span class="fixed-width">excel</span>
+                <ButtonAlt :href="'/' + schemaId + '/api/excel/' + tableId"
+                  >all rows</ButtonAlt
+                >
+                <span v-if="Object.keys(graphqlFilter).length > 0">
+                  |
+                  <ButtonAlt
+                    :href="
+                      '/' +
+                      schemaId +
+                      '/api/excel/' +
+                      tableId +
+                      '?filter=' +
+                      JSON.stringify(graphqlFilter)
+                    "
+                  >
+                    filtered rows
+                  </ButtonAlt></span
+                >
+              </div>
+              <div>
+                <span class="fixed-width">jsonld</span>
+                <ButtonAlt :href="'/' + schemaId + '/api/jsonld/' + tableId">
+                  all rows
                 </ButtonAlt>
               </div>
               <div>
-                <ButtonAlt :href="'../api/ttl/' + tableId">ttl</ButtonAlt>
+                <span class="fixed-width">ttl</span>
+                <ButtonAlt :href="'/' + schemaId + '/api/ttl/' + tableId">
+                  all rows
+                </ButtonAlt>
               </div>
             </div>
           </form>
         </ButtonDropdown>
-
-        <span>
-          <button
-            type="button"
-            class="btn btn-outline-primary"
-            @click="toggleView"
+        <span v-if="canView">
+          <ButtonDropdown
+            :closeOnClick="true"
+            :label="ViewButtons[view].label"
+            :icon="ViewButtons[view].icon"
           >
-            view
-            <span class="fas fa-fw" :class="viewIcon"></span>
-          </button>
+            <div
+              v-for="button in ViewButtons"
+              class="dropdown-item"
+              @click="setView(button)"
+              role="button"
+            >
+              <i class="fas fa-fw" :class="'fa-' + button.icon" />
+              {{ button.label }}
+            </div>
+          </ButtonDropdown>
         </span>
       </div>
       <!-- end first btn group -->
 
       <InputSearch
+        v-if="canView"
         class="mx-1 inline-form-group"
         :id="'explorer-table-search' + Date.now()"
         :modelValue="searchTerms"
         @update:modelValue="setSearchTerms($event)"
       />
       <Pagination
+        v-if="view !== View.AGGREGATE"
         :modelValue="page"
         @update:modelValue="setPage($event)"
         :limit="limit"
         :count="count"
       />
 
-      <div class="btn-group m-0" v-if="view !== View.RECORD">
+      <div
+        class="btn-group m-0"
+        v-if="view !== View.RECORD && view !== View.AGGREGATE"
+      >
         <span class="btn">Rows per page:</span>
         <InputSelect
           id="explorer-table-page-limit-select"
           :modelValue="limit"
           :options="[10, 20, 50, 100]"
           :clear="false"
+          :required="true"
           @update:modelValue="setLimit($event)"
           class="mb-0"
         />
@@ -96,9 +158,10 @@
       </div>
 
       <div class="btn-group" v-if="canManage">
-        <TableSettings v-if="tableMetadata"
+        <TableSettings
+          v-if="tableMetadata"
           :tableMetadata="tableMetadata"
-          :graphqlURL="graphqlURL"
+          :schemaId="schemaId"
           @update:settings="reloadMetadata"
         />
 
@@ -113,7 +176,7 @@
         <FilterSidebar
           :filters="columns"
           @updateFilters="emitConditions"
-          :graphqlURL="graphqlURL"
+          :schemaId="schemaId"
         />
       </div>
       <div
@@ -128,117 +191,177 @@
         <div v-if="loading">
           <Spinner />
         </div>
-        <RecordCards
-          v-if="!loading && view === View.CARDS"
-          class="card-columns"
-          id="cards"
-          :data="dataRows"
-          :columns="columns"
-          :table-name="tableName"
-          :canEdit="canEdit"
-          :template="cardTemplate"
-          @click="$emit('click', $event)"
-          @reload="reload"
-          @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
-          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
-        />
-        <RecordCards
-          v-if="!loading && view === View.RECORD"
-          id="records"
-          :data="dataRows"
-          :columns="columns"
-          :table-name="tableName"
-          :canEdit="canEdit"
-          :template="recordTemplate"
-          @click="$emit('click', $event)"
-          @reload="reload"
-          @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
-          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
-        />
-        <TableMolgenis
-          v-if="!loading && view == View.TABLE"
-          :selection="selectedItems"
-          @update:selection="selectedItems = $event"
-          :columns="columns"
-          @update:colums="columns = $event"
-          :table-metadata="tableMetadata"
-          :data="dataRows"
-          :showSelect="showSelect"
-          @column-click="onColumnClick"
-          @click="$emit('click', $event)"
-        >
-          <template v-slot:header>
-            <label>{{ count }} records found</label>
-          </template>
-          <template v-slot:rowcolheader>
-            <RowButton
-              v-if="canEdit"
-              type="add"
-              :table="tableName"
-              :graphqlURL="graphqlURL"
-              @add="handleRowAction('add')"
-              class="d-inline p-0"
-            />
-          </template>
-          <template v-slot:colheader="slotProps">
-            <IconAction
-              v-if="slotProps.col && orderByColumn === slotProps.col.id"
-              :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-              class="d-inline p-0"
-            />
-          </template>
-          <template v-slot:rowheader="slotProps">
-            <RowButton
-              v-if="canEdit"
-              type="edit"
-              @edit="
-                handleRowAction(
-                  'edit',
-                  getPrimaryKey(slotProps.row, tableMetadata)
-                )
-              "
-            />
-            <RowButton
-              v-if="canEdit"
-              type="clone"
-              @clone="
-                handleRowAction(
-                  'clone',
-                  getPrimaryKey(slotProps.row, tableMetadata)
-                )
-              "
-            />
-            <RowButton
-              v-if="canEdit"
-              type="delete"
-              @delete="
-                handleDeleteRowRequest(
-                  getPrimaryKey(slotProps.row, tableMetadata)
-                )
-              "
-            />
-          </template>
-        </TableMolgenis>
+        <div v-if="!loading">
+          <AggregateTable
+            v-if="view === View.AGGREGATE"
+            :canView="canView"
+            :allColumns="columns"
+            :tableId="tableId"
+            :schemaId="schemaId"
+            :minimumValue="1"
+            :graphqlFilter="graphqlFilter"
+          />
+          <RecordCards
+            v-if="view === View.CARDS"
+            class="card-columns"
+            id="cards"
+            :data="dataRows"
+            :columns="columns"
+            :tableId="tableId"
+            :canEdit="canEdit"
+            :template="cardTemplate"
+            @click="$emit('rowClick', $event)"
+            @reload="reload"
+            @edit="
+              handleRowAction(
+                'edit',
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
+              )
+            "
+            @delete="
+              handleDeleteRowRequest(
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
+              )
+            "
+          />
+          <RecordCards
+            v-if="view === View.RECORD"
+            id="records"
+            :data="dataRows"
+            :columns="columns"
+            :tableId="tableId"
+            :canEdit="canEdit"
+            :template="recordTemplate"
+            @click="$emit('rowClick', $event)"
+            @reload="reload"
+            @edit="
+              handleRowAction(
+                'edit',
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
+              )
+            "
+            @delete="
+              handleDeleteRowRequest(
+                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
+              )
+            "
+          />
+          <TableMolgenis
+            v-if="view === View.TABLE"
+            :schemaId="schemaId"
+            :selection="selectedItems"
+            @update:selection="selectedItems = $event"
+            :columns="columns"
+            @update:columns="columns = $event"
+            :table-metadata="tableMetadata"
+            :data="dataRows"
+            :showSelect="showSelect"
+            @column-click="onColumnClick"
+            @rowClick="$emit('rowClick', $event)"
+            @cellClick="handleCellClick"
+          >
+            <template v-slot:header>
+              <label>{{ count }} records found</label>
+            </template>
+            <template v-slot:rowcolheader>
+              <RowButton
+                v-if="canEdit"
+                type="add"
+                :tableId="tableId"
+                :schemaId="schemaId"
+                @add="handleRowAction('add')"
+                class="d-inline p-0"
+              />
+              <slot name="rowcolheader" />
+            </template>
+            <template v-slot:colheader="slotProps">
+              <IconAction
+                v-if="slotProps.col && orderByColumn === slotProps.col.id"
+                :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+                class="d-inline p-0"
+              />
+            </template>
+            <template v-slot:rowheader="slotProps">
+              <RowButton
+                v-if="canEdit"
+                type="edit"
+                @edit="
+                  handleRowAction(
+                    'edit',
+                    convertRowToPrimaryKey(
+                      slotProps.row,
+                      tableMetadata.id,
+                      schemaId
+                    )
+                  )
+                "
+              />
+              <RowButton
+                v-if="canEdit"
+                type="clone"
+                @clone="
+                  handleRowAction(
+                    'clone',
+                    convertRowToPrimaryKey(
+                      slotProps.row,
+                      tableMetadata.id,
+                      schemaId
+                    )
+                  )
+                "
+              />
+              <RowButton
+                v-if="canEdit"
+                type="delete"
+                @delete="
+                  handleDeleteRowRequest(
+                    convertRowToPrimaryKey(
+                      slotProps.row,
+                      tableMetadata.id,
+                      schemaId
+                    )
+                  )
+                "
+              />
+              <!--@slot Use this to add values or actions buttons to each row -->
+              <slot
+                name="rowheader"
+                :row="slotProps.row"
+                :metadata="tableMetadata"
+                :rowKey="
+                  convertRowToPrimaryKey(
+                    slotProps.row,
+                    tableMetadata.id,
+                    schemaId
+                  )
+                "
+              />
+            </template>
+          </TableMolgenis>
+        </div>
       </div>
     </div>
 
     <EditModal
       v-if="isEditModalShown"
       :isModalShown="true"
-      :id="tableName + '-edit-modal'"
-      :tableName="tableName"
+      :id="tableId + '-edit-modal'"
+      :tableId="tableId"
+      :tableLabel="tableMetadata.label"
       :pkey="editRowPrimaryKey"
       :clone="editMode === 'clone'"
-      :graphqlURL="graphqlURL"
+      :schemaId="schemaId"
       @close="handleModalClose"
+      :apply-default-values="editMode === 'add'"
     />
 
     <ConfirmModal
       v-if="isDeleteModalShown"
-      :title="'Delete from ' + tableName"
+      :title="'Delete from ' + tableMetadata.label"
       actionLabel="Delete"
       actionType="danger"
-      :tableName="tableName"
+      :tableId="tableId"
+      :tableLabel="tableMetadata.label"
       :pkey="editRowPrimaryKey"
       @close="isDeleteModalShown = false"
       @confirmed="handleExecuteDelete"
@@ -246,50 +369,88 @@
 
     <ConfirmModal
       v-if="isDeleteAllModalShown"
-      :title="'Truncate ' + tableName"
+      :title="'Truncate ' + tableMetadata.label"
       actionLabel="Truncate"
       actionType="danger"
-      :tableName="tableName"
+      :tableId="tableId"
+      :tableLabel="tableMetadata.label"
       @close="isDeleteAllModalShown = false"
       @confirmed="handelExecuteDeleteAll"
     >
       <p>
-        Truncate <strong>{{ tableName }}</strong>
+        Truncate <strong>{{ tableMetadata.label }}</strong>
       </p>
       <p>
         Are you sure that you want to delete ALL rows in table '{{
-          tableName
+          tableMetadata.label
         }}'?
       </p>
     </ConfirmModal>
+    <RefSideModal
+      v-if="refSideModalProps"
+      :column="refSideModalProps.column"
+      :rows="refSideModalProps.rows"
+      :schema="this.schemaId"
+      @onClose="refSideModalProps = undefined"
+      :showDataOwner="canManage"
+    />
   </div>
 </template>
 
+<style scoped>
+.fixed-width {
+  width: 3em;
+  display: inline-block;
+}
+</style>
 
 <script>
-import Client from "../../client/client.js";
-import { getPrimaryKey,convertToPascalCase } from "../utils";
-import ShowHide from "./ShowHide.vue";
-import Pagination from "./Pagination.vue";
+import Client from "../../client/client.ts";
+import FilterSidebar from "../filters/FilterSidebar.vue";
+import FilterWells from "../filters/FilterWells.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
+import ConfirmModal from "../forms/ConfirmModal.vue";
+import EditModal from "../forms/EditModal.vue";
 import IconAction from "../forms/IconAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputSearch from "../forms/InputSearch.vue";
 import InputSelect from "../forms/InputSelect.vue";
-import SelectionBox from "./SelectionBox.vue";
-import Spinner from "../layout/Spinner.vue";
-import TableMolgenis from "./TableMolgenis.vue";
-import FilterSidebar from "../filters/FilterSidebar.vue";
-import FilterWells from "../filters/FilterWells.vue";
-import RecordCards from "./RecordCards.vue";
-import TableSettings from "./TableSettings.vue";
-import EditModal from "../forms/EditModal.vue";
-import ConfirmModal from "../forms/ConfirmModal.vue";
-import RowButton from "../tables/RowButton.vue";
 import MessageError from "../forms/MessageError.vue";
+import Spinner from "../layout/Spinner.vue";
+import RowButton from "../tables/RowButton.vue";
+import { convertRowToPrimaryKey, deepClone, isRefType } from "../utils";
+import AggregateTable from "./AggregateTable.vue";
+import Pagination from "./Pagination.vue";
+import RecordCards from "./RecordCards.vue";
+import RefSideModal from "./RefSideModal.vue";
+import SelectionBox from "./SelectionBox.vue";
+import ShowHide from "./ShowHide.vue";
+import TableMolgenis from "./TableMolgenis.vue";
+import TableSettings from "./TableSettings.vue";
 
-const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
+const View = {
+  TABLE: "table",
+  CARDS: "cards",
+  RECORD: "record",
+  AGGREGATE: "aggregate",
+};
+
+const ViewButtons = {
+  table: { id: View.TABLE, label: "Table", icon: "th" },
+  cards: { id: View.CARDS, label: "Card", icon: "list-alt" },
+  record: {
+    id: View.RECORD,
+    label: "Record",
+    icon: "th-list",
+    limitOverride: 1,
+  },
+  aggregate: {
+    id: View.AGGREGATE,
+    label: "Aggregate",
+    icon: "object-group",
+  },
+};
 
 export default {
   name: "TableExplorer",
@@ -313,13 +474,15 @@ export default {
     TableSettings,
     EditModal,
     ConfirmModal,
+    AggregateTable,
+    RefSideModal,
   },
   data() {
     return {
       cardTemplate: null,
       client: null,
       columns: [],
-      count: null,
+      count: 0,
       dataRows: [],
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
@@ -336,17 +499,18 @@ export default {
       searchTerms: "",
       selectedItems: [],
       tableMetadata: null,
-      view: this.showView,
+      view: this.canView ? this.showView : View.AGGREGATE,
+      refSideModalProps: undefined,
     };
   },
   props: {
-    tableName: {
+    tableId: {
       type: String,
       required: true,
     },
-    graphqlURL: {
+    schemaId: {
       type: String,
-      default: () => "graphql",
+      required: false,
     },
     showSelect: {
       type: Boolean,
@@ -374,9 +538,13 @@ export default {
     },
     showLimit: {
       type: Number,
-      default: 20,
+      default: 10,
     },
     urlConditions: {
+      type: Object,
+      default: () => ({}),
+    },
+    filter: {
       type: Object,
       default: () => ({}),
     },
@@ -388,6 +556,10 @@ export default {
       type: String,
       default: () => "ASC",
     },
+    canView: {
+      type: Boolean,
+      default: () => true,
+    },
     canEdit: {
       type: Boolean,
       default: () => false,
@@ -398,20 +570,11 @@ export default {
     },
   },
   computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
     View() {
       return View;
     },
-    viewIcon() {
-      if (this.view === View.CARDS) {
-        return "fa-list-alt";
-      } else if (this.view === View.TABLE) {
-        return "fa-th";
-      } else {
-        return "fa-th-list";
-      }
+    ViewButtons() {
+      return ViewButtons;
     },
     countFilters() {
       return this.columns
@@ -419,71 +582,31 @@ export default {
         : null;
     },
     graphqlFilter() {
-      let filter = {};
-      if (this.columns) {
-        this.columns.forEach((col) => {
-          const conditions = col.conditions
-            ? col.conditions.filter(
-                (condition) => condition !== "" && condition !== undefined
-              )
-            : [];
-          if (conditions.length) {
-            if (
-              col.columnType.startsWith("STRING") ||
-              col.columnType.startsWith("TEXT")
-            ) {
-              filter[col.id] = { like: conditions };
-            } else if (col.columnType.startsWith("BOOL")) {
-              filter[col.id] = { equals: conditions };
-            } else if (
-              col.columnType.startsWith("REF") ||
-              col.columnType.startsWith("ONTOLOGY")
-            ) {
-              filter[col.id] = { equals: conditions };
-            } else if (
-              [
-                "DECIMAL",
-                "DECIMAL_ARRAY",
-                "INT",
-                "INT_ARRAY",
-                "DATE",
-                "DATE_ARRAY",
-              ].includes(col.columnType)
-            ) {
-              filter[col.id] = {
-                between: conditions.flat(),
-              };
-            } else {
-              const msg =
-                "filter unsupported for column type '" +
-                col.columnType +
-                "' (please report a bug)";
-              this.graphqlError = msg;
-            }
-          }
-        });
-      }
-      return filter;
+      let filter = this.filter;
+      const errorCallback = (msg) => {
+        this.graphqlError = msg;
+      };
+      return graphqlFilter(filter, this.columns, errorCallback);
     },
   },
   methods: {
-    getPrimaryKey,
+    convertRowToPrimaryKey,
     setSearchTerms(newSearchValue) {
       this.searchTerms = newSearchValue;
       this.$emit("searchTerms", newSearchValue);
       this.reload();
     },
-    handleRowAction(type, key) {
+    async handleRowAction(type, key) {
       this.editMode = type;
-      this.editRowPrimaryKey = key;
+      this.editRowPrimaryKey = await key;
       this.isEditModalShown = true;
     },
     handleModalClose() {
       this.isEditModalShown = false;
       this.reload();
     },
-    handleDeleteRowRequest(key) {
-      this.editRowPrimaryKey = key;
+    async handleDeleteRowRequest(key) {
+      this.editRowPrimaryKey = await key;
       this.isDeleteModalShown = true;
     },
     async handleExecuteDelete() {
@@ -498,25 +621,31 @@ export default {
     async handelExecuteDeleteAll() {
       this.isDeleteAllModalShown = false;
       const resp = await this.client
-        .deleteAllTableData(this.tableId)
+        .deleteAllTableData(this.tableMetadata.id)
         .catch(this.handleError);
       if (resp) {
         this.reload();
       }
     },
-    toggleView() {
-      if (this.view === View.TABLE) {
-        this.view = View.CARDS;
-        this.limit = this.showLimit;
-      } else if (this.view === View.CARDS) {
-        this.view = View.RECORD;
-        this.limit = 1;
+    handleCellClick(event) {
+      const { column, cellValue } = event;
+      const rowsInRefTable = [cellValue].flat();
+      if (isRefType(column?.columnType)) {
+        this.refSideModalProps = {
+          column,
+          rows: rowsInRefTable,
+        };
+      }
+    },
+    setView(button) {
+      this.view = button.id;
+      if (button.limitOverride) {
+        this.limit = button.limitOverride;
       } else {
-        this.view = View.TABLE;
-        this.limit = 20;
+        this.limit = this.showLimit;
       }
       this.page = 1;
-      this.$emit("updateShowView", this.view, this.limit);
+      this.$emit("updateShowView", button.id, this.limit);
       this.reload();
     },
     onColumnClick(column) {
@@ -539,14 +668,11 @@ export default {
     },
     emitColumns(event) {
       this.columns = event;
-      this.$emit(
-        "updateShowColumns",
-        getColumnNames(this.columns, "showColumn")
-      );
+      this.$emit("updateShowColumns", getColumnIds(this.columns, "showColumn"));
     },
     emitFilters(event) {
       this.columns = event;
-      this.$emit("updateShowFilters", getColumnNames(event, "showFilter"));
+      this.$emit("updateShowFilters", getColumnIds(event, "showFilter"));
     },
     emitConditions() {
       this.page = 1;
@@ -578,16 +704,16 @@ export default {
     setTableMetadata(newTableMetadata) {
       this.columns = newTableMetadata.columns.map((column) => {
         const showColumn = this.showColumns.length
-          ? this.showColumns.includes(column.name)
-          : !column.name.startsWith("mg_");
+          ? this.showColumns.includes(column.id)
+          : !column.id.startsWith("mg_");
         const conditions = getCondition(
           column.columnType,
-          this.urlConditions[column.name]
+          this.urlConditions[column.id]
         );
         return {
           ...column,
           showColumn,
-          showFilter: this.showFilters.includes(column.name),
+          showFilter: this.showFilters.includes(column.id),
           conditions,
         };
       });
@@ -602,10 +728,14 @@ export default {
       this.tableMetadata = newTableMetadata;
     },
     async reloadMetadata() {
-      this.client = Client.newClient(this.graphqlURL);
-      const newTableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(this.handleError);
+      this.client = Client.newClient(this.schemaId);
+      const newTableMetadata = await this.client
+        .fetchTableMetaData(this.tableId)
+        .catch(this.handleError);
       this.setTableMetadata(newTableMetadata);
-      this.reload();
+      if (this.canView) {
+        this.reload();
+      }
     },
     async reload() {
       this.loading = true;
@@ -615,7 +745,7 @@ export default {
         ? { [this.orderByColumn]: this.order }
         : {};
       const dataResponse = await this.client
-        .fetchTableData(this.tableName, {
+        .fetchTableData(this.tableId, {
           limit: this.limit,
           offset: offset,
           filter: this.graphqlFilter,
@@ -623,7 +753,6 @@ export default {
           orderby: orderBy,
         })
         .catch(this.handleError);
-
       this.dataRows = dataResponse[this.tableId];
       this.count = dataResponse[this.tableId + "_agg"]["count"];
       this.loading = false;
@@ -634,20 +763,21 @@ export default {
   },
   emits: [
     "updateShowFilters",
-    "click",
+    "rowClick",
     "updateShowLimit",
     "updateShowPage",
     "updateConditions",
     "updateShowColumns",
     "updateShowOrder",
+    "updateShowView",
     "searchTerms",
   ],
 };
 
-function getColumnNames(columns, property) {
+function getColumnIds(columns, property) {
   return columns
     .filter((column) => column[property] && column.columnType !== "HEADING")
-    .map((column) => column.name);
+    .map((column) => column.id);
 }
 
 function getCondition(columnType, condition) {
@@ -662,6 +792,7 @@ function getCondition(columnType, condition) {
       case "DATE":
       case "DATETIME":
       case "INT":
+      case "LONG":
       case "DECIMAL":
         return condition.split(",").map((v) => v.split(".."));
       default:
@@ -670,6 +801,56 @@ function getCondition(columnType, condition) {
   } else {
     return [];
   }
+}
+
+function graphqlFilter(defaultFilter, columns, errorCallback) {
+  let filter = deepClone(defaultFilter);
+  if (columns) {
+    columns.forEach((col) => {
+      const conditions = col.conditions
+        ? col.conditions.filter(
+            (condition) => condition !== "" && condition !== undefined
+          )
+        : [];
+      if (conditions.length) {
+        if (
+          col.columnType.startsWith("STRING") ||
+          col.columnType.startsWith("TEXT")
+        ) {
+          filter[col.id] = { like: conditions };
+        } else if (col.columnType.startsWith("BOOL")) {
+          filter[col.id] = { equals: conditions };
+        } else if (
+          col.columnType.startsWith("REF") ||
+          col.columnType.startsWith("ONTOLOGY")
+        ) {
+          filter[col.id] = { equals: conditions };
+        } else if (
+          [
+            "LONG",
+            "LONG_ARRAY",
+            "DECIMAL",
+            "DECIMAL_ARRAY",
+            "INT",
+            "INT_ARRAY",
+            "DATE",
+            "DATE_ARRAY",
+            "DATETIME",
+            "DATETIME_ARRAY",
+          ].includes(col.columnType)
+        ) {
+          filter[col.id] = {
+            between: conditions.flat(),
+          };
+        } else {
+          errorCallback(
+            `filter unsupported for column type ${col.columnType} (please report a bug)`
+          );
+        }
+      }
+    });
+  }
+  return filter;
 }
 </script>
 
@@ -681,13 +862,11 @@ function getCondition(columnType, condition) {
   border-bottom-left-radius: 0;
   border-left: 0;
 }
-
 .btn-group >>> span:not(:last-child) .btn {
   margin-left: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
-
 .inline-form-group {
   margin-bottom: 0;
 }
@@ -700,17 +879,18 @@ function getCondition(columnType, condition) {
       <label>Read only example</label>
       <table-explorer
         id="my-table-explorer"
-        tableName="Pet"
-        graphqlURL="/pet store/graphql"
+        tableId="Pet"
+        schemaId="pet store"
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"
-        :showPage="page" 
+        :showPage="page"
         :showLimit="limit"
-        :showOrderBy="showOrderBy" 
+        :showOrderBy="showOrderBy"
         :showOrder="showOrder"
         :canEdit="canEdit"
         :canManage="canManage"
+        :canView="true"
       />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
@@ -726,12 +906,11 @@ function getCondition(columnType, condition) {
     </div>
   </div>
 </template>
-
 <script>
   export default {
     data() {
       return {
-        showColumns: ['name'],
+        showColumns: [],
         showFilters: ['name'],
         urlConditions: {"name": "pooky,spike"},
         page: 1,
@@ -739,7 +918,7 @@ function getCondition(columnType, condition) {
         showOrder: 'DESC',
         showOrderBy: 'name',
         canEdit: false,
-        canManage: false
+        canManage: false,
       }
     },
   }

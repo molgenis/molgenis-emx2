@@ -49,8 +49,9 @@ public class MetadataUtils {
       field(name("table_inherits"), VARCHAR.nullable(true));
   private static final Field<String> TABLE_IMPORT_SCHEMA =
       field(name("import_schema"), VARCHAR.nullable(true));
-  private static final Field<String> TABLE_DESCRIPTION =
-      field(name("table_description"), VARCHAR.nullable(true));
+  private static final Field<JSON> TABLE_DESCRIPTION =
+      field(name("table_description"), JSON.nullable(true));
+  private static final Field<JSON> TABLE_LABEL = field(name("table_label"), JSON.nullable(true));
   private static final Field<String[]> TABLE_SEMANTICS =
       field(name("table_semantics"), VARCHAR.getArrayDataType().nullable(true));
   private static final Field<String> TABLE_TYPE = field(name("table_type"), VARCHAR.nullable(true));
@@ -58,14 +59,17 @@ public class MetadataUtils {
   // column
   private static final Field<String> COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
+  private static final Field<JSON> COLUMN_LABEL = field(name("label"), JSON.nullable(false));
   private static final Field<Integer> COLUMN_KEY = field(name("key"), INTEGER.nullable(true));
   private static final Field<Integer> COLUMN_POSITION = field(name("position"), INTEGER);
-  private static final Field<String> COLUMN_DESCRIPTION =
-      field(name("description"), VARCHAR.nullable(true));
+  private static final Field<JSON> COLUMN_DESCRIPTION =
+      field(name("description"), JSON.nullable(true));
   private static final Field<String> COLUMN_VISIBLE =
       field(name("visible"), VARCHAR.nullable(true));
   private static final Field<String[]> COLUMN_SEMANTICS =
       field(name("columnSemantics"), VARCHAR.nullable(true).getArrayType());
+  private static final Field<String[]> COLUMN_PROFILES =
+      field(name("columnProfiles"), VARCHAR.nullable(true).getArrayType());
   private static final Field<String> COLUMN_TYPE =
       field(name("columnType"), VARCHAR.nullable(false));
   private static final Field<Boolean> COLUMN_REQUIRED =
@@ -90,6 +94,8 @@ public class MetadataUtils {
       field(name("cascade"), BOOLEAN.nullable(true));
   private static final Field<Boolean> COLUMN_READONLY =
       field(name("readonly"), BOOLEAN.nullable(true));
+  private static final Field<String> COLUMN_DEFAULT =
+      field(name("defaultValue"), VARCHAR.nullable(true));
 
   // users
   private static final Field<String> USER_NAME = field(name("username"), VARCHAR);
@@ -188,7 +194,7 @@ public class MetadataUtils {
                 "DROP POLICY IF EXISTS {0} ON {1}",
                 name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
             jooq.execute(
-                "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},{3},'/Viewer'),'MEMBER'))",
+                "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},{3},'/Aggregator'),'MEMBER'))",
                 name(SCHEMA_METADATA.getName() + "_POLICY"),
                 SCHEMA_METADATA,
                 MG_ROLE_PREFIX,
@@ -264,7 +270,7 @@ public class MetadataUtils {
 
   private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
-    // we record the role name in as a column 'table_rls_manager' and 'table_rls_viewer' and use
+    // we record the role name in as a column 'table_rls_manager' and 'table_rls_aggregator' and use
     // this to enforce policy of being able to change vs view table.
     jooq.execute(
         "CREATE POLICY {0} ON {1} USING (pg_has_role(current_user, {2} || {3} || '/"
@@ -297,7 +303,7 @@ public class MetadataUtils {
           .set(SETTINGS, schema.getSettings())
           .execute();
     } catch (Exception e) {
-      throw new MolgenisException("save of schema metadata failed", e);
+      throw new SqlMolgenisException("save of schema metadata failed", e);
     }
   }
 
@@ -339,6 +345,7 @@ public class MetadataUtils {
           .columns(
               TABLE_SCHEMA,
               TABLE_NAME,
+              TABLE_LABEL,
               TABLE_INHERITS,
               TABLE_IMPORT_SCHEMA,
               TABLE_DESCRIPTION,
@@ -348,23 +355,25 @@ public class MetadataUtils {
           .values(
               table.getSchema().getName(),
               table.getTableName(),
-              table.getInherit(),
+              table.getLabels(),
+              table.getInheritName(),
               table.getImportSchema(),
-              table.getDescription(),
+              table.getDescriptions(),
               table.getSemantics(),
               Objects.toString(table.getTableType(), null),
               table.getSettings())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
-          .set(TABLE_INHERITS, table.getInherit())
+          .set(TABLE_LABEL, table.getLabels())
+          .set(TABLE_INHERITS, table.getInheritName())
           .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
-          .set(TABLE_DESCRIPTION, table.getDescription())
+          .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
           .set(TABLE_TYPE, Objects.toString(table.getTableType(), null))
           .set(SETTINGS, table.getSettings())
           .execute();
     } catch (Exception e) {
-      throw new MolgenisException("save of table metadata failed", e);
+      throw new SqlMolgenisException("save of table metadata failed", e);
     }
   }
 
@@ -390,7 +399,7 @@ public class MetadataUtils {
       }
       return users;
     } catch (Exception e) {
-      throw new MolgenisException("loadUsers failed", e);
+      throw new SqlMolgenisException("loadUsers failed", e);
     }
   }
 
@@ -423,7 +432,7 @@ public class MetadataUtils {
       }
       return result.values();
     } catch (Exception e) {
-      throw new MolgenisException("load of table metadata failed", e);
+      throw new SqlMolgenisException("load of table metadata failed", e);
     }
   }
 
@@ -451,12 +460,14 @@ public class MetadataUtils {
 
   private static TableMetadata recordToTable(org.jooq.Record r) {
     TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
-    table.setInherit(r.get(TABLE_INHERITS, String.class));
+    table.setInheritName(r.get(TABLE_INHERITS, String.class));
     table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
-    table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
+    table.setLabels(r.get(TABLE_LABEL) != null ? r.get(TABLE_LABEL, Map.class) : new TreeMap<>());
+    table.setDescriptions(
+        r.get(TABLE_DESCRIPTION) != null ? r.get(TABLE_DESCRIPTION, Map.class) : new TreeMap<>());
     table.setSemantics(r.get(TABLE_SEMANTICS, String[].class));
     table.setSettingsWithoutReload(
-        r.get(SETTINGS) != null ? r.get(SETTINGS, Map.class) : new LinkedHashMap<>());
+        r.get(SETTINGS) != null ? r.get(SETTINGS, Map.class) : new TreeMap<>());
     if (r.get(TABLE_TYPE, String.class) != null) {
       table.setTableType(TableType.valueOf(r.get(TABLE_TYPE, String.class)));
     }
@@ -471,12 +482,17 @@ public class MetadataUtils {
 
   protected static void saveColumnMetadata(DSLContext jooq, Column column) {
     String refSchema =
-        column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
+        column.isReference()
+            ? column.getRefSchemaName().equals(column.getSchemaName())
+                ? null
+                : column.getRefSchemaName()
+            : null;
     jooq.insertInto(COLUMN_METADATA)
         .columns(
             TABLE_SCHEMA,
             TABLE_NAME,
             COLUMN_NAME,
+            COLUMN_LABEL,
             COLUMN_TYPE,
             COLUMN_KEY,
             COLUMN_POSITION,
@@ -493,11 +509,14 @@ public class MetadataUtils {
             COLUMN_DESCRIPTION,
             COLUMN_READONLY,
             COLUMN_SEMANTICS,
+            COLUMN_DEFAULT,
+            COLUMN_PROFILES,
             COLUMN_VISIBLE)
         .values(
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
             column.getName(),
+            column.getLabels(),
             Objects.toString(column.getColumnType(), null),
             column.getKey(),
             column.getPosition(),
@@ -505,18 +524,21 @@ public class MetadataUtils {
             refSchema,
             column.getRefTableName(),
             column.getRefLink(),
-            column.getRefLabelIfSet(),
+            column.getRefLabel(),
             column.getRefBack(),
             column.getValidation(),
             column.getComputed(),
             column.isIndexed(),
             column.isCascadeDelete(),
-            column.getDescription(),
+            column.getDescriptions(),
             column.isReadonly(),
             column.getSemantics(),
+            column.getDefaultValue(),
+            column.getProfiles(),
             column.getVisible())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
+        .set(COLUMN_LABEL, column.getLabels())
         .set(COLUMN_TYPE, Objects.toString(column.getColumnType(), null))
         .set(COLUMN_KEY, column.getKey())
         .set(COLUMN_POSITION, column.getPosition())
@@ -524,16 +546,18 @@ public class MetadataUtils {
         .set(COLUMN_REF_SCHEMA, refSchema)
         .set(COLUMN_REF_TABLE, column.getRefTableName())
         .set(COLUMN_REF_LINK, column.getRefLink())
-        .set(COLUMN_REF_LABEL, column.getRefLabelIfSet())
+        .set(COLUMN_REF_LABEL, column.getRefLabel())
         .set(COLUMN_REF_BACK, column.getRefBack())
         .set(COLUMN_VALIDATION, column.getValidation())
         .set(COLUMN_COMPUTED, column.getComputed())
         .set(COLUMN_INDEXED, column.isIndexed())
         .set(COLUMN_CASCADE, column.isCascadeDelete())
-        .set(COLUMN_DESCRIPTION, column.getDescription())
+        .set(COLUMN_DESCRIPTION, column.getDescriptions())
         .set(COLUMN_READONLY, column.isReadonly())
         .set(COLUMN_SEMANTICS, column.getSemantics())
+        .set(COLUMN_PROFILES, column.getProfiles())
         .set(COLUMN_VISIBLE, column.getVisible())
+        .set(COLUMN_DEFAULT, column.getDefaultValue())
         .execute();
   }
 
@@ -552,22 +576,28 @@ public class MetadataUtils {
 
   private static Column recordToColumn(org.jooq.Record col) {
     Column c = new Column(col.get(COLUMN_NAME, String.class));
+    c.setLabels(col.get(COLUMN_LABEL) != null ? col.get(COLUMN_LABEL, Map.class) : new TreeMap<>());
     c.setType(ColumnType.valueOf(col.get(COLUMN_TYPE, String.class)));
     c.setRequired(col.get(COLUMN_REQUIRED, Boolean.class));
     c.setKey(col.get(COLUMN_KEY, Integer.class));
     c.setPosition(col.get(COLUMN_POSITION, Integer.class));
-    c.setRefSchema(col.get(COLUMN_REF_SCHEMA, String.class));
+    c.setRefSchemaName(col.get(COLUMN_REF_SCHEMA, String.class));
     c.setRefTable(col.get(COLUMN_REF_TABLE, String.class));
     c.setRefLink(col.get(COLUMN_REF_LINK, String.class));
     c.setRefLabel(col.get(COLUMN_REF_LABEL, String.class));
     c.setRefBack(col.get(COLUMN_REF_BACK, String.class));
     c.setValidation(col.get(COLUMN_VALIDATION, String.class));
     c.setComputed(col.get(COLUMN_COMPUTED, String.class));
-    c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
+    c.setDescriptions(
+        col.get(COLUMN_DESCRIPTION) != null
+            ? col.get(COLUMN_DESCRIPTION, Map.class)
+            : new TreeMap<>());
     c.setCascadeDelete(col.get(COLUMN_CASCADE, Boolean.class));
     c.setReadonly(col.get(COLUMN_READONLY, Boolean.class));
     c.setSemantics(col.get(COLUMN_SEMANTICS, String[].class));
+    c.setProfiles(col.get(COLUMN_PROFILES, String[].class));
     c.setVisible(col.get(COLUMN_VISIBLE, String.class));
+    c.setDefaultValue(col.get(COLUMN_DEFAULT, String.class));
     return c;
   }
 

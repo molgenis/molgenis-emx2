@@ -1,14 +1,14 @@
 package org.molgenis.emx2.graphql;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.GraphQL;
 import java.io.IOException;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -24,7 +24,7 @@ public class TestGraphQLCompositeKeys {
   // need mref
   // need ref_array
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(schemaName);
@@ -48,7 +48,7 @@ public class TestGraphQLCompositeKeys {
             + "        columns: [\n"
             + "          { name: \"id1\", columnType: \"INT\", key: 1 }\n"
             + "          { name: \"id2\", key: 1}\n"
-            + "          { name: \"ref\", columnType: \"REF_ARRAY\", refTable: \"TargetTable\" }\n"
+            + "          { name: \"ref\", columnType: \"REF_ARRAY\", refTableName: \"TargetTable\" }\n"
             + "        ]\n"
             + "      }\n"
             + "    ]\n"
@@ -60,7 +60,7 @@ public class TestGraphQLCompositeKeys {
     // add refBack (TODO unfortunately cannot yet do that in one call)
     execute(
         "mutation {change(columns: [{table: \"TargetTable\" name: \"refBacks\" columnType:"
-            + " \"REFBACK\" refTable: \"RefTable\" refBack: \"ref\"}]) {message}}");
+            + " \"REFBACK\" refTableName: \"RefTable\" refBackName: \"ref\"}]) {message}}");
 
     // have to reload graphql
     grapql =

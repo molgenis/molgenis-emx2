@@ -13,7 +13,7 @@
       </div>
       <VariablesList
         class="col-9"
-        :resource-pid="resourcePid"
+        :resource-id="resourceId"
         :topic="selectedTopic"
       />
     </div>
@@ -28,11 +28,11 @@ import TopicFilter from "./TopicSelector.vue";
 export default {
   components: {
     TopicFilter,
-    
+
     VariablesList,
   },
   props: {
-    resourcePid: String,
+    resourceId: String,
   },
   data: function () {
     return {

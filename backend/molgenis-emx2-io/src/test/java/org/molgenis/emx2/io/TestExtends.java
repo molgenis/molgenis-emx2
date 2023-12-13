@@ -1,12 +1,12 @@
 package org.molgenis.emx2.io;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -19,11 +19,13 @@ public class TestExtends {
 
   static Database database;
   static Schema schema;
+  static Schema schema2;
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(TestExtends.class.getSimpleName());
+    database.dropSchemaIfExists(TestExtends.class.getSimpleName() + "2");
+    database.dropSchemaIfExists(TestExtends.class.getSimpleName());
   }
 
   @Test
@@ -32,19 +34,20 @@ public class TestExtends {
     // therefore mix the columns in one list, then order should stick (both import/export
     // consistent)
 
-    String schema1 =
+    schema = database.createSchema(TestExtends.class.getSimpleName());
+    String schemaDef1 =
         """
-tableName,tableExtends,columnName,key,description
-shape,,,,root class is shape that has general properties
-square,shape,,,special shape that has sidelength
-circle,shape,,,special shape that has radius
-shape,,name,1,should be first column in all shapes
-square,,sidelength,,should be second column in square
-circle,,radius,,should be second column in circle
-shape,,description,,all shapes have description, should be last column in all shapes in this schema""";
+                        tableName,tableExtends,columnName,key,description
+                        shape,,,,root class is shape that has general properties
+                        square,shape,,,special shape that has sidelength
+                        circle,shape,,,special shape that has radius
+                        shape,,name,1,should be first column in all shapes
+                        square,,sidelength,,should be second column in square
+                        circle,,radius,,should be second column in circle
+                        shape,,description,,all shapes have description, should be last column in all shapes in this schema""";
 
     // load in memory
-    SchemaMetadata sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(schema1)));
+    SchemaMetadata sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(schemaDef1)));
     validate1(sm);
 
     // load into system
@@ -64,23 +67,23 @@ shape,,description,,all shapes have description, should be last column in all sh
     validate1(schema.getMetadata());
 
     // now, to make it really difficult, we add a second schema expanding on the first
-    schema = database.dropCreateSchema(schema.getName() + "2");
-    String schema2 =
+    schema2 = database.dropCreateSchema(schema.getName() + "2");
+    String schemaDef2 =
         """
-tableName,tableExtends,refSchema,columnName,key,description
-myshape,shape,TestExtends,,,root class is shape in the other schema
-rectangle,myshape,,,,
-triangle,myshape,,,,
-myshape,,,color,,,all my shapes also have color
-triangle,,,adjacent,,,
-triangle,,,opposite,,,
-triangle,,,hypotenuse,,,
-rectangle,,,width,,,
-rectangle,,,height,,,
-myshape,,,author,,,all my shapes also have author as last column""";
+                        tableName,tableExtends,refSchema,columnName,key,description
+                        myshape,shape,TestExtends,,,root class is shape in the other schema
+                        rectangle,myshape,,,,
+                        triangle,myshape,,,,
+                        myshape,,,color,,,all my shapes also have color
+                        triangle,,,adjacent,,,
+                        triangle,,,opposite,,,
+                        triangle,,,hypotenuse,,,
+                        rectangle,,,width,,,
+                        rectangle,,,height,,,
+                        myshape,,,author,,,all my shapes also have author as last column""";
 
-    sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(schema2)));
-    schema.migrate(sm);
+    sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(schemaDef2)));
+    schema2.migrate(sm);
     validate2(sm);
   }
 

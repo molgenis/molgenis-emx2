@@ -1,0 +1,109 @@
+id,collection,sex,age_range,sample_type,disease,number_of_samples,number_of_donors,last_update,national_node,withdrawn
+bbmri-eric:factID:DE_biobank1_00001,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Adolescent,DNA,ORPHA:100001,484,20,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00002,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Adult,DNA,ORPHA:100001,165,179,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00003,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Aged (65-79 years),DNA,ORPHA:100001,544,74,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00004,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Child,DNA,ORPHA:100001,89,449,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00005,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Middle-aged,DNA,ORPHA:100001,590,152,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00006,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Young Adult,DNA,ORPHA:100001,269,342,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00007,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Adolescent,DNA,ORPHA:101009,225,15,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00008,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Adult,DNA,ORPHA:101009,364,403,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00009,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Aged (65-79 years),DNA,ORPHA:101009,151,291,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00010,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Child,DNA,ORPHA:101009,197,573,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00011,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Middle-aged,DNA,ORPHA:101009,541,467,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00012,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Young Adult,DNA,ORPHA:101009,452,203,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00013,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Adolescent,DNA,ORPHA:100001,362,391,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00014,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Adult,DNA,ORPHA:100001,26,27,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00015,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Aged (65-79 years),DNA,ORPHA:100001,222,499,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00016,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Child,DNA,ORPHA:100001,182,384,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00017,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Middle-aged,DNA,ORPHA:100001,194,394,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00018,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Young Adult,DNA,ORPHA:100001,320,363,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00019,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Adolescent,DNA,ORPHA:101009,432,162,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00020,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Adult,DNA,ORPHA:101009,61,214,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00021,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Aged (65-79 years),DNA,ORPHA:101009,1,15,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00022,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Child,DNA,ORPHA:101009,535,243,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00023,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Middle-aged,DNA,ORPHA:101009,131,299,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00024,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Young Adult,DNA,ORPHA:101009,173,340,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00025,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Adolescent,PERIPHERAL_BLOOD_CELLS,ORPHA:100001,387,404,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00026,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Adult,PERIPHERAL_BLOOD_CELLS,ORPHA:100001,379,459,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00027,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,ORPHA:100001,139,305,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00028,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Child,PERIPHERAL_BLOOD_CELLS,ORPHA:100001,565,250,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00029,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Middle-aged,PERIPHERAL_BLOOD_CELLS,ORPHA:100001,595,243,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00030,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Young Adult,PERIPHERAL_BLOOD_CELLS,ORPHA:100001,330,123,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00031,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Adolescent,PERIPHERAL_BLOOD_CELLS,ORPHA:101009,382,175,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00032,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Adult,PERIPHERAL_BLOOD_CELLS,ORPHA:101009,281,340,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00033,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,ORPHA:101009,101,391,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00034,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Child,PERIPHERAL_BLOOD_CELLS,ORPHA:101009,84,102,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00035,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Middle-aged,PERIPHERAL_BLOOD_CELLS,ORPHA:101009,294,204,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00036,bbmri-eric:ID:DE_biobank1:collection:coll1,MALE,Young Adult,PERIPHERAL_BLOOD_CELLS,ORPHA:101009,299,167,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00037,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Adolescent,PERIPHERAL_BLOOD_CELLS,ORPHA:100001,300,291,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00038,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Adult,PERIPHERAL_BLOOD_CELLS,ORPHA:100001,317,413,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00039,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,ORPHA:100001,146,438,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00040,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Child,PERIPHERAL_BLOOD_CELLS,ORPHA:100001,33,385,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00041,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Middle-aged,PERIPHERAL_BLOOD_CELLS,ORPHA:100001,537,468,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00042,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Young Adult,PERIPHERAL_BLOOD_CELLS,ORPHA:100001,526,512,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00043,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Adolescent,PERIPHERAL_BLOOD_CELLS,ORPHA:101009,474,580,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00044,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Adult,PERIPHERAL_BLOOD_CELLS,ORPHA:101009,386,138,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00045,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Aged (65-79 years),PERIPHERAL_BLOOD_CELLS,ORPHA:101009,174,97,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00046,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Child,PERIPHERAL_BLOOD_CELLS,ORPHA:101009,167,314,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00047,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Middle-aged,PERIPHERAL_BLOOD_CELLS,ORPHA:101009,415,351,2023-11-10,DE,false
+bbmri-eric:factID:DE_biobank1_00048,bbmri-eric:ID:DE_biobank1:collection:coll1,NEUTERED_MALE,Young Adult,PERIPHERAL_BLOOD_CELLS,ORPHA:101009,597,48,2023-11-10,DE,false
+bbmri-eric:factID:NL_biobank2_00049,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Adolescent,FECES,urn:miriam:icd:W00,5942,3845,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00050,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Adult,FECES,urn:miriam:icd:W00,4169,8253,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00051,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Aged (65-79 years),FECES,urn:miriam:icd:W00,1439,4220,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00052,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Child,FECES,urn:miriam:icd:W00,4179,1331,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00053,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Middle-aged,FECES,urn:miriam:icd:W00,6608,7354,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00054,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Young Adult,FECES,urn:miriam:icd:W00,3250,6771,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00055,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Adolescent,FECES,ORPHA:3000,3626,1148,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00056,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Adult,FECES,ORPHA:3000,2531,6593,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00057,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Aged (65-79 years),FECES,ORPHA:3000,4592,5869,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00058,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Child,FECES,ORPHA:3000,2826,796,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00059,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Middle-aged,FECES,ORPHA:3000,5031,378,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00060,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Young Adult,FECES,ORPHA:3000,6277,8875,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00061,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Adolescent,PATHOGEN,urn:miriam:icd:W00,67,6981,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00062,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Adult,PATHOGEN,urn:miriam:icd:W00,1592,8768,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00063,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Aged (65-79 years),PATHOGEN,urn:miriam:icd:W00,304,1886,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00064,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Child,PATHOGEN,urn:miriam:icd:W00,4290,7830,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00065,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Middle-aged,PATHOGEN,urn:miriam:icd:W00,8953,5554,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00066,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Young Adult,PATHOGEN,urn:miriam:icd:W00,4053,5556,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00067,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Adolescent,PATHOGEN,ORPHA:3000,4736,4368,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00068,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Adult,PATHOGEN,ORPHA:3000,1172,2895,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00069,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Aged (65-79 years),PATHOGEN,ORPHA:3000,5471,2235,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00070,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Child,PATHOGEN,ORPHA:3000,873,362,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00071,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Middle-aged,PATHOGEN,ORPHA:3000,5108,4245,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00072,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Young Adult,PATHOGEN,ORPHA:3000,2420,1602,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00073,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Adolescent,URINE,urn:miriam:icd:W00,4077,3471,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00074,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Adult,URINE,urn:miriam:icd:W00,7251,6516,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00075,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Aged (65-79 years),URINE,urn:miriam:icd:W00,7496,8287,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00076,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Child,URINE,urn:miriam:icd:W00,8738,6018,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00077,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Middle-aged,URINE,urn:miriam:icd:W00,1263,2974,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00078,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Young Adult,URINE,urn:miriam:icd:W00,1090,8595,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00079,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Adolescent,URINE,ORPHA:3000,5354,7818,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00080,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Adult,URINE,ORPHA:3000,4276,6566,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00081,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Aged (65-79 years),URINE,ORPHA:3000,2147,4128,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00082,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Child,URINE,ORPHA:3000,5499,3390,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00083,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Middle-aged,URINE,ORPHA:3000,8833,8099,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00084,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Young Adult,URINE,ORPHA:3000,91,42,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00085,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adolescent,NASAL_SWAB,ORPHA:1388,98,91,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00086,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adult,NASAL_SWAB,ORPHA:1388,18,97,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00087,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Middle-aged,NASAL_SWAB,ORPHA:1388,89,47,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00088,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Young Adult,NASAL_SWAB,ORPHA:1388,93,102,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00089,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adolescent,NASAL_SWAB,ORPHA:139552,100,16,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00090,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adult,NASAL_SWAB,ORPHA:139552,35,39,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00091,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Middle-aged,NASAL_SWAB,ORPHA:139552,119,12,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00092,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Young Adult,NASAL_SWAB,ORPHA:139552,47,45,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00093,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adolescent,NASAL_SWAB,urn:miriam:icd:A00.9,89,92,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00094,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adult,NASAL_SWAB,urn:miriam:icd:A00.9,35,0,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00095,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Middle-aged,NASAL_SWAB,urn:miriam:icd:A00.9,54,2,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00096,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Young Adult,NASAL_SWAB,urn:miriam:icd:A00.9,6,49,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00097,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adolescent,PLASMA,ORPHA:1388,101,68,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00098,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adult,PLASMA,ORPHA:1388,41,40,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00099,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Middle-aged,PLASMA,ORPHA:1388,81,93,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00100,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Young Adult,PLASMA,ORPHA:1388,24,12,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00101,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adolescent,PLASMA,ORPHA:139552,74,127,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00102,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adult,PLASMA,ORPHA:139552,17,65,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00103,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Middle-aged,PLASMA,ORPHA:139552,53,8,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00104,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Young Adult,PLASMA,ORPHA:139552,104,33,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00105,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adolescent,PLASMA,urn:miriam:icd:A00.9,11,80,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00106,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adult,PLASMA,urn:miriam:icd:A00.9,51,43,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00107,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Middle-aged,PLASMA,urn:miriam:icd:A00.9,61,17,2023-11-10,NL,false
+bbmri-eric:factID:NL_biobank2_00108,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Young Adult,PLASMA,urn:miriam:icd:A00.9,33,100,2023-11-10,NL,false

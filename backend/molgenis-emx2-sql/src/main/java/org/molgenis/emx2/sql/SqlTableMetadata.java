@@ -38,12 +38,13 @@ class SqlTableMetadata extends TableMetadata {
     // first per-column actions, then multi-column action such as composite keys/refs
     int position = MetadataUtils.getMaxPosition(tm.getJooq(), schemaName) + 1;
     for (Column c : column) {
+      validateColumnIdentifierIsUnique(tm, c);
       long start = System.currentTimeMillis();
       if (tm.getLocalColumn(c.getName()) != null) {
         tm.alterColumn(c);
       } else {
         Column newColumn = new Column(tm, c);
-        if (tm.getInherit() != null
+        if (tm.getInheritName() != null
             && tm.getInheritedTable().getColumn(c.getName()) != null
             // this column is replicated in all subclass tables
             && !c.getName().equals(MG_TABLECLASS)) {
@@ -53,8 +54,10 @@ class SqlTableMetadata extends TableMetadata {
                   + "."
                   + c.getName()
                   + ": column exists in inherited class "
-                  + tm.getInherit());
+                  + tm.getInheritName());
         }
+        checkNoColumnWithSameNameExistsInSubclass(c.getName(), tm, tm.getJooq());
+
         if (!newColumn.isHeading()) {
           validateColumn(newColumn);
           if (newColumn.getPosition() == null) {
@@ -79,6 +82,20 @@ class SqlTableMetadata extends TableMetadata {
       }
     }
     return tm;
+  }
+
+  private static void validateColumnIdentifierIsUnique(
+      SqlTableMetadata existingTableMetadata, Column column) {
+    for (Column existingColumn : existingTableMetadata.getColumns()) {
+      if (!column.getName().equals(MG_TABLECLASS)
+          && !column.getName().equals(existingColumn.getName())
+          && existingColumn.getIdentifier().equals(column.getIdentifier())) {
+        throw new MolgenisException(
+            String.format(
+                "Cannot create/alter column because name resolves to same identifier: '%s' has same identifier as '%s' (both resolve to identifier '%s')",
+                column.getName(), existingColumn.getName(), column.getIdentifier()));
+      }
+    }
   }
 
   @Override
@@ -123,9 +140,12 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public TableMetadata alterColumn(String columnName, Column column) {
     // ignore mg_ columns
-    if (column.getName().startsWith("mg_")) return this;
+    if (column.isSystemColumn()) return this;
 
     Column oldColumn = getColumn(columnName);
+
+    validateColumnIdentifierIsUnique(this, column);
+
     if (oldColumn == null) {
       throw new MolgenisException(
           "Alter column failed: Column  '"
@@ -134,16 +154,16 @@ class SqlTableMetadata extends TableMetadata {
               + column.getName()
               + "' does not exist");
     }
-    if (getInherit() != null && getInheritedTable().getColumn(columnName) != null) {
+    if (getInheritName() != null && getInheritedTable().getColumn(columnName) != null) {
       throw new MolgenisException(
           "Alter column "
               + getTableName()
               + "."
               + columnName
               + " failed: column is part of inherited table "
-              + getInherit());
+              + getInheritName());
     }
-    if (getInherit() != null && getInheritedTable().getColumn(column.getName()) != null) {
+    if (getInheritName() != null && getInheritedTable().getColumn(column.getName()) != null) {
       throw new MolgenisException(
           "Rename column from "
               + getTableName()
@@ -156,7 +176,7 @@ class SqlTableMetadata extends TableMetadata {
               + " failed: column '"
               + column.getName()
               + "' is part of inherited table "
-              + getInherit());
+              + getInheritName());
     }
     getDatabase()
         .tx(
@@ -183,6 +203,9 @@ class SqlTableMetadata extends TableMetadata {
     }
 
     validateColumn(newColumn);
+    if (!columnName.equals(column.getName())) {
+      checkNoColumnWithSameNameExistsInSubclass(column.getName(), tm, tm.getJooq());
+    }
 
     // check if reference and of different size
     if (newColumn.isRefArray()
@@ -299,29 +322,19 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public TableMetadata setInherit(String otherTable) {
+  public TableMetadata setInheritName(String otherTable) {
     long start = System.currentTimeMillis();
-    if (getInherit() != null && getInherit().equals(otherTable)) {
+    if (getInheritName() != null && getInheritName().equals(otherTable)) {
       return this; // nothing to do
     }
-    if (getImportSchema() != null && getSchema().getTableMetadata(otherTable) != null) {
-      throw new MolgenisException(
-          "Inheritance failed: cannot extend schema.table '"
-              + getImportSchema()
-              + "."
-              + otherTable
-              + " because table of that name already exists in this schema ("
-              + getSchemaName()
-              + ')');
-    }
-    if (getInherit() != null) {
+    if (getInheritName() != null) {
       throw new MolgenisException(
           "Table '"
               + getTableName()
               + "'can only extend one table. Therefore it cannot extend '"
               + otherTable
               + "' because it already extends other table '"
-              + getInherit()
+              + getInheritName()
               + "'");
     }
     TableMetadata other;
@@ -363,7 +376,7 @@ class SqlTableMetadata extends TableMetadata {
                         getImportSchema() != null ? getImportSchema() : getSchemaName(),
                         otherTable)));
     log(start, "set inherit on ");
-    super.setInherit(otherTable);
+    super.setInheritName(otherTable);
     return this;
   }
 
@@ -379,7 +392,7 @@ class SqlTableMetadata extends TableMetadata {
         (SqlTableMetadata) db.getSchema(schemaName).getTable(tableName).getMetadata();
     TableMetadata om = db.getSchema(inheritSchema).getTable(inheritedName).getMetadata();
     executeSetInherit(jooq, tm, om);
-    tm.inherit = inheritedName;
+    tm.inheritName = inheritedName;
     MetadataUtils.saveTableMetadata(jooq, tm);
     return tm;
   }

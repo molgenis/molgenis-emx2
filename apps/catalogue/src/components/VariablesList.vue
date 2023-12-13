@@ -9,11 +9,9 @@
       <div class="card-columns">
         <VariableCard
           v-for="variable in variables"
-          :key="
-            variable.release.resource.pid + variable.table.name + variable.name
-          "
+          :key="variable.resource.id + variable.dataset.name + variable.name"
           :variable="variable"
-          :tableName="tableName"
+          :datasetName="datasetName"
         />
       </div>
     </div>
@@ -36,11 +34,7 @@ dd {
 
 <script>
 import { request } from "graphql-request";
-import {
-  InputSearch,
-  MessageError,
-  Pagination,
-} from "molgenis-components";
+import { InputSearch, MessageError, Pagination } from "molgenis-components";
 import VariableCard from "./VariableCard.vue";
 
 export default {
@@ -51,8 +45,8 @@ export default {
     InputSearch,
   },
   props: {
-    resourcePid: String,
-    tableName: String,
+    resourceId: String,
+    datasetName: String,
     topic: String,
     version: String,
   },
@@ -70,13 +64,13 @@ export default {
     reload() {
       this.graphqlError = null;
       let filter = {};
-      if (this.resourcePid) {
+      if (this.resourceId) {
         filter.release = {
-          resource: { pid: { equals: this.resourcePid } },
+          resource: { id: { equals: this.resourceId } },
         };
       }
-      if (this.tableName) {
-        filter.table = { name: { equals: this.tableName } };
+      if (this.datasetName) {
+        filter.dataset = { name: { equals: this.datasetName } };
       }
       if (this.search) {
         filter._search = this.search;
@@ -89,7 +83,7 @@ export default {
       // }
       request(
         "graphql",
-        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, release{resource{pid,mg_tableclass},version},table{name},label, format{name},unit{name}, description,topics{name},categories{label,value,isMissing},harmonisations{match{name},sourceRelease{resource{pid},version},targetRelease{resource{pid},version}sourceTable{name,release{resource{pid},version}}}}
+        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, release{resource{id,mg_tableclass},version},table{name},label, format{name},unit{name}, description,topics{name},categories{label,value,isMissing},harmonisations{match{name},sourceRelease{resource{id},version},targetRelease{resource{id},version}sourceTable{name,release{resource{pid},version}}}}
         ,Variables_agg(filter:$filter){count}}`,
         {
           filter: filter,
@@ -111,7 +105,7 @@ export default {
     },
   },
   watch: {
-    resourcePid() {
+    resourceId() {
       this.reload();
     },
     tableName() {

@@ -3,8 +3,13 @@
     class="hoverContainer"
     :style="column.drop ? 'text-decoration: line-through' : ''"
   >
-    <td>
-      <span class="moveHandle">
+    <td class="bg-white">
+      <IconAction
+        v-if="isManager"
+        class="moveHandle mr-1 align-middle"
+        icon="ellipsis-v"
+      />
+      <span>
         {{ column.name }}
         <span v-if="column.semantics">
           (<a
@@ -23,6 +28,8 @@
           :schema="schema"
           :schemaNames="schemaNames"
           @update:modelValue="$emit('update:modelValue', column)"
+          :locales="locales"
+          :columnIndex="columnIndex"
         />
         <IconDanger
           v-if="isManager"
@@ -38,31 +45,33 @@
           :tableName="column.table"
           @add="addColumn"
           tooltip="Add column at this position"
+          :locales="locales"
+          :columnIndex="columnIndex"
         />
       </IconBar>
     </td>
-    <td v-if="table.subclasses?.length > 0">{{ column.table }}</td>
-    <td>
-      <span v-if="column.refTable">
-        {{ column.columnType.toLowerCase() }}({{
-          column.refSchema ? column.refSchema + "." : ""
-        }}{{ column.refTable
-        }}<span v-if="column.refBack">, refBack={{ column.refBack }}</span>
-        <span v-if="column.refLink">, refLink={{ column.refLink }}</span
-        >)
-      </span>
-      <span v-else>
-        {{ column.columnType.toLowerCase() }}
-      </span>
-      <span v-if="column.required === true || column.required === 'true'">
-        required
-      </span>
-      <span v-if="column.readonly === true || column.readonly === 'true'">
-        readonly
-      </span>
-      <span v-if="column.key">key={{ column.key }}</span>
+    <td class="bg-white" v-if="table.subclasses?.length > 0">
+      {{ column.table }}
     </td>
-    <td>{{ column.description }}</td>
+    <td class="bg-white">
+      <ColumnDefinition :column="column" />
+    </td>
+    <td class="bg-white">
+      <table v-if="column.labels" class="table-borderless">
+        <tr v-for="el in column.labels.filter((el) => el.value)">
+          <td>{{ el.locale }}:</td>
+          <td>{{ el.value }}</td>
+        </tr>
+      </table>
+    </td>
+    <td class="bg-white">
+      <table v-if="column.descriptions" class="table-borderless">
+        <tr v-for="el in column.descriptions.filter((el) => el.value)">
+          <td>{{ el.locale }}:</td>
+          <td>{{ el.value }}</td>
+        </tr>
+      </table>
+    </td>
   </tr>
 </template>
 
@@ -79,13 +88,16 @@ span {
 <script>
 import columnTypes from "../columnTypes.js";
 import ColumnEditModal from "./ColumnEditModal.vue";
-import { IconDanger, IconBar } from "molgenis-components";
+import ColumnDefinition from "./ColumnDefinition.vue";
+import { IconDanger, IconBar, IconAction } from "molgenis-components";
 
 export default {
   components: {
     ColumnEditModal,
+    ColumnDefinition,
     IconDanger,
     IconBar,
+    IconAction,
   },
   data() {
     return {
@@ -110,6 +122,13 @@ export default {
     isManager: {
       type: Boolean,
       default: false,
+    },
+    locales: {
+      type: Array,
+    },
+    columnIndex: {
+      type: Number,
+      required: true,
     },
   },
   computed: {

@@ -58,9 +58,7 @@
           <dt class="col-2">mapped by</dt>
           <dd class="col-10">
             <span v-if="variableDetails.mappings">
-              <span v-for="cohort in mappedByCohorts" :key="cohort">
-                {{ cohort }}
-              </span>
+              {{ mappedByCohorts }}
             </span>
             <span v-else>none</span>
           </dd>
@@ -87,10 +85,10 @@ export default {
         .sort((a, b) => a.order <= b.order);
     },
     mappedByCohorts() {
-      //order alphabetically
       return this.variableDetails.mappings
-        .map((mapping) => mapping.fromTable.dataDictionary.resource.pid)
-        .sort();
+        .map((mapping) => mapping.sourceDataset.resource.id)
+        .sort()
+        .join(", ");
     },
   },
 };
