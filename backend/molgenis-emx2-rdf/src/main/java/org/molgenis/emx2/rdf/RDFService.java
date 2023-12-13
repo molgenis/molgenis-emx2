@@ -265,15 +265,13 @@ public class RDFService {
     final IRI subject = getTableIRI(table);
     builder.add(subject, RDF.TYPE, OWL.CLASS);
     builder.add(subject, RDFS.SUBCLASSOF, IRI_DATASET_CLASS);
-    builder.add(subject, RDFS.SUBCLASSOF, IRI_DATABASE_TABLE);
-    builder.add(subject, RDFS.SUBCLASSOF, OWL.THING);
-    // Specify the tables that this table inherits from.
     Table parent = table.getInheritedTable();
-    while (parent != null) {
+    // A table is a subclass of owl:Thing or of it's direct parent
+    if (parent == null) {
+      builder.add(subject, RDFS.SUBCLASSOF, OWL.THING);
+    } else {
       builder.add(subject, RDFS.SUBCLASSOF, getTableIRI(parent));
-      parent = parent.getInheritedTable();
     }
-
     if (table.getMetadata().getSemantics() != null) {
       for (final String tableSemantics : table.getMetadata().getSemantics()) {
         builder.add(subject, RDFS.ISDEFINEDBY, iri(tableSemantics));

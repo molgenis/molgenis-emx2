@@ -252,7 +252,7 @@
             :selection="selectedItems"
             @update:selection="selectedItems = $event"
             :columns="columns"
-            @update:colums="columns = $event"
+            @update:columns="columns = $event"
             :table-metadata="tableMetadata"
             :data="dataRows"
             :showSelect="showSelect"
