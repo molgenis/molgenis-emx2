@@ -1,11 +1,11 @@
+import { QueryEMX2 } from "molgenis-components";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import { QueryEMX2 } from "molgenis-components";
-import { useSettingsStore } from "./settingsStore";
+import { extractValue } from "../functions/extractValue";
+import { getPropertyByPath } from "../functions/getPropertyByPath";
 import { useCollectionStore } from "./collectionStore";
 import { useFiltersStore } from "./filtersStore";
-import { getPropertyByPath } from "../functions/getPropertyByPath";
-import { extractValue } from "../functions/extractValue";
+import { useSettingsStore } from "./settingsStore";
 
 export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
@@ -182,12 +182,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return biobankCards.value.length;
   });
 
-  const biobankCardsCollectionCount = computed(() => {
-    return biobankCards.value
-      .filter((bc) => bc.collections)
-      .flatMap((biobank) => biobank.collections).length;
-  });
-
   const biobankCardsSubcollectionCount = computed(() => {
     if (!biobankCards.value.length) return 0;
     const collections = biobankCards.value
@@ -197,6 +191,13 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     return collections
       .filter((c) => c.sub_collections)
       .flatMap((collection) => collection.sub_collections).length;
+  });
+
+  const biobankCardsCollectionCount = computed(() => {
+    const totalCount = biobankCards.value
+      .filter((bc) => bc.collections)
+      .flatMap((biobank) => biobank.collections).length;
+    return totalCount - biobankCardsSubcollectionCount.value;
   });
 
   return {
