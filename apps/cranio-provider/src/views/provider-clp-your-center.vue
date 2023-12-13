@@ -1,29 +1,31 @@
 <template>
   <ProviderDashboard>
-    <h2 class="dashboard-h2 mb-4">
+    <h2 class="dashboard-h2">
       Overview of patients {{ ageGroupFilter }} years old (n={{ totalCases }})
     </h2>
-    <DashboardBox class="mb-4">
-      <h3>Options</h3>
-      <InputLabel
-        id="yearOfBirthFilter"
-        label="Year of birth"
-        description="Limit the results by year of birth"
-      />
-      <select
-        class="inputs select"
-        id="yearOfBirthFilter"
-        @change="onYearOfBirthFilter"
-      >
-        <option value="3-4" selected>3-4 years</option>
-        <option value="5-6">5-6 years</option>
-        <option value="8-9">8-9 years</option>
-        <option value="10-12">10-12 years</option>
-        <option value="18+">18+ years</option>
-      </select>
-    </DashboardBox>
-    <DashboardChartLayout :columns="2">
-      <DashboardBox id="clp-patients-by-phenotype">
+    <DashboardRow :columns="1">
+      <DashboardChart>
+        <h3>Options</h3>
+        <InputLabel
+          id="yearOfBirthFilter"
+          label="Year of birth"
+          description="Limit the results by year of birth"
+        />
+        <select
+          class="inputs select"
+          id="yearOfBirthFilter"
+          @change="onYearOfBirthFilter"
+        >
+          <option value="3-4" selected>3-4 years</option>
+          <option value="5-6">5-6 years</option>
+          <option value="8-9">8-9 years</option>
+          <option value="10-12">10-12 years</option>
+          <option value="18+">18+ years</option>
+        </select>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="2">
+      <DashboardChart id="clp-patients-by-phenotype">
         <ColumnChart
           chartId="patientsByPhenotype"
           title="Patients by phenotype"
@@ -36,8 +38,8 @@
           :column-color-palette="phenotypeColors"
           columnHoverFill="#708fb4"
         />
-      </DashboardBox>
-      <DashboardBox>
+      </DashboardChart>
+      <DashboardChart>
         <PieChart2
           chartId="patientsByGender"
           title="Patients per gender"
@@ -50,10 +52,10 @@
           :chartScale="0.9"
           :valuesArePercents="false"
         />
-      </DashboardBox>
-    </DashboardChartLayout>
-    <DashboardChartLayout :columns="1">
-      <DashboardBox id="clp-cleft-q-completed" v-if="showCleftQCompleted">
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart id="clp-cleft-q-completed" v-if="showCleftQCompleted">
         <ProgressMeter
           chartId="cleftQCompleted"
           :title="`% of patients that completed the CLEFT-Q (${ageGroupFilter}yrs)`"
@@ -62,8 +64,8 @@
           :barHeight="25"
           barFill="#66c2a4"
         />
-      </DashboardBox>
-      <DashboardBox id="clp-ics-completed" v-if="showIcsCompleted">
+      </DashboardChart>
+      <DashboardChart id="clp-ics-completed" v-if="showIcsCompleted">
         <ProgressMeter
           chartId="icsCompleted"
           :title="`% of patients that completed the ICS (${ageGroupFilter}yrs)`"
@@ -72,22 +74,22 @@
           :barHeight="25"
           barFill="#9f6491"
         />
-      </DashboardBox>
-    </DashboardChartLayout>
+      </DashboardChart>
+    </DashboardRow>
   </ProviderDashboard>
 </template>
 
 <script setup>
 import { ref } from "vue";
 import {
-  DashboardBox,
+  DashboardRow,
+  DashboardChart,
   ColumnChart,
   PieChart2,
   ProgressMeter,
   InputLabel,
 } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
-import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 // generate random data for display purposes
 import { randomInt } from "d3";

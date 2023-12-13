@@ -21,6 +21,5 @@ export default {
 .app-page {
   font-size: 15pt;
   color: $gray-700;
-  min-height: 100vh;
 }
 </style>
