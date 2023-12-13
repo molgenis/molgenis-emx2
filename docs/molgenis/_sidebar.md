@@ -25,6 +25,7 @@
 - **Developer guide**
     - [How to build](dev_quickstart.md)
     - [Architecture](dev_architecture.md)
+    - [Basic concepts](dev_basics.md)
     - [GraphQL](dev_graphql.md)
     - [Batch API](dev_batchapi.md)
     - [Message API](dev_messageapi.md)
