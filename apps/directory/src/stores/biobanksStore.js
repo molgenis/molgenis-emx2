@@ -35,7 +35,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     .orderBy("collections", "id", "asc");
 
   const activeBiobanksCards = computed(() => {
-    return biobankCards.filter((card) => !card.withdrawn);
+    return biobankCards.value.filter((card) => !card.withdrawn);
   });
 
   const biobankCardsHaveResults = computed(() => {
