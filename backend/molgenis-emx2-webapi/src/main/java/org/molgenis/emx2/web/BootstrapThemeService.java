@@ -93,11 +93,11 @@ public class BootstrapThemeService {
   public static String generateCss(Map<String, String> params) {
     String primaryColor =
         getColor(params.get("primaryColor"), "#017FFD", "Primary color invalid: ");
-    String secondaryColor =
-        getColor(params.get("secondaryColor"), "#005EC4", "Secondary color invalid: ");
+    String menubarColor =
+        getColor(params.get("menubarColor"), "#017FFD", "menubar color invalid: ");
     String input =
         String.format(
-            "$theme-colors:(%nprimary: %s, %nsecondary: %s%n);%n%n", primaryColor, secondaryColor);
+            "$theme-colors:(%nprimary: %s, %nmenubar: %s%n);%n%n", primaryColor, menubarColor);
     StringBuilder CssPlusScss = new StringBuilder();
     CssPlusScss.append(input);
     try {

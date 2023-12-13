@@ -14,6 +14,15 @@
         shape="circle"
       />
       {{ primaryColor }}
+      <label><b>Choose the menu bar color</b></label
+      ><br />
+      <ColorPicker
+        class="mb-2"
+        v-model:pureColor="menubarColor"
+        format="hex6"
+        shape="circle"
+      />
+      {{ menubarColor }}
       <InputString
         id="theme-url-input"
         label="Set logo url"
@@ -53,7 +62,7 @@ export default {
   data() {
     return {
       primaryColor: null,
-      secondaryColor: null,
+      menubarColor: null,
       logoURL: null,
       loading: false,
       graphqlError: null,
@@ -79,8 +88,8 @@ export default {
         this.primaryColor = urlParams.get("primaryColor")
           ? "#" + urlParams.get("primaryColor")
           : null;
-        this.secondaryColor = urlParams.get("secondaryColor")
-          ? "#" + urlParams.get("secondaryColor")
+        this.menubarColor = urlParams.get("menubarColor")
+          ? "#" + urlParams.get("menubarColor")
           : null;
       }
     },
@@ -88,11 +97,11 @@ export default {
       let settingsAlter = [];
       let settingsDrop = [];
       let cssUrl = "theme.css?";
-      if (this.primaryColor || this.secondaryColor) {
+      if (this.primaryColor || this.menubar) {
         if (this.primaryColor)
           cssUrl += "primaryColor=" + this.primaryColor.substr(1) + "&";
-        if (this.secondaryColor)
-          cssUrl += "secondaryColor=" + this.secondaryColor.substr(1) + "&";
+        if (this.menubarColor)
+          cssUrl += "menubarColor=" + this.menubarColor.substr(1) + "&";
         cssUrl = cssUrl.substr(0, cssUrl.length - 1);
         settingsAlter.push({ key: "cssURL", value: cssUrl });
       } else {
