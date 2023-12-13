@@ -31,6 +31,7 @@
           v-for="(column, colindex) in columnOrder"
           role="gridcell"
           :data-column-index="colindex"
+          :data-column-name="column"
           :data-cell-index="`${rowindex},${colindex}`"
           :class="dataTypeToCssClass(column, row[column])"
         >

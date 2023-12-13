@@ -24,7 +24,7 @@
         available.
       </p>
     </PageSection>
-    <PageSection class="bkg-light" :verticalPadding="2">
+    <PageSection :verticalPadding="2">
       <MessageBox v-if="loading & !error">
         <p>Fetching data</p>
       </MessageBox>

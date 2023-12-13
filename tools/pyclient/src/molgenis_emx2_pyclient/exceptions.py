@@ -35,3 +35,6 @@ class ServiceUnavailableError(PyclientException):
 
 class NoContextManagerException(PyclientException):
     """Thrown when sign in is attempted outside a context manager."""
+
+class GraphQLException(PyclientException):
+    """Thrown when a query fails to execute"""
