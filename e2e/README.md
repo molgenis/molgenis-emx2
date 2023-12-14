@@ -40,16 +40,19 @@ The manual test is formatted as markdown and minimally should contain the follow
 - Role
 - Goal
 - Steps
+  - Step number
   - Action(s)
   - Expected result(s)
 
 ### Catalogue manual test results
 
-The result of these manual tests are saved 'management server' emx2. The following attributes are saved.
+The result of these manual tests are saved ['management server'](https://ez3.molgeniscloud.org/catalogue%20test%20results/tables/#/TestResults) emx2. The following attributes are saved.
 
+- Date
 - Number
 - Version emx2
-- Role
-- Description
-- Passed: yes/no
-- Comments
+- Test passed: yes/no
+- Comment
+- Failed at step
+- Known issue: git issue url
+- New issue: git issue url
