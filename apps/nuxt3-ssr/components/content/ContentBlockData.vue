@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ICollectionEvent } from "~/interfaces/types";
+import type { ICollectionEvent } from "~/interfaces/types";
 
 const { collectionEvents } = defineProps<{
   title: string;

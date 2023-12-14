@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import collectionEventGql from "~~/gql/collectionEvent";
-import type {
-  IDefinitionListItem,
-  IMgError,
-  ITreeNode,
-} from "~~/interfaces/types";
+import type { IDefinitionListItem, IMgError } from "~~/interfaces/types";
+
+import type { IOntologyItem } from "meta-data-utils";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -100,13 +98,13 @@ if (collectionEvent.value?.numberOfParticipants) {
   });
 }
 
-let dataCategoriesTree: ITreeNode[] = [];
+let dataCategoriesTree: IOntologyItem[] = [];
 if (collectionEvent.value?.dataCategories?.length) {
   dataCategoriesTree = buildOntologyTree(collectionEvent.value.dataCategories);
   tocItems.push({ label: "Data categories", id: "data_categories" });
 }
 
-let areasOfInformationTree: ITreeNode[] = [];
+let areasOfInformationTree: IOntologyItem[] = [];
 if (collectionEvent.value?.areasOfInformation?.length) {
   areasOfInformationTree = buildOntologyTree(
     collectionEvent.value.areasOfInformation
@@ -114,7 +112,7 @@ if (collectionEvent.value?.areasOfInformation?.length) {
   tocItems.push({ label: "Areas of information", id: "areas_of_information" });
 }
 
-let standardizedToolsTree: ITreeNode[] = [];
+let standardizedToolsTree: IOntologyItem[] = [];
 if (collectionEvent.value.standardizedTools) {
   standardizedToolsTree = buildOntologyTree(
     collectionEvent.value.standardizedTools

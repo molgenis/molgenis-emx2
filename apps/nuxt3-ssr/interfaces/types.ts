@@ -58,7 +58,7 @@ export interface ICohort {
   fundingStatement?: string;
   acknowledgements?: string;
   documentation?: IDocumentation[];
-  datasets: {name: string}[]
+  datasets: { name: string }[];
 }
 
 export interface IVariableBase {
@@ -126,11 +126,11 @@ export interface IContributor {
   organisation: INameObject;
 }
 
-interface INameObject {
+export interface INameObject {
   name: string;
 }
 
-interface IUrlObject {
+export interface IUrlObject {
   url: string;
 }
 
@@ -151,15 +151,9 @@ export interface ICollectionEvent {
   coreVariables: string[];
 }
 
-interface ICollectionEventCategory {
+export interface ICollectionEventCategory {
   name: string;
   parent?: INameObject;
-  definition?: string;
-}
-
-interface ICollectionEventCategorySet {
-  name: string;
-  children?: ICollectionEventCategorySet[];
   definition?: string;
 }
 

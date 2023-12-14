@@ -6,8 +6,14 @@ import datasetQuery from "~~/gql/datasets";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
 import type { ICohort, IMgError } from "~/interfaces/types";
+import type { IOntologyItem } from "meta-data-utils";
 const config = useRuntimeConfig();
 const route = useRoute();
+
+const foo: IOntologyItem = {
+  name: "foo",
+  code: "foo",
+};
 
 const query = gql`
   query Cohorts($id: String) {
@@ -153,20 +159,30 @@ interface IResponse {
     Subcohorts: any[];
     CollectionEvents_agg: { count: number };
     Subcohorts_agg: { count: number };
-  }
+  };
 }
-const { data,  error } = await useFetch<IResponse, IMgError>(`/${route.params.schema}/catalogue/graphql`, {
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: { query, variables },
-});
+const { data, error } = await useFetch<IResponse, IMgError>(
+  `/${route.params.schema}/catalogue/graphql`,
+  {
+    baseURL: config.public.apiBase,
+    method: "POST",
+    body: { query, variables },
+  }
+);
 
 if (error.value) {
   logError(error.value, "Error fetching cohort data");
 }
 
 const cohort = computed(() => data.value?.data?.Cohorts[0] as ICohort);
-const subcohorts = computed(() => data.value?.data?.Subcohorts as any[]);
+// const subcohorts = computed(() => data.value?.data?.Subcohorts as any[]);
+// const mainMedicalConditions = computed(() =>
+//   subcohorts.value.map((s) => s.mainMedicalCondition as IOntologyItem)
+// );
+
+// const myTree = buildTree(mainMedicalConditions.value);
+// const stringified = JSON.stringify(myTree, getCircularReplacer());
+// console.log("tree", stringified);
 const collectionEventCount = computed(
   () => data.value?.data?.CollectionEvents_agg?.count
 );
@@ -371,11 +387,12 @@ if (route.params.catalogue) {
           :description="cohort?.description"
         />
 
-        <ContentBlockGeneralDesign
+        <ContentCohortGeneralDesign
           id="GeneralDesign"
           title="General Design"
           :description="cohort?.designDescription"
           :cohort="cohort"
+          :main-medical-condition="[]"
         />
 
         <ContentBlockContact

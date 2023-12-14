@@ -11,12 +11,17 @@ export {
   getTableMetaData,
 } from "./tableQuery";
 
+export { buildTree } from "./ontologyUtils";
+
 export type {
   IColumn,
   ISetting,
   ISchemaMetaData,
   ITableMetaData,
   KeyObject,
+  IOntologyItem,
+  IOntologyParentTreeItem,
+  IOntologyChildTreeItem,
 } from "./types";
 
 export { fieldTypes, isEmpty, isValueType } from "./fieldHelpers";

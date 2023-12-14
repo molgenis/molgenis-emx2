@@ -50,3 +50,19 @@ export interface ISchemaMetaData {
   description?: string;
   tables: ITableMetaData[];
 }
+
+export interface IOntologyItem {
+  order?: number;
+  name: string;
+  label?: string;
+  parent?: IOntologyItem;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IOntologyItem[];
+}
+
+export interface IOntologyParentTreeItem
+  extends Omit<IOntologyItem, "children"> {}
+export interface IOntologyChildTreeItem extends Omit<IOntologyItem, "parent"> {}

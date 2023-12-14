@@ -65,7 +65,7 @@ function renderList(
 }
 
 const toName = (item: any) => item.name;
-const toCommaList = (items: any) => items.join(",");
+
 let tocItems = reactive([{ label: "Details", id: "details" }]);
 
 const items: any = [];
