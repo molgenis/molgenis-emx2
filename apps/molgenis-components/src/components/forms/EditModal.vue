@@ -195,7 +195,13 @@ export default {
       }
     },
     titlePrefix() {
-      return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
+      if (this.pkey && this.clone) {
+        return "copy";
+      } else if (this.pkey) {
+        return "update";
+      } else {
+        return "insert";
+      }
     },
     columnsSplitByHeadings(): string[][] {
       const filteredByVisibilityFilters = filterVisibleColumns(
@@ -271,6 +277,7 @@ export default {
           .catch(this.handleSaveError);
       }
       if (result) {
+        this.$emit("update:newRow", formData);
         this.handleClose();
       }
     },

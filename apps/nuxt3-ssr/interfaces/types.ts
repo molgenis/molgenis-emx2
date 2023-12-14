@@ -176,7 +176,7 @@ export interface ICatalogue {
   type: IOntologyNode;
 }
 
-interface ITreeNode {
+export interface ITreeNode {
   name: string;
   children?: ITreeNode[];
   parent?: string;
@@ -265,3 +265,15 @@ export interface IMapping {
 export type HarmonizationStatus = "unmapped" | "partial" | "complete";
 
 export type HarmonizationIconSize = "small" | "large";
+export interface IMgError {
+  message: string;
+  statusCode: number;
+  data: { errors: { message: string }[] };
+}
+
+export interface IDefinitionListItem {
+  label: string;
+  tooltip?: string;
+  type?: string;
+  content: any;
+}
