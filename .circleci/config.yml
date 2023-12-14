@@ -8,7 +8,7 @@ jobs:
     docker:
     # specify the version you desire here
     - image: molgenis/ci-build:latest
-    - image: postgres:14-alpine
+    - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
