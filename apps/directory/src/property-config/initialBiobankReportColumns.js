@@ -2,12 +2,7 @@ export const initialBiobankReportColumns = [
   {
     label: "Quality labels:",
     column: {
-      quality: [
-        "label",
-        "certification_report",
-        "certification_image_link",
-        "certification_number",
-      ],
+      quality: [{ quality_standard: ["name"] }],
     },
   },
   {
@@ -19,6 +14,7 @@ export const initialBiobankReportColumns = [
         { type: ["label"] },
         {
           quality: [
+            "id",
             "label",
             "certification_report",
             "certification_image_link",

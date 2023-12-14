@@ -38,13 +38,18 @@
                     v-for="quality of biobankQualities"
                     :key="quality.label"
                   >
-                    <table v-if="getQualityInfo(quality.label)">
+                    <table v-if="quality.quality_standard">
                       <tbody>
                         <th class="pr-3">
-                          {{ getQualityInfo(quality.label).label }}
+                          {{
+                            getQualityInfo(quality.quality_standard.name)?.label
+                          }}
                         </th>
                         <td>
-                          {{ getQualityInfo(quality.label).definition }}
+                          {{
+                            getQualityInfo(quality.quality_standard.name)
+                              ?.definition
+                          }}
                         </td>
                       </tbody>
                     </table>

@@ -438,7 +438,7 @@ export const mapQualityStandards = (instance) => {
 
   if (instance) {
     for (const quality of instance) {
-      arr.push(quality.quality_standard.label);
+      arr.push(quality.quality_standard.name);
     }
   }
 
