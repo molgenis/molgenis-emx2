@@ -11,8 +11,6 @@ export {
   getTableMetaData,
 } from "./tableQuery";
 
-export { buildTree } from "./ontologyUtils";
-
 export type {
   IColumn,
   ISetting,

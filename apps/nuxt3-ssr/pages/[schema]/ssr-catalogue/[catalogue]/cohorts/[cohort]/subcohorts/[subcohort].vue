@@ -109,7 +109,7 @@ if (subcohort?.ageGroups?.length) {
 
 let mainMedicalConditionTree = [];
 if (subcohort?.mainMedicalCondition?.length) {
-  mainMedicalConditionTree = buildOntologyTree(subcohort.mainMedicalCondition);
+  mainMedicalConditionTree = buildTree(subcohort.mainMedicalCondition);
   tocItems.push({
     label: "Main medical condition",
     id: "main_medical_condition",
@@ -118,7 +118,7 @@ if (subcohort?.mainMedicalCondition?.length) {
 
 let comorbidityTree = [];
 if (subcohort?.comorbidity?.length) {
-  comorbidityTree = buildOntologyTree(subcohort.comorbidity);
+  comorbidityTree = buildTree(subcohort.comorbidity);
   tocItems.push({ label: "Comorbidity", id: "comorbidity" });
 }
 

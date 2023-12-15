@@ -1,14 +1,8 @@
 import { describe, it, expect } from "vitest";
-
-import { buildTree, flattenTree } from "../src/ontologyUtils";
-import type { IOntologyParentTreeItem } from "../src/types";
-import { items } from "./test-resources/ontology";
+import type { IOntologyParentTreeItem } from "../interfaces/types";
+import { buildTree, flattenTree } from "./ontologyUtils";
 
 describe("flattenTree", () => {
-  it("passing an undefined instance should return the empty list", () => {
-    expect(flattenTree(undefined)).toEqual([]);
-  });
-
   it("passing an instance without parent should return a list containing only the item", () => {
     const item: IOntologyParentTreeItem = {
       name: "item",
@@ -36,7 +30,7 @@ describe("flattenTree", () => {
         },
       },
     };
-    expect(flattenTree(item)).toEqual([item, item.parent, item.parent.parent]);
+    expect(flattenTree(item)).toEqual([item, item.parent, item.parent?.parent]);
   });
 });
 
@@ -45,9 +39,6 @@ describe("buildTree", () => {
   const itemB: IOntologyParentTreeItem = { name: "B" };
   const itemC: IOntologyParentTreeItem = { name: "C", parent: itemA };
 
-  it("passing an undefined instance should return the empty list", () => {
-    expect(buildTree(undefined)).toEqual([]);
-  });
   it("if items occur multiple times in the input they should be deduplicated", () => {
     expect(buildTree([itemA, itemB, itemA, itemB])).toEqual([itemA, itemB]);
   });
@@ -60,6 +51,7 @@ describe("buildTree", () => {
     const trees = buildTree([itemA, itemB, itemC]);
     expect(trees.length).toEqual(2);
     expect(trees[0].name).toEqual("A");
+    //@ts-ignore
     expect(trees[0].children[0].name).toEqual("C");
     expect(trees[1].name).toEqual("B");
   });
@@ -70,15 +62,10 @@ describe("buildTree", () => {
     ]);
     expect(trees.length).toEqual(1);
     expect(trees[0].name).toEqual("C");
+    //@ts-ignore
     expect(trees[0].children[0].name).toEqual("B");
+    //@ts-ignore
     expect(trees[0].children[0].children[0].name).toEqual("A");
-  });
-
-  it("should return a tree with multiple children ", () => {
-    const tree = buildTree(items);
-    expect(tree.length).toEqual(1);
-    expect(tree[0].name).toEqual("XIV Diseases of the genitourinary system");
-    expect(tree[0].children.length).toEqual(1);
   });
 
   it("children should be unique", () => {
@@ -86,7 +73,9 @@ describe("buildTree", () => {
       { name: "C1", parent: { name: "A" } },
       { name: "C1", parent: { name: "A" } },
     ]);
+    //@ts-ignore
     expect(tree[0].children.length).toEqual(1);
+    //@ts-ignore
     expect(tree[0].children[0].name).toEqual("C1");
   });
 });

@@ -10,11 +10,6 @@ import type { IOntologyItem } from "meta-data-utils";
 const config = useRuntimeConfig();
 const route = useRoute();
 
-const foo: IOntologyItem = {
-  name: "foo",
-  code: "foo",
-};
-
 const query = gql`
   query Cohorts($id: String) {
     Cohorts(filter: { id: { equals: [$id] } }) {
@@ -175,14 +170,19 @@ if (error.value) {
 }
 
 const cohort = computed(() => data.value?.data?.Cohorts[0] as ICohort);
-// const subcohorts = computed(() => data.value?.data?.Subcohorts as any[]);
-// const mainMedicalConditions = computed(() =>
-//   subcohorts.value.map((s) => s.mainMedicalCondition as IOntologyItem)
-// );
+const subcohorts = computed(() => data.value?.data?.Subcohorts as any[]);
+const mainMedicalConditions = computed(() =>
+  subcohorts.value
+    .map((s: { mainMedicalCondition?: IOntologyItem[] }) => {
+      const combinedItems = s.mainMedicalCondition
+        ? s.mainMedicalCondition
+        : [];
 
-// const myTree = buildTree(mainMedicalConditions.value);
-// const stringified = JSON.stringify(myTree, getCircularReplacer());
-// console.log("tree", stringified);
+      return combinedItems as IOntologyItem[];
+    })
+    .flat()
+);
+
 const collectionEventCount = computed(
   () => data.value?.data?.CollectionEvents_agg?.count
 );
@@ -388,11 +388,12 @@ if (route.params.catalogue) {
         />
 
         <ContentCohortGeneralDesign
+          v-if="mainMedicalConditions?.length"
           id="GeneralDesign"
           title="General Design"
           :description="cohort?.designDescription"
           :cohort="cohort"
-          :main-medical-condition="[]"
+          :main-medical-condition="mainMedicalConditions"
         />
 
         <ContentBlockContact
@@ -518,7 +519,7 @@ if (route.params.catalogue) {
           title="Attached Files"
           :documents="cohort.documentation"
         />
-      </ContentBlocks> </template
-    >f
+      </ContentBlocks>
+    </template>
   </LayoutsDetailPage>
 </template>

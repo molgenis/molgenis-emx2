@@ -54,7 +54,7 @@ function showAsFile(item: IDefinitionListItem) {
       <DefinitionListDefinition :small="small">
         <ContentOntology
           v-if="item?.type === 'ONTOLOGY'"
-          :tree="buildOntologyTree(item.content)"
+          :tree="buildTree(item.content)"
           :collapse-all="true"
         ></ContentOntology>
 

@@ -1,4 +1,7 @@
-import type { IOntologyItem, IOntologyParentTreeItem } from "./types";
+import type {
+  IOntologyItem,
+  IOntologyParentTreeItem,
+} from "~/interfaces/types";
 
 /*
  * Takes a list of ontology items linked via parents and returns a list of trees ( root nodes , each with their children)
@@ -23,14 +26,19 @@ export const buildTree = (
     if (!item.parent) {
       continue;
     }
-    const parentIndex = uniqueItems.findIndex((i) => equals(i, item.parent));
+    const parent = item.parent as IOntologyItem;
+    const parentIndex = uniqueItems.findIndex((i) => equals(i, parent));
 
     if (!uniqueItems[parentIndex].children) {
       uniqueItems[parentIndex].children = [];
     }
 
-    if (!uniqueItems[parentIndex].children.find((i) => equals(i, item))) {
-      uniqueItems[parentIndex].children.push(item);
+    if (
+      !(uniqueItems[parentIndex].children as IOntologyItem[]).find((i) =>
+        equals(i, item)
+      )
+    ) {
+      (uniqueItems[parentIndex].children as IOntologyItem[]).push(item);
     }
   }
 
