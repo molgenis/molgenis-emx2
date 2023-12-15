@@ -170,17 +170,21 @@ if (error.value) {
 
 const cohort = computed(() => data.value?.data?.Cohorts[0] as ICohort);
 const subcohorts = computed(() => data.value?.data?.Subcohorts as any[]);
-const mainMedicalConditions = computed(() =>
-  subcohorts.value
-    .map((s: { mainMedicalCondition?: IOntologyItem[] }) => {
-      const combinedItems = s.mainMedicalCondition
-        ? s.mainMedicalCondition
-        : [];
+const mainMedicalConditions = computed(() => {
+  if (!subcohorts.value || !subcohorts.value.length) {
+    return [];
+  } else {
+    return subcohorts.value
+      .map((s: { mainMedicalCondition?: IOntologyItem[] }) => {
+        const combinedItems = s.mainMedicalCondition
+          ? s.mainMedicalCondition
+          : [];
 
-      return combinedItems as IOntologyItem[];
-    })
-    .flat()
-);
+        return combinedItems as IOntologyItem[];
+      })
+      .flat();
+  }
+});
 
 const collectionEventCount = computed(
   () => data.value?.data?.CollectionEvents_agg?.count
