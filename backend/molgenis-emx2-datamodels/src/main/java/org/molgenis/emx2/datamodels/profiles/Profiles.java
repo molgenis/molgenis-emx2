@@ -20,4 +20,8 @@ public class Profiles {
   public List<String> profilesList;
   public List<String> dataList;
   public List<String> examplesList;
+
+  // special options
+  public String dataToFixedSchema;
+  public String setViewPermission;
 }
