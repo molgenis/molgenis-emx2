@@ -1,5 +1,10 @@
 <template>
-  <nav class="navbar bg-primary navbar-expand-lg navbar-dark">
+  <nav
+    :class="`navbar navbar-expand-lg ${customStyling} ${
+      lightMode ? 'navbar-light' : 'navbar-dark'
+    }`"
+    :style="backgroundColorOverride"
+  >
     <button
       class="navbar-toggler"
       type="button"
@@ -82,6 +87,20 @@ export default {
     logo: String,
     /** session information, so we can check role permissions */
     session: Object,
+    /** menubar classes for additional styling */
+    customStyling: {
+      type: String,
+      default: "bg-primary navbar-dark",
+    },
+    /** menubar custom color override */
+    menubarColorOverride: {
+      type: String,
+    },
+    /** use light or dark texts in the menu */
+    lightMode: {
+      type: Boolean,
+      default: false,
+    },
     /** prefix for relative href. Will default to schema name, i.e. first directory in path, e.g. "/pet store/ */
     baseURL: {
       type: String,
@@ -98,6 +117,11 @@ export default {
     };
   },
   computed: {
+    backgroundColorOverride() {
+      return this.menubarColorOverride
+        ? `background-color: ${this.menubarColorOverride}`
+        : "";
+    },
     permittedItems() {
       return this.items.filter(this.permitted);
     },

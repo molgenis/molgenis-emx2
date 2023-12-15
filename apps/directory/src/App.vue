@@ -1,5 +1,11 @@
 <template>
-  <Molgenis v-model="session">
+  <Molgenis
+    v-model="session"
+    menubarCustomStyling=""
+    menubarColorOverride="#e9ecef"
+    backgroundColor="#fff"
+    lightMode
+  >
     <RouterView @click="closeAllDropdownButtons" />
   </Molgenis>
 </template>

@@ -11,13 +11,19 @@
           :error="error"
           @cancel="showChangePasswordForm = false"
         />
-        <ButtonOutline @click="signout" :light="true">Sign out</ButtonOutline>
+        <ButtonOutline
+          @click="signout"
+          :light="!lightMode"
+          :class="`${lightMode ? 'btn-outline-dark' : ''}`"
+          >Sign out</ButtonOutline
+        >
       </span>
       <span v-else>
         <ButtonAlt
           v-show="!isOidcEnabled"
           @click="showSignupForm = true"
-          :light="true"
+          :light="!lightMode"
+          :class="`${lightMode ? 'btn-outline-dark' : ''}`"
         >
           Sign up
         </ButtonAlt>
@@ -26,10 +32,20 @@
           :error="error"
           @close="closeSignupForm"
         />
-        <ButtonOutline v-if="isOidcEnabled" :href="oidcLoginUrl" :light="true">
+        <ButtonOutline
+          v-if="isOidcEnabled"
+          :href="oidcLoginUrl"
+          :light="!lightMode"
+          :class="`${lightMode ? 'btn-outline-dark' : ''}`"
+        >
           Sign in</ButtonOutline
         >
-        <ButtonOutline v-else @click="showSigninForm = true" :light="true">
+        <ButtonOutline
+          v-else
+          @click="showSigninForm = true"
+          :light="!lightMode"
+          :class="`${lightMode ? 'btn-outline-dark' : ''}`"
+        >
           Sign in</ButtonOutline
         >
         <MolgenisSignin
@@ -85,6 +101,10 @@ export default defineComponent({
     graphql: {
       default: "graphql",
       type: String,
+    },
+    lightMode: {
+      type: Boolean,
+      default: false,
     },
   },
   data: function () {

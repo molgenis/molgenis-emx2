@@ -1,5 +1,5 @@
 <template>
-  <div style="background-color: #f4f4f4">
+  <div :style="`background-color: ${backgroundColor}`">
     <CookieWall
       v-if="analyticsId"
       :analyticsId="analyticsId"
@@ -11,10 +11,14 @@
         active="My search"
         :items="menu"
         :session="session"
+        :customStyling="menubarCustomStyling"
+        :menubarColorOverride="menubarColorOverride"
+        :lightMode="lightMode"
       >
         <MolgenisSession
           v-model="session"
           :key="timestamp"
+          :lightMode="lightMode"
           @error="$emit('error', $event)"
         />
       </MolgenisMenu>
@@ -112,6 +116,23 @@ export default {
     showCrumbs: {
       type: Boolean,
       default: true,
+    },
+    /** menubar classes for additional styling */
+    menubarCustomStyling: {
+      type: String,
+    },
+    /** menubar custom color override*/
+    menubarColorOverride: {
+      type: String,
+    },
+    backgroundColor: {
+      type: String,
+      default: "#f4f4f4",
+    },
+    /** use light or dark texts in the menu */
+    lightMode: {
+      type: Boolean,
+      default: false,
     },
   },
   data: function () {
