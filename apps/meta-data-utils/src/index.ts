@@ -17,9 +17,6 @@ export type {
   ISchemaMetaData,
   ITableMetaData,
   KeyObject,
-  IOntologyItem,
-  IOntologyParentTreeItem,
-  IOntologyChildTreeItem,
 } from "./types";
 
 export { fieldTypes, isEmpty, isValueType } from "./fieldHelpers";
