@@ -92,13 +92,9 @@
             <div class="pl-2 pt-2 d-flex" v-if="numberOfCollections">
               <h5>
                 {{
-                  hasActiveFilters
-                    ? `${numberOfCollections} collection${
-                        numberOfCollections === 1 ? "" : "s"
-                      } found`
-                    : `${numberOfCollections} collection${
-                        numberOfCollections === 1 ? "" : "s"
-                      } available`
+                  `${numberOfCollections} collection${
+                    numberOfCollections === 1 ? "" : "s"
+                  } ${hasActiveFilters ? "found" : "available"}`
                 }}
               </h5>
               <collection-selector
