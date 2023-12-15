@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import collectionEventGql from "~~/gql/collectionEvent";
-import type { IDefinitionListItem, IMgError } from "~~/interfaces/types";
+import type {
+  IDefinitionListItem,
+  IMgError,
+  IOntologyItem,
+} from "~~/interfaces/types";
 
-import type { IOntologyItem } from "meta-data-utils";
 const config = useRuntimeConfig();
 const route = useRoute();
 
