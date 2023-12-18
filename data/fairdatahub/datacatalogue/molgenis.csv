@@ -202,6 +202,7 @@ Publications,,publisher,,,,,,,,,,Publisher's name,DataCatalogue
 Publications,,school,,,,,,,,,,School where the thesis was written (in case of thesis),DataCatalogue
 Publications,,abstract,text,,,,,,,,,Publication abstract,DataCatalogue
 Publications,,resources,refback,,,,Extended resources,,publications,,,List of resources that refer to this publication,DataCatalogue
+Contacts,,,,,,,,,,,,"TODO: a nice table description here","DataCatalogue,EMA"
 Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with,"DataCatalogue,EMA"
 Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource,"DataCatalogue,EMA"
 Contacts,,role description,text,,,,,,,,,Description of the role,DataCatalogue
@@ -390,6 +391,7 @@ Mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,"Mapp
 Mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months","DataCatalogue,EMA"
 Mappings,,ETL specification url,hyperlink,,,,,,,,,Link to ETL specification documentation,"DataCatalogue,EMA"
 Mappings,,ETL specification document,file,,,,,,,,,Documentation concerning ETL details,"DataCatalogue,EMA"
+Dataset mappings,,,,,,,,,,,,"TODO: a nice table description here",DataCatalogue
 Dataset mappings,,source,ref,1,TRUE,,Extended resources,,,,,datasource being mapped from,DataCatalogue
 Dataset mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,name of the table being mapped from,DataCatalogue
 Dataset mappings,,target,ref,1,TRUE,,Extended resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",DataCatalogue
@@ -413,6 +415,7 @@ Variable mappings,,comments,text,,,,,,,,,additional notes and comments,DataCatal
 Network variables,,,,,,,,,,,,Listing of the variables used in a network,DataCatalogue
 Network variables,,network,ref,1,TRUE,,Networks,,,,,,DataCatalogue
 Network variables,,variable,ref,1,TRUE,,Variables,,,,,,DataCatalogue
+Subcohort counts,,,,,,,,,,,,"TODO: a nice table description here",DataCatalogue
 Subcohort counts,,subcohort,ref,1,TRUE,,Subcohorts,,,,,,DataCatalogue
 Subcohort counts,,age group,ontology,1,TRUE,CatalogueOntologies,Age groups,,,,,,DataCatalogue
 Subcohort counts,,N total,int,,,,,,,,,,DataCatalogue
@@ -430,6 +433,7 @@ Submissions,,submission type,ontology,,,CatalogueOntologies,Submission types,,,,
 Submissions,,submission description,text,,,,,,,,,"Description of the submission, if applicable","DataCatalogue,EMA"
 Submissions,,responsible persons,text,,,,,,,,,List of responsible persons related to this submission,DataCatalogue
 Submissions,,acceptance date,datetime,,,,,,,,,Date submission was accepted,"DataCatalogue,EMA"
+External identifiers,,,,,,,,,,,,"TODO: a nice table description here","DataCatalogue,EMA"
 External identifiers,,resource,ref,1,TRUE,,Extended resources,,,,,Resource that this external identifier belongs to,"DataCatalogue,EMA"
 External identifiers,,identifier,text,1,TRUE,,,,,,,External identifier,"DataCatalogue,EMA"
 External identifiers,,external identifier type,ontology,,,CatalogueOntologies,External identifier types,,,,,External identifier type,"DataCatalogue,EMA"
