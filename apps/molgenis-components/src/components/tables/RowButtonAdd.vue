@@ -11,6 +11,7 @@
       :visibleColumns="visibleColumns"
       :applyDefaultValues="true"
       @close="handleClose"
+      @update:newRow="(event) => $emit('update:newRow', event)"
     />
   </span>
 </template>

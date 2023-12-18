@@ -19,7 +19,7 @@
             class="mb-0 align-text-bottom text-nowrap"
             @click="onColumnClick(col)"
           >
-            {{ col.label }}
+            {{ col.name }}
             <slot name="colheader" :col="col" />
           </h6>
         </th>
@@ -84,11 +84,11 @@ import { toRaw } from "vue";
 export default {
   components: { TableRow },
   props: {
-    /** selection, two-way binded*/
     selection: { type: Array, required: false },
-    /** column metadata, two-way binded to allow for reorder */
+    /** column metadata, two-way binded to allow for reorder
+     * TODO: handle this through events since props are meant to be 1-way
+     */
     columns: { type: Array, default: () => [] },
-    /** not two way binded, table metadata */
     tableMetadata: { type: Object, required: false },
     /** if tableMetadata is not supplied table id should be set */
     tableId: { type: String, required: false },

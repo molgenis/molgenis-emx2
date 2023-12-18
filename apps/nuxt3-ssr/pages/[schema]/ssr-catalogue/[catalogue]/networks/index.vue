@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IFilter } from "~/interfaces/types";
+import type { IFilter, IMgError } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -10,7 +10,6 @@ const scoped = route.params.catalogue !== "all";
 const catalogue = scoped ? route.params.catalogue : undefined;
 
 useHead({ title: scoped ? `${catalogue} networks` : "Networks" });
-
 
 const currentPage = ref(1);
 if (route.query?.page) {
@@ -95,21 +94,17 @@ const filter = computed(() => {
 
 const catalogueFilter = scoped ? { id: { equals: catalogue } } : undefined;
 
-const graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
-console.log(query.value);
-const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
-  key: `networks-${offset.value}`,
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: {
-    query,
-    variables: { orderby, filter, catalogueFilter },
+const { data, error } = await useGqlFetch<any, IMgError>(query, {
+  variables: {
+    orderby,
+    filter,
+    catalogueFilter,
   },
 });
 
-watch(error, () => {
-  console.log("error on data fetch: ", error.value);
-});
+if (error.value) {
+  throw new Error("Error on networks page data-fetch");
+}
 
 function setCurrentPage(pageNumber: number) {
   router.push({ path: route.path, query: { page: pageNumber } });
@@ -136,8 +131,8 @@ const networks = computed(() => {
 
 const crumbs: any = {};
 crumbs[
-    route.params.catalogue
-    ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+  route.params.catalogue
+] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 </script>
 
 <template>

@@ -43,18 +43,6 @@ body {
     color: $gray-050;
   }
 }
-
-.message-box {
-  .message-text {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    p {
-      margin: 0;
-    }
-  }
-}
-
 .page-footer {
   font-family: Arial, Helvetica, sans-serif;
   padding: 2em 0;

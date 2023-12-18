@@ -170,7 +170,7 @@ public class SqlColumnExecutor {
   static void reapplyRefbackContraints(Column oldColumn, Column newColumn) {
     if ((oldColumn.isRef() || oldColumn.isRefArray())
         && (newColumn.isRef() || newColumn.isRefArray())) {
-      for (Column check : oldColumn.getRefTable().getNonInheritedColumns()) {
+      for (Column check : newColumn.getRefTable().getNonInheritedColumns()) {
         if (check.isRefback() && oldColumn.getName().equals(check.getRefBack())) {
           check.getTable().dropColumn(check.getName());
           check.getTable().add(check);

@@ -1,4 +1,24 @@
-resource,dataset,name,label,collection event.resource,collection event,since version,until version,format,unit,references.dataset,references.name,mandatory,description,order,example values,keywords,vocabularies,notes
+resource,dataset,name,label,collection event.resource,collection event.name,since version,until version,format,unit,references.dataset,references.name,mandatory,description,order,example values,keywords,vocabularies,notes
+DHL,CPA1,aborti,Number of spontaneous abortions prior to delivery.,,,1.0,,,,,,,,,,,,"If  the field concep= ""2"", only allowed value ""0"". ""99"" = not detected."
+DHL,CPA1,accr_fet,Fetal growth defect,,,1.0,,,,,,,By fetal growth defect we mean the slowed intrauterine growth (values ​​below the 10th percentile) diagnosed in the pre-natal phase.,,,,,"""1"" = slowing down intrauterine growth
+ ""2"" = no slowing down intrauterine growth 
+ ""9"" = not detected or incorrect"
+DHL,CPA1,altezza,Height of new mother in cm.,,,1.0,,,,,,,,,,,,"""999"" = not detected or incorrect"
+DHL,CPA1,amnio,Amniocentesis,,,1.0,,,,,,,,,,,,"""1"" = yes, ""2"" = no,""9""= not detected or incorrect"
+DHL,CPA1,anon_m,New mother covered by anonymity,,,1.0,,,,,,,,,,,,"""0"" = no, new mother not covered by anonymity
+ ""1"" = yes, new mother covered by anonymity
+ ""9"" = not detected or incorrect"
+DHL,CPA2,apgar,"Apgar Score,
+ attributed to the newborn after 5 minutes according to the Apgar method.",,,1.0,,,,,,,,,,,,"If the newborn is born alive (vitality) = ""1"", it admits values ​​from ""1"" to ""10"". If the newborn is born dead (vitality) = ""2"", it admits only value ""0"".
+ 99 = not detected or incorrect"
+DHL,CPA2,cariotipo,Karyotype,,,1.0,,,,,,,,,,,,"It is completed only in the presence of malformations (malfor) = ""1"" and if the karyotype is performed before birth.
+ The cytogenetic diagnosis carried out in order to identify chromosomal, numerical and structural anomalies is specified in full."
+DHL,CPA2,circ_cra,Head circumference,,,1.0,,,,,,,,,,,,Head circumference in centimeters.
+DHL,CPA2,circost,other relevant circumstance,,,1.0,,,,,,,,,,,,"Field filled only in case of born dead (vitality field = 2). It contains any other condition which, in the opinion of the doctor, although not included in the previous items, is relevant for the purposes of death. Coded with codes ICD9CM"
+DHL,CPA2,d_cicost,Description of other relevant circumstance,,,1.0,,,,,,,,,,,,"Field filled only in the case of stillbirth (vitality = ""2"").
+ Clear description of the relevant circumstance."
+DHL,CPA2,d_mal_1m,Description of the mother main disease affecting fetus,,,1.0,,,,,,,,,,,,"Field filled only in the case of stillbirth (vitality = ""2"").
+ Description of the main disease of the mother."
 LifeCycle_CDM,core,GA_anx_t1,Gestational age in days at first trimester anxiety measure,,,1.0.0,,integer,numeric,,,,,,,Psychological distress and emotions,,
 LifeCycle_CDM,core,SAI_score_t1,SAI score first trimester,,,1.0.0,,integer,numeric,,,,,,,Psychological distress and emotions,,
 LifeCycle_CDM,core,SCL_anx_score_t1,SCL anxiety score first trimester,,,1.0.0,,integer,numeric,,,,,,,Psychological distress and emotions,,

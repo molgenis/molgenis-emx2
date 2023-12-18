@@ -38,7 +38,7 @@ const iconStarClasses = computed(() => {
 
 //TODO: morris believes we don't need this anymore with the catalogues.
 //instead we would like to link to their catalogues, if applicable?
-const links = []
+const links = [];
 //   {
 //     title: "Network",
 //     url: `/${props.schema}/ssr-catalogue/${catalogue}/networks/${props.network.id}`,
