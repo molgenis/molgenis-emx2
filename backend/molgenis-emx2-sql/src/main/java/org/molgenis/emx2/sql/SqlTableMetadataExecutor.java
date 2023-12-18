@@ -146,7 +146,12 @@ class SqlTableMetadataExecutor {
     for (Column pkey : other.getPrimaryKeyColumns()) {
       // same as parent table, except table name
       Column copy = new Column(copyTm, pkey);
+      copy.setType(REF);
+      copy.setRefTable(other.getTableName());
+      copy.setRefSchemaName(other.getSchemaName());
+      copy.setCascadeDelete(true);
       executeCreateColumn(jooq, copy);
+      executeCreateRefConstraints(jooq, copy);
       executeSetRequired(jooq, copy);
       copyTm.add(copy);
     }

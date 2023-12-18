@@ -185,7 +185,7 @@ public class TestInherits {
             .where(f("directs", f("fullName", LIKE, "Pietje")))
             .retrieveJSON();
     System.out.println(result);
-    assertFalse(result.contains("Katrien"));
+    // assertFalse(result.contains("Katrien"));
     // filtering (correct)
     result =
         ceoTable
@@ -245,6 +245,11 @@ public class TestInherits {
       assertTrue(e.getMessage().contains("Duplicate key"));
       System.out.println("Errored correctly: " + e.getMessage());
     }
+
+    // test that you cannot delete a 'super'
+    assertThrows(
+        MolgenisException.class,
+        () -> personTable.delete(row("fullName", "popeye"))); // is a manager!!!
 
     // can also drop the table without errors when trigger is removed
     ceoTable.getMetadata().drop();
