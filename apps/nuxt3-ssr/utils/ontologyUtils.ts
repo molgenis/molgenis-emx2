@@ -17,9 +17,9 @@ export const buildTree = (
   const allItemsList = selectedOntologyItems.map(flattenTree).flat();
 
   // remove duplicates
-  const uniqueItems = allItemsList.filter(
-    (item, index, self) => self.findIndex((i) => equals(i, item)) === index
-  ) as IOntologyItem[];
+  const uniqueItems = [
+    ...new Map(allItemsList.map((v) => [v.name, v])).values(),
+  ] as IOntologyItem[];
 
   // build tree add leaves to their parents
   for (const item of uniqueItems) {

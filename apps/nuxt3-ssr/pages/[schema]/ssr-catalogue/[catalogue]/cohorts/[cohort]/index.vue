@@ -174,7 +174,7 @@ const mainMedicalConditions = computed(() => {
   if (!subcohorts.value || !subcohorts.value.length) {
     return [];
   } else {
-    return subcohorts.value
+    const allItems = subcohorts.value
       .map((s: { mainMedicalCondition?: IOntologyItem[] }) => {
         const combinedItems = s.mainMedicalCondition
           ? s.mainMedicalCondition
@@ -183,6 +183,9 @@ const mainMedicalConditions = computed(() => {
         return combinedItems as IOntologyItem[];
       })
       .flat();
+
+    const uniqueItems = [...new Map(allItems.map((v) => [v.name, v])).values()];
+    return uniqueItems;
   }
 });
 
