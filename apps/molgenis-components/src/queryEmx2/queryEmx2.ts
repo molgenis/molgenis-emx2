@@ -178,7 +178,6 @@ class QueryEMX2 {
    * If you want to create a nested query, for example { collections: { name: { like: 'lifelines' } } }
    * then column = 'collections', subcolumn = 'name'
    * @param {string} column
-   * @param {string} subcolumn
    * @returns
    */
   where(column: IColumn) {
@@ -202,7 +201,6 @@ class QueryEMX2 {
   /**
    * Works as where, but then for nested properties
    * @param {string} columnId
-   * @param {string} nestedColumn
    * @returns
    */
   filter(columnId: string) {
@@ -215,20 +213,19 @@ class QueryEMX2 {
   }
 
   /**
-   * Works as orwhere, but then for nested properties
+   * Works as orWhere, but then for nested properties
    * @param {string} columnId
-   * @param {string} nestedColumn
    * @returns
    */
   orFilter(columnId: string) {
     const firstDot = columnId.indexOf(".");
-    const subcolumn = columnId.substring(firstDot + 1);
-    let secondDot = subcolumn.indexOf(".");
+    const subColumn = columnId.substring(firstDot + 1);
+    let secondDot = subColumn.indexOf(".");
     this.type = "_or";
 
     if (secondDot > 0) {
-      this.branch = this._toCamelCase(subcolumn.substring(0, secondDot));
-      this.column = this._toCamelCase(subcolumn.substring(secondDot + 1));
+      this.branch = this._toCamelCase(subColumn.substring(0, secondDot));
+      this.column = this._toCamelCase(subColumn.substring(secondDot + 1));
     } else {
       const queryParts = columnId.split(".");
       this.branch = this._toCamelCase(queryParts[0]);
@@ -300,7 +297,7 @@ class QueryEMX2 {
     return this;
   }
 
-  /** Text, String, Url, Int, Bool, Datetime Filter */
+  /** Text, String, Url, Int, Bool, DateTime Filter */
   equals(value: any) {
     const operator = "equals";
 
@@ -308,7 +305,7 @@ class QueryEMX2 {
     return this;
   }
 
-  /** Text, String, Url, Int, Bool, Datetime Filter */
+  /** Text, String, Url, Int, Bool, DateTime Filter */
   in(value: any) {
     /** custom type, to make it into a bracket type query: { like: ["red", "green"] } */
     const operator = "in";
@@ -316,7 +313,7 @@ class QueryEMX2 {
     return this;
   }
 
-  /** Text, String, Url, Int, Bool, Datetime Filter */
+  /** Text, String, Url, Int, Bool, DateTime Filter */
   notEquals(value: any) {
     const operator = "not_equals";
     this._createFilter(operator, value);
@@ -358,14 +355,14 @@ class QueryEMX2 {
     return this;
   }
 
-  /** Int, Datetime Filter */
+  /** Int, DateTime Filter */
   between(value: any) {
     const operator = "between";
 
     this._createFilter(operator, value);
     return this;
   }
-  /** Int, Datetime Filter */
+  /** Int, DateTime Filter */
   notBetween(value: any) {
     const operator = "not_between";
     this._createFilter(operator, value);
@@ -557,9 +554,9 @@ ${root}${rootModifier} {\n`;
       let branch = branches[branchName];
       if (branchName !== "properties") {
         result = `${result.substring(0, result.length - 1)},\n`;
-        const brancheModifiers = this._generateModifiers(branchName);
+        const branchModifiers = this._generateModifiers(branchName);
         /** Only add branches, not properties */
-        result += `${indentation}${branchName}${brancheModifiers || ""} {\n`;
+        result += `${indentation}${branchName}${branchModifiers || ""} {\n`;
 
         result = this._generateOutput(
           branch,
