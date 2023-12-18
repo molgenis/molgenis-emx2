@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlDatabase extends HasSettings<Database> implements Database {
+
+  public static final String POSTGRES_VERSION = "15";
   public static final String ADMIN_USER = "admin";
   public static final String ADMIN_PW_DEFAULT = "admin";
 
@@ -39,7 +41,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
-  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
+  private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String initialAdminPassword =
       (String)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
@@ -103,6 +105,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         this.connectionProvider.clearActiveUser();
       }
     }
+
+    checkPostgressVersion(jooq);
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
     logger.info("Database was created using version: {} ", this.databaseVersion);
@@ -693,5 +697,16 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       return result.get();
     }
     return null;
+  }
+
+  private void checkPostgressVersion(DSLContext dslContext) {
+    String pgVersionString = (String) dslContext.fetchValue("SELECT version()");
+
+    if (pgVersionString != null
+        && !pgVersionString.matches(String.format(".*PostgreSQL %s.\\d+.*", POSTGRES_VERSION))) {
+      logger.warn("Unexpected Postgress version: {}", pgVersionString);
+    } else {
+      logger.info("Postgress version: {}", pgVersionString);
+    }
   }
 }
