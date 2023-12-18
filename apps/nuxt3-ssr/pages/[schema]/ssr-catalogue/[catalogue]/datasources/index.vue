@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IFilter } from "~/interfaces/types";
+import type { IFilter, IMgError } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -90,19 +90,15 @@ const filter = computed(() => {
   return result;
 });
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
-const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
-  key: `cohorts-${offset.value}`,
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: {
-    query,
-    variables: { orderby, filter },
+const { data, error } = await useGqlFetch<any, IMgError>(query, {
+  variables: {
+    orderby,
+    filter,
   },
 });
+
 if (error.value) {
-  console.log(error.value);
-  console.log(query);
+  throw new Error("Error on datasources data fetch");
 }
 
 function setCurrentPage(pageNumber: number) {

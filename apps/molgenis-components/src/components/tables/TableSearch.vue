@@ -18,7 +18,6 @@
           :columns="columnsVisible"
           :data="data"
           :showSelect="showSelect"
-          @update:selection="$emit('update:selection', $event)"
           @select="select"
           @deselect="deselect"
         >
@@ -33,6 +32,7 @@
               :tableId="tableId"
               :schemaId="schemaId"
               @close="loadData"
+              @update:newRow="selectNew"
               class="d-inline p-0"
             />
           </template>
@@ -65,6 +65,7 @@
               v-if="canEdit"
               :id="'row-button-del-' + tableId"
               :tableId="tableId"
+              :tableLabel="tableMetadata.label"
               :schemaId="schemaId"
               :pkey="slotProps.rowKey"
               @close="loadData"
@@ -76,16 +77,18 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import TableMolgenis from "./TableMolgenis.vue";
 import MessageError from "../forms/MessageError.vue";
 import InputSearch from "../forms/InputSearch.vue";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
-import Client from "../../client/client.ts";
+import Client from "../../client/client";
 import RowButtonAdd from "./RowButtonAdd.vue";
 import RowButtonEdit from "./RowButtonEdit.vue";
 import RowButtonDelete from "./RowButtonDelete.vue";
+import { IColumn, ITableMetaData } from "meta-data-utils";
+import { IRow } from "../../Interfaces/IRow";
 
 export default {
   name: "TableSearch",
@@ -108,7 +111,6 @@ export default {
       type: String,
       required: true,
     },
-    /** two-way binding of the selection */
     selection: { type: Array, default: () => [] },
     /** enables checkbox to select rows */
     showSelect: {
@@ -137,8 +139,10 @@ export default {
       limit: 20,
       count: 0,
       loading: true,
-      graphqlError: null,
+      graphqlError: "",
       searchTerms: "",
+      tableMetadata: {} as ITableMetaData,
+      data: undefined,
     };
   },
   computed: {
@@ -146,18 +150,21 @@ export default {
       return this.showHeader || this.count > this.limit;
     },
     columnsVisible() {
-      return this.tableMetadata.columns.filter(
-        (column) =>
+      return this.tableMetadata?.columns.filter(
+        (column: IColumn) =>
           (this.showColumns == null && !column.id.startsWith("mg_")) ||
           (this.showColumns != null && this.showColumns.includes(column.id))
       );
     },
   },
   methods: {
-    select(value) {
+    select(value: IRow) {
       this.$emit("select", value);
     },
-    deselect(value) {
+    selectNew(value: IRow) {
+      this.$emit("update:newRow", value);
+    },
+    deselect(value: IRow) {
       this.$emit("deselect", value);
     },
     async loadData() {
@@ -190,6 +197,7 @@ export default {
   async mounted() {
     this.loadData();
   },
+  emits: ["select", "update:newRow", "deselect"],
 };
 </script>
 

@@ -16,8 +16,9 @@
           "
         />
         <PageSection
-          class="section-bg-light-gray"
+          class="bg-gray-050"
           aria-labelledby="temp-message-title"
+          :verticalPadding="1"
         >
           <h2 id="temp-message-title" class="visually-hidden">
             About the dashboards
@@ -30,7 +31,7 @@
             </p>
           </MessageBox>
         </PageSection>
-        <Dashboard class="provider-dashboard-container">
+        <Dashboard class="provider-dashboard-container" :horizontalPadding="5">
           <ProviderSidebar />
           <router-view
             :providerId="provider.id"

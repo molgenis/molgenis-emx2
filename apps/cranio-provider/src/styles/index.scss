@@ -26,21 +26,16 @@
   }
 
   .page-section {
-    &.section-bg-light-blue {
-      background-color: $blue-050;
-    }
-
-    &.section-bg-light-gray {
-      background-color: $gray-050;
-    }
-
     &.section-text-center {
       text-align: center;
     }
 
     a {
       &.button-link {
-        @include buttonLink(300px);
+        @include setLinkAsButton(
+          $width: 300px,
+          $background-color: $cranio-primary
+        );
         @include textTransform(bold);
         margin: 0 auto;
         margin-top: 1em;
@@ -93,18 +88,21 @@
     align-items: flex-start;
     justify-content: flex-start;
 
-    @media screen and (min-width: 924px) {
-      grid-template-columns: 350px 1fr;
-    }
-
     @media screen and (min-width: 816px) {
-      grid-template-columns: 350px 1fr;
+      grid-template-columns: 340px 1fr;
     }
 
     .dashboard-chart-layout {
-      margin-top: 1em;
-      margin-bottom: 2em;
+      margin: 1.5em 0;
+      gap: 2em;
 
+      &:first-child {
+        margin-top: 0;
+      }
+
+      &:last-child {
+        margin-bottom: 0;
+      }
       &.dashboard-boxes-width-2-1 {
         &.columns-2 {
           @media (min-width: 1024px) {
@@ -122,9 +120,6 @@
     }
 
     .dashboard-box {
-      box-sizing: content-box;
-      padding: 1.3em;
-
       h3,
       .d3-viz .chart-title,
       .d3-progress-meter .chart-title span {
@@ -174,11 +169,13 @@
       font-size: 16pt;
       font-weight: bold;
       color: $gray-600;
+      margin: 0;
     }
 
     .dashboard-h3 {
       font-size: 15pt;
       color: $gray-600;
+      margin: 0;
     }
 
     .dashboard-text {

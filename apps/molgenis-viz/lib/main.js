@@ -1,11 +1,13 @@
 // display components
 import Accordion from "../src/components/display/Accordion.vue";
 import ActionLink from "../src/components/display/ActionLink.vue";
+import FileList from "../src/components/display/FileList.vue";
 import InfoCard from "../src/components/display/InfoCard.vue";
 import LinkCard from "../src/components/display/LinkCard.vue";
 import LoadingScreen from "../src/components/display/LoadingScreen.vue";
 import MessageBox from "../src/components/display/MessageBox.vue";
 import MolgenisLogo from "../src/components/display/MolgenisLogo.vue";
+import QuickLinks from "../src/components/display/QuickLinks.vue";
 import UnorderedList from "../src/components/display/UnorderedList.vue";
 
 // forms
@@ -15,7 +17,8 @@ import InputSearch from "../src/components/forms/InputSearch.vue";
 
 // layout components
 import Dashboard from "../src/components/layouts/Dashboard.vue";
-import DashboardBox from "../src/components/layouts/DashboardBox.vue";
+import DashboardChart from "../src/components/layouts/DashboardChart.vue";
+import DashboardRow from "../src/components/layouts/DashboardRow.vue";
 import Page from "../src/components/layouts/Page.vue";
 import PageFooter from "../src/components/layouts/PageFooter.vue";
 import PageFooterMeta from "../src/components/layouts/PageFooterMeta.vue";
@@ -65,7 +68,8 @@ export {
 
   // layouts
   Dashboard,
-  DashboardBox,
+  DashboardChart,
+  DashboardRow,
   Page,
   PageFooter,
   PageFooterMeta,
@@ -91,6 +95,10 @@ export {
 
   // datasets
   WorldGeoJson,
+  
+  // views
+  FileList,
+  QuickLinks,
 
   // utils
   asDataObject,

@@ -17,6 +17,8 @@
           { id: 'privacy', label: 'Privacy' },
           { id: 'terms', label: 'Terms' },
           { id: 'other', label: 'Links' },
+
+          { id: 'version', label: 'Version' },
         ]"
       />
     </template>
@@ -277,11 +279,53 @@
             >
           </p>
         </ContentBlock>
+
+        <ContentBlock id="version" title="Version">
+          <DefinitionList>
+            <template v-for="[term, definition] in Object.entries(manifest)">
+              <DefinitionListTerm>{{ term }}</DefinitionListTerm>
+              <DefinitionListDefinition>
+                {{ definition }}
+              </DefinitionListDefinition>
+            </template>
+          </DefinitionList>
+        </ContentBlock>
       </ContentBlocks>
     </template>
   </LayoutsDetailPage>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { IMgError } from "~~/interfaces/types";
+
 useHead({ title: "About" });
+
+interface IManifestResponse {
+  data: {
+    _manifest: {
+      ImplementationVersion: string;
+      SpecificationVersion: string;
+      DatabaseVersion: string;
+    };
+  };
+}
+const { data, error } = await useGqlFetch<IManifestResponse, IMgError>(
+  ` 
+    query manifest{
+      _manifest {
+        ImplementationVersion
+        SpecificationVersion
+        DatabaseVersion
+      }
+    }`,
+  { key: "manifest" }
+);
+
+if (error.value) {
+  throw new Error("Error on about-page data fetch");
+}
+
+const manifest = computed(
+  () => (data.value as IManifestResponse).data._manifest ?? {}
+);
 </script>

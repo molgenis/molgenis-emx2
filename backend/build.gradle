@@ -56,15 +56,15 @@ subprojects {
         implementation 'com.nimbusds:nimbus-jose-jwt:9.37'
 
         //also used outside test
-        implementation 'org.junit.jupiter:junit-jupiter:5.10.0'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+        implementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
         testImplementation 'org.mockito:mockito-core:5.6.0'
         //allows to set environment variables in test
         testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
     }
 
     jacoco {
-        toolVersion = "0.8.10"
+        toolVersion = "0.8.11"
     }
     jacocoTestReport {
         reports {
@@ -92,8 +92,13 @@ subprojects {
 
 
     if (project.name != "molgenis-emx2-sql") {
+        //so we always first init database
         test.dependsOn(":backend:molgenis-emx2-sql:test")
     } else {
+        // molgenis-emx2-nonparallel-tests should not run in parallel (and not depend on itself)
+        if(project.name != "molgenis-emx2-nonparallel-tests" && project.name != "molgenis-emx2-sql") {
+            test.mustRunAfter(":backend:molgenis-emx2-tests:test")
+        }
         //don't cache database init
         test.outputs.upToDateWhen { false }
     }
