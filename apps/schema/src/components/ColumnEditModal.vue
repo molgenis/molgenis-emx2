@@ -114,11 +114,18 @@
             </div>
             <div class="row">
               <div class="col-4" v-if="isEditable(column)">
+                <InputRadio
+                  id="column_required_radio"
+                  label="required"
+                  :options="[true, false, 'condition']"
+                  v-model="requiredSelect"
+                  description="Will give error unless field is filled in. Is not checked if not visible"
+                  @update:modelValue="setRequired"
+                />
                 <InputString
                   id="column_required"
                   v-model="column.required"
-                  label="required"
-                  description="Will give error unless field is filled in. Is not checked if not visible"
+                  v-if="requiredSelect==='condition'"
                 />
               </div>
               <div class="col-4" v-if="isEditable(column)">
@@ -269,6 +276,7 @@ import {
   InputString,
   InputText,
   InputTextLocalized,
+  InputRadio,
   LayoutForm,
   LayoutModal,
   MessageError,
@@ -296,6 +304,7 @@ export default {
     InputString,
     InputBoolean,
     InputSelect,
+    InputRadio,
     IconAction,
     InputTextLocalized,
     LayoutModal,
@@ -349,6 +358,7 @@ export default {
       modalVisible: false,
       // working value of the column (copy of the value)
       column: null,
+      requiredSelect: null,
       //the type options
       columnTypes,
       //in case a refSchema has to be used for the table lookup
@@ -472,6 +482,9 @@ export default {
       this.reset();
       this.modalVisible = false;
     },
+    setRequired() {
+      this.column.required = this.requiredSelect;
+    },
     refLinkCandidates() {
       return this.table.columns
         .filter(
@@ -507,6 +520,16 @@ export default {
       }
       this.loading = false;
     },
+    setupRequiredSelect() {
+      console.log(this.column.required)
+      if (this.column.required === "true") {
+        this.requiredSelect = true;
+      } else if (this.column.required === "false") {
+        this.requiredSelect = false;
+      } else {
+        this.requiredSelect = 'condition';
+      }
+    },
     reset() {
       //deep copy so it doesn't update during edits
       if (this.modelValue) {
@@ -518,6 +541,7 @@ export default {
       if (this.column.refSchema != undefined) {
         this.loadRefSchema();
       }
+      this.setupRequiredSelect();
       this.modalVisible = false;
     },
     isEditable(column) {

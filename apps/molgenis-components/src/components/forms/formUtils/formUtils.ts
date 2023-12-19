@@ -39,9 +39,17 @@ function getColumnError(
   if (column.columnType === AUTO_ID || column.columnType === HEADING) {
     return undefined;
   }
-  if (column.required && (missesValue || isInvalidNumber)) {
-    return column.label + " is required";
+  if (column.required) {
+    if (column.required === "true") {
+      if (missesValue || isInvalidNumber) {
+        return column.label + " is required";
+      }
+    } else {
+      let error = getColumnValidationError(column.required, rowData, tableMetaData)
+      if (error && missesValue) return error
+    }
   }
+
   if (missesValue) {
     return undefined;
   }
