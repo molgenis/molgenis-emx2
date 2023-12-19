@@ -549,11 +549,13 @@ public class GraphqlSchemaFieldFactory {
                   for (String tableName : tables) {
                     Table table = s.getTable(tableName);
                     if (table == null) {
-                      throw new GraphqlException(
-                          "Truncate failed: table " + tableName + " unknown");
-                    } else {
-                      table.truncate();
+                      table = s.getTableById(tableName);
+                      if (table == null) {
+                        throw new GraphqlException(
+                            "Truncate failed: table " + tableName + " unknown");
+                      }
                     }
+                    table.truncate();
                     message.append("Truncated table '" + tableName + "'\n");
                   }
                 }
