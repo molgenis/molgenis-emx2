@@ -62,7 +62,7 @@ public class SqlTypeUtils extends TypeUtils {
       } else if (c.getComputed() != null) {
         row.set(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
       } else if (columnIsVisible(c, graph)) {
-        checkRequired(c, row);
+        checkRequired(c, row, graph);
         checkValidation(c, graph);
       } else {
         if (c.isReference()) {
@@ -89,21 +89,25 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  private static void checkRequired(Column c, Row row) {
-    if (!row.isDraft()
-        && c.getComputed() == null
-        && !AUTO_ID.equals(c.getColumnType())
-        && c.isRequired()) {
-
-      if (c.isReference()) {
-        for (Reference r : c.getReferences()) {
-          if (row.isNull(r.getName(), r.getPrimitiveType())) {
+  private static void checkRequired(Column c, Row row, Map<String, Object> values) {
+    if (!row.isDraft() && c.getComputed() == null && !AUTO_ID.equals(c.getColumnType())) {
+      if (c.isRequired()) {
+        if (c.isReference()) {
+          for (Reference r : c.getReferences()) {
+            if (row.isNull(r.getName(), r.getPrimitiveType())) {
+              throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
+            }
+          }
+        } else {
+          if (row.isNull(c.getName(), c.getColumnType())) {
             throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
           }
         }
-      } else {
-        if (row.isNull(c.getName(), c.getColumnType())) {
-          throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
+      } else if (c.getRequired() != null) {
+        String error = checkValidation(c.getRequired(), values);
+        if (error != null && row.isNull(c.getName(), c.getColumnType())) {
+          throw new MolgenisException(
+              "column '" + c.getName() + "' is required when " + error + " in " + row);
         }
       }
     }
