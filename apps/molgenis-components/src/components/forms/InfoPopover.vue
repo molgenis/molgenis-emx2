@@ -124,10 +124,11 @@ export default {
 .w3tooltip .tooltiptext {
   visibility: hidden;
   position: absolute;
-  background-color: var(--dark);
-  color: #fff;
+  background-color: #fff;
+  color: #000;
   text-align: center;
-  padding: 0.8rem 0.6rem;
+  line-height: normal;
+  padding: 6px 10px;
   border-radius: 6px;
   z-index: 1;
   opacity: 0;
