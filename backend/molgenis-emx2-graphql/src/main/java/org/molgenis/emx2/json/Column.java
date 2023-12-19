@@ -87,7 +87,7 @@ public class Column {
     this.refLabelDefault = column.getRefLabelDefault();
     // this.cascadeDelete = column.isCascadeDelete();
     this.validation = column.getValidation();
-    this.setRequired(column.isRequired());
+    this.setRequired(column.getRequired());
     this.readonly = column.isReadonly();
     this.defaultValue = column.getDefaultValue();
     this.descriptions =
