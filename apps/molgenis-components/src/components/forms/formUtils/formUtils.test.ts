@@ -66,7 +66,7 @@ describe("getRowErrors", () => {
   test("it should give an error if a field is conditionally required on another field", () => {
     const rowData = {
       status: null,
-      quantity: 6
+      quantity: 6,
     };
     const metaData = {
       columns: [
@@ -80,21 +80,22 @@ describe("getRowErrors", () => {
           id: "quantity",
           label: "quantity",
           columnType: "DECIMAL",
-          required: "true"
-        }
+          required: "true",
+        },
       ],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({
       quantity: undefined,
-      status: "Applying validation rule returned error: if quantity > 5 required"
+      status:
+        "Applying validation rule returned error: if quantity > 5 required",
     });
   });
 
   test("it should return undefined if a field is conditionally required on another field and provided", () => {
     const rowData = {
       status: "RECEIVED",
-      quantity: 6
+      quantity: 6,
     };
     const metaData = {
       columns: [
@@ -108,14 +109,14 @@ describe("getRowErrors", () => {
           id: "quantity",
           label: "quantity",
           columnType: "DECIMAL",
-          required: "true"
-        }
+          required: "true",
+        },
       ],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({
       quantity: undefined,
-      status: undefined
+      status: undefined,
     });
   });
 
