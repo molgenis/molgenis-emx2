@@ -1,0 +1,15 @@
+---
+name: SharedStaging
+description: "This schema contains communal tables that can be altered by all users."
+
+models:   fairdatahub/datacatalogue/molgenis.csv
+
+profiles: SharedStaging
+
+data:     datacatalogue/CatalogueOntologies
+
+examples: fairdatahub/datacatalogue/demodata_sharedstaging
+
+# special options
+dataToFixedSchema: CatalogueOntologies
+setViewPermission: anonymous
