@@ -125,7 +125,7 @@
                 <InputString
                   id="column_required"
                   v-model="column.required"
-                  v-if="requiredSelect==='condition'"
+                  v-if="requiredSelect === 'condition'"
                 />
               </div>
               <div class="col-4" v-if="isEditable(column)">
@@ -521,13 +521,13 @@ export default {
       this.loading = false;
     },
     setupRequiredSelect() {
-      console.log(this.column.required)
+      console.log(this.column.required);
       if (this.column.required === "true") {
         this.requiredSelect = true;
       } else if (this.column.required === "false") {
         this.requiredSelect = false;
       } else {
-        this.requiredSelect = 'condition';
+        this.requiredSelect = "condition";
       }
     },
     reset() {
