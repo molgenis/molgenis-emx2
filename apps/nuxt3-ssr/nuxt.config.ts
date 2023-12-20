@@ -29,6 +29,12 @@ const config: NuxtConfig = {
   nitro: {
     compressPublicAssets: { brotli: true },
   },
+  imports: {
+    transform: {
+      // exclude
+      exclude: [/\bmeta-data-utils\b/],
+    },
+  },
 };
 
 if (process.env.NODE_ENV === "development") {
