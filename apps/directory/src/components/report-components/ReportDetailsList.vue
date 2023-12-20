@@ -21,7 +21,9 @@
         <td v-else-if="value.type === 'url'">
           <a :href="value.value" target="_blank" rel="noopener noreferrer">
             <i class="fa fa-fw fa-globe" aria-hidden="true"></i>
-            <span class="mg-icon-text">{{ value.label ? value.label : 'Website' }}</span>
+            <span class="mg-icon-text">{{
+              value.label ? value.label : "Website"
+            }}</span>
           </a>
         </td>
         <!--Type email-->
