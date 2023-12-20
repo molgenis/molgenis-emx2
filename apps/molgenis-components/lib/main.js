@@ -1,6 +1,6 @@
 import Client from "../src/client/client.ts";
 import { request } from "../src/client/client.ts";
-import QueryEMX2 from "../src/queryEmx2/queryEmx2.ts";
+import QueryEMX2 from "../src/queryEmx2/queryEmx2.js";
 
 //account
 import MolgenisAccount from "../src/components/account/MolgenisAccount.vue";
