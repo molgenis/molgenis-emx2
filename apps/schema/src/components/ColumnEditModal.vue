@@ -114,7 +114,7 @@
             </div>
             <div class="row">
               <div class="col-4" v-if="isEditable(column)">
-                <InputString
+                <InputBoolean
                   id="column_required"
                   v-model="column.required"
                   label="required"
