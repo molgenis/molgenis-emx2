@@ -52,10 +52,24 @@ public class ImportTableTask extends Task {
     Task task;
     Set<String> warningColumns = new HashSet<>();
     boolean hasEmptyKeys = false;
+    List<Column> primaryKeyColumns = new ArrayList<>();
 
     public ValidatePkeyProcessor(TableMetadata metadata, Task task) {
       this.metadata = metadata;
       this.task = task;
+      this.processColumns();
+    }
+
+    private void processColumns() {
+      for (Column column : metadata.getPrimaryKeyColumns()) {
+        if (column.isReference()) {
+          for (Reference ref : column.getReferences()) {
+            primaryKeyColumns.add(ref.toPrimitiveColumn());
+          }
+        } else {
+          primaryKeyColumns.add(column);
+        }
+      }
     }
 
     @Override
@@ -95,7 +109,7 @@ public class ImportTableTask extends Task {
 
         // primary key(s)
         StringJoiner compoundKey = new StringJoiner(",");
-        for (Column column : metadata.getPrimaryKeyColumns()) {
+        for (Column column : primaryKeyColumns) {
           if (!row.containsName(column.getName())) {
             if (column.getColumnType() != ColumnType.AUTO_ID) {
               task.addSubTask(
