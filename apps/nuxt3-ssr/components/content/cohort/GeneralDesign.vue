@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { ICohort } from "~/interfaces/types";
+import type { ICohort, INameObject } from "~/interfaces/types";
+import type { IOntologyItem } from "meta-data-utils";
 
-const { cohort } = defineProps<{
+const { cohort, mainMedicalCondition } = defineProps<{
   title: string;
   description?: string;
   cohort: ICohort;
+  mainMedicalCondition?: IOntologyItem[];
 }>();
 
 let generalDesign: {
-  label: String;
+  label: string;
   content: any;
   tooltip?: string;
   type?: "ONTOLOGY";
@@ -96,6 +98,11 @@ function setData() {
       content: cohort?.designPaper?.map((dp) => {
         return dp.title + (dp.doi ? ` (doi: ${dp.doi})` : "");
       }),
+    },
+    {
+      label: "Main medical condition",
+      content: mainMedicalCondition,
+      type: "ONTOLOGY",
     },
   ];
 }
