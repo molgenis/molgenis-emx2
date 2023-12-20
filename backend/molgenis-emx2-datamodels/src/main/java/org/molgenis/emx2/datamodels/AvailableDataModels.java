@@ -14,7 +14,8 @@ public enum AvailableDataModels {
   BEACON_V2(new ProfileLoader("fairdatahub/BeaconV2.yaml")),
   ERN_DASHBOARD(new DashboardLoader()),
   ERN_CRANIO(new ErnCranioLoader()),
-  BIOBANK_DIRECTORY(new BiobankDirectoryLoader());
+  BIOBANK_DIRECTORY(new BiobankDirectoryLoader()),
+  SHARED_STAGING(new ProfileLoader("fairdatahub/SharedStaging.yaml"));
 
   private AbstractDataLoader installer;
 
