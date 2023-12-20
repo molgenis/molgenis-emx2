@@ -249,7 +249,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public boolean isRequired() {
-    return required != null && required.equals("true");
+    return required != null && required.equalsIgnoreCase("true");
   }
 
   public Column setRequired(Boolean required) {
@@ -264,6 +264,10 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public String getRequired() {
     return this.required;
+  }
+
+  public boolean isConditionallyRequired() {
+    return !isRequired() && getRequired() != null && "false".equalsIgnoreCase(getRequired());
   }
 
   public Boolean isCascadeDelete() {
