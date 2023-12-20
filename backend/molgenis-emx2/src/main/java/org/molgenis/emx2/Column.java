@@ -37,7 +37,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
       null; // column order within the table. During import/export these may change
 
   private int key = 0; // 1 is primary key 2..n is secondary keys
-  private String required = null;
+  private boolean required = false;
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
@@ -249,21 +249,12 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public boolean isRequired() {
-    return required != null && required.equals("true");
+    return required;
   }
 
-  public Column setRequired(Boolean required) {
-    this.required = required.toString();
-    return this;
-  }
-
-  public Column setRequired(String required) {
+  public Column setRequired(boolean required) {
     this.required = required;
     return this;
-  }
-
-  public String getRequired() {
-    return this.required;
   }
 
   public Boolean isCascadeDelete() {

@@ -16,7 +16,7 @@ public class Column {
   private boolean drop = false; // needed in case of migrations
   private String oldName;
   private Integer key = 0;
-  private String required = null;
+  private Boolean required = false;
   private Boolean readonly = false;
   private String defaultValue;
   private String refSchemaId = null;
@@ -87,7 +87,7 @@ public class Column {
     this.refLabelDefault = column.getRefLabelDefault();
     // this.cascadeDelete = column.isCascadeDelete();
     this.validation = column.getValidation();
-    this.setRequired(column.isRequired());
+    this.required = column.isRequired();
     this.readonly = column.isReadonly();
     this.defaultValue = column.getDefaultValue();
     this.descriptions =
@@ -160,20 +160,12 @@ public class Column {
     this.key = key;
   }
 
-  public boolean isRequired() {
-    return required != null && required.equals("true");
+  public Boolean getRequired() {
+    return required;
   }
 
   public void setRequired(Boolean required) {
-    this.required = required.toString();
-  }
-
-  public void setRequired(String required) {
     this.required = required;
-  }
-
-  public String getRequired() {
-    return this.required;
   }
 
   public String getRefTableId() {

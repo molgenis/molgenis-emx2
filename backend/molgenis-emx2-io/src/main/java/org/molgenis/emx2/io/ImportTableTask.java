@@ -51,7 +51,6 @@ public class ImportTableTask extends Task {
     TableMetadata metadata;
     Task task;
     Set<String> warningColumns = new HashSet<>();
-    boolean hasEmptyKeys = false;
 
     public ValidatePkeyProcessor(TableMetadata metadata, Task task) {
       this.metadata = metadata;
@@ -93,23 +92,11 @@ public class ImportTableTask extends Task {
           }
         }
 
-        // primary key(s)
-        StringJoiner compoundKey = new StringJoiner(",");
-        for (Column column : metadata.getPrimaryKeyColumns()) {
-          if (!row.containsName(column.getName())) {
-            if (column.getColumnType() != ColumnType.AUTO_ID) {
-              task.addSubTask(
-                      "No value provided for key " + column.getName() + " at line " + (index + 1))
-                  .setError();
-              hasEmptyKeys = true;
-            }
-          } else {
-            String keyValue = row.getString(column.getName());
-            compoundKey.add(keyValue);
-          }
-        }
-
-        String keyValue = compoundKey.toString();
+        // primary key
+        String keyValue =
+            metadata.getPrimaryKeyFields().stream()
+                .map(f -> row.getString(f.getName()))
+                .collect(Collectors.joining(","));
         if (keys.contains(keyValue)) {
           duplicates.add(keyValue);
           String keyFields =
@@ -117,7 +104,7 @@ public class ImportTableTask extends Task {
                   .map(Field::getName)
                   .collect(Collectors.joining(","));
           task.addSubTask("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").setError();
-        } else if (!keyValue.isEmpty()) {
+        } else {
           keys.add(keyValue);
         }
         task.setProgress(++index);
@@ -126,8 +113,6 @@ public class ImportTableTask extends Task {
         task.completeWithError(
             "Duplicate keys found in table " + metadata.getTableName() + ": " + duplicates);
       }
-      if (hasEmptyKeys)
-        task.completeWithError("Missing keys found in table " + metadata.getTableName());
     }
   }
 

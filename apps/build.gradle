@@ -31,7 +31,7 @@ task format(type: YarnTask, dependsOn: yarn_install) {
     }
 }
 
-task checkFormat(type: YarnTask, dependsOn: format) {
+task checkFormat(type: YarnTask, dependsOn: yarn_install) {
     outputs.upToDateWhen { false }
     args = ['run', 'nx', 'run-many','--target=checkFormat']
 }
