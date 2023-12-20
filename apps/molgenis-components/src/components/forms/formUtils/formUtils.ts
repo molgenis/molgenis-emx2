@@ -45,8 +45,12 @@ function getColumnError(
         return column.label + " is required";
       }
     } else {
-      let error = getColumnValidationError(column.required, rowData, tableMetaData)
-      if (error && missesValue) return error
+      let error = getColumnValidationError(
+        column.required,
+        rowData,
+        tableMetaData
+      );
+      if (error && missesValue) return error;
     }
   }
 
