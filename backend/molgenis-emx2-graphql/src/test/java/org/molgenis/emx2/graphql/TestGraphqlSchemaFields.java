@@ -625,8 +625,16 @@ public class TestGraphqlSchemaFields {
           table(
               "Some",
               column("id").setPkey(),
-              column("person").setType(REF).setRefTable("Person details"),
-              column("persons").setType(REF_ARRAY).setRefTable("Person details")));
+              column("Person details").setType(REF).setRefTable("Person details"),
+              column("Persons details").setType(REF_ARRAY).setRefTable("Person details")),
+          table(
+              "Child details",
+              column("Parent details").setPkey().setType(REF).setRefTable("Person details"),
+              column("name").setPkey()),
+          table(
+              "Other",
+              column("id").setPkey(),
+              column("Child details").setType(REF).setRefTable("Child details")));
 
       grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
       execute(
@@ -676,11 +684,41 @@ public class TestGraphqlSchemaFields {
       assertEquals(6, agg.at("/PersonDetails_agg/min/someNumber").asInt());
       assertEquals(6, agg.at("/PersonDetails_agg/max/someNumber").asInt());
 
+      // equals key filters
+      execute(
+          "mutation{insert(Some:{id:\"one\",personDetails:{firstName:\"blaata\",last_name:\"blaata2\"},personsDetails:[{firstName:\"blaata\",last_name:\"blaata2\"}]}){message}}");
+      JsonNode sub =
+          execute(
+              "{Some(filter:{personDetails:{equals:{firstName:\"blaata\",last_name:\"blaata2\"}}}){id}}");
+      assertEquals("one", sub.at("/Some/0/id").asText());
+
+      // equals nested key filters
+      execute(
+          "mutation{insert(ChildDetails:{name:\"b\",parentDetails:{firstName:\"blaata\",last_name:\"blaata2\"}}){message}}");
+      execute(
+          "mutation{insert(Other:{id:\"one\",childDetails:{name:\"b\",parentDetails:{firstName:\"blaata\",last_name:\"blaata2\"}}}){message}}");
+
+      JsonNode subsub =
+          execute(
+              "{Other(filter:{childDetails:{equals:{name:\"b\",parentDetails:{firstName:\"blaata\",last_name:\"blaata2\"}}}}){id}}");
+      assertEquals("one", subsub.at("/Other/0/id").asText());
+
       // delete
+      execute("mutation{delete(Other:{id:\"one\"}){message}}");
+      execute(
+          "mutation{delete(ChildDetails:{name:\"b\",parentDetails:{firstName:\"blaata\",last_name:\"blaata2\"}}){message}}");
+      execute("mutation{delete(Some:{id:\"one\"}){message}}");
       execute(
           "mutation{delete(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\"}){message}}");
+      execute(
+          "mutation{delete(PersonDetails:{firstName:\"blaatb\",last_name:\"blaata2\"}){message}}");
       assertEquals(
           count, execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue());
+
+      // truncate should also work with identifier
+      execute("mutation{truncate(tables: \"PersonDetails\"){message}}");
+      assertEquals(
+          0, execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue());
 
       // reset
     } finally {

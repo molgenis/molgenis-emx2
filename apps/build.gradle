@@ -5,11 +5,13 @@ plugins {
     id "com.github.node-gradle.node" version "7.0.1"
 }
 
+def isCI = System.getenv('CI') ? true : false
+
 def nodeSpec = {
     version = '19.9.0'
     yarnVersion = '1.22.19'
     npmVersion = "9.5.1"
-    download = System.getenv('CI') ? false : true
+    download = !isCI
 }
 
 node {
@@ -23,13 +25,15 @@ task cleanJavascript(type: YarnTask, dependsOn: yarn_install) {
 clean.dependsOn cleanJavascript
 
 task format(type: YarnTask, dependsOn: yarn_install) {
-    outputs.upToDateWhen { false }
-    args = ['run', 'nx', 'run-many', '--target=format']
+    if (!isCI) {
+        outputs.upToDateWhen { false }
+        args = ['run', 'nx', 'run-many','--target=format']
+    }
 }
 
 task checkFormat(type: YarnTask, dependsOn: yarn_install) {
     outputs.upToDateWhen { false }
-    args = ['run', 'nx', 'run-many', '--target=checkFormat']
+    args = ['run', 'nx', 'run-many','--target=checkFormat']
 }
 
 task testJavaScript(type: YarnTask, dependsOn: checkFormat) {

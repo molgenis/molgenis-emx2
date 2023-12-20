@@ -574,4 +574,13 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       return this.getTableName();
     }
   }
+
+  public String getDescription() {
+    if (this.getDescriptions().get("en") != null
+        && !this.getDescriptions().get("en").trim().equals("")) {
+      return this.getDescriptions().get("en");
+    } else {
+      return null;
+    }
+  }
 }

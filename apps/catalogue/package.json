@@ -10,7 +10,7 @@
     "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "dependencies": {
-    "core-js": "3.33.2",
+    "core-js": "3.34.0",
     "graphql-request": "5.2.0",
     "import": "^0.0.6",
     "molgenis-components": "*",
@@ -25,7 +25,7 @@
     "last 2 versions"
   ],
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.4.1",
+    "@vitejs/plugin-vue": "4.5.2",
     "graphql-tag": "2.12.6",
     "vite": "4.3.9",
     "prettier": "2.8.8"

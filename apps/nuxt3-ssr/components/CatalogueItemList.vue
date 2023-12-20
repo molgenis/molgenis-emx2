@@ -1,13 +1,9 @@
 <script setup lang="ts">
-interface DefinitionListItem {
-  label: string;
-  tooltip?: string;
-  type?: string;
-  content: any;
-}
+import type { IDefinitionListItem } from "~/interfaces/types";
+
 withDefaults(
   defineProps<{
-    items: DefinitionListItem[];
+    items: IDefinitionListItem[];
     small?: boolean;
   }>(),
   {
@@ -19,10 +15,7 @@ const isArray = (value: []) => {
   return Array.isArray(value);
 };
 
-const useGridClasses = "grid md:grid-cols-3 md:gap-2.5";
-const smallClasses = "";
-
-function emptyContent(item: DefinitionListItem) {
+function emptyContent(item: IDefinitionListItem) {
   if (item.content === undefined || item.content === "") {
     return false;
   } else if (Array.isArray(item.content) && item.content.length === 0) {
@@ -38,31 +31,30 @@ function emptyContent(item: DefinitionListItem) {
   return true;
 }
 
-function showAsFile(item: DefinitionListItem) {
+function showAsFile(item: IDefinitionListItem) {
   return item.content && item.content.url && item.content.extension;
 }
 </script>
 
 <template>
-  <dl class="grid gap-2.5 text-body-base text-gray-900">
-    <div
+  <DefinitionList>
+    <template
       :class="small ? smallClasses : useGridClasses"
       v-for="item in items.filter(emptyContent)"
-      :key="item.label"
     >
-      <dt class="flex items-start font-bold text-body-base">
+      <DefinitionListTerm>
         <div class="flex items-center gap-1">
           {{ item.label }}
           <div v-if="item.tooltip">
             <CustomTooltip label="Read more" :content="item.tooltip" />
           </div>
         </div>
-      </dt>
+      </DefinitionListTerm>
 
-      <dd class="col-span-2" :class="{ 'mb-2.5': small }">
+      <DefinitionListDefinition :small="small">
         <ContentOntology
           v-if="item?.type === 'ONTOLOGY'"
-          :tree="buildOntologyTree(item.content)"
+          :tree="buildTree(item.content)"
           :collapse-all="true"
         ></ContentOntology>
 
@@ -89,7 +81,7 @@ function showAsFile(item: DefinitionListItem) {
         <p v-else>
           {{ Array.isArray(item.content) ? item.content[0] : item.content }}
         </p>
-      </dd>
-    </div>
-  </dl>
+      </DefinitionListDefinition>
+    </template>
+  </DefinitionList>
 </template>

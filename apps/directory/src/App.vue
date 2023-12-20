@@ -93,4 +93,30 @@ ol.breadcrumb {
   margin-top: 0.25rem !important;
   margin-bottom: 0.25rem !important;
 }
+
+/* emx2 style override */
+#app > div {
+  background-color: white !important;
+}
+nav.navbar {
+  background-color: #e9ecef !important;
+}
+nav.navbar a.nav-link,
+nav.navbar button.btn {
+  color: #495057 !important;
+  background-color: transparent;
+}
+nav.navbar a.nav-link:hover,
+nav.navbar button.btn:hover {
+  color: #ec6707 !important;
+}
+
+nav.navbar button.btn.btn-outline-light:not(.border-0) {
+  border-color: #495057 !important;
+}
+nav.navbar button.btn.btn-outline-light:not(.border-0):hover {
+  border-color: #ec6707 !important;
+  background-color: #ec6707 !important;
+  color: #dbedff !important;
+}
 </style>
