@@ -97,7 +97,7 @@ public class SqlTypeUtils extends TypeUtils {
         String error = checkValidation(c.getRequired(), values);
         if (error != null && !validateRequired(c, row)) {
           throw new MolgenisException(
-              "column '" + c.getName() + "' is required when " + error + " in " + row);
+              "column '" + c.getName() + "' is required: " + error + " in " + row);
         }
       }
     }
