@@ -91,11 +91,11 @@ public class SqlTypeUtils extends TypeUtils {
 
   private static void checkRequired(Column c, Row row, Map<String, Object> values) {
     if (!row.isDraft() && c.getComputed() == null && !AUTO_ID.equals(c.getColumnType())) {
-      if (c.isRequired() && !validateRequired(c, row)) {
+      if (c.isRequired() && hasEmptyFields(c, row)) {
         throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
       } else if (c.isConditionallyRequired()) {
         String error = checkValidation(c.getRequired(), values);
-        if (error != null && !validateRequired(c, row)) {
+        if (error != null && hasEmptyFields(c, row)) {
           throw new MolgenisException(
               "column '" + c.getName() + "' is required: " + error + " in " + row);
         }
@@ -103,17 +103,17 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  private static boolean validateRequired(Column c, Row row) {
+  private static boolean hasEmptyFields(Column c, Row row) {
     if (c.isReference()) {
       for (Reference r : c.getReferences()) {
         if (row.isNull(r.getName(), r.getPrimitiveType())) {
-          return false;
+          return true;
         }
       }
     } else {
-      return !row.isNull(c.getName(), c.getColumnType());
+      return row.isNull(c.getName(), c.getColumnType());
     }
-    return true;
+    return false;
   }
 
   private static boolean columnIsVisible(Column column, Map values) {
