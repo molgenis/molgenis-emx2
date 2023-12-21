@@ -148,20 +148,22 @@ jobs:
             bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
           fi
 
-    - run:
-        name: message slack
-        command: |
-          export $( cat build/ci.properties | xargs )
-          if [ "${CIRCLE_BRANCH}" = "master" ]
-          then
-            curl -d "token=${SLACK_TOKEN}" \
-            -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
-            -d "channel=C02AZDG6QQ7" \
-            -X POST https://slack.com/api/chat.postMessage          
-          else
-            curl -d "token=${SLACK_TOKEN}" \
-            -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
-            PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.net" \
-            -d "channel=C02AZDG6QQ7" \
-            -X POST https://slack.com/api/chat.postMessage
-          fi
+  notifications:
+    steps:
+      - run:
+          name: message slack
+          command: |
+            export $( cat build/ci.properties | xargs )
+            if [ "${CIRCLE_BRANCH}" = "master" ]
+            then
+              curl -d "token=${SLACK_TOKEN}" \
+              -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
+              -d "channel=C02AZDG6QQ7" \
+              -X POST https://slack.com/api/chat.postMessage          
+            else
+              curl -d "token=${SLACK_TOKEN}" \
+              -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+              PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.net" \
+              -d "channel=C02AZDG6QQ7" \
+              -X POST https://slack.com/api/chat.postMessage
+            fi
