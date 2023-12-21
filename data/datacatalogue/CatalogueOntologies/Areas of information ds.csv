@@ -58,183 +58,190 @@
 57,Diagnostic codes vocabulary: Orphacode,Orphacode,,Diagnostic codes vocabulary,
 58,Diagnostic codes vocabulary: Orphanet Rare Disease Ontology (ORDO),Orphanet Rare Disease Ontology (ORDO),,Diagnostic codes vocabulary,
 59,Diagnostic codes vocabulary: Human Phenotype Ontology (HPO),Human Phenotype Ontology (HPO),,Diagnostic codes vocabulary,
-60,Diagnostic codes vocabulary: Not coded (Free text),Not coded (Free text),,Diagnostic codes vocabulary,
-61,Diagnostic codes vocabulary: Other,Other,,Diagnostic codes vocabulary,
-62,Hospital admission discharge,,Is information on hospital admission and/or discharge available?,Clinical data,
-63,ICU admission,,Is information on intensive care unit admission available?,Clinical data,
-64,Cause of death,,Is cause of death available?,Clinical data,
-65,Cause of death vocabulary,,What cause of death vocabulary is used? Select from the following:,Clinical data,
-66,Cause of death vocabulary: ICD-9,ICD-9,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032179
-67,Cause of death vocabulary: ICD-10,ICD-10,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032180
-68,Cause of death vocabulary: ICD,ICD,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032181
-69,Cause of death vocabulary: ICD-11,ICD-11,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030108
-70,Cause of death vocabulary: ICD-10-CM,ICD-10-CM,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032182
-71,Cause of death vocabulary: ICD-9-CM,ICD-9-CM,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032209
-72,Cause of death vocabulary: ICPC,ICPC,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030105
-73,Cause of death vocabulary: ICPC-1,ICPC-1,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032210
-74,Cause of death vocabulary: ICPC-2,ICPC-2,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032211
-75,Cause of death vocabulary: HCPCS,HCPCS,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032212
-76,Cause of death vocabulary: Read,Read,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030109
-77,Cause of death vocabulary: SNOMED,SNOMED,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030110
-78,Cause of death vocabulary: SNOMED CT,SNOMED CT,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030111
-79,Cause of death vocabulary: MedDRA,MedDRA,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030112
-80,Cause of death vocabulary: OPCS,OPCS,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030113
-81,Cause of death vocabulary: CCS,CCS,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030114
-82,Cause of death vocabulary: EDC,EDC,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030115
-83,Cause of death vocabulary: CPT,CPT,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032213
-84,Cause of death vocabulary: dm+d,dm+d,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032214
-85,Cause of death vocabulary: Orphacode,Orphacode,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032215
-86,Cause of death vocabulary: Orphanet Rare Disease Ontology (ORDO),Orphanet Rare Disease Ontology (ORDO),,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032216
-87,Cause of death vocabulary: Human Phenotype Ontology (HPO),Human Phenotype Ontology (HPO),,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032217
-88,Cause of death vocabulary: Not coded (Free text),Not coded (Free text),,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032218
-89,Cause of death vocabulary: Other,Other,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032219
-90,Rare diseases,,Are rare diseases (<1 in 2000 people) captured?,Clinical data,
-91,Prescriptions included,,Is information on prescriptions or dispensings of medications included?,Clinical data,
-92,Prescriptions included: ATC,ATC,,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030121
-93,Prescriptions included: RxNorm,RxNorm,,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030122
-94,Prescriptions included: EphMRA,EphMRA,,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030123
-95,Prescriptions included: ALT,ALT,,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030124
-96,Prescriptions included: DrugBank,DrugBank,,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030125
-97,Prescriptions included: Other,Other,,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000031091
-98,Prescriptions included: Not coded (Free text),Not coded (Free text),,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000031092
-99,Dispensings included,,Is information on prescriptions or dispensings of medications included?,Clinical data,
-100,Dispensings included: ATC,ATC,,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030121
-101,Dispensings included: RxNorm,RxNorm,,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030122
-102,Dispensings included: EphMRA,EphMRA,,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030123
-103,Dispensings included: ALT,ALT,,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030124
-104,Dispensings included: DrugBank,DrugBank,,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030125
-105,Dispensings included: Other,Other,,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000031091
-106,Dispensings included: Not coded (Free text),Not coded (Free text),,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000031092
-107,Product information,,Is product information available? Select all items that apply,Clinical data,
-108,Brand name,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030201
-109,Batch number,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030202
-110,Formulation,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030203
-111,Strength,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030204
-112,Package size,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030205
-113,Dose,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030206
-114,Dosage regime,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030207
-115,Route of administration,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030208
-116,Active ingredient(s),,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030209
-117,Product information vocabulary,,Is medicinal product information available? Select all items vocabularies that apply,Clinical data,
-118,Product information vocabulary: ART 57,ART 57,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000030166
-119,Product information vocabulary: IFA GmbH,IFA GmbH,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000030167
-120,Product information vocabulary: EQDM,EQDM,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000030168
-121,Product information vocabulary: SPN,SPN,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000030169
-122,Product information vocabulary: MTHSPL,MTHSPL,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000030170
-123,Product information vocabulary: SNOMED,SNOMED,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031097
-124,Product information vocabulary: ATC,ATC,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031098
-125,Product information vocabulary: WHO Drug,WHO Drug,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031099
-126,Product information vocabulary: AIC,AIC,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031100
-127,Product information vocabulary: CNF,CNF,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031101
-128,Product information vocabulary: DIN,DIN,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031103
-129,Product information vocabulary: Gemscript,Gemscript,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031104
-130,Product information vocabulary: dm+d,dm+d,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031105
-131,Product information vocabulary: Z-index (G-standard),Z-index (G-standard),,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031106
-132,Product information vocabulary: GTIN,GTIN,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031107
-133,Product information vocabulary: NDC,NDC,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031108
-134,Product information vocabulary: RxNorm,RxNorm,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031109
-135,Product information vocabulary: NDF,NDF,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000032231
-136,Product information vocabulary: Not coded (Free text),Not coded (Free text),,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031110
-137,Product information vocabulary: Other,Other,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031111
-138,ATMP,,Is information on advanced therapy medicinal products included?,Clinical data,
-139,Contraception,,Is information on contraceptives included?,,
-140,Indication for use,,"If medicines information is captured, is the indication for use recorded? ",Clinical data,
-141,Indication vocabulary,,Select all items vocabularies that apply,,
-142,Indication vocabulary: ICD-9,ICD-9,,Indication vocabulary,
-143,Indication vocabulary: ICD-10,ICD-10,,Indication vocabulary ,
-144,Indication vocabulary: ICD,ICD,,Indication vocabulary,
-145,Indication vocabulary: ICD-11,ICD-11,,Indication vocabulary,
-146,Indication vocabulary: ICD-10-CM,ICD-10-CM,,Indication vocabulary,
-147,Indication vocabulary: ICD-9-CM,ICD-9-CM,,Indication vocabulary,
-148,Indication vocabulary: ICPC,ICPC,,Indication vocabulary,
-149,Indication vocabulary: ICPC-1,ICPC-1,,Indication vocabulary,
-150,Indication vocabulary: ICPC-2,ICPC-2,,Indication vocabulary,
-151,Indication vocabulary: HCPCS,HCPCS,,Indication vocabulary,
-152,Indication vocabulary: Read,Read,,Indication vocabulary,
-153,Indication vocabulary: SNOMED,SNOMED,,Indication vocabulary,
-154,Indication vocabulary: SNOMED CT,SNOMED CT,,Indication vocabulary,
-155,Indication vocabulary: MedDRA,MedDRA,,Indication vocabulary,
-156,Indication vocabulary: OPCS,OPCS,,Indication vocabulary,
-157,Indication vocabulary: CCS,CCS,,Indication vocabulary,
-158,Indication vocabulary: EDC,EDC,,Indication vocabulary,
-159,Indication vocabulary: CPT,CPT,,Indication vocabulary,
-160,Indication vocabulary: dm+d,dm+d,,Indication vocabulary,
-161,Indication vocabulary: Orphacode,Orphacode,,Indication vocabulary,
-162,Indication vocabulary: Orphanet Rare Disease Ontology (ORDO),Orphanet Rare Disease Ontology (ORDO),,Indication vocabulary,
-163,Indication vocabulary: Human Phenotype Ontology (HPO),Human Phenotype Ontology (HPO),,Indication vocabulary,
-164,Indication vocabulary: Not coded (Free text),Not coded (Free text),,Indication vocabulary,
-165,Indication vocabulary: Other,Other,,Indication vocabulary,
-166,Administration vaccines,,Administration vaccines included,,
-167,Administration other injectable medicines,,,,
-168,Medical devices,,Is information on medical devices included?,Clinical data,
-169,Procedures,,"Is information on procedures (e.g., diagnostic tests, therapeutic, surgical) included?",Clinical data,
-170,Procedures vocabulary,,"If information on medical procedures is captured, select all vocabularies that apply",Clinical data,
-171,Procedures vocabulary: ICD-9,ICD-9,,Procedures vocabulary,
-172,Procedures vocabulary: ICD-10,ICD-10,,Procedures vocabulary,
-173,Procedures vocabulary: ICD,ICD,,Procedures vocabulary,
-174,Procedures vocabulary: ICD-11,ICD-11,,Procedures vocabulary,
-175,Procedures vocabulary: ICD-10-CM,ICD-10-CM,,Procedures vocabulary,
-176,Procedures vocabulary: ICD-9-CM,ICD-9-CM,,Procedures vocabulary,
-177,Procedures vocabulary: ICPC,ICPC,,Procedures vocabulary,
-178,Procedures vocabulary: ICPC-1,ICPC-1,,Procedures vocabulary,
-179,Procedures vocabulary: ICPC-2,ICPC-2,,Procedures vocabulary,
-180,Procedures vocabulary: HCPCS,HCPCS,,Procedures vocabulary,
-181,Procedures vocabulary: Read,Read,,Procedures vocabulary,
-182,Procedures vocabulary: SNOMED,SNOMED,,Procedures vocabulary,
-183,Procedures vocabulary: SNOMED CT,SNOMED CT,,Procedures vocabulary,
-184,Procedures vocabulary: MedDRA,MedDRA,,Procedures vocabulary,
-185,Procedures vocabulary: OPCS,OPCS,,Procedures vocabulary,
-186,Procedures vocabulary: CCS,CCS,,Procedures vocabulary,
-187,Procedures vocabulary: EDC,EDC,,Procedures vocabulary,
-188,Procedures vocabulary: CPT,CPT,,Procedures vocabulary,
-189,Procedures vocabulary: dm+d,dm+d,,Procedures vocabulary,
-190,Procedures vocabulary: Orphacode,Orphacode,,Procedures vocabulary,
-191,Procedures vocabulary: Orphanet Rare Disease Ontology (ORDO),Orphanet Rare Disease Ontology (ORDO),,Procedures vocabulary,
-192,Procedures vocabulary: Human Phenotype Ontology (HPO),Human Phenotype Ontology (HPO),,Procedures vocabulary,
-193,Procedures vocabulary: Not coded (Free text),Not coded (Free text),,Procedures vocabulary,
-194,Procedures vocabulary: Other,Other,,Procedures vocabulary,
-195,Clinical measures,,"Is information on clinical measures included (e.g., BMI, blood pressure)?",Clinical data,
-196,Healthcare centre,,"Is information on the healthcare centre (e.g., pharmacy, general practice, hospital) available?",,
-197,Healthcare provider,,"Is information on the person providing healthcare (e.g., physician, pharmacist, specialist) available?",,
-198,Genetic data,,Is genotyping information available? Select all vocabularies that apply,,
-199,OGG,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030150
-200,FG,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030151
-201,GO,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030152
-202,EGO,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030153
-203,SOPHARM,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030154
-204,PHARE,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030155
-205,Genetic data: Other,Other,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000031070
-206,HGNC,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000031072
-207,Biomarker data,,"Is biomarker information available, select all vocabularies that apply",,
-208,BMO,,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000029933
-209,SMASH,,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000029934
-210,FOBI,,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000029935
-211,HPO,,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000029936
-212,Biomarker data: Other,Other,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000031074
-213,Patient-generated data,,"Is patient-generated information (e.g.,from wearable devices) available?",,
-214,Patient-reported data,,Are patient-reported outcomes (e.g quality of life) available?,,
-215,Quality of life,,Are quality of life measures available? Select all that apply,,
-216,AQoL-8D,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030222
-217,QOLS,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030223
-218,MQOL,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030224
-219,MQOL-E,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030225
-220,HRQOL,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030226
-221,WHOQOL,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030227
-222,EQ5D,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030228
-223,15D,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030229
-224,SF-36,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030230
-225,SF-6D,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030231
-226,HUI,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030232
-227,Quality of life: Not captured,Not captured,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000031093
-228,Quality of life: Not coded (Free text),Not coded (Free text),,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000031094
-229,Quality of life: Other,Other,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000031095
-230,Health care costs,,Is information on costs of healthcare available?,,
-231,Free text,,Is free text information available?,,
-232,Care setting,,,,
-233,"Primary care - GP, community pharmacist level",,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029982
-234,Primary care - specialist level (e.g. paediatricians),,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029983
-235,Secondary care - specialist level (ambulatory),,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029984
-236,Hospital inpatient care,,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029985
-237,Hospital outpatient care,,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029986
-238,Care setting: Other,Other,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000031055
-239,Population pregnancy and neonates,,,,
+60,Diagnostic codes vocabulary: OPS,OPS,,Diagnostic codes vocabulary,
+61,Diagnostic codes vocabulary: OMIM,OMIM,,Diagnostic codes vocabulary,
+62,Diagnostic codes vocabulary: Not coded (Free text),Not coded (Free text),,Diagnostic codes vocabulary,
+63,Diagnostic codes vocabulary: Other,Other,,Diagnostic codes vocabulary,
+64,Hospital admission discharge,,Is information on hospital admission and/or discharge available?,Clinical data,
+65,ICU admission,,Is information on intensive care unit admission available?,Clinical data,
+66,Cause of death,,Is cause of death available?,Clinical data,
+67,Cause of death vocabulary,,What cause of death vocabulary is used? Select from the following:,Clinical data,
+68,Cause of death vocabulary: ICD-9,ICD-9,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032179
+69,Cause of death vocabulary: ICD-10,ICD-10,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032180
+70,Cause of death vocabulary: ICD,ICD,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032181
+71,Cause of death vocabulary: ICD-11,ICD-11,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030108
+72,Cause of death vocabulary: ICD-10-CM,ICD-10-CM,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032182
+73,Cause of death vocabulary: ICD-9-CM,ICD-9-CM,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032209
+74,Cause of death vocabulary: ICPC,ICPC,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030105
+75,Cause of death vocabulary: ICPC-1,ICPC-1,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032210
+76,Cause of death vocabulary: ICPC-2,ICPC-2,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032211
+77,Cause of death vocabulary: HCPCS,HCPCS,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032212
+78,Cause of death vocabulary: Read,Read,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030109
+79,Cause of death vocabulary: SNOMED,SNOMED,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030110
+80,Cause of death vocabulary: SNOMED CT,SNOMED CT,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030111
+81,Cause of death vocabulary: MedDRA,MedDRA,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030112
+82,Cause of death vocabulary: OPCS,OPCS,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030113
+83,Cause of death vocabulary: CCS,CCS,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030114
+84,Cause of death vocabulary: EDC,EDC,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000030115
+85,Cause of death vocabulary: CPT,CPT,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032213
+86,Cause of death vocabulary: dm+d,dm+d,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032214
+87,Cause of death vocabulary: Orphacode,Orphacode,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032215
+88,Cause of death vocabulary: Orphanet Rare Disease Ontology (ORDO),Orphanet Rare Disease Ontology (ORDO),,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032216
+89,Cause of death vocabulary: Human Phenotype Ontology (HPO),Human Phenotype Ontology (HPO),,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032217
+90,Cause of death vocabulary: Not coded (Free text),Not coded (Free text),,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032218
+91,Cause of death vocabulary: Other,Other,,Cause of death vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030061/terms/200000032219
+92,Rare diseases,,Are rare diseases (<1 in 2000 people) captured?,Clinical data,
+93,Prescriptions included,,Is information on prescriptions or dispensings of medications included?,Clinical data,
+94,Prescriptions included: ATC,ATC,,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030121
+95,Prescriptions included: RxNorm,RxNorm,,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030122
+96,Prescriptions included: EphMRA,EphMRA,,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030123
+97,Prescriptions included: ALT,ALT,,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030124
+98,Prescriptions included: DrugBank,DrugBank,,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030125
+99,Prescriptions included: NDC,NDC,,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000041060
+100,Prescriptions included: Other,Other,,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000031091
+101,Prescriptions included: Not coded (Free text),Not coded (Free text),,Prescriptions included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000031092
+102,Dispensings included,,Is information on prescriptions or dispensings of medications included?,Clinical data,
+103,Dispensings included: ATC,ATC,,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030121
+104,Dispensings included: RxNorm,RxNorm,,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030122
+105,Dispensings included: EphMRA,EphMRA,,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030123
+106,Dispensings included: ALT,ALT,,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030124
+107,Dispensings included: DrugBank,DrugBank,,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000030125
+108,Dispensings included: NDC,NDC,,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000041060
+109,Dispensings included: Other,Other,,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000031091
+110,Dispensings included: Not coded (Free text),Not coded (Free text),,Dispensings included,https://spor.ema.europa.eu/rmswi/#/lists/200000029972/terms/200000031092
+111,Product information,,Is product information available? Select all items that apply,Clinical data,
+112,Brand name,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030201
+113,Batch number,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030202
+114,Formulation,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030203
+115,Strength,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030204
+116,Package size,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030205
+117,Dose,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030206
+118,Dosage regime,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030207
+119,Route of administration,,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030208
+120,Active ingredient(s),,,Product information,https://spor.ema.europa.eu/rmswi/#/lists/200000030191/terms/200000030209
+121,Product information vocabulary,,Is medicinal product information available? Select all items vocabularies that apply,Clinical data,
+122,Product information vocabulary: ART 57,ART 57,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000030166
+123,Product information vocabulary: IFA GmbH,IFA GmbH,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000030167
+124,Product information vocabulary: EQDM,EQDM,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000030168
+125,Product information vocabulary: SPN,SPN,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000030169
+126,Product information vocabulary: MTHSPL,MTHSPL,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000030170
+127,Product information vocabulary: SNOMED,SNOMED,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031097
+128,Product information vocabulary: ATC,ATC,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031098
+129,Product information vocabulary: WHO Drug,WHO Drug,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031099
+130,Product information vocabulary: AIC,AIC,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031100
+131,Product information vocabulary: CNF,CNF,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031101
+132,Product information vocabulary: DIN,DIN,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031103
+133,Product information vocabulary: Gemscript,Gemscript,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031104
+134,Product information vocabulary: dm+d,dm+d,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031105
+135,Product information vocabulary: Z-index (G-standard),Z-index (G-standard),,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031106
+136,Product information vocabulary: GTIN,GTIN,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031107
+137,Product information vocabulary: NDC,NDC,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031108
+138,Product information vocabulary: RxNorm,RxNorm,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031109
+139,Product information vocabulary: NDF,NDF,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000032231
+140,Product information vocabulary: Not coded (Free text),Not coded (Free text),,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031110
+141,Product information vocabulary: Other,Other,,Product information vocabulary,https://spor.ema.europa.eu/rmswi/#/lists/200000030165/terms/200000031111
+142,ATMP,,Is information on advanced therapy medicinal products included?,Clinical data,
+143,Contraception,,Is information on contraceptives included?,,
+144,Indication for use,,"If medicines information is captured, is the indication for use recorded? ",Clinical data,
+145,Indication vocabulary,,Select all items vocabularies that apply,,
+146,Indication vocabulary: ICD-9,ICD-9,,Indication vocabulary,
+147,Indication vocabulary: ICD-10,ICD-10,,Indication vocabulary ,
+148,Indication vocabulary: ICD,ICD,,Indication vocabulary,
+149,Indication vocabulary: ICD-11,ICD-11,,Indication vocabulary,
+150,Indication vocabulary: ICD-10-CM,ICD-10-CM,,Indication vocabulary,
+151,Indication vocabulary: ICD-9-CM,ICD-9-CM,,Indication vocabulary,
+152,Indication vocabulary: ICPC,ICPC,,Indication vocabulary,
+153,Indication vocabulary: ICPC-1,ICPC-1,,Indication vocabulary,
+154,Indication vocabulary: ICPC-2,ICPC-2,,Indication vocabulary,
+155,Indication vocabulary: HCPCS,HCPCS,,Indication vocabulary,
+156,Indication vocabulary: Read,Read,,Indication vocabulary,
+157,Indication vocabulary: SNOMED,SNOMED,,Indication vocabulary,
+158,Indication vocabulary: SNOMED CT,SNOMED CT,,Indication vocabulary,
+159,Indication vocabulary: MedDRA,MedDRA,,Indication vocabulary,
+160,Indication vocabulary: OPCS,OPCS,,Indication vocabulary,
+161,Indication vocabulary: CCS,CCS,,Indication vocabulary,
+162,Indication vocabulary: EDC,EDC,,Indication vocabulary,
+163,Indication vocabulary: CPT,CPT,,Indication vocabulary,
+164,Indication vocabulary: dm+d,dm+d,,Indication vocabulary,
+165,Indication vocabulary: Orphacode,Orphacode,,Indication vocabulary,
+166,Indication vocabulary: Orphanet Rare Disease Ontology (ORDO),Orphanet Rare Disease Ontology (ORDO),,Indication vocabulary,
+167,Indication vocabulary: Human Phenotype Ontology (HPO),Human Phenotype Ontology (HPO),,Indication vocabulary,
+168,Indication vocabulary: Not coded (Free text),Not coded (Free text),,Indication vocabulary,
+169,Indication vocabulary: Other,Other,,Indication vocabulary,
+170,Administration vaccines,,Administration vaccines included,,
+171,Administration other injectable medicines,,,,
+172,Medical devices,,Is information on medical devices included?,Clinical data,
+173,Procedures,,"Is information on procedures (e.g., diagnostic tests, therapeutic, surgical) included?",Clinical data,
+174,Procedures vocabulary,,"If information on medical procedures is captured, select all vocabularies that apply",Clinical data,
+175,Procedures vocabulary: ICD-9,ICD-9,,Procedures vocabulary,
+176,Procedures vocabulary: ICD-10,ICD-10,,Procedures vocabulary,
+177,Procedures vocabulary: ICD,ICD,,Procedures vocabulary,
+178,Procedures vocabulary: ICD-11,ICD-11,,Procedures vocabulary,
+179,Procedures vocabulary: ICD-10-CM,ICD-10-CM,,Procedures vocabulary,
+180,Procedures vocabulary: ICD-9-CM,ICD-9-CM,,Procedures vocabulary,
+181,Procedures vocabulary: ICPC,ICPC,,Procedures vocabulary,
+182,Procedures vocabulary: ICPC-1,ICPC-1,,Procedures vocabulary,
+183,Procedures vocabulary: ICPC-2,ICPC-2,,Procedures vocabulary,
+184,Procedures vocabulary: HCPCS,HCPCS,,Procedures vocabulary,
+185,Procedures vocabulary: Read,Read,,Procedures vocabulary,
+186,Procedures vocabulary: SNOMED,SNOMED,,Procedures vocabulary,
+187,Procedures vocabulary: SNOMED CT,SNOMED CT,,Procedures vocabulary,
+188,Procedures vocabulary: MedDRA,MedDRA,,Procedures vocabulary,
+189,Procedures vocabulary: OPCS,OPCS,,Procedures vocabulary,
+190,Procedures vocabulary: CCS,CCS,,Procedures vocabulary,
+191,Procedures vocabulary: EDC,EDC,,Procedures vocabulary,
+192,Procedures vocabulary: CPT,CPT,,Procedures vocabulary,
+193,Procedures vocabulary: dm+d,dm+d,,Procedures vocabulary,
+194,Procedures vocabulary: Orphacode,Orphacode,,Procedures vocabulary,
+195,Procedures vocabulary: Orphanet Rare Disease Ontology (ORDO),Orphanet Rare Disease Ontology (ORDO),,Procedures vocabulary,
+196,Procedures vocabulary: Human Phenotype Ontology (HPO),Human Phenotype Ontology (HPO),,Procedures vocabulary,
+197,Procedures vocabulary: Not coded (Free text),Not coded (Free text),,Procedures vocabulary,
+198,Procedures vocabulary: Other,Other,,Procedures vocabulary,
+199,Clinical measures,,"Is information on clinical measures included (e.g., BMI, blood pressure)?",Clinical data,
+200,Healthcare centre,,"Is information on the healthcare centre (e.g., pharmacy, general practice, hospital) available?",,
+201,Healthcare provider,,"Is information on the person providing healthcare (e.g., physician, pharmacist, specialist) available?",,
+202,Genetic data,,Is genotyping information available? Select all vocabularies that apply,,
+203,OGG,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030150
+204,FG,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030151
+205,GO,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030152
+206,EGO,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030153
+207,SOPHARM,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030154
+208,PHARE,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000030155
+209,HGVS,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000041064
+210,Genetic data: OMIM,OMIM,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000041065
+211,HGNC,,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000031072
+212,Genetic data: Other,Other,,Genetic data,https://spor.ema.europa.eu/rmswi/#/lists/200000030149/terms/200000031070
+213,Biomarker data,,"Is biomarker information available, select all vocabularies that apply",,
+214,BMO,,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000029933
+215,SMASH,,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000029934
+216,FOBI,,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000029935
+217,HPO,,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000029936
+218,Biomarker data: Other,Other,,Biomarker data,https://spor.ema.europa.eu/rmswi/#/lists/200000029928/terms/200000031074
+219,Patient-generated data,,"Is patient-generated information (e.g.,from wearable devices) available?",,
+220,Patient-reported data,,Are patient-reported outcomes (e.g quality of life) available?,,
+221,Quality of life,,Are quality of life measures available? Select all that apply,,
+222,AQoL-8D,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000030222
+223,QOLS,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000030223
+224,MQOL,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000030224
+225,MQOL-E,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000030225
+226,HRQOL,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000030226
+227,WHOQOL,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000030227
+228,EQ5D,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000030228
+229,15D,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000030229
+230,SF-36,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/2200000030210/terms/200000030230
+231,SF-6D,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000030231
+232,SF-12,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000041061
+233,HUI,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000030232
+234,Quality of life: Not captured,Not captured,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000031093
+235,Quality of life: Not coded (Free text),Not coded (Free text),,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000031094
+236,Quality of life: Other,Other,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000031095
+237,Health care costs,,Is information on costs of healthcare available?,,
+238,Free text,,Is free text information available?,,
+239,Care setting,,,,
+240,"Primary care - GP, community pharmacist level",,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029982
+241,Primary care - specialist level (e.g. paediatricians),,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029983
+242,Secondary care - specialist level (ambulatory),,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029984
+243,Hospital inpatient care,,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029985
+244,Hospital outpatient care,,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029986
+245,Care setting: Other,Other,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000031055
+246,Population pregnancy and neonates,,,,
