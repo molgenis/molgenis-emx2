@@ -91,26 +91,29 @@ public class SqlTypeUtils extends TypeUtils {
 
   private static void checkRequired(Column c, Row row, Map<String, Object> values) {
     if (!row.isDraft() && c.getComputed() == null && !AUTO_ID.equals(c.getColumnType())) {
-      if (c.isRequired()) {
-        if (c.isReference()) {
-          for (Reference r : c.getReferences()) {
-            if (row.isNull(r.getName(), r.getPrimitiveType())) {
-              throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
-            }
-          }
-        } else {
-          if (row.isNull(c.getName(), c.getColumnType())) {
-            throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
-          }
-        }
+      if (c.isRequired() && !validateRequired(c, row)) {
+        throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
       } else if (c.isConditionallyRequired()) {
         String error = checkValidation(c.getRequired(), values);
-        if (error != null && row.isNull(c.getName(), c.getColumnType())) {
+        if (error != null && !validateRequired(c, row)) {
           throw new MolgenisException(
               "column '" + c.getName() + "' is required when " + error + " in " + row);
         }
       }
     }
+  }
+
+  private static boolean validateRequired(Column c, Row row) {
+    if (c.isReference()) {
+      for (Reference r : c.getReferences()) {
+        if (row.isNull(r.getName(), r.getPrimitiveType())) {
+          return false;
+        }
+      }
+    } else {
+      return !row.isNull(c.getName(), c.getColumnType());
+    }
+    return true;
   }
 
   private static boolean columnIsVisible(Column column, Map values) {
