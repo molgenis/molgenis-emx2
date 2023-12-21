@@ -105,8 +105,8 @@ const getCollectionAdditionalProperty = (data, propertyName) => {
       "code" in data
         ? data.code
         : "ontologyTermURI" in data
-        ? data.ontologyTermURI.split("/").slice(-1).pop()
-        : "";
+          ? data.ontologyTermURI.split("/").slice(-1).pop()
+          : "";
     const ontologyTerm = getOntologyTerm(propertyName, codeValue);
     // it gets mappings from the static object. It should be better to include the uri in the model
     if (ontologyTerm) {

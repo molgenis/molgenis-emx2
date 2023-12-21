@@ -159,6 +159,8 @@ export default {
 }
 
 .editing {
-  box-shadow: inset 0.5px 0.5px 0 black, inset -1.5px -1.5px 0 black;
+  box-shadow:
+    inset 0.5px 0.5px 0 black,
+    inset -1.5px -1.5px 0 black;
 }
 </style>
