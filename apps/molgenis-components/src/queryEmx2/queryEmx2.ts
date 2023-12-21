@@ -177,24 +177,24 @@ class QueryEMX2 {
   /**
    * If you want to create a nested query, for example { collections: { name: { like: 'lifelines' } } }
    * then column = 'collections', subcolumn = 'name'
-   * @param {string} column
+   * @param {string} columnId
    * @returns
    */
-  where(column: IColumn) {
+  where(columnId: string) {
     this.type = "_and";
     this.branch = "root";
     /** always convert to lowercase, else api will error */
-    this.column = this._toCamelCase(column);
+    this.column = this._toCamelCase(columnId);
     return this;
   }
 
-  orWhere(column: IColumn) {
+  orWhere(columnId: string) {
     /** need to know if we have the array syntax or just object */
     this.orCount = this.orCount + 1;
     this.type = "_or";
     this.branch = "root";
     /** always convert to lowercase, else api will error */
-    this.column = this._toCamelCase(column);
+    this.column = this._toCamelCase(columnId);
     return this;
   }
 
@@ -234,6 +234,7 @@ class QueryEMX2 {
 
     return this;
   }
+
   /** Resets all filters, useful for when you want to add filters dynamically */
   resetAllFilters() {
     this.filters = {};
@@ -369,23 +370,51 @@ class QueryEMX2 {
     return this;
   }
 
-  _toPascalCase(value: any) {
+  _toPascalCase(value: string) {
     return value[0].toUpperCase() + value.substring(1);
   }
 
-  _toCamelCase(value: any) {
+  _toCamelCase(value: string) {
     return value[0].toLowerCase() + value.substring(1);
   }
 
-  _createQuery(root: any, properties: any) {
+  _createQuery(root: string, properties: string[]) {
     const rootModifier = this._generateModifiers("root");
 
-    let result = "";
+    let result = `{\n${root}${rootModifier} {\n`;
 
-    result += `{
-${root}${rootModifier} {\n`;
+    let branches = this._createBranches(properties);
+    result = this._generateOutput(branches, 1, this.filters, result);
 
-    /** Create a nested object to represent the branches and their properties */
+    result += "  }\n}";
+
+    return result;
+  }
+
+  // the best query would be for example"
+  // Biobanks(orderby: { name: ASC }, filter: {collections: {_and: [{materials: {name: {like: "BUFFY_COAT"}}}, {materials: {name: {like: "CELL_LINES"}}}]}})
+  // but this requires another rewrite ;)
+  _createFilterString(filters: Record<string, any>) {
+    let filterString = "";
+
+    if (!filters) return filterString;
+
+    if (filters["_and"].length) {
+      filterString += `_and: [ ${filters["_and"].join(", ")} ]`;
+    }
+
+    if (filters["_or"].length) {
+      if (filterString.length) {
+        filterString += ", ";
+      }
+
+      filterString += `_or: [ ${filters["_or"].join(", ")} ]`;
+    }
+    return filterString;
+  }
+
+  /** Create a nested object to represent the branches and their properties */
+  _createBranches(properties: string[]) {
     let branches = {};
     for (let property of properties) {
       let parts = property.split(".");
@@ -414,35 +443,7 @@ ${root}${rootModifier} {\n`;
         currentBranch.properties[propertyName] = true;
       }
     }
-
-    result = this._generateOutput(branches, 1, this.filters, result);
-
-    result += "  }\n}";
-
-    return result;
-  }
-
-  // the best query would be for example"
-  // Biobanks(orderby: { name: ASC }, filter: {collections: {_and: [{materials: {name: {like: "BUFFY_COAT"}}}, {materials: {name: {like: "CELL_LINES"}}}]}})
-  // but this requires another rewrite ;)
-
-  _createFilterString(filters: Record<string, any>) {
-    let filterString = "";
-
-    if (!filters) return filterString;
-
-    if (filters["_and"].length) {
-      filterString += `_and: [ ${filters["_and"].join(", ")} ]`;
-    }
-
-    if (filters["_or"].length) {
-      if (filterString.length) {
-        filterString += ", ";
-      }
-
-      filterString += `_or: [ ${filters["_or"].join(", ")} ]`;
-    }
-    return filterString;
+    return branches;
   }
 
   /** Generate the bit inside parentheses */
@@ -532,7 +533,7 @@ ${root}${rootModifier} {\n`;
     branches: Record<string, any>,
     indentationLevel: number,
     filters: Record<string, any>,
-    result: any
+    result: string
   ) {
     let indentation = "    ".repeat(indentationLevel);
 
