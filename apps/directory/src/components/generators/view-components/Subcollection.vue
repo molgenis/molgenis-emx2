@@ -14,22 +14,9 @@ import { computed } from "vue";
 import ViewGenerator from "../ViewGenerator.vue";
 
 const { collection, level } = withDefaults(
-  defineProps<{ collection: any; level: number }>(),
+  defineProps<{ collection: any; level?: number }>(),
   { level: 1 }
 );
 
 const indentationLevel = computed(() => `ml-${level}`);
-// export default {
-//   props: {
-//     collection: {
-//       type: Object,
-//       required: true,
-//     },
-//     level: {
-//       type: Number,
-//       default: () => 1,
-//     },
-//   },
-
-// };
 </script>
