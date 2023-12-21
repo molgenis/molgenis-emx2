@@ -167,3 +167,9 @@ jobs:
               -d "channel=C02AZDG6QQ7" \
               -X POST https://slack.com/api/chat.postMessage
             fi
+
+workflows:
+  build_and_test:
+    jobs:
+      - build
+      - notifications
