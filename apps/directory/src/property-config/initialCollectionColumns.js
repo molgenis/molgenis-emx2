@@ -105,6 +105,8 @@ const initialCollectionColumns = [
       "parent_collection.name",
       "also_known.url",
       "also_known.name_system",
+      "sub_collections.name",
+      // "sub_collections.size",
     ],
   },
 ];
