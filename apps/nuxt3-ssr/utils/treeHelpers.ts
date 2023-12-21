@@ -1,6 +1,7 @@
-export const removeChildIfParentSelected = (nodes: INode[]) => {
-  const selectedCodes = nodes.map((node) => node.code);
+export const removeChildIfParentSelected = (nodes: any[]) => {
+  const selectedCodes = nodes.map((node: { code: any }) => node.code);
   return nodes.filter(
-    (node) => !(node.parent && selectedCodes.includes(node.parent.code))
+    (node: { parent: { code: string } }) =>
+      !(node.parent && selectedCodes.includes(node.parent.code))
   );
 };

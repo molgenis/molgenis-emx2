@@ -1,33 +1,31 @@
 <template>
   <ProviderDashboard>
-    <h2 class="dashboard-h2 mb-4">
+    <h2 class="dashboard-h2">
       Overview of patients {{ ageGroupFilter }} years old (n={{ totalCases }})
     </h2>
-    <DashboardBox class="mb-4">
-      <h3>Options</h3>
-      <InputLabel
-        id="yearOfBirthFilter"
-        label="Year of birth"
-        description="Limit the results by year of birth"
-      />
-      <select
-        class="inputs select"
-        id="yearOfBirthFilter"
-        @change="onYearOfBirthFilter"
-      >
-        <option value="3-4" selected>3-4 years</option>
-        <option value="5-6">5-6 years</option>
-        <option value="8-9">8-9 years</option>
-        <option value="10-12">10-12 years</option>
-        <option value="18+">18+ years</option>
-      </select>
-    </DashboardBox>
-    <DashboardChartLayout :columns="1">
-      <DashboardBox
-        id="clp-outcome-cleft-q"
-        class="mb-4 mt-4"
-        v-if="showCleftOutcomes"
-      >
+    <DashboardRow :columns="1">
+      <DashboardChart>
+        <h3>Options</h3>
+        <InputLabel
+          id="yearOfBirthFilter"
+          label="Year of birth"
+          description="Limit the results by year of birth"
+        />
+        <select
+          class="inputs select"
+          id="yearOfBirthFilter"
+          @change="onYearOfBirthFilter"
+        >
+          <option value="3-4" selected>3-4 years</option>
+          <option value="5-6">5-6 years</option>
+          <option value="8-9">8-9 years</option>
+          <option value="10-12">10-12 years</option>
+          <option value="18+">18+ years</option>
+        </select>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart id="clp-outcome-cleft-q" v-if="showCleftOutcomes">
         <GroupedColumnChart
           chartId="clp-outcome-cleft-q-hcp-ern"
           title="Cleft-Q Outcomes"
@@ -40,12 +38,8 @@
           :columnFillPalette="colors"
           :chartHeight="250"
         />
-      </DashboardBox>
-      <DashboardBox
-        id="clp-outcome-cleft-q"
-        class="mb-4 mt-4"
-        v-if="showIcsOutcomes"
-      >
+      </DashboardChart>
+      <DashboardChart id="clp-outcome-cleft-q" v-if="showIcsOutcomes">
         <GroupedColumnChart
           chartId="clp-outcome-ics-hcp-ern"
           title="ICS Outcomes"
@@ -58,16 +52,20 @@
           :columnFillPalette="colors"
           :chartHeight="250"
         />
-      </DashboardBox>
-    </DashboardChartLayout>
+      </DashboardChart>
+    </DashboardRow>
   </ProviderDashboard>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { DashboardBox, GroupedColumnChart, InputLabel } from "molgenis-viz";
+import {
+  DashboardRow,
+  DashboardChart,
+  GroupedColumnChart,
+  InputLabel,
+} from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
-import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 // generate random data for display purposes
 import { randomGroupDataset } from "../utils/devtools";

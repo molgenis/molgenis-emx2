@@ -27,11 +27,17 @@ with Client('https://example.molgeniscloud.org') as client:
         catalogue
         ExampleSchema
         ...
-    Version: v8.214.1
+    Version: v10.10.1
     """
     
     # Retrieve data from a table on a schema
-    data = client.get(schema='ExampleSchame', table='Cohorts')
+    data = client.get(schema='ExampleSchema', table='Cohorts')
+    
+    # Create a new schema on the server
+    client.create_schema(name='New Schema')
+    
+    # Delete a schema from the server
+    client.delete_schema(name='New Schema')
 
 ```
 
@@ -86,8 +92,10 @@ pip install -r requirements.txt
 ```
 
 ## Build
-
+Before building the source, the package `build` needs to be installed.
 ```console
+(venv) $ pip install build
+
 (venv) $ python -m build
 
 (venv) $ pip install dist/molgenis_emx2_pyclient*.whl
