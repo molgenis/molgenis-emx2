@@ -80,10 +80,10 @@ jobs:
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
     - persist_to_workspace:
-        root: ~/repo
+        root: .
         paths:
+          - /repo
           - .gradle
-          - .repo
           - .docker
     
   build:
