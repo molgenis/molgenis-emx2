@@ -80,7 +80,7 @@ jobs:
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
     - persist_to_workspace:
-        root: workspace
+        root: ~/repo
         paths:
           - .gradle
           - .repo
@@ -88,24 +88,18 @@ jobs:
     
   build:
     docker:
-    # specify the version you desire here
     - image: molgenis/ci-build:latest
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
         POSTGRES_DB: postgres
-    # Specify service dependencies here if necessary
-    # CircleCI maintains a library of pre-built images
-    # documented at https://circleci.com/docs/2.0/circleci-images/
-    # - image: circleci/postgres:9.4
     working_directory: ~/repo
     
     # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
     resource_class: large
 
     environment:
-      # Customize the JVM maximum heap limit
       JVM_OPTS: -Xmx3200m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
