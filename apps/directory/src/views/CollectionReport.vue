@@ -25,8 +25,8 @@
             class="directory-nav"
             :crumbs="{
               [uiText['home']]: '../#/',
-              [collection.biobank.name]:
-                `../#/biobank/${collection.biobank.id}`,
+              [collection.biobank
+                .name]: `../#/biobank/${collection.biobank.id}`,
               [collection.name]: `../#/collection/${collection.id}`,
             }"
           />
