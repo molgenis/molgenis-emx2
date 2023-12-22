@@ -191,10 +191,16 @@ export default {
       return this.biobankDataAvailable &&
         this.biobank.collections &&
         this.biobank.collections.length
-        ? this.biobank.collections
-            .filter((it) => !it.parent_collection)
-            .map((col) => getCollectionDetails(col))
+        ? this.detailedChildCollections
         : [];
+    },
+    detailedChildCollections() {
+      return this.biobank.collections
+        .filter((it) => !it.parent_collection)
+        .map((col) => getCollectionDetails(col))
+        .sort((a, b) =>
+          a.name.toUpperCase().localeCompare(b.name.toUpperCase())
+        );
     },
     networks() {
       return this.biobankDataAvailable && this.biobank.network
