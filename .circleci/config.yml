@@ -10,15 +10,6 @@ jobs:
     docker:
     # specify the version you desire here
     - image: molgenis/ci-build:latest
-    - image: postgres:15-alpine
-      environment:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_DB: postgres
-    # Specify service dependencies here if necessary
-    # CircleCI maintains a library of pre-built images
-    # documented at https://circleci.com/docs/2.0/circleci-images/
-    # - image: circleci/postgres:9.4
     working_directory: ~/repo
 
     steps:
@@ -46,9 +37,6 @@ jobs:
         paths:
         - ~/.gradle
         key: v1-dependencies-{{ checksum "build.gradle" }}
-
-    # Initialize the database
-    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
     # install additional software
     - run:
@@ -96,61 +84,65 @@ jobs:
     steps:
     - attach_workspace:
         at: ~/repo
+
+   # Initialize the database
+    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+
     - run:
         name: build and test java
         command: |
           ./gradlew test --no-daemon
      
-    - run:
-        name: release, push docker, push python
-        command: |
-          if [ "${CIRCLE_BRANCH}" = "master" ]; then
-            ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release \
-            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
-          else
-            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release \
-            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-            -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
-          fi
-          export $( cat build/ci.properties | xargs )
-          if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
-            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
-            docker push molgenis/ssr-catalogue-snapshot --all-tags
-          else
-            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
-            docker push molgenis/ssr-catalogue --all-tags
-          fi
-        environment:
-          MOLGENIS_POSTGRES_USER: molgenis
-          MOLGENIS_POSTGRES_PASS: molgenis
-          MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
-#After migrating to azure code below can be removed
-    - run:
-        name: deploy preview or update dev to k8s
-        command: |
-          export $( cat build/ci.properties | xargs )
-          bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
-          if [ "${CIRCLE_BRANCH}" = "master" ]
-          then
-            bash ci/create_or_update_k8s.sh "emx2" ${TAG_NAME}
-          else
-            bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
-          fi
+#     - run:
+#         name: release, push docker, push python
+#         command: |
+#           if [ "${CIRCLE_BRANCH}" = "master" ]; then
+#             ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release \
+#             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+#             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
+#           else
+#             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+#             ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release \
+#             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+#             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+#             -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+#           fi
+#           export $( cat build/ci.properties | xargs )
+#           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
+#             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+#             docker push molgenis/ssr-catalogue-snapshot --all-tags
+#           else
+#             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
+#             docker push molgenis/ssr-catalogue --all-tags
+#           fi
+#         environment:
+#           MOLGENIS_POSTGRES_USER: molgenis
+#           MOLGENIS_POSTGRES_PASS: molgenis
+#           MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
+# #After migrating to azure code below can be removed
+#     - run:
+#         name: deploy preview or update dev to k8s
+#         command: |
+#           export $( cat build/ci.properties | xargs )
+#           bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
+#           if [ "${CIRCLE_BRANCH}" = "master" ]
+#           then
+#             bash ci/create_or_update_k8s.sh "emx2" ${TAG_NAME}
+#           else
+#             bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
+#           fi
 
-    - run:
-        name: deploy preview or update dev to azure
-        command: |
-          export $( cat build/ci.properties | xargs )
-          bash ci/set_kubectl_config-azure.sh
-          if [ "${CIRCLE_BRANCH}" = "master" ]
-          then
-            bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME}
-          else
-            bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
-          fi
+#     - run:
+#         name: deploy preview or update dev to azure
+#         command: |
+#           export $( cat build/ci.properties | xargs )
+#           bash ci/set_kubectl_config-azure.sh
+#           if [ "${CIRCLE_BRANCH}" = "master" ]
+#           then
+#             bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME}
+#           else
+#             bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
+#           fi
 
   notifications:
     docker:
