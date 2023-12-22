@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { IOntologyNode } from "~/interfaces/types";
+import type { IOntologyItem } from "meta-data-utils";
 
 const { node, collapseAll } = withDefaults(
   defineProps<{
-    node: IOntologyNode;
+    node: IOntologyItem;
     isRootNode?: boolean;
     collapseAll?: boolean;
   }>(),
@@ -52,7 +52,7 @@ const toggleCollapse = () => {
           {{ node.name }}
         </span>
         <div class="whitespace-nowrap inline-flex items-center">
-          <!-- not feeling cute, might put back later -->
+          <!-- maybe later -->
           <!-- <span v-if="node.children?.length" class="text-gray-400 inline-block ml-1">- {{ node.children.length }}</span> -->
           <div v-if="node.definition" class="inline-block ml-1">
             <CustomTooltip label="Read more" :content="node.definition" />
