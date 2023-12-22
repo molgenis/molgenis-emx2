@@ -126,11 +126,25 @@ jobs:
     - attach_workspace:
         at: ~/repo
 
+    # install additional software (needs to be removed and used from pref step ( or from docker image))
+    - run:
+        name: install docker kubectl and helm
+        command: sh ci/install_docker_helm_kubectl.sh
+
+    - setup_remote_docker:
+        version: 19.03.13
+        docker_layer_caching: true
+
+    - run:
+        name: Sign in to docker
+        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+    # end install additional software
+
     - run:
         name: push emx2 docker images
         command: |
           echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-          ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar -x test \
+          ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar -x test -x :apps:buildJavascript -x :apps:checkFormat :apps:testJavaScript \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
