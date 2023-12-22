@@ -67,7 +67,6 @@
   </div>
 </template>
 
-<!-- eslint-disable no-useless-escape -->
 <script setup>
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";

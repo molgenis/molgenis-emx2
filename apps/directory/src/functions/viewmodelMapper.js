@@ -241,7 +241,7 @@ export function getCollectionDetails(collection) {
     settingsStore.config.collectionColumns
   );
 
-  if (collection.sub_collections && collection.sub_collections.length) {
+  if (collection.sub_collections?.length) {
     viewmodel.sub_collections = mapSubcollections(
       collection.sub_collections,
       1
@@ -257,7 +257,7 @@ export function getCollectionDetails(collection) {
 export const getBiobankDetails = (biobank) => {
   const settingsStore = useSettingsStore();
 
-  if (biobank.collections && biobank.collections.length) {
+  if (biobank.collections?.length) {
     biobank.collections.type = [];
     biobank.collections.type = Object.keys(
       extractCollectionTypes(biobank.collections)
