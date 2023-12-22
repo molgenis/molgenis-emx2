@@ -82,7 +82,9 @@ jobs:
     - persist_to_workspace:
         root: workspace
         paths:
-          - ~/repo
+          - .gradle
+          - .repo
+          - .docker
     
   build:
     docker:
