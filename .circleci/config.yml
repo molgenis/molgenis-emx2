@@ -82,7 +82,7 @@ jobs:
 
     - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
-    - run: clean assemble testClasses -x :apps:testJavaScript
+    - run: ./gradlew clean assemble testClasses -x :apps:testJavaScript
       
     - persist_to_workspace:
         root: .
