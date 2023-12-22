@@ -127,22 +127,21 @@ jobs:
         at: ~/repo
 
     - run:
-        name: push docker images
+        name: push emx2 docker images
         command: |
           echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-          ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar \
+          ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar -x test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
           export $( cat build/ci.properties | xargs )
+
+    - run:
+        name: push ssr-catalogue docker images
+        command: |
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+            docker push molgenis/ssr-catalogue-snapshot --all-tags
         
-          docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
-          docker push molgenis/ssr-catalogue-snapshot --all-tags
-       
-        environment:
-          MOLGENIS_POSTGRES_USER: molgenis
-          MOLGENIS_POSTGRES_PASS: molgenis
-          MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
 
     #After migrating to azure code below can be removed
     - run:
