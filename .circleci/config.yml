@@ -178,4 +178,6 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - notifications
+      - notifications:
+          requires:
+            - build
