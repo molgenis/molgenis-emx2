@@ -14776,7 +14776,7 @@ vite-plugin-inspect@^0.8.1:
     picocolors "^1.0.0"
     sirv "^2.0.3"
 
-vite-plugin-monaco-editor@^1.1.0:
+vite-plugin-monaco-editor@1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/vite-plugin-monaco-editor/-/vite-plugin-monaco-editor-1.1.0.tgz#a6238c2e13d5e98dd54a1bc51f6f189325219de3"
   integrity sha512-IvtUqZotrRoVqwT0PBBDIZPNraya3BxN/bfcNfnxZ5rkJiGcNtO5eAOWWSgT7zullIAEqQwxMU83yL9J5k7gww==
