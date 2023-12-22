@@ -15,10 +15,7 @@ jobs:
     steps:
     - checkout
 
-    - run:
-        name: make sure we have all tags
-        command: |
-          git fetch --all --tags
+    - run: git fetch --all --tags
 
     # Download and cache dependencies
     - restore_cache:
@@ -27,11 +24,7 @@ jobs:
         # fallback to using the latest cache if no exact match is found
         - v1-dependencies-
 
-    - run: 
-        name: install deps
-        command: |
-          ./gradlew dependencies
-          apt-get update && apt-get install postgresql-client -y 
+    - run: ./gradlew dependencies
 
     - save_cache:
         paths:
@@ -85,7 +78,8 @@ jobs:
     - attach_workspace:
         at: ~/repo
 
-   # Initialize the database
+    - run: apt-get update && apt-get install postgresql-client -y 
+
     - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
     - run:
