@@ -199,7 +199,7 @@ export default {
         .filter((it) => !it.parent_collection)
         .map((col) => getCollectionDetails(col))
         .sort((a, b) =>
-          a.name.toUpperCase().localeCompare(b.name.toUpperCase())
+          a.name.localeCompare(b.name, "en", { sensitivity: "base" })
         );
     },
     networks() {
