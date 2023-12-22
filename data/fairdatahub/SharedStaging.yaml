@@ -6,10 +6,10 @@ models:   fairdatahub/datacatalogue/molgenis.csv
 
 profiles: SharedStaging
 
-data:     datacatalogue/CatalogueOntologies
+data:     datacatalogue/CatalogueOntologies # note: none imported because unused in current SharedStaging profile
 
 examples: fairdatahub/datacatalogue/demodata_sharedstaging
 
 # special options
 dataToFixedSchema: CatalogueOntologies
-setViewPermission: anonymous
+setViewPermission: anonymous # note: some overlap with molgenis_members.csv, though would apply to CatalogueOntologies (if used and imported)
