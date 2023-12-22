@@ -31,55 +31,6 @@ jobs:
       TERM: dumb
 
     steps:
-    - checkout
-
-    - run:
-        name: make sure we have all tags
-        command: |
-          git fetch --all --tags
-
-    # Download and cache dependencies
-    - restore_cache:
-        keys:
-        - v1-dependencies-{{ checksum "build.gradle" }}
-        # fallback to using the latest cache if no exact match is found
-        - v1-dependencies-
-
-    - run: 
-        name: install deps
-        command: |
-          ./gradlew dependencies
-          apt-get update && apt-get install postgresql-client -y 
-
-    - save_cache:
-        paths:
-        - ~/.gradle
-        key: v1-dependencies-{{ checksum "build.gradle" }}
-
-    # Initialize the database
-    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
-
-    # install additional software
-    - run:
-        name: install docker kubectl and helm
-        command: sh ci/install_docker_helm_kubectl.sh
-
-    - setup_remote_docker:
-        version: 19.03.13
-        docker_layer_caching: true
-
-    - run:
-        name: Sign in to docker
-        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
-
-    - run:
-        name: Setup git, todo, move to molgenisci user
-        command: |
-          git config --global --add safe.directory '*'
-          git config user.email "m.a.swertz@rug.nl"
-          git config user.name "mswertz"
-          git config url.https://.insteadOf git://
-
     - run:
         name: build and test java
         command: |
@@ -150,6 +101,80 @@ jobs:
             bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
           fi
 
+  prepare:
+    docker:
+    # specify the version you desire here
+    - image: molgenis/ci-build:latest
+    - image: postgres:15-alpine
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: postgres
+    # Specify service dependencies here if necessary
+    # CircleCI maintains a library of pre-built images
+    # documented at https://circleci.com/docs/2.0/circleci-images/
+    # - image: circleci/postgres:9.4
+    working_directory: ~/repo
+    
+    # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
+    resource_class: large
+
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
+
+    steps:
+    - checkout
+
+    - run:
+        name: make sure we have all tags
+        command: |
+          git fetch --all --tags
+
+    # Download and cache dependencies
+    - restore_cache:
+        keys:
+        - v1-dependencies-{{ checksum "build.gradle" }}
+        # fallback to using the latest cache if no exact match is found
+        - v1-dependencies-
+
+    - run: 
+        name: install deps
+        command: |
+          ./gradlew dependencies
+          apt-get update && apt-get install postgresql-client -y 
+
+    - save_cache:
+        paths:
+        - ~/.gradle
+        key: v1-dependencies-{{ checksum "build.gradle" }}
+
+    # Initialize the database
+    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+
+    # install additional software
+    - run:
+        name: install docker kubectl and helm
+        command: sh ci/install_docker_helm_kubectl.sh
+
+    - setup_remote_docker:
+        version: 19.03.13
+        docker_layer_caching: true
+
+    - run:
+        name: Sign in to docker
+        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+    - run:
+        name: Setup git, todo, move to molgenisci user
+        command: |
+          git config --global --add safe.directory '*'
+          git config user.email "m.a.swertz@rug.nl"
+          git config user.name "mswertz"
+          git config url.https://.insteadOf git://
+
   notifications:
     docker:
       # replace with your preferred image
@@ -177,7 +202,10 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - build
+      - prepare
+      - build:
+          requires:
+            - prepare
       - notifications:
           requires:
             - build
