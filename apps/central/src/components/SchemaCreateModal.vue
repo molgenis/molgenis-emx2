@@ -135,6 +135,7 @@ export default {
         "ERN_DASHBOARD",
         "ERN_CRANIO",
         "BIOBANK_DIRECTORY",
+        "SHARED_STAGING",
       ],
       includeDemoData: false,
     };
