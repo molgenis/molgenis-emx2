@@ -79,7 +79,10 @@ jobs:
           git config user.email "m.a.swertz@rug.nl"
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
-    - persist_to_workspace
+    - persist_to_workspace:
+        root: workspace
+        paths:
+          - ~/repo
     
   build:
     docker:
