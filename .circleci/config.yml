@@ -3,6 +3,8 @@
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
 version: 2
+orbs:
+  slack: circleci/slack@4.4.4
 jobs:
   build:
     docker:
@@ -149,6 +151,9 @@ jobs:
           fi
 
   notifications:
+    docker:
+      # replace with your preferred image
+      - image: cimg/base:stable
     steps:
       - run:
           name: message slack
@@ -169,6 +174,7 @@ jobs:
             fi
 
 workflows:
+  version: 2
   build_and_test:
     jobs:
       - build
