@@ -82,10 +82,12 @@ jobs:
 
     - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
-    - run:
-        name: build and test java
-        command: |
-          ./gradlew test --no-daemon
+    - run: clean assemble testClasses -x :apps:testJavaScript
+      
+    - persist_to_workspace:
+        root: .
+        paths:
+            - .
      
 #     - run:
 #         name: release, push docker, push python
@@ -137,6 +139,37 @@ jobs:
 #           else
 #             bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
 #           fi
+  test:
+    docker:
+    - image: molgenis/ci-build:latest
+    - image: postgres:15-alpine
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: postgres
+    working_directory: ~/repo
+    resource_class: large
+
+    environment:
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
+
+    steps:
+    - attach_workspace:
+        at: ~/repo
+
+    - run: ./gradlew test --no-daemon
+      
+    - run:
+        name: Save test results
+        command: |
+          mkdir -p ~/test-results/junit/
+          find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+        when: always
+    - store_test_results:
+        path: ~/test-results
+
 
   notifications:
     docker:
@@ -169,6 +202,9 @@ workflows:
       - build:
           requires:
             - prepare
-      - notifications:
+      - test:
           requires:
             - build
+      - notifications:
+          requires:
+            - test
