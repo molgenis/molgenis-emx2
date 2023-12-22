@@ -20,15 +20,6 @@ jobs:
     # documented at https://circleci.com/docs/2.0/circleci-images/
     # - image: circleci/postgres:9.4
     working_directory: ~/repo
-    
-    # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
-    resource_class: large
-
-    environment:
-      # Customize the JVM maximum heap limit
-      JVM_OPTS: -Xmx3200m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-      TERM: dumb
 
     steps:
     - checkout
@@ -56,29 +47,29 @@ jobs:
         - ~/.gradle
         key: v1-dependencies-{{ checksum "build.gradle" }}
 
-    # # Initialize the database
-    # - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+    # Initialize the database
+    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
-    # # install additional software
-    # - run:
-    #     name: install docker kubectl and helm
-    #     command: sh ci/install_docker_helm_kubectl.sh
+    # install additional software
+    - run:
+        name: install docker kubectl and helm
+        command: sh ci/install_docker_helm_kubectl.sh
 
-    # - setup_remote_docker:
-    #     version: 19.03.13
-    #     docker_layer_caching: true
+    - setup_remote_docker:
+        version: 19.03.13
+        docker_layer_caching: true
 
-    # - run:
-    #     name: Sign in to docker
-    #     command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - run:
+        name: Sign in to docker
+        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
-    # - run:
-    #     name: Setup git, todo, move to molgenisci user
-    #     command: |
-    #       git config --global --add safe.directory '*'
-    #       git config user.email "m.a.swertz@rug.nl"
-    #       git config user.name "mswertz"
-    #       git config url.https://.insteadOf git://
+    - run:
+        name: Setup git, todo, move to molgenisci user
+        command: |
+          git config --global --add safe.directory '*'
+          git config user.email "m.a.swertz@rug.nl"
+          git config user.name "mswertz"
+          git config url.https://.insteadOf git://
     - persist_to_workspace:
           root: .
           paths:
@@ -109,7 +100,6 @@ jobs:
         name: build and test java
         command: |
           ./gradlew test --no-daemon
-
      
     - run:
         name: release, push docker, push python
