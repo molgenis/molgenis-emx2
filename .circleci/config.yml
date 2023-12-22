@@ -78,10 +78,6 @@ jobs:
     - attach_workspace:
         at: ~/repo
 
-    - run: apt-get update && apt-get install postgresql-client -y 
-
-    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
-
     - run: ./gradlew clean assemble testClasses -x :apps:testJavaScript
       
     - persist_to_workspace:
@@ -115,30 +111,63 @@ jobs:
 #           MOLGENIS_POSTGRES_USER: molgenis
 #           MOLGENIS_POSTGRES_PASS: molgenis
 #           MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
-# #After migrating to azure code below can be removed
-#     - run:
-#         name: deploy preview or update dev to k8s
-#         command: |
-#           export $( cat build/ci.properties | xargs )
-#           bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
-#           if [ "${CIRCLE_BRANCH}" = "master" ]
-#           then
-#             bash ci/create_or_update_k8s.sh "emx2" ${TAG_NAME}
-#           else
-#             bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
-#           fi
+  preview:
+    docker:
+    - image: molgenis/ci-build:latest
+    working_directory: ~/repo
+    resource_class: large
 
-#     - run:
-#         name: deploy preview or update dev to azure
-#         command: |
-#           export $( cat build/ci.properties | xargs )
-#           bash ci/set_kubectl_config-azure.sh
-#           if [ "${CIRCLE_BRANCH}" = "master" ]
-#           then
-#             bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME}
-#           else
-#             bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
-#           fi
+    environment:
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
+
+    steps:
+    - attach_workspace:
+        at: ~/repo
+
+    - run:
+        name: push docker images
+        command: |
+          echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+          ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+          -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+          export $( cat build/ci.properties | xargs )
+        
+          docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+          docker push molgenis/ssr-catalogue-snapshot --all-tags
+       
+        environment:
+          MOLGENIS_POSTGRES_USER: molgenis
+          MOLGENIS_POSTGRES_PASS: molgenis
+          MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
+
+    #After migrating to azure code below can be removed
+    - run:
+        name: deploy preview or update dev to k8s
+        command: |
+          export $( cat build/ci.properties | xargs )
+          bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
+          if [ "${CIRCLE_BRANCH}" = "master" ]
+          then
+            bash ci/create_or_update_k8s.sh "emx2" ${TAG_NAME}
+          else
+            bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
+          fi
+
+    - run:
+        name: deploy preview or update dev to azure
+        command: |
+          export $( cat build/ci.properties | xargs )
+          bash ci/set_kubectl_config-azure.sh
+          if [ "${CIRCLE_BRANCH}" = "master" ]
+          then
+            bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME}
+          else
+            bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
+          fi
   test:
     docker:
     - image: molgenis/ci-build:latest
@@ -159,6 +188,10 @@ jobs:
     - attach_workspace:
         at: ~/repo
 
+    - run: apt-get update && apt-get install postgresql-client -y 
+
+    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+
     - run: ./gradlew test --no-daemon
       
     - run:
@@ -173,7 +206,6 @@ jobs:
 
   notifications:
     docker:
-      # replace with your preferred image
       - image: cimg/base:stable
     steps:
       - run:
@@ -202,9 +234,16 @@ workflows:
       - build:
           requires:
             - prepare
+      - preview:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: main
       - test:
           requires:
             - build
       - notifications:
           requires:
+            - build
             - test
