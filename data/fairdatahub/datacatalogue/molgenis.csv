@@ -5,7 +5,7 @@ Catalogues,,network,ref,1,TRUE,,Networks,,,,,Network or consortium that leads th
 Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,,Type of catalogue,DataCatalogue
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging"
 Organisations,Resources,,,,,,,,,,,Research departments and research groups,"DataCatalogue,EMA,SharedStaging"
-Extended resources,Resources,,,,,,,,,,,,"DataCatalogue,EMA"
+Extended resources,Resources,,,,,,,,,,,"TODO: a nice table description here","DataCatalogue,EMA,SharedStaging"
 Models,Extended resources,,,,,,,,,,,Data models,"DataCatalogue,EMA"
 Data resources,Extended resources,,,,,,,,,,,Resources for data,"DataCatalogue,EMA"
 Cohorts,Data resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic,DataCatalogue
@@ -41,8 +41,8 @@ RWE resources,,type,ontology_array,,,CatalogueOntologies,Datasource types,,,,,Wh
 RWE resources,,type other,text,,,,,,,,,"If other, describe the type of datasource","DataCatalogue,EMA"
 Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description,DataCatalogue
 Resources,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA"
-Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
-Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
+Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA,SharedStaging"
+Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA,SharedStaging"
 Studies,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA
 Networks,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA
 Resources,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA"
