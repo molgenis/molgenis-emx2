@@ -1,14 +1,4 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Catalog,,,,,,,,,,,http://www.w3.org/ns/dcat#Catalog,DCAT v2 catalog entries.,DCAT
-Catalog,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the catalog.,DCAT
-Catalog,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,Name of the catalog with the language tag.,DCAT
-Catalog,,hasVersion,string,,,,,,,,http://purl.org/dc/terms/hasVersion,Version of the catalog.,DCAT
-Catalog,,description,string,,,,,,,,http://purl.org/dc/terms/description,Description of the catalog with the language tag.,DCAT
-Catalog,,publisher,string,,TRUE,,,,,,http://purl.org/dc/terms/publisher,The entity(ies) (person or organization) responsible for the catalog.,DCAT
-Catalog,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,The language(s) used in the catalog.,DCAT
-Catalog,,license,hyperlink,,TRUE,,,,,,http://purl.org/dc/terms/license,The reference to the usage license of the catalog.,DCAT
-Catalog,,themeTaxonomy,hyperlink,,TRUE,,,,,,http://www.w3.org/ns/dcat#themeTaxonomy,"A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.",DCAT
-Catalog,,dataset,refBack,,,,Dataset,,belongsToCatalog,,http://www.w3.org/ns/dcat#dataset,"The relation between the catalog and its items. This is the most general predicate for membership of a catalog. It is recommended to use more specific sub-properties such as dcat:dataset, dcat:catalog, dcat:service, or a custom sub-property.",DCAT
 Dataset,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,DCAT v2 dataset entries.,DCAT
 Dataset,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the dataset.,DCAT
 Dataset,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT
@@ -38,9 +28,18 @@ Dataset,,publisher,ref,,,,Organisations,,,,http://purl.org/dc/terms/publisher,Th
 Dataset,,theme,hyperlink_array,,,,,,,,http://purl.org/dc/terms/theme,A main category of the resource. A resource can have multiple themes.,DCAT
 Dataset,,type,string,,,,,,,,http://purl.org/dc/terms/type,The nature or genre of the resource.,DCAT
 Dataset,,qualifiedAttribution,string,,,,,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Link to an Agent having some form of responsibility for the resource,DCAT
-Distribution,,,,,,,,,,,http://www.w3.org/ns/dcat#Distribution,DCAT v2 distribution entries.,DCAT
-Distribution,,name,string,1,TRUE,,,,,,http://schema.org/name,"Unique name of a Table or (set of) File(s).",DCAT
-Distribution,,description,string,,,,,,,,http://purl.org/dc/terms/description,"Description of a Table or (set of) File(s).",DCAT
-Distribution,,type,ontology,,TRUE,,DistributionType,,,,http://purl.allotrope.org/ontologies/result#AFR_0002205,"Distribution type, either Table or File.",DCAT
-Distribution,,files,ref_array,,,,Files,,,,http://purl.obolibrary.org/obo/STATO_0000002,"One or multiple metadata for digital remote files.",DCAT
-Distribution,,belongsToDataset,ref_array,,TRUE,,Dataset,,,,http://www.w3.org/ns/dcat#Dataset,Reference to any datasets that contain this distribution.,DCAT
+datareleases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172217,"The act of making data or other structured information accessible to the public or to the user group of a database.",RD3
+datareleases,,name,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing.",RD3
+datareleases,,label,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C42614,"The words or language units by which a thing is known.",RD3
+datareleases,,description,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25365,"A written or verbal account, representation, statement, or explanation of something.",RD3
+datareleases,,date,date,,,,,,,,http://semanticscience.org/resource/SIO_001083,"A date of database submission refers to the moment in time in which some information was submitted/received to a database system.",RD3
+datareleases,,createdBy,ref,,,,ContactPersons,,,,http://purl.obolibrary.org/obo/NCIT_C42628,"Indicates the person or authoritative body who brought the item into existence.",RD3
+datareleases,,dataSource,ontology_array,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C16493,"The person or authoritative body who provided the information.",RD3
+datareleases,,releaseNotes,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C115505,"A notation regarding the decisions, and/or clarification of any information pertaining to data management.",RD3
+datasets,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C47824,"container of files belonging together (different datasets can contain overlapping files, except for the intial datasets containing startfiles (before analysis, startfiles= BAM, gVCF files (one per chromosome) and phenopacket file))",RD3
+datasets,,name,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing.",RD3
+datasets,,description,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25365,"A written or verbal account, representation, statement, or explanation of something.",RD3
+datasets,,datausepermissions,ontology_array,,,,DataUsePermissions,,,,http://purl.obolibrary.org/obo/DUO_0000001,,RD3
+datasets,,datausemodifiers,ontology_array,,,,DataUseModifiers,,,,http://purl.obolibrary.org/obo/DUO_0000017,"Data use modifiers indicate additional conditions for use. For instance, a dataset is restricted to investigations into specific diseases or performed at specific geographical locations.",RD3
+datasets,,datasetType,,,TRUE,,,,,,,"type of dataset (raw or processed (analysed) data)",RD3
+datasets,,comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material.",RD3

@@ -1,0 +1,26 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+GenomicVariations,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17248,Beacon v2  GenomicVariation,Beacon v2
+GenomicVariations,,variantInternalId,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C164813,E.g. 20:2447955..2447958c>g,Beacon v2
+GenomicVariations,,variantType,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000773,E.g. SNP,Beacon v2
+GenomicVariations,,referenceBases,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000036,E.g. c,Beacon v2
+GenomicVariations,,alternateBases,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000002,E.g. g,Beacon v2
+GenomicVariations,,position_assemblyId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164388,E.g. GRCh37,Beacon v2
+GenomicVariations,,position_refseqId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C45335,E.g. 20,Beacon v2
+GenomicVariations,,position_start,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000894,E.g. 2447955,Beacon v2
+GenomicVariations,,position_end,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000895,E.g. 2447958,Beacon v2
+GenomicVariations,,geneId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C20826,E.g. TTN,Beacon v2
+GenomicVariations,,genomicHGVSId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172243,E.g. NC_000017.11:g.43057063G>A,Beacon v2
+GenomicVariations,,proteinHGVSIds,string_array,,,,,,,,http://ensembl.org/glossary/ENSGLOSSARY_0000274,E.g. NP_009225.1:p.Glu1817Ter,Beacon v2
+GenomicVariations,,transcriptHGVSIds,string_array,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172244,E.g. NC_000023.10(NM004006.2):c.357+1G,Beacon v2
+GenomicVariations,,clinicalInterpretations,ref_array,,,,GenomicVariationsClinInterpr,,,,http://purl.obolibrary.org/obo/NCIT_C125009,E.g. Var001_CI001,Beacon v2
+GenomicVariationsClinInterpr,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C125009,Beacon v2 GenomicVariations Clinical Interpretations,Beacon v2
+GenomicVariationsClinInterpr,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Var001_CI001,Beacon v2
+GenomicVariationsClinInterpr,,category,ontology,,,,VariationCategory,,,,http://purl.obolibrary.org/obo/NCIT_C25372,E.g. disease or disorder,Beacon v2
+GenomicVariationsClinInterpr,,clinicalRelevance,ontology,,,,VariationClinicalRelevance,,,,http://purl.obolibrary.org/obo/HP_0045088,E.g. Likely benign,Beacon v2
+GenomicVariationsClinInterpr,,conditionId,String,,,,,,,,http://edamontology.org/data_3667,E.g. famchol1,Beacon v2
+GenomicVariationsClinInterpr,,effect,ontology,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Spinocerebellar ataxia type 34,Beacon v2
+GenomicVariations,,caseLevelData,ref_array,,,,GenomicVariationsCaseLevel,,,,http://purl.obolibrary.org/obo/GSSO_000660,E.g. Var001_CLD01,Beacon v2
+GenomicVariationsCaseLevel,,,,,,,,,,,http://purl.obolibrary.org/obo/GSSO_000660,Beacon v2 GenomicVariations Case Level Data,Beacon v2
+GenomicVariationsCaseLevel,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0001047,E.g. Var001_CLD01,Beacon v2
+GenomicVariationsCaseLevel,,individualId,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001,Beacon v2
+GenomicVariationsCaseLevel,,clinicalInterpretations,ref_array,,,,GenomicVariationsClinInterpr,,,,http://purl.obolibrary.org/obo/NCIT_C125009,E.g. Var001_CI001,Beacon v2
