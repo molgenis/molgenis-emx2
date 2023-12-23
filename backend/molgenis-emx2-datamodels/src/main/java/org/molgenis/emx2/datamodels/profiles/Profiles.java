@@ -12,11 +12,9 @@ public class Profiles {
    */
   public String name;
   public String description;
-  public String models;
   public String profiles;
   public String data;
   public String examples;
-  public List<String> modelsList;
   public List<String> profilesList;
   public List<String> dataList;
   public List<String> examplesList;

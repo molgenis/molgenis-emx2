@@ -2,11 +2,6 @@
 name: RD3
 description: The Rare Disease Data about Data (RD3) database for Solve-RD
 
-models:   fairdatahub/beaconv2/molgenis.csv,
-          fairdatahub/addons/molgenis.csv,
-          fairdatahub/rd3/molgenis.csv,
-          fairdatahub/ontologies/SEMANTICS.csv
-
 profiles: RD3
 
 data:     fairdatahub/ontologies
