@@ -4,11 +4,10 @@ description: "This catalogue contains metadata on cohorts/data sources, the vari
 
 profiles: DataCatalogue
 
-data:     datacatalogue/CatalogueOntologies,
-          fairdatahub/datacatalogue/molgenis_settings.csv
-
-examples: datacatalogue/Cohorts
+ontologies:     datacatalogue/CatalogueOntologies
+demodata: _data/applications/datacatalogue
+settings: fairdatahub/datacatalogue/molgenis_settings.csv
 
 # special options
-dataToFixedSchema: CatalogueOntologies
+ontologiesToFixedSchema: CatalogueOntologies
 setViewPermission: anonymous

@@ -6,6 +6,6 @@ profiles: Beacon v2,
           Beacon v2 EMX2 add-on,
           Beacon v2 Vivify add-on
 
-data:     fairdatahub/ontologies
+ontologies: _ontologies
 
-examples: fairdatahub/beaconv2/demodata
+data: _data/shared-examples
