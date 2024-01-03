@@ -11,7 +11,7 @@ Files,,biosamples,ref_array,,,,Biosamples,,,,http://purl.obolibrary.org/obo/NCIT
 Files,,cohorts,ref_array,,,,Cohorts,,,,http://purl.obolibrary.org/obo/NCIT_C61512,Beacon v2 Cohorts,Beacon v2 EMX2 add-on
 Files,,individuals,ref_array,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C90492,"One or more subject identifier associated with a file",Beacon v2 EMX2 add-on
 Files,,runs,ref_array,,,,Runs,,,,http://edamontology.org/topic_3168,Beacon v2 Runs,Beacon v2 EMX2 add-on
-Files,,EGA,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C171191,The literal identifier for an electronic file (EGA Accession number).,RD3
+Files,,EGA,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C171191,"The literal identifier for an electronic file (EGA Accession number). Compulsory in RD3.",RD3
 Files,,sampleID,ref_array,,,,samples,,,,http://purl.obolibrary.org/obo/NCIT_C93400,One more more sample identifier associated with a file,RD3
 Files,,experimentID,ref,,,,labinfo,,,,http://purl.obolibrary.org/obo/NCIT_C171337,Identifier of the corresponding record in the labinfo table,RD3
 Files,,partOfRelease,ref_array,,,,datareleases,,,,http://purl.obolibrary.org/obo/NCIT_C172217,One or more Solve-RD releases that indicate when the record was first introduced into RD3 or when it was updated.,RD3
