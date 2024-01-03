@@ -1,8 +1,0 @@
----
-name: RD3
-description: The Rare Disease Data about Data (RD3) database for Solve-RD
-
-profiles: RD3
-
-data:     fairdatahub/ontologies
-
