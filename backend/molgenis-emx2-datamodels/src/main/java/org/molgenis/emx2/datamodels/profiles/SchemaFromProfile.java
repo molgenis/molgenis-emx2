@@ -11,6 +11,7 @@ import java.net.URLDecoder;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
@@ -120,11 +121,53 @@ public class SchemaFromProfile {
       if (matchAgainstPath.startsWith(File.separator)) {
         matchAgainstPath = path.substring(1);
       }
+
+      // SonarCloud Recommended Secure Coding Practices preventing Zip Bomb attacks
+      int THRESHOLD_ENTRIES = 10000;
+      int THRESHOLD_SIZE = 1000000000; // 1 GB
+      double THRESHOLD_RATIO = 10;
+      int totalSizeArchive = 0;
+      int totalEntryArchive = 0;
+
       JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
       Enumeration<JarEntry> entries = jar.entries(); // gives ALL entries in jar
       Set<String> result = new HashSet<String>(); // avoid duplicates in case it is a subdirectory
       while (entries.hasMoreElements()) {
-        String name = entries.nextElement().getName();
+
+        ZipEntry ze = entries.nextElement();
+        InputStream in = new BufferedInputStream(jar.getInputStream(ze));
+        OutputStream out = new BufferedOutputStream(OutputStream.nullOutputStream());
+
+        totalEntryArchive++;
+
+        int nBytes = -1;
+        byte[] buffer = new byte[2048];
+        int totalSizeEntry = 0;
+
+        while ((nBytes = in.read(buffer)) > 0) { // Compliant
+          out.write(buffer, 0, nBytes);
+          totalSizeEntry += nBytes;
+          totalSizeArchive += nBytes;
+
+          double compressionRatio = totalSizeEntry / ze.getCompressedSize();
+          if (compressionRatio > THRESHOLD_RATIO) {
+            // ratio between compressed and uncompressed data is highly suspicious, looks like a Zip
+            // Bomb Attack
+            break;
+          }
+        }
+
+        if (totalSizeArchive > THRESHOLD_SIZE) {
+          // the uncompressed data size is too much for the application resource capacity
+          break;
+        }
+
+        if (totalEntryArchive > THRESHOLD_ENTRIES) {
+          // too much entries in this archive, can lead to inodes exhaustion of the system
+          break;
+        }
+
+        String name = ze.getName();
         if (name.startsWith(matchAgainstPath)) { // filter according to the path
           String entry = name.substring(path.length());
           int checkSubdir = entry.indexOf("/");
@@ -141,7 +184,7 @@ public class SchemaFromProfile {
   }
 
   public static void main(String args[]) throws IOException, URISyntaxException {
-    SchemaFromProfile sfp = new SchemaFromProfile("fairdatahub/FAIRDataHub.yaml");
+    SchemaFromProfile sfp = new SchemaFromProfile("_profiles/FAIRDataHub.yaml");
     SchemaMetadata generatedSchema = sfp.create();
     System.out.println("resulting schema: " + generatedSchema);
   }
