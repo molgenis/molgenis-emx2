@@ -13,8 +13,9 @@ import org.molgenis.emx2.io.readers.CsvTableReader;
 
 public class ProfileLoader extends AbstractDataLoader {
 
+  private static final String ONTOLOGY_LOCATION = File.separator + "_ontologies";
   private static final String ONTOLOGY_SEMANTICS_LOCATION =
-      File.separator + "_ontologies" + File.separator + "_semantics.csv";
+      ONTOLOGY_LOCATION + File.separator + "_semantics.csv";
 
   // the classpath location of your config YAML file
   private String configLocation;
@@ -26,44 +27,69 @@ public class ProfileLoader extends AbstractDataLoader {
   @Override
   void loadInternalImplementation(Schema schema, boolean includeDemoData) {
 
-    // first create the schema using the selected profiles
+    // first create the schema using the selected profile tags within the big model
     SchemaFromProfile schemaFromProfile = new SchemaFromProfile(this.configLocation);
     SchemaMetadata schemaMetadata = schemaFromProfile.create();
     Profiles profiles = schemaFromProfile.getProfiles();
 
-    // special option: fixed schema import location for data/ontologies (not schema or examples!)
-    Schema fixedSchema = null;
-    if (profiles.dataToFixedSchema != null) {
-      fixedSchema = createSchema(profiles.dataToFixedSchema, schema.getDatabase());
+    // special option: fixed schema import location for ontologies (not schema or data)
+    Schema fixedOntologySchema = null;
+    if (profiles.ontologiesToFixedSchema != null) {
+      fixedOntologySchema = createSchema(profiles.ontologiesToFixedSchema, schema.getDatabase());
       if (profiles.setViewPermission != null) {
-        fixedSchema.addMember(profiles.setViewPermission, Privileges.VIEWER.toString());
+        fixedOntologySchema.addMember(profiles.setViewPermission, Privileges.VIEWER.toString());
       }
     }
 
-    // import the schema (may depend on the data schema with e.g. separate ontologies)
+    // import the schema
     schema.migrate(schemaMetadata);
 
-    // import any required data/ontologies essential for the template (not schema or examples!)
-    Schema dataSchema = profiles.dataToFixedSchema == null ? schema : fixedSchema;
-    for (String data : profiles.dataList) {
-      MolgenisIO.fromClasspathDirectory(data, dataSchema, false);
-    }
+    // import ontologies (not schema or data)
+    Schema ontoSchema = profiles.ontologiesToFixedSchema == null ? schema : fixedOntologySchema;
+    MolgenisIO.fromClasspathDirectory(ONTOLOGY_LOCATION, ontoSchema, false);
 
-    // special option: provide specified user/role with View permissions on imported schema
+    // special option: provide specified user/role with View permissions on the imported schema
     if (profiles.setViewPermission != null) {
       schema.addMember(profiles.setViewPermission, Privileges.VIEWER.toString());
     }
 
-    // optionally, load examples (i.e. disposable demo records, not essential for the template)
+    // optionally, load demo data (i.e. some example records, or specific application data)
     if (includeDemoData) {
-      for (String example : profiles.examplesList) {
-        MolgenisIO.fromClasspathDirectory(example, schema, false);
+      // prevent data tables with ontology table names to be imported into ontologies by accident
+      String[] includeTableNames = getTypeOfTablesToInclude(schema, TableType.DATA);
+      for (String example : profiles.demoDataList) {
+        MolgenisIO.fromClasspathDirectory(example, schema, false, includeTableNames);
       }
     }
 
+    // load schema settings from dir containing e.g. molgenis_settings.csv or molgenis_members.csv
+    for (String setting : profiles.settingsList) {
+      MolgenisIO.fromClasspathDirectory(setting, schema, false);
+    }
+
     // lastly, apply any ontology table semantics from a predefined location
-    SchemaMetadata ontologySemantics = getOntologySemantics(dataSchema);
-    dataSchema.migrate(ontologySemantics);
+    // this requires special parsing, because we must only update ontology tables used in the schema
+    // to prevent adding additional unused tables
+    SchemaMetadata ontologySemantics = getOntologySemantics(ontoSchema);
+    ontoSchema.migrate(ontologySemantics);
+  }
+
+  /**
+   * Helper function to get a string array of data table names from a schema
+   *
+   * @param schema
+   * @return
+   */
+  public String[] getTypeOfTablesToInclude(Schema schema, TableType tableType) {
+    List<String> tablesToUpdate = new ArrayList<>();
+    for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
+      if (tableMetadata.getTableType().equals(TableType.DATA)) {
+        tablesToUpdate.add(tableMetadata.getTableName());
+      }
+    }
+    String[] tablesToUpdateArr = new String[tablesToUpdate.size()];
+    tablesToUpdate.toArray(tablesToUpdateArr);
+    return tablesToUpdateArr;
   }
 
   /**

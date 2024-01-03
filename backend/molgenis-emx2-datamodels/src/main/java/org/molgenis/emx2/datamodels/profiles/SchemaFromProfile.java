@@ -85,7 +85,7 @@ public class SchemaFromProfile {
           throw new MolgenisException("No profiles for " + row);
         }
         for (String profile : profiles) {
-          if (this.profiles.profilesList.contains(profile)) {
+          if (this.profiles.profileTagsList.contains(profile)) {
             keepRows.add(row);
             break;
           }

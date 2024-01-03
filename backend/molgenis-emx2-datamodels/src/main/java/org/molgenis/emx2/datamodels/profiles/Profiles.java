@@ -12,14 +12,14 @@ public class Profiles {
    */
   public String name;
   public String description;
-  public String profiles;
-  public String data;
-  public String examples;
-  public List<String> profilesList;
-  public List<String> dataList;
-  public List<String> examplesList;
+  public String profileTags;
+  public String demoData;
+  public String settings;
+  public List<String> profileTagsList;
+  public List<String> demoDataList;
+  public List<String> settingsList;
 
   // special options
-  public String dataToFixedSchema;
+  public String ontologiesToFixedSchema;
   public String setViewPermission;
 }
