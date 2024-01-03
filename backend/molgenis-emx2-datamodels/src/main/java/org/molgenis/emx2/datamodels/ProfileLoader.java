@@ -80,7 +80,7 @@ public class ProfileLoader extends AbstractDataLoader {
    * @param schema
    * @return
    */
-  public String[] getTypeOfTablesToInclude(Schema schema, TableType tableType) {
+  private String[] getTypeOfTablesToInclude(Schema schema, TableType tableType) {
     List<String> tablesToUpdate = new ArrayList<>();
     for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
       if (tableMetadata.getTableType().equals(TableType.DATA)) {
@@ -98,7 +98,7 @@ public class ProfileLoader extends AbstractDataLoader {
    * @param schema
    * @return SchemaMetadata
    */
-  public SchemaMetadata getOntologySemantics(Schema schema) {
+  private SchemaMetadata getOntologySemantics(Schema schema) {
     Set<String> tablesToUpdate = new HashSet<>();
     for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
       if (tableMetadata.getTableType().equals(TableType.ONTOLOGIES)) {
@@ -130,7 +130,7 @@ public class ProfileLoader extends AbstractDataLoader {
    * @param db
    * @return
    */
-  public Schema createSchema(String schema, Database db) {
+  private Schema createSchema(String schema, Database db) {
     Schema createSchema = db.getSchema(schema);
     if (createSchema == null) {
       createSchema = db.createSchema(schema);
