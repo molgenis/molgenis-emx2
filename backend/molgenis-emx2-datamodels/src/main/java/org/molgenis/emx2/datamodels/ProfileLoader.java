@@ -18,7 +18,7 @@ public class ProfileLoader extends AbstractDataLoader {
       ONTOLOGY_LOCATION + File.separator + "_semantics.csv";
 
   // the classpath location of your config YAML file
-  private String configLocation;
+  private final String configLocation;
 
   public ProfileLoader(String configLocation) {
     this.configLocation = configLocation;
@@ -57,7 +57,7 @@ public class ProfileLoader extends AbstractDataLoader {
     // optionally, load demo data (i.e. some example records, or specific application data)
     if (includeDemoData) {
       // prevent data tables with ontology table names to be imported into ontologies by accident
-      String[] includeTableNames = getTypeOfTablesToInclude(schema, TableType.DATA);
+      String[] includeTableNames = getTypeOfTablesToInclude(schema);
       for (String example : profiles.demoDataList) {
         MolgenisIO.fromClasspathDirectory(example, schema, false, includeTableNames);
       }
@@ -77,11 +77,8 @@ public class ProfileLoader extends AbstractDataLoader {
 
   /**
    * Helper function to get a string array of data table names from a schema
-   *
-   * @param schema
-   * @return
    */
-  private String[] getTypeOfTablesToInclude(Schema schema, TableType tableType) {
+  private String[] getTypeOfTablesToInclude(Schema schema) {
     List<String> tablesToUpdate = new ArrayList<>();
     for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
       if (tableMetadata.getTableType().equals(TableType.DATA)) {
@@ -96,7 +93,6 @@ public class ProfileLoader extends AbstractDataLoader {
   /**
    * Get potential updates regarding the semantics of ontology tables used in the imported schema
    *
-   * @param schema
    * @return SchemaMetadata
    */
   private SchemaMetadata getOntologySemantics(Schema schema) {
@@ -120,16 +116,11 @@ public class ProfileLoader extends AbstractDataLoader {
         keepRows.add(row);
       }
     }
-    SchemaMetadata tablesToUpdateSchema = Emx2.fromRowList(keepRows);
-    return tablesToUpdateSchema;
+    return Emx2.fromRowList(keepRows);
   }
 
   /**
    * Helper to check if schema exists and if not create it
-   *
-   * @param schema
-   * @param db
-   * @return
    */
   private Schema createSchema(String schema, Database db) {
     Schema createSchema = db.getSchema(schema);

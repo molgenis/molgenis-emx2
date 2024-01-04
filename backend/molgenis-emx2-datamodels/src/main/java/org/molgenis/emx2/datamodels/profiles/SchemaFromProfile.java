@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -21,27 +22,23 @@ import org.molgenis.emx2.io.readers.CsvTableReader;
 
 public class SchemaFromProfile {
 
-  private String yamlFileLocation;
-  private Profiles profiles;
-  private Character separator;
+  private final Profiles profiles;
 
   public SchemaFromProfile(String yamlFileLocation) {
     if (!yamlFileLocation.endsWith(".yaml")) {
       throw new MolgenisException("Input YAML file name must end in '.yaml'");
     }
-    this.yamlFileLocation = yamlFileLocation;
     InputStreamReader yaml =
         new InputStreamReader(
             Objects.requireNonNull(
                 AbstractDataLoader.class
                     .getClassLoader()
-                    .getResourceAsStream(this.yamlFileLocation)));
+                    .getResourceAsStream(yamlFileLocation)));
     try {
       this.profiles = new ObjectMapper(new YAMLFactory()).readValue(yaml, Profiles.class);
     } catch (Exception e) {
       throw new MolgenisException(e.getMessage(), e);
     }
-    this.separator = ',';
   }
 
   public Profiles getProfiles() {
@@ -58,15 +55,11 @@ public class SchemaFromProfile {
     } catch (Exception e) {
       throw new MolgenisException(e.getMessage());
     }
-    SchemaMetadata generatedSchema = Emx2.fromRowList(keepRows);
-    return generatedSchema;
+    return Emx2.fromRowList(keepRows);
   }
 
   /**
    * From a classpath dir, get all EMX2 model files and slice for profiles
-   *
-   * @param directory
-   * @return
    */
   public List<Row> getProfilesFromAllModels(String directory)
       throws URISyntaxException, IOException {
@@ -129,7 +122,7 @@ public class SchemaFromProfile {
       int totalSizeArchive = 0;
       int totalEntryArchive = 0;
 
-      try (JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"))) {
+      try (JarFile jar = new JarFile(URLDecoder.decode(jarPath, StandardCharsets.UTF_8))) {
         Enumeration<JarEntry> entries = jar.entries(); // gives ALL entries in jar
         Set<String> result = new HashSet<>(); // avoid duplicates in case it is a subdirectory
         while (entries.hasMoreElements()) {
@@ -140,7 +133,7 @@ public class SchemaFromProfile {
 
           totalEntryArchive++;
 
-          int nBytes = -1;
+          int nBytes;
           byte[] buffer = new byte[2048];
           int totalSizeEntry = 0;
 
@@ -179,13 +172,13 @@ public class SchemaFromProfile {
             result.add(entry);
           }
         }
-        return result.toArray(new String[result.size()]);
+        return result.toArray(new String[0]);
       }
     }
     throw new UnsupportedOperationException("Cannot list files for URL " + dirURL);
   }
 
-  public static void main(String args[]) throws IOException, URISyntaxException {
+  public static void main(String[] args) throws IOException, URISyntaxException {
     SchemaFromProfile sfp = new SchemaFromProfile("_profiles/FAIRDataHub.yaml");
     SchemaMetadata generatedSchema = sfp.create();
     System.out.println("resulting schema: " + generatedSchema);
