@@ -33,19 +33,20 @@ public class ProfileLoader extends AbstractDataLoader {
     Profiles profiles = schemaFromProfile.getProfiles();
 
     // special option: fixed schema import location for ontologies (not schema or data)
-    Schema fixedOntologySchema = null;
+    Schema ontoSchema;
     if (profiles.ontologiesToFixedSchema != null) {
-      fixedOntologySchema = createSchema(profiles.ontologiesToFixedSchema, schema.getDatabase());
+      ontoSchema = createSchema(profiles.ontologiesToFixedSchema, schema.getDatabase());
       if (profiles.setViewPermission != null) {
-        fixedOntologySchema.addMember(profiles.setViewPermission, Privileges.VIEWER.toString());
+        ontoSchema.addMember(profiles.setViewPermission, Privileges.VIEWER.toString());
       }
+    } else {
+      ontoSchema = schema;
     }
 
     // import the schema
     schema.migrate(schemaMetadata);
 
     // import ontologies (not schema or data)
-    Schema ontoSchema = profiles.ontologiesToFixedSchema == null ? schema : fixedOntologySchema;
     MolgenisIO.fromClasspathDirectory(ONTOLOGY_LOCATION, ontoSchema, false);
 
     // special option: provide specified user/role with View permissions on the imported schema
