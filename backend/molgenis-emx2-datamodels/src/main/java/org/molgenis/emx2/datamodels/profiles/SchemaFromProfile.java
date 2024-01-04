@@ -149,7 +149,7 @@ public class SchemaFromProfile {
             totalSizeEntry += nBytes;
             totalSizeArchive += nBytes;
 
-            double compressionRatio = totalSizeEntry / ze.getCompressedSize();
+            double compressionRatio = totalSizeEntry / (double) ze.getCompressedSize();
             if (compressionRatio > THRESHOLD_RATIO) {
               // ratio between compressed and uncompressed data is highly suspicious, looks like a
               // Zip
