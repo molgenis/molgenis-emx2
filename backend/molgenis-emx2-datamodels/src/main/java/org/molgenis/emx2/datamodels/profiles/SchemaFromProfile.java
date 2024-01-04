@@ -129,56 +129,58 @@ public class SchemaFromProfile {
       int totalSizeArchive = 0;
       int totalEntryArchive = 0;
 
-      JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
-      Enumeration<JarEntry> entries = jar.entries(); // gives ALL entries in jar
-      Set<String> result = new HashSet<String>(); // avoid duplicates in case it is a subdirectory
-      while (entries.hasMoreElements()) {
+      try (JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"))) {
+        Enumeration<JarEntry> entries = jar.entries(); // gives ALL entries in jar
+        Set<String> result = new HashSet<>(); // avoid duplicates in case it is a subdirectory
+        while (entries.hasMoreElements()) {
 
-        ZipEntry ze = entries.nextElement();
-        InputStream in = new BufferedInputStream(jar.getInputStream(ze));
-        OutputStream out = new BufferedOutputStream(OutputStream.nullOutputStream());
+          ZipEntry ze = entries.nextElement();
+          InputStream in = new BufferedInputStream(jar.getInputStream(ze));
+          OutputStream out = new BufferedOutputStream(OutputStream.nullOutputStream());
 
-        totalEntryArchive++;
+          totalEntryArchive++;
 
-        int nBytes = -1;
-        byte[] buffer = new byte[2048];
-        int totalSizeEntry = 0;
+          int nBytes = -1;
+          byte[] buffer = new byte[2048];
+          int totalSizeEntry = 0;
 
-        while ((nBytes = in.read(buffer)) > 0) { // Compliant
-          out.write(buffer, 0, nBytes);
-          totalSizeEntry += nBytes;
-          totalSizeArchive += nBytes;
+          while ((nBytes = in.read(buffer)) > 0) { // Compliant
+            out.write(buffer, 0, nBytes);
+            totalSizeEntry += nBytes;
+            totalSizeArchive += nBytes;
 
-          double compressionRatio = totalSizeEntry / ze.getCompressedSize();
-          if (compressionRatio > THRESHOLD_RATIO) {
-            // ratio between compressed and uncompressed data is highly suspicious, looks like a Zip
-            // Bomb Attack
+            double compressionRatio = totalSizeEntry / ze.getCompressedSize();
+            if (compressionRatio > THRESHOLD_RATIO) {
+              // ratio between compressed and uncompressed data is highly suspicious, looks like a
+              // Zip
+              // Bomb Attack
+              break;
+            }
+          }
+
+          if (totalSizeArchive > THRESHOLD_SIZE) {
+            // the uncompressed data size is too much for the application resource capacity
             break;
           }
-        }
 
-        if (totalSizeArchive > THRESHOLD_SIZE) {
-          // the uncompressed data size is too much for the application resource capacity
-          break;
-        }
-
-        if (totalEntryArchive > THRESHOLD_ENTRIES) {
-          // too much entries in this archive, can lead to inodes exhaustion of the system
-          break;
-        }
-
-        String name = ze.getName();
-        if (name.startsWith(matchAgainstPath)) { // filter according to the path
-          String entry = name.substring(path.length());
-          int checkSubdir = entry.indexOf("/");
-          if (checkSubdir >= 0) {
-            // if it is a subdirectory, we just return the directory name
-            entry = entry.substring(0, checkSubdir);
+          if (totalEntryArchive > THRESHOLD_ENTRIES) {
+            // too much entries in this archive, can lead to inodes exhaustion of the system
+            break;
           }
-          result.add(entry);
+
+          String name = ze.getName();
+          if (name.startsWith(matchAgainstPath)) { // filter according to the path
+            String entry = name.substring(path.length());
+            int checkSubdir = entry.indexOf("/");
+            if (checkSubdir >= 0) {
+              // if it is a subdirectory, we just return the directory name
+              entry = entry.substring(0, checkSubdir);
+            }
+            result.add(entry);
+          }
         }
+        return result.toArray(new String[result.size()]);
       }
-      return result.toArray(new String[result.size()]);
     }
     throw new UnsupportedOperationException("Cannot list files for URL " + dirURL);
   }
