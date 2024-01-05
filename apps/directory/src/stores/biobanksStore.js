@@ -113,11 +113,14 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   }
 
   function getPresentFilterOptions(facetIdentifier) {
-    const { applyToColumn, adaptive } = filtersStore.facetDetails[
-      facetIdentifier
-    ];
-
-    if (!biobankCards.value.length || !adaptive) return [];
+    const { applyToColumn, adaptive } =
+      filtersStore.facetDetails[facetIdentifier];
+    if (
+      biobankCards.value === undefined ||
+      !biobankCards.value.length ||
+      !adaptive
+    )
+      return [];
 
     let columnPath = applyToColumn;
     if (!Array.isArray(applyToColumn)) {

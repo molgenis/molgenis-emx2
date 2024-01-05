@@ -270,9 +270,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       const filterOptionsToAdd = value.filter(
         (newValue) => !existingValues.includes(newValue.name)
       );
-      filters.value[filterName] = filters.value[filterName].concat(
-        filterOptionsToAdd
-      );
+      filters.value[filterName] =
+        filters.value[filterName].concat(filterOptionsToAdd);
     } else {
       filters.value[filterName] = value;
     }
@@ -382,10 +381,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
     } else {
       filters.value[filterName] = value;
-
-      checkoutStore.setSearchHistory(
-        `${filterName} filtered on ${value.map((v) => v.text).join(", ")}`
-      );
+      if (typeof value === "string" || typeof value === "boolean") {
+        checkoutStore.setSearchHistory(`${filterName} filtered on ${value}`);
+      } else {
+        checkoutStore.setSearchHistory(
+          `${filterName} filtered on ${value.map((v) => v.text).join(", ")}`
+        );
+      }
     }
   }
 
