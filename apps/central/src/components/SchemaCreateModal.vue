@@ -131,6 +131,7 @@ export default {
         "DATA_CATALOGUE_NETWORK_STAGING",
         "RD3",
         "JRC_COMMON_DATA_ELEMENTS",
+        "FAIR_GENOMES",
         "BEACON_V2",
         "ERN_DASHBOARD",
         "ERN_CRANIO",

@@ -24,6 +24,7 @@ public class TestLoaders {
   public static final String DIRECTORY_TEST = "DirectoryTest";
   public static final String RD3_TEST = "RD3Test";
   public static final String JRC_CDE_TEST = "JRCCDETest";
+  public static final String FAIR_GENOMES = "FAIRGenomesTest";
 
   static Database database;
 
@@ -40,6 +41,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(DIRECTORY_TEST);
     database.dropSchemaIfExists(RD3_TEST);
     database.dropSchemaIfExists(JRC_CDE_TEST);
+    database.dropSchemaIfExists(FAIR_GENOMES);
   }
 
   @Test
@@ -99,5 +101,12 @@ public class TestLoaders {
     Schema JRCCDESchema = database.createSchema(JRC_CDE_TEST);
     AvailableDataModels.JRC_COMMON_DATA_ELEMENTS.install(JRCCDESchema, true);
     assertEquals(12, JRCCDESchema.getTableNames().size());
+  }
+
+  @Test
+  void test12FAIRGenomesLoader() {
+    Schema FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);
+    AvailableDataModels.FAIR_GENOMES.install(FAIRGenomesSchema, true);
+    assertEquals(46, FAIRGenomesSchema.getTableNames().size());
   }
 }
