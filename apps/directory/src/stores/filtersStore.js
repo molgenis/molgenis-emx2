@@ -37,7 +37,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   watch(
     () => settingsStore.configurationFetched,
-    (e) => {
+    () => {
       filterFacets.value = createFilters(settingsStore.config.filterFacets);
       filtersReadyToRender.value = true;
     }
@@ -178,22 +178,22 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return codeFound || nameFound || labelFound;
   }
 
-  function flattenOntologyBranch(branch, flattendBranches) {
+  function flattenOntologyBranch(branch, flattenedBranches) {
     if (!branch.children || !branch.children.length) {
-      if (!flattendBranches) {
+      if (!flattenedBranches) {
         return [branch];
       } else {
-        flattendBranches.push(branch);
+        flattenedBranches.push(branch);
       }
-      return flattendBranches;
+      return flattenedBranches;
     } else {
       for (const child of branch.children) {
-        flattendBranches = flattenOntologyBranch(child, flattendBranches);
+        flattenedBranches = flattenOntologyBranch(child, flattenedBranches);
         delete child.children;
-        flattendBranches.push(child);
+        flattenedBranches.push(child);
       }
     }
-    return flattendBranches;
+    return flattenedBranches;
   }
 
   /**
