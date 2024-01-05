@@ -1,7 +1,6 @@
 package org.molgenis.emx2.io;
 
 import java.util.*;
-
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.tablestore.TableStore;
