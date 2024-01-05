@@ -34,10 +34,10 @@ public class ProfileLoader extends AbstractDataLoader {
 
     // special option: fixed schema import location for ontologies (not schema or data)
     Schema ontoSchema;
-    if (profiles.ontologiesToFixedSchema != null) {
-      ontoSchema = createSchema(profiles.ontologiesToFixedSchema, schema.getDatabase());
-      if (profiles.setViewPermission != null) {
-        ontoSchema.addMember(profiles.setViewPermission, Privileges.VIEWER.toString());
+    if (profiles.getOntologiesToFixedSchema() != null) {
+      ontoSchema = createSchema(profiles.getOntologiesToFixedSchema(), schema.getDatabase());
+      if (profiles.getSetViewPermission() != null) {
+        ontoSchema.addMember(profiles.getSetViewPermission(), Privileges.VIEWER.toString());
       }
     } else {
       ontoSchema = schema;
@@ -50,21 +50,21 @@ public class ProfileLoader extends AbstractDataLoader {
     MolgenisIO.fromClasspathDirectory(ONTOLOGY_LOCATION, ontoSchema, false);
 
     // special option: provide specified user/role with View permissions on the imported schema
-    if (profiles.setViewPermission != null) {
-      schema.addMember(profiles.setViewPermission, Privileges.VIEWER.toString());
+    if (profiles.getSetViewPermission() != null) {
+      schema.addMember(profiles.getSetViewPermission(), Privileges.VIEWER.toString());
     }
 
     // optionally, load demo data (i.e. some example records, or specific application data)
     if (includeDemoData) {
       // prevent data tables with ontology table names to be imported into ontologies by accident
       String[] includeTableNames = getTypeOfTablesToInclude(schema);
-      for (String example : profiles.demoDataList) {
+      for (String example : profiles.getDemoDataList()) {
         MolgenisIO.fromClasspathDirectory(example, schema, false, includeTableNames);
       }
     }
 
     // load schema settings from dir containing e.g. molgenis_settings.csv or molgenis_members.csv
-    for (String setting : profiles.settingsList) {
+    for (String setting : profiles.getSettingsList()) {
       MolgenisIO.fromClasspathDirectory(setting, schema, false);
     }
 
@@ -75,9 +75,7 @@ public class ProfileLoader extends AbstractDataLoader {
     ontoSchema.migrate(ontologySemantics);
   }
 
-  /**
-   * Helper function to get a string array of data table names from a schema
-   */
+  /** Helper function to get a string array of data table names from a schema */
   private String[] getTypeOfTablesToInclude(Schema schema) {
     List<String> tablesToUpdate = new ArrayList<>();
     for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
@@ -119,9 +117,7 @@ public class ProfileLoader extends AbstractDataLoader {
     return Emx2.fromRowList(keepRows);
   }
 
-  /**
-   * Helper to check if schema exists and if not create it
-   */
+  /** Helper to check if schema exists and if not create it */
   private Schema createSchema(String schema, Database db) {
     Schema createSchema = db.getSchema(schema);
     if (createSchema == null) {

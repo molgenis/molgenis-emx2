@@ -31,9 +31,7 @@ public class SchemaFromProfile {
     InputStreamReader yaml =
         new InputStreamReader(
             Objects.requireNonNull(
-                AbstractDataLoader.class
-                    .getClassLoader()
-                    .getResourceAsStream(yamlFileLocation)));
+                AbstractDataLoader.class.getClassLoader().getResourceAsStream(yamlFileLocation)));
     try {
       this.profiles = new ObjectMapper(new YAMLFactory()).readValue(yaml, Profiles.class);
     } catch (Exception e) {
@@ -58,9 +56,7 @@ public class SchemaFromProfile {
     return Emx2.fromRowList(keepRows);
   }
 
-  /**
-   * From a classpath dir, get all EMX2 model files and slice for profiles
-   */
+  /** From a classpath dir, get all EMX2 model files and slice for profiles */
   public List<Row> getProfilesFromAllModels(String directory)
       throws URISyntaxException, IOException {
     List<Row> keepRows = new ArrayList<>();
@@ -79,7 +75,7 @@ public class SchemaFromProfile {
           throw new MolgenisException("No profiles for " + row);
         }
         for (String profile : profiles) {
-          if (this.profiles.profileTagsList.contains(profile)) {
+          if (this.profiles.getProfileTagsList().contains(profile)) {
             keepRows.add(row);
             break;
           }

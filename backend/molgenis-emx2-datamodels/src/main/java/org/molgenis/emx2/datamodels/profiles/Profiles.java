@@ -10,16 +10,96 @@ public class Profiles {
   Variables mapped to the YAML file
   FIXME: is it possible to directly load CSV into Lists using a mapper?
    */
-  public String name;
-  public String description;
-  public String profileTags;
-  public String demoData;
-  public String settings;
-  public List<String> profileTagsList;
-  public List<String> demoDataList;
-  public List<String> settingsList;
+  private String name;
+  private String description;
+  private String profileTags;
+  private String demoData;
+  private String settings;
+  private List<String> profileTagsList;
+  private List<String> demoDataList;
+  private List<String> settingsList;
 
   // special options
-  public String ontologiesToFixedSchema;
-  public String setViewPermission;
+  private String ontologiesToFixedSchema;
+  private String setViewPermission;
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  protected String getProfileTags() {
+    return profileTags;
+  }
+
+  protected void setProfileTags(String profileTags) {
+    this.profileTags = profileTags;
+  }
+
+  protected String getDemoData() {
+    return demoData;
+  }
+
+  protected void setDemoData(String demoData) {
+    this.demoData = demoData;
+  }
+
+  protected String getSettings() {
+    return settings;
+  }
+
+  protected void setSettings(String settings) {
+    this.settings = settings;
+  }
+
+  protected List<String> getProfileTagsList() {
+    return profileTagsList;
+  }
+
+  protected void setProfileTagsList(List<String> profileTagsList) {
+    this.profileTagsList = profileTagsList;
+  }
+
+  public List<String> getDemoDataList() {
+    return demoDataList;
+  }
+
+  public void setDemoDataList(List<String> demoDataList) {
+    this.demoDataList = demoDataList;
+  }
+
+  public List<String> getSettingsList() {
+    return settingsList;
+  }
+
+  public void setSettingsList(List<String> settingsList) {
+    this.settingsList = settingsList;
+  }
+
+  public String getOntologiesToFixedSchema() {
+    return ontologiesToFixedSchema;
+  }
+
+  public void setOntologiesToFixedSchema(String ontologiesToFixedSchema) {
+    this.ontologiesToFixedSchema = ontologiesToFixedSchema;
+  }
+
+  public String getSetViewPermission() {
+    return setViewPermission;
+  }
+
+  public void setSetViewPermission(String setViewPermission) {
+    this.setViewPermission = setViewPermission;
+  }
 }

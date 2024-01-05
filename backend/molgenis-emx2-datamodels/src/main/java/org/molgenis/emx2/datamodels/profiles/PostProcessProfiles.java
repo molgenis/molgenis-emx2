@@ -13,9 +13,9 @@ public class PostProcessProfiles extends StdConverter<Profiles, Profiles> {
 
   @Override
   public Profiles convert(Profiles profiles) {
-    profiles.profileTagsList = csvStringToList(profiles.profileTags);
-    profiles.demoDataList = csvStringToList(profiles.demoData);
-    profiles.settingsList = csvStringToList(profiles.settings);
+    profiles.setProfileTagsList(csvStringToList(profiles.getProfileTags()));
+    profiles.setDemoDataList(csvStringToList(profiles.getDemoData()));
+    profiles.setSettingsList(csvStringToList(profiles.getSettings()));
     return profiles;
   }
 
