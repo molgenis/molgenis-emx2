@@ -1,9 +1,7 @@
 package org.molgenis.emx2.io;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -14,8 +12,8 @@ import org.molgenis.emx2.tasks.Task;
  * ImportTableTask.
  */
 public class ImportDataTask extends Task {
-  private TableStore tableStore;
-  private Schema schema;
+  private final TableStore tableStore;
+  private final Schema schema;
   private Set<String> includeTableNames;
 
   public ImportDataTask(
@@ -31,11 +29,7 @@ public class ImportDataTask extends Task {
     this.schema = schema;
 
     if (includeTableNames.length > 0) {
-      Set<String> includeTableNamesSet = new HashSet<>();
-      for (String tableName : includeTableNames) {
-        includeTableNamesSet.add(tableName);
-      }
-      this.includeTableNames = includeTableNamesSet;
+      this.includeTableNames = new HashSet<>(Arrays.asList(includeTableNames));
     }
   }
 

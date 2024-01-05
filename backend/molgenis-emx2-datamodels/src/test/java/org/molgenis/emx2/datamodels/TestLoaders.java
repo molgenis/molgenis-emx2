@@ -88,14 +88,14 @@ public class TestLoaders {
   }
 
   @Test
-  public void test10RD3Loader() {
+  void test10RD3Loader() {
     Schema RD3Schema = database.createSchema(RD3_TEST);
     AvailableDataModels.RD3.install(RD3Schema, true);
     assertEquals(27, RD3Schema.getTableNames().size());
   }
 
   @Test
-  public void test11JRCCDELoader() {
+  void test11JRCCDELoader() {
     Schema JRCCDESchema = database.createSchema(JRC_CDE_TEST);
     AvailableDataModels.JRC_COMMON_DATA_ELEMENTS.install(JRCCDESchema, true);
     assertEquals(12, JRCCDESchema.getTableNames().size());

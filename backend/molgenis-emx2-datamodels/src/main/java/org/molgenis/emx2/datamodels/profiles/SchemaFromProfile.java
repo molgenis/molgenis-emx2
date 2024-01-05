@@ -112,9 +112,9 @@ public class SchemaFromProfile {
       }
 
       // SonarCloud Recommended Secure Coding Practices preventing Zip Bomb attacks
-      int THRESHOLD_ENTRIES = 10000;
-      int THRESHOLD_SIZE = 1000000000; // 1 GB
-      double THRESHOLD_RATIO = 10;
+      int THRESHOLDENTRIES = 10000;
+      int THRESHOLDSIZE = 1000000000; // 1 GB
+      double THRESHOLDRATIO = 10;
       int totalSizeArchive = 0;
       int totalEntryArchive = 0;
 
@@ -139,7 +139,7 @@ public class SchemaFromProfile {
             totalSizeArchive += nBytes;
 
             double compressionRatio = totalSizeEntry / (double) ze.getCompressedSize();
-            if (compressionRatio > THRESHOLD_RATIO) {
+            if (compressionRatio > THRESHOLDRATIO) {
               // ratio between compressed and uncompressed data is highly suspicious, looks like a
               // Zip
               // Bomb Attack
@@ -147,12 +147,12 @@ public class SchemaFromProfile {
             }
           }
 
-          if (totalSizeArchive > THRESHOLD_SIZE) {
+          if (totalSizeArchive > THRESHOLDSIZE) {
             // the uncompressed data size is too much for the application resource capacity
             break;
           }
 
-          if (totalEntryArchive > THRESHOLD_ENTRIES) {
+          if (totalEntryArchive > THRESHOLDENTRIES) {
             // too much entries in this archive, can lead to inodes exhaustion of the system
             break;
           }
@@ -172,11 +172,5 @@ public class SchemaFromProfile {
       }
     }
     throw new UnsupportedOperationException("Cannot list files for URL " + dirURL);
-  }
-
-  public static void main(String[] args) throws IOException, URISyntaxException {
-    SchemaFromProfile sfp = new SchemaFromProfile("_profiles/FAIRDataHub.yaml");
-    SchemaMetadata generatedSchema = sfp.create();
-    System.out.println("resulting schema: " + generatedSchema);
   }
 }
