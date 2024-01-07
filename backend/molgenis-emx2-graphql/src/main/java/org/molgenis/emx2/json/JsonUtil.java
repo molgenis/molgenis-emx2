@@ -28,8 +28,7 @@ public class JsonUtil {
   }
 
   public static SchemaMetadata yamlToSchema(String yaml) throws IOException {
-    SchemaMetadata schema = new Emx2YamlLoader().read(yaml);
-    return schema;
+    return new Emx2YamlLoader().read(yaml);
   }
 
   public static SchemaMetadata jsonToSchema(String json) throws IOException {
@@ -42,7 +41,6 @@ public class JsonUtil {
   }
 
   public static String schemaToYaml(SchemaMetadata schema, boolean minimal) throws IOException {
-    Schema s = new Schema(schema, minimal);
     StringWriter out = new StringWriter();
     out.write(new Emx2YamlLoader().write(schema));
     return out.toString();

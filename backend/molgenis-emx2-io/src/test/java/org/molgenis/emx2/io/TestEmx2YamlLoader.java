@@ -15,7 +15,7 @@ import org.molgenis.emx2.io.yaml.Emx2YamlLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestEmx2YamlLoader {
+class TestEmx2YamlLoader {
   private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
   @Test
