@@ -133,9 +133,19 @@
       "description": "subclass definition",
       "additionalProperties": false,
       "properties": {
-        "extends": {
-          "type": "string",
-          "description": "table it extends (which implies it includes all its columns, and that this table rows will be included when retrieving the super table). When ommitted/empty it is assumed that the root table is used"
+        "subclasses": {
+          "type": "object",
+          "description": "indicating subclasses of this subclass",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "#/defs/subclass"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
         },
         "description": {
           "type": "string",
@@ -182,8 +192,8 @@
             "bool_array",
             "int",
             "int_array",
-            "bigint",
-            "bigint_array",
+            "long",
+            "long_array",
             "decimal",
             "decimal_array",
             "date",
@@ -271,12 +281,12 @@
           ],
           "type": "string"
         },
-        "defaultValue": {
+        "default": {
           "description": "expression that computes a default value",
           "examples": [
             "Date.now()"
           ],
-          "type": "string"
+          "type": ["string","boolean"]
         },
         "profiles": {
           "$ref": "#/defs/profiles"

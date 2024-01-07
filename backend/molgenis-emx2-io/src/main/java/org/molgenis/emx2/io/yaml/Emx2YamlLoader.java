@@ -70,7 +70,7 @@ public class Emx2YamlLoader {
                 table.getTableName(),
                 null, // todo uri
                 table.getDescription(),
-                getYamlSubclassMap(table),
+                getYamlSubclassMapRecursively(table),
                 getYamlColumnMap(table),
                 table.getSettings(),
                 table.getProfiles(),
@@ -84,29 +84,22 @@ public class Emx2YamlLoader {
     return builder.toString().replace(": null\n", ":\n");
   }
 
-  private Map<String, YamlSubclass> getYamlSubclassMap(TableMetadata table) {
+  private Map<String, YamlSubclass> getYamlSubclassMapRecursively(TableMetadata table) {
     List<TableMetadata> subclasses =
         table.getSchema().getTables().stream()
             .filter(
-                t ->
-                    t.getInheritName() != null && t.getRootTableName().equals(table.getTableName()))
+                t -> t.getInheritName() != null && t.getInheritName().equals(table.getTableName()))
             .toList();
     if (subclasses.size() > 0) {
       Map<String, YamlSubclass> result = new HashMap<>();
       for (TableMetadata subclass : subclasses) {
         YamlSubclass yamlSubclass =
             new YamlSubclass(
-                subclass.getInheritName().equals(table.getTableName())
-                    ? null
-                    : subclass.getInheritName(),
                 subclass.getDescription(),
-                null // todo uri
-                );
-        if (checkFieldsAreNull(yamlSubclass)) {
-          result.put(subclass.getTableName(), null);
-        } else {
-          result.put(subclass.getTableName(), yamlSubclass);
-        }
+                null, // todo uri,
+                getYamlSubclassMapRecursively(subclass));
+
+        result.put(subclass.getTableName(), nullIfEmpty(yamlSubclass));
       }
       return result;
     } else {
@@ -150,11 +143,8 @@ public class Emx2YamlLoader {
                 // todo uri
                 // todo create getDescription()
                 column.getProfiles());
-        if (checkFieldsAreNull(yamlColumn)) {
-          result.put(column.getName(), null);
-        } else {
-          result.put(column.getName(), yamlColumn);
-        }
+
+        result.put(column.getName(), nullIfEmpty(yamlColumn));
       }
     }
 
@@ -188,6 +178,8 @@ public class Emx2YamlLoader {
   }
 
   private String getYamlColumnType(ColumnType columnType) {
+    // reference use the more compact 'ref, ref_array, ontology, ontology_array, ref_back notation
+    // string is the default so can be omitted
     if (columnType.isReference() || columnType.equals(STRING)) {
       return null;
     } else {
@@ -207,68 +199,82 @@ public class Emx2YamlLoader {
 
     // subclass table
     if (yamlTable.subclasses != null) {
-      for (Map.Entry<String, YamlSubclass> entry : yamlTable.subclasses.entrySet()) {
-        YamlSubclass yamlSubclass = entry.getValue();
-        TableMetadata subclassMetadata = new TableMetadata(entry.getKey());
-        subclassMetadata.setInheritName(tableMetadata.getTableName());
-        if (yamlSubclass != null) {
-          subclassMetadata.setDescription(yamlSubclass.description);
-          subclassMetadata.setSemantics(yamlSubclass.uri);
-          if (yamlSubclass.inherits != null) {
-            subclassMetadata.setInheritName(yamlSubclass.inherits);
-          }
-          if (yamlSubclass.inherits != null) {
-            subclassMetadata.setInheritName(yamlSubclass.inherits);
-          } else {
-            subclassMetadata.setInheritName(tableMetadata.getInheritName());
-          }
+      setSubclassMetadataRecursively(yamlTable, yamlTable.subclasses, schema, tableMetadata);
+    }
+  }
+
+  private static void setSubclassMetadataRecursively(
+      YamlTable yamlTable,
+      Map<String, YamlSubclass> subclasses,
+      SchemaMetadata schema,
+      TableMetadata tableMetadata) {
+    for (Map.Entry<String, YamlSubclass> entry : subclasses.entrySet()) {
+      YamlSubclass yamlSubclass = entry.getValue();
+      TableMetadata subclassMetadata = new TableMetadata(entry.getKey());
+      subclassMetadata.setInheritName(tableMetadata.getTableName());
+      if (yamlSubclass != null) {
+        subclassMetadata.setDescription(yamlSubclass.description);
+        subclassMetadata.setSemantics(yamlSubclass.uri);
+        if (yamlSubclass.subclasses != null) {
+          setSubclassMetadataRecursively(
+              yamlTable, yamlSubclass.subclasses, schema, subclassMetadata);
         }
-        setColumnMetadata(yamlTable, subclassMetadata);
-        schema.create(subclassMetadata);
       }
+      setColumnMetadata(yamlTable, subclassMetadata);
+      schema.create(subclassMetadata);
     }
   }
 
   private static void setColumnMetadata(YamlTable yamlTable, TableMetadata tableMetadata) {
-    for (Map.Entry<String, YamlColumn> entry : yamlTable.columns.entrySet()) {
-      YamlColumn yamlColumn = entry.getValue();
-      Column column = new Column(entry.getKey());
-      if (yamlColumn != null) {
-        column.setDescription(yamlColumn.description);
-        if (yamlColumn.type != null) {
-          column.setType(ColumnType.valueOf(yamlColumn.type.toUpperCase()));
+    if (yamlTable.columns != null) {
+      for (Map.Entry<String, YamlColumn> entry : yamlTable.columns.entrySet()) {
+        YamlColumn yamlColumn = entry.getValue();
+        Column column = new Column(entry.getKey());
+        if (yamlColumn != null) {
+          column.setDescription(yamlColumn.description);
+          if (yamlColumn.type != null) {
+            try {
+              column.setType(ColumnType.valueOf(yamlColumn.type.toUpperCase()));
+            } catch (Exception e) {
+              throw new MolgenisException("type: " + yamlColumn.type + " is invalid");
+            }
+          }
+          column.setLabel(yamlColumn.label);
+          if (yamlColumn.key != null) column.setKey(yamlColumn.key);
+          if (yamlColumn.required != null) column.setRequired(yamlColumn.required);
+          column.setValidation(yamlColumn.validIf);
+          column.setVisible(yamlColumn.visibleIf);
+          column.setProfiles(yamlColumn.profiles);
+
+          if (yamlColumn.ontology != null) {
+            column.setType(ColumnType.ONTOLOGY);
+            setRefParameters(column, yamlColumn.ontology);
+          }
+          if (yamlColumn.ontology_array != null) {
+            column.setType(ColumnType.ONTOLOGY_ARRAY);
+            setRefParameters(column, yamlColumn.ontology_array);
+          }
+          if (yamlColumn.ref != null) {
+            column.setType(REF);
+            setRefParameters(column, yamlColumn.ref);
+          }
+          if (yamlColumn.ref_array != null) {
+            column.setType(ColumnType.REF_ARRAY);
+            setRefParameters(column, yamlColumn.ref_array);
+          }
+          if (yamlColumn.ref_back != null) {
+            column.setType(ColumnType.REFBACK);
+            setRefBackParameters(column, yamlColumn.ref_back);
+          }
+
+          column.setRefLabel(yamlColumn.ref_label);
         }
-        column.setLabel(yamlColumn.label);
-        if (yamlColumn.key != null) column.setKey(yamlColumn.key);
-        if (yamlColumn.required != null) column.setRequired(yamlColumn.required);
-        column.setValidation(yamlColumn.validIf);
-        column.setVisible(yamlColumn.visibleIf);
-        column.setProfiles(yamlColumn.profiles);
 
-        if (yamlColumn.ontology != null) {
-          column.setType(ColumnType.ONTOLOGY);
-          setRefParameters(column, yamlColumn.ontology);
-        } else if (yamlColumn.ontology_array != null) {
-          column.setType(ColumnType.ONTOLOGY_ARRAY);
-          setRefParameters(column, yamlColumn.ontology_array);
-        } else if (yamlColumn.ref != null) {
-          column.setType(REF);
-          setRefParameters(column, yamlColumn.ref);
-        } else if (yamlColumn.ref_array != null) {
-          column.setType(ColumnType.REF_ARRAY);
-          setRefParameters(column, yamlColumn.ref_array);
-        } else if (yamlColumn.ref_back != null) {
-          column.setType(ColumnType.REFBACK);
-          setRefBackParameters(column, yamlColumn.ref_back);
+        if (yamlColumn == null
+            || yamlColumn.subclass == null
+            || tableMetadata.getTableName().equals(yamlColumn.subclass)) {
+          tableMetadata.add(column);
         }
-
-        column.setRefLabel(yamlColumn.ref_label);
-      }
-
-      if (yamlColumn == null
-          || yamlColumn.subclass == null
-          || tableMetadata.getTableName().equals(yamlColumn.subclass)) {
-        tableMetadata.add(column);
       }
     }
   }
@@ -348,19 +354,19 @@ public class Emx2YamlLoader {
   private record YamlLicense(String name, String uri) {}
 
   private record YamlSubclass(
-      @JsonProperty("extends") String inherits, String description, String uri) {}
+      String description, String uri, Map<String, YamlSubclass> subclasses) {}
 
-  private static boolean checkFieldsAreNull(Record record) {
+  private static <R extends Record> R nullIfEmpty(R record) {
     for (Field field : record.getClass().getDeclaredFields()) {
       try {
         if (field.get(record) != null) {
-          return false;
+          return record;
         }
       } catch (IllegalAccessException e) {
         // Handle exception as needed
         e.printStackTrace();
       }
     }
-    return true;
+    return null;
   }
 }

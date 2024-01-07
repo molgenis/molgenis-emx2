@@ -21,7 +21,6 @@ public class JsonUtil {
   }
 
   private static ObjectWriter writer;
-  private static ObjectWriter yamlWriter;
 
   public static org.molgenis.emx2.Column jsonToColumn(String json) throws IOException {
     Column column = new ObjectMapper().readValue(json, Column.class);

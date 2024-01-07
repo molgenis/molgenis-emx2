@@ -15,7 +15,7 @@ import org.molgenis.emx2.io.yaml.Emx2YamlLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestYaml {
+public class TestEmx2YamlLoader {
   private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
   @Test
@@ -61,7 +61,7 @@ public class TestYaml {
     assertNull(person.getColumn("teamlead"));
     assertNotNull(schema.getTableMetadata("Employee").getColumn("teamlead"));
 
-    assertEquals("supervisor", schema.getTableMetadata("Manager").getColumn("team").getRefBack());
+    assertEquals("teamlead", schema.getTableMetadata("Manager").getColumn("team").getRefBack());
     assertEquals(
         ColumnType.REFBACK, schema.getTableMetadata("Manager").getColumn("team").getColumnType());
     assertEquals(

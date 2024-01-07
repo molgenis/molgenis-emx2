@@ -1,4 +1,5 @@
 schema : My schema
+# note: this name will be replaced with name of your schema once loaded
 version: 1.0.0
 description: some example schema
 authors:
@@ -22,13 +23,13 @@ ref_label:  ${firstName} ${lastName}
 # however, we could also add an 'extends' to table level to allow cross schema extends
 subclasses:
   Employee:
-  Manager:
-    extends: Employee
-    description: so this means we now have a Person > Employee > Manager class hierarchy
+    subclasses:
+      Manager:
+        description: so this means we now have a Person > Employee > Manager class hierarchy
 columns:
   id:
     type: auto_id
-    description: the unique identifier of this person. To test newline a lot of lorem impsum Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+    description: "the unique identifier of this person. To test newline a lot of lorem impsum Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
     key: 1
   first name:
     required: true
@@ -59,11 +60,14 @@ columns:
     ref: Person
     ref_label: ${id}
   teamlead:
-    ref: Manager
+    ref: Employee
+    # future enghancement: we would like this to ref 'Manager'
+    # but then we must change 'migrate' schema to first create tables + primary keys and then add other field such as foreign keys at a second pass
+    # currently ref: Manager leads to circular dependency error.
     subclass: Employee
     description: link to a person that is a Manager. Only applies to Employee
   team:
-    ref_back: Employee.supervisor
+    ref_back: Employee.teamlead
     subclass: Manager
     description: reverse navigation of the teamlead ref. Only applies to Manager
 
