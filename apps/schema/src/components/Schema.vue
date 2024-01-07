@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid bg-white">
     <MessageSuccess
-      >Try the new yaml editor at <a href="../#/yaml">here</a></MessageSuccess
+      >Try the new yaml editor at <a href="./#/yaml">here</a></MessageSuccess
     >
     <div class="sticky-top bg-white">
       <div class="d-flex flex-row">

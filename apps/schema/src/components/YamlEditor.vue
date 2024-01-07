@@ -73,7 +73,7 @@ const success = ref();
 const submitting = ref(false);
 
 try {
-  const response = await fetch(`api/yaml`);
+  const response = await fetch(`../api/yaml`);
   const source = await response.text();
   code.value = source;
 } catch (e) {
