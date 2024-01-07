@@ -715,6 +715,11 @@ public class TestGraphqlSchemaFields {
       assertEquals(
           count, execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue());
 
+      // truncate should also work with identifier
+      execute("mutation{truncate(tables: \"PersonDetails\"){message}}");
+      assertEquals(
+          0, execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue());
+
       // reset
     } finally {
       grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);

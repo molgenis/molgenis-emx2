@@ -96,10 +96,11 @@
           <div class="collections-section" :style="cardContainerHeight">
             <div class="pl-2 pt-2 d-flex" v-if="numberOfCollections">
               <h5>
-                {{ numberOfCollections }} collection{{
-                  numberOfCollections === 1 ? "" : "s"
+                {{
+                  `${numberOfCollections} collection${
+                    numberOfCollections === 1 ? "" : "s"
+                  } ${hasActiveFilters ? "found" : "available"}`
                 }}
-                available
               </h5>
               <collection-selector
                 v-if="numberOfCollections > 1"
@@ -112,7 +113,13 @@
               ></collection-selector>
             </div>
             <hr class="mt-1" v-if="numberOfCollections" />
-            <div v-else class="pl-2">This biobank has no collections yet.</div>
+            <div v-else class="pl-2">
+              {{
+                hasActiveFilters
+                  ? "No collections found with currently active filters"
+                  : "This biobank has no collections yet."
+              }}
+            </div>
             <div
               class="collection-items mx-1"
               v-for="(collectionDetail, index) of biobank.collectionDetails"
@@ -182,14 +189,15 @@ import MatchesOn from "../biobankcards-components/MatchesOn.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useQualitiesStore } from "../../stores/qualitiesStore";
 import { useCheckoutStore } from "../../stores/checkoutStore";
+import { useFiltersStore } from "../../stores/filtersStore";
 
 export default {
   setup() {
     const settingsStore = useSettingsStore();
     const qualitiesStore = useQualitiesStore();
     const checkoutStore = useCheckoutStore();
-
-    return { settingsStore, qualitiesStore, checkoutStore };
+    const filtersStore = useFiltersStore();
+    return { settingsStore, qualitiesStore, checkoutStore, filtersStore };
   },
   components: {
     ViewGenerator,
@@ -232,6 +240,9 @@ export default {
     },
   },
   computed: {
+    hasActiveFilters() {
+      return this.filtersStore.hasActiveFilters;
+    },
     uiText() {
       return this.settingsStore.uiText;
     },

@@ -188,7 +188,8 @@ export default {
     },
   },
   async beforeMount() {
-    this.commercialAvailableCollections = await this.collectionStore.getCommercialAvailableCollections();
+    this.commercialAvailableCollections =
+      await this.collectionStore.getCommercialAvailableCollections();
   },
 };
 </script>

@@ -3,8 +3,9 @@ import collectionEventGql from "~~/gql/collectionEvent";
 import type {
   IDefinitionListItem,
   IMgError,
-  ITreeNode,
+  IOntologyItem,
 } from "~~/interfaces/types";
+
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -100,25 +101,21 @@ if (collectionEvent.value?.numberOfParticipants) {
   });
 }
 
-let dataCategoriesTree: ITreeNode[] = [];
+let dataCategoriesTree: IOntologyItem[] = [];
 if (collectionEvent.value?.dataCategories?.length) {
-  dataCategoriesTree = buildOntologyTree(collectionEvent.value.dataCategories);
+  dataCategoriesTree = buildTree(collectionEvent.value.dataCategories);
   tocItems.push({ label: "Data categories", id: "data_categories" });
 }
 
-let areasOfInformationTree: ITreeNode[] = [];
+let areasOfInformationTree: IOntologyItem[] = [];
 if (collectionEvent.value?.areasOfInformation?.length) {
-  areasOfInformationTree = buildOntologyTree(
-    collectionEvent.value.areasOfInformation
-  );
+  areasOfInformationTree = buildTree(collectionEvent.value.areasOfInformation);
   tocItems.push({ label: "Areas of information", id: "areas_of_information" });
 }
 
-let standardizedToolsTree: ITreeNode[] = [];
+let standardizedToolsTree: IOntologyItem[] = [];
 if (collectionEvent.value.standardizedTools) {
-  standardizedToolsTree = buildOntologyTree(
-    collectionEvent.value.standardizedTools
-  );
+  standardizedToolsTree = buildTree(collectionEvent.value.standardizedTools);
   tocItems.push({ label: "Standardized tools", id: "standardized_tools" });
 }
 
@@ -152,7 +149,7 @@ useHead({ title: collectionEvent.value?.name });
           title="Sample categories"
         >
           <ContentOntology
-            :tree="buildOntologyTree(collectionEvent.sampleCategories)"
+            :tree="buildTree(collectionEvent.sampleCategories)"
             :collapse-all="false"
           />
         </ContentBlock>

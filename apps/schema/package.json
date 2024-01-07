@@ -7,7 +7,7 @@
     "build": "vite build",
     "lint": "vite lint",
     "format": "prettier src  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --write --config ../.prettierrc.js"
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "dependencies": {
     "core-js": "3.34.0",
@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "vite": "4.3.9",
-    "@vitejs/plugin-vue": "4.4.1",
+    "@vitejs/plugin-vue": "4.5.2",
     "prettier": "2.8.8"
   }
 }

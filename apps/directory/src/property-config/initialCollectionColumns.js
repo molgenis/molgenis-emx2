@@ -105,6 +105,11 @@ const initialCollectionColumns = [
       "parent_collection.name",
       "also_known.url",
       "also_known.name_system",
+      "sub_collections.name",
+      "sub_collections.id",
+      "sub_collections.order_of_magnitude.label",
+      "sub_collections.materials.label",
+      "sub_collections.data_categories.label",
     ],
   },
 ];
