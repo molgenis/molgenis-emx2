@@ -73,7 +73,7 @@ public class Emx2YamlLoader {
                 getYamlSubclassMapRecursively(table),
                 getYamlColumnMap(table),
                 table.getSettings(),
-                table.getProfiles(),
+                table.getProfiles() == null ? null : Arrays.asList(table.getProfiles()),
                 null // todo ref_label
                 );
         builder.append("\n---\n\n" + mapper.writeValueAsString(yamlTable));
@@ -142,7 +142,7 @@ public class Emx2YamlLoader {
                 column.getTableName().equals(table.getTableName()) ? null : column.getTableName(),
                 // todo uri
                 // todo create getDescription()
-                column.getProfiles());
+                column.getProfiles() == null ? null : Arrays.asList(column.getProfiles()));
 
         result.put(column.getName(), nullIfEmpty(yamlColumn));
       }
@@ -244,7 +244,9 @@ public class Emx2YamlLoader {
           if (yamlColumn.required != null) column.setRequired(yamlColumn.required);
           column.setValidation(yamlColumn.validIf);
           column.setVisible(yamlColumn.visibleIf);
-          column.setProfiles(yamlColumn.profiles);
+          if (yamlColumn.profiles != null) {
+            column.setProfiles(yamlColumn.profiles.toArray(new String[0]));
+          }
 
           if (yamlColumn.ontology != null) {
             column.setType(ColumnType.ONTOLOGY);
@@ -327,7 +329,7 @@ public class Emx2YamlLoader {
       @JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, YamlSubclass> subclasses,
       @JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, YamlColumn> columns,
       Map<String, String> settings,
-      String[] profiles,
+      List<String> profiles,
       String ref_label) {}
 
   private record YamlColumn(
@@ -347,7 +349,7 @@ public class Emx2YamlLoader {
       String validIf,
       String uri,
       String subclass,
-      String[] profiles) {}
+      List<String> profiles) {}
 
   private record YamlAuthor(String email, String orcid) {}
 
@@ -356,15 +358,14 @@ public class Emx2YamlLoader {
   private record YamlSubclass(
       String description, String uri, Map<String, YamlSubclass> subclasses) {}
 
-  private static <R extends Record> R nullIfEmpty(R record) {
-    for (Field field : record.getClass().getDeclaredFields()) {
+  private static <R extends Record> R nullIfEmpty(R aRecord) {
+    for (Field field : aRecord.getClass().getDeclaredFields()) {
       try {
-        if (field.get(record) != null) {
-          return record;
+        if (field.get(aRecord) != null) {
+          return aRecord;
         }
       } catch (IllegalAccessException e) {
-        // Handle exception as needed
-        e.printStackTrace();
+        throw new MolgenisException("Unknown error", e);
       }
     }
     return null;
