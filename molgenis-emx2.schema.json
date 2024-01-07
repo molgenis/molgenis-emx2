@@ -1,0 +1,287 @@
+{
+  "$schema": "https://json-schema.org/draft/7/schema",
+  "title": "MOLGENIS emx2",
+  "description": "MOLGENIS metadata schema (for: emx2)",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": ["schema"],
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "description": "name of the schema. Indicates this yaml describes schema and cannot be used in combination with table.",
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "description": "description of the schema"
+        },
+        "settings": {
+          "description": "settings for schema. Simple key/value pairs that will be serialized to strings",
+          "type": "object"
+        },
+        "version": {
+          "description": "version indicator",
+          "type": "string"
+        },
+        "prefixes": {
+          "description": "RDF prefixes to be used in uri within this schema",
+          "type": "object"
+        },
+        "license": {
+          "$ref": "#/defs/license"
+        },
+        "authors": {
+          "$ref": "#/defs/authors"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": ["table","columns"],
+      "additionalProperties": false,
+      "properties": {
+        "table": {
+          "description": "name of the table. Indicates this yaml describes table and cannot be used in combination with schema.",
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "description": "description of this table"
+        },
+        "settings": {
+          "description": "settings for this table. Simple key/value pairs that will be serialized to strings",
+          "type": "object"
+        },
+        "uri": {
+          "description": "the unique semantic identifier of this table",
+          "type": "string",
+          "format": "uri"
+        },
+        "subclasses": {
+          "$ref": "#/defs/subclasses"
+        },
+        "columns": {
+          "$ref": "#/defs/columns"
+        },
+        "profiles": {
+          "$ref": "#/defs/profiles"
+        },
+        "ref_label": {
+          "description": "label for rows in this table when shown in a lookup",
+          "type": "string"
+        }
+      }
+    }
+  ],
+  "defs": {
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "license": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "authors": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/defs/author"
+          }
+        ]
+      }
+    },
+    "author": {
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "orcid": {
+          "type": "string"
+        }
+      }
+    },
+    "subclasses": {
+      "description": "list of subclasses within this table. Optionally you can define extension relations between subclasses",
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/defs/subclass"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "subclass": {
+      "description": "subclass definition",
+      "additionalProperties": false,
+      "properties": {
+        "extends": {
+          "type": "string",
+          "description": "table it extends (which implies it includes all its columns, and that this table rows will be included when retrieving the super table). When ommitted/empty it is assumed that the root table is used"
+        },
+        "description": {
+          "type": "string",
+          "description": "human readable description of this subclass"
+        }
+      }
+    },
+    "columns": {
+      "description": "list of columns",
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/defs/column"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "column": {
+      "description": "Column definition",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subclass": {
+          "type": "string",
+          "description": "subclass this column applies too. If left empty it is assumed to be applied to all subclasses"
+        },
+        "name": {
+          "type": "string",
+          "description": "unique name of the column. N.B. automatically an camelCase id will be generated from this name to be used in validIf,computed, etc expressions. E.g. 'First name' becomes 'firstName'"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "auto_id",
+            "string",
+            "string_array",
+            "text",
+            "text_array",
+            "bool",
+            "bool_array",
+            "int",
+            "int_array",
+            "bigint",
+            "bigint_array",
+            "decimal",
+            "decimal_array",
+            "date",
+            "date_array",
+            "datetime",
+            "datetime_array",
+            "email",
+            "email_array",
+            "hyperlink",
+            "hyperlink_array",
+            "heading",
+            "uuid",
+            "uuid_array",
+            "file",
+            "file_array"
+          ],
+          "description": "primitive type of the column. For relationships use 'ref' or 'ref_array' or 'ontology' or 'ontology_array' or 'ref_back' properties"
+        },
+        "label": {
+          "type": "string",
+          "description": "label of the form input. When ommitted the name of the column is used"
+        },
+        "description": {
+          "type": "string",
+          "description": "human readable description of this column"
+        },
+        "key": {
+          "type": "integer",
+          "description": "indicates this column is part of a key. 1 means primary key, 2 means secondary key. Multiple columns can be part of same key"
+        },
+        "ontology": {
+          "type": "string",
+          "description": "reference to an ontology. Use pattern 'schema name: table name' to refer to tables in other schemas. This is shorthand to say type=ontology and refTable=My ontology table"
+        },
+        "ontology_array": {
+          "type": "string",
+          "description": "reference list to an ontology. Use pattern 'schema name: table name' to refer to tables in other schemas. This is shorthand to say type=ontology and refTable=My ontology table"
+        },
+        "ref": {
+          "type": "string",
+          "description": "reference to another table. Use pattern 'schema name: table name' to refer to tables in other schemas"
+        },
+        "ref_array": {
+          "type": "string",
+          "description": "reference to another table. Use pattern 'schema name: table name' to refer to tables in other schemas"
+        },
+        "ref_back": {
+          "type": "string",
+          "description": "reference to 'ref' column in table like 'my table.my column'. Use pattern 'schema name: table name' to refer to tables in other schemas"
+        },
+        "ref_label": {
+          "type": "string",
+          "description": "a template to use showing lookup values when using column identifiers from the referred table. E.g. ${firstName} ${lastName}"
+        },
+        "uri": {
+          "description": "the unique semantic identifier of this column. Can be either full uri or using a prefix",
+          "type": "string",
+          "format": "uri"
+        },
+        "required": {
+          "type": [
+            "boolean",
+            "string"
+          ],
+          "description": "whether this column is required. Can either be a boolean true or an expression"
+        },
+        "visibleIf": {
+          "description": "expression that indicates if this column is visible in a form.",
+          "examples": [
+            "${birthDate}"
+          ],
+          "type": "string"
+        },
+        "validIf": {
+          "description": "expression that indicates if this column is valid in a form.",
+          "examples": [
+            "if(price<=1)'price should be larger than 1'"
+          ],
+          "type": "string"
+        },
+        "computed": {
+          "description": "expression that computes a value instead of having users fill it in. This input will be hidden in forms.",
+          "examples": [
+            "birthDate - Date.now()"
+          ],
+          "type": "string"
+        },
+        "defaultValue": {
+          "description": "expression that computes a default value",
+          "examples": [
+            "Date.now()"
+          ],
+          "type": "string"
+        },
+        "profiles": {
+          "$ref": "#/defs/profiles"
+        }
+      }
+    }
+  }
+}

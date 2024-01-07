@@ -3,9 +3,7 @@ package org.molgenis.emx2.utils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
 public class TableSort {
@@ -61,9 +59,12 @@ public class TableSort {
       }
       // check for circular relationship
       if (size == todo.size()) {
-        throw new MolgenisException(
-            "circular dependency error: following tables have circular dependency: "
-                + todo.stream().map(TableMetadata::getTableName).collect(Collectors.joining(",")));
+        result.addAll(todo);
+        break;
+        //        throw new MolgenisException(
+        //            "circular dependency error: following tables have circular dependency: "
+        //                +
+        // todo.stream().map(TableMetadata::getTableName).collect(Collectors.joining(",")));
       }
     }
     tableList.clear();

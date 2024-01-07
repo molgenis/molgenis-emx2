@@ -1,0 +1,76 @@
+schema : My schema
+version: 1.0.0
+description: some example schema
+authors:
+  John Doe:
+    email: john@doe.com
+    orcid: 12-345
+license:
+  name: GPLV3
+  uri: https://www.gnu.org/licenses/lgpl-3.0.html
+prefixes:
+  foaf: http://xmlns.com/foaf/0.1/
+settings:
+  theme: blue
+---
+
+table: Person
+description: my first table
+uri: foaf:Person
+ref_label:  ${firstName} ${lastName}
+# MEGA BIG ISSUE: this yaml schema design doesn't allow table inheritance across schemas!
+# however, we could also add an 'extends' to table level to allow cross schema extends
+subclasses:
+  Employee:
+  Manager:
+    extends: Employee
+    description: so this means we now have a Person > Employee > Manager class hierarchy
+columns:
+  id:
+    type: auto_id
+    description: the unique identifier of this person. To test newline a lot of lorem impsum Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+    key: 1
+  first name:
+    required: true
+    key: 2
+    uri: foaf:firstName
+    description: |
+      an example of a field that has mappings
+      and having newlines in the description for whatever that is worth
+  middle name:
+  last name:
+    required: true
+    key: 2
+    uri: foaf:lastName
+  gender:
+    ontology: GenderOntology
+  active:
+    type: bool
+    default: true
+  birthday:
+    description: silly example to showoff the visibleIf and validIf properties
+    type: date
+    required: true
+    visibleIf: id
+    validIf: birthday < Date.now()
+    profiles:
+    - test
+  parent:
+    ref: Person
+    ref_label: ${id}
+  teamlead:
+    ref: Manager
+    subclass: Employee
+    description: link to a person that is a Manager. Only applies to Employee
+  team:
+    ref_back: Employee.supervisor
+    subclass: Manager
+    description: reverse navigation of the teamlead ref. Only applies to Manager
+
+---
+
+table: Other table
+description: showing the most minimal table here
+columns:
+  id:
+    key: 1
