@@ -61,13 +61,8 @@ export async function applyFiltersToQuery(
       }
       case "ToggleFilter":
       case "CheckboxFilter": {
-        const values = Array.isArray(filterValue)
-          ? filterValue.map((fv) => fv.value)
-          : [filterValue];
-
-        let columns = Array.isArray(filterDetail.applyToColumn)
-          ? filterDetail.applyToColumn
-          : [filterDetail.applyToColumn];
+        const values = getValueArray(filterValue);
+        let columns = getValueArray(filterDetail.applyToColumn);
 
         for (const column of columns) {
           if (
@@ -105,4 +100,8 @@ export async function applyFiltersToQuery(
     }
   }
   return baseQuery;
+}
+
+function getValueArray(value) {
+  return Array.isArray(value) ? value.map((val) => val.value) : [val];
 }
