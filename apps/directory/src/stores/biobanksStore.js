@@ -1,11 +1,11 @@
+import { QueryEMX2 } from "molgenis-components";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import { QueryEMX2 } from "molgenis-components";
-import { useSettingsStore } from "./settingsStore";
+import { extractValue } from "../functions/extractValue";
+import { getPropertyByPath } from "../functions/getPropertyByPath";
 import { useCollectionStore } from "./collectionStore";
 import { useFiltersStore } from "./filtersStore";
-import { getPropertyByPath } from "../functions/getPropertyByPath";
-import { extractValue } from "../functions/extractValue";
+import { useSettingsStore } from "./settingsStore";
 
 export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
@@ -34,10 +34,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     .orderBy("Biobanks", "name", "asc")
     .orderBy("collections", "id", "asc");
 
-  const activeBiobanksCards = computed(() => {
-    return biobankCards.value.filter((card) => !card.withdrawn);
-  });
-
   const biobankCardsHaveResults = computed(() => {
     return (
       !waitingForResponse.value &&
@@ -47,24 +43,31 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   });
 
   const biobankCardsBiobankCount = computed(() => {
-    return activeBiobanksCards.value.length;
+    return biobankCards.value.filter((biobankCard) => !biobankCard.withdrawn)
+      .length;
   });
 
   const biobankCardsCollectionCount = computed(() => {
-    return activeBiobanksCards.value
+    return biobankCards.value
       .filter((bc) => bc.collections)
-      .flatMap((biobank) => biobank.collections).length;
+      .flatMap((biobank) =>
+        biobank.collections.filter((collection) => !collection.withdrawn)
+      ).length;
   });
 
   const biobankCardsSubcollectionCount = computed(() => {
-    if (!activeBiobanksCards.value.length) return 0;
-    const collections = activeBiobanksCards.value
+    if (!biobankCards.value.length) return 0;
+    const collections = biobankCards.value
       .filter((bc) => bc.collections)
       .flatMap((biobank) => biobank.collections);
     if (!collections.length) return 0;
     return collections
       .filter((c) => c.sub_collections)
-      .flatMap((collection) => collection.sub_collections).length;
+      .flatMap((collection) =>
+        collection.sub_collections.filter(
+          (subcollection) => !subcollection.withdrawn
+        )
+      ).length;
   });
 
   function getFacetColumnDetails() {
@@ -206,7 +209,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     getBiobank,
     getPresentFilterOptions,
     waiting: waitingForResponse,
-    activeBiobanksCards,
     biobankCardsHaveResults,
     biobankCardsBiobankCount,
     biobankCardsCollectionCount,

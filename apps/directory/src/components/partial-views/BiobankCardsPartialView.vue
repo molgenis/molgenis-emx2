@@ -54,9 +54,9 @@ export default {
   },
   computed: {
     biobanksShown() {
-      if (this.biobanksStore.waiting || !this.biobanksStore.activeBiobanksCards)
+      if (this.biobanksStore.waiting || !this.biobanksStore.biobankCards)
         return [];
-      return this.biobanksStore.activeBiobanksCards.slice(
+      return this.biobanksStore.biobankCards.slice(
         this.settingsStore.config.pageSize *
           (this.settingsStore.currentPage - 1),
         this.settingsStore.config.pageSize * this.settingsStore.currentPage
