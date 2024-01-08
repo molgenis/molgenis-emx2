@@ -3,8 +3,9 @@ import collectionEventGql from "~~/gql/collectionEvent";
 import type {
   IDefinitionListItem,
   IMgError,
-  ITreeNode,
+  IOntologyItem,
 } from "~~/interfaces/types";
+
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -81,6 +82,10 @@ if (collectionEvent.value?.startYear || collectionEvent.value?.endYear) {
   });
 }
 
+if (collectionEvent.value.sampleCategories?.length) {
+  tocItems.push({ label: "Sample categories", id: "sample_categories" });
+}
+
 if (collectionEvent.value?.ageGroups?.length) {
   tocItems.push({ label: "Age categories", id: "age_categories" });
 }
@@ -96,32 +101,21 @@ if (collectionEvent.value?.numberOfParticipants) {
   });
 }
 
-let dataCategoriesTree: ITreeNode[] = [];
+let dataCategoriesTree: IOntologyItem[] = [];
 if (collectionEvent.value?.dataCategories?.length) {
-  dataCategoriesTree = buildOntologyTree(collectionEvent.value.dataCategories);
+  dataCategoriesTree = buildTree(collectionEvent.value.dataCategories);
   tocItems.push({ label: "Data categories", id: "data_categories" });
 }
 
-if (collectionEvent.value?.sampleCategories?.length) {
-  items.push({
-    label: "Sample categories",
-    content: renderList(collectionEvent.value?.sampleCategories, toName),
-  });
-}
-
-let areasOfInformationTree: ITreeNode[] = [];
+let areasOfInformationTree: IOntologyItem[] = [];
 if (collectionEvent.value?.areasOfInformation?.length) {
-  areasOfInformationTree = buildOntologyTree(
-    collectionEvent.value.areasOfInformation
-  );
+  areasOfInformationTree = buildTree(collectionEvent.value.areasOfInformation);
   tocItems.push({ label: "Areas of information", id: "areas_of_information" });
 }
 
-let standardizedToolsTree: ITreeNode[] = [];
+let standardizedToolsTree: IOntologyItem[] = [];
 if (collectionEvent.value.standardizedTools) {
-  standardizedToolsTree = buildOntologyTree(
-    collectionEvent.value.standardizedTools
-  );
+  standardizedToolsTree = buildTree(collectionEvent.value.standardizedTools);
   tocItems.push({ label: "Standardized tools", id: "standardized_tools" });
 }
 
@@ -147,6 +141,17 @@ useHead({ title: collectionEvent.value?.name });
       <ContentBlocks v-if="collectionEvent">
         <ContentBlock v-if="collectionEvent" id="details" title="Details">
           <CatalogueItemList :items="items" :collapse-all="false" />
+        </ContentBlock>
+
+        <ContentBlock
+          v-if="collectionEvent.sampleCategories"
+          id="sample_categories"
+          title="Sample categories"
+        >
+          <ContentOntology
+            :tree="buildTree(collectionEvent.sampleCategories)"
+            :collapse-all="false"
+          />
         </ContentBlock>
 
         <ContentBlock

@@ -1,0 +1,130 @@
+.app-page,
+.app-footer {
+  font-size: 14pt;
+}
+
+.app-page {
+  .page-header {
+    height: auto;
+    filter: saturate(60%);
+    background-position: 0 0;
+
+    .header-content {
+      padding: 6em 0;
+    }
+  }
+
+  .page-section {
+    padding-top: 1em;
+
+    .page-section-content {
+      h2 {
+        margin-bottom: 0.15em;
+      }
+    }
+  }
+}
+
+.project-diagrams {
+  display: block;
+  max-height: 425px;
+  margin: 1em auto;
+}
+
+.address {
+  text-align: center;
+
+  strong {
+    color: $gray-900;
+  }
+
+  span {
+    display: block;
+  }
+}
+
+.message-box {
+  .message-text {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    p {
+      margin: 0;
+    }
+  }
+}
+
+.ern-logo {
+  display: block;
+  width: 350px;
+  margin: 1em auto;
+}
+
+.eu-logos {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: nowrap;
+  background-color: $gray-000;
+
+  .logo {
+    margin: 0;
+    padding: 0;
+
+    &.ern-logo {
+      width: 200px;
+    }
+
+    &.funding-logo {
+      width: 125px;
+    }
+  }
+}
+
+#page-about-us {
+  .page-section {
+    padding: 0;
+  }
+
+  .page-section {
+    h2 {
+      display: block;
+      text-align: left;
+      line-height: 1;
+      padding: 12px 0;
+      padding-left: 12px;
+      background-color: #0e71a6;
+      color: $gray-050;
+    }
+
+    h3 {
+      color: #0e71a6;
+      text-align: left;
+      margin-top: 1.25em;
+
+      & + p {
+        margin-top: 0.5em;
+      }
+    }
+
+    .ul {
+      &.list-item-check {
+        list-style: none;
+
+        li {
+          display: flex;
+          &:before {
+            content: "\2713";
+            margin-right: 6px;
+          }
+        }
+      }
+    }
+
+    p {
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

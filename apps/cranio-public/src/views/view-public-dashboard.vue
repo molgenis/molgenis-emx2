@@ -18,60 +18,68 @@
         <p>Unable to retrieve data: {{ error }}</p>
       </MessageBox>
     </PageSection>
-    <Dashboard id="publicDashboard" v-else>
-      <DashboardBox class="dashboard-box viz-table">
-        <DataTable
-          tableId="workstreamSummary"
-          caption="Percentage of patients by workstream"
-          :data="workstreamSummary"
-          :columnOrder="['workstream', 'percent']"
-        />
-      </DashboardBox>
-      <DashboardBox class="viz-pie-chart">
-        <PieChart2
-          chartId="cranio-sex-at-birth"
-          title="Patients by sex at birth"
-          :chartData="sexAtBirth"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          :chartHeight="250"
-          legendPosition="bottom"
-        />
-      </DashboardBox>
-      <DashboardBox class="viz-map">
-        <GeoMercator
-          chartId="data-providers-map"
-          title="Data Providers"
-          :geojson="WorldGeoJson"
-          :chartData="providers"
-          rowId="code"
-          latitude="latitude"
-          longitude="longitude"
-          groupingVariable="hasSubmittedData"
-          :groupColorMappings="{
-            'Data Submitted': '#f1681d',
-            'No Data': '#f0f0f0',
-          }"
-          :tooltipTemplate="
-            (row) => {
-              return `<p class='title'>${row.name}</p><p class='location'>${row.city}, ${row.country}</p>`;
-            }
-          "
-          :enableLegendClicks="true"
-          :legendData="{
-            'Data Submitted': '#f1681d',
-            'No Data': '#f0f0f0',
-          }"
-          :pointRadius="7"
-          :mapColors="{
-            water: '#43abcc',
-            land: '#93dbab',
-            border: '#1f171a',
-          }"
-          :mapCenter="{ latitude: 13, longitude: 50 }"
-          :zoomLimits="[0.3, 10]"
-        />
-      </DashboardBox>
+    <Dashboard id="cranioPublicDashboard" :horizontalPadding="5" v-else>
+      <DashboardRow :columns="2">
+        <DashboardChart>
+          <DataTable
+            tableId="workstreamSummary"
+            caption="Percentage of patients by workstream"
+            :data="workstreamSummary"
+            :columnOrder="['workstream', 'percent']"
+          />
+        </DashboardChart>
+        <DashboardChart id="sexAtBirthChart">
+          <PieChart2
+            chartId="cranio-sex-at-birth"
+            title="Patients by sex at birth"
+            :chartData="sexAtBirth"
+            :asDonutChart="true"
+            :enableLegendHovering="true"
+            :chartHeight="185"
+            legendPosition="bottom"
+          />
+        </DashboardChart>
+      </DashboardRow>
+      <DashboardRow :columns="1">
+        <DashboardChart
+          :verticalPadding="0"
+          :horizontalPadding="0"
+          class="viz-map"
+        >
+          <GeoMercator
+            chartId="data-providers-map"
+            title="Data Providers"
+            :geojson="WorldGeoJson"
+            :chartData="providers"
+            rowId="code"
+            latitude="latitude"
+            longitude="longitude"
+            groupingVariable="hasSubmittedData"
+            :groupColorMappings="{
+              'Data Submitted': '#f1681d',
+              'No Data': '#f0f0f0',
+            }"
+            :tooltipTemplate="
+              (row) => {
+                return `<p class='title'>${row.name}</p><p class='location'>${row.city}, ${row.country}</p>`;
+              }
+            "
+            :enableLegendClicks="true"
+            :legendData="{
+              'Data Submitted': '#f1681d',
+              'No Data': '#f0f0f0',
+            }"
+            :pointRadius="7"
+            :mapColors="{
+              water: '#43abcc',
+              land: '#93dbab',
+              border: '#1f171a',
+            }"
+            :mapCenter="{ latitude: 13, longitude: 50 }"
+            :zoomLimits="[0.3, 10]"
+          />
+        </DashboardChart>
+      </DashboardRow>
     </Dashboard>
   </Page>
 </template>
@@ -83,7 +91,8 @@ import {
   PageHeader,
   PageSection,
   Dashboard,
-  DashboardBox,
+  DashboardRow,
+  DashboardChart,
   LoadingScreen,
   MessageBox,
   WorldGeoJson,
@@ -188,21 +197,10 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-#publicDashboard {
+#cranioPublicDashboard {
   .dashboard-content {
-    display: grid;
-    grid-template-areas:
-      "Table"
-      "PieChart"
-      "Map";
-    gap: 2em;
-
     .dashboard-box {
-      flex-grow: 1;
-      box-sizing: content-box;
-
       &.viz-map {
-        grid-area: Map;
         h3 {
           margin-top: 1em;
           margin-left: 1em;
@@ -211,17 +209,7 @@ onMounted(() => {
 
       caption,
       h3 {
-        text-align: center;
-        font-size: 16pt;
-        padding: 0;
-      }
-
-      &.viz-table {
-        grid-area: Table;
-      }
-
-      &.viz-pie-chart {
-        grid-area: PieChart;
+        @include setChartTitle($font-size: 1.15rem);
       }
 
       &.viz-table,
@@ -230,14 +218,44 @@ onMounted(() => {
       }
     }
 
-    @media (min-width: 1182px) {
-      grid-template-areas:
-        "Table PieChart"
-        "Map Map";
-    }
-
     @media (min-width: 1524px) {
       max-width: 60vw;
+    }
+  }
+}
+
+#workstreamSummary {
+  th,
+  td {
+    padding: 0.6em 0.3em;
+    font-size: 1rem;
+
+    &[data-column-name="percent"] {
+      text-align: right;
+    }
+  }
+}
+
+#sexAtBirthChart {
+  .d3-pie {
+    .chart-legend {
+      .legend-item {
+        .text-item {
+          .item-label {
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+
+    .chart {
+      .chart-area {
+        .pie-labels {
+          .pie-label-text {
+            font-size: 0.8rem !important;
+          }
+        }
+      }
     }
   }
 }

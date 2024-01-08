@@ -7,7 +7,7 @@ import monacoEditorPlugin from "vite-plugin-monaco-editor";
 // eslint-disable-next-line no-undef
 const HOST = process.env.MOLGENIS_APPS_HOST || "http://localhost:8080";
 // eslint-disable-next-line no-undef
-const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "directory";
+const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "Directory";
 
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 

@@ -178,10 +178,25 @@ public class RDFApi {
 
   private static String extractBaseURL(Request request) {
     // NOTE: The request.host() already includes the server port!
-    return request.scheme()
+    String scheme = request.scheme();
+    String port = null;
+    var parts = request.host().split(":", 2);
+    String host = parts[0];
+    if (parts.length == 2) {
+      if (!isWellKnownPort(scheme, parts[1])) {
+        port = parts[1];
+      }
+    }
+    return scheme
         + "://"
-        + request.host()
+        + host
+        + (port != null ? ":" + port : "")
         + (StringUtils.isNotEmpty(request.servletPath()) ? "/" + request.servletPath() + "/" : "/");
+  }
+
+  private static boolean isWellKnownPort(String scheme, String port) {
+    return (scheme.equals("http") && port.equals("80"))
+        || (scheme.equals("https") && port.equals("443"));
   }
 
   public static RDFFormat selectFormat(Request request) {

@@ -506,7 +506,7 @@ public class GraphqlTableFieldFactory {
           subFilters.add(
               or(
                   ((List<Map<String, Object>>) entry.getValue())
-                      .stream().map(v -> createKeyFilter(v)).collect(Collectors.toList())));
+                      .stream().map(v -> createKeyFilter(table, v)).collect(Collectors.toList())));
         }
       } else {
         // find column by escaped name
@@ -541,13 +541,24 @@ public class GraphqlTableFieldFactory {
     return subFilters.toArray(new FilterBean[subFilters.size()]);
   }
 
-  private static Filter createKeyFilter(Map<String, Object> map) {
+  private static Filter createKeyFilter(TableMetadata table, Map<String, Object> map) {
+    Objects.requireNonNull(table);
+    Objects.requireNonNull(map);
     List<Filter> result = new ArrayList<>();
     for (Map.Entry<String, Object> entry : map.entrySet()) {
+      Optional<Column> column = findColumnById(table, entry.getKey());
+      if (column.isEmpty()) {
+        throw new MolgenisException(
+            "Filter " + entry.getKey() + " unknown in table " + table.getIdentifier());
+      }
       if (entry.getValue() instanceof Map) {
-        result.add(f(entry.getKey(), createKeyFilter((Map<String, Object>) entry.getValue())));
+        result.add(
+            f(
+                column.get().getName(),
+                createKeyFilter(
+                    column.get().getRefTable(), (Map<String, Object>) entry.getValue())));
       } else {
-        result.add(f(entry.getKey(), Operator.EQUALS, entry.getValue()));
+        result.add(f(column.get().getName(), Operator.EQUALS, entry.getValue()));
       }
     }
     return and(result);
@@ -624,7 +635,7 @@ public class GraphqlTableFieldFactory {
     return result.toArray(new SelectColumn[result.size()]);
   }
 
-  private Optional<Column> findColumnById(TableMetadata aTable, String id) {
+  private static Optional<Column> findColumnById(TableMetadata aTable, String id) {
     if (aTable != null) {
       return aTable.getColumns().stream()
           .filter(
