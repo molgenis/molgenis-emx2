@@ -132,6 +132,7 @@ export default {
         "RD3",
         "JRC_COMMON_DATA_ELEMENTS",
         "FAIR_GENOMES",
+        "TRECODE",
         "BEACON_V2",
         "ERN_DASHBOARD",
         "ERN_CRANIO",
