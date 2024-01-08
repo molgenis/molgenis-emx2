@@ -12,6 +12,7 @@ public enum AvailableDataModels {
   RD3(new ProfileLoader("_profiles/RD3.yaml")),
   JRC_COMMON_DATA_ELEMENTS(new ProfileLoader("_profiles/JRC-CDE.yaml")),
   FAIR_GENOMES(new ProfileLoader("_profiles/FAIRGenomes.yaml")),
+  DCAT(new ProfileLoader("_profiles/DCAT.yaml")),
   BEACON_V2(new ProfileLoader("_profiles/BeaconV2.yaml")),
   ERN_DASHBOARD(new DashboardLoader()),
   ERN_CRANIO(new ErnCranioLoader()),
