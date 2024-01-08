@@ -3,7 +3,9 @@
     <router-view />
   </div>
   <Molgenis id="__top" v-model="session" v-else>
-    <router-view :session="session" />
+    <Suspense>
+      <router-view :session="session" />
+    </Suspense>
   </Molgenis>
 </template>
 

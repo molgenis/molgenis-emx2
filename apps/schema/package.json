@@ -13,17 +13,20 @@
     "core-js": "3.34.0",
     "graphql-request": "5.2.0",
     "graphql-tag": "2.12.6",
+    "mermaid": "10.6.1",
     "molgenis-components": "*",
+    "monaco-editor": "0.44.0",
+    "monaco-yaml": "5.1.0",
+    "nomnoml": "1.6.2",
     "vue": "3.3.8",
     "vue-router": "4.2.5",
     "vue-scrollto": "2.20.0",
     "vuedraggable": "4.1.0",
-    "nomnoml": "1.6.2",
-    "mermaid": "10.6.1"
+    "yaml": "2.3.4"
   },
   "devDependencies": {
-    "vite": "4.3.9",
     "@vitejs/plugin-vue": "4.5.2",
-    "prettier": "2.8.8"
+    "prettier": "2.8.8",
+    "vite": "4.3.9"
   }
 }
