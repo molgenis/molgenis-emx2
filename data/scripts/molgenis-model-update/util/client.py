@@ -59,7 +59,7 @@ class Session:
         )
 
         if response.content:
-            fh = open('./files/' + database_name + '_data.zip', 'wb')
+            fh = open(database_name + '_data.zip', 'wb')
             fh.write(response.content)
             fh.close()
         else:
