@@ -189,7 +189,12 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     if (!collections.length) return 0;
     return collections
       .filter((c) => c.sub_collections)
-      .flatMap((collection) => collection.sub_collections).length;
+      .flatMap((collection) => collection.sub_collections)
+      .filter((subcollection) => {
+        return collections.find((collection) => {
+          return collection.id === subcollection.id;
+        });
+      }).length;
   });
 
   const biobankCardsCollectionCount = computed(() => {
