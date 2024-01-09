@@ -100,7 +100,7 @@ For instance, consider a table with 'name' and 'surname' fields. If the 'name' f
 
 The string after the expression is the validation message returned when the expression yields `true`, and the field is not provided.
 
-It's also possible to use an expression without an error message :
+It's also possible to use an expression without an error message:
 `name != null`.
 Will return the expression as an error message.
 
