@@ -111,10 +111,26 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       waitingForResponse.value = true;
       if (biobankCards.value.length === 0) {
         const biobankResult = await baseQuery.execute();
-        const biobanks = biobankResult.Biobanks;
-        biobankCards.value = biobanks.filter((biobank) => !biobank.withdrawn);
+        biobankCards.value = filterWithdrawn(biobankResult.Biobanks);
       }
       waitingForResponse.value = false;
+    }
+  }
+
+  async function updateBiobankCards() {
+    if (!waitingForResponse.value) {
+      waitingForResponse.value = true;
+      biobankCards.value = [];
+      const biobankResult = await baseQuery.execute();
+
+      /** only show biobanks that have collections */
+      const foundBiobanks = biobankResult.Biobanks
+        ? biobankResult.Biobanks.filter((biobank) => biobank.collections)
+        : [];
+      biobankCards.value = filterWithdrawn(foundBiobanks);
+      waitingForResponse.value = false;
+
+      filtersStore.bookmarkWaitingForApplication = false;
     }
   }
 
@@ -128,23 +144,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       .like(id);
 
     return await biobankReportQuery.execute();
-  }
-
-  async function updateBiobankCards() {
-    if (!waitingForResponse.value) {
-      waitingForResponse.value = true;
-      biobankCards.value = [];
-      const biobankResult = await baseQuery.execute();
-
-      /** only show biobanks that have collections */
-      const foundBiobanks = biobankResult.Biobanks
-        ? biobankResult.Biobanks.filter((biobank) => biobank.collections)
-        : [];
-      biobankCards.value = foundBiobanks;
-      waitingForResponse.value = false;
-
-      filtersStore.bookmarkWaitingForApplication = false;
-    }
   }
 
   function getPresentFilterOptions(facetIdentifier) {
@@ -218,3 +217,13 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     baseQuery,
   };
 });
+
+function filterWithdrawn(biobanks) {
+  let filteredBanks = biobanks.filter((biobank) => !biobank.withdrawn);
+  filteredBanks.forEach((biobank) => {
+    biobank.collections = biobank.collections?.filter(
+      (collection) => !collection.withdrawn
+    );
+  });
+  return filteredBanks;
+}
