@@ -94,7 +94,7 @@ public class SqlTypeUtils extends TypeUtils {
       if (c.isRequired() && hasEmptyFields(c, row)) {
         throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
       } else if (c.isConditionallyRequired()) {
-        String error = checkValidation(c.getRequired(), values);
+        String error = checkRequiredExpression(c.getRequired(), values);
         if (error != null && hasEmptyFields(c, row)) {
           throw new MolgenisException(
               "column '" + c.getName() + "' is required: " + error + " in " + row);
@@ -218,6 +218,21 @@ public class SqlTypeUtils extends TypeUtils {
       // seperate syntax errors
       throw me;
     }
+  }
+
+  public static String checkRequiredExpression(
+      String validationScript, Map<String, Object> values) {
+    try {
+      Object error = executeJavascriptOnMap(validationScript, values);
+      if (error instanceof Boolean) {
+        if ((Boolean) error) return validationScript;
+        return null;
+      }
+      if (error != null) return error.toString();
+    } catch (MolgenisException me) {
+      throw me;
+    }
+    return null;
   }
 
   static Map<String, Object> convertRowToMap(List<Column> columns, Row row) {

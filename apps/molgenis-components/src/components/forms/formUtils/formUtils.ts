@@ -45,7 +45,7 @@ function getColumnError(
         return column.label + " is required";
       }
     } else {
-      let error = getColumnValidationError(
+      let error = getRequiredExpressionError(
         column.required,
         rowData,
         tableMetaData
@@ -91,6 +91,24 @@ function isInValidNumericValue(columnType: string, value: number) {
     return isNaN(value);
   } else {
     return false;
+  }
+}
+
+function getRequiredExpressionError(
+  expression: string,
+  values: Record<string, any>,
+  tableMetaData: ITableMetaData
+): string | undefined {
+  try {
+    const result = executeExpression(expression, values, tableMetaData);
+    if (result === true) {
+      return `Field is required when: ${expression}`;
+    } else if (result === false || result === undefined) {
+      return undefined;
+    }
+    return result;
+  } catch (error) {
+    return `Invalid expression '${expression}', reason: ${error}`;
   }
 }
 

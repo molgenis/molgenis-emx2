@@ -96,9 +96,14 @@ When required=TRUE then values in this column must be filled. When required=FALS
 Besides TRUE and FALSE, it is also possible to provide a JavaScript expression using conditional logic based on the values of other columns.
 
 For instance, consider a table with 'name' and 'surname' fields. If the 'name' field is provided, the 'surname' field should also be populated. The expression for the surname field could look like:
-`if(name) 'Surname should be provided when name is not null'`
+`if(name!=null) 'Surname should be provided when name is not null'`
 
-The optional string after the expression is the validation message returned when the expression yields `true`, and the field is not provided.
+The string after the expression is the validation message returned when the expression yields `true`, and the field is not provided.
+
+It's also possible to use an expression without an error message :
+`name != null`.
+Will return the expression as an error message.
+
 
 Expressions can also reference multiple fields. For example, consider a 'pet' table with the following fields:
 - `species` (string)

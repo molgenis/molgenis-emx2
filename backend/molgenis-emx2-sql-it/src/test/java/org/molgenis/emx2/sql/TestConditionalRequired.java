@@ -10,6 +10,29 @@ import org.molgenis.emx2.*;
 public class TestConditionalRequired {
 
   @Test
+  public void testConditionallyRequiredOnSingleFieldInt() {
+    String expression = "age > 5";
+
+    TableMetadata tableMetadata =
+        table(
+            "Test",
+            new Column("age").setType(ColumnType.INT),
+            new Column("status").setType(ColumnType.STRING).setRequired(expression));
+
+    Row validRow = new Row("age", 4, "status", null);
+
+    SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), validRow); // success
+
+    Row invalidRow = validRow.set("age", 6);
+
+    assertThrows(
+        MolgenisException.class,
+        () -> {
+          SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), invalidRow);
+        });
+  }
+
+  @Test
   public void testConditionallyRequiredOnSingleField() {
     String requiredExpression = "if(field_one) 'if field_one is provided field_two is required'";
 
