@@ -2,12 +2,8 @@ import { useSettingsStore } from "../stores/settingsStore";
 import { sortCollectionsByName } from "./sorting";
 
 export const getName = (contact) => {
-  const {
-    title_before_name,
-    first_name,
-    last_name,
-    title_after_name,
-  } = contact;
+  const { title_before_name, first_name, last_name, title_after_name } =
+    contact;
 
   let name = "";
 
