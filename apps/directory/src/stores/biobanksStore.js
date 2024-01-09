@@ -111,7 +111,8 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       waitingForResponse.value = true;
       if (biobankCards.value.length === 0) {
         const biobankResult = await baseQuery.execute();
-        biobankCards.value = biobankResult.Biobanks;
+        const biobanks = biobankResult.Biobanks;
+        biobankCards.value = biobanks.filter((biobank) => !biobank.withdrawn);
       }
       waitingForResponse.value = false;
     }
