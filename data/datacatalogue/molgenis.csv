@@ -351,7 +351,7 @@ All variables,,resource,ref,1,TRUE,,Extended resources,,,,,Data source that this
 All variables,,dataset,ref,1,TRUE,,Datasets,resource,,,,Dataset this variable is part of,,,
 All variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table",,,
 All variables,,label,,,,,,,,,,"Human friendly longer name, if applicable",,,
-All variables,,collection event,ref_array,,,,Collection events,resource,,,,in case of protocolised data collection this defines the moment(s) in time this variable is collected on,,,
+All variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment(s) in time this variable is collected on,,,
 All variables,,since version,,,,,,,,,,When this variable was introduced,,,
 All variables,,until version,,,,,,,,,,When this variable was removed if applicable,,,
 Variables,All variables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range",,,

@@ -77,7 +77,7 @@ class Session:
 
         self.cookies = response.cookies
 
-        zip = {'file': open('./files/' + data_to_upload + '_upload.zip', 'rb')}
+        zip = {'file': open(data_to_upload + '_upload.zip', 'rb')}
         response = requests.post(
             self.url + database_name + '/api/zip?async=true',
             auth=(self.email, self.password),
@@ -137,14 +137,14 @@ class Session:
 
         if response.status_code == 200:
             query = """
-            mutation deleteSchema($name:String){
-                deleteSchema(name:$name) {
+            mutation deleteSchema($id:String){
+                deleteSchema(id:$id) {
                     message
                 }
             }
             """
 
-            variables = {'name': database_name}
+            variables = {'id': database_name}
 
             response = self.session.post(
                 self.url + '/api/graphql',
@@ -157,7 +157,7 @@ class Session:
             log.warning(f"Database schema does not exist, status code {response.status_code}")
 
     def create_database(self, database_name, database_description) -> None:
-        """ Create TARGET database if it doesn't exists"""
+        """ Create TARGET database if it doesn't exist"""
         graphqlEndpoint = self.url + database_name + '/graphql'
 
         query = '{_session {schemas} }'
@@ -172,7 +172,8 @@ class Session:
                     }
                 }
                 """
-            variables = {'name': database_name, 'description': database_description}
+            variables = {'name': database_name,
+                         'description': database_description}
 
             response = self.session.post(
                 self.url + '/apps/central/graphql',
