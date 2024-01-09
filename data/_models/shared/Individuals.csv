@@ -1,20 +1,20 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Individuals,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C90492,http://purl.obolibrary.org/obo/ExO_0000127","Data, facts or figures about an individual; the set of relevant items would depend on the use case. In FAIR Genomes: Personal. In RD3: Subjects.","Beacon v2, FAIR Genomes, RD3, JRC-CDE"
-Individuals,,id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C164337,http://purl.obolibrary.org/obo/NCIT_C142495","A unique proper name or character sequence that identifies this particular person. In Beacon v2: id, in FAIR Genomes: PersonalIdentifier. In RD3: subjectID. In JRC-CDE: Pseudonym","Beacon v2, FAIR Genomes, RD3, JRC-CDE"
+Individuals,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C90492,http://purl.obolibrary.org/obo/ExO_0000127","Data, facts or figures about an individual; the set of relevant items would depend on the use case. In FAIR Genomes: Personal. In RD3: Subjects.","Beacon v2, FAIR Genomes, RD3, JRC-CDE,Trecode"
+Individuals,,id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C164337,http://purl.obolibrary.org/obo/NCIT_C142495","A unique proper name or character sequence that identifies this particular person. In Beacon v2: id, in FAIR Genomes: PersonalIdentifier. In RD3: subjectID. In JRC-CDE: Pseudonym","Beacon v2, FAIR Genomes, RD3, JRC-CDE,Trecode"
 Individuals,,sex,ontology,,TRUE,,GenderAtBirth,,,,"http://purl.obolibrary.org/obo/GSSO_009418,http://purl.obolibrary.org/obo/NCIT_C28421",E.g. assigned female at birth,"Beacon v2"
 Individuals,,age_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old","Beacon v2 Vivify add-on"
 Individuals,,age_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D","Beacon v2 Vivify add-on"
-Individuals,,YearOfBirth,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C83164","The year in which this person was born.",FAIR Genomes
+Individuals,,YearOfBirth,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C83164","The year in which this person was born.","FAIR Genomes,Trecode"
 Individuals,,dateOfBirth,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C83164,"The year in which a person was born. In JRC-CDE: Date of birth","RD3, JRC-CDE"
 Individuals,,diseaseCausalGenes,ontology_array,,,,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C16612,"Addition for EJP-RD Virtual Platform API. E.g. TTN. In JRC-CDE: Genetic diagnosis","Beacon v2 Vivify add-on, JRC-CDE"
 Individuals,,ethnicity,ontology,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,E.g. Luxembourgish,"Beacon v2"
 Individuals,,geographicOrigin,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,E.g. Switzerland,"Beacon v2"
 Individuals,,hasGenomicVariations,refback,,,,GenomicVariationsCaseLevel,,individualId,,http://purl.obolibrary.org/obo/GSSO_000660,NON-STANDARD FIELD. E.g. Var001_CLD01,"Beacon v2"
-Individuals,,diseases,ref_array,,,,IndividualsDiseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Ind001_Dis001,"Beacon v2"
+Individuals,,diseases,ref_array,,,,IndividualsDiseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Ind001_Dis001,"Beacon v2,Trecode"
 Individuals,,measures,ref_array,,,,IndividualsMeasures,,,,http://purl.obolibrary.org/obo/NCIT_C25209,E.g. Ind001_Meas001,"Beacon v2"
 Individuals,,phenotypicFeatures,ref_array,,,,IndividualsPhenotypicFeatures,,,,http://purl.obolibrary.org/obo/NCIT_C116555,E.g. Ind001_Phen001,"Beacon v2"
 Individuals,,GenderIdentity,ontology,,,,GenderIdentity,,,,http://purl.bioontology.org/ontology/MESH/D005783,"A person's concept of self as being male and masculine or female and feminine, or ambivalent, based in part on physical characteristics, parental responses, and psychological and social pressures. It is the internal experience of gender role. For practical reasons the lookups are limited to first and second-level entries, but can be expanded when needed. Note that 'Gender at birth', 'Genotypic sex' and any (gender-related) hormone therapies in 'Medication' are usually medically more relevant than this term.",FAIR Genomes
-Individuals,,GenderAtBirth,ontology,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"Assigned gender is one's gender which was assigned at birth, typically by a medical and/or legal organization, and then later registered with other organizations. Such a designation is typically based off of the superficial appearance of external genitalia present at birth. In RD3: sex1. In JRC-CDE: Sex","FAIR Genomes, RD3, JRC-CDE"
+Individuals,,GenderAtBirth,ontology,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"Assigned gender is one's gender which was assigned at birth, typically by a medical and/or legal organization, and then later registered with other organizations. Such a designation is typically based off of the superficial appearance of external genitalia present at birth. In RD3: sex1. In JRC-CDE: Sex","FAIR Genomes, RD3, JRC-CDE,Trecode"
 Individuals,,GenotypicSex,ontology,,,,GenotypicSex,,,,http://purl.obolibrary.org/obo/PATO_0020000,"A biological sex quality inhering in an individual based upon genotypic composition of sex chromosomes.",FAIR Genomes
 Individuals,,CountryOfResidence,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/NCIT_C171105,"Country of residence at enrollment.",FAIR Genomes
 Individuals,,Ancestry,ontology_array,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,"Population category defined using ancestry informative markers (AIMs) based on genetic/genomic data.",FAIR Genomes
@@ -56,9 +56,9 @@ IndividualsPhenotypicFeatures,,featureType,ontology,,TRUE,,Phenotypes,,,,http://
 IndividualsPhenotypicFeatures,,modifiers,ontology_array,,,,Phenotypes,,,,http://purl.obolibrary.org/obo/HP_0012823,E.g. Exacerbated by tobacco use,Beacon v2
 IndividualsPhenotypicFeatures,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound,Beacon v2
 IndividualsPhenotypicFeatures,,belongsToIndividual,refback,,,,Individuals,,phenotypicFeatures,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001,Beacon v2 EMX2 add-on
-IndividualsDiseases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,Beacon v2 Individuals Diseases,Beacon v2
-IndividualsDiseases,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Dis001,Beacon v2
-IndividualsDiseases,,diseaseCode,ontology,,TRUE,,Diseases,,,,"http://purl.obolibrary.org/obo/NCIT_C15607,http://semanticscience.org/resource/SIO_001003",E.g. Spinocerebellar ataxia type 34,Beacon v2
+IndividualsDiseases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,Beacon v2 Individuals Diseases,"Beacon v2,Trecode"
+IndividualsDiseases,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Dis001,"Beacon v2,Trecode"
+IndividualsDiseases,,diseaseCode,ontology,,TRUE,,Diseases,,,,"http://purl.obolibrary.org/obo/NCIT_C15607,http://semanticscience.org/resource/SIO_001003",E.g. Spinocerebellar ataxia type 34,"Beacon v2,Trecode"
 IndividualsDiseases,,ageOfOnset_ageGroup,ontology,,,,AgeGroups,,,,"http://purl.obolibrary.org/obo/HP_0003674,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. Adult 18-65 Years Old,Beacon v2
 IndividualsDiseases,,ageOfOnset_age_iso8601duration,string,,,,,,,,"http://www.orpha.net/ORDO/Orphanet_C023,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. P32Y6M1D,Beacon v2
 IndividualsDiseases,,ageAtDiagnosis_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old",Beacon v2 Vivify add-on
@@ -66,7 +66,7 @@ IndividualsDiseases,,ageAtDiagnosis_age_iso8601duration,string,,,,,,,,http://pur
 IndividualsDiseases,,familyHistory,bool,,,,,,,,http://purl.obolibrary.org/obo/HP_0032316,E.g. false,Beacon v2
 IndividualsDiseases,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound,Beacon v2
 IndividualsDiseases,,stage,ontology,,,,DiseaseStage,,,,http://purl.obolibrary.org/obo/OBI_0000278,E.g. acute onset,Beacon v2
-IndividualsDiseases,,belongsToIndividual,refback,,,,Individuals,,diseases,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001,Beacon v2 EMX2 add-on
+IndividualsDiseases,,belongsToIndividual,refback,,,,Individuals,,diseases,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001,"Beacon v2 EMX2 add-on,Trecode"
 IndividualsMeasures,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25209,Beacon v2 Individuals Measures,Beacon v2
 IndividualsMeasures,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001121,E.g. Ind001_Meas001,Beacon v2
 IndividualsMeasures,,assayCode,ontology,,TRUE,,AnalysesPerformed,,,,http://purl.obolibrary.org/obo/IAO_0000702,E.g. Metabolomics,Beacon v2

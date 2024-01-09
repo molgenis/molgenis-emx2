@@ -116,6 +116,6 @@ public class TestLoaders {
   void test14TrecodeLoader() {
     Schema TRECODESchema = database.createSchema(TRECODE);
     AvailableDataModels.TRECODE.install(TRECODESchema, true);
-    assertEquals(5, TRECODESchema.getTableNames().size());
+    assertEquals(44, TRECODESchema.getTableNames().size());
   }
 }
