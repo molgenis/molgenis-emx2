@@ -87,8 +87,7 @@ describe("getRowErrors", () => {
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({
       quantity: undefined,
-      status:
-        "Applying validation rule returned error: if quantity > 5 required",
+      status: "if quantity > 5 required",
     });
   });
 
