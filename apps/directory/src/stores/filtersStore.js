@@ -381,10 +381,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
     } else {
       filters.value[filterName] = value;
-
-      checkoutStore.setSearchHistory(
-        `${filterName} filtered on ${value.map((v) => v.text).join(", ")}`
-      );
+      if (typeof value === "string" || typeof value === "boolean") {
+        checkoutStore.setSearchHistory(`${filterName} filtered on ${value}`);
+      } else {
+        checkoutStore.setSearchHistory(
+          `${filterName} filtered on ${value.map((v) => v.text).join(", ")}`
+        );
+      }
     }
   }
 

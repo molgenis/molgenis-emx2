@@ -115,9 +115,13 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   function getPresentFilterOptions(facetIdentifier) {
     const { applyToColumn, adaptive } =
       filtersStore.facetDetails[facetIdentifier];
-
-    if (!biobankCards.value.length || !adaptive) return [];
-
+    if (
+      biobankCards.value === undefined ||
+      !biobankCards.value.length ||
+      !adaptive
+    ) {
+      return [];
+    }
     let columnPath = applyToColumn;
     if (!Array.isArray(applyToColumn)) {
       columnPath = [applyToColumn];
