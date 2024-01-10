@@ -3,7 +3,7 @@ order,name,label,code,parent,ontologyTermURI,definition
 2,Safety study (incl. comparative),,,,https://spor.ema.europa.eu/rmswi/#/lists/200000032184/terms/200000032198,
 3,Assessment of risk minimisation measure implementation or effectiveness,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000032184/terms/200000032199,
 4,Drug utilisation,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000032184/terms/200000032200,
-5,Healthcare resource utilization,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000032184/terms/200000032201,
+5,Healthcare resource utilisation,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000032184/terms/200000032201,
 6,Disease epidemiology,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000032184/terms/200000032202,
 7,Patient reported outcomes,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000032184/terms/200000032203,
 8,Feasibility analysis,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000032184/terms/200000032204,

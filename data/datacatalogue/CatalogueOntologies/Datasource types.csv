@@ -1,7 +1,7 @@
 order,name,code,parent,definition,ontologyTermURI
 1,Hospital discharge records,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030038
 2,Primary care medical records,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030039
-3,Pharmacy dispensation records,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030040
+3,Pharmacy dispensing records,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030040
 4,Birth registry,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030041
 5,Induced terminations registry,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030042
 6,Congenital anomaly registry,,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030015/terms/200000030043
