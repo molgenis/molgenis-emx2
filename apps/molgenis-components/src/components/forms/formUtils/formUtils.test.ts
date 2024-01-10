@@ -39,7 +39,7 @@ describe("getRowErrors", () => {
           id: "required",
           label: "required",
           columnType: "STRING",
-          required: true,
+          required: "true",
         },
       ],
     } as ITableMetaData;
@@ -55,12 +55,68 @@ describe("getRowErrors", () => {
           id: "required",
           label: "required",
           columnType: "DECIMAL",
-          required: true,
+          required: "true",
         },
       ],
     } as ITableMetaData;
     const result = getRowErrors(metaData, rowData);
     expect(result).to.deep.equal({ required: "required is required" });
+  });
+
+  test("it should give an error if a field is conditionally required on another field", () => {
+    const rowData = {
+      status: null,
+      quantity: 6,
+    };
+    const metaData = {
+      columns: [
+        {
+          id: "status",
+          label: "status",
+          columnType: "STRING",
+          required: "if(quantity>5) 'if quantity > 5 required'",
+        },
+        {
+          id: "quantity",
+          label: "quantity",
+          columnType: "DECIMAL",
+          required: "true",
+        },
+      ],
+    } as ITableMetaData;
+    const result = getRowErrors(metaData, rowData);
+    expect(result).to.deep.equal({
+      quantity: undefined,
+      status: "if quantity > 5 required",
+    });
+  });
+
+  test("it should return undefined if a field is conditionally required on another field and provided", () => {
+    const rowData = {
+      status: "RECEIVED",
+      quantity: 6,
+    };
+    const metaData = {
+      columns: [
+        {
+          id: "status",
+          label: "status",
+          columnType: "STRING",
+          required: "if(quantity>5) 'if quantity > 5 required'",
+        },
+        {
+          id: "quantity",
+          label: "quantity",
+          columnType: "DECIMAL",
+          required: "true",
+        },
+      ],
+    } as ITableMetaData;
+    const result = getRowErrors(metaData, rowData);
+    expect(result).to.deep.equal({
+      quantity: undefined,
+      status: undefined,
+    });
   });
 
   test("it should return undefined it has no value and isn't required", () => {
