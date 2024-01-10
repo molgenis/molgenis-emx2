@@ -47,14 +47,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       .length;
   });
 
-  const biobankCardsCollectionCount = computed(() => {
-    return biobankCards.value
-      .filter((bc) => bc.collections)
-      .flatMap((biobank) =>
-        biobank.collections.filter((collection) => !collection.withdrawn)
-      ).length;
-  });
-
   const biobankCardsSubcollectionCount = computed(() => {
     if (!biobankCards.value.length) return 0;
     const collections = biobankCards.value
@@ -67,7 +59,21 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
         collection.sub_collections.filter(
           (subcollection) => !subcollection.withdrawn
         )
+      )
+      .filter((subcollection) => {
+        return collections.find((collection) => {
+          return collection.id === subcollection.id;
+        });
+      }).length;
+  });
+
+  const biobankCardsCollectionCount = computed(() => {
+    const totalCount = biobankCards.value
+      .filter((bc) => bc.collections)
+      .flatMap((biobank) =>
+        biobank.collections.filter((collection) => !collection.withdrawn)
       ).length;
+    return totalCount - biobankCardsSubcollectionCount.value;
   });
 
   function getFacetColumnDetails() {
@@ -149,9 +155,13 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   function getPresentFilterOptions(facetIdentifier) {
     const { applyToColumn, adaptive } =
       filtersStore.facetDetails[facetIdentifier];
-
-    if (!biobankCards.value.length || !adaptive) return [];
-
+    if (
+      biobankCards.value === undefined ||
+      !biobankCards.value.length ||
+      !adaptive
+    ) {
+      return [];
+    }
     let columnPath = applyToColumn;
     if (!Array.isArray(applyToColumn)) {
       columnPath = [applyToColumn];
