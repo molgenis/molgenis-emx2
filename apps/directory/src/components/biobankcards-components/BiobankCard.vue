@@ -14,7 +14,6 @@
           <h5 class="pt-1 pl-1 pr-1 mt-1">
             <router-link
               :to="'/biobank/' + biobank.id"
-              title="Biobank details"
               class="text-dark"
             >
               <span
@@ -31,28 +30,17 @@
                   faIcon="fa-regular fa-circle-check"
                   textColor="text-success"
                   class="ml-1 certificate-icon"
-                  popover-placement="right"
+                  popover-placement="bottom"
                 >
                   <div
                     class="popover-content"
                     v-for="quality of biobankQualities"
                     :key="quality.label"
                   >
-                    <table v-if="quality.quality_standard">
-                      <tbody>
-                        <th class="pr-3">
-                          {{
-                            getQualityInfo(quality.quality_standard.name)?.label
-                          }}
-                        </th>
-                        <td>
-                          {{
-                            getQualityInfo(quality.quality_standard.name)
-                              ?.definition
-                          }}
-                        </td>
-                      </tbody>
-                    </table>
+                    <div v-if="quality.quality_standard">
+                      <div class="quality-standard-label">{{ getQualityInfo(quality.quality_standard.name)?.label }}</div>
+                      <div class="quality-standard-definition">{{ getQualityInfo(quality.quality_standard.name)?.definition }}</div>
+                    </div>
                   </div>
                 </info-popover>
               </sup>
@@ -404,4 +392,22 @@ article section {
 .right-content-list li {
   margin-bottom: 0.5rem;
 }
+
+.popover-content {
+  margin-bottom: 15px;
+}
+
+.popover-content:last-child {
+  margin-bottom: 0;
+}
+
+.popover-content .quality-standard-label {
+  font-weight: 700;
+}
+
+.popover-content .quality-standard-definition {
+  font-weight: 600;
+}
+
+
 </style>

@@ -94,7 +94,6 @@ export default {
         }
         case "left": {
           const right = this.elementWidth + 12;
-
           return `top: 50%; right:${right}px; transform: translateY(-50%);`;
         }
         case "bottom": {
@@ -124,16 +123,16 @@ export default {
 .w3tooltip .tooltiptext {
   visibility: hidden;
   position: absolute;
+  width: max-content;
   background-color: #fff;
   color: #000;
-  text-align: center;
   line-height: normal;
   padding: 6px 10px;
   border-radius: 6px;
   z-index: 1;
   opacity: 0;
-  white-space: nowrap;
   transition: opacity 0.6s;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 .w3tooltip:hover {
   cursor: pointer;
