@@ -153,6 +153,7 @@ jobs:
     - run:
         name: push ssr-catalogue docker images
         command: |
+            export $( cat build/ci.properties | xargs )
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
         
