@@ -58,6 +58,7 @@ export interface ICohort {
   fundingStatement?: string;
   acknowledgements?: string;
   documentation?: IDocumentation[];
+  datasets: { name: string }[];
 }
 
 export interface IVariableBase {
@@ -125,11 +126,11 @@ export interface IContributor {
   organisation: INameObject;
 }
 
-interface INameObject {
+export interface INameObject {
   name: string;
 }
 
-interface IUrlObject {
+export interface IUrlObject {
   url: string;
 }
 
@@ -150,15 +151,9 @@ export interface ICollectionEvent {
   coreVariables: string[];
 }
 
-interface ICollectionEventCategory {
+export interface ICollectionEventCategory {
   name: string;
   parent?: INameObject;
-  definition?: string;
-}
-
-interface ICollectionEventCategorySet {
-  name: string;
-  children?: ICollectionEventCategorySet[];
   definition?: string;
 }
 
@@ -277,3 +272,18 @@ export interface IDefinitionListItem {
   type?: string;
   content: any;
 }
+export interface IOntologyItem {
+  order?: number;
+  name: string;
+  label?: string;
+  parent?: IOntologyItem;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IOntologyItem[];
+}
+
+export interface IOntologyParentTreeItem
+  extends Omit<IOntologyItem, "children"> {}
+export interface IOntologyChildTreeItem extends Omit<IOntologyItem, "parent"> {}
