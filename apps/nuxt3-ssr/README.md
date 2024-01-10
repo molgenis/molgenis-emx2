@@ -82,3 +82,15 @@ Runtime config options can be set via query param to test/debug options:
 - feature flag cohorts only: ```cohort-only=true``` // defaults to false
 
 for example ```.../catalogue-demo/ssr-catalogue?cohort-only=true&theme=umcg&logo=UMCGkort.woordbeeld```
+
+## Filters
+
+```mermaid
+classDiagram
+class AbstractFilter
+AbstractFilter : +String id
+    AbstractFilter <|--  Filter
+    Filter <|-- SearchFiler
+    Filter <|-- OntologyFilter
+    Filter <|-- RefArrayFilter
+```

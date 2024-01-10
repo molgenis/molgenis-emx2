@@ -1,41 +1,51 @@
 <script setup lang="ts">
+import type {
+  IFilter,
+  IConditionsFilter,
+  ISearchFilter,
+} from "~~/interfaces/types";
+
 const props = defineProps<{
-  filters: [];
+  filters: IFilter[];
 }>();
 const { filters } = toRefs(props);
 
-function clearSearch(filter) {
-  filter.search = "";
+function clearSearch(filter: ISearchFilter) {
+  filter.config.search = "";
 }
 
-function clearConditions(filter) {
+function clearConditions(filter: IConditionsFilter) {
   filter.conditions = [];
 }
 
 function clearAll() {
   filters.value.forEach((filter) => {
-    if (filter?.columnType === "_SEARCH") {
-      clearSearch(filter);
+    if (filter.config.type === "SEARCH") {
+      clearSearch(filter as ISearchFilter);
     } else {
-      clearConditions(filter);
+      clearConditions(filter as IConditionsFilter);
     }
   });
 }
 
-function isFilterSet(filter) {
+function isFilterSet(filter: IFilter) {
   if (
-    filter?.columnType === "_SEARCH" &&
-    (filter?.search == undefined || filter?.search == "")
+    filter.config.type === "SEARCH" &&
+    (filter.search === undefined || filter.search === "")
   ) {
     return false;
   }
-  if (filter?.columnType !== "_SEARCH" && filter?.conditions.length === 0) {
+  if (
+    filter.config.type !== "SEARCH" &&
+    filter.conditions &&
+    filter.conditions.length === 0
+  ) {
     return false;
   }
   return true;
 }
 
-function isAFilterSet(filters) {
+function isAFilterSet(filters: IFilter[]) {
   return filters.some((filter) => {
     return isFilterSet(filter);
   });
@@ -53,14 +63,14 @@ function isAFilterSet(filters) {
     <div class="flex flex-wrap gap-3 content-around p-3">
       <template v-for="filter in filters">
         <Button
-          v-if="filter?.columnType === '_SEARCH' && isFilterSet(filter)"
-          @click="clearSearch(filter)"
+          v-if="filter.config.type === 'SEARCH' && isFilterSet(filter)"
+          @click="clearSearch(filter as ISearchFilter)"
           icon="trash"
           icon-position="right"
           size="tiny"
           type="filterWell"
         >
-          {{ `${filter?.title}: ${filter?.search}` }}
+          {{ `${filter.config.label}: ${filter?.search}` }}
         </Button>
 
         <VDropdown
@@ -69,16 +79,16 @@ function isAFilterSet(filters) {
           theme="tooltip"
         >
           <Button
-            v-if="filter?.columnType !== '_SEARCH' && isFilterSet(filter)"
-            @click="clearConditions(filter)"
+            v-if="filter.config.type !== 'SEARCH' && isFilterSet(filter)"
+            @click="clearConditions(filter as IConditionsFilter)"
             icon="trash"
             icon-position="right"
             size="tiny"
             type="filterWell"
           >
-            {{ filter?.title }}
+            {{ filter.config.label }}
             <small class="text-gray-600">
-              {{ `- ${filter?.conditions.length}` }}
+              {{ `- ${filter.conditions?.length ?? 0}` }}
             </small>
           </Button>
           <template #popper>

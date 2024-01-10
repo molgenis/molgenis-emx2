@@ -1,19 +1,20 @@
-<script setup>
-const props = defineProps({
-  title: {
-    type: String,
-  },
-  filters: {
-    type: Array,
-  },
-  mobileDisplay: {
-    type: Boolean,
-    default: false,
-  },
-});
+<script setup lang="ts">
+import type { IFilter, ISearchFilter } from "~/interfaces/types";
+
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    filters: IFilter[];
+    mobileDisplay: boolean;
+    
+  }>(),
+  {
+    mobileDisplay: false,
+  }
+);
 
 watch(props.filters, (filters) => {
-  const search = filters.filter((f) => f.columnType === "_SEARCH")[0].search;
+  const search = filters.filter((f) => f.config.type === "SEARCH")[0].search;
   const conditions = JSON.stringify(
     filters.filter((f) => f?.conditions?.length).map((f) => f.conditions)
   );
@@ -35,29 +36,29 @@ watch(props.filters, (filters) => {
     <template v-if="filters">
       <FilterContainer
         v-for="filter in filters"
-        :title="filter.title"
+        :title="filter.config.label"
         v-model:conditions="filter.conditions"
         v-model:search="filter.search"
         :mobileDisplay="mobileDisplay"
-        :initialCollapsed="filter.initialCollapsed"
+        :initialCollapsed="filter.config.initialCollapsed"
       >
         <FilterSearch
-          v-if="filter.columnType === '_SEARCH'"
+          v-if="filter.config.type === 'SEARCH'"
           :mobileDisplay="mobileDisplay"
-          v-model="filter.search"
+          v-model="(filter as ISearchFilter).search"
         />
         <FilterOntology
-          v-else-if="filter.columnType === 'ONTOLOGY'"
-          :table-id="filter.refTableId"
+          v-else-if="filter.config.type === 'ONTOLOGY'"
+          :table-id="filter.config.ontologyTableId"
           :mobileDisplay="mobileDisplay"
           v-model="filter.conditions"
         />
         <FilterList
-          v-else-if="filter.columnType === 'REF_ARRAY'"
-          :table-id="filter.refTableId"
-          :key-field="filter.refFields.key"
-          :name-field="filter.refFields.name"
-          :descriptionField="filter.refFields.description"
+          v-else-if="filter.config.type === 'REF_ARRAY'"
+          :table-id="filter.config.refTableId"
+          :key-field="filter.config.refFields?.key"
+          :name-field="filter.config.refFields?.name"
+          :descriptionField="filter.config.refFields?.description"
           v-model="filter.conditions"
         />
       </FilterContainer>

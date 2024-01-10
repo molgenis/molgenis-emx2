@@ -48,5 +48,5 @@ export function useGqlFetch<T, E>(
   const params = defu(options, defaults);
 
   // @ts-ignore it cant figure out the combined param types
-  return useFetch<T, E>(url, params);
+  return useFetch<T, E>(url, params) as UseFetchReturn<T, E>;
 }

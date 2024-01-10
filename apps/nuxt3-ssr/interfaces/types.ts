@@ -183,25 +183,85 @@ export interface IOntologyNode extends ITreeNode {
   ontologyTermURI?: string;
 }
 
-interface IBaseFilter {
-  title: string;
+export interface IFilterConfig {
+  label?: string;
   initialCollapsed?: boolean;
-}
-
-interface ISearchFilter extends IBaseFilter {
-  columnType: "_SEARCH";
-  search?: string;
-}
-
-export interface IFilter extends IBaseFilter {
-  columnType: "_SEARCH" | "ONTOLOGY" | "REF_ARRAY";
-  refTableId?: string;
-  columnId?: string;
   filterTable?: string;
-  conditions?: [] | { [key: string]: string }[];
-  searchTables?: string[];
-  search?: string;
 }
+
+export interface ISearchFilterConfig extends IFilterConfig {
+  type: "SEARCH";
+  search?: string;
+  searchTables?: string[];
+}
+
+export interface IOntologyFilterConfig extends IFilterConfig {
+  type: "ONTOLOGY";
+  ontologyTableId: string;
+  ontologySchema: string;
+  columnId: string;
+  refFields?: filterRefField;
+}
+
+export interface IRefArrayFilterConfig extends IFilterConfig {
+  type: "REF_ARRAY";
+  refTableId: string;
+  refSchema: string;
+  columnId: string;
+  refFields?: filterRefField;
+}
+
+type filterRefField = {
+   [key: string]: string;
+}
+
+export type IFilterCondition = {
+  [id: string]: IFilterCondition | string;
+};
+
+interface IAbstractFilter {
+  id: string;
+  search?: string;
+  config: ISearchFilterConfig | IOntologyFilterConfig | IRefArrayFilterConfig;
+}
+
+export type IFilter= ISearchFilter | IOntologyFilter | IRefArrayFilter;
+
+export interface ISearchFilter extends IAbstractFilter {
+  search: string;
+  config: ISearchFilterConfig;
+}
+export interface IOntologyFilter extends IAbstractFilter {
+  conditions: IFilterCondition[];
+  config: IOntologyFilterConfig;
+}
+
+export type IConditionsFilter = IOntologyFilter | IRefArrayFilter;
+
+export interface IRefArrayFilter extends IAbstractFilter {
+  conditions: IFilterCondition[];
+  config: IRefArrayFilterConfig;
+}
+
+// interface IBaseFilter {
+//   title: string;
+//   initialCollapsed?: boolean;
+// }
+
+// export interface ISearchFilter extends IBaseFilter {
+//   columnType: "_SEARCH";
+//   search?: string;
+// }
+
+// export interface IFilter extends IBaseFilter {
+//   columnType: "_SEARCH" | "ONTOLOGY" | "REF_ARRAY";
+//   refTableId?: string;
+//   columnId?: string;
+//   filterTable?: string;
+//   searchTables?: string[];
+//   search?: string;
+//   conditions?: [] | { [key: string]: string }[];
+// }
 
 export interface IFormField {
   name: string;
