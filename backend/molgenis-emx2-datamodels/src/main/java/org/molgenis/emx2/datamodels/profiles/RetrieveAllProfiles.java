@@ -12,15 +12,14 @@ public class RetrieveAllProfiles {
   private List<Profiles> allProfiles;
   private List<SchemaMetadata> allSchemas;
 
-  /**
-   * Lazy constructor
-   */
+  /** Lazy constructor */
   public RetrieveAllProfiles() {
     super();
   }
 
   /**
    * Getter for all profiles with on-demand retrieve
+   *
    * @return
    */
   public List<Profiles> getAllProfiles() {
@@ -32,6 +31,7 @@ public class RetrieveAllProfiles {
 
   /**
    * Getter for all schemas with on-demand retrieve
+   *
    * @return
    */
   public List<SchemaMetadata> getAllSchemas() {
@@ -41,9 +41,7 @@ public class RetrieveAllProfiles {
     return allSchemas;
   }
 
-  /**
-   * Internal function to retrieve all profiles
-   */
+  /** Internal function to retrieve all profiles */
   private void retrieveAllProfiles() {
     this.allSchemaFromProfiles = new ArrayList<>();
     this.allProfiles = new ArrayList<>();
@@ -60,9 +58,7 @@ public class RetrieveAllProfiles {
     }
   }
 
-  /**
-   * Internal function to create and retrieve all schemas from all profiles
-   */
+  /** Internal function to create and retrieve all schemas from all profiles */
   private void retrieveAllSchemas() {
     if (this.allProfiles == null) {
       retrieveAllProfiles();
