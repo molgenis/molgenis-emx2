@@ -1,0 +1,3 @@
+name,definition,codesystem,code,ontologyTermURI
+MD5,"MD5 (Message-Digest algorithm 5) is a (now deprecated) cryptographic hash function with a 128-bit hash value used to check the integrity of files.",MS,1000568,http://purl.obolibrary.org/obo/MS_1000568
+SHA-256,"SHA-256 (member of Secure Hash Algorithm-2 family) is a cryptographic hash function designed by the National Security Agency (NSA) and published by the NIST as a U. S. government standard. It is also used to verify file integrity.",MS,1003151,http://purl.obolibrary.org/obo/MS_1003151

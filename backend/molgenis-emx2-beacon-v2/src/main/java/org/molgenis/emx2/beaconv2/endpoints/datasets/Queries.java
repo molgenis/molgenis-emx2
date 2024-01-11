@@ -45,7 +45,7 @@ public class Queries {
                   + concatFilters
                   + " ] }  ){"
                   + "id,"
-                  + "distribution{name,description, type{name,codesystem,code,ontologyTermURI,definition}, files{identifier,md5checksum,name,server,path, format{name,codesystem,code,ontologyTermURI,definition}}},"
+                  + "distribution{name,description, type{name,codesystem,code,ontologyTermURI,definition}, files{identifier,checksum,name,server,path, format{name,codesystem,code,ontologyTermURI,definition}}},"
                   + "accrualPeriodicity,"
                   + "spatial{ontologyTermURI},"
                   + "spatialResolutionInMeters,"
