@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Biosamples,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C43376","A natural substance derived from living organisms such as cells, tissues, proteins, and DNA. In FAIR Genomes: Material. In Trecode: Biosource","Beacon v2, FAIR Genomes,Trecode"
-Biosamples,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,A unique proper name or character sequence that identifies this particular material. In FAIR Genomes: MaterialIdentifier.,"Beacon v2, FAIR Genomes,Trecode"
+Biosamples,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C43376,http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C70699","A natural substance derived from living organisms such as cells, tissues, proteins, and DNA. In FAIR Genomes: Material. In Trecode: Biosource","Beacon v2, FAIR Genomes,Trecode"
+Biosamples,,id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C93400,http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25364",A unique proper name or character sequence that identifies this particular material. In FAIR Genomes: MaterialIdentifier.,"Beacon v2, FAIR Genomes,Trecode"
 Biosamples,,PathologicalState,ontology,,TRUE,,PathologicalState,,,,"http://purl.obolibrary.org/obo/NCIT_C28257","An examination that is performed to determine the extent of the spread of cancer based on histopathologic examination of one or more pathology specimens. Pathologic staging uses evidence acquired during the process of clinical staging, supplemented by histopathologic examination of surgical specimens. In Beacon v2: biosampleStatus.","Beacon v2, FAIR Genomes"
 Biosamples,,sampleOriginType,ontology,,TRUE,,SampleOriginType,,,,"http://purl.obolibrary.org/obo/NCIT_C42703,http://purl.obolibrary.org/obo/NCIT_C103264","Biological entity that constitutes the structural organization of an individual member of a biological species from which this material was taken. In FAIR Genomes: AnatomicalSource.","Beacon v2, FAIR Genomes"
 Biosamples,,collectionMoment,string,,,,,,,,http://purl.obolibrary.org/obo/GSSO_011434,E.g. P32Y6M1D,"Beacon v2"
@@ -55,4 +55,4 @@ samples,,comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A writ
 Biomaterial,,,,,,,,,,,"http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C16338","Entity describing a biomaterial which is often a biomolecule isolated from a biosource","Trecode"
 Biomaterial,,id,string,1,TRUE,,,,,,http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25364,Identifier,"Trecode"
 Biomaterial,,label,string,,,,,,,,http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45561,Label,"Trecode"
-Biomaterial,,description,string,,,,,,,,http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25365,Description of this biological extract,"Trecode"
+Biomaterial,,description,text,,,,,,,,http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25365,Description of this biological extract,"Trecode"
