@@ -86,33 +86,7 @@ jobs:
         root: .
         paths:
             - .
-     
-#     - run:
-#         name: release, push docker, push python
-#         command: |
-#           if [ "${CIRCLE_BRANCH}" = "master" ]; then
-#             ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release \
-#             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-#             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
-#           else
-#             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-#             ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release \
-#             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-#             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-#             -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
-#           fi
-#           export $( cat build/ci.properties | xargs )
-#           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
-#             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
-#             docker push molgenis/ssr-catalogue-snapshot --all-tags
-#           else
-#             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
-#             docker push molgenis/ssr-catalogue --all-tags
-#           fi
-#         environment:
-#           MOLGENIS_POSTGRES_USER: molgenis
-#           MOLGENIS_POSTGRES_PASS: molgenis
-#           MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
+  
   preview:
     docker:
     - image: molgenis/ci-build:latest
@@ -184,6 +158,17 @@ jobs:
           else
             bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
           fi
+    
+    - run:
+        name: message slack
+        command: |
+          export $( cat build/ci.properties | xargs )
+          curl -d "token=${SLACK_TOKEN}" \
+          -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+          PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.net" \
+          -d "channel=C02AZDG6QQ7" \
+          -X POST https://slack.com/api/chat.postMessage
+          
   test:
     docker:
     - image: molgenis/ci-build:latest
@@ -219,28 +204,49 @@ jobs:
     - store_test_results:
         path: ~/test-results
 
-
-  notifications:
+  release:
     docker:
-      - image: cimg/base:stable
+    - image: molgenis/ci-build:latest
+    working_directory: ~/repo
+    resource_class: large
+
+    environment:
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
+
     steps:
-      - run:
+    - attach_workspace:
+        at: ~/repo
+
+    - run:
+        name: release, push docker, push python
+        command: |
+          export $( cat build/ci.properties | xargs )
+          ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart release \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
+          if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+            docker push molgenis/ssr-catalogue-snapshot --all-tags
+          else
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
+            docker push molgenis/ssr-catalogue --all-tags
+          fi
+        environment:
+          MOLGENIS_POSTGRES_USER: molgenis
+          MOLGENIS_POSTGRES_PASS: molgenis
+          MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
+    
+    - run:
           name: message slack
           command: |
             export $( cat build/ci.properties | xargs )
-            if [ "${CIRCLE_BRANCH}" = "master" ]
-            then
-              curl -d "token=${SLACK_TOKEN}" \
-              -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
-              -d "channel=C02AZDG6QQ7" \
-              -X POST https://slack.com/api/chat.postMessage          
-            else
-              curl -d "token=${SLACK_TOKEN}" \
-              -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
-              PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.net" \
-              -d "channel=C02AZDG6QQ7" \
-              -X POST https://slack.com/api/chat.postMessage
-            fi
+            curl -d "token=${SLACK_TOKEN}" \
+            -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
+            -d "channel=C02AZDG6QQ7" \
+            -X POST https://slack.com/api/chat.postMessage          
+          
 
 workflows:
   version: 2
@@ -259,7 +265,10 @@ workflows:
       - test:
           requires:
             - build
-      - notifications:
+      - release:
           requires:
             - build
             - test
+          filters:
+            branches:
+              only: master
