@@ -107,6 +107,10 @@ jobs:
         name: install docker kubectl and helm
         command: sh ci/install_docker_helm_kubectl.sh
 
+    - setup_remote_docker:
+        version: 19.03.13
+        docker_layer_caching: true
+
     - run:
         name: Sign in to docker
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
