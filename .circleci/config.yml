@@ -80,7 +80,7 @@ jobs:
     - attach_workspace:
         at: ~/repo
 
-    - run: ./gradlew clean assemble testClasses ci -x :apps:testJavaScript
+    - run: ./gradlew clean assemble testClasses ci
       
     - persist_to_workspace:
         root: .
