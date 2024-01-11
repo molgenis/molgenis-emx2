@@ -62,7 +62,7 @@ public class SqlTypeUtils extends TypeUtils {
       } else if (c.getComputed() != null) {
         row.set(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
       } else if (columnIsVisible(c, graph)) {
-        checkRequired(c, row);
+        checkRequired(c, row, graph);
         checkValidation(c, graph);
       } else {
         if (c.isReference()) {
@@ -89,24 +89,31 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  private static void checkRequired(Column c, Row row) {
-    if (!row.isDraft()
-        && c.getComputed() == null
-        && !AUTO_ID.equals(c.getColumnType())
-        && c.isRequired()) {
-
-      if (c.isReference()) {
-        for (Reference r : c.getReferences()) {
-          if (row.isNull(r.getName(), r.getPrimitiveType())) {
-            throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
-          }
-        }
-      } else {
-        if (row.isNull(c.getName(), c.getColumnType())) {
-          throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
+  private static void checkRequired(Column c, Row row, Map<String, Object> values) {
+    if (!row.isDraft() && c.getComputed() == null && !AUTO_ID.equals(c.getColumnType())) {
+      if (c.isRequired() && hasEmptyFields(c, row)) {
+        throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
+      } else if (c.isConditionallyRequired()) {
+        String error = checkRequiredExpression(c.getRequired(), values);
+        if (error != null && hasEmptyFields(c, row)) {
+          throw new MolgenisException(
+              "column '" + c.getName() + "' is required: " + error + " in " + row);
         }
       }
     }
+  }
+
+  private static boolean hasEmptyFields(Column c, Row row) {
+    if (c.isReference()) {
+      for (Reference r : c.getReferences()) {
+        if (row.isNull(r.getName(), r.getPrimitiveType())) {
+          return true;
+        }
+      }
+    } else {
+      return row.isNull(c.getName(), c.getColumnType());
+    }
+    return false;
   }
 
   private static boolean columnIsVisible(Column column, Map values) {
@@ -211,6 +218,21 @@ public class SqlTypeUtils extends TypeUtils {
       // seperate syntax errors
       throw me;
     }
+  }
+
+  public static String checkRequiredExpression(
+      String validationScript, Map<String, Object> values) {
+    try {
+      Object error = executeJavascriptOnMap(validationScript, values);
+      if (error instanceof Boolean) {
+        if ((Boolean) error) return validationScript;
+        return null;
+      }
+      if (error != null) return error.toString();
+    } catch (MolgenisException me) {
+      throw me;
+    }
+    return null;
   }
 
   static Map<String, Object> convertRowToMap(List<Column> columns, Row row) {
