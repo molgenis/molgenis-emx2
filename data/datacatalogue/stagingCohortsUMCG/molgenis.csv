@@ -1,6 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Publications,,,,,,,,,,,,Publications following bibtex format
-Version,,,,,,,,,,,,3.7
+Version,,,,,,,,,,,,3.10
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Extended resources,Resources,,,,,,,,,,,
 Data resources,Extended resources,,,,,,,,,,,
@@ -57,6 +56,7 @@ Data resources,,informed consent type,ontology,,,CatalogueOntologies,Informed co
 Extended resources,,documentation,refback,,,,Documentation,,resource,,,List of documentation available for this resource
 Extended resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
 Extended resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
+Publications,,,,,,,,,,,,Publications following bibtex format
 Publications,,doi,,1,TRUE,,,,,,,Digital object identifier
 Publications,,title,,,TRUE,,,,,,,Publication title
 Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with

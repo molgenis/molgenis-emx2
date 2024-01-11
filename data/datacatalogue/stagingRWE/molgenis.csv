@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Version,,,,,,,,,,,,3.6,EMA
+Version,,,,,,,,,,,,3.10,EMA
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",EMA
 Extended resources,Resources,,,,,,,,,,,,EMA
 Data resources,Extended resources,,,,,,,,,,,Resources for data,EMA
@@ -112,6 +112,7 @@ RWE resources,,quality validation methods,text,,,,,,,,,What methods or processes
 RWE resources,,correction methods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?,
 RWE resources,,quality validation results,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results",
 RWE resources,,standards,heading,,,,,,,,,Use of standard data models and ontologies,
+RWE resources,,cdms,ref_array,,,,Mappings,,,,,Common data models used or ETL-ed to by this data source,
 RWE resources,,cdms other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source",EMA
 Databanks,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",
 Databanks,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",
@@ -126,8 +127,8 @@ Extended resources,,documentation,refback,,,,Documentation,,resource,,,"Descript
 Data resources,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource,
 Data resources,,collaborations,heading,,,,,,,,,List of relevant collaborations,
 Publications,,,,,,,,,,,,Publications following bibtex format,
-Publications,,doi,,1,TRUE,,,,,,,Digital object identifier,EMA
-Publications,,title,text,,,,,,,,,Publication title,EMA
+Publications,,doi,,1,TRUE,,,,,,,Digital object identifier,
+Publications,,title,text,,,,,,,,,Publication title,
 Publications,,authors,string_array,,,,,,,,,"List of authors, one entry per author",
 Publications,,year,int,,,,,,,,,"Year of publication (or, if unpublished, year of creation)",
 Publications,,journal,,,,,,,,,,Journal or magazine the work was published in,
@@ -229,9 +230,9 @@ Repeated variables,All variables,,,,,,,,,,,Definition of a repeated sourceVariab
 Repeated variables,,is repeat of,ref,,TRUE,,Variables,resource,,,,reference to the definition of the sourceVariable that is being repeated,
 Mappings,,,,,,,,,,,,"Mapping from collected datasets to standard/harmonized datasets, optionally including ETL syntaxes",EMA
 Mappings,,source,ref,1,TRUE,,Extended resources,,,,,Data source that is being mapped to a (common) data model,EMA
-Mappings,,source version,string,,TRUE,,,,,,,version of the datasource that is being mapped,EMA
+Mappings,,source version,string,,,,,,,,,version of the datasource that is being mapped,EMA
 Mappings,,target,ref,1,TRUE,catalogue,Models,,,,,model being mapped to,EMA
-Mappings,,target version,string,,TRUE,,,,,,,version of the model being mapped to,EMA
+Mappings,,target version,string,,,,,,,,,version of the model being mapped to,EMA
 Mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,"Mapping from collected datasets to standard/harmonized datasets, optionally including ETL syntaxes",EMA
 Mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months",EMA
 Dataset mappings,,source,ref,1,TRUE,,Extended resources,,,,,datasource being mapped from,
