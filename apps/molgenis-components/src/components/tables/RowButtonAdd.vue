@@ -1,6 +1,9 @@
 <template>
   <span>
-    <RowButton type="add" @add="isModalShown = true" />
+    <ButtonAction v-if="label !== ''" @click="isModalShown = true">
+      {{ label }}
+    </ButtonAction>
+    <RowButton v-else type="add" @add="isModalShown = true" />
     <EditModal
       v-if="isModalShown"
       :id="id + 'add-modal'"
@@ -18,6 +21,7 @@
 
 <script>
 import RowButton from "./RowButton.vue";
+import ButtonAction from "../forms/ButtonAction.vue";
 
 export default {
   name: "RowButtonAdd",
@@ -34,6 +38,11 @@ export default {
     schemaId: {
       type: String,
       required: false,
+    },
+    label: {
+      type: String,
+      required: false,
+      default: () => "",
     },
     defaultValue: {
       type: Object,
@@ -67,6 +76,13 @@ export default {
       <RowButtonAdd
           id="row-add-btn-sample"
           tableId="Pet"
+          schemaId="pet store"
+      />
+      <br>
+      <RowButtonAdd
+          id="row-add-btn-sample"
+          tableId="Pet"
+          label="Add a new pet"
           schemaId="pet store"
       />
     </div>

@@ -58,14 +58,13 @@
         </div>
       </div>
       <div v-if="canEdit">
-        <Tooltip value="New entry">
-          <RowButtonAdd
-            id="add-entry"
-            :tableId="tableId"
-            :schemaId="schemaId"
-            @update:newRow="selectNew"
-          />
-        </Tooltip>
+        <RowButtonAdd
+          id="add-entry"
+          :label="`Add new ${label}`"
+          :tableId="tableId"
+          :schemaId="schemaId"
+          @update:newRow="selectNew"
+        />
       </div>
       <div>
         <ButtonAlt
