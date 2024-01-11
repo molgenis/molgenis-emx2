@@ -136,24 +136,15 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
-          if [ "${CIRCLE_BRANCH}" = "master" ]
-          then
-            bash ci/create_or_update_k8s.sh "emx2" ${TAG_NAME}
-          else
-            bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
-          fi
+          bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
+          
 
     - run:
         name: deploy preview or update dev to azure
         command: |
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh
-          if [ "${CIRCLE_BRANCH}" = "master" ]
-          then
-            bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME}
-          else
-            bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
-          fi
+          bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
     
     - run:
         name: message slack
@@ -233,6 +224,20 @@ jobs:
           MOLGENIS_POSTGRES_USER: molgenis
           MOLGENIS_POSTGRES_PASS: molgenis
           MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
+
+    - run: 
+        name: update rug server
+        command: |
+            export $( cat build/ci.properties | xargs )
+            bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
+            bash ci/create_or_update_k8s.sh "emx2" ${TAG_NAME}
+            
+    - run:
+        name: update azure server
+        command: |
+            export $( cat build/ci.properties | xargs )
+            bash ci/set_kubectl_config-azure.sh
+            bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME}
     
     - run:
           name: message slack
