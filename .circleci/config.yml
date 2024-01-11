@@ -120,7 +120,7 @@ jobs:
         name: push emx2 docker images
         command: |
           echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-          ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar -x test -x :apps:buildJavascript -x :apps:checkFormat :apps:testJavaScript \
+          ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar -x test -x :apps:buildJavascript -x :apps:checkFormat -x :apps:testJavaScript \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
@@ -214,7 +214,7 @@ jobs:
         name: release, push docker, push python
         command: |
           export $( cat build/ci.properties | xargs )
-          ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart release \
+          ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart release -x test -x :apps:buildJavascript -x :apps:checkFormat -x :apps:testJavaScript  \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
@@ -255,7 +255,7 @@ jobs:
 
 workflows:
   version: 2
-  build_and_test:
+  build_and_test_and_preview_or_release:
     jobs:
       - prepare
       - build:
@@ -272,7 +272,6 @@ workflows:
             - build
       - release:
           requires:
-            - build
             - test
           filters:
             branches:
