@@ -130,6 +130,15 @@ const query = computed(() => {
             }
             name
           }
+          targetVariable {
+            dataset {
+              resource {
+                id
+              }
+              name
+            }
+            name
+          }
         }
       }
     }
