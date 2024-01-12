@@ -7,14 +7,9 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
-public class ProfileDocGen {
+public record ProfileDocGen(String outputFile) {
 
-  private String outputFile;
   private static final String LE = System.lineSeparator();
-
-  public ProfileDocGen(String outputFile) {
-    this.outputFile = outputFile;
-  }
 
   public void makeDocs() throws IOException {
     SchemaMetadata fullSchema = new SchemaFromProfile().create(false);
@@ -49,7 +44,7 @@ public class ProfileDocGen {
       bw.write("|---|---|---|---|---|" + LE);
       for (TableMetadata table : fullSchema.getTables()) {
         bw.write(
-            "| %s | %s | %s | %s |"
+            "| %s | %s | %s | %s | %s |"
                     .formatted(
                         table.getTableName(),
                         table.getDescription(),
