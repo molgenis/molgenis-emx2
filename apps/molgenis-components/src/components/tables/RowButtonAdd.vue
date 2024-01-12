@@ -24,8 +24,6 @@ import RowButton from "./RowButton.vue";
 import ButtonOutline from "../forms/ButtonOutline.vue";
 import { ref } from "vue";
 
-const EditModal = () => import("../forms/EditModal.vue");
-
 withDefaults(
   defineProps<{
     id: string;
