@@ -1,114 +1,48 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,3.8
-Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
-Organisations,Resources,,,,,,,,,,,Research departments and research groups
-Extended resources,Resources,,,,,,,,,,,
-Data resources,Extended resources,,,,,,,,,,,Resources for data
-Studies core,,,,,,,,,,,,The core data table for capturing studies meta data. Do not use this table directly.
-Resources,,overview,heading,,,,,,,,,General information
-Resources,,id,,1,TRUE,,,,,,,Internal identifier
-Resources,,pid,,2,,,,,,,,Persistent identifier
-Resources,,acronym,,,,,,,,,,Acronym if applicable
-Resources,,name,text,3,TRUE,,,,,,,Name used in European projects
-Data resources,,local name,,,,,,,,,,"If different from above, name in the national language"
-Organisations,,type,ontology_array,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?
-Organisations,,type other,text,,,,,,,,,"If type is 'other', a description of type of organisation"
-Organisations,,institution,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of"
-Organisations,,institution acronym,string,,,,,,,,,Short name of the organisation
-Organisations,,email,email,,,,,,,,,Contact email address for person responsible for organization entry in catalogue
-Organisations,,logo,file,,,,,,,,,Logo of the organisation
-Organisations,,address,text,,,,,,,,,Address of the organisation
-Organisations,,expertise,text,,,,,,,,,A short description of the expertise of this institution
-Organisations,,country,ontology_array,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
-Organisations,,features,ontology_array,,,CatalogueOntologies,Organisation features,,,,,Features that describe this organisation
-Organisations,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,,Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:
-Organisations,,leading resources,refback,,,,Extended resources,,lead organisation,,,"Listing of data sources, cohorts, studies (etc)"
-Organisations,,additional resources,refback,,,,Extended resources,,additional organisations,,,"Listing of data sources, cohorts, studies (etc)"
-Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description
-Resources,,website,hyperlink,,,,,,,,,Link to the website or homepage
-Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource
-Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource
-Resources,,description,text,,,,,,,,,Short description
-Extended resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)"
-Resources,,contacts,refback,,,,Contacts,,resource,,,Contact person(s)
-Extended resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc."
-Data resources,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource
-Data resources,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected
-Data resources,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected
-Extended resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from
-Data resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from
-Data resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.
-Data resources,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?"
-Data resources,,population oncology topology,ontology_array,,,CatalogueOntologies,ICDO topologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications."
-Data resources,,population oncology morphology,ontology_array,,,CatalogueOntologies,ICDO morphologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications."
-Data resources,,contents,heading,,,,,,,,,Data model and contents
-Extended resources,,datasets,refback,,,,Datasets,,resource,,,
-Data resources,,access,heading,,,,,,,,,Access and validation information
-Data resources,,data holder,ref,,,,Organisations,,,,,The name of the organisation that is responsible for governance of the data bank
-Data resources,,information,heading,,,,,,,,,Other information
-Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
-Extended resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
-Data resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?
-Extended resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
-Extended resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
-Extended resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent"
-Data resources,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource
-Data resources,,collaborations,heading,,,,,,,,,List of relevant collaborations
 Publications,,,,,,,,,,,,Publications following bibtex format
-Publications,,doi,,1,TRUE,,,,,,,Digital object identifier
-Publications,,title,text,,,,,,,,,Publication title
-Publications,,authors,string_array,,,,,,,,,"List of authors, one entry per author"
-Publications,,year,int,,,,,,,,,"Year of publication (or, if unpublished, year of creation)"
-Publications,,journal,,,,,,,,,,Journal or magazine the work was published in
-Publications,,volume,int,,,,,,,,,Journal or magazine volume
-Publications,,number,int,,,,,,,,,Journal or maragzine issue number
-Publications,,pagination,,,,,,,,,,"Page numbers, separated either by commas or double-hyphens"
-Publications,,publisher,,,,,,,,,,Publisher's name
-Publications,,school,,,,,,,,,,School where the thesis was written (in case of thesis)
-Publications,,abstract,text,,,,,,,,,Publication abstract
-Publications,,resources,refback,,,,Extended resources,,publications,,,List of resources that refer to this publication
-Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with
-Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource
-Contacts,,role description,text,,,,,,,,,Description of the role
-Contacts,,first name,,1,TRUE,,,,,,,First name of the contact person
-Contacts,,last name,,1,TRUE,,,,,,,Last name of the contact person
-Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
-Contacts,,initials,,,,,,,,,,Initials of the contact person
-Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
-Contacts,,organisation,ref,,,,Organisations,,,,,Affiliated organisation of the contact person
-Contacts,,email,,,,,,,,,,Contact's email address
-Contacts,,orcid,,,,,,,,,,Orcid of the contact person
-Contacts,,homepage,,,,,,,,,,Link to contact's homepage
-Contacts,,photo,file,,,,,,,,,Contact's photograph
-Contacts,,expertise,,,,,,,,,,Description of contact's expertise
+Version,,,,,,,,,,,,3.7
+Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
+Extended resources,Resources,,,,,,,,,,,
+Data resources,Extended resources,,,,,,,,,,,
+Studies core,Extended resources,,,,,,,,,,,The core data table for capturing studies meta data. Do not use this table directly.
+Studies patients,Studies core,,,,,,,,,,,Studies that are conducted on patients.
+Collection events,,,,,,,,,,,,List of collection events defined for this resource (fill in at least one collection event)
 Documentation,,,,,,,,,,,,Documentation attached to a resource
-Documentation,,resource,ref,1,TRUE,,Extended resources,,,,,The resource this documentation is for
-Documentation,,name,,1,TRUE,,,,,,,Document name
-Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of documentation
-Documentation,,description,text,,,,,,,,,Description of the document
-Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation
-Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation
-Datasets,,,,,,,,,,,,Definition of a dataset within a (common) data model
-Datasets,,resource,ref,1,TRUE,,Extended resources,,,,,resources that these variables are part of
-Datasets,,name,,1,TRUE,,,,,,,unique dataset name in the model
-Datasets,,label,,,,,,,,,,short human readable description
-Datasets,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,defines what each record in this table describes
-Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
-Datasets,,description,text,,,,,,,,,description of the role/function of this table
-Datasets,,number of rows,int,,,,,,,,,count of the numbe of records in this table
-External identifiers,,resource,ref,1,TRUE,,Extended resources,,,,,Resource that this external identifier belongs to
-External identifiers,,identifier,text,1,TRUE,,,,,,,External identifier
-External identifiers,,external identifier type,ontology,,,CatalogueOntologies,External identifier types,,,,,External identifier type
-External identifiers,,external identifier type other,text,,,,,,,,,"If other, enter external identifier type"
-Studies core,,overview,heading,,,,,,,,,General information
-Studies core,,id,string,1,True,,,,,,,A unique proper name or character sequence that identifies this particular study.
-Studies core,,name,string,,,,,,,,,A name that designates this study.
-Studies core,,type,ontology,,,CatalogueOntologies,Study types,,,,,Select 1 of the following types of study
-Studies core,,type other,,,,,,,,,,"If other, describe the type of study"
-Studies core,,website,hyperlink,,,,,,,,,Link to the website or homepage
-Studies core,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
-Studies core,,description,text,,,,,,,,,A statement or piece of writing that provides details on this study.
+External identifiers,,,,,,,,,,,,External identifiers belonging to a resource
+Resources,,overview,heading,,,,,,,,,General information about this resource
+Resources,,id,,1,TRUE,,,,,,,Internal identifier
+Resources,,pid,,,,,,,,,,Persistent identifier
+Resources,,name,,2,TRUE,,,,,,,Name of the resource
+Resources,,acronym,,,,,,,,,,Resource acronym
+Resources,,website,hyperlink,,,,,,,,,Link to the website of this resource
+Resources,,description,text,,,,,,,,,Short description of this resource
+Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
+Extended resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EU PAS number, UMCG register number)"
+Studies core,,type,ontology_array,,,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank"
+Studies core,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal"
+Studies core,,design description,text,,,,,,,,,Short description of the study design of this cohort
+Studies core,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort
+Studies core,,collection type,ontology_array,,,CatalogueOntologies,Collection types,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both"
+Extended resources,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,Lead organisation (e.g. research department or group) for this resource
+Extended resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,Any additional organisations that contributed to this resource
+Studies core,,networks,ref_array,,,UMCG,Networks,,cohorts,,,The consortia or networks that this study is involved in
+Extended resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc."
 Studies core,,contact email,,,,,,,,,,"Contact e-mail address for this cohort. Note: this email address will be displayed in the catalogue, which is openly accessible."
+Resources,,contacts,refback,,,,Contacts,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
+Studies patients,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource
+Studies patients,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected
+Studies patients,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected
+Extended resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from
+Studies patients,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from
+Studies patients,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups of the participants of this resource
+Studies patients,,inclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource
+Studies patients,,inclusion criteria other,text,,,,,,,,,Other inclusion criteria applied to the participants of this resource
+Studies patients,,start year,int,,,,,,,,,Year when first data was collected (retrospectively)
+Studies patients,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing
+Studies patients,,main medical condition,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Disease groups within this subcohort, based on ICD-10 classification"
+Studies patients,,comorbidity,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Comorbidity within this subcohort, based on ICD-10 classification"
+Studies core,,contents,heading,,,,,,,,,Data model and contents
+Studies core,,collection events,refback,,,,Collection events,,resource,,,List of collection events defined for this resource
 Studies BME,Studies core,,,,,,,,,,,Studies conducted in the realm of Biomedical Engineering
 Studies BME,,Tools and methods,heading,,,,,,,,,Tools and methods
 Studies BME,,main procedure,string,,,,,,,,,The name of the main procedure applied in this study
@@ -117,18 +51,7 @@ Studies MPh,Studies core,,,,,,,,,,,Studies conducted in the realm of Molecular P
 Studies MPh,,Tools and methods,heading,,,,,,,,,Tools and methods
 Studies MPh,,main procedure,string,,,,,,,,,The name of the main procedure applied in this study
 Studies MPh,,pharmacology tool,string,,,,,,,,,The name of a specific tool used in molecular pharmacology research
-Studies Clinical,Studies core,,,,,,,,,,,Studies conducted synchronously with clinical treatment
-Studies Clinical,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource
-Studies Clinical,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected
-Studies Clinical,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected
-Studies Clinical,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from
-Studies Clinical,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from
-Studies Clinical,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.
-Studies Clinical,,inclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource
-Studies Clinical,,other inclusion criteria,text,,,,,,,,,Other inclusion criteria applied to the participants of this resource
-Studies Clinical,,start year,int,,,,,,,,,Year when first data was collected
-Studies Clinical,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing
-Studies Genomics,Studies Clinical,,,,,,,,,,,Studies conducted in the field of Genomics
+Studies Genomics,Studies patients,,,,,,,,,,,Studies conducted in the field of Genomics
 Studies Genomics,,protocols,heading,,,,,,,,,
 Studies Genomics,,physical data location,string,,,,,,,,,"A place on the Earth where the data is located, by its name or by its geographical location. This definition is intentionally vague to allow reuse locally (e.g. which computer), for contacting (e.g. which institute), broadly for logistical or legal reasons (e.g. city, country or continent)."
 Studies Genomics,,abstract data location,string,,,,,,,,,"The file location of the data, or a copy of the data, on an electronically accessible device for preservation (either in plain-text or encrypted format)."
@@ -146,4 +69,132 @@ Studies core,,data access fee,bool,,,,,,,,,Does a fee apply to gain access to da
 Studies core,,release type,ontology,,,CatalogueOntologies,Release types,,,,,Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis
 Studies core,,release description,text,,,,,,,,,Description of the release cycle of this resource
 Studies core,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource
-Studies core,,column name,string,,,,,,,,,
+Studies core,,other information,heading,,,,,,,,,Other information
+Studies core,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
+Studies core,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?
+Extended resources,,documentation,refback,,,,Documentation,,resource,,,List of documentation available for this resource
+Extended resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
+Extended resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
+Publications,,doi,,1,TRUE,,,,,,,Digital object identifier
+Publications,,title,,,TRUE,,,,,,,Publication title
+Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with
+Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource
+Contacts,,first name,,1,TRUE,,,,,,,First name of the contact person
+Contacts,,last name,,1,TRUE,,,,,,,Last name of the contact person
+Contacts,,statement of consent personal data,bool,,TRUE,,,,,,,"Indicate whether this person consents to display the following personal data in the catalogue (which is openly accessible): title, name, photo, orcid ID, institute, department, expertise, discipline and role within the resource. These data-items may partly be extracted from the UMCG and/or RUG employee pages. The consent also includes future linkages with other national and international catalogues and platforms to increase visibility and findability (e.g. BBMRI-ERIC, NARCIS) of UMCG-resources. Contributors without a positive statement of consent will not be shown in the UMCG Research Data Catalogue"
+Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
+Contacts,,initials,,,,,,,,,,Initials of the contact person
+Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
+Contacts,,organisation,ref,,,SharedStaging,Organisations,,,,,Affiliated organisation of the contact person
+Contacts,,statement of consent email,bool,,TRUE,,,,,,,"Indicate whether this person consents to display their email address in the catalogue (which is openly accessible). The consent also includes future linkages with other national and international catalogues and platforms to increase visibility and findability (e.g. BBMRI-ERIC, NARCIS) of UMCG-resources. Contributors without a positive statement of consent for their email address will be shown without their email address in the UMCG Research Data Catalogue"
+Contacts,,email,,,,,,,,,,Contact's email address
+Contacts,,orcid,,,,,,,,,,Orcid of the contact person
+Contacts,,homepage,,,,,,,,,,Link to contact's homepage
+Contacts,,photo,file,,,,,,,,,Contact's photograph
+Contacts,,expertise,,,,,,,,,,Description of contact's expertise
+Documentation,,resource,ref,1,TRUE,,Resources,,,,,The resource this documentation is for
+Documentation,,name,,1,TRUE,,,,,,,Document name
+Documentation,,description,text,,,,,,,,,Description of the document
+Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation
+Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation
+Collection events,,,,,,,,,,,,List of collection events defined for this resource (fill in at least one collection event)
+Collection events,,resource,ref,1,TRUE,,Resources,,,,,Resource this collection event is part of
+Collection events,,name,,1,TRUE,,,,,,,Name of the collection event
+Collection events,,description,text,,,,,,,,,Description of the collection event
+Collection events,,subcohorts,ref_array,,,,Subcohorts,resource,,,,Subcohorts that are targetted by this collection event
+Collection events,,start year,ontology,,,CatalogueOntologies,Years,,,,,Start year of data collection
+Collection events,,start month,ontology,,,CatalogueOntologies,Months,,,,,Start month of data collection
+Collection events,,end year,ontology,,,CatalogueOntologies,Years,,,,,End year of data collection. Leave empty if collection is ongoing
+Collection events,,end month,ontology,,,CatalogueOntologies,Months,,,,,End month of data collection. Leave empty if collection is ongoing
+Collection events,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups included in this data collection event
+Collection events,,number of participants,int,,,,,,,,,Number of participants sampled in this data collection event
+Collection events,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information cohorts,,,,,Areas of information that were extracted in this data collection event
+Collection events,,data categories,ontology_array,,,CatalogueOntologies,Data categories,,,,,Methods of data collection used in this collection event
+Collection events,,sample categories,ontology_array,,,CatalogueOntologies,Sample categories,,,,,Samples that were collected in this collection even
+Collection events,,standardized tools,ontology_array,,,CatalogueOntologies,Standardized tools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
+Collection events,,standardized tools other,,,,,,,,,,"If 'other', please specify"
+Collection events,,core variables,string_array,,,,,,,,,Enter 10-20 relevant variables that were collected in this collection event
+Subcohorts,,resource,ref,1,TRUE,,Resources,,,,,Resource this subcohort is part of
+Subcohorts,,name,,1,TRUE,,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'"
+Subcohorts,,description,text,,,,,,,,,Subcohort description
+Subcohorts,,counts,refback,,,,Subcohort counts,,subcohort,,,"Total number of unique individuals per age(group), gender and year"
+Subcohorts,,number of participants,int,,,,,,,,,Number of participants in this subcohort
+Subcohorts,,inclusion start,int,,,,,,,,,Year of first included participant
+Subcohorts,,inclusion end,int,,,,,,,,,Year of last included participant. Leave empty if collection is ongoing
+Subcohorts,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups within this subcohort
+Subcohorts,,main medical condition,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Disease groups within this subcohort, based on ICD-10 classification"
+Subcohorts,,comorbidity,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Comorbidity within this subcohort, based on ICD-10 classification"
+Subcohorts,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this subcohort largely originate from
+Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this subcohort largely originate from
+Subcohorts,,inclusion criteria,text,,,,,,,,,Inclusion criteria applied to this subcohort
+Subcohort counts,,subcohort,ref,1,TRUE,,Subcohorts,,,,,
+Subcohort counts,,age group,ontology,1,TRUE,CatalogueOntologies,Age groups,,,,,
+Subcohort counts,,N total,int,,,,,,,,,
+Subcohort counts,,N female,int,,,,,,,,,
+Subcohort counts,,N male,int,,,,,,,,,
+Datasets,,,,,,,,,,,,Definition of a dataset within a (common) data model
+Datasets,,resource,ref,1,TRUE,,Extended resources,,,,,resources that these variables are part of
+Datasets,,name,,1,TRUE,,,,,,,unique dataset name in the model
+Datasets,,label,,,,,,,,,,short human readable description
+Datasets,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,defines what each record in this table describes
+Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
+Datasets,,description,text,,,,,,,,,description of the role/function of this table
+Datasets,,number of rows,int,,,,,,,,,count of the numbe of records in this table
+All variables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead"
+All variables,,resource,ref,1,TRUE,,Extended resources,,,,,Data source that this variable was collected in
+All variables,,dataset,ref,1,TRUE,,Datasets,resource,,,,Dataset this variable is part of
+All variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table"
+All variables,,label,,,,,,,,,,"Human friendly longer name, if applicable"
+All variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
+Variables,All variables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
+Variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"Data type, e.g. string,int,decimal,date,datetime etc"
+Variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,
+Variables,,references,ref,,,,All variables,resource,,,,to define foreign key relationships between variables within or across tables
+Variables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection
+Variables,,description,text,,,,,,,,,
+Variables,,order,int,,,,,,,,,to sort variables you can optionally add an order value
+Variables,,example values,string_array,,,,,,,,,
+Variables,,permitted values,refback,,,,Variable values,,variable,,,
+Variables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,
+Variables,,repeats,refback,,,,Repeated variables,,is repeat of,,,listing of all repeated variables defined for this variable
+Variables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,
+Variables,,notes,text,,,,,,,,,Any other information on this variable
+Variables,,since version,,,,,,,,,,When this variable was introduced
+Variables,,until version,,,,,,,,,,When this variable was removed if applicable
+All variables,,mappings,refback,,,,Variable mappings,,target variable,,,in case of protocolised data collection this defines the moment in time this variable is collected on
+Variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
+Variable values,,resource,ref,1,TRUE,,Extended resources,,,,,
+Variable values,,variable,ref,1,TRUE,,Variables,resource,,,,e.g. PATO
+Variable values,,value,,1,TRUE,,,,,,,e.g. '1'
+Variable values,,label,,,TRUE,,,,,,,
+Variable values,,order,int,,,,,,,,,
+Variable values,,is missing,bool,,,,,,,,,
+Variable values,,ontology term URI,,,,,,,,,,reference to ontology term that defines this categorical value
+Variable values,,since version,,,,,,,,,,When this variable value was introduced if applicable
+Variable values,,until version,,,,,,,,,,When this variable value was removed if applicable
+Repeated variables,All variables,,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition
+Repeated variables,,is repeat of,ref,,TRUE,,Variables,resource,,,,reference to the definition of the sourceVariable that is being repeated
+Dataset mappings,,source,ref,1,TRUE,,Extended resources,,,,,datasource being mapped from
+Dataset mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,name of the table being mapped from
+Dataset mappings,,target,ref,1,TRUE,UMCG,Extended resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
+Dataset mappings,,target dataset,ref,1,TRUE,UMCG,Datasets,target,,,,name of the table being mapped to
+Dataset mappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination
+Dataset mappings,,description,text,,,,,,,,,human readible description of the mapping
+Dataset mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code"
+Variable mappings,,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax"
+Variable mappings,,source,ref,1,TRUE,,Extended resources,,,,,
+Variable mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,
+Variable mappings,,source variables,ref_array,,,,All variables,source dataset,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)"
+Variable mappings,,source variables other datasets,ref_array,,,,All variables,source,,,,"optional, variable from other source datasets. Initially one may only define mapping between releases"
+Variable mappings,,target,ref,1,TRUE,UMCG,Extended resources,,,,,
+Variable mappings,,target dataset,ref,1,TRUE,UMCG,Datasets,target,,,,
+Variable mappings,,target variable,ref,1,TRUE,UMCG,All variables,target dataset,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable"
+Variable mappings,,match,ontology,,TRUE,CatalogueOntologies,Status details,,,,,"e.g. 'complete, partial, planned, no-match'"
+Variable mappings,,status,ontology,,,CatalogueOntologies,Status,,,,,whether harmonisation is still draft or final
+Variable mappings,,description,text,,,,,,,,,human readible description of the mapping
+Variable mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code"
+Variable mappings,,comments,text,,,,,,,,,additional notes and comments
+External identifiers,,resource,ref,1,TRUE,,Extended resources,,,,,Resource that this external identifier belongs to
+External identifiers,,identifier,text,1,TRUE,,,,,,,External identifier
+External identifiers,,external identifier type,ontology,,,CatalogueOntologies,External identifier types,,,,,External identifier type
+External identifiers,,external identifier type other,text,,,,,,,,,"If other, enter external identifier type"
