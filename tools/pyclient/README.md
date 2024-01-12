@@ -40,6 +40,31 @@ with Client('https://example.molgeniscloud.org') as client:
     client.delete_schema(name='New Schema')
 
 ```
+Instead of signing in with a username and password the client can also be used while authorized by a (temporary) token that is generated on the server.
+```py
+from molgenis_emx2_pyclient import Client
+
+token = '...'
+
+with Client('https://example.molgeniscloud.org', token=token) as client:
+
+    # Retrieve signin information
+    print(client.status)
+    """ Output:
+    Host: https://example.molgeniscloud.org
+    Status: Signed in
+    Schemas:
+        CatalogueOntologies
+        catalogue
+        ExampleSchema
+        ...
+    Version: v10.10.1
+    """
+    
+    ...
+    ...
+
+```
 
 ## Development
 
