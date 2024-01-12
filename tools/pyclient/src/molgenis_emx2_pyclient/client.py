@@ -1,6 +1,7 @@
 import csv
 import io
 import logging
+import os
 from typing import TypeAlias, Literal
 
 import pandas as pd
@@ -21,7 +22,7 @@ class Client:
     Use the Client object to log in to a Molgenis EMX2 server
     and perform operations on the server.
     """
-    def __init__(self, url: str, schema: str = None) -> None:
+    def __init__(self, url: str, schema: str = None, token: str = None) -> None:
         """
         Initializes a Client object with a server url.
         """
@@ -33,6 +34,10 @@ class Client:
         self.username: str | None = None
 
         self.session: requests.Session = requests.Session()
+
+        if token is None:
+            token = os.environ.get('MOLGENIS_TOKEN', None)
+        self._token = token
 
         self.schemas: list = self.get_schemas()
         self.default_schema: str = self._set_schema(schema)
@@ -47,7 +52,8 @@ class Client:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type or exc_val or exc_tb:
             print(exc_type, exc_val, exc_tb, sep="\n")
-        self.signout()
+        if self.signin_status == 'success':
+            self.signout()
         self.session.close()
 
     async def __aenter__(self):
@@ -57,7 +63,8 @@ class Client:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if exc_type or exc_val or exc_tb:
             print(exc_type, exc_val, exc_tb, sep="\n")
-        self.signout()
+        if self.signin_status == 'success':
+            self.signout()
         self.session.close()
 
     def signin(self, username: str, password: str):
@@ -165,6 +172,11 @@ class Client:
     def schema_names(self):
         """Returns a list of the names of the schemas."""
         return [schema['name'] for schema in self.schemas]
+
+    @property
+    def token(self):
+        """Returns the token by a property to prevent it being modified."""
+        return self._token
 
     @property
     def version(self):
