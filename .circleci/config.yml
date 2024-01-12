@@ -210,6 +210,11 @@ jobs:
     - attach_workspace:
         at: ~/repo
 
+    # install additional software (needs to be removed and used from pref step ( or from docker image))
+    - run:
+        name: install docker kubectl and helm
+        command: sh ci/install_docker_helm_kubectl.sh
+
     - setup_remote_docker:
         version: 19.03.13
         docker_layer_caching: true
