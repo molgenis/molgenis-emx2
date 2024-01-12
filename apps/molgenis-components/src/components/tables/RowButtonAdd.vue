@@ -1,8 +1,8 @@
 <template>
   <span>
-    <ButtonAction v-if="label !== ''" @click="isModalShown = true">
+    <ButtonOutline v-if="label !== ''" @click="isModalShown = true">
       {{ label }}
-    </ButtonAction>
+    </ButtonOutline>
     <RowButton v-else type="add" @add="isModalShown = true" />
     <EditModal
       v-if="isModalShown"
@@ -20,13 +20,12 @@
 </template>
 
 <script>
-import ButtonAction from "../forms/ButtonAction.vue";
-import EditModal from "../forms/EditModal.vue";
 import RowButton from "./RowButton.vue";
+import ButtonOutline from "../forms/ButtonOutline.vue";
 
 export default {
   name: "RowButtonAdd",
-  components: { RowButton, ButtonAction, EditModal },
+  components: { RowButton, ButtonOutline },
   props: {
     id: {
       type: String,

@@ -67,7 +67,7 @@
         />
       </div>
       <div class="m-1">
-        <ButtonAlt
+        <ButtonOutline
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           icon="fa fa-search"
           @click="openSelect"
@@ -77,7 +77,7 @@
               ? `Show all ${count} options with details `
               : "More details "
           }}
-        </ButtonAlt>
+        </ButtonOutline>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
@@ -117,7 +117,7 @@ import {
   deepClone,
   deepEqual,
 } from "../utils";
-import ButtonAlt from "./ButtonAlt.vue";
+import ButtonOutline from "./ButtonOutline.vue";
 import FormGroup from "./FormGroup.vue";
 import Tooltip from "./Tooltip.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
@@ -140,7 +140,7 @@ export default {
     TableSearch,
     LayoutModal,
     FormGroup,
-    ButtonAlt,
+    ButtonOutline,
     Spinner,
     RowButtonAdd,
     Tooltip,
