@@ -158,7 +158,9 @@ class Client:
 
         response = self.session.post(
             url=self.api_graphql,
-            json={'query': query}
+            json={'query': query},
+            # TODO https://stackoverflow.com/questions/66368895/how-to-authenticate-through-graphiql-playground
+            headers={'Authorization': "JWT " + self.token}
         )
 
         if response.status_code == 404:
