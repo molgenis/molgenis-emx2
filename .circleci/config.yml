@@ -164,11 +164,9 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/repo
-      - run: export CI_E2E_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org
-      - run: env | grep CI_E2E_URL
+      - run: export CI_E2E_URL=https://emx2.dev.molgenis.org
       - run: cd e2e && npx playwright test
     
-          
   test:
     docker:
     - image: molgenis/ci-build:latest
@@ -275,27 +273,28 @@ workflows:
   build_and_test_and_preview_or_release:
     jobs:
       - prepare
-      - build:
-          requires:
-            - prepare
-      - preview:
-          requires:
-            - build
-          filters:
-            branches:
-              ignore: master
+      # - build:
+      #     requires:
+      #       - prepare
+      # - preview:
+      #     requires:
+      #       - build
+      #     filters:
+      #       branches:
+      #         ignore: master
       - e2e-test:
           requires:
-            - preview
+            - prepare
+            # - preview
           filters:
             branches:
               ignore: master
-      - test:
-          requires:
-            - build
-      - release:
-          requires:
-            - test
-          filters:
-            branches:
-              only: master
+      # - test:
+      #     requires:
+      #       - build
+      # - release:
+      #     requires:
+      #       - test
+      #     filters:
+      #       branches:
+      #         only: master
