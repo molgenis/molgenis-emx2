@@ -25,7 +25,11 @@ import ButtonOutline from "../forms/ButtonOutline.vue";
 
 export default {
   name: "RowButtonAdd",
-  components: { RowButton, ButtonOutline },
+  components: {
+    RowButton,
+    ButtonOutline,
+    EditModal: () => import("../forms/EditModal.vue"),
+  },
   props: {
     id: {
       type: String,
