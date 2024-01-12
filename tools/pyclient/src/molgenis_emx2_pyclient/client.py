@@ -191,108 +191,6 @@ class Client:
         )
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
     
-    @staticmethod
-    def _prep_data_or_file(file_path: str = None, data: list = None) -> str:
-        """Prepares the data from memory or loaded from disk for addition or deletion action.
-
-        :param file_path: path to the file to be prepared
-        :type file_path: str
-        :param data: data to be prepared
-        :type data: list
-
-        :returns: prepared data in dataframe format
-        :rtype: pd.DataFrame
-        """
-        if file_path is None and data is None:
-            print("No data to import. Specify a file location or a dataset.")
-        
-        if file_path is not None:
-            return utils.read_file(file_path=file_path)
-          
-        if data is not None:
-            return pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
-
-    def _set_schema(self, name: str) -> str:
-        """Sets the default schema to the schema supplied as argument.
-        Raises NoSuchSchemaException if the schema cannot be found on the server.
-        
-        :param name: name of a schema
-        :type name: str
-        
-        :returns: a schema name
-        :rtype: str
-        """
-        if name not in [*self.schema_names, None]:
-            raise NoSuchSchemaException(f"Schema '{name}' not found on server.")
-        self.default_schema = name
-
-        return name
-    
-    @staticmethod
-    def _graphql_validate_response(response_json: dict, mutation: str, fallback_error_message: str):
-        """Validates a GraphQL response and prints the appropriate message.
-        
-        :param response_json: a graphql response from the server
-        :type response_json: dict
-        :param mutation: the name of the graphql mutation executed
-        :type mutation: str
-        :param fallback_error_message: a fallback error message
-        :type fallback_error_message: str
-      
-        :returns: a success or error message
-        :rtype: string
-        """
-        response_keys = response_json.keys()
-        if 'error' not in response_keys and 'data' not in response_keys:
-            message = fallback_error_message
-            log.error(message)
-            print(message)
-
-        elif 'error' in response_keys:
-            message = response_json.get('error').errors[0].get('message')
-            log.error(message)
-            raise GraphQLException(message)
-      
-        else:
-            if response_json.get('data').get(mutation).get('status') == 'SUCCESS':
-                message = response_json.get('data').get(mutation).get('message')
-                log.info(message)
-                print(message)
-            else:
-                message = f"Failed to validate response for {mutation}"
-                log.error(message)
-                print(message)
-            
-    @staticmethod
-    def _format_optional_params(**kwargs):
-        """Parses optional keyword arguments to a format suitable for GraphQL queries."""
-        keys = kwargs.keys()
-        args = {key: kwargs[key] for key in keys if (key != 'self') and (key is not None)}
-        if 'name' in args.keys():
-            args['name'] = args.pop('name')
-        if 'include_demo_data' in args.keys():
-            args['includeDemoData'] = args.pop('include_demo_data')
-        return args
-
-    def _table_in_schema(self, table: str, schema: str) -> bool:
-        """Checks whether the requested table is present in the schema.
-
-        :param table: the name of the table
-        :type table: str
-        :param schema: the name of the schema
-        :type schema: str
-        :returns: boolean indicating whether table is present
-        :rtype: bool
-        """
-        response = self.session.post(
-            url=f"{self.url}/{schema}/graphql",
-            json={'query': queries.list_tables()},
-            headers={"x-molgenis-token": self.token}
-        )
-        schema_tables = [tab['name'] for tab in
-                         response.json().get('data').get('_schema').get('tables')]
-        return table in schema_tables
-    
     def save_schema(self, name: str = None, table: str = None, file: str = None, data: list = None):
         """Imports or updates records in a table of a named schema.
         
@@ -507,7 +405,7 @@ class Client:
         )
         
         response_json = response.json()
-        self._graphql_validate_response(
+        self._validate_graphql_response(
             response_json=response_json,
             mutation='createSchema',
             fallback_error_message=f"Failed to create schema '{name}'"
@@ -533,7 +431,7 @@ class Client:
         )
         
         response_json = response.json()
-        self._graphql_validate_response(
+        self._validate_graphql_response(
             response_json=response_json,
             mutation='deleteSchema',
             fallback_error_message=f"Failed to delete schema '{name}'"
@@ -561,7 +459,7 @@ class Client:
         )
         
         response_json = response.json()
-        self._graphql_validate_response(
+        self._validate_graphql_response(
             response_json=response_json,
             mutation='updateSchema',
             fallback_error_message=f"Failed to update schema '{name}'"
@@ -641,3 +539,105 @@ class Client:
         
         metadata = response_json.get('data').get('_schema')
         return metadata
+
+    @staticmethod
+    def _prep_data_or_file(file_path: str = None, data: list = None) -> str:
+        """Prepares the data from memory or loaded from disk for addition or deletion action.
+
+        :param file_path: path to the file to be prepared
+        :type file_path: str
+        :param data: data to be prepared
+        :type data: list
+
+        :returns: prepared data in dataframe format
+        :rtype: pd.DataFrame
+        """
+        if file_path is None and data is None:
+            print("No data to import. Specify a file location or a dataset.")
+
+        if file_path is not None:
+            return utils.read_file(file_path=file_path)
+
+        if data is not None:
+            return pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
+
+    def _set_schema(self, name: str) -> str:
+        """Sets the default schema to the schema supplied as argument.
+        Raises NoSuchSchemaException if the schema cannot be found on the server.
+
+        :param name: name of a schema
+        :type name: str
+
+        :returns: a schema name
+        :rtype: str
+        """
+        if name not in [*self.schema_names, None]:
+            raise NoSuchSchemaException(f"Schema '{name}' not found on server.")
+        self.default_schema = name
+
+        return name
+
+    @staticmethod
+    def _validate_graphql_response(response_json: dict, mutation: str, fallback_error_message: str):
+        """Validates a GraphQL response and prints the appropriate message.
+
+        :param response_json: a graphql response from the server
+        :type response_json: dict
+        :param mutation: the name of the graphql mutation executed
+        :type mutation: str
+        :param fallback_error_message: a fallback error message
+        :type fallback_error_message: str
+
+        :returns: a success or error message
+        :rtype: string
+        """
+        response_keys = response_json.keys()
+        if 'error' not in response_keys and 'data' not in response_keys:
+            message = fallback_error_message
+            log.error(message)
+            print(message)
+
+        elif 'error' in response_keys:
+            message = response_json.get('error').errors[0].get('message')
+            log.error(message)
+            raise GraphQLException(message)
+
+        else:
+            if response_json.get('data').get(mutation).get('status') == 'SUCCESS':
+                message = response_json.get('data').get(mutation).get('message')
+                log.info(message)
+                print(message)
+            else:
+                message = f"Failed to validate response for {mutation}"
+                log.error(message)
+                print(message)
+
+    @staticmethod
+    def _format_optional_params(**kwargs):
+        """Parses optional keyword arguments to a format suitable for GraphQL queries."""
+        keys = kwargs.keys()
+        args = {key: kwargs[key] for key in keys if (key != 'self') and (key is not None)}
+        if 'name' in args.keys():
+            args['name'] = args.pop('name')
+        if 'include_demo_data' in args.keys():
+            args['includeDemoData'] = args.pop('include_demo_data')
+        return args
+
+    def _table_in_schema(self, table: str, schema: str) -> bool:
+        """Checks whether the requested table is present in the schema.
+
+        :param table: the name of the table
+        :type table: str
+        :param schema: the name of the schema
+        :type schema: str
+        :returns: boolean indicating whether table is present
+        :rtype: bool
+        """
+        response = self.session.post(
+            url=f"{self.url}/{schema}/graphql",
+            json={'query': queries.list_tables()},
+            headers={"x-molgenis-token": self.token}
+        )
+        schema_tables = [tab['name'] for tab in
+                         response.json().get('data').get('_schema').get('tables')]
+        return table in schema_tables
