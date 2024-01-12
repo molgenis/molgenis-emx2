@@ -71,7 +71,7 @@ export default defineConfig({
   /* When CI, start our local dev server before starting the tests */
   webServer: {
     command: '../gradlew run -p ../',
-    url: 'http://localhost:8080',
-    reuseExistingServer: !process.env.CI,
+    url: process.env.CI_E2E_URL || 'http://localhost:8080',
+    reuseExistingServer: true,
   },
 });

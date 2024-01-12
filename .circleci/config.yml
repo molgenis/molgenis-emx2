@@ -145,9 +145,29 @@ jobs:
           export $( cat build/ci.properties | xargs )
           curl -d "token=${SLACK_TOKEN}" \
           -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
-          PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.net" \
+          PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org" \
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage
+
+  e2e-test:
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.40.0-jammy
+    working_directory: ~/repo
+    resource_class: medium
+
+    environment:
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
+      CI: 'true'
+      CI_E2E_URL: 'https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org'
+    
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run: env | grep CI_E2E_URL
+      - run: npx playwright test
+    
           
   test:
     docker:
@@ -261,6 +281,12 @@ workflows:
       - preview:
           requires:
             - build
+          filters:
+            branches:
+              ignore: master
+      - e2e-test:
+          requires:
+            - preview
           filters:
             branches:
               ignore: master
