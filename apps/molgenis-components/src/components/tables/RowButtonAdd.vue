@@ -31,7 +31,7 @@ withDefaults(
     schemaId: string;
     label?: string;
     defaultValue?: Record<string, any>;
-    visibleColumns: any[] | null;
+    visibleColumns?: any[] | null;
   }>(),
   { label: "", visibleColumns: null }
 );
