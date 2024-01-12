@@ -1,7 +1,6 @@
 import csv
 import io
 import logging
-import os
 from typing import TypeAlias, Literal
 
 import pandas as pd
@@ -10,7 +9,7 @@ import requests
 from . import graphql_queries as queries
 from . import utils as utils
 from .exceptions import NoSuchSchemaException, ServiceUnavailableError, SigninError, ServerNotFoundError, \
-    PyclientException, NoSuchTableException, NoContextManagerException, GraphQLException
+    PyclientException, NoSuchTableException, NoContextManagerException, GraphQLException, InvalidTokenException
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
@@ -27,6 +26,8 @@ class Client:
         Initializes a Client object with a server url.
         """
         self._as_context_manager = False
+        self._token = token
+
         self.url: str = utils.parse_url(url)
         self.api_graphql = self.url + "/api/graphql"
 
@@ -34,10 +35,6 @@ class Client:
         self.username: str | None = None
 
         self.session: requests.Session = requests.Session()
-
-        if token is None:
-            token = os.environ.get('MOLGENIS_TOKEN', None)
-        self._token = token
 
         self.schemas: list = self.get_schemas()
         self.default_schema: str = self._set_schema(schema)
@@ -159,12 +156,16 @@ class Client:
         response = self.session.post(
             url=self.api_graphql,
             json={'query': query},
-            # TODO https://stackoverflow.com/questions/66368895/how-to-authenticate-through-graphiql-playground
-            headers={'Authorization': "JWT " + self.token}
+            headers={'x-molgenis-token': self.token}
         )
 
         if response.status_code == 404:
             raise ServerNotFoundError(f"Server with url '{self.url}'")
+        if response.status_code == 400:
+            if 'Invalid token' in response.text:
+                raise InvalidTokenException(f"Invalid token or token expired.")
+            else:
+                raise PyclientException("An unknown error occurred when trying to reach this server.")
 
         response_json: dict = response.json()
         schemas = response_json['data']['_schemas']
@@ -285,7 +286,8 @@ class Client:
         """
         response = self.session.post(
             url=f"{self.url}/{schema}/graphql",
-            json={'query': queries.list_tables()}
+            json={'query': queries.list_tables()},
+            headers={"x-molgenis-token": self.token}
         )
         schema_tables = [tab['name'] for tab in
                          response.json().get('data').get('_schema').get('tables')]
@@ -320,7 +322,8 @@ class Client:
         
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/csv/{table}",
-            headers={'Content-Type': 'text/csv'},
+            headers={'x-molgenis-token': self.token,
+                     'Content-Type': 'text/csv'},
             data=import_data
         )
         
@@ -359,7 +362,8 @@ class Client:
         
         response = self.session.delete(
             url=f"{self.url}/{current_schema}/api/csv/{table}",
-            headers={'Content-Type': 'text/csv'},
+            headers={'x-molgenis-token': self.token,
+                     'Content-Type': 'text/csv'},
             data=import_data
         )
         
@@ -394,7 +398,8 @@ class Client:
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
 
-        response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table}")
+        response = self.session.get(url=f"{self.url}/{current_schema}/api/csv/{table}",
+                                    headers={'x-molgenis-token': self.token})
 
         if response.status_code != 200:
             message = f"Failed to retrieve data from '{current_schema}::{table}'." \
@@ -433,7 +438,8 @@ class Client:
             if table is None:
                 # Export the whole schema
                 url = f"{self.url}/{current_schema}/api/excel"
-                response = self.session.get(url)
+                response = self.session.get(url=url,
+                                            headers={'x-molgenis-token': self.token})
 
                 filename = f"{current_schema}.xlsx"
                 with open(filename, "wb") as f:
@@ -442,7 +448,8 @@ class Client:
             else:
                 # Export the single table
                 url = f"{self.url}/{current_schema}/api/excel/{table}"
-                response = self.session.get(url)
+                response = self.session.get(url=url,
+                                            headers={'x-molgenis-token': self.token})
 
                 filename = f"{table}.xlsx"
                 with open(filename, "wb") as f:
@@ -452,7 +459,8 @@ class Client:
         if fmt == 'csv':
             if table is None:
                 url = f"{self.url}/{current_schema}/api/zip"
-                response = self.session.get(url)
+                response = self.session.get(url=url,
+                                            headers={'x-molgenis-token': self.token})
 
                 filename = f"{current_schema}.zip"
                 with open(filename, "wb") as f:
@@ -461,7 +469,8 @@ class Client:
             else:
                 # Export the single table
                 url = f"{self.url}/{current_schema}/api/csv/{table}"
-                response = self.session.get(url)
+                response = self.session.get(url=url,
+                                            headers={'x-molgenis-token': self.token})
 
                 filename = f"{table}.csv"
                 with open(filename, "wb") as f:
@@ -493,7 +502,8 @@ class Client:
         
         response = self.session.post(
            url=f"{self.url}/api/graphql",
-           json={'query': query, 'variables': variables}
+           json={'query': query, 'variables': variables},
+           headers={'x-molgenis-token': self.token}
         )
         
         response_json = response.json()
@@ -518,7 +528,8 @@ class Client:
 
         response = self.session.post(
             url=f"{self.url}/api/graphql",
-            json={'query': query, 'variables': variables}
+            json={'query': query, 'variables': variables},
+            headers={'x-molgenis-token': self.token}
         )
         
         response_json = response.json()
@@ -545,7 +556,8 @@ class Client:
 
         response = self.session.post(
             url=f"{self.url}/api/graphql",
-            json={'query': query, 'variables': variables}
+            json={'query': query, 'variables': variables},
+            headers={'x-molgenis-token': self.token}
         )
         
         response_json = response.json()
@@ -616,7 +628,8 @@ class Client:
         query = queries.list_schema_meta()
         response = self.session.post(
            url=f"{self.url}/{current_schema}/api/graphql",
-           json={'query': query}
+           json={'query': query},
+           headers={'x-molgenis-token': self.token}
         )
         
         response_json = response.json()
