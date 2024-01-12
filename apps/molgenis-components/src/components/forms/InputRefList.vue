@@ -57,7 +57,7 @@
           </label>
         </div>
       </div>
-      <div v-if="canEdit">
+      <div v-if="canEdit" class="m-1">
         <RowButtonAdd
           id="add-entry"
           :label="`Add new ${label}`"
@@ -66,17 +66,16 @@
           @update:newRow="selectNew"
         />
       </div>
-      <div>
+      <div class="m-1">
         <ButtonAlt
-          class="pl-0"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           icon="fa fa-search"
           @click="openSelect"
         >
           {{
             count > maxNum
-              ? `show all ${count} options with details`
-              : "more details"
+              ? `Show all ${count} options with details `
+              : "More details "
           }}
         </ButtonAlt>
       </div>

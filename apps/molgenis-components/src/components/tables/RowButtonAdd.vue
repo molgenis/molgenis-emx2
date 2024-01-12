@@ -20,12 +20,13 @@
 </template>
 
 <script>
-import RowButton from "./RowButton.vue";
 import ButtonAction from "../forms/ButtonAction.vue";
+import EditModal from "../forms/EditModal.vue";
+import RowButton from "./RowButton.vue";
 
 export default {
   name: "RowButtonAdd",
-  components: { RowButton },
+  components: { RowButton, ButtonAction, EditModal },
   props: {
     id: {
       type: String,
