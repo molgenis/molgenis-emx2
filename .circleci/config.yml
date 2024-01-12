@@ -160,13 +160,13 @@ jobs:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
       CI: 'true'
-      CI_E2E_URL: 'https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org'
     
     steps:
       - attach_workspace:
           at: ~/repo
+      - run: export CI_E2E_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org
       - run: env | grep CI_E2E_URL
-      - run: npx playwright test
+      - run: cd e2e && npx playwright test
     
           
   test:
