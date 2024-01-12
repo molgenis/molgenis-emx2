@@ -1,0 +1,12 @@
+---
+name: BeaconV2
+description: "The Beacon Project is developed under a Global Alliance for Genomics and Health (GA4GH) Iniciative for the federated discovery of genomic data in biomedical research and clinical applications. The version 2 (v2) of the Beacon protocol has been accepted as GA4GH standard in Spring 2022. MOLGENIS EMX2 features a partial implementation of Beacon v2 with a number of extensions. For more information on Beacons, see https://beacon-project.io/"
+
+profileTags:  Beacon v2,
+              Beacon v2 EMX2 add-on,
+              Beacon v2 Vivify add-on
+
+demoData: _demodata/shared-examples
+
+# special options
+setViewPermission: anonymous

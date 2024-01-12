@@ -1,0 +1,78 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Individuals,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C90492,http://purl.obolibrary.org/obo/ExO_0000127","Data, facts or figures about an individual; the set of relevant items would depend on the use case. In FAIR Genomes: Personal. In RD3: Subjects.","Beacon v2, FAIR Genomes, RD3, JRC-CDE"
+Individuals,,id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C164337,http://purl.obolibrary.org/obo/NCIT_C142495","A unique proper name or character sequence that identifies this particular person. In Beacon v2: id, in FAIR Genomes: PersonalIdentifier. In RD3: subjectID. In JRC-CDE: Pseudonym","Beacon v2, FAIR Genomes, RD3, JRC-CDE"
+Individuals,,sex,ontology,,TRUE,,GenderAtBirth,,,,"http://purl.obolibrary.org/obo/GSSO_009418,http://purl.obolibrary.org/obo/NCIT_C28421",E.g. assigned female at birth,"Beacon v2"
+Individuals,,age_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old","Beacon v2 Vivify add-on"
+Individuals,,age_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D","Beacon v2 Vivify add-on"
+Individuals,,YearOfBirth,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C83164","The year in which this person was born.",FAIR Genomes
+Individuals,,dateOfBirth,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C83164,"The year in which a person was born. In JRC-CDE: Date of birth","RD3, JRC-CDE"
+Individuals,,diseaseCausalGenes,ontology_array,,,,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C16612,"Addition for EJP-RD Virtual Platform API. E.g. TTN. In JRC-CDE: Genetic diagnosis","Beacon v2 Vivify add-on, JRC-CDE"
+Individuals,,ethnicity,ontology,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,E.g. Luxembourgish,"Beacon v2"
+Individuals,,geographicOrigin,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,E.g. Switzerland,"Beacon v2"
+Individuals,,hasGenomicVariations,refback,,,,GenomicVariationsCaseLevel,,individualId,,http://purl.obolibrary.org/obo/GSSO_000660,NON-STANDARD FIELD. E.g. Var001_CLD01,"Beacon v2"
+Individuals,,diseases,ref_array,,,,IndividualsDiseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Ind001_Dis001,"Beacon v2"
+Individuals,,measures,ref_array,,,,IndividualsMeasures,,,,http://purl.obolibrary.org/obo/NCIT_C25209,E.g. Ind001_Meas001,"Beacon v2"
+Individuals,,phenotypicFeatures,ref_array,,,,IndividualsPhenotypicFeatures,,,,http://purl.obolibrary.org/obo/NCIT_C116555,E.g. Ind001_Phen001,"Beacon v2"
+Individuals,,GenderIdentity,ontology,,,,GenderIdentity,,,,http://purl.bioontology.org/ontology/MESH/D005783,"A person's concept of self as being male and masculine or female and feminine, or ambivalent, based in part on physical characteristics, parental responses, and psychological and social pressures. It is the internal experience of gender role. For practical reasons the lookups are limited to first and second-level entries, but can be expanded when needed. Note that 'Gender at birth', 'Genotypic sex' and any (gender-related) hormone therapies in 'Medication' are usually medically more relevant than this term.",FAIR Genomes
+Individuals,,GenderAtBirth,ontology,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"Assigned gender is one's gender which was assigned at birth, typically by a medical and/or legal organization, and then later registered with other organizations. Such a designation is typically based off of the superficial appearance of external genitalia present at birth. In RD3: sex1. In JRC-CDE: Sex","FAIR Genomes, RD3, JRC-CDE"
+Individuals,,GenotypicSex,ontology,,,,GenotypicSex,,,,http://purl.obolibrary.org/obo/PATO_0020000,"A biological sex quality inhering in an individual based upon genotypic composition of sex chromosomes.",FAIR Genomes
+Individuals,,CountryOfResidence,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/NCIT_C171105,"Country of residence at enrollment.",FAIR Genomes
+Individuals,,Ancestry,ontology_array,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,"Population category defined using ancestry informative markers (AIMs) based on genetic/genomic data.",FAIR Genomes
+Individuals,,CountryOfBirth,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,"The country that this person was born in.","FAIR Genomes, RD3"
+Individuals,,InclusionStatus,ontology,,,,InclusionStatus,,,,"http://purl.obolibrary.org/obo/NCIT_C166244","An indicator that provides information on the current health status of this person. In JRC-CDE: Patient's status","FAIR Genomes, JRC-CDE"
+Individuals,,AgeAtDeath,int,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C135383","The age at which death occurred. In JRC-CDE: Date of death","FAIR Genomes, RD3, JRC-CDE"
+Individuals,,Consanguinity,bool,,,,,,,,"http://purl.obolibrary.org/obo/OMIT_0004546","Information on whether the patient is a child from two family members who are second cousins or closer.","FAIR Genomes, RD3"
+Individuals,,PrimaryAffiliatedInstitute,ontology,,,,Organisations,,,,"http://purl.obolibrary.org/obo/NCIT_C25412","The most significant institute for medical consultation and/or study inclusion in context of the genetic disease of this person.",FAIR Genomes
+Individuals,,ResourcesInOtherInstitutes,ontology_array,,,,Organisations,,,,"http://purl.obolibrary.org/obo/NCIT_C19012","Material or data related to this person that is not captured by this system though known to be available in other institutes such as biobanks or hospitals. In JRC-CDE: Link to a biobank","FAIR Genomes, JRC-CDE"
+Individuals,,ParticipatesInStudy,ref_array,,,,Study,,,,"http://purl.obolibrary.org/obo/RO_0000056","Reference to the study or studies in which this person participates.",FAIR Genomes
+Individuals,,FamilyID,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25173,"A domestic group, or a number of domestic groups linked through descent (demonstrated or stipulated) from a common ancestor, marriage, or adoption.",RD3
+Individuals,,MaternalID,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C89336,Identifier indicating a reference to mother of the subject,RD3
+Individuals,,PaternalID,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C94324,Identifier indicating a reference to father of the subject,RD3
+Individuals,,ClinicalStatus,bool,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C64917,whether it is an affected individual (main disease) Yes/No,RD3
+Individuals,,Disease,ontology_array,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,"if affected, which MAIN disease code(s) apply to subject. In JRC-CDE: Diagnosis of the rare disease","RD3, JRC-CDE"
+Individuals,,Phenotype,ontology_array,,,,Phenotypes,,,,http://purl.obolibrary.org/obo/NCIT_C16977,"Phenotype based on Human Phenotype Ontology (HPO). In JRC-CDE: Undiagnosed case","RD3, JRC-CDE"
+Individuals,,HasNotPhenotype,ontology_array,,,,Phenotypes,,,,http://purl.bioontology.org/ontology/HL7/C0442737,Relevant Phenotype NOT present in subject,RD3
+Individuals,,MostRecentPhenopacketFile,string,,,,,,,,,name of the most recent phenopackets file (formated as <subjectID>.<date>.json),RD3
+Individuals,,IncludedInStudies,ref_array,,,,studies,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the study or studies in which this person participates.,RD3
+Individuals,,IncludedInCohorts,ref_array,,,,Cohorts,,,,http://purl.obolibrary.org/obo/NCIT_C61512,"A group of individuals, identified by a common characteristic.",RD3
+Individuals,,IncludedInDatasets,ref_array,,,,datasets,,,,http://purl.obolibrary.org/obo/RO_0000056,Reference to the dataset or datasets in which this person was assigned to.,RD3
+Individuals,,Organisation,ontology_array,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,Name of the organisation that submitted Subject,RD3
+Individuals,,ERN,ontology_array,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,ERN,RD3
+Individuals,,Solved,bool,,,,,,,,,Solved Case for Solve-RD (true/false),RD3
+Individuals,,DateSolved,date,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25164,Date Solved,RD3
+Individuals,,Remarks,text,,,,,,,,,Remarks about this Subject (Relevant for SOLVE-RD project),RD3
+Individuals,,Consent,heading,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C16735,,RD3
+Individuals,,MatchMakerPermission,bool,,,,,,,,,"If true, permission is given for MatchMaking (boolean)",RD3
+Individuals,,NoIncidentalFindings,bool,,,,,,,,http://purl.obolibrary.org/obo/ICO_0000178,"If true, do NOT report incidental findings back (boolean)",RD3
+Individuals,,Recontact,ontology,,,,NoYesUnknown,,,,http://purl.obolibrary.org/obo/NCIT_C25737,Recontact is allowed in case of incidental findings,"RD3"
+Individuals,,Retracted,ontology,,,,NoYesUnknown,,,,http://purl.obolibrary.org/obo/PATO_0001477,"Is the subject retracted or not",RD3
+Individuals,,Comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material.",RD3
+Individuals,,ageOfOnset,int,,,,,,,,http://www.orpha.net/ORDO/Orphanet_C023,"Age (in years) of onset of clinical manifestations related to the disease of the patient. In JRC-CDE: Age at onset","RD3, JRC-CDE"
+Individuals,,ageAtDiagnosis,int,,,,,,,,http://purl.bioontology.org/ontology/SNOMEDCT/423493009,"The age (in years), measured from some defined time point (e.g. birth) at which a patient is diagnosed with a disease. In JRC-CDE: Age at diagnosis","RD3, JRC-CDE"
+Individuals,,partOfRelease,ref_array,,,,datareleases,,,,http://purl.obolibrary.org/obo/NCIT_C172217,"One or more Solve-RD releases that indicate when the record was first introduced into RD3 or when it was updated.",RD3
+IndividualsPhenotypicFeatures,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C116555,Beacon v2 Individuals PhenotypicFeatures,Beacon v2
+IndividualsPhenotypicFeatures,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Phen001,Beacon v2
+IndividualsPhenotypicFeatures,,featureType,ontology,,TRUE,,Phenotypes,,,,http://semanticscience.org/resource/SIO_010056,E.g. Abnormality of body height,Beacon v2
+IndividualsPhenotypicFeatures,,modifiers,ontology_array,,,,Phenotypes,,,,http://purl.obolibrary.org/obo/HP_0012823,E.g. Exacerbated by tobacco use,Beacon v2
+IndividualsPhenotypicFeatures,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound,Beacon v2
+IndividualsPhenotypicFeatures,,belongsToIndividual,refback,,,,Individuals,,phenotypicFeatures,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001,Beacon v2 EMX2 add-on
+IndividualsDiseases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,Beacon v2 Individuals Diseases,Beacon v2
+IndividualsDiseases,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Dis001,Beacon v2
+IndividualsDiseases,,diseaseCode,ontology,,TRUE,,Diseases,,,,"http://purl.obolibrary.org/obo/NCIT_C15607,http://semanticscience.org/resource/SIO_001003",E.g. Spinocerebellar ataxia type 34,Beacon v2
+IndividualsDiseases,,ageOfOnset_ageGroup,ontology,,,,AgeGroups,,,,"http://purl.obolibrary.org/obo/HP_0003674,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. Adult 18-65 Years Old,Beacon v2
+IndividualsDiseases,,ageOfOnset_age_iso8601duration,string,,,,,,,,"http://www.orpha.net/ORDO/Orphanet_C023,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. P32Y6M1D,Beacon v2
+IndividualsDiseases,,ageAtDiagnosis_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old",Beacon v2 Vivify add-on
+IndividualsDiseases,,ageAtDiagnosis_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D",Beacon v2 Vivify add-on
+IndividualsDiseases,,familyHistory,bool,,,,,,,,http://purl.obolibrary.org/obo/HP_0032316,E.g. false,Beacon v2
+IndividualsDiseases,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound,Beacon v2
+IndividualsDiseases,,stage,ontology,,,,DiseaseStage,,,,http://purl.obolibrary.org/obo/OBI_0000278,E.g. acute onset,Beacon v2
+IndividualsDiseases,,belongsToIndividual,refback,,,,Individuals,,diseases,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001,Beacon v2 EMX2 add-on
+IndividualsMeasures,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25209,Beacon v2 Individuals Measures,Beacon v2
+IndividualsMeasures,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001121,E.g. Ind001_Meas001,Beacon v2
+IndividualsMeasures,,assayCode,ontology,,TRUE,,AnalysesPerformed,,,,http://purl.obolibrary.org/obo/IAO_0000702,E.g. Metabolomics,Beacon v2
+IndividualsMeasures,,date,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2017-05-03,Beacon v2
+IndividualsMeasures,,measurementVariable,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C54166,NON-STANDARD FIELD. E.g. Blood platelet count,Beacon v2 EMX2 add-on
+IndividualsMeasures,,measurementValue_value,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25712,E.g. 55345,Beacon v2
+IndividualsMeasures,,measurementValue_units,ontology,,,,Units,,,,http://purl.obolibrary.org/obo/NCIT_C25709,E.g. Per Millimeter,Beacon v2
+IndividualsMeasures,,observationMoment_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82517,E.g. P55Y8M12D,Beacon v2
+IndividualsMeasures,,belongsToIndividual,refback,,,,Individuals,,measures,,http://purl.obolibrary.org/obo/NCIT_C90492,NON-STANDARD FIELD. E.g. Ind001,Beacon v2 EMX2 add-on
