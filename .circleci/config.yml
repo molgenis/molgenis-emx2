@@ -163,9 +163,10 @@ jobs:
     
     steps:
       - attach_workspace:
-          at: ~/repo
+          at: ~/repo/e2e
       - run: export CI_E2E_URL=https://emx2.dev.molgenis.org
-      - run: cd e2e && npx playwright test
+      - run: npx playwright install --with-deps
+      - run: npx playwright test
     
   test:
     docker:
