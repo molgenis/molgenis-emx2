@@ -8,7 +8,7 @@ import java.util.Scanner;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.datamodels.profiles.ProfileDocGen;
 
-public class TestProfileDocGen {
+class TestProfileDocGen {
 
   private static final String TESTFILE = "testdoc.md";
 

@@ -42,9 +42,9 @@ public class ResourceListing {
       }
 
       // SonarCloud Recommended Secure Coding Practices preventing Zip Bomb attacks
-      int THRESHOLDENTRIES = 10000;
-      int THRESHOLDSIZE = 1000000000; // 1 GB
-      double THRESHOLDRATIO = 10;
+      int thresholdEntries = 10000;
+      int thresholdSize = 1000000000; // 1 GB
+      double thresholdRatio = 10;
       int totalSizeArchive = 0;
       int totalEntryArchive = 0;
 
@@ -69,7 +69,7 @@ public class ResourceListing {
             totalSizeArchive += nBytes;
 
             double compressionRatio = totalSizeEntry / (double) ze.getCompressedSize();
-            if (compressionRatio > THRESHOLDRATIO) {
+            if (compressionRatio > thresholdRatio) {
               // ratio between compressed and uncompressed data is highly suspicious, looks like a
               // Zip
               // Bomb Attack
@@ -77,12 +77,12 @@ public class ResourceListing {
             }
           }
 
-          if (totalSizeArchive > THRESHOLDSIZE) {
+          if (totalSizeArchive > thresholdSize) {
             // the uncompressed data size is too much for the application resource capacity
             break;
           }
 
-          if (totalEntryArchive > THRESHOLDENTRIES) {
+          if (totalEntryArchive > thresholdEntries) {
             // too much entries in this archive, can lead to inodes exhaustion of the system
             break;
           }
