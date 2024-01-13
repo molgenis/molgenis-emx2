@@ -39,9 +39,21 @@ function getColumnError(
   if (column.columnType === AUTO_ID || column.columnType === HEADING) {
     return undefined;
   }
-  if (column.required && (missesValue || isInvalidNumber)) {
-    return column.label + " is required";
+  if (column.required) {
+    if (column.required === "true") {
+      if (missesValue || isInvalidNumber) {
+        return column.label + " is required";
+      }
+    } else {
+      let error = getRequiredExpressionError(
+        column.required,
+        rowData,
+        tableMetaData
+      );
+      if (error && missesValue) return error;
+    }
   }
+
   if (missesValue) {
     return undefined;
   }
@@ -79,6 +91,24 @@ function isInValidNumericValue(columnType: string, value: number) {
     return isNaN(value);
   } else {
     return false;
+  }
+}
+
+function getRequiredExpressionError(
+  expression: string,
+  values: Record<string, any>,
+  tableMetaData: ITableMetaData
+): string | undefined {
+  try {
+    const result = executeExpression(expression, values, tableMetaData);
+    if (result === true) {
+      return `Field is required when: ${expression}`;
+    } else if (result === false || result === undefined) {
+      return undefined;
+    }
+    return result;
+  } catch (error) {
+    return `Invalid expression '${expression}', reason: ${error}`;
   }
 }
 

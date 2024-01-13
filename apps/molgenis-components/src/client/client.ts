@@ -173,6 +173,7 @@ const metaDataQuery = `{
       semantics,
       columns {
         id,
+        name,
         label,
         description,
         columnType,

@@ -2,7 +2,7 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2023-09-13
+# MODIFIED: 2023-11-28
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
@@ -19,7 +19,8 @@ import pandas as pd
 from dotenv import load_dotenv
 
 from tools.pyclient.src.molgenis_emx2_pyclient import Client
-from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
+from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import (NoSuchSchemaException, NoSuchTableException,
+                                                                  GraphQLException)
 
 
 async def main():
@@ -99,8 +100,8 @@ async def main():
         }]
 
         # Import new data
-        client.save(schema='pet store', table='Tag', data=new_tags)
-        client.save(schema='pet store', table='Pet', data=new_pets)
+        client.save_schema(name='pet store', table='Tag', data=new_tags)
+        client.save_schema(name='pet store', table='Pet', data=new_pets)
 
         # Retrieve records
         tags_data = client.get(schema='pet store', table='Tag', as_df=True)
@@ -110,8 +111,8 @@ async def main():
 
         # Drop records
         tags_to_remove = [{'name': row['name']} for row in new_tags if row['name'] == 'canis']
-        client.delete(schema='pet store', table='Pet', data=new_pets)
-        client.delete(schema='pet store', table='Tag', data=tags_to_remove)
+        client.delete_records(schema='pet store', table='Pet', data=new_pets)
+        client.delete_records(schema='pet store', table='Tag', data=tags_to_remove)
 
         # ///////////////////////////////////////
 
@@ -123,11 +124,44 @@ async def main():
         pd.DataFrame(new_pets).to_csv('demodata/Pet.csv', index=False)
 
         # Import files
-        client.save(schema='pet store', table='Tag', file='demodata/Tag.csv')
-        client.save(schema='pet store', table='Pet', file='demodata/Pet.csv')
+        client.save_schema(name='pet store', table='Tag', file='demodata/Tag.csv')
+        client.save_schema(name='pet store', table='Pet', file='demodata/Pet.csv')
 
-        client.delete(schema='pet store', table='Pet', file='demodata/Pet.csv')
-        client.delete(schema='pet store', table='Tag', file='demodata/Tag.csv')
+        client.delete_records(schema='pet store', table='Pet', file='demodata/Pet.csv')
+        client.delete_records(schema='pet store', table='Tag', file='demodata/Tag.csv')
+
+    # Connect to server and create, update, and drop schemas
+    with Client('https://emx2.dev.molgenis.org/') as client:
+        client.signin(username, password)
+        
+        # Create a schema
+        try:
+            client.create_schema(name='myNewSchema')
+            print(client.schema_names)
+        except GraphQLException as e:
+            print(e)
+            
+        # Update the description
+        try:
+            client.update_schema(name='myNewSchema', description='I forgot the description')
+            print(client.schema_names)
+            print(client.schemas)
+        except GraphQLException as e:
+            print(e)
+        
+        # Recreate the schema: delete and create
+        try:
+            client.recreate_schema(name='myNewSchema')
+            print(client.schema_names)
+        except GraphQLException as e:
+            print(e)
+        
+        # Delete the schema
+        try:
+            client.delete_schema(name='myNewSchema')
+            print(client.schema_names)
+        except GraphQLException as e:
+            print(e)
 
 
 if __name__ == '__main__':
