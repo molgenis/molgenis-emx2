@@ -152,22 +152,15 @@ jobs:
   e2e-test:
     docker:
       - image: mcr.microsoft.com/playwright:v1.40.0-jammy
-    working_directory: ~/repo/e2e
+    working_directory: ~/repo
     resource_class: medium
 
-    environment:
-      JVM_OPTS: -Xmx3200m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-      TERM: dumb
-      CI: 'true'
-
     steps:
-      - attach_workspace:
-          at: ~/repo
+      - checkout
       - run: export CI_E2E_URL=https://emx2.dev.molgenis.org
-      - run: npm install @playwright/test   
-      - run: npx playwright install --with-deps
-      - run: npx playwright test
+      - run: cd e2e && npm install -D @playwright/test   
+      - run: cd e2e && npx playwright install --with-deps
+      - run: cd e2e && npx playwright test
     
   test:
     docker:
@@ -274,7 +267,7 @@ workflows:
   version: 2
   build_and_test_and_preview_or_release:
     jobs:
-      - prepare
+      # - prepare
       # - build:
       #     requires:
       #       - prepare
@@ -285,8 +278,8 @@ workflows:
       #       branches:
       #         ignore: master
       - e2e-test:
-          requires:
-            - prepare
+          # requires:
+            # - prepare
             # - preview
           filters:
             branches:

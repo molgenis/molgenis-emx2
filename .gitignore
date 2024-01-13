@@ -60,3 +60,7 @@ apps/nuxt3-ssr/utils/fingerprint.js
 #playwright
 playwright-report
 CHANGELOG.md
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
