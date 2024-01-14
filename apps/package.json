@@ -24,7 +24,7 @@
     "reports",
     "tasks",
     "gportal",
-    "tim"
+    "projectmanager"
   ],
   "devDependencies": {
     "nx": "16.10.0",
