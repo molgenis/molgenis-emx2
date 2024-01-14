@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Hourplanning:</h1>
+    <h1>Project planning:</h1>
     <div class="row bg-white">
       <div class="col-1"><b>Project</b></div>
       <div class="col-11">
