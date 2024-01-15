@@ -13,7 +13,7 @@ export const initialBiobankReportColumns = [
         "size",
         { type: ["label"] },
         {
-            quality: [{ quality_standard: ["name"] }],
+          quality: [{ quality_standard: ["name"] }],
         },
         { sub_collections: ["id"] },
       ],

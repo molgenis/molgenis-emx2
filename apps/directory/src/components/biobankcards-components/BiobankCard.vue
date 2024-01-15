@@ -12,10 +12,7 @@
       <div class="align-self-stretch">
         <header class="border-0 biobank-card-header p-1">
           <h5 class="pt-1 pl-1 pr-1 mt-1">
-            <router-link
-              :to="'/biobank/' + biobank.id"
-              class="text-dark"
-            >
+            <router-link :to="'/biobank/' + biobank.id" class="text-dark">
               <span
                 class="fa fa-server mr-2 text-primary"
                 aria-hidden="true"
@@ -38,8 +35,17 @@
                     :key="quality.label"
                   >
                     <div v-if="quality.quality_standard">
-                      <div class="quality-standard-label">{{ getQualityInfo(quality.quality_standard.name)?.label }}</div>
-                      <div class="quality-standard-definition">{{ getQualityInfo(quality.quality_standard.name)?.definition }}</div>
+                      <div class="quality-standard-label">
+                        {{
+                          getQualityInfo(quality.quality_standard.name)?.label
+                        }}
+                      </div>
+                      <div class="quality-standard-definition">
+                        {{
+                          getQualityInfo(quality.quality_standard.name)
+                            ?.definition
+                        }}
+                      </div>
                     </div>
                   </div>
                 </info-popover>
@@ -408,6 +414,4 @@ article section {
 .popover-content .quality-standard-definition {
   font-weight: 600;
 }
-
-
 </style>

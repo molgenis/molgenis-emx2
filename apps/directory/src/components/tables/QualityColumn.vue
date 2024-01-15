@@ -25,7 +25,9 @@
       </a>
       <span v-else>
         <span
-          v-if="!quality.certification_image_link && 'quality_standard' in quality"
+          v-if="
+            !quality.certification_image_link && 'quality_standard' in quality
+          "
         >
           {{ getQualityInfo(quality.quality_standard.name).label }}
         </span>
@@ -49,9 +51,7 @@
           </div>
           <div>
             <span>
-              {{
-                getQualityInfo(quality.quality_standard.name)?.definition
-              }}
+              {{ getQualityInfo(quality.quality_standard.name)?.definition }}
             </span>
           </div>
         </div>
