@@ -47,6 +47,15 @@ export default gql`
             }
           }
         }
+        targetVariable {
+          dataset {
+            resource {
+              id
+            }
+            name
+          }
+          name
+        }
       }
       repeats {
         name
@@ -64,6 +73,15 @@ export default gql`
             resource {
               id
             }
+          }
+          targetVariable {
+            dataset {
+              resource {
+                id
+              }
+              name
+            }
+            name
           }
         }
       }

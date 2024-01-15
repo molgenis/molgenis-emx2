@@ -1,7 +1,6 @@
 package org.molgenis.emx2.io;
 
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -12,19 +11,30 @@ import org.molgenis.emx2.tasks.Task;
  * ImportTableTask.
  */
 public class ImportDataTask extends Task {
-  private TableStore tableStore;
-  private Schema schema;
+  private final TableStore tableStore;
+  private final Schema schema;
+  private Set<String> includeTableNames;
 
-  public ImportDataTask(String description, TableStore store, Schema schema, boolean strict) {
+  public ImportDataTask(
+      String description,
+      TableStore store,
+      Schema schema,
+      boolean strict,
+      String... includeTableNames) {
     super(description, strict);
     Objects.requireNonNull(store, "tableStore cannot be null");
     Objects.requireNonNull(schema, "schema cannot be null");
     this.tableStore = store;
     this.schema = schema;
+
+    if (includeTableNames.length > 0) {
+      this.includeTableNames = new HashSet<>(Arrays.asList(includeTableNames));
+    }
   }
 
-  public ImportDataTask(Schema schema, TableStore store, boolean strict) {
-    this("Import from store", store, schema, strict);
+  public ImportDataTask(
+      Schema schema, TableStore store, boolean strict, String... includeTableNames) {
+    this("Import from store", store, schema, strict, includeTableNames);
   }
 
   @Override
@@ -36,7 +46,8 @@ public class ImportDataTask extends Task {
 
     // create task for the import, including subtasks for each sheet
     for (Table table : schema.getTablesSorted()) {
-      if (tableStore.containsTable(table.getName())) {
+      if (tableStore.containsTable(table.getName())
+          && (includeTableNames == null || includeTableNames.contains(table.getName()))) {
         ImportTableTask importTableTask = new ImportTableTask(tableStore, table, isStrict());
         this.addSubTask(importTableTask);
         importTableTask.run();

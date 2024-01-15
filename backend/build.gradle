@@ -1,7 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
-    id "com.diffplug.spotless" version "6.22.0" apply false
+    id "com.diffplug.spotless" version "6.23.3" apply false
 }
 
 repositories {
@@ -40,11 +40,11 @@ subprojects {
         implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0'
         implementation 'org.jooq:jooq:3.18.7'
         implementation 'com.zaxxer:HikariCP:5.0.1'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.3'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.15.3'
-        implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
-        implementation 'com.fasterxml.jackson.core:jackson-core:2.15.3'
-        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.3'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.16.1'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.16.1'
+        implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
+        implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
+        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.1'
         implementation 'com.graphql-java:graphql-java:21.1'
         implementation 'com.graphql-java:graphql-java-extended-scalars:20.2'
         implementation 'com.sparkjava:spark-core:2.9.4'
@@ -92,8 +92,13 @@ subprojects {
 
 
     if (project.name != "molgenis-emx2-sql") {
+        //so we always first init database
         test.dependsOn(":backend:molgenis-emx2-sql:test")
     } else {
+        // molgenis-emx2-nonparallel-tests should not run in parallel (and not depend on itself)
+        if(project.name != "molgenis-emx2-nonparallel-tests" && project.name != "molgenis-emx2-sql") {
+            test.mustRunAfter(":backend:molgenis-emx2-tests:test")
+        }
         //don't cache database init
         test.outputs.upToDateWhen { false }
     }

@@ -1,0 +1,17 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Cohorts,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C61512,"A group of individuals, identified by a common characteristic.","Beacon v2, RD3"
+Cohorts,,cohortId,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing.","Beacon v2, RD3"
+Cohorts,,cohortName,string,,TRUE,,,,,,"http://edamontology.org/operation_0292,http://purl.obolibrary.org/obo/NCIT_C42614","The words or language units by which a thing is known","Beacon v2, RD3"
+Cohorts,,cohortType,string,,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C142175,"Either study-defined, beacon-defined, or user-defined",Beacon v2
+Cohorts,,cohortDesign,ontology,,,,StudyDesign,,,,http://purl.obolibrary.org/obo/OBI_0500000,E.g. longitudinal study design,Beacon v2
+Cohorts,,cohortSize,int,,,,,,,,http://purl.obolibrary.org/obo/CTO_0000028,"The total number of participants that are enrolled","Beacon v2, RD3"
+Cohorts,,inclusionCriteria_ageRange_start_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001878,E.g. P18Y,Beacon v2
+Cohorts,,inclusionCriteria_ageRange_end_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001877,E.g. P40Y,Beacon v2
+Cohorts,,locations,ontology_array,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001830,E.g. Spain,Beacon v2
+Cohorts,,genders,ontology_array,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"E.g. assigned female at birth, assigned male at birth",Beacon v2
+Cohorts,,cohortDataTypes,ontology_array,,,,DCMITypes,,,,http://purl.obolibrary.org/obo/NCIT_C15783,"E.g. Dataset, Sound, Still Image",Beacon v2
+Cohorts,,acronym,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C93495,The non-unique initials or abbreviated name used for identification.,RD3
+Cohorts,,description,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C166209,The description of the characteristics that define a cohort.,RD3
+Cohorts,,principleInvestigator,string,,,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0000100,The principle investigator or responsible person for this study.,RD3
+Cohorts,,contactPerson,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,A person acting as a channel for communication between groups or on behalf of a group.,RD3
+Cohorts,,contactEmail,string,,,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0000035,An email address for the purpose of contacting the study contact person.,RD3

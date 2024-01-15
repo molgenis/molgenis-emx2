@@ -31,7 +31,7 @@ public class FAIRDataPointTest {
     fdpSchema = database.dropCreateSchema("fdpTest");
     Schema fairDataHub_nr1 = database.dropCreateSchema("fairDataHub_nr1");
     Schema fairDataHub_nr2 = database.dropCreateSchema("fairDataHub_nr2 with a whitespace");
-    ProfileLoader fairDataHubLoader = new ProfileLoader("fairdatahub/FAIRDataHub.yaml");
+    ProfileLoader fairDataHubLoader = new ProfileLoader("_profiles/FAIRDataHub.yaml");
     fairDataHubLoader.load(fairDataHub_nr1, true);
     fairDataHubLoader.load(fairDataHub_nr2, true);
     fairDataHubSchemas = new Schema[2];

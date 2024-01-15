@@ -1,19 +1,24 @@
 <template>
   <ProviderDashboard>
     <h2 class="dashboard-h2">General overview for all centers</h2>
-    <DashboardBox class="mb-4">
-      <InputLabel id="yearOfBirthFilter" label="Filter data by year of birth" />
-      <select
-        class="inputs select"
-        id="yearOfBirthFilter"
-        @change="onYearOfBirthFilter"
-      >
-        <option value="all">All Patients</option>
-        <option value="2023" selected>2023</option>
-      </select>
-    </DashboardBox>
-    <DashboardChartLayout :columns="1">
-      <DashboardBox id="type-of-craniosynostosis">
+    <DashboardRow :columns="1">
+      <DashboardChart>
+        <InputLabel
+          id="yearOfBirthFilter"
+          label="Filter data by year of birth"
+        />
+        <select
+          class="inputs select"
+          id="yearOfBirthFilter"
+          @change="onYearOfBirthFilter"
+        >
+          <option value="all">All Patients</option>
+          <option value="2023" selected>2023</option>
+        </select>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart id="type-of-craniosynostosis">
         <ColumnChart
           chartId="craniosynostosis-types"
           title="Type of craniosynostosis"
@@ -21,16 +26,16 @@
           xvar="type"
           yvar="count"
           :columnColorPalette="colors.craniosynostosis"
-          :chartHeight="300"
+          :chartHeight="225"
         />
-      </DashboardBox>
-    </DashboardChartLayout>
+      </DashboardChart>
+    </DashboardRow>
     <h3 class="dashboard-h3">Suture Overview</h3>
     <p class="dashboard-text">
       Click a category in the "Affected suture" chart to view more information.
     </p>
-    <DashboardChartLayout :columns="2">
-      <DashboardBox>
+    <DashboardRow :columns="2">
+      <DashboardChart>
         <ColumnChart
           chartId="craniosynostosis-affected-sutures"
           title="Affected suture"
@@ -46,8 +51,8 @@
           @column-clicked="updateSutureTypes"
           :chartMargins="{ top: 20, right: 10, bottom: 85, left: 60 }"
         />
-      </DashboardBox>
-      <DashboardBox v-if="showSutureTypes">
+      </DashboardChart>
+      <DashboardChart v-if="showSutureTypes">
         <ColumnChart
           chartId="suture-types"
           class="chart-axis-x-angled-text"
@@ -59,11 +64,11 @@
           :chartHeight="275"
           :chartMargins="{ top: 20, right: 10, bottom: 85, left: 60 }"
         />
-      </DashboardBox>
-    </DashboardChartLayout>
+      </DashboardChart>
+    </DashboardRow>
     <h3 class="dashboard-h3">Patients Overview</h3>
-    <DashboardChartLayout :columns="1">
-      <DashboardBox>
+    <DashboardRow :columns="1">
+      <DashboardChart>
         <ColumnChart
           chartId="countryOfResidence"
           title="Patients by country of residence"
@@ -76,16 +81,20 @@
           :chartHeight="225"
           :columnColorPalette="colors.countries"
         />
-      </DashboardBox>
-    </DashboardChartLayout>
+      </DashboardChart>
+    </DashboardRow>
   </ProviderDashboard>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { DashboardBox, InputLabel, ColumnChart } from "molgenis-viz";
+import {
+  DashboardRow,
+  DashboardChart,
+  InputLabel,
+  ColumnChart,
+} from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
-import DashboardChartLayout from "../components/DashboardChartLayout.vue";
 
 const props = defineProps({
   user: String,
