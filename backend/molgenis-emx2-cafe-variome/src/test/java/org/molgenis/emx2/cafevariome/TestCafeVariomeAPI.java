@@ -66,7 +66,7 @@ public class TestCafeVariomeAPI {
    */
   protected String getResponseFor(String body) throws Exception {
     Request request = mock(Request.class);
-    when(request.body()).thenReturn(CafeVariomeQueries.multiGeneNoHeaderQuery);
+    when(request.body()).thenReturn(body);
     QueryResponse queryResponse = CafeVariomeQueryService.query(request, tables);
     return getWriter().writeValueAsString(queryResponse);
   }
