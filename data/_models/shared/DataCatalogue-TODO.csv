@@ -5,7 +5,7 @@ Catalogues,,network,ref,1,TRUE,,Networks,,,,,Network or consortium that leads th
 Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,,Type of catalogue,DataCatalogue
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging"
 Organisations,Resources,,,,,,,,,,,Research departments and research groups,"DataCatalogue,EMA,SharedStaging"
-Extended resources,Resources,,,,,,,,,,,"TODO: a nice table description here","DataCatalogue,EMA,SharedStaging"
+Extended resources,Resources,,,,,,,,,,,"TODO: a nice table description here","DataCatalogue,EMA"
 Models,Extended resources,,,,,,,,,,,Data models,"DataCatalogue,EMA"
 Data resources,Extended resources,,,,,,,,,,,Resources for data,"DataCatalogue,EMA"
 Cohorts,Data resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic,DataCatalogue
@@ -31,8 +31,8 @@ Organisations,,expertise,text,,,,,,,,,A short description of the expertise of th
 Organisations,,country,ontology_array,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located,"DataCatalogue,EMA,SharedStaging"
 Organisations,,features,ontology_array,,,CatalogueOntologies,Organisation features,,,,,Features that describe this organisation,"DataCatalogue,EMA,SharedStaging"
 Organisations,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,,Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:,"DataCatalogue,EMA,SharedStaging"
-Organisations,,leading resources,refback,,,,Extended resources,,lead organisation,,,"Listing of data sources, cohorts, studies (etc)","DataCatalogue,EMA,SharedStaging"
-Organisations,,additional resources,refback,,,,Extended resources,,additional organisations,,,"Listing of data sources, cohorts, studies (etc)","DataCatalogue,EMA,SharedStaging"
+Organisations,,leading resources,refback,,,,Extended resources,,lead organisation,,,"Listing of data sources, cohorts, studies (etc)","DataCatalogue,EMA"
+Organisations,,additional resources,refback,,,,Extended resources,,additional organisations,,,"Listing of data sources, cohorts, studies (etc)","DataCatalogue,EMA"
 Networks,,type,ontology_array,,,CatalogueOntologies,Network types,,,,,"Type of network, e.g. h2020 project",DataCatalogue
 Networks,,features,ontology_array,,,CatalogueOntologies,Network features,,,,,Characterizations of the network,"DataCatalogue,EMA"
 Studies,,type,ontology,,,CatalogueOntologies,Study types,,,,,Select 1 of the following types of study,"DataCatalogue,EMA"
