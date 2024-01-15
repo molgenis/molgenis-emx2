@@ -5,7 +5,7 @@ Catalogues,,network,ref,1,TRUE,,Networks,,,,,Network or consortium that leads th
 Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,,Type of catalogue,DataCatalogue
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging"
 Organisations,Resources,,,,,,,,,,,Research departments and research groups,"DataCatalogue,EMA,SharedStaging"
-Extended resources,Resources,,,,,,,,,,,"TODO: a nice table description here","DataCatalogue,EMA"
+Extended resources,Resources,,,,,,,,,,,"Generic listing of all extended resources. Should not be used directly, instead use specific types such as Databanks and Cohorts","DataCatalogue,EMA"
 Models,Extended resources,,,,,,,,,,,Data models,"DataCatalogue,EMA"
 Data resources,Extended resources,,,,,,,,,,,Resources for data,"DataCatalogue,EMA"
 Cohorts,Data resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic,DataCatalogue
@@ -202,7 +202,7 @@ Publications,,publisher,,,,,,,,,,Publisher's name,DataCatalogue
 Publications,,school,,,,,,,,,,School where the thesis was written (in case of thesis),DataCatalogue
 Publications,,abstract,text,,,,,,,,,Publication abstract,DataCatalogue
 Publications,,resources,refback,,,,Extended resources,,publications,,,List of resources that refer to this publication,DataCatalogue
-Contacts,,,,,,,,,,,,"TODO: a nice table description here","DataCatalogue,EMA"
+Contacts,,,,,,,,,,,,"Listing of contact persons per resource","DataCatalogue,EMA"
 Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with,"DataCatalogue,EMA"
 Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource,"DataCatalogue,EMA"
 Contacts,,role description,text,,,,,,,,,Description of the role,DataCatalogue
@@ -344,7 +344,7 @@ Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables gro
 Datasets,,description,text,,,,,,,,,description of the role/function of this table,DataCatalogue
 Datasets,,number of rows,int,,,,,,,,,count of the numbe of records in this table,DataCatalogue
 Datasets,,mapped to,refback,,,,Dataset mappings,,source dataset,,,common dataset models this dataset has been mapped into,DataCatalogue
-Datasets,,mapped from,refback,,,,Dataset mappings,,target dataset,,,source datasets that have been mapped to this harmonized dataset,DataCatalogue
+Datasets,,mapped from,refback,,,,Dataset mappings,,target dataset,,,source datasets that have been mapped to this harmonised dataset,DataCatalogue
 Datasets,,since version,,,,,,,,,,When this dataset was introduced,DataCatalogue
 Datasets,,until version,,,,,,,,,,When this dataset was removed if applicable,DataCatalogue
 All variables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead",DataCatalogue
@@ -381,17 +381,17 @@ Variable values,,since version,,,,,,,,,,When this variable value was introduced 
 Variable values,,until version,,,,,,,,,,When this variable value was removed if applicable,DataCatalogue
 Repeated variables,All variables,,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition,DataCatalogue
 Repeated variables,,is repeat of,ref,,TRUE,,Variables,resource,,,,reference to the definition of the sourceVariable that is being repeated,DataCatalogue
-Mappings,,,,,,,,,,,,"Mapping from collected datasets to standard/harmonized datasets, optionally including ETL syntaxes","DataCatalogue,EMA"
+Mappings,,,,,,,,,,,,"Mapping from collected datasets to standard/harmonised datasets, optionally including ETL syntaxes","DataCatalogue,EMA"
 Mappings,,source,ref,1,TRUE,,Extended resources,,,,,Data source that is being mapped to a (common) data model,"DataCatalogue,EMA"
 Mappings,,source version,string,,,,,,,,,version of the datasource that is being mapped,"DataCatalogue,EMA"
 Mappings,,target,ref,1,TRUE,,Models,,,,,model being mapped to,"DataCatalogue,EMA"
 Mappings,,target version,string,,,,,,,,,version of the model being mapped to,"DataCatalogue,EMA"
 Mappings,,cdms other,,,,,,,,,,"if cdm is not under targets, which cdm was mapped to? (default = not applicable)","DataCatalogue,EMA"
-Mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,"Mapping from collected datasets to standard/harmonized datasets, optionally including ETL syntaxes","DataCatalogue,EMA"
+Mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,"Mapping from collected datasets to standard/harmonised datasets, optionally including ETL syntaxes","DataCatalogue,EMA"
 Mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months","DataCatalogue,EMA"
 Mappings,,ETL specification url,hyperlink,,,,,,,,,Link to ETL specification documentation,"DataCatalogue,EMA"
 Mappings,,ETL specification document,file,,,,,,,,,Documentation concerning ETL details,"DataCatalogue,EMA"
-Dataset mappings,,,,,,,,,,,,"TODO: a nice table description here",DataCatalogue
+Dataset mappings,,,,,,,,,,,,"Mappings from collected or source datasets to harmonised or target datasets",DataCatalogue
 Dataset mappings,,source,ref,1,TRUE,,Extended resources,,,,,datasource being mapped from,DataCatalogue
 Dataset mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,name of the table being mapped from,DataCatalogue
 Dataset mappings,,target,ref,1,TRUE,,Extended resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",DataCatalogue
@@ -399,7 +399,7 @@ Dataset mappings,,target dataset,ref,1,TRUE,,Datasets,target,,,,name of the tabl
 Dataset mappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination,DataCatalogue
 Dataset mappings,,description,text,,,,,,,,,human readible description of the mapping,DataCatalogue
 Dataset mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code",DataCatalogue
-Variable mappings,,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax",DataCatalogue
+Variable mappings,,,,,,,,,,,,"Mappings from collected variables to standard/harmonised variables, optionally including ETL syntax",DataCatalogue
 Variable mappings,,source,ref,1,TRUE,,Extended resources,,,,,,DataCatalogue
 Variable mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,,DataCatalogue
 Variable mappings,,source variables,ref_array,,,,All variables,source dataset,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)",DataCatalogue
