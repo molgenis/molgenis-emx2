@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import java.util.*;
 import org.molgenis.emx2.*;
-import spark.Request;
 
 public class CafeVariomeIndexService {
 
@@ -14,7 +13,7 @@ public class CafeVariomeIndexService {
           .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
           .setDateFormat(new StdDateFormat().withColonInTimeZone(true));
 
-  public static IndexResponse index(Request request, List<Table> tables) throws Exception {
+  public static IndexResponse index(List<Table> tables) throws Exception {
     IndexResponse indexResponse = new IndexResponse();
 
     Map<String, List> attributeValues = new HashMap<>();

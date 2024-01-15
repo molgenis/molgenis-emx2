@@ -27,7 +27,7 @@ public class CafeVariomeApi {
     response.type(APPLICATION_JSON_MIME_TYPE);
     response.header("Access-Control-Allow-Origin", "*");
     List<Table> tables = getTableFromAllSchemas("Individuals", request);
-    IndexResponse indexResponse = CafeVariomeIndexService.index(request, tables);
+    IndexResponse indexResponse = CafeVariomeIndexService.index(tables);
     String responseStr = getWriter().writeValueAsString(indexResponse);
     response.status(200);
     return responseStr; // not whole response?
