@@ -12,6 +12,10 @@ public class QueryResponse {
   @JsonInclude(JsonInclude.Include.ALWAYS)
   Map<String, QueryResult> sources;
 
+  public Map<String, QueryResult> getSources() {
+    return sources;
+  }
+
   public void setSources(Map<String, QueryResult> sources) {
     this.sources = sources;
   }

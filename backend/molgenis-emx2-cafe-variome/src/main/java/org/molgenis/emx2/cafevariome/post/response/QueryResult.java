@@ -18,6 +18,22 @@ public class QueryResult {
   @JsonInclude(JsonInclude.Include.ALWAYS)
   private Source source;
 
+  public String getType() {
+    return type;
+  }
+
+  public int getCount() {
+    return count;
+  }
+
+  public Payload getPayload() {
+    return payload;
+  }
+
+  public Source getSource() {
+    return source;
+  }
+
   public void setType(String type) {
     this.type = type;
   }

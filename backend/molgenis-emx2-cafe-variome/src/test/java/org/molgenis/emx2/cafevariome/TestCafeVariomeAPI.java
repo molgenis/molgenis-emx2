@@ -1,5 +1,6 @@
 package org.molgenis.emx2.cafevariome;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -20,14 +21,13 @@ import spark.Request;
 
 public class TestCafeVariomeAPI {
 
-  static Database database;
-  static Schema cafeVariomeSchema;
-  static List<Table> tables;
+  private static final String schemaName = "cafevariome";
+  private static List<Table> tables;
 
   @BeforeAll
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
-    cafeVariomeSchema = database.dropCreateSchema("cafevariome");
+    Database database = TestDatabaseFactory.getTestDatabase();
+    Schema cafeVariomeSchema = database.dropCreateSchema(schemaName);
     ProfileLoader b2l = new ProfileLoader("_profiles/CafeVariome.yaml");
     b2l.load(cafeVariomeSchema, true);
     tables = List.of(cafeVariomeSchema.getTable("Individuals"));
@@ -47,27 +47,52 @@ public class TestCafeVariomeAPI {
 
   @Test
   void testOneGeneQuery() throws Exception {
-    String responseStr = getResponseFor(CafeVariomeQueries.geneFullHeaderQuery);
-    assertTrue(responseStr.contains("\"count\" : 2,"));
+    QueryResponse response = getResponseFor(CafeVariomeQueries.geneFullHeaderQuery);
+    assertEquals(2, response.getSources().get(schemaName).getCount());
+    assertTrue(getWriter().writeValueAsString(response).contains("Ind001"));
+    assertTrue(getWriter().writeValueAsString(response).contains("Ind005"));
   }
 
   @Test
   void testMultiGeneQuery() throws Exception {
-    String responseStr = getResponseFor(CafeVariomeQueries.multiGeneNoHeaderQuery);
-    assertTrue(responseStr.contains("\"count\" : 3,"));
+    QueryResponse response = getResponseFor(CafeVariomeQueries.multiGeneQuery);
+    assertEquals(3, response.getSources().get(schemaName).getCount());
+    assertTrue(getWriter().writeValueAsString(response).contains("Ind001"));
+    assertTrue(getWriter().writeValueAsString(response).contains("Ind002"));
+    assertTrue(getWriter().writeValueAsString(response).contains("Ind005"));
   }
 
-  /**
-   * Helper function to get response for a request body
-   *
-   * @param body
-   * @return
-   * @throws Exception
-   */
-  protected String getResponseFor(String body) throws Exception {
+  @Test
+  void testCombinationQuery() throws Exception {
+    QueryResponse response = getResponseFor(CafeVariomeQueries.combinationQuery);
+    assertEquals(1, response.getSources().get(schemaName).getCount());
+    assertTrue(getWriter().writeValueAsString(response).contains("Ind005"));
+  }
+
+  @Test
+  void testHpoQuery() throws Exception {
+    QueryResponse response = getResponseFor(CafeVariomeQueries.hpoQuery);
+    assertEquals(1, response.getSources().get(schemaName).getCount());
+    assertTrue(getWriter().writeValueAsString(response).contains("MinInd004"));
+  }
+
+  @Test
+  void testOrdoQuery() throws Exception {
+    QueryResponse response = getResponseFor(CafeVariomeQueries.ordoQuery);
+    assertEquals(2, response.getSources().get(schemaName).getCount());
+    assertTrue(getWriter().writeValueAsString(response).contains("Ind001"));
+  }
+
+  @Test
+  void testFullQuery() throws Exception {
+    QueryResponse response = getResponseFor(CafeVariomeQueries.fullQuery);
+    assertEquals(0, response.getSources().get(schemaName).getCount());
+  }
+
+  /** Helper function to get response for a request body */
+  protected QueryResponse getResponseFor(String body) throws Exception {
     Request request = mock(Request.class);
     when(request.body()).thenReturn(body);
-    QueryResponse queryResponse = CafeVariomeQueryService.query(request, tables);
-    return getWriter().writeValueAsString(queryResponse);
+    return CafeVariomeQueryService.query(request, tables);
   }
 }
