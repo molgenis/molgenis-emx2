@@ -150,9 +150,6 @@ useHead({ title: titlePrefix + key.name });
         >
         </ContentBlock>
 
-        <ContentBlock title="debug">
-          <pre>{{ variable }}</pre>
-        </ContentBlock>
       </ContentBlocks>
     </template>
   </LayoutsDetailPage>
