@@ -10,7 +10,6 @@ const cohortOnly = computed(() => {
 const catalogueRouteParam = route.params.catalogue as string;
 const scoped = route.params.catalogue !== "all";
 const modelFilter = scoped ? { id: { equals: catalogueRouteParam } } : {};
-console.log(modelFilter);
 const networksFilter = scoped
   ? { id: { equals: catalogueRouteParam } }
   : undefined;
@@ -39,14 +38,13 @@ const variablesFilter = scoped
     }
   : undefined;
 
-console.log("variable filter: " + JSON.stringify(variablesFilter));
-
 const query = `
       query MyQuery($networksFilter:NetworksFilter,$variablesFilter:VariablesFilter) {
         Networks(filter:$networksFilter) {
               id,
               dataSources_agg{count}
               cohorts_agg{count}
+              networks_agg{count}
               logo{url}
        }
        Variables_agg(filter:$variablesFilter) {
@@ -92,6 +90,11 @@ if (!cohortOnly.value && variableCount > 0)
   menu.push({
     label: "Variables",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
+  });
+if (!cohortOnly.value && catalogue.networks_agg?.count > 0)
+  menu.push({
+    label: "Networks",
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`,
   });
 if (cohortOnly.value) {
   menu.push({

@@ -217,10 +217,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
     <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
       <template v-if="scoped" v-slot:description
         >Welcome to the catalogue of {{ network.id
-        }}{{ network.id && network.name ? ":" : "" }} {{ network.name }} (see:
-        <NuxtLink class="underline hover:bg-blue-50" :to="aboutLink"
+        }}{{ network.id && network.name ? ":" : "" }}
+        {{ network.name }} (<NuxtLink
+          class="underline hover:bg-blue-50"
+          :to="aboutLink"
           >about</NuxtLink
-        >) . Select one of the content categories listed below.</template
+        >). Select one of the content categories listed below.</template
       >
       <template v-else v-slot:description
         ><ReadMore>{{ description }}</ReadMore></template
