@@ -138,9 +138,15 @@ useHead({
     { rel: "stylesheet", type: "text/css", href: styleHref },
   ],
   titleTemplate: (titleChunk) => {
-    return titleChunk
-      ? `${titleChunk} | ${config.public.siteTitle}`
-      : `${config.public.siteTitle}`;
+    if (titleChunk && config.public.siteTitle) {
+      return `${titleChunk} | ${config.public.siteTitle}`;
+    } else if (titleChunk) {
+      return titleChunk;
+    } else if (config.public.siteTitle) {
+      return config.public.siteTitle;
+    } else {
+      return "Catalogue";
+    }
   },
   script:
     config.public.analyticsKey && isAnalyticsAllowedCookie.value
