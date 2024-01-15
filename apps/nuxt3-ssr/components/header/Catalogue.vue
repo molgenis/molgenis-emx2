@@ -8,27 +8,66 @@ const cohortOnly = computed(() => {
 });
 
 const catalogueRouteParam = route.params.catalogue as string;
-const query = `{
-        Networks(filter:{id:{equals:"${catalogueRouteParam}"}}) {
+const scoped = route.params.catalogue !== "all";
+const modelFilter = scoped ? { id: { equals: catalogueRouteParam } } : {};
+console.log(modelFilter);
+const networksFilter = scoped
+  ? { id: { equals: catalogueRouteParam } }
+  : undefined;
+
+const models = await $fetch(`/${route.params.schema}/catalogue/graphql`, {
+  baseURL: config.public.apiBase,
+  method: "POST",
+  body: {
+    query: `
+            query Networks($networksFilter:NetworksFilter) {
+              Networks(filter:$networksFilter){models{id}}
+            }`,
+    variables: { networksFilter: modelFilter },
+  },
+});
+
+const variablesFilter = scoped
+  ? {
+      resource: {
+        id: {
+          equals: models.data.Networks[0].models
+            ? models.data.Networks[0].models.map((m: { id: string }) => m.id)
+            : undefined,
+        },
+      },
+    }
+  : undefined;
+
+console.log("variable filter: " + JSON.stringify(variablesFilter));
+
+const query = `
+      query MyQuery($networksFilter:NetworksFilter,$variablesFilter:VariablesFilter) {
+        Networks(filter:$networksFilter) {
               id,
               dataSources_agg{count}
               cohorts_agg{count}
               logo{url}
        }
-       Variables_agg(filter:{resource:{id:{equals:"${catalogueRouteParam}"}}}) {
+       Variables_agg(filter:$variablesFilter) {
           count
-        }
+       }
     }`;
-const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
-  {
-    baseURL: config.public.apiBase,
-    method: "POST",
-    body: { query },
-  }
-);
-const catalogue =
-  catalogueRouteParam === "all" ? {} : data.value.data?.Networks[0];
+
+const data = await $fetch(`/${route.params.schema}/catalogue/graphql`, {
+  baseURL: config.public.apiBase,
+  method: "POST",
+  body: {
+    query,
+    variables: {
+      networksFilter,
+      variablesFilter,
+    },
+  },
+});
+
+const catalogue = catalogueRouteParam === "all" ? {} : data.data?.Networks[0];
+const variableCount = data.data?.Variables_agg?.count;
 
 const menu = [
   {
@@ -49,10 +88,7 @@ if (
     label: "Data sources",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/datasources`,
   });
-if (
-  (!cohortOnly.value && catalogueRouteParam === "all") ||
-  catalogue.Variables_agg?.count > 0
-)
+if (!cohortOnly.value && variableCount > 0)
   menu.push({
     label: "Variables",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
@@ -61,6 +97,11 @@ if (cohortOnly.value) {
   menu.push({
     label: "About",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about`,
+  });
+} else {
+  menu.push({
+    label: "About",
+    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`,
   });
 }
 if (!cohortOnly.value) {
@@ -94,7 +135,6 @@ if (!cohortOnly.value) {
       <div class="pt-5 xl:hidden">
         <div class="relative flex items-center h-12.5 justify-between mb-4">
           <!-- <HamburgerMenu :navigation="menu" /> -->
-
           <div class="absolute -translate-x-1/2 left-1/2">
             <LogoMobile
               :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`"

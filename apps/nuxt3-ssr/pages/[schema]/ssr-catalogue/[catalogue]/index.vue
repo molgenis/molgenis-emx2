@@ -182,6 +182,10 @@ const settings = computed(() => {
   return data.value.data._settings;
 });
 
+const network = computed(() => {
+  return data.value.data?.Networks[0];
+});
+
 const title = computed(() => {
   if (catalogue) {
     return catalogue as string;
@@ -193,9 +197,7 @@ const title = computed(() => {
 });
 
 let description = computed(() => {
-  if (catalogue) {
-    return catalogue as string;
-  } else if (getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value)) {
+  if (getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value)) {
     return getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value);
   } else {
     return "Select one of the content categories listed below.";
@@ -207,15 +209,23 @@ const numberOfNetworks = computed(() => {
     ? data.value.data.Networks[0]?.networks_agg.count
     : data.value.data.Networks_agg?.count;
 });
+const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
 </script>
 
 <template>
   <LayoutsLandingPage class="w-10/12 pt-8">
-    <PageHeader
-      class="mx-auto lg:w-7/12 text-center"
-      :title="title"
-      :description="description"
-    ></PageHeader>
+    <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
+      <template v-if="scoped" v-slot:description
+        >Welcome to the catalogue of {{ network.id
+        }}{{ network.id && network.name ? ":" : "" }} {{ network.name }} (see:
+        <NuxtLink class="underline hover:bg-blue-50" :to="aboutLink"
+          >about</NuxtLink
+        >) . Select one of the content categories listed below.</template
+      >
+      <template v-else v-slot:description
+        ><ReadMore>{{ description }}</ReadMore></template
+      >
+    </PageHeader>
 
     <LandingPrimary>
       <LandingCardPrimary
