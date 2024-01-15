@@ -33,11 +33,6 @@ jobs:
         - ~/.gradle
         key: v1-dependencies-{{ checksum "build.gradle" }}
 
-    # install additional software
-    - run:
-        name: install docker kubectl and helm
-        command: sh ci/install_docker_helm_kubectl.sh
-
     - setup_remote_docker:
         version: 19.03.13
         docker_layer_caching: true
@@ -102,11 +97,6 @@ jobs:
     - attach_workspace:
         at: ~/repo
 
-    # install additional software (needs to be removed and used from pref step ( or from docker image))
-    - run:
-        name: install docker kubectl and helm
-        command: sh ci/install_docker_helm_kubectl.sh
-
     - setup_remote_docker:
         version: 19.03.13
         docker_layer_caching: true
@@ -114,7 +104,6 @@ jobs:
     - run:
         name: Sign in to docker
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
-    # end install additional software
 
     - run:
         name: push emx2 docker images
@@ -210,14 +199,13 @@ jobs:
     - attach_workspace:
         at: ~/repo
 
-    # install additional software (needs to be removed and used from pref step ( or from docker image))
-    - run:
-        name: install docker kubectl and helm
-        command: sh ci/install_docker_helm_kubectl.sh
-
     - setup_remote_docker:
         version: 19.03.13
         docker_layer_caching: true
+
+    - run:
+        name: Sign in to docker
+        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
     - run:
         name: release, push docker, push python

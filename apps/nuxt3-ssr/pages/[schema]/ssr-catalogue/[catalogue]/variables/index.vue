@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IFilter } from "~/interfaces/types";
+import type { IFilter, IMgError } from "~/interfaces/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -11,6 +11,9 @@ const titlePrefix =
 useHead({ title: titlePrefix + "Variables" });
 
 type view = "list" | "harmonization";
+
+const scoped = route.params.catalogue !== "all";
+const catalogueRouteParam = route.params.catalogue as string;
 
 const currentPage = ref(1);
 const activeName = ref((route.query.view as view | undefined) || "list");
@@ -60,26 +63,14 @@ let filters: IFilter[] = reactive([
   },
 ]);
 
-let search = computed(() => {
-  // @ts-ignore
-  return filters.find((f) => f.columnType === "_SEARCH").search;
-});
-
-const modelFilter =
-  route.params.catalogue === "all"
-    ? {}
-    : { id: { equals: route.params.catalogue } };
-const modelQuery = `
-  query Networks($filter:NetworksFilter) {
-    Networks(filter:$filter){models{id}}
-  }`;
-
-const models = await fetchGql(modelQuery, { filter: modelFilter });
-
 const query = computed(() => {
   return `
-  query Variables($filter:VariablesFilter, $orderby:Variablesorderby){
-    Variables(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+  query VariablesPage(
+    $variablesFilter:VariablesFilter,
+    $cohortsFilter:CohortsFilter,
+    $orderby:Variablesorderby
+  ){
+    Variables(limit: ${pageSize} offset: ${offset.value} filter:$variablesFilter  orderby:$orderby) {
       name
       resource {
         id
@@ -130,20 +121,34 @@ const query = computed(() => {
             }
             name
           }
+          targetVariable {
+            dataset {
+              resource {
+                id
+              }
+              name
+            }
+            name
+          }
         }
       }
     }
-    Cohorts(orderby: { id: ASC }) {
+    Cohorts(filter: $cohortsFilter, orderby: { id: ASC }) {
       id
       networks {
         id
       }
     }
-    Variables_agg (filter:$filter){
+    Variables_agg (filter:$variablesFilter){
       count
     }
   }
   `;
+});
+
+let search = computed(() => {
+  // @ts-ignore
+  return filters.find((f) => f.columnType === "_SEARCH").search;
 });
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
@@ -152,37 +157,95 @@ const orderby = { label: "ASC" };
 const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
 
 const filter = computed(() => {
-  let result = {
+  return {
     ...buildQueryFilter(filters, search.value),
     ...typeFilter,
   };
-  if ("all" !== route.params.catalogue) {
-    result["resource"]["id"] = {
-      equals: models.data.Networks[0].models.map((m) => m.id),
-    };
+});
+
+async function loadPageData() {
+  const { data, error } = await useAsyncData<any, IMgError>(
+    `variables-page-${catalogueRouteParam}`,
+    async () => {
+      let resourceCondition = {};
+      if (scoped) {
+        const { data, error } = await $fetch(
+          `/${route.params.schema}/catalogue/graphql`,
+          {
+            baseURL: config.public.apiBase,
+            method: "POST",
+            body: {
+              query: `
+            query Networks($filter:NetworksFilter) {
+              Networks(filter:$filter){
+                 models {
+                  id
+                 }
+              }
+            }`,
+              variables: { filter: { id: { equals: catalogueRouteParam } } },
+            },
+          }
+        );
+
+        if (error) {
+          console.log("models error: ", error);
+          return { error };
+        }
+
+        const modelIds = data.Networks[0].models.map(
+          (m: { id: string }) => m.id
+        );
+
+        resourceCondition = {
+          resource: {
+            id: {
+              equals: modelIds,
+            },
+          },
+        };
+      }
+
+      const variables = {
+        orderby,
+        variablesFilter: scoped
+          ? { ...filter.value, ...resourceCondition }
+          : filter.value,
+        cohortsFilter: { networks: { equals: [{ id: catalogueRouteParam }] } },
+      };
+
+      return $fetch(graphqlURL.value, {
+        key: `variables-${offset.value}`,
+        baseURL: config.public.apiBase,
+        method: "POST",
+        body: {
+          query: query.value,
+          variables,
+        },
+      });
+    }
+  );
+
+  if (error.value) {
+    const contextMsg = "Error on fetching variable data";
+    logError(error.value, contextMsg);
+    throw new Error(contextMsg);
   }
 
-  return result;
-});
-
-const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
-  key: `variables-${offset.value}`,
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: {
-    query,
-    variables: { orderby, filter },
-  },
-});
+  return data;
+}
 
 watch(filters, () => {
   setCurrentPage(1);
+  loadPageData();
 });
 
 let crumbs: any = {};
 crumbs[
   `${route.params.catalogue}`
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+
+const data = await loadPageData();
 </script>
 
 <template>
@@ -228,7 +291,14 @@ crumbs[
         </template>
 
         <template #search-results>
+          <p class="mt-1 mb-0 lg:mb-5 text-body-lg flex flex-col text-title">
+            <span
+              >{{ data?.data?.Variables_agg.count }} variables in
+              {{ data?.data?.Cohorts.length }} cohorts
+            </span>
+          </p>
           <FilterWell :filters="filters"></FilterWell>
+
           <SearchResultsList>
             <div
               v-if="data?.data?.Variables_agg.count === 0"

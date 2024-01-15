@@ -36,9 +36,12 @@ export const initialBiobankReportColumns = [
     column: [
       "id",
       "name",
+      "withdrawn",
       "collections.id",
       "collections.name",
       "collections.size",
+      "collections.withdrawn",
+      "collections.sub_collections.withdrawn",
     ],
   },
 ];
