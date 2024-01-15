@@ -21,6 +21,8 @@ public class TestLoaders {
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
+  public static final String BEACON_V2_TEST = "BeaconV2Test";
+  public static final String CAFE_VARIOME_TEST = "CafeVariomeTest";
 
   static Database database;
 
@@ -104,5 +106,19 @@ public class TestLoaders {
     Schema FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);
     AvailableDataModels.FAIR_GENOMES.install(FAIRGenomesSchema, true);
     assertEquals(46, FAIRGenomesSchema.getTableNames().size());
+  }
+
+  @Test
+  void test13BeaconV2Loader() {
+    Schema BeaconV2Schema = database.createSchema(BEACON_V2_TEST);
+    AvailableDataModels.BEACON_V2.install(BeaconV2Schema, true);
+    assertEquals(35, BeaconV2Schema.getTableNames().size());
+  }
+
+  @Test
+  void test14CafeVariomeLoader() {
+    Schema CafeVariomeSchema = database.createSchema(CAFE_VARIOME_TEST);
+    AvailableDataModels.CAFE_VARIOME.install(CafeVariomeSchema, true);
+    assertEquals(35, CafeVariomeSchema.getTableNames().size());
   }
 }
