@@ -13,6 +13,7 @@ public enum AvailableDataModels {
   JRC_COMMON_DATA_ELEMENTS(new ProfileLoader("_profiles/JRC-CDE.yaml")),
   FAIR_GENOMES(new ProfileLoader("_profiles/FAIRGenomes.yaml")),
   BEACON_V2(new ProfileLoader("_profiles/BeaconV2.yaml")),
+  CAFE_VARIOME(new ProfileLoader("_profiles/CafeVariome.yaml")),
   ERN_DASHBOARD(new DashboardLoader()),
   ERN_CRANIO(new ErnCranioLoader()),
   BIOBANK_DIRECTORY(new BiobankDirectoryLoader()),

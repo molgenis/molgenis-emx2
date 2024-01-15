@@ -133,6 +133,7 @@ export default {
         "JRC_COMMON_DATA_ELEMENTS",
         "FAIR_GENOMES",
         "BEACON_V2",
+        "CAFE_VARIOME",
         "ERN_DASHBOARD",
         "ERN_CRANIO",
         "BIOBANK_DIRECTORY",
