@@ -41,8 +41,8 @@ RWE resources,,type,ontology_array,,,CatalogueOntologies,Datasource types,,,,,Wh
 RWE resources,,type other,text,,,,,,,,,"If other, describe the type of datasource","DataCatalogue,EMA"
 Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description,DataCatalogue
 Resources,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA"
-Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA,SharedStaging"
-Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA,SharedStaging"
+Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
+Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
 Studies,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA
 Networks,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA
 Resources,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA"
