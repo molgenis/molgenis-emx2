@@ -149,7 +149,6 @@ useHead({ title: titlePrefix + key.name });
           description="No mapping found for this variable"
         >
         </ContentBlock>
-
       </ContentBlocks>
     </template>
   </LayoutsDetailPage>
