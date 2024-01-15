@@ -415,7 +415,7 @@ Variable mappings,,comments,text,,,,,,,,,additional notes and comments,DataCatal
 Network variables,,,,,,,,,,,,Listing of the variables used in a network,DataCatalogue
 Network variables,,network,ref,1,TRUE,,Networks,,,,,,DataCatalogue
 Network variables,,variable,ref,1,TRUE,,Variables,,,,,,DataCatalogue
-Subcohort counts,,,,,,,,,,,,"TODO: a nice table description here",DataCatalogue
+Subcohort counts,,,,,,,,,,,,"Number of participants per subcohort age group, optionally divided per sex",DataCatalogue
 Subcohort counts,,subcohort,ref,1,TRUE,,Subcohorts,,,,,,DataCatalogue
 Subcohort counts,,age group,ontology,1,TRUE,CatalogueOntologies,Age groups,,,,,,DataCatalogue
 Subcohort counts,,N total,int,,,,,,,,,,DataCatalogue
@@ -433,7 +433,7 @@ Submissions,,submission type,ontology,,,CatalogueOntologies,Submission types,,,,
 Submissions,,submission description,text,,,,,,,,,"Description of the submission, if applicable","DataCatalogue,EMA"
 Submissions,,responsible persons,text,,,,,,,,,List of responsible persons related to this submission,DataCatalogue
 Submissions,,acceptance date,datetime,,,,,,,,,Date submission was accepted,"DataCatalogue,EMA"
-External identifiers,,,,,,,,,,,,"TODO: a nice table description here","DataCatalogue,EMA"
+External identifiers,,,,,,,,,,,,"External identifier(s) for this resource","DataCatalogue,EMA"
 External identifiers,,resource,ref,1,TRUE,,Extended resources,,,,,Resource that this external identifier belongs to,"DataCatalogue,EMA"
 External identifiers,,identifier,text,1,TRUE,,,,,,,External identifier,"DataCatalogue,EMA"
 External identifiers,,external identifier type,ontology,,,CatalogueOntologies,External identifier types,,,,,External identifier type,"DataCatalogue,EMA"
