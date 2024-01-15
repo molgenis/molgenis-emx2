@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type {
   HarmonizationStatus,
+  IMapping,
   IVariable,
   IVariableMappings,
 } from "~/interfaces/types";
@@ -11,60 +12,102 @@ const props = defineProps<{
   cohortsWithMapping: { cohort: { id: string }; status: HarmonizationStatus }[];
 }>();
 
-const activeIndex = ref(0);
+const activeTabIndex = ref(0);
 
-const statusPerCohort = computed(
-  () =>
-    calcHarmonizationStatus(
-      [props.variable],
-      props.cohortsWithMapping.map((cwm) => cwm.cohort)
-    )[0]
+const statusPerCohort = computed(() =>
+  calcIndividualVariableHarmonizationStatus(
+    props.variable,
+    props.cohortsWithMapping.map((cwm) => cwm.cohort)
+  )
 );
 
 const activeCohortId = computed(
-  () => props.cohortsWithMapping[activeIndex.value].cohort.id
+  () => props.cohortsWithMapping[activeTabIndex.value].cohort.id
 );
 
-const activeMappingDescription = computed(() => {
-  const activeCohortMapping = props.variable?.mappings?.find(
-    (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
-  );
-  return activeCohortMapping?.description || "No description";
+const activeMappingDescriptions = computed(() => {
+  if (props.variable.repeats) {
+    const baseMapping = props.variable.mappings?.find(
+      (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+    )?.description;
+    const repeatMappings = props.variable.repeats.map((repeat) => {
+      return repeat.mappings?.find(
+        (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+      )?.description;
+    });
+    return [baseMapping, ...repeatMappings];
+  } else {
+    return [
+      props.variable.mappings?.find(
+        (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+      )?.description,
+    ];
+  }
 });
 
 const variablesUsed = computed(() => {
-  return props.variable.mappings
-    ?.filter(
-      (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
-    )
-    .map((mapping) => {
-      const sourceVariables = mapping.sourceVariables
-        ? mapping.sourceVariables.map((variable: { name: string }) => {
-            return {
-              name: variable.name,
-              resource: {
-                id: mapping.source.id,
-              },
-              dataset: mapping.sourceDataset,
-            };
-          })
-        : [];
-      const sourceVariablesOtherDatasets = mapping.sourceVariablesOtherDatasets
-        ? mapping.sourceVariablesOtherDatasets
-        : [];
-      return [...sourceVariables, ...sourceVariablesOtherDatasets];
-    })
-    .flatMap((x) => x);
+  function toVariablesUsed(mappings: IMapping[] | undefined) {
+    if (!mappings) return [];
+    return mappings
+      ?.filter(
+        (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+      )
+      .map((mapping) => {
+        const sourceVariables = mapping.sourceVariables
+          ? mapping.sourceVariables.map((variable: { name: string }) => {
+              return {
+                name: variable.name,
+                resource: {
+                  id: mapping.source.id,
+                },
+                dataset: mapping.sourceDataset,
+              };
+            })
+          : [];
+        const sourceVariablesOtherDatasets =
+          mapping.sourceVariablesOtherDatasets
+            ? mapping.sourceVariablesOtherDatasets
+            : [];
+        return [...sourceVariables, ...sourceVariablesOtherDatasets];
+      })
+      .flatMap((x) => x);
+  }
+  const baseVariableVariablesUsed = toVariablesUsed(props.variable.mappings);
+
+  return props.variable.repeats
+    ? [
+        baseVariableVariablesUsed,
+        ...props.variable.repeats.map((repeat) =>
+          toVariablesUsed(repeat.mappings)
+        ),
+      ]
+    : [baseVariableVariablesUsed];
 });
 
-const syntax = computed(() => {
-  return props.variable.mappings?.find(
+const syntaxList = computed(() => {
+  const baseSyntax = props.variable.mappings?.find(
     (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
   )?.syntax;
+
+  if (props.variable.repeats) {
+    const repeatsSyntax = props.variable.repeats.map((repeat) => {
+      return repeat.mappings?.find(
+        (mapping) => mapping.sourceDataset.resource.id === activeCohortId.value
+      )?.syntax;
+    });
+
+    return [baseSyntax, ...repeatsSyntax];
+  } else {
+    return baseSyntax;
+  }
 });
 
 let activeVariableKey = ref();
 let showSidePanel = computed(() => activeVariableKey.value?.name);
+
+const variableList = props.variable.repeats
+  ? [props.variable, ...props.variable.repeats]
+  : [props.variable];
 </script>
 
 <template>
@@ -73,8 +116,8 @@ let showSidePanel = computed(() => activeVariableKey.value?.name);
       <div class="flex flex-nowrap">
         <Tab
           v-for="(cohortWithMapping, index) in cohortsWithMapping"
-          :active="index === activeIndex"
-          @click="activeIndex = index"
+          :active="index === activeTabIndex"
+          @click="activeTabIndex = index"
         >
           {{ cohortWithMapping.cohort.id }}
         </Tab>
@@ -82,49 +125,58 @@ let showSidePanel = computed(() => activeVariableKey.value?.name);
     </HorizontalScrollHelper>
   </div>
 
-  <DefinitionList>
-    <DefinitionListTerm>Cohort</DefinitionListTerm>
-    <DefinitionListDefinition>
-      {{ cohortsWithMapping[activeIndex].cohort.id }}
-    </DefinitionListDefinition>
+  <template v-for="(variable, repeatIndex) in variableList">
+    <DefinitionList>
+      <DefinitionListTerm>Name</DefinitionListTerm>
+      <DefinitionListDefinition>
+        {{ variable.name }}
+      </DefinitionListDefinition>
+      <DefinitionListTerm>Harmonization status</DefinitionListTerm>
+      <DefinitionListDefinition>
+        <HarmonizationStatus
+          :status="statusPerCohort[activeTabIndex][repeatIndex]"
+        />
+      </DefinitionListDefinition>
 
-    <DefinitionListTerm>Harmonization status</DefinitionListTerm>
-    <DefinitionListDefinition>
-      <HarmonizationStatus :status="statusPerCohort[activeIndex]" />
-    </DefinitionListDefinition>
+      <DefinitionListTerm>Description</DefinitionListTerm>
+      <DefinitionListDefinition>{{
+        activeMappingDescriptions[repeatIndex] || "None"
+      }}</DefinitionListDefinition>
+      <DefinitionListTerm>Variables used</DefinitionListTerm>
 
-    <DefinitionListTerm>Description</DefinitionListTerm>
-    <DefinitionListDefinition>{{
-      activeMappingDescription
-    }}</DefinitionListDefinition>
+      <DefinitionListDefinition v-if="variable.mappings">
+        <ul>
+          <li v-if="!variablesUsed[repeatIndex]?.length">None</li>
+          <template v-else>
+            <li v-for="variableUsed in variablesUsed[repeatIndex]">
+              <a
+                class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 cursor-pointer"
+                @click="activeVariableKey = getKey(variableUsed)"
+              >
+                <BaseIcon
+                  name="caret-right"
+                  class="inline"
+                  style="margin-left: -8px"
+                />
+                {{ variableUsed.name }}
+              </a>
+            </li>
+          </template>
+        </ul>
+      </DefinitionListDefinition>
+      <DefinitionListDefinition v-else>None</DefinitionListDefinition>
 
-    <DefinitionListTerm>Variables used</DefinitionListTerm>
+      <DefinitionListTerm>Syntax</DefinitionListTerm>
+      <DefinitionListDefinition v-if="!syntaxList[repeatIndex]"
+        >None</DefinitionListDefinition
+      >
+    </DefinitionList>
+    <CodeBlock v-if="syntaxList[repeatIndex]" class="mt-2">{{
+      syntaxList[repeatIndex]
+    }}</CodeBlock>
 
-    <DefinitionListDefinition v-if="variable.mappings">
-      <ul>
-        <li v-if="!variablesUsed?.length">None</li>
-        <li v-else v-for="variableUsed in variablesUsed">
-          <a
-            class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 cursor-pointer"
-            @click="activeVariableKey = getKey(variableUsed)"
-          >
-            <BaseIcon
-              name="caret-right"
-              class="inline"
-              style="margin-left: -8px"
-            />
-            {{ variableUsed.name }}
-          </a>
-        </li>
-      </ul>
-    </DefinitionListDefinition>
-    <DefinitionListDefinition v-else>None</DefinitionListDefinition>
-
-    <DefinitionListTerm>Syntax</DefinitionListTerm>
-    <DefinitionListDefinition v-if="!syntax">None</DefinitionListDefinition>
-  </DefinitionList>
-  <CodeBlock v-if="syntax" class="mt-2">{{ syntax }}</CodeBlock>
-
+    <hr v-if="variableList.length > 1" class="my-5" />
+  </template>
   <SideModal
     :key="JSON.stringify(activeVariableKey)"
     :show="showSidePanel"

@@ -1,4 +1,5 @@
 import gql from "graphql-tag";
+import mappingsFragment from "~~/gql/fragments/mappings";
 export default gql`
   query Variables($filter: VariablesFilter) {
     Variables(filter: $filter) {
@@ -20,70 +21,10 @@ export default gql`
       format {
         name
       }
-      mappings {
-        syntax
-        description
-        match {
-          name
-        }
-        source {
-          id
-          name
-        }
-        sourceDataset {
-          resource {
-            id
-          }
-        }
-        sourceVariables {
-          name
-        }
-        sourceVariablesOtherDatasets {
-          name
-          dataset {
-            name
-            resource {
-              id
-            }
-          }
-        }
-        targetVariable {
-          dataset {
-            resource {
-              id
-            }
-            name
-          }
-          name
-        }
-      }
+      mappings ${moduleToString(mappingsFragment)}
       repeats {
         name
-        mappings {
-          syntax
-          description
-          source {
-            id
-            name
-          }
-          match {
-            name
-          }
-          sourceDataset {
-            resource {
-              id
-            }
-          }
-          targetVariable {
-            dataset {
-              resource {
-                id
-              }
-              name
-            }
-            name
-          }
-        }
+        mappings ${moduleToString(mappingsFragment)}
       }
     }
     Cohorts(orderby: { id: ASC }) {

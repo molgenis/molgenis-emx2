@@ -46,13 +46,19 @@ crumbs[
 const cohortsWithMapping = computed(() => {
   return cohorts
     .map((cohort) => {
-      const status = calcHarmonizationStatus([variable], [cohort])[0][0];
+      const status = calcIndividualVariableHarmonizationStatus(variable, [
+        cohort,
+      ])[0];
       return {
         cohort,
         status,
       };
     })
-    .filter(({ status }) => status !== "unmapped");
+    .filter(({ status }) =>
+      Array.isArray(status)
+        ? status.filter((s) => s !== "unmapped").length
+        : status !== "unmapped"
+    );
 });
 
 let tocItems = reactive([{ label: "Description", id: "description" }]);
