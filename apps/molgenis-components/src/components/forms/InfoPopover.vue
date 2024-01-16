@@ -124,8 +124,8 @@ export default {
   visibility: hidden;
   position: absolute;
   width: max-content;
-  background-color: #fff;
-  color: #000;
+  background-color: var(--dark);
+  color: #fff;
   line-height: normal;
   padding: 6px 10px;
   border-radius: 6px;
