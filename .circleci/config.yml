@@ -74,7 +74,7 @@ jobs:
     - run:
         name: build jar and compile test classes and export 'ci' config
         command: |
-          ./gradlew clean testClasses shadowJar ci
+          ./gradlew clean testClasses shadowJar ci -x :apps:checkFormat 
           export $( cat build/ci.properties | xargs )
 
     - persist_to_workspace:

@@ -28,16 +28,12 @@ task format(type: YarnTask, dependsOn: yarn_install) {
     if (!isCI) {
         outputs.upToDateWhen { false }
         args = ['run', 'nx', 'run-many','--target=format']
+    } else {
+        args = ['run', 'nx', 'run-many','--target=checkFormat']
     }
 }
 
-task checkFormat(type: YarnTask, dependsOn: format) {
-    outputs.upToDateWhen { false }
-    args = ['run', 'nx', 'run-many','--target=checkFormat']
-}
-
-task testJavaScript(type: YarnTask, dependsOn: checkFormat) {
-    outputs.upToDateWhen { false }
+task testJavaScript(type: YarnTask, dependsOn: format) {
     args = ['run', 'nx', 'run-many', '--target=test-ci']
 }
 
@@ -60,7 +56,6 @@ task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
             }
         }
     }
-    outputs.upToDateWhen { false }
 }
 
 compileJava.dependsOn buildJavascript
