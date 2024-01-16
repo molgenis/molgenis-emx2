@@ -253,8 +253,8 @@ export interface IMapping {
     name: string;
   };
   sourceVariables: IVariableBase[] | IVariable[];
-  targetVariable: IVariableBase[] | IVariable[];
   sourceVariablesOtherDatasets: IVariableBase[] | IVariable[];
+  targetVariable: IVariableBase | IVariable;
 }
 
 export type HarmonizationStatus = "unmapped" | "partial" | "complete";
