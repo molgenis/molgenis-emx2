@@ -162,7 +162,7 @@ class Client:
         if response.status_code == 404:
             raise ServerNotFoundError(f"Server with url '{self.url}'")
         if response.status_code == 400:
-            if 'Invalid token' in response.text:
+            if ' token' in response.text:
                 raise InvalidTokenException(f"Invalid token or token expired.")
             else:
                 raise PyclientException("An unknown error occurred when trying to reach this server.")
