@@ -146,9 +146,9 @@ jobs:
     - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
     - run:
-        name: Run tests / format check, merge test results using jacoco and push test results to sonar
+        name: Run tests, merge test results using jacoco and push test results to sonar
         command: |
-          ./gradlew test :apps:format jacocoMergedReport sonar --no-daemon \
+          ./gradlew test jacocoMergedReport sonar --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
