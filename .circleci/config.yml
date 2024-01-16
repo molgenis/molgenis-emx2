@@ -6,11 +6,16 @@ version: 2
 orbs:
   slack: circleci/slack@4.4.4
 jobs:
-  prepare:
+  build:
     docker:
     # specify the version you desire here
     - image: molgenis/ci-build:latest
     working_directory: ~/repo
+
+    environment:
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
 
     steps:
     - checkout
@@ -48,28 +53,6 @@ jobs:
           git config user.email "m.a.swertz@rug.nl"
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
-    - persist_to_workspace:
-          root: .
-          paths:
-              - .
-    
-  build:
-    docker:
-    - image: molgenis/ci-build:latest
-
-    working_directory: ~/repo
-    
-    # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
-    resource_class: large
-
-    environment:
-      JVM_OPTS: -Xmx3200m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-      TERM: dumb
-
-    steps:
-    - attach_workspace:
-        at: ~/repo
 
     - run:
         name: build jar and compile test classes and export 'ci' config
