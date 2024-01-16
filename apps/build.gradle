@@ -25,8 +25,23 @@ task cleanJavascript(type: YarnTask, dependsOn: yarn_install) {
 clean.dependsOn cleanJavascript
 
 task format(type: YarnTask, dependsOn: yarn_install) {
+    // Include all files in the project directory (excluding 'build', 'dist', and 'showCase') as inputs
+    inputs.files fileTree(projectDir).matching {
+        // Exclude 'build', 'dist', and 'showCase' directories
+        exclude '**/build/**'
+        exclude '**/dist/**'
+        exclude '**/showCase/**'
+        exclude '**/node_modules/**'
+    }
+    outputs.files fileTree(projectDir).matching {
+        // Exclude 'build', 'dist', and 'showCase' directories
+        exclude '**/build/**'
+        exclude '**/dist/**'
+        exclude '**/showCase/**'
+        exclude '**/node_modules/**'
+
+    }
     if (!isCI) {
-        outputs.upToDateWhen { false }
         args = ['run', 'nx', 'run-many','--target=format']
     } else {
         args = ['run', 'nx', 'run-many','--target=checkFormat']
@@ -34,10 +49,33 @@ task format(type: YarnTask, dependsOn: yarn_install) {
 }
 
 task testJavaScript(type: YarnTask, dependsOn: format) {
+    // Include all files in the project directory (excluding 'build', 'dist', and 'showCase') as inputs
+    inputs.files fileTree(projectDir).matching {
+        // Exclude 'build', 'dist', and 'showCase' directories
+        exclude '**/build/**'
+        exclude '**/dist/**'
+        exclude '**/showCase/**'
+        exclude '**/node_modules/**'
+    }
+    outputs.dir(file('**/node_modules/.vitest'))
     args = ['run', 'nx', 'run-many', '--target=test-ci']
 }
 
 task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
+
+    // Include all files in the project directory (excluding 'build', 'dist', and 'showCase') as inputs
+    inputs.files fileTree(projectDir).matching {
+        // Exclude 'build', 'dist', and 'showCase' directories
+        exclude '**/build/**'
+        exclude '**/dist/**'
+        exclude '**/node_modules/**'
+        exclude '**/showCase/**'
+    }
+
+    // Declare 'dist' and 'showCase' as potential output folders
+    outputs.dir(file('**/dist'))
+    outputs.dir(file('**/showCase'))
+
     environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
     args = ['run', 'nx', 'run-many', '--target=format:write,build,build-showcase', "--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}", '--verbose']
     doLast {
