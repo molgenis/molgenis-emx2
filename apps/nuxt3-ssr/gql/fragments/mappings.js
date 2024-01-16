@@ -17,6 +17,7 @@ export default gql`
     }
     sourceVariables {
       name
+      mg_tableclass
     }
     sourceVariablesOtherDatasets {
       name
@@ -26,6 +27,7 @@ export default gql`
           id
         }
       }
+      mg_tableclass
     }
     targetVariable {
       dataset {

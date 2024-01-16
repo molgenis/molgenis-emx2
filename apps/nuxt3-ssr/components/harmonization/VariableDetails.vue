@@ -3,6 +3,7 @@ import type {
   HarmonizationStatus,
   IMapping,
   IVariable,
+  IVariableBase,
   IVariableMappings,
 } from "~/interfaces/types";
 
@@ -54,13 +55,14 @@ const variablesUsed = computed(() => {
       )
       .map((mapping) => {
         const sourceVariables = mapping.sourceVariables
-          ? mapping.sourceVariables.map((variable: { name: string }) => {
+          ? mapping.sourceVariables.map((sourceVariable: IVariableBase) => {
               return {
-                name: variable.name,
+                name: sourceVariable.name,
                 resource: {
                   id: mapping.source.id,
                 },
                 dataset: mapping.sourceDataset,
+                mg_tableclass: sourceVariable.mg_tableclass,
               };
             })
           : [];
@@ -98,12 +100,19 @@ const syntaxList = computed(() => {
 
     return [baseSyntax, ...repeatsSyntax];
   } else {
-    return baseSyntax;
+    return [baseSyntax];
   }
 });
 
-let activeVariableKey = ref();
-let showSidePanel = computed(() => activeVariableKey.value?.name);
+let activeVariableUsedKey = ref();
+let activeVariableIsRepeated = ref();
+let showSidePanel = computed(() => activeVariableUsedKey.value?.name);
+
+function handleVariableUsedClick(variableUsed: IVariableBase) {
+  activeVariableUsedKey.value = getKey(variableUsed);
+  activeVariableIsRepeated.value =
+    variableUsed.mg_tableclass?.includes("Repeated");
+}
 
 const variableList = props.variable.repeats
   ? [props.variable, ...props.variable.repeats]
@@ -151,7 +160,7 @@ const variableList = props.variable.repeats
             <li v-for="variableUsed in variablesUsed[repeatIndex]">
               <a
                 class="text-body-base text-blue-500 hover:underline hover:bg-blue-50 cursor-pointer"
-                @click="activeVariableKey = getKey(variableUsed)"
+                @click="handleVariableUsedClick(variableUsed)"
               >
                 <BaseIcon
                   name="caret-right"
@@ -178,15 +187,19 @@ const variableList = props.variable.repeats
     <hr v-if="variableList.length > 1" class="my-5" />
   </template>
   <SideModal
-    :key="JSON.stringify(activeVariableKey)"
+    :key="JSON.stringify(activeVariableUsedKey)"
     :show="showSidePanel"
     :fullScreen="false"
     :slideInRight="true"
-    @close="activeVariableKey = null"
+    @close="activeVariableUsedKey = null"
     buttonAlignment="right"
   >
-    <template v-if="activeVariableKey">
-      <VariableDisplay :variableKey="activeVariableKey" />
+    <template v-if="activeVariableUsedKey">
+      <RepeatedVariableDisplay
+        v-if="activeVariableIsRepeated"
+        :variableKey="activeVariableUsedKey"
+      />
+      <VariableDisplay v-else :variableKey="activeVariableUsedKey" />
     </template>
   </SideModal>
 </template>
