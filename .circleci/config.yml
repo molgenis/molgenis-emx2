@@ -233,10 +233,7 @@ workflows:
   version: 2
   build_and_test_and_preview_or_release:
     jobs:
-      - prepare
       - build:
-          requires:
-            - prepare
       - preview:
           requires:
             - build
