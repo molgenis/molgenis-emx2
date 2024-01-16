@@ -1,0 +1,28 @@
+{
+  "name": "projectmanager",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "format": "prettier src  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+  },
+  "dependencies": {
+    "graphql-request": "5.2.0",
+    "meta-data-utils": "*",
+    "molgenis-components": "*",
+    "vue": "3.3.8",
+    "vue-router": "4.2.5"
+  },
+  "devDependencies": {
+    "vite": "4.5.1",
+    "@vitejs/plugin-vue": "4.5.2",
+    "prettier": "2.8.8"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}
