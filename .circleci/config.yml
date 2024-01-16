@@ -56,11 +56,7 @@ jobs:
   build:
     docker:
     - image: molgenis/ci-build:latest
-    - image: postgres:15-alpine
-      environment:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_DB: postgres
+
     working_directory: ~/repo
     
     # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
@@ -75,8 +71,13 @@ jobs:
     - attach_workspace:
         at: ~/repo
 
-    - run: ./gradlew clean assemble testClasses ci
-      
+    - run:
+        name: build
+        command: |
+          ./gradlew clean assemble testClasses ci
+          export $( cat build/ci.properties | xargs )
+    
+
     - persist_to_workspace:
         root: .
         paths:
@@ -109,11 +110,7 @@ jobs:
         name: push emx2 docker images
         command: |
           echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-          ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar -x test -x :apps:buildJavascript -x :apps:checkFormat -x :apps:testJavaScript \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-          -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
-          export $( cat build/ci.properties | xargs )
+          ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart-x test \
 
     - run:
         name: push ssr-catalogue docker images
@@ -173,7 +170,13 @@ jobs:
 
     - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
-    - run: ./gradlew test --no-daemon
+    - run:
+        name: Run tests and push to sonar
+        command: |
+          ./gradlew test jacocoMergedReport sonar --no-daemon
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+          -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
       
     - run:
         name: Save test results
@@ -211,20 +214,14 @@ jobs:
         name: release, push docker, push python
         command: |
           export $( cat build/ci.properties | xargs )
-          ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart release -x test -x :apps:buildJavascript -x :apps:checkFormat -x :apps:testJavaScript  \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
-          if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
+          ./gradlew -s --no-daemon dockerPush helmPublishMainChart release \
+            if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
           else
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
           fi
-        environment:
-          MOLGENIS_POSTGRES_USER: molgenis
-          MOLGENIS_POSTGRES_PASS: molgenis
-          MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
 
     - run: 
         name: update rug server
