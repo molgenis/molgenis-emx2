@@ -1,10 +1,13 @@
 <template>
   <Page id="page-home">
-    <PageHeader
-      class="project-header main-header"
+    <CustomPageHeader
+      class="erras-header"
       title="ERN-Skin Registry"
       subtitle="Registry for Rare and Undiagnosed Skin Diseases"
-      imageSrc="app-header-background.png"
+      imageSrc="erras-header.jpg"
+      height="xlarge"
+      title-position-x="center"
+      title-position-y="center"
     />
     <PageSection
       id="section-welcome"
@@ -115,12 +118,15 @@
 </template>
 
 <script setup>
-import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
+import { Page, PageSection, LinkCard } from "molgenis-viz";
 import {
   InformationCircleIcon,
   PresentationChartLineIcon,
   DocumentTextIcon,
 } from "@heroicons/vue/24/outline";
+
+import CustomPageHeader from "../components/CustomPageHeader.vue";
+
 </script>
 
 <style lang="scss">

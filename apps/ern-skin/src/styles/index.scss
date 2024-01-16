@@ -5,12 +5,16 @@
 
 .app-page {
   .page-header {
-    height: auto;
-    filter: saturate(60%);
-    background-position: 0 0;
+    height: auto; 
+    background-position: 0 15%;
+    padding: 9em 0;
 
     .header-content {
-      padding: 6em 0;
+      padding: 1em 0;
+    }
+    
+    .background-image-filter {
+      opacity: 0.5;
     }
   }
 
@@ -22,6 +26,12 @@
         margin-bottom: 0.15em;
       }
     }
+  }
+}
+
+.erras-header {
+  .header-content {
+    color: $erras-blue;
   }
 }
 
