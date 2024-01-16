@@ -11,6 +11,7 @@ jobs:
     # specify the version you desire here
     - image: molgenis/ci-build:latest
     working_directory: ~/repo
+    resource_class: large
 
     environment:
       JVM_OPTS: -Xmx3200m
