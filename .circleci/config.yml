@@ -72,11 +72,10 @@ jobs:
         at: ~/repo
 
     - run:
-        name: build
+        name: build jar and compile test classes and export 'ci' config
         command: |
-          ./gradlew clean assemble testClasses ci
+          ./gradlew clean testClasses shadowJar ci
           export $( cat build/ci.properties | xargs )
-    
 
     - persist_to_workspace:
         root: .
@@ -107,7 +106,7 @@ jobs:
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
     - run:
-        name: push emx2 docker images
+        name: push emx2 docker images for the preview
         command: |
           echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
           ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart-x test \
@@ -171,7 +170,7 @@ jobs:
     - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
     - run:
-        name: Run tests and push to sonar
+        name: Run tests and push results to sonar
         command: |
           ./gradlew test jacocoMergedReport sonar --no-daemon
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
@@ -211,7 +210,7 @@ jobs:
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
     - run:
-        name: release, push docker, push python
+        name: release, push release docker, push release python
         command: |
           export $( cat build/ci.properties | xargs )
           ./gradlew -s --no-daemon dockerPush helmPublishMainChart release \
