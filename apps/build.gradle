@@ -48,21 +48,7 @@ task format(type: YarnTask, dependsOn: yarn_install) {
     }
 }
 
-task testJavaScript(type: YarnTask, dependsOn: format) {
-    // Include all files in the project directory (excluding 'build', 'dist', and 'showCase') as inputs
-    inputs.files fileTree(projectDir).matching {
-        // Exclude 'build', 'dist', and 'showCase' directories
-        exclude '**/build/**'
-        exclude '**/dist/**'
-        exclude '**/showCase/**'
-        exclude '**/node_modules/**'
-    }
-    outputs.dir(file('**/node_modules/.vitest'))
-    args = ['run', 'nx', 'run-many', '--target=test-ci']
-}
-
-task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
-
+task buildJavascript(type: YarnTask, dependsOn: format) {
     // Include all files in the project directory (excluding 'build', 'dist', and 'showCase') as inputs
     inputs.files fileTree(projectDir).matching {
         // Exclude 'build', 'dist', and 'showCase' directories
@@ -96,7 +82,21 @@ task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
     }
 }
 
-compileJava.dependsOn buildJavascript
+task testJavaScript(type: YarnTask, dependsOn: buildJavascript) {
+    // Include all files in the project directory (excluding 'build', 'dist', and 'showCase') as inputs
+    inputs.files fileTree(projectDir).matching {
+        // Exclude 'build', 'dist', and 'showCase' directories
+        exclude '**/build/**'
+        exclude '**/dist/**'
+        exclude '**/showCase/**'
+        exclude '**/node_modules/**'
+    }
+    outputs.dir(file('**/node_modules/.vitest'))
+    args = ['run', 'nx', 'run-many', '--target=test-ci']
+}
+
+processResources.dependsOn buildJavascript
+test.dependsOn testJavaScript
 
 sourceSets {
     main {
