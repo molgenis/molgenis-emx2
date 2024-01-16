@@ -69,7 +69,7 @@ const variableCount = data.data?.Variables_agg?.count;
 
 const menu = [
   {
-    label: `${catalogue.id || "home"}`,
+    label: "overview",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
   },
 ];
