@@ -1,12 +1,9 @@
 resource,name,label,unit of observation,keywords,description,number of rows,since version,until version
 G21,blood_pressure,blood pressure,,,blood pressure of the child measured during G21 cohort follow-ups,,1.0.0,
 G21,child,child,person,,,,1,
-ENVIRONAGE,obstetric data,,,,,,,
 ENVIRONAGE,measurements after birth,,,,,,,
-ENVIRONAGE,General questionnaire Birth,,,,,,,
-ENVIRONAGE,Questionnaire Follow-Up1,,,,,,,
-ENVIRONAGE,Baby Booklet (kind en gezin),,,,,,,
 ENVIRONAGE,measurements at FU1,,,,,,,
+ENVIRONAGE, bloodpressure after birth,,,,,,,
 DHL,CPA2,,,,,,1.0,
 DHL,CPA1,,,,,,1.0,
 GenR,core,,,,,,1.0.0,
