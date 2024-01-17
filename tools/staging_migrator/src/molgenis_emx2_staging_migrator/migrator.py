@@ -26,11 +26,12 @@ class StagingMigrator(Client):
     The class subclasses the Molgenis EMX2 Pyclient to access the API on the server
     """
 
-    def __init__(self, url: str, staging_area: str = None, catalogue: str = 'catalogue'):
+    def __init__(self, url: str, staging_area: str = None, catalogue: str = 'catalogue', table: str = 'Cohorts'):
         """Sets up the StagingMigrator by logging in to the client."""
         super().__init__(url)
         self.staging_area = staging_area
         self.catalogue = catalogue
+        self.table = table
 
     def signin(self, username: str, password: str):
         """Signs the user in to the server using the Client's signin method
@@ -107,8 +108,8 @@ class StagingMigrator(Client):
 
         cohort_ids = get_cohort_ids(self.url, self.session, self.staging_area)
         for table_name, ref_col in tables_to_delete.items():
-            # Iterate over the tables that reference the Cohorts table of the staging area
-            # Check if any row matches this Cohorts table
+            # Iterate over the tables that reference the core table of the staging area
+            # Check if any row matches this core table
             table_id = self._schema_schema(self.catalogue).get(table_name).get('id')
 
             delete_rows = self._query_delete_rows(table_name, ref_col, cohort_ids)
