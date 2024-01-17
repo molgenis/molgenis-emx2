@@ -2,7 +2,7 @@
   <div :class="headerClassNames">
     <div
       v-if="imageSrc"
-      :class="`height-${height} header-image`"
+      :class="`header-image height-${height}`"
       :style="`background-image: url(${imageSrc})`"
     />
     <div class="header-content">
@@ -67,7 +67,6 @@ const headerClassNames = computed(() => {
   const css = [
     "custom-page-header",
     `text-position-x-${props.titlePositionX} text-position-y-${props.titlePositionY}`,
-    `padding-h-${props.horizontalPadding} padding-v-${props.verticalPadding}`,
   ];
 
   if (props.imageSrc) {
