@@ -7,9 +7,9 @@
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
 # COMMENTS: Designed to interact with the schema "pet store".
-#           Create a file called '.env' that specify the username and password:
-#           MG_USERNAME = blabla
-#           MG_PASSWORD = blabla123
+#           Create a file called '.env' that states the molgenis token, to get this token login into the server (UI) as admin.
+#           Next click on 'Hi admin' and under Manage token give the new token a name and create. Copy this token into .env as described below.
+#           MG_TOKEN = ....
 # ///////////////////////////////////////////////////////////////////////////////
 import asyncio
 import logging
@@ -31,13 +31,9 @@ async def main():
 
     # Load the login details into the environment
     load_dotenv()
-    username = os.environ.get('MG_USERNAME')
-    password = os.environ.get('MG_PASSWORD')
-
+    token = os.environ.get('MG_TOKEN')
     # Connect to the server and sign in
-    async with Client('https://emx2.dev.molgenis.org/') as client:
-        client.signin(username, password)
-
+    async with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Check sign in status
         print(client.status)
 
@@ -62,9 +58,7 @@ async def main():
         client.export(schema='catalogue-demo', table='Cohorts', fmt='csv')
 
     # Connect to server with a default schema specified
-    with Client('https://emx2.dev.molgenis.org/', schema='pet store') as client:
-        client.signin(username, password)
-
+    with Client('https://emx2.dev.molgenis.org/', schema='pet store', token=token) as client:
         client.export(fmt='csv')
         client.export(table='Pet', fmt='csv')
         client.export(table='Pet', fmt='xlsx')
@@ -131,16 +125,14 @@ async def main():
         client.delete_records(schema='pet store', table='Tag', file='demodata/Tag.csv')
 
     # Connect to server and create, update, and drop schemas
-    with Client('https://emx2.dev.molgenis.org/') as client:
-        client.signin(username, password)
-        
+    with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Create a schema
         try:
             client.create_schema(name='myNewSchema')
             print(client.schema_names)
         except GraphQLException as e:
             print(e)
-            
+
         # Update the description
         try:
             client.update_schema(name='myNewSchema', description='I forgot the description')
@@ -148,14 +140,14 @@ async def main():
             print(client.schemas)
         except GraphQLException as e:
             print(e)
-        
+
         # Recreate the schema: delete and create
         try:
             client.recreate_schema(name='myNewSchema')
             print(client.schema_names)
         except GraphQLException as e:
             print(e)
-        
+
         # Delete the schema
         try:
             client.delete_schema(name='myNewSchema')
