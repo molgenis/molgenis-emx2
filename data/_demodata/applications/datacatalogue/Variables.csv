@@ -5951,7 +5951,6 @@ ENVIRONAGE,measurements at FU1,HR3FU1,,ENVIRONAGE,4-years follow-up,,,integer,bp
 ENVIRONAGE,measurements at FU1,HR4FU1,,ENVIRONAGE,4-years follow-up,,,integer,bpm,,,,4th measurement childs heart rate at the FU1,,,,,
 ENVIRONAGE,measurements at FU1,HR5FU1,,ENVIRONAGE,4-years follow-up,,,integer,bpm,,,,5th measurement childs heart rate at the FU1,,,,,
 ENVIRONAGE,measurements at FU1,Age_FU,,ENVIRONAGE,4-years follow-up,,,integer,month,,,,Age of child at follow-up visit 1,,,,,
-resource,dataset,name,label,collection event.resource,collection event.name,since version,until version,format,unit,references.dataset,references.name,mandatory,description,order,example values,keywords,vocabularies,notes
 GenR,core,G2DBP,dbp mother gestage 2,,,1.0.0,,continuous,mmHg,,,,dbp mother gestage 2,,,,,
 GenR,core,AGEIUVD,Gestational age IUVD/TOP,,,1.0.0,,continuous,week,,,,"For pregnancies that resulted in intrauterine fetal death, this variable indicates the week of gestation when happened",,,,,
 GenR,core,age_CB29t35m,Age child  29-35 months,,,1.0.0,,continuous,month,,,,Age child  29-35 months,,,,,
