@@ -137,6 +137,7 @@ export default {
         "ERN_CRANIO",
         "BIOBANK_DIRECTORY",
         "SHARED_STAGING",
+        "PROJECTMANAGER",
       ],
       includeDemoData: false,
     };

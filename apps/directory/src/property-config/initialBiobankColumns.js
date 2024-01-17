@@ -11,7 +11,7 @@ export const initialBiobankColumns = [
   {
     label: "Quality labels:",
     column: {
-      quality: [{ quality_standard: ["label"] }],
+      quality: [{ quality_standard: ["name"] }],
     },
     showOnBiobankCard: true,
   },

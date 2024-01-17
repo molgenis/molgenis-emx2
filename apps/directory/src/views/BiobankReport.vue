@@ -92,18 +92,6 @@
                           <h5>Also Known In</h5>
                           <ReportDetailsList :reportDetails="alsoKnownIn" />
                         </template>
-                        <h5
-                          v-if="
-                            quality &&
-                            quality.Certification &&
-                            quality.Certification.value.length > 0
-                          "
-                        >
-                          Quality
-                        </h5>
-                        <report-details-list
-                          :reportDetails="quality"
-                        ></report-details-list>
                       </ul>
                     </div>
                   </div>
