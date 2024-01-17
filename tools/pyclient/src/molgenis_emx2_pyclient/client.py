@@ -605,14 +605,16 @@ class Client:
         :rtype: string
         """
         response_keys = response_json.keys()
-        if 'error' not in response_keys and 'data' not in response_keys:
+        if 'errors' not in response_keys and 'data' not in response_keys:
             message = fallback_error_message
             log.error(message)
             print(message)
 
-        elif 'error' in response_keys:
-            message = response_json.get('error').errors[0].get('message')
+        elif 'errors' in response_keys:
+            message = response_json.get('errors')[0].get('message')
             log.error(message)
+            if 'permission denied' in message:
+                raise PermissionDeniedException(message)
             raise GraphQLException(message)
 
         else:

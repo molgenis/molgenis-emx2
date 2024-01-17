@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 
 from tools.pyclient.src.molgenis_emx2_pyclient import Client
 from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import (NoSuchSchemaException, NoSuchTableException,
-                                                                  GraphQLException)
+                                                                  GraphQLException, PermissionDeniedException)
 
 
 async def main():
@@ -94,35 +94,42 @@ async def main():
         }]
 
         # Import new data
-        client.save_schema(name='pet store', table='Tag', data=new_tags)
-        client.save_schema(name='pet store', table='Pet', data=new_pets)
+        try:
+            client.save_schema(name='pet store', table='Tag', data=new_tags)
+            client.save_schema(name='pet store', table='Pet', data=new_pets)
 
-        # Retrieve records
-        tags_data = client.get(schema='pet store', table='Tag', as_df=True)
-        print(tags_data)
-        pets_data = client.get(schema='pet store', table='Pet', as_df=True)
-        print(pets_data)
+            # Retrieve records
+            tags_data = client.get(schema='pet store', table='Tag', as_df=True)
+            print(tags_data)
+            pets_data = client.get(schema='pet store', table='Pet', as_df=True)
+            print(pets_data)
 
-        # Drop records
-        tags_to_remove = [{'name': row['name']} for row in new_tags if row['name'] == 'canis']
-        client.delete_records(schema='pet store', table='Pet', data=new_pets)
-        client.delete_records(schema='pet store', table='Tag', data=tags_to_remove)
+            # Drop records
+            tags_to_remove = [{'name': row['name']} for row in new_tags if row['name'] == 'canis']
+            client.delete_records(schema='pet store', table='Pet', data=new_pets)
+            client.delete_records(schema='pet store', table='Tag', data=tags_to_remove)
+        except PermissionDeniedException:
+            print(f"Permission denied for importing or deleting data. "
+                  f"Ensure correct authorization.")
 
         # ///////////////////////////////////////
 
         # ~ 1b ~
         # Check import via the `file` parameter
+        try:
+            # Save datasets
+            pd.DataFrame(new_tags).to_csv('demodata/Tag.csv', index=False)
+            pd.DataFrame(new_pets).to_csv('demodata/Pet.csv', index=False)
 
-        # Save datasets
-        pd.DataFrame(new_tags).to_csv('demodata/Tag.csv', index=False)
-        pd.DataFrame(new_pets).to_csv('demodata/Pet.csv', index=False)
+            # Import files
+            client.save_schema(name='pet store', table='Tag', file='demodata/Tag.csv')
+            client.save_schema(name='pet store', table='Pet', file='demodata/Pet.csv')
 
-        # Import files
-        client.save_schema(name='pet store', table='Tag', file='demodata/Tag.csv')
-        client.save_schema(name='pet store', table='Pet', file='demodata/Pet.csv')
-
-        client.delete_records(schema='pet store', table='Pet', file='demodata/Pet.csv')
-        client.delete_records(schema='pet store', table='Tag', file='demodata/Tag.csv')
+            client.delete_records(schema='pet store', table='Pet', file='demodata/Pet.csv')
+            client.delete_records(schema='pet store', table='Tag', file='demodata/Tag.csv')
+        except PermissionDeniedException:
+            print(f"Permission denied for importing or deleting data. "
+                  f"Ensure correct authorization.")
 
     # Connect to server and create, update, and drop schemas
     with Client('https://emx2.dev.molgenis.org/', token=token) as client:
@@ -130,7 +137,7 @@ async def main():
         try:
             client.create_schema(name='myNewSchema')
             print(client.schema_names)
-        except GraphQLException as e:
+        except (GraphQLException, PermissionDeniedException) as e:
             print(e)
 
         # Update the description
