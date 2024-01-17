@@ -1,4 +1,20 @@
 resource,dataset,name,label,collection event.resource,collection event.name,since version,until version,is repeat of.dataset,is repeat of.name
+LifeCycle_CDM,outcome,sbp_1,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_14,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_146,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_147,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_148,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_149,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_15,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_150,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_151,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_152,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_153,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_154,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_155,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_156,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_157,,,,1.0.0,,outcome,sbp_0
+LifeCycle_CDM,outcome,sbp_158,,,,1.0.0,,outcome,sbp_0
 PELAGIE,harmonized,int_eval_8,,,,1.0.0,,harmonized,int_eval_1
 PELAGIE,harmonized,INT_EVAL_8,,,,1.0.0,,harmonized,int_eval_1
 ATHLETE_CDM,outcome_ath,aggr_avg_5,,,,,,outcome_ath,aggr_avg_0
