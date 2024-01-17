@@ -148,7 +148,7 @@ jobs:
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar
         command: |
-          ./gradlew test jacocoMergedReport sonar --no-daemon \
+          ./gradlew test jacocoMergedReport sonar -x apps:format -x apps:buildJavaScript  --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
