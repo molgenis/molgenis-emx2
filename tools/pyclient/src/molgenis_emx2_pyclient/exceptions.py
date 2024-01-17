@@ -43,3 +43,7 @@ class GraphQLException(PyclientException):
 
 class InvalidTokenException(PyclientException):
     """Thrown when a token that is used in a request has expired."""
+
+
+class PermissionDeniedException(PyclientException):
+    """Thrown when an operation is attempted without sufficient permissions."""

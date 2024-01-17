@@ -8,8 +8,10 @@ import requests
 
 from . import graphql_queries as queries
 from . import utils as utils
-from .exceptions import NoSuchSchemaException, ServiceUnavailableError, SigninError, ServerNotFoundError, \
-    PyclientException, NoSuchTableException, NoContextManagerException, GraphQLException, InvalidTokenException
+from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError, ServerNotFoundError,
+                         PyclientException, NoSuchTableException, NoContextManagerException, GraphQLException,
+                         InvalidTokenException,
+                         PermissionDeniedException)
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
@@ -21,6 +23,7 @@ class Client:
     Use the Client object to log in to a Molgenis EMX2 server
     and perform operations on the server.
     """
+
     def __init__(self, url: str, schema: str = None, token: str = None) -> None:
         """
         Initializes a Client object with a server url.
@@ -96,7 +99,7 @@ class Client:
                                     f"\nStatus code: {response.status_code}. Reason: '{response.reason}'.")
 
         response_json: dict = response.json().get('data', {}).get('signin', {})
-        
+
         if response_json.get('status') == 'SUCCESS':
             self.signin_status = 'success'
             message = f"User '{self.username}' is signed in to '{self.url}'."
@@ -115,7 +118,7 @@ class Client:
             log.error(message)
             raise SigninError(message)
         self.schemas = self.get_schemas()
-        
+
     def signout(self):
         """Signs the client out of the EMX2 server."""
         response = self.session.post(
@@ -131,7 +134,7 @@ class Client:
             print(f"Unable to sign out of {self.url}.")
             message = response.json().get('errors')[0].get('message')
             print(message)
-            
+
     @property
     def status(self):
         """Shows the sign-in status of the user, the server version
@@ -139,11 +142,11 @@ class Client:
         """
         schemas = '\n\t'.join(self.schema_names)
         message = (
-          f"Host: {self.url}\n"
-          f"User: {self.username}\n"
-          f"Status: {'Signed in' if self.signin_status == 'success' else 'Signed out'}\n"
-          f"Schemas: \n\t{schemas}\n"
-          f"Version: {self.version}\n"
+            f"Host: {self.url}\n"
+            f"User: {self.username}\n"
+            f"Status: {'Signed in' if self.signin_status == 'success' else 'Signed out'}\n"
+            f"Schemas: \n\t{schemas}\n"
+            f"Version: {self.version}\n"
         )
         return message
 
@@ -194,7 +197,7 @@ class Client:
             json={'query': query}
         )
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
-    
+
     def save_schema(self, name: str = None, table: str = None, file: str = None, data: list = None):
         """Imports or updates records in a table of a named schema.
         
@@ -221,16 +224,22 @@ class Client:
             raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
 
         import_data = self._prep_data_or_file(file_path=file, data=data)
-        
+
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/csv/{table}",
             headers={'x-molgenis-token': self.token,
                      'Content-Type': 'text/csv'},
             data=import_data
         )
-        
+
         if response.status_code == 200:
             log.info(f"Imported data into {current_schema}::{table}.")
+        elif response.status_code == 400:
+            if 'permission denied' in response.text:
+                raise PermissionDeniedException(f"Transaction failed: permission denied for table {table}.")
+            else:
+                errors = '\n'.join([err['message'] for err in response.json().get('errors')])
+                log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
         else:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
@@ -261,20 +270,20 @@ class Client:
             raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
 
         import_data = self._prep_data_or_file(file_path=file, data=data)
-        
+
         response = self.session.delete(
             url=f"{self.url}/{current_schema}/api/csv/{table}",
             headers={'x-molgenis-token': self.token,
                      'Content-Type': 'text/csv'},
             data=import_data
         )
-        
+
         if response.status_code == 200:
             log.info(f"Deleted data from {current_schema}::{table}.")
         else:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error(f"Failed to delete data from {current_schema}::{table}\n{errors}.")
-    
+
     def get(self, schema: str = None, table: str = None, as_df: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a schema and returns as a list of dictionaries or as
         a pandas DataFrame (as pandas is used to parse the response).
@@ -293,7 +302,7 @@ class Client:
         current_schema = schema
         if current_schema is None:
             current_schema = self.default_schema
-        
+
         if current_schema not in self.schema_names:
             raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
 
@@ -401,13 +410,13 @@ class Client:
         query = queries.create_schema()
         variables = self._format_optional_params(name=name, description=description,
                                                  template=template, include_demo_data=include_demo_data)
-        
+
         response = self.session.post(
-           url=f"{self.url}/api/graphql",
-           json={'query': query, 'variables': variables},
-           headers={'x-molgenis-token': self.token}
+            url=f"{self.url}/api/graphql",
+            json={'query': query, 'variables': variables},
+            headers={'x-molgenis-token': self.token}
         )
-        
+
         response_json = response.json()
         self._validate_graphql_response(
             response_json=response_json,
@@ -415,7 +424,7 @@ class Client:
             fallback_error_message=f"Failed to create schema '{name}'"
         )
         self.schemas = self.get_schemas()
-              
+
     def delete_schema(self, name: str = None):
         """Deletes a schema from the EMX2 server.
         
@@ -433,7 +442,7 @@ class Client:
             json={'query': query, 'variables': variables},
             headers={'x-molgenis-token': self.token}
         )
-        
+
         response_json = response.json()
         self._validate_graphql_response(
             response_json=response_json,
@@ -461,7 +470,7 @@ class Client:
             json={'query': query, 'variables': variables},
             headers={'x-molgenis-token': self.token}
         )
-        
+
         response_json = response.json()
         self._validate_graphql_response(
             response_json=response_json,
@@ -469,7 +478,7 @@ class Client:
             fallback_error_message=f"Failed to update schema '{name}'"
         )
         self.schemas = self.get_schemas()
-                
+
     def recreate_schema(self, name: str = None,
                         description: str = None,
                         template: str = None,
@@ -494,7 +503,7 @@ class Client:
             message = f"Schema '{name}' does not exist"
             log.error(message)
             raise NoSuchSchemaException(message)
-        
+
         schema_meta = [db for db in self.schemas if db['name'] == name][0]
         schema_description = description if description else schema_meta.get('description', None)
 
@@ -513,7 +522,7 @@ class Client:
             print(message)
 
         self.schemas = self.get_schemas()
-        
+
     def get_schema_metadata(self, name: str = None):
         """Retrieves a schema's metadata.
         
@@ -526,21 +535,21 @@ class Client:
         current_schema = name if name is not None else self.default_schema
         if current_schema not in self.schema_names:
             raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
-        
+
         query = queries.list_schema_meta()
         response = self.session.post(
-           url=f"{self.url}/{current_schema}/api/graphql",
-           json={'query': query},
-           headers={'x-molgenis-token': self.token}
+            url=f"{self.url}/{current_schema}/api/graphql",
+            json={'query': query},
+            headers={'x-molgenis-token': self.token}
         )
-        
+
         response_json = response.json()
 
         if 'id' not in response_json.get('data').get('_schema'):
             message = f"Unable to retrieve metadata for schema '{current_schema}'"
             log.error(message)
             raise GraphQLException(message)
-        
+
         metadata = response_json.get('data').get('_schema')
         return metadata
 
