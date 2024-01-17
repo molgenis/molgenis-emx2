@@ -30,13 +30,12 @@
 }
 
 .erras-header {
-  
-  .height-xlarge {    
+  .height-xlarge {
     @media screen and (min-width: 1200px) {
       height: 36em;
     }
   }
-  
+
   .header-content {
     color: $erras-blue;
   }
