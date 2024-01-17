@@ -1,7 +1,7 @@
 <template>
-  <div :class="containerClassNames">
+  <div :class="headerClassNames">
     <div
-    v-if="imageSrc"
+      v-if="imageSrc"
       :class="`height-${height} header-image`"
       :style="`background-image: url(${imageSrc})`"
     />
@@ -16,21 +16,20 @@
 import { computed } from "vue";
 
 const props = defineProps({
-  
   // A short title that describes the page
   title: {
     type: String,
-    required: true
+    required: true,
   },
-  
+
   // A brief description about the page
   subtitle: {
     type: String,
   },
-  
+
   // Location of an image to display
   imageSrc: String,
-  
+
   // specify the height of the image
   height: {
     // `'small' / 'medium' / 'large' / `xlarge / 'full'`
@@ -38,10 +37,10 @@ const props = defineProps({
     // `small`
     default: "large",
     validator: (value) => {
-      return ["small", "medium", "large", 'xlarge', "full"].includes(value);
+      return ["small", "medium", "large", "xlarge", "full"].includes(value);
     },
   },
-    
+
   // the horizontal position of the title and subtitle
   titlePositionX: {
     // `'left' / 'center' / 'right'`
@@ -62,46 +61,44 @@ const props = defineProps({
       return ["top", "center", "bottom"].includes(value);
     },
   },
-  
 });
 
-
-const containerClassNames = computed(() => {
+const headerClassNames = computed(() => {
   const css = [
-    'custom-page-header',
+    "custom-page-header",
     `text-position-x-${props.titlePositionX} text-position-y-${props.titlePositionY}`,
-    `padding-h-${props.horizontalPadding} padding-v-${props.verticalPadding}`
-  ]
-  
-  if (props.imageSrc) {
-    css.push('header-image-background');
-  }
-  
-  return css.join(' ');
-});
+    `padding-h-${props.horizontalPadding} padding-v-${props.verticalPadding}`,
+  ];
 
+  if (props.imageSrc) {
+    css.push("header-image-background");
+  }
+
+  return css.join(" ");
+});
 </script>
 
 <style lang="scss">
 .custom-page-header {
   position: relative;
-  
+
   .header-image {
     background-size: cover;
     background-position: 0 0;
   }
-  
+
   .header-content {
     width: 90%;
     margin: 0 auto;
     padding: 1em 0;
-    
-    h1, h2 {
+
+    h1,
+    h2 {
       margin: 0;
       line-height: 1.3;
       color: currentColor;
     }
-    
+
     .header-title {
       font-size: 13pt;
       text-transform: uppercase;

@@ -126,7 +126,6 @@ import {
 } from "@heroicons/vue/24/outline";
 
 import CustomPageHeader from "../components/CustomPageHeader.vue";
-
 </script>
 
 <style lang="scss">
