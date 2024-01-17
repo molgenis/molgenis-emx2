@@ -181,6 +181,10 @@ class Client:
         """Returns the token by a property to prevent it being modified."""
         return self._token
 
+    def set_token(self, token: str):
+        """Sets the token supplied as the argument as the client's token."""
+        self._token = token
+
     @property
     def version(self):
         """Lists the current EMX2 version on the server"""
