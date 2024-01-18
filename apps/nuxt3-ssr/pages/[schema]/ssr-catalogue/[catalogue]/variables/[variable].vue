@@ -14,9 +14,6 @@ const cohortsFilter = scoped
   ? { networks: { equals: [{ id: catalogueRouteParam }] } }
   : {};
 
-let variable: VariableDetailsWithMapping;
-let cohorts: { id: string }[];
-
 type VariableDetailsWithMapping = IVariable &
   IVariableMappings & { nRepeats: number };
 
@@ -29,16 +26,12 @@ const { data, pending, error, refresh } = await useFetch(
   }
 );
 
-watch(data, setData, {
-  deep: true,
-  immediate: true,
-});
-
-function setData(data: any) {
-  variable = data?.data?.Variables[0] as VariableDetailsWithMapping;
-  variable.nRepeats = data?.data?.RepeatedVariables_agg.count;
-  cohorts = data?.data?.Cohorts;
-}
+const variable = computed(
+  () => data.value.data.Variables[0] as VariableDetailsWithMapping
+);
+const nRepeats = computed(() => data.value.data.RepeatedVariables_agg.count);
+const cohorts = computed(() => data.value.data.Cohorts as { id: string }[]);
+const isRepeating = computed(() => variable.value.repeats);
 
 let crumbs: any = {};
 crumbs[
@@ -49,9 +42,9 @@ crumbs[
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables`;
 
 const cohortsWithMapping = computed(() => {
-  return cohorts
+  return cohorts.value
     .map((cohort) => {
-      const status = calcIndividualVariableHarmonizationStatus(variable, [
+      const status = calcIndividualVariableHarmonizationStatus(variable.value, [
         cohort,
       ])[0];
       return {
@@ -86,7 +79,7 @@ if (cohortsWithMapping.value.length > 0) {
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-useHead({ title: titlePrefix + key.name });
+useHead({ title: titlePrefix + variable.value.name });
 </script>
 
 <template>
@@ -123,7 +116,7 @@ useHead({ title: titlePrefix + key.name });
               },
               {
                 label: 'N repeats',
-                content: variable?.nRepeats > 0 ? variable?.nRepeats : 'None',
+                content: nRepeats > 0 ? nRepeats : 'None',
               },
             ]"
           >
@@ -136,7 +129,13 @@ useHead({ title: titlePrefix + key.name });
           title="Harmonization status per Cohort"
           description="Overview of the harmonization status per Cohort"
         >
+          <HarmonizationGridPerVariable
+            v-if="isRepeating"
+            :cohorts-with-mapping="cohortsWithMapping"
+            :variable="variable"
+          />
           <HarmonizationListPerVariable
+            v-else
             :cohortsWithMapping="cohortsWithMapping"
           />
         </ContentBlock>
