@@ -37,19 +37,12 @@ commands:
         # fallback to using the latest cache if no exact match is found
         - v1-dependencies-
 
-    - run: ./gradlew dependencies
+    - run: ./gradlew -s dependencies --no-daemon
 
     - save_cache:
         paths:
         - ~/.gradle
         key: v1-dependencies-{{ checksum "build.gradle" }}
-
-    - setup_remote_docker:
-        docker_layer_caching: true
-
-    - run:
-        name: Sign in to docker
-        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
     - run:
         name: Setup git, todo, move to molgenisci user
@@ -59,18 +52,32 @@ commands:
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
 
+
+    - run: apt-get update && apt-get install postgresql-client -y
+
+    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+
+    - setup_remote_docker:
+        docker_layer_caching: true
+
+    - run:
+        name: Sign in to docker
+        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
 # jobs for pull request and master
 jobs:
   handlePullRequest:
     <<: *shared_config
 
     steps:
+    - run: |
+        echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+
     - run_shared_steps
+
     - run:
-        name: build and push emx2 docker images and helm for the preview
-        command: |
-          echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-          ./gradlew -s --no-daemon shadowJar dockerPush helmPublishMainChart ci
+        name: build and push emx2 java docker images and helm for the preview
+        command: ./gradlew -s --no-daemon shadowJar dockerPush helmPublishMainChart ci
 
     - run:
         name: push ssr-catalogue docker images
@@ -82,7 +89,7 @@ jobs:
 
     #After migrating to azure code below can be removed
     - run:
-        name: deploy preview or update dev to k8s
+        name: deploy preview to rug
         command: |
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
@@ -90,14 +97,14 @@ jobs:
 
 
     - run:
-        name: deploy preview or update dev to azure
+        name: deploy preview to azure
         command: |
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh
           bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
 
     - run:
-        name: message slack
+        name: message slack about preview
         command: |
           export $( cat build/ci.properties | xargs )
           curl -d "token=${SLACK_TOKEN}" \
@@ -107,7 +114,8 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage
 
     - run:
-        name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
+        # after preview so preview is created even if tests fail
+        name: Lastly run tests and push to sonar
         command: |
           ./gradlew test jacocoMergedReport sonar -x apps:format -x apps:buildJavaScript  --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
@@ -131,14 +139,14 @@ jobs:
     - run_shared_steps
 
     - run:
-        name: Run tests, merge test results using jacoco and push test results to sonar for the branch
+        name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
         command: |
           ./gradlew shadowJar test jacocoMergedReport sonar --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
 
     - run:
-        name: release if not snapshot, push catalogue release docker
+        name: release if not snapshot, push catalogue release to docker
         command: |
           export $( cat build/ci.properties | xargs )
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
@@ -152,21 +160,21 @@ jobs:
           fi
 
     - run:
-        name: update rug server
+        name: update rug demo server
         command: |
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
           bash ci/create_or_update_k8s.sh "emx2" ${TAG_NAME}
 
     - run:
-        name: update azure server
+        name: update azure demo server
         command: |
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh
           bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME}
 
     - run:
-        name: message slack
+        name: message slack about release and updated demo server
         command: |
           export $( cat build/ci.properties | xargs )
           curl -d "token=${SLACK_TOKEN}" \
