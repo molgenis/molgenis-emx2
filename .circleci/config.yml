@@ -14,48 +14,36 @@ definitions:
       JVM_OPTS: -Xmx3200m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
-
   shared_steps: &shared_steps
-    - checkout
-
-    - run: git fetch --all --tags
-
-    - run: export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
-
-    # Download and cache dependencies
-    - restore_cache:
-        keys:
-        - v1-dependencies-{{ checksum "build.gradle" }}
-        # fallback to using the latest cache if no exact match is found
-        - v1-dependencies-
-
-    - run: ./gradlew dependencies
-
-    - save_cache:
-        paths:
-        - ~/.gradle
-        key: v1-dependencies-{{ checksum "build.gradle" }}
-
-    - run:
-        name: Setup git, todo, move to molgenisci user
-        command: |
-          git config --global --add safe.directory '*'
-          git config user.email "m.a.swertz@rug.nl"
-          git config user.name "mswertz"
-          git config url.https://.insteadOf git://
-
-    - run: apt-get update && apt-get install postgresql-client -y
-
-    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
-
-    - setup_remote_docker:
-        version: 19.03.13
-        docker_layer_caching: true
-
-    - run:
-        name: Sign in to docker
-        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
-
+  - checkout
+  - run: git fetch --all --tags
+  - run: export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
+  # Download and cache dependencies
+  - restore_cache:
+      keys:
+      - v1-dependencies-{{ checksum "build.gradle" }}
+      # fallback to using the latest cache if no exact match is found
+      - v1-dependencies-
+  - run: ./gradlew dependencies
+  - save_cache:
+      paths:
+      - ~/.gradle
+      key: v1-dependencies-{{ checksum "build.gradle" }}
+  - run:
+      name: Setup git, todo, move to molgenisci user
+      command: |
+        git config --global --add safe.directory '*'
+        git config user.email "m.a.swertz@rug.nl"
+        git config user.name "mswertz"
+        git config url.https://.insteadOf git://
+  - run: apt-get update && apt-get install postgresql-client -y
+  - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+  - setup_remote_docker:
+      version: 19.03.13
+      docker_layer_caching: true
+  - run:
+      name: Sign in to docker
+      command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
 # here starts normal circleci script
 version: 2
@@ -66,7 +54,7 @@ jobs:
     <<: *shared_environment
 
     steps:
-    - *shared_steps
+    - <<:*shared_steps
 
     - run:
         name: build and push emx2 docker images and helm for the preview
@@ -130,7 +118,7 @@ jobs:
     <<: *shared_environment
 
     steps:
-    - *shared_steps
+    - <<:*shared_steps
 
     - run:
         name: Sign in to docker
