@@ -128,7 +128,7 @@ jobs:
         path: ~/test-results
 
   handleMergeMaster:
-    <<: *docker_definition
+    <<: *shared_environment
 
     steps:
     - *shared_steps
