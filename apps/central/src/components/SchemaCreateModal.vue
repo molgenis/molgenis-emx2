@@ -134,7 +134,6 @@ export default {
         "FAIR_GENOMES",
         "BEACON_V2",
         "ERN_DASHBOARD",
-        "ERN_CRANIO",
         "BIOBANK_DIRECTORY",
         "SHARED_STAGING",
         "PROJECTMANAGER",
