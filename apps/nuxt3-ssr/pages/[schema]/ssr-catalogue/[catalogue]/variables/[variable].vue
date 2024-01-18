@@ -31,6 +31,7 @@ const variable = computed(
 );
 const nRepeats = computed(() => data.value.data.RepeatedVariables_agg.count);
 const cohorts = computed(() => data.value.data.Cohorts as { id: string }[]);
+const isRepeating = computed(() => variable.value.repeats);
 
 let crumbs: any = {};
 crumbs[
@@ -128,7 +129,13 @@ useHead({ title: titlePrefix + variable.value.name });
           title="Harmonization status per Cohort"
           description="Overview of the harmonization status per Cohort"
         >
+          <HarmonizationGridPerVariable
+            v-if="isRepeating"
+            :cohorts-with-mapping="cohortsWithMapping"
+            :variable="variable"
+          />
           <HarmonizationListPerVariable
+            v-else
             :cohortsWithMapping="cohortsWithMapping"
           />
         </ContentBlock>
