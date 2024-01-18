@@ -8,19 +8,21 @@ orbs:
 jobs:
   definitions:
     shared_environment: &shared_environment
-      JVM_OPTS: -Xmx3200m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-      TERM: dumb
-
-    shared_docker_definition: &shared_docker_definition
-    - image: molgenis/ci-build:latest
-    - image: postgres:15-alpine
       environment:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_DB: postgres
+        JVM_OPTS: -Xmx3200m
+        GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+        TERM: dumb
 
-    shared_stesp: &shared_steps
+    docker_definition: &docker_definition
+      docker:
+      - image: molgenis/ci-build:latest
+      - image: postgres:15-alpine
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+
+    shared_steps: &shared_steps
       - checkout
 
       - run: git fetch --all --tags
@@ -62,17 +64,15 @@ jobs:
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS
   
   handlePullRequest:
-    docker:
-      - *shared_docker_definition
+    <<: *docker_definition
 
     working_directory: ~/repo
     resource_class: large
 
-    environment:
-      - *shared_environment
+    <<: *shared_environment
 
     steps:
-    - *shared_steps
+    - <<:shared_steps
 
     - run:
         name: build and push emx2 docker images and helm for the preview
@@ -137,13 +137,12 @@ jobs:
         path: ~/test-results
 
   handleMergeMaster:
-    docker:
-    - *shared_docker_definition
+    <<: *docker_definition
+
     working_directory: ~/repo
     resource_class: large
 
-    environment:
-    - *shared_environment
+    <<: *shared_environment
 
     steps:
     - *shared_steps  # Include the common steps
