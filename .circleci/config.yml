@@ -1,4 +1,4 @@
-version: 2.1
+version: 2
 orbs:
   slack: circleci/slack@4.4.4
 definitions:
@@ -19,7 +19,8 @@ definitions:
       TERM: dumb
 
 commands: # a reusable command with parameters
-  prepare:
+  run_shared_steps:
+    description: shared steps
     steps:
     - checkout
 
@@ -63,8 +64,7 @@ jobs:
     <<: *shared_environment
 
     steps:
-    - prepare:
-
+    - run_shared_steps
     - run:
         name: build and push emx2 docker images and helm for the preview
         command: |
@@ -127,7 +127,7 @@ jobs:
     <<: *shared_environment
 
     steps:
-    - prepare:
+    - run_shared_steps
 
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch
