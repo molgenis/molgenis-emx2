@@ -72,7 +72,7 @@ jobs:
     <<: *shared_environment
 
     steps:
-    - <<:shared_steps
+    - *shared_steps
 
     - run:
         name: build and push emx2 docker images and helm for the preview
