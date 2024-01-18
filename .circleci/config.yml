@@ -58,10 +58,6 @@ jobs:
       - setup_remote_docker:
           version: 19.03.13
           docker_layer_caching: true
-
-      - run:
-          name: Sign in to docker
-          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
   
   handlePullRequest:
     <<: *shared_environment
@@ -70,10 +66,14 @@ jobs:
     - *shared_steps
 
     - run:
+        name: Sign in to docker
+        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+    - run:
         name: build and push emx2 docker images and helm for the preview
         command: |
           echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-          ./gradlew -s --no-daemon dockerPush helmPublishMainChart ci
+          ./gradlew -s --no-daemon shadowJar dockerPush helmPublishMainChart ci
 
     - run:
         name: push ssr-catalogue docker images
@@ -134,14 +134,18 @@ jobs:
     - *shared_steps
 
     - run:
+        name: Sign in to docker
+        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+    - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch
         command: |
-          ./gradlew test jacocoMergedReport sonar --no-daemon \
+          ./gradlew test jacocoMergedReport sonar shadowJar --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
 
     - run:
-        name: release if not snapshot, push release docker, push release python
+        name: release if not snapshot, push catalogue release docker
         command: |
           export $( cat build/ci.properties | xargs )
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
