@@ -6,10 +6,15 @@ version: 2
 orbs:
   slack: circleci/slack@4.4.4
 jobs:
-  build:
+  prepare:
     docker:
     # specify the version you desire here
     - image: molgenis/ci-build:latest
+    - image: postgres:15-alpine
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: postgres
     working_directory: ~/repo
     resource_class: large
 
@@ -47,18 +52,16 @@ jobs:
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
 
-    - run:
-        name: build jar and compile test classes and export 'ci' config
-        command: |
-          ./gradlew clean testClasses shadowJar ci
-          export $( cat build/ci.properties | xargs )
+    - run: apt-get update && apt-get install postgresql-client -y
+
+    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
     - persist_to_workspace:
         root: .
         paths:
             - .
   
-  preview:
+  buildPullRequest:
     docker:
     - image: molgenis/ci-build:latest
     working_directory: ~/repo
@@ -82,10 +85,11 @@ jobs:
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
     - run:
-        name: push emx2 docker images and helm for the preview
+        name: build and push emx2 docker images and helm for the preview
         command: |
           echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-          ./gradlew -s --no-daemon dockerPush helmPublishMainChart
+          ./gradlew -s --no-daemon dockerPush helmPublishMainChart ci
+          export $( cat build/ci.properties | xargs )
 
     - run:
         name: push ssr-catalogue docker images
@@ -120,33 +124,12 @@ jobs:
           PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.net" \
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage
-          
-  test:
-    docker:
-    - image: molgenis/ci-build:latest
-    - image: postgres:15-alpine
-      environment:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_DB: postgres
-    working_directory: ~/repo
-    resource_class: large
-
-    environment:
-      JVM_OPTS: -Xmx3200m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-      TERM: dumb
-
-    steps:
-    - attach_workspace:
-        at: ~/repo
-
-    - run: apt-get update && apt-get install postgresql-client -y 
-
-    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+    - run:
+        name: run tests
+        command: |
 
     - run:
-        name: Run tests, merge test results using jacoco and push test results to sonar
+        name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
         command: |
           ./gradlew test jacocoMergedReport sonar -x apps:format -x apps:buildJavaScript  --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
@@ -154,11 +137,12 @@ jobs:
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
       
     - run:
-        name: Save test results
+        name: Save test results for stats
         command: |
           mkdir -p ~/test-results/junit/
           find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
         when: always
+
     - store_test_results:
         path: ~/test-results
 
@@ -186,14 +170,22 @@ jobs:
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
     - run:
-        name: release, push release docker, push release python
+        name: Run tests, merge test results using jacoco and push test results to sonar for the branch
+        command: |
+          ./gradlew test jacocoMergedReport sonar --no-daemon \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+
+    - run:
+        name: release if not snapshot, push release docker, push release python
         command: |
           export $( cat build/ci.properties | xargs )
-          ./gradlew -s --no-daemon dockerPush helmPublishMainChart release
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
+            /gradlew -s --no-daemon dockerPush helmPublishMainChart
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
           else
+            /gradlew -s --no-daemon dockerPush helmPublishMainChart release
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
           fi
@@ -227,18 +219,15 @@ workflows:
   build_and_test_and_preview_or_release:
     jobs:
       - build
-      - preview:
+      - pullRequest:
           requires:
             - build
           filters:
             branches:
               ignore: master
-      - test:
-          requires:
-            - build
       - release:
           requires:
-            - test
+            - build
           filters:
             branches:
               only: master
