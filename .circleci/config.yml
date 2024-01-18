@@ -54,7 +54,7 @@ jobs:
     <<: *shared_environment
 
     steps:
-    <<: *shared_steps
+    - *shared_steps
 
     - run:
         name: build and push emx2 docker images and helm for the preview
@@ -65,10 +65,10 @@ jobs:
     - run:
         name: push ssr-catalogue docker images
         command: |
-            export $( cat build/ci.properties | xargs )
-            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
-            docker push molgenis/ssr-catalogue-snapshot --all-tags
-        
+          export $( cat build/ci.properties | xargs )
+          docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+          docker push molgenis/ssr-catalogue-snapshot --all-tags
+    
 
     #After migrating to azure code below can be removed
     - run:
@@ -77,7 +77,7 @@ jobs:
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
           bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
-          
+
 
     - run:
         name: deploy preview or update dev to azure
@@ -85,7 +85,7 @@ jobs:
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh
           bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
-    
+
     - run:
         name: message slack
         command: |
@@ -103,7 +103,7 @@ jobs:
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
-      
+
     - run:
         name: Save test results for stats
         command: |
@@ -118,7 +118,7 @@ jobs:
     <<: *shared_environment
 
     steps:
-    <<: *shared_steps
+    - *shared_steps
 
     - run:
         name: Sign in to docker
@@ -145,39 +145,39 @@ jobs:
             docker push molgenis/ssr-catalogue --all-tags
           fi
 
-    - run: 
+    - run:
         name: update rug server
         command: |
-            export $( cat build/ci.properties | xargs )
-            bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
-            bash ci/create_or_update_k8s.sh "emx2" ${TAG_NAME}
-            
+          export $( cat build/ci.properties | xargs )
+          bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
+          bash ci/create_or_update_k8s.sh "emx2" ${TAG_NAME}
+
     - run:
         name: update azure server
         command: |
-            export $( cat build/ci.properties | xargs )
-            bash ci/set_kubectl_config-azure.sh
-            bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME}
-    
+          export $( cat build/ci.properties | xargs )
+          bash ci/set_kubectl_config-azure.sh
+          bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME}
+
     - run:
-          name: message slack
-          command: |
-            export $( cat build/ci.properties | xargs )
-            curl -d "token=${SLACK_TOKEN}" \
-            -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
-            -d "channel=C02AZDG6QQ7" \
-            -X POST https://slack.com/api/chat.postMessage          
-          
+        name: message slack
+        command: |
+          export $( cat build/ci.properties | xargs )
+          curl -d "token=${SLACK_TOKEN}" \
+          -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
+          -d "channel=C02AZDG6QQ7" \
+          -X POST https://slack.com/api/chat.postMessage          
+
 
 workflows:
   version: 2
   build_and_test_and_preview_or_release:
     jobs:
-      - handlePullRequest:
-          filters:
-            branches:
-              ignore: master
-      - handleMergeMaster:
-          filters:
-            branches:
-              only: master
+    - handlePullRequest:
+        filters:
+          branches:
+            ignore: master
+    - handleMergeMaster:
+        filters:
+          branches:
+            only: master
