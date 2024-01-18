@@ -73,7 +73,7 @@
 
 <script setup>
 import { Accordion } from "molgenis-viz";
-import { ArrowUpTrayIcon } from "@heroicons/vue/24/outline"
+import { ArrowUpTrayIcon } from "@heroicons/vue/24/outline";
 </script>
 
 <style lang="scss">
@@ -157,16 +157,16 @@ import { ArrowUpTrayIcon } from "@heroicons/vue/24/outline"
 #btnSubmitPatient {
   @include buttonLink;
   @include textTransform;
-  
+
   color: $cranio-orange-050;
   background-color: $cranio-orange;
-  
+
   span {
     letter-spacing: 0.15em;
     border-bottom: 2px solid transparent;
-    
   }
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     text-decoration: none;
     filter: brightness(110%);
   }
