@@ -1,24 +1,26 @@
 version: 2.1
 orbs:
   slack: circleci/slack@4.4.4
-definitions:
-  shared_environment: &shared_environment
-    docker:
-    # specify the version you desire here
-    - image: molgenis/ci-build:latest
-    - image: postgres:15-alpine
-      environment:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_DB: postgres
-    working_directory: ~/repo
-    resource_class: large
-    environment:
-      JVM_OPTS: -Xmx3200m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-      TERM: dumb
 
-commands: # a reusable command with parameters
+## some shared config that can be reused via yaml anchor
+shared_config: &shared_config
+  docker:
+  # specify the version you desire here
+  - image: molgenis/ci-build:latest
+  - image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+  working_directory: ~/repo
+  resource_class: large
+  environment:
+    JVM_OPTS: -Xmx3200m
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+    TERM: dumb
+
+# some shared steps that cqn be reused as command
+commands:
   run_shared_steps:
     description: shared steps
     steps:
@@ -43,7 +45,6 @@ commands: # a reusable command with parameters
         key: v1-dependencies-{{ checksum "build.gradle" }}
 
     - setup_remote_docker:
-        version: 19.03.13
         docker_layer_caching: true
 
     - run:
@@ -58,10 +59,10 @@ commands: # a reusable command with parameters
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
 
-# here starts normal circleci script
+# jobs for pull request and master
 jobs:
   handlePullRequest:
-    <<: *shared_environment
+    <<: *shared_config
 
     steps:
     - run_shared_steps
@@ -124,7 +125,7 @@ jobs:
         path: ~/test-results
 
   handleMergeMaster:
-    <<: *shared_environment
+    <<: *shared_config
 
     steps:
     - run_shared_steps
@@ -172,7 +173,6 @@ jobs:
           -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage          
-
 
 workflows:
   version: 2
