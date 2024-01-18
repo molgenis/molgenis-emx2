@@ -15,7 +15,9 @@ definitions:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
 
-  shared_step: &shared_step
+commands: # a reusable command with parameters
+  prepare:
+    steps:
     - setup_remote_docker:
         version: 19.03.13
         docker_layer_caching: true
@@ -49,7 +51,7 @@ jobs:
     <<: *shared_environment
 
     steps:
-    - <<: *shared_step
+    - prepare:
 
     - run:
         name: build and push emx2 docker images and helm for the preview
@@ -113,7 +115,7 @@ jobs:
     <<: *shared_environment
 
     steps:
-    - <<: *shared_step
+    - prepare:
 
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch
