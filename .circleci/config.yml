@@ -1,7 +1,10 @@
-# shared code
+version: 2.1
+orbs:
+  slack: circleci/slack@4.4.4
 definitions:
   shared_environment: &shared_environment
     docker:
+    # specify the version you desire here
     - image: molgenis/ci-build:latest
     - image: postgres:15-alpine
       environment:
@@ -18,34 +21,43 @@ definitions:
 commands: # a reusable command with parameters
   prepare:
     steps:
-    - setup_remote_docker:
-        version: 19.03.13
-        docker_layer_caching: true
+    - checkout
+
+    - run: git fetch --all --tags
+
+    - run: export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
+
+    # Download and cache dependencies
     - restore_cache:
         keys:
         - v1-dependencies-{{ checksum "build.gradle" }}
         # fallback to using the latest cache if no exact match is found
         - v1-dependencies-
-    - run: |
-        export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
-        git config --global --add safe.directory '*'
-        git config user.ema "m.a.swertz@rug.nl"
-        git config user.name "mswertz"
-        git config url.https://.insteadOf git://
-        git fetch --all --tags
-        apt-get update && apt-get install postgresql-client -y
-        psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
-        ./gradlew dependencies
-        docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+    - run: ./gradlew dependencies
+
     - save_cache:
-          paths:
-          - ~/.gradle
-          key: v1-dependencies-{{ checksum "build.gradle" }}
+        paths:
+        - ~/.gradle
+        key: v1-dependencies-{{ checksum "build.gradle" }}
+
+    - setup_remote_docker:
+        version: 19.03.13
+        docker_layer_caching: true
+
+    - run:
+        name: Sign in to docker
+        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+    - run:
+        name: Setup git, todo, move to molgenisci user
+        command: |
+          git config --global --add safe.directory '*'
+          git config user.email "m.a.swertz@rug.nl"
+          git config user.name "mswertz"
+          git config url.https://.insteadOf git://
 
 # here starts normal circleci script
-version: 2
-orbs:
-  slack: circleci/slack@4.4.4
 jobs:
   handlePullRequest:
     <<: *shared_environment
