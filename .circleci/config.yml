@@ -54,7 +54,7 @@ jobs:
     <<: *shared_environment
 
     steps:
-    - *shared_steps
+    - <<: *shared_steps
 
     - run:
         name: build and push emx2 docker images and helm for the preview
@@ -118,11 +118,7 @@ jobs:
     <<: *shared_environment
 
     steps:
-    - *shared_steps
-
-    - run:
-        name: Sign in to docker
-        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - <<: *shared_steps
 
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch
