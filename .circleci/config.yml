@@ -8,12 +8,6 @@ orbs:
 jobs:
   definitions:
     shared_environment: &shared_environment
-      environment:
-        JVM_OPTS: -Xmx3200m
-        GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-        TERM: dumb
-
-    docker_definition: &docker_definition
       docker:
       - image: molgenis/ci-build:latest
       - image: postgres:15-alpine
@@ -21,6 +15,15 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
+      working_directory: ~/repo
+      resource_class: large
+      environment:
+        JVM_OPTS: -Xmx3200m
+        GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+        TERM: dumb
+
+    docker_definition: &docker_definition
+
 
     shared_steps: &shared_steps
       - checkout
@@ -64,11 +67,6 @@ jobs:
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS
   
   handlePullRequest:
-    <<: *docker_definition
-
-    working_directory: ~/repo
-    resource_class: large
-
     <<: *shared_environment
 
     steps:
@@ -135,13 +133,8 @@ jobs:
   handleMergeMaster:
     <<: *docker_definition
 
-    working_directory: ~/repo
-    resource_class: large
-
-    <<: *shared_environment
-
     steps:
-    - *shared_steps  # Include the common steps
+    - *shared_steps
 
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch
