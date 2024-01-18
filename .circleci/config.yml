@@ -6,83 +6,73 @@ version: 2
 orbs:
   slack: circleci/slack@4.4.4
 jobs:
-  prepare:
-    docker:
-    # specify the version you desire here
+  definitions:
+    shared_environment: &shared_environment
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
+
+    shared_docker_definition: &shared_docker_definition
     - image: molgenis/ci-build:latest
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
         POSTGRES_DB: postgres
-    working_directory: ~/repo
-    resource_class: large
 
-    environment:
-      JVM_OPTS: -Xmx3200m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-      TERM: dumb
+    shared_stesp: &shared_steps
+      - checkout
 
-    steps:
-    - checkout
-    
-    - run: git fetch --all --tags
-      
-    - run: export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
+      - run: git fetch --all --tags
 
-    # Download and cache dependencies
-    - restore_cache:
-        keys:
-        - v1-dependencies-{{ checksum "build.gradle" }}
-        # fallback to using the latest cache if no exact match is found
-        - v1-dependencies-
+      - run: export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
 
-    - run: ./gradlew dependencies
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "build.gradle" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
 
-    - save_cache:
-        paths:
-        - ~/.gradle
-        key: v1-dependencies-{{ checksum "build.gradle" }}
+      - run: ./gradlew dependencies
 
-    - run:
-        name: Setup git, todo, move to molgenisci user
-        command: |
-          git config --global --add safe.directory '*'
-          git config user.email "m.a.swertz@rug.nl"
-          git config user.name "mswertz"
-          git config url.https://.insteadOf git://
+      - save_cache:
+          paths:
+          - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
 
-    - run: apt-get update && apt-get install postgresql-client -y
+      - run:
+          name: Setup git, todo, move to molgenisci user
+          command: |
+            git config --global --add safe.directory '*'
+            git config user.email "m.a.swertz@rug.nl"
+            git config user.name "mswertz"
+            git config url.https://.insteadOf git://
 
-    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+      - run: apt-get update && apt-get install postgresql-client -y
 
-    - persist_to_workspace:
-        root: .
-        paths:
-            - .
+      - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+
+      - setup_remote_docker:
+          version: 19.03.13
+          docker_layer_caching: true
+
+      - run:
+          name: Sign in to docker
+          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
   
   handlePullRequest:
     docker:
-    - image: molgenis/ci-build:latest
+      - *shared_docker_definition
+
     working_directory: ~/repo
     resource_class: large
 
     environment:
-      JVM_OPTS: -Xmx3200m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-      TERM: dumb
+      - *shared_environment
 
     steps:
-    - attach_workspace:
-        at: ~/repo
-
-    - setup_remote_docker:
-        version: 19.03.13
-        docker_layer_caching: true
-
-    - run:
-        name: Sign in to docker
-        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - *shared_steps
 
     - run:
         name: build and push emx2 docker images and helm for the preview
@@ -148,26 +138,15 @@ jobs:
 
   handleMergeMaster:
     docker:
-    - image: molgenis/ci-build:latest
+    - *shared_docker_definition
     working_directory: ~/repo
     resource_class: large
 
     environment:
-      JVM_OPTS: -Xmx3200m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-      TERM: dumb
+    - *shared_environment
 
     steps:
-    - attach_workspace:
-        at: ~/repo
-
-    - setup_remote_docker:
-        version: 19.03.13
-        docker_layer_caching: true
-
-    - run:
-        name: Sign in to docker
-        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - *shared_steps  # Include the common steps
 
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch
