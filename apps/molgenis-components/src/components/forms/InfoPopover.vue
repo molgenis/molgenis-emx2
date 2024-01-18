@@ -89,26 +89,20 @@ export default {
     placementStyle() {
       switch (this.popoverPlacement) {
         case "right": {
-          const top = 0;
-          const left = this.elementWidth + 8;
-
-          return `top: ${top}px;left:${left}px;`;
+          const left = this.elementWidth + 12;
+          return `top: 50%; left:${left}px; transform: translateY(-50%);`;
         }
         case "left": {
-          const top = 0;
-          const right = this.elementWidth + 8;
-
-          return `top: ${top}rem;right:${right}px;`;
+          const right = this.elementWidth + 12;
+          return `top: 50%; right:${right}px; transform: translateY(-50%);`;
         }
         case "bottom": {
-          const top = this.elementHeight + 8;
-          const right = this.elementWidth / 2 - this.contentWidth / 2;
-          return `top: ${top}px;right:${right}px;`;
+          const top = this.elementHeight + 12;
+          return `top: ${top}px; left: 50%; transform: translateX(-50%);`;
         }
         default: {
-          const bottom = this.elementHeight + 8;
-          const right = this.elementWidth / 2 - this.contentWidth / 2;
-          return `bottom: ${bottom}px;right:${right}px;`;
+          const bottom = this.elementHeight + 12;
+          return `bottom: ${bottom}px; left: 50%; transform: translateX(-50%);`;
         }
       }
     },
@@ -129,15 +123,16 @@ export default {
 .w3tooltip .tooltiptext {
   visibility: hidden;
   position: absolute;
+  width: max-content;
   background-color: var(--dark);
   color: #fff;
-  text-align: center;
-  padding: 0.8rem 0.6rem;
+  line-height: normal;
+  padding: 6px 10px;
   border-radius: 6px;
   z-index: 1;
   opacity: 0;
-  white-space: nowrap;
   transition: opacity 0.6s;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 .w3tooltip:hover {
   cursor: pointer;

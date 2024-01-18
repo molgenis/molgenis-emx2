@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const route = useRoute();
-import { INetwork } from "~/interfaces/types";
+import type { INetwork } from "~/interfaces/types";
 import { computed } from "vue";
 
 const props = withDefaults(
