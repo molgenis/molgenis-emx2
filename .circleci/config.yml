@@ -227,7 +227,7 @@ workflows:
               ignore: master
       - handleMergeMaster:
           requires:
-            - build
+            - prepare
           filters:
             branches:
               only: master
