@@ -22,9 +22,6 @@ jobs:
         GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
         TERM: dumb
 
-    docker_definition: &docker_definition
-
-
     shared_steps: &shared_steps
       - checkout
 
