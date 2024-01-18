@@ -6,8 +6,13 @@ const config = useRuntimeConfig();
 const route = useRoute();
 
 const query = moduleToString(variableQuery);
+const scoped = route.params.catalogue !== "all";
+const catalogueRouteParam = route.params.catalogue as string;
 const { key } = useQueryParams();
-const filter = buildFilterFromKeysObject(key);
+const variableFilter = buildFilterFromKeysObject(key);
+const cohortsFilter = scoped
+  ? { networks: { equals: [{ id: catalogueRouteParam }] } }
+  : {};
 
 let variable: VariableDetailsWithMapping;
 let cohorts: { id: string }[];
@@ -20,7 +25,7 @@ const { data, pending, error, refresh } = await useFetch(
   {
     baseURL: config.public.apiBase,
     method: "POST",
-    body: { query, variables: { filter } },
+    body: { query, variables: { variableFilter, cohortsFilter } },
   }
 );
 
@@ -46,13 +51,19 @@ crumbs[
 const cohortsWithMapping = computed(() => {
   return cohorts
     .map((cohort) => {
-      const status = calcHarmonizationStatus([variable], [cohort])[0][0];
+      const status = calcIndividualVariableHarmonizationStatus(variable, [
+        cohort,
+      ])[0];
       return {
         cohort,
         status,
       };
     })
-    .filter(({ status }) => status !== "unmapped");
+    .filter(({ status }) =>
+      Array.isArray(status)
+        ? status.filter((s) => s !== "unmapped").length
+        : status !== "unmapped"
+    );
 });
 
 let tocItems = reactive([{ label: "Description", id: "description" }]);
