@@ -197,16 +197,11 @@ workflows:
   version: 2
   build_and_test_and_preview_or_release:
     jobs:
-      - prepare
       - handlePullRequest:
-          requires:
-            - prepare
           filters:
             branches:
               ignore: master
       - handleMergeMaster:
-          requires:
-            - prepare
           filters:
             branches:
               only: master
