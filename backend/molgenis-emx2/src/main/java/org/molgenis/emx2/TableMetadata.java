@@ -583,4 +583,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       return null;
     }
   }
+
+  public TableMetadata getRootTable() {
+    TableMetadata table = this;
+    while (table.getInheritName() != null) {
+      table = table.getInheritedTable();
+    }
+    return table;
+  }
 }

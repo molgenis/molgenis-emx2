@@ -485,8 +485,8 @@ public class RDFService {
   }
 
   private IRI getIriForRow(final Row row, final TableMetadata metadata) {
-    final String tableName =
-        UrlEscapers.urlPathSegmentEscaper().escape(metadata.getTable().getIdentifier());
+    final String rootTableName =
+        UrlEscapers.urlPathSegmentEscaper().escape(metadata.getRootTable().getIdentifier());
     final List<NameValuePair> keyParts = new ArrayList<>();
     for (final Column column : metadata.getPrimaryKeyColumns()) {
       if (column.isReference()) {
@@ -502,12 +502,13 @@ public class RDFService {
     }
     final Namespace ns = getSchemaNamespace(metadata.getTable().getSchema());
     PrimaryKey key = new PrimaryKey(keyParts);
-    return Values.iri(ns, tableName + "/" + key.getEncodedValue());
+    return Values.iri(ns, rootTableName + "/" + key.getEncodedValue());
   }
 
   private List<IRI> getIriValue(final Row row, final Column column) {
     final TableMetadata target = column.getRefTable();
-    final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(target.getIdentifier());
+    final String rootTableName =
+        UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
     final Namespace ns = getSchemaNamespace(target.getTable().getSchema());
 
     final Set<IRI> iris = new HashSet<>();
@@ -536,7 +537,7 @@ public class RDFService {
 
     for (final var item : items.values()) {
       PrimaryKey key = new PrimaryKey(item);
-      iris.add(Values.iri(ns, tableName + "/" + key.getEncodedValue()));
+      iris.add(Values.iri(ns, rootTableName + "/" + key.getEncodedValue()));
     }
     return List.copyOf(iris);
   }

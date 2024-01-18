@@ -661,11 +661,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public String getRootTableName() {
-    TableMetadata table = this.getTable();
-    while (table.getInheritName() != null) {
-      table = table.getInheritedTable();
-    }
-    return table.getTableName();
+    return getTable().getRootTable().getTableName();
   }
 
   @Override
