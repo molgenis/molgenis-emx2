@@ -17,7 +17,7 @@ defineProps<{
 }>();
 </script>
 <template>
-  <div class="mb-7 relative">
+  <div class="relative">
     <HarmonizationLegend size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
       <StickyTable
