@@ -250,10 +250,12 @@ const data = await loadPageData();
         </template>
 
         <template #search-results>
-          <p class="mt-1 mb-0 lg:mb-5 text-body-lg flex flex-col text-title">
+          <p class="mt-1 mb-0 lg:mb-3 text-body-lg flex flex-col text-title">
             <span
-              >{{ data?.data?.Variables_agg.count }} variables in
-              {{ data?.data?.Cohorts.length }} cohorts
+              >{{ data?.data?.Variables_agg.count }} variables
+              <span v-if="data?.data?.Cohorts"
+                >in {{ data?.data?.Cohorts.length }} cohorts
+              </span>
             </span>
           </p>
           <FilterWell :filters="filters"></FilterWell>
