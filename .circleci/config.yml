@@ -65,7 +65,7 @@ commands:
 
 # jobs for pull request and master
 jobs:
-  handlePullRequest:
+  build-pull-request:
     <<: *shared_config
 
     steps:
@@ -130,7 +130,7 @@ jobs:
     - store_test_results:
         path: ~/test-results
 
-  handleMergeMaster:
+  build-master:
     <<: *shared_config
 
     steps:
@@ -184,11 +184,11 @@ workflows:
   version: 2
   build_and_test_and_preview_or_release:
     jobs:
-    - handlePullRequest:
+    - build-pull-request:
         filters:
           branches:
             ignore: master
-    - handleMergeMaster:
+    - build-master:
         filters:
           branches:
             only: master
