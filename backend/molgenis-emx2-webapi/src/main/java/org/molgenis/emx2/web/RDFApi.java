@@ -4,6 +4,8 @@ import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static spark.Spark.get;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -57,7 +59,18 @@ public class RDFApi {
 
   private static int rdfForDatabase(Request request, Response response, RDFFormat format)
       throws IOException {
-    Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
+    Collection<String> schemaNames = new ArrayList<>();
+    if (request.queryParams("schemas") != null) {
+      List<String> selectedSchemas =
+          Arrays.stream(request.queryParams("schemas").split(",")).toList();
+      for (String name : MolgenisWebservice.getSchemaNames(request)) {
+        if (selectedSchemas.contains(name)) {
+          schemaNames.add(name);
+        }
+      }
+    } else {
+      schemaNames = MolgenisWebservice.getSchemaNames(request);
+    }
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
 

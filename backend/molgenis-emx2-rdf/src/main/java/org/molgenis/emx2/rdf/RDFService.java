@@ -89,8 +89,6 @@ public class RDFService {
    * schemas.
    */
   private final String baseURL;
-  /** The rdfAPIPath is the relative path for the RDF api within a schema. */
-  private final String rdfAPIPath;
 
   /**
    * Construct an RDF Service.
@@ -116,7 +114,6 @@ public class RDFService {
     if (!temp.endsWith("/")) {
       temp = temp + "/";
     }
-    this.rdfAPIPath = temp;
     this.rdfFormat = format == null ? RDFFormat.TURTLE : format;
 
     this.config = new WriterConfig();
@@ -228,7 +225,7 @@ public class RDFService {
    */
   private Namespace getSchemaNamespace(final SchemaMetadata schema) {
     final String schemaName = UrlEscapers.urlPathSegmentEscaper().escape(schema.getName());
-    final String url = baseURL + schemaName + rdfAPIPath;
+    final String url = baseURL + schemaName + "/api/rdf";
     final String prefix = TypeUtils.convertToPascalCase(schema.getName());
     return Values.namespace(prefix, url);
   }
