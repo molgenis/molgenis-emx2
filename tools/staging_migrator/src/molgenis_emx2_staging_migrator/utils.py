@@ -54,12 +54,12 @@ def prepare_pkey(schema: dict, table_name: str, col_id: str | list = None) -> st
     elif col_data.get('columnType') == 'REFBACK':
         return None
     elif col_data.get('columnType') in ['ONTOLOGY', 'ONTOLOGY_ARRAY']:
-        ont_keys = prepare_pkey(schema, col_data.get('refTable'))
-        ont_cols = [prepare_pkey(schema, col_data['refTable'], ok) for ok in ont_keys]
+        ont_keys = prepare_pkey(schema, col_data.get('refTableName'))
+        ont_cols = [prepare_pkey(schema, col_data['refTableName'], ok) for ok in ont_keys]
         return {col_id: ont_cols}
     elif col_data.get('columnType') in ['REF', 'REF_ARRAY']:
-        ref_keys = prepare_pkey(schema, col_data.get('refTable'))
-        ref_cols = [prepare_pkey(schema, col_data['refTable'], rk) for rk in ref_keys]
+        ref_keys = prepare_pkey(schema, col_data.get('refTableName'))
+        ref_cols = [prepare_pkey(schema, col_data['refTableName'], rk) for rk in ref_keys]
         return {col_id: ref_cols}
     elif col_data.get('columnType') == 'FILE':
         return {col_id: 'id'}
@@ -94,10 +94,11 @@ def find_cohort_references(schema_schema: dict) -> dict:
         _table_references = []
         for _column in _t_values['columns']:
             if _column.get('columnType') in ['REF', 'REF_ARRAY']:
-                if _column.get('refTable') in ['Cohorts', *cohort_inheritance.values()]:
+                if _column.get('refTableName') in ['Cohorts', *cohort_inheritance.values()]:
                     _table_references.append(_column['id'])
-                elif _column.get('refTable') != _t_name:
-                    _column_references = find_table_columns(_column['refTable'], schema_schema[_column['refTable']])
+                elif _column.get('refTableName') != _t_name:
+                    _column_references = find_table_columns(_column['refTableName'],
+                                                            schema_schema[_column['refTableName']])
                     if len(_column_references) > 0:
                         _table_references.append(_column['id'])
         return _table_references
@@ -117,7 +118,7 @@ def find_cohort_references(schema_schema: dict) -> dict:
     ref_backs = {
         tab: [_tab for _tab in cohort_references.keys()
               if len([_col for _col in schema_schema[_tab]['columns']
-                      if (_col.get('columnType') in ['REF', 'REF_ARRAY']) & (_col.get('refTable') == tab)]) > 0]
+                      if (_col.get('columnType') in ['REF', 'REF_ARRAY']) & (_col.get('refTableName') == tab)]) > 0]
         for tab in cohort_references.keys()
     }
     for coh, inh in cohort_inheritance.items():
@@ -134,7 +135,7 @@ def find_cohort_references(schema_schema: dict) -> dict:
     sequence = [pop_dict(tab) for (tab, refs) in ref_backs.copy().items() if len(refs) == 0]
     while len(ref_backs) > 0:
         for tab, refs in ref_backs.copy().items():
-            if all((ref in [*sequence, *other_tabs]) for ref in refs):
+            if all((ref in [*sequence, *other_tabs, ref]) for ref in refs):
                 sequence.append(pop_dict(tab))
 
     cohort_references = {s: cohort_references.copy()[s] for s in sequence}

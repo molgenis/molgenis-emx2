@@ -124,7 +124,7 @@ class StagingMigrator(Client):
                                            pkeys=delete_rows.get(table_id))
             else:
                 log.debug(f"\nUpdating row(s) with primary keys {delete_rows.get(table_id)}"
-                         f"\n in table {table_name}. (Not yet implemented)")
+                          f"\n in table {table_name}. (Not yet implemented)")
                 # TODO: implement following
                 # self._delete_from_ref_array(schema=catalogue, table_id=table_schema['id'],
                 #                             pkeys=response.json().get('data').get(table_schema['id']))

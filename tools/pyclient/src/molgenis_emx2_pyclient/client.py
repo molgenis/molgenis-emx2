@@ -168,8 +168,6 @@ class Client:
             tables {
               name
               id
-              externalSchema
-              inherit
               tableType
               columns {
                 name
@@ -177,8 +175,8 @@ class Client:
                 required
                 key
                 columnType 
-                refSchema
-                refTable
+                refSchemaId
+                refTableName
               }      
             }
           }
