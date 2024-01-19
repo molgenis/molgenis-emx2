@@ -15,7 +15,7 @@ setEditPermission: user
 firstCreateSchemasIfMissing:
   - name: catalogue
     profile: _profiles/DataCatalogue.yaml
-    importDemoData: false
+    importDemoData: true
   - name: SharedStaging
     profile: _profiles/SharedStaging.yaml
-    importDemoData: false
+    importDemoData: true
