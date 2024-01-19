@@ -19,10 +19,9 @@ shared_config: &shared_config
     GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
     TERM: dumb
 
-# some shared steps that cqn be reused as command
+# some shared steps that can be reused as command
 commands:
   run_shared_steps:
-    description: shared steps
     steps:
     - checkout
 
@@ -128,7 +127,6 @@ jobs:
           mkdir -p ~/test-results/junit/
           find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
         when: always
-
     - store_test_results:
         path: ~/test-results
 
