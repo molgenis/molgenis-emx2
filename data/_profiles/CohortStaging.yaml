@@ -11,6 +11,11 @@ settings:
 # special options
 ontologiesToFixedSchema: CatalogueOntologies
 setViewPermission: anonymous # applies to both the 'main' schema and CatalogueOntologies, required for anonymous viewing of catalogue shared staging
-
-sharedToFixedSchema: SharedStaging
 setEditPermission: user
+firstCreateSchemasIfMissing:
+  - name: catalogue
+    profile: _profiles/DataCatalogue.yaml
+    importDemoData: false
+  - name: SharedStaging
+    profile: _profiles/SharedStaging.yaml
+    importDemoData: false
