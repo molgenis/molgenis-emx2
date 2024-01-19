@@ -226,11 +226,15 @@ public class RDFService {
    * @param schema the schema
    * @return A namespace that defines a local unique prefix for this schema.
    */
-  private Namespace getSchemaNamespace(final Schema schema) {
+  private Namespace getSchemaNamespace(final SchemaMetadata schema) {
     final String schemaName = UrlEscapers.urlPathSegmentEscaper().escape(schema.getName());
     final String url = baseURL + schemaName + rdfAPIPath;
     final String prefix = TypeUtils.convertToPascalCase(schema.getName());
     return Values.namespace(prefix, url);
+  }
+
+  private Namespace getSchemaNamespace(final Schema schema) {
+    return getSchemaNamespace(schema.getMetadata());
   }
 
   /**
@@ -500,7 +504,7 @@ public class RDFService {
         keyParts.add(new BasicNameValuePair(column.getIdentifier(), row.get(column).toString()));
       }
     }
-    final Namespace ns = getSchemaNamespace(metadata.getTable().getSchema());
+    final Namespace ns = getSchemaNamespace(metadata.getRootTable().getSchema());
     PrimaryKey key = new PrimaryKey(keyParts);
     return Values.iri(ns, rootTableName + "/" + key.getEncodedValue());
   }
@@ -509,7 +513,7 @@ public class RDFService {
     final TableMetadata target = column.getRefTable();
     final String rootTableName =
         UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
-    final Namespace ns = getSchemaNamespace(target.getTable().getSchema());
+    final Namespace ns = getSchemaNamespace(target.getRootTable().getSchema());
 
     final Set<IRI> iris = new HashSet<>();
     final Map<Integer, List<NameValuePair>> items = new HashMap<>();
