@@ -141,12 +141,16 @@ class Client:
         and the schemas that the user can interact with.
         """
         schemas = '\n\t'.join(self.schema_names)
+        host = self.url
+        user = self.username if self.username else ('token' if self.token else 'anonymous')
+        status = 'signed in' if self.signin_status == 'success' else ('session-less' if self.token else 'signed out')
+        version = self.version
         message = (
-            f"Host: {self.url}\n"
-            f"User: {self.username}\n"
-            f"Status: {'Signed in' if self.signin_status == 'success' else 'Signed out'}\n"
+            f"Host: {host}\n"
+            f"User: {user}\n"
+            f"Status: {status}\n"
             f"Schemas: \n\t{schemas}\n"
-            f"Version: {self.version}\n"
+            f"Version: {version}\n"
         )
         return message
 

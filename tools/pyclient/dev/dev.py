@@ -2,13 +2,15 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2023-11-28
+# MODIFIED: 2024-01-19
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
 # COMMENTS: Designed to interact with the schema "pet store".
-#           Create a file called '.env' that states the molgenis token, to get this token login into the server (UI) as admin.
-#           Next click on 'Hi admin' and under Manage token give the new token a name and create. Copy this token into .env as described below.
+#           Create a file called '.env' that states the molgenis token, to get
+#           this token login into the server (UI) as admin. Next, click on
+#           'Hi admin' and under Manage token give the new token a name and
+#           create. Copy this token into .env as described below.
 #           MG_TOKEN = ....
 # ///////////////////////////////////////////////////////////////////////////////
 import asyncio
