@@ -148,11 +148,11 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
-            /gradlew -s --no-daemon dockerPush helmPublishMainChart
+            ./gradlew -s --no-daemon dockerPush helmPublishMainChart
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
           else
-            /gradlew -s --no-daemon dockerPush helmPublishMainChart release
+            ./gradlew -s --no-daemon dockerPush helmPublishMainChart release
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
           fi
