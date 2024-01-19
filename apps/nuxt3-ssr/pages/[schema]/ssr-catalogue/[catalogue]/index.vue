@@ -219,9 +219,8 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         >Welcome to the catalogue of (<NuxtLink
           class="underline hover:bg-blue-50"
           :to="aboutLink"
-          >{{ network.id
-        }}{{ network.id && network.name ? ":" : "" }}
-        {{ network.name }} </NuxtLink
+          >{{ network.id }}{{ network.id && network.name ? ":" : "" }}
+          {{ network.name }} </NuxtLink
         >). Select one of the content categories listed below.</template
       >
       <template v-else v-slot:description
