@@ -220,7 +220,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         <NuxtLink class="underline hover:bg-blue-50" :to="aboutLink">{{
           network.id
         }}</NuxtLink
-        >{{ network.id && network.name ? ":" : "" }} {{ network.name }}. Select
+        >{{ network.id && network.name ? ": " : "" }}{{ network.name }}. Select
         one of the content categories listed below.</template
       >
       <template v-else v-slot:description
