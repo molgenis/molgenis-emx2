@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IDocumentation } from "~/interfaces/types";
+import type { IDocumentation } from "~/interfaces/types";
 
 const { documents } = defineProps<{
   title: string;

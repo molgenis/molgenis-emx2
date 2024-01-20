@@ -33,7 +33,7 @@
     "@popperjs/core": "2.11.8",
     "@vueuse/core": "10.5.0",
     "@vueuse/integrations": "10.5.0",
-    "axios": "1.6.2",
+    "axios": "1.6.5",
     "click-outside-vue3": "4.0.1",
     "cross-env": "7.0.3",
     "meta-data-utils": "*",
@@ -47,7 +47,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "4.5.2",
     "prettier": "2.8.8",
-    "vite": "4.5.1",
+    "vite": "4.5.2",
     "vitest": "0.34.6",
     "vue-router": "4.2.5",
     "vue-scrollto": "2.20.0"

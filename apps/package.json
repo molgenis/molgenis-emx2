@@ -23,7 +23,8 @@
     "helloworld",
     "reports",
     "tasks",
-    "gportal"
+    "gportal",
+    "projectmanager"
   ],
   "devDependencies": {
     "nx": "16.10.0",
