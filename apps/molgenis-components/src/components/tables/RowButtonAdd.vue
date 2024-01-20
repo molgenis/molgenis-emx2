@@ -18,10 +18,14 @@
 
 <script>
 import RowButton from "./RowButton.vue";
+import { defineAsyncComponent } from "vue";
 
 export default {
   name: "RowButtonAdd",
-  components: { RowButton },
+  components: {
+    RowButton,
+    EditModal: defineAsyncComponent(() => import("../forms/EditModal.vue")),
+  },
   props: {
     id: {
       type: String,

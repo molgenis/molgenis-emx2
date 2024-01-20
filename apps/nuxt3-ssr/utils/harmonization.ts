@@ -7,24 +7,58 @@ import type {
 type IRepeatingVariableWithMapping = IVariableWithMappings;
 type INonRepeatingVariableWithMapping = IVariableBase & IVariableWithMappings;
 
-export const calcHarmonizationStatus = (
+/**
+ * Returns a matrix of harmonization status for each variable and cohort
+ * In case of a repeated variable, the status for toplevel variable is based on the combined status of all its repeats
+ * @param variables
+ * @param cohorts
+ */
+export const calcAggregatedHarmonizationStatus = (
   variables: IVariableWithMappings[],
   cohorts: { id: string }[]
 ) => {
   return variables.map((v) => {
     return cohorts.map((c) => {
-      if (!Array.isArray(v.mappings)) {
+      if (!hasAnyMapping(v)) {
         // no mapping
         return "unmapped";
       } else if (v.repeats) {
         // handle repeats
-        return calcStatusForRepeatingVariable(v, c);
+        return calcStatusForAggregatedRepeatingVariable(v, c);
       } else {
         // handle non repeating
         return calcStatusForSingleVariable(v, c);
       }
     });
   });
+};
+
+export const calcIndividualVariableHarmonizationStatus = (
+  variable: IVariableWithMappings,
+  cohorts: { id: string }[]
+) => {
+  return cohorts.map((c) => {
+    if (!hasAnyMapping(variable)) {
+      // no mapping
+      return "unmapped";
+    } else if (variable.repeats) {
+      // handle repeats
+      return [variable, ...variable.repeats].map((v) =>
+        calcStatusForSingleVariable(v, c)
+      );
+    } else {
+      // handle non repeating
+      return calcStatusForSingleVariable(variable, c);
+    }
+  });
+};
+
+const hasAnyMapping = (variable: IVariableWithMappings) => {
+  return (
+    Array.isArray(variable.mappings) ||
+    (variable.repeats &&
+      variable.repeats.filter((r) => Array.isArray(r.mappings)).length)
+  );
 };
 
 const calcStatusForSingleVariable = (
@@ -49,14 +83,14 @@ const calcStatusForSingleVariable = (
   }
 };
 
-const calcStatusForRepeatingVariable = (
+const calcStatusForAggregatedRepeatingVariable = (
   variable: IRepeatingVariableWithMapping,
   cohort: { id: string }
 ): HarmonizationStatus => {
   const statusList = !variable.repeats
     ? []
     : variable.repeats.map((repeatedVariable) => {
-        const resourceMapping = variable.mappings?.find((mapping) => {
+        const resourceMapping = repeatedVariable.mappings?.find((mapping) => {
           return (
             mapping.targetVariable &&
             mapping.targetVariable.name === repeatedVariable.name &&

@@ -74,6 +74,7 @@ export interface IVariableBase {
   };
   label?: string;
   description?: string;
+  mg_tableclass?: string;
 }
 
 export interface IVariableDetails {
@@ -245,6 +246,7 @@ export interface IMapping {
   source: {
     id: string;
     name: string;
+    mg_tableclass: string;
   };
   sourceDataset: {
     resource: {
