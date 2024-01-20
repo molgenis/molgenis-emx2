@@ -3,7 +3,7 @@ orbs:
   slack: circleci/slack@4.4.4
 
 ## some shared config that can be reused via yaml anchor
-shared_config: &shared_config
+test_config: &test_config
   docker:
   # specify the version you desire here
   - image: molgenis/ci-build:latest
@@ -12,6 +12,17 @@ shared_config: &shared_config
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+  working_directory: ~/repo
+  resource_class: large
+  environment:
+    JVM_OPTS: -Xmx3200m
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+    TERM: dumb
+
+build_config: &build_config
+  docker:
+  # specify the version you desire here
+  - image: molgenis/ci-build:latest
   working_directory: ~/repo
   resource_class: large
   environment:
@@ -65,8 +76,8 @@ commands:
 
 # jobs for pull request and master
 jobs:
-  build-pull-request:
-    <<: *shared_config
+  pr-preview:
+    <<: *build_config
 
     steps:
     - run: |
@@ -112,11 +123,15 @@ jobs:
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage
 
+  pr-test:
+    <<: *test_config
+
+    steps:
     - run:
         # after preview so preview is created even if tests fail
         name: Lastly run tests and push to sonar
         command: |
-          ./gradlew test jacocoMergedReport sonar -x apps:format -x apps:buildJavaScript  --no-daemon \
+          ./gradlew test jacocoMergedReport sonar --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
@@ -131,7 +146,7 @@ jobs:
         path: ~/test-results
 
   build-master:
-    <<: *shared_config
+    <<: *build_config
 
     steps:
     - run_shared_steps
@@ -184,7 +199,11 @@ workflows:
   version: 2
   build_and_test_and_preview_or_release:
     jobs:
-    - build-pull-request:
+    - pr-test:
+        filters:
+          branches:
+            ignore: master
+    - pr-preview:
         filters:
           branches:
             ignore: master
