@@ -1,7 +1,11 @@
 import gql from "graphql-tag";
+import mappingsFragment from "~~/gql/fragments/mappings";
 export default gql`
-  query Variables($filter: VariablesFilter) {
-    Variables(filter: $filter) {
+  query Variables(
+    $variableFilter:VariablesFilter,
+    $cohortsFilter:CohortsFilter,
+    ) {
+    Variables(filter: $variableFilter) {
       name
       resource {
         name
@@ -20,77 +24,17 @@ export default gql`
       format {
         name
       }
-      mappings {
-        syntax
-        description
-        match {
-          name
-        }
-        source {
-          id
-          name
-        }
-        sourceDataset {
-          resource {
-            id
-          }
-        }
-        sourceVariables {
-          name
-        }
-        sourceVariablesOtherDatasets {
-          name
-          dataset {
-            name
-            resource {
-              id
-            }
-          }
-        }
-        targetVariable {
-          dataset {
-            resource {
-              id
-            }
-            name
-          }
-          name
-        }
-      }
+      mappings ${moduleToString(mappingsFragment)}
       repeats {
         name
-        mappings {
-          syntax
-          description
-          source {
-            id
-            name
-          }
-          match {
-            name
-          }
-          sourceDataset {
-            resource {
-              id
-            }
-          }
-          targetVariable {
-            dataset {
-              resource {
-                id
-              }
-              name
-            }
-            name
-          }
-        }
+        mappings ${moduleToString(mappingsFragment)}
       }
     }
-    Cohorts(orderby: { id: ASC }) {
+    Cohorts(orderby: { id: ASC }, filter: $cohortsFilter) {
       id
       name
     }
-    RepeatedVariables_agg(filter: { isRepeatOf: $filter }) {
+    RepeatedVariables_agg(filter: { isRepeatOf: $variableFilter }) {
       count
     }
   }
