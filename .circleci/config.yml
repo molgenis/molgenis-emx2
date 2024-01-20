@@ -45,14 +45,6 @@ commands:
         - ~/.gradle/caches
         key: gradle-{{ checksum "**/build.gradle" }}-{{ checksum "settings.gradle" }}
 
-  post_steps:
-    steps:
-    - run:
-        name: remove gradle stuffs that shouldn't be cached
-        run: |
-          rm -f  ~/.gradle/caches/modules-2/modules-2.lock
-          rm -fr ~/.gradle/caches/*/plugin-resolution/
-
 # jobs for pull request and master
 jobs:
   preview:
