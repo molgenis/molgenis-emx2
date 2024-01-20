@@ -26,10 +26,15 @@ commands:
           git config user.email "m.a.swertz@rug.nl"
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
+    - run:
+          name: Concatenate Build Files
+          command: |
+              find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
+          no_output_timeout: 5m
     - restore_cache:
         keys:
-        - gradle-{{ checksum "**/build.gradle" }}-{{ checksum "settings.gradle" }}
-        - gradle
+          - gradle-{{ checksum "concatenated-build-gradle" }}
+          - gradle
     - restore_cache:
         keys:
         - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
@@ -42,8 +47,8 @@ commands:
         key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
     - save_cache:
         paths:
-        - ~/.gradle/caches
-        key: gradle-{{ checksum "**/build.gradle" }}-{{ checksum "settings.gradle" }}
+          - ~/.gradle/caches
+        key: gradle-{{ checksum "concatenated-build-gradle" }}
 
 # jobs for pull request and master
 jobs:
