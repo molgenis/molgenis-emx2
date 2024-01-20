@@ -135,9 +135,9 @@ export default {
         "BEACON_V2",
         "CAFE_VARIOME",
         "ERN_DASHBOARD",
-        "ERN_CRANIO",
         "BIOBANK_DIRECTORY",
         "SHARED_STAGING",
+        "PROJECTMANAGER",
       ],
       includeDemoData: false,
     };

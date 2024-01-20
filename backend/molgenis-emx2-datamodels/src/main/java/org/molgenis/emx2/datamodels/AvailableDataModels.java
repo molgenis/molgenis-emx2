@@ -17,6 +17,7 @@ public enum AvailableDataModels {
   ERN_DASHBOARD(new DashboardLoader()),
   ERN_CRANIO(new ErnCranioLoader()),
   BIOBANK_DIRECTORY(new BiobankDirectoryLoader()),
+  PROJECTMANAGER(new ProjectManagerLoader()),
   SHARED_STAGING(new ProfileLoader("_profiles/SharedStaging.yaml"));
 
   private AbstractDataLoader installer;

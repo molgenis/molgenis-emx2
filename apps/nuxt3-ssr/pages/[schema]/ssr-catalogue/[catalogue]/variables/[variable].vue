@@ -6,11 +6,13 @@ const config = useRuntimeConfig();
 const route = useRoute();
 
 const query = moduleToString(variableQuery);
+const scoped = route.params.catalogue !== "all";
+const catalogueRouteParam = route.params.catalogue as string;
 const { key } = useQueryParams();
-const filter = buildFilterFromKeysObject(key);
-
-let variable: VariableDetailsWithMapping;
-let cohorts: { id: string }[];
+const variableFilter = buildFilterFromKeysObject(key);
+const cohortsFilter = scoped
+  ? { networks: { equals: [{ id: catalogueRouteParam }] } }
+  : {};
 
 type VariableDetailsWithMapping = IVariable &
   IVariableMappings & { nRepeats: number };
@@ -20,20 +22,16 @@ const { data, pending, error, refresh } = await useFetch(
   {
     baseURL: config.public.apiBase,
     method: "POST",
-    body: { query, variables: { filter } },
+    body: { query, variables: { variableFilter, cohortsFilter } },
   }
 );
 
-watch(data, setData, {
-  deep: true,
-  immediate: true,
-});
-
-function setData(data: any) {
-  variable = data?.data?.Variables[0] as VariableDetailsWithMapping;
-  variable.nRepeats = data?.data?.RepeatedVariables_agg.count;
-  cohorts = data?.data?.Cohorts;
-}
+const variable = computed(
+  () => data.value.data.Variables[0] as VariableDetailsWithMapping
+);
+const nRepeats = computed(() => data.value.data.RepeatedVariables_agg.count);
+const cohorts = computed(() => data.value.data.Cohorts as { id: string }[]);
+const isRepeating = computed(() => variable.value.repeats);
 
 let crumbs: any = {};
 crumbs[
@@ -44,15 +42,21 @@ crumbs[
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables`;
 
 const cohortsWithMapping = computed(() => {
-  return cohorts
+  return cohorts.value
     .map((cohort) => {
-      const status = calcHarmonizationStatus([variable], [cohort])[0][0];
+      const status = calcIndividualVariableHarmonizationStatus(variable.value, [
+        cohort,
+      ])[0];
       return {
         cohort,
         status,
       };
     })
-    .filter(({ status }) => status !== "unmapped");
+    .filter(({ status }) =>
+      Array.isArray(status)
+        ? status.filter((s) => s !== "unmapped").length
+        : status !== "unmapped"
+    );
 });
 
 let tocItems = reactive([{ label: "Description", id: "description" }]);
@@ -75,7 +79,7 @@ if (cohortsWithMapping.value.length > 0) {
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-useHead({ title: titlePrefix + key.name });
+useHead({ title: titlePrefix + variable.value.name });
 </script>
 
 <template>
@@ -112,7 +116,7 @@ useHead({ title: titlePrefix + key.name });
               },
               {
                 label: 'N repeats',
-                content: variable?.nRepeats > 0 ? variable?.nRepeats : 'None',
+                content: nRepeats > 0 ? nRepeats : 'None',
               },
             ]"
           >
@@ -125,7 +129,13 @@ useHead({ title: titlePrefix + key.name });
           title="Harmonization status per Cohort"
           description="Overview of the harmonization status per Cohort"
         >
+          <HarmonizationGridPerVariable
+            v-if="isRepeating"
+            :cohorts-with-mapping="cohortsWithMapping"
+            :variable="variable"
+          />
           <HarmonizationListPerVariable
+            v-else
             :cohortsWithMapping="cohortsWithMapping"
           />
         </ContentBlock>
