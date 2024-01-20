@@ -2,15 +2,16 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.4.4
 
-build_config: &build_config
-  docker:
-  - image: molgenis/ci-build:latest
-  working_directory: ~/repo
-  resource_class: large
-  environment:
-    JVM_OPTS: -Xmx3200m
-    GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-    TERM: dumb
+definitions:
+  build_config: &build_config
+    docker:
+    - image: molgenis/ci-build:latest
+    working_directory: ~/repo
+    resource_class: large
+    environment:
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
 
 # some shared steps that can be reused as command
 commands:
@@ -135,6 +136,7 @@ jobs:
           mkdir -p ~/test-results/junit/
           find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
         when: always
+        
     - store_test_results:
         path: ~/test-results
 
