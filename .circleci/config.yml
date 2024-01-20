@@ -32,7 +32,7 @@ commands:
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
 
-  after_steps:
+  post_steps:
     steps:
     - save_cache:
         paths:
