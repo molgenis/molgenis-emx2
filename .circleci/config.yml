@@ -116,6 +116,8 @@ jobs:
       TERM: dumb
 
     steps:
+    - run_shared_steps
+
     - run:
         name: prepare sql test database
         command: |
@@ -136,7 +138,7 @@ jobs:
           mkdir -p ~/test-results/junit/
           find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
         when: always
-        
+
     - store_test_results:
         path: ~/test-results
 
