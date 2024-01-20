@@ -51,7 +51,7 @@ commands:
 
     - save_cache:
         paths:
-        - ~/.gradle
+        - .gradle
         key: v1-dependencies-{{ checksum "build.gradle" }}
 
     - run:
@@ -61,7 +61,6 @@ commands:
           git config user.email "m.a.swertz@rug.nl"
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
-
 
     - run: apt-get update && apt-get install postgresql-client -y
 
