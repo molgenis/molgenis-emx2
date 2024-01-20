@@ -13,7 +13,6 @@ definitions:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
 
-# some shared steps that can be reused as command
 commands:
   run_shared_steps:
     steps:
@@ -56,6 +55,7 @@ commands:
 jobs:
   build-preview:
     <<: *build_config
+
     steps:
     - run: |
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
@@ -204,7 +204,6 @@ workflows:
         filters:
           branches:
             ignore: master
-          requires: build-preview
     - build-master:
         filters:
           branches:
