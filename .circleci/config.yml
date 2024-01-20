@@ -50,16 +50,16 @@ jobs:
 
     - pre_steps
 
-    - run:
-        name: build and push emx2 java docker images and helm for the preview
-        command: ./gradlew -s --no-daemon shadowJar dockerPush helmPublishMainChart ci -x test
-
     - setup_remote_docker:
         docker_layer_caching: true
 
     - run:
         name: Sign in to docker
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+    - run:
+        name: build and push emx2 java docker images and helm for the preview
+        command: ./gradlew -s --no-daemon shadowJar dockerPush helmPublishMainChart ci -x test
 
     - run:
         name: push ssr-catalogue docker images
@@ -94,6 +94,9 @@ jobs:
           PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.net" \
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage
+
+    - store_artifacts:
+        path: ./build/libs
 
     - post_steps
 
@@ -196,6 +199,9 @@ jobs:
           -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage  
+
+    - store_artifacts:
+        path: ./build/libs
 
     - post_steps
 
