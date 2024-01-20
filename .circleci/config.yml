@@ -21,7 +21,6 @@ test_config: &test_config
 
 build_config: &build_config
   docker:
-  # specify the version you desire here
   - image: molgenis/ci-build:latest
   working_directory: ~/repo
   resource_class: large
@@ -72,8 +71,7 @@ commands:
 # jobs for pull request and master
 jobs:
   build-preview:
-    working_directory: ~/repo
-    resource_class: large
+    <<: *build_config
     steps:
     - run: |
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
