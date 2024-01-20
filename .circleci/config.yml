@@ -19,11 +19,6 @@ commands:
     - checkout
     - run: git fetch --all --tags
     - run: export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
-    - restore_cache:
-        keys:
-        - v1-dependencies-{{ checksum "build.gradle" }}
-        # fallback to using the latest cache if no exact match is found
-        - v1-dependencies-
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
@@ -31,13 +26,32 @@ commands:
           git config user.email "m.a.swertz@rug.nl"
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
+    - restore_cache:
+        keys:
+        - gradle-{{ checksum "**/build.gradle" }}-{{ checksum "settings.gradle" }}
+        - gradle
+    - restore_cache:
+        keys:
+        - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+    - run:
+        name: Download Dependencies
+        command: ./gradlew dependencies --no-daemon
+    - save_cache:
+        paths:
+          - ~/.gradle/wrapper
+        key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+    - save_cache:
+        paths:
+        - ~/.gradle/caches
+        key: gradle-{{ checksum "**/build.gradle" }}-{{ checksum "settings.gradle" }}
 
   post_steps:
     steps:
-    - save_cache:
-        paths:
-        - ~/repo
-        key: v1-dependencies-{{ checksum "build.gradle" }}
+    - run:
+        name: remove gradle stuffs that shouldn't be cached
+        run: |
+          rm -f  ~/.gradle/caches/modules-2/modules-2.lock
+          rm -fr ~/.gradle/caches/*/plugin-resolution/
 
 # jobs for pull request and master
 jobs:
@@ -98,8 +112,6 @@ jobs:
     - store_artifacts:
         path: ./build/libs
 
-    - post_steps
-
   test:
     docker:
     - image: molgenis/ci-build:latest
@@ -140,8 +152,6 @@ jobs:
         when: always
     - store_test_results:
         path: ~/test-results
-
-    - post_steps
 
   release:
     <<: *build_config
@@ -202,8 +212,6 @@ jobs:
 
     - store_artifacts:
         path: ./build/libs
-
-    - post_steps
 
 workflows:
   version: 2
