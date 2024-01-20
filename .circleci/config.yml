@@ -139,7 +139,7 @@ jobs:
           find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
 
     - store_test_results:
-        path: ~/test-results
+        path: ./backend/build/reports/jacoco/jacocoMergedReport/
 
     - post_steps
 
