@@ -2,23 +2,6 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.4.4
 
-## some shared config that can be reused via yaml anchor
-test_config: &test_config
-  docker:
-  # specify the version you desire here
-  - image: molgenis/ci-build:latest
-  - image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-  working_directory: ~/repo
-  resource_class: large
-  environment:
-    JVM_OPTS: -Xmx3200m
-    GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-    TERM: dumb
-
 build_config: &build_config
   docker:
   - image: molgenis/ci-build:latest
@@ -116,8 +99,20 @@ jobs:
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage
 
-  pr-test:
-    <<: *test_config
+  test:
+    docker:
+    - image: molgenis/ci-build:latest
+    - image: postgres:15-alpine
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: postgres
+    working_directory: ~/repo
+    resource_class: large
+    environment:
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
 
     steps:
     - run:
@@ -201,10 +196,11 @@ workflows:
         filters:
           branches:
             ignore: master
-    - pr-test:
+    - test:
         filters:
           branches:
             ignore: master
+          requires: build-preview
     - build-master:
         filters:
           branches:
