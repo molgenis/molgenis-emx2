@@ -19,7 +19,9 @@ const { data, pending, error } = await useFetch(
     method: "POST",
     body: {
       query: query,
-      variables: { filter: buildFilterFromKeysObject(props.variableKey) },
+      variables: {
+        variableFilter: buildFilterFromKeysObject(props.variableKey),
+      },
     },
   }
 ).catch((e) => console.log(e));

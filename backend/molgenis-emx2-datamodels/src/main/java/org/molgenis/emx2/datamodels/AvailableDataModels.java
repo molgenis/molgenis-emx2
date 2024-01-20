@@ -14,9 +14,9 @@ public enum AvailableDataModels {
   FAIR_GENOMES(new ProfileLoader("_profiles/FAIRGenomes.yaml")),
   TRECODE(new ProfileLoader("_profiles/Trecode.yaml")),
   BEACON_V2(new ProfileLoader("_profiles/BeaconV2.yaml")),
-  ERN_DASHBOARD(new DashboardLoader()),
-  ERN_CRANIO(new ErnCranioLoader()),
+  ERN_DASHBOARD(new DashboardLoader()),  
   BIOBANK_DIRECTORY(new BiobankDirectoryLoader()),
+  PROJECTMANAGER(new ProjectManagerLoader()),
   SHARED_STAGING(new ProfileLoader("_profiles/SharedStaging.yaml"));
 
   private AbstractDataLoader installer;

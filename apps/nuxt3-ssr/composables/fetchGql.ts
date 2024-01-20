@@ -1,4 +1,4 @@
-import { type DocumentNode } from "graphql";
+import type { DocumentNode } from "graphql";
 
 export const fetchGql = (
   query: string | DocumentNode,
