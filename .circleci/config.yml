@@ -160,6 +160,12 @@ jobs:
 
     steps:
     - pre_steps
+    
+    - run:
+        name: prepare sql test database
+        command: |
+          apt-get update && apt-get install postgresql-client -y
+          psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
     # we might be optimistic and skip tests here
     - run:
