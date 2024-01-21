@@ -2,47 +2,38 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.4.4
 
-## some shared config that can be reused via yaml anchor
-shared_config: &shared_config
-  docker:
-  # specify the version you desire here
-  - image: molgenis/ci-build:latest
-  - image: postgres:15-alpine
+definitions:
+  build_config: &build_config
+    docker:
+    - image: molgenis/ci-build:latest
+    working_directory: ~/repo
+    resource_class: large
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-  working_directory: ~/repo
-  resource_class: large
-  environment:
-    JVM_OPTS: -Xmx3200m
-    GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-    TERM: dumb
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
+  test_config: &test_config
+    docker:
+    - image: molgenis/ci-build:latest
+    - image: postgres:15-alpine
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: postgres
+    working_directory: ~/repo
+    resource_class: large
+    environment:
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
 
-# some shared steps that can be reused as command
+
 commands:
-  run_shared_steps:
+  pre_steps:
     steps:
     - checkout
-
     - run: git fetch --all --tags
-
     - run: export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
-
-    # Download and cache dependencies
-    - restore_cache:
-        keys:
-        - v1-dependencies-{{ checksum "build.gradle" }}
-        # fallback to using the latest cache if no exact match is found
-        - v1-dependencies-
-
-    - run: ./gradlew -s dependencies --no-daemon
-
-    - save_cache:
-        paths:
-        - ~/.gradle
-        key: v1-dependencies-{{ checksum "build.gradle" }}
-
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
@@ -50,33 +41,62 @@ commands:
           git config user.email "m.a.swertz@rug.nl"
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
-
-
-    - run: apt-get update && apt-get install postgresql-client -y
-
-    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
-
+    - run:
+          name: Concatenate Build Files as key for cache
+          command: |
+              find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
+          no_output_timeout: 5m
+    - restore_cache:
+        keys:
+          - gradle-{{ checksum "concatenated-build-gradle" }}
+          - gradle
+    - restore_cache:
+        keys:
+        - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+    - run:
+        name: Download Dependencies
+        command: ./gradlew dependencies --no-daemon
+    - save_cache:
+        paths:
+          - ~/.gradle/wrapper
+        key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+    - save_cache:
+        paths:
+          - ~/.gradle/caches
+        key: gradle-{{ checksum "concatenated-build-gradle" }}
     - setup_remote_docker:
         docker_layer_caching: true
-
     - run:
         name: Sign in to docker
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
+  post_steps:
+    steps:
+    - run:
+        name: Save test results for stats
+        command: |
+          mkdir -p ~/test-results/junit/
+          find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+        when: always
+    - store_test_results:
+        path: ~/test-results
+    - store_artifacts:
+        path: ./build/libs
+
 # jobs for pull request and master
 jobs:
-  build-pull-request:
-    <<: *shared_config
+  preview:
+    <<: *build_config
 
     steps:
     - run: |
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
 
-    - run_shared_steps
+    - pre_steps
 
     - run:
         name: build and push emx2 java docker images and helm for the preview
-        command: ./gradlew -s --no-daemon shadowJar dockerPush helmPublishMainChart ci
+        command: ./gradlew -s --no-daemon shadowJar dockerPush helmPublishMainChart ci -x test
 
     - run:
         name: push ssr-catalogue docker images
@@ -93,7 +113,6 @@ jobs:
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
           bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
-
 
     - run:
         name: deploy preview to azure
@@ -112,30 +131,37 @@ jobs:
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage
 
+    - post_steps
+
+  test:
+    <<: *test_config
+
+    steps:
+    - pre_steps
+
     - run:
-        # after preview so preview is created even if tests fail
-        name: Lastly run tests and push to sonar
+        name: prepare sql test database
         command: |
-          ./gradlew test jacocoMergedReport sonar -x apps:format -x apps:buildJavaScript  --no-daemon \
+          apt-get update && apt-get install postgresql-client -y
+          psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+
+    - run:
+        name: run tests and push to sonar
+        command: |
+          ./gradlew test jacocoMergedReport sonar --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
 
-    - run:
-        name: Save test results for stats
-        command: |
-          mkdir -p ~/test-results/junit/
-          find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
-        when: always
-    - store_test_results:
-        path: ~/test-results
+    - post_steps
 
-  build-master:
-    <<: *shared_config
+  release:
+    <<: *build_config
 
     steps:
-    - run_shared_steps
+    - pre_steps
 
+    # we might be optimistic and skip tests here
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
         command: |
@@ -144,7 +170,7 @@ jobs:
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
 
     - run:
-        name: release if not snapshot, push catalogue release to docker
+        name: either release or push only snapshots to docker
         command: |
           export $( cat build/ci.properties | xargs )
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
@@ -178,17 +204,23 @@ jobs:
           curl -d "token=${SLACK_TOKEN}" \
           -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
           -d "channel=C02AZDG6QQ7" \
-          -X POST https://slack.com/api/chat.postMessage          
+          -X POST https://slack.com/api/chat.postMessage  
+
+    - post_steps
 
 workflows:
   version: 2
   build_and_test_and_preview_or_release:
     jobs:
-    - build-pull-request:
+    - preview:
         filters:
           branches:
             ignore: master
-    - build-master:
+    - test:
+        filters:
+          branches:
+            ignore: master
+    - release:
         filters:
           branches:
             only: master
