@@ -24,6 +24,7 @@ public class SchemaFromProfile {
 
   private final Profiles profiles;
 
+  /** Construct from YAML file */
   public SchemaFromProfile(String yamlFileLocation) {
     if (!yamlFileLocation.endsWith(".yaml")) {
       throw new MolgenisException("Input YAML file name must end in '.yaml'");
@@ -37,6 +38,11 @@ public class SchemaFromProfile {
     } catch (Exception e) {
       throw new MolgenisException(e.getMessage(), e);
     }
+  }
+
+  /** Construct from Profiles object */
+  public SchemaFromProfile(Profiles profiles) {
+    this.profiles = profiles;
   }
 
   public Profiles getProfiles() {
@@ -59,23 +65,94 @@ public class SchemaFromProfile {
   /** From a classpath dir, get all EMX2 model files and slice for profiles */
   public List<Row> getProfilesFromAllModels(String directory)
       throws URISyntaxException, IOException {
+
+    // first, load everything into maps
+    Map<String, Row> tableDeclarationsByTableName = new HashMap<>();
+    Map<String, List<Row>> columnDeclarationsByTableName = new HashMap<>();
     List<Row> keepRows = new ArrayList<>();
     String[] modelsList = getResourceListing(directory);
-    for (String schemaLoc : modelsList) {
 
+    for (String schemaLoc : modelsList) {
       Iterable<Row> rowIterable =
           CsvTableReader.read(
               new InputStreamReader(
                   Objects.requireNonNull(
                       getClass().getResourceAsStream(directory + File.separator + schemaLoc))));
-
       for (Row row : rowIterable) {
-        List<String> profiles = csvStringToList(row.getString("profiles"));
-        if (profiles.isEmpty()) {
-          throw new MolgenisException("No profiles for " + row);
+
+        String tableName = row.getString("tableName");
+        if (rowIsTableDeclaration(row)) {
+          tableDeclarationsByTableName.put(tableName, row);
+        } else {
+          if (!columnDeclarationsByTableName.containsKey(tableName)) {
+            columnDeclarationsByTableName.put(tableName, new ArrayList<>());
+          }
+          columnDeclarationsByTableName.get(tableName).add(row);
         }
-        for (String profile : profiles) {
-          if (this.profiles.getProfileTagsList().contains(profile)) {
+      }
+    }
+
+    // post process: if table is tagged, but no columns, add tag to all columns
+    for (String tableName : tableDeclarationsByTableName.keySet()) {
+      if (columnDeclarationsByTableName.get(tableName) == null) {
+        // it is allowed to have tables without any columns, skip
+        continue;
+      }
+
+      Row row = tableDeclarationsByTableName.get(tableName);
+
+      List<String> profilesForTable = csvStringToList(row.getString("profiles"));
+
+      for (String profileForTable : profilesForTable) {
+        // table is tagged with selected profile, now check columns
+        boolean atLeastOneColumnIsTagged = false;
+
+        for (Row column : columnDeclarationsByTableName.get(tableName)) {
+
+          List<String> profilesForColumn = csvStringToList(column.getString("profiles"));
+          if (profilesForColumn.contains(profileForTable)) {
+            atLeastOneColumnIsTagged = true;
+            break;
+          }
+        }
+        // tag all when none are tagged by this particular profileTag
+        if (!atLeastOneColumnIsTagged) {
+          for (Row column : columnDeclarationsByTableName.get(tableName)) {
+            List<String> profilesForColumn =
+                column.getString("profiles") != null
+                    ? csvStringToList(column.getString("profiles"))
+                    : new ArrayList<>();
+            profilesForColumn.add(profileForTable);
+            column.setString("profiles", String.join(",", profilesForColumn));
+          }
+        }
+      }
+    }
+
+    // finally, run profile select as usual, first per table
+    for (String tableName : tableDeclarationsByTableName.keySet()) {
+      Row row = tableDeclarationsByTableName.get(tableName);
+      List<String> profilesForTable = csvStringToList(row.getString("profiles"));
+      if (profilesForTable.isEmpty()) {
+        throw new MolgenisException("No profiles for table " + row);
+      }
+      for (String profileForTable : profilesForTable) {
+        if (this.profiles.getProfileTagsList().contains(profileForTable)) {
+          keepRows.add(row);
+          break;
+        }
+      }
+    }
+    // then per column
+    for (String tableName : columnDeclarationsByTableName.keySet()) {
+      List<Row> rows = columnDeclarationsByTableName.get(tableName);
+      for (Row row : rows) {
+        List<String> profilesForTable = csvStringToList(row.getString("profiles"));
+        if (profilesForTable.isEmpty()) {
+          throw new MolgenisException("No profiles for column " + row);
+        }
+        for (String profileForTable : profilesForTable) {
+          if (this.profiles.getProfileTagsList().contains(profileForTable)) {
             keepRows.add(row);
             break;
           }
@@ -83,6 +160,15 @@ public class SchemaFromProfile {
       }
     }
     return keepRows;
+  }
+
+  /** Check if a row declared a new table, or if it declares a column */
+  private boolean rowIsTableDeclaration(Row row) {
+    if (row.getString("columnType") == null) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**
