@@ -156,7 +156,7 @@ jobs:
     - post_steps
 
   release:
-    <<: *build_config
+    <<: *test_config
 
     steps:
     - pre_steps
