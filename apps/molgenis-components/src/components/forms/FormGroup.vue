@@ -35,7 +35,7 @@ export default {
       required: false,
     },
     required: {
-      type: Boolean,
+      type: [Boolean, String],
       required: false,
       default: () => false,
     },

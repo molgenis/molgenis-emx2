@@ -155,6 +155,9 @@ const client: IClient = {
       fetchOntologyOptions: async (tableName: string) => {
         return fetchOntologyOptions(tableName, schemaId);
       },
+      fetchSubclassTables: async (tableId: string) => {
+        return fetchSubclassTables(tableId, schemaId);
+      },
     };
   },
 };
@@ -171,6 +174,7 @@ const metaDataQuery = `{
       tableType,
       schemaId,
       semantics,
+      inheritId,
       columns {
         id,
         name,
@@ -328,6 +332,21 @@ const fetchOntologyOptions = async (
 const fetchSettings = async (schemaId?: string) => {
   return (await request(graphqlURL(schemaId), "{_settings{key, value}}"))
     ._settings;
+};
+
+const fetchSubclassTables = async (
+  tableId: string,
+  schemaId: string | undefined
+): Promise<ITableMetaData[]> => {
+  const schema = await fetchSchemaMetaData(schemaId);
+  const result: ITableMetaData[] = [];
+  for (const table of schema.tables) {
+    if (table.inheritId === tableId) {
+      result.push(table);
+      result.push(...(await fetchSubclassTables(table.id, schemaId)));
+    }
+  }
+  return result;
 };
 
 const request = async (url: string, graphql: string, variables?: any) => {

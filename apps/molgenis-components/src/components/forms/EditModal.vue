@@ -187,7 +187,7 @@ export default {
   },
   computed: {
     title() {
-      return `${this.titlePrefix} into table: ${this.label} (${this.tableId})`;
+      return `${this.titlePrefix} ${this.label}`;
     },
     label() {
       if (this.tableMetaData) {

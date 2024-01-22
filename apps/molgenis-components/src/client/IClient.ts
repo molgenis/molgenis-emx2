@@ -48,4 +48,5 @@ export interface INewClient {
     tableId: string
   ) => Promise<Record<string, any>>;
   fetchOntologyOptions: (tableName: string) => Promise<any>;
+  fetchSubclassTables: (tableId: string) => Promise<ITableMetaData[]>;
 }

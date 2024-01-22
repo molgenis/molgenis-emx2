@@ -3,23 +3,21 @@
     <div class="card-body" @click="$emit('click', row)">
       <div class="card-text">
         <span class="float-right">
-          <RowButton
+          <RowButtonEdit
             v-if="canEdit"
-            type="edit"
             class="d-inline"
             :tableId="tableId"
-            :pkey="getKey(row)"
+            :schemaId="schemaId"
+            :pkey="pkey"
             @close="$emit('reload')"
-            @edit="$emit('edit', row)"
           />
-          <RowButton
+          <RowButtonDelete
             v-if="canEdit"
-            type="delete"
             class="mt-0"
             :tableId="tableId"
-            :pkey="getKey(row)"
+            :schemaId="schemaId"
+            :pkey="pkey"
             @close="$emit('reload')"
-            @delete="$emit('delete', row)"
           />
         </span>
         <VueTemplate v-if="template" :template="template" :row="row" />
@@ -66,6 +64,7 @@ dd {
 import RenderValue from "./RenderValue.vue";
 import RowButton from "./RowButton.vue";
 import VueTemplate from "../layout/VueTemplate.vue";
+import { convertRowToPrimaryKey } from "../utils";
 
 export default {
   components: {
@@ -76,21 +75,30 @@ export default {
   props: {
     columns: Array,
     tableId: String,
+    schemaId: String,
     row: Object,
     template: String,
     canEdit: Boolean,
   },
+  data() {
+    return {
+      pkey: null,
+    };
+  },
   methods: {
     getKey(row) {
-      let result = {};
-      this.columns
-        .filter((c) => c.key == 1)
-        .map((c) => (result[c.id] = row[c.id]));
       return result;
     },
     showItem(row, col) {
       return col.showColumn && row[col.id] && col.id != "mg_tableclass";
     },
+  },
+  async created() {
+    this.pkey = await convertRowToPrimaryKey(
+      this.row,
+      this.tableId,
+      this.schemaId
+    );
   },
 };
 </script>

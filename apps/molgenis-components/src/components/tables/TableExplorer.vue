@@ -208,21 +208,11 @@
             :data="dataRows"
             :columns="columns"
             :tableId="tableId"
+            :schemaId="schemaId"
             :canEdit="canEdit"
             :template="cardTemplate"
             @click="$emit('rowClick', $event)"
             @reload="reload"
-            @edit="
-              handleRowAction(
-                'edit',
-                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
-              )
-            "
-            @delete="
-              handleDeleteRowRequest(
-                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
-              )
-            "
           />
           <RecordCards
             v-if="view === View.RECORD"
@@ -230,21 +220,11 @@
             :data="dataRows"
             :columns="columns"
             :tableId="tableId"
+            :schemaId="schemaId"
             :canEdit="canEdit"
             :template="recordTemplate"
             @click="$emit('rowClick', $event)"
             @reload="reload"
-            @edit="
-              handleRowAction(
-                'edit',
-                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
-              )
-            "
-            @delete="
-              handleDeleteRowRequest(
-                convertRowToPrimaryKey($event, tableMetadata.id, schemaId)
-              )
-            "
           />
           <TableMolgenis
             v-if="view === View.TABLE"
@@ -264,13 +244,13 @@
               <label>{{ count }} records found</label>
             </template>
             <template v-slot:rowcolheader>
-              <RowButton
+              <RowButtonAdd
                 v-if="canEdit"
-                type="add"
-                :tableId="tableId"
-                :schemaId="schemaId"
-                @add="handleRowAction('add')"
+                :tableId="tableMetadata.id"
+                :schemaId="tableMetadata.schemaId"
+                @close="reload"
                 class="d-inline p-0"
+                id="add"
               />
               <slot name="rowcolheader" />
             </template>
@@ -282,91 +262,42 @@
               />
             </template>
             <template v-slot:rowheader="slotProps">
-              <RowButton
+              <RowButtonEdit
                 v-if="canEdit"
-                type="edit"
-                @edit="
-                  handleRowAction(
-                    'edit',
-                    convertRowToPrimaryKey(
-                      slotProps.row,
-                      tableMetadata.id,
-                      schemaId
-                    )
-                  )
-                "
+                :schemaId="slotProps.row.mg_schemaId"
+                :tableId="slotProps.row.mg_tableId"
+                :pkey="slotProps.row.mg_pkey"
+                :id="JSON.stringify(slotProps.row.mg_pkey) + '-edit'"
+                @close="reload"
               />
-              <RowButton
+              <RowButtonClone
                 v-if="canEdit"
-                type="clone"
-                @clone="
-                  handleRowAction(
-                    'clone',
-                    convertRowToPrimaryKey(
-                      slotProps.row,
-                      tableMetadata.id,
-                      schemaId
-                    )
-                  )
-                "
+                :schemaId="slotProps.row.mg_schemaId"
+                :tableId="slotProps.row.mg_tableId"
+                :pkey="slotProps.row.mg_pkey"
+                @close="reload"
+                :id="JSON.stringify(slotProps.row.mg_pkey) + '-clone'"
               />
-              <RowButton
+              <RowButtonDelete
                 v-if="canEdit"
-                type="delete"
-                @delete="
-                  handleDeleteRowRequest(
-                    convertRowToPrimaryKey(
-                      slotProps.row,
-                      tableMetadata.id,
-                      schemaId
-                    )
-                  )
-                "
+                :schemaId="slotProps.row.mg_schemaId"
+                :tableId="slotProps.row.mg_tableId"
+                :pkey="slotProps.row.mg_pkey"
+                @close="reload"
+                :id="JSON.stringify(slotProps.row.mg_pkey) + '-delete'"
               />
               <!--@slot Use this to add values or actions buttons to each row -->
               <slot
                 name="rowheader"
                 :row="slotProps.row"
                 :metadata="tableMetadata"
-                :rowKey="
-                  convertRowToPrimaryKey(
-                    slotProps.row,
-                    tableMetadata.id,
-                    schemaId
-                  )
-                "
+                :rowKey="slotProps.row.mg_pkey"
               />
             </template>
           </TableMolgenis>
         </div>
       </div>
     </div>
-
-    <EditModal
-      v-if="isEditModalShown"
-      :isModalShown="true"
-      :id="tableId + '-edit-modal'"
-      :tableId="tableId"
-      :tableLabel="tableMetadata.label"
-      :pkey="editRowPrimaryKey"
-      :clone="editMode === 'clone'"
-      :schemaId="schemaId"
-      @close="handleModalClose"
-      :apply-default-values="editMode === 'add'"
-    />
-
-    <ConfirmModal
-      v-if="isDeleteModalShown"
-      :title="'Delete from ' + tableMetadata.label"
-      actionLabel="Delete"
-      actionType="danger"
-      :tableId="tableId"
-      :tableLabel="tableMetadata.label"
-      :pkey="editRowPrimaryKey"
-      @close="isDeleteModalShown = false"
-      @confirmed="handleExecuteDelete"
-    />
-
     <ConfirmModal
       v-if="isDeleteAllModalShown"
       :title="'Truncate ' + tableMetadata.label"
@@ -418,7 +349,10 @@ import InputSearch from "../forms/InputSearch.vue";
 import InputSelect from "../forms/InputSelect.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
-import RowButton from "../tables/RowButton.vue";
+import RowButtonEdit from "../tables/RowButtonEdit.vue";
+import RowButtonAdd from "../tables/RowButtonAdd.vue";
+import RowButtonClone from "../tables/RowButtonClone.vue";
+import RowButtonDelete from "../tables/RowButtonDelete.vue";
 import { convertRowToPrimaryKey, deepClone, isRefType } from "../utils";
 import AggregateTable from "./AggregateTable.vue";
 import Pagination from "./Pagination.vue";
@@ -470,7 +404,10 @@ export default {
     FilterSidebar,
     FilterWells,
     RecordCards,
-    RowButton,
+    RowButtonAdd,
+    RowButtonEdit,
+    RowButtonDelete,
+    RowButtonClone,
     TableSettings,
     EditModal,
     ConfirmModal,
@@ -754,6 +691,25 @@ export default {
         })
         .catch(this.handleError);
       this.dataRows = dataResponse[this.tableId];
+      if (this.dataRows) {
+        for (const row of this.dataRows) {
+          if (row.mg_tableclass) {
+            row.mg_schemaId = row.mg_tableclass.split(".")[0];
+            const tm = await this.client.fetchTableMetaData(
+              row.mg_tableclass.split(".")[1]
+            );
+            row.mg_tableId = tm.id;
+          } else {
+            row.mg_schemaId = this.schemaId;
+            row.mg_tableId = this.tableId;
+          }
+          row.mg_pkey = await convertRowToPrimaryKey(
+            row,
+            row.mg_tableId,
+            row.mg_schemaId
+          );
+        }
+      }
       this.count = dataResponse[this.tableId + "_agg"]["count"];
       this.loading = false;
     },
@@ -879,11 +835,8 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
       <label>Read only example</label>
       <table-explorer
         id="my-table-explorer"
-        tableId="Pet"
-        schemaId="pet store"
-        :showColumns="showColumns"
-        :showFilters="showFilters"
-        :urlConditions="urlConditions"
+        tableId="Catalogues"
+        schemaId="catalogue"
         :showPage="page"
         :showLimit="limit"
         :showOrderBy="showOrderBy"
@@ -916,7 +869,6 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
         page: 1,
         limit: 10,
         showOrder: 'DESC',
-        showOrderBy: 'name',
         canEdit: false,
         canManage: false,
       }
