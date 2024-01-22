@@ -854,7 +854,11 @@ public class SqlQuery extends QueryBean {
     // join subclass tables also (todo: can we make this less expensive?)
     for (TableMetadata subclassTable : table.getSubclassTables()) {
       List<Field<?>> using = subclassTable.getPrimaryKeyFields();
-      result = result.join(subclassTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
+      mg_tableclass = subclassTable.getLocalColumn(MG_TABLECLASS);
+      if (mg_tableclass != null) {
+        using.add(mg_tableclass.getJooqField());
+      }
+      result = result.leftJoin(subclassTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
     }
 
     return result;
