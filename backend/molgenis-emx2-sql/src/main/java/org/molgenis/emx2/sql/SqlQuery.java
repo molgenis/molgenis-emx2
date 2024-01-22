@@ -835,7 +835,6 @@ public class SqlQuery extends QueryBean {
   }
 
   private static Table<org.jooq.Record> tableWithInheritanceJoin(TableMetadata table) {
-
     Table<org.jooq.Record> result = table.getJooqTable();
     TableMetadata inheritedTable = table.getInheritedTable();
     // root and intermediate levels have mg_tableclass column
@@ -851,6 +850,12 @@ public class SqlQuery extends QueryBean {
         mg_tableclass = inheritedTable.getLocalColumn(MG_TABLECLASS);
       }
     }
+    // join subclass tables also (todo: can we make this less expensive?)
+    for (TableMetadata subclassTable : table.getSubclassTables()) {
+      List<Field<?>> using = subclassTable.getPrimaryKeyFields();
+      result = result.join(subclassTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
+    }
+
     return result;
   }
 
@@ -1381,10 +1386,10 @@ public class SqlQuery extends QueryBean {
       return new Column(table, searchColumnName(table.getTableName()));
     }
     // is scalar column
-    Column column = table.getColumn(columnName);
+    Column column = table.getColumnIncludingSubclasses(columnName);
     if (column == null) {
       // is reference?
-      for (Column c : table.getColumns()) {
+      for (Column c : table.getColumnsIncludingSubclasses()) {
         if (c.isReference()) {
           for (Reference ref : c.getReferences()) {
             // can also request composite reference columns, can only be used on row level queries
@@ -1395,7 +1400,7 @@ public class SqlQuery extends QueryBean {
         }
       }
       // is file?
-      for (Column c : table.getColumns()) {
+      for (Column c : table.getColumnsIncludingSubclasses()) {
         if (c.isFile()
             && columnName.startsWith(c.getName())
             && (columnName.equals(c.getName())
