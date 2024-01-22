@@ -67,7 +67,7 @@ public class Profiles {
     return profileTagsList;
   }
 
-  protected void setProfileTagsList(List<String> profileTagsList) {
+  public void setProfileTagsList(List<String> profileTagsList) {
     this.profileTagsList = profileTagsList;
   }
 
