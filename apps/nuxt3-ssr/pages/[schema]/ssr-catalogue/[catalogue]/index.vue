@@ -237,10 +237,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           getSettingValue(
             'CATALOGUE_LANDING_COHORTS_TEXT',
             data.data._settings
-          ) ||
-          ' A complete overview of ' +
-            catalogueRouteParam +
-            ' cohorts and biobanks.'
+          ) || 'Cohorts &amp; Biobanks'
         "
         :callToAction="
           getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
@@ -256,7 +253,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           getSettingValue(
             'CATALOGUE_LANDING_DATASOURCES_TEXT',
             data.data._settings
-          ) || catalogueRouteParam + ' databanks and registries'
+          ) || 'Databanks &amp; Registries'
         "
         :callToAction="
           getSettingValue(
@@ -275,7 +272,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           getSettingValue(
             'CATALOGUE_LANDING_VARIABLES_TEXT',
             data.data._settings
-          ) || catalogueRouteParam + ' harmonized variables.'
+          ) || 'Harmonized variables'
         "
         :count="data.data.Variables_agg.count"
         :callToAction="
@@ -295,7 +292,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           getSettingValue(
             'CATALOGUE_LANDING_NETWORKS_TEXT',
             data.data._settings
-          ) || 'Networks'
+          ) || 'Networks &amp; consortia'
         "
         :count="numberOfNetworks"
         :callToAction="
