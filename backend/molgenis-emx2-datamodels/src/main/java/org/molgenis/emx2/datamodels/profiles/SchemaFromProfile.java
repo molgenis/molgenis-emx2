@@ -164,7 +164,7 @@ public class SchemaFromProfile {
 
   /** Check if a row declared a new table, or if it declares a column */
   private boolean rowIsTableDeclaration(Row row) {
-    if (row.getString("columnType") == null) {
+    if (row.getString("columnType") == null && row.getString("columnName") == null) {
       return true;
     } else {
       return false;
