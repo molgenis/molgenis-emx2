@@ -26,19 +26,43 @@ clean.dependsOn cleanJavascript
 
 task format(type: YarnTask, dependsOn: yarn_install) {
     if (!isCI) {
-        outputs.upToDateWhen { false }
-        args = ['run', 'nx', 'run-many','--target=format']
+        args = ['run', 'nx', 'run-many', '--target=format']
+        inputs.files fileTree(projectDir).matching {
+            // Exclude 'build', 'dist', and 'showCase' directories
+            exclude '**/build/**'
+            exclude '**/dist/**'
+            exclude '**/showCase/**'
+            exclude '**/node_modules/**'
+        }
+        outputs.files fileTree(projectDir).matching {
+            // Exclude 'build', 'dist', and 'showCase' directories
+            exclude '**/build/**'
+            exclude '**/dist/**'
+            exclude '**/showCase/**'
+            exclude '**/node_modules/**'
+        }
+    } else {
+        args = ['run', 'nx', 'run-many','--target=checkFormat']
+        inputs.files fileTree(projectDir).matching {
+            // Exclude 'build', 'dist', and 'showCase' directories
+            exclude '**/build/**'
+            exclude '**/dist/**'
+            exclude '**/showCase/**'
+            exclude '**/node_modules/**'
+        }
     }
 }
 
-task checkFormat(type: YarnTask, dependsOn: format) {
-    outputs.upToDateWhen { false }
-    args = ['run', 'nx', 'run-many','--target=checkFormat']
-}
-
-task testJavaScript(type: YarnTask, dependsOn: checkFormat) {
-    outputs.upToDateWhen { false }
+task testJavaScript(type: YarnTask, dependsOn: format) {
     args = ['run', 'nx', 'run-many', '--target=test-ci']
+    inputs.files fileTree(projectDir).matching {
+        // Exclude 'build', 'dist', and 'showCase' directories
+        exclude '**/build/**'
+        exclude '**/dist/**'
+        exclude '**/showCase/**'
+        exclude '**/node_modules/**'
+    }
+    outputs.dir(file('**/node_modules/.vitest'))
 }
 
 task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
@@ -60,10 +84,18 @@ task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
             }
         }
     }
-    outputs.upToDateWhen { false }
+    inputs.files fileTree(projectDir).matching {
+        // Exclude 'build', 'dist', and 'showCase' directories
+        exclude '**/build/**'
+        exclude '**/dist/**'
+        exclude '**/node_modules/**'
+        exclude '**/showCase/**'
+    }
+    outputs.dir(file('**/dist'))
+    outputs.dir(file('**/showCase'))
 }
 
-compileJava.dependsOn buildJavascript
+processResources.dependsOn buildJavascript
 
 sourceSets {
     main {
