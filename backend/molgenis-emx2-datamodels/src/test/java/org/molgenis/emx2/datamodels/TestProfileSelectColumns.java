@@ -49,7 +49,7 @@ public class TestProfileSelectColumns {
     RD3.setProfileTagsList(Arrays.asList("RD3"));
     SchemaFromProfile RD3Schema = new SchemaFromProfile(RD3);
     SchemaMetadata RD3SchemaMetadata = RD3Schema.create();
-    assertEquals(11, RD3SchemaMetadata.getTables().size());
+    assertEquals(14, RD3SchemaMetadata.getTables().size());
     List<String> RD3FileColumns = RD3SchemaMetadata.getTableMetadata("Files").getColumnNames();
     assertEquals(16, RD3FileColumns.size());
 
