@@ -32,7 +32,7 @@ const variablesFilter = scoped
         id: {
           equals: models.data.Networks[0].models
             ? models.data.Networks[0].models.map((m: { id: string }) => m.id)
-            : "cannot find any",
+            : "no models match so no results expected",
         },
       },
     }
