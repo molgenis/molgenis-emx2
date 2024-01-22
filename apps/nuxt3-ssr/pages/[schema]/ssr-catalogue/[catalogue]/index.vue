@@ -286,7 +286,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 
       <LandingCardPrimary
         v-if="numberOfNetworks > 0 && !cohortOnly"
-        image="image-diagram-2"
+        image="image-diagram"
         title="Networks"
         :description="
           getSettingValue(
