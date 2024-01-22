@@ -9,7 +9,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
     // note that _sz is defined in the global scope by the site improve analytics script
     // _sz.push uses a image.aspx request to send data to site improve, passing the data as query parameters
     _sz.push([
-      config.public.analyticsKey.toString,
+      config.public.analyticsKey.toString(),
       {
         url: to.fullPath,
         ref: from.fullPath,
