@@ -61,6 +61,19 @@ public class TestInherits {
     // check that mg_tableclass column doesn't have a default (regression #2936)
     assertNull(employee.getMetadata().getColumn(MG_TABLECLASS).getDefaultValue());
 
+    // check that reference to parent class exists (regression #3144)
+    assertTrue(
+        ((SqlSchema) s)
+            .getJooq()
+            .meta()
+            .getSchemas("TestInherits")
+            .get(0)
+            .getTable("Employee")
+            .getReferences()
+            .get(0)
+            .toString()
+            .contains("REFERENCES Person"));
+
     Table manager =
         s.create(
             table("Manager")
@@ -185,7 +198,7 @@ public class TestInherits {
             .where(f("directs", f("fullName", LIKE, "Pietje")))
             .retrieveJSON();
     System.out.println(result);
-    // assertFalse(result.contains("Katrien"));
+    assertFalse(result.contains("Katrien"));
     // filtering (correct)
     result =
         ceoTable
@@ -246,10 +259,10 @@ public class TestInherits {
       System.out.println("Errored correctly: " + e.getMessage());
     }
 
-    // test that you cannot delete a 'super'
-    assertThrows(
-        MolgenisException.class,
-        () -> personTable.delete(row("fullName", "popeye"))); // is a manager!!!
+    // test that we can delete sub via super
+    int count = personTable.retrieveRows().size();
+    personTable.delete(row("fullName", "popeye")); // is a manager!!!
+    assertEquals(count - 1, personTable.retrieveRows().size());
 
     // can also drop the table without errors when trigger is removed
     ceoTable.getMetadata().drop();

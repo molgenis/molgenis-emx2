@@ -144,16 +144,19 @@ class SqlTableMetadataExecutor {
     TableMetadata copyTm = new TableMetadata(table.getSchema(), table);
     copyTm.setInheritName(other.getTableName());
     for (Column pkey : other.getPrimaryKeyColumns()) {
-      // same as parent table, except table name
+      // same as parent table, except schema/table name
       Column copy = new Column(copyTm, pkey);
-      copy.setType(REF);
-      copy.setRefTable(other.getTableName());
-      copy.setRefSchemaName(other.getSchemaName());
-      copy.setCascadeDelete(true);
       executeCreateColumn(jooq, copy);
-      executeCreateRefConstraints(jooq, copy);
       executeSetRequired(jooq, copy);
       copyTm.add(copy);
+      // should behave as foreign key but we don't store that in metadata
+      // we aim to redesign to use one table per class hierarchy then this can go
+      Column temp = new Column(copyTm, copy);
+      temp.setType(REF);
+      temp.setRefTable(other.getTableName());
+      temp.setRefSchemaName(other.getSchemaName());
+      temp.setCascadeDelete(true);
+      executeCreateRefConstraints(jooq, temp);
     }
     // add column to superclass table
     if (other.getLocalColumn(MG_TABLECLASS) == null) {
