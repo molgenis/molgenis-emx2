@@ -159,6 +159,7 @@ export default {
           this.tableMetaData as ITableMetaData
         );
       } catch (error: any) {
+        console.log("isVisible", error);
         this.errorPerColumn[column.id] = error;
         return true;
       }
@@ -173,15 +174,23 @@ export default {
               this.tableMetaData as ITableMetaData
             );
           } catch (error) {
+            console.log("Computation failed:", error);
+
             this.errorPerColumn[column.id] = "Computation failed: " + error;
           }
         } else if (this.applyDefaultValues && column.defaultValue) {
-          if (column.defaultValue.startsWith("=")) {
-            this.internalValues[column.id] = executeExpression(
-              "(" + column.defaultValue.substr(1) + ")",
-              this.internalValues,
-              this.tableMetaData as ITableMetaData
-            );
+          try {
+            if (column.defaultValue.startsWith("=")) {
+              this.internalValues[column.id] = executeExpression(
+                "(" + column.defaultValue.substr(1) + ")",
+                this.internalValues,
+                this.tableMetaData as ITableMetaData
+              );
+            }
+          } catch (error) {
+            console.log("applyDefaultValues failed: " + error);
+            this.errorPerColumn[column.id] =
+              "applyDefaultValues failed: " + error;
           }
         }
       });

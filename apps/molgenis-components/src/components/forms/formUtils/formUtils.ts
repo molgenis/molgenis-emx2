@@ -143,6 +143,7 @@ export function executeExpression(
       copy[column.id] = null;
     }
   });
+  //  console.log("executeExpression: ", expression, copy);
 
   // FIXME: according to the new Function definition the input here is incorrectly typed
   // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function
@@ -151,7 +152,7 @@ export function executeExpression(
     //@ts-ignore
     Object.keys(copy),
     //@ts-ignore
-    `return eval('${expression.replaceAll("'", '"')}');`
+    "return eval(`" + expression + "`)"
   );
   return func(...Object.values(copy));
 }
