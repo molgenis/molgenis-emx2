@@ -292,7 +292,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           getSettingValue(
             'CATALOGUE_LANDING_NETWORKS_TEXT',
             data.data._settings
-          ) || 'Networks &amp; consortia'
+          ) || 'Networks &amp; Consortia'
         "
         :count="numberOfNetworks"
         :callToAction="
