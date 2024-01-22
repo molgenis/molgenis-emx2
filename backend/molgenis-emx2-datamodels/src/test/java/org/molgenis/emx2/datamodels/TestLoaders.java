@@ -20,6 +20,7 @@ public class TestLoaders {
   public static final String RD3_TEST = "RD3Test";
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
+  public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
 
   static Database database;
@@ -38,6 +39,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(RD3_TEST);
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
+    database.dropSchemaIfExists(PROJECT_MANAGER);
   }
 
   @Test
@@ -104,5 +106,12 @@ public class TestLoaders {
     Schema FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);
     AvailableDataModels.FAIR_GENOMES.install(FAIRGenomesSchema, true);
     assertEquals(46, FAIRGenomesSchema.getTableNames().size());
+  }
+
+  @Test
+  void test13ProjectManagerLoader() {
+    Schema ProjectManagerSchema = database.createSchema(PROJECT_MANAGER);
+    AvailableDataModels.PROJECTMANAGER.install(ProjectManagerSchema, true);
+    assertEquals(5, ProjectManagerSchema.getTableNames().size());
   }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IPartner } from "~/interfaces/types";
+import type { IPartner } from "~/interfaces/types";
 
 defineProps<{
   title: string;
