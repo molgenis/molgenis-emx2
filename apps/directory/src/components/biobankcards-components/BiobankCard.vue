@@ -12,11 +12,7 @@
       <div class="align-self-stretch">
         <header class="border-0 biobank-card-header p-1">
           <h5 class="pt-1 pl-1 pr-1 mt-1">
-            <router-link
-              :to="'/biobank/' + biobank.id"
-              title="Biobank details"
-              class="text-dark"
-            >
+            <router-link :to="'/biobank/' + biobank.id" class="text-dark">
               <span
                 class="fa fa-server mr-2 text-primary"
                 aria-hidden="true"
@@ -31,23 +27,26 @@
                   faIcon="fa-regular fa-circle-check"
                   textColor="text-success"
                   class="ml-1 certificate-icon"
-                  popover-placement="right"
+                  popover-placement="bottom"
                 >
                   <div
                     class="popover-content"
                     v-for="quality of biobankQualities"
                     :key="quality.label"
                   >
-                    <table v-if="getQualityInfo(quality.label)">
-                      <tbody>
-                        <th class="pr-3">
-                          {{ getQualityInfo(quality.label).label }}
-                        </th>
-                        <td>
-                          {{ getQualityInfo(quality.label).definition }}
-                        </td>
-                      </tbody>
-                    </table>
+                    <div v-if="quality.quality_standard">
+                      <div class="quality-standard-label">
+                        {{
+                          getQualityInfo(quality.quality_standard.name)?.label
+                        }}
+                      </div>
+                      <div class="quality-standard-definition">
+                        {{
+                          getQualityInfo(quality.quality_standard.name)
+                            ?.definition
+                        }}
+                      </div>
+                    </div>
                   </div>
                 </info-popover>
               </sup>
@@ -91,10 +90,11 @@
           <div class="collections-section" :style="cardContainerHeight">
             <div class="pl-2 pt-2 d-flex" v-if="numberOfCollections">
               <h5>
-                {{ numberOfCollections }} collection{{
-                  numberOfCollections === 1 ? "" : "s"
+                {{
+                  `${numberOfCollections} collection${
+                    numberOfCollections === 1 ? "" : "s"
+                  } ${hasActiveFilters ? "found" : "available"}`
                 }}
-                available
               </h5>
               <collection-selector
                 v-if="numberOfCollections > 1"
@@ -107,7 +107,13 @@
               ></collection-selector>
             </div>
             <hr class="mt-1" v-if="numberOfCollections" />
-            <div v-else class="pl-2">This biobank has no collections yet.</div>
+            <div v-else class="pl-2">
+              {{
+                hasActiveFilters
+                  ? "No collections found with currently active filters"
+                  : "This biobank has no collections yet."
+              }}
+            </div>
             <div
               class="collection-items mx-1"
               v-for="(collectionDetail, index) of biobank.collectionDetails"
@@ -177,14 +183,15 @@ import MatchesOn from "../biobankcards-components/MatchesOn.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useQualitiesStore } from "../../stores/qualitiesStore";
 import { useCheckoutStore } from "../../stores/checkoutStore";
+import { useFiltersStore } from "../../stores/filtersStore";
 
 export default {
   setup() {
     const settingsStore = useSettingsStore();
     const qualitiesStore = useQualitiesStore();
     const checkoutStore = useCheckoutStore();
-
-    return { settingsStore, qualitiesStore, checkoutStore };
+    const filtersStore = useFiltersStore();
+    return { settingsStore, qualitiesStore, checkoutStore, filtersStore };
   },
   components: {
     ViewGenerator,
@@ -227,6 +234,9 @@ export default {
     },
   },
   computed: {
+    hasActiveFilters() {
+      return this.filtersStore.hasActiveFilters;
+    },
     uiText() {
       return this.settingsStore.uiText;
     },
@@ -387,5 +397,21 @@ article section {
 
 .right-content-list li {
   margin-bottom: 0.5rem;
+}
+
+.popover-content {
+  margin-bottom: 15px;
+}
+
+.popover-content:last-child {
+  margin-bottom: 0;
+}
+
+.popover-content .quality-standard-label {
+  font-weight: 700;
+}
+
+.popover-content .quality-standard-definition {
+  font-weight: 600;
 }
 </style>

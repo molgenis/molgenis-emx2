@@ -3,8 +3,8 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.INT;
 
-import org.molgenis.emx2.datamodels.DataCatalogueLoader;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.datamodels.ProfileLoader;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
@@ -47,7 +47,7 @@ public class RunMolgenisEmx2 {
 
           if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {
             Schema schema = db.createSchema(CATALOGUE_DEMO, "from DataCatalogue demo data loader");
-            new DataCatalogueLoader().load(schema, true);
+            new ProfileLoader("_profiles/DataCatalogue.yaml").load(schema, true);
           }
         });
 

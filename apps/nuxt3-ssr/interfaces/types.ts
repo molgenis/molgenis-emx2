@@ -58,6 +58,7 @@ export interface ICohort {
   fundingStatement?: string;
   acknowledgements?: string;
   documentation?: IDocumentation[];
+  datasets: { name: string }[];
 }
 
 export interface IVariableBase {
@@ -73,6 +74,7 @@ export interface IVariableBase {
   };
   label?: string;
   description?: string;
+  mg_tableclass?: string;
 }
 
 export interface IVariableDetails {
@@ -125,11 +127,11 @@ export interface IContributor {
   organisation: INameObject;
 }
 
-interface INameObject {
+export interface INameObject {
   name: string;
 }
 
-interface IUrlObject {
+export interface IUrlObject {
   url: string;
 }
 
@@ -150,15 +152,9 @@ export interface ICollectionEvent {
   coreVariables: string[];
 }
 
-interface ICollectionEventCategory {
+export interface ICollectionEventCategory {
   name: string;
   parent?: INameObject;
-  definition?: string;
-}
-
-interface ICollectionEventCategorySet {
-  name: string;
-  children?: ICollectionEventCategorySet[];
   definition?: string;
 }
 
@@ -250,6 +246,7 @@ export interface IMapping {
   source: {
     id: string;
     name: string;
+    mg_tableclass: string;
   };
   sourceDataset: {
     resource: {
@@ -258,8 +255,8 @@ export interface IMapping {
     name: string;
   };
   sourceVariables: IVariableBase[] | IVariable[];
-  targetVariable: IVariableBase[] | IVariable[];
   sourceVariablesOtherDatasets: IVariableBase[] | IVariable[];
+  targetVariable: IVariableBase | IVariable;
 }
 
 export type HarmonizationStatus = "unmapped" | "partial" | "complete";
@@ -277,3 +274,18 @@ export interface IDefinitionListItem {
   type?: string;
   content: any;
 }
+export interface IOntologyItem {
+  order?: number;
+  name: string;
+  label?: string;
+  parent?: IOntologyItem;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IOntologyItem[];
+}
+
+export interface IOntologyParentTreeItem
+  extends Omit<IOntologyItem, "children"> {}
+export interface IOntologyChildTreeItem extends Omit<IOntologyItem, "parent"> {}

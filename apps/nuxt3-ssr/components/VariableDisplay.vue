@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import variableQuery from "~~/gql/variable";
-import { KeyObject } from "meta-data-utils";
+import type { KeyObject } from "meta-data-utils";
 import { buildFilterFromKeysObject } from "meta-data-utils";
 
 const query = moduleToString(variableQuery);
@@ -19,7 +19,9 @@ const { data, pending, error } = await useFetch(
     method: "POST",
     body: {
       query: query,
-      variables: { filter: buildFilterFromKeysObject(props.variableKey) },
+      variables: {
+        variableFilter: buildFilterFromKeysObject(props.variableKey),
+      },
     },
   }
 ).catch((e) => console.log(e));

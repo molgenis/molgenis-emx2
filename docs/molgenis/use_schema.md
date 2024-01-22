@@ -93,6 +93,29 @@ is used as the primary key in the user interface, upload and API. Other key>1 ca
 
 When required=TRUE then values in this column must be filled. When required=FALSE then this column can be left empty. Default value: FALSE.
 
+Besides TRUE and FALSE, it is also possible to provide a JavaScript expression using conditional logic based on the values of other columns.
+
+For instance, consider a table with 'name' and 'surname' fields. If the 'name' field is provided, the 'surname' field should also be populated. The expression for the surname field could look like:
+`if(name!=null) 'Surname should be provided when name is not null'`
+
+The string after the expression is the validation message returned when the expression yields `true`, and the field is not provided.
+
+It's also possible to use an expression without an error message:
+`name != null`.
+Will return the expression as an error message.
+
+
+Expressions can also reference multiple fields. For example, consider a 'pet' table with the following fields:
+- `species` (string)
+- `onMedication` (bool)
+- `age` (int)
+- `weight` (decimal)
+- `medicalStatus` (string)
+
+The following expression would make 'medicalStatus' required if a cat is old, heavy, and on medication:
+`if(onMedication && age > 10 && weight > 3 && species === 'cat')
+'Medical status should be provided when an old fat cat is on drugs'`
+
 ### defaultValue
 
 Using 'defaultValue' you can set a default value for a column. In forms, this value will be pre-filled.
