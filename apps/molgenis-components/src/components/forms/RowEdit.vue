@@ -41,6 +41,7 @@ export default {
   name: "RowEdit",
   data() {
     return {
+      onlySetDefaultValueOnes: true,
       internalValues: deepClone(
         this.defaultValue ? this.defaultValue : this.modelValue
       ),
@@ -175,7 +176,12 @@ export default {
           } catch (error) {
             this.errorPerColumn[column.id] = "Computation failed: " + error;
           }
-        } else if (this.applyDefaultValues && column.defaultValue) {
+        } else if (
+          this.applyDefaultValues &&
+          column.defaultValue &&
+          this.onlySetDefaultValueOnes
+        ) {
+          this.onlySetDefaultValueOnes = false;
           if (column.defaultValue.startsWith("=")) {
             this.internalValues[column.id] = executeExpression(
               "(" + column.defaultValue.substr(1) + ")",
