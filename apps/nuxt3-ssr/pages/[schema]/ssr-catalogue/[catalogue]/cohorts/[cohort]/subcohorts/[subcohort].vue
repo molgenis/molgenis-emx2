@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Ref } from "vue";
 import subcohortGql from "~~/gql/subcohort";
 const config = useRuntimeConfig();
 const route = useRoute();
