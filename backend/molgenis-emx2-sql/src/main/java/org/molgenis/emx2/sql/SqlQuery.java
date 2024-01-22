@@ -835,6 +835,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private static Table<org.jooq.Record> tableWithInheritanceJoin(TableMetadata table) {
+
     Table<org.jooq.Record> result = table.getJooqTable();
     TableMetadata inheritedTable = table.getInheritedTable();
     // root and intermediate levels have mg_tableclass column
