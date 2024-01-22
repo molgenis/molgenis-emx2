@@ -41,7 +41,7 @@ export default {
   name: "RowEdit",
   data() {
     return {
-      onlySetDefaultValueOnes: true,
+      onlySetDefaultValueOnce: true,
       internalValues: deepClone(
         this.defaultValue ? this.defaultValue : this.modelValue
       ),
@@ -144,7 +144,6 @@ export default {
         const isColumnVisible = this.visibleColumns
           ? this.visibleColumns.includes(column.id)
           : true;
-
         return (
           isColumnVisible &&
           this.isVisible(column) &&
@@ -179,9 +178,8 @@ export default {
         } else if (
           this.applyDefaultValues &&
           column.defaultValue &&
-          this.onlySetDefaultValueOnes
+          this.onlySetDefaultValueOnce
         ) {
-          this.onlySetDefaultValueOnes = false;
           if (column.defaultValue.startsWith("=")) {
             this.internalValues[column.id] = executeExpression(
               "(" + column.defaultValue.substr(1) + ")",
