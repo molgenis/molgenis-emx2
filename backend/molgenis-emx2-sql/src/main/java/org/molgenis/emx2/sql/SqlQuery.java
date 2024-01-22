@@ -1386,7 +1386,7 @@ public class SqlQuery extends QueryBean {
       return new Column(table, searchColumnName(table.getTableName()));
     }
     // is scalar column
-    Column column = table.getColumnIncludingSubclasses(columnName);
+    Column column = table.getColumnByNameIncludingSubclasses(columnName);
     if (column == null) {
       // is reference?
       for (Column c : table.getColumnsIncludingSubclasses()) {

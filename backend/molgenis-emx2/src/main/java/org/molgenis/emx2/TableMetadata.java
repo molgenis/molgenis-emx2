@@ -605,7 +605,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return result;
   }
 
-  public Column getColumnIncludingSubclasses(String columnName) {
+  public Column getColumnByNameIncludingSubclasses(String columnName) {
     return getColumnsIncludingSubclasses().stream()
         .filter(c -> c.getName().equals(columnName))
         .findFirst()
