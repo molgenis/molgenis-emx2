@@ -82,6 +82,9 @@ public class SchemaFromProfile {
 
         String tableName = row.getString("tableName");
         if (rowIsTableDeclaration(row)) {
+          if (tableDeclarationsByTableName.containsKey(tableName)) {
+            throw new MolgenisException("Duplicate table declaration for name: " + tableName);
+          }
           tableDeclarationsByTableName.put(tableName, row);
         } else {
           if (!columnDeclarationsByTableName.containsKey(tableName)) {
@@ -124,6 +127,41 @@ public class SchemaFromProfile {
                     : new ArrayList<>();
             profilesForColumn.add(profileForTable);
             column.setString("profiles", String.join(",", profilesForColumn));
+          }
+        }
+      }
+    }
+
+    // post process 2: add non-tagged inherited tables of tagged tables to eliminate the need to tag
+    // them and inadvertently adding all the columns of these parent tables or including 1 random
+    // column to prevent the rest from being added
+    Map<String, String> tableToParent = new HashMap<>();
+    for (String tableName : tableDeclarationsByTableName.keySet()) {
+      Row row = tableDeclarationsByTableName.get(tableName);
+      if (row.getString("tableExtends") != null) {
+        tableToParent.put(tableName, row.getString("tableExtends"));
+      }
+    }
+    for (String tableName : tableDeclarationsByTableName.keySet()) {
+      Row row = tableDeclarationsByTableName.get(tableName);
+      List<String> profilesForTable = csvStringToList(row.getString("profiles"));
+      for (String profileForTable : profilesForTable) {
+        if (this.profiles.getProfileTagsList().contains(profileForTable)
+            && tableToParent.containsKey(tableName)) {
+          // table has a parent, add the current tag to it and continue to its parent and so on
+          String nextTable = tableName;
+          while (tableToParent.containsKey(nextTable)) {
+            String parentTableName = tableToParent.get(nextTable);
+            Row parentTable = tableDeclarationsByTableName.get(parentTableName);
+            List<String> updateProfilesForParentTable =
+                parentTable.getString("profiles") != null
+                    ? csvStringToList(parentTable.getString("profiles"))
+                    : new ArrayList<>();
+            if (!updateProfilesForParentTable.contains(profileForTable)) {
+              updateProfilesForParentTable.add(profileForTable);
+              parentTable.setString("profiles", String.join(",", updateProfilesForParentTable));
+            }
+            nextTable = parentTableName;
           }
         }
       }

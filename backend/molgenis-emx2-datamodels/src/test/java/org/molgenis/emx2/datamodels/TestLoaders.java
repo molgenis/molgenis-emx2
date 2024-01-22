@@ -91,7 +91,7 @@ public class TestLoaders {
   void test10RD3Loader() {
     Schema RD3Schema = database.createSchema(RD3_TEST);
     AvailableDataModels.RD3.install(RD3Schema, true);
-    assertEquals(27, RD3Schema.getTableNames().size());
+    assertEquals(30, RD3Schema.getTableNames().size());
   }
 
   @Test

@@ -14,7 +14,7 @@ Data sources,RWE resources,,,,,,,,,,,Collections of multiple data banks covering
 Networks,Extended resources,,,,,,,,,,,Collaborations of multiple institutions,"DataCatalogue,EMA"
 Studies,Extended resources,,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks","DataCatalogue,EMA"
 Resources,,overview,heading,,,,,,,,,General information,DataCatalogue
-Resources,,id,,1,TRUE,,,,,,,Internal identifier,"DataCatalogue,EMA,SharedStaging"
+Resources,,id,,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,Internal identifier,"DataCatalogue,EMA,SharedStaging,Beacon v2,RD3"
 Resources,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA,SharedStaging"
 Resources,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA,SharedStaging"
 Resources,,name,text,3,TRUE,,,,,,,Name used in European projects,"DataCatalogue,EMA,SharedStaging"

@@ -35,7 +35,7 @@ public class CohortsResponse {
       Query query = selectColumns(table);
 
       if (idForQuery != null) {
-        query.where(f("cohortId", EQUALS, idForQuery));
+        query.where(f("id", EQUALS, idForQuery));
       }
 
       String queryResultJSON = query.retrieveJSON();
@@ -45,7 +45,7 @@ public class CohortsResponse {
       if (cohortList != null) {
         for (Map map : cohortList) {
           CohortsResultSetsItem cohortsItem = new CohortsResultSetsItem();
-          cohortsItem.setCohortId(TypeUtils.toString(map.get("cohortId")));
+          cohortsItem.setCohortId(TypeUtils.toString(map.get("id")));
           cohortsItem.setCohortName(TypeUtils.toString(map.get("cohortName")));
           cohortsItem.setCohortType(TypeUtils.toString(map.get("cohortType")));
           cohortsItem.setCohortDesign(mapToOntologyTerm((Map) map.get("cohortDesign")));
