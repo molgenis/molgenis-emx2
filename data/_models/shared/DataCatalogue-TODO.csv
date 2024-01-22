@@ -8,7 +8,6 @@ Organisations,Resources,,,,,,,,,,,Research departments and research groups,"Data
 Extended resources,Resources,,,,,,,,,,,"Generic listing of all extended resources. Should not be used directly, instead use specific types such as Databanks and Cohorts","DataCatalogue,EMA"
 Models,Extended resources,,,,,,,,,,,Data models,"DataCatalogue,EMA"
 Data resources,Extended resources,,,,,,,,,,,Resources for data,"DataCatalogue,EMA"
-Cohorts,Data resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic,DataCatalogue
 RWE resources,Data resources,,,,,,,,,,,Real world data collections,"DataCatalogue,EMA"
 Databanks,RWE resources,,,,,,,,,,,"Data collection from real world databases such as health records, registries",DataCatalogue
 Data sources,RWE resources,,,,,,,,,,,Collections of multiple data banks covering the same population,"DataCatalogue,EMA"
