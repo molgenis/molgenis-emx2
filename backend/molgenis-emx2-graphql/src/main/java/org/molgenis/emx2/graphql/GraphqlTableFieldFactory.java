@@ -142,7 +142,7 @@ public class GraphqlTableFieldFactory {
       tableTypes.put(tableObjectType, GraphQLTypeReference.typeRef(tableObjectType));
       // build the object
       GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(tableObjectType);
-      for (Column col : table.getColumnsWithoutHeadings()) {
+      for (Column col : table.getColumnsIncludingSubclassesExcludingHeadings()) {
         String id = col.getIdentifier();
         switch (col.getColumnType().getBaseType()) {
           case HEADING:
