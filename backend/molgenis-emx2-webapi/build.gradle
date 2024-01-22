@@ -20,5 +20,5 @@ dependencies {
     testImplementation 'org.apache.poi:poi-ooxml:4.1.2'
     testImplementation 'net.lingala.zip4j:zip4j:2.11.5'
     implementation 'com.github.dfabulich:sitemapgen4j:1.1.2'
-    implementation 'de.larsgrefer.sass:sass-embedded-host:1.15.3'
+    implementation 'de.larsgrefer.sass:sass-embedded-host:1.15.4'
 }
