@@ -126,11 +126,12 @@ const { data, error } = await useAsyncData<any, IMgError>(
       ? {
           resource: {
             id: {
-              equals: models.data.Networks[0].models
-                ? models.data.Networks[0].models.map(
-                    (m: { id: string }) => m.id
-                  )
-                : "no models match so no results expected",
+              equals:
+                models.data.Networks[0].models?.length > 0
+                  ? models.data.Networks[0].models.map(
+                      (m: { id: string }) => m.id
+                    )
+                  : "no models match so no results expected",
             },
           },
         }

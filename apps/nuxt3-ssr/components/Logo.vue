@@ -19,14 +19,11 @@ if (logoFileName) {
 <template>
   <NuxtLink :to="link" class="transition-transform hover:scale-105">
     <span class="sr-only">Go to home</span>
-
     <i v-if="svg" v-html="svg"></i>
     <img
       v-else-if="image"
       :src="image"
-      width="200"
-      height="50"
-      class="bg-white"
+      class="bg-white object-contain h-16 w-96"
     />
     <svg
       v-else
