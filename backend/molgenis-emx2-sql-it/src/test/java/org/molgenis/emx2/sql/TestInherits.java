@@ -72,7 +72,7 @@ public class TestInherits {
             .getReferences()
             .get(0)
             .toString()
-            .contains("REFERENCES Person"));
+            .contains("references \"TestInherits\".\"Person\""));
 
     Table manager =
         s.create(

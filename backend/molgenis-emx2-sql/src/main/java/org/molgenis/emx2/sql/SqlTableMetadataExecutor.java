@@ -143,21 +143,17 @@ class SqlTableMetadataExecutor {
 
     TableMetadata copyTm = new TableMetadata(table.getSchema(), table);
     copyTm.setInheritName(other.getTableName());
-    for (Column pkey : other.getPrimaryKeyColumns()) {
-      // same as parent table, except schema/table name
-      Column copy = new Column(copyTm, pkey);
-      executeCreateColumn(jooq, copy);
-      executeSetRequired(jooq, copy);
-      copyTm.add(copy);
-      // should behave as foreign key but we don't store that in metadata
-      // we aim to redesign to use one table per class hierarchy then this can go
-      Column temp = new Column(copyTm, copy);
-      temp.setType(REF);
-      temp.setRefTable(other.getTableName());
-      temp.setRefSchemaName(other.getSchemaName());
-      temp.setCascadeDelete(true);
-      executeCreateRefConstraints(jooq, temp);
+    // create primary key fields based on parent, and create foreign key to parent
+    for (Field pkey : other.getPrimaryKeyFields()) {
+      jooq.alterTable(table.getJooqTable()).addColumn(pkey).execute();
     }
+    ConstraintForeignKeyOnStep constraint =
+        constraint(table.getTableName() + "_extends_" + other.getTableName())
+            .foreignKey(other.getPrimaryKeyFields())
+            .references(other.getJooqTable(), other.getPrimaryKeyFields())
+            .onUpdateCascade()
+            .onDeleteCascade();
+    jooq.alterTable(table.getJooqTable()).add(constraint).execute();
     // add column to superclass table
     if (other.getLocalColumn(MG_TABLECLASS) == null) {
       other.add(column(MG_TABLECLASS).setReadonly(true).setPosition(10005));
