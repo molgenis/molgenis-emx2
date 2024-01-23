@@ -14,7 +14,7 @@ public enum AvailableDataModels {
   FAIR_GENOMES(new ProfileLoader("_profiles/FAIRGenomes.yaml")),
   DCAT(new ProfileLoader("_profiles/DCAT.yaml")),
   BEACON_V2(new ProfileLoader("_profiles/BeaconV2.yaml")),
-  ERN_DASHBOARD(new DashboardLoader()),  
+  ERN_DASHBOARD(new DashboardLoader()),
   BIOBANK_DIRECTORY(new BiobankDirectoryLoader()),
   PROJECTMANAGER(new ProjectManagerLoader()),
   SHARED_STAGING(new ProfileLoader("_profiles/SharedStaging.yaml"));
