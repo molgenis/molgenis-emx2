@@ -11,6 +11,8 @@ export const buildTree = (
 ): IOntologyItem[] => {
   if (!selectedOntologyItems) {
     return [];
+  } else if (!Array.isArray(selectedOntologyItems)) {
+    selectedOntologyItems = [selectedOntologyItems];
   }
 
   // list-of-tree to list
