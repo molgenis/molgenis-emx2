@@ -4,7 +4,7 @@ import org.molgenis.emx2.Schema;
 
 public enum AvailableDataModels {
   DIRECTORY(new DirectoryLoader()),
-  DATA_CATALOGUE_COHORT_STAGING(new DataCatalogueCohortStagingLoader()),
+  DATA_CATALOGUE_COHORT_STAGING(new ProfileLoader("_profiles/CohortStaging.yaml")),
   DATA_CATALOGUE_NETWORK_STAGING(new DataCatalogueNetworkStagingLoader()),
   DATA_CATALOGUE(new ProfileLoader("_profiles/DataCatalogue.yaml")),
   PET_STORE(new PetStoreLoader()),
@@ -13,7 +13,7 @@ public enum AvailableDataModels {
   JRC_COMMON_DATA_ELEMENTS(new ProfileLoader("_profiles/JRC-CDE.yaml")),
   FAIR_GENOMES(new ProfileLoader("_profiles/FAIRGenomes.yaml")),
   BEACON_V2(new ProfileLoader("_profiles/BeaconV2.yaml")),
-  ERN_DASHBOARD(new DashboardLoader()),  
+  ERN_DASHBOARD(new DashboardLoader()),
   BIOBANK_DIRECTORY(new BiobankDirectoryLoader()),
   PROJECTMANAGER(new ProjectManagerLoader()),
   SHARED_STAGING(new ProfileLoader("_profiles/SharedStaging.yaml"));

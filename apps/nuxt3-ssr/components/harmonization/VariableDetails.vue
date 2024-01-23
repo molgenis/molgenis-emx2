@@ -10,7 +10,10 @@ import type {
 type VariableDetailsWithMapping = IVariable & IVariableMappings;
 const props = defineProps<{
   variable: VariableDetailsWithMapping;
-  cohortsWithMapping: { cohort: { id: string }; status: HarmonizationStatus }[];
+  cohortsWithMapping: {
+    cohort: { id: string };
+    status: HarmonizationStatus | HarmonizationStatus[];
+  }[];
 }>();
 
 const activeTabIndex = ref(0);
@@ -143,7 +146,7 @@ const variableList = props.variable.repeats
       <DefinitionListTerm>Harmonization status</DefinitionListTerm>
       <DefinitionListDefinition>
         <HarmonizationStatus
-          :status="statusPerCohort[activeTabIndex][repeatIndex]"
+          :status="statusPerCohort[activeTabIndex][repeatIndex] as HarmonizationStatus"
         />
       </DefinitionListDefinition>
 

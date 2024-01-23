@@ -11,6 +11,7 @@ export interface IResource {
 }
 export interface ICohort {
   id: string;
+  pid: string;
   name: string;
   acronym?: string;
   description?: string;

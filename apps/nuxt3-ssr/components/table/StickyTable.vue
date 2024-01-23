@@ -1,3 +1,46 @@
+<script setup lang="ts">
+defineProps<{
+  columns: any[];
+  rows: any[];
+}>();
+
+let scrollXAtEnd = ref(false);
+let scrollYAtEnd = ref(false);
+let scrollElement = ref();
+
+function scroll(event: Event) {
+  let target = event.target as HTMLInputElement;
+  scrollXAtEnd.value =
+    target.scrollTop + target.offsetHeight >= target.scrollHeight;
+  scrollYAtEnd.value =
+    target.scrollLeft + target.offsetWidth >= target.scrollWidth;
+}
+
+function calculateVerticalBarHeight(event: MouseEvent) {
+  if (event.target === null) {
+    return;
+  } else {
+    const td = (event.target as HTMLElement).closest("td");
+    const table = (event.target as HTMLElement).closest("table");
+    const bar = td?.querySelector(".vertical-hover-bar") as HTMLElement;
+
+    if (!td || !table || !bar) {
+      throw new Error(
+        "Could not find expected elements in dom, expected td, table and bar"
+      );
+    }
+
+    const offset = -(
+      table.offsetHeight -
+      (td.getBoundingClientRect().top - table.getBoundingClientRect().top) -
+      td.offsetHeight
+    );
+
+    bar.style.bottom = Math.floor(offset) + "px";
+  }
+}
+</script>
+
 <template>
   <div
     role="region relative overflow-hidden"
@@ -65,42 +108,6 @@
     ></div>
   </div>
 </template>
-
-<script setup lang="ts">
-const props = defineProps({
-  columns: {
-    type: Array,
-  },
-  rows: {
-    rows: Array,
-  },
-});
-
-let scrollXAtEnd = ref(false);
-let scrollYAtEnd = ref(false);
-let scrollElement = ref();
-
-function scroll(event: Event) {
-  let target = event.target as HTMLInputElement;
-  scrollXAtEnd.value =
-    target.scrollTop + target.offsetHeight >= target.scrollHeight;
-  scrollYAtEnd.value =
-    target.scrollLeft + target.offsetWidth >= target.scrollWidth;
-}
-
-function calculateVerticalBarHeight(event: MouseEvent) {
-  if (event.target === null) return;
-  const td = event.target.closest("td");
-  const table = event.target.closest("table");
-  const bar = td.querySelector(".vertical-hover-bar");
-  const offset = -(
-    table.offsetHeight -
-    (td.getBoundingClientRect().top - table.getBoundingClientRect().top) -
-    td.offsetHeight
-  );
-  bar.style.bottom = Math.floor(offset) + "px";
-}
-</script>
 
 <style scoped>
 table.table-auto tbody tr:hover th {
