@@ -143,19 +143,22 @@ class SqlTableMetadataExecutor {
 
     TableMetadata copyTm = new TableMetadata(table.getSchema(), table);
     copyTm.setInheritName(other.getTableName());
-    // create primary key fields based on parent, and create foreign key to parent
+    // create primary key fields based on parent
     for (Field pkey : other.getPrimaryKeyFields()) {
       jooq.alterTable(table.getJooqTable()).addColumn(pkey).execute();
     }
-    ConstraintForeignKeyOnStep constraint =
-        constraint(table.getTableName() + "_extends_" + other.getTableName())
-            .foreignKey(other.getPrimaryKeyFields())
-            .references(other.getJooqTable(), other.getPrimaryKeyFields())
-            .onUpdateCascade()
-            .onDeleteCascade();
-    jooq.alterTable(table.getJooqTable()).add(constraint).execute();
+    createOrReplaceKey(jooq, copyTm, 1, other.getPrimaryKeyFields());
+    // create foreign key to parent
+    jooq.alterTable(table.getJooqTable())
+        .add(
+            constraint(table.getTableName() + "_extends_" + other.getTableName())
+                .foreignKey(other.getPrimaryKeyFields())
+                .references(other.getJooqTable(), other.getPrimaryKeyFields())
+                .onUpdateCascade()
+                .onDeleteCascade())
+        .execute();
     // add column to superclass table
-    if (other.getLocalColumn(MG_TABLECLASS) == null) {
+    if (other.getColumn(MG_TABLECLASS) == null) {
       other.add(column(MG_TABLECLASS).setReadonly(true).setPosition(10005));
 
       // should not be user editable, we add trigger
