@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.datamodels.profiles.CreateSchemas;
 import org.molgenis.emx2.datamodels.profiles.Profiles;
 import org.molgenis.emx2.datamodels.profiles.SchemaFromProfile;
 import org.molgenis.emx2.io.MolgenisIO;
@@ -17,7 +18,7 @@ public class ProfileLoader extends AbstractDataLoader {
   private static final String ONTOLOGY_SEMANTICS_LOCATION =
       ONTOLOGY_LOCATION + File.separator + "_semantics.csv";
 
-  // the classpath location of your config YAML file
+  // the classpath location of your config (a.k.a. 'profile') YAML file
   private final String configLocation;
 
   public ProfileLoader(String configLocation) {
@@ -27,10 +28,29 @@ public class ProfileLoader extends AbstractDataLoader {
   @Override
   void loadInternalImplementation(Schema schema, boolean includeDemoData) {
 
-    // first create the schema using the selected profile tags within the big model
+    // load config (a.k.a. 'profile') YAML file
     SchemaFromProfile schemaFromProfile = new SchemaFromProfile(this.configLocation);
-    SchemaMetadata schemaMetadata = schemaFromProfile.create();
     Profiles profiles = schemaFromProfile.getProfiles();
+
+    // special option: if there are createSchemasIfMissing, import those first
+    if (profiles.getFirstCreateSchemasIfMissing() != null) {
+      for (CreateSchemas createSchemasIfMissing : profiles.getFirstCreateSchemasIfMissing()) {
+        String schemaName = createSchemasIfMissing.getName();
+        Database db = schema.getDatabase();
+        Schema createNewSchema = db.getSchema(schemaName);
+        // if schema exists by this name, stop and continue with next
+        if (createNewSchema != null) {
+          continue;
+        }
+        createNewSchema = db.createSchema(schemaName);
+        String profileLocation = createSchemasIfMissing.getProfile();
+        ProfileLoader profileLoader = new ProfileLoader(profileLocation);
+        profileLoader.load(createNewSchema, createSchemasIfMissing.isImportDemoData());
+      }
+    }
+
+    // create the schema using the selected profile tags within the big model
+    SchemaMetadata schemaMetadata = schemaFromProfile.create();
 
     // special option: fixed schema import location for ontologies (not schema or data)
     Schema ontoSchema;
@@ -38,6 +58,9 @@ public class ProfileLoader extends AbstractDataLoader {
       ontoSchema = createSchema(profiles.getOntologiesToFixedSchema(), schema.getDatabase());
       if (profiles.getSetViewPermission() != null) {
         ontoSchema.addMember(profiles.getSetViewPermission(), Privileges.VIEWER.toString());
+      }
+      if (profiles.getSetEditPermission() != null) {
+        ontoSchema.addMember(profiles.getSetEditPermission(), Privileges.EDITOR.toString());
       }
     } else {
       ontoSchema = schema;
@@ -49,9 +72,12 @@ public class ProfileLoader extends AbstractDataLoader {
     // import ontologies (not schema or data)
     MolgenisIO.fromClasspathDirectory(ONTOLOGY_LOCATION, ontoSchema, false);
 
-    // special option: provide specified user/role with View permissions on the imported schema
+    // special options: provide specific user/role with View/Edit permissions on imported schema
     if (profiles.getSetViewPermission() != null) {
       schema.addMember(profiles.getSetViewPermission(), Privileges.VIEWER.toString());
+    }
+    if (profiles.getSetEditPermission() != null) {
+      schema.addMember(profiles.getSetEditPermission(), Privileges.EDITOR.toString());
     }
 
     // optionally, load demo data (i.e. some example records, or specific application data)
