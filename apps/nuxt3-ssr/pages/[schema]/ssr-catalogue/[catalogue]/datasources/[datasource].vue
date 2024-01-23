@@ -67,6 +67,7 @@ function datasetMapper(item: { name: string; description: string }) {
       <PageHeader
         :title="dataSource?.acronym || dataSource?.name"
         :description="dataSource?.acronym ? dataSource?.name : ''"
+        icon="image-data-warehouse"
       >
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" :current="dataSource?.id" />

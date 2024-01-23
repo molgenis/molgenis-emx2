@@ -13,6 +13,7 @@ const query = gql`
   query Cohorts($id: String) {
     Cohorts(filter: { id: { equals: [$id] } }) {
       id
+      pid
       acronym
       name
       description
