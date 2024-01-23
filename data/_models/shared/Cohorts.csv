@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Cohorts,Data resources,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C61512,"Group of individuals sharing a defining demographic characteristic","DataCatalogue,Beacon v2, RD3"
+Cohorts,Data resources,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C61512,"Group of individuals sharing a defining demographic characteristic","DataCatalogue,CohortStaging,Beacon v2, RD3"
 Cohorts,,cohortName,string,,TRUE,,,,,,"http://edamontology.org/operation_0292,http://purl.obolibrary.org/obo/NCIT_C42614","The words or language units by which a thing is known","Beacon v2, RD3"
 Cohorts,,cohortType,string,,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C142175,"Either study-defined, beacon-defined, or user-defined",Beacon v2
 Cohorts,,cohortDesign,ontology,,,,StudyDesign,,,,http://purl.obolibrary.org/obo/OBI_0500000,E.g. longitudinal study design,Beacon v2
