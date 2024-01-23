@@ -216,13 +216,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
   <LayoutsLandingPage class="w-10/12 pt-8">
     <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
       <template v-if="scoped" v-slot:description
-        >Welcome to the catalogue of {{ network.id
-        }}{{ network.id && network.name ? ":" : "" }}
-        {{ network.name }} (<NuxtLink
-          class="underline hover:bg-blue-50"
-          :to="aboutLink"
-          >about</NuxtLink
-        >). Select one of the content categories listed below.</template
+        >Welcome to the catalogue of
+        <NuxtLink class="underline hover:bg-blue-50" :to="aboutLink">{{
+          network.id
+        }}</NuxtLink
+        >{{ network.id && network.name ? ": " : "" }}{{ network.name }}. Select
+        one of the content categories listed below.</template
       >
       <template v-else v-slot:description
         ><ReadMore>{{ description }}</ReadMore></template
@@ -238,10 +237,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           getSettingValue(
             'CATALOGUE_LANDING_COHORTS_TEXT',
             data.data._settings
-          ) ||
-          ' A complete overview of ' +
-            catalogueRouteParam +
-            ' cohorts and biobanks.'
+          ) || 'Cohorts &amp; Biobanks'
         "
         :callToAction="
           getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
@@ -257,7 +253,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           getSettingValue(
             'CATALOGUE_LANDING_DATASOURCES_TEXT',
             data.data._settings
-          ) || catalogueRouteParam + ' databanks and registries'
+          ) || 'Databanks &amp; Registries'
         "
         :callToAction="
           getSettingValue(
@@ -276,7 +272,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           getSettingValue(
             'CATALOGUE_LANDING_VARIABLES_TEXT',
             data.data._settings
-          ) || catalogueRouteParam + ' harmonized variables.'
+          ) || 'Harmonized variables'
         "
         :count="data.data.Variables_agg.count"
         :callToAction="
@@ -290,13 +286,13 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 
       <LandingCardPrimary
         v-if="numberOfNetworks > 0 && !cohortOnly"
-        image="image-diagram-2"
+        image="image-diagram"
         title="Networks"
         :description="
           getSettingValue(
             'CATALOGUE_LANDING_NETWORKS_TEXT',
             data.data._settings
-          ) || 'Networks'
+          ) || 'Networks &amp; Consortia'
         "
         :count="numberOfNetworks"
         :callToAction="
