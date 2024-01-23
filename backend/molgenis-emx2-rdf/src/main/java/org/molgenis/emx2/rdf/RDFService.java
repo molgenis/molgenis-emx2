@@ -284,10 +284,8 @@ public class RDFService {
     }
     builder.add(subject, RDFS.LABEL, table.getName());
 
-    if (table.getMetadata().getDescriptions() != null) {
-      for (final var entry : table.getMetadata().getDescriptions().entrySet()) {
-        builder.add(subject, DCTERMS.DESCRIPTION, Values.literal(entry.getValue(), entry.getKey()));
-      }
+    if (table.getMetadata().getDescription() != null) {
+      builder.add(subject, DCTERMS.DESCRIPTION, table.getMetadata().getDescription());
     }
   }
 
