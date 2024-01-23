@@ -264,6 +264,16 @@ public class TestInherits {
     personTable.delete(row("fullName", "popeye")); // is a manager!!!
     assertEquals(count - 1, personTable.retrieveRows().size());
 
+    // test that we cannot rename pkey columns in case of inheritance (future feature request)
+    Column pkey = personTable.getMetadata().getPrimaryKeyColumns().get(0);
+    Column pkeyNew = new Column(pkey).setName("newFullName");
+    try {
+      personTable.getMetadata().alterColumn(pkey.getName(), pkeyNew);
+      fail("shouldn't be able to rename pkey columns in case of inheritance");
+    } catch (Exception e) {
+      System.out.println("Errored correctly: " + e.getMessage());
+    }
+
     // can also drop the table without errors when trigger is removed
     ceoTable.getMetadata().drop();
     manager.getMetadata().drop();

@@ -143,7 +143,6 @@ class SqlTableMetadata extends TableMetadata {
     if (column.isSystemColumn()) return this;
 
     Column oldColumn = getColumn(columnName);
-
     validateColumnIdentifierIsUnique(this, column);
 
     if (oldColumn == null) {
@@ -177,6 +176,20 @@ class SqlTableMetadata extends TableMetadata {
               + column.getName()
               + "' is part of inherited table "
               + getInheritName());
+    }
+    if (oldColumn.isPrimaryKey() && getColumn(MG_TABLECLASS) != null) {
+      throw new MolgenisException(
+          "Rename column from "
+              + getTableName()
+              + "."
+              + columnName
+              + " to "
+              + getTableName()
+              + "."
+              + column.getName()
+              + " failed: column '"
+              + column.getName()
+              + "' is part of primary key that is used by sub/superclasses ");
     }
     getDatabase()
         .tx(
