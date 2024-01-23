@@ -145,10 +145,10 @@ crumbs[
           <PageHeader
             title="Data sources"
             description="Group of individuals sharing a defining demographic characteristic."
-            icon="data-warehouse"
+            icon="image-data-warehouse"
           >
             <template #prefix>
-              <BreadCrumbs :crumbs="crumbs" current="cohorts" />
+              <BreadCrumbs :crumbs="crumbs" current="data sources" />
             </template>
             <template #suffix>
               <div
