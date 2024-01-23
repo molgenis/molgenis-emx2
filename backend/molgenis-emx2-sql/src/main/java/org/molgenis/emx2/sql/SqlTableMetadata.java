@@ -177,19 +177,11 @@ class SqlTableMetadata extends TableMetadata {
               + "' is part of inherited table "
               + getInheritName());
     }
-    if (oldColumn.isPrimaryKey() && getColumn(MG_TABLECLASS) != null) {
+    if (oldColumn.isPrimaryKey()
+        && getColumn(MG_TABLECLASS) != null
+        && (!oldColumn.getName().equals(columnName) || !column.isPrimaryKey())) {
       throw new MolgenisException(
-          "Rename column from "
-              + getTableName()
-              + "."
-              + columnName
-              + " to "
-              + getTableName()
-              + "."
-              + column.getName()
-              + " failed: column '"
-              + column.getName()
-              + "' is part of primary key that is used by sub/superclasses ");
+          "Cannot rename primary key columns, or remove the pkey, as that is used by sub/superclasses ");
     }
     getDatabase()
         .tx(
