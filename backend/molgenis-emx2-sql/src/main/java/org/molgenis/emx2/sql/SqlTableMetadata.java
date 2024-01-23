@@ -179,7 +179,7 @@ class SqlTableMetadata extends TableMetadata {
     }
     if (oldColumn.isPrimaryKey()
         && getColumn(MG_TABLECLASS) != null
-        && (!oldColumn.getName().equals(columnName) || !column.isPrimaryKey())) {
+        && (!column.getName().equals(columnName) || !column.isPrimaryKey())) {
       throw new MolgenisException(
           "Cannot rename primary key columns, or remove the pkey, as that is used by sub/superclasses ");
     }
