@@ -41,6 +41,7 @@ export default {
   name: "RowEdit",
   data() {
     return {
+      onlySetDefaultValueOnce: true,
       internalValues: deepClone(
         this.defaultValue ? this.defaultValue : this.modelValue
       ),
@@ -143,7 +144,6 @@ export default {
         const isColumnVisible = this.visibleColumns
           ? this.visibleColumns.includes(column.id)
           : true;
-
         return (
           isColumnVisible &&
           this.isVisible(column) &&
@@ -174,14 +174,6 @@ export default {
             );
           } catch (error) {
             this.errorPerColumn[column.id] = "Computation failed: " + error;
-          }
-        } else if (this.applyDefaultValues && column.defaultValue) {
-          if (column.defaultValue.startsWith("=")) {
-            this.internalValues[column.id] = executeExpression(
-              "(" + column.defaultValue.substr(1) + ")",
-              this.internalValues,
-              this.tableMetaData as ITableMetaData
-            );
           }
         }
       });
@@ -238,7 +230,22 @@ export default {
   created() {
     this.tableMetaData.columns.forEach((column: IColumn) => {
       if (column.defaultValue && !this.internalValues[column.id]) {
-        this.internalValues[column.id] = column.defaultValue;
+        if (this.applyDefaultValues) {
+          if (column.defaultValue.startsWith("=")) {
+            try {
+              this.internalValues[column.id] = executeExpression(
+                "(" + column.defaultValue.substr(1) + ")",
+                this.internalValues,
+                this.tableMetaData as ITableMetaData
+              );
+            } catch (error) {
+              this.errorPerColumn[column.id] =
+                "Default value expression failed: " + error;
+            }
+          }
+        } else {
+          this.internalValues[column.id] = column.defaultValue;
+        }
       }
     });
     this.onValuesUpdate();
