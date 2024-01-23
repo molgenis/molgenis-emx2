@@ -1,330 +1,336 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.label }}</h1>
-    <p v-if="showHeader && tableMetadata">
-      {{ tableMetadata.label }}
-    </p>
-    <div class="btn-toolbar mb-3">
-      <div class="btn-group">
-        <ShowHide
-          :columns="columns"
-          @update:columns="emitFilters"
-          checkAttribute="showFilter"
-          :exclude="['HEADING', 'FILE']"
-          label="filters"
-          icon="filter"
-        />
+    <div v-if="tableMetadata">
+      <h1 v-if="showHeader">{{ tableMetadata.label }}</h1>
+      <p v-if="showHeader">
+        {{ tableMetadata.label }}
+      </p>
+      <div class="btn-toolbar mb-3">
+        <div class="btn-group">
+          <ShowHide
+            :columns="columns"
+            @update:columns="emitFilters"
+            checkAttribute="showFilter"
+            :exclude="['HEADING', 'FILE']"
+            label="filters"
+            icon="filter"
+          />
 
-        <ShowHide
-          v-if="view !== View.AGGREGATE"
-          :columns="columns"
-          @update:columns="emitColumns"
-          checkAttribute="showColumn"
-          label="columns"
-          icon="columns"
-          id="showColumn"
-          :defaultValue="true"
-        />
+          <ShowHide
+            v-if="view !== View.AGGREGATE"
+            :columns="columns"
+            @update:columns="emitColumns"
+            checkAttribute="showColumn"
+            label="columns"
+            icon="columns"
+            id="showColumn"
+            :defaultValue="true"
+          />
 
-        <ButtonDropdown
-          v-if="canView"
-          label="download"
-          icon="download"
-          v-slot="scope"
-        >
-          <form class="px-4 py-3" style="min-width: 15rem">
-            <IconAction icon="times" @click="scope.close" class="float-right" />
-
-            <h6>download</h6>
-            <div>
-              <div>
-                <span class="fixed-width">zip</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/zip/' + tableId"
-                  >all rows</ButtonAlt
-                >
-              </div>
-              <div>
-                <span class="fixed-width">csv</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/csv/' + tableId"
-                  >all rows</ButtonAlt
-                >
-                <span v-if="Object.keys(graphqlFilter).length > 0">
-                  |
-                  <ButtonAlt
-                    :href="
-                      '/' +
-                      schemaId +
-                      '/api/csv/' +
-                      tableId +
-                      '?filter=' +
-                      JSON.stringify(graphqlFilter)
-                    "
-                  >
-                    filtered rows
-                  </ButtonAlt>
-                </span>
-              </div>
-              <div>
-                <span class="fixed-width">excel</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/excel/' + tableId"
-                  >all rows</ButtonAlt
-                >
-                <span v-if="Object.keys(graphqlFilter).length > 0">
-                  |
-                  <ButtonAlt
-                    :href="
-                      '/' +
-                      schemaId +
-                      '/api/excel/' +
-                      tableId +
-                      '?filter=' +
-                      JSON.stringify(graphqlFilter)
-                    "
-                  >
-                    filtered rows
-                  </ButtonAlt></span
-                >
-              </div>
-              <div>
-                <span class="fixed-width">jsonld</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/jsonld/' + tableId">
-                  all rows
-                </ButtonAlt>
-              </div>
-              <div>
-                <span class="fixed-width">ttl</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/ttl/' + tableId">
-                  all rows
-                </ButtonAlt>
-              </div>
-            </div>
-          </form>
-        </ButtonDropdown>
-        <span v-if="canView">
           <ButtonDropdown
-            :closeOnClick="true"
-            :label="ViewButtons[view].label"
-            :icon="ViewButtons[view].icon"
+            v-if="canView"
+            label="download"
+            icon="download"
+            v-slot="scope"
           >
-            <div
-              v-for="button in ViewButtons"
-              class="dropdown-item"
-              @click="setView(button)"
-              role="button"
-            >
-              <i class="fas fa-fw" :class="'fa-' + button.icon" />
-              {{ button.label }}
-            </div>
+            <form class="px-4 py-3" style="min-width: 15rem">
+              <IconAction
+                icon="times"
+                @click="scope.close"
+                class="float-right"
+              />
+
+              <h6>download</h6>
+              <div>
+                <div>
+                  <span class="fixed-width">zip</span>
+                  <ButtonAlt :href="'/' + schemaId + '/api/zip/' + tableId"
+                    >all rows</ButtonAlt
+                  >
+                </div>
+                <div>
+                  <span class="fixed-width">csv</span>
+                  <ButtonAlt :href="'/' + schemaId + '/api/csv/' + tableId"
+                    >all rows</ButtonAlt
+                  >
+                  <span v-if="Object.keys(graphqlFilter).length > 0">
+                    |
+                    <ButtonAlt
+                      :href="
+                        '/' +
+                        schemaId +
+                        '/api/csv/' +
+                        tableId +
+                        '?filter=' +
+                        JSON.stringify(graphqlFilter)
+                      "
+                    >
+                      filtered rows
+                    </ButtonAlt>
+                  </span>
+                </div>
+                <div>
+                  <span class="fixed-width">excel</span>
+                  <ButtonAlt :href="'/' + schemaId + '/api/excel/' + tableId"
+                    >all rows</ButtonAlt
+                  >
+                  <span v-if="Object.keys(graphqlFilter).length > 0">
+                    |
+                    <ButtonAlt
+                      :href="
+                        '/' +
+                        schemaId +
+                        '/api/excel/' +
+                        tableId +
+                        '?filter=' +
+                        JSON.stringify(graphqlFilter)
+                      "
+                    >
+                      filtered rows
+                    </ButtonAlt></span
+                  >
+                </div>
+                <div>
+                  <span class="fixed-width">jsonld</span>
+                  <ButtonAlt :href="'/' + schemaId + '/api/jsonld/' + tableId">
+                    all rows
+                  </ButtonAlt>
+                </div>
+                <div>
+                  <span class="fixed-width">ttl</span>
+                  <ButtonAlt :href="'/' + schemaId + '/api/ttl/' + tableId">
+                    all rows
+                  </ButtonAlt>
+                </div>
+              </div>
+            </form>
           </ButtonDropdown>
-        </span>
-      </div>
-      <!-- end first btn group -->
-
-      <InputSearch
-        v-if="canView"
-        class="mx-1 inline-form-group"
-        :id="'explorer-table-search' + Date.now()"
-        :modelValue="searchTerms"
-        @update:modelValue="setSearchTerms($event)"
-      />
-      <Pagination
-        v-if="view !== View.AGGREGATE"
-        :modelValue="page"
-        @update:modelValue="setPage($event)"
-        :limit="limit"
-        :count="count"
-      />
-
-      <div
-        class="btn-group m-0"
-        v-if="view !== View.RECORD && view !== View.AGGREGATE"
-      >
-        <span class="btn">Rows per page:</span>
-        <InputSelect
-          id="explorer-table-page-limit-select"
-          :modelValue="limit"
-          :options="[10, 20, 50, 100]"
-          :clear="false"
-          :required="true"
-          @update:modelValue="setLimit($event)"
-          class="mb-0"
-        />
-        <SelectionBox
-          v-if="showSelect"
-          :selection="selectedItems"
-          @update:selection="selectedItems = $event"
-        />
-      </div>
-
-      <div class="btn-group" v-if="canManage">
-        <TableSettings
-          v-if="tableMetadata"
-          :tableMetadata="tableMetadata"
-          :schemaId="schemaId"
-          @update:settings="reloadMetadata"
-        />
-
-        <IconDanger icon="bomb" @click="isDeleteAllModalShown = true">
-          Delete All
-        </IconDanger>
-      </div>
-    </div>
-
-    <div class="d-flex">
-      <div v-if="countFilters" class="col-3 pl-0">
-        <FilterSidebar
-          :filters="columns"
-          @updateFilters="emitConditions"
-          :schemaId="schemaId"
-        />
-      </div>
-      <div
-        class="flex-grow-1 pr-0 pl-0"
-        :class="countFilters > 0 ? 'col-9' : 'col-12'"
-      >
-        <FilterWells
-          :filters="columns"
-          @updateFilters="emitConditions"
-          class="border-top pt-3 pb-3"
-        />
-        <div v-if="loading">
-          <Spinner />
+          <span v-if="canView">
+            <ButtonDropdown
+              :closeOnClick="true"
+              :label="ViewButtons[view].label"
+              :icon="ViewButtons[view].icon"
+            >
+              <div
+                v-for="button in ViewButtons"
+                class="dropdown-item"
+                @click="setView(button)"
+                role="button"
+              >
+                <i class="fas fa-fw" :class="'fa-' + button.icon" />
+                {{ button.label }}
+              </div>
+            </ButtonDropdown>
+          </span>
         </div>
-        <div v-if="!loading">
-          <AggregateTable
-            v-if="view === View.AGGREGATE"
-            :canView="canView"
-            :allColumns="columns"
-            :tableId="tableId"
-            :schemaId="schemaId"
-            :minimumValue="1"
-            :graphqlFilter="graphqlFilter"
+        <!-- end first btn group -->
+
+        <InputSearch
+          v-if="canView"
+          class="mx-1 inline-form-group"
+          :id="'explorer-table-search' + Date.now()"
+          :modelValue="searchTerms"
+          @update:modelValue="setSearchTerms($event)"
+        />
+        <Pagination
+          v-if="view !== View.AGGREGATE"
+          :modelValue="page"
+          @update:modelValue="setPage($event)"
+          :limit="limit"
+          :count="count"
+        />
+
+        <div
+          class="btn-group m-0"
+          v-if="view !== View.RECORD && view !== View.AGGREGATE"
+        >
+          <span class="btn">Rows per page:</span>
+          <InputSelect
+            id="explorer-table-page-limit-select"
+            :modelValue="limit"
+            :options="[10, 20, 50, 100]"
+            :clear="false"
+            :required="true"
+            @update:modelValue="setLimit($event)"
+            class="mb-0"
           />
-          <RecordCards
-            v-if="view === View.CARDS"
-            class="card-columns"
-            id="cards"
-            :data="dataRows"
-            :columns="columns"
-            :tableId="tableId"
-            :schemaId="schemaId"
-            :canEdit="canEdit"
-            :template="cardTemplate"
-            @click="$emit('rowClick', $event)"
-            @reload="reload"
-          />
-          <RecordCards
-            v-if="view === View.RECORD"
-            id="records"
-            :data="dataRows"
-            :columns="columns"
-            :tableId="tableId"
-            :schemaId="schemaId"
-            :canEdit="canEdit"
-            :template="recordTemplate"
-            @click="$emit('rowClick', $event)"
-            @reload="reload"
-          />
-          <TableMolgenis
-            v-if="view === View.TABLE"
-            :schemaId="schemaId"
+          <SelectionBox
+            v-if="showSelect"
             :selection="selectedItems"
             @update:selection="selectedItems = $event"
-            :columns="columns"
-            @update:columns="columns = $event"
-            :table-metadata="tableMetadata"
-            :data="dataRows"
-            :showSelect="showSelect"
-            @column-click="onColumnClick"
-            @rowClick="$emit('rowClick', $event)"
-            @cellClick="handleCellClick"
-          >
-            <template v-slot:header>
-              <label>{{ count }} records found</label>
-            </template>
-            <template v-slot:rowcolheader>
-              <RowButtonAdd
-                v-if="canEdit"
-                :tableId="tableMetadata.id"
-                :schemaId="tableMetadata.schemaId"
-                @close="reload"
-                class="d-inline p-0"
-                id="add"
-              />
-              <slot name="rowcolheader" />
-            </template>
-            <template v-slot:colheader="slotProps">
-              <IconAction
-                v-if="slotProps.col && orderByColumn === slotProps.col.id"
-                :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-                class="d-inline p-0"
-              />
-            </template>
-            <template v-slot:rowheader="slotProps">
-              <RowButtonEdit
-                v-if="canEdit"
-                :schemaId="slotProps.row.mg_schemaId"
-                :tableId="slotProps.row.mg_tableId"
-                :pkey="slotProps.row.mg_pkey"
-                :id="JSON.stringify(slotProps.row.mg_pkey) + '-edit'"
-                @close="reload"
-              />
-              <RowButtonClone
-                v-if="canEdit"
-                :schemaId="slotProps.row.mg_schemaId"
-                :tableId="slotProps.row.mg_tableId"
-                :pkey="slotProps.row.mg_pkey"
-                @close="reload"
-                :id="JSON.stringify(slotProps.row.mg_pkey) + '-clone'"
-              />
-              <RowButtonDelete
-                v-if="canEdit"
-                :schemaId="slotProps.row.mg_schemaId"
-                :tableId="slotProps.row.mg_tableId"
-                :pkey="slotProps.row.mg_pkey"
-                @close="reload"
-                :id="JSON.stringify(slotProps.row.mg_pkey) + '-delete'"
-              />
-              <!--@slot Use this to add values or actions buttons to each row -->
-              <slot
-                name="rowheader"
-                :row="slotProps.row"
-                :metadata="tableMetadata"
-                :rowKey="slotProps.row.mg_pkey"
-              />
-            </template>
-          </TableMolgenis>
+          />
+        </div>
+
+        <div class="btn-group" v-if="canManage">
+          <TableSettings
+            v-if="tableMetadata"
+            :tableMetadata="tableMetadata"
+            :schemaId="schemaId"
+            @update:settings="reloadMetadata"
+          />
+
+          <IconDanger icon="bomb" @click="isDeleteAllModalShown = true">
+            Delete All
+          </IconDanger>
         </div>
       </div>
+
+      <div class="d-flex">
+        <div v-if="countFilters" class="col-3 pl-0">
+          <FilterSidebar
+            :filters="columns"
+            @updateFilters="emitConditions"
+            :schemaId="schemaId"
+          />
+        </div>
+        <div
+          class="flex-grow-1 pr-0 pl-0"
+          :class="countFilters > 0 ? 'col-9' : 'col-12'"
+        >
+          <FilterWells
+            :filters="columns"
+            @updateFilters="emitConditions"
+            class="border-top pt-3 pb-3"
+          />
+          <div v-if="loading">
+            <Spinner />
+          </div>
+          <div v-if="!loading">
+            <AggregateTable
+              v-if="view === View.AGGREGATE"
+              :canView="canView"
+              :allColumns="columns"
+              :tableId="tableId"
+              :schemaId="schemaId"
+              :minimumValue="1"
+              :graphqlFilter="graphqlFilter"
+            />
+            <RecordCards
+              v-if="view === View.CARDS"
+              class="card-columns"
+              id="cards"
+              :data="dataRows"
+              :columns="columns"
+              :tableId="tableId"
+              :schemaId="schemaId"
+              :canEdit="canEdit"
+              :template="cardTemplate"
+              @click="$emit('rowClick', $event)"
+              @reload="reload"
+            />
+            <RecordCards
+              v-if="view === View.RECORD"
+              id="records"
+              :data="dataRows"
+              :columns="columns"
+              :tableId="tableId"
+              :schemaId="schemaId"
+              :canEdit="canEdit"
+              :template="recordTemplate"
+              @click="$emit('rowClick', $event)"
+              @reload="reload"
+            />
+            <TableMolgenis
+              v-if="view === View.TABLE"
+              :schemaId="schemaId"
+              :selection="selectedItems"
+              @update:selection="selectedItems = $event"
+              :columns="columns"
+              @update:columns="columns = $event"
+              :table-metadata="tableMetadata"
+              :data="dataRows"
+              :showSelect="showSelect"
+              @column-click="onColumnClick"
+              @rowClick="$emit('rowClick', $event)"
+              @cellClick="handleCellClick"
+            >
+              <template v-slot:header>
+                <label>{{ count }} records found</label>
+              </template>
+              <template v-slot:rowcolheader>
+                <RowButtonAdd
+                  v-if="canEdit"
+                  :tableId="tableMetadata.id"
+                  :schemaId="tableMetadata.schemaId"
+                  @close="reload"
+                  class="d-inline p-0"
+                  id="add"
+                />
+                <slot name="rowcolheader" />
+              </template>
+              <template v-slot:colheader="slotProps">
+                <IconAction
+                  v-if="slotProps.col && orderByColumn === slotProps.col.id"
+                  :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+                  class="d-inline p-0"
+                />
+              </template>
+              <template v-slot:rowheader="slotProps">
+                <RowButtonEdit
+                  v-if="canEdit"
+                  :schemaId="slotProps.row.mg_schemaId"
+                  :tableId="slotProps.row.mg_tableId"
+                  :pkey="slotProps.row.mg_pkey"
+                  :id="JSON.stringify(slotProps.row.mg_pkey) + '-edit'"
+                  @close="reload"
+                />
+                <RowButtonClone
+                  v-if="canEdit"
+                  :schemaId="slotProps.row.mg_schemaId"
+                  :tableId="slotProps.row.mg_tableId"
+                  :pkey="slotProps.row.mg_pkey"
+                  @close="reload"
+                  :id="JSON.stringify(slotProps.row.mg_pkey) + '-clone'"
+                />
+                <RowButtonDelete
+                  v-if="canEdit"
+                  :schemaId="slotProps.row.mg_schemaId"
+                  :tableId="slotProps.row.mg_tableId"
+                  :pkey="slotProps.row.mg_pkey"
+                  @close="reload"
+                  :id="JSON.stringify(slotProps.row.mg_pkey) + '-delete'"
+                />
+                <!--@slot Use this to add values or actions buttons to each row -->
+                <slot
+                  name="rowheader"
+                  :row="slotProps.row"
+                  :metadata="tableMetadata"
+                  :rowKey="slotProps.row.mg_pkey"
+                />
+              </template>
+            </TableMolgenis>
+          </div>
+        </div>
+      </div>
+      <ConfirmModal
+        v-if="isDeleteAllModalShown"
+        :title="'Truncate ' + tableMetadata.label"
+        actionLabel="Truncate"
+        actionType="danger"
+        :tableId="tableId"
+        :tableLabel="tableMetadata.label"
+        @close="isDeleteAllModalShown = false"
+        @confirmed="handelExecuteDeleteAll"
+      >
+        <p>
+          Truncate <strong>{{ tableMetadata.label }}</strong>
+        </p>
+        <p>
+          Are you sure that you want to delete ALL rows in table '{{
+            tableMetadata.label
+          }}'?
+        </p>
+      </ConfirmModal>
+      <RefSideModal
+        v-if="refSideModalProps"
+        :column="refSideModalProps.column"
+        :rows="refSideModalProps.rows"
+        :schema="this.schemaId"
+        @onClose="refSideModalProps = undefined"
+        :showDataOwner="canManage"
+      />
     </div>
-    <ConfirmModal
-      v-if="isDeleteAllModalShown"
-      :title="'Truncate ' + tableMetadata.label"
-      actionLabel="Truncate"
-      actionType="danger"
-      :tableId="tableId"
-      :tableLabel="tableMetadata.label"
-      @close="isDeleteAllModalShown = false"
-      @confirmed="handelExecuteDeleteAll"
-    >
-      <p>
-        Truncate <strong>{{ tableMetadata.label }}</strong>
-      </p>
-      <p>
-        Are you sure that you want to delete ALL rows in table '{{
-          tableMetadata.label
-        }}'?
-      </p>
-    </ConfirmModal>
-    <RefSideModal
-      v-if="refSideModalProps"
-      :column="refSideModalProps.column"
-      :rows="refSideModalProps.rows"
-      :schema="this.schemaId"
-      @onClose="refSideModalProps = undefined"
-      :showDataOwner="canManage"
-    />
   </div>
 </template>
 
@@ -835,8 +841,11 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
       <label>Read only example</label>
       <table-explorer
         id="my-table-explorer"
-        tableId="Catalogues"
-        schemaId="catalogue"
+        tableId="Pet"
+        schemaId="pet store"
+        :showColumns="showColumns"
+        :showFilters="showFilters"
+        :urlConditions="urlConditions"
         :showPage="page"
         :showLimit="limit"
         :showOrderBy="showOrderBy"
@@ -869,6 +878,7 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
         page: 1,
         limit: 10,
         showOrder: 'DESC',
+        showOrderBy: 'name',
         canEdit: false,
         canManage: false,
       }

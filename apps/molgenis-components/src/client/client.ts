@@ -32,7 +32,8 @@ const client: IClient = {
       fetchTableMetaData: async (tableId: string): Promise<ITableMetaData> => {
         const schema = await fetchSchemaMetaData(schemaId);
         return deepClone(schema).tables.find(
-          (table: ITableMetaData) => table.id === tableId
+          (table: ITableMetaData) =>
+            table.id === tableId || table.label === tableId
         );
       },
       fetchTableData: async (

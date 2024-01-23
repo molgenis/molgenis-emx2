@@ -1,7 +1,10 @@
 <template>
   <span v-if="subclasses">
     <IconAction icon="plus" @click="isModalShown = true">add</IconAction>
-    <LayoutModal v-if="isModalShown && !subclassSelected">
+    <LayoutModal
+      v-if="isModalShown && !subclassSelected"
+      @close="isModalShown = false"
+    >
       <template v-slot:body>
         <h5>Select subtype</h5>
         <p>
