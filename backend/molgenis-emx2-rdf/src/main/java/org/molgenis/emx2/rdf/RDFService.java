@@ -225,7 +225,7 @@ public class RDFService {
    */
   private Namespace getSchemaNamespace(final SchemaMetadata schema) {
     final String schemaName = UrlEscapers.urlPathSegmentEscaper().escape(schema.getName());
-    final String url = baseURL + schemaName + "/api/rdf";
+    final String url = baseURL + schemaName + "/api/rdf/";
     final String prefix = TypeUtils.convertToPascalCase(schema.getName());
     return Values.namespace(prefix, url);
   }
