@@ -2,7 +2,7 @@
   <span v-if="loading"><Spinner></Spinner></span>
   <span v-else-if="update">
     <a :href="`/${this.schema}/settings/#/changelog`">
-      {{ formatStamp(update.stamp) }} ({{ update.tableId }})
+      {{ formatStamp(update.stamp) }} ({{ update.tableName }})
     </a>
   </span>
   <span v-else
@@ -38,7 +38,7 @@ export default {
   async created() {
     const resp = await request(
       `/${this.schema}/settings/graphql`,
-      "{_changes(limit: 1) {operation, stamp, userId, tableId}}"
+      "{_changes(limit: 1) {operation, stamp, userId, tableName}}"
     ).catch((error) => {
       this.statusMessage = "failed to fetch updated";
       console.log(error);
