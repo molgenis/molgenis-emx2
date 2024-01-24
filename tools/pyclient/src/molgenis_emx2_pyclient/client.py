@@ -11,7 +11,7 @@ from . import utils as utils
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError, ServerNotFoundError,
                          PyclientException, NoSuchTableException, NoContextManagerException, GraphQLException,
                          InvalidTokenException,
-                         PermissionDeniedException)
+                         PermissionDeniedException, TokenSigninException)
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
@@ -76,6 +76,9 @@ class Client:
         :type username: str
         """
         self.username = username
+
+        if self.token is not None:
+            raise TokenSigninException("Cannot sign in to client authorized with token.")
 
         if not self._as_context_manager:
             raise NoContextManagerException("Ensure the Client is called as a context manager,\n"
@@ -190,6 +193,8 @@ class Client:
 
     def set_token(self, token: str):
         """Sets the token supplied as the argument as the client's token."""
+        if self.signin_status == 'success':
+            raise TokenSigninException("Cannot set a token on a client authorized with sign in.")
         self._token = token
 
     @property

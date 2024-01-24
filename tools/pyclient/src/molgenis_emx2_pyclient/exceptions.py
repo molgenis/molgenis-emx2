@@ -47,3 +47,7 @@ class InvalidTokenException(PyclientException):
 
 class PermissionDeniedException(PyclientException):
     """Thrown when an operation is attempted without sufficient permissions."""
+
+
+class TokenSigninException(PyclientException):
+    """Thrown when sign in is attempted on a client that is authorized with a token."""
