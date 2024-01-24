@@ -1,27 +1,28 @@
 # GraphQL in MOLGENIS
 
-Each database in MOLGENIS has a graphql endpoint, that expose a graphql API for the data model of that database. In
-addition, at the root there is a generic API.
+Each database in MOLGENIS has a GraphQL endpoint that exposes a GraphQL API for the data model of that database. 
+In addition, at the root there is a generic API.
 
 For example:
 
-- https://emx2.dev.molgenis.org/api/graphql - root api
-- https://emx2.dev.molgenis.org/pet%20store/api/graphql - api for database 'pet store'
+- https://emx2.dev.molgenis.org/api/graphql - root API
+- https://emx2.dev.molgenis.org/pet%20store/api/graphql - API for database 'pet store'
 
 Full documentation can be found while visiting the graphql-playground app. You can click 'docs' there.
 
-- https://emx2.dev.molgenis.org/apps/graphql-playground/ - playground for 'root' api
+- https://emx2.dev.molgenis.org/apps/graphql-playground/ - playground for 'root' API
 - https://emx2.dev.molgenis.org/pet%20store/graphql-playground/ - example for 'pet store' database
 
 ## Functions available on all APIs.
 
-These functionalities are available for both the 'root' api and the database api.
+These functionalities are available for both the 'root' API and the database API.
 
 ### Sign in
 
-Sign into an existing account. When running in a website then a session will be created. However, when you use a script
-you can retrieve a token to authenticate in other calls. Provide these in subsequent request headers as '
-x-molgenis-token'.
+Sign in to an existing account. 
+When running in a website then a session will be created. 
+However, when you use a script you can retrieve a token to authenticate in other calls. 
+Provide these in subsequent request headers as `x-molgenis-token`.
 
 ```graphql
 mutation {
@@ -180,7 +181,7 @@ To get settings for all users
 
 To change settings you can use the 'change' mutation, e.g.
 
-Database or schema settings (depending on database vs schema api):
+Database or schema settings (depending on database vs schema API):
 
 ```graphql
 mutation {
@@ -585,7 +586,7 @@ Create a new connection:
 
 `const query = new QueryEMX2('graphQLEndpoint')`
 
-Where graphQLEndpoint is the endpoint of the api. Usually `'graphql'`
+Where graphQLEndpoint is the endpoint of the API. Usually `'graphql'`
 
 The way it works is with _function chaining_.
 

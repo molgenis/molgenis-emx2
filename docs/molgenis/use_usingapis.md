@@ -2,6 +2,16 @@
 
 The EMX2 APIs can be used to various environments to retrieve, add, manipulate or replace data.
 
+
+
+## Python
+
+Data management of a Molgenis EMX2 server can be performed through the use of the Python client.
+This client can be installed from the [PyPI repository](https://pypi.org/project/molgenis-emx2-pyclient/) and can be applied in a number of operations, such as 
+- retrieving data from a table
+- uploading data to a table
+
+
 ## R
 
 R is a free software environment for statistical computing and graphics.
@@ -84,10 +94,6 @@ Result:
 ```
 
 ### Define new tables
-todo
-
-## Python
-
 todo
 
 ## Command line
