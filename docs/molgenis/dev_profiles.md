@@ -38,9 +38,18 @@ In addition, more specialized options can be used:
 
 ## Special tagging behaviour
 
+- Tagging a table but none of its columns applies tags all of its columns 
+
 When a table header (i.e. a data model row without a columnType) is tagged with a particular tag,  but none of its columns have that particular tag, all of the columns are automatically tagged with that particular tag.
 This makes it easy to quickly select complete tables when using tags to compose a new profile.
 However, when even one column does carry a tag, only that column will be selected for that table and all others will be ignored.
+
+- Parent tables are automatically tagged when using inheritance
+
+When using inheritance, parent tables (and their parents, and so on) are automatically tagged when a child table is tagged.
+This removed the need to tag these tables and thereby automatically tagging all of its columns
+In other words, these parent tables are automatically included as column-less tables.
+However, keep in mind that primary keys present in parent tables may still need to be tagged explicitly.
 
 ## Complete example
 ```yaml
