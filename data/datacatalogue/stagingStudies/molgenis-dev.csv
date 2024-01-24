@@ -41,21 +41,26 @@ Studies patients,,start year,int,,,,,,,,,Year when first data was collected (ret
 Studies patients,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing
 Studies patients,,main medical condition,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Disease groups within this subcohort, based on ICD-10 classification"
 Studies patients,,comorbidity,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Comorbidity within this subcohort, based on ICD-10 classification"
-Studies patients,,Data types,heading,,,,,,,,,
+Studies patients,,data types,heading,,,,,,,,,
 Studies patients,,data type,ontology,,,CatalogueOntologies,Data categories,,,,,The type of data
 Studies patients,,subject type,ontology,,,,Subject types,,,,,Human or animal
-Studies patients,,Data types specification,heading,,,,,,,,,
+Studies patients,,data types specification,heading,,,,,,,,,
 Studies patients,,biological sample types,ontology_array,,,CatalogueOntologies,Sample categories,,,,,
 Studies patients,,genetic material samples,,,,,,,,,,
-Studies patients,,Genetic/Omics data,heading,,,,,,,,,
-Studies patients,,Genetic/Omics data type,ontology,,,CatalogueOntologies,Data categories,,,,,Select among the Omics subtree
-Studies patients,,Primary data,,,,,,,,,,
-Studies patients,,Primary data location,,,,,,,,,,
-Studies patients,,Secondary data,,,,,,,,,,
-Studies patients,,Secondary data location,,,,,,,,,,
+Studies patients,,genetic or omics data,heading,,,,,,,,,
+Studies patients,,genetic or omics data type,ontology,,,CatalogueOntologies,Data categories,,,,,Select among the Omics subtree
+Studies patients,,primary data,,,,,,,,,,
+Studies patients,,primary data location,,,,,,,,,,
+Studies patients,,secondary data,,,,,,,,,,
+Studies patients,,secondary data location,,,,,,,,,,
+Studies patients,,imaging,heading,,,,,,,,,
+Studies patients,,imaging type,ontology,,,CatalogueOntologies,Imaging types,,,,,"E.g. diagnostic imaging, interventional radiology"
+Studies patients,,imaging modality,ontology,,,CatalogueOntologies,Biological imaging methods,,,,,
+Studies patients,,imaging description,text,,,,,,,,,
+Studies patients,,imaging data location,string,,,,,,,,,
 Studies core,,contents,heading,,,,,,,,,Data model and contents
 Studies core,,collection events,refback,,,,Collection events,,resource,,,List of collection events defined for this resource
-Studies BME,Studies core,,,,,,,,,,,Studies conducted in the realm of Biomedical Engineering
+Studies BME,Studies patients,,,,,,,,,,,Studies conducted in the realm of Biomedical Engineering
 Studies BME,,Tools and methods,heading,,,,,,,,,Tools and methods
 Studies BME,,main procedure,string,,,,,,,,,The name of the main procedure applied in this study
 Studies BME,,biomedical tool,string,,,,,,,,,The name of a specific tool used in biomedical engineering research
