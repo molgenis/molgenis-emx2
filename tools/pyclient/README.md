@@ -52,13 +52,12 @@ with Client('https://example.molgeniscloud.org', token=token) as client:
     print(client.status)
     """ Output:
     Host: https://example.molgeniscloud.org
-    Status: Signed in
     Schemas:
         CatalogueOntologies
         catalogue
         ExampleSchema
         ...
-    Version: v10.10.1
+    Version: v10.32.1
     """
     
     ...

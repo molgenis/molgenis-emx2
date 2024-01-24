@@ -443,6 +443,16 @@ class Client:
         :returns: a success or error message
         :rtype: string
         """
+        if name is None:
+            if self.default_schema is None:
+                raise KeyError("Supply the schema name.")
+            name = self.default_schema
+        else:
+            if name not in self.schema_names:
+                message = f"Schema '{name}' not available."
+                log.error(message)
+                raise NoSuchSchemaException(message)
+
         query = queries.delete_schema()
         variables = {'id': name}
 
@@ -471,6 +481,16 @@ class Client:
         :returns: a success or error message
         :rtype: string
         """
+        if name is None:
+            if self.default_schema is None:
+                raise KeyError("Supply the schema name.")
+            name = self.default_schema
+        else:
+            if name not in self.schema_names:
+                message = f"Schema '{name}' not available."
+                log.error(message)
+                raise NoSuchSchemaException(message)
+
         query = queries.update_schema()
         variables = {'name': name, 'description': description}
 
@@ -509,7 +529,7 @@ class Client:
         :rtype: string
         """
         if name not in self.schema_names:
-            message = f"Schema '{name}' does not exist"
+            message = f"Schema '{name}' not available."
             log.error(message)
             raise NoSuchSchemaException(message)
 
@@ -621,9 +641,10 @@ class Client:
 
         elif 'errors' in response_keys:
             message = response_json.get('errors')[0].get('message')
-            log.error(message)
             if 'permission denied' in message:
-                raise PermissionDeniedException(message)
+                log.error("Insufficient permissions for this operations.")
+                raise PermissionDeniedException("Insufficient permissions for this operations.")
+            log.error(message)
             raise GraphQLException(message)
 
         else:

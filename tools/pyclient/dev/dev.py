@@ -147,21 +147,21 @@ async def main():
             client.update_schema(name='myNewSchema', description='I forgot the description')
             print(client.schema_names)
             print(client.schemas)
-        except GraphQLException as e:
+        except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
         # Recreate the schema: delete and create
         try:
             client.recreate_schema(name='myNewSchema')
             print(client.schema_names)
-        except GraphQLException as e:
+        except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
         # Delete the schema
         try:
             client.delete_schema(name='myNewSchema')
             print(client.schema_names)
-        except GraphQLException as e:
+        except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
 
