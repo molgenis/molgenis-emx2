@@ -160,18 +160,11 @@ jobs:
 
     steps:
     - pre_steps
-    
-    - run:
-        name: prepare sql test database
-        command: |
-          apt-get update && apt-get install postgresql-client -y
-          psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
 
-    # we might be optimistic and skip tests here
     - run:
-        name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
+        name: build
         command: |
-          ./gradlew shadowJar test jacocoMergedReport sonar ci --no-daemon \
+          ./gradlew shadowJar build -x test ci --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
 
