@@ -27,230 +27,170 @@
   </div>
 </template>
 
-<script lang="ts">
-import type { IColumn, ITableMetaData } from "meta-data-utils";
+<script setup lang="ts">
+import type { IColumn, ISchemaMetaData, ITableMetaData } from "meta-data-utils";
 import type { IRow } from "../../Interfaces/IRow";
 import constants from "../constants.js";
 import { deepClone } from "../utils";
 import FormInput from "./FormInput.vue";
 import { executeExpression, isColumnVisible } from "./formUtils/formUtils";
+import { computed, ref, watch, withDefaults, defineProps } from "vue";
 
 const { AUTO_ID } = constants;
+const {
+  modelValue,
+  id,
+  tableMetaData,
+  schemaMetaData,
+  applyDefaultValues,
+  canEdit,
+  clone,
+  defaultValue,
+  errorPerColumn,
+  pkey,
+  visibleColumns,
+} = withDefaults(
+  defineProps<{
+    id: string;
+    modelValue: Record<string, any>;
+    pkey?: Record<string, any>;
+    tableMetaData: ITableMetaData;
+    schemaMetaData: ISchemaMetaData;
+    applyDefaultValues?: boolean;
+    canEdit?: boolean;
+    clone?: Boolean;
+    defaultValue?: Record<string, any>;
+    errorPerColumn?: Record<string, any>;
+    visibleColumns?: string[];
+  }>(),
+  {
+    errorPerColumn: () => ({}),
+    applyDefaultValues: false,
+    canEdit: false,
+  }
+);
+let internalValues = ref(deepClone(defaultValue ? defaultValue : modelValue));
+const emit = defineEmits(["update:modelValue"]);
 
-export default {
-  name: "RowEdit",
-  data() {
-    return {
-      onlySetDefaultValueOnce: true,
-      internalValues: deepClone(
-        this.defaultValue ? this.defaultValue : this.modelValue
-      ),
-    };
-  },
-  props: {
-    modelValue: {
-      type: Object,
-      required: true,
-    },
-    // id: used as html id for components
-    id: {
-      type: String,
-      required: true,
-    },
-    // tableId: name of the molgenis table loaded
-    tableId: {
-      type: String,
-      required: true,
-    },
-    // defines the form structure
-    tableMetaData: {
-      type: Object,
-      required: true,
-    },
-    // pkey:  when updating existing record, this is the primary key value
-    pkey: { type: Object },
-    // clone: when you want to clone instead of update
-    clone: {
-      type: Boolean,
-      required: false,
-    },
-    // visibleColumns:  visible columns, useful if you only want to allow partial edit (column of object)
-    // examples ['name','description']
-    visibleColumns: {
-      type: Array,
-      required: false,
-    },
-    // defaultValue: when creating new record, this is initialization value
-    defaultValue: {
-      type: Object,
-      required: false,
-    },
-    // object with the whole schema, needed to create refLink filter
-    schemaMetaData: {
-      type: Object,
-      required: true,
-    },
-    canEdit: {
-      type: Boolean,
-      required: false,
-      default: () => true,
-    },
-    errorPerColumn: {
-      type: Object,
-      default: () => ({}),
-    },
-    applyDefaultValues: {
-      type: Boolean,
-      default: () => false,
-    },
-  },
-  emits: ["update:modelValue"],
-  components: {
-    FormInput,
-  },
-  computed: {
-    shownColumnsWithoutMeta() {
-      const columnsWithoutMeta = this?.tableMetaData?.columns
-        ? this.tableMetaData.columns.filter(
-            (column: IColumn) => !column.id?.startsWith("mg_")
-          )
-        : [];
-      return columnsWithoutMeta.filter(this.showColumn);
-    },
-    graphqlFilter() {
-      if (this.tableMetaData && this.pkey) {
-        return this.tableMetaData.columns
-          .filter((column: IColumn) => column.key === 1)
-          .reduce(
-            (accum: Record<string, { equals: IRow }>, column: IColumn) => {
-              accum[column.id] = {
-                equals: this.pkey ? this.pkey[column.id] : undefined,
-              };
-              return accum;
-            }
+let shownColumnsWithoutMeta = computed(() => {
+  const columnsWithoutMeta = tableMetaData?.columns
+    ? tableMetaData.columns.filter(
+        (column: IColumn) => !column.id?.startsWith("mg_")
+      )
+    : [];
+  return columnsWithoutMeta.filter(showColumn);
+});
+
+tableMetaData.columns.forEach((column: IColumn) => {
+  if (column.defaultValue && !internalValues[column.id]) {
+    if (applyDefaultValues) {
+      if (column.defaultValue.startsWith("=")) {
+        try {
+          internalValues[column.id] = executeExpression(
+            "(" + column.defaultValue.substr(1) + ")",
+            internalValues,
+            tableMetaData as ITableMetaData
           );
-      } else {
-        return {};
-      }
-    },
-  },
-  methods: {
-    showColumn(column: IColumn) {
-      if (column.columnType === AUTO_ID) {
-        return this.pkey;
-      } else if (column.refLinkId) {
-        return this.internalValues[column.refLinkId];
-      } else {
-        const isColumnVisible = this.visibleColumns
-          ? this.visibleColumns.includes(column.id)
-          : true;
-        return (
-          isColumnVisible &&
-          this.isVisible(column) &&
-          column.id !== "mg_tableclass"
-        );
-      }
-    },
-    isVisible(column: IColumn) {
-      try {
-        return isColumnVisible(
-          column,
-          this.internalValues,
-          this.tableMetaData as ITableMetaData
-        );
-      } catch (error: any) {
-        this.errorPerColumn[column.id] = error;
-        return true;
-      }
-    },
-    applyComputed() {
-      this.tableMetaData.columns.forEach((column: IColumn) => {
-        if (column.computed && column.columnType !== AUTO_ID) {
-          try {
-            this.internalValues[column.id] = executeExpression(
-              column.computed,
-              this.internalValues,
-              this.tableMetaData as ITableMetaData
-            );
-          } catch (error) {
-            this.errorPerColumn[column.id] = "Computation failed: " + error;
-          }
+        } catch (error) {
+          errorPerColumn[column.id] =
+            "Default value expression failed: " + error;
         }
-      });
-    },
-    //create a filter in case inputs are linked by overlapping refs
-    refLinkFilter(column: IColumn) {
-      //need to figure out what refs overlap
-      if (
-        column.refLinkId &&
-        this.showColumn(column) &&
-        this.internalValues[column.refLinkId]
-      ) {
-        let filter: Record<string, any> = {};
-        this.tableMetaData.columns.forEach((column2: IColumn) => {
-          if (column2.id === column.refLinkId) {
-            this.schemaMetaData.tables.forEach((table: ITableMetaData) => {
-              //check how the refTableId overlaps with columns in our column
-              if (table.id === column.refTableId) {
-                table.columns.forEach((column3) => {
-                  if (
-                    column3.key === 1 &&
-                    column3.refTableId === column2.refTableId
-                  ) {
-                    filter[column3.id] = {
-                      //@ts-ignore
-                      equals: this.internalValues[column.refLinkId],
-                    };
-                  }
-                });
+      }
+    } else {
+      internalValues[column.id] = column.defaultValue;
+    }
+  }
+});
+onValuesUpdate();
+
+function showColumn(column: IColumn) {
+  if (column.columnType === AUTO_ID) {
+    return pkey?.value;
+  } else if (column.refLinkId) {
+    return internalValues.value[column.refLinkId];
+  } else {
+    const isColumnVisible = visibleColumns
+      ? visibleColumns.includes(column.id)
+      : true;
+    return (
+      isColumnVisible && isVisible(column) && column.id !== "mg_tableclass"
+    );
+  }
+}
+
+function isVisible(column: IColumn) {
+  try {
+    return isColumnVisible(
+      column,
+      internalValues.value,
+      tableMetaData as ITableMetaData
+    );
+  } catch (error: any) {
+    errorPerColumn[column.id] = error;
+    return true;
+  }
+}
+
+function applyComputed() {
+  tableMetaData.columns.forEach((column: IColumn) => {
+    if (column.computed && column.columnType !== AUTO_ID) {
+      try {
+        internalValues.value[column.id] = executeExpression(
+          column.computed,
+          internalValues.value,
+          tableMetaData as ITableMetaData
+        );
+      } catch (error) {
+        errorPerColumn[column.id] = "Computation failed: " + error;
+      }
+    }
+  });
+}
+
+//create a filter in case inputs are linked by overlapping refs
+function refLinkFilter(column: IColumn) {
+  //need to figure out what refs overlap
+  if (
+    column.refLinkId &&
+    showColumn(column) &&
+    internalValues[column.refLinkId]
+  ) {
+    let filter: Record<string, any> = {};
+    tableMetaData.columns.forEach((column2: IColumn) => {
+      if (column2.id === column.refLinkId) {
+        schemaMetaData.tables.forEach((table: ITableMetaData) => {
+          //check how the refTableId overlaps with columns in our column
+          if (table.id === column.refTableId) {
+            table.columns.forEach((column3) => {
+              if (
+                column3.key === 1 &&
+                column3.refTableId === column2.refTableId
+              ) {
+                filter[column3.id] = {
+                  //@ts-ignore
+                  equals: internalValues[column.refLinkId],
+                };
               }
             });
           }
         });
-        return filter;
-      }
-    },
-    handleModelValueUpdate(event: any, columnId: string) {
-      this.internalValues[columnId] = event;
-      this.onValuesUpdate();
-    },
-    onValuesUpdate() {
-      this.applyComputed();
-      this.$emit("update:modelValue", this.internalValues);
-    },
-  },
-  watch: {
-    tableMetaData: {
-      handler() {
-        this.onValuesUpdate();
-      },
-      deep: true,
-    },
-  },
-  created() {
-    this.tableMetaData.columns.forEach((column: IColumn) => {
-      if (column.defaultValue && !this.internalValues[column.id]) {
-        if (this.applyDefaultValues) {
-          if (column.defaultValue.startsWith("=")) {
-            try {
-              this.internalValues[column.id] = executeExpression(
-                "(" + column.defaultValue.substr(1) + ")",
-                this.internalValues,
-                this.tableMetaData as ITableMetaData
-              );
-            } catch (error) {
-              this.errorPerColumn[column.id] =
-                "Default value expression failed: " + error;
-            }
-          }
-        } else {
-          this.internalValues[column.id] = column.defaultValue;
-        }
       }
     });
-    this.onValuesUpdate();
-  },
-};
+    return filter;
+  }
+}
+
+function handleModelValueUpdate(event: any, columnId: string) {
+  internalValues[columnId] = event;
+  onValuesUpdate();
+}
+
+function onValuesUpdate() {
+  applyComputed();
+  emit("update:modelValue", internalValues);
+}
+
+watch(tableMetaData, onValuesUpdate, { deep: true });
 </script>
 
 <docs>
@@ -263,7 +203,6 @@ export default {
             v-if="showRowEdit"
             id="row-edit"
             v-model="rowData"
-            :tableId="tableId"
             :tableMetaData="tableMetadata"
             :schemaMetaData="schemaMetadata"
         />
