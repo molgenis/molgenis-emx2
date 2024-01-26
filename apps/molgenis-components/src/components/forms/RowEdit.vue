@@ -223,7 +223,6 @@ export default {
               "Default value expression failed: " + error;
           }
         } else {
-          console.log(column, column.defaultValue);
           this.internalValues[column.id] = column.defaultValue;
         }
       }
