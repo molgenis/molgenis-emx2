@@ -27,7 +27,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { IColumn, ITableMetaData } from "meta-data-utils";
 import constants from "../constants.js";
 import { deepClone } from "../utils";
 import FormInput from "./FormInput.vue";
@@ -109,14 +110,14 @@ export default {
     shownColumnsWithoutMeta() {
       const columnsWithoutMeta = this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
-            (column) => !column.id?.startsWith("mg_")
+            (column: IColumn) => !column.id?.startsWith("mg_")
           )
         : [];
       return columnsWithoutMeta.filter(this.showColumn);
     },
   },
   methods: {
-    showColumn(column) {
+    showColumn(column: IColumn) {
       if (column.columnType === AUTO_ID) {
         return this.pkey;
       } else if (column.refLinkId) {
@@ -132,22 +133,26 @@ export default {
         );
       }
     },
-    isVisible(column) {
+    isVisible(column: IColumn) {
       try {
-        return isColumnVisible(column, this.internalValues, this.tableMetaData);
+        return isColumnVisible(
+          column,
+          this.internalValues,
+          this.tableMetaData as ITableMetaData
+        );
       } catch (error) {
         this.errorPerColumn[column.id] = error;
         return true;
       }
     },
     applyComputed() {
-      this.tableMetaData.columns.forEach((column) => {
+      this.tableMetaData.columns.forEach((column: IColumn) => {
         if (column.computed && column.columnType !== AUTO_ID) {
           try {
             this.internalValues[column.id] = executeExpression(
               column.computed,
               this.internalValues,
-              this.tableMetaData
+              this.tableMetaData as ITableMetaData
             );
           } catch (error) {
             this.errorPerColumn[column.id] = "Computation failed: " + error;
@@ -156,17 +161,17 @@ export default {
       });
     },
     //create a filter in case inputs are linked by overlapping refs
-    refLinkFilter(column) {
+    refLinkFilter(column: IColumn) {
       //need to figure out what refs overlap
       if (
         column.refLinkId &&
         this.showColumn(column) &&
         this.internalValues[column.refLinkId]
       ) {
-        let filter = {};
-        this.tableMetaData.columns.forEach((column2) => {
+        let filter: Record<string, any> = {};
+        this.tableMetaData.columns.forEach((column2: IColumn) => {
           if (column2.id === column.refLinkId) {
-            this.schemaMetaData.tables.forEach((table) => {
+            this.schemaMetaData.tables.forEach((table: ITableMetaData) => {
               //check how the refTableId overlaps with columns in our column
               if (table.id === column.refTableId) {
                 table.columns.forEach((column3) => {
@@ -187,7 +192,7 @@ export default {
         return filter;
       }
     },
-    handleModelValueUpdate(newValue, columnId) {
+    handleModelValueUpdate(newValue: any, columnId: string) {
       this.internalValues[columnId] = newValue;
       this.onValuesUpdate();
     },
@@ -205,7 +210,7 @@ export default {
     },
   },
   created() {
-    this.tableMetaData.columns.forEach((column) => {
+    this.tableMetaData.columns.forEach((column: IColumn) => {
       if (
         this.applyDefaultValues &&
         column.defaultValue &&
@@ -216,7 +221,7 @@ export default {
             this.internalValues[column.id] = executeExpression(
               "(" + column.defaultValue.substr(1) + ")",
               this.internalValues,
-              this.tableMetaData
+              this.tableMetaData as ITableMetaData
             );
           } catch (error) {
             this.errorPerColumn[column.id] =
