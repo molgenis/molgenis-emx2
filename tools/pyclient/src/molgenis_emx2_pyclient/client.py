@@ -172,7 +172,7 @@ class Client:
         if response.status_code == 404:
             raise ServerNotFoundError(f"Server with url '{self.url}'")
         if response.status_code == 400:
-            if ' token' in response.text:
+            if 'Invalid token or token expired' in response.text:
                 raise InvalidTokenException(f"Invalid token or token expired.")
             else:
                 raise PyclientException("An unknown error occurred when trying to reach this server.")
@@ -227,7 +227,7 @@ class Client:
             current_schema = self.default_schema
 
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
+            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
 
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
@@ -273,7 +273,7 @@ class Client:
             current_schema = self.default_schema
 
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
+            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
 
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
@@ -313,7 +313,7 @@ class Client:
             current_schema = self.default_schema
 
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
+            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
 
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
@@ -344,12 +344,9 @@ class Client:
         :type fmt: str
         
         """
-        current_schema = schema
-        if current_schema is None:
-            current_schema = self.default_schema
-
+        current_schema = schema if schema is not None else self.default_schema
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
+            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
 
         if table is not None and not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table '{table}' not found in schema '{current_schema}'.")
@@ -443,18 +440,12 @@ class Client:
         :returns: a success or error message
         :rtype: string
         """
-        if name is None:
-            if self.default_schema is None:
-                raise KeyError("Supply the schema name.")
-            name = self.default_schema
-        else:
-            if name not in self.schema_names:
-                message = f"Schema '{name}' not available."
-                log.error(message)
-                raise NoSuchSchemaException(message)
+        current_schema = name if name is not None else self.default_schema
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
 
         query = queries.delete_schema()
-        variables = {'id': name}
+        variables = {'id': current_schema}
 
         response = self.session.post(
             url=f"{self.url}/api/graphql",
@@ -466,7 +457,7 @@ class Client:
         self._validate_graphql_response(
             response_json=response_json,
             mutation='deleteSchema',
-            fallback_error_message=f"Failed to delete schema '{name}'"
+            fallback_error_message=f"Failed to delete schema '{current_schema}'"
         )
         self.schemas = self.get_schemas()
 
@@ -481,18 +472,12 @@ class Client:
         :returns: a success or error message
         :rtype: string
         """
-        if name is None:
-            if self.default_schema is None:
-                raise KeyError("Supply the schema name.")
-            name = self.default_schema
-        else:
-            if name not in self.schema_names:
-                message = f"Schema '{name}' not available."
-                log.error(message)
-                raise NoSuchSchemaException(message)
+        current_schema = name if name is not None else self.default_schema
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
 
         query = queries.update_schema()
-        variables = {'name': name, 'description': description}
+        variables = {'name': current_schema, 'description': description}
 
         response = self.session.post(
             url=f"{self.url}/api/graphql",
@@ -504,7 +489,7 @@ class Client:
         self._validate_graphql_response(
             response_json=response_json,
             mutation='updateSchema',
-            fallback_error_message=f"Failed to update schema '{name}'"
+            fallback_error_message=f"Failed to update schema '{current_schema}'"
         )
         self.schemas = self.get_schemas()
 
@@ -528,25 +513,24 @@ class Client:
         :returns: a success or error message
         :rtype: string
         """
-        if name not in self.schema_names:
-            message = f"Schema '{name}' not available."
-            log.error(message)
-            raise NoSuchSchemaException(message)
+        current_schema = name if name is not None else self.default_schema
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
 
-        schema_meta = [db for db in self.schemas if db['name'] == name][0]
+        schema_meta = [db for db in self.schemas if db['name'] == current_schema][0]
         schema_description = description if description else schema_meta.get('description', None)
 
         try:
-            self.delete_schema(name=name)
+            self.delete_schema(name=current_schema)
             self.create_schema(
-                name=name,
+                name=current_schema,
                 description=schema_description,
                 template=template,
                 include_demo_data=include_demo_data
             )
 
         except GraphQLException:
-            message = f"Failed to recreate '{name}'"
+            message = f"Failed to recreate '{current_schema}'"
             log.error(message)
             print(message)
 
@@ -563,7 +547,7 @@ class Client:
         """
         current_schema = name if name is not None else self.default_schema
         if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema '{current_schema}' not found on server.")
+            raise NoSuchSchemaException(f"Schema '{current_schema}' not available.")
 
         query = queries.list_schema_meta()
         response = self.session.post(
@@ -614,7 +598,7 @@ class Client:
         :rtype: str
         """
         if name not in [*self.schema_names, None]:
-            raise NoSuchSchemaException(f"Schema '{name}' not found on server.")
+            raise NoSuchSchemaException(f"Schema '{name}' not available.")
         self.default_schema = name
 
         return name
