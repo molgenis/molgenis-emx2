@@ -2,12 +2,14 @@
 name: Trecode from Princess Máxima Center
 description: "Trecode is a FAIR eco-system for the analysis and archiving of omics data in a combined diagnostic and research setting from Princess Máxima Center for Pediatric Oncology, Utrecht. See paper: https://www.mdpi.com/2673-7426/3/1/1 and ansible playbook installation: https://bitbucket.org/princessmaximacenter/trecode"
 
-profileTags:  Trecode,
-              Beacon v2,
-              Beacon v2 EMX2 add-on,
-              Beacon v2 Vivify add-on,
-              DCAT,
-              DCAT files add-on
+profileTags: TrecodeEMX1
+
+#profileTags:  Trecode,
+#              Beacon v2,
+#              Beacon v2 EMX2 add-on,
+#              Beacon v2 Vivify add-on,
+#              DCAT,
+#              DCAT files add-on
 
 demoData: _demodata/shared-examples
 
