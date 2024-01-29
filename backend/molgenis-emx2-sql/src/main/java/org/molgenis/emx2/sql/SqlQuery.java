@@ -703,7 +703,7 @@ public class SqlQuery extends QueryBean {
     // will see 'null' counts for shorter arrays
     // i.e. the wrong counts.
 
-    if (groupBy.getSubselect(COUNT_FIELD) == null) {
+    if (groupBy.getSubselect(COUNT_FIELD) == null && groupBy.getSubselect(SUM_FIELD) == null) {
       throw new MolgenisException("Count is required when using group by");
     }
 
@@ -719,12 +719,30 @@ public class SqlQuery extends QueryBean {
     List<Field> selectFields = new ArrayList<>();
     List<Field> groupByFields = new ArrayList<>();
     for (SelectColumn field : groupBy.getSubselect()) {
+      Set<Field> subselectFields = new HashSet<>();
       if (COUNT_FIELD.equals(field.getColumn())) {
         if (schema.hasActiveUserRole(VIEWER.toString())) {
           selectFields.add(field("COUNT(*)"));
         } else {
           selectFields.add(field("GREATEST({0},COUNT(*))", 10L).as(COUNT_FIELD));
         }
+      } else if (SUM_FIELD.equals(field.getColumn())) {
+        // todo add minimal sum value permission check
+        field
+            .getSubselect()
+            .forEach(
+                sub -> {
+                  Column col = getColumnByName(table, sub.getColumn());
+                  subselectFields.add(
+                      field("SUM({0})", field(name(alias(subAlias), col.getName())))
+                          .as(col.getName()));
+                  selectFields.add(field(name(col.getName())));
+                  groupByFields.add(field(name(col.getName())));
+                });
+        subQuery.add(
+            jooq.select(subselectFields)
+                .from(tableWithInheritanceJoin(table).as(alias(tableAlias))));
+
       } else {
         Column col = getColumnByName(table, field.getColumn());
 
@@ -734,7 +752,6 @@ public class SqlQuery extends QueryBean {
         }
         // composite keys might have overlapping underlying columns via 'refLink'
         // therefore we use a Set here.
-        Set<Field> subselectFields = new HashSet<>();
 
         // need pkey to allow for joining of the subqueries
         table
