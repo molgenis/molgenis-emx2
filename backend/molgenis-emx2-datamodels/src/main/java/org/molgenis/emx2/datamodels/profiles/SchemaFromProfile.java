@@ -44,8 +44,8 @@ public class SchemaFromProfile {
   }
 
   public SchemaMetadata create() throws MolgenisException {
-    String sharedModelsDir = File.separator + "_models" + File.separator + "shared";
-    String specificModelsDir = File.separator + "_models" + File.separator + "specific";
+    String sharedModelsDir = "/_models/shared";
+    String specificModelsDir = "/_models/specific";
     List<Row> keepRows = new ArrayList<>();
     try {
       keepRows.addAll(getProfilesFromAllModels(sharedModelsDir));
@@ -67,7 +67,7 @@ public class SchemaFromProfile {
           CsvTableReader.read(
               new InputStreamReader(
                   Objects.requireNonNull(
-                      getClass().getResourceAsStream(directory + File.separator + schemaLoc))));
+                      getClass().getResourceAsStream(directory + "/" + schemaLoc))));
 
       for (Row row : rowIterable) {
         List<String> profiles = csvStringToList(row.getString("profiles"));
@@ -107,7 +107,7 @@ public class SchemaFromProfile {
               .getPath()
               .substring(5, dirURL.getPath().indexOf("!")); // strip out only the JAR file
       String matchAgainstPath = path;
-      if (matchAgainstPath.startsWith(File.separator)) {
+      if (matchAgainstPath.startsWith("/")) {
         matchAgainstPath = path.substring(1);
       }
 
