@@ -25,7 +25,7 @@
     "last 2 versions"
   ],
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.5.2",
+    "@vitejs/plugin-vue": "4.6.2",
     "graphql-tag": "2.12.6",
     "vite": "4.5.2",
     "prettier": "2.8.8"
