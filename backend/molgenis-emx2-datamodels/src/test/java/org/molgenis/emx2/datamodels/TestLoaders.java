@@ -122,5 +122,5 @@ public class TestLoaders {
     Schema DCATSchema = database.createSchema(DCAT);
     AvailableDataModels.DCAT.install(DCATSchema, true);
     assertEquals(10, DCATSchema.getTableNames().size());
-    }
+  }
 }
