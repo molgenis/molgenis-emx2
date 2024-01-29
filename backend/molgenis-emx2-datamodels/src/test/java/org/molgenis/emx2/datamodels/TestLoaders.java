@@ -21,6 +21,7 @@ public class TestLoaders {
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
   public static final String TRECODE = "TRECODETest";
+  public static final String DCAT = "DCATTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
 
@@ -41,6 +42,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(TRECODE);
+    database.dropSchemaIfExists(DCAT);
     database.dropSchemaIfExists(PROJECT_MANAGER);
   }
 
@@ -118,9 +120,16 @@ public class TestLoaders {
   }
 
   @Test
+  void test14DCATLoader() {
+    Schema DCATSchema = database.createSchema(DCAT);
+    AvailableDataModels.DCAT.install(DCATSchema, true);
+    assertEquals(10, DCATSchema.getTableNames().size());
+  }
+
+  @Test
   void test15TrecodeLoader() {
     Schema TRECODESchema = database.createSchema(TRECODE);
     AvailableDataModels.TRECODE.install(TRECODESchema, true);
     assertEquals(45, TRECODESchema.getTableNames().size());
-    }
+  }
 }

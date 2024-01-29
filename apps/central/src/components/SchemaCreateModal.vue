@@ -133,6 +133,7 @@ export default {
         "JRC_COMMON_DATA_ELEMENTS",
         "FAIR_GENOMES",
         "TRECODE",
+        "DCAT",
         "BEACON_V2",
         "ERN_DASHBOARD",
         "BIOBANK_DIRECTORY",
