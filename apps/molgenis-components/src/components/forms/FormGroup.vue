@@ -3,7 +3,7 @@
     <label v-if="label !== null && label !== undefined" :for="id">
       <b> {{ label }}</b>
     </label>
-    <span v-if="required" class="float-right">(required)</span>
+    <span v-if="required === 'true'" class="float-right">(required)</span>
     <slot></slot>
     <small v-if="errorMessage" class="text-danger form-text">
       {{ errorMessage }}
@@ -35,7 +35,7 @@ export default {
       required: false,
     },
     required: {
-      type: Boolean,
+      type: String,
       required: false,
       default: () => false,
     },
@@ -72,7 +72,7 @@ export default {
       <label for="my-id2">required field form group</label>
       <FormGroup id="my-id2"
         label="my label"
-        required
+        required="'true'"
         description="my description">
         <InputGroup>
           <InputString id="my-id2"></InputString>
