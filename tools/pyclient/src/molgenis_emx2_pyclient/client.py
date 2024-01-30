@@ -7,10 +7,10 @@ import pandas as pd
 import requests
 
 from . import graphql_queries as queries
-from . import utils as utils
-from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError, ServerNotFoundError,
-                         PyclientException, NoSuchTableException, NoContextManagerException, GraphQLException,
-                         InvalidTokenException,
+from . import utils
+from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
+                         ServerNotFoundError, PyclientException, NoSuchTableException,
+                         NoContextManagerException, GraphQLException, InvalidTokenException,
                          PermissionDeniedException, TokenSigninException)
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
@@ -173,9 +173,8 @@ class Client:
             raise ServerNotFoundError(f"Server with url '{self.url}'")
         if response.status_code == 400:
             if 'Invalid token or token expired' in response.text:
-                raise InvalidTokenException(f"Invalid token or token expired.")
-            else:
-                raise PyclientException("An unknown error occurred when trying to reach this server.")
+                raise InvalidTokenException("Invalid token or token expired.")
+            raise PyclientException("An unknown error occurred when trying to reach this server.")
 
         response_json: dict = response.json()
         schemas = response_json['data']['_schemas']
@@ -242,16 +241,17 @@ class Client:
         )
 
         if response.status_code == 200:
-            log.info(f"Imported data into {current_schema}::{table}.")
+            log.info("Imported data into %s::%s.", current_schema, table)
         elif response.status_code == 400:
             if 'permission denied' in response.text:
                 raise PermissionDeniedException(f"Transaction failed: permission denied for table {table}.")
-            else:
-                errors = '\n'.join([err['message'] for err in response.json().get('errors')])
-                log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
+            errors = '\n'.join([err['message'] for err in response.json().get('errors')])
+            # log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
+            log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
         else:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
-            log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
+            # log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
+            log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
 
     def delete_records(self, schema: str = None, table: str = None, file: str = None, data: list = None):
         """Deletes records from a table.
@@ -288,10 +288,10 @@ class Client:
         )
 
         if response.status_code == 200:
-            log.info(f"Deleted data from {current_schema}::{table}.")
+            log.info("Deleted data from %s::%s.", current_schema, table)
         else:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
-            log.error(f"Failed to delete data from {current_schema}::{table}\n{errors}.")
+            log.error("Failed to delete data from %s::%s\n%s.", current_schema, table, errors)
 
     def get(self, schema: str = None, table: str = None, as_df: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a schema and returns as a list of dictionaries or as
@@ -359,9 +359,9 @@ class Client:
                                             headers={'x-molgenis-token': self.token})
 
                 filename = f"{current_schema}.xlsx"
-                with open(filename, "wb") as f:
-                    f.write(response.content)
-                log.info(f"Exported data from schema {current_schema} to '{filename}'.")
+                with open(filename, "wb") as file:
+                    file.write(response.content)
+                log.info("Exported data from schema %s to '%s'.", current_schema, filename)
             else:
                 # Export the single table
                 url = f"{self.url}/{current_schema}/api/excel/{table}"
@@ -369,9 +369,9 @@ class Client:
                                             headers={'x-molgenis-token': self.token})
 
                 filename = f"{table}.xlsx"
-                with open(filename, "wb") as f:
-                    f.write(response.content)
-                log.info(f"Exported data from table {table} in schema {current_schema} to '{filename}'.")
+                with open(filename, "wb") as file:
+                    file.write(response.content)
+                log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
 
         if fmt == 'csv':
             if table is None:
@@ -380,9 +380,9 @@ class Client:
                                             headers={'x-molgenis-token': self.token})
 
                 filename = f"{current_schema}.zip"
-                with open(filename, "wb") as f:
-                    f.write(response.content)
-                log.info(f"Exported data from schema {current_schema} to '{filename}'.")
+                with open(filename, "wb") as file:
+                    file.write(response.content)
+                log.info("Exported data from schema %s to '%s'.", current_schema, filename)
             else:
                 # Export the single table
                 url = f"{self.url}/{current_schema}/api/csv/{table}"
@@ -390,9 +390,9 @@ class Client:
                                             headers={'x-molgenis-token': self.token})
 
                 filename = f"{table}.csv"
-                with open(filename, "wb") as f:
-                    f.write(response.content)
-                log.info(f"Exported data from table {table} in schema {current_schema} to '{filename}'.")
+                with open(filename, "wb") as file:
+                    file.write(response.content)
+                log.info("Exported data from table %s in schema %s to '%s'.", table, current_schema, filename)
 
     def create_schema(self, name: str = None,
                       description: str = None,
@@ -567,7 +567,7 @@ class Client:
         return metadata
 
     @staticmethod
-    def _prep_data_or_file(file_path: str = None, data: list = None) -> str:
+    def _prep_data_or_file(file_path: str = None, data: list = None) -> str | None:
         """Prepares the data from memory or loaded from disk for addition or deletion action.
 
         :param file_path: path to the file to be prepared
@@ -578,14 +578,15 @@ class Client:
         :returns: prepared data in dataframe format
         :rtype: pd.DataFrame
         """
-        if file_path is None and data is None:
-            print("No data to import. Specify a file location or a dataset.")
 
         if file_path is not None:
             return utils.read_file(file_path=file_path)
 
         if data is not None:
             return pd.DataFrame(data).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
+
+        print("No data to import. Specify a file location or a dataset.")
+        return None
 
     def _set_schema(self, name: str) -> str:
         """Sets the default schema to the schema supplied as argument.
