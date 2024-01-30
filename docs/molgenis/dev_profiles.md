@@ -18,6 +18,8 @@ Whenever selected columns refer to ontologies, these are automatically drawn fro
 
 It is optional to specify a set of demonstration or specific application data for your profile from the [demodata](../../data/_demodata) folder.
 These data are loaded when the option to load demo data is selected when creating a new database from a template in EMX2.
+The file names within this folder must match your table names in order to be imported.
+The current preferred format is CSV because this enables version control of any updates.
 These data may or may not fit the model resulting from your profile, and are simply loaded by 'best effort'.
 
 For advanced users, settings files may be added to your profile to specify menu structure, user rights, and more.
