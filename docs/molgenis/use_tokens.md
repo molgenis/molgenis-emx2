@@ -1,0 +1,1 @@
+A nice instruction of creating tokens on the website.
