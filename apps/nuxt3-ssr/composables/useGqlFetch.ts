@@ -1,6 +1,6 @@
 import type { UseFetchOptions } from "nuxt/app";
 import { defu } from "defu";
-import { type DocumentNode } from "graphql";
+import type { DocumentNode } from "graphql";
 
 interface UseGqlFetchOptions<T> extends UseFetchOptions<T> {
   variables?: object;

@@ -1,6 +1,13 @@
 $cranio-primary: #f3833e;
 $cranio-primary-alt: hsl(23, 88%, 83%);
 
+$cranio-orange-500: hsl(23, 88%, 45%);
+$cranio-orange-400: hsl(23, 88%, 55%);
+$cranio-orange: hsl(23, 88%, 60%);
+$cranio-orange-200: hsl(23, 88%, 75%);
+$cranio-orange-100: hsl(23, 88%, 85%);
+$cranio-orange-050: hsl(23, 88%, 98%);
+
 @mixin buttonLink($width: 100%) {
   display: block;
   width: $width;
