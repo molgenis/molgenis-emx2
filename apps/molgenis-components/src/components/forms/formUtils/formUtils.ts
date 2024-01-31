@@ -146,14 +146,20 @@ export function executeExpression(
 
   // A simple client for scripts to use to request data.
   // Note: don't overuse this, the API call is blocking.
-  let simplePostClient = function (query: string, schemaId?: string) {
+  let simplePostClient = function (
+    query: string,
+    variables: object,
+    schemaId?: string
+  ) {
     let xmlHttp = new XMLHttpRequest();
     xmlHttp.open(
       "POST",
       schemaId ? "/" + schemaId + "/graphql" : "graphql",
       false
     );
-    xmlHttp.send(query);
+    xmlHttp.send(
+      `{"query":"${query}", "variables":${JSON.stringify(variables)}}`
+    );
     return JSON.parse(xmlHttp.responseText).data;
   };
 
