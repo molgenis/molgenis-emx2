@@ -68,6 +68,35 @@ export default {
                   label
                   repeats {
                     name
+                    mappings {
+                      source {
+                        id
+                      }
+                      targetVariable {
+                        name
+                      }
+                      targetDataset {
+                        resource {
+                          id
+                        }
+                      }
+                      sourceDataset {
+                        resource {
+                          id
+                        }
+                      }
+                      match {
+                        name
+                      }
+                      syntax
+                      description
+                      sourceVariablesOtherDatasets {
+                        dataset {
+                          name
+                        }
+                        name
+                      }
+                    }
                   }
                   mappings {
                     source {
@@ -280,7 +309,7 @@ export default {
         },
         {}
       );
-      variableDetails.mappings = mappingsById;
+      variableDetails.mappings = [...variableDetails, ...mappingsById];
     }
 
     return variableDetails;

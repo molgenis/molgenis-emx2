@@ -71,7 +71,7 @@
 
         <dt class="col-2">mapped by</dt>
         <dd class="col-10">
-          <span v-if="variable.mappings">
+          <span v-if="mappedByString">
             {{ mappedByString }}
             <router-link
               v-if="network"
@@ -134,9 +134,23 @@ export default {
         .sort((a, b) => a.order <= b.order);
     },
     mappedByString() {
-      return Object.values(this.variable.mappings)
-        .map((mapping) => mapping.sourceDataset.resource.id)
-        .join(", ");
+      const mappings = this.variable.mappings
+        ? Object.values(this.variable.mappings).map(
+            (mapping) => mapping.sourceDataset.resource.id
+          )
+        : [];
+      if (this.variable.repeats) {
+        Object.values(this.variable.repeats).forEach((repeat) => {
+          if (repeat.mappings) {
+            mappings.push(
+              ...Object.values(repeat.mappings).map(
+                (mapping) => mapping.sourceDataset.resource.id
+              )
+            );
+          }
+        });
+      }
+      return [...new Set(mappings)].join(",");
     },
   },
   methods: {
