@@ -166,7 +166,7 @@ export function executeExpression(
     //@ts-ignore
     Object.keys(copy),
     //@ts-ignore
-    "return eval(`" + expression + "`)"
+    "return eval(`" + expression.replaceAll("`", "\\`") + "`)"
   );
   return func(simplePostClient, ...Object.values(copy));
 }
