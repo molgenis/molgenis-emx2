@@ -16,10 +16,8 @@ import org.molgenis.emx2.io.readers.CsvTableReader;
 
 public class SchemaFromProfile {
 
-  public static final String SHARED_MODELS_DIR =
-      File.separator + "_models" + File.separator + "shared";
-  public static final String SPECIFIC_MODELS_DIR =
-      File.separator + "_models" + File.separator + "specific";
+  public static final String SHARED_MODELS_DIR = "/_models/shared";
+  public static final String SPECIFIC_MODELS_DIR = "/_models/specific";
 
   private final Profiles profiles;
 
@@ -73,7 +71,7 @@ public class SchemaFromProfile {
           CsvTableReader.read(
               new InputStreamReader(
                   Objects.requireNonNull(
-                      getClass().getResourceAsStream(directory + File.separator + schemaLoc))));
+                      getClass().getResourceAsStream(directory + "/" + schemaLoc))));
 
       for (Row row : rowIterable) {
         List<String> profiles = csvStringToList(row.getString("profiles"));
