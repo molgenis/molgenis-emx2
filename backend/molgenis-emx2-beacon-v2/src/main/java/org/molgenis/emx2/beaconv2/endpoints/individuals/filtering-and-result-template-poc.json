@@ -1,0 +1,283 @@
+
+    "resultSets" : [
+      {
+        "id" : "fdh",
+        "type" : "dataset",
+        "setType" : "individuals",
+        "exists" : true,
+        "resultsCount" : $count,
+        "results" : [
+          {
+          "_foreach{" : $Individuals
+            "id" : $id,
+            "sex" : $sex,
+            "age" : {
+              "ageGroup" : $age_ageGroup
+              "age" : {
+                "iso8601duration" :  $age_age_iso8601duration
+              }
+            },
+            "diseaseCausalGenes" : [ $diseaseCausalGenes ],
+            "ethnicity" : $ethnicity,
+            "geographicOrigin" : $geographicOrigin,
+            "diseases" : [
+              {
+              "_foreach{" : $diseases
+                "diseaseCode" : $diseaseCode,
+                "ageOfOnset" : {
+                  "ageGroup" : $ageOfOnset_ageGroup,
+                  "age" : {
+                    "iso8601duration" : $ageOfOnset_age_iso8601duration
+                  }
+                },
+                "ageAtDiagnosis" : {
+                  "ageGroup" : $ageOfDiagnosis_ageGroup,
+                  "age" : {
+                    "iso8601duration" :  $ageAtDiagnosist_age_iso8601duration
+                  }
+                },
+                "severity" : $severity,
+                "stage" : $stage
+              }
+            ],
+            "measures" : [
+              {
+                "assayCode" : {
+                  "id" : "EDAM:topic_3172",
+                  "label" : "Metabolomics"
+                },
+                "date" : "2017-05-03",
+                "measurementVariable" : "Blood platelet count",
+                "measurementValue" : {
+                  "value" : 55345,
+                  "units" : {
+                    "id" : "NCIT:C130188",
+                    "label" : "Per Millimeter"
+                  }
+                },
+                "observationMoment" : {
+                  "age" : {
+                    "iso8601duration" : "P55Y8M12D"
+                  }
+                }
+              }
+            ],
+            "phenotypicFeatures" : [
+              {
+                "featureType" : {
+                  "id" : "HP:0000002",
+                  "label" : "Abnormality of body height"
+                },
+                "modifiers" : [
+                  {
+                    "id" : "HP:0032500",
+                    "label" : "Exacerbated by tobacco use"
+                  }
+                ],
+                "severity" : {
+                  "id" : "HP:0012825",
+                  "label" : "Mild"
+                }
+              }
+            ],
+            "hasGenomicVariations" : [
+              {
+                "clinicalInterpretations" : [
+                  {
+                    "category" : {
+                      "id" : "OMIT:0028766",
+                      "label" : "Protective factor"
+                    },
+                    "clinicalRelevance" : {
+                      "id" : "NCIT:C168802",
+                      "label" : "Benign"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id" : "Ind002",
+            "sex" : {
+              "id" : "GSSO:000124",
+              "label" : "assigned male at birth"
+            },
+            "age" : {
+              "ageGroup" : {
+                "id" : "NCIT:C49683",
+                "label" : "Children 2-11 Years Old"
+              },
+              "age" : {
+                "iso8601duration" : "P2Y8M"
+              }
+            },
+            "diseaseCausalGenes" : [
+              {
+                "id" : "HGNC:20626",
+                "label" : "CHD7"
+              }
+            ],
+            "ethnicity" : {
+              "id" : "HANCESTRO:0320",
+              "label" : "Dutch"
+            },
+            "geographicOrigin" : {
+              "id" : "ISO3166:SI",
+              "label" : "Slovenia"
+            },
+            "diseases" : [
+              {
+                "diseaseCode" : {
+                  "id" : "Orphanet:1873",
+                  "label" : "Jalili syndrome"
+                },
+                "ageOfOnset" : {
+                  "ageGroup" : {
+                    "id" : "NCIT:C16268",
+                    "label" : "Elderly"
+                  },
+                  "age" : {
+                    "iso8601duration" : "P89Y"
+                  }
+                },
+                "ageAtDiagnosis" : {
+                  "ageGroup" : {
+                    "id" : "NCIT:C49685",
+                    "label" : "Adult 18-65 Years Old"
+                  },
+                  "age" : {
+                    "iso8601duration" : "P58Y"
+                  }
+                },
+                "familyHistory" : true,
+                "severity" : {
+                  "id" : "HP:0012825",
+                  "label" : "Mild"
+                },
+                "stage" : {
+                  "id" : "OGMS:0000105",
+                  "label" : "relapse"
+                }
+              }
+            ],
+            "measures" : [
+              {
+                "assayCode" : {
+                  "id" : "EDAM:topic_3308",
+                  "label" : "Transcriptomics"
+                },
+                "date" : "2018-06-05",
+                "measurementVariable" : "TTN read count",
+                "measurementValue" : {
+                  "value" : 23567,
+                  "units" : {
+                    "id" : "NCIT:C170632",
+                    "label" : "DNA Copies Per Microgram"
+                  }
+                },
+                "observationMoment" : {
+                  "age" : {
+                    "iso8601duration" : "P70Y5M10D"
+                  }
+                }
+              },
+              {
+                "assayCode" : {
+                  "id" : "EDAM:topic_0121",
+                  "label" : "Proteomics"
+                },
+                "date" : "2019-07-06",
+                "measurementVariable" : "TTN peptipe",
+                "measurementValue" : {
+                  "value" : 6853,
+                  "units" : {
+                    "id" : "NCIT:C67433",
+                    "label" : "Nanomole per Milligram of Protein"
+                  }
+                },
+                "observationMoment" : {
+                  "age" : {
+                    "iso8601duration" : "P75Y9M11D"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id" : "MinIndNoRefs003",
+            "sex" : {
+              "id" : "GSSO:009509",
+              "label" : "assigned indeterminate at birth"
+            },
+            "age" : {
+              "age" : { }
+            }
+          },
+          {
+            "id" : "MinInd004",
+            "sex" : {
+              "id" : "GSSO:009515",
+              "label" : "assigned unspecified at birth"
+            },
+            "age" : {
+              "age" : { }
+            },
+            "diseases" : [
+              {
+                "diseaseCode" : {
+                  "id" : "Orphanet:1955",
+                  "label" : "Spinocerebellar ataxia type 34"
+                },
+                "ageOfOnset" : {
+                  "age" : { }
+                },
+                "ageAtDiagnosis" : {
+                  "age" : { }
+                }
+              }
+            ],
+            "measures" : [
+              {
+                "assayCode" : {
+                  "id" : "EDAM:topic_0622",
+                  "label" : "Genomics"
+                },
+                "measurementValue" : { },
+                "observationMoment" : {
+                  "age" : { }
+                }
+              }
+            ],
+            "phenotypicFeatures" : [
+              {
+                "featureType" : {
+                  "id" : "HP:0012651",
+                  "label" : "Abasia"
+                }
+              }
+            ]
+          },
+          {
+            "id" : "Ind005",
+            "sex" : {
+              "id" : "GSSO:009509",
+              "label" : "assigned indeterminate at birth"
+            },
+            "age" : {
+              "age" : {
+                "iso8601duration" : "P34Y"
+              }
+            },
+            "diseaseCausalGenes" : [
+              {
+                "id" : "HGNC:2214",
+                "label" : "COL7A1"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
