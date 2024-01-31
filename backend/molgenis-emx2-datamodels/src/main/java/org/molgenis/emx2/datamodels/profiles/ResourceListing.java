@@ -37,7 +37,7 @@ public class ResourceListing {
               .getPath()
               .substring(5, dirURL.getPath().indexOf("!")); // strip out only the JAR file
       String matchAgainstPath = path;
-      if (matchAgainstPath.startsWith(File.separator)) {
+      if (matchAgainstPath.startsWith("/")) {
         matchAgainstPath = path.substring(1);
       }
 
