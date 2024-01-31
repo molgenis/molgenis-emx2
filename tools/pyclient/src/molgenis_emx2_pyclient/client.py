@@ -40,7 +40,7 @@ class Client:
         self.session: requests.Session = requests.Session()
 
         self.schemas: list = self.get_schemas()
-        self.default_schema: str = self._set_schema(schema)
+        self.default_schema: str = self.set_schema(schema)
 
     def __str__(self):
         return self.url
@@ -157,7 +157,7 @@ class Client:
         )
         return message
 
-    def get_schemas(self):
+    def get_schemas(self) -> list[dict]:
         """Returns the schemas on the database for this user as a list of dictionaries
         containing for each schema the id, name, label and description.
         """
@@ -206,7 +206,7 @@ class Client:
         )
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
-    def save_schema(self, name: str = None, table: str = None, file: str = None, data: list = None):
+    def save_schema(self, table: str, name: str = None, file: str = None, data: list = None):
         """Imports or updates records in a table of a named schema.
         
         :param name: name of a schema
@@ -253,7 +253,7 @@ class Client:
             # log.error(f"Failed to import data into {current_schema}::{table}\n{errors}.")
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
 
-    def delete_records(self, schema: str = None, table: str = None, file: str = None, data: list = None):
+    def delete_records(self, table: str, schema: str = None, file: str = None, data: list = None):
         """Deletes records from a table.
         
         :param schema: name of a schema
@@ -262,7 +262,7 @@ class Client:
         :type table: str
         :param file: location of the file containing records to import or update
         :type file: str
-        :param data: a dataset containing records to import or update (list of dictionaries)
+        :param data: a dataset containing records to delete (list of dictionaries)
         :type data: list
 
         :returns: status message or response
@@ -293,7 +293,7 @@ class Client:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error("Failed to delete data from %s::%s\n%s.", current_schema, table, errors)
 
-    def get(self, schema: str = None, table: str = None, as_df: bool = False) -> list | pd.DataFrame:
+    def get(self, table: str, schema: str = None, as_df: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a schema and returns as a list of dictionaries or as
         a pandas DataFrame (as pandas is used to parse the response).
         
@@ -588,7 +588,7 @@ class Client:
         print("No data to import. Specify a file location or a dataset.")
         return None
 
-    def _set_schema(self, name: str) -> str:
+    def set_schema(self, name: str) -> str:
         """Sets the default schema to the schema supplied as argument.
         Raises NoSuchSchemaException if the schema cannot be found on the server.
 
