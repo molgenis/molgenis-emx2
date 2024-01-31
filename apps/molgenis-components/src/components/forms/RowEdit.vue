@@ -159,7 +159,7 @@ export default {
           this.tableMetaData as ITableMetaData
         );
       } catch (error: any) {
-        console.log("isVisible", error);
+        console.log("isVisible expression error: ", error);
         this.errorPerColumn[column.id] = error;
         return true;
       }
@@ -174,9 +174,9 @@ export default {
               this.tableMetaData as ITableMetaData
             );
           } catch (error) {
-            console.log("Computation failed:", error);
-
-            this.errorPerColumn[column.id] = "Computation failed: " + error;
+            console.log("Computed expression failed:", error);
+            this.errorPerColumn[column.id] =
+              "Computed expression failed: " + error;
           }
         } else if (this.applyDefaultValues && column.defaultValue) {
           try {
@@ -188,9 +188,9 @@ export default {
               );
             }
           } catch (error) {
-            console.log("applyDefaultValues failed: " + error);
+            console.log("DefaultValues expression failed: " + error);
             this.errorPerColumn[column.id] =
-              "applyDefaultValues failed: " + error;
+              "DefaultValues expression failed: " + error;
           }
         }
       });
