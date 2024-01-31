@@ -3,7 +3,9 @@
     <label v-if="label !== null && label !== undefined" :for="id">
       <b> {{ label }}</b>
     </label>
-    <span v-if="required === 'true'" class="float-right">(required)</span>
+    <span v-if="required === 'true' || required === true" class="float-right"
+      >(required)</span
+    >
     <slot></slot>
     <small v-if="errorMessage" class="text-danger form-text">
       {{ errorMessage }}
@@ -35,7 +37,7 @@ export default {
       required: false,
     },
     required: {
-      type: String,
+      type: [String, Boolean],
       required: false,
       default: () => false,
     },
