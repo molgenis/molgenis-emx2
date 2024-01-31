@@ -521,10 +521,13 @@ export default {
       this.loading = false;
     },
     setupRequiredSelect() {
-      console.log(this.column.required);
-      if (this.column.required === "true") {
+      if (this.column.required === "true" || this.column.required === true) {
         this.requiredSelect = true;
-      } else if (this.column.required === "false") {
+      } else if (
+        this.column.required === "false" ||
+        this.column.required === false ||
+        this.column.required === undefined
+      ) {
         this.requiredSelect = false;
       } else {
         this.requiredSelect = "condition";
