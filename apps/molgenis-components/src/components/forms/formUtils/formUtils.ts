@@ -143,18 +143,32 @@ export function executeExpression(
       copy[column.id] = null;
     }
   });
-  //  console.log("executeExpression: ", expression, copy);
+
+  // A simple client for scripts to use to request data.
+  // Note: don't overuse this, the API call is blocking.
+  //@ts-ignore
+  let simplePostClient = function (query: string, schemaId?: string) {
+    let xmlHttp = new XMLHttpRequest();
+    xmlHttp.open(
+      "POST",
+      schemaId ? "/" + schemaId + "/graphql" : "graphql",
+      false
+    );
+    xmlHttp.send(query);
+    return JSON.parse(xmlHttp.responseText).data;
+  };
 
   // FIXME: according to the new Function definition the input here is incorrectly typed
   // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function
   // FIXME: use es2021 instead of es2020 as you need it for replaceAll
   const func = new Function(
+    "simplePostClient",
     //@ts-ignore
     Object.keys(copy),
     //@ts-ignore
     "return eval(`" + expression + "`)"
   );
-  return func(...Object.values(copy));
+  return func(simplePostClient, ...Object.values(copy));
 }
 
 function isRefLinkWithoutOverlap(column: IColumn, values: Record<string, any>) {
