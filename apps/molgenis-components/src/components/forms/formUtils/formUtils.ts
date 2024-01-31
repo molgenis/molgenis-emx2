@@ -146,7 +146,6 @@ export function executeExpression(
 
   // A simple client for scripts to use to request data.
   // Note: don't overuse this, the API call is blocking.
-  //@ts-ignore
   let simplePostClient = function (query: string, schemaId?: string) {
     let xmlHttp = new XMLHttpRequest();
     xmlHttp.open(
