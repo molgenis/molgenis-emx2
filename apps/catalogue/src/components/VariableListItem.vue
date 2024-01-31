@@ -150,7 +150,7 @@ export default {
           }
         });
       }
-      return [...new Set(mappings)].join(",");
+      return [...new Set(mappings)].join(", ");
     },
   },
   methods: {
