@@ -309,7 +309,7 @@ export default {
         },
         {}
       );
-      variableDetails.mappings = [...variableDetails, ...mappingsById];
+      variableDetails.mappings = mappingsById;
     }
 
     return variableDetails;
