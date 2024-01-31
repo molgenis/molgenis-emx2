@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { IFilter, IMgError } from "~/interfaces/types";
+import mappingsFragment from "~~/gql/fragments/mappings";
 
 const route = useRoute();
 const router = useRouter();
@@ -70,7 +71,9 @@ const query = computed(() => {
     $cohortsFilter:CohortsFilter,
     $orderby:Variablesorderby
   ){
-    Variables(limit: ${pageSize} offset: ${offset.value} filter:$variablesFilter  orderby:$orderby) {
+    Variables(limit: ${pageSize} offset: ${
+    offset.value
+  } filter:$variablesFilter  orderby:$orderby) {
       name
       resource {
         id
@@ -83,54 +86,10 @@ const query = computed(() => {
       }
       label
       description
-      mappings {
-        sourceDataset {
-          resource {
-            id
-          }
-          name
-        }
-        targetVariable {
-          dataset {
-            resource {
-              id
-            }
-            name
-          }
-          name
-        }
-        match {
-          name
-        }
-      }
+      mappings ${moduleToString(mappingsFragment)}
       repeats {
         name
-        mappings {
-          match {
-            name
-          }
-          source {
-            id
-          }
-          sourceVariables {
-            name
-          }
-          sourceDataset {
-            resource {
-              id
-            }
-            name
-          }
-          targetVariable {
-            dataset {
-              resource {
-                id
-              }
-              name
-            }
-            name
-          }
-        }
+        mappings ${moduleToString(mappingsFragment)}
       }
     }
     Cohorts(filter: $cohortsFilter, orderby: { id: ASC }) {
@@ -291,10 +250,12 @@ const data = await loadPageData();
         </template>
 
         <template #search-results>
-          <p class="mt-1 mb-0 lg:mb-5 text-body-lg flex flex-col text-title">
+          <p class="mt-1 mb-0 lg:mb-3 text-body-lg flex flex-col text-title">
             <span
-              >{{ data?.data?.Variables_agg.count }} variables in
-              {{ data?.data?.Cohorts.length }} cohorts
+              >{{ data?.data?.Variables_agg.count }} variables
+              <span v-if="data?.data?.Cohorts"
+                >in {{ data?.data?.Cohorts.length }} cohorts
+              </span>
             </span>
           </p>
           <FilterWell :filters="filters"></FilterWell>
