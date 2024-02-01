@@ -213,20 +213,37 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
+  e2e-preview:
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.40.0-jammy
+    working_directory: ~/app
+    steps:
+      - checkout:
+          path: ~/app/e2e
+      - run: npm i -D @playwright/test
+      - run: npx playwright install chrome
+      - run:
+          command: export E2E_BASE_URL=https://emx2.dev.molgenis.org/ && npx playwright test
 
 workflows:
   version: 2
   build_and_test_and_preview_or_release:
     jobs:
-    - preview:
+#    - preview:
+#        filters:
+#          branches:
+#            ignore: master
+    - e2e-preview:
+#        requires:
+#        - preview
         filters:
           branches:
             ignore: master
-    - test:
-        filters:
-          branches:
-            ignore: master
-    - release:
-        filters:
-          branches:
-            only: master
+#    - test:
+#        filters:
+#          branches:
+#            ignore: master
+#    - release:
+#        filters:
+#          branches:
+#            only: master
