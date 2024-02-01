@@ -221,7 +221,10 @@ jobs:
       - run: npm i -D @playwright/test
       - run: npx playwright install chrome
       - run:
-          command: export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/ && npx playwright test --config e2e e2e/tests 
+          command: | 
+            export $( cat build/ci.properties | xargs )
+            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/ 
+            npx playwright test --config e2e e2e/tests 
       - store_test_results:
          path: test-results
 
