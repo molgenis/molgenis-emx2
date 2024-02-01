@@ -216,13 +216,12 @@ jobs:
   e2e-preview:
     docker:
       - image: mcr.microsoft.com/playwright:v1.40.0-jammy
-    working_directory: ~/apps/e2e
     steps:
       - checkout
       - run: npm i -D @playwright/test
       - run: npx playwright install chrome
       - run:
-          command: export E2E_BASE_URL=https://emx2.dev.molgenis.org/ && npx playwright test
+          command: export E2E_BASE_URL=https://emx2.dev.molgenis.org/ && npx playwright test apps/e2e/tests 
 
 workflows:
   version: 2
