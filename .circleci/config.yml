@@ -221,7 +221,7 @@ jobs:
       - run: npm i -D @playwright/test
       - run: npx playwright install chrome
       - run:
-          command: export E2E_BASE_URL=https://emx2.dev.molgenis.org/ && npx playwright test apps/e2e/tests 
+          command: export E2E_BASE_URL=https://emx2.dev.molgenis.org/ && npx playwright test --config e2e e2e/tests 
 
 workflows:
   version: 2
