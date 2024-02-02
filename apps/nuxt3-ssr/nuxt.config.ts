@@ -1,19 +1,16 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 import { defineNuxtConfig, type NuxtConfig } from "nuxt/config";
 
-const devProxy = {
-  options: {
-    target:
-      process.env.PROXY_TARGET || "https://data-catalogue.molgeniscloud.org/", // 'http://localhost:8080/',
-    pathFilter: ["**/*/graphql", "**/api/file/**", "**/api/message/**"],
-    changeOrigin: true,
-    secure: false,
-    logLevel: "debug",
-  },
-};
-
 const config: NuxtConfig = {
-  modules: ["nuxt-proxy", "@nuxt/image"],
+  modules: ["@nuxt/image"],
+  routeRules: {
+    "**/*/graphql": { 
+      proxy: 
+      { 
+        to: "https://data-catalogue.molgeniscloud.org/", 
+      } },
+      
+  },
   devtools: { enabled: true },
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side
@@ -26,9 +23,15 @@ const config: NuxtConfig = {
       cohortOnly: false,
     },
   },
-  nitro: {
-    compressPublicAssets: { brotli: true },
-  },
+  // nitro: {
+  //   devProxy: {
+  //     "/graphql": {
+  //       target: "https://data-catalogue.molgeniscloud.org/",
+  //       changeOrigin: true,
+  //       secure: false,
+  //     },
+  //   },
+  // },
   imports: {
     transform: {
       // exclude
@@ -36,9 +39,5 @@ const config: NuxtConfig = {
     },
   },
 };
-
-if (process.env.NODE_ENV === "development") {
-  config.proxy = devProxy;
-}
 
 export default defineNuxtConfig(config);
