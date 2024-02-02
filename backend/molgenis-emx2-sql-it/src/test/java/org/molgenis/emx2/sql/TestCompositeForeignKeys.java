@@ -230,7 +230,7 @@ public class TestCompositeForeignKeys {
                 .select(s("count"), s("nephew", s("firstName"), s("lastName")))
                 .retrieveJSON(),
             Map.class);
-    assertEquals(3, map.get("Person_groupBy").get(6).get("count"));
+    assertEquals(3, map.get("Person_groupBy").get(4).get("count"));
     assertEquals(1, map.get("Person_groupBy").get(0).get("count"));
     assertEquals(
         "Donald",
