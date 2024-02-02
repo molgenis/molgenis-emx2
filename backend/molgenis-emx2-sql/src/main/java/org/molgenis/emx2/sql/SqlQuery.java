@@ -1,8 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.Constants.MG_TABLECLASS;
-import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Privileges.VIEWER;
 import static org.molgenis.emx2.SelectColumn.s;
@@ -727,7 +726,7 @@ public class SqlQuery extends QueryBean {
                   Column col = getColumnByName(table, sub.getColumn());
                   aggregationFields.add(
                       field("SUM({0})", field(name(alias(subAlias), col.getName())))
-                          .as(col.getName()));
+                          .as(field.getColumn()));
                   nonArraySourceFields.add(col.getJooqField());
                 });
       } else {
@@ -735,39 +734,56 @@ public class SqlQuery extends QueryBean {
         if (!col.isOntology()) {
           checkHasViewPermission(table);
         }
+        String subQueryAlias = tableAlias + "_" + col.getIdentifier();
         // in case of 'ref' we need a subselect
-        if (col.isRef()) {
+        if (col.isReference()) {
+          Column copy = new Column(col.getTable(), col);
+          copy.setType(ColumnType.REF); // ref_array should be treated as ref
           groupByFields.add(
               jsonSubselect(
-                      (SqlTableMetadata) col.getRefTable(),
-                      col,
+                      (SqlTableMetadata) copy.getRefTable(),
+                      copy,
                       tableAlias,
                       field,
                       field.getFilter(),
                       new String[0])
-                  .as(name(field.getColumn())));
+                  .as(convertToCamelCase(field.getColumn())));
         } else {
-          groupByFields.add(col.getJooqField().as(name(field.getColumn())));
+          groupByFields.add(col.getJooqField().as(convertToCamelCase(field.getColumn())));
         }
 
-        if (!col.getColumnType().isArray()) {
-          nonArraySourceFields.add(col.getJooqField());
+        if (col.isRef()) {
+          nonArraySourceFields.addAll(col.getCompositeFields());
+        } else if (col.isRefback()) {
+          // convert so it looks like a ref_array
+          Set<Field> subselectFields = new HashSet<>();
+          subselectFields.addAll(
+              col.getRefBackColumn().getReferences().stream()
+                  .map(ref -> field(name(ref.getName())).as(ref.getRefTo()))
+                  .toList());
+          subselectFields.addAll(
+              col.getReferences().stream()
+                  .map(ref -> field(name(ref.getRefTo())).as(ref.getName()))
+                  .toList());
+
+          refArraySubqueries.add(
+              jooq.select(asterisk())
+                  .from(
+                      jooq.select(subselectFields)
+                          .from(
+                              tableWithInheritanceJoin(col.getRefTable()).as(alias(subQueryAlias))))
+                  .where(condition));
         } else {
           // need subquery to unnest ref_array fields
           Set<Field> subselectFields = new HashSet<>();
           subselectFields.addAll(table.getPrimaryKeyFields());
-          subselectFields.add(field("unnest({0})", col.getJooqField()).as(col.getJooqField()));
-          String subQueryAlias = tableAlias + "_" + col.getIdentifier();
-          if (condition != null) {
-            refArraySubqueries.add(
-                jooq.select(subselectFields)
-                    .from(tableWithInheritanceJoin(table).as(alias(subQueryAlias)))
-                    .where(condition));
-          } else {
-            refArraySubqueries.add(
-                jooq.select(subselectFields)
-                    .from(tableWithInheritanceJoin(table).as(alias(subQueryAlias))));
+          for (Field compositeField : col.getCompositeFields()) {
+            subselectFields.add(field("unnest({0})", compositeField).as(compositeField.getName()));
           }
+          refArraySubqueries.add(
+              jooq.select(subselectFields)
+                  .from(tableWithInheritanceJoin(table).as(alias(subQueryAlias)))
+                  .where(condition));
         }
       }
     }
@@ -778,7 +794,8 @@ public class SqlQuery extends QueryBean {
         jooq.select(asterisk())
             .from(
                 jooq.select(nonArraySourceFields)
-                    .from(tableWithInheritanceJoin(table).as(alias(tableAlias))));
+                    .from(tableWithInheritanceJoin(table).as(alias(tableAlias)))
+                    .where(condition));
     for (SelectConnectByStep unnestQuery : refArraySubqueries) {
       // joining on primary key in natural join
       sourceQuery = sourceQuery.naturalFullOuterJoin(unnestQuery);
