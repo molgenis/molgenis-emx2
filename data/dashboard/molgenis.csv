@@ -26,10 +26,10 @@ organisations,ONTOLOGIES,,latitude,decimal,,,,,NCIT_C68642 http://purl.obolibrar
 organisations,ONTOLOGIES,,longitude,decimal,,,,,NCIT_C68643 http://purl.obolibrary.org/obo/NCIT_C68643,An imaginary great circle on the surface of a heavenly body passing through the poles at right angles to the equator.
 organisations,ONTOLOGIES,,organisationType,string,,,,,http://purl.obolibrary.org/obo/NCIT_C25284,Something distinguishable as an identifiable class based on common qualities
 organisations,ONTOLOGIES,,providerInformation,refback,,,dataproviders,organisation,http://purl.obolibrary.org/obo/OBI_0000947,
-organisations,ONTOLOGIES,,image,file,,,,,https://schema.org/image,An image of the item. This can be a [[URL]] or a fully described [[ImageObject]].
+organisations,ONTOLOGIES,,image,ref,,,files,,https://schema.org/image,An image of the item. This can be a [[URL]] or a fully described [[ImageObject]].
 organisations,ONTOLOGIES,,hasSchema,bool,,,,,,Indication that a schema is available for this organisation
 organisations,ONTOLOGIES,,schemaName,string,,,,,http://purl.obolibrary.org/obo/T4FS_0000138,Name of the corresponding schema
 users,ONTOLOGIES,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,A person acting as a channel for communication between groups or on behalf of a group.
 users,ONTOLOGIES,,organisation,ref,,,organisations,,http://purl.obolibrary.org/obo/NCIT_C25412,A formal association between entities.
 files,ONTOLOGIES,,,,,,,,"http://purl.obolibrary.org/obo/STATO_0000002,http://purl.obolibrary.org/obo/NCIT_C42883","An electronic file is an information content entity which conforms to a specification or format and which is meant to hold data and information in digital form, accessible to software agents."
-files,ONTOLOGIES,,path,file,,,,,http://purl.obolibrary.org/obo/NCIT_C47922,"The specification of a node (file or directory) in a hierarchical file system, usually specified by listing the nodes top-down"
+files,ONTOLOGIES,,file,file,,,,,http://purl.obolibrary.org/obo/NCIT_C47922,"The specification of a node (file or directory) in a hierarchical file system, usually specified by listing the nodes top-down"
