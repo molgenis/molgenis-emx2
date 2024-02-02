@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 
 public class RetrieveAllProfiles {
 
@@ -38,6 +39,42 @@ public class RetrieveAllProfiles {
       retrieveAllSchemas();
     }
     return allSchemas;
+  }
+
+  public SchemaMetadata getSoftMergedFullSchema() throws Exception {
+    if (this.allSchemas == null) {
+      retrieveAllSchemas();
+    }
+    if(allSchemas.size() == 0)
+    {
+      throw new Exception("No schemas available for merging");
+    }
+    SchemaMetadata mergedSchema = null;
+
+    for(SchemaMetadata schemaMetadata : allSchemas)
+    {
+      if(mergedSchema==null)
+      {
+        mergedSchema = schemaMetadata;
+      }
+      else{
+        for(TableMetadata tableMetadata : schemaMetadata.getTables())
+        {
+          if(!mergedSchema.getTableNames().contains(schemaMetadata.getName()))
+          {
+            mergedSchema.addTable(schemaMetadata.getName(), tableMetadata);
+          }
+          else{
+            if(mergedSchema.getTableMetadata())
+            // add columns to table
+          }
+        }
+
+
+      }
+    }
+
+    return mergedSchema;
   }
 
   /** Internal function to retrieve all profiles */

@@ -3,7 +3,11 @@ package org.molgenis.emx2.datamodels.profiles;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
@@ -12,7 +16,7 @@ public record ProfileDocGen(String outputFile) {
   private static final String LE = System.lineSeparator();
 
   public void makeDocs() throws IOException {
-    SchemaMetadata fullSchema = new SchemaFromProfile().create(false);
+    Map<String,List<Row>> fullSchema = new SchemaFromProfile().createRowsPerTable(false);
     RetrieveAllProfiles ap = new RetrieveAllProfiles();
 
     FileWriter fw = new FileWriter(this.outputFile);
@@ -22,7 +26,7 @@ public record ProfileDocGen(String outputFile) {
       bw.write(LE);
       bw.write(
           "The complete EMX2 data model contains %s tables and XX columns. There are %s application profiles drawing from this model by using XX profile tags."
-                  .formatted(fullSchema.getTables().size(), ap.getAllProfiles().size())
+                  .formatted(fullSchema.size(), ap.getAllProfiles().size())
               + LE);
       bw.write(LE);
       bw.write("## Application profiles" + LE);

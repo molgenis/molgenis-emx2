@@ -50,7 +50,30 @@ public class SchemaFromProfile {
     return create(true);
   }
 
+  public Map<String,List<Row>> createRowsPerTable() throws MolgenisException {
+    return createRowsPerTable(true);
+  }
+
+    public Map<String,List<Row>> createRowsPerTable(boolean filterByProfiles) throws MolgenisException {
+    List<Row> createRows = createRows(filterByProfiles);
+    Map<String,List<Row>> rowsPerTable = new HashMap<>();
+    for(Row row : createRows)
+    {
+      String tableName = row.getString("tableName");
+      if(!rowsPerTable.containsKey(tableName))
+      {
+        rowsPerTable.put(tableName, new ArrayList<>());
+      }
+      rowsPerTable.get(tableName).add(row);
+    }
+    return rowsPerTable;
+  }
+
   public SchemaMetadata create(boolean filterByProfiles) throws MolgenisException {
+    return Emx2.fromRowList(createRows(filterByProfiles));
+  }
+
+  public List<Row> createRows(boolean filterByProfiles) throws MolgenisException {
     List<Row> keepRows = new ArrayList<>();
     try {
       keepRows.addAll(getProfilesFromAllModels(SHARED_MODELS_DIR, filterByProfiles));
@@ -58,11 +81,11 @@ public class SchemaFromProfile {
     } catch (Exception e) {
       throw new MolgenisException(e.getMessage());
     }
-    return Emx2.fromRowList(keepRows);
+    return keepRows;
   }
 
   /** From a classpath dir, get all EMX2 model files and optionally slice for profiles */
-  public List<Row> getProfilesFromAllModels(String directory, boolean filterByProfiles)
+  private List<Row> getProfilesFromAllModels(String directory, boolean filterByProfiles)
       throws URISyntaxException, IOException {
     List<Row> keepRows = new ArrayList<>();
     String[] modelsList = new ResourceListing().retrieve(directory);
