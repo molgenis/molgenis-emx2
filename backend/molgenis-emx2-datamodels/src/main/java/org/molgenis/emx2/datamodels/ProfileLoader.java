@@ -1,6 +1,5 @@
 package org.molgenis.emx2.datamodels;
 
-import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
@@ -14,9 +13,8 @@ import org.molgenis.emx2.io.readers.CsvTableReader;
 
 public class ProfileLoader extends AbstractDataLoader {
 
-  private static final String ONTOLOGY_LOCATION = File.separator + "_ontologies";
-  private static final String ONTOLOGY_SEMANTICS_LOCATION =
-      ONTOLOGY_LOCATION + File.separator + "_semantics.csv";
+  private static final String ONTOLOGY_LOCATION = "/_ontologies";
+  private static final String ONTOLOGY_SEMANTICS_LOCATION = ONTOLOGY_LOCATION + "/_semantics.csv";
 
   // the classpath location of your config (a.k.a. 'profile') YAML file
   private final String configLocation;

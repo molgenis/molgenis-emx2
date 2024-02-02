@@ -6,6 +6,7 @@ const initialCollectionColumns = [
     column: {
       quality: [{ quality_standard: ["name"] }],
     },
+    type: "quality",
     showOnBiobankCard: true,
   },
   {

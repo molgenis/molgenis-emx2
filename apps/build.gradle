@@ -8,7 +8,7 @@ plugins {
 def isCI = System.getenv('CI') ? true : false
 
 def nodeSpec = {
-    version = '19.9.0'
+    version = '18.16.0'
     yarnVersion = '1.22.19'
     npmVersion = "9.5.1"
     download = !isCI
@@ -21,6 +21,7 @@ node {
 task cleanJavascript(type: YarnTask, dependsOn: yarn_install) {
     outputs.upToDateWhen { false }
     args = ['run', 'nx', 'reset']
+    delete fileTree(dir: projectDir, include: '**/dist')
 }
 clean.dependsOn cleanJavascript
 
@@ -35,11 +36,10 @@ task format(type: YarnTask, dependsOn: yarn_install) {
             exclude "**${File.separator}node_modules${File.separator}**"
         }
         outputs.files fileTree(projectDir).matching {
-            // Exclude 'build', 'dist', and 'showCase' directories
             exclude "**${File.separator}build${File.separator}**"
             exclude "**${File.separator}dist${File.separator}**"
-            exclude "**${File.separator}showCase${File.separator}**"
             exclude "**${File.separator}node_modules${File.separator}**"
+            exclude "**${File.separator}showCase${File.separator}**"
         }
     } else {
         args = ['run', 'nx', 'run-many','--target=checkFormat']
@@ -62,12 +62,12 @@ task testJavaScript(type: YarnTask, dependsOn: format) {
         exclude "**${File.separator}showCase${File.separator}**"
         exclude "**${File.separator}node_modules${File.separator}**"
     }
-    outputs.dir(file("**${File.separator}node_modules/.vitest"))
 }
+test.dependsOn testJavaScript
 
-task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
+task buildJavascript(type: YarnTask, dependsOn: format) {
     environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
-    args = ['run', 'nx', 'run-many', '--target=format:write,build,build-showcase', "--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}", '--verbose']
+    args = ['run', 'nx', 'run-many', '--target=build,build-showcase', "--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}", '--verbose']
     doLast {
         file("${project.projectDir}").eachDir { dir ->
             if (dir.name == 'molgenis-components' || dir.name == 'molgenis-viz') {
