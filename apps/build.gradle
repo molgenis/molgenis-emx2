@@ -29,26 +29,26 @@ task format(type: YarnTask, dependsOn: yarn_install) {
         args = ['run', 'nx', 'run-many', '--target=format']
         inputs.files fileTree(projectDir).matching {
             // Exclude 'build', 'dist', and 'showCase' directories
-            exclude '**/build/**'
-            exclude '**/dist/**'
-            exclude '**/showCase/**'
-            exclude '**/node_modules/**'
+            exclude "**${File.separator}build${File.separator}**"
+            exclude "**${File.separator}dist${File.separator}**"
+            exclude "**${File.separator}showCase${File.separator}**"
+            exclude "**${File.separator}node_modules${File.separator}**"
         }
         outputs.files fileTree(projectDir).matching {
             // Exclude 'build', 'dist', and 'showCase' directories
-            exclude '**/build/**'
-            exclude '**/dist/**'
-            exclude '**/showCase/**'
-            exclude '**/node_modules/**'
+            exclude "**${File.separator}build${File.separator}**"
+            exclude "**${File.separator}dist${File.separator}**"
+            exclude "**${File.separator}showCase${File.separator}**"
+            exclude "**${File.separator}node_modules${File.separator}**"
         }
     } else {
         args = ['run', 'nx', 'run-many','--target=checkFormat']
         inputs.files fileTree(projectDir).matching {
             // Exclude 'build', 'dist', and 'showCase' directories
-            exclude '**/build/**'
-            exclude '**/dist/**'
-            exclude '**/showCase/**'
-            exclude '**/node_modules/**'
+            exclude "**${File.separator}build${File.separator}**"
+            exclude "**${File.separator}dist${File.separator}**"
+            exclude "**${File.separator}showCase${File.separator}**"
+            exclude "**${File.separator}node_modules${File.separator}**"
         }
     }
 }
@@ -57,12 +57,12 @@ task testJavaScript(type: YarnTask, dependsOn: format) {
     args = ['run', 'nx', 'run-many', '--target=test-ci']
     inputs.files fileTree(projectDir).matching {
         // Exclude 'build', 'dist', and 'showCase' directories
-        exclude '**/build/**'
-        exclude '**/dist/**'
-        exclude '**/showCase/**'
-        exclude '**/node_modules/**'
+        exclude "**${File.separator}build${File.separator}**"
+        exclude "**${File.separator}dist${File.separator}**"
+        exclude "**${File.separator}showCase${File.separator}**"
+        exclude "**${File.separator}node_modules${File.separator}**"
     }
-    outputs.dir(file('**/node_modules/.vitest'))
+    outputs.dir(file("**${File.separator}node_modules/.vitest"))
 }
 
 task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
@@ -86,13 +86,13 @@ task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
     }
     inputs.files fileTree(projectDir).matching {
         // Exclude 'build', 'dist', and 'showCase' directories
-        exclude '**/build/**'
-        exclude '**/dist/**'
-        exclude '**/node_modules/**'
-        exclude '**/showCase/**'
+        exclude "**${File.separator}build${File.separator}**"
+        exclude "**${File.separator}dist${File.separator}**"
+        exclude "**${File.separator}node_modules${File.separator}**"
+        exclude "**${File.separator}showCase${File.separator}**"
     }
-    outputs.dir(file('**/dist'))
-    outputs.dir(file('**/showCase'))
+    outputs.dir(file("**${File.separator}dist"))
+    outputs.dir(file("**${File.separator}showCase"))
 }
 
 processResources.dependsOn buildJavascript
