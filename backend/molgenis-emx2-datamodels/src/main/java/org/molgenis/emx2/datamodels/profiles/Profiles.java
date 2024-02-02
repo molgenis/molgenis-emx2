@@ -99,7 +99,7 @@ public class Profiles {
     this.settings = settings;
   }
 
-  protected List<String> getProfileTagsList() {
+  public List<String> getProfileTagsList() {
     return profileTagsList;
   }
 
