@@ -780,8 +780,8 @@ public class SqlQuery extends QueryBean {
                   .from(
                       jooq.select(subselectFields)
                           .from(
-                              tableWithInheritanceJoin(col.getRefTable()).as(alias(subQueryAlias))))
-                  .where(condition));
+                              tableWithInheritanceJoin(col.getRefTable())
+                                  .as(alias(subQueryAlias)))));
         } else {
           // must be array or ref_array
           // need subquery to unnest ref_array fields
@@ -792,8 +792,7 @@ public class SqlQuery extends QueryBean {
           }
           refArraySubqueries.add(
               jooq.select(subselectFields)
-                  .from(tableWithInheritanceJoin(table).as(alias(subQueryAlias)))
-                  .where(condition));
+                  .from(tableWithInheritanceJoin(table).as(alias(subQueryAlias))));
         }
       }
     }
