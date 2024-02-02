@@ -1,16 +1,8 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
-import { defineNuxtConfig, type NuxtConfig } from "nuxt/config";
+import { defineNuxtConfig } from "nuxt/config";
 
-const config: NuxtConfig = {
+export default defineNuxtConfig({
   modules: ["@nuxt/image"],
-  routeRules: {
-    "**/*/graphql": { 
-      proxy: 
-      { 
-        to: "https://data-catalogue.molgeniscloud.org/", 
-      } },
-      
-  },
   devtools: { enabled: true },
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side
@@ -21,23 +13,13 @@ const config: NuxtConfig = {
       siteTitle: "MOLGENIS",
       analyticsKey: "",
       cohortOnly: false,
+      proxyTarget: process.env.PROXY_TARGET || "https://data-catalogue.molgeniscloud.org/",
     },
   },
-  // nitro: {
-  //   devProxy: {
-  //     "/graphql": {
-  //       target: "https://data-catalogue.molgeniscloud.org/",
-  //       changeOrigin: true,
-  //       secure: false,
-  //     },
-  //   },
-  // },
   imports: {
     transform: {
       // exclude
       exclude: [/\bmeta-data-utils\b/],
     },
   },
-};
-
-export default defineNuxtConfig(config);
+});
