@@ -243,11 +243,11 @@ workflows:
         filters:
             branches:
               ignore: master
-#    - test:
-#        filters:
-#          branches:
-#            ignore: master
-#    - release:
-#        filters:
-#          branches:
-#            only: master
+    - test:
+       filters:
+         branches:
+           ignore: master
+    - release:
+       filters:
+         branches:
+           only: master
