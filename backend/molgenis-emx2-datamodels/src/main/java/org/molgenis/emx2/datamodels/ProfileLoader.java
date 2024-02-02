@@ -54,11 +54,13 @@ public class ProfileLoader extends AbstractDataLoader {
     Schema ontoSchema;
     if (profiles.getOntologiesToFixedSchema() != null) {
       ontoSchema = createSchema(profiles.getOntologiesToFixedSchema(), schema.getDatabase());
-      if (profiles.getSetViewPermission() != null) {
-        ontoSchema.addMember(profiles.getSetViewPermission(), Privileges.VIEWER.toString());
+      if (profiles.getSetFixedSchemaViewPermission() != null) {
+        ontoSchema.addUpdateMember(
+            profiles.getSetFixedSchemaViewPermission(), Privileges.VIEWER.toString());
       }
-      if (profiles.getSetEditPermission() != null) {
-        ontoSchema.addMember(profiles.getSetEditPermission(), Privileges.EDITOR.toString());
+      if (profiles.getSetFixedSchemaEditPermission() != null) {
+        ontoSchema.addUpdateMember(
+            profiles.getSetFixedSchemaEditPermission(), Privileges.EDITOR.toString());
       }
     } else {
       ontoSchema = schema;
@@ -72,10 +74,10 @@ public class ProfileLoader extends AbstractDataLoader {
 
     // special options: provide specific user/role with View/Edit permissions on imported schema
     if (profiles.getSetViewPermission() != null) {
-      schema.addMember(profiles.getSetViewPermission(), Privileges.VIEWER.toString());
+      schema.addUpdateMember(profiles.getSetViewPermission(), Privileges.VIEWER.toString());
     }
     if (profiles.getSetEditPermission() != null) {
-      schema.addMember(profiles.getSetEditPermission(), Privileges.EDITOR.toString());
+      schema.addUpdateMember(profiles.getSetEditPermission(), Privileges.EDITOR.toString());
     }
 
     // optionally, load demo data (i.e. some example records, or specific application data)
