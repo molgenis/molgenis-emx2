@@ -46,6 +46,12 @@ public interface Schema {
 
   List<Member> getMembers();
 
+  boolean hasMember(String user);
+
+  Member getMember(String user);
+
+  void addUpdateMember(String user, String role);
+
   void removeMembers(Member... members);
 
   void removeMembers(List<Member> members);

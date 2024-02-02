@@ -64,6 +64,36 @@ public class SqlSchema implements Schema {
   }
 
   @Override
+  public boolean hasMember(String user) {
+    for (Member member : this.getMembers()) {
+      if (member.getUser().equals(user)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public Member getMember(String user) {
+    for (Member member : this.getMembers()) {
+      if (member.getUser().equals(user)) {
+        return member;
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public void addUpdateMember(String user, String role) {
+    if (this.hasMember(user)) {
+      Member member = this.getMember(user);
+      member.setRole(role);
+    } else {
+      this.addMember(user, role);
+    }
+  }
+
+  @Override
   public void removeMembers(List<Member> members) {
     tx(database -> executeRemoveMembers((SqlDatabase) database, getName(), members));
   }
