@@ -718,17 +718,19 @@ public class SqlQuery extends QueryBean {
           aggregationFields.add(field("GREATEST({0},COUNT(*))", 10L).as(COUNT_FIELD));
         }
       } else if (SUM_FIELD.equals(field.getColumn())) {
+        List sumFields = new ArrayList<>();
         // todo add minimal sum value permission check
         field
             .getSubselect()
             .forEach(
                 sub -> {
                   Column col = getColumnByName(table, sub.getColumn());
-                  aggregationFields.add(
-                      field("SUM({0})", field(name(alias(subAlias), col.getName())))
-                          .as(field.getColumn()));
+                  sumFields.add(
+                      key(sub.getColumn())
+                          .value(field("SUM({0})", field(name(alias(subAlias), col.getName())))));
                   nonArraySourceFields.add(col.getJooqField());
                 });
+        aggregationFields.add(jsonObject(sumFields).as(field.getColumn()));
       } else {
         Column col = getColumnByName(table, field.getColumn());
         if (!col.isOntology()) {

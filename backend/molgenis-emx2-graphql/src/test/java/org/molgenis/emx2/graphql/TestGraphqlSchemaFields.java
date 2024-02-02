@@ -429,10 +429,11 @@ public class TestGraphqlSchemaFields {
         new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
 
     // refs
-    JsonNode result = execute("{Pet_groupBy{count,tagsTest{nameTest}}}");
+    JsonNode result = execute("{Pet_groupBy{count,sum{weight},tagsTest{nameTest}}}");
 
     assertEquals(null, result.at("/Pet_groupBy/4/tagsTest/nameTest").textValue());
     assertEquals(1, result.at("/Pet_groupBy/4/count").intValue());
+    assertEquals(9.4d, result.at("/Pet_groupBy/4/sum/weight").doubleValue());
 
     assertEquals("blue", result.at("/Pet_groupBy/0/tagsTest/nameTest").asText());
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());

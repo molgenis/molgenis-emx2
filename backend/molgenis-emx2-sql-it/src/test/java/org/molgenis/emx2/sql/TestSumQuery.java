@@ -58,7 +58,7 @@ public class TestSumQuery {
     Query query1 = table.groupBy();
     query1.select(s("sum", s(N)), s(TYPE, s(NAME)));
     final String json = query1.retrieveJSON();
-    assertTrue(json.contains("28")); // for Type A
+    assertTrue(json.contains("N\": 28")); // for Type A
     assertTrue(json.contains("11")); // for Type B
     System.out.println(json);
 
@@ -71,7 +71,7 @@ public class TestSumQuery {
     Query query1 = table.groupBy();
     query1.select(s("sum", s(N)), s(TYPE_ARRAY, s(NAME)));
     final String json = query1.retrieveJSON();
-    assertTrue(json.contains("37")); // for Type A
+    assertTrue(json.contains("N\": 37")); // for Type A
     assertTrue(json.contains("34")); // for Type B
     System.out.println(json);
 
@@ -84,7 +84,7 @@ public class TestSumQuery {
     Query query1 = table.groupBy();
     query1.select(s("sum", s(N)), s(TYPE_ARRAY, s(NAME)), s(TYPE, s(NAME)));
     final String json = query1.retrieveJSON();
-    assertTrue(json.contains("28")); // for Type b, Type b
+    assertTrue(json.contains("N\": 28")); // for Type b, Type b
     assertTrue(json.contains("11")); // for Type b, Type b
     assertTrue(json.contains("23")); // for Type a, Type b
     assertTrue(json.contains("9")); // for Type b, Type a
