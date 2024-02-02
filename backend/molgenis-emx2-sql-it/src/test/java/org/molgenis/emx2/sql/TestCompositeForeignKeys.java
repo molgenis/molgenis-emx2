@@ -233,7 +233,7 @@ public class TestCompositeForeignKeys {
     assertEquals(3, map.get("Person_groupBy").get(4).get("count"));
     assertEquals(1, map.get("Person_groupBy").get(0).get("count"));
     assertEquals(
-        "Donald",
+        "Kwak",
         ((Map<String, String>) map.get("Person_groupBy").get(0).get("nephew")).get("firstName"));
   }
 

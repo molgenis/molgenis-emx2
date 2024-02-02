@@ -8,7 +8,7 @@ plugins {
 def isCI = System.getenv('CI') ? true : false
 
 def nodeSpec = {
-    version = '18.19.0'
+    version = '18.17.1'
     yarnVersion = '1.22.19'
     npmVersion = "9.5.1"
     download = !isCI
