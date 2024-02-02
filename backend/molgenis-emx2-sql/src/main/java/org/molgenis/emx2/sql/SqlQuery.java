@@ -752,7 +752,7 @@ public class SqlQuery extends QueryBean {
           groupByFields.add(col.getJooqField().as(convertToCamelCase(field.getColumn())));
         }
 
-        if (col.isRef()) {
+        if (col.isRef() || !col.isArray()) {
           nonArraySourceFields.addAll(col.getCompositeFields());
         } else if (col.isRefback()) {
           // convert so it looks like a ref_array
@@ -781,6 +781,7 @@ public class SqlQuery extends QueryBean {
                               tableWithInheritanceJoin(col.getRefTable()).as(alias(subQueryAlias))))
                   .where(condition));
         } else {
+          // must be array or ref_array
           // need subquery to unnest ref_array fields
           Set<Field> subselectFields = new HashSet<>();
           subselectFields.addAll(table.getPrimaryKeyFields());
