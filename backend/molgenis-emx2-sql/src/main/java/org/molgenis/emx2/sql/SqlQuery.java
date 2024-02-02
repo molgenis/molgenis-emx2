@@ -757,10 +757,17 @@ public class SqlQuery extends QueryBean {
         } else if (col.isRefback()) {
           // convert so it looks like a ref_array
           Set<Field> subselectFields = new HashSet<>();
-          subselectFields.addAll(
-              col.getRefBackColumn().getReferences().stream()
-                  .map(ref -> field(name(ref.getName())).as(ref.getRefTo()))
-                  .toList());
+          if (col.getRefBackColumn().isRefArray()) {
+            subselectFields.addAll(
+                col.getRefBackColumn().getReferences().stream()
+                    .map(ref -> field("unnest({0})", name(ref.getName())).as(ref.getRefTo()))
+                    .toList());
+          } else {
+            subselectFields.addAll(
+                col.getRefBackColumn().getReferences().stream()
+                    .map(ref -> field(name(ref.getName())).as(ref.getRefTo()))
+                    .toList());
+          }
           subselectFields.addAll(
               col.getReferences().stream()
                   .map(ref -> field(name(ref.getRefTo())).as(ref.getName()))
