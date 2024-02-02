@@ -807,7 +807,7 @@ public class SqlQuery extends QueryBean {
                     .where(condition));
     for (SelectConnectByStep unnestQuery : refArraySubqueries) {
       // joining on primary key in natural join
-      sourceQuery = sourceQuery.naturalFullOuterJoin(unnestQuery);
+      sourceQuery = sourceQuery.naturalLeftOuterJoin(unnestQuery);
     }
 
     // sort by groupBy fields to make deterministic

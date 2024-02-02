@@ -6,10 +6,7 @@
         </Console>
     </Appenders>
     <Loggers>
-<!--        <Logger name="org.pac4j" level="debug" additivity="false">-->
-<!--            <Appender-ref ref="Console" level="debug"/>-->
-<!--        </Logger>-->
-        <Logger name="org.jooq.tools.LoggerListener" level="debug" additivity="false">
+        <Logger name="org.pac4j" level="debug" additivity="false">
             <Appender-ref ref="Console" level="debug"/>
         </Logger>
         <Root level="info">

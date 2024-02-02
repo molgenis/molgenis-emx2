@@ -230,12 +230,10 @@ public class TestCompositeForeignKeys {
                 .select(s("count"), s("nephew", s("firstName"), s("lastName")))
                 .retrieveJSON(),
             Map.class);
-    // kwik,kwek,kwak don't have nephew
-    assertEquals(3, map.get("Person_groupBy").get(4).get("count"));
-    // kwak is nephew to one uncle
+    assertEquals(3, map.get("Person_groupBy").get(6).get("count"));
     assertEquals(1, map.get("Person_groupBy").get(0).get("count"));
     assertEquals(
-        "Kwak",
+        "Donald",
         ((Map<String, String>) map.get("Person_groupBy").get(0).get("nephew")).get("firstName"));
   }
 
