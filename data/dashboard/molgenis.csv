@@ -26,7 +26,7 @@ organisations,ONTOLOGIES,,latitude,decimal,,,,,NCIT_C68642 http://purl.obolibrar
 organisations,ONTOLOGIES,,longitude,decimal,,,,,NCIT_C68643 http://purl.obolibrary.org/obo/NCIT_C68643,An imaginary great circle on the surface of a heavenly body passing through the poles at right angles to the equator.
 organisations,ONTOLOGIES,,organisationType,string,,,,,http://purl.obolibrary.org/obo/NCIT_C25284,Something distinguishable as an identifiable class based on common qualities
 organisations,ONTOLOGIES,,providerInformation,refback,,,dataproviders,organisation,http://purl.obolibrary.org/obo/OBI_0000947,
-organisations,ONTOLOGIES,,image,file,,,,,https://schema.org/image,An image of the item. This can be a [[URL]] or a fully described [[ImageObject]].
+organisations,ONTOLOGIES,,image,file,,,,,http://schema.org/ImageObject,An image image file.
 organisations,ONTOLOGIES,,hasSchema,bool,,,,,,Indication that a schema is available for this organisation
 organisations,ONTOLOGIES,,schemaName,string,,,,,http://purl.obolibrary.org/obo/T4FS_0000138,Name of the corresponding schema
 users,ONTOLOGIES,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,A person acting as a channel for communication between groups or on behalf of a group.
