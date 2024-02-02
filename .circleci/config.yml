@@ -224,7 +224,7 @@ jobs:
           command: | 
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
-            echo E2E_BASE_URL
+            echo $E2E_BASE_URL
             npx playwright test --config e2e e2e/tests
       - store_test_results:
          path: test-results
@@ -233,13 +233,13 @@ workflows:
   version: 2
   build_and_test_and_preview_or_release:
     jobs:
-    # - preview:
-    #     filters:
-    #       branches:
-    #         ignore: master
+    - preview:
+        filters:
+          branches:
+            ignore: master
     - e2e-preview:
-        # requires:
-        #   - preview
+        requires:
+          - preview
         filters:
             branches:
               ignore: master
