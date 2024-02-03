@@ -21,6 +21,9 @@ pnpm install --shamefully-hoist
 
 Start the development server on http://localhost:3000
 
+set non default (api)proxy target with 
+```NUXT_PUBLIC_PROXY_TARGET```
+
 ```bash
 npm run dev
 ```

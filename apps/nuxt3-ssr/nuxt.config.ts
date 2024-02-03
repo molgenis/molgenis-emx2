@@ -5,15 +5,13 @@ export default defineNuxtConfig({
   modules: ["@nuxt/image"],
   devtools: { enabled: true },
   runtimeConfig: {
-    // Keys within public, will be also exposed to the client-side
     public: {
-      apiBase: "http://localhost:3000/", //'https://emx2.molgeniscloud.org/',
       emx2Theme: "",
       emx2Logo: "",
       siteTitle: "MOLGENIS",
       analyticsKey: "",
       cohortOnly: false,
-      proxyTarget: process.env.PROXY_TARGET || "https://data-catalogue.molgeniscloud.org/",
+      proxyTarget: process.env.NUXT_PUBLIC_PROXY_TARGET || "https://data-catalogue.molgeniscloud.org/",
     },
   },
   imports: {

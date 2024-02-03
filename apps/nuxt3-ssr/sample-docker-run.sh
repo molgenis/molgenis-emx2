@@ -1,1 +1,1 @@
-docker run -d --network host --env NUXT_PUBLIC_API_BASE=https://emx2.molgeniscloud.org/ --env NUXT_PUBLIC_EMX2_THEME=umcg --env NUXT_PUBLIC_EMX2_LOGO=UMCGkort.woordbeeld --name nuxt3-catalogue molgenis/ssr-catalogue-snapshot:latest
+docker run -d --network host --env NUXT_PUBLIC_EMX2_THEME=umcg --env NUXT_PUBLIC_EMX2_LOGO=UMCGkort.woordbeeld --name nuxt3-catalogue molgenis/ssr-catalogue-snapshot:latest
