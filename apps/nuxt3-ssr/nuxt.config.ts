@@ -11,7 +11,7 @@ export default defineNuxtConfig({
       siteTitle: "MOLGENIS",
       analyticsKey: "",
       cohortOnly: false,
-      proxyTarget: process.env.NUXT_PUBLIC_PROXY_TARGET || "https://data-catalogue.molgeniscloud.org/",
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || "https://data-catalogue.molgeniscloud.org/",
     },
   },
   imports: {
