@@ -4,9 +4,8 @@ const route = useRoute();
 const config = useRuntimeConfig();
 
 const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: {
       query: `{

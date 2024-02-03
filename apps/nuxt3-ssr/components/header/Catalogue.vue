@@ -14,8 +14,7 @@ const networksFilter = scoped
   ? { id: { equals: catalogueRouteParam } }
   : undefined;
 
-const models = await $fetch(`/${route.params.schema}/catalogue/graphql`, {
-  baseURL: config.public.apiBase,
+const models = await $fetch(`/${route.params.schema}/graphql`, {
   method: "POST",
   body: {
     query: `
@@ -52,8 +51,7 @@ const query = `
        }
     }`;
 
-const data = await $fetch(`/${route.params.schema}/catalogue/graphql`, {
-  baseURL: config.public.apiBase,
+const data = await $fetch(`/${route.params.schema}/graphql`, {
   method: "POST",
   body: {
     query,

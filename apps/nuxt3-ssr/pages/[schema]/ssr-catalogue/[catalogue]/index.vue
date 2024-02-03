@@ -110,8 +110,7 @@ const dataSourcesFilter = scoped
 const { data, error } = await useAsyncData<any, IMgError>(
   `lading-page-${catalogueRouteParam}`,
   async () => {
-    const models = await $fetch(`/${route.params.schema}/catalogue/graphql`, {
-      baseURL: config.public.apiBase,
+    const models = await $fetch(`/${route.params.schema}/graphql`, {
       method: "POST",
       body: {
         query: `
@@ -136,8 +135,7 @@ const { data, error } = await useAsyncData<any, IMgError>(
         }
       : undefined;
 
-    return $fetch(`/${route.params.schema}/catalogue/graphql`, {
-      baseURL: config.public.apiBase,
+    return $fetch(`/${route.params.schema}/graphql`, {
       method: "POST",
       body: {
         query,
