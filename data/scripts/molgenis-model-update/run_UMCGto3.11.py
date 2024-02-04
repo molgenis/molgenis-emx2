@@ -1,3 +1,4 @@
+import setuptools.discovery
 from decouple import config
 from util.client import Session
 from update.update_3_11 import Transform
@@ -21,6 +22,8 @@ ONTOLOGIES_SCHEMA_NAME = config('MG_ONTOLOGIES_SCHEMA_NAME')
 SHARED_STAGING_NAME = config('MG_SHARED_STAGING_NAME')
 
 COHORTS = config('MG_COHORTS', cast=lambda v: [s.strip() for s in v.split(',')])
+DATA_SOURCES = config('MG_DATA_SOURCES', casst=lambda v: [s.strip() for s in v.split(',')])
+NETWORKS = config('MG_NETWORKS', casst=lambda v: [s.strip() for s in v.split(',')])
 
 print('-----  Config variables loaded ----')
 
@@ -98,6 +101,74 @@ for cohort in COHORTS:
     session.drop_database(database_name=cohort)
     session.create_database(database_name=cohort, database_description=schema_description)
 
+# --------------------------------------------------------------
+
+# Data sources update
+print('-----------------------')
+print('Data source update to data model ' + DATA_MODEL_VERSION)
+
+for data_source in DATA_SOURCES:
+    # sign in to server
+    print('Sign in to server: ' + SERVER_URL)
+    session = Session(
+        url=SERVER_URL,
+        email=SERVER_USERNAME,
+        password=SERVER_PASSWORD
+    )
+    # extract data
+    print('Extract data for ' + data_source + ': ' + data_source + '_data.zip')
+    session.download_zip(database_name=data_source)
+
+    # transform data from cohorts
+    print('Transform data from ' + data_source)
+    zip_handling = Zip(data_source)
+    update = Transform(data_source, 'data_source')
+
+    zip_handling.remove_unzipped_data()
+    zip_handling.unzip_data()
+    update.delete_data_model_file()
+    update.transform_data()
+    update.update_data_model_file()
+    zip_handling.zip_data()
+    zip_handling.remove_unzipped_data()
+    # delete and create new cohort schema
+    schema_description = session.get_database_description(database_name=data_source)
+    session.drop_database(database_name=data_source)
+    session.create_database(database_name=data_source, database_description=schema_description)
+
+# Networks update
+print('-----------------------')
+print('Networks update to data model ' + DATA_MODEL_VERSION)
+
+for network in NETWORKS:
+    # sign in to server
+    print('Sign in to server: ' + SERVER_URL)
+    session = Session(
+        url=SERVER_URL,
+        email=SERVER_USERNAME,
+        password=SERVER_PASSWORD
+    )
+    # extract data
+    print('Extract data for ' + network + ': ' + network + '_data.zip')
+    session.download_zip(database_name=network)
+
+    # transform data from cohorts
+    print('Transform data from ' + network)
+    zip_handling = Zip(network)
+    update = Transform(network, 'network')
+
+    zip_handling.remove_unzipped_data()
+    zip_handling.unzip_data()
+    update.delete_data_model_file()
+    update.transform_data()
+    update.update_data_model_file()
+    zip_handling.zip_data()
+    zip_handling.remove_unzipped_data()
+    # delete and create new cohort schema
+    schema_description = session.get_database_description(database_name=network)
+    session.drop_database(database_name=network)
+    session.create_database(database_name=network, database_description=schema_description)
+
 # ---------------------------------------------------------------
 
 # delete and create schemas
@@ -107,22 +178,11 @@ print('Updating catalogue schema')
 schema_description = session.get_database_description(database_name=CATALOGUE_SCHEMA_NAME)
 session.drop_database(database_name=CATALOGUE_SCHEMA_NAME)
 session.create_database(database_name=CATALOGUE_SCHEMA_NAME, database_description=schema_description)
-#
-# # delete and create new CatalogueOntologies schema
-# schema_description = session.get_database_description(database_name=ONTOLOGIES_SCHEMA_NAME)
-# session.drop_database(database_name=ONTOLOGIES_SCHEMA_NAME)
-# session.create_database(database_name=ONTOLOGIES_SCHEMA_NAME, database_description=schema_description)
 
 # upload molgenis.csv to catalogue schema
 update_general = Transform(CATALOGUE_SCHEMA_NAME, 'catalogue')
 data_model_file = update_general.update_data_model_file()
 session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload='catalogue_data_model')
-
-# # upload transformed CatalogueOntologies data to CatalogueOntologies schema
-# session.upload_zip(database_name=ONTOLOGIES_SCHEMA_NAME, data_to_upload=ONTOLOGIES_SCHEMA_NAME)
-
-# # upload transformed SharedStaging data to SharedStaging schema
-# session.upload_zip(database_name=SHARED_STAGING_NAME, data_to_upload=SHARED_STAGING_NAME)
 
 # upload transformed catalogue data to catalogue schema
 session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE_SCHEMA_NAME)
@@ -144,3 +204,35 @@ for cohort in COHORTS:
     )
     print('Upload transformed data for: ' + cohort)
     session.upload_zip(database_name=cohort, data_to_upload=cohort)
+
+# Data sources upload data
+print('-----------------------')
+
+print('Updating data for data sources')
+
+for data_source in DATA_SOURCES:
+    # sign in to server
+    print('Sign in to server: ' + SERVER_URL)
+    session = Session(
+        url=SERVER_URL,
+        email=SERVER_USERNAME,
+        password=SERVER_PASSWORD
+    )
+    print('Upload transformed data for: ' + data_source)
+    session.upload_zip(database_name=data_source, data_to_upload=data_source)
+
+# Networks upload data
+print('-----------------------')
+
+print('Updating data for networks')
+
+for network in NETWORKS:
+    # sign in to server
+    print('Sign in to server: ' + SERVER_URL)
+    session = Session(
+        url=SERVER_URL,
+        email=SERVER_USERNAME,
+        password=SERVER_PASSWORD
+    )
+    print('Upload transformed data for: ' + network)
+    session.upload_zip(database_name=network, data_to_upload=network)

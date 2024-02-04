@@ -83,10 +83,10 @@ class Transform:
             self.data_sources()
             self.databanks()
             self.publications()
-        if self.database_type in ['cohorts', 'cohort_UMCG']:
+        if self.database_type in ['cohort', 'cohort_UMCG']:
             self.cohorts()
             self.publications()
-        if self.database_type == 'data sources':
+        if self.database_type == 'data_sources':
             self.data_sources()
             self.databanks()
             self.publications()
@@ -96,7 +96,7 @@ class Transform:
         """
         df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
         df_cohorts['design paper'] = df_cohorts['design paper'].apply(get_hyperlink)
-        if self.database_type == 'cohorts':
+        if self.database_type == 'cohort':
             df_cohorts['publications'] = df_cohorts['publications'].apply(get_hyperlink)
         df_cohorts = float_to_int(df_cohorts)  # convert float back to integer
         df_cohorts.to_csv(self.path + 'Cohorts.csv', index=False)
@@ -106,7 +106,7 @@ class Transform:
         """
         df_data_sources = pd.read_csv(self.path + 'Data sources.csv')
         df_data_sources['design paper'] = df_data_sources['design paper'].apply(get_hyperlink)
-        # df_data_sources['publications'] = df_data_sources['publications'].apply(get_hyperlink)
+        df_data_sources['publications'] = df_data_sources['publications'].apply(get_hyperlink)
         df_data_sources = float_to_int(df_data_sources)  # convert float back to integer
         df_data_sources.to_csv(self.path + 'Data sources.csv', index=False)
 
