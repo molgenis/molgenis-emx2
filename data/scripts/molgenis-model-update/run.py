@@ -22,8 +22,8 @@ ONTOLOGIES_SCHEMA_NAME = config('MG_ONTOLOGIES_SCHEMA_NAME')
 SHARED_STAGING_NAME = config('MG_SHARED_STAGING_NAME')
 
 COHORTS = config('MG_COHORTS', cast=lambda v: [s.strip() for s in v.split(',')])
-DATA_SOURCES = config('MG_DATA_SOURCES', casst=lambda v: [s.strip() for s in v.split(',')])
-NETWORKS = config('MG_NETWORKS', casst=lambda v: [s.strip() for s in v.split(',')])
+DATA_SOURCES = config('MG_DATA_SOURCES', cast=lambda v: [s.strip() for s in v.split(',')])
+NETWORKS = config('MG_NETWORKS', cast=lambda v: [s.strip() for s in v.split(',')])
 
 print('-----  Config variables loaded ----')
 
