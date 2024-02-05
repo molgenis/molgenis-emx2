@@ -28,7 +28,7 @@ public class SqlQuery extends QueryBean {
   public static final String MAX_FIELD = "max";
   public static final String MIN_FIELD = "min";
   public static final String AVG_FIELD = "avg";
-  public static final String SUM_FIELD = "sum";
+  public static final String SUM_FIELD = "_sum";
   public static final String UNNEST_0 = "UNNEST({0})";
 
   private static final String QUERY_FAILED = "Query failed: ";
