@@ -1382,7 +1382,7 @@ public class SqlQuery extends QueryBean {
     }
     // is scalar column
     Column column = table.getColumn(columnName);
-    if (column == null) {
+    if (column == null || (column.isReference() && column.getReferences().size() > 1)) {
       // is reference?
       for (Column c : table.getColumns()) {
         if (c.isReference()) {

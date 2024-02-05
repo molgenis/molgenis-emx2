@@ -501,7 +501,7 @@ public class RDFService {
     }
     final Namespace ns = getSchemaNamespace(metadata.getRootTable().getSchema());
     PrimaryKey key = new PrimaryKey(keyParts);
-    return Values.iri(ns, rootTableName + "/" + key.getEncodedValue());
+    return Values.iri(ns, rootTableName + "?" + key.getEncodedValue());
   }
 
   private List<IRI> getIriValue(final Row row, final Column column) {
@@ -536,7 +536,7 @@ public class RDFService {
 
     for (final var item : items.values()) {
       PrimaryKey key = new PrimaryKey(item);
-      iris.add(Values.iri(ns, rootTableName + "/" + key.getEncodedValue()));
+      iris.add(Values.iri(ns, rootTableName + "?" + key.getEncodedValue()));
     }
     return List.copyOf(iris);
   }

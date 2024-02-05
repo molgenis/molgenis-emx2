@@ -4,20 +4,22 @@ import static org.molgenis.emx2.FilterBean.and;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.molgenis.emx2.Filter;
+import org.molgenis.emx2.MolgenisException;
 
 class PrimaryKey {
 
-  public static final String NAME_VALUE_SEPARATOR = "&";
-  public static final String KEY_PARTS_SEPARATOR = ";";
+  public static final String NAME_VALUE_SEPARATOR = "=";
+  public static final String KEY_PARTS_SEPARATOR = "&";
   private final List<NameValuePair> keys;
 
   static PrimaryKey makePrimaryKeyFromEncodedKey(String encodedValue) {
-    Base64.Decoder decoder = Base64.getDecoder();
     String[] encodedPairs = encodedValue.split(KEY_PARTS_SEPARATOR);
     if (encodedPairs.length == 0) {
       throw new IllegalArgumentException("There must be at least one key.");
@@ -26,11 +28,10 @@ class PrimaryKey {
       for (var pair : encodedPairs) {
         var parts = pair.split(NAME_VALUE_SEPARATOR);
         if (parts.length != 2) {
-          throw new IllegalArgumentException(
-              "Can't decode the key, name value pair is incomplete.");
+          throw new MolgenisException("Can't decode the key, name value pair is incomplete.");
         }
-        var name = new String(decoder.decode(parts[0]), StandardCharsets.UTF_8);
-        var value = new String(decoder.decode(parts[1]), StandardCharsets.UTF_8);
+        var name = URLDecoder.decode(parts[0], StandardCharsets.UTF_8);
+        var value = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
         pairs.add(new BasicNameValuePair(name, value));
       }
       return new PrimaryKey(pairs);
@@ -45,16 +46,19 @@ class PrimaryKey {
   }
 
   String getEncodedValue() {
-    Base64.Encoder encoder = Base64.getEncoder();
-    List<String> encodedPairs = new ArrayList<>();
-    // Sort the list to have a stable order
-    var sortedList = keys.stream().sorted(new NameValuePairComparator()).toList();
-    for (var pair : sortedList) {
-      var name = encoder.encodeToString(pair.getName().getBytes(StandardCharsets.UTF_8));
-      var value = encoder.encodeToString(pair.getValue().getBytes(StandardCharsets.UTF_8));
-      encodedPairs.add(name + NAME_VALUE_SEPARATOR + value);
+    try {
+      List<String> encodedPairs = new ArrayList<>();
+      // Sort the list to have a stable order
+      var sortedList = keys.stream().sorted(new NameValuePairComparator()).toList();
+      for (var pair : sortedList) {
+        var name = URLEncoder.encode(pair.getName(), StandardCharsets.UTF_8.toString());
+        var value = URLEncoder.encode(pair.getValue(), StandardCharsets.UTF_8.toString());
+        encodedPairs.add(name + NAME_VALUE_SEPARATOR + value);
+      }
+      return String.join(KEY_PARTS_SEPARATOR, encodedPairs);
+    } catch (Exception e) {
+      throw new MolgenisException("Error encoding" + e);
     }
-    return String.join(KEY_PARTS_SEPARATOR, encodedPairs);
   }
 
   Filter getFilter() {
