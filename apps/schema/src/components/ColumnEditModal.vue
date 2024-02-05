@@ -48,6 +48,7 @@
                   v-model="column.columnType"
                   :options="columnTypes"
                   label="columnType"
+                  @update:modelValue="handleColumnTypeChanged"
                 />
               </div>
               <div
@@ -191,7 +192,7 @@
                       ? 'Use pattern like \'pre${mg_autoid}post\' to customize prefix/postfix of your auto id'
                       : 'When set only the input will be readonly and value computed using this formula'
                   "
-                  @update:modelValue="handleComputedUpdate()"
+                  @update:modelValue="handleComputedChanged()"
                 />
               </div>
             </div>
@@ -354,8 +355,6 @@ export default {
       // working value of the column (copy of the value)
       column: null,
       requiredSelect: false,
-      //the type options
-      columnTypes,
       //in case a refSchema has to be used for the table lookup
       refSchema: undefined,
       error: null,
@@ -364,6 +363,8 @@ export default {
       previewShow: false,
       previewData: {},
       rowErrors: {},
+      columnTypes,
+      AUTO_ID,
     };
   },
   computed: {
@@ -516,7 +517,9 @@ export default {
     setupRequiredSelect() {
       if (this.column.required === "true") {
         this.requiredSelect = true;
-      } else if (this.column.required === "condition") {
+      } else if (this.column.required === "false") {
+        this.requiredSelect = false;
+      } else if (this.column.required) {
         this.requiredSelect = "condition";
       } else {
         this.requiredSelect = false;
@@ -549,15 +552,25 @@ export default {
     checkForErrors() {
       this.rowErrors = getRowErrors(this.table, this.previewData);
     },
-    handleComputedUpdate() {
+    handleComputedChanged() {
       if (this.column.computed) {
         this.requiredSelect = false;
         delete this.column.required;
       }
     },
     handleRequiredSelectChanged() {
+      this.column.required = this.requiredSelect;
       if (this.requiredSelect) {
         delete this.column.computed;
+      }
+    },
+    handleColumnTypeChanged(newType) {
+      console.log(newType);
+      if (newType === AUTO_ID) {
+        this.requiredSelect = false;
+        delete this.column.required;
+        delete this.column.visible;
+        this.column.readonly = true;
       }
     },
   },
