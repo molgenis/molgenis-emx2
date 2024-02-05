@@ -424,7 +424,7 @@ Variable mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideall
 Variable mappings,,comments,text,,,,,,,,,additional notes and comments,"DataCatalogue,CohortStaging"
 Network variables,,,,,,,,,,,,Listing of the variables used in a network,DataCatalogue
 Network variables,,network,ref,1,TRUE,,Networks,,,,,,DataCatalogue
-Network variables,,variable,ref,1,TRUE,,Variables,,,,,,DataCatalogue
+Network variables,,variable,ref,1,TRUE,,All variables,,,,,,DataCatalogue
 Subcohort counts,,,,,,,,,,,,"Number of participants per subcohort age group, optionally divided per sex","DataCatalogue,CohortStaging"
 Subcohort counts,,subcohort,ref,1,TRUE,,Subcohorts,,,,,,"DataCatalogue,CohortStaging"
 Subcohort counts,,age group,ontology,1,TRUE,CatalogueOntologies,Age groups,,,,,,"DataCatalogue,CohortStaging"

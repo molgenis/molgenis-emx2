@@ -246,7 +246,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`"
       />
       <LandingCardPrimary
-        v-if="data.data.DataSources_agg.count > 0 && !cohortOnly"
+        v-if="!cohortOnly && data.data.DataSources_agg.count > 0"
         image="image-data-warehouse"
         title="Data sources"
         :description="
