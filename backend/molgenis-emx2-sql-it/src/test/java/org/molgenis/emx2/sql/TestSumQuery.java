@@ -83,6 +83,5 @@ public class TestSumQuery {
     assertTrue(json.contains("11")); // for Type b, Type b
     assertTrue(json.contains("23")); // for Type a, Type b
     assertTrue(json.contains("9")); // for Type b, Type a
-    System.out.println(json);
   }
 }
