@@ -20,6 +20,7 @@ public class TestLoaders {
   public static final String RD3_TEST = "RD3Test";
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
+  public static final String DCAT = "DCATTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
 
@@ -39,6 +40,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(RD3_TEST);
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
+    database.dropSchemaIfExists(DCAT);
     database.dropSchemaIfExists(PROJECT_MANAGER);
   }
 
@@ -113,5 +115,12 @@ public class TestLoaders {
     Schema ProjectManagerSchema = database.createSchema(PROJECT_MANAGER);
     AvailableDataModels.PROJECTMANAGER.install(ProjectManagerSchema, true);
     assertEquals(5, ProjectManagerSchema.getTableNames().size());
+  }
+
+  @Test
+  void test14DCATLoader() {
+    Schema DCATSchema = database.createSchema(DCAT);
+    AvailableDataModels.DCAT.install(DCATSchema, true);
+    assertEquals(10, DCATSchema.getTableNames().size());
   }
 }
