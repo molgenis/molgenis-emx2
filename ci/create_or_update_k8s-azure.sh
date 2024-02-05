@@ -24,8 +24,8 @@ fi
 sleep 15s
 kubectl create namespace $NAME
 helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
---set ingress.hosts[0].host=${NAME}.dev.molgenis.net \
---set spec.tls[0].hosts[0].host=${NAME}.dev.molgenis.net \
+--set ingress.hosts[0].host=${NAME}.dev.molgenis.org \
+--set spec.tls[0].hosts[0].host=${NAME}.dev.molgenis.org \
 --set adminPassword=admin \
 --set image.tag=${TAG_NAME} \
 --set image.repository=${REPO} \
@@ -34,6 +34,6 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set ssrCatalogue.image.tag=$TAG_NAME \
 --set ssrCatalogue.image.repository=$REPO2 \
 --set ssrCatalogue.environment.siteTitle="Preview Catalogue" \
---set ssrCatalogue.environment.apiBase=https://${NAME}.dev.molgenis.net/ \
+--set ssrCatalogue.environment.apiBase=https://${NAME}.dev.molgenis.org/ \
 --set catalogue.includeCatalogueDemo=true \
 --set directory.includeDirectoryDemo=true
