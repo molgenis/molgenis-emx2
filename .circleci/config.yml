@@ -105,15 +105,6 @@ jobs:
           docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
           docker push molgenis/ssr-catalogue-snapshot --all-tags
     
-
-    #After migrating to azure code below can be removed
-    - run:
-        name: deploy preview to rug
-        command: |
-          export $( cat build/ci.properties | xargs )
-          bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
-          bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
-
     - run:
         name: deploy preview to azure
         command: |
@@ -127,7 +118,7 @@ jobs:
           export $( cat build/ci.properties | xargs )
           curl -d "token=${SLACK_TOKEN}" \
           -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
-          PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.net" \
+          PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org" \
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage
 
@@ -188,13 +179,6 @@ jobs:
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
           fi
-
-    - run:
-        name: update rug demo server
-        command: |
-          export $( cat build/ci.properties | xargs )
-          bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
-          bash ci/create_or_update_k8s.sh "emx2" ${TAG_NAME}
 
     - run:
         name: update azure demo server
