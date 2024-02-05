@@ -61,9 +61,6 @@ public class TestSumQuery {
     final String json = query1.retrieveJSON();
     assertTrue(json.contains("N\": 28")); // for Type A
     assertTrue(json.contains("11")); // for Type B
-    System.out.println(json);
-
-    // todo filter example
   }
 
   @Test
@@ -74,9 +71,6 @@ public class TestSumQuery {
     final String json = query1.retrieveJSON();
     assertTrue(json.contains("N\": 37")); // for Type A
     assertTrue(json.contains("34")); // for Type B
-    System.out.println(json);
-
-    // todo filter example
   }
 
   @Test
