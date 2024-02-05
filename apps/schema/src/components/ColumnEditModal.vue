@@ -9,8 +9,8 @@
         <div class="column-scroll col">
           <Spinner v-if="loading" />
           <div v-else>
-            <MessageWarning v-if="column.drop"
-              >Marked for deletion
+            <MessageWarning v-if="column.drop">
+              Marked for deletion
             </MessageWarning>
             <MessageError v-if="error">{{ error }}</MessageError>
             <div class="row">
@@ -120,6 +120,7 @@
                   :options="[true, false, 'condition']"
                   v-model="requiredSelect"
                   description="Will give error unless field is filled in. Is not checked if not visible"
+                  @update:modelValue="handleRequiredSelectChanged"
                 />
                 <InputString
                   id="column_required"
@@ -180,13 +181,13 @@
                   description="When set only show when javascript expression is !null or !false. Example: other > 5"
                 />
               </div>
-              <div class="col-4" v-if="column.required === `false`">
+              <div class="col-4" v-if="!requiredSelect">
                 <InputText
                   id="column_computed"
                   v-model="column.computed"
                   label="computed"
                   :description="
-                    column.columnType == AUTO_ID
+                    column.columnType === AUTO_ID
                       ? 'Use pattern like \'pre${mg_autoid}post\' to customize prefix/postfix of your auto id'
                       : 'When set only the input will be readonly and value computed using this formula'
                   "
@@ -352,7 +353,7 @@ export default {
       modalVisible: false,
       // working value of the column (copy of the value)
       column: null,
-      requiredSelect: null,
+      requiredSelect: false,
       //the type options
       columnTypes,
       //in case a refSchema has to be used for the table lookup
@@ -515,10 +516,10 @@ export default {
     setupRequiredSelect() {
       if (this.column.required === "true") {
         this.requiredSelect = true;
-      } else if (this.column.required === "false") {
-        this.requiredSelect = false;
-      } else {
+      } else if (this.column.required === "condition") {
         this.requiredSelect = "condition";
+      } else {
+        this.requiredSelect = false;
       }
     },
     reset() {
@@ -526,10 +527,13 @@ export default {
       if (this.modelValue) {
         this.column = deepClone(this.modelValue);
       } else {
-        this.column = { table: this.tableName, columnType: "STRING" };
+        this.column = {
+          table: this.tableName,
+          columnType: "STRING",
+        };
       }
       //if reference to external schema
-      if (this.column.refSchema != undefined) {
+      if (this.column.refSchema !== undefined) {
         this.loadRefSchema();
       }
       this.setupRequiredSelect();
@@ -547,7 +551,13 @@ export default {
     },
     handleComputedUpdate() {
       if (this.column.computed) {
-        this.column.required = false;
+        this.column.requiredSelect = false;
+        delete this.column.required;
+      }
+    },
+    handleRequiredSelectChanged() {
+      if (this.requiredSelect) {
+        delete this.column.computed;
       }
     },
   },
