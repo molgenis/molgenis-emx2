@@ -43,6 +43,9 @@ postgres:
 catalogue:
   includeCatalogueDemo: false
 
+directory:
+  includeDirectoryDemo: false
+
 ssrCatalogue:
   image:
     repository: molgenis/ssr-catalogue-snapshot
