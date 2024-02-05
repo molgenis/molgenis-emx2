@@ -120,7 +120,6 @@
                   :options="[true, false, 'condition']"
                   v-model="requiredSelect"
                   description="Will give error unless field is filled in. Is not checked if not visible"
-                  @update:modelValue="setRequired"
                 />
                 <InputString
                   id="column_required"
@@ -181,7 +180,7 @@
                   description="When set only show when javascript expression is !null or !false. Example: other > 5"
                 />
               </div>
-              <div class="col-4">
+              <div class="col-4" v-if="column.required === `false`">
                 <InputText
                   id="column_computed"
                   v-model="column.computed"
@@ -191,6 +190,7 @@
                       ? 'Use pattern like \'pre${mg_autoid}post\' to customize prefix/postfix of your auto id'
                       : 'When set only the input will be readonly and value computed using this formula'
                   "
+                  @update:modelValue="handleComputedUpdate()"
                 />
               </div>
             </div>
@@ -272,11 +272,11 @@ import {
   Client,
   IconAction,
   InputBoolean,
+  InputRadio,
   InputSelect,
   InputString,
   InputText,
   InputTextLocalized,
-  InputRadio,
   LayoutForm,
   LayoutModal,
   MessageError,
@@ -287,13 +287,7 @@ import {
   getRowErrors,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
-import {
-  getLocalizedDescription,
-  getLocalizedLabel,
-  convertToPascalCase,
-  convertToCamelCase,
-  addTableIdsLabelsDescription,
-} from "../utils";
+import { addTableIdsLabelsDescription } from "../utils";
 
 const AUTO_ID = "AUTO_ID";
 
@@ -482,9 +476,7 @@ export default {
       this.reset();
       this.modalVisible = false;
     },
-    setRequired() {
-      this.column.required = this.requiredSelect;
-    },
+
     refLinkCandidates() {
       return this.table.columns
         .filter(
@@ -521,7 +513,6 @@ export default {
       this.loading = false;
     },
     setupRequiredSelect() {
-      console.log(this.column.required);
       if (this.column.required === "true") {
         this.requiredSelect = true;
       } else if (this.column.required === "false") {
@@ -553,6 +544,11 @@ export default {
     },
     checkForErrors() {
       this.rowErrors = getRowErrors(this.table, this.previewData);
+    },
+    handleComputedUpdate() {
+      if (this.column.computed) {
+        this.column.required = false;
+      }
     },
   },
   created() {
