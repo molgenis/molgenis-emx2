@@ -731,7 +731,8 @@ public class SqlQuery extends QueryBean {
                   String sumString =
                       schema.hasActiveUserRole(VIEWER.toString())
                           ? "SUM({0})"
-                          : "GREATEST({1},COUNT(*))";
+                          : "GREATEST({1},COUNT(*))"; // crude way to make less sensitive. May
+                  // consider a random function on top.
                   sumFields.add(
                       key(sub.getColumn())
                           .value(
