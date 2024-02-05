@@ -36,7 +36,7 @@ public class GraphqlTableFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name("url").type(Scalars.GraphQLString))
           .build();
-  final List<String> agg_fields = List.of("max", "min", "sum", "avg");
+  final List<String> agg_fields = List.of("max", "min", SUM_FIELD, "avg");
   private final Schema schema;
 
   // cache so we can reuse types between tables

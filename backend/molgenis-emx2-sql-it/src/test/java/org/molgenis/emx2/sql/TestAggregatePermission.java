@@ -4,8 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.AGGREGATOR;
 import static org.molgenis.emx2.SelectColumn.s;
-import static org.molgenis.emx2.sql.SqlQuery.AGGREGATE_COUNT_THRESHOLD;
-import static org.molgenis.emx2.sql.SqlQuery.COUNT_FIELD;
+import static org.molgenis.emx2.sql.SqlQuery.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -71,10 +70,9 @@ public class TestAggregatePermission {
 
       json =
           schema
-              .query("Pet_groupBy", s("count"), s("sum", s("weight")), s("tags", s("name")))
+              .query("Pet_groupBy", s(COUNT_FIELD), s(SUM_FIELD, s("weight")), s("tags", s("name")))
               .retrieveJSON();
-      assertFalse(json.contains("0.18")); // should not contain original values
-      assertTrue(json.contains("" + AGGREGATE_COUNT_THRESHOLD)); // should contain the threshold
+      assertTrue(json.contains("16.21")); // should be a sum of all 'green'
     } finally {
       AGGREGATE_COUNT_THRESHOLD =
           1; // no other tests affected, but reset just to make sure. Todo: later this becomes a

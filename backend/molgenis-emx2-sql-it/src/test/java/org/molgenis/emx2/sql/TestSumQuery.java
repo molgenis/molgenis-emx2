@@ -6,6 +6,7 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlQuery.SUM_FIELD;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,7 +57,7 @@ public class TestSumQuery {
   public void testSumQueryGroupByRef() {
     Table table = schema.getTable(SAMPLES).getMetadata().getTable();
     Query query1 = table.groupBy();
-    query1.select(s("sum", s(N)), s(TYPE, s(NAME)));
+    query1.select(s(SUM_FIELD, s(N)), s(TYPE, s(NAME)));
     final String json = query1.retrieveJSON();
     assertTrue(json.contains("N\": 28")); // for Type A
     assertTrue(json.contains("11")); // for Type B
@@ -69,7 +70,7 @@ public class TestSumQuery {
   public void testSumQueryGroupByRefArray() {
     Table table = schema.getTable(SAMPLES).getMetadata().getTable();
     Query query1 = table.groupBy();
-    query1.select(s("sum", s(N)), s(TYPE_ARRAY, s(NAME)));
+    query1.select(s(SUM_FIELD, s(N)), s(TYPE_ARRAY, s(NAME)));
     final String json = query1.retrieveJSON();
     assertTrue(json.contains("N\": 37")); // for Type A
     assertTrue(json.contains("34")); // for Type B
@@ -82,7 +83,7 @@ public class TestSumQuery {
   public void testCombination() {
     Table table = schema.getTable(SAMPLES).getMetadata().getTable();
     Query query1 = table.groupBy();
-    query1.select(s("sum", s(N)), s(TYPE_ARRAY, s(NAME)), s(TYPE, s(NAME)));
+    query1.select(s(SUM_FIELD, s(N)), s(TYPE_ARRAY, s(NAME)), s(TYPE, s(NAME)));
     final String json = query1.retrieveJSON();
     assertTrue(json.contains("N\": 28")); // for Type b, Type b
     assertTrue(json.contains("11")); // for Type b, Type b

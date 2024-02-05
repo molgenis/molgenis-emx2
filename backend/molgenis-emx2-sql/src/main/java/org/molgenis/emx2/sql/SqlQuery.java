@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
-  public static int AGGREGATE_COUNT_THRESHOLD = 1;
+  public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE; // threshold disabled by default
   public static final String COUNT_FIELD = "count";
   public static final String MAX_FIELD = "max";
   public static final String MIN_FIELD = "min";
@@ -727,17 +727,11 @@ public class SqlQuery extends QueryBean {
             .forEach(
                 sub -> {
                   Column col = getColumnByName(table, sub.getColumn());
-                  // if not  view permission then we obfuscate the sum if count is below threshold
-                  String sumString =
-                      schema.hasActiveUserRole(VIEWER.toString())
-                          ? "SUM({0})"
-                          : "GREATEST({1},COUNT(*))"; // crude way to make less sensitive. May
-                  // consider a random function on top.
                   sumFields.add(
                       key(sub.getColumn())
                           .value(
                               field(
-                                  sumString,
+                                  "SUM({0})",
                                   field(name(alias(subAlias), col.getName())),
                                   AGGREGATE_COUNT_THRESHOLD)));
                   nonArraySourceFields.add(col.getJooqField());

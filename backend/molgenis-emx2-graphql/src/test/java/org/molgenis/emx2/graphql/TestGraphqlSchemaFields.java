@@ -312,14 +312,14 @@ public class TestGraphqlSchemaFields {
     // root agg
     assertEquals(
         7,
-        execute("{Order_agg{max{quantity},min{quantity},sum{quantity},avg{quantity}}}")
+        execute("{Order_agg{max{quantity},min{quantity},_sum{quantity},avg{quantity}}}")
             .at("/Order_agg/max/quantity")
             .intValue());
 
     // nested agg
     assertEquals(
         15.7d,
-        execute("{User{pets_agg{count,max{weight},min{weight},sum{weight},avg{weight}}}}")
+        execute("{User{pets_agg{count,max{weight},min{weight},_sum{weight},avg{weight}}}}")
             .at("/User/0/pets_agg/max/weight")
             .doubleValue(),
         0.0f);
@@ -429,11 +429,11 @@ public class TestGraphqlSchemaFields {
         new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
 
     // refs
-    JsonNode result = execute("{Pet_groupBy{count,sum{weight},tagsTest{nameTest}}}");
+    JsonNode result = execute("{Pet_groupBy{count,_sum{weight},tagsTest{nameTest}}}");
 
     assertEquals(null, result.at("/Pet_groupBy/4/tagsTest/nameTest").textValue());
     assertEquals(1, result.at("/Pet_groupBy/4/count").intValue());
-    assertEquals(9.4d, result.at("/Pet_groupBy/4/sum/weight").doubleValue());
+    assertEquals(9.4d, result.at("/Pet_groupBy/4/_sum/weight").doubleValue());
 
     assertEquals("blue", result.at("/Pet_groupBy/0/tagsTest/nameTest").asText());
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
@@ -684,8 +684,8 @@ public class TestGraphqlSchemaFields {
       // aggregates should be working with spaces too
       JsonNode agg =
           execute(
-              "{PersonDetails_agg{sum{someNumber}avg{someNumber}min{someNumber}max{someNumber}}}");
-      assertEquals(6, agg.at("/PersonDetails_agg/sum/someNumber").asInt());
+              "{PersonDetails_agg{_sum{someNumber}avg{someNumber}min{someNumber}max{someNumber}}}");
+      assertEquals(6, agg.at("/PersonDetails_agg/_sum/someNumber").asInt());
       assertEquals(6, agg.at("/PersonDetails_agg/avg/someNumber").asInt());
       assertEquals(6, agg.at("/PersonDetails_agg/min/someNumber").asInt());
       assertEquals(6, agg.at("/PersonDetails_agg/max/someNumber").asInt());
