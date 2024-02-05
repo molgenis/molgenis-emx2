@@ -105,7 +105,7 @@ function setData() {
       type: "LINK",
       content: cohort?.designPaper
         ? designPaperToItem(cohort?.designPaper)
-        : undefined,
+        : undefined
     },
     {
       label: "PID",
