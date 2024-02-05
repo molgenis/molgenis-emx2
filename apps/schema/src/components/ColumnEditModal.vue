@@ -267,7 +267,7 @@
 }
 </style>
 
-<script>
+<script lang="ts">
 import {
   ButtonAction,
   ButtonAlt,
@@ -286,7 +286,7 @@ import {
   RowEdit,
   Spinner,
   deepClone,
-  getRowErrors,
+  getRowErrors, // @ts-ignore
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import { addTableIdsLabelsDescription } from "../utils";
@@ -353,16 +353,16 @@ export default {
       //if modal is visible
       modalVisible: false,
       // working value of the column (copy of the value)
-      column: null,
-      requiredSelect: false,
+      column: {} as Record<string, any>,
+      requiredSelect: false as boolean | string,
       //in case a refSchema has to be used for the table lookup
-      refSchema: undefined,
-      error: null,
-      client: null,
+      refSchema: undefined as undefined | any,
+      error: undefined,
+      client: null as any,
       loading: false,
       previewShow: false,
-      previewData: {},
-      rowErrors: {},
+      previewData: {} as Record<string, any>,
+      rowErrors: {} as Record<string, string>,
       columnTypes,
       AUTO_ID,
     };
@@ -371,7 +371,7 @@ export default {
     //current table object unedited
     originalTable() {
       return this.schema.tables.find(
-        (table) =>
+        (table: Record<string, any>) =>
           table.name === this.tableName ||
           table.name === this.column.table ||
           (table.subclasses && table.subclasses.includes(this.column.table))
@@ -382,7 +382,8 @@ export default {
       const table = deepClone(this.originalTable);
       //replace column with current changes
       const index = table.columns.findIndex(
-        (c) => c.name == this.column.name || c.name == this.column.oldName
+        (c: Record<string, any>) =>
+          c.name == this.column?.name || c.name == this.column?.oldName
       );
       // or if new, we add it
       if (index === -1) {
@@ -400,7 +401,7 @@ export default {
     schemaWithIdsLabelsAndDescriptions() {
       const schema = deepClone(this.schema);
       schema.id = schema.name;
-      schema.tables = schema.tables.map((table) => {
+      schema.tables = schema.tables.map((table: Record<string, any>) => {
         return addTableIdsLabelsDescription(table);
       });
       return schema;
@@ -408,7 +409,9 @@ export default {
     //listing of related subclasses, used to indicate if column is part of subclass
     subclassNames() {
       if (this.table?.subclasses) {
-        return this.table?.subclasses.map((subclass) => subclass.name);
+        return this.table?.subclasses.map(
+          (subclass: Record<string, any>) => subclass.name
+        );
       } else {
         return undefined;
       }
@@ -421,21 +424,21 @@ export default {
           this.column.columnType === "ONTOLOGY_ARRAY"
         ) {
           return this.refSchema.tables
-            .filter((t) => t.tableType === "ONTOLOGIES")
-            .map((t) => t.name);
+            .filter((t: Record<string, any>) => t.tableType === "ONTOLOGIES")
+            .map((t: Record<string, any>) => t.name);
         } else {
           return this.refSchema.tables
-            .filter((t) => t.tableType !== "ONTOLOGIES")
-            .map((t) => t.name);
+            .filter((t: Record<string, any>) => t.tableType !== "ONTOLOGIES")
+            .map((t: Record<string, any>) => t.name);
         }
       } else {
         if (
           this.column.columnType === "ONTOLOGY" ||
           this.column.columnType === "ONTOLOGY_ARRAY"
         ) {
-          return this.schema.ontologies.map((t) => t.name);
+          return this.schema.ontologies.map((t: Record<string, any>) => t.name);
         } else {
-          return this.schema.tables.map((t) => t.name);
+          return this.schema.tables.map((t: Record<string, any>) => t.name);
         }
       }
     },
@@ -449,8 +452,9 @@ export default {
       if (
         (this.modelValue === undefined ||
           this.modelValue.name !== this.column.name) &&
-        this.originalTable.columns?.filter((c) => c.name === this.column.name)
-          .length > 0
+        this.originalTable.columns?.filter(
+          (c: Record<string, any>) => c.name === this.column.name
+        ).length > 0
       ) {
         return "Name should be unique";
       } else {
@@ -482,32 +486,37 @@ export default {
     refLinkCandidates() {
       return this.table.columns
         .filter(
-          (c) =>
+          (c: Record<string, any>) =>
             (c.columnType === "REF" || c.columnType === "REF_ARRAY") &&
-            c.name !== this.modelValue.name
+            c.name !== this.modelValue?.name
         )
-        .map((c) => c.name);
+        .map((c: Record<string, any>) => c.name);
     },
-    refBackCandidates(fromTable, toTable) {
+    refBackCandidates(
+      fromTable: Record<string, any>,
+      toTable: Record<string, any>
+    ) {
       const schema =
         this.refSchema !== undefined ? this.refSchema : this.schema;
 
       const columns = schema.tables
-        .filter((t) => t.name === fromTable)
-        .map((t) => t.columns)[0];
+        .filter((t: Record<string, any>) => t.name === fromTable)
+        .map((t: Record<string, any>) => t.columns)[0];
       return columns
-        ?.filter((c) => c.refTableName === toTable)
-        .map((c) => c.name);
+        ?.filter((c: Record<string, any>) => c.refTableName === toTable)
+        .map((c: Record<string, any>) => c.name);
     },
-    async loadRefSchema() {
+    async loadRefSchema(): Promise<any> {
       this.error = undefined;
       this.loading = true;
       if (this.column.refSchemaName) {
         //todo, don't use client here because we need 'names' not 'ids'
         this.client = Client.newClient(this.column.refSchemaName);
-        const schema = await this.client.fetchSchemaMetaData().catch((e) => {
-          this.error = e;
-        });
+        const schema = await this.client
+          ?.fetchSchemaMetaData()
+          .catch((error: any) => {
+            this.error = error;
+          });
         this.refSchema = schema;
       } else {
         this.refSchema = {};
@@ -542,7 +551,7 @@ export default {
       this.setupRequiredSelect();
       this.modalVisible = false;
     },
-    isEditable(column) {
+    isEditable(column: Record<string, any>) {
       return (
         column.columnType !== "CONSTANT" &&
         !column.computed &&
@@ -564,8 +573,7 @@ export default {
         delete this.column.computed;
       }
     },
-    handleColumnTypeChanged(newType) {
-      console.log(newType);
+    handleColumnTypeChanged(newType: string) {
       if (newType === AUTO_ID) {
         this.requiredSelect = false;
         delete this.column.required;
