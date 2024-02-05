@@ -565,6 +565,7 @@ export default {
       if (this.column.computed) {
         this.requiredSelect = false;
         delete this.column.required;
+        delete this.column.validation;
       }
     },
     handleRequiredSelectChanged() {
