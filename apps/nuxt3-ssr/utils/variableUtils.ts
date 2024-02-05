@@ -1,4 +1,4 @@
-import { IVariableBase } from "~/interfaces/types";
+import type { IVariableBase } from "~/interfaces/types";
 
 export const getKey = (variable: IVariableBase) => {
   return {

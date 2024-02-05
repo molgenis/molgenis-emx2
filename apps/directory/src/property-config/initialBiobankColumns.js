@@ -13,6 +13,7 @@ export const initialBiobankColumns = [
     column: {
       quality: [{ quality_standard: ["name"] }],
     },
+    type: "quality",
     showOnBiobankCard: true,
   },
   {

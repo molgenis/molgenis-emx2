@@ -37,7 +37,7 @@ Main title shown in landing page
 Description text or subtitle shown on 
 
 #### default
-"Browse and manage metadata for data resources, such as cohorts, registries, biobanks, and multi-center collaborations thereof such as networks, common data models and studies."
+"Browse and manage metadata for data resources, such as cohorts, registries, bio-banks, and multi-center collaborations thereof such as networks, common data models and studies."
 
 
 ### Landing page cta (call to action) labels

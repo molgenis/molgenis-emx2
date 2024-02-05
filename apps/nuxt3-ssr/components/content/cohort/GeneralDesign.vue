@@ -104,6 +104,10 @@ function setData() {
       content: mainMedicalCondition,
       type: "ONTOLOGY",
     },
+    {
+      label: "PID",
+      content: cohort?.pid,
+    },
   ];
 }
 </script>
