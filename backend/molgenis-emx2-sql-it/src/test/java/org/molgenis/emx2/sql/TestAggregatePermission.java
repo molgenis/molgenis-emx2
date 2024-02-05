@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.AGGREGATOR;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.sql.SqlQuery.AGGREGATE_COUNT_THRESHOLD;
 import static org.molgenis.emx2.sql.SqlQuery.COUNT_FIELD;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -57,14 +58,28 @@ public class TestAggregatePermission {
   }
 
   @Test
-  public void testAggregatorCanGroupByCountWithMinimum10() throws JsonProcessingException {
-    String json = schema.query("Pet_groupBy", s("count"), s("tags", s("name"))).retrieveJSON();
-    Map<String, List<Map<String, Object>>> result = new ObjectMapper().readValue(json, Map.class);
-    List<Integer> counts =
-        result.get("Pet_groupBy").stream()
-            .map(object -> (Integer) object.get(COUNT_FIELD))
-            .toList();
-    counts.forEach(count -> assertEquals(count, 10));
+  public void testAggregatorPermissionGroupByThresholds() throws JsonProcessingException {
+    try {
+      AGGREGATE_COUNT_THRESHOLD = 5;
+      String json = schema.query("Pet_groupBy", s("count"), s("tags", s("name"))).retrieveJSON();
+      Map<String, List<Map<String, Object>>> result = new ObjectMapper().readValue(json, Map.class);
+      List<Integer> counts =
+          result.get("Pet_groupBy").stream()
+              .map(object -> (Integer) object.get(COUNT_FIELD))
+              .toList();
+      counts.forEach(count -> assertEquals(count, AGGREGATE_COUNT_THRESHOLD));
+
+      json =
+          schema
+              .query("Pet_groupBy", s("count"), s("sum", s("weight")), s("tags", s("name")))
+              .retrieveJSON();
+      assertFalse(json.contains("0.18")); // should not contain original values
+      assertTrue(json.contains("" + AGGREGATE_COUNT_THRESHOLD)); // should contain the threshold
+    } finally {
+      AGGREGATE_COUNT_THRESHOLD =
+          1; // no other tests affected, but reset just to make sure. Todo: later this becomes a
+      // setting.
+    }
   }
 
   @Test

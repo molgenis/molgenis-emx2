@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
+  public static int AGGREGATE_COUNT_THRESHOLD = 1;
   public static final String COUNT_FIELD = "count";
-  public static final String GROUPBY_FIELD = "groupBy";
   public static final String MAX_FIELD = "max";
   public static final String MIN_FIELD = "min";
   public static final String AVG_FIELD = "avg";
@@ -710,24 +710,35 @@ public class SqlQuery extends QueryBean {
     Set<Field> groupByFields = new HashSet<>(); // name, ref{otherName}, etc
     Set<Field> nonArraySourceFields = new HashSet<>(); // xo x, name, except those from ref_array
     List<SelectConnectByStep> refArraySubqueries = new ArrayList<>(); // for the ref_array columns
+
     for (SelectColumn field : groupBy.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
         if (schema.hasActiveUserRole(VIEWER.toString())) {
           aggregationFields.add(field("COUNT(*)"));
         } else {
-          aggregationFields.add(field("GREATEST({0},COUNT(*))", 10L).as(COUNT_FIELD));
+          aggregationFields.add(
+              field("GREATEST({0},COUNT(*))", AGGREGATE_COUNT_THRESHOLD).as(COUNT_FIELD));
         }
       } else if (SUM_FIELD.equals(field.getColumn())) {
         List sumFields = new ArrayList<>();
-        // todo add minimal sum value permission check
+        // sum precision depends on count
         field
             .getSubselect()
             .forEach(
                 sub -> {
                   Column col = getColumnByName(table, sub.getColumn());
+                  // if not  view permission then we obfuscate the sum if count is below threshold
+                  String sumString =
+                      schema.hasActiveUserRole(VIEWER.toString())
+                          ? "SUM({0})"
+                          : "GREATEST({1},COUNT(*))";
                   sumFields.add(
                       key(sub.getColumn())
-                          .value(field("SUM({0})", field(name(alias(subAlias), col.getName())))));
+                          .value(
+                              field(
+                                  sumString,
+                                  field(name(alias(subAlias), col.getName())),
+                                  AGGREGATE_COUNT_THRESHOLD)));
                   nonArraySourceFields.add(col.getJooqField());
                 });
         aggregationFields.add(jsonObject(sumFields).as(field.getColumn()));
