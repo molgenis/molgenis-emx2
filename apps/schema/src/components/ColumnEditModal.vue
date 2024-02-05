@@ -551,7 +551,7 @@ export default {
     },
     handleComputedUpdate() {
       if (this.column.computed) {
-        this.column.requiredSelect = false;
+        this.requiredSelect = false;
         delete this.column.required;
       }
     },
