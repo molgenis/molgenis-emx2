@@ -127,7 +127,7 @@ jobs:
           export $( cat build/ci.properties | xargs )
           curl -d "token=${SLACK_TOKEN}" \
           -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
-          PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org" \
+          PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.net" \
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage
 
