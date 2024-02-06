@@ -31,6 +31,10 @@ export default defineConfig(() => {
           target: host,
           ...opts,
         },
+        "^/[a-zA-Z0-9_.%-]+/api/file": {
+          target: host,
+          ...opts,
+        },
         "/api": {
           target: `${host}/api`,
           ...opts,

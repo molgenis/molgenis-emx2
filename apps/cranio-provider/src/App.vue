@@ -13,7 +13,7 @@
           :subtitle="provider.name"
           :imageSrc="
             provider.image
-              ? `${provider.image.url}.${provider.image.extension}`
+              ? `${provider.image.url}`
               : 'banner-diagnoses.jpg'
           "
         />
