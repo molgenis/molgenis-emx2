@@ -27,7 +27,7 @@ if (catalogueRouteParam === "all" || props.catalogue.cohorts_agg?.count > 0)
   });
 if (
   (!cohortOnly.value && catalogueRouteParam === "all") ||
-  props.catalogue.dataSources_agg?.count > 0
+  (!cohortOnly.value && props.catalogue.dataSources_agg?.count > 0)
 )
   menu.push({
     label: "Data sources",
