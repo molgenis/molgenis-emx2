@@ -2,6 +2,7 @@ package org.molgenis.emx2.datamodels.profiles;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
@@ -41,39 +42,42 @@ public class RetrieveAllProfiles {
     return allSchemas;
   }
 
+  /**
+   * Soft merge means that regular schema consistency checks are bypassed when putting all schemas
+   * from profiles together. The schema as a whole may not be valid, in fact, it should not be
+   * considered a valid importable EMX2 schema. This merge is useful to create documentation
+   * instead.
+   */
   public SchemaMetadata getSoftMergedFullSchema() throws Exception {
     if (this.allSchemas == null) {
       retrieveAllSchemas();
     }
-    if(allSchemas.size() == 0)
-    {
+    if (allSchemas.size() == 0) {
       throw new Exception("No schemas available for merging");
     }
     SchemaMetadata mergedSchema = null;
-
-    for(SchemaMetadata schemaMetadata : allSchemas)
-    {
-      if(mergedSchema==null)
-      {
+    for (SchemaMetadata schemaMetadata : allSchemas) {
+      if (mergedSchema == null) {
         mergedSchema = schemaMetadata;
-      }
-      else{
-        for(TableMetadata tableMetadata : schemaMetadata.getTables())
-        {
-          if(!mergedSchema.getTableNames().contains(schemaMetadata.getName()))
-          {
-            mergedSchema.addTable(schemaMetadata.getName(), tableMetadata);
+      } else {
+        for (TableMetadata tableMetadata : schemaMetadata.getTables()) {
+          String tableName = tableMetadata.getTableName();
+          // add table to schema simply by name, may miss tables with the same name
+          if (!mergedSchema.getTableNames().contains(tableName)) {
+            mergedSchema.addTable(tableName, tableMetadata);
           }
-          else{
-            if(mergedSchema.getTableMetadata())
-            // add columns to table
+          // add columns to table simply by name, may miss columns with the same name
+          for (Column column : tableMetadata.getColumns()) {
+            if (!mergedSchema
+                .getTableMetadata(tableName)
+                .getColumnNames()
+                .contains(column.getName())) {
+              mergedSchema.getTableMetadata(tableName).add(column);
+            }
           }
         }
-
-
       }
     }
-
     return mergedSchema;
   }
 

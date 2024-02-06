@@ -3,7 +3,6 @@ package org.molgenis.emx2.datamodels;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Scanner;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.datamodels.profiles.ProfileDocGen;
@@ -13,7 +12,7 @@ class TestProfileDocGen {
   private static final String TESTFILE = "testdoc.md";
 
   @Test
-  void testProfileDocGen() throws IOException {
+  void testProfileDocGen() throws Exception {
     new ProfileDocGen(TESTFILE).makeDocs();
     File testFile = new File(TESTFILE);
     StringBuilder fileContentsSB = new StringBuilder();

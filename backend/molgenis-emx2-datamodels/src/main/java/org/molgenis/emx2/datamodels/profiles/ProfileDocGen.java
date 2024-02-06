@@ -2,22 +2,16 @@ package org.molgenis.emx2.datamodels.profiles;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 
 public record ProfileDocGen(String outputFile) {
 
   private static final String LE = System.lineSeparator();
 
-  public void makeDocs() throws IOException {
-    Map<String,List<Row>> fullSchema = new SchemaFromProfile().createRowsPerTable(false);
+  public void makeDocs() throws Exception {
+    // Map<String,List<Row>> fullSchema = new SchemaFromProfile().createRowsPerTable(false);
     RetrieveAllProfiles ap = new RetrieveAllProfiles();
+    SchemaMetadata fullSchema = ap.getSoftMergedFullSchema();
 
     FileWriter fw = new FileWriter(this.outputFile);
     try (BufferedWriter bw = new BufferedWriter(fw)) {
@@ -26,7 +20,7 @@ public record ProfileDocGen(String outputFile) {
       bw.write(LE);
       bw.write(
           "The complete EMX2 data model contains %s tables and XX columns. There are %s application profiles drawing from this model by using XX profile tags."
-                  .formatted(fullSchema.size(), ap.getAllProfiles().size())
+                  .formatted(fullSchema.getTableNames().size(), ap.getAllProfiles().size())
               + LE);
       bw.write(LE);
       bw.write("## Application profiles" + LE);
@@ -84,7 +78,7 @@ public record ProfileDocGen(String outputFile) {
     }
   }
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws Exception {
     new ProfileDocGen("emx2-profile-doc.md").makeDocs();
   }
 }
