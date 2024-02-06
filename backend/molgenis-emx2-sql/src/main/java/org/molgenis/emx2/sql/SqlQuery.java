@@ -1390,13 +1390,7 @@ public class SqlQuery extends QueryBean {
     }
     // is scalar column
     Column column = table.getColumn(columnName);
-    if (column == null
-        || (isRowQuery
-            && column.isReference()
-            && column.getReferences().stream()
-                .filter(ref -> ref.getName().equals(column))
-                .findAny()
-                .isPresent())) {
+    if (column == null || (isRowQuery && column.isReference())) {
       // is reference?
       for (Column c : table.getColumns()) {
         if (c.isReference()) {
