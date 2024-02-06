@@ -49,7 +49,9 @@ public record ProfileDocGen(String outputFile) {
                         table.getSemantics() != null
                             ? (String.join(", ", table.getSemantics()))
                             : "n/a",
-                        (String.join(", ", table.getProfiles())),
+                        table.getProfiles() != null
+                            ? (String.join(", ", table.getProfiles()))
+                            : "NO PROFILES FOR TABLE",
                         table.getColumns().size())
                 + LE);
       }
