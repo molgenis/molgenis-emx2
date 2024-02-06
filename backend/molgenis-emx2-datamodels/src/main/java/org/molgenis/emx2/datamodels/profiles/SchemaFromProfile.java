@@ -50,18 +50,17 @@ public class SchemaFromProfile {
     return create(true);
   }
 
-  public Map<String,List<Row>> createRowsPerTable() throws MolgenisException {
+  public Map<String, List<Row>> createRowsPerTable() throws MolgenisException {
     return createRowsPerTable(true);
   }
 
-    public Map<String,List<Row>> createRowsPerTable(boolean filterByProfiles) throws MolgenisException {
+  public Map<String, List<Row>> createRowsPerTable(boolean filterByProfiles)
+      throws MolgenisException {
     List<Row> createRows = createRows(filterByProfiles);
-    Map<String,List<Row>> rowsPerTable = new HashMap<>();
-    for(Row row : createRows)
-    {
+    Map<String, List<Row>> rowsPerTable = new HashMap<>();
+    for (Row row : createRows) {
       String tableName = row.getString("tableName");
-      if(!rowsPerTable.containsKey(tableName))
-      {
+      if (!rowsPerTable.containsKey(tableName)) {
         rowsPerTable.put(tableName, new ArrayList<>());
       }
       rowsPerTable.get(tableName).add(row);
