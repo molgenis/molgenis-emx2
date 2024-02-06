@@ -15,10 +15,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 
 public class TestCompositeForeignKeys {
   private Database database;
@@ -136,7 +133,7 @@ public class TestCompositeForeignKeys {
     assertTrue(result.contains("Duck"));
 
     // composite key filter
-    result =
+    Query q =
         schema
             .query("Person")
             .select(s("firstName"), s("lastName"))
@@ -146,12 +143,14 @@ public class TestCompositeForeignKeys {
                     "uncle",
                     or(
                         and(f("firstName", EQUALS, "Donald"), f("lastName", EQUALS, "Duck")),
-                        and(f("firstName", EQUALS, "Mickey"), f("lastName", EQUALS, "Mouse")))))
-            .retrieveJSON();
-
+                        and(f("firstName", EQUALS, "Mickey"), f("lastName", EQUALS, "Mouse")))));
+    result = q.retrieveJSON();
     System.out.println(result);
     assertTrue(result.contains("Kwik"));
     assertFalse(result.contains("Mouse"));
+
+    List<Row> rows = q.retrieveRows(); // test that nested queries also work
+    assertEquals(3, rows.size());
 
     // refback
     schema

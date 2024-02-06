@@ -805,7 +805,7 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/bmFtZQ==&Y2F0");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category?name=cat");
     given()
         .sessionId(SESSION_ID)
         .expect()

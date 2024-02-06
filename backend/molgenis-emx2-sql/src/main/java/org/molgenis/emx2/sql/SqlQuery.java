@@ -1037,7 +1037,10 @@ public class SqlQuery extends QueryBean {
                   .toList()));
     } else {
       Column column = getColumnByName(table, filters.getColumn());
-      if (column.isReference() && column.getReferences().size() > 1) {
+      if (column.isReference()
+          && ((column.getReferences().size() > 1 && column.getRefLink() == null)
+              || column.getReferences().size() > 2)
+          && filters.getSubfilters().isEmpty()) {
         throw new MolgenisException(
             "Filter of '"
                 + column.getName()
@@ -1382,7 +1385,12 @@ public class SqlQuery extends QueryBean {
     }
     // is scalar column
     Column column = table.getColumn(columnName);
-    if (column == null || (column.isReference() && column.getReferences().size() > 1)) {
+    if (column == null
+        || (column.isReference()
+            && column.getReferences().stream()
+                .filter(ref -> ref.getName().equals(column))
+                .findAny()
+                .isPresent())) {
       // is reference?
       for (Column c : table.getColumns()) {
         if (c.isReference()) {

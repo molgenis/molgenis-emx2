@@ -15,7 +15,7 @@ public class PrimaryKeyTest {
 
   public static final BasicNameValuePair LAST_KEY = new BasicNameValuePair("last", "value1");
   public static final BasicNameValuePair FIRST_KEY = new BasicNameValuePair("first", "value2");
-  public static final String ENCODED_KEY = "Zmlyc3Q=&dmFsdWUy;bGFzdA==&dmFsdWUx";
+  public static final String ENCODED_KEY = "first=value2&last=value1";
 
   public static final Filter FIRST_KEY_FILTER = f("first", EQUALS, "value2");
   public static final Filter LAST_KEY_FILTER = f("last", EQUALS, "value1");

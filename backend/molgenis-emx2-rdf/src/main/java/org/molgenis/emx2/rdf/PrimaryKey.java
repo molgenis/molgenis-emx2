@@ -28,7 +28,8 @@ class PrimaryKey {
       for (var pair : encodedPairs) {
         var parts = pair.split(NAME_VALUE_SEPARATOR);
         if (parts.length != 2) {
-          throw new MolgenisException("Can't decode the key, name value pair is incomplete.");
+          throw new IllegalArgumentException(
+              "Can't decode the key, name value pair is incomplete.");
         }
         var name = URLDecoder.decode(parts[0], StandardCharsets.UTF_8);
         var value = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);

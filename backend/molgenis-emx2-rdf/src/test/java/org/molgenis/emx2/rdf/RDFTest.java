@@ -35,7 +35,7 @@ public class RDFTest {
    * their values separately. Column names and values are separated by an ampersand and multiple
    * column / value pairs by a semicolon. Colums are sorted alphabetically for a stable order.
    */
-  public static final String POOKY_ROWID = "bmFtZQ==&cG9va3k=";
+  public static final String POOKY_ROWID = "name=pooky";
 
   static Database database;
   static List<Schema> petStoreSchemas;
@@ -267,7 +267,7 @@ public class RDFTest {
     var subjectWithCompositeKey =
         "http://localhost:8080/"
             + compositeKeyTest.getName()
-            + "/api/rdf/Samples/aWQ=&c2FtcGxlMQ==;cGF0aWVudC5maXJzdE5hbWU=&RG9uYWxk;cGF0aWVudC5sYXN0TmFtZQ==&RHVjaw==";
+            + "/api/rdf/Samples?id=sample1&patient.firstName=Donald&patient.lastName=Duck";
     var iris = handler.resources.keySet().stream().map(Objects::toString).toList();
     assertTrue(
         iris.contains(subjectWithCompositeKey),
@@ -278,11 +278,10 @@ public class RDFTest {
   void testThatRowCanBeFetchedByCompositeKey() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     // Encoded version of patient.firstName=Donald & patient.lastName=Duck & id=sample1
-    var rowId =
-        "aWQ=&c2FtcGxlMQ==;cGF0aWVudC5maXJzdE5hbWU=&RG9uYWxk;cGF0aWVudC5sYXN0TmFtZQ==&RHVjaw==";
+    var rowId = "id=sample2&patient.firstName=Donald&patient.lastName=Duck";
     getAndParseRDF(Selection.ofRow(compositeKeyTest, "Samples", rowId), handler);
     var subjectWithCompositeKey =
-        "http://localhost:8080/" + compositeKeyTest.getName() + "/api/rdf/Samples/" + rowId;
+        "http://localhost:8080/" + compositeKeyTest.getName() + "/api/rdf/Samples?" + rowId;
     var iris = handler.resources.keySet().stream().map(Objects::toString).toList();
     assertTrue(
         iris.contains(subjectWithCompositeKey),
@@ -399,7 +398,7 @@ public class RDFTest {
     getAndParseRDF(Selection.of(ontologyTest), handler);
     var subject =
         Values.iri(
-            "http://localhost:8080/OntologyTest/api/rdf/Diseases/bmFtZQ==&QzAwLUMxNCBNYWxpZ25hbnQgbmVvcGxhc21zIG9mIGxpcCwgb3JhbCBjYXZpdHkgYW5kIHBoYXJ5bng=");
+            "http://localhost:8080/OntologyTest/api/rdf/Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx");
 
     var parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
     assertEquals(

@@ -2,6 +2,7 @@ package org.molgenis.emx2.rdf;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.RDFUtils.*;
@@ -166,14 +167,20 @@ public class RDFService {
         builder.setNamespace(ns);
       }
 
-      describeRoot(builder);
+      if (table == null) {
+        describeRoot(builder);
+      }
 
       for (final Schema schema : schemas) {
-        describeSchema(builder, schema);
+        if (table == null) {
+          describeSchema(builder, schema);
+        }
         final List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();
         for (final Table tableToDescribe : tables) {
-          describeTable(builder, tableToDescribe);
-          describeColumns(builder, tableToDescribe, columnName);
+          if (rowId == null) {
+            describeTable(builder, tableToDescribe);
+            describeColumns(builder, tableToDescribe, columnName);
+          }
           // if a column name is provided then only provide column metadata, no row values
           if (columnName == null) {
             rowsToRdf(builder, tableToDescribe, rowId);
@@ -292,7 +299,7 @@ public class RDFService {
   private void describeColumns(
       final ModelBuilder builder, final Table table, final String columnName) {
     if (table.getMetadata().getTableType() == TableType.DATA) {
-      for (final Column column : table.getMetadata().getColumns()) {
+      for (final Column column : table.getMetadata().getNonInheritedColumns()) {
         // Exclude the system columns like mg_insertedBy
         if (column.isSystemColumn()) {
           continue;
@@ -309,13 +316,6 @@ public class RDFService {
   private IRI getColumnIRI(final Column column) {
     TableMetadata table = column.getTable();
     Schema schema = table.getTable().getSchema();
-    final Database db = schema.getDatabase();
-    while (table.getLocalColumn(column.getName()) == null) {
-      var inherited = table.getInheritedTable();
-      // Don't use the copy from the inherited table metadata, because that might not be complete.
-      schema = db.getSchema(inherited.getSchemaName());
-      table = schema.getTable(inherited.getTableName()).getMetadata();
-    }
     final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(table.getIdentifier());
     final String columnName = UrlEscapers.urlPathSegmentEscaper().escape(column.getIdentifier());
     final Namespace ns = getSchemaNamespace(schema);
@@ -394,7 +394,7 @@ public class RDFService {
    * @param table the table for which to fetch the rows
    * @param rowId optional rowId
    */
-  public void rowsToRdf(final ModelBuilder builder, final Table table, final String rowId) {
+  public void rowsToRdf(final ModelBuilder builder, Table table, final String rowId) {
     final IRI tableIRI = getTableIRI(table);
     for (final Row row : getRows(table, rowId)) {
       IRI subject = getIriForRow(row, table.getMetadata());
@@ -434,7 +434,10 @@ public class RDFService {
         builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
         builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
         builder.add(subject, RDFS.LABEL, Values.literal(getLabelForRow(row, table.getMetadata())));
-
+        // via rowId might be subclass
+        if (rowId != null) {
+          table = getSubclassTable(table, row);
+        }
         for (final Column column : table.getMetadata().getColumns()) {
           // Exclude the system columns like mg_insertedBy
           if (column.isSystemColumn()) {
@@ -454,6 +457,20 @@ public class RDFService {
     }
   }
 
+  private static Table getSubclassTable(Table table, Row row) {
+    if (row.getString(MG_TABLECLASS) != null
+        && (row.getSchemaName().equals(table.getSchema().getName())
+            || row.getTableName().equals(table.getName()))) {
+      table =
+          table
+              .getSchema()
+              .getDatabase()
+              .getSchema(row.getSchemaName())
+              .getTable(row.getTableName());
+    }
+    return table;
+  }
+
   private String getLabelForRow(final Row row, final TableMetadata metadata) {
     List<String> primaryKeyValues = new ArrayList<>();
     for (Column column : metadata.getPrimaryKeyColumns()) {
@@ -469,18 +486,26 @@ public class RDFService {
     return String.join(" ", primaryKeyValues);
   }
 
-  private List<Row> getRows(final Table table, final String rowId) {
+  private List<Row> getRows(Table table, final String rowId) {
     Query query = table.query();
     if (rowId != null) {
+      // first find from root table
       PrimaryKey key = PrimaryKey.makePrimaryKeyFromEncodedKey(rowId);
-      query.where(key.getFilter());
+      List<Row> oneRow = query.where(key.getFilter()).retrieveRows();
+      // if subclass
+      if (oneRow.size() == 1 && oneRow.get(0).getString(MG_TABLECLASS) != null) {
+        Row row = oneRow.get(0);
+        table = getSubclassTable(table, row);
+        return table.query().where(key.getFilter()).retrieveRows();
+      }
+      return oneRow;
+    } else {
+      if (table.getMetadata().getColumnNames().contains("mg_tableclass")) {
+        var tableName = table.getSchema().getName() + "." + table.getName();
+        query.where(f("mg_tableclass", EQUALS, tableName));
+      }
+      return query.retrieveRows();
     }
-    // If a table is extended then we get only those rows that are for the base table.
-    if (table.getMetadata().getColumnNames().contains("mg_tableclass")) {
-      var tableName = table.getSchema().getName() + "." + table.getName();
-      query.where(f("mg_tableclass", EQUALS, tableName));
-    }
-    return query.retrieveRows();
   }
 
   private IRI getIriForRow(final Row row, final TableMetadata metadata) {
