@@ -11,7 +11,7 @@ from . import utils
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
-                         PermissionDeniedException, TokenSigninException)
+                         PermissionDeniedException, TokenSigninException, NonExistentTemplateException)
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
@@ -629,6 +629,9 @@ class Client:
             if 'permission denied' in message:
                 log.error("Insufficient permissions for this operations.")
                 raise PermissionDeniedException("Insufficient permissions for this operations.")
+            if 'AvailableDataModels' in message:
+                log.error("Selected template does not exist.")
+                raise NonExistentTemplateException("Selected template does not exist.")
             log.error(message)
             raise GraphQLException(message)
 

@@ -51,3 +51,7 @@ class PermissionDeniedException(PyclientException):
 
 class TokenSigninException(PyclientException):
     """Thrown when sign in is attempted on a client that is authorized with a token."""
+
+
+class NonExistentTemplateException(PyclientException):
+    """Thrown when creation of schema with non-existent template is attempted."""
