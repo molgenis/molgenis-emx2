@@ -1036,15 +1036,15 @@ public class SqlQuery extends QueryBean {
                   .map(f -> whereConditionsFilter(table, tableAlias, f))
                   .toList()));
     } else {
-      Column column = getColumnByName(table, filters.getColumn());
+      Column column =
+          getColumnByName(table, filters.getColumn(), filters.getSubfilters().isEmpty());
       if (column.isReference()
-          && ((column.getReferences().size() > 1 && column.getRefLink() == null)
-              || column.getReferences().size() > 2)
+          && column.getReferences().size() > 1
           && filters.getSubfilters().isEmpty()) {
         throw new MolgenisException(
             "Filter of '"
                 + column.getName()
-                + " not supported for compound key, use individual elements.");
+                + " not supported for compound key, use individual elements or nested filters.");
       }
       if (!filters.getSubfilters().isEmpty()) {
         for (Filter subfilter : filters.getSubfilters()) {
@@ -1379,6 +1379,11 @@ public class SqlQuery extends QueryBean {
   }
 
   private static Column getColumnByName(TableMetadata table, String columnName) {
+    return getColumnByName(table, columnName, false);
+  }
+
+  private static Column getColumnByName(
+      TableMetadata table, String columnName, boolean isRowQuery) {
     // is search?
     if (TEXT_SEARCH_COLUMN_NAME.equals(columnName)) {
       return new Column(table, searchColumnName(table.getTableName()));
@@ -1386,7 +1391,8 @@ public class SqlQuery extends QueryBean {
     // is scalar column
     Column column = table.getColumn(columnName);
     if (column == null
-        || (column.isReference()
+        || (isRowQuery
+            && column.isReference()
             && column.getReferences().stream()
                 .filter(ref -> ref.getName().equals(column))
                 .findAny()
