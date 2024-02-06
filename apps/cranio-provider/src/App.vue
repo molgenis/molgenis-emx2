@@ -12,7 +12,9 @@
           title="ERN CRANIO Registry"
           :subtitle="provider.name"
           :imageSrc="
-            provider.image ? `${provider.image.url}.${provider.image.extension}` : 'banner-diagnoses.jpg'
+            provider.image
+              ? `${provider.image.url}.${provider.image.extension}`
+              : 'banner-diagnoses.jpg'
           "
         />
         <PageSection
