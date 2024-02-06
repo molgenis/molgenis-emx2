@@ -12,6 +12,7 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
@@ -415,7 +416,9 @@ public class RDFTest {
             column("id", ColumnType.STRING).setKey(1),
             column("website", ColumnType.HYPERLINK)));
     schema.create(table("Extended Resources").setInheritName("Resources"));
-    schema.create(table("Data Resources").setInheritName("Extended Resources"));
+    Table dataResources =
+        schema.create(table("Data Resources", column("data")).setInheritName("Extended Resources"));
+
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(schema), handler);
     // The table Data Resources extends Extended Resources, which extends Resources.
@@ -437,6 +440,24 @@ public class RDFTest {
     assertFalse(
         handler.resources.containsKey(websitePredicateDR),
         "There should not be a predicate for the column in the Data Resources table");
+
+    dataResources.insert(row("id", "demo1", "data", "my data"));
+    getAndParseRDF(Selection.ofRow(schema, "Resources", "id=demo1"), handler);
+    var columnPredicate =
+        Values.iri("http://localhost:8080/iriTest/api/rdf/DataResources/column/data");
+    assertTrue(
+        handler.resources.containsKey(columnPredicate), "should include the subclass column");
+    var dataValue =
+        ((Literal)
+                handler
+                    .resources
+                    .get(Values.iri("http://localhost:8080/iriTest/api/rdf/Resources?id=demo1"))
+                    .get(
+                        Values.iri(
+                            "http://localhost:8080/iriTest/api/rdf/DataResources/column/data"))
+                    .toArray()[0])
+            .stringValue();
+    assertEquals("my data", dataValue);
     database.dropSchema(schema.getName());
   }
 
