@@ -1,0 +1,11 @@
+{
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "strict": true,
+    "isolatedModules": true,
+    "allowJs": true,
+    "types": ["vite/client"],
+    "lib": ["es2015"]
+  }
+}

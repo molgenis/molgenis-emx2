@@ -110,7 +110,7 @@ let search = computed(() => {
   return filters.find((f) => f.columnType === "_SEARCH").search;
 });
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+let graphqlURL = computed(() => `/${route.params.schema}/graphql`);
 
 const orderby = { label: "ASC" };
 const typeFilter = { resource: { mg_tableclass: { like: ["Models"] } } };
@@ -129,9 +129,8 @@ async function loadPageData() {
       let resourceCondition = {};
       if (scoped) {
         const { data, error } = await $fetch(
-          `/${route.params.schema}/catalogue/graphql`,
+          `/${route.params.schema}/graphql`,
           {
-            baseURL: config.public.apiBase,
             method: "POST",
             body: {
               query: `
@@ -175,7 +174,6 @@ async function loadPageData() {
 
       return $fetch(graphqlURL.value, {
         key: `variables-${offset.value}`,
-        baseURL: config.public.apiBase,
         method: "POST",
         body: {
           query: query.value,

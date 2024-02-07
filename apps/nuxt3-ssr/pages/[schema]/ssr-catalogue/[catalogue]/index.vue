@@ -110,8 +110,7 @@ const dataSourcesFilter = scoped
 const { data, error } = await useAsyncData<any, IMgError>(
   `lading-page-${catalogueRouteParam}`,
   async () => {
-    const models = await $fetch(`/${route.params.schema}/catalogue/graphql`, {
-      baseURL: config.public.apiBase,
+    const models = await $fetch(`/${route.params.schema}/graphql`, {
       method: "POST",
       body: {
         query: `
@@ -136,8 +135,7 @@ const { data, error } = await useAsyncData<any, IMgError>(
         }
       : undefined;
 
-    return $fetch(`/${route.params.schema}/catalogue/graphql`, {
-      baseURL: config.public.apiBase,
+    return $fetch(`/${route.params.schema}/graphql`, {
       method: "POST",
       body: {
         query,
@@ -246,7 +244,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`"
       />
       <LandingCardPrimary
-        v-if="data.data.DataSources_agg.count > 0 && !cohortOnly"
+        v-if="!cohortOnly && data.data.DataSources_agg.count > 0"
         image="image-data-warehouse"
         title="Data sources"
         :description="

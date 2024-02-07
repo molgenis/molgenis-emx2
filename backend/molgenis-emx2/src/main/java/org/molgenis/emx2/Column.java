@@ -375,6 +375,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return field(name(getName()), getJooqType());
   }
 
+  public List<Field> getCompositeFields() {
+    if (this.isReference()) {
+      return getReferences().stream().map(ref -> ref.getJooqField()).toList();
+    } else {
+      return List.of(getJooqField());
+    }
+  }
+
   public org.jooq.Table getJooqTable() {
     return getTable().getJooqTable();
   }

@@ -229,13 +229,11 @@ public class TestCompositeForeignKeys {
                 .select(s("count"), s("nephew", s("firstName"), s("lastName")))
                 .retrieveJSON(),
             Map.class);
-    // kwik,kwek,kwak don't have nephew
-    assertEquals(3, map.get("Person_groupBy").get(0).get("count"));
-    // kwak is nephew to one uncle
-    assertEquals(1, map.get("Person_groupBy").get(1).get("count"));
+    assertEquals(3, map.get("Person_groupBy").get(4).get("count"));
+    assertEquals(1, map.get("Person_groupBy").get(0).get("count"));
     assertEquals(
         "Kwak",
-        ((Map<String, String>) map.get("Person_groupBy").get(1).get("nephew")).get("firstName"));
+        ((Map<String, String>) map.get("Person_groupBy").get(0).get("nephew")).get("firstName"));
   }
 
   @Test
@@ -356,14 +354,14 @@ public class TestCompositeForeignKeys {
                 .select(s("count"), s("uncles", s("firstName"), s("lastName")))
                 .retrieveJSON(),
             Map.class);
-    assertEquals(2, map.get("Person_groupBy").get(1).get("count"));
+    assertEquals(2, map.get("Person_groupBy").get(0).get("count"));
     assertEquals(
         "Donald",
-        ((Map<String, String>) map.get("Person_groupBy").get(1).get("uncles")).get("firstName"));
-    assertEquals(1, map.get("Person_groupBy").get(2).get("count"));
+        ((Map<String, String>) map.get("Person_groupBy").get(0).get("uncles")).get("firstName"));
+    assertEquals(1, map.get("Person_groupBy").get(1).get("count"));
     assertEquals(
         "Mickey",
-        ((Map<String, String>) map.get("Person_groupBy").get(2).get("uncles")).get("firstName"));
+        ((Map<String, String>) map.get("Person_groupBy").get(1).get("uncles")).get("firstName"));
 
     // and kwik = 2 uncles, and kwok = 1 uncles
     map =
@@ -372,13 +370,13 @@ public class TestCompositeForeignKeys {
                 .select(s("count"), s("cousins", s("firstName"), s("lastName")))
                 .retrieveJSON(),
             Map.class);
-    assertEquals(2, map.get("Person_groupBy").get(1).get("count"));
+    assertEquals(2, map.get("Person_groupBy").get(0).get("count"));
     assertEquals(
         "Kwik",
-        ((Map<String, String>) map.get("Person_groupBy").get(1).get("cousins")).get("firstName"));
-    assertEquals(1, map.get("Person_groupBy").get(2).get("count"));
+        ((Map<String, String>) map.get("Person_groupBy").get(0).get("cousins")).get("firstName"));
+    assertEquals(1, map.get("Person_groupBy").get(1).get("count"));
     assertEquals(
         "Kwok",
-        ((Map<String, String>) map.get("Person_groupBy").get(2).get("cousins")).get("firstName"));
+        ((Map<String, String>) map.get("Person_groupBy").get(1).get("cousins")).get("firstName"));
   }
 }
