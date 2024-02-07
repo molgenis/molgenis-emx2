@@ -11,8 +11,6 @@ import com.google.common.net.UrlEscapers;
 import java.io.OutputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
@@ -436,7 +434,9 @@ public class RDFService {
         builder.add(subject, RDFS.LABEL, Values.literal(getLabelForRow(row, table.getMetadata())));
         // via rowId might be subclass
         if (rowId != null) {
-          table = getSubclassTable(table, row);
+          // because row IRI point to root tables we need to find actual subclass table to ensure we
+          // get all columns
+          table = getSubclassTableForRowBasedOnMgTableclass(table, row);
         }
         for (final Column column : table.getMetadata().getColumns()) {
           // Exclude the system columns like mg_insertedBy
@@ -457,10 +457,8 @@ public class RDFService {
     }
   }
 
-  private static Table getSubclassTable(Table table, Row row) {
-    if (row.getString(MG_TABLECLASS) != null
-        && (row.getSchemaName().equals(table.getSchema().getName())
-            || row.getTableName().equals(table.getName()))) {
+  private static Table getSubclassTableForRowBasedOnMgTableclass(Table table, Row row) {
+    if (row.getString(MG_TABLECLASS) != null) {
       table =
           table
               .getSchema()
@@ -495,12 +493,12 @@ public class RDFService {
       // if subclass
       if (oneRow.size() == 1 && oneRow.get(0).getString(MG_TABLECLASS) != null) {
         Row row = oneRow.get(0);
-        table = getSubclassTable(table, row);
+        table = getSubclassTableForRowBasedOnMgTableclass(table, row);
         return table.query().where(key.getFilter()).retrieveRows();
       }
       return oneRow;
     } else {
-      if (table.getMetadata().getColumnNames().contains("mg_tableclass")) {
+      if (table.getMetadata().getColumnNames().contains(MG_TABLECLASS)) {
         var tableName = table.getSchema().getName() + "." + table.getName();
         query.where(f("mg_tableclass", EQUALS, tableName));
       }
@@ -511,17 +509,17 @@ public class RDFService {
   private IRI getIriForRow(final Row row, final TableMetadata metadata) {
     final String rootTableName =
         UrlEscapers.urlPathSegmentEscaper().escape(metadata.getRootTable().getIdentifier());
-    final List<NameValuePair> keyParts = new ArrayList<>();
+    final Map<String, String> keyParts = new LinkedHashMap<>();
     for (final Column column : metadata.getPrimaryKeyColumns()) {
       if (column.isReference()) {
         for (final Reference reference : column.getReferences()) {
           final String[] values = row.getStringArray(reference.getName());
           for (final String value : values) {
-            keyParts.add(new BasicNameValuePair(reference.getName(), value));
+            keyParts.put(reference.getName(), value);
           }
         }
       } else {
-        keyParts.add(new BasicNameValuePair(column.getIdentifier(), row.get(column).toString()));
+        keyParts.put(column.getIdentifier(), row.get(column).toString());
       }
     }
     final Namespace ns = getSchemaNamespace(metadata.getRootTable().getSchema());
@@ -536,24 +534,24 @@ public class RDFService {
     final Namespace ns = getSchemaNamespace(target.getRootTable().getSchema());
 
     final Set<IRI> iris = new HashSet<>();
-    final Map<Integer, List<NameValuePair>> items = new HashMap<>();
+    final Map<Integer, Map<String, String>> items = new HashMap<>();
     for (final Reference reference : column.getReferences()) {
       final String localColumn = reference.getName();
-      final String targetColumn = reference.getPath().get(0);
+      final String targetColumn = reference.getRefTo();
       if (column.isArray()) {
         final String[] values = row.getStringArray(localColumn);
         if (values != null) {
           for (int i = 0; i < values.length; i++) {
-            var keyValuePairs = items.getOrDefault(i, new ArrayList<>());
-            keyValuePairs.add(new BasicNameValuePair(targetColumn, values[i]));
+            var keyValuePairs = items.getOrDefault(i, new LinkedHashMap<>());
+            keyValuePairs.put(targetColumn, values[i]);
             items.put(i, keyValuePairs);
           }
         }
       } else {
         final String value = row.getString(localColumn);
         if (value != null) {
-          var keyValuePairs = items.getOrDefault(0, new ArrayList<>());
-          keyValuePairs.add(new BasicNameValuePair(targetColumn, value));
+          var keyValuePairs = items.getOrDefault(0, new LinkedHashMap<>());
+          keyValuePairs.put(targetColumn, value);
           items.put(0, keyValuePairs);
         }
       }
