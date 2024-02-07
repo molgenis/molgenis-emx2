@@ -65,13 +65,13 @@ The user roles on MOLGENIS EMX2 and their respective permissions are described i
 client.schema_names
 ```
 
-Returns a list of the names of the schemas for which the user has at least _viewer_ permissions.
+A property that returns a list of the names of the schemas for which the user has at least _viewer_ permissions.
 
 ### status
 ```python
 client.status
 ```
-The `status` property returns a string with information, including the server URL, the user (if applicable), the sign-in status, the version of MOLGENIS EMX2 running on the server, and the result of `schema_names`.
+A property that returns a string with information, including the server URL, the user (if applicable), the sign-in status, the version of MOLGENIS EMX2 running on the server, and the result of `schema_names`.
 
 
 ### get_schemas
