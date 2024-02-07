@@ -43,6 +43,7 @@ export async function applyFiltersToQuery(
         baseQuery.orFilter("collections.id").like(filterValue);
         baseQuery.orFilter("collections.name").like(filterValue);
         baseQuery.orFilter("collections.acronym").like(filterValue);
+        baseQuery.orFilter("collections.biobank.name").like(filterValue);
         baseQuery
           .orFilter("collections.diagnosis_available.name")
           .like(filterValue);
