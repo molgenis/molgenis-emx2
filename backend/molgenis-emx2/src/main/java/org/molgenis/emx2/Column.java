@@ -249,21 +249,33 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public boolean isRequired() {
-    return required != null && required.equalsIgnoreCase("true");
+    return this.computed == null && required != null && required.equalsIgnoreCase("true");
   }
 
   public Column setRequired(Boolean required) {
-    this.required = required.toString();
+    if (this.computed == null) {
+      this.required = required.toString();
+    } else {
+      this.required = "false";
+    }
     return this;
   }
 
   public Column setRequired(String required) {
-    this.required = required;
+    if (this.computed == null) {
+      this.required = required;
+    } else {
+      this.required = "false";
+    }
     return this;
   }
 
   public String getRequired() {
-    return this.required;
+    if (this.computed != null) {
+      return "false";
+    } else {
+      return this.required;
+    }
   }
 
   public boolean isConditionallyRequired() {
