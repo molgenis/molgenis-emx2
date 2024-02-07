@@ -104,15 +104,6 @@ public class RDFService {
     } else {
       this.baseURL = baseURL.trim() + "/";
     }
-    // Ensure that the stored rdfAPIPath has a leading and trailing "/" so we
-    // can use it easily to construct URL paths.
-    String temp = rdfAPIPath.trim();
-    if (!temp.startsWith("/")) {
-      temp = "/" + temp;
-    }
-    if (!temp.endsWith("/")) {
-      temp = temp + "/";
-    }
     this.rdfFormat = format == null ? RDFFormat.TURTLE : format;
 
     this.config = new WriterConfig();
