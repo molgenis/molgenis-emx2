@@ -113,8 +113,8 @@
                 />
               </div>
             </div>
-            <div class="row">
-              <div class="col-4" v-if="isEditable(column)">
+            <div class="row" v-if="isEditable(column)">
+              <div class="col-4">
                 <InputRadio
                   id="column_required_radio"
                   label="required"
@@ -129,14 +129,14 @@
                   v-if="requiredSelect === 'condition'"
                 />
               </div>
-              <div class="col-4" v-if="isEditable(column)">
+              <div class="col-4">
                 <InputBoolean
                   id="column_readonly"
                   v-model="column.readonly"
                   label="isReadonly"
                 />
               </div>
-              <div class="col-4" v-if="isEditable(column)">
+              <div class="col-4">
                 <InputString
                   id="column_default"
                   v-model="column.defaultValue"
@@ -145,7 +145,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
+              <div class="col-4">
                 <InputSelect
                   id="column_key"
                   v-model="column.key"
@@ -552,11 +552,7 @@ export default {
       this.modalVisible = false;
     },
     isEditable(column: Record<string, any>) {
-      return (
-        column.columnType !== "CONSTANT" &&
-        !column.computed &&
-        column.columnType !== AUTO_ID
-      );
+      return !column.computed && column.columnType !== AUTO_ID;
     },
     checkForErrors() {
       this.rowErrors = getRowErrors(this.table, this.previewData);
@@ -566,6 +562,7 @@ export default {
         this.requiredSelect = false;
         delete this.column.required;
         delete this.column.validation;
+        delete this.column.defaultValue;
       }
     },
     handleRequiredSelectChanged() {
@@ -579,7 +576,8 @@ export default {
         this.requiredSelect = false;
         delete this.column.required;
         delete this.column.visible;
-        this.column.readonly = true;
+        delete this.column.validation;
+        delete this.column.defaultValue;
       }
     },
   },
