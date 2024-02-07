@@ -1,6 +1,7 @@
-package org.molgenis.emx2.sql;
+package org.molgenis.emx2.graphql;
 
 import static graphql.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Row.row;
@@ -8,10 +9,15 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.SqlQuery.SUM_FIELD;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import graphql.ExecutionResult;
+import graphql.GraphQL;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestSumQuery {
   private static final String TEST_SUM_QUERY = "TestSumQuery";
@@ -59,7 +65,7 @@ public class TestSumQuery {
     Query query1 = table.groupBy();
     query1.select(s(SUM_FIELD, s(N)), s(TYPE, s(NAME)));
     final String json = query1.retrieveJSON();
-    assertTrue(json.contains("N\": 28")); // for Type A
+    assertTrue(json.contains("n\": 28")); // for Type A
     assertTrue(json.contains("11")); // for Type B
   }
 
@@ -69,19 +75,62 @@ public class TestSumQuery {
     Query query1 = table.groupBy();
     query1.select(s(SUM_FIELD, s(N)), s(TYPE_ARRAY, s(NAME)));
     final String json = query1.retrieveJSON();
-    assertTrue(json.contains("N\": 37")); // for Type A
+    // note, should return identifier not name of column as key!
+    assertTrue(json.contains("n\": 37")); // for Type A
     assertTrue(json.contains("34")); // for Type B
   }
 
   @Test
-  public void testCombination() {
+  public void testCombination() throws JsonProcessingException {
     Table table = schema.getTable(SAMPLES).getMetadata().getTable();
     Query query1 = table.groupBy();
     query1.select(s(SUM_FIELD, s(N)), s(TYPE_ARRAY, s(NAME)), s(TYPE, s(NAME)));
-    final String json = query1.retrieveJSON();
-    assertTrue(json.contains("N\": 28")); // for Type b, Type b
+    String json = query1.retrieveJSON();
+    assertTrue(json.contains("n\": 28")); // for Type b, Type b
     assertTrue(json.contains("11")); // for Type b, Type b
     assertTrue(json.contains("23")); // for Type a, Type b
     assertTrue(json.contains("9")); // for Type b, Type a
+
+    // test that the graphql also works
+    GraphQL graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
+    ExecutionResult result =
+        graphql.execute(
+            """
+            {Samples_groupBy {
+              count
+              _sum {
+                n
+              }
+              gender {
+                name
+              }
+            }}
+            """);
+    json = JsonUtil.getWriter().writeValueAsString(result.toSpecification().get("data"));
+    assertEquals(
+        """
+{
+  "Samples_groupBy" : [
+    {
+      "count" : 2,
+      "_sum" : {
+        "n" : 14
+      },
+      "gender" : {
+        "name" : "F"
+      }
+    },
+    {
+      "count" : 2,
+      "_sum" : {
+        "n" : 25
+      },
+      "gender" : {
+        "name" : "M"
+      }
+    }
+  ]
+}""",
+        json);
   }
 }
