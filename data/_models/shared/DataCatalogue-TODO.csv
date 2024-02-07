@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Version,,,,,,,,,,,,3.10,"DataCatalogue,EMA,SharedStaging,CohortStaging"
+Version,,,,,,,,,,,,3.11,"DataCatalogue,EMA,SharedStaging,CohortStaging"
 Catalogues,,,,,,,,,,,,A collection of resources within a network or consortium or about a common topic,DataCatalogue
 Catalogues,,network,ref,1,TRUE,,Networks,,,,,Network or consortium that leads this catalogue,DataCatalogue
 Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,,Type of catalogue,DataCatalogue
@@ -194,7 +194,7 @@ Studies,,networks other,text,,,,,,,,,List the names of any other networks that a
 RWE resources,,networks,refback,,,,Networks,,data sources,,,List of networks that this datasource is associated with,"DataCatalogue,EMA"
 RWE resources,,studies,refback,,,,Studies,,data sources,,,List of studies that this datasource is associated with,"DataCatalogue,EMA"
 Publications,,,,,,,,,,,,Publications following bibtex format,"DataCatalogue,CohortStaging"
-Publications,,doi,,1,TRUE,,,,,,,Digital object identifier,"DataCatalogue,EMA,CohortStaging"
+Publications,,doi,hyperlink,1,TRUE,,,,,,,Digital object identifier,"DataCatalogue,EMA,CohortStaging"
 Publications,,title,text,,,,,,,,,Publication title,"DataCatalogue,EMA,CohortStaging"
 Publications,,authors,string_array,,,,,,,,,"List of authors, one entry per author",DataCatalogue
 Publications,,year,int,,,,,,,,,"Year of publication (or, if unpublished, year of creation)",DataCatalogue
@@ -424,7 +424,7 @@ Variable mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideall
 Variable mappings,,comments,text,,,,,,,,,additional notes and comments,"DataCatalogue,CohortStaging"
 Network variables,,,,,,,,,,,,Listing of the variables used in a network,DataCatalogue
 Network variables,,network,ref,1,TRUE,,Networks,,,,,,DataCatalogue
-Network variables,,variable,ref,1,TRUE,,Variables,,,,,,DataCatalogue
+Network variables,,variable,ref,1,TRUE,,All variables,,,,,,DataCatalogue
 Subcohort counts,,,,,,,,,,,,"Number of participants per subcohort age group, optionally divided per sex","DataCatalogue,CohortStaging"
 Subcohort counts,,subcohort,ref,1,TRUE,,Subcohorts,,,,,,"DataCatalogue,CohortStaging"
 Subcohort counts,,age group,ontology,1,TRUE,CatalogueOntologies,Age groups,,,,,,"DataCatalogue,CohortStaging"

@@ -17,7 +17,7 @@ const cohortOnly = computed(() => {
   return routeSetting == "true" || config.public.cohortOnly;
 });
 
-const query = `query MyQuery($networksFilter:NetworksFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CohortsFilter,$subcohortsFilter:SubcohortsFilter,$dataSourcesFilter:DataSourcesFilter){
+const query = `query CataloguePage($networksFilter:NetworksFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CohortsFilter,$subcohortsFilter:SubcohortsFilter,$dataSourcesFilter:DataSourcesFilter){
         Networks(filter:$networksFilter) {
               id,
               acronym,
@@ -224,7 +224,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         one of the content categories listed below.</template
       >
       <template v-else v-slot:description
-        ><ReadMore>{{ description }}</ReadMore></template
+        ><ContentReadMore>{{ description }}</ContentReadMore></template
       >
     </PageHeader>
 
@@ -246,7 +246,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`"
       />
       <LandingCardPrimary
-        v-if="data.data.DataSources_agg.count > 0 && !cohortOnly"
+        v-if="!cohortOnly && data.data.DataSources_agg.count > 0"
         image="image-data-warehouse"
         title="Data sources"
         :description="

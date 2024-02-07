@@ -54,11 +54,13 @@ public class ProfileLoader extends AbstractDataLoader {
     Schema ontoSchema;
     if (profiles.getOntologiesToFixedSchema() != null) {
       ontoSchema = createSchema(profiles.getOntologiesToFixedSchema(), schema.getDatabase());
-      if (profiles.getSetViewPermission() != null) {
-        ontoSchema.addMember(profiles.getSetViewPermission(), Privileges.VIEWER.toString());
+      if (profiles.getSetFixedSchemaViewPermission() != null) {
+        ontoSchema.addMember(
+            profiles.getSetFixedSchemaViewPermission(), Privileges.VIEWER.toString());
       }
-      if (profiles.getSetEditPermission() != null) {
-        ontoSchema.addMember(profiles.getSetEditPermission(), Privileges.EDITOR.toString());
+      if (profiles.getSetFixedSchemaEditPermission() != null) {
+        ontoSchema.addMember(
+            profiles.getSetFixedSchemaEditPermission(), Privileges.EDITOR.toString());
       }
     } else {
       ontoSchema = schema;
