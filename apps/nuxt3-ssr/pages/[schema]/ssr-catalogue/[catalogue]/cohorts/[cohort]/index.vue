@@ -394,7 +394,6 @@ if (route.params.catalogue) {
         />
 
         <ContentCohortGeneralDesign
-          v-if="mainMedicalConditions?.length"
           id="GeneralDesign"
           title="General Design"
           :description="cohort?.designDescription"

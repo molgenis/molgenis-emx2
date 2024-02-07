@@ -100,15 +100,18 @@ function setData() {
       }),
     },
     {
-      label: "Main medical condition",
-      content: mainMedicalCondition,
-      type: "ONTOLOGY",
-    },
-    {
       label: "PID",
       content: cohort?.pid,
     },
   ];
+
+  if (mainMedicalCondition && mainMedicalCondition.length > 0) {
+    generalDesign.splice(generalDesign.length - 2, 0, {
+      label: "Main medical condition",
+      content: mainMedicalCondition,
+      type: "ONTOLOGY",
+    });
+  }
 }
 </script>
 

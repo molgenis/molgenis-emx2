@@ -19,7 +19,7 @@ spec:
     {{- range .Values.ingress.hosts }}
   - hosts: 
     - {{ .host | quote }}
-    secretName: tls-secret
+    secretName: {{ .host | quote }}
 
   rules:
 
