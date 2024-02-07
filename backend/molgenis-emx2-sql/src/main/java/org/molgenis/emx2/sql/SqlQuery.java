@@ -728,7 +728,7 @@ public class SqlQuery extends QueryBean {
                 sub -> {
                   Column col = getColumnByName(table, sub.getColumn());
                   sumFields.add(
-                      key(sub.getColumn())
+                      key(col.getIdentifier())
                           .value(
                               field(
                                   "SUM({0})",
