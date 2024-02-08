@@ -57,16 +57,16 @@
           </label>
         </div>
       </div>
-      <div v-if="canEdit" class="m-1">
+      <div class="m-1">
         <RowButtonAdd
           id="add-entry"
+          v-if="canEdit"
           :label="`Add new ${label}`"
           :tableId="tableId"
           :schemaId="schemaId"
           @update:newRow="selectNew"
+          class="mr-1"
         />
-      </div>
-      <div class="m-1">
         <ButtonOutline
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           icon="fa fa-search"
