@@ -32,7 +32,7 @@ const query = `query CataloguePage($networksFilter:NetworksFilter,$variablesFilt
         }
         Cohorts_agg(filter:$cohortsFilter) {
           count
-          sum {
+          _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples
           }
@@ -110,8 +110,7 @@ const dataSourcesFilter = scoped
 const { data, error } = await useAsyncData<any, IMgError>(
   `lading-page-${catalogueRouteParam}`,
   async () => {
-    const models = await $fetch(`/${route.params.schema}/catalogue/graphql`, {
-      baseURL: config.public.apiBase,
+    const models = await $fetch(`/${route.params.schema}/graphql`, {
       method: "POST",
       body: {
         query: `
@@ -136,8 +135,7 @@ const { data, error } = await useAsyncData<any, IMgError>(
         }
       : undefined;
 
-    return $fetch(`/${route.params.schema}/catalogue/graphql`, {
-      baseURL: config.public.apiBase,
+    return $fetch(`/${route.params.schema}/graphql`, {
       method: "POST",
       body: {
         query,
@@ -305,12 +303,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
     <LandingSecondary>
       <LandingCardSecondary
         icon="people"
-        v-if="data.data.Cohorts_agg?.sum?.numberOfParticipants"
+        v-if="data.data.Cohorts_agg?._sum?.numberOfParticipants"
       >
         <b>
           {{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg?.sum?.numberOfParticipants
+              data.data.Cohorts_agg?._sum?.numberOfParticipants
             )
           }}
           {{
@@ -331,12 +329,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 
       <LandingCardSecondary
         icon="colorize"
-        v-if="data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples"
+        v-if="data.data.Cohorts_agg?._sum?.numberOfParticipantsWithSamples"
       >
         <b
           >{{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples
+              data.data.Cohorts_agg?._sum?.numberOfParticipantsWithSamples
             )
           }}
           {{
