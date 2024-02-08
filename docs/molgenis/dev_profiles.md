@@ -39,12 +39,14 @@ The most common options for profiles are:
 
 In addition, more specialized options can be used:
 
-| Option                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ontologiesToFixedSchema     | Load any ontologies into a separate schema with the specified name.                                                                                                                                                                                                                                                                                                                                                                                  |
-| setViewPermission           | Apply view permissions to specified user or role to the imported schema and ontologies. Includes the schema specified by ontologiesToFixedSchema.                                                                                                                                                                                                                                                                                                    |
-| setEditPermission           | Apply editor permissions to specified user or role to the imported schema and ontologies. Includes the schema specified by ontologiesToFixedSchema.                                                                                                                                                                                                                                                                                                  |
-| firstCreateSchemasIfMissing | Before creating the schema and ontologies specified by this profile, import one more more other profiles first. Required 3 additional properties to be provided: name, profile and importDemoData. Name specified the name under which the other profile should be imported. Profile points to the profile YAML file. Lastly, importDemoData is either true or false and specified whether the demo data for this profile should be imported or not. |
+| Option                       | Description                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+|------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| setViewPermission            | Apply view permissions to specified user or role to the imported schema.                                                                                                                                                                                                                                                                                                                                                                             |
+| setEditPermission            | Apply editor permissions to specified user or role to the imported schema.                                                                                                                                                                                                                                                                                                                                                                           |
+| ontologiesToFixedSchema      | Load any ontologies into a separate schema with the specified name.                                                                                                                                                                                                                                                                                                                                                                                  |
+| setFixedSchemaViewPermission | Apply view permissions to specified user or role to the the schema specified by ontologiesToFixedSchema.                                                                                                                                                                                                                                                                                                                                             |
+| setFixedSchemaEditPermission | Apply editor permissions to specified user or role to the the schema specified by ontologiesToFixedSchema.                                                                                                                                                                                                                                                                                                                                           |
+| firstCreateSchemasIfMissing  | Before creating the schema and ontologies specified by this profile, import one more more other profiles first. Required 3 additional properties to be provided: name, profile and importDemoData. Name specified the name under which the other profile should be imported. Profile points to the profile YAML file. Lastly, importDemoData is either true or false and specified whether the demo data for this profile should be imported or not. |
 
 ## Complete example
 
@@ -59,9 +61,14 @@ demoData: _demodata/applications/datacatalogue_sharedstaging
 settings: _settings/datacatalogue_sharedstaging
 
 # special options
-ontologiesToFixedSchema: CatalogueOntologies
+
 setViewPermission: anonymous
 setEditPermission: user
+
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous
+setFixedSchemaEditPermission: user
+
 firstCreateSchemasIfMissing:
   - name: catalogue
     profile: _profiles/DataCatalogue.yaml

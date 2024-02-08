@@ -42,6 +42,8 @@ spec:
               value: jdbc:postgresql://localhost/{{ .Values.database.name }}
             - name: MOLGENIS_INCLUDE_CATALOGUE_DEMO
               value: {{ .Values.catalogue.includeCatalogueDemo | quote }}
+            - name: MOLGENIS_INCLUDE_DIRECTORY_DEMO
+              value: {{ .Values.directory.includeDirectoryDemo | quote }}
 {{- if .Values.oidc.enabled  }}
             - name: MOLGENIS_OIDC_CLIENT_ID
               value: {{ .Values.oidc.client_id }}
