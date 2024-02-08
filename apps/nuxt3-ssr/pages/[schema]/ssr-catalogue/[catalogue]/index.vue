@@ -32,7 +32,7 @@ const query = `query CataloguePage($networksFilter:NetworksFilter,$variablesFilt
         }
         Cohorts_agg(filter:$cohortsFilter) {
           count
-          sum {
+          _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples
           }
@@ -303,12 +303,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
     <LandingSecondary>
       <LandingCardSecondary
         icon="people"
-        v-if="data.data.Cohorts_agg?.sum?.numberOfParticipants"
+        v-if="data.data.Cohorts_agg?._sum?.numberOfParticipants"
       >
         <b>
           {{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg?.sum?.numberOfParticipants
+              data.data.Cohorts_agg?._sum?.numberOfParticipants
             )
           }}
           {{
@@ -329,12 +329,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 
       <LandingCardSecondary
         icon="colorize"
-        v-if="data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples"
+        v-if="data.data.Cohorts_agg?._sum?.numberOfParticipantsWithSamples"
       >
         <b
           >{{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples
+              data.data.Cohorts_agg?._sum?.numberOfParticipantsWithSamples
             )
           }}
           {{
