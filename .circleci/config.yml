@@ -204,6 +204,7 @@ jobs:
       - checkout
       - run: npm i -D @playwright/test
       - run: npx playwright install chrome
+      - run: sleep 300
       - run:
           command: | 
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
