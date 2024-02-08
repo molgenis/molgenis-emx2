@@ -212,6 +212,7 @@ Example usage of `simplePostClient` as a default value expression.
 
 ```
 =(function () {
+
   let result = simplePostClient(
     `query Visits_synostosis( $filter:Visits_synostosisFilter, $orderby:Visits_synostosisorderby ) { Visits_synostosis( filter:$filter, limit:20, offset:0, orderby:$orderby ) { suture {name, label} mg_insertedOn }}`,
     {
@@ -219,9 +220,11 @@ Example usage of `simplePostClient` as a default value expression.
       orderby: { mg_insertedOn: "ASC" },
     }
   );
+
   return {
     name: result?.Visits_synostosis[0]?.suture?.name,
   };
+
 })()
 ```
 
