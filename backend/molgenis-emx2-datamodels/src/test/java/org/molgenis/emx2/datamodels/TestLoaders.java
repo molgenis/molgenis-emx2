@@ -20,6 +20,7 @@ public class TestLoaders {
   public static final String RD3_TEST = "RD3Test";
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
+  public static final String TRECODE = "TRECODETest";
   public static final String DCAT = "DCATTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
@@ -40,6 +41,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(RD3_TEST);
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
+    database.dropSchemaIfExists(TRECODE);
     database.dropSchemaIfExists(DCAT);
     database.dropSchemaIfExists(PROJECT_MANAGER);
   }
@@ -48,7 +50,7 @@ public class TestLoaders {
   public void test1FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
-    assertEquals(68, fairDataHubSchema.getTableNames().size());
+    assertEquals(69, fairDataHubSchema.getTableNames().size());
     String[] semantics = fairDataHubSchema.getTable("BiospecimenType").getMetadata().getSemantics();
     assertEquals("http://purl.obolibrary.org/obo/NCIT_C70699", semantics[0]);
     assertEquals("http://purl.obolibrary.org/obo/NCIT_C70713", semantics[1]);
@@ -93,7 +95,7 @@ public class TestLoaders {
   void test10RD3Loader() {
     Schema RD3Schema = database.createSchema(RD3_TEST);
     AvailableDataModels.RD3.install(RD3Schema, true);
-    assertEquals(27, RD3Schema.getTableNames().size());
+    assertEquals(28, RD3Schema.getTableNames().size());
   }
 
   @Test
@@ -121,6 +123,13 @@ public class TestLoaders {
   void test14DCATLoader() {
     Schema DCATSchema = database.createSchema(DCAT);
     AvailableDataModels.DCAT.install(DCATSchema, true);
-    assertEquals(10, DCATSchema.getTableNames().size());
+    assertEquals(11, DCATSchema.getTableNames().size());
+  }
+
+  @Test
+  void test15TrecodeLoader() {
+    Schema TRECODESchema = database.createSchema(TRECODE);
+    AvailableDataModels.TRECODE.install(TRECODESchema, true);
+    assertEquals(64, TRECODESchema.getTableNames().size());
   }
 }
