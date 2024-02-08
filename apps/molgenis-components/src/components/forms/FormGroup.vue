@@ -81,6 +81,18 @@ export default {
         </InputGroup>
         </FormGroup>
     </div>
+
+    <div class="mt-5">
+      <label for="my-id3">required field form group boolean type</label>
+      <FormGroup id="my-id3"
+                 label="my label"
+                 required="true"
+                 description="my description">
+        <InputGroup>
+          <InputString id="my-id3"></InputString>
+        </InputGroup>
+      </FormGroup>
+    </div>
   </demo-item>
 </template>
 </docs>
