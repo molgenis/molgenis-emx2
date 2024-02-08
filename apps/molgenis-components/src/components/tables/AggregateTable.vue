@@ -48,6 +48,44 @@
               />
             </td>
           </tr>
+          <tr v-if="aggFieldOptions.length">
+            <td class="align-top">
+              <label
+                class="mx-2 col-form-label form-group mb-0 mr-3 pt-0"
+                for="aggregate-column-select"
+              >
+                Aggregate function:
+              </label>
+            </td>
+            <td>
+              <InputRadio
+                id="input-radio-2"
+                v-model="aggFunction"
+                :options="['count', 'sum']"
+                :isClearable="false"
+                @update:modelValue="fetchData"
+              />
+            </td>
+          </tr>
+          <tr v-if="aggFunction === 'sum'">
+            <td class="align-top">
+              <label
+                class="mx-2 col-form-label form-group mb-0 mr-3 pt-0"
+                for="aggregate-column-select"
+              >
+                Summation field:
+              </label>
+            </td>
+            <td>
+              <InputSelect
+                class="mb-2"
+                id="aggregate-row-select"
+                v-model="aggField"
+                @update:modelValue="fetchData"
+                :options="aggFieldOptions"
+              />
+            </td>
+          </tr>
         </table>
       </div>
 
@@ -93,12 +131,15 @@ import TableStickyHeaders from "./TableStickyHeaders.vue";
 import IAggregateData from "./IAggregateData";
 import Client from "../../client/client";
 import InputSelect from "../forms/InputSelect.vue";
-import { INewClient } from "../../client/IClient";
+import { INewClient, aggFunction } from "../../client/IClient";
 import type { IColumn } from "meta-data-utils";
+import InputRadio from "../forms/InputRadio.vue";
+
+const AGG_FIELD_TYPES = ["INT", "LONG", "DECIMAL"];
 
 export default defineComponent({
   name: "AggregateTable",
-  components: { TableStickyHeaders, InputSelect },
+  components: { TableStickyHeaders, InputSelect, InputRadio },
   props: {
     canView: {
       type: Boolean,
@@ -131,6 +172,8 @@ export default defineComponent({
       selectedRow: "",
       refColumns: [] as string[],
       loading: false,
+      aggFunction: "count",
+      aggField: "",
       rows: [] as string[],
       columns: [] as string[],
       aggregateData: {} as IAggregateData,
@@ -139,6 +182,15 @@ export default defineComponent({
       client: {} as INewClient,
     };
   },
+  computed: {
+    aggFieldOptions() {
+      return (this.allColumns as IColumn[])
+        .filter((column: IColumn) => {
+          return AGG_FIELD_TYPES.includes(column.columnType);
+        })
+        .map((column: IColumn) => column.id);
+    },
+  },
   methods: {
     async fetchData() {
       this.loading = true;
@@ -146,6 +198,10 @@ export default defineComponent({
       this.rows = [];
       this.columns = [];
       this.aggregateData = {};
+      if (this.aggFunction === "sum" && !this.aggField) {
+        this.loading = false;
+        return;
+      }
       const responseData = await this.client
         .fetchAggregateData(
           this.tableId,
@@ -157,7 +213,9 @@ export default defineComponent({
             id: this.selectedRow,
             column: "name",
           },
-          this.graphqlFilter
+          this.graphqlFilter,
+          this.aggFunction === "count" ? "count" : "_sum",
+          this.aggField
         )
         .catch((error) => {
           this.errorMessage = error;
@@ -173,13 +231,23 @@ export default defineComponent({
       this.loading = false;
     },
     addItem(item: any) {
-      const column: string = item[this.selectedColumn].name || "not specified";
-      const row: string = item[this.selectedRow].name || "not specified";
+      console.log("add item");
+      console.log(item);
+      console.log(item[this.selectedColumn]);
+      console.log(this.selectedRow);
+      const column: string = item[this.selectedColumn]?.name || "not specified";
+      const row: string = item[this.selectedRow]?.name || "not specified";
+
+      const aggRespField = this.aggFunction === "count" ? "count" : "_sum";
+      const aggColValue =
+        this.aggFunction === "count"
+          ? item[aggRespField]
+          : item[aggRespField][this.aggField];
 
       if (!this.aggregateData[row]) {
-        this.aggregateData[row] = { [column]: item.count };
+        this.aggregateData[row] = { [column]: aggColValue };
       } else {
-        this.aggregateData[row][column] = item.count;
+        this.aggregateData[row][column] = aggColValue;
       }
 
       if (!this.columns.includes(column)) {
@@ -229,7 +297,7 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
 <docs>
 <template>
   <demo-item>
-    <label>AggregateTable with canview=false</label>
+    <label class="mt-5">AggregateTable with canview=false</label>
     <AggregateTable
       tableId="Pet"
       schemaId="pet store"
@@ -237,7 +305,7 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
       :minimumValue="1"
       :canView="false"
     />
-    <label>AggregateTable with canview=true</label>
+    <label class="mt-5">AggregateTable with canview=true</label>
     <AggregateTable
       tableId="Pet"
       schemaId="pet store"
@@ -245,7 +313,7 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
       :minimumValue="1"
       :canView="true"
     />
-    <label>AggregateTable with filters set</label>
+    <label class="mt-5">AggregateTable with filters set</label>
     <AggregateTable
       tableId="Pet"
       schemaId="pet store"
@@ -253,6 +321,15 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
       :minimumValue="1"
       :graphqlFilter="graphqlFilter"
       :canView="true"
+    />
+
+    <label class="mt-5">AggregateTable with filters function select</label>
+    <AggregateTable
+      tableId="Samples"
+      schemaId="FORCE_aggregates"
+      :allColumns="sumExampleCols"
+      :minimumValue="1"
+      :canView="false"
     />
   </demo-item>
 </template>
@@ -280,6 +357,31 @@ export default {
         },
       ],
       graphqlFilter: { name: { like: ["pooky"] } },
+      sumExampleCols: [
+        {
+          id: "researchCenter",
+          columnType: "ONTOLOGY",
+        },
+        {
+          id: "primaryTumor",
+          columnType: "ONTOLOGY",
+        },
+        {
+          id: "sampleType",
+          columnType: "ONTOLOGY",
+        },
+        {
+          id: "samplingPeriod",
+          columnType: "ONTOLOGY",
+        },
+        {
+          id: "sex",
+          columnType: "ONTOLOGY",
+        },
+        {
+          id: "n",
+          columnType: "INT",
+        }]
     };
   },
 };
