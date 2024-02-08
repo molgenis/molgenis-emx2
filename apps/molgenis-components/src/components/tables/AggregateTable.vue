@@ -231,10 +231,6 @@ export default defineComponent({
       this.loading = false;
     },
     addItem(item: any) {
-      console.log("add item");
-      console.log(item);
-      console.log(item[this.selectedColumn]);
-      console.log(this.selectedRow);
       const column: string = item[this.selectedColumn]?.name || "not specified";
       const row: string = item[this.selectedRow]?.name || "not specified";
 
