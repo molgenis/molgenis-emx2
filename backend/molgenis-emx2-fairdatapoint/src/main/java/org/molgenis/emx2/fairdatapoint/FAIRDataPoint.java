@@ -2,7 +2,6 @@ package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.rdf.RDFService.*;
 import static org.molgenis.emx2.rdf.RDFUtils.*;
 
 import java.io.StringWriter;
@@ -12,7 +11,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.ValueFactory;
@@ -29,7 +27,7 @@ import spark.Request;
 
 public class FAIRDataPoint {
 
-  // todo: double check cardinality
+  private static final String FDP_ROOT_METADATA = "FAIR Data Point root metadata";
 
   /**
    * Constructor
@@ -43,7 +41,7 @@ public class FAIRDataPoint {
     Date currentDateTime = new Date(System.currentTimeMillis());
     this.issued = formatter.format(currentDateTime);
     this.modified = formatter.format(currentDateTime);
-    this.version = Version.getVersion();
+    this.version = "MOLGENIS EMX2 " + Version.getVersion();
     this.request = request;
     this.schemas = schemas;
   }
@@ -125,7 +123,7 @@ public class FAIRDataPoint {
     String host = extractHost(requestURI);
     String apiFdp = host + "/api/fdp";
     String apiFdpCatalog = apiFdp + "/catalog";
-    String apiFdpProfile = apiFdp + "/catalog";
+    String apiFdpProfile = apiFdp + "/profile";
     String apiFdpIdentifier = apiFdp + "#identifier";
 
     IRI apiFdpEnc = encodedIRI(apiFdp);
@@ -137,13 +135,6 @@ public class FAIRDataPoint {
     Required by FDP specification (https://specs.fairdatapoint.org/)
      */
     builder.add(apiFdpEnc, RDF.TYPE, iri("https://w3id.org/fdp/fdp-o#MetadataService"));
-    builder.add(
-        apiFdpEnc, DCTERMS.TITLE, "FAIR Data Point hosted by MOLGENIS-EMX2 at " + apiFdpEnc);
-    BNode publisher = vf.createBNode();
-    builder.add(apiFdpEnc, DCTERMS.PUBLISHER, publisher);
-    builder.add(publisher, RDF.TYPE, FOAF.AGENT);
-    builder.add(publisher, FOAF.NAME, "MOLGENIS-EMX2 FAIR Data Point API");
-    builder.add(apiFdpEnc, DCTERMS.LICENSE, iri("https://www.gnu.org/licenses/lgpl-3.0.rdf"));
     builder.add(apiFdpEnc, DCTERMS.CONFORMS_TO, apiFdpProfileEnc);
     builder.add(apiFdpEnc, DCAT.ENDPOINT_URL, apiFdpEnc);
     builder.add(
@@ -182,37 +173,11 @@ public class FAIRDataPoint {
     /*
     Optional in FDP specification (https://specs.fairdatapoint.org/)
      */
-    builder.add(
-        apiFdpEnc,
-        DCTERMS.DESCRIPTION,
-        "FAIR Data Point hosted by MOLGENIS-EMX2 at "
-            + apiFdpEnc
-            + ". This implementation follows the FAIR Data Point Working Draft, 23 August 2021 at https://specs.fairdatapoint.org/.");
-    builder.add(apiFdpEnc, DCTERMS.LANGUAGE, iri("http://lexvo.org/id/iso639-3/eng"));
-    BNode rights = vf.createBNode();
-    builder.add(apiFdpEnc, DCTERMS.RIGHTS, rights);
-    builder.add(rights, RDF.TYPE, DCTERMS.RIGHTS_STATEMENT);
-    builder.add(rights, DCTERMS.DESCRIPTION, "Rights are provided on a per-dataset basis.");
-    BNode accessRights = vf.createBNode();
-    builder.add(apiFdpEnc, DCTERMS.ACCESS_RIGHTS, accessRights);
-    builder.add(accessRights, RDF.TYPE, DCTERMS.RIGHTS_STATEMENT);
-    builder.add(
-        accessRights, DCTERMS.DESCRIPTION, "Access rights are provided on a per-dataset basis.");
-    BNode vcard = vf.createBNode();
-    builder.add(apiFdpEnc, DCAT.CONTACT_POINT, vcard);
-    builder.add(vcard, RDF.TYPE, VCARD4.KIND);
-    builder.add(vcard, VCARD4.INDIVIDUAL, "MOLGENIS support desk");
-    builder.add(vcard, VCARD4.HAS_EMAIL, "molgenis-support@umcg.nl");
-    builder.add(vcard, VCARD4.HAS_URL, "https://molgenis.org/");
     builder.add(apiFdpEnc, DCAT.ENDPOINT_DESCRIPTION, encodedIRI(host + "/api/openapi"));
     builder.add(
         apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#startDate"), literal(issued, XSD.DATETIME));
     builder.add(
         apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#endDate"), literal(modified, XSD.DATETIME));
-    builder.add(
-        apiFdpEnc,
-        iri("https://w3id.org/fdp/fdp-o#uiLanguage"),
-        iri("http://lexvo.org/id/iso639-3/eng"));
     builder.add(apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#hasSoftwareVersion"), this.version);
     builder.add(
         apiFdpEnc,
@@ -225,7 +190,6 @@ public class FAIRDataPoint {
     builder.add(apiFdpEnc, RDF.TYPE, DCAT.RESOURCE);
     builder.add(apiFdpEnc, RDF.TYPE, DCAT.DATA_SERVICE);
     builder.add(apiFdpEnc, RDF.TYPE, iri("https://w3id.org/fdp/fdp-o#FAIRDataPoint"));
-    builder.add(apiFdpEnc, RDFS.LABEL, "FAIR Data Point hosted by MOLGENIS-EMX2 at " + apiFdpEnc);
     builder.add(apiFdpEnc, DCTERMS.HAS_VERSION, this.version);
     builder.add(
         apiFdpEnc,
@@ -240,6 +204,50 @@ public class FAIRDataPoint {
     Model model = builder.build();
     StringWriter stringWriter = new StringWriter();
     Rio.write(model, stringWriter, applicationOntologyFormat, config);
+    stringWriter.append(getFDPRootMetadata(apiFdpEnc.toString()));
     return stringWriter.toString();
+  }
+
+  private String getFDPRootMetadata(String apiFdpEnc) {
+    for (Schema schema : schemas) {
+      if (schema.hasSetting(FDP_ROOT_METADATA)) {
+        return schema.getSettingValue(FDP_ROOT_METADATA);
+      }
+    }
+    Schema schema = addFDPRootMetadataIfMissing(apiFdpEnc);
+    return schema.getSettingValue(FDP_ROOT_METADATA);
+  }
+
+  private Schema addFDPRootMetadataIfMissing(String apiFdpEnc) {
+    schemas[0]
+        .getMetadata()
+        .setSetting(
+            FDP_ROOT_METADATA,
+            """
+            %s
+            <%s>
+              dcterms:title "FAIR Data Point hosted by MOLGENIS-EMX2";
+              dcterms:publisher [ a foaf:Agent;
+                  foaf:name "MOLGENIS-EMX2 FAIR Data Point API"
+                ];
+              dcterms:license <https://www.gnu.org/licenses/lgpl-3.0.rdf>;
+              dcterms:description "FAIR Data Point hosted by MOLGENIS-EMX2. This implementation follows the FAIR Data Point Working Draft, 23 August 2021 at https://specs.fairdatapoint.org/.";
+              dcterms:language lang:eng;
+              dcterms:rights [ a dcterms:RightsStatement;
+                  dcterms:description "Rights are provided on a per-dataset basis."
+                ];
+              dcterms:accessRights [ a dcterms:RightsStatement;
+                  dcterms:description "Access rights are provided on a per-dataset basis."
+                ];
+              dcat:contactPoint [ a vc:Kind;
+                  vc:Individual "MOLGENIS support desk";
+                  vc:hasEmail "molgenis-support@umcg.nl";
+                  vc:hasURL "https://molgenis.org/"
+                ];
+              fdp-o:uiLanguage lang:eng;
+              rdfs:label "FAIR Data Point hosted by MOLGENIS-EMX2" .
+              """
+                .formatted(System.lineSeparator(), apiFdpEnc));
+    return schemas[0];
   }
 }

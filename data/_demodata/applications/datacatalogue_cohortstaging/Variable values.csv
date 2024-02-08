@@ -1,0 +1,4 @@
+resource,variable.dataset,variable.name,value,label,order,is missing,ontology term URI,since version,until version
+testCohort,household,partner_in_household,1,yes,1,false,,1.1,
+testCohort,household,partner_in_household,2,no,2,false,,1.1,
+testCohort,household,partner_in_household,-99,NA,3,true,,1.1,

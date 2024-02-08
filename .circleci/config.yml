@@ -1,75 +1,39 @@
-# Java Gradle CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-java/ for more details
-#
-version: 2
-jobs:
-  build:
+version: 2.1
+orbs:
+  slack: circleci/slack@4.4.4
+
+definitions:
+  build_config: &build_config
     docker:
-    # specify the version you desire here
+    - image: molgenis/ci-build:latest
+    working_directory: ~/repo
+    resource_class: large
+    environment:
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
+  test_config: &test_config
+    docker:
     - image: molgenis/ci-build:latest
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
         POSTGRES_DB: postgres
-    # Specify service dependencies here if necessary
-    # CircleCI maintains a library of pre-built images
-    # documented at https://circleci.com/docs/2.0/circleci-images/
-    # - image: circleci/postgres:9.4
     working_directory: ~/repo
-    
-    # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
     resource_class: large
-
     environment:
-      # Customize the JVM maximum heap limit
       JVM_OPTS: -Xmx3200m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
 
+
+commands:
+  pre_steps:
     steps:
     - checkout
-
-    - run:
-        name: make sure we have all tags
-        command: |
-          git fetch --all --tags
-
-    # Download and cache dependencies
-    - restore_cache:
-        keys:
-        - v1-dependencies-{{ checksum "build.gradle" }}
-        # fallback to using the latest cache if no exact match is found
-        - v1-dependencies-
-
-    - run: 
-        name: install deps
-        command: |
-          ./gradlew dependencies
-          apt-get update && apt-get install postgresql-client -y 
-
-    - save_cache:
-        paths:
-        - ~/.gradle
-        key: v1-dependencies-{{ checksum "build.gradle" }}
-
-    # Initialize the database
-    - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
-
-    # install additional software
-    - run:
-        name: install docker kubectl and helm
-        command: sh ci/install_docker_helm_kubectl.sh
-
-    - setup_remote_docker:
-        version: 19.03.13
-        docker_layer_caching: true
-
-    - run:
-        name: Sign in to docker
-        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
-
+    - run: git fetch --all --tags
+    - run: export COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |
@@ -77,91 +41,176 @@ jobs:
           git config user.email "m.a.swertz@rug.nl"
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
+    - run:
+          name: Concatenate Build Files as key for cache
+          command: |
+              find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
+          no_output_timeout: 5m
+    - restore_cache:
+        keys:
+          - gradle-{{ checksum "concatenated-build-gradle" }}
+          - gradle
+    - restore_cache:
+        keys:
+        - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+    - run:
+        name: Download Dependencies
+        command: ./gradlew dependencies --no-daemon
+    - save_cache:
+        paths:
+          - ~/.gradle/wrapper
+        key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+    - save_cache:
+        paths:
+          - ~/.gradle/caches
+        key: gradle-{{ checksum "concatenated-build-gradle" }}
+    - setup_remote_docker:
+        docker_layer_caching: true
+    - run:
+        name: Sign in to docker
+        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+  post_steps:
+    steps:
+    - run:
+        name: Save test results for stats
+        command: |
+          mkdir -p ~/test-results/junit/
+          find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+        when: always
+    - store_test_results:
+        path: ~/test-results
+    - store_artifacts:
+        path: ./build/libs
+
+# jobs for pull request and master
+jobs:
+  preview:
+    <<: *build_config
+
+    steps:
+    - run: |
+        echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+
+    - pre_steps
 
     - run:
-        name: build and test java
-        command: |
-          ./gradlew test --no-daemon
+        name: build and push emx2 java docker images and helm for the preview
+        command: ./gradlew -s --no-daemon shadowJar dockerPush helmPublishMainChart ci -x test
 
-      # disable until chrome binary downloads are fixed
-#    - run:
-#        name: test e2e
-#        command: |
-#          npx playwright install --with-deps
-#          npm install -D @playwright/test
-#          set CI=true && npx playwright test --config e2e --project=chromium
-
-
-    # to switch to release add following
-    # ./gradlew release jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} --stacktrace
-    #    ./gradlew checkFormat spotlessCheck test jacocoMergedReport sonarqube ci \
-    #    -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
-    #    -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
     - run:
-        name: release, push docker, push python
+        name: push ssr-catalogue docker images
         command: |
-          if [ "${CIRCLE_BRANCH}" = "master" ]; then
-            ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release \
-            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true
-          else
-            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            ./gradlew -s jacocoMergedReport --no-daemon shadowJar dockerPush helmPublishMainChart ci sonar release \
-            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-            -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
-          fi
           export $( cat build/ci.properties | xargs )
-          if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
-            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
-            docker push molgenis/ssr-catalogue-snapshot --all-tags
-          else
-            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
-            docker push molgenis/ssr-catalogue --all-tags
-          fi
-        environment:
-          MOLGENIS_POSTGRES_USER: molgenis
-          MOLGENIS_POSTGRES_PASS: molgenis
-          MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
-#After migrating to azure code below can be removed
+          docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+          docker push molgenis/ssr-catalogue-snapshot --all-tags
+    
     - run:
-        name: deploy preview or update dev to k8s
-        command: |
-          export $( cat build/ci.properties | xargs )
-          bash ci/set_kubectl_config.sh ${KUBE_CLUSTER} ${KUBE_TOKEN}
-          if [ "${CIRCLE_BRANCH}" = "master" ]
-          then
-            bash ci/create_or_update_k8s.sh "emx2" ${TAG_NAME}
-          else
-            bash ci/create_or_update_k8s.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
-          fi
-
-    - run:
-        name: deploy preview or update dev to azure
+        name: deploy preview to azure
         command: |
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh
-          if [ "${CIRCLE_BRANCH}" = "master" ]
-          then
-            bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME}
+          bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
+
+    - run:
+        name: message slack about preview
+        command: |
+          export $( cat build/ci.properties | xargs )
+          curl -d "token=${SLACK_TOKEN}" \
+          -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+          PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org" \
+          -d "channel=C02AZDG6QQ7" \
+          -X POST https://slack.com/api/chat.postMessage
+
+    - post_steps
+
+  test:
+    <<: *test_config
+
+    steps:
+    - pre_steps
+
+    - run:
+        name: prepare sql test database
+        command: |
+          apt-get update && apt-get install postgresql-client -y
+          psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+
+    - run:
+        name: run tests and push to sonar
+        command: |
+          ./gradlew test jacocoMergedReport sonar --no-daemon \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+          -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+
+    - post_steps
+
+  release:
+    <<: *test_config
+
+    steps:
+    - pre_steps
+    
+    - run:
+        name: prepare sql test database
+        command: |
+          apt-get update && apt-get install postgresql-client -y
+          psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+
+    # we might be optimistic and skip tests here
+    - run:
+        name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
+        command: |
+          ./gradlew shadowJar test jacocoMergedReport sonar ci --no-daemon \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+
+    - run:
+        name: either release or push only snapshots to docker
+        command: |
+          export $( cat build/ci.properties | xargs )
+          if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
+            ./gradlew -s --no-daemon dockerPush helmPublishMainChart
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+            docker push molgenis/ssr-catalogue-snapshot --all-tags
           else
-            bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} DELETE
+            ./gradlew -s --no-daemon dockerPush helmPublishMainChart release
+            docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
+            docker push molgenis/ssr-catalogue --all-tags
           fi
 
     - run:
-        name: message slack
+        name: update azure demo server
         command: |
           export $( cat build/ci.properties | xargs )
-          if [ "${CIRCLE_BRANCH}" = "master" ]
-          then
-            curl -d "token=${SLACK_TOKEN}" \
-            -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
-            -d "channel=C02AZDG6QQ7" \
-            -X POST https://slack.com/api/chat.postMessage          
-          else
-            curl -d "token=${SLACK_TOKEN}" \
-            -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
-            PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.net" \
-            -d "channel=C02AZDG6QQ7" \
-            -X POST https://slack.com/api/chat.postMessage
-          fi
+          bash ci/set_kubectl_config-azure.sh
+          bash ci/create_or_update_k8s-azure.sh "emx2" ${TAG_NAME}
+
+    - run:
+        name: message slack about release and updated demo server
+        command: |
+          export $( cat build/ci.properties | xargs )
+          curl -d "token=${SLACK_TOKEN}" \
+          -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
+          -d "channel=C02AZDG6QQ7" \
+          -X POST https://slack.com/api/chat.postMessage  
+
+    - post_steps
+
+workflows:
+  version: 2
+  build_and_test_and_preview_or_release:
+    jobs:
+    - preview:
+        filters:
+          branches:
+            ignore: master
+    - test:
+        filters:
+          branches:
+            ignore: master
+    - release:
+        filters:
+          branches:
+            only: master

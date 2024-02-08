@@ -1,0 +1,14 @@
+---
+name: SharedStaging
+description: "This schema contains communal tables that can be altered by all users."
+
+profileTags: SharedStaging
+
+demoData: _demodata/applications/datacatalogue_sharedstaging
+
+settings: _settings/datacatalogue_sharedstaging
+
+# special options
+setEditPermission: user
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous

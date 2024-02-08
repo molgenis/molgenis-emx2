@@ -37,7 +37,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
       null; // column order within the table. During import/export these may change
 
   private int key = 0; // 1 is primary key 2..n is secondary keys
-  private boolean required = false;
+  private String required = null;
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
@@ -249,12 +249,25 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public boolean isRequired() {
-    return required;
+    return required != null && required.equalsIgnoreCase("true");
   }
 
-  public Column setRequired(boolean required) {
+  public Column setRequired(Boolean required) {
+    this.required = required.toString();
+    return this;
+  }
+
+  public Column setRequired(String required) {
     this.required = required;
     return this;
+  }
+
+  public String getRequired() {
+    return this.required;
+  }
+
+  public boolean isConditionallyRequired() {
+    return !isRequired() && getRequired() != null && !"false".equalsIgnoreCase(getRequired());
   }
 
   public Boolean isCascadeDelete() {
@@ -360,6 +373,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public Field getJooqField() {
     return field(name(getName()), getJooqType());
+  }
+
+  public List<Field> getCompositeFields() {
+    if (this.isReference()) {
+      return getReferences().stream().map(ref -> ref.getJooqField()).toList();
+    } else {
+      return List.of(getJooqField());
+    }
   }
 
   public org.jooq.Table getJooqTable() {

@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,3.3
+Version,,,,,,,,,,,,3.11
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Extended resources,Resources,,,,,,,,,,,
 Models,Extended resources,,,,,,,,,,,Data models
@@ -27,8 +27,8 @@ Extended resources,,funding statement,text,,,,,,,,,Statement listing funding tha
 Extended resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
 Extended resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent"
 Publications,,,,,,,,,,,,Publications following bibtex format
-Publications,,doi,,1,TRUE,,,,,,,Digital object identifier
-Publications,,title,,,,,,,,,,Publication title
+Publications,,doi,hyperlink,1,TRUE,,,,,,,Digital object identifier
+Publications,,title,text,,,,,,,,,Publication title
 Publications,,authors,string_array,,,,,,,,,"List of authors, one entry per author"
 Publications,,year,int,,,,,,,,,"Year of publication (or, if unpublished, year of creation)"
 Publications,,journal,,,,,,,,,,Journal or magazine the work was published in

@@ -10,7 +10,7 @@ const props = defineProps<{
 }>();
 
 const statusMap = computed(() =>
-  calcHarmonizationStatus(props.variables, props.cohorts)
+  calcAggregatedHarmonizationStatus(props.variables, props.cohorts)
 );
 
 let activeRowIndex = ref(-1);

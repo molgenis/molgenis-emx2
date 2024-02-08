@@ -4,13 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.DATA_CATALOGUE;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.SHARED_STAGING;
-import static org.molgenis.emx2.datamodels.DataCatalogueLoader.CATALOGUE_ONTOLOGIES;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -22,6 +17,12 @@ public class TestLoaders {
   public static final String NETWORK_STAGING = "NetworkStaging";
   public static final String FAIR_DATA_HUB_TEST = "FAIRDataHubTest";
   public static final String DIRECTORY_TEST = "DirectoryTest";
+  public static final String RD3_TEST = "RD3Test";
+  public static final String JRC_CDE_TEST = "JRCCDETest";
+  public static final String FAIR_GENOMES = "FAIRGenomesTest";
+  public static final String DCAT = "DCATTest";
+  public static final String PROJECT_MANAGER = "ProjectManager";
+  public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
 
   static Database database;
 
@@ -36,6 +37,11 @@ public class TestLoaders {
     database.dropSchemaIfExists(SHARED_STAGING);
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
     database.dropSchemaIfExists(DIRECTORY_TEST);
+    database.dropSchemaIfExists(RD3_TEST);
+    database.dropSchemaIfExists(JRC_CDE_TEST);
+    database.dropSchemaIfExists(FAIR_GENOMES);
+    database.dropSchemaIfExists(DCAT);
+    database.dropSchemaIfExists(PROJECT_MANAGER);
   }
 
   @Test
@@ -43,6 +49,9 @@ public class TestLoaders {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
     assertEquals(68, fairDataHubSchema.getTableNames().size());
+    String[] semantics = fairDataHubSchema.getTable("BiospecimenType").getMetadata().getSemantics();
+    assertEquals("http://purl.obolibrary.org/obo/NCIT_C70699", semantics[0]);
+    assertEquals("http://purl.obolibrary.org/obo/NCIT_C70713", semantics[1]);
   }
 
   @Test
@@ -78,5 +87,40 @@ public class TestLoaders {
     Schema networkStaging = database.createSchema(DIRECTORY_TEST);
     AvailableDataModels.BIOBANK_DIRECTORY.install(networkStaging, true);
     assertEquals(32, networkStaging.getTableNames().size());
+  }
+
+  @Test
+  void test10RD3Loader() {
+    Schema RD3Schema = database.createSchema(RD3_TEST);
+    AvailableDataModels.RD3.install(RD3Schema, true);
+    assertEquals(27, RD3Schema.getTableNames().size());
+  }
+
+  @Test
+  void test11JRCCDELoader() {
+    Schema JRCCDESchema = database.createSchema(JRC_CDE_TEST);
+    AvailableDataModels.JRC_COMMON_DATA_ELEMENTS.install(JRCCDESchema, true);
+    assertEquals(12, JRCCDESchema.getTableNames().size());
+  }
+
+  @Test
+  void test12FAIRGenomesLoader() {
+    Schema FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);
+    AvailableDataModels.FAIR_GENOMES.install(FAIRGenomesSchema, true);
+    assertEquals(46, FAIRGenomesSchema.getTableNames().size());
+  }
+
+  @Test
+  void test13ProjectManagerLoader() {
+    Schema ProjectManagerSchema = database.createSchema(PROJECT_MANAGER);
+    AvailableDataModels.PROJECTMANAGER.install(ProjectManagerSchema, true);
+    assertEquals(5, ProjectManagerSchema.getTableNames().size());
+  }
+
+  @Test
+  void test14DCATLoader() {
+    Schema DCATSchema = database.createSchema(DCAT);
+    AvailableDataModels.DCAT.install(DCATSchema, true);
+    assertEquals(10, DCATSchema.getTableNames().size());
   }
 }

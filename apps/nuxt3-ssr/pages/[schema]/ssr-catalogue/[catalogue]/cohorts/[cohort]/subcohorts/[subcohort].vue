@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Ref } from "vue";
 import subcohortGql from "~~/gql/subcohort";
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -8,9 +7,8 @@ const query = moduleToString(subcohortGql);
 
 let subcohort: Ref = ref();
 const { data: subcohortData } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: {
       query,
