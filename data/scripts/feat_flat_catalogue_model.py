@@ -68,6 +68,8 @@ class Transformer:
         for rn in renames.items():
             self._rename_table(*rn)
 
+        self._remove_duplicates()
+
         # Save result to file
         self._save_df()
 
@@ -102,6 +104,15 @@ class Transformer:
         self.df['tableExtends'] = self.df['tableExtends'].replace(old_name, new_name)
 
         print(f"Renamed tableName for columns of table '{old_name}' to '{new_name}'")
+
+    def _remove_duplicates(self):
+        """Removes duplicate rows from the DataFrame."""
+        # Drop exact duplicates
+        self.df.drop_duplicates(inplace=True)
+
+        # Find pairs of rows (columns) with the same tableName and columnName
+        duplicates = self.df[['tableName', 'columnName']].duplicated()
+        print(duplicates)
 
     @staticmethod
     def _load_data() -> pd.DataFrame:

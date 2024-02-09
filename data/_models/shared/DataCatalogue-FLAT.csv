@@ -10,7 +10,6 @@ Studies,,,,,,,,,,,,"Generic listing of all resources. Should not be used directl
 Extended resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging,CohortStaging"
 Organisations,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging,CohortStaging"
 Data resources,Resources,,,,,,,,,,,"Generic listing of all extended resources. Should not be used directly, instead use specific types such as Databanks and Cohorts","DataCatalogue,EMA,CohortStaging"
-Data resources,Resources,,,,,,,,,,,"Generic listing of all extended resources. Should not be used directly, instead use specific types such as Databanks and Cohorts","DataCatalogue,EMA,CohortStaging"
 Resources,Resources,,,,,,,,,,,"Generic listing of all extended resources. Should not be used directly, instead use specific types such as Databanks and Cohorts","DataCatalogue,EMA,CohortStaging,RWEStaging"
 Resources,Resources,,,,,,,,,,,"Generic listing of all extended resources. Should not be used directly, instead use specific types such as Databanks and Cohorts","DataCatalogue,EMA,CohortStaging"
 Databanks,Resources,,,,,,,,,,,"Data collection from real world databases such as health records, registries",DataCatalogue
@@ -81,7 +80,6 @@ Data resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisati
 Studies,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
 Networks,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
 Models,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
-Data resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
 Resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA,RWEStaging"
 Resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
 Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
@@ -89,7 +87,6 @@ Data resources,,additional organisations,ref_array,,,,Organisations,,,,,List the
 Studies,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
 Networks,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
 Models,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
-Data resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
 Resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA,RWEStaging"
 Resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
 Extended resources,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging
@@ -97,7 +94,6 @@ Data resources,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,le
 Studies,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging
 Networks,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging
 Models,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging
-Data resources,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging
 Resources,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"CohortStaging,RWEStaging"
 Resources,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging
 Extended resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging
@@ -105,7 +101,6 @@ Data resources,,additional organisations,ref_array,,,SharedStaging,Organisations
 Studies,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging
 Networks,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging
 Models,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging
-Data resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging
 Resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"CohortStaging,RWEStaging"
 Resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging
 Studies,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA
@@ -126,7 +121,6 @@ Data resources,,external identifiers,refback,,,,External identifiers,,resource,,
 Studies,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA,CohortStaging"
 Networks,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA,CohortStaging"
 Models,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA,CohortStaging"
-Data resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA,CohortStaging"
 Resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA,CohortStaging,RWEStaging"
 Resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA,CohortStaging"
 Studies,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogue,EMA"
@@ -149,7 +143,6 @@ Data resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages et
 Studies,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogue,CohortStaging"
 Networks,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogue,CohortStaging"
 Models,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogue,CohortStaging"
-Data resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogue,CohortStaging"
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogue,CohortStaging,RWEStaging"
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogue,CohortStaging"
 Data resources,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource,"DataCatalogue,CohortStaging"
@@ -167,7 +160,6 @@ Data resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Cou
 Studies,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
 Networks,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
 Models,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
-Data resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
 Resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging,RWEStaging"
 Resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
 Data resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
@@ -207,7 +199,6 @@ Data resources,,datasets,refback,,,,Datasets,,resource,,,,"DataCatalogue,CohortS
 Studies,,datasets,refback,,,,Datasets,,resource,,,,"DataCatalogue,CohortStaging"
 Networks,,datasets,refback,,,,Datasets,,resource,,,,"DataCatalogue,CohortStaging"
 Models,,datasets,refback,,,,Datasets,,resource,,,,"DataCatalogue,CohortStaging"
-Data resources,,datasets,refback,,,,Datasets,,resource,,,,"DataCatalogue,CohortStaging"
 Resources,,datasets,refback,,,,Datasets,,resource,,,,"DataCatalogue,CohortStaging,RWEStaging"
 Resources,,datasets,refback,,,,Datasets,,resource,,,,"DataCatalogue,CohortStaging"
 Resources,,mappings to data models,refback,,,,Dataset mappings,,source,,,overview of dataset mappings available,"DataCatalogue,RWEStaging"
@@ -314,7 +305,6 @@ Data resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) 
 Studies,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA,CohortStaging"
 Networks,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA,CohortStaging"
 Models,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA,CohortStaging"
-Data resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA,CohortStaging"
 Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA,CohortStaging,RWEStaging"
 Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA,CohortStaging"
 Data resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?,"DataCatalogue,CohortStaging"
@@ -327,7 +317,6 @@ Data resources,,funding statement,text,,,,,,,,,Statement listing funding that wa
 Studies,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA,CohortStaging"
 Networks,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA,CohortStaging"
 Models,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA,CohortStaging"
-Data resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA,CohortStaging"
 Resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA,CohortStaging,RWEStaging"
 Resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA,CohortStaging"
 Extended resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,"DataCatalogue,CohortStaging"
@@ -335,7 +324,6 @@ Data resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and cita
 Studies,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,"DataCatalogue,CohortStaging"
 Networks,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,"DataCatalogue,CohortStaging"
 Models,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,"DataCatalogue,CohortStaging"
-Data resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,"DataCatalogue,CohortStaging"
 Resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,"DataCatalogue,CohortStaging,RWEStaging"
 Resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,"DataCatalogue,CohortStaging"
 Extended resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA,CohortStaging"
@@ -343,7 +331,6 @@ Data resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive 
 Studies,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA,CohortStaging"
 Networks,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA,CohortStaging"
 Models,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA,CohortStaging"
-Data resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA,CohortStaging"
 Resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA,CohortStaging,RWEStaging"
 Resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA,CohortStaging"
 Data resources,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource,"DataCatalogue,CohortStaging"
