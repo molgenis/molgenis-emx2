@@ -6,6 +6,9 @@ TODO: delete when pull request is ready for merging
 """
 
 import pandas as pd
+import warnings
+
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 class Tables:
@@ -17,15 +20,27 @@ class Tables:
     S = 'Studies'
     N = 'Networks'
     C = 'Cohorts'
+    RWE = 'RWE resources'
 
 
 MODELS_DIR = '../_models/shared'
 
-# inherit_tables = {'Organisations': 'Resources', 'Data resources': 'Extended resources', 'Models': 'Extended resources',
-#                   'Networks': 'Extended resources', 'Studies': 'Extended resources', 'Extended resources': 'Resources'
-#                   }
 inherit_tables = [[Tables.O, Tables.R], [Tables.DR, Tables.ER], [Tables.M, Tables.ER],
-                  [Tables.N, Tables.ER], [Tables.S, Tables.ER], [Tables.ER, Tables.R]]
+                  [Tables.N, Tables.ER], [Tables.S, Tables.ER],
+                  [Tables.C, Tables.DR], [Tables.RWE, Tables.DR],
+                  [Tables.DR, Tables.ER],
+                  [Tables.ER, Tables.R],
+                  [Tables.S, Tables.R], [Tables.M, Tables.R], [Tables.N, Tables.R]]
+
+table_profiles = {
+    'Resources': 'RWEStaging',
+    'RWE resources': 'RWEStaging',
+}
+
+renames = {
+    'Cohorts': 'Resources',
+    'RWE resources': 'Resources'
+}
 
 
 class Transformer:
@@ -47,6 +62,12 @@ class Transformer:
         for tables in inherit_tables:
             self._duplicate_columns(*tables)
 
+        for tp in table_profiles.items():
+            self._add_profile_tag(*tp)
+
+        for rn in renames.items():
+            self._rename_table(*rn)
+
         # Save result to file
         self._save_df()
 
@@ -65,38 +86,39 @@ class Transformer:
         self.df.reset_index(inplace=True, drop=True)
         print(f"Duplicated columns in {old_tab} for {new_tab}.")
 
+    def _add_profile_tag(self, table_name: str, tag: str):
+        """Adds a tag to all columns for a specified table."""
+        self.df['profiles'] = self.df.apply(lambda row:
+                                            row['profiles'] if row['tableName'] != table_name
+                                            else row['profiles'] + ',' + tag,
+                                            axis=1
+                                            )
+        print(f"Added profile '{tag}' to table {table_name}.")
+
+    def _rename_table(self, old_name: str, new_name: str):
+        """Renames a table and references to that table to the new name."""
+        self.df['refTable'] = self.df['refTable'].apply(lambda rt: rt if rt != old_name else new_name)
+        self.df['tableName'] = self.df['tableName'].replace(old_name, new_name)
+        self.df['tableExtends'] = self.df['tableExtends'].replace(old_name, new_name)
+
+        print(f"Renamed tableName for columns of table '{old_name}' to '{new_name}'")
+
     @staticmethod
     def _load_data() -> pd.DataFrame:
-        return pd.read_csv(f"{MODELS_DIR}/DataCatalogue-TODO.csv")
+        data = pd.read_csv(f"{MODELS_DIR}/DataCatalogue-TODO.csv")
+        data['key'] = data['key'].convert_dtypes()
+        return data
 
     def _save_df(self):
         """Saves the pandas DataFrame of the model to disk."""
         self.df.to_csv(f"{MODELS_DIR}/DataCatalogue-FLAT.csv", index=False)
 
 
-def transform_data_model():
-    # Load DataCatalogue
-    data_catalogue = pd.read_csv(f"{MODELS_DIR}/DataCatalogue-TODO.csv")
-    print(data_catalogue.head())
-
-    # Make a copy
-    df = data_catalogue.copy()
-
-    # Transform Organisations, Models, Networks and Studies into standalone tables that do not inherit from *Resources
-    # Copy Organisations columns from Resources columns
-    resources = df.loc[df['tableName'] == 'Resources']
-    for idx in reversed(resources.index):
-        df.index = [*df.index[:idx + 1], *list(df.index[idx + 1:] + 1)]
-        df.loc[idx + 1] = resources.loc[idx]
-        df.loc[idx + 1, 'tableName'] = 'Organisations'
-        df.sort_index(inplace=True)
-
-    # Change tableName from 'Cohorts' to 'Resources' and add 'Cohorts' as profile
-
-    df.to_csv(f"{MODELS_DIR}/DataCatalogue-FLAT.csv", index=False)
+def main():
+    """The main function calling the execution."""
+    transformer = Transformer()
+    transformer.transform()
 
 
 if __name__ == '__main__':
-    # transform_data_model()
-    transformer = Transformer()
-    transformer.transform()
+    main()
