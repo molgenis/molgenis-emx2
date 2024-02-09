@@ -12,7 +12,9 @@
           title="ERN CRANIO Registry"
           :subtitle="provider.name"
           :imageSrc="
-            provider.image ? `${provider.image.url}` : 'banner-diagnoses.jpg'
+            Object.hasOwn(provider.image, 'id')
+              ? `${provider.image.url}`
+              : 'banner-diagnoses.jpg'
           "
         />
         <PageSection
