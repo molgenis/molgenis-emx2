@@ -8,11 +8,25 @@ TODO: delete when pull request is ready for merging
 import pandas as pd
 
 
+class Tables:
+    O = 'Organisations'
+    R = 'Resources'
+    DR = 'Data resources'
+    ER = 'Extended resources'
+    M = 'Models'
+    S = 'Studies'
+    N = 'Networks'
+    C = 'Cohorts'
+
+
 MODELS_DIR = '../_models/shared'
 
-inherit_tables = {'Organisations': 'Resources', 'Data resources': 'Extended resources', 'Models': 'Extended resources',
-                  'Networks': 'Extended resources', 'Studies': 'Extended resources', 'Extended resources': 'Resources'
-                  }
+# inherit_tables = {'Organisations': 'Resources', 'Data resources': 'Extended resources', 'Models': 'Extended resources',
+#                   'Networks': 'Extended resources', 'Studies': 'Extended resources', 'Extended resources': 'Resources'
+#                   }
+inherit_tables = [[Tables.O, Tables.R], [Tables.DR, Tables.ER], [Tables.M, Tables.ER],
+                  [Tables.N, Tables.ER], [Tables.S, Tables.ER], [Tables.ER, Tables.R]]
+
 
 class Transformer:
     """
@@ -30,9 +44,8 @@ class Transformer:
         """
         self.df = self._load_data()
 
-        for tables in inherit_tables.items():
+        for tables in inherit_tables:
             self._duplicate_columns(*tables)
-
 
         # Save result to file
         self._save_df()
@@ -44,11 +57,13 @@ class Transformer:
         inheriting_tables = self.df.loc[self.df['tableName'] == old_tab]
 
         for idx in reversed(inheriting_tables.index):
-            self.df.index = [*self.df.index[:idx+1], *list(self.df.index[idx+1:] + 1)]
-            self.df.loc[idx+1] = inheriting_tables.loc[idx]
-            self.df.loc[idx+1, 'tableName'] = new_tab
+            self.df.index = [*self.df.index[:idx + 1], *list(self.df.index[idx + 1:] + 1)]
+            self.df.loc[idx + 1] = inheriting_tables.loc[idx]
+            self.df.loc[idx + 1, 'tableName'] = new_tab
             self.df.sort_index(inplace=True)
-        self.df = self.df.loc[(self.df['tableName'] != old_tab) | (self.df['tableExtends'] != new_tab)]
+        self.df = self.df.loc[(self.df['tableName'] != new_tab) | (self.df['tableExtends'] != old_tab)]
+        self.df.reset_index(inplace=True, drop=True)
+        print(f"Duplicated columns in {old_tab} for {new_tab}.")
 
     @staticmethod
     def _load_data() -> pd.DataFrame:
@@ -60,7 +75,6 @@ class Transformer:
 
 
 def transform_data_model():
-
     # Load DataCatalogue
     data_catalogue = pd.read_csv(f"{MODELS_DIR}/DataCatalogue-TODO.csv")
     print(data_catalogue.head())
@@ -72,20 +86,14 @@ def transform_data_model():
     # Copy Organisations columns from Resources columns
     resources = df.loc[df['tableName'] == 'Resources']
     for idx in reversed(resources.index):
-        df.index = [*df.index[:idx+1], *list(df.index[idx+1:] + 1)]
-        df.loc[idx+1] = resources.loc[idx]
-        df.loc[idx+1, 'tableName'] = 'Organisations'
+        df.index = [*df.index[:idx + 1], *list(df.index[idx + 1:] + 1)]
+        df.loc[idx + 1] = resources.loc[idx]
+        df.loc[idx + 1, 'tableName'] = 'Organisations'
         df.sort_index(inplace=True)
 
     # Change tableName from 'Cohorts' to 'Resources' and add 'Cohorts' as profile
 
     df.to_csv(f"{MODELS_DIR}/DataCatalogue-FLAT.csv", index=False)
-
-
-def replace_table_name(old_tab: str, new_tab: str):
-    """
-    Duplicates rows of a table that are inherited by another table.
-    """
 
 
 if __name__ == '__main__':
