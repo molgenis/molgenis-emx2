@@ -103,17 +103,6 @@ Raises the `TokenSigninException` when the client is already signed in with a us
 |----------|------|-------------|----------|---------|
 | token    | str  | the token   | True     |         |
 
-### get_schema_metadata
-```python
-client.get_schema_metadata(name='My Schema')
-```
-Retrieves a schema's metadata, including the names of the tables, the metadata of the columns in the tables, schema settings, etc.
-If no `name` is supplied the metadata for the default schema is queried, if applicable. 
-Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
-
-| argument | type | description          | required | default |
-|----------|------|----------------------|----------|---------|
-| name     | str  | the name of a schema | False    | None    |
 
 ### get
 ```python

@@ -536,7 +536,7 @@ class Client:
 
         self.schemas = self.get_schemas()
 
-    def get_schema_metadata(self, name: str = None):
+    def _get_schema_metadata(self, name: str = None):
         """Retrieves a schema's metadata.
         
         :param name: the name of the new schema
