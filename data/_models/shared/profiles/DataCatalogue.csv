@@ -69,16 +69,6 @@ Resources,,additional organisations,ref_array,,,,Organisations,,,,,List the name
 Studies,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
 Networks,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
 Models,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
-Resources,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging
-Studies,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging
-Networks,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging
-Models,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging
-Resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging
-Studies,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging
-Networks,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging
-Models,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging
-Studies,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA
-Networks,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA
 Resources,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA,CohortStaging,RWEStaging"
 Networks,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA,CohortStaging"
 Models,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA,CohortStaging"
@@ -250,9 +240,7 @@ Models,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document
 Resources,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource,"DataCatalogue,CohortStaging"
 Resources,,collaborations,heading,,,,,,,,,List of relevant collaborations,"DataCatalogue,CohortStaging"
 Resources,,studies,refback,,,,Studies,,cohorts,,,Listing of studies that used this cohort,DataCatalogue
-Resources,,studies,ref_array,,,catalogue,Studies,,cohorts,,,Listing of studies that used this cohort,CohortStaging
 Resources,,networks,refback,,,,Networks,,cohorts,,,The consortia or networks that this cohort is involved in,DataCatalogue
-Resources,,networks,ref_array,,,catalogue,Networks,,cohorts,,,The consortia or networks that this cohort is involved in,CohortStaging
 Studies,,networks,ref_array,,,,Networks,,,,,The consortia or networks that this study is part of,"DataCatalogue,EMA"
 Studies,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this resource is involved in,DataCatalogue
 Resources,,networks,refback,,,,Networks,,data sources,,,List of networks that this datasource is associated with,"DataCatalogue,EMA,RWEStaging"
@@ -280,7 +268,6 @@ Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable","DataCatalogue,CohortS
 Contacts,,initials,,,,,,,,,,Initials of the contact person,"DataCatalogue,CohortStaging"
 Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person,"DataCatalogue,EMA,CohortStaging"
 Contacts,,organisation,ref,,,,Organisations,,,,,Affiliated organisation of the contact person,"DataCatalogue,EMA"
-Contacts,,organisation,ref,,,SharedStaging,Organisations,,,,,Affiliated organisation of the contact person,CohortStaging
 Contacts,,email,,,,,,,,,,Contact's email address,"DataCatalogue,CohortStaging"
 Contacts,,orcid,,,,,,,,,,Orcid of the contact person,"DataCatalogue,CohortStaging"
 Contacts,,homepage,,,,,,,,,,Link to contact's homepage,"DataCatalogue,CohortStaging"
@@ -465,8 +452,6 @@ Dataset mappings,,source,ref,1,True,,Resources,,,,,datasource being mapped from,
 Dataset mappings,,source dataset,ref,1,True,,Datasets,source,,,,name of the table being mapped from,"DataCatalogue,CohortStaging"
 Dataset mappings,,target,ref,1,True,,Resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",DataCatalogue
 Dataset mappings,,target dataset,ref,1,True,,Datasets,target,,,,name of the table being mapped to,DataCatalogue
-Dataset mappings,,target,ref,1,True,catalogue,Resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",CohortStaging
-Dataset mappings,,target dataset,ref,1,True,catalogue,Datasets,target,,,,name of the table being mapped to,CohortStaging
 Dataset mappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination,"DataCatalogue,CohortStaging"
 Dataset mappings,,description,text,,,,,,,,,human readible description of the mapping,"DataCatalogue,CohortStaging"
 Dataset mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code","DataCatalogue,CohortStaging"
@@ -478,9 +463,6 @@ Variable mappings,,source variables other datasets,ref_array,,,,All variables,so
 Variable mappings,,target,ref,1,True,,Resources,,,,,,DataCatalogue
 Variable mappings,,target dataset,ref,1,True,,Datasets,target,,,,,DataCatalogue
 Variable mappings,,target variable,ref,1,True,,All variables,target dataset,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable",DataCatalogue
-Variable mappings,,target,ref,1,True,catalogue,Resources,,,,,,CohortStaging
-Variable mappings,,target dataset,ref,1,True,catalogue,Datasets,target,,,,,CohortStaging
-Variable mappings,,target variable,ref,1,True,catalogue,All variables,target dataset,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable",CohortStaging
 Variable mappings,,match,ontology,,True,CatalogueOntologies,Status details,,,,,"e.g. 'complete, partial, planned, no-match'","DataCatalogue,CohortStaging"
 Variable mappings,,status,ontology,,,CatalogueOntologies,Status,,,,,whether harmonisation is still draft or final,"DataCatalogue,CohortStaging"
 Variable mappings,,description,text,,,,,,,,,human readible description of the mapping,"DataCatalogue,CohortStaging"
