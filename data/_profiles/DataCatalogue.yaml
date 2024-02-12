@@ -9,5 +9,6 @@ demoData: _demodata/applications/datacatalogue
 settings: _settings/datacatalogue
 
 # special options
+setViewPermission: anonymous
 ontologiesToFixedSchema: CatalogueOntologies
-setViewPermission: anonymous # applies to both the 'main' schema and CatalogueOntologies, required for anonymous viewing of the catalogue
+setFixedSchemaViewPermission: anonymous

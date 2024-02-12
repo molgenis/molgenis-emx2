@@ -36,5 +36,6 @@
     - [RDF](dev_rdf.md)
     - [Graph genome](dev_graphgenome.md)
     - [App development](dev_apps.md)
+    - [App profiles](dev_profiles.md)
     - [Migrations](dev_migrations.md)
     - [Principles](dev_principles.md)
