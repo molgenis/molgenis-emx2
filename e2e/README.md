@@ -21,16 +21,22 @@ The test is part of .circleci/config.yml running that same command
 
 ## Catalogue manual tests
 
-The folder `e2e/catalogue` contains the steps taken by cohort data managers to test the '[new design](https://data-catalogue.molgeniscloud.org/catalogue/ssr-catalogue)' catalogue with multiple user roles in mind. Some of these manual steps will overlap the automated steps described above but we aim to minimize overlap. The tests will be performed on the data catalogue [accept](https://data-catalogue-acc.molgeniscloud.org/catalogue/catalogue/#/networks-catalogue) server which the cohort team updates to a specific version. Only when this version is considered stable the update will be rolled out to the data catalogue production server.
+The folder `e2e/catalogue` contains the steps taken by cohort data managers to test with multiple user roles in mind:
+
+- The '[MOLGENIS catalogue](https://data-catalogue.molgeniscloud.org/catalogue/ssr-catalogue)' .
+- The '[UMCG Research Data Catalogue](https://umcgresearchdatacatalogue.nl/UMCG/ssr-catalogue/all/)'
+- The '[MOLGENIS development server](https://emx2.dev.molgenis.org/apps/central/#/)'
+
+ Some of these manual steps will overlap the automated steps described above but we aim to minimize overlap. The tests will describe which server and page needs testing. The cohort team manager will specify the [version](https://github.com/molgenis/molgenis-emx2/releases) that will be tested. Only when this version is considered stable the update will be rolled out to the defined production server.
 
 ### Catalogue user roles
 
-1. Anonymous user browsing the catalogue.
-2. Researcher looking for specific variables.
-3. Researcher or data manager looking for information about specific cohorts.
-4. Data manager that needs to check the variables their cohort uploaded.
-5. Data manager who wants to login in order to upload data (login not yet implemented in this design).
-6. Data manager of a network needs to check their network information.
+1. Anonymous user.
+2. Researcher.
+3. Data manager of a cohort.
+4. Data manager of a data source.
+5. Data manager of harmonized variables
+6. Data manager of a network.
 
 ### Catalogue manual test template
 
@@ -46,7 +52,9 @@ The manual test is formatted as markdown and minimally should contain the follow
 
 ### Catalogue manual test results
 
-The result of these manual tests are saved ['management server'](https://ez3.molgeniscloud.org/catalogue%20test%20results/tables/#/TestResults) emx2. The following attributes are saved.
+The cohort data manager will keep track of the performed test by entering their results into [Catalogue tests results](https://data-catalogue.molgeniscloud.org/Catalogue%20tests%20results/tables/#/TestResults).
+
+The following attributes are saved.
 
 - Date
 - Number
@@ -56,3 +64,15 @@ The result of these manual tests are saved ['management server'](https://ez3.mol
 - Failed at step
 - Known issue: git issue url
 - New issue: git issue url
+
+Add or edit the available tests and emx2 version into the ontology table '[Catalogue tests](https://data-catalogue.molgeniscloud.org/Catalogue%20tests%20results/tables/#/CatalogueTests)' and '[Emx2 version](https://data-catalogue.molgeniscloud.org/Catalogue%20tests%20results/tables/#/Emx2Version)
+
+#### Ontology: Catalogue tests
+
+- name = Test number (1 for example)
+- label = Test number - Goal (1 - The data manager of the network ...)
+
+#### Ontology: Emx2 version
+
+- name = Emx2 version (10.35.5)
+- parent = Emx2 version family (10.35.0)
