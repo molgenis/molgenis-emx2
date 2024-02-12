@@ -1,4 +1,5 @@
 The Molgenis EMX2 Pyclient is Python package developed to be used for data management on Molgenis EMX2 servers.
+A detailed overview of the capabilities is presented in the [MOLGENIS documentation](https://molgenis.github.io/molgenis-emx2/#/molgenis/use_usingpyclient).
 
 ## Installation
 The releases of the package are hosted at [PyPI](https://pypi.org/project/molgenis-emx2-pyclient/).
@@ -46,6 +47,7 @@ with Client('https://example.molgeniscloud.org') as client:
 
 ```
 Instead of signing in with a username and password the client can also be used while authorized by a (temporary) token that is generated on the server.
+See the [MOLGENIS documentation for generating tokens](https://molgenis.github.io/molgenis-emx2/#/molgenis/use_tokens)
 ```py
 from molgenis_emx2_pyclient import Client
 
