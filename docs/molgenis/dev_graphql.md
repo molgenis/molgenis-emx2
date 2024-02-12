@@ -327,6 +327,11 @@ Simple query, including count
   Pet_agg {
     count
   }
+  Pet_groupBy{
+    sum{weight},
+    count,
+    tags{name}
+  }
 }
 ```
 

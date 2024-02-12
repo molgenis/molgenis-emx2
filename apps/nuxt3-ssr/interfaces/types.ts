@@ -11,6 +11,7 @@ export interface IResource {
 }
 export interface ICohort {
   id: string;
+  pid: string;
   name: string;
   acronym?: string;
   description?: string;
@@ -74,6 +75,7 @@ export interface IVariableBase {
   };
   label?: string;
   description?: string;
+  mg_tableclass?: string;
 }
 
 export interface IVariableDetails {
@@ -245,6 +247,7 @@ export interface IMapping {
   source: {
     id: string;
     name: string;
+    mg_tableclass: string;
   };
   sourceDataset: {
     resource: {
@@ -253,8 +256,8 @@ export interface IMapping {
     name: string;
   };
   sourceVariables: IVariableBase[] | IVariable[];
-  targetVariable: IVariableBase[] | IVariable[];
   sourceVariablesOtherDatasets: IVariableBase[] | IVariable[];
+  targetVariable: IVariableBase | IVariable;
 }
 
 export type HarmonizationStatus = "unmapped" | "partial" | "complete";
@@ -266,10 +269,12 @@ export interface IMgError {
   data: { errors: { message: string }[] };
 }
 
+export type DefinitionListItemType = "ONTOLOGY" | "LINK";
+
 export interface IDefinitionListItem {
   label: string;
   tooltip?: string;
-  type?: string;
+  type?: DefinitionListItemType;
   content: any;
 }
 export interface IOntologyItem {

@@ -132,11 +132,12 @@ export default {
         "RD3",
         "JRC_COMMON_DATA_ELEMENTS",
         "FAIR_GENOMES",
+        "DCAT",
         "BEACON_V2",
         "ERN_DASHBOARD",
-        "ERN_CRANIO",
         "BIOBANK_DIRECTORY",
         "SHARED_STAGING",
+        "PROJECTMANAGER",
       ],
       includeDemoData: false,
     };
