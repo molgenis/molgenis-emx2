@@ -325,13 +325,13 @@ export default {
     onMouseOver(event) {
       const column = event.target;
       const label = column.nextSibling;
-      column.style.fill = this.columnHoverFill;
+      column.style.fill = this.barHoverFill;
       label.style.opacity = 1;
     },
     onMouseLeave(event) {
       const column = event.target;
       const label = column.nextSibling;
-      column.style.fill = this.columnFill;
+      column.style.fill = this.barFill;
       label.style.opacity = 0;
     },
     drawBars() {
