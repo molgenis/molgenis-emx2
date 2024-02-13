@@ -1,0 +1,80 @@
+.app-page,
+.page-footer {
+  font-family: Helvetica, sans-serif;
+}
+
+.dashboard-container {
+  .dashboard-box {
+    &.chart-overflow {
+      padding-top: 0;
+      overflow-y: auto;
+      max-height: 60%;
+
+      caption {
+        margin-top: 1em;
+      }
+
+      .d3-table {
+        position: relative;
+        thead {
+          position: sticky;
+          top: 0;
+          background-color: $gray-000;
+          th {
+            padding: 0.6em;
+          }
+        }
+      }
+    }
+
+    h3,
+    .d3-viz .chart-title,
+    .d3-progress-meter .chart-title span {
+      font-size: 14pt;
+      font-weight: 400;
+    }
+
+    p {
+      margin-bottom: 0;
+    }
+  }
+
+  .d3-pie {
+    .chart-legend {
+      .legend-item {
+        .text-item {
+          .item-label {
+            font-size: 0.9rem;
+          }
+        }
+      }
+    }
+
+    .chart {
+      .chart-area {
+        .pie-labels {
+          .pie-label-text {
+            font-size: 0.5rem;
+          }
+        }
+      }
+    }
+  }
+
+  .d3-table {
+    caption {
+      @include setChartTitle;
+    }
+    thead {
+      th {
+        font-size: 0.8rem;
+      }
+    }
+    tbody {
+      td {
+        font-size: 0.9rem;
+        padding: 0.6em 0.4em;
+      }
+    }
+  }
+}
