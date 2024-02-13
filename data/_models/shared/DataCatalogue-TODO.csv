@@ -24,7 +24,7 @@ Data resources,,local name,,,,,,,,,rdfs:label,"If different from above, name in 
 Organisations,,type,ontology_array,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?,"DataCatalogue,EMA,SharedStaging"
 Organisations,,type other,text,,,,,,,,,"If type is 'other', a description of type of organisation","DataCatalogue,SharedStaging"
 Organisations,,institution,text,,,,,,,,org:FormalOrganization,"University, company, medical centre or research institutes this organisation is part of","DataCatalogue,EMA,SharedStaging"
-Organisations,,institution acronym,string,,,,,,,,creat,Short name of the organisation,"DataCatalogue,EMA,SharedStaging"
+Organisations,,institution acronym,string,,,,,,,,,Short name of the organisation,"DataCatalogue,EMA,SharedStaging"
 Organisations,,email,email,,,,,,,,vcard:hasEmail,Contact email address for person responsible for organization entry in catalogue,"DataCatalogue,SharedStaging"
 Organisations,,logo,file,,,,,,,,,Logo of the organisation,"DataCatalogue,SharedStaging"
 Organisations,,address,text,,,,,,,,vcard:hasAddress,Address of the organisation,"DataCatalogue,SharedStaging"

@@ -281,7 +281,17 @@ public class RDFService {
     }
     if (table.getMetadata().getSemantics() != null) {
       for (final String tableSemantics : table.getMetadata().getSemantics()) {
-        builder.add(subject, RDFS.ISDEFINEDBY, iri(tableSemantics));
+        try {
+          builder.add(subject, RDFS.ISDEFINEDBY, iri(tableSemantics));
+        } catch (Exception e) {
+          throw new MolgenisException(
+              "Table annotation '"
+                  + tableSemantics
+                  + "' for table "
+                  + table.getName()
+                  + " gives error",
+              e);
+        }
       }
     } else if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
       builder.add(subject, RDFS.ISDEFINEDBY, IRI_CONTROLLED_VOCABULARY);
@@ -346,7 +356,19 @@ public class RDFService {
           // todo: need to figure out how to better handle 'id' tagging
           columnSemantics = SEMANTICS_ID_URL_STRING;
         }
-        builder.add(subject, RDFS.ISDEFINEDBY, iri(columnSemantics));
+        try {
+          builder.add(subject, RDFS.ISDEFINEDBY, iri(columnSemantics));
+        } catch (Exception e) {
+          throw new MolgenisException(
+              "Semantic tag '"
+                  + columnSemantics
+                  + "' for column "
+                  + column.getTableName()
+                  + "."
+                  + column.getName()
+                  + " gives error",
+              e);
+        }
       }
     }
     if (column.getDescriptions() != null) {
