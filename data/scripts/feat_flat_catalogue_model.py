@@ -165,7 +165,6 @@ class Flattener(pd.DataFrame):
         """
         description = "Group of individuals sharing a defining demographic characteristic"
         idx = self.loc[(self['tableName'] == 'Resources') & (self['columnName'].isna())].index[0]
-        # self.index = [*self.index[:idx + 1], *self.index[idx + 2:], len(self.index)]
         self['label'] = None
         self.loc[idx+0.5] = self.loc[idx]
         self.loc[idx+0.5, 'description'] = description
@@ -174,7 +173,6 @@ class Flattener(pd.DataFrame):
         self.loc[idx+0.5, 'label'] = 'Cohorts'
         self.sort_index(inplace=True)
         self.reset_index(drop=True, inplace=True)
-
 
     def save_df(self, old_profiles: bool = False):
         """Saves the pandas DataFrame of the model to disk."""
@@ -186,7 +184,7 @@ class Flattener(pd.DataFrame):
         if old_profiles:
             file_dir += "/old_profiles"
         for prof in profiles:
-            self.loc[self['profiles'].str.contains(prof)].to_csv(f"{file_dir}/{prof}.csv", index=False)
+            self.loc[self['profiles'].str.contains(prof)].drop(columns=['profiles']).to_csv(f"{file_dir}/{prof}.csv", index=False)
 
 
 def main():
