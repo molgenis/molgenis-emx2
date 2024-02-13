@@ -28,9 +28,6 @@ MODELS_DIR = '../_models/shared'
 
 inherit_tables = [[Tables.O, Tables.R], [Tables.M, Tables.ER],
                   [Tables.N, Tables.ER], [Tables.S, Tables.ER],
-                  # [Tables.C, Tables.DR], [Tables.RWE, Tables.DR],
-                  # [Tables.DR, Tables.ER],
-                  # [Tables.ER, Tables.R],
                   [Tables.S, Tables.R], [Tables.M, Tables.R], [Tables.N, Tables.R]]
 
 rename_tables = [[Tables.C, Tables.DR], [Tables.RWE, Tables.DR],
@@ -42,9 +39,8 @@ table_profiles = {
     'RWE resources': 'RWEStaging',
 }
 
-renames = {
-    # 'Cohorts': 'Resources',
-    # 'RWE resources': 'Resources'
+labels = {
+    'Cohorts': 'CohortStaging'
 }
 
 
@@ -85,6 +81,8 @@ class Flattener(pd.DataFrame):
             self._rename_table(*rn)
 
         self._remove_duplicates()
+
+        self._add_cohorts_label()
 
         # Save result to file
         self.save_df()
@@ -135,9 +133,10 @@ class Flattener(pd.DataFrame):
 
     def _rename_table(self, old_name: str, new_name: str):
         """Renames a table and references to that table to the new name."""
+
         self['refTable'].replace(old_name, new_name, inplace=True)
-        self['tableName'] = self['tableName'].replace(old_name, new_name)
-        self['tableExtends'] = self['tableExtends'].replace(old_name, new_name)
+        self['tableName'].replace(old_name, new_name, inplace=True)
+        self['tableExtends'].replace(old_name, new_name, inplace=True)
 
         self.drop(index=self.loc[(self['tableName'] == self['tableExtends'])].index, axis=1, inplace=True)
 
@@ -159,6 +158,23 @@ class Flattener(pd.DataFrame):
         """Prepares the dtype of the 'key' column."""
         self['key'] = self['key'].convert_dtypes()
         self['required'] = self['required'].apply(lambda r: 'true' if r is True else '')
+
+    def _add_cohorts_label(self):
+        """Adds the label 'Cohorts' to the 'Resources' table in the CohortsStaging schema.
+        And replaces its description by that of the original Cohorts table.
+        """
+        description = "Group of individuals sharing a defining demographic characteristic"
+        idx = self.loc[(self['tableName'] == 'Resources') & (self['columnName'].isna())].index[0]
+        # self.index = [*self.index[:idx + 1], *self.index[idx + 2:], len(self.index)]
+        self['label'] = None
+        self.loc[idx+0.5] = self.loc[idx]
+        self.loc[idx+0.5, 'description'] = description
+        self.loc[idx, 'profiles'] = ','.join(p for p in self.loc[idx, 'profiles'].split(',') if p != 'CohortStaging')
+        self.loc[idx+0.5, 'profiles'] = 'CohortStaging'
+        self.loc[idx+0.5, 'label'] = 'Cohorts'
+        self.sort_index(inplace=True)
+        self.reset_index(drop=True, inplace=True)
+
 
     def save_df(self, old_profiles: bool = False):
         """Saves the pandas DataFrame of the model to disk."""

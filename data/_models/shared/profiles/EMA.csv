@@ -1,240 +1,240 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Version,,,,,,,,,,,,3.10,"DataCatalogue,EMA,SharedStaging,CohortStaging"
-Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
-Organisations,,,,,,,,,,,,Research departments and research groups,"DataCatalogue,EMA,SharedStaging"
-Models,,,,,,,,,,,,Data models,"DataCatalogue,EMA"
-Data sources,Resources,,,,,,,,,,,Collections of multiple data banks covering the same population,"DataCatalogue,EMA"
-Networks,,,,,,,,,,,,Collaborations of multiple institutions,"DataCatalogue,EMA"
-Studies,,,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks","DataCatalogue,EMA"
-Resources,,id,,1,true,,,,,,,Internal identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
-Networks,,id,,1,true,,,,,,,Internal identifier,"DataCatalogue,EMA"
-Models,,id,,1,true,,,,,,,Internal identifier,"DataCatalogue,EMA"
-Studies,,id,,1,true,,,,,,,Internal identifier,"DataCatalogue,EMA"
-Organisations,,id,,1,true,,,,,,,Internal identifier,"DataCatalogue,EMA,SharedStaging"
-Resources,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
-Networks,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA"
-Models,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA"
-Studies,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA"
-Organisations,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA,SharedStaging"
-Resources,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
-Networks,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA"
-Models,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA"
-Studies,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA"
-Organisations,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA,SharedStaging"
-Resources,,name,text,3,true,,,,,,,Name used in European projects,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
-Networks,,name,text,3,true,,,,,,,Name used in European projects,"DataCatalogue,EMA"
-Models,,name,text,3,true,,,,,,,Name used in European projects,"DataCatalogue,EMA"
-Studies,,name,text,3,true,,,,,,,Name used in European projects,"DataCatalogue,EMA"
-Organisations,,name,text,3,true,,,,,,,Name used in European projects,"DataCatalogue,EMA,SharedStaging"
-Organisations,,type,ontology_array,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?,"DataCatalogue,EMA,SharedStaging"
-Organisations,,institution,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of","DataCatalogue,EMA,SharedStaging"
-Organisations,,institution acronym,string,,,,,,,,,Short name of the organisation,"DataCatalogue,EMA,SharedStaging"
-Organisations,,country,ontology_array,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located,"DataCatalogue,EMA,SharedStaging"
-Organisations,,features,ontology_array,,,CatalogueOntologies,Organisation features,,,,,Features that describe this organisation,"DataCatalogue,EMA,SharedStaging"
-Organisations,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,,Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:,"DataCatalogue,EMA,SharedStaging"
-Organisations,,leading resources,refback,,,,Resources,,lead organisation,,,"Listing of data sources, cohorts, studies (etc)","DataCatalogue,EMA"
-Organisations,,additional resources,refback,,,,Resources,,additional organisations,,,"Listing of data sources, cohorts, studies (etc)","DataCatalogue,EMA"
-Networks,,features,ontology_array,,,CatalogueOntologies,Network features,,,,,Characterizations of the network,"DataCatalogue,EMA"
-Studies,,type,ontology,,,CatalogueOntologies,Study types,,,,,Select 1 of the following types of study,"DataCatalogue,EMA"
-Studies,,type other,,,,,,,,,,"If other, describe the type of study","DataCatalogue,EMA"
-Resources,,type,ontology_array,,,CatalogueOntologies,Datasource types,,,,,Which of the following families of databanks best describe this data source,"DataCatalogue,EMA,RWEStaging"
-Resources,,type other,text,,,,,,,,,"If other, describe the type of datasource","DataCatalogue,EMA,RWEStaging"
-Resources,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA,CohortStaging,RWEStaging"
-Networks,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA"
-Models,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA"
-Studies,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA"
-Organisations,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA"
-Resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
-Studies,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
-Networks,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
-Models,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
-Resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
-Studies,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
-Networks,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
-Models,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
-Studies,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA
-Networks,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA
-Resources,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA,CohortStaging,RWEStaging"
-Networks,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA"
-Models,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA"
-Studies,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA"
-Organisations,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA"
-Resources,,data collection description,text,,,,,,,,,Describe the process of collection and recording of data.,"DataCatalogue,EMA,RWEStaging"
-Resources,,date established,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogue,EMA,RWEStaging"
-Resources,,start data collection,date,,,,,,,,,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogue,EMA,RWEStaging"
-Resources,,end data collection,date,,,,,,,,,"If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogue,EMA,RWEStaging"
-Resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA,CohortStaging"
-Studies,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA"
-Networks,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA"
-Models,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA"
-Studies,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogue,EMA"
-Models,,release frequency,int,,,,,,,,,Refreshing rate (in months),"DataCatalogue,EMA"
-Resources,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),"DataCatalogue,EMA,CohortStaging,RWEStaging"
-Networks,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),"DataCatalogue,EMA"
-Models,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),"DataCatalogue,EMA"
-Studies,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),"DataCatalogue,EMA"
-Organisations,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),"DataCatalogue,EMA"
-Resources,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected,"DataCatalogue,EMA,CohortStaging"
-Resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
-Studies,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA"
-Networks,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA"
-Models,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA"
-Resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
-Resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.,"DataCatalogue,EMA,CohortStaging"
-Resources,,population entry,ontology_array,,,CatalogueOntologies,Population entry,,,,,Select the possible causes / events that trigger the registration of a person in the data source,"DataCatalogue,EMA,RWEStaging"
-Resources,,population entry other,text,,,,,,,,,"If other, specify the causes of entry to the underlying population","DataCatalogue,EMA,RWEStaging"
-Resources,,population exit,ontology_array,,,CatalogueOntologies,Population exit,,,,,Select the possible causes / events that trigger the de-registration of a person in the data source,"DataCatalogue,EMA,RWEStaging"
-Resources,,population exit other,text,,,,,,,,,"If other, specify the causes of exit from the underlying population","DataCatalogue,EMA,RWEStaging"
-Resources,,population coverage,text,,,,,,,,,Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.,"DataCatalogue,EMA,RWEStaging"
-Resources,,population not covered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) ","DataCatalogue,EMA,RWEStaging"
-Resources,,quantantitative information,refback,,,,Quantitative information,,resource,,,Numerical summaries describing data bank population,"DataCatalogue,EMA,RWEStaging"
-Resources,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected,"DataCatalogue,EMA,RWEStaging"
-Resources,,quality of life other,text,,,,,,,,,"If other, specify additional quality of life measures","DataCatalogue,EMA,RWEStaging"
-Resources,,cause of death code other,text,,,,,,,,,"If 'other,' what cause of death vocabulary is used?","DataCatalogue,EMA,RWEStaging"
-Resources,,indication vocabulary other,text,,,,,,,,,"If 'other,' what indication for use vocabulary is used?","DataCatalogue,EMA,RWEStaging"
-Resources,,genetic data vocabulary other,text,,,,,,,,,"If 'other,' what genetic data vocabulary is used?","DataCatalogue,EMA,RWEStaging"
-Resources,,care setting other,text,,,,,,,,,"If 'other,' description of the setting of care","DataCatalogue,EMA,RWEStaging"
-Resources,,medicinal product vocabulary other,text,,,,,,,,,"If 'other,' description of the medicinal product vocabulary","DataCatalogue,EMA,RWEStaging"
-Resources,,prescriptions vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogue,EMA,RWEStaging"
-Resources,,dispensings vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogue,EMA,RWEStaging"
-Resources,,procedures vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogue,EMA,RWEStaging"
-Resources,,biomarker data vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogue,EMA,RWEStaging"
-Resources,,diagnosis medical event vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogue,EMA,RWEStaging"
-Resources,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on","DataCatalogue,EMA,RWEStaging"
-Resources,,disease details other,text,,,,,,,,,Specify disease details if not present in MedDRA,"DataCatalogue,EMA,RWEStaging"
-Resources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)","DataCatalogue,EMA,RWEStaging"
-Resources,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly","DataCatalogue,EMA,RWEStaging"
-Resources,,prelinked,bool,,,,,,,,,Is the data from this data source linked to other data sources?,"DataCatalogue,EMA,CohortStaging"
-Resources,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are currently available between data sources in the data source (when pre-linked = yes),"DataCatalogue,EMA,RWEStaging"
-Resources,,linkage possibility,bool,,,,,,,,,Can this data source be linked to other data sources?,"DataCatalogue,EMA,RWEStaging"
-Resources,,linkage possibility description,text,,,,,,,,,Can the data from this data source be linked to other data sources?,"DataCatalogue,EMA,CohortStaging"
-Resources,,linked resources,refback,,,,Linked resources,,main resource,,,List of resources that are or can be linked to this main resource,"DataCatalogue,EMA,RWEStaging"
-Resources,,data holder,ref,,,,Organisations,,,,,The name of the organisation that is responsible for governance of the data bank,"DataCatalogue,EMA"
-Resources,,informed consent,ontology,,,CatalogueOntologies,Informed consents,,,,,Is informed consent required for use of the data for research purposes?,"DataCatalogue,EMA,RWEStaging"
-Resources,,informed consent other,text,,,,,,,,,"If other, describe the conditions when informed consent is required","DataCatalogue,EMA,RWEStaging"
-Resources,,access subject details,bool,,,,,,,,,Can individual patients/practitioners/practices be contacted in the data bank?,"DataCatalogue,EMA,RWEStaging"
-Resources,,biospecimen access,bool,,,,,,,,,"If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?","DataCatalogue,EMA,RWEStaging"
-Resources,,biospecimen access conditions,text,,,,,,,,,"If yes above, describe the conditions under which permission to retrieve biospecimens may be granted","DataCatalogue,EMA,RWEStaging"
-Resources,,approval for publication,bool,,,,,,,,,Is an approval needed to publish the results of a study using the data,"DataCatalogue,EMA,RWEStaging"
-Resources,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?,"DataCatalogue,EMA,RWEStaging"
-Resources,,preservation duration,int,,,,,,,,,"If no to the above, for how long (in years) are records preserved in the data bank?","DataCatalogue,EMA,RWEStaging"
-Resources,,refresh period,ontology_array,,,CatalogueOntologies,Refresh periods,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:","DataCatalogue,EMA,RWEStaging"
-Resources,,date last refresh,date,,,,,,,,,Date of last update/refresh,"DataCatalogue,EMA,RWEStaging"
-Resources,,qualification,bool,,,,,,,,,"Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?","DataCatalogue,EMA,RWEStaging"
-Resources,,qualifications description,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted","DataCatalogue,EMA,RWEStaging"
-Resources,,access for validation,bool,,,,,,,,,"Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?","DataCatalogue,EMA,RWEStaging"
-Resources,,cdms,refback,,,,Mappings,,source,,,Common data models used or ETL-ed to by this data source,"DataCatalogue,EMA,RWEStaging"
-Resources,,cdms other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source","DataCatalogue,EMA,RWEStaging"
-Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA,CohortStaging"
-Studies,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA"
-Networks,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA"
-Models,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA"
-Resources,,funding sources,ontology_array,,,CatalogueOntologies,Funding types,,,,,Specify the main financial support sources for the data source in the last 3 years. Select all that apply,"DataCatalogue,EMA,RWEStaging"
-Studies,,funding scheme,ontology_array,,,CatalogueOntologies,Study funding,,,,,The source of funding for the study. Select all that apply,"DataCatalogue,EMA"
-Resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA,CohortStaging"
-Studies,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA"
-Networks,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA"
-Models,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA"
-Resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA,CohortStaging"
-Studies,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA"
-Networks,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA"
-Models,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA"
-Studies,,networks,ref_array,,,,Networks,,,,,The consortia or networks that this study is part of,"DataCatalogue,EMA"
-Resources,,networks,refback,,,,Networks,,data sources,,,List of networks that this datasource is associated with,"DataCatalogue,EMA,RWEStaging"
-Resources,,studies,refback,,,,Studies,,data sources,,,List of studies that this datasource is associated with,"DataCatalogue,EMA,RWEStaging"
-Publications,,doi,,1,true,,,,,,,Digital object identifier,"DataCatalogue,EMA,CohortStaging"
-Publications,,title,text,,,,,,,,,Publication title,"DataCatalogue,EMA,CohortStaging"
-Contacts,,,,,,,,,,,,Listing of contact persons per resource,"DataCatalogue,EMA,CohortStaging"
-Contacts,,resource,ref,1,true,,Resources,,,,,Resource the contact is affiliated with,"DataCatalogue,EMA,CohortStaging"
-Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource,"DataCatalogue,EMA,CohortStaging"
-Contacts,,first name,,1,true,,,,,,,First name of the contact person,"DataCatalogue,EMA,CohortStaging"
-Contacts,,last name,,1,true,,,,,,,Last name of the contact person,"DataCatalogue,EMA,CohortStaging"
-Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person,"DataCatalogue,EMA,CohortStaging"
-Contacts,,organisation,ref,,,,Organisations,,,,,Affiliated organisation of the contact person,"DataCatalogue,EMA"
-Documentation,,resource,ref,1,true,,Resources,,,,,The resource this documentation is for,"DataCatalogue,EMA,CohortStaging"
-Documentation,,name,,1,true,,,,,,,Document name,"DataCatalogue,EMA,CohortStaging"
-Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of documentation,"DataCatalogue,EMA,CohortStaging"
-Documentation,,url,hyperlink,,,,,,,,,Hyperlink to the source of the documentation,"DataCatalogue,EMA,CohortStaging"
-Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation,"DataCatalogue,EMA,CohortStaging"
-Linked resources,,,,,,,,,,,,Links between datasource and databank,"DataCatalogue,EMA"
-Linked resources,,main resource,ref,1,true,,Resources,,,,,,"DataCatalogue,EMA"
-Linked resources,,linked resource,ref,1,true,,Resources,,,,,,"DataCatalogue,EMA"
-Linked resources,,other linked resource,,,,,,,,,,"If other linked data source, enter the name of the data source (default = not applicable)","DataCatalogue,EMA"
-Linked resources,,linkage strategy,ontology,,,CatalogueOntologies,Linkage strategies,,,,,The linkage method that was used to link data banks. One entry per data bank,"DataCatalogue,EMA"
-Linked resources,,linkage variable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank","DataCatalogue,EMA"
-Linked resources,,linkage completeness,text,,,,,,,,,Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words),"DataCatalogue,EMA"
-Linked resources,,pre linked,bool,,,,,,,,,Does the data source constitute of linked data sources?,"DataCatalogue,EMA"
-Quantitative information,,,,,,,,,,,,Quantitative information on the resource,"DataCatalogue,EMA"
-Quantitative information,,resource,ref,1,,,Resources,,,,,,"DataCatalogue,EMA"
-Quantitative information,,age group,ontology,1,,CatalogueOntologies,Age groups,,,,,Select the relevant age group for this quantitative information,"DataCatalogue,EMA"
-Quantitative information,,population size,int,,,,,,,,,"Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year","DataCatalogue,EMA"
-Quantitative information,,active size,int,,,,,,,,,"Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year","DataCatalogue,EMA"
-Quantitative information,,mean observation years,int,,,,,,,,,Median years for which unique individuals with records captured in the data source are observable (most recent count),"DataCatalogue,EMA"
-Quantitative information,,mean years active,int,,,,,,,,,Median time for which unique individuals with records captured in the data source are observable (most recent count),"DataCatalogue,EMA"
-Networks,,data sources,ref_array,,,,Data sources,,,,,,"DataCatalogue,EMA"
-Networks,,studies,refback,,,,Studies,,networks,,,,"DataCatalogue,EMA"
-Studies,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements,"DataCatalogue,EMA"
-Studies,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only","DataCatalogue,EMA"
-Studies,,date of signing funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned","DataCatalogue,EMA"
-Studies,,date of signing funding contract actual,date,,,,,,,,,"Date when funding contract was signed, actual","DataCatalogue,EMA"
-Studies,,collection start planned,date,,,,,,,,,When was the data collection planned to start?,"DataCatalogue,EMA"
-Studies,,collection start actual,date,,,,,,,,,When was the data collection actually start?,"DataCatalogue,EMA"
-Studies,,analysis start planned,date,,,,,,,,,When was the data analysis planned to start?,"DataCatalogue,EMA"
-Studies,,analysis start actual,date,,,,,,,,,When did the data analysis actually start?,"DataCatalogue,EMA"
-Studies,,interim report planned,date,,,,,,,,,"Planned date of interim report, if expected","DataCatalogue,EMA"
-Studies,,interim report actual,date,,,,,,,,,"Actual date of interim report, if expected","DataCatalogue,EMA"
-Studies,,final report planned,date,,,,,,,,,"Date of final study report, planned","DataCatalogue,EMA"
-Studies,,final report actual,date,,,,,,,,,"Date of final study report, actual","DataCatalogue,EMA"
-Studies,,data sources,ref_array,,,,Data sources,,,,,Data sources that provided data into this study,"DataCatalogue,EMA"
-Studies,,data sources other,text,,,,,,,,,Other not listed data sources that provided data into this study,"DataCatalogue,EMA"
-Studies,,cdms,refback,,,,Mappings,,source,,,Common data model(s) used in this study,"DataCatalogue,EMA"
-Studies,,study features,ontology_array,,,CatalogueOntologies,Study features,,,,,Data features,"DataCatalogue,EMA"
-Studies,,data characterisation details,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process,"DataCatalogue,EMA"
-Studies,,data source types,ontology_array,,,CatalogueOntologies,Study datasource types,,,,,Types of data sources used,"DataCatalogue,EMA"
-Studies,,data source types other,text,,,,,,,,,"Sources of data, if other","DataCatalogue,EMA"
-Studies,,quality marks,ontology_array,,,CatalogueOntologies,Study quality marks,,,,,"Quality marks, such as ENCePP seal","DataCatalogue,EMA"
-Studies,,number of data sources,,,,,,,,,,Total number of data sources included in the study,"DataCatalogue,EMA"
-Studies,,medicines studied INN codes,ontology_array,,,CatalogueOntologies,INN,,,,,INN codes of medicines studied,"DataCatalogue,EMA"
-Studies,,medicines studied ATC codes,ontology_array,,,CatalogueOntologies,ATC,,,,,ATC codes of medicines studied,"DataCatalogue,EMA"
-Studies,,medicines studies brands,ontology_array,,,CatalogueOntologies,Medicine brand names,,,,,Brand names of the medicines studied,"DataCatalogue,EMA"
-Studies,,medicines studied other,text,,,,,,,,,If the medicinal product information (e.g. brand name or active substance or ATC code) does not appear in the available look-ups please enter it here,"DataCatalogue,EMA"
-Studies,,medical conditions studied,ontology_array,,,CatalogueOntologies,MedDRA,,,,,Codes of the medical conditions studied,"DataCatalogue,EMA"
-Studies,,medical conditions studied other,text,,,,,,,,,Codes of the medical conditions studied,"DataCatalogue,EMA"
-Studies,,population description,text,,,,,,,,,A short description of the study population,"DataCatalogue,EMA"
-Studies,,number of subjects,int,,,,,,,,,Estimated number of subjects,"DataCatalogue,EMA"
-Studies,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are studied,"DataCatalogue,EMA"
-Studies,,objectives,text,,,,,,,,,A short description of the study objective,"DataCatalogue,EMA"
-Studies,,interventions,text,,,,,,,,,A short description of the study interventions,"DataCatalogue,EMA"
-Studies,,comparators,text,,,,,,,,,A short description of the study comparators,"DataCatalogue,EMA"
-Studies,,outcomes,text,,,,,,,,,A short description of the study outcomes,"DataCatalogue,EMA"
-Studies,,study design,text,,,,,,,,,A brief summary of the study design,"DataCatalogue,EMA"
-Studies,,results,text,,,,,,,,,A brief summary of the results of the study on study completion (from abstract),"DataCatalogue,EMA"
-Studies,,topic,ontology_array,,,CatalogueOntologies,Study topics,,,,,An initial classification of the study purpose,"DataCatalogue,EMA"
-Studies,,topic other,text,,,,,,,,,"If the study is not concerning any of the proposed categories, please specify the details","DataCatalogue,EMA"
-Studies,,trial regulatory scope,ontology_array,,,CatalogueOntologies,Study trial regulatory scopes,,,,,Classification of the clinical trial in relation to the medicines authorisation,"DataCatalogue,EMA"
-Studies,,study design classification,ontology_array,,,CatalogueOntologies,Study design classification,,,,,Study design classifications,"DataCatalogue,EMA"
-Studies,,study design classification other,text,,,,,,,,,Further details on design,"DataCatalogue,EMA"
-Studies,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study,"DataCatalogue,EMA"
-Studies,,study scope other,text,,,,,,,,,If scope 'other',"DataCatalogue,EMA"
-Studies,,population of interest,ontology_array,,,CatalogueOntologies,Population of interest,,,,,"If population of interest is 'Other', please specify which other population has been studied","DataCatalogue,EMA"
-Studies,,population of interest other,text,,,,,,,,,"If population of interest is 'Other', please specify which other population has been studied","DataCatalogue,EMA"
-Mappings,,,,,,,,,,,,"Mapping from collected datasets to standard/harmonised datasets, optionally including ETL syntaxes","DataCatalogue,EMA"
-Mappings,,source,ref,1,true,,Resources,,,,,Data source that is being mapped to a (common) data model,"DataCatalogue,EMA"
-Mappings,,source version,string,,,,,,,,,version of the datasource that is being mapped,"DataCatalogue,EMA"
-Mappings,,target,ref,1,true,,Models,,,,,model being mapped to,"DataCatalogue,EMA"
-Mappings,,target version,string,,,,,,,,,version of the model being mapped to,"DataCatalogue,EMA"
-Mappings,,cdms other,,,,,,,,,,"if cdm is not under targets, which cdm was mapped to? (default = not applicable)","DataCatalogue,EMA"
-Mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,"Mapping from collected datasets to standard/harmonised datasets, optionally including ETL syntaxes","DataCatalogue,EMA"
-Mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months","DataCatalogue,EMA"
-Mappings,,ETL specification url,hyperlink,,,,,,,,,Link to ETL specification documentation,"DataCatalogue,EMA"
-Mappings,,ETL specification document,file,,,,,,,,,Documentation concerning ETL details,"DataCatalogue,EMA"
-Submissions,,,,,,,,,,,,Documentation of data submissions related to a resource,"DataCatalogue,EMA"
-Submissions,,submission date,datetime,1,true,,,,,,,Date of submission,"DataCatalogue,EMA"
-Submissions,,resources,ref_array,,true,,Resources,,,,,Resource(s) that this submission is related to,"DataCatalogue,EMA"
-Submissions,,submission type,ontology,,,CatalogueOntologies,Submission types,,,,,"Type of submission, e.g. 'new entry', 'correction'","DataCatalogue,EMA"
-Submissions,,submission description,text,,,,,,,,,"Description of the submission, if applicable","DataCatalogue,EMA"
-Submissions,,acceptance date,datetime,,,,,,,,,Date submission was accepted,"DataCatalogue,EMA"
-External identifiers,,,,,,,,,,,,External identifier(s) for this resource,"DataCatalogue,EMA,CohortStaging"
-External identifiers,,resource,ref,1,true,,Resources,,,,,Resource that this external identifier belongs to,"DataCatalogue,EMA,CohortStaging"
-External identifiers,,identifier,text,1,true,,,,,,,External identifier,"DataCatalogue,EMA,CohortStaging"
-External identifiers,,external identifier type,ontology,,,CatalogueOntologies,External identifier types,,,,,External identifier type,"DataCatalogue,EMA,CohortStaging"
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,label
+Version,,,,,,,,,,,,3.10,"DataCatalogue,EMA,SharedStaging,CohortStaging",
+Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging,RWEStaging",
+Organisations,,,,,,,,,,,,Research departments and research groups,"DataCatalogue,EMA,SharedStaging",
+Models,,,,,,,,,,,,Data models,"DataCatalogue,EMA",
+Data sources,Resources,,,,,,,,,,,Collections of multiple data banks covering the same population,"DataCatalogue,EMA",
+Networks,,,,,,,,,,,,Collaborations of multiple institutions,"DataCatalogue,EMA",
+Studies,,,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks","DataCatalogue,EMA",
+Resources,,id,,1,true,,,,,,,Internal identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging",
+Networks,,id,,1,true,,,,,,,Internal identifier,"DataCatalogue,EMA",
+Models,,id,,1,true,,,,,,,Internal identifier,"DataCatalogue,EMA",
+Studies,,id,,1,true,,,,,,,Internal identifier,"DataCatalogue,EMA",
+Organisations,,id,,1,true,,,,,,,Internal identifier,"DataCatalogue,EMA,SharedStaging",
+Resources,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging",
+Networks,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA",
+Models,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA",
+Studies,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA",
+Organisations,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA,SharedStaging",
+Resources,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging",
+Networks,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA",
+Models,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA",
+Studies,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA",
+Organisations,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA,SharedStaging",
+Resources,,name,text,3,true,,,,,,,Name used in European projects,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging",
+Networks,,name,text,3,true,,,,,,,Name used in European projects,"DataCatalogue,EMA",
+Models,,name,text,3,true,,,,,,,Name used in European projects,"DataCatalogue,EMA",
+Studies,,name,text,3,true,,,,,,,Name used in European projects,"DataCatalogue,EMA",
+Organisations,,name,text,3,true,,,,,,,Name used in European projects,"DataCatalogue,EMA,SharedStaging",
+Organisations,,type,ontology_array,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?,"DataCatalogue,EMA,SharedStaging",
+Organisations,,institution,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of","DataCatalogue,EMA,SharedStaging",
+Organisations,,institution acronym,string,,,,,,,,,Short name of the organisation,"DataCatalogue,EMA,SharedStaging",
+Organisations,,country,ontology_array,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located,"DataCatalogue,EMA,SharedStaging",
+Organisations,,features,ontology_array,,,CatalogueOntologies,Organisation features,,,,,Features that describe this organisation,"DataCatalogue,EMA,SharedStaging",
+Organisations,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,,Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:,"DataCatalogue,EMA,SharedStaging",
+Organisations,,leading resources,refback,,,,Resources,,lead organisation,,,"Listing of data sources, cohorts, studies (etc)","DataCatalogue,EMA",
+Organisations,,additional resources,refback,,,,Resources,,additional organisations,,,"Listing of data sources, cohorts, studies (etc)","DataCatalogue,EMA",
+Networks,,features,ontology_array,,,CatalogueOntologies,Network features,,,,,Characterizations of the network,"DataCatalogue,EMA",
+Studies,,type,ontology,,,CatalogueOntologies,Study types,,,,,Select 1 of the following types of study,"DataCatalogue,EMA",
+Studies,,type other,,,,,,,,,,"If other, describe the type of study","DataCatalogue,EMA",
+Resources,,type,ontology_array,,,CatalogueOntologies,Datasource types,,,,,Which of the following families of databanks best describe this data source,"DataCatalogue,EMA,RWEStaging",
+Resources,,type other,text,,,,,,,,,"If other, describe the type of datasource","DataCatalogue,EMA,RWEStaging",
+Resources,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA,CohortStaging,RWEStaging",
+Networks,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA",
+Models,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA",
+Studies,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA",
+Organisations,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA",
+Resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA",
+Studies,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA",
+Networks,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA",
+Models,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA",
+Resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA",
+Studies,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA",
+Networks,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA",
+Models,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA",
+Studies,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA,
+Networks,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA,
+Resources,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA,CohortStaging,RWEStaging",
+Networks,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA",
+Models,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA",
+Studies,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA",
+Organisations,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA",
+Resources,,data collection description,text,,,,,,,,,Describe the process of collection and recording of data.,"DataCatalogue,EMA,RWEStaging",
+Resources,,date established,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogue,EMA,RWEStaging",
+Resources,,start data collection,date,,,,,,,,,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogue,EMA,RWEStaging",
+Resources,,end data collection,date,,,,,,,,,"If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogue,EMA,RWEStaging",
+Resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA,CohortStaging",
+Studies,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA",
+Networks,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA",
+Models,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA",
+Studies,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogue,EMA",
+Models,,release frequency,int,,,,,,,,,Refreshing rate (in months),"DataCatalogue,EMA",
+Resources,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),"DataCatalogue,EMA,CohortStaging,RWEStaging",
+Networks,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),"DataCatalogue,EMA",
+Models,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),"DataCatalogue,EMA",
+Studies,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),"DataCatalogue,EMA",
+Organisations,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),"DataCatalogue,EMA",
+Resources,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected,"DataCatalogue,EMA,CohortStaging",
+Resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging",
+Studies,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA",
+Networks,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA",
+Models,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA",
+Resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging",
+Resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.,"DataCatalogue,EMA,CohortStaging",
+Resources,,population entry,ontology_array,,,CatalogueOntologies,Population entry,,,,,Select the possible causes / events that trigger the registration of a person in the data source,"DataCatalogue,EMA,RWEStaging",
+Resources,,population entry other,text,,,,,,,,,"If other, specify the causes of entry to the underlying population","DataCatalogue,EMA,RWEStaging",
+Resources,,population exit,ontology_array,,,CatalogueOntologies,Population exit,,,,,Select the possible causes / events that trigger the de-registration of a person in the data source,"DataCatalogue,EMA,RWEStaging",
+Resources,,population exit other,text,,,,,,,,,"If other, specify the causes of exit from the underlying population","DataCatalogue,EMA,RWEStaging",
+Resources,,population coverage,text,,,,,,,,,Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.,"DataCatalogue,EMA,RWEStaging",
+Resources,,population not covered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) ","DataCatalogue,EMA,RWEStaging",
+Resources,,quantantitative information,refback,,,,Quantitative information,,resource,,,Numerical summaries describing data bank population,"DataCatalogue,EMA,RWEStaging",
+Resources,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected,"DataCatalogue,EMA,RWEStaging",
+Resources,,quality of life other,text,,,,,,,,,"If other, specify additional quality of life measures","DataCatalogue,EMA,RWEStaging",
+Resources,,cause of death code other,text,,,,,,,,,"If 'other,' what cause of death vocabulary is used?","DataCatalogue,EMA,RWEStaging",
+Resources,,indication vocabulary other,text,,,,,,,,,"If 'other,' what indication for use vocabulary is used?","DataCatalogue,EMA,RWEStaging",
+Resources,,genetic data vocabulary other,text,,,,,,,,,"If 'other,' what genetic data vocabulary is used?","DataCatalogue,EMA,RWEStaging",
+Resources,,care setting other,text,,,,,,,,,"If 'other,' description of the setting of care","DataCatalogue,EMA,RWEStaging",
+Resources,,medicinal product vocabulary other,text,,,,,,,,,"If 'other,' description of the medicinal product vocabulary","DataCatalogue,EMA,RWEStaging",
+Resources,,prescriptions vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogue,EMA,RWEStaging",
+Resources,,dispensings vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogue,EMA,RWEStaging",
+Resources,,procedures vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogue,EMA,RWEStaging",
+Resources,,biomarker data vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogue,EMA,RWEStaging",
+Resources,,diagnosis medical event vocabulary other,text,,,,,,,,,"If 'other,' what vocabulary is used?","DataCatalogue,EMA,RWEStaging",
+Resources,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on","DataCatalogue,EMA,RWEStaging",
+Resources,,disease details other,text,,,,,,,,,Specify disease details if not present in MedDRA,"DataCatalogue,EMA,RWEStaging",
+Resources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)","DataCatalogue,EMA,RWEStaging",
+Resources,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly","DataCatalogue,EMA,RWEStaging",
+Resources,,prelinked,bool,,,,,,,,,Is the data from this data source linked to other data sources?,"DataCatalogue,EMA,CohortStaging",
+Resources,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are currently available between data sources in the data source (when pre-linked = yes),"DataCatalogue,EMA,RWEStaging",
+Resources,,linkage possibility,bool,,,,,,,,,Can this data source be linked to other data sources?,"DataCatalogue,EMA,RWEStaging",
+Resources,,linkage possibility description,text,,,,,,,,,Can the data from this data source be linked to other data sources?,"DataCatalogue,EMA,CohortStaging",
+Resources,,linked resources,refback,,,,Linked resources,,main resource,,,List of resources that are or can be linked to this main resource,"DataCatalogue,EMA,RWEStaging",
+Resources,,data holder,ref,,,,Organisations,,,,,The name of the organisation that is responsible for governance of the data bank,"DataCatalogue,EMA",
+Resources,,informed consent,ontology,,,CatalogueOntologies,Informed consents,,,,,Is informed consent required for use of the data for research purposes?,"DataCatalogue,EMA,RWEStaging",
+Resources,,informed consent other,text,,,,,,,,,"If other, describe the conditions when informed consent is required","DataCatalogue,EMA,RWEStaging",
+Resources,,access subject details,bool,,,,,,,,,Can individual patients/practitioners/practices be contacted in the data bank?,"DataCatalogue,EMA,RWEStaging",
+Resources,,biospecimen access,bool,,,,,,,,,"If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?","DataCatalogue,EMA,RWEStaging",
+Resources,,biospecimen access conditions,text,,,,,,,,,"If yes above, describe the conditions under which permission to retrieve biospecimens may be granted","DataCatalogue,EMA,RWEStaging",
+Resources,,approval for publication,bool,,,,,,,,,Is an approval needed to publish the results of a study using the data,"DataCatalogue,EMA,RWEStaging",
+Resources,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?,"DataCatalogue,EMA,RWEStaging",
+Resources,,preservation duration,int,,,,,,,,,"If no to the above, for how long (in years) are records preserved in the data bank?","DataCatalogue,EMA,RWEStaging",
+Resources,,refresh period,ontology_array,,,CatalogueOntologies,Refresh periods,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:","DataCatalogue,EMA,RWEStaging",
+Resources,,date last refresh,date,,,,,,,,,Date of last update/refresh,"DataCatalogue,EMA,RWEStaging",
+Resources,,qualification,bool,,,,,,,,,"Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?","DataCatalogue,EMA,RWEStaging",
+Resources,,qualifications description,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted","DataCatalogue,EMA,RWEStaging",
+Resources,,access for validation,bool,,,,,,,,,"Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?","DataCatalogue,EMA,RWEStaging",
+Resources,,cdms,refback,,,,Mappings,,source,,,Common data models used or ETL-ed to by this data source,"DataCatalogue,EMA,RWEStaging",
+Resources,,cdms other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source","DataCatalogue,EMA,RWEStaging",
+Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA,CohortStaging",
+Studies,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA",
+Networks,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA",
+Models,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA",
+Resources,,funding sources,ontology_array,,,CatalogueOntologies,Funding types,,,,,Specify the main financial support sources for the data source in the last 3 years. Select all that apply,"DataCatalogue,EMA,RWEStaging",
+Studies,,funding scheme,ontology_array,,,CatalogueOntologies,Study funding,,,,,The source of funding for the study. Select all that apply,"DataCatalogue,EMA",
+Resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA,CohortStaging",
+Studies,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA",
+Networks,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA",
+Models,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA",
+Resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA,CohortStaging",
+Studies,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA",
+Networks,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA",
+Models,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA",
+Studies,,networks,ref_array,,,,Networks,,,,,The consortia or networks that this study is part of,"DataCatalogue,EMA",
+Resources,,networks,refback,,,,Networks,,data sources,,,List of networks that this datasource is associated with,"DataCatalogue,EMA,RWEStaging",
+Resources,,studies,refback,,,,Studies,,data sources,,,List of studies that this datasource is associated with,"DataCatalogue,EMA,RWEStaging",
+Publications,,doi,,1,true,,,,,,,Digital object identifier,"DataCatalogue,EMA,CohortStaging",
+Publications,,title,text,,,,,,,,,Publication title,"DataCatalogue,EMA,CohortStaging",
+Contacts,,,,,,,,,,,,Listing of contact persons per resource,"DataCatalogue,EMA,CohortStaging",
+Contacts,,resource,ref,1,true,,Resources,,,,,Resource the contact is affiliated with,"DataCatalogue,EMA,CohortStaging",
+Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource,"DataCatalogue,EMA,CohortStaging",
+Contacts,,first name,,1,true,,,,,,,First name of the contact person,"DataCatalogue,EMA,CohortStaging",
+Contacts,,last name,,1,true,,,,,,,Last name of the contact person,"DataCatalogue,EMA,CohortStaging",
+Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person,"DataCatalogue,EMA,CohortStaging",
+Contacts,,organisation,ref,,,,Organisations,,,,,Affiliated organisation of the contact person,"DataCatalogue,EMA",
+Documentation,,resource,ref,1,true,,Resources,,,,,The resource this documentation is for,"DataCatalogue,EMA,CohortStaging",
+Documentation,,name,,1,true,,,,,,,Document name,"DataCatalogue,EMA,CohortStaging",
+Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of documentation,"DataCatalogue,EMA,CohortStaging",
+Documentation,,url,hyperlink,,,,,,,,,Hyperlink to the source of the documentation,"DataCatalogue,EMA,CohortStaging",
+Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation,"DataCatalogue,EMA,CohortStaging",
+Linked resources,,,,,,,,,,,,Links between datasource and databank,"DataCatalogue,EMA",
+Linked resources,,main resource,ref,1,true,,Resources,,,,,,"DataCatalogue,EMA",
+Linked resources,,linked resource,ref,1,true,,Resources,,,,,,"DataCatalogue,EMA",
+Linked resources,,other linked resource,,,,,,,,,,"If other linked data source, enter the name of the data source (default = not applicable)","DataCatalogue,EMA",
+Linked resources,,linkage strategy,ontology,,,CatalogueOntologies,Linkage strategies,,,,,The linkage method that was used to link data banks. One entry per data bank,"DataCatalogue,EMA",
+Linked resources,,linkage variable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank","DataCatalogue,EMA",
+Linked resources,,linkage completeness,text,,,,,,,,,Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words),"DataCatalogue,EMA",
+Linked resources,,pre linked,bool,,,,,,,,,Does the data source constitute of linked data sources?,"DataCatalogue,EMA",
+Quantitative information,,,,,,,,,,,,Quantitative information on the resource,"DataCatalogue,EMA",
+Quantitative information,,resource,ref,1,,,Resources,,,,,,"DataCatalogue,EMA",
+Quantitative information,,age group,ontology,1,,CatalogueOntologies,Age groups,,,,,Select the relevant age group for this quantitative information,"DataCatalogue,EMA",
+Quantitative information,,population size,int,,,,,,,,,"Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year","DataCatalogue,EMA",
+Quantitative information,,active size,int,,,,,,,,,"Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year","DataCatalogue,EMA",
+Quantitative information,,mean observation years,int,,,,,,,,,Median years for which unique individuals with records captured in the data source are observable (most recent count),"DataCatalogue,EMA",
+Quantitative information,,mean years active,int,,,,,,,,,Median time for which unique individuals with records captured in the data source are observable (most recent count),"DataCatalogue,EMA",
+Networks,,data sources,ref_array,,,,Data sources,,,,,,"DataCatalogue,EMA",
+Networks,,studies,refback,,,,Studies,,networks,,,,"DataCatalogue,EMA",
+Studies,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements,"DataCatalogue,EMA",
+Studies,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only","DataCatalogue,EMA",
+Studies,,date of signing funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned","DataCatalogue,EMA",
+Studies,,date of signing funding contract actual,date,,,,,,,,,"Date when funding contract was signed, actual","DataCatalogue,EMA",
+Studies,,collection start planned,date,,,,,,,,,When was the data collection planned to start?,"DataCatalogue,EMA",
+Studies,,collection start actual,date,,,,,,,,,When was the data collection actually start?,"DataCatalogue,EMA",
+Studies,,analysis start planned,date,,,,,,,,,When was the data analysis planned to start?,"DataCatalogue,EMA",
+Studies,,analysis start actual,date,,,,,,,,,When did the data analysis actually start?,"DataCatalogue,EMA",
+Studies,,interim report planned,date,,,,,,,,,"Planned date of interim report, if expected","DataCatalogue,EMA",
+Studies,,interim report actual,date,,,,,,,,,"Actual date of interim report, if expected","DataCatalogue,EMA",
+Studies,,final report planned,date,,,,,,,,,"Date of final study report, planned","DataCatalogue,EMA",
+Studies,,final report actual,date,,,,,,,,,"Date of final study report, actual","DataCatalogue,EMA",
+Studies,,data sources,ref_array,,,,Data sources,,,,,Data sources that provided data into this study,"DataCatalogue,EMA",
+Studies,,data sources other,text,,,,,,,,,Other not listed data sources that provided data into this study,"DataCatalogue,EMA",
+Studies,,cdms,refback,,,,Mappings,,source,,,Common data model(s) used in this study,"DataCatalogue,EMA",
+Studies,,study features,ontology_array,,,CatalogueOntologies,Study features,,,,,Data features,"DataCatalogue,EMA",
+Studies,,data characterisation details,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process,"DataCatalogue,EMA",
+Studies,,data source types,ontology_array,,,CatalogueOntologies,Study datasource types,,,,,Types of data sources used,"DataCatalogue,EMA",
+Studies,,data source types other,text,,,,,,,,,"Sources of data, if other","DataCatalogue,EMA",
+Studies,,quality marks,ontology_array,,,CatalogueOntologies,Study quality marks,,,,,"Quality marks, such as ENCePP seal","DataCatalogue,EMA",
+Studies,,number of data sources,,,,,,,,,,Total number of data sources included in the study,"DataCatalogue,EMA",
+Studies,,medicines studied INN codes,ontology_array,,,CatalogueOntologies,INN,,,,,INN codes of medicines studied,"DataCatalogue,EMA",
+Studies,,medicines studied ATC codes,ontology_array,,,CatalogueOntologies,ATC,,,,,ATC codes of medicines studied,"DataCatalogue,EMA",
+Studies,,medicines studies brands,ontology_array,,,CatalogueOntologies,Medicine brand names,,,,,Brand names of the medicines studied,"DataCatalogue,EMA",
+Studies,,medicines studied other,text,,,,,,,,,If the medicinal product information (e.g. brand name or active substance or ATC code) does not appear in the available look-ups please enter it here,"DataCatalogue,EMA",
+Studies,,medical conditions studied,ontology_array,,,CatalogueOntologies,MedDRA,,,,,Codes of the medical conditions studied,"DataCatalogue,EMA",
+Studies,,medical conditions studied other,text,,,,,,,,,Codes of the medical conditions studied,"DataCatalogue,EMA",
+Studies,,population description,text,,,,,,,,,A short description of the study population,"DataCatalogue,EMA",
+Studies,,number of subjects,int,,,,,,,,,Estimated number of subjects,"DataCatalogue,EMA",
+Studies,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are studied,"DataCatalogue,EMA",
+Studies,,objectives,text,,,,,,,,,A short description of the study objective,"DataCatalogue,EMA",
+Studies,,interventions,text,,,,,,,,,A short description of the study interventions,"DataCatalogue,EMA",
+Studies,,comparators,text,,,,,,,,,A short description of the study comparators,"DataCatalogue,EMA",
+Studies,,outcomes,text,,,,,,,,,A short description of the study outcomes,"DataCatalogue,EMA",
+Studies,,study design,text,,,,,,,,,A brief summary of the study design,"DataCatalogue,EMA",
+Studies,,results,text,,,,,,,,,A brief summary of the results of the study on study completion (from abstract),"DataCatalogue,EMA",
+Studies,,topic,ontology_array,,,CatalogueOntologies,Study topics,,,,,An initial classification of the study purpose,"DataCatalogue,EMA",
+Studies,,topic other,text,,,,,,,,,"If the study is not concerning any of the proposed categories, please specify the details","DataCatalogue,EMA",
+Studies,,trial regulatory scope,ontology_array,,,CatalogueOntologies,Study trial regulatory scopes,,,,,Classification of the clinical trial in relation to the medicines authorisation,"DataCatalogue,EMA",
+Studies,,study design classification,ontology_array,,,CatalogueOntologies,Study design classification,,,,,Study design classifications,"DataCatalogue,EMA",
+Studies,,study design classification other,text,,,,,,,,,Further details on design,"DataCatalogue,EMA",
+Studies,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study,"DataCatalogue,EMA",
+Studies,,study scope other,text,,,,,,,,,If scope 'other',"DataCatalogue,EMA",
+Studies,,population of interest,ontology_array,,,CatalogueOntologies,Population of interest,,,,,"If population of interest is 'Other', please specify which other population has been studied","DataCatalogue,EMA",
+Studies,,population of interest other,text,,,,,,,,,"If population of interest is 'Other', please specify which other population has been studied","DataCatalogue,EMA",
+Mappings,,,,,,,,,,,,"Mapping from collected datasets to standard/harmonised datasets, optionally including ETL syntaxes","DataCatalogue,EMA",
+Mappings,,source,ref,1,true,,Resources,,,,,Data source that is being mapped to a (common) data model,"DataCatalogue,EMA",
+Mappings,,source version,string,,,,,,,,,version of the datasource that is being mapped,"DataCatalogue,EMA",
+Mappings,,target,ref,1,true,,Models,,,,,model being mapped to,"DataCatalogue,EMA",
+Mappings,,target version,string,,,,,,,,,version of the model being mapped to,"DataCatalogue,EMA",
+Mappings,,cdms other,,,,,,,,,,"if cdm is not under targets, which cdm was mapped to? (default = not applicable)","DataCatalogue,EMA",
+Mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,"Mapping from collected datasets to standard/harmonised datasets, optionally including ETL syntaxes","DataCatalogue,EMA",
+Mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months","DataCatalogue,EMA",
+Mappings,,ETL specification url,hyperlink,,,,,,,,,Link to ETL specification documentation,"DataCatalogue,EMA",
+Mappings,,ETL specification document,file,,,,,,,,,Documentation concerning ETL details,"DataCatalogue,EMA",
+Submissions,,,,,,,,,,,,Documentation of data submissions related to a resource,"DataCatalogue,EMA",
+Submissions,,submission date,datetime,1,true,,,,,,,Date of submission,"DataCatalogue,EMA",
+Submissions,,resources,ref_array,,true,,Resources,,,,,Resource(s) that this submission is related to,"DataCatalogue,EMA",
+Submissions,,submission type,ontology,,,CatalogueOntologies,Submission types,,,,,"Type of submission, e.g. 'new entry', 'correction'","DataCatalogue,EMA",
+Submissions,,submission description,text,,,,,,,,,"Description of the submission, if applicable","DataCatalogue,EMA",
+Submissions,,acceptance date,datetime,,,,,,,,,Date submission was accepted,"DataCatalogue,EMA",
+External identifiers,,,,,,,,,,,,External identifier(s) for this resource,"DataCatalogue,EMA,CohortStaging",
+External identifiers,,resource,ref,1,true,,Resources,,,,,Resource that this external identifier belongs to,"DataCatalogue,EMA,CohortStaging",
+External identifiers,,identifier,text,1,true,,,,,,,External identifier,"DataCatalogue,EMA,CohortStaging",
+External identifiers,,external identifier type,ontology,,,CatalogueOntologies,External identifier types,,,,,External identifier type,"DataCatalogue,EMA,CohortStaging",

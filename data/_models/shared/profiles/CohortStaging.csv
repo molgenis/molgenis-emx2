@@ -1,195 +1,195 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Version,,,,,,,,,,,,3.10,"DataCatalogue,EMA,SharedStaging,CohortStaging"
-Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
-Resources,,overview,heading,,,,,,,,,General information,"DataCatalogue,CohortStaging,RWEStaging"
-Resources,,id,,1,true,,,,,,,Internal identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
-Resources,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
-Resources,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
-Resources,,name,text,3,true,,,,,,,Name used in European projects,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
-Resources,,local name,,,,,,,,,,"If different from above, name in the national language","DataCatalogue,CohortStaging"
-Resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description,"DataCatalogue,CohortStaging"
-Resources,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA,CohortStaging,RWEStaging"
-Resources,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging
-Resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging
-Resources,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA,CohortStaging,RWEStaging"
-Resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA,CohortStaging"
-Resources,,contact email,,,,,,,,,,Contact e-mail address for this cohort,"DataCatalogue,CohortStaging"
-Resources,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),"DataCatalogue,EMA,CohortStaging,RWEStaging"
-Resources,,type,ontology_array,,,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank","DataCatalogue,CohortStaging"
-Resources,,type other,,,,,,,,,,"If other, describe the type of resource","DataCatalogue,CohortStaging"
-Resources,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal","DataCatalogue,CohortStaging"
-Resources,,design description,text,,,,,,,,,Short description of the study design of this cohort,"DataCatalogue,CohortStaging"
-Resources,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort,"DataCatalogue,CohortStaging"
-Resources,,collection type,ontology_array,,,CatalogueOntologies,Collection types,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both","DataCatalogue,CohortStaging"
-Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogue,CohortStaging"
-Resources,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource,"DataCatalogue,CohortStaging"
-Resources,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected,"DataCatalogue,EMA,CohortStaging"
-Resources,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected,"DataCatalogue,CohortStaging"
-Resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
-Resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
-Resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.,"DataCatalogue,EMA,CohortStaging"
-Resources,,inclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource,"DataCatalogue,CohortStaging"
-Resources,,other inclusion criteria,text,,,,,,,,,Other inclusion criteria applied to the participants of this resource,"DataCatalogue,CohortStaging"
-Resources,,start year,int,,,,,,,,,Year when first data was collected,"DataCatalogue,CohortStaging"
-Resources,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing,"DataCatalogue,CohortStaging"
-Resources,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?","DataCatalogue,CohortStaging"
-Resources,,population oncology topology,ontology_array,,,CatalogueOntologies,ICDO topologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.","DataCatalogue,CohortStaging"
-Resources,,population oncology morphology,ontology_array,,,CatalogueOntologies,ICDO morphologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.","DataCatalogue,CohortStaging"
-Resources,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource,"DataCatalogue,CohortStaging"
-Resources,,contents,heading,,,,,,,,,Data model and contents,"DataCatalogue,CohortStaging"
-Resources,,datasets,refback,,,,Datasets,,resource,,,,"DataCatalogue,CohortStaging"
-Resources,,collection events,refback,,,,Collection events,,resource,,,List of collection events defined for this resource,"DataCatalogue,CohortStaging"
-Resources,,prelinked,bool,,,,,,,,,Is the data from this data source linked to other data sources?,"DataCatalogue,EMA,CohortStaging"
-Resources,,linkage possibility description,text,,,,,,,,,Can the data from this data source be linked to other data sources?,"DataCatalogue,EMA,CohortStaging"
-Resources,,release type,ontology,,,CatalogueOntologies,Release types,,,,,Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis,"DataCatalogue,CohortStaging"
-Resources,,release description,text,,,,,,,,,Description of the release cycle of this resource,"DataCatalogue,CohortStaging"
-Resources,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource,"DataCatalogue,CohortStaging"
-Resources,,access,heading,,,,,,,,,Access and validation information,"DataCatalogue,CohortStaging"
-Resources,,data access conditions,ontology_array,,,CatalogueOntologies,Data access conditions,,,,,Codes defining data access terms and conditions,"DataCatalogue,CohortStaging"
-Resources,,data use conditions,ontology_array,,,CatalogueOntologies,Data use conditions,,,,,Codes defining data use terms and conditions,"DataCatalogue,CohortStaging"
-Resources,,data access conditions description,text,,,,,,,,,Description of data access terms and use conditions,"DataCatalogue,CohortStaging"
-Resources,,data access fee,bool,,,,,,,,,Does a fee apply to gain access to data of this cohort?,"DataCatalogue,CohortStaging"
-Resources,,information,heading,,,,,,,,,Other information,"DataCatalogue,CohortStaging"
-Resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource,"DataCatalogue,CohortStaging"
-Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA,CohortStaging"
-Resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?,"DataCatalogue,CohortStaging"
-Resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA,CohortStaging"
-Resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,"DataCatalogue,CohortStaging"
-Resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA,CohortStaging"
-Resources,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource,"DataCatalogue,CohortStaging"
-Resources,,collaborations,heading,,,,,,,,,List of relevant collaborations,"DataCatalogue,CohortStaging"
-Resources,,studies,ref_array,,,catalogue,Studies,,cohorts,,,Listing of studies that used this cohort,CohortStaging
-Resources,,networks,ref_array,,,catalogue,Networks,,cohorts,,,The consortia or networks that this cohort is involved in,CohortStaging
-Publications,,,,,,,,,,,,Publications following bibtex format,"DataCatalogue,CohortStaging"
-Publications,,doi,,1,true,,,,,,,Digital object identifier,"DataCatalogue,EMA,CohortStaging"
-Publications,,title,text,,,,,,,,,Publication title,"DataCatalogue,EMA,CohortStaging"
-Contacts,,,,,,,,,,,,Listing of contact persons per resource,"DataCatalogue,EMA,CohortStaging"
-Contacts,,resource,ref,1,true,,Resources,,,,,Resource the contact is affiliated with,"DataCatalogue,EMA,CohortStaging"
-Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource,"DataCatalogue,EMA,CohortStaging"
-Contacts,,role description,text,,,,,,,,,Description of the role,"DataCatalogue,CohortStaging"
-Contacts,,first name,,1,true,,,,,,,First name of the contact person,"DataCatalogue,EMA,CohortStaging"
-Contacts,,last name,,1,true,,,,,,,Last name of the contact person,"DataCatalogue,EMA,CohortStaging"
-Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable","DataCatalogue,CohortStaging"
-Contacts,,initials,,,,,,,,,,Initials of the contact person,"DataCatalogue,CohortStaging"
-Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person,"DataCatalogue,EMA,CohortStaging"
-Contacts,,organisation,ref,,,SharedStaging,Organisations,,,,,Affiliated organisation of the contact person,CohortStaging
-Contacts,,email,,,,,,,,,,Contact's email address,"DataCatalogue,CohortStaging"
-Contacts,,orcid,,,,,,,,,,Orcid of the contact person,"DataCatalogue,CohortStaging"
-Contacts,,homepage,,,,,,,,,,Link to contact's homepage,"DataCatalogue,CohortStaging"
-Contacts,,photo,file,,,,,,,,,Contact's photograph,"DataCatalogue,CohortStaging"
-Contacts,,expertise,,,,,,,,,,Description of contact's expertise,"DataCatalogue,CohortStaging"
-Documentation,,,,,,,,,,,,Documentation attached to a resource,"DataCatalogue,CohortStaging"
-Documentation,,resource,ref,1,true,,Resources,,,,,The resource this documentation is for,"DataCatalogue,EMA,CohortStaging"
-Documentation,,name,,1,true,,,,,,,Document name,"DataCatalogue,EMA,CohortStaging"
-Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of documentation,"DataCatalogue,EMA,CohortStaging"
-Documentation,,description,text,,,,,,,,,Description of the document,"DataCatalogue,CohortStaging"
-Documentation,,url,hyperlink,,,,,,,,,Hyperlink to the source of the documentation,"DataCatalogue,EMA,CohortStaging"
-Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation,"DataCatalogue,EMA,CohortStaging"
-Collection events,,,,,,,,,,,,Definition of a data collection event for a resource,"DataCatalogue,CohortStaging"
-Collection events,,resource,ref,1,true,,Resources,,,,,Resource this collection event is part of,"DataCatalogue,CohortStaging"
-Collection events,,name,,1,true,,,,,,,Name of the collection event,"DataCatalogue,CohortStaging"
-Collection events,,description,text,,,,,,,,,Description of the collection event,"DataCatalogue,CohortStaging"
-Collection events,,subcohorts,ref_array,,,,Subcohorts,resource,,,,Subcohorts that are targetted by this collection event,"DataCatalogue,CohortStaging"
-Collection events,,start year,ontology,,,CatalogueOntologies,Years,,,,,Start year of data collection,"DataCatalogue,CohortStaging"
-Collection events,,start month,ontology,,,CatalogueOntologies,Months,,,,,Start month of data collection,"DataCatalogue,CohortStaging"
-Collection events,,end year,ontology,,,CatalogueOntologies,Years,,,,,End year of data collection. Leave empty if collection is ongoing,"DataCatalogue,CohortStaging"
-Collection events,,end month,ontology,,,CatalogueOntologies,Months,,,,,End month of data collection. Leave empty if collection is ongoing,"DataCatalogue,CohortStaging"
-Collection events,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups included in this data collection event,"DataCatalogue,CohortStaging"
-Collection events,,number of participants,int,,,,,,,,,Number of participants sampled in this data collection event,"DataCatalogue,CohortStaging"
-Collection events,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information cohorts,,,,,Areas of information that were extracted in this data collection event,"DataCatalogue,CohortStaging"
-Collection events,,data categories,ontology_array,,,CatalogueOntologies,Data categories,,,,,Methods of data collection used in this collection event,"DataCatalogue,CohortStaging"
-Collection events,,sample categories,ontology_array,,,CatalogueOntologies,Sample categories,,,,,Samples that were collected in this collection event,"DataCatalogue,CohortStaging"
-Collection events,,standardized tools,ontology_array,,,CatalogueOntologies,Standardized tools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event","DataCatalogue,CohortStaging"
-Collection events,,standardized tools other,,,,,,,,,,"If 'other', please specify","DataCatalogue,CohortStaging"
-Collection events,,core variables,string_array,,,,,,,,,Name 10-20 relevant variables that were collected in this collection event,"DataCatalogue,CohortStaging"
-Collection events,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this collection event,"DataCatalogue,CohortStaging"
-Subcohorts,,,,,,,,,,,,Subcohorts defined for this resource,"DataCatalogue,CohortStaging"
-Subcohorts,,resource,ref,1,true,,Resources,,,,,Resource this subcohort is part of,"DataCatalogue,CohortStaging"
-Subcohorts,,name,,1,true,,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'","DataCatalogue,CohortStaging"
-Subcohorts,,description,text,,,,,,,,,Subcohort description,"DataCatalogue,CohortStaging"
-Subcohorts,,number of participants,int,,,,,,,,,Number of participants in this subcohort,"DataCatalogue,CohortStaging"
-Subcohorts,,counts,refback,,,,Subcohort counts,,subcohort,,,"Total number of unique individuals per age(group), gender and year","DataCatalogue,CohortStaging"
-Subcohorts,,inclusion start,int,,,,,,,,,Year of first included participant,"DataCatalogue,CohortStaging"
-Subcohorts,,inclusion end,int,,,,,,,,,Year of last included participant. Leave empty if collection is ongoing,"DataCatalogue,CohortStaging"
-Subcohorts,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups within this subcohort,"DataCatalogue,CohortStaging"
-Subcohorts,,main medical condition,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Disease groups within this subcohort, based on ICD-10 and ORPHA code classifications","DataCatalogue,CohortStaging"
-Subcohorts,,comorbidity,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Comorbidity within this subcohort, based on ICD-10 classification","DataCatalogue,CohortStaging"
-Subcohorts,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this subcohort largely originate from,"DataCatalogue,CohortStaging"
-Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this subcohort largely originate from,"DataCatalogue,CohortStaging"
-Subcohorts,,inclusion criteria,text,,,,,,,,,Inclusion criteria applied to this subcohort,"DataCatalogue,CohortStaging"
-Subcohorts,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort,"DataCatalogue,CohortStaging"
-Datasets,,,,,,,,,,,,Definition of a dataset within a (common) data model,"DataCatalogue,CohortStaging"
-Datasets,,resource,ref,1,true,,Resources,,,,,resources that these variables are part of,"DataCatalogue,CohortStaging"
-Datasets,,name,,1,true,,,,,,,unique dataset name in the model,"DataCatalogue,CohortStaging"
-Datasets,,label,,,,,,,,,,short human readable description,"DataCatalogue,CohortStaging"
-Datasets,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,defines what each record in this table describes,"DataCatalogue,CohortStaging"
-Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree,"DataCatalogue,CohortStaging"
-Datasets,,description,text,,,,,,,,,description of the role/function of this table,"DataCatalogue,CohortStaging"
-Datasets,,number of rows,int,,,,,,,,,count of the numbe of records in this table,"DataCatalogue,CohortStaging"
-Datasets,,since version,,,,,,,,,,When this dataset was introduced,"DataCatalogue,CohortStaging"
-Datasets,,until version,,,,,,,,,,When this dataset was removed if applicable,"DataCatalogue,CohortStaging"
-All variables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead","DataCatalogue,CohortStaging"
-All variables,,resource,ref,1,true,,Resources,,,,,Data source that this variable was collected in,"DataCatalogue,CohortStaging"
-All variables,,dataset,ref,1,true,,Datasets,resource,,,,Dataset this variable is part of,"DataCatalogue,CohortStaging"
-All variables,,name,,1,true,,,,,,,"name of the variable, unique within a table","DataCatalogue,CohortStaging"
-All variables,,label,,,,,,,,,,"Human friendly longer name, if applicable","DataCatalogue,CohortStaging"
-All variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment(s) in time this variable is collected on,"DataCatalogue,CohortStaging"
-All variables,,since version,,,,,,,,,,When this variable was introduced,"DataCatalogue,CohortStaging"
-All variables,,until version,,,,,,,,,,When this variable was removed if applicable,"DataCatalogue,CohortStaging"
-Variables,All variables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range","DataCatalogue,CohortStaging"
-Variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"Data type, e.g. string,int,decimal,date,datetime etc","DataCatalogue,CohortStaging"
-Variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,,"DataCatalogue,CohortStaging"
-Variables,,references,ref,,,,All variables,resource,,,,to define foreign key relationships between variables within or across tables,"DataCatalogue,CohortStaging"
-Variables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection,"DataCatalogue,CohortStaging"
-Variables,,description,text,,,,,,,,,,"DataCatalogue,CohortStaging"
-Variables,,order,int,,,,,,,,,to sort variables you can optionally add an order value,"DataCatalogue,CohortStaging"
-Variables,,example values,string_array,,,,,,,,,,"DataCatalogue,CohortStaging"
-Variables,,permitted values,refback,,,,Variable values,,variable,,,,"DataCatalogue,CohortStaging"
-Variables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,,"DataCatalogue,CohortStaging"
-Variables,,repeats,refback,,,,Repeated variables,,is repeat of,,,listing of all repeated variables defined for this variable,"DataCatalogue,CohortStaging"
-Variables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,,"DataCatalogue,CohortStaging"
-Variables,,notes,text,,,,,,,,,Any other information on this variable,"DataCatalogue,CohortStaging"
-Variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable,"DataCatalogue,CohortStaging"
-Variable values,,resource,ref,1,true,,Resources,,,,,,"DataCatalogue,CohortStaging"
-Variable values,,variable,ref,1,true,,Variables,resource,,,,e.g. PATO,"DataCatalogue,CohortStaging"
-Variable values,,value,,1,true,,,,,,,e.g. '1',"DataCatalogue,CohortStaging"
-Variable values,,label,,,true,,,,,,,,"DataCatalogue,CohortStaging"
-Variable values,,order,int,,,,,,,,,,"DataCatalogue,CohortStaging"
-Variable values,,is missing,bool,,,,,,,,,,"DataCatalogue,CohortStaging"
-Variable values,,ontology term URI,,,,,,,,,,reference to ontology term that defines this categorical value,"DataCatalogue,CohortStaging"
-Variable values,,since version,,,,,,,,,,When this variable value was introduced if applicable,"DataCatalogue,CohortStaging"
-Variable values,,until version,,,,,,,,,,When this variable value was removed if applicable,"DataCatalogue,CohortStaging"
-Repeated variables,All variables,,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition,"DataCatalogue,CohortStaging"
-Repeated variables,,is repeat of,ref,,true,,Variables,resource,,,,reference to the definition of the sourceVariable that is being repeated,"DataCatalogue,CohortStaging"
-Dataset mappings,,,,,,,,,,,,Mappings from collected or source datasets to harmonised or target datasets,"DataCatalogue,CohortStaging"
-Dataset mappings,,source,ref,1,true,,Resources,,,,,datasource being mapped from,"DataCatalogue,CohortStaging"
-Dataset mappings,,source dataset,ref,1,true,,Datasets,source,,,,name of the table being mapped from,"DataCatalogue,CohortStaging"
-Dataset mappings,,target,ref,1,true,catalogue,Resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",CohortStaging
-Dataset mappings,,target dataset,ref,1,true,catalogue,Datasets,target,,,,name of the table being mapped to,CohortStaging
-Dataset mappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination,"DataCatalogue,CohortStaging"
-Dataset mappings,,description,text,,,,,,,,,human readible description of the mapping,"DataCatalogue,CohortStaging"
-Dataset mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code","DataCatalogue,CohortStaging"
-Variable mappings,,,,,,,,,,,,"Mappings from collected variables to standard/harmonised variables, optionally including ETL syntax","DataCatalogue,CohortStaging"
-Variable mappings,,source,ref,1,true,,Resources,,,,,,"DataCatalogue,CohortStaging"
-Variable mappings,,source dataset,ref,1,true,,Datasets,source,,,,,"DataCatalogue,CohortStaging"
-Variable mappings,,source variables,ref_array,,,,All variables,source dataset,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)","DataCatalogue,CohortStaging"
-Variable mappings,,source variables other datasets,ref_array,,,,All variables,source,,,,"optional, variable from other source datasets. Initially one may only define mapping between releases","DataCatalogue,CohortStaging"
-Variable mappings,,target,ref,1,true,catalogue,Resources,,,,,,CohortStaging
-Variable mappings,,target dataset,ref,1,true,catalogue,Datasets,target,,,,,CohortStaging
-Variable mappings,,target variable,ref,1,true,catalogue,All variables,target dataset,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable",CohortStaging
-Variable mappings,,match,ontology,,true,CatalogueOntologies,Status details,,,,,"e.g. 'complete, partial, planned, no-match'","DataCatalogue,CohortStaging"
-Variable mappings,,status,ontology,,,CatalogueOntologies,Status,,,,,whether harmonisation is still draft or final,"DataCatalogue,CohortStaging"
-Variable mappings,,description,text,,,,,,,,,human readible description of the mapping,"DataCatalogue,CohortStaging"
-Variable mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code","DataCatalogue,CohortStaging"
-Variable mappings,,comments,text,,,,,,,,,additional notes and comments,"DataCatalogue,CohortStaging"
-Subcohort counts,,,,,,,,,,,,"Number of participants per subcohort age group, optionally divided per sex","DataCatalogue,CohortStaging"
-Subcohort counts,,subcohort,ref,1,true,,Subcohorts,,,,,,"DataCatalogue,CohortStaging"
-Subcohort counts,,age group,ontology,1,true,CatalogueOntologies,Age groups,,,,,,"DataCatalogue,CohortStaging"
-Subcohort counts,,N total,int,,,,,,,,,,"DataCatalogue,CohortStaging"
-Subcohort counts,,N female,int,,,,,,,,,,"DataCatalogue,CohortStaging"
-Subcohort counts,,N male,int,,,,,,,,,,"DataCatalogue,CohortStaging"
-External identifiers,,,,,,,,,,,,External identifier(s) for this resource,"DataCatalogue,EMA,CohortStaging"
-External identifiers,,resource,ref,1,true,,Resources,,,,,Resource that this external identifier belongs to,"DataCatalogue,EMA,CohortStaging"
-External identifiers,,identifier,text,1,true,,,,,,,External identifier,"DataCatalogue,EMA,CohortStaging"
-External identifiers,,external identifier type,ontology,,,CatalogueOntologies,External identifier types,,,,,External identifier type,"DataCatalogue,EMA,CohortStaging"
-External identifiers,,external identifier type other,text,,,,,,,,,"If other, enter external identifier type","DataCatalogue,CohortStaging"
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,label
+Version,,,,,,,,,,,,3.10,"DataCatalogue,EMA,SharedStaging,CohortStaging",
+Resources,,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic,CohortStaging,Cohorts
+Resources,,overview,heading,,,,,,,,,General information,"DataCatalogue,CohortStaging,RWEStaging",
+Resources,,id,,1,true,,,,,,,Internal identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging",
+Resources,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging",
+Resources,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging",
+Resources,,name,text,3,true,,,,,,,Name used in European projects,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging",
+Resources,,local name,,,,,,,,,,"If different from above, name in the national language","DataCatalogue,CohortStaging",
+Resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description,"DataCatalogue,CohortStaging",
+Resources,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA,CohortStaging,RWEStaging",
+Resources,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging,
+Resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging,
+Resources,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA,CohortStaging,RWEStaging",
+Resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA,CohortStaging",
+Resources,,contact email,,,,,,,,,,Contact e-mail address for this cohort,"DataCatalogue,CohortStaging",
+Resources,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),"DataCatalogue,EMA,CohortStaging,RWEStaging",
+Resources,,type,ontology_array,,,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank","DataCatalogue,CohortStaging",
+Resources,,type other,,,,,,,,,,"If other, describe the type of resource","DataCatalogue,CohortStaging",
+Resources,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal","DataCatalogue,CohortStaging",
+Resources,,design description,text,,,,,,,,,Short description of the study design of this cohort,"DataCatalogue,CohortStaging",
+Resources,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort,"DataCatalogue,CohortStaging",
+Resources,,collection type,ontology_array,,,CatalogueOntologies,Collection types,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both","DataCatalogue,CohortStaging",
+Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogue,CohortStaging",
+Resources,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource,"DataCatalogue,CohortStaging",
+Resources,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected,"DataCatalogue,EMA,CohortStaging",
+Resources,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected,"DataCatalogue,CohortStaging",
+Resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging",
+Resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging",
+Resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.,"DataCatalogue,EMA,CohortStaging",
+Resources,,inclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource,"DataCatalogue,CohortStaging",
+Resources,,other inclusion criteria,text,,,,,,,,,Other inclusion criteria applied to the participants of this resource,"DataCatalogue,CohortStaging",
+Resources,,start year,int,,,,,,,,,Year when first data was collected,"DataCatalogue,CohortStaging",
+Resources,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing,"DataCatalogue,CohortStaging",
+Resources,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the resource collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?","DataCatalogue,CohortStaging",
+Resources,,population oncology topology,ontology_array,,,CatalogueOntologies,ICDO topologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select topology specifications.","DataCatalogue,CohortStaging",
+Resources,,population oncology morphology,ontology_array,,,CatalogueOntologies,ICDO morphologies,,,,,"Does the resource collect information on specific cancer subtype(s)? If yes, select morphology specifications.","DataCatalogue,CohortStaging",
+Resources,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource,"DataCatalogue,CohortStaging",
+Resources,,contents,heading,,,,,,,,,Data model and contents,"DataCatalogue,CohortStaging",
+Resources,,datasets,refback,,,,Datasets,,resource,,,,"DataCatalogue,CohortStaging",
+Resources,,collection events,refback,,,,Collection events,,resource,,,List of collection events defined for this resource,"DataCatalogue,CohortStaging",
+Resources,,prelinked,bool,,,,,,,,,Is the data from this data source linked to other data sources?,"DataCatalogue,EMA,CohortStaging",
+Resources,,linkage possibility description,text,,,,,,,,,Can the data from this data source be linked to other data sources?,"DataCatalogue,EMA,CohortStaging",
+Resources,,release type,ontology,,,CatalogueOntologies,Release types,,,,,Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis,"DataCatalogue,CohortStaging",
+Resources,,release description,text,,,,,,,,,Description of the release cycle of this resource,"DataCatalogue,CohortStaging",
+Resources,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource,"DataCatalogue,CohortStaging",
+Resources,,access,heading,,,,,,,,,Access and validation information,"DataCatalogue,CohortStaging",
+Resources,,data access conditions,ontology_array,,,CatalogueOntologies,Data access conditions,,,,,Codes defining data access terms and conditions,"DataCatalogue,CohortStaging",
+Resources,,data use conditions,ontology_array,,,CatalogueOntologies,Data use conditions,,,,,Codes defining data use terms and conditions,"DataCatalogue,CohortStaging",
+Resources,,data access conditions description,text,,,,,,,,,Description of data access terms and use conditions,"DataCatalogue,CohortStaging",
+Resources,,data access fee,bool,,,,,,,,,Does a fee apply to gain access to data of this cohort?,"DataCatalogue,CohortStaging",
+Resources,,information,heading,,,,,,,,,Other information,"DataCatalogue,CohortStaging",
+Resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource,"DataCatalogue,CohortStaging",
+Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,"DataCatalogue,EMA,CohortStaging",
+Resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data collection?,"DataCatalogue,CohortStaging",
+Resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,"DataCatalogue,EMA,CohortStaging",
+Resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,"DataCatalogue,CohortStaging",
+Resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent","DataCatalogue,EMA,CohortStaging",
+Resources,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource,"DataCatalogue,CohortStaging",
+Resources,,collaborations,heading,,,,,,,,,List of relevant collaborations,"DataCatalogue,CohortStaging",
+Resources,,studies,ref_array,,,catalogue,Studies,,cohorts,,,Listing of studies that used this cohort,CohortStaging,
+Resources,,networks,ref_array,,,catalogue,Networks,,cohorts,,,The consortia or networks that this cohort is involved in,CohortStaging,
+Publications,,,,,,,,,,,,Publications following bibtex format,"DataCatalogue,CohortStaging",
+Publications,,doi,,1,true,,,,,,,Digital object identifier,"DataCatalogue,EMA,CohortStaging",
+Publications,,title,text,,,,,,,,,Publication title,"DataCatalogue,EMA,CohortStaging",
+Contacts,,,,,,,,,,,,Listing of contact persons per resource,"DataCatalogue,EMA,CohortStaging",
+Contacts,,resource,ref,1,true,,Resources,,,,,Resource the contact is affiliated with,"DataCatalogue,EMA,CohortStaging",
+Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource,"DataCatalogue,EMA,CohortStaging",
+Contacts,,role description,text,,,,,,,,,Description of the role,"DataCatalogue,CohortStaging",
+Contacts,,first name,,1,true,,,,,,,First name of the contact person,"DataCatalogue,EMA,CohortStaging",
+Contacts,,last name,,1,true,,,,,,,Last name of the contact person,"DataCatalogue,EMA,CohortStaging",
+Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable","DataCatalogue,CohortStaging",
+Contacts,,initials,,,,,,,,,,Initials of the contact person,"DataCatalogue,CohortStaging",
+Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person,"DataCatalogue,EMA,CohortStaging",
+Contacts,,organisation,ref,,,SharedStaging,Organisations,,,,,Affiliated organisation of the contact person,CohortStaging,
+Contacts,,email,,,,,,,,,,Contact's email address,"DataCatalogue,CohortStaging",
+Contacts,,orcid,,,,,,,,,,Orcid of the contact person,"DataCatalogue,CohortStaging",
+Contacts,,homepage,,,,,,,,,,Link to contact's homepage,"DataCatalogue,CohortStaging",
+Contacts,,photo,file,,,,,,,,,Contact's photograph,"DataCatalogue,CohortStaging",
+Contacts,,expertise,,,,,,,,,,Description of contact's expertise,"DataCatalogue,CohortStaging",
+Documentation,,,,,,,,,,,,Documentation attached to a resource,"DataCatalogue,CohortStaging",
+Documentation,,resource,ref,1,true,,Resources,,,,,The resource this documentation is for,"DataCatalogue,EMA,CohortStaging",
+Documentation,,name,,1,true,,,,,,,Document name,"DataCatalogue,EMA,CohortStaging",
+Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of documentation,"DataCatalogue,EMA,CohortStaging",
+Documentation,,description,text,,,,,,,,,Description of the document,"DataCatalogue,CohortStaging",
+Documentation,,url,hyperlink,,,,,,,,,Hyperlink to the source of the documentation,"DataCatalogue,EMA,CohortStaging",
+Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation,"DataCatalogue,EMA,CohortStaging",
+Collection events,,,,,,,,,,,,Definition of a data collection event for a resource,"DataCatalogue,CohortStaging",
+Collection events,,resource,ref,1,true,,Resources,,,,,Resource this collection event is part of,"DataCatalogue,CohortStaging",
+Collection events,,name,,1,true,,,,,,,Name of the collection event,"DataCatalogue,CohortStaging",
+Collection events,,description,text,,,,,,,,,Description of the collection event,"DataCatalogue,CohortStaging",
+Collection events,,subcohorts,ref_array,,,,Subcohorts,resource,,,,Subcohorts that are targetted by this collection event,"DataCatalogue,CohortStaging",
+Collection events,,start year,ontology,,,CatalogueOntologies,Years,,,,,Start year of data collection,"DataCatalogue,CohortStaging",
+Collection events,,start month,ontology,,,CatalogueOntologies,Months,,,,,Start month of data collection,"DataCatalogue,CohortStaging",
+Collection events,,end year,ontology,,,CatalogueOntologies,Years,,,,,End year of data collection. Leave empty if collection is ongoing,"DataCatalogue,CohortStaging",
+Collection events,,end month,ontology,,,CatalogueOntologies,Months,,,,,End month of data collection. Leave empty if collection is ongoing,"DataCatalogue,CohortStaging",
+Collection events,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups included in this data collection event,"DataCatalogue,CohortStaging",
+Collection events,,number of participants,int,,,,,,,,,Number of participants sampled in this data collection event,"DataCatalogue,CohortStaging",
+Collection events,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information cohorts,,,,,Areas of information that were extracted in this data collection event,"DataCatalogue,CohortStaging",
+Collection events,,data categories,ontology_array,,,CatalogueOntologies,Data categories,,,,,Methods of data collection used in this collection event,"DataCatalogue,CohortStaging",
+Collection events,,sample categories,ontology_array,,,CatalogueOntologies,Sample categories,,,,,Samples that were collected in this collection event,"DataCatalogue,CohortStaging",
+Collection events,,standardized tools,ontology_array,,,CatalogueOntologies,Standardized tools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event","DataCatalogue,CohortStaging",
+Collection events,,standardized tools other,,,,,,,,,,"If 'other', please specify","DataCatalogue,CohortStaging",
+Collection events,,core variables,string_array,,,,,,,,,Name 10-20 relevant variables that were collected in this collection event,"DataCatalogue,CohortStaging",
+Collection events,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this collection event,"DataCatalogue,CohortStaging",
+Subcohorts,,,,,,,,,,,,Subcohorts defined for this resource,"DataCatalogue,CohortStaging",
+Subcohorts,,resource,ref,1,true,,Resources,,,,,Resource this subcohort is part of,"DataCatalogue,CohortStaging",
+Subcohorts,,name,,1,true,,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'","DataCatalogue,CohortStaging",
+Subcohorts,,description,text,,,,,,,,,Subcohort description,"DataCatalogue,CohortStaging",
+Subcohorts,,number of participants,int,,,,,,,,,Number of participants in this subcohort,"DataCatalogue,CohortStaging",
+Subcohorts,,counts,refback,,,,Subcohort counts,,subcohort,,,"Total number of unique individuals per age(group), gender and year","DataCatalogue,CohortStaging",
+Subcohorts,,inclusion start,int,,,,,,,,,Year of first included participant,"DataCatalogue,CohortStaging",
+Subcohorts,,inclusion end,int,,,,,,,,,Year of last included participant. Leave empty if collection is ongoing,"DataCatalogue,CohortStaging",
+Subcohorts,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups within this subcohort,"DataCatalogue,CohortStaging",
+Subcohorts,,main medical condition,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Disease groups within this subcohort, based on ICD-10 and ORPHA code classifications","DataCatalogue,CohortStaging",
+Subcohorts,,comorbidity,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Comorbidity within this subcohort, based on ICD-10 classification","DataCatalogue,CohortStaging",
+Subcohorts,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this subcohort largely originate from,"DataCatalogue,CohortStaging",
+Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this subcohort largely originate from,"DataCatalogue,CohortStaging",
+Subcohorts,,inclusion criteria,text,,,,,,,,,Inclusion criteria applied to this subcohort,"DataCatalogue,CohortStaging",
+Subcohorts,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort,"DataCatalogue,CohortStaging",
+Datasets,,,,,,,,,,,,Definition of a dataset within a (common) data model,"DataCatalogue,CohortStaging",
+Datasets,,resource,ref,1,true,,Resources,,,,,resources that these variables are part of,"DataCatalogue,CohortStaging",
+Datasets,,name,,1,true,,,,,,,unique dataset name in the model,"DataCatalogue,CohortStaging",
+Datasets,,label,,,,,,,,,,short human readable description,"DataCatalogue,CohortStaging",
+Datasets,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,defines what each record in this table describes,"DataCatalogue,CohortStaging",
+Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree,"DataCatalogue,CohortStaging",
+Datasets,,description,text,,,,,,,,,description of the role/function of this table,"DataCatalogue,CohortStaging",
+Datasets,,number of rows,int,,,,,,,,,count of the numbe of records in this table,"DataCatalogue,CohortStaging",
+Datasets,,since version,,,,,,,,,,When this dataset was introduced,"DataCatalogue,CohortStaging",
+Datasets,,until version,,,,,,,,,,When this dataset was removed if applicable,"DataCatalogue,CohortStaging",
+All variables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead","DataCatalogue,CohortStaging",
+All variables,,resource,ref,1,true,,Resources,,,,,Data source that this variable was collected in,"DataCatalogue,CohortStaging",
+All variables,,dataset,ref,1,true,,Datasets,resource,,,,Dataset this variable is part of,"DataCatalogue,CohortStaging",
+All variables,,name,,1,true,,,,,,,"name of the variable, unique within a table","DataCatalogue,CohortStaging",
+All variables,,label,,,,,,,,,,"Human friendly longer name, if applicable","DataCatalogue,CohortStaging",
+All variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment(s) in time this variable is collected on,"DataCatalogue,CohortStaging",
+All variables,,since version,,,,,,,,,,When this variable was introduced,"DataCatalogue,CohortStaging",
+All variables,,until version,,,,,,,,,,When this variable was removed if applicable,"DataCatalogue,CohortStaging",
+Variables,All variables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range","DataCatalogue,CohortStaging",
+Variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"Data type, e.g. string,int,decimal,date,datetime etc","DataCatalogue,CohortStaging",
+Variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,,"DataCatalogue,CohortStaging",
+Variables,,references,ref,,,,All variables,resource,,,,to define foreign key relationships between variables within or across tables,"DataCatalogue,CohortStaging",
+Variables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection,"DataCatalogue,CohortStaging",
+Variables,,description,text,,,,,,,,,,"DataCatalogue,CohortStaging",
+Variables,,order,int,,,,,,,,,to sort variables you can optionally add an order value,"DataCatalogue,CohortStaging",
+Variables,,example values,string_array,,,,,,,,,,"DataCatalogue,CohortStaging",
+Variables,,permitted values,refback,,,,Variable values,,variable,,,,"DataCatalogue,CohortStaging",
+Variables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,,"DataCatalogue,CohortStaging",
+Variables,,repeats,refback,,,,Repeated variables,,is repeat of,,,listing of all repeated variables defined for this variable,"DataCatalogue,CohortStaging",
+Variables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,,"DataCatalogue,CohortStaging",
+Variables,,notes,text,,,,,,,,,Any other information on this variable,"DataCatalogue,CohortStaging",
+Variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable,"DataCatalogue,CohortStaging",
+Variable values,,resource,ref,1,true,,Resources,,,,,,"DataCatalogue,CohortStaging",
+Variable values,,variable,ref,1,true,,Variables,resource,,,,e.g. PATO,"DataCatalogue,CohortStaging",
+Variable values,,value,,1,true,,,,,,,e.g. '1',"DataCatalogue,CohortStaging",
+Variable values,,label,,,true,,,,,,,,"DataCatalogue,CohortStaging",
+Variable values,,order,int,,,,,,,,,,"DataCatalogue,CohortStaging",
+Variable values,,is missing,bool,,,,,,,,,,"DataCatalogue,CohortStaging",
+Variable values,,ontology term URI,,,,,,,,,,reference to ontology term that defines this categorical value,"DataCatalogue,CohortStaging",
+Variable values,,since version,,,,,,,,,,When this variable value was introduced if applicable,"DataCatalogue,CohortStaging",
+Variable values,,until version,,,,,,,,,,When this variable value was removed if applicable,"DataCatalogue,CohortStaging",
+Repeated variables,All variables,,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition,"DataCatalogue,CohortStaging",
+Repeated variables,,is repeat of,ref,,true,,Variables,resource,,,,reference to the definition of the sourceVariable that is being repeated,"DataCatalogue,CohortStaging",
+Dataset mappings,,,,,,,,,,,,Mappings from collected or source datasets to harmonised or target datasets,"DataCatalogue,CohortStaging",
+Dataset mappings,,source,ref,1,true,,Resources,,,,,datasource being mapped from,"DataCatalogue,CohortStaging",
+Dataset mappings,,source dataset,ref,1,true,,Datasets,source,,,,name of the table being mapped from,"DataCatalogue,CohortStaging",
+Dataset mappings,,target,ref,1,true,catalogue,Resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",CohortStaging,
+Dataset mappings,,target dataset,ref,1,true,catalogue,Datasets,target,,,,name of the table being mapped to,CohortStaging,
+Dataset mappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination,"DataCatalogue,CohortStaging",
+Dataset mappings,,description,text,,,,,,,,,human readible description of the mapping,"DataCatalogue,CohortStaging",
+Dataset mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code","DataCatalogue,CohortStaging",
+Variable mappings,,,,,,,,,,,,"Mappings from collected variables to standard/harmonised variables, optionally including ETL syntax","DataCatalogue,CohortStaging",
+Variable mappings,,source,ref,1,true,,Resources,,,,,,"DataCatalogue,CohortStaging",
+Variable mappings,,source dataset,ref,1,true,,Datasets,source,,,,,"DataCatalogue,CohortStaging",
+Variable mappings,,source variables,ref_array,,,,All variables,source dataset,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)","DataCatalogue,CohortStaging",
+Variable mappings,,source variables other datasets,ref_array,,,,All variables,source,,,,"optional, variable from other source datasets. Initially one may only define mapping between releases","DataCatalogue,CohortStaging",
+Variable mappings,,target,ref,1,true,catalogue,Resources,,,,,,CohortStaging,
+Variable mappings,,target dataset,ref,1,true,catalogue,Datasets,target,,,,,CohortStaging,
+Variable mappings,,target variable,ref,1,true,catalogue,All variables,target dataset,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable",CohortStaging,
+Variable mappings,,match,ontology,,true,CatalogueOntologies,Status details,,,,,"e.g. 'complete, partial, planned, no-match'","DataCatalogue,CohortStaging",
+Variable mappings,,status,ontology,,,CatalogueOntologies,Status,,,,,whether harmonisation is still draft or final,"DataCatalogue,CohortStaging",
+Variable mappings,,description,text,,,,,,,,,human readible description of the mapping,"DataCatalogue,CohortStaging",
+Variable mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code","DataCatalogue,CohortStaging",
+Variable mappings,,comments,text,,,,,,,,,additional notes and comments,"DataCatalogue,CohortStaging",
+Subcohort counts,,,,,,,,,,,,"Number of participants per subcohort age group, optionally divided per sex","DataCatalogue,CohortStaging",
+Subcohort counts,,subcohort,ref,1,true,,Subcohorts,,,,,,"DataCatalogue,CohortStaging",
+Subcohort counts,,age group,ontology,1,true,CatalogueOntologies,Age groups,,,,,,"DataCatalogue,CohortStaging",
+Subcohort counts,,N total,int,,,,,,,,,,"DataCatalogue,CohortStaging",
+Subcohort counts,,N female,int,,,,,,,,,,"DataCatalogue,CohortStaging",
+Subcohort counts,,N male,int,,,,,,,,,,"DataCatalogue,CohortStaging",
+External identifiers,,,,,,,,,,,,External identifier(s) for this resource,"DataCatalogue,EMA,CohortStaging",
+External identifiers,,resource,ref,1,true,,Resources,,,,,Resource that this external identifier belongs to,"DataCatalogue,EMA,CohortStaging",
+External identifiers,,identifier,text,1,true,,,,,,,External identifier,"DataCatalogue,EMA,CohortStaging",
+External identifiers,,external identifier type,ontology,,,CatalogueOntologies,External identifier types,,,,,External identifier type,"DataCatalogue,EMA,CohortStaging",
+External identifiers,,external identifier type other,text,,,,,,,,,"If other, enter external identifier type","DataCatalogue,CohortStaging",
