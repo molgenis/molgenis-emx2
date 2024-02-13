@@ -1,10 +1,10 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
 Resources,,overview,heading,,,,,,,,,General information,"DataCatalogue,CohortStaging,RWEStaging"
-Resources,,id,,1,True,,,,,,,Internal identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
+Resources,,id,,1,true,,,,,,,Internal identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
 Resources,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
 Resources,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
-Resources,,name,text,3,True,,,,,,,Name used in European projects,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
+Resources,,name,text,3,true,,,,,,,Name used in European projects,"DataCatalogue,EMA,SharedStaging,CohortStaging,RWEStaging"
 Resources,,type,ontology_array,,,CatalogueOntologies,Datasource types,,,,,Which of the following families of databanks best describe this data source,"DataCatalogue,EMA,RWEStaging"
 Resources,,type other,text,,,,,,,,,"If other, describe the type of datasource","DataCatalogue,EMA,RWEStaging"
 Resources,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA,CohortStaging,RWEStaging"

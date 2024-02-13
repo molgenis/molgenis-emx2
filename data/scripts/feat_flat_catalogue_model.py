@@ -53,10 +53,12 @@ class Flattener(pd.DataFrame):
     Class to flatten the DataCatalogue model to a flat, i.e. without inheritance, model.
     """
 
-    def __init__(self):
+    def __init__(self, simple_mode: bool = False):
         """Initializes the Flattener object by loading the original dataset."""
         super().__init__(data=pd.read_csv(f"{MODELS_DIR}/DataCatalogue-TODO.csv"))
         self._prepare_data()
+        if simple_mode:
+            self.drop(columns=['key', 'required', 'validation', 'semantics', 'description'], inplace=True)
 
     def __str__(self):
         return f"{pd.DataFrame(self)}"
@@ -85,26 +87,35 @@ class Flattener(pd.DataFrame):
         self._remove_duplicates()
 
         # Save result to file
-        self._save_df()
+        self.save_df()
 
         return self
 
     def _duplicate_columns(self, new_tab: str, old_tab: str):
         """Duplicates columns of an inherited table for the inheriting table."""
-        inheriting_tables = self.loc[self['tableName'] == old_tab]
 
-        ancestor = inheriting_tables.loc[inheriting_tables['columnName'].isna(), 'tableExtends'].values[0]
+        # Find the columns that are inherited by the new table
+        inherited_columns = self.loc[self['tableName'] == old_tab]
+        # Find the ancestor of the table from which the columns are inherited
+        ancestor = inherited_columns.loc[inherited_columns['columnName'].isna(), 'tableExtends'].values[0]
 
+        # Find the profiles declared in the definition of the inheriting table
         profiles = self.loc[(self['tableName'] == new_tab) & (self['tableExtends'] == old_tab), 'profiles'].values[0]
 
-        for idx in reversed(inheriting_tables.index):
+        # Iterate backwards over the rows of the inherited_columns DataFrame
+        # to correctly place the duplicated columns
+        for idx in reversed(inherited_columns.index):
+            # Increase the index from the duplicated column's index onwards
             self.index = [*self.index[:idx + 1], *self.index[idx + 2:], len(self.index)]
-            self.loc[idx + 1] = inheriting_tables.loc[idx]
+            # Copy the values of the ancestor table and rename the tableName to the new table
+            self.loc[idx + 1] = inherited_columns.loc[idx]
             self.loc[idx + 1, 'tableName'] = new_tab
-            self.loc[idx + 1, 'profiles'] = profiles
+            # Ensure the correct profiles for the duplicated column
+            self.loc[idx + 1, 'profiles'] = ','.join(p for p in self.profiles[idx+1].split(',') if p in profiles.split(','))
+            # Sort the index
             self.sort_index(inplace=True)
 
-        # Keep the column in which the table is defined
+        # Keep the column in which the table is defined and replace the old table's name by the ancestor's
         # dc = drop column
         dc = self.loc[(self['tableName'] == new_tab) & self['columnName'].isna() & (self['tableExtends'] != old_tab)]
         self.drop(index=dc.index, axis=1, inplace=True)
@@ -124,7 +135,6 @@ class Flattener(pd.DataFrame):
 
     def _rename_table(self, old_name: str, new_name: str):
         """Renames a table and references to that table to the new name."""
-        # self['refTable'] = self['refTable'].apply(lambda rt: rt if rt != old_name else new_name)
         self['refTable'].replace(old_name, new_name, inplace=True)
         self['tableName'] = self['tableName'].replace(old_name, new_name)
         self['tableExtends'] = self['tableExtends'].replace(old_name, new_name)
@@ -138,25 +148,35 @@ class Flattener(pd.DataFrame):
         # Drop exact duplicates
         self.drop_duplicates(inplace=True)
 
+        # Remove columns without any profiles
+        self.drop(index=self.loc[self['profiles'] == ''].index, axis=1, inplace=True)
+
         # Find pairs of rows (columns) with the same tableName and columnName
         duplicates = self[['tableName', 'columnName']].duplicated()
-        print(self.loc[duplicates])
+        print(self.loc[duplicates, ['tableName', 'columnName', 'profiles']])
 
     def _prepare_data(self):
         """Prepares the dtype of the 'key' column."""
         self['key'] = self['key'].convert_dtypes()
+        self['required'] = self['required'].apply(lambda r: 'true' if r is True else '')
 
-    def _save_df(self):
+    def save_df(self, old_profiles: bool = False):
         """Saves the pandas DataFrame of the model to disk."""
-        self.to_csv(f"{MODELS_DIR}/DataCatalogue-FLAT.csv", index=False)
+        if not old_profiles:
+            self.to_csv(f"{MODELS_DIR}/DataCatalogue-FLAT.csv", index=False)
         profiles = list(set([p for l in list(self['profiles'].str.split(',')) for p in l]))
+
+        file_dir = f"{MODELS_DIR}/profiles"
+        if old_profiles:
+            file_dir += "/old_profiles"
         for prof in profiles:
-            self.loc[self['profiles'].str.contains(prof)].to_csv(f"{MODELS_DIR}/profiles/{prof}.csv", index=False)
+            self.loc[self['profiles'].str.contains(prof)].to_csv(f"{file_dir}/{prof}.csv", index=False)
 
 
 def main():
     """The main function calling the execution."""
-    flattener = Flattener()
+    flattener = Flattener(simple_mode=False)
+    flattener.save_df(old_profiles=True)
     flattener.flatten()
 
 
