@@ -9,7 +9,7 @@
         <h5>Select subtype</h5>
         <p>
           {{ subclasses[0].label }} has several variant subtypes that allow for
-          diffferent properties. Please select below the subtype to create.
+          different properties. Please select below the subtype to create.
         </p>
         <table class="table-bordered">
           <tr v-for="subclass in subclasses">
@@ -39,45 +39,53 @@
 </template>
 
 <script setup lang="ts">
-import RowButton from "./RowButton.vue";
-import ButtonOutline from "../forms/ButtonOutline.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import IconAction from "../forms/IconAction.vue";
 import Client from "../../client/client";
-
-import { ref, defineAsyncComponent } from "vue";
+import {
+  ref,
+  defineAsyncComponent,
+  onMounted,
+  withDefaults,
+  defineProps,
+} from "vue";
 import { ITableMetaData } from "meta-data-utils";
 const EditModal = defineAsyncComponent(() => import("../forms/EditModal.vue"));
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     id: string;
     tableId: string;
-    schemaId: string;
+    schemaId?: string;
     label?: string;
     defaultValue?: Record<string, any>;
     visibleColumns?: any[] | null;
   }>(),
-  { label: "", visibleColumns: null }
+  { label: "", visibleColumns: null, schemaId: null }
 );
 
 let isModalShown = ref(false);
 let subclassSelected: ITableMetaData = ref(null);
+let subclasses: ITableMetaData[] = ref([]);
 
 const emit = defineEmits(["close", "update:newRow"]);
-const client = Client.newClient(this.schemaId);
-const subclasses = [
-  await client.fetchTableMetaData(tableId.value),
-  ...(await client.fetchSubclassTables(tableId.value)),
-];
-if (subclasses.length == 1) {
-  subclassSelected.value = subclasses.value[0];
-}
-
 function handleClose() {
   isModalShown.value = false;
   emit("close");
 }
+
+onMounted(async () => {
+  console.log("created");
+  const client = Client.newClient(props.schemaId);
+  subclasses.value = [
+    await client.fetchTableMetaData(props.tableId),
+    ...(await client.fetchSubclassTables(props.tableId)),
+  ];
+  console.log(subclasses);
+  if (subclasses.value.length == 1) {
+    subclassSelected.value = subclasses.value[0];
+  }
+});
 </script>
 
 <docs>
@@ -90,8 +98,8 @@ function handleClose() {
     <div>
       <RowButtonAdd
         id="row-add-btn-sample"
-        tableId="Pet"
-        schemaId="pet store"
+        tableId="Resources"
+        schemaId="catalogue"
       />
       <br />
       <RowButtonAdd
