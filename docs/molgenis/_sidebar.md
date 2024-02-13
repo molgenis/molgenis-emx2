@@ -12,8 +12,10 @@
     - [Permissions](use_permissions.md)
     - [Settings](use_database_settings.md)
     - [Scripts/Jobs](use_scripts_jobs.md)
+    - [Tokens](use_tokens.md)
     - [Linked data](semantics.md)
     - [Using APIs](use_usingapis.md)
+    - [Pyclient API](use_usingpyclient.md)
     - [Admin](use_global_settings.md)
     - [Analytics](use_analytics.md)
 - **Installation guide**
@@ -34,5 +36,6 @@
     - [RDF](dev_rdf.md)
     - [Graph genome](dev_graphgenome.md)
     - [App development](dev_apps.md)
+    - [App profiles](dev_profiles.md)
     - [Migrations](dev_migrations.md)
     - [Principles](dev_principles.md)

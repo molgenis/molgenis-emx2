@@ -805,13 +805,27 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(200)
         .when()
-        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category/bmFtZQ==&Y2F0");
+        .get("http://localhost:" + PORT + "/pet store/api/rdf/Category?name=cat");
     given()
         .sessionId(SESSION_ID)
         .expect()
         .statusCode(400)
         .when()
         .get("http://localhost:" + PORT + "/pet store/api/rdf/doesnotexist");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store");
+    String result =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store")
+            .getBody()
+            .asString();
+    assertFalse(result.contains("CatalogueOntologies"));
   }
 
   @Test

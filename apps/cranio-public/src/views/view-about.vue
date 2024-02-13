@@ -40,10 +40,13 @@
         of clinical and patient-reported outcomes.
       </p>
       <p>
-        In a collaborative partnership with MOLGENIS, an expert in registry
-        development and support, the registry is built and hosted, further
-        enhancing its functionality by supporting FAIR interfaces for seamless
-        data exchange.
+        he registry has been built and is hosted in collaboration with the
+        Genomics Coordination Centre at the University Medical Center Groningen
+        (UMCG), which specialises in registry development and support. The
+        registry is based on MOLGENIS, an open source LGPLv3 licensed data
+        platform for scientific data. The platform is user-friendly and provides
+        the highest level of security for patient data. It also supports FAIR
+        interfaces for data exchange.
       </p>
       <p>
         To ensure utmost data security, all information incorporated into the

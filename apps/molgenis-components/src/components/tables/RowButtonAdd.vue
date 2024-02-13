@@ -33,83 +33,72 @@
       :visibleColumns="visibleColumns"
       :applyDefaultValues="true"
       @close="handleClose"
-      @update:newRow="(event) => $emit('update:newRow', event)"
+      @update:newRow="(event:any) => $emit('update:newRow', event)"
     />
   </span>
 </template>
 
-<script>
-import IconAction from "../forms/IconAction.vue";
-import { defineAsyncComponent } from "vue";
-import Client from "../../client/client";
+<script setup lang="ts">
+import RowButton from "./RowButton.vue";
+import ButtonOutline from "../forms/ButtonOutline.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
+import IconAction from "../forms/IconAction.vue";
+import Client from "../../client/client";
 
-export default {
-  name: "RowButtonAdd",
-  components: {
-    LayoutModal,
-    IconAction,
-    EditModal: defineAsyncComponent(() => import("../forms/EditModal.vue")),
-  },
-  props: {
-    id: {
-      type: String,
-      required: true,
-    },
-    tableId: {
-      type: String,
-      required: true,
-    },
-    schemaId: {
-      type: String,
-      required: false,
-    },
-    defaultValue: {
-      type: Object,
-      required: false,
-    },
-    visibleColumns: {
-      type: Array,
-      required: false,
-      default: () => null,
-    },
-  },
-  data() {
-    return {
-      isModalShown: false,
-      subclasses: [],
-      subclassSelected: null,
-    };
-  },
-  methods: {
-    handleClose() {
-      this.isModalShown = false;
-      this.$emit("close");
-    },
-  },
-  async created() {
-    //check if subclasses
-    const client = Client.newClient(this.schemaId);
-    this.subclasses = [
-      await client.fetchTableMetaData(this.tableId),
-      ...(await client.fetchSubclassTables(this.tableId)),
-    ];
-    if (this.subclasses.length == 1) {
-      this.subclassSelected = this.subclasses[0];
-    }
-  },
-};
+import { ref, defineAsyncComponent } from "vue";
+import { ITableMetaData } from "meta-data-utils";
+const EditModal = defineAsyncComponent(() => import("../forms/EditModal.vue"));
+
+withDefaults(
+  defineProps<{
+    id: string;
+    tableId: string;
+    schemaId: string;
+    label?: string;
+    defaultValue?: Record<string, any>;
+    visibleColumns?: any[] | null;
+  }>(),
+  { label: "", visibleColumns: null }
+);
+
+let isModalShown = ref(false);
+let subclassSelected: ITableMetaData = ref(null);
+
+const emit = defineEmits(["close", "update:newRow"]);
+const client = Client.newClient(this.schemaId);
+const subclasses = [
+  await client.fetchTableMetaData(tableId.value),
+  ...(await client.fetchSubclassTables(tableId.value)),
+];
+if (subclasses.length == 1) {
+  subclassSelected.value = subclasses.value[0];
+}
+
+function handleClose() {
+  isModalShown.value = false;
+  emit("close");
+}
 </script>
 
 <docs>
 <template>
   <div>
-    <label for="row-add-btn-sample">composition of RowButton and EditModal configured for row add/insert</label>
+    <label for="row-add-btn-sample"
+      >composition of RowButton and EditModal configured for row
+      add/insert</label
+    >
     <div>
       <RowButtonAdd
-          id="row-add-btn-sample"
-          tableId="Pet"
-          schemaId="pet store"
+        id="row-add-btn-sample"
+        tableId="Pet"
+        schemaId="pet store"
+      />
+      <br />
+      <RowButtonAdd
+        id="row-add-btn-sample"
+        tableId="Pet"
+        label="Add a new pet"
+        schemaId="pet store"
       />
     </div>
   </div>

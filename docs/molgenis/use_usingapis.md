@@ -1,6 +1,13 @@
 # Using APIs
 
-The EMX2 APIs can be used to various environments to retrieve, add, manipulate or replace data.
+The EMX2 APIs can be used in various environments to retrieve, add, manipulate or replace data.
+
+
+
+## Python
+
+Data management of a Molgenis EMX2 server can be performed through the use of the Python client, see [Pyclient](use_usingpyclient.md).
+
 
 ## R
 
@@ -84,10 +91,6 @@ Result:
 ```
 
 ### Define new tables
-todo
-
-## Python
-
 todo
 
 ## Command line

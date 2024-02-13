@@ -147,12 +147,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       // we create copies so we don't need worry on changes
       for (Column col : getInheritedTable().getColumns()) {
         if (col.isSystemColumn()) {
-          meta.put(col.getName(), new Column(getInheritedTable(), col));
+          meta.put(col.getName(), col);
           // sorting of external schema is seperate from internal schema
         } else if (!Objects.equals(col.getTable().getSchemaName(), getSchemaName())) {
-          external.put(col.getName(), new Column(getInheritedTable(), col));
+          external.put(col.getName(), col);
         } else {
-          internal.put(col.getName(), new Column(getInheritedTable(), col));
+          internal.put(col.getName(), col);
         }
       }
     }

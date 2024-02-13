@@ -17,7 +17,7 @@ const cohortOnly = computed(() => {
   return routeSetting == "true" || config.public.cohortOnly;
 });
 
-const query = `query MyQuery($networksFilter:NetworksFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CohortsFilter,$subcohortsFilter:SubcohortsFilter,$dataSourcesFilter:DataSourcesFilter){
+const query = `query CataloguePage($networksFilter:NetworksFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CohortsFilter,$subcohortsFilter:SubcohortsFilter,$dataSourcesFilter:DataSourcesFilter){
         Networks(filter:$networksFilter) {
               id,
               acronym,
@@ -32,7 +32,7 @@ const query = `query MyQuery($networksFilter:NetworksFilter,$variablesFilter:Var
         }
         Cohorts_agg(filter:$cohortsFilter) {
           count
-          sum {
+          _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples
           }
@@ -110,8 +110,7 @@ const dataSourcesFilter = scoped
 const { data, error } = await useAsyncData<any, IMgError>(
   `lading-page-${catalogueRouteParam}`,
   async () => {
-    const models = await $fetch(`/${route.params.schema}/catalogue/graphql`, {
-      baseURL: config.public.apiBase,
+    const models = await $fetch(`/${route.params.schema}/graphql`, {
       method: "POST",
       body: {
         query: `
@@ -136,8 +135,7 @@ const { data, error } = await useAsyncData<any, IMgError>(
         }
       : undefined;
 
-    return $fetch(`/${route.params.schema}/catalogue/graphql`, {
-      baseURL: config.public.apiBase,
+    return $fetch(`/${route.params.schema}/graphql`, {
       method: "POST",
       body: {
         query,
@@ -224,7 +222,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         one of the content categories listed below.</template
       >
       <template v-else v-slot:description
-        ><ReadMore>{{ description }}</ReadMore></template
+        ><ContentReadMore>{{ description }}</ContentReadMore></template
       >
     </PageHeader>
 
@@ -246,7 +244,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/cohorts`"
       />
       <LandingCardPrimary
-        v-if="data.data.DataSources_agg.count > 0 && !cohortOnly"
+        v-if="!cohortOnly && data.data.DataSources_agg.count > 0"
         image="image-data-warehouse"
         title="Data sources"
         :description="
@@ -305,12 +303,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
     <LandingSecondary>
       <LandingCardSecondary
         icon="people"
-        v-if="data.data.Cohorts_agg?.sum?.numberOfParticipants"
+        v-if="data.data.Cohorts_agg?._sum?.numberOfParticipants"
       >
         <b>
           {{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg?.sum?.numberOfParticipants
+              data.data.Cohorts_agg?._sum?.numberOfParticipants
             )
           }}
           {{
@@ -331,12 +329,12 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
 
       <LandingCardSecondary
         icon="colorize"
-        v-if="data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples"
+        v-if="data.data.Cohorts_agg?._sum?.numberOfParticipantsWithSamples"
       >
         <b
           >{{
             new Intl.NumberFormat("nl-NL").format(
-              data.data.Cohorts_agg?.sum?.numberOfParticipantsWithSamples
+              data.data.Cohorts_agg?._sum?.numberOfParticipantsWithSamples
             )
           }}
           {{
