@@ -95,10 +95,13 @@ class Flattener(pd.DataFrame):
 
         ancestor = inheriting_tables.loc[inheriting_tables['columnName'].isna(), 'tableExtends'].values[0]
 
+        profiles = self.loc[(self['tableName'] == new_tab) & (self['tableExtends'] == old_tab), 'profiles'].values[0]
+
         for idx in reversed(inheriting_tables.index):
             self.index = [*self.index[:idx + 1], *self.index[idx + 2:], len(self.index)]
             self.loc[idx + 1] = inheriting_tables.loc[idx]
             self.loc[idx + 1, 'tableName'] = new_tab
+            self.loc[idx + 1, 'profiles'] = profiles
             self.sort_index(inplace=True)
 
         # Keep the column in which the table is defined
