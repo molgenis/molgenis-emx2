@@ -12,7 +12,9 @@
           title="ERN CRANIO Registry"
           :subtitle="provider.name"
           :imageSrc="
-            provider.imageUrl ? provider.imageUrl : 'banner-diagnoses.jpg'
+            Object.hasOwn(provider.image, 'id')
+              ? `${provider.image.url}`
+              : 'banner-diagnoses.jpg'
           "
         />
         <PageSection
@@ -93,7 +95,12 @@ async function getProviderMeta() {
       }
     ) {
       name
-      imageUrl
+      image {
+        id
+        url
+        size
+        extension
+      }
       providerInformation {
         providerIdentifier
       }

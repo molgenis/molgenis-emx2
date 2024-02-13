@@ -115,9 +115,6 @@ export default {
       if (!Array.isArray(this.schema.tables)) {
         this.schema.tables = [];
       }
-      if (!Array.isArray(table.columns)) {
-        table.columns = [];
-      }
       this.schema.tables.push(table);
       this.$emit("update:modelValue", this.schema);
     },
