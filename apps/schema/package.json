@@ -13,7 +13,6 @@
     "core-js": "3.34.0",
     "graphql-request": "5.2.0",
     "graphql-tag": "2.12.6",
-    "meta-data-utils": "*",
     "molgenis-components": "*",
     "vue": "3.4.15",
     "vue-router": "4.2.5",
