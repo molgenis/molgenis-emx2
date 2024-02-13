@@ -1,64 +1,65 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Version,,,,,,,,,,,,3.11,"DataCatalogue,EMA,SharedStaging,CohortStaging"
-Catalogues,,,,,,,,,,,,A collection of resources within a network or consortium or about a common topic,DataCatalogue
-Catalogues,,network,ref,1,TRUE,,Networks,,,,,Network or consortium that leads this catalogue,DataCatalogue
-Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,,Type of catalogue,DataCatalogue
-Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging,CohortStaging"
-Organisations,Resources,,,,,,,,,,,Research departments and research groups,"DataCatalogue,EMA,SharedStaging"
-Extended resources,Resources,,,,,,,,,,,"Generic listing of all extended resources. Should not be used directly, instead use specific types such as Databanks and Cohorts","DataCatalogue,EMA,CohortStaging"
-Models,Extended resources,,,,,,,,,,,Data models,"DataCatalogue,EMA"
-Data resources,Extended resources,,,,,,,,,,,Resources for data,"DataCatalogue,EMA,CohortStaging"
-Cohorts,Data resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic,"DataCatalogue,CohortStaging"
-RWE resources,Data resources,,,,,,,,,,,Real world data collections,"DataCatalogue,EMA"
-Databanks,RWE resources,,,,,,,,,,,"Data collection from real world databases such as health records, registries",DataCatalogue
-Data sources,RWE resources,,,,,,,,,,,Collections of multiple data banks covering the same population,"DataCatalogue,EMA"
-Networks,Extended resources,,,,,,,,,,,Collaborations of multiple institutions,"DataCatalogue,EMA"
-Studies,Extended resources,,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks","DataCatalogue,EMA"
+Catalogues,,,,,,,,,,,dcat:Catalog,A collection of resources within a network or consortium or about a common topic,DataCatalogue
+Catalogues,,network,ref,1,TRUE,,Networks,,,,dcat:catalog,Network or consortium that leads this catalogue,DataCatalogue
+Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,dcat:theme,Type of catalogue,DataCatalogue
+Catalogues,,publisher,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,dcat:publisher,Publisher todo should default to molgenis team,DataCatalogue
+Resources,,,,,,,,,,,dcat:Resource,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging,CohortStaging"
+Organisations,Resources,,,,,,,,,,org:Organization,Research departments and research groups,"DataCatalogue,EMA,SharedStaging"
+Extended resources,Resources,,,,,,,,,,dcat:Resource,"Generic listing of all extended resources. Should not be used directly, instead use specific types such as Databanks and Cohorts","DataCatalogue,EMA,CohortStaging"
+Models,Extended resources,,,,,,,,,,dcat:Resource,Data models,"DataCatalogue,EMA"
+Data resources,Extended resources,,,,,,,,,,dcat:Dataset,Resources for data,"DataCatalogue,EMA,CohortStaging"
+Cohorts,Data resources,,,,,,,,,,dcat:Dataset,Group of individuals sharing a defining demographic characteristic,"DataCatalogue,CohortStaging"
+RWE resources,Data resources,,,,,,,,,,dcat:Dataset,Real world data collections,"DataCatalogue,EMA"
+Databanks,RWE resources,,,,,,,,,,dcat:Dataset,"Data collection from real world databases such as health records, registries",DataCatalogue
+Data sources,RWE resources,,,,,,,,,,dcat:Dataset,Collections of multiple data banks covering the same population,"DataCatalogue,EMA"
+Networks,Extended resources,,,,,,,,,,dcat:Resource,Collaborations of multiple institutions,"DataCatalogue,EMA"
+Studies,Extended resources,,,,,,,,,,dcat:Resource,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks","DataCatalogue,EMA"
 Resources,,overview,heading,,,,,,,,,General information,"DataCatalogue,CohortStaging"
-Resources,,id,,1,TRUE,,,,,,,Internal identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging"
-Resources,,pid,,2,,,,,,,,Persistent identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging"
-Resources,,acronym,,,,,,,,,,Acronym if applicable,"DataCatalogue,EMA,SharedStaging,CohortStaging"
-Resources,,name,text,3,TRUE,,,,,,,Name used in European projects,"DataCatalogue,EMA,SharedStaging,CohortStaging"
-Data resources,,local name,,,,,,,,,,"If different from above, name in the national language","DataCatalogue,CohortStaging"
+Resources,,id,,1,TRUE,,,,,,dcterms:identifier,Internal identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging"
+Resources,,pid,,2,,,,,,,dcterms:identifier,Persistent identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging"
+Resources,,acronym,,,,,,,,,dcterms:identifier,Acronym if applicable,"DataCatalogue,EMA,SharedStaging,CohortStaging"
+Resources,,name,text,3,TRUE,,,,,,dcterms:title,Name used in European projects,"DataCatalogue,EMA,SharedStaging,CohortStaging"
+Data resources,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language","DataCatalogue,CohortStaging"
 Organisations,,type,ontology_array,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?,"DataCatalogue,EMA,SharedStaging"
 Organisations,,type other,text,,,,,,,,,"If type is 'other', a description of type of organisation","DataCatalogue,SharedStaging"
-Organisations,,institution,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of","DataCatalogue,EMA,SharedStaging"
-Organisations,,institution acronym,string,,,,,,,,,Short name of the organisation,"DataCatalogue,EMA,SharedStaging"
-Organisations,,email,email,,,,,,,,,Contact email address for person responsible for organization entry in catalogue,"DataCatalogue,SharedStaging"
+Organisations,,institution,text,,,,,,,,org:FormalOrganization,"University, company, medical centre or research institutes this organisation is part of","DataCatalogue,EMA,SharedStaging"
+Organisations,,institution acronym,string,,,,,,,,creat,Short name of the organisation,"DataCatalogue,EMA,SharedStaging"
+Organisations,,email,email,,,,,,,,vcard:hasEmail,Contact email address for person responsible for organization entry in catalogue,"DataCatalogue,SharedStaging"
 Organisations,,logo,file,,,,,,,,,Logo of the organisation,"DataCatalogue,SharedStaging"
-Organisations,,address,text,,,,,,,,,Address of the organisation,"DataCatalogue,SharedStaging"
+Organisations,,address,text,,,,,,,,vcard:hasAddress,Address of the organisation,"DataCatalogue,SharedStaging"
 Organisations,,expertise,text,,,,,,,,,A short description of the expertise of this institution,"DataCatalogue,SharedStaging"
-Organisations,,country,ontology_array,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located,"DataCatalogue,EMA,SharedStaging"
+Organisations,,country,ontology_array,,,CatalogueOntologies,Countries,,,,vcard:country-name,Country in which the institution head office or coordinating centre is located,"DataCatalogue,EMA,SharedStaging"
 Organisations,,features,ontology_array,,,CatalogueOntologies,Organisation features,,,,,Features that describe this organisation,"DataCatalogue,EMA,SharedStaging"
-Organisations,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,,Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:,"DataCatalogue,EMA,SharedStaging"
+Organisations,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,org:Role,Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:,"DataCatalogue,EMA,SharedStaging"
 Organisations,,leading resources,refback,,,,Extended resources,,lead organisation,,,"Listing of data sources, cohorts, studies (etc)","DataCatalogue,EMA"
 Organisations,,additional resources,refback,,,,Extended resources,,additional organisations,,,"Listing of data sources, cohorts, studies (etc)","DataCatalogue,EMA"
-Networks,,type,ontology_array,,,CatalogueOntologies,Network types,,,,,"Type of network, e.g. h2020 project",DataCatalogue
+Networks,,type,ontology_array,,,CatalogueOntologies,Network types,,,,dcterms:type,"Type of network, e.g. h2020 project",DataCatalogue
 Networks,,features,ontology_array,,,CatalogueOntologies,Network features,,,,,Characterizations of the network,"DataCatalogue,EMA"
 Studies,,type,ontology,,,CatalogueOntologies,Study types,,,,,Select 1 of the following types of study,"DataCatalogue,EMA"
 Studies,,type other,,,,,,,,,,"If other, describe the type of study","DataCatalogue,EMA"
-RWE resources,,type,ontology_array,,,CatalogueOntologies,Datasource types,,,,,Which of the following families of databanks best describe this data source,"DataCatalogue,EMA"
+RWE resources,,type,ontology_array,,,CatalogueOntologies,Datasource types,,,,dcterms:type,Which of the following families of databanks best describe this data source,"DataCatalogue,EMA"
 RWE resources,,type other,text,,,,,,,,,"If other, describe the type of datasource","DataCatalogue,EMA"
-Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description,"DataCatalogue,CohortStaging"
-Resources,,website,hyperlink,,,,,,,,,Link to the website or homepage,"DataCatalogue,EMA,CohortStaging"
-Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
-Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
+Data resources,,keywords,text,,,,,,,,dcat:keyword,Keywords to increase findability of this resource. Try to use words that are not used in the description,"DataCatalogue,CohortStaging"
+Resources,,website,hyperlink,,,,,,,,dcat:landingPage,Link to the website or homepage,"DataCatalogue,EMA,CohortStaging"
+Extended resources,,lead organisation,ref_array,,,,Organisations,,,,"dcterms:creator",lead organisation (e.g. research department or group) for this resource,"DataCatalogue,EMA"
+Extended resources,,additional organisations,ref_array,,,,Organisations,,,,dcterms:contributor,List the names of any additional organisations that contributed to the resource,"DataCatalogue,EMA"
 Extended resources,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,CohortStaging
 Extended resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organisations that contributed to the resource,CohortStaging
 Studies,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA
-Networks,,other organisations,text,,,,,,,,,List the names of any other organisations that are not listed and contributed to this resource,EMA
-Resources,,description,text,,,,,,,,,Short description,"DataCatalogue,EMA,CohortStaging"
+Networks,,other organisations,text,,,,,,,,dcterms:contributor,List the names of any other organisations that are not listed and contributed to this resource,EMA
+Resources,,description,text,,,,,,,,dcterms:description,Short description,"DataCatalogue,EMA,CohortStaging"
 RWE resources,,data collection description,text,,,,,,,,,Describe the process of collection and recording of data.,"DataCatalogue,EMA"
 RWE resources,,date established,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogue,EMA"
-RWE resources,,start data collection,date,,,,,,,,,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogue,EMA"
-RWE resources,,end data collection,date,,,,,,,,,"If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogue,EMA"
+RWE resources,,start data collection,date,,,,,,,,dcat:startDate,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogue,EMA"
+RWE resources,,end data collection,date,,,,,,,,dcat:endDate,"If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06","DataCatalogue,EMA"
 RWE resources,,time span description,text,,,,,,,,,Description of time span,DataCatalogue
-Extended resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA,CohortStaging"
+Extended resources,,external identifiers,refback,,,,External identifiers,,resource,,dcterms:identifier,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)","DataCatalogue,EMA,CohortStaging"
 Studies,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogue,EMA"
 Models,,release frequency,int,,,,,,,,,Refreshing rate (in months),"DataCatalogue,EMA"
-Cohorts,,contact email,,,,,,,,,,Contact e-mail address for this cohort,"DataCatalogue,CohortStaging"
-Resources,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),"DataCatalogue,EMA,CohortStaging"
-Cohorts,,type,ontology_array,,,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank","DataCatalogue,CohortStaging"
+Cohorts,,contact email,,,,,,,,,dcat:contactPoint,Contact e-mail address for this cohort,"DataCatalogue,CohortStaging"
+Resources,,contacts,refback,,,,Contacts,,resource,,dcat:contactPoint,Contact person(s),"DataCatalogue,EMA,CohortStaging"
+Cohorts,,type,ontology_array,,,CatalogueOntologies,Resource types,,,,dcterms:type,"Type of resource, e.g. registry, cohort, biobank","DataCatalogue,CohortStaging"
 Cohorts,,type other,,,,,,,,,,"If other, describe the type of resource","DataCatalogue,CohortStaging"
 Cohorts,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal","DataCatalogue,CohortStaging"
 Cohorts,,design description,text,,,,,,,,,Short description of the study design of this cohort,"DataCatalogue,CohortStaging"
@@ -69,8 +70,8 @@ Data resources,,population,heading,,,,,,,,,Description of the population that ca
 Data resources,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected,"DataCatalogue,EMA,CohortStaging"
 Data resources,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected,"DataCatalogue,CohortStaging"
 Databanks,,underlying population,text,,,,,,,,,Provide a summary description of the underlying population (maximum 100 words) or URL to a description,DataCatalogue
-Extended resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
-Data resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
+Extended resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,dcterms:spatial,Countries where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
+Data resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,dcterms:spatial,Geographical regions where data from this resource largely originate from,"DataCatalogue,EMA,CohortStaging"
 Data resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.,"DataCatalogue,EMA,CohortStaging"
 Cohorts,,inclusion criteria,ontology_array,,,CatalogueOntologies,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource,"DataCatalogue,CohortStaging"
 Cohorts,,other inclusion criteria,text,,,,,,,,,Other inclusion criteria applied to the participants of this resource,"DataCatalogue,CohortStaging"
@@ -110,7 +111,7 @@ RWE resources,,disease details other,text,,,,,,,,,Specify disease details if not
 RWE resources,,biospecimen collected,ontology_array,,,CatalogueOntologies,Biospecimens,,,,,"If the data bank contains biospecimens, what types of specimen",DataCatalogue
 RWE resources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)","DataCatalogue,EMA"
 RWE resources,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly","DataCatalogue,EMA"
-Cohorts,,collection events,refback,,,,Collection events,,resource,,,List of collection events defined for this resource,"DataCatalogue,CohortStaging"
+Cohorts,,collection events,refback,,,,Collection events,,resource,,dcterms:hasPart,List of collection events defined for this resource,"DataCatalogue,CohortStaging"
 Databanks,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?",DataCatalogue
 Databanks,,multiple entries,bool,,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?",DataCatalogue
 RWE resources,,linkage,heading,,,,,,,,,Data linkage,DataCatalogue
@@ -206,9 +207,9 @@ Publications,,publisher,,,,,,,,,,Publisher's name,DataCatalogue
 Publications,,school,,,,,,,,,,School where the thesis was written (in case of thesis),DataCatalogue
 Publications,,abstract,text,,,,,,,,,Publication abstract,DataCatalogue
 Publications,,resources,refback,,,,Extended resources,,publications,,,List of resources that refer to this publication,DataCatalogue
-Contacts,,,,,,,,,,,,Listing of contact persons per resource,"DataCatalogue,EMA,CohortStaging"
+Contacts,,,,,,,,,,,vcard:Individual,Listing of contact persons per resource,"DataCatalogue,EMA,CohortStaging"
 Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with,"DataCatalogue,EMA,CohortStaging"
-Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource,"DataCatalogue,EMA,CohortStaging"
+Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,vcard:hasRole,Type(s) of contribution or role in the resource,"DataCatalogue,EMA,CohortStaging"
 Contacts,,role description,text,,,,,,,,,Description of the role,"DataCatalogue,CohortStaging"
 Contacts,,first name,,1,TRUE,,,,,,,First name of the contact person,"DataCatalogue,EMA,CohortStaging"
 Contacts,,last name,,1,TRUE,,,,,,,Last name of the contact person,"DataCatalogue,EMA,CohortStaging"
@@ -217,7 +218,7 @@ Contacts,,initials,,,,,,,,,,Initials of the contact person,"DataCatalogue,Cohort
 Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person,"DataCatalogue,EMA,CohortStaging"
 Contacts,,organisation,ref,,,,Organisations,,,,,Affiliated organisation of the contact person,"DataCatalogue,EMA"
 Contacts,,organisation,ref,,,SharedStaging,Organisations,,,,,Affiliated organisation of the contact person,CohortStaging
-Contacts,,email,,,,,,,,,,Contact's email address,"DataCatalogue,CohortStaging"
+Contacts,,email,,,,,,,,,vcard:hasEmail,Contact's email address,"DataCatalogue,CohortStaging"
 Contacts,,orcid,,,,,,,,,,Orcid of the contact person,"DataCatalogue,CohortStaging"
 Contacts,,homepage,,,,,,,,,,Link to contact's homepage,"DataCatalogue,CohortStaging"
 Contacts,,photo,file,,,,,,,,,Contact's photograph,"DataCatalogue,CohortStaging"
@@ -248,45 +249,45 @@ Quantitative information,,mean observation years,int,,,,,,,,,Median years for wh
 Quantitative information,,mean years active,int,,,,,,,,,Median time for which unique individuals with records captured in the data source are observable (most recent count),"DataCatalogue,EMA"
 Quantitative information,,median age,int,,,,,,,,,Median age of individuals within data source,DataCatalogue
 Quantitative information,,proportion female,int,,,,,,,,,Proportion of females in the data source,DataCatalogue
-Collection events,,,,,,,,,,,,Definition of a data collection event for a resource,"DataCatalogue,CohortStaging"
+Collection events,,,,,,,,,,,dcat:Datasets,Definition of a data collection event for a resource,"DataCatalogue,CohortStaging"
 Collection events,,resource,ref,1,TRUE,,Extended resources,,,,,Resource this collection event is part of,"DataCatalogue,CohortStaging"
-Collection events,,name,,1,TRUE,,,,,,,Name of the collection event,"DataCatalogue,CohortStaging"
-Collection events,,description,text,,,,,,,,,Description of the collection event,"DataCatalogue,CohortStaging"
-Collection events,,subcohorts,ref_array,,,,Subcohorts,resource,,,,Subcohorts that are targetted by this collection event,"DataCatalogue,CohortStaging"
-Collection events,,start year,ontology,,,CatalogueOntologies,Years,,,,,Start year of data collection,"DataCatalogue,CohortStaging"
+Collection events,,name,,1,TRUE,,,,,,dcterms:title,Name of the collection event,"DataCatalogue,CohortStaging"
+Collection events,,description,text,,,,,,,,dcterms:description,Description of the collection event,"DataCatalogue,CohortStaging"
+Collection events,,subcohorts,ref_array,,,,Subcohorts,resource,,,dcterms:isReferencedBy,Subcohorts that are targetted by this collection event,"DataCatalogue,CohortStaging"
+Collection events,,start year,ontology,,,CatalogueOntologies,Years,,,,dcat:startDate,Start year of data collection,"DataCatalogue,CohortStaging"
 Collection events,,start month,ontology,,,CatalogueOntologies,Months,,,,,Start month of data collection,"DataCatalogue,CohortStaging"
-Collection events,,end year,ontology,,,CatalogueOntologies,Years,,,,,End year of data collection. Leave empty if collection is ongoing,"DataCatalogue,CohortStaging"
+Collection events,,end year,ontology,,,CatalogueOntologies,Years,,,,dcat:endDate,End year of data collection. Leave empty if collection is ongoing,"DataCatalogue,CohortStaging"
 Collection events,,end month,ontology,,,CatalogueOntologies,Months,,,,,End month of data collection. Leave empty if collection is ongoing,"DataCatalogue,CohortStaging"
 Collection events,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups included in this data collection event,"DataCatalogue,CohortStaging"
 Collection events,,number of participants,int,,,,,,,,,Number of participants sampled in this data collection event,"DataCatalogue,CohortStaging"
 Collection events,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information cohorts,,,,,Areas of information that were extracted in this data collection event,"DataCatalogue,CohortStaging"
-Collection events,,data categories,ontology_array,,,CatalogueOntologies,Data categories,,,,,Methods of data collection used in this collection event,"DataCatalogue,CohortStaging"
-Collection events,,sample categories,ontology_array,,,CatalogueOntologies,Sample categories,,,,,Samples that were collected in this collection event,"DataCatalogue,CohortStaging"
+Collection events,,data categories,ontology_array,,,CatalogueOntologies,Data categories,,,,dcat:theme,Methods of data collection used in this collection event,"DataCatalogue,CohortStaging"
+Collection events,,sample categories,ontology_array,,,CatalogueOntologies,Sample categories,,,,dcat:theme,Samples that were collected in this collection event,"DataCatalogue,CohortStaging"
 Collection events,,standardized tools,ontology_array,,,CatalogueOntologies,Standardized tools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event","DataCatalogue,CohortStaging"
 Collection events,,standardized tools other,,,,,,,,,,"If 'other', please specify","DataCatalogue,CohortStaging"
 Collection events,,core variables,string_array,,,,,,,,,Name 10-20 relevant variables that were collected in this collection event,"DataCatalogue,CohortStaging"
 Collection events,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this collection event,"DataCatalogue,CohortStaging"
-Subcohorts,,,,,,,,,,,,Subcohorts defined for this resource,"DataCatalogue,CohortStaging"
-Subcohorts,,resource,ref,1,TRUE,,Extended resources,,,,,Resource this subcohort is part of,"DataCatalogue,CohortStaging"
-Subcohorts,,name,,1,TRUE,,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'","DataCatalogue,CohortStaging"
-Subcohorts,,description,text,,,,,,,,,Subcohort description,"DataCatalogue,CohortStaging"
+Subcohorts,,,,,,,,,,,dcat:Dataset,Subcohorts defined for this resource,"DataCatalogue,CohortStaging"
+Subcohorts,,resource,ref,1,TRUE,,Extended resources,,,,dcterms:isPartOf,Resource this subcohort is part of,"DataCatalogue,CohortStaging"
+Subcohorts,,name,,1,TRUE,,,,,,dcterms:title,"Subcohort name, e.g. 'mothers in first trimester','newborns'","DataCatalogue,CohortStaging"
+Subcohorts,,description,text,,,,,,,,dcterms:description,Subcohort description,"DataCatalogue,CohortStaging"
 Subcohorts,,number of participants,int,,,,,,,,,Number of participants in this subcohort,"DataCatalogue,CohortStaging"
 Subcohorts,,counts,refback,,,,Subcohort counts,,subcohort,,,"Total number of unique individuals per age(group), gender and year","DataCatalogue,CohortStaging"
-Subcohorts,,inclusion start,int,,,,,,,,,Year of first included participant,"DataCatalogue,CohortStaging"
-Subcohorts,,inclusion end,int,,,,,,,,,Year of last included participant. Leave empty if collection is ongoing,"DataCatalogue,CohortStaging"
+Subcohorts,,inclusion start,int,,,,,,,,dcat:startDate,Year of first included participant,"DataCatalogue,CohortStaging"
+Subcohorts,,inclusion end,int,,,,,,,,dcat:endDate,Year of last included participant. Leave empty if collection is ongoing,"DataCatalogue,CohortStaging"
 Subcohorts,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups within this subcohort,"DataCatalogue,CohortStaging"
-Subcohorts,,main medical condition,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Disease groups within this subcohort, based on ICD-10 and ORPHA code classifications","DataCatalogue,CohortStaging"
+Subcohorts,,main medical condition,ontology_array,,,CatalogueOntologies,Diseases,,,,dcat:theme,"Disease groups within this subcohort, based on ICD-10 and ORPHA code classifications","DataCatalogue,CohortStaging"
 Subcohorts,,comorbidity,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Comorbidity within this subcohort, based on ICD-10 classification","DataCatalogue,CohortStaging"
-Subcohorts,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this subcohort largely originate from,"DataCatalogue,CohortStaging"
-Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this subcohort largely originate from,"DataCatalogue,CohortStaging"
+Subcohorts,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,dcterms:Location,Countries where data from this subcohort largely originate from,"DataCatalogue,CohortStaging"
+Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,dcterms:Location,Geographical regions where data from this subcohort largely originate from,"DataCatalogue,CohortStaging"
 Subcohorts,,inclusion criteria,text,,,,,,,,,Inclusion criteria applied to this subcohort,"DataCatalogue,CohortStaging"
 Subcohorts,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort,"DataCatalogue,CohortStaging"
 Networks,,data sources,ref_array,,,,Data sources,,,,,,"DataCatalogue,EMA"
-Networks,,databanks,ref_array,,,,Databanks,,,,,,DataCatalogue
-Networks,,cohorts,ref_array,,,,Cohorts,,,,,,DataCatalogue
-Networks,,models,ref_array,,,,Models,,,,,The common data model(s) used by this network,DataCatalogue
-Networks,,studies,refback,,,,Studies,,networks,,,,"DataCatalogue,EMA"
-Networks,,networks,ref_array,,,,Networks,,,,,The consortia or networks that are involved in this network,DataCatalogue
+Networks,,databanks,ref_array,,,,Databanks,,,,dcterms:hasPart,,DataCatalogue
+Networks,,cohorts,ref_array,,,,Cohorts,,,,dcterms:hasPart,,DataCatalogue
+Networks,,models,ref_array,,,,Models,,,,dcterms:hasPart,The common data model(s) used by this network,DataCatalogue
+Networks,,studies,refback,,,,Studies,,networks,,dcterms:hasPart,,"DataCatalogue,EMA"
+Networks,,networks,ref_array,,,,Networks,,,,dcterms:hasPart,The consortia or networks that are involved in this network,DataCatalogue
 Studies,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements,"DataCatalogue,EMA"
 Studies,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only","DataCatalogue,EMA"
 Studies,,date of signing funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned","DataCatalogue,EMA"
@@ -340,13 +341,13 @@ Studies,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope
 Studies,,study scope other,text,,,,,,,,,If scope 'other',"DataCatalogue,EMA"
 Studies,,population of interest,ontology_array,,,CatalogueOntologies,Population of interest,,,,,"If population of interest is 'Other', please specify which other population has been studied","DataCatalogue,EMA"
 Studies,,population of interest other,text,,,,,,,,,"If population of interest is 'Other', please specify which other population has been studied","DataCatalogue,EMA"
-Datasets,,,,,,,,,,,,Definition of a dataset within a (common) data model,"DataCatalogue,CohortStaging"
-Datasets,,resource,ref,1,TRUE,,Extended resources,,,,,resources that these variables are part of,"DataCatalogue,CohortStaging"
-Datasets,,name,,1,TRUE,,,,,,,unique dataset name in the model,"DataCatalogue,CohortStaging"
+Datasets,,,,,,,,,,,dcat:Dataset,Definition of a dataset within a (common) data model,"DataCatalogue,CohortStaging"
+Datasets,,resource,ref,1,TRUE,,Extended resources,,,,dcterms:isPartOf,resources that these variables are part of,"DataCatalogue,CohortStaging"
+Datasets,,name,,1,TRUE,,,,,,dcterms:title,unique dataset name in the model,"DataCatalogue,CohortStaging"
 Datasets,,label,,,,,,,,,,short human readable description,"DataCatalogue,CohortStaging"
 Datasets,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,defines what each record in this table describes,"DataCatalogue,CohortStaging"
-Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree,"DataCatalogue,CohortStaging"
-Datasets,,description,text,,,,,,,,,description of the role/function of this table,"DataCatalogue,CohortStaging"
+Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,dcat:theme,enables grouping of table list into topic and to display tables in a tree,"DataCatalogue,CohortStaging"
+Datasets,,description,text,,,,,,,,dcterms:description,description of the role/function of this table,"DataCatalogue,CohortStaging"
 Datasets,,number of rows,int,,,,,,,,,count of the numbe of records in this table,"DataCatalogue,CohortStaging"
 Datasets,,mapped to,refback,,,,Dataset mappings,,source dataset,,,common dataset models this dataset has been mapped into,DataCatalogue
 Datasets,,mapped from,refback,,,,Dataset mappings,,target dataset,,,source datasets that have been mapped to this harmonised dataset,DataCatalogue
