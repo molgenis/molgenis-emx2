@@ -1,5 +1,5 @@
 """
-Script to transform the DataCatalogue model to a flat, 'hierarchy-less' model
+Script to flatten the DataCatalogue model to a flat, 'hierarchy-less' model
 in which all staging area models live in harmony.
 
 TODO: delete when pull request is ready for merging
@@ -48,13 +48,13 @@ renames = {
 }
 
 
-class Transformer(pd.DataFrame):
+class Flattener(pd.DataFrame):
     """
-    Class to transform the DataCatalogue model to a flat, i.e. without inheritance, model.
+    Class to flatten the DataCatalogue model to a flat, i.e. without inheritance, model.
     """
 
     def __init__(self):
-        """Initializes the Transformer object by loading the original dataset."""
+        """Initializes the Flattener object by loading the original dataset."""
         super().__init__(data=pd.read_csv(f"{MODELS_DIR}/DataCatalogue-TODO.csv"))
         self._prepare_data()
 
@@ -68,8 +68,8 @@ class Transformer(pd.DataFrame):
     def view(self):
         return pd.DataFrame(self)
 
-    def do_transform(self) -> pd.DataFrame:
-        """Performs the transformation.
+    def flatten(self) -> pd.DataFrame:
+        """Performs the flattening.
         Returns the updated model.
         """
 
@@ -153,8 +153,8 @@ class Transformer(pd.DataFrame):
 
 def main():
     """The main function calling the execution."""
-    transformer = Transformer()
-    transformer.do_transform()
+    flattener = Flattener()
+    flattener.flatten()
 
 
 if __name__ == '__main__':
