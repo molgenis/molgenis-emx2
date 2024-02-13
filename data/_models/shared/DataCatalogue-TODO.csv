@@ -3,7 +3,7 @@ Version,,,,,,,,,,,,3.11,"DataCatalogue,EMA,SharedStaging,CohortStaging"
 Catalogues,,,,,,,,,,,dcat:Catalog,A collection of resources within a network or consortium or about a common topic,DataCatalogue
 Catalogues,,network,ref,1,TRUE,,Networks,,,,dcat:catalog,Network or consortium that leads this catalogue,DataCatalogue
 Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,dcat:theme,Type of catalogue,DataCatalogue
-Catalogues,,publisher,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,dcat:publisher,Publisher todo should default to molgenis team,DataCatalogue
+Catalogues,,publisher,ontology,,,CatalogueOntologies,CatalogueTypes,,,,dcat:publisher,Publisher todo should default to molgenis team,DataCatalogue
 Resources,,,,,,,,,,,dcat:Resource,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging,CohortStaging"
 Organisations,Resources,,,,,,,,,,org:Organization,Research departments and research groups,"DataCatalogue,EMA,SharedStaging"
 Extended resources,Resources,,,,,,,,,,dcat:Resource,"Generic listing of all extended resources. Should not be used directly, instead use specific types such as Databanks and Cohorts","DataCatalogue,EMA,CohortStaging"
