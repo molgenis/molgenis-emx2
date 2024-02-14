@@ -40,11 +40,7 @@ function getColumnError(
     return undefined;
   }
   if (column.required) {
-    if (
-      column.required === "true" ||
-      column.required === true ||
-      column.required === "TRUE"
-    ) {
+    if (isRequired(column.required)) {
       if (missesValue || isInvalidNumber) {
         return column.label + " is required";
       }
@@ -88,6 +84,15 @@ export function isMissingValue(value: any): boolean {
     return value.some((element) => isMissingValue(element));
   }
   return value === undefined || value === null || value === "";
+}
+
+export function isRequired(value: any): boolean {
+  return (
+    value.required === "true" ||
+    value.required === true ||
+    value.required === "TRUE" ||
+    value.required === "True"
+  );
 }
 
 function isInValidNumericValue(columnType: string, value: number) {
