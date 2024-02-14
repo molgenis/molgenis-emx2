@@ -193,8 +193,8 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       for (const collection of collectionSelection) {
         collections.push(
           toRaw({
-            collectionID: collection.value,
-            biobankID: biobankIdDictionary.value[biobank],
+            collectionId: collection.value,
+            biobankId: biobankIdDictionary.value[biobank],
           })
         );
       }

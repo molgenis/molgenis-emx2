@@ -269,10 +269,12 @@ export interface IMgError {
   data: { errors: { message: string }[] };
 }
 
+export type DefinitionListItemType = "ONTOLOGY" | "LINK";
+
 export interface IDefinitionListItem {
   label: string;
   tooltip?: string;
-  type?: string;
+  type?: DefinitionListItemType;
   content: any;
 }
 export interface IOntologyItem {

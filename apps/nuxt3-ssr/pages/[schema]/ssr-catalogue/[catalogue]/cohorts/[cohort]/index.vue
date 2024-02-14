@@ -157,9 +157,8 @@ interface IResponse {
   };
 }
 const { data, error } = await useFetch<IResponse, IMgError>(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: { query, variables },
   }
@@ -395,7 +394,6 @@ if (route.params.catalogue) {
         />
 
         <ContentCohortGeneralDesign
-          v-if="mainMedicalConditions?.length"
           id="GeneralDesign"
           title="General Design"
           :description="cohort?.designDescription"
