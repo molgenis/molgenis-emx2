@@ -24,7 +24,9 @@ class Tables:
     RWE = 'RWE resources'
 
 
-MODELS_DIR = '../_models/shared'
+SHARED_DIR = '../_models/shared'
+SPECIFIC_DIR = '../_models/specific'
+
 
 inherit_tables = [[Tables.O, Tables.R], [Tables.M, Tables.ER],
                   [Tables.N, Tables.ER], [Tables.S, Tables.ER],
@@ -51,7 +53,7 @@ class Flattener(pd.DataFrame):
 
     def __init__(self, simple_mode: bool = False):
         """Initializes the Flattener object by loading the original dataset."""
-        super().__init__(data=pd.read_csv(f"{MODELS_DIR}/DataCatalogue-TODO.csv"))
+        super().__init__(data=pd.read_csv(f"{SHARED_DIR}/DataCatalogue-TODO.csv"))
         self._prepare_data()
         if simple_mode:
             self.drop(columns=['key', 'required', 'validation', 'semantics', 'description'], inplace=True)
@@ -177,10 +179,10 @@ class Flattener(pd.DataFrame):
     def save_df(self, old_profiles: bool = False):
         """Saves the pandas DataFrame of the model to disk."""
         if not old_profiles:
-            self.to_csv(f"{MODELS_DIR}/DataCatalogue-FLAT.csv", index=False)
+            self.to_csv(f"{SHARED_DIR}/DataCatalogue-FLAT.csv", index=False)
         profiles = list(set([p for l in list(self['profiles'].str.split(',')) for p in l]))
 
-        file_dir = f"{MODELS_DIR}/profiles"
+        file_dir = f"{SPECIFIC_DIR}"
         if old_profiles:
             file_dir += "/old_profiles"
         for prof in profiles:
