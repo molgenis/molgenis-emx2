@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import datasetGql from "~~/gql/datasetDetails";
-const config = useRuntimeConfig();
 const route = useRoute();
 
 const { id } = defineProps<{
@@ -9,8 +8,7 @@ const { id } = defineProps<{
 
 const query = moduleToString(datasetGql);
 
-const { data } = await useFetch(`/${route.params.schema}/catalogue/graphql`, {
-  baseURL: config.public.apiBase,
+const { data } = await useFetch(`/${route.params.schema}/graphql`, {
   method: "POST",
   body: {
     query: query,

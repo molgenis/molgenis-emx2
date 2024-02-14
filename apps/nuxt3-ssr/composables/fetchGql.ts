@@ -15,11 +15,9 @@ export const fetchGql = (
   }
 
   const route = useRoute();
-  const config = useRuntimeConfig();
   const schema = schemaId ? schemaId : route.params.schema;
-  return $fetch(`/${schema}/catalogue/graphql`, {
+  return $fetch(`/${schema}/graphql`, {
     method: "POST",
-    baseURL: config.public.apiBase,
     body,
   });
 };
