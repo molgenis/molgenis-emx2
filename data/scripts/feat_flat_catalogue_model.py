@@ -86,6 +86,8 @@ class Flattener(pd.DataFrame):
 
         self._add_cohorts_label()
 
+        self._remove_shared_staging_resources()
+
         # Save result to file
         self.save_df()
 
@@ -175,6 +177,15 @@ class Flattener(pd.DataFrame):
         self.loc[idx+0.5, 'label'] = 'Cohorts'
         self.sort_index(inplace=True)
         self.reset_index(drop=True, inplace=True)
+
+    def _remove_shared_staging_resources(self):
+        """Removes the 'SharedStaging' profile from the Resources table."""
+        # self.loc[(self['tableName'] == 'Resources') & (self['profiles'].str.contains('SharedStaging'))]
+        staging_resources = self.loc[(self['tableName'] == 'Resources') & self['profiles'].str.contains('SharedStaging')]
+        self.loc[staging_resources.index, 'profiles'] = staging_resources['profiles'].apply(lambda pfs: p for p in pfs.split(',') if p != 'SharedStaging')
+        self['profiles'] = self.apply(lambda row: ','.join(p for p in row['profiles'].split(',')
+                                                           if p != 'SharedStaging') if (row['tableName'] == 'Resources')
+                                                                                       & ('SharedStaging' in row['profiles']) else row['profiles'], axis=1)
 
     def save_df(self, old_profiles: bool = False):
         """Saves the pandas DataFrame of the model to disk."""
