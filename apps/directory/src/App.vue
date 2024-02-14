@@ -110,7 +110,6 @@ nav.navbar a.nav-link:hover,
 nav.navbar button.btn:hover {
   color: #ec6707 !important;
 }
-
 nav.navbar button.btn.btn-outline-light:not(.border-0) {
   border-color: #495057 !important;
 }
