@@ -46,7 +46,7 @@ export default {
   },
   methods: {
     isRequired(required) {
-      return required.toLowerCase() === "true" || required === true;
+      return required === "true" || required === "TRUE" || required === true;
     },
     hasDescription(description) {
       return (

@@ -40,7 +40,11 @@ function getColumnError(
     return undefined;
   }
   if (column.required) {
-    if (column.required.toLowerCase() === "true" || column.required === true) {
+    if (
+      column.required === "true" ||
+      column.required === true ||
+      column.required === "TRUE"
+    ) {
       if (missesValue || isInvalidNumber) {
         return column.label + " is required";
       }
