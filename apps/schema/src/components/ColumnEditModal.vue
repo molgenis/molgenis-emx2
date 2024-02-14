@@ -9,8 +9,8 @@
         <div class="column-scroll col">
           <Spinner v-if="loading" />
           <div v-else>
-            <MessageWarning v-if="column.drop">
-              Marked for deletion
+            <MessageWarning v-if="column.drop"
+              >Marked for deletion
             </MessageWarning>
             <MessageError v-if="error">{{ error }}</MessageError>
             <div class="row">
@@ -48,7 +48,6 @@
                   v-model="column.columnType"
                   :options="columnTypes"
                   label="columnType"
-                  @update:modelValue="handleColumnTypeChanged"
                 />
               </div>
               <div
@@ -113,15 +112,15 @@
                 />
               </div>
             </div>
-            <div class="row" v-if="isEditable(column)">
-              <div class="col-4">
+            <div class="row">
+              <div class="col-4" v-if="isEditable(column)">
                 <InputRadio
                   id="column_required_radio"
                   label="required"
                   :options="[true, false, 'condition']"
                   v-model="requiredSelect"
                   description="Will give error unless field is filled in. Is not checked if not visible"
-                  @update:modelValue="handleRequiredSelectChanged"
+                  @update:modelValue="setRequired"
                 />
                 <InputString
                   id="column_required"
@@ -129,7 +128,7 @@
                   v-if="requiredSelect === 'condition'"
                 />
               </div>
-              <div class="col-4">
+              <div class="col-4" v-if="isEditable(column)">
                 <InputBoolean
                   id="column_readonly"
                   v-model="column.readonly"
@@ -145,7 +144,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-4">
+              <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
                 <InputSelect
                   id="column_key"
                   v-model="column.key"
@@ -182,17 +181,16 @@
                   description="When set only show when javascript expression is !null or !false. Example: other > 5"
                 />
               </div>
-              <div class="col-4" v-if="!requiredSelect">
+              <div class="col-4">
                 <InputText
                   id="column_computed"
                   v-model="column.computed"
                   label="computed"
                   :description="
-                    column.columnType === AUTO_ID
+                    column.columnType == AUTO_ID
                       ? 'Use pattern like \'pre${mg_autoid}post\' to customize prefix/postfix of your auto id'
                       : 'When set only the input will be readonly and value computed using this formula'
                   "
-                  @update:modelValue="handleComputedChanged()"
                 />
               </div>
             </div>
@@ -267,18 +265,18 @@
 }
 </style>
 
-<script lang="ts">
+<script>
 import {
   ButtonAction,
   ButtonAlt,
   Client,
   IconAction,
   InputBoolean,
-  InputRadio,
   InputSelect,
   InputString,
   InputText,
   InputTextLocalized,
+  InputRadio,
   LayoutForm,
   LayoutModal,
   MessageError,
@@ -286,10 +284,16 @@ import {
   RowEdit,
   Spinner,
   deepClone,
-  getRowErrors, // @ts-ignore
+  getRowErrors,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
-import { addTableIdsLabelsDescription } from "../utils";
+import {
+  getLocalizedDescription,
+  getLocalizedLabel,
+  convertToPascalCase,
+  convertToCamelCase,
+  addTableIdsLabelsDescription,
+} from "../utils";
 
 const AUTO_ID = "AUTO_ID";
 
@@ -353,25 +357,25 @@ export default {
       //if modal is visible
       modalVisible: false,
       // working value of the column (copy of the value)
-      column: {} as Record<string, any>,
-      requiredSelect: false as boolean | string,
+      column: null,
+      requiredSelect: null,
+      //the type options
+      columnTypes,
       //in case a refSchema has to be used for the table lookup
-      refSchema: undefined as undefined | any,
-      error: undefined,
-      client: null as any,
+      refSchema: undefined,
+      error: null,
+      client: null,
       loading: false,
       previewShow: false,
-      previewData: {} as Record<string, any>,
-      rowErrors: {} as Record<string, string>,
-      columnTypes,
-      AUTO_ID,
+      previewData: {},
+      rowErrors: {},
     };
   },
   computed: {
     //current table object unedited
     originalTable() {
       return this.schema.tables.find(
-        (table: Record<string, any>) =>
+        (table) =>
           table.name === this.tableName ||
           table.name === this.column.table ||
           (table.subclasses && table.subclasses.includes(this.column.table))
@@ -382,8 +386,7 @@ export default {
       const table = deepClone(this.originalTable);
       //replace column with current changes
       const index = table.columns.findIndex(
-        (c: Record<string, any>) =>
-          c.name == this.column?.name || c.name == this.column?.oldName
+        (c) => c.name == this.column.name || c.name == this.column.oldName
       );
       // or if new, we add it
       if (index === -1) {
@@ -401,7 +404,7 @@ export default {
     schemaWithIdsLabelsAndDescriptions() {
       const schema = deepClone(this.schema);
       schema.id = schema.name;
-      schema.tables = schema.tables.map((table: Record<string, any>) => {
+      schema.tables = schema.tables.map((table) => {
         return addTableIdsLabelsDescription(table);
       });
       return schema;
@@ -409,9 +412,7 @@ export default {
     //listing of related subclasses, used to indicate if column is part of subclass
     subclassNames() {
       if (this.table?.subclasses) {
-        return this.table?.subclasses.map(
-          (subclass: Record<string, any>) => subclass.name
-        );
+        return this.table?.subclasses.map((subclass) => subclass.name);
       } else {
         return undefined;
       }
@@ -424,21 +425,21 @@ export default {
           this.column.columnType === "ONTOLOGY_ARRAY"
         ) {
           return this.refSchema.tables
-            .filter((t: Record<string, any>) => t.tableType === "ONTOLOGIES")
-            .map((t: Record<string, any>) => t.name);
+            .filter((t) => t.tableType === "ONTOLOGIES")
+            .map((t) => t.name);
         } else {
           return this.refSchema.tables
-            .filter((t: Record<string, any>) => t.tableType !== "ONTOLOGIES")
-            .map((t: Record<string, any>) => t.name);
+            .filter((t) => t.tableType !== "ONTOLOGIES")
+            .map((t) => t.name);
         }
       } else {
         if (
           this.column.columnType === "ONTOLOGY" ||
           this.column.columnType === "ONTOLOGY_ARRAY"
         ) {
-          return this.schema.ontologies.map((t: Record<string, any>) => t.name);
+          return this.schema.ontologies.map((t) => t.name);
         } else {
-          return this.schema.tables.map((t: Record<string, any>) => t.name);
+          return this.schema.tables.map((t) => t.name);
         }
       }
     },
@@ -452,9 +453,8 @@ export default {
       if (
         (this.modelValue === undefined ||
           this.modelValue.name !== this.column.name) &&
-        this.originalTable.columns?.filter(
-          (c: Record<string, any>) => c.name === this.column.name
-        ).length > 0
+        this.originalTable.columns?.filter((c) => c.name === this.column.name)
+          .length > 0
       ) {
         return "Name should be unique";
       } else {
@@ -482,41 +482,38 @@ export default {
       this.reset();
       this.modalVisible = false;
     },
-
+    setRequired() {
+      this.column.required = this.requiredSelect;
+    },
     refLinkCandidates() {
       return this.table.columns
         .filter(
-          (c: Record<string, any>) =>
+          (c) =>
             (c.columnType === "REF" || c.columnType === "REF_ARRAY") &&
-            c.name !== this.modelValue?.name
+            c.name !== this.modelValue.name
         )
-        .map((c: Record<string, any>) => c.name);
+        .map((c) => c.name);
     },
-    refBackCandidates(
-      fromTable: Record<string, any>,
-      toTable: Record<string, any>
-    ) {
+    refBackCandidates(fromTable, toTable) {
       const schema =
         this.refSchema !== undefined ? this.refSchema : this.schema;
 
       const columns = schema.tables
-        .filter((t: Record<string, any>) => t.name === fromTable)
-        .map((t: Record<string, any>) => t.columns)[0];
+        .filter((t) => t.name === fromTable)
+        .map((t) => t.columns)[0];
       return columns
-        ?.filter((c: Record<string, any>) => c.refTableName === toTable)
-        .map((c: Record<string, any>) => c.name);
+        ?.filter((c) => c.refTableName === toTable)
+        .map((c) => c.name);
     },
-    async loadRefSchema(): Promise<any> {
+    async loadRefSchema() {
       this.error = undefined;
       this.loading = true;
       if (this.column.refSchemaName) {
         //todo, don't use client here because we need 'names' not 'ids'
         this.client = Client.newClient(this.column.refSchemaName);
-        const schema = await this.client
-          ?.fetchSchemaMetaData()
-          .catch((error: any) => {
-            this.error = error;
-          });
+        const schema = await this.client.fetchSchemaMetaData().catch((e) => {
+          this.error = e;
+        });
         this.refSchema = schema;
       } else {
         this.refSchema = {};
@@ -524,14 +521,13 @@ export default {
       this.loading = false;
     },
     setupRequiredSelect() {
+      console.log(this.column.required);
       if (this.column.required === "true") {
         this.requiredSelect = true;
       } else if (this.column.required === "false") {
         this.requiredSelect = false;
-      } else if (this.column.required) {
-        this.requiredSelect = "condition";
       } else {
-        this.requiredSelect = false;
+        this.requiredSelect = "condition";
       }
     },
     reset() {
@@ -539,46 +535,24 @@ export default {
       if (this.modelValue) {
         this.column = deepClone(this.modelValue);
       } else {
-        this.column = {
-          table: this.tableName,
-          columnType: "STRING",
-        };
+        this.column = { table: this.tableName, columnType: "STRING" };
       }
       //if reference to external schema
-      if (this.column.refSchema !== undefined) {
+      if (this.column.refSchema != undefined) {
         this.loadRefSchema();
       }
       this.setupRequiredSelect();
       this.modalVisible = false;
     },
-    isEditable(column: Record<string, any>) {
-      return !column.computed && column.columnType !== AUTO_ID;
+    isEditable(column) {
+      return (
+        column.columnType !== "CONSTANT" &&
+        !column.computed &&
+        column.columnType !== AUTO_ID
+      );
     },
     checkForErrors() {
       this.rowErrors = getRowErrors(this.table, this.previewData);
-    },
-    handleComputedChanged() {
-      if (this.column.computed) {
-        this.requiredSelect = false;
-        delete this.column.required;
-        delete this.column.validation;
-        delete this.column.defaultValue;
-      }
-    },
-    handleRequiredSelectChanged() {
-      this.column.required = this.requiredSelect;
-      if (this.requiredSelect) {
-        delete this.column.computed;
-      }
-    },
-    handleColumnTypeChanged(newType: string) {
-      if (newType === AUTO_ID) {
-        this.requiredSelect = false;
-        delete this.column.required;
-        delete this.column.visible;
-        delete this.column.validation;
-        delete this.column.defaultValue;
-      }
     },
   },
   created() {
