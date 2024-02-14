@@ -9,7 +9,7 @@ from typing import TypeAlias, Literal
 import pandas as pd
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException
 
-from tools.pyclient.src.molgenis_emx2_pyclient import Client
+from molgenis_emx2_pyclient import Client
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.constants import BASE_DIR
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.utils import get_cohort_ids, \
     find_cohort_references, construct_delete_query, construct_delete_variables, has_statement_of_consent, \
@@ -26,9 +26,12 @@ class StagingMigrator(Client):
     The class subclasses the Molgenis EMX2 Pyclient to access the API on the server
     """
 
-    def __init__(self, url: str, staging_area: str = None, catalogue: str = 'catalogue', table: str = 'Cohorts'):
+    def __init__(self, url: str,
+                 staging_area: str = None,
+                 catalogue: str = 'catalogue',
+                 table: str = 'Cohorts', token: str = None):
         """Sets up the StagingMigrator by logging in to the client."""
-        super().__init__(url)
+        super().__init__(url=url, token=token)
         self.staging_area = staging_area
         self.catalogue = catalogue
         self.table = table
@@ -88,7 +91,9 @@ class StagingMigrator(Client):
         api_zip_url = f"{self.url}/{schema}/api/zip"
         if include_system_columns:
             api_zip_url += '?includeSystemColumns=true'
-        resp = self.session.get(api_zip_url, allow_redirects=True)
+        resp = self.session.get(api_zip_url,
+                                headers={'x-molgenis-token': self.token},
+                                allow_redirects=True)
 
         if resp.content:
             pathlib.Path(filename).write_bytes(resp.content)
@@ -104,13 +109,13 @@ class StagingMigrator(Client):
         """
 
         # Gather the tables to delete from the target catalogue
-        tables_to_delete = find_cohort_references(self._schema_schema(self.catalogue))
+        tables_to_delete = find_cohort_references(self._get_schema_metadata(self.catalogue))
 
         cohort_ids = get_cohort_ids(self.url, self.session, self.staging_area)
         for table_name, ref_col in tables_to_delete.items():
             # Iterate over the tables that reference the core table of the staging area
             # Check if any row matches this core table
-            table_id = self._schema_schema(self.catalogue).get(table_name).get('id')
+            table_id = self._get_schema_metadata(self.catalogue).get(table_name).get('id')
 
             delete_rows = self._query_delete_rows(table_name, ref_col, cohort_ids)
 
@@ -132,8 +137,9 @@ class StagingMigrator(Client):
     def _query_delete_rows(self, table_name: str, ref_col: str,
                            cohort_ids: list) -> dict:
         """Queries the rows to be deleted from a table."""
-        query = construct_delete_query(self._schema_schema(self.catalogue), table_name)
-        variables = construct_delete_variables(self._schema_schema(self.catalogue), cohort_ids, table_name, ref_col)
+        query = construct_delete_query(self._get_schema_metadata(self.catalogue), table_name)
+        variables = construct_delete_variables(self._get_schema_metadata(self.catalogue),
+                                               cohort_ids, table_name, ref_col)
 
         response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
                                      json={"query": query, "variables": variables})
@@ -158,7 +164,7 @@ class StagingMigrator(Client):
 
     def _cohorts_in_ref_array(self, _table: str) -> bool:
         """Returns True if cohorts are referenced in a referenced array in any column in this table."""
-        _table_schema = self._schema_schema(self.catalogue)[_table]
+        _table_schema = self._get_schema_metadata(self.catalogue)[_table]
         return (len([col for col in _table_schema['columns']
                      if ((col.get('columnType') == 'REF_ARRAY') & (col.get('refTable') == 'Cohorts'))]) > 0)
 
@@ -174,7 +180,7 @@ class StagingMigrator(Client):
 
     def _create_upload_zip(self) -> BytesIO:
         """Combines the relevant tables of the staging area into a zipfile."""
-        tables_to_sync = find_cohort_references(self._schema_schema(self.staging_area))
+        tables_to_sync = find_cohort_references(self._get_schema_metadata(self.staging_area))
 
         source_file_path = self._download_schema_zip(schema=self.staging_area, schema_type='source',
                                                      include_system_columns=False)
@@ -191,7 +197,7 @@ class StagingMigrator(Client):
                     continue
 
                 _table = source_archive.read(file_name)
-                if consent_val := has_statement_of_consent(table_name, self._schema_schema(self.staging_area)):
+                if consent_val := has_statement_of_consent(table_name, self._get_schema_metadata(self.staging_area)):
                     _table = process_statement(table=_table, consent_val=consent_val)
                 # self._check_diff(file_name, _table)
                 upload_archive.writestr(file_name, BytesIO(_table).getvalue())
@@ -263,7 +269,8 @@ class StagingMigrator(Client):
             return
 
         # Get primary keys for these tables
-        p_keys = prepare_pkey(schema=self._schema_schema(self.staging_area), table_name=os.path.splitext(file_name)[0])
+        p_keys = prepare_pkey(schema=self._get_schema_metadata(self.staging_area),
+                              table_name=os.path.splitext(file_name)[0])
 
         source_df[p_keys] = source_df[p_keys].astype(str)
         target_df[p_keys] = target_df[p_keys].astype(str)
