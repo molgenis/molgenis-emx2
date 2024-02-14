@@ -5,7 +5,7 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:latest
+    - image: molgenis/ci-build:1.2.0
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -14,7 +14,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:latest
+    - image: molgenis/ci-build:1.2.0
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
