@@ -160,20 +160,6 @@ export default {
             this.errorPerColumn[column.id] =
               "Computed expression failed: " + error;
           }
-        } else if (this.applyDefaultValues && column.defaultValue) {
-          try {
-            if (column.defaultValue.startsWith("=")) {
-              this.internalValues[column.id] = executeExpression(
-                "(" + column.defaultValue.substr(1) + ")",
-                this.internalValues,
-                this.tableMetaData as ITableMetaData
-              );
-            }
-          } catch (error) {
-            console.log("DefaultValues expression failed: " + error);
-            this.errorPerColumn[column.id] =
-              "DefaultValues expression failed: " + error;
-          }
         }
       });
     },
