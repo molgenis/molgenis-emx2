@@ -22,6 +22,8 @@ class Tables:
     N = 'Networks'
     C = 'Cohorts'
     RWE = 'RWE resources'
+    DS = 'Data sources'
+    DB = 'Databanks'
 
 
 SHARED_DIR = '../_models/shared'
@@ -31,7 +33,9 @@ VERSION = 4.0
 
 inherit_tables = [[Tables.O, Tables.R], [Tables.M, Tables.ER],
                   [Tables.N, Tables.ER], [Tables.S, Tables.ER],
-                  [Tables.S, Tables.R], [Tables.M, Tables.R], [Tables.N, Tables.R]]
+                  [Tables.S, Tables.R], [Tables.M, Tables.R], [Tables.N, Tables.R],
+                  [Tables.DS, Tables.RWE], [Tables.DS, Tables.DR], [Tables.DS, Tables.ER], [Tables.DS, Tables.R],
+                  [Tables.DB, Tables.RWE], [Tables.DB, Tables.DR], [Tables.DB, Tables.ER], [Tables.DB, Tables.R]]
 
 rename_tables = [[Tables.C, Tables.DR], [Tables.RWE, Tables.DR],
                  [Tables.DR, Tables.ER],
@@ -40,10 +44,6 @@ rename_tables = [[Tables.C, Tables.DR], [Tables.RWE, Tables.DR],
 table_profiles = {
     'Resources': 'RWEStaging',
     'RWE resources': 'RWEStaging',
-}
-
-labels = {
-    'Cohorts': 'CohortStaging'
 }
 
 
@@ -187,12 +187,9 @@ class Flattener(pd.DataFrame):
 
     def _remove_shared_staging_resources(self):
         """Removes the 'SharedStaging' profile from the Resources table."""
-        # self.loc[(self['tableName'] == 'Resources') & (self['profiles'].str.contains('SharedStaging'))]
         staging_resources = self.loc[(self['tableName'] == 'Resources') & self['profiles'].str.contains('SharedStaging')]
-        self.loc[staging_resources.index, 'profiles'] = staging_resources['profiles'].apply(lambda pfs: pfs.replace('SharedStaging', '').replace(',,', ','))
-        # self['profiles'] = self.apply(lambda row: ','.join(p for p in row['profiles'].split(',')
-        #                                                    if p != 'SharedStaging') if (row['tableName'] == 'Resources')
-        #                                                                                & ('SharedStaging' in row['profiles']) else row['profiles'], axis=1)
+        self.loc[staging_resources.index, 'profiles'] = staging_resources['profiles'].apply(lambda pfs:
+                                                                                            pfs.replace('SharedStaging', '').replace(',,', ','))
 
     def save_df(self, old_profiles: bool = False):
         """Saves the pandas DataFrame of the model to disk."""
