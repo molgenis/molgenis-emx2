@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,3.10
+Version,,,,,,,,,,,,3.11
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Extended resources,Resources,,,,,,,,,,,
 Data resources,Extended resources,,,,,,,,,,,Resources for data
@@ -62,7 +62,7 @@ Data resources,,collaborations,heading,,,,,,,,,List of relevant collaborations
 Cohorts,,studies,ref_array,,,catalogue,Studies,,cohorts,,,Listing of studies that used this cohort
 Cohorts,,networks,ref_array,,,catalogue,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
 Publications,,,,,,,,,,,,Publications following bibtex format,,,
-Publications,,doi,,1,TRUE,,,,,,,Digital object identifier
+Publications,,doi,hyperlink,1,TRUE,,,,,,,Digital object identifier. Enter a valid hyperlink, i.e., starting with 'https://doi.org/'
 Publications,,title,text,,,,,,,,,Publication title
 Publications,,authors,string_array,,,,,,,,,"List of authors, one entry per author"
 Publications,,year,int,,,,,,,,,"Year of publication (or, if unpublished, year of creation)"

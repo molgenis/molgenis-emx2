@@ -1,0 +1,11 @@
+resource,dataset,name,label,collection event.resource,collection event.name,since version,until version,is repeat of.dataset,is repeat of.name
+testCohort,growth,bm_1,,testCohort,1 months,1.0,,growth,bm_0
+testCohort,growth,bm_2,,testCohort,2 months,1.0,,growth,bm_0
+testCohort,growth,bm_3,,testCohort,3 months,1.0,,growth,bm_0
+testCohort,growth,bm_4,,testCohort,4 months,1.0,,growth,bm_0
+testCohort,growth,bm_5,,testCohort,5 months,1.0,,growth,bm_0
+testCohort,growth,length_1,,testCohort,1 months,1.0,,growth,length_0
+testCohort,growth,length_2,,testCohort,2 months,1.0,,growth,length_0
+testCohort,growth,length_3,,testCohort,3 months,1.0,,growth,length_0
+testCohort,growth,length_4,,testCohort,4 months,1.0,,growth,length_0
+testCohort,growth,length_5,,testCohort,5 months,1.0,,growth,length_0

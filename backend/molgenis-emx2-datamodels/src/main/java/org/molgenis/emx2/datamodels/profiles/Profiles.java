@@ -22,6 +22,42 @@ public class Profiles {
   // special options
   private String ontologiesToFixedSchema;
   private String setViewPermission;
+  private String setEditPermission;
+  private String setFixedSchemaViewPermission;
+  private String setFixedSchemaEditPermission;
+  private List<CreateSchemas> firstCreateSchemasIfMissing;
+
+  public String getSetFixedSchemaViewPermission() {
+    return setFixedSchemaViewPermission;
+  }
+
+  public void setSetFixedSchemaViewPermission(String setFixedSchemaViewPermission) {
+    this.setFixedSchemaViewPermission = setFixedSchemaViewPermission;
+  }
+
+  public String getSetFixedSchemaEditPermission() {
+    return setFixedSchemaEditPermission;
+  }
+
+  public void setSetFixedSchemaEditPermission(String setFixedSchemaEditPermission) {
+    this.setFixedSchemaEditPermission = setFixedSchemaEditPermission;
+  }
+
+  public String getSetEditPermission() {
+    return setEditPermission;
+  }
+
+  public void setSetEditPermission(String setEditPermission) {
+    this.setEditPermission = setEditPermission;
+  }
+
+  public List<CreateSchemas> getFirstCreateSchemasIfMissing() {
+    return firstCreateSchemasIfMissing;
+  }
+
+  public void setFirstCreateSchemasIfMissing(List<CreateSchemas> firstCreateSchemasIfMissing) {
+    this.firstCreateSchemasIfMissing = firstCreateSchemasIfMissing;
+  }
 
   public String getName() {
     return name;
@@ -63,7 +99,7 @@ public class Profiles {
     this.settings = settings;
   }
 
-  protected List<String> getProfileTagsList() {
+  public List<String> getProfileTagsList() {
     return profileTagsList;
   }
 

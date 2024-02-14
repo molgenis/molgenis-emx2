@@ -57,29 +57,27 @@
           </label>
         </div>
       </div>
-      <div v-if="canEdit">
-        <Tooltip value="New entry">
-          <RowButtonAdd
-            id="add-entry"
-            :tableId="tableId"
-            :schemaId="schemaId"
-            @update:newRow="selectNew"
-          />
-        </Tooltip>
-      </div>
-      <div>
-        <ButtonAlt
-          class="pl-0"
+      <div class="m-1">
+        <RowButtonAdd
+          id="add-entry"
+          v-if="canEdit"
+          :label="`Add new ${label}`"
+          :tableId="tableId"
+          :schemaId="schemaId"
+          @update:newRow="selectNew"
+          class="mr-1"
+        />
+        <ButtonOutline
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           icon="fa fa-search"
           @click="openSelect"
         >
           {{
             count > maxNum
-              ? `show all ${count} options with details`
-              : "more details"
+              ? `Show all ${count} options with details `
+              : "More details "
           }}
-        </ButtonAlt>
+        </ButtonOutline>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
@@ -119,7 +117,7 @@ import {
   deepClone,
   deepEqual,
 } from "../utils";
-import ButtonAlt from "./ButtonAlt.vue";
+import ButtonOutline from "./ButtonOutline.vue";
 import FormGroup from "./FormGroup.vue";
 import Tooltip from "./Tooltip.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
@@ -142,7 +140,7 @@ export default {
     TableSearch,
     LayoutModal,
     FormGroup,
-    ButtonAlt,
+    ButtonOutline,
     Spinner,
     RowButtonAdd,
     Tooltip,

@@ -13,7 +13,7 @@ dependencies {
     implementation project(':backend:molgenis-emx2-email')
     implementation 'org.eclipse.rdf4j:rdf4j-rio-api:4.3.9'
     implementation 'com.sparkjava:spark-core:2.9.4'
-    implementation 'io.swagger.parser.v3:swagger-parser:2.1.16'
+    implementation 'io.swagger.parser.v3:swagger-parser:2.1.20'
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
     implementation 'com.squareup.okhttp3:okhttp-brotli:4.11.0'
     testImplementation 'io.rest-assured:rest-assured:5.3.2'

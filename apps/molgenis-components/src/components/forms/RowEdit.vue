@@ -28,8 +28,7 @@
 </template>
 
 <script lang="ts">
-import type { IColumn, ITableMetaData } from "meta-data-utils";
-import type { IRow } from "../../Interfaces/IRow";
+import { IColumn, ITableMetaData } from "meta-data-utils";
 import constants from "../constants.js";
 import { deepClone } from "../utils";
 import FormInput from "./FormInput.vue";
@@ -41,7 +40,6 @@ export default {
   name: "RowEdit",
   data() {
     return {
-      onlySetDefaultValueOnce: true,
       internalValues: deepClone(
         this.defaultValue ? this.defaultValue : this.modelValue
       ),
@@ -117,22 +115,6 @@ export default {
         : [];
       return columnsWithoutMeta.filter(this.showColumn);
     },
-    graphqlFilter() {
-      if (this.tableMetaData && this.pkey) {
-        return this.tableMetaData.columns
-          .filter((column: IColumn) => column.key === 1)
-          .reduce(
-            (accum: Record<string, { equals: IRow }>, column: IColumn) => {
-              accum[column.id] = {
-                equals: this.pkey ? this.pkey[column.id] : undefined,
-              };
-              return accum;
-            }
-          );
-      } else {
-        return {};
-      }
-    },
   },
   methods: {
     showColumn(column: IColumn) {
@@ -158,7 +140,7 @@ export default {
           this.internalValues,
           this.tableMetaData as ITableMetaData
         );
-      } catch (error: any) {
+      } catch (error) {
         this.errorPerColumn[column.id] = error;
         return true;
       }
@@ -210,8 +192,8 @@ export default {
         return filter;
       }
     },
-    handleModelValueUpdate(event: any, columnId: string) {
-      this.internalValues[columnId] = event;
+    handleModelValueUpdate(newValue: any, columnId: string) {
+      this.internalValues[columnId] = newValue;
       this.onValuesUpdate();
     },
     onValuesUpdate() {
@@ -229,19 +211,21 @@ export default {
   },
   created() {
     this.tableMetaData.columns.forEach((column: IColumn) => {
-      if (column.defaultValue && !this.internalValues[column.id]) {
-        if (this.applyDefaultValues) {
-          if (column.defaultValue.startsWith("=")) {
-            try {
-              this.internalValues[column.id] = executeExpression(
-                "(" + column.defaultValue.substr(1) + ")",
-                this.internalValues,
-                this.tableMetaData as ITableMetaData
-              );
-            } catch (error) {
-              this.errorPerColumn[column.id] =
-                "Default value expression failed: " + error;
-            }
+      if (
+        this.applyDefaultValues &&
+        column.defaultValue &&
+        !this.internalValues[column.id]
+      ) {
+        if (column.defaultValue.startsWith("=")) {
+          try {
+            this.internalValues[column.id] = executeExpression(
+              "(" + column.defaultValue.substr(1) + ")",
+              this.internalValues,
+              this.tableMetaData as ITableMetaData
+            );
+          } catch (error) {
+            this.errorPerColumn[column.id] =
+              "Default value expression failed: " + error;
           }
         } else {
           this.internalValues[column.id] = column.defaultValue;
@@ -266,6 +250,7 @@ export default {
             :tableId="tableId"
             :tableMetaData="tableMetadata"
             :schemaMetaData="schemaMetadata"
+            :applyDefaultValues="true"
         />
       </div>
       <div class="col-6 border-left">
