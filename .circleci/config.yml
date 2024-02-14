@@ -95,8 +95,8 @@ jobs:
     - pre_steps
 
     - run:
-        name: build and push emx2 java docker images and helm for the preview
-        command: ./gradlew -s --no-daemon shadowJar dockerPush helmPublishMainChart ci -x test
+        name: build and push emx2 java docker images for the preview
+        command: ./gradlew -s --no-daemon shadowJar dockerPush ci -x test
 
     - run:
         name: push ssr-catalogue docker images
@@ -171,11 +171,11 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
-            ./gradlew -s --no-daemon dockerPush helmPublishMainChart
+            ./gradlew -s --no-daemon dockerPush
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
           else
-            ./gradlew -s --no-daemon dockerPush helmPublishMainChart release
+            ./gradlew -s --no-daemon dockerPush release
             docker build apps/nuxt3-ssr/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
           fi
