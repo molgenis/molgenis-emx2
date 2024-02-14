@@ -1,6 +1,7 @@
 .app-page,
 .page-footer {
   font-family: Helvetica, sans-serif;
+  position: relative;
 }
 
 .dashboard-container {
@@ -74,6 +75,56 @@
       td {
         font-size: 0.9rem;
         padding: 0.6em 0.4em;
+      }
+    }
+  }
+}
+
+.filters-form {
+  position: sticky;
+  top: 0px;
+  padding: 0.5em 1em;
+  background-color: $gray-000;
+  z-index: 2;
+  box-shadow: 0 2px 4px 1px $gray-transparent-100;
+
+  .filters-container {
+    
+    .filter-buttons {
+      display: flex;
+      justify-self: flex-start;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1em;
+
+      .filter-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: $blue-900;
+        background-color: $blue-050;
+        padding: 0.2em 1em;
+        border-radius: 8px;
+        font-size: 0.9rem;
+
+        p {
+          margin: 0;
+        }
+
+        button {
+          border: none;
+          background: none;
+
+          .heroicons {
+            $size: 14pt;
+            width: $size;
+            height: $size;
+            margin-top: -3px;
+            path {
+              stroke: $blue-500;
+            }
+          }
+        }
       }
     }
   }

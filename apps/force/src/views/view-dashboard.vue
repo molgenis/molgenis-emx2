@@ -1,39 +1,67 @@
 <template>
   <Page>
     <PageHeader title="FORCE Project" subtitle="Search and explore the data" />
-    <div class="page-section" v-if="error">
+    <PageSection width="large">
+      <h2>Filters</h2>
+      <p>
+        All of charts are interactive and connected. By clicking any of the
+        elements, you can create a new filter, which will update all of the
+        charts. Click on a filter button below to remove it.
+      </p>
+    </PageSection>
+    <form class="page-section filters-form">
+      <fieldset class="page-section-content width-full filters-container">
+        <legend>Selected Filters</legend>
+        {{ queryFilters.filter }}
+        <div
+          class="filter-buttons"
+          v-if="Object.keys(queryFilters.filter).length"
+        >
+          <template v-for="key in Object.keys(selectedFilters)">
+            <div class="filter-button" v-for="value in selectedFilters[key]">
+              <p>{{ value }}</p>
+              <button
+                :id="`filter-${key}-${value}`"
+                @click="removeFilter(key, value)"
+              >
+                <span class="visually-hidden">remove {{ value }}</span>
+                <MinusCircleIcon class="heroicons" />
+              </button>
+            </div>
+          </template>
+        </div>
+        <div v-else>
+          <p>No filters applied.</p>
+        </div>
+      </fieldset>
+    </form>
+    <PageSection v-if="error">
       <MessageBox type="error">
         {{ error }}
       </MessageBox>
-    </div>
-    <div class="filters-bar">
-      {{ filters }}
-    </div>
+    </PageSection>
     <Dashboard v-if="!loading && !error">
       <DashboardRow :columns="3">
         <DashboardChart>
-          <BarChart
+          <ColumnChart
             chartId="research-centers-sum"
             title="Sum of cases by research center"
             :chartData="researchCenters"
-            xvar="sum"
-            yvar="researchCenter"
-            :xMin="0"
-            :xMax="6000"
-            :xTickValues="[0, 1000, 2000, 3000, 4000, 5000, 6000]"
-            xAxisLabel="Sum of cases"
-            :barFill="palette[5]"
-            :barHoverFill="palette[3]"
-            :barPaddingOuter="0"
-            :chartHeight="375"
+            xvar="researchCenter"
+            yvar="sum"
+            xAxisLineBreaker=" "
+            :columnFill="palette[5]"
+            :columnHoverFill="palette[3]"
+            :columnPaddingOuter="0"
+            :chartHeight="350"
             :chartMargins="{
-              top: 5,
+              top: 10,
               right: 35,
-              bottom: 60,
-              left: 125,
+              bottom: 40,
+              left: 60,
             }"
             :enableClicks="true"
-            @bar-clicked="
+            @column-clicked="
               (data) => onChartClick(JSON.parse(data), 'researchCenter')
             "
           />
@@ -69,14 +97,13 @@
         <DashboardChart>
           <ColumnChart
             chartId="sampling-period-sum"
+            title="Sum of cases by sampling period"
             :chartData="samplingPeriods"
             xvar="samplingPeriod"
             yvar="sum"
             :columnFill="palette[5]"
             :columnHoverFill="palette[3]"
             :chartHeight="210"
-            :yTickValues="[0, 1000, 2000, 3000, 4000]"
-            :yMax="4000"
             :enableClicks="true"
             @column-clicked="
               (data) => onChartClick(JSON.parse(data), 'samplingPeriod')
@@ -108,12 +135,13 @@
 </template>
 
 <script setup>
-import gql from "graphql-tag";
-import { request } from "graphql-request";
+import { GraphQLClient, gql } from "graphql-request";
 import { ref, onMounted } from "vue";
 
 import {
   Page,
+  PageSection,
+  MessageBox,
   Dashboard,
   DashboardChart,
   DashboardRow,
@@ -122,11 +150,13 @@ import {
   ColumnChart,
   DataTable,
   PieChart2,
-  MessageBox,
 } from "molgenis-viz";
 
+import { MinusCircleIcon } from "@heroicons/vue/24/outline";
 import { schemePuBu as scheme } from "d3-scale-chromatic";
 import { createPalette } from "../utils/index";
+
+const client = new GraphQLClient("../api/graphql");
 
 const palette = ref(scheme[6]);
 
@@ -138,7 +168,7 @@ let sampleTypes = ref({});
 let samplingPeriods = ref([]);
 let sexCases = ref({});
 let sampleTypeColors = ref({});
-let filters = ref({
+let selectedFilters = ref({
   researchCenter: [],
   primaryTumor: [],
   sampleType: [],
@@ -146,9 +176,50 @@ let filters = ref({
   sex: [],
 });
 
-async function get(attribute) {
-  const query = gql`{
-    ClinicalData_groupBy {
+let queryFilters = ref({ filter: {} });
+
+function removeFilter(key, value) {
+  selectedFilters.value[key] = selectedFilters.value[key].filter(
+    (q) => q !== value
+  );
+  updateQueryFilters();
+  getAllData();
+}
+
+function updateQueryFilters() {
+  const query = {};
+  const filterKeys = Object.keys(selectedFilters.value);
+  const filterLength = filterKeys.length;
+
+  for (let i = 0; i < filterLength; i++) {
+    const key = filterKeys[i];
+    const subfilters = selectedFilters.value[key];
+
+    if (typeof subfilters[0] !== "undefined") {
+      if (subfilters.length === 1) {
+        query[key] = { name: { equals: subfilters[0] } };
+      }
+
+      if (subfilters.length > 1) {
+        if (Object.keys(query).indexOf("_or")) {
+          query["_or"] = [];
+        }
+
+        subfilters.forEach((value) => {
+          const newSubFilter = {};
+          newSubFilter[key] = { name: { equals: value } };
+          query["_or"].push(newSubFilter);
+        });
+      }
+    }
+  }
+
+  queryFilters.value.filter = query;
+}
+
+async function getData(attribute) {
+  const query = gql` query ($filters: ClinicalDataFilter ) {
+    ClinicalData_groupBy ( filter: $filters ) {
       ${attribute} {
         name
       }
@@ -157,64 +228,71 @@ async function get(attribute) {
       }
     }
   }`;
-  const response = await request("../api/graphql", query);
+  const variables = { filters: queryFilters.value.filter };
+  const response = await client.request(query, variables);
   return response.ClinicalData_groupBy;
 }
 
 function onChartClick(data, attribute) {
   const value = data[attribute];
-  if (filters.value[attribute].indexOf(value) === -1) {
-    filters.value[attribute].push(value);
+  if (selectedFilters.value[attribute].indexOf(value) === -1) {
+    selectedFilters.value[attribute].push(value);
+    updateQueryFilters();
+    getAllData();
   }
 }
 
 function onPieChartClick(data, attribute) {
   const value = Object.keys(data)[0];
-  if (filters.value[attribute].indexOf(value) === -1) {
-    filters.value[attribute].push(value);
+  if (selectedFilters.value[attribute].indexOf(value) === -1) {
+    selectedFilters.value[attribute].push(value);
+    updateQueryFilters();
+    getAllData();
   }
 }
 
 async function getResearchCenters() {
-  const data = await get("researchCenter");
+  const data = await getData("researchCenter");
   researchCenters.value = data
-    .map(
-      (row) =>
-        new Object({ researchCenter: row.researchCenter.name, sum: row._sum.n })
-    )
+    .map((row) => {
+      return {
+        researchCenter: row.researchCenter.name,
+        sum: row._sum.n,
+      };
+    })
     .sort((current, next) => {
       return current.sum > next.sum ? -1 : 1;
     });
 }
 
 async function getPrimaryTumors() {
-  const data = await get("primaryTumor");
+  const data = await getData("primaryTumor");
   primaryTumors.value = data
-    .map(
-      (row) =>
-        new Object({ primaryTumor: row.primaryTumor.name, sum: row._sum.n })
-    )
+    .map((row) => {
+      return {
+        primaryTumor: row.primaryTumor.name,
+        sum: row._sum.n,
+      };
+    })
     .sort((current, next) => {
       return current.primaryTumor > next.primaryTumor ? 1 : -1;
     });
 }
 
 async function getSampleType() {
-  const data = await get("sampleType");
+  const data = await getData("sampleType");
   const total = data.reduce((sum, curr) => curr._sum.n + sum, 0);
   const summarized = data
-    .map(
-      (row) =>
-        new Object({
-          sampleType: row.sampleType.name,
-          sum: row._sum.n,
-          percent: row._sum.n / total,
-        })
-    )
+    .map((row) => {
+      return {
+        sampleType: row.sampleType.name,
+        sum: row._sum.n,
+        percent: ((row._sum.n / total) * 100).toFixed(1),
+      };
+    })
     .sort((current, next) => (current.sum > next.sum ? -1 : 1))
     .reduce((acc, curr) => {
       acc[curr.sampleType] = curr.sum;
-      // acc[curr.sampleType] = (curr.percent * 100).toFixed(1);
       return acc;
     }, {});
 
@@ -226,20 +304,24 @@ async function getSampleType() {
 }
 
 async function getSamplingPeriod() {
-  const data = await get("samplingPeriod");
-  samplingPeriods.value = data.map(
-    (row) =>
-      new Object({
-        samplingPeriod: row.samplingPeriod.name,
-        sum: row._sum.n,
-      })
-  );
+  const data = await getData("samplingPeriod");
+  samplingPeriods.value = data.map((row) => {
+    return {
+      samplingPeriod: row.samplingPeriod.name,
+      sum: row._sum.n,
+    };
+  });
 }
 
 async function getSexSummary() {
-  const data = await get("sex");
+  const data = await getData("sex");
   sexCases.value = data
-    .map((row) => new Object({ sex: row.sex.name, sum: row._sum.n }))
+    .map((row) => {
+      return {
+        sex: row.sex.name,
+        sum: row._sum.n,
+      };
+    })
     .sort((current, next) => (current.sum > next.sum ? -1 : 1))
     .reduce((acc, curr) => {
       acc[curr.sex] = curr.sum;
@@ -247,7 +329,7 @@ async function getSexSummary() {
     }, {});
 }
 
-async function getData() {
+async function getAllData() {
   await getResearchCenters();
   await getPrimaryTumors();
   await getSampleType();
@@ -256,7 +338,7 @@ async function getData() {
 }
 
 onMounted(() => {
-  getData()
+  getAllData()
     .then(() => (loading.value = false))
     .catch((err) => (error.value = err));
 });
