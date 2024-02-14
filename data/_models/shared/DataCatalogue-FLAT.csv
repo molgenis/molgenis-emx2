@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,label
-Version,,,,,,,,,,,,3.10,"DataCatalogue,EMA,SharedStaging,CohortStaging",
+Version,,,,,,,,,,,,4.0,"DataCatalogue,EMA,SharedStaging,CohortStaging",
 Catalogues,,,,,,,,,,,,A collection of resources within a network or consortium or about a common topic,DataCatalogue,
 Catalogues,,network,ref,1,true,,Networks,,,,,Network or consortium that leads this catalogue,DataCatalogue,
 Catalogues,,type,ontology,,true,CatalogueOntologies,CatalogueTypes,,,,,Type of catalogue,DataCatalogue,

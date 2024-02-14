@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,label
-Version,,,,,,,,,,,,3.10,
+Version,,,,,,,,,,,,4.0,
 Resources,,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic,Cohorts
 Resources,,overview,heading,,,,,,,,,General information,
 Resources,,id,,1,true,,,,,,,Internal identifier,

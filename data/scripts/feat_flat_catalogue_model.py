@@ -27,6 +27,7 @@ class Tables:
 SHARED_DIR = '../_models/shared'
 SPECIFIC_DIR = '../_models/specific'
 
+VERSION = 4.0
 
 inherit_tables = [[Tables.O, Tables.R], [Tables.M, Tables.ER],
                   [Tables.N, Tables.ER], [Tables.S, Tables.ER],
@@ -73,6 +74,8 @@ class Flattener(pd.DataFrame):
         Returns the updated model.
         """
 
+        self._version_bump()
+
         for tables in inherit_tables:
             self._duplicate_columns(*tables)
 
@@ -92,6 +95,10 @@ class Flattener(pd.DataFrame):
         self.save_df()
 
         return self
+
+    def _version_bump(self):
+        """Bumps the data model to a new version."""
+        self.loc[self['tableName'] == 'Version', 'description'] = VERSION
 
     def _duplicate_columns(self, new_tab: str, old_tab: str):
         """Duplicates columns of an inherited table for the inheriting table."""
@@ -182,10 +189,10 @@ class Flattener(pd.DataFrame):
         """Removes the 'SharedStaging' profile from the Resources table."""
         # self.loc[(self['tableName'] == 'Resources') & (self['profiles'].str.contains('SharedStaging'))]
         staging_resources = self.loc[(self['tableName'] == 'Resources') & self['profiles'].str.contains('SharedStaging')]
-        self.loc[staging_resources.index, 'profiles'] = staging_resources['profiles'].apply(lambda pfs: p for p in pfs.split(',') if p != 'SharedStaging')
-        self['profiles'] = self.apply(lambda row: ','.join(p for p in row['profiles'].split(',')
-                                                           if p != 'SharedStaging') if (row['tableName'] == 'Resources')
-                                                                                       & ('SharedStaging' in row['profiles']) else row['profiles'], axis=1)
+        self.loc[staging_resources.index, 'profiles'] = staging_resources['profiles'].apply(lambda pfs: pfs.replace('SharedStaging', '').replace(',,', ','))
+        # self['profiles'] = self.apply(lambda row: ','.join(p for p in row['profiles'].split(',')
+        #                                                    if p != 'SharedStaging') if (row['tableName'] == 'Resources')
+        #                                                                                & ('SharedStaging' in row['profiles']) else row['profiles'], axis=1)
 
     def save_df(self, old_profiles: bool = False):
         """Saves the pandas DataFrame of the model to disk."""

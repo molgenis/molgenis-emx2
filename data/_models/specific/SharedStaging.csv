@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,label
-Version,,,,,,,,,,,,3.10,
+Version,,,,,,,,,,,,4.0,
 Organisations,,,,,,,,,,,,Research departments and research groups,
 Organisations,,id,,1,true,,,,,,,Internal identifier,
 Organisations,,pid,,2,,,,,,,,Persistent identifier,

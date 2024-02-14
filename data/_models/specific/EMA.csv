@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,label
-Version,,,,,,,,,,,,3.10,
+Version,,,,,,,,,,,,4.0,
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",
 Organisations,,,,,,,,,,,,Research departments and research groups,
 Models,,,,,,,,,,,,Data models,
