@@ -3,9 +3,7 @@
     <label v-if="label !== null && label !== undefined" :for="id">
       <b> {{ label }}</b>
     </label>
-    <span v-if="required === 'true' || required === true" class="float-right">
-      (required)
-    </span>
+    <span v-if="isRequired(required)" class="float-right"> (required) </span>
     <slot></slot>
     <small v-if="errorMessage" class="text-danger form-text">
       {{ errorMessage }}
@@ -47,6 +45,9 @@ export default {
     },
   },
   methods: {
+    isRequired(required) {
+      return required.toLowerCase() === "true" || required === true;
+    },
     hasDescription(description) {
       return (
         description !== null && description !== undefined && description.length
@@ -74,7 +75,7 @@ export default {
       <label for="my-id2">required field form group</label>
       <FormGroup id="my-id2"
         label="my label"
-        required="'true'"
+        :required="true"
         description="my description">
         <InputGroup>
           <InputString id="my-id2"></InputString>
@@ -86,7 +87,7 @@ export default {
       <label for="my-id3">required field form group boolean type</label>
       <FormGroup id="my-id3"
                  label="my label"
-                 required="true"
+                 required
                  description="my description">
         <InputGroup>
           <InputString id="my-id3"></InputString>
