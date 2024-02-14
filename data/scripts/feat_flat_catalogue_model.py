@@ -34,8 +34,10 @@ VERSION = 4.0
 inherit_tables = [[Tables.O, Tables.R], [Tables.M, Tables.ER],
                   [Tables.N, Tables.ER], [Tables.S, Tables.ER],
                   [Tables.S, Tables.R], [Tables.M, Tables.R], [Tables.N, Tables.R],
-                  [Tables.DS, Tables.RWE], [Tables.DS, Tables.DR], [Tables.DS, Tables.ER], [Tables.DS, Tables.R],
-                  [Tables.DB, Tables.RWE], [Tables.DB, Tables.DR], [Tables.DB, Tables.ER], [Tables.DB, Tables.R]]
+                  [Tables.DS, Tables.RWE], [Tables.DS, Tables.DR],
+                  [Tables.DS, Tables.ER], [Tables.DS, Tables.R],
+                  [Tables.DB, Tables.RWE], [Tables.DB, Tables.DR],
+                  [Tables.DB, Tables.ER], [Tables.DB, Tables.R]]
 
 rename_tables = [[Tables.C, Tables.DR], [Tables.RWE, Tables.DR],
                  [Tables.DR, Tables.ER],
@@ -120,7 +122,8 @@ class Flattener(pd.DataFrame):
             self.loc[idx + 1] = inherited_columns.loc[idx]
             self.loc[idx + 1, 'tableName'] = new_tab
             # Ensure the correct profiles for the duplicated column
-            self.loc[idx + 1, 'profiles'] = ','.join(p for p in self.profiles[idx+1].split(',') if p in profiles.split(','))
+            self.loc[idx + 1, 'profiles'] = ','.join(p for p in self.profiles[idx+1].split(',')
+                                                     if p in profiles.split(','))
             # Sort the index
             self.sort_index(inplace=True)
 
@@ -187,7 +190,8 @@ class Flattener(pd.DataFrame):
 
     def _remove_shared_staging_resources(self):
         """Removes the 'SharedStaging' profile from the Resources table."""
-        staging_resources = self.loc[(self['tableName'] == 'Resources') & self['profiles'].str.contains('SharedStaging')]
+        staging_resources = self.loc[(self['tableName'] == 'Resources')
+                                     & self['profiles'].str.contains('SharedStaging')]
         self.loc[staging_resources.index, 'profiles'] = staging_resources['profiles'].apply(lambda pfs:
                                                                                             pfs.replace('SharedStaging', '').replace(',,', ','))
 
@@ -195,13 +199,14 @@ class Flattener(pd.DataFrame):
         """Saves the pandas DataFrame of the model to disk."""
         if not old_profiles:
             self.to_csv(f"{SHARED_DIR}/DataCatalogue-FLAT.csv", index=False)
-        profiles = list(set([p for l in list(self['profiles'].str.split(',')) for p in l]))
+        profiles = list(set([p for _l in list(self['profiles'].str.split(',')) for p in _l]))
 
         file_dir = f"{SPECIFIC_DIR}"
         if old_profiles:
             file_dir += "/old_profiles"
         for prof in profiles:
-            self.loc[self['profiles'].str.contains(prof)].drop(columns=['profiles']).to_csv(f"{file_dir}/{prof}.csv", index=False)
+            self.loc[self['profiles'].str.contains(prof)].drop(columns=['profiles']).to_csv(f"{file_dir}/{prof}.csv",
+                                                                                            index=False)
 
 
 def main():
