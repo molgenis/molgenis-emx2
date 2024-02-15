@@ -18,9 +18,8 @@ type VariableDetailsWithMapping = IVariable &
   IVariableMappings & { nRepeats: number };
 
 const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: { query, variables: { variableFilter, cohortsFilter } },
   }
