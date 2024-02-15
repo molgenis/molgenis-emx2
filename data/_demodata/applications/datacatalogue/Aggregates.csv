@@ -1,0 +1,2241 @@
+﻿resource,research center,primary tumor,sample type,sampling period,sex,n
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,2021-2025,Male,12
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,2021-2025,Female,18
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,2016-2020,Male,10
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,2016-2020,Female,19
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,2011-2015,Male,7
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,2011-2015,Female,20
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,2006-2010,Male,18
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,2006-2010,Female,14
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,2001-2005,Male,0
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,2001-2005,Female,4
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,1991-2000,Male,4
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,1991-2000,Female,6
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,<1991,Male,20
+FORCE-NEN collections,AvL,Esophageal NEN,Feces,<1991,Female,15
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,2021-2025,Male,10
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,2021-2025,Female,1
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,2016-2020,Male,13
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,2016-2020,Female,12
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,2011-2015,Male,18
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,2011-2015,Female,18
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,2006-2010,Male,6
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,2006-2010,Female,15
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,2001-2005,Male,6
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,2001-2005,Female,4
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,1991-2000,Male,10
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,1991-2000,Female,14
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,<1991,Male,13
+FORCE-NEN collections,AvL,Esophageal NEN,Urine,<1991,Female,7
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,2021-2025,Male,2
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,2021-2025,Female,16
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,2016-2020,Male,2
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,2016-2020,Female,16
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,2011-2015,Male,11
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,2011-2015,Female,7
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,2006-2010,Male,3
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,2006-2010,Female,10
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,2001-2005,Male,2
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,2001-2005,Female,2
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,1991-2000,Male,8
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,1991-2000,Female,17
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,<1991,Male,3
+FORCE-NEN collections,AvL,Esophageal NEN,Blood,<1991,Female,0
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,2021-2025,Male,5
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,2021-2025,Female,0
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,2016-2020,Male,17
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,2016-2020,Female,18
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,2011-2015,Male,6
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,2011-2015,Female,6
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,2006-2010,Male,19
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,2006-2010,Female,6
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,2001-2005,Male,7
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,2001-2005,Female,20
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,1991-2000,Male,13
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,1991-2000,Female,11
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,<1991,Male,4
+FORCE-NEN collections,AvL,Esophageal NEN,FFPE Tissue,<1991,Female,10
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,2021-2025,Male,3
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,2021-2025,Female,11
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,2016-2020,Male,13
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,2016-2020,Female,20
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,2011-2015,Male,18
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,2011-2015,Female,16
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,2006-2010,Male,15
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,2006-2010,Female,1
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,2001-2005,Male,5
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,2001-2005,Female,2
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,1991-2000,Male,4
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,1991-2000,Female,17
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,<1991,Male,3
+FORCE-NEN collections,AvL,Esophageal NEN,Freeze Tissue,<1991,Female,0
+FORCE-NEN collections,AvL,Colon NEN,Feces,2021-2025,Male,18
+FORCE-NEN collections,AvL,Colon NEN,Feces,2021-2025,Female,20
+FORCE-NEN collections,AvL,Colon NEN,Feces,2016-2020,Male,15
+FORCE-NEN collections,AvL,Colon NEN,Feces,2016-2020,Female,10
+FORCE-NEN collections,AvL,Colon NEN,Feces,2011-2015,Male,5
+FORCE-NEN collections,AvL,Colon NEN,Feces,2011-2015,Female,20
+FORCE-NEN collections,AvL,Colon NEN,Feces,2006-2010,Male,4
+FORCE-NEN collections,AvL,Colon NEN,Feces,2006-2010,Female,11
+FORCE-NEN collections,AvL,Colon NEN,Feces,2001-2005,Male,12
+FORCE-NEN collections,AvL,Colon NEN,Feces,2001-2005,Female,3
+FORCE-NEN collections,AvL,Colon NEN,Feces,1991-2000,Male,2
+FORCE-NEN collections,AvL,Colon NEN,Feces,1991-2000,Female,20
+FORCE-NEN collections,AvL,Colon NEN,Feces,<1991,Male,5
+FORCE-NEN collections,AvL,Colon NEN,Feces,<1991,Female,15
+FORCE-NEN collections,AvL,Colon NEN,Urine,2021-2025,Male,10
+FORCE-NEN collections,AvL,Colon NEN,Urine,2021-2025,Female,12
+FORCE-NEN collections,AvL,Colon NEN,Urine,2016-2020,Male,16
+FORCE-NEN collections,AvL,Colon NEN,Urine,2016-2020,Female,3
+FORCE-NEN collections,AvL,Colon NEN,Urine,2011-2015,Male,19
+FORCE-NEN collections,AvL,Colon NEN,Urine,2011-2015,Female,6
+FORCE-NEN collections,AvL,Colon NEN,Urine,2006-2010,Male,3
+FORCE-NEN collections,AvL,Colon NEN,Urine,2006-2010,Female,10
+FORCE-NEN collections,AvL,Colon NEN,Urine,2001-2005,Male,4
+FORCE-NEN collections,AvL,Colon NEN,Urine,2001-2005,Female,12
+FORCE-NEN collections,AvL,Colon NEN,Urine,1991-2000,Male,7
+FORCE-NEN collections,AvL,Colon NEN,Urine,1991-2000,Female,14
+FORCE-NEN collections,AvL,Colon NEN,Urine,<1991,Male,3
+FORCE-NEN collections,AvL,Colon NEN,Urine,<1991,Female,18
+FORCE-NEN collections,AvL,Colon NEN,Blood,2021-2025,Male,17
+FORCE-NEN collections,AvL,Colon NEN,Blood,2021-2025,Female,10
+FORCE-NEN collections,AvL,Colon NEN,Blood,2016-2020,Male,9
+FORCE-NEN collections,AvL,Colon NEN,Blood,2016-2020,Female,8
+FORCE-NEN collections,AvL,Colon NEN,Blood,2011-2015,Male,8
+FORCE-NEN collections,AvL,Colon NEN,Blood,2011-2015,Female,10
+FORCE-NEN collections,AvL,Colon NEN,Blood,2006-2010,Male,13
+FORCE-NEN collections,AvL,Colon NEN,Blood,2006-2010,Female,6
+FORCE-NEN collections,AvL,Colon NEN,Blood,2001-2005,Male,20
+FORCE-NEN collections,AvL,Colon NEN,Blood,2001-2005,Female,3
+FORCE-NEN collections,AvL,Colon NEN,Blood,1991-2000,Male,16
+FORCE-NEN collections,AvL,Colon NEN,Blood,1991-2000,Female,7
+FORCE-NEN collections,AvL,Colon NEN,Blood,<1991,Male,19
+FORCE-NEN collections,AvL,Colon NEN,Blood,<1991,Female,5
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,2021-2025,Male,5
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,2021-2025,Female,17
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,2016-2020,Male,17
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,2016-2020,Female,18
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,2011-2015,Male,9
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,2011-2015,Female,7
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,2006-2010,Male,0
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,2006-2010,Female,11
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,2001-2005,Male,20
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,2001-2005,Female,14
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,1991-2000,Male,7
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,1991-2000,Female,5
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,<1991,Male,16
+FORCE-NEN collections,AvL,Colon NEN,FFPE Tissue,<1991,Female,9
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,2021-2025,Male,13
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,2021-2025,Female,4
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,2016-2020,Male,0
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,2016-2020,Female,16
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,2011-2015,Male,2
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,2011-2015,Female,17
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,2006-2010,Male,9
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,2006-2010,Female,12
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,2001-2005,Male,11
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,2001-2005,Female,7
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,1991-2000,Male,14
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,1991-2000,Female,4
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,<1991,Male,13
+FORCE-NEN collections,AvL,Colon NEN,Freeze Tissue,<1991,Female,17
+FORCE-NEN collections,AvL,Rectum NEN,Feces,2021-2025,Male,16
+FORCE-NEN collections,AvL,Rectum NEN,Feces,2021-2025,Female,4
+FORCE-NEN collections,AvL,Rectum NEN,Feces,2016-2020,Male,16
+FORCE-NEN collections,AvL,Rectum NEN,Feces,2016-2020,Female,5
+FORCE-NEN collections,AvL,Rectum NEN,Feces,2011-2015,Male,17
+FORCE-NEN collections,AvL,Rectum NEN,Feces,2011-2015,Female,8
+FORCE-NEN collections,AvL,Rectum NEN,Feces,2006-2010,Male,1
+FORCE-NEN collections,AvL,Rectum NEN,Feces,2006-2010,Female,5
+FORCE-NEN collections,AvL,Rectum NEN,Feces,2001-2005,Male,4
+FORCE-NEN collections,AvL,Rectum NEN,Feces,2001-2005,Female,17
+FORCE-NEN collections,AvL,Rectum NEN,Feces,1991-2000,Male,2
+FORCE-NEN collections,AvL,Rectum NEN,Feces,1991-2000,Female,9
+FORCE-NEN collections,AvL,Rectum NEN,Feces,<1991,Male,19
+FORCE-NEN collections,AvL,Rectum NEN,Feces,<1991,Female,9
+FORCE-NEN collections,AvL,Rectum NEN,Urine,2021-2025,Male,14
+FORCE-NEN collections,AvL,Rectum NEN,Urine,2021-2025,Female,18
+FORCE-NEN collections,AvL,Rectum NEN,Urine,2016-2020,Male,1
+FORCE-NEN collections,AvL,Rectum NEN,Urine,2016-2020,Female,6
+FORCE-NEN collections,AvL,Rectum NEN,Urine,2011-2015,Male,12
+FORCE-NEN collections,AvL,Rectum NEN,Urine,2011-2015,Female,12
+FORCE-NEN collections,AvL,Rectum NEN,Urine,2006-2010,Male,4
+FORCE-NEN collections,AvL,Rectum NEN,Urine,2006-2010,Female,19
+FORCE-NEN collections,AvL,Rectum NEN,Urine,2001-2005,Male,16
+FORCE-NEN collections,AvL,Rectum NEN,Urine,2001-2005,Female,1
+FORCE-NEN collections,AvL,Rectum NEN,Urine,1991-2000,Male,12
+FORCE-NEN collections,AvL,Rectum NEN,Urine,1991-2000,Female,18
+FORCE-NEN collections,AvL,Rectum NEN,Urine,<1991,Male,13
+FORCE-NEN collections,AvL,Rectum NEN,Urine,<1991,Female,19
+FORCE-NEN collections,AvL,Rectum NEN,Blood,2021-2025,Male,16
+FORCE-NEN collections,AvL,Rectum NEN,Blood,2021-2025,Female,0
+FORCE-NEN collections,AvL,Rectum NEN,Blood,2016-2020,Male,8
+FORCE-NEN collections,AvL,Rectum NEN,Blood,2016-2020,Female,17
+FORCE-NEN collections,AvL,Rectum NEN,Blood,2011-2015,Male,6
+FORCE-NEN collections,AvL,Rectum NEN,Blood,2011-2015,Female,16
+FORCE-NEN collections,AvL,Rectum NEN,Blood,2006-2010,Male,11
+FORCE-NEN collections,AvL,Rectum NEN,Blood,2006-2010,Female,20
+FORCE-NEN collections,AvL,Rectum NEN,Blood,2001-2005,Male,6
+FORCE-NEN collections,AvL,Rectum NEN,Blood,2001-2005,Female,6
+FORCE-NEN collections,AvL,Rectum NEN,Blood,1991-2000,Male,20
+FORCE-NEN collections,AvL,Rectum NEN,Blood,1991-2000,Female,2
+FORCE-NEN collections,AvL,Rectum NEN,Blood,<1991,Male,1
+FORCE-NEN collections,AvL,Rectum NEN,Blood,<1991,Female,0
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,2021-2025,Male,1
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,2021-2025,Female,2
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,2016-2020,Male,15
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,2016-2020,Female,14
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,2011-2015,Male,17
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,2011-2015,Female,18
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,2006-2010,Male,17
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,2006-2010,Female,4
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,2001-2005,Male,0
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,2001-2005,Female,5
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,1991-2000,Male,16
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,1991-2000,Female,11
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,<1991,Male,7
+FORCE-NEN collections,AvL,Rectum NEN,FFPE Tissue,<1991,Female,10
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,2021-2025,Male,18
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,2021-2025,Female,3
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,2016-2020,Male,10
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,2016-2020,Female,4
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,2011-2015,Male,4
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,2011-2015,Female,19
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,2006-2010,Male,15
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,2006-2010,Female,15
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,2001-2005,Male,14
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,2001-2005,Female,16
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,1991-2000,Male,18
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,1991-2000,Female,17
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,<1991,Male,20
+FORCE-NEN collections,AvL,Rectum NEN,Freeze Tissue,<1991,Female,9
+FORCE-NEN collections,AvL,Appendix NEN,Feces,2021-2025,Male,3
+FORCE-NEN collections,AvL,Appendix NEN,Feces,2021-2025,Female,15
+FORCE-NEN collections,AvL,Appendix NEN,Feces,2016-2020,Male,14
+FORCE-NEN collections,AvL,Appendix NEN,Feces,2016-2020,Female,9
+FORCE-NEN collections,AvL,Appendix NEN,Feces,2011-2015,Male,9
+FORCE-NEN collections,AvL,Appendix NEN,Feces,2011-2015,Female,19
+FORCE-NEN collections,AvL,Appendix NEN,Feces,2006-2010,Male,20
+FORCE-NEN collections,AvL,Appendix NEN,Feces,2006-2010,Female,14
+FORCE-NEN collections,AvL,Appendix NEN,Feces,2001-2005,Male,20
+FORCE-NEN collections,AvL,Appendix NEN,Feces,2001-2005,Female,20
+FORCE-NEN collections,AvL,Appendix NEN,Feces,1991-2000,Male,7
+FORCE-NEN collections,AvL,Appendix NEN,Feces,1991-2000,Female,15
+FORCE-NEN collections,AvL,Appendix NEN,Feces,<1991,Male,16
+FORCE-NEN collections,AvL,Appendix NEN,Feces,<1991,Female,1
+FORCE-NEN collections,AvL,Appendix NEN,Urine,2021-2025,Male,2
+FORCE-NEN collections,AvL,Appendix NEN,Urine,2021-2025,Female,20
+FORCE-NEN collections,AvL,Appendix NEN,Urine,2016-2020,Male,5
+FORCE-NEN collections,AvL,Appendix NEN,Urine,2016-2020,Female,14
+FORCE-NEN collections,AvL,Appendix NEN,Urine,2011-2015,Male,6
+FORCE-NEN collections,AvL,Appendix NEN,Urine,2011-2015,Female,3
+FORCE-NEN collections,AvL,Appendix NEN,Urine,2006-2010,Male,16
+FORCE-NEN collections,AvL,Appendix NEN,Urine,2006-2010,Female,2
+FORCE-NEN collections,AvL,Appendix NEN,Urine,2001-2005,Male,14
+FORCE-NEN collections,AvL,Appendix NEN,Urine,2001-2005,Female,18
+FORCE-NEN collections,AvL,Appendix NEN,Urine,1991-2000,Male,20
+FORCE-NEN collections,AvL,Appendix NEN,Urine,1991-2000,Female,13
+FORCE-NEN collections,AvL,Appendix NEN,Urine,<1991,Male,9
+FORCE-NEN collections,AvL,Appendix NEN,Urine,<1991,Female,5
+FORCE-NEN collections,AvL,Appendix NEN,Blood,2021-2025,Male,20
+FORCE-NEN collections,AvL,Appendix NEN,Blood,2021-2025,Female,20
+FORCE-NEN collections,AvL,Appendix NEN,Blood,2016-2020,Male,3
+FORCE-NEN collections,AvL,Appendix NEN,Blood,2016-2020,Female,0
+FORCE-NEN collections,AvL,Appendix NEN,Blood,2011-2015,Male,2
+FORCE-NEN collections,AvL,Appendix NEN,Blood,2011-2015,Female,10
+FORCE-NEN collections,AvL,Appendix NEN,Blood,2006-2010,Male,19
+FORCE-NEN collections,AvL,Appendix NEN,Blood,2006-2010,Female,0
+FORCE-NEN collections,AvL,Appendix NEN,Blood,2001-2005,Male,4
+FORCE-NEN collections,AvL,Appendix NEN,Blood,2001-2005,Female,19
+FORCE-NEN collections,AvL,Appendix NEN,Blood,1991-2000,Male,16
+FORCE-NEN collections,AvL,Appendix NEN,Blood,1991-2000,Female,6
+FORCE-NEN collections,AvL,Appendix NEN,Blood,<1991,Male,6
+FORCE-NEN collections,AvL,Appendix NEN,Blood,<1991,Female,14
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,2021-2025,Male,3
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,2021-2025,Female,13
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,2016-2020,Male,16
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,2016-2020,Female,12
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,2011-2015,Male,20
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,2011-2015,Female,11
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,2006-2010,Male,17
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,2006-2010,Female,16
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,2001-2005,Male,16
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,2001-2005,Female,18
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,1991-2000,Male,17
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,1991-2000,Female,10
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,<1991,Male,10
+FORCE-NEN collections,AvL,Appendix NEN,FFPE Tissue,<1991,Female,10
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,2021-2025,Male,6
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,2021-2025,Female,8
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,2016-2020,Male,3
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,2016-2020,Female,4
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,2011-2015,Male,1
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,2011-2015,Female,9
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,2006-2010,Male,4
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,2006-2010,Female,12
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,2001-2005,Male,0
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,2001-2005,Female,14
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,1991-2000,Male,8
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,1991-2000,Female,11
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,<1991,Male,6
+FORCE-NEN collections,AvL,Appendix NEN,Freeze Tissue,<1991,Female,9
+FORCE-NEN collections,AvL,Gastric NEN,Feces,2021-2025,Male,15
+FORCE-NEN collections,AvL,Gastric NEN,Feces,2021-2025,Female,18
+FORCE-NEN collections,AvL,Gastric NEN,Feces,2016-2020,Male,1
+FORCE-NEN collections,AvL,Gastric NEN,Feces,2016-2020,Female,20
+FORCE-NEN collections,AvL,Gastric NEN,Feces,2011-2015,Male,18
+FORCE-NEN collections,AvL,Gastric NEN,Feces,2011-2015,Female,13
+FORCE-NEN collections,AvL,Gastric NEN,Feces,2006-2010,Male,15
+FORCE-NEN collections,AvL,Gastric NEN,Feces,2006-2010,Female,13
+FORCE-NEN collections,AvL,Gastric NEN,Feces,2001-2005,Male,12
+FORCE-NEN collections,AvL,Gastric NEN,Feces,2001-2005,Female,0
+FORCE-NEN collections,AvL,Gastric NEN,Feces,1991-2000,Male,16
+FORCE-NEN collections,AvL,Gastric NEN,Feces,1991-2000,Female,10
+FORCE-NEN collections,AvL,Gastric NEN,Feces,<1991,Male,16
+FORCE-NEN collections,AvL,Gastric NEN,Feces,<1991,Female,5
+FORCE-NEN collections,AvL,Gastric NEN,Urine,2021-2025,Male,7
+FORCE-NEN collections,AvL,Gastric NEN,Urine,2021-2025,Female,14
+FORCE-NEN collections,AvL,Gastric NEN,Urine,2016-2020,Male,13
+FORCE-NEN collections,AvL,Gastric NEN,Urine,2016-2020,Female,12
+FORCE-NEN collections,AvL,Gastric NEN,Urine,2011-2015,Male,11
+FORCE-NEN collections,AvL,Gastric NEN,Urine,2011-2015,Female,5
+FORCE-NEN collections,AvL,Gastric NEN,Urine,2006-2010,Male,5
+FORCE-NEN collections,AvL,Gastric NEN,Urine,2006-2010,Female,9
+FORCE-NEN collections,AvL,Gastric NEN,Urine,2001-2005,Male,2
+FORCE-NEN collections,AvL,Gastric NEN,Urine,2001-2005,Female,17
+FORCE-NEN collections,AvL,Gastric NEN,Urine,1991-2000,Male,5
+FORCE-NEN collections,AvL,Gastric NEN,Urine,1991-2000,Female,14
+FORCE-NEN collections,AvL,Gastric NEN,Urine,<1991,Male,0
+FORCE-NEN collections,AvL,Gastric NEN,Urine,<1991,Female,1
+FORCE-NEN collections,AvL,Gastric NEN,Blood,2021-2025,Male,3
+FORCE-NEN collections,AvL,Gastric NEN,Blood,2021-2025,Female,10
+FORCE-NEN collections,AvL,Gastric NEN,Blood,2016-2020,Male,11
+FORCE-NEN collections,AvL,Gastric NEN,Blood,2016-2020,Female,9
+FORCE-NEN collections,AvL,Gastric NEN,Blood,2011-2015,Male,17
+FORCE-NEN collections,AvL,Gastric NEN,Blood,2011-2015,Female,18
+FORCE-NEN collections,AvL,Gastric NEN,Blood,2006-2010,Male,2
+FORCE-NEN collections,AvL,Gastric NEN,Blood,2006-2010,Female,20
+FORCE-NEN collections,AvL,Gastric NEN,Blood,2001-2005,Male,14
+FORCE-NEN collections,AvL,Gastric NEN,Blood,2001-2005,Female,17
+FORCE-NEN collections,AvL,Gastric NEN,Blood,1991-2000,Male,0
+FORCE-NEN collections,AvL,Gastric NEN,Blood,1991-2000,Female,20
+FORCE-NEN collections,AvL,Gastric NEN,Blood,<1991,Male,12
+FORCE-NEN collections,AvL,Gastric NEN,Blood,<1991,Female,5
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,2021-2025,Male,13
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,2021-2025,Female,2
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,2016-2020,Male,16
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,2016-2020,Female,19
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,2011-2015,Male,11
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,2011-2015,Female,3
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,2006-2010,Male,10
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,2006-2010,Female,19
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,2001-2005,Male,6
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,2001-2005,Female,14
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,1991-2000,Male,19
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,1991-2000,Female,12
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,<1991,Male,6
+FORCE-NEN collections,AvL,Gastric NEN,FFPE Tissue,<1991,Female,10
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,2021-2025,Male,4
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,2021-2025,Female,16
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,2016-2020,Male,12
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,2016-2020,Female,2
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,2011-2015,Male,11
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,2011-2015,Female,11
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,2006-2010,Male,7
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,2006-2010,Female,16
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,2001-2005,Male,14
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,2001-2005,Female,1
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,1991-2000,Male,16
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,1991-2000,Female,4
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,<1991,Male,9
+FORCE-NEN collections,AvL,Gastric NEN,Freeze Tissue,<1991,Female,8
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,2021-2025,Male,13
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,2021-2025,Female,3
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,2016-2020,Male,9
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,2016-2020,Female,13
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,2011-2015,Male,5
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,2011-2015,Female,9
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,2006-2010,Male,16
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,2006-2010,Female,8
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,2001-2005,Male,13
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,2001-2005,Female,9
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,1991-2000,Male,0
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,1991-2000,Female,6
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,<1991,Male,5
+FORCE-NEN collections,AvL,Pancreatic NEN,Feces,<1991,Female,4
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,2021-2025,Male,15
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,2021-2025,Female,3
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,2016-2020,Male,2
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,2016-2020,Female,18
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,2011-2015,Male,6
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,2011-2015,Female,5
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,2006-2010,Male,0
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,2006-2010,Female,10
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,2001-2005,Male,19
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,2001-2005,Female,15
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,1991-2000,Male,16
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,1991-2000,Female,18
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,<1991,Male,2
+FORCE-NEN collections,AvL,Pancreatic NEN,Urine,<1991,Female,20
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,2021-2025,Male,7
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,2021-2025,Female,8
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,2016-2020,Male,0
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,2016-2020,Female,2
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,2011-2015,Male,14
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,2011-2015,Female,8
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,2006-2010,Male,5
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,2006-2010,Female,1
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,2001-2005,Male,8
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,2001-2005,Female,7
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,1991-2000,Male,9
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,1991-2000,Female,7
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,<1991,Male,9
+FORCE-NEN collections,AvL,Pancreatic NEN,Blood,<1991,Female,6
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,2021-2025,Male,1
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,2021-2025,Female,19
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,2016-2020,Male,3
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,2016-2020,Female,15
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,2011-2015,Male,2
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,2011-2015,Female,3
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,2006-2010,Male,11
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,2006-2010,Female,19
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,2001-2005,Male,3
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,2001-2005,Female,12
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,1991-2000,Male,12
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,1991-2000,Female,18
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,<1991,Male,8
+FORCE-NEN collections,AvL,Pancreatic NEN,FFPE Tissue,<1991,Female,20
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,2021-2025,Male,11
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,2021-2025,Female,4
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,2016-2020,Male,0
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,2016-2020,Female,20
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,2011-2015,Male,1
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,2011-2015,Female,13
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,2006-2010,Male,2
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,2006-2010,Female,5
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,2001-2005,Male,7
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,2001-2005,Female,10
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,1991-2000,Male,16
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,1991-2000,Female,9
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,<1991,Male,4
+FORCE-NEN collections,AvL,Pancreatic NEN,Freeze Tissue,<1991,Female,6
+FORCE-NEN collections,AvL,SI-NEN,Feces,2021-2025,Male,10
+FORCE-NEN collections,AvL,SI-NEN,Feces,2021-2025,Female,0
+FORCE-NEN collections,AvL,SI-NEN,Feces,2016-2020,Male,4
+FORCE-NEN collections,AvL,SI-NEN,Feces,2016-2020,Female,2
+FORCE-NEN collections,AvL,SI-NEN,Feces,2011-2015,Male,18
+FORCE-NEN collections,AvL,SI-NEN,Feces,2011-2015,Female,15
+FORCE-NEN collections,AvL,SI-NEN,Feces,2006-2010,Male,10
+FORCE-NEN collections,AvL,SI-NEN,Feces,2006-2010,Female,7
+FORCE-NEN collections,AvL,SI-NEN,Feces,2001-2005,Male,10
+FORCE-NEN collections,AvL,SI-NEN,Feces,2001-2005,Female,12
+FORCE-NEN collections,AvL,SI-NEN,Feces,1991-2000,Male,2
+FORCE-NEN collections,AvL,SI-NEN,Feces,1991-2000,Female,0
+FORCE-NEN collections,AvL,SI-NEN,Feces,<1991,Male,13
+FORCE-NEN collections,AvL,SI-NEN,Feces,<1991,Female,6
+FORCE-NEN collections,AvL,SI-NEN,Urine,2021-2025,Male,13
+FORCE-NEN collections,AvL,SI-NEN,Urine,2021-2025,Female,1
+FORCE-NEN collections,AvL,SI-NEN,Urine,2016-2020,Male,9
+FORCE-NEN collections,AvL,SI-NEN,Urine,2016-2020,Female,12
+FORCE-NEN collections,AvL,SI-NEN,Urine,2011-2015,Male,8
+FORCE-NEN collections,AvL,SI-NEN,Urine,2011-2015,Female,14
+FORCE-NEN collections,AvL,SI-NEN,Urine,2006-2010,Male,16
+FORCE-NEN collections,AvL,SI-NEN,Urine,2006-2010,Female,9
+FORCE-NEN collections,AvL,SI-NEN,Urine,2001-2005,Male,17
+FORCE-NEN collections,AvL,SI-NEN,Urine,2001-2005,Female,8
+FORCE-NEN collections,AvL,SI-NEN,Urine,1991-2000,Male,0
+FORCE-NEN collections,AvL,SI-NEN,Urine,1991-2000,Female,0
+FORCE-NEN collections,AvL,SI-NEN,Urine,<1991,Male,0
+FORCE-NEN collections,AvL,SI-NEN,Urine,<1991,Female,8
+FORCE-NEN collections,AvL,SI-NEN,Blood,2021-2025,Male,12
+FORCE-NEN collections,AvL,SI-NEN,Blood,2021-2025,Female,11
+FORCE-NEN collections,AvL,SI-NEN,Blood,2016-2020,Male,2
+FORCE-NEN collections,AvL,SI-NEN,Blood,2016-2020,Female,16
+FORCE-NEN collections,AvL,SI-NEN,Blood,2011-2015,Male,12
+FORCE-NEN collections,AvL,SI-NEN,Blood,2011-2015,Female,5
+FORCE-NEN collections,AvL,SI-NEN,Blood,2006-2010,Male,17
+FORCE-NEN collections,AvL,SI-NEN,Blood,2006-2010,Female,20
+FORCE-NEN collections,AvL,SI-NEN,Blood,2001-2005,Male,18
+FORCE-NEN collections,AvL,SI-NEN,Blood,2001-2005,Female,6
+FORCE-NEN collections,AvL,SI-NEN,Blood,1991-2000,Male,4
+FORCE-NEN collections,AvL,SI-NEN,Blood,1991-2000,Female,4
+FORCE-NEN collections,AvL,SI-NEN,Blood,<1991,Male,4
+FORCE-NEN collections,AvL,SI-NEN,Blood,<1991,Female,16
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,2021-2025,Male,6
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,2021-2025,Female,12
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,2016-2020,Male,1
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,2016-2020,Female,7
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,2011-2015,Male,12
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,2011-2015,Female,9
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,2006-2010,Male,9
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,2006-2010,Female,1
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,2001-2005,Male,16
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,2001-2005,Female,6
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,1991-2000,Male,10
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,1991-2000,Female,7
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,<1991,Male,14
+FORCE-NEN collections,AvL,SI-NEN,FFPE Tissue,<1991,Female,12
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,2021-2025,Male,11
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,2021-2025,Female,0
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,2016-2020,Male,3
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,2016-2020,Female,12
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,2011-2015,Male,7
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,2011-2015,Female,2
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,2006-2010,Male,17
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,2006-2010,Female,5
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,2001-2005,Male,20
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,2001-2005,Female,9
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,1991-2000,Male,3
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,1991-2000,Female,17
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,<1991,Male,13
+FORCE-NEN collections,AvL,SI-NEN,Freeze Tissue,<1991,Female,3
+FORCE-NEN collections,AvL,Unknown Primary,Feces,2021-2025,Male,1
+FORCE-NEN collections,AvL,Unknown Primary,Feces,2021-2025,Female,4
+FORCE-NEN collections,AvL,Unknown Primary,Feces,2016-2020,Male,10
+FORCE-NEN collections,AvL,Unknown Primary,Feces,2016-2020,Female,17
+FORCE-NEN collections,AvL,Unknown Primary,Feces,2011-2015,Male,10
+FORCE-NEN collections,AvL,Unknown Primary,Feces,2011-2015,Female,12
+FORCE-NEN collections,AvL,Unknown Primary,Feces,2006-2010,Male,19
+FORCE-NEN collections,AvL,Unknown Primary,Feces,2006-2010,Female,3
+FORCE-NEN collections,AvL,Unknown Primary,Feces,2001-2005,Male,4
+FORCE-NEN collections,AvL,Unknown Primary,Feces,2001-2005,Female,1
+FORCE-NEN collections,AvL,Unknown Primary,Feces,1991-2000,Male,4
+FORCE-NEN collections,AvL,Unknown Primary,Feces,1991-2000,Female,1
+FORCE-NEN collections,AvL,Unknown Primary,Feces,<1991,Male,6
+FORCE-NEN collections,AvL,Unknown Primary,Feces,<1991,Female,8
+FORCE-NEN collections,AvL,Unknown Primary,Urine,2021-2025,Male,3
+FORCE-NEN collections,AvL,Unknown Primary,Urine,2021-2025,Female,16
+FORCE-NEN collections,AvL,Unknown Primary,Urine,2016-2020,Male,6
+FORCE-NEN collections,AvL,Unknown Primary,Urine,2016-2020,Female,18
+FORCE-NEN collections,AvL,Unknown Primary,Urine,2011-2015,Male,16
+FORCE-NEN collections,AvL,Unknown Primary,Urine,2011-2015,Female,11
+FORCE-NEN collections,AvL,Unknown Primary,Urine,2006-2010,Male,8
+FORCE-NEN collections,AvL,Unknown Primary,Urine,2006-2010,Female,6
+FORCE-NEN collections,AvL,Unknown Primary,Urine,2001-2005,Male,6
+FORCE-NEN collections,AvL,Unknown Primary,Urine,2001-2005,Female,12
+FORCE-NEN collections,AvL,Unknown Primary,Urine,1991-2000,Male,10
+FORCE-NEN collections,AvL,Unknown Primary,Urine,1991-2000,Female,19
+FORCE-NEN collections,AvL,Unknown Primary,Urine,<1991,Male,16
+FORCE-NEN collections,AvL,Unknown Primary,Urine,<1991,Female,17
+FORCE-NEN collections,AvL,Unknown Primary,Blood,2021-2025,Male,20
+FORCE-NEN collections,AvL,Unknown Primary,Blood,2021-2025,Female,15
+FORCE-NEN collections,AvL,Unknown Primary,Blood,2016-2020,Male,14
+FORCE-NEN collections,AvL,Unknown Primary,Blood,2016-2020,Female,6
+FORCE-NEN collections,AvL,Unknown Primary,Blood,2011-2015,Male,13
+FORCE-NEN collections,AvL,Unknown Primary,Blood,2011-2015,Female,13
+FORCE-NEN collections,AvL,Unknown Primary,Blood,2006-2010,Male,6
+FORCE-NEN collections,AvL,Unknown Primary,Blood,2006-2010,Female,5
+FORCE-NEN collections,AvL,Unknown Primary,Blood,2001-2005,Male,20
+FORCE-NEN collections,AvL,Unknown Primary,Blood,2001-2005,Female,7
+FORCE-NEN collections,AvL,Unknown Primary,Blood,1991-2000,Male,12
+FORCE-NEN collections,AvL,Unknown Primary,Blood,1991-2000,Female,8
+FORCE-NEN collections,AvL,Unknown Primary,Blood,<1991,Male,8
+FORCE-NEN collections,AvL,Unknown Primary,Blood,<1991,Female,18
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,2021-2025,Male,17
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,2021-2025,Female,19
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,2016-2020,Male,0
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,2016-2020,Female,16
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,2011-2015,Male,9
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,2011-2015,Female,1
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,2006-2010,Male,6
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,2006-2010,Female,2
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,2001-2005,Male,20
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,2001-2005,Female,3
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,1991-2000,Male,14
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,1991-2000,Female,15
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,<1991,Male,11
+FORCE-NEN collections,AvL,Unknown Primary,FFPE Tissue,<1991,Female,1
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,2021-2025,Male,9
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,2021-2025,Female,14
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,2016-2020,Male,1
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,2016-2020,Female,3
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,2011-2015,Male,1
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,2011-2015,Female,10
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,2006-2010,Male,8
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,2006-2010,Female,17
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,2001-2005,Male,10
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,2001-2005,Female,20
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,1991-2000,Male,10
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,1991-2000,Female,20
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,<1991,Male,6
+FORCE-NEN collections,AvL,Unknown Primary,Freeze Tissue,<1991,Female,6
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,2021-2025,Male,4
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,2021-2025,Female,11
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,2016-2020,Male,20
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,2016-2020,Female,10
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,2011-2015,Male,6
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,2011-2015,Female,11
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,2006-2010,Male,7
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,2006-2010,Female,17
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,2001-2005,Male,18
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,2001-2005,Female,16
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,1991-2000,Male,8
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,1991-2000,Female,15
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,<1991,Male,6
+FORCE-NEN collections,UMCU,Esophageal NEN,Feces,<1991,Female,13
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,2021-2025,Male,5
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,2021-2025,Female,6
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,2016-2020,Male,19
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,2016-2020,Female,1
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,2011-2015,Male,5
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,2011-2015,Female,2
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,2006-2010,Male,9
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,2006-2010,Female,14
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,2001-2005,Male,9
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,2001-2005,Female,9
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,1991-2000,Male,20
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,1991-2000,Female,16
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,<1991,Male,16
+FORCE-NEN collections,UMCU,Esophageal NEN,Urine,<1991,Female,19
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,2021-2025,Male,17
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,2021-2025,Female,9
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,2016-2020,Male,17
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,2016-2020,Female,15
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,2011-2015,Male,2
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,2011-2015,Female,13
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,2006-2010,Male,10
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,2006-2010,Female,16
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,2001-2005,Male,17
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,2001-2005,Female,3
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,1991-2000,Male,20
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,1991-2000,Female,12
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,<1991,Male,20
+FORCE-NEN collections,UMCU,Esophageal NEN,Blood,<1991,Female,12
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,2021-2025,Male,16
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,2021-2025,Female,17
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,2016-2020,Male,18
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,2016-2020,Female,14
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,2011-2015,Male,4
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,2011-2015,Female,12
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,2006-2010,Male,2
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,2006-2010,Female,1
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,2001-2005,Male,6
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,2001-2005,Female,16
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,1991-2000,Male,3
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,1991-2000,Female,10
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,<1991,Male,12
+FORCE-NEN collections,UMCU,Esophageal NEN,FFPE Tissue,<1991,Female,18
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,2021-2025,Male,15
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,2021-2025,Female,8
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,2016-2020,Male,3
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,2016-2020,Female,12
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,2011-2015,Male,8
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,2011-2015,Female,3
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,2006-2010,Male,15
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,2006-2010,Female,16
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,2001-2005,Male,17
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,2001-2005,Female,11
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,1991-2000,Male,13
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,1991-2000,Female,6
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,<1991,Male,1
+FORCE-NEN collections,UMCU,Esophageal NEN,Freeze Tissue,<1991,Female,12
+FORCE-NEN collections,UMCU,Colon NEN,Feces,2021-2025,Male,16
+FORCE-NEN collections,UMCU,Colon NEN,Feces,2021-2025,Female,2
+FORCE-NEN collections,UMCU,Colon NEN,Feces,2016-2020,Male,19
+FORCE-NEN collections,UMCU,Colon NEN,Feces,2016-2020,Female,15
+FORCE-NEN collections,UMCU,Colon NEN,Feces,2011-2015,Male,4
+FORCE-NEN collections,UMCU,Colon NEN,Feces,2011-2015,Female,17
+FORCE-NEN collections,UMCU,Colon NEN,Feces,2006-2010,Male,8
+FORCE-NEN collections,UMCU,Colon NEN,Feces,2006-2010,Female,19
+FORCE-NEN collections,UMCU,Colon NEN,Feces,2001-2005,Male,12
+FORCE-NEN collections,UMCU,Colon NEN,Feces,2001-2005,Female,16
+FORCE-NEN collections,UMCU,Colon NEN,Feces,1991-2000,Male,13
+FORCE-NEN collections,UMCU,Colon NEN,Feces,1991-2000,Female,1
+FORCE-NEN collections,UMCU,Colon NEN,Feces,<1991,Male,10
+FORCE-NEN collections,UMCU,Colon NEN,Feces,<1991,Female,4
+FORCE-NEN collections,UMCU,Colon NEN,Urine,2021-2025,Male,18
+FORCE-NEN collections,UMCU,Colon NEN,Urine,2021-2025,Female,7
+FORCE-NEN collections,UMCU,Colon NEN,Urine,2016-2020,Male,18
+FORCE-NEN collections,UMCU,Colon NEN,Urine,2016-2020,Female,15
+FORCE-NEN collections,UMCU,Colon NEN,Urine,2011-2015,Male,1
+FORCE-NEN collections,UMCU,Colon NEN,Urine,2011-2015,Female,9
+FORCE-NEN collections,UMCU,Colon NEN,Urine,2006-2010,Male,7
+FORCE-NEN collections,UMCU,Colon NEN,Urine,2006-2010,Female,18
+FORCE-NEN collections,UMCU,Colon NEN,Urine,2001-2005,Male,17
+FORCE-NEN collections,UMCU,Colon NEN,Urine,2001-2005,Female,19
+FORCE-NEN collections,UMCU,Colon NEN,Urine,1991-2000,Male,11
+FORCE-NEN collections,UMCU,Colon NEN,Urine,1991-2000,Female,19
+FORCE-NEN collections,UMCU,Colon NEN,Urine,<1991,Male,10
+FORCE-NEN collections,UMCU,Colon NEN,Urine,<1991,Female,13
+FORCE-NEN collections,UMCU,Colon NEN,Blood,2021-2025,Male,11
+FORCE-NEN collections,UMCU,Colon NEN,Blood,2021-2025,Female,5
+FORCE-NEN collections,UMCU,Colon NEN,Blood,2016-2020,Male,20
+FORCE-NEN collections,UMCU,Colon NEN,Blood,2016-2020,Female,19
+FORCE-NEN collections,UMCU,Colon NEN,Blood,2011-2015,Male,18
+FORCE-NEN collections,UMCU,Colon NEN,Blood,2011-2015,Female,17
+FORCE-NEN collections,UMCU,Colon NEN,Blood,2006-2010,Male,17
+FORCE-NEN collections,UMCU,Colon NEN,Blood,2006-2010,Female,3
+FORCE-NEN collections,UMCU,Colon NEN,Blood,2001-2005,Male,7
+FORCE-NEN collections,UMCU,Colon NEN,Blood,2001-2005,Female,5
+FORCE-NEN collections,UMCU,Colon NEN,Blood,1991-2000,Male,3
+FORCE-NEN collections,UMCU,Colon NEN,Blood,1991-2000,Female,12
+FORCE-NEN collections,UMCU,Colon NEN,Blood,<1991,Male,17
+FORCE-NEN collections,UMCU,Colon NEN,Blood,<1991,Female,19
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,2021-2025,Male,14
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,2021-2025,Female,3
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,2016-2020,Male,7
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,2016-2020,Female,16
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,2011-2015,Male,16
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,2011-2015,Female,0
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,2006-2010,Male,6
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,2006-2010,Female,7
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,2001-2005,Male,15
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,2001-2005,Female,4
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,1991-2000,Male,19
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,1991-2000,Female,1
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,<1991,Male,1
+FORCE-NEN collections,UMCU,Colon NEN,FFPE Tissue,<1991,Female,8
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,2021-2025,Male,14
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,2021-2025,Female,13
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,2016-2020,Male,14
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,2016-2020,Female,20
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,2011-2015,Male,0
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,2011-2015,Female,1
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,2006-2010,Male,3
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,2006-2010,Female,7
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,2001-2005,Male,2
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,2001-2005,Female,20
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,1991-2000,Male,7
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,1991-2000,Female,19
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,<1991,Male,15
+FORCE-NEN collections,UMCU,Colon NEN,Freeze Tissue,<1991,Female,17
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,2021-2025,Male,12
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,2021-2025,Female,14
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,2016-2020,Male,2
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,2016-2020,Female,8
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,2011-2015,Male,11
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,2011-2015,Female,6
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,2006-2010,Male,7
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,2006-2010,Female,3
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,2001-2005,Male,11
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,2001-2005,Female,19
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,1991-2000,Male,6
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,1991-2000,Female,9
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,<1991,Male,8
+FORCE-NEN collections,UMCU,Rectum NEN,Feces,<1991,Female,5
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,2021-2025,Male,20
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,2021-2025,Female,4
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,2016-2020,Male,4
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,2016-2020,Female,13
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,2011-2015,Male,3
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,2011-2015,Female,2
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,2006-2010,Male,7
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,2006-2010,Female,16
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,2001-2005,Male,18
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,2001-2005,Female,1
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,1991-2000,Male,4
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,1991-2000,Female,16
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,<1991,Male,20
+FORCE-NEN collections,UMCU,Rectum NEN,Urine,<1991,Female,16
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,2021-2025,Male,10
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,2021-2025,Female,7
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,2016-2020,Male,14
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,2016-2020,Female,1
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,2011-2015,Male,11
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,2011-2015,Female,13
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,2006-2010,Male,1
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,2006-2010,Female,9
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,2001-2005,Male,20
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,2001-2005,Female,4
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,1991-2000,Male,7
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,1991-2000,Female,5
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,<1991,Male,11
+FORCE-NEN collections,UMCU,Rectum NEN,Blood,<1991,Female,12
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,2021-2025,Male,0
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,2021-2025,Female,13
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,2016-2020,Male,12
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,2001-2005,Female,14
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,2016-2020,Female,13
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,2011-2015,Male,13
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,2011-2015,Female,18
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,2006-2010,Male,13
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,2006-2010,Female,14
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,2001-2005,Male,4
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,2001-2005,Female,18
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,1991-2000,Male,15
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,1991-2000,Female,4
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,<1991,Male,1
+FORCE-NEN collections,UMCU,Rectum NEN,FFPE Tissue,<1991,Female,6
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,2021-2025,Male,19
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,2021-2025,Female,7
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,2016-2020,Male,1
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,2016-2020,Female,18
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,2011-2015,Male,0
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,2011-2015,Female,15
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,2006-2010,Male,17
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,2006-2010,Female,19
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,2001-2005,Male,18
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,2001-2005,Female,14
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,1991-2000,Male,19
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,1991-2000,Female,15
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,<1991,Male,11
+FORCE-NEN collections,UMCU,Rectum NEN,Freeze Tissue,<1991,Female,18
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,2021-2025,Male,8
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,2021-2025,Female,16
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,2016-2020,Male,19
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,2016-2020,Female,6
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,2011-2015,Male,0
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,2011-2015,Female,4
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,2006-2010,Male,20
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,2006-2010,Female,4
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,2001-2005,Male,4
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,2001-2005,Female,17
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,1991-2000,Male,5
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,1991-2000,Female,19
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,<1991,Male,10
+FORCE-NEN collections,UMCU,Appendix NEN,Feces,<1991,Female,14
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,2021-2025,Male,1
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,2021-2025,Female,17
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,2016-2020,Male,2
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,2016-2020,Female,0
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,2011-2015,Male,20
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,2011-2015,Female,18
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,2006-2010,Male,2
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,2006-2010,Female,11
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,2001-2005,Male,5
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,1991-2000,Male,10
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,1991-2000,Female,19
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,<1991,Male,10
+FORCE-NEN collections,UMCU,Appendix NEN,Urine,<1991,Female,0
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,2021-2025,Male,5
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,2021-2025,Female,13
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,2016-2020,Male,1
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,2016-2020,Female,20
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,2011-2015,Male,9
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,2011-2015,Female,7
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,2006-2010,Male,2
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,2006-2010,Female,9
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,2001-2005,Male,5
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,2001-2005,Female,15
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,1991-2000,Male,19
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,1991-2000,Female,20
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,<1991,Male,14
+FORCE-NEN collections,UMCU,Appendix NEN,Blood,<1991,Female,11
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,2021-2025,Male,14
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,2021-2025,Female,1
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,2016-2020,Male,12
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,2016-2020,Female,6
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,2011-2015,Male,4
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,2011-2015,Female,7
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,2006-2010,Male,12
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,2006-2010,Female,4
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,2001-2005,Male,17
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,2001-2005,Female,0
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,1991-2000,Male,20
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,1991-2000,Female,2
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,<1991,Male,1
+FORCE-NEN collections,UMCU,Appendix NEN,FFPE Tissue,<1991,Female,17
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,2021-2025,Male,12
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,2021-2025,Female,15
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,2016-2020,Male,11
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,2016-2020,Female,7
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,2011-2015,Male,16
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,2011-2015,Female,11
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,2006-2010,Male,10
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,2006-2010,Female,10
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,2001-2005,Male,11
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,2001-2005,Female,1
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,1991-2000,Male,8
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,1991-2000,Female,9
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,<1991,Male,8
+FORCE-NEN collections,UMCU,Appendix NEN,Freeze Tissue,<1991,Female,13
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,2021-2025,Male,17
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,2021-2025,Female,7
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,2016-2020,Male,0
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,2016-2020,Female,3
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,2011-2015,Male,19
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,2011-2015,Female,15
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,2006-2010,Male,19
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,2006-2010,Female,10
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,2001-2005,Male,12
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,2001-2005,Female,9
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,1991-2000,Male,10
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,1991-2000,Female,10
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,<1991,Male,11
+FORCE-NEN collections,UMCU,Gastric NEN,Feces,<1991,Female,14
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,2021-2025,Male,2
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,2021-2025,Female,11
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,2016-2020,Male,10
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,2016-2020,Female,7
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,2011-2015,Male,8
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,2011-2015,Female,18
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,2006-2010,Male,5
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,2006-2010,Female,10
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,2001-2005,Male,7
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,2001-2005,Female,13
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,1991-2000,Male,1
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,1991-2000,Female,13
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,<1991,Male,19
+FORCE-NEN collections,UMCU,Gastric NEN,Urine,<1991,Female,14
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,2021-2025,Male,18
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,2021-2025,Female,11
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,2016-2020,Male,13
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,2016-2020,Female,20
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,2011-2015,Male,9
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,2011-2015,Female,2
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,2006-2010,Male,8
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,2006-2010,Female,15
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,2001-2005,Male,12
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,2001-2005,Female,2
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,1991-2000,Male,1
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,1991-2000,Female,3
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,<1991,Male,4
+FORCE-NEN collections,UMCU,Gastric NEN,Blood,<1991,Female,19
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,2021-2025,Male,7
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,2021-2025,Female,20
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,2016-2020,Male,0
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,2016-2020,Female,16
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,2011-2015,Male,18
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,2011-2015,Female,4
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,2006-2010,Male,1
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,2006-2010,Female,10
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,2001-2005,Male,8
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,2001-2005,Female,6
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,1991-2000,Male,2
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,1991-2000,Female,19
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,<1991,Male,1
+FORCE-NEN collections,UMCU,Gastric NEN,FFPE Tissue,<1991,Female,8
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,2021-2025,Male,15
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,2021-2025,Female,10
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,2016-2020,Male,15
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,2016-2020,Female,11
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,2011-2015,Male,16
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,2011-2015,Female,20
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,2006-2010,Male,6
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,2006-2010,Female,7
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,2001-2005,Male,20
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,2001-2005,Female,15
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,1991-2000,Male,16
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,1991-2000,Female,6
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,<1991,Male,20
+FORCE-NEN collections,UMCU,Gastric NEN,Freeze Tissue,<1991,Female,1
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,2021-2025,Male,10
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,2021-2025,Female,9
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,2016-2020,Male,14
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,2016-2020,Female,10
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,2011-2015,Male,17
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,2011-2015,Female,11
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,2006-2010,Male,5
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,2006-2010,Female,18
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,2001-2005,Male,1
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,2001-2005,Female,5
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,1991-2000,Male,7
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,1991-2000,Female,4
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,<1991,Male,13
+FORCE-NEN collections,UMCU,Pancreatic NEN,Feces,<1991,Female,1
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,2021-2025,Male,3
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,2021-2025,Female,18
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,2016-2020,Male,11
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,2016-2020,Female,10
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,2011-2015,Male,13
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,2011-2015,Female,9
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,2006-2010,Male,20
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,2006-2010,Female,9
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,2001-2005,Male,12
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,2001-2005,Female,5
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,1991-2000,Male,19
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,1991-2000,Female,12
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,<1991,Male,10
+FORCE-NEN collections,UMCU,Pancreatic NEN,Urine,<1991,Female,13
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,2021-2025,Male,16
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,2021-2025,Female,5
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,2016-2020,Male,11
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,2016-2020,Female,16
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,2011-2015,Male,17
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,2011-2015,Female,19
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,2006-2010,Male,10
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,2006-2010,Female,9
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,2001-2005,Male,9
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,2001-2005,Female,15
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,1991-2000,Male,4
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,1991-2000,Female,6
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,<1991,Male,4
+FORCE-NEN collections,UMCU,Pancreatic NEN,Blood,<1991,Female,14
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,2021-2025,Male,10
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,2021-2025,Female,2
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,2016-2020,Male,14
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,2016-2020,Female,19
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,2011-2015,Male,15
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,2011-2015,Female,7
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,2006-2010,Male,16
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,2006-2010,Female,16
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,2001-2005,Male,13
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,2001-2005,Female,9
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,1991-2000,Male,5
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,1991-2000,Female,7
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,<1991,Male,3
+FORCE-NEN collections,UMCU,Pancreatic NEN,FFPE Tissue,<1991,Female,0
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,2021-2025,Male,8
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,2021-2025,Female,11
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,2016-2020,Male,18
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,2016-2020,Female,20
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,2011-2015,Male,7
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,2011-2015,Female,8
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,2006-2010,Male,15
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,2006-2010,Female,1
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,2001-2005,Male,20
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,2001-2005,Female,20
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,1991-2000,Male,7
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,1991-2000,Female,11
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,<1991,Male,13
+FORCE-NEN collections,UMCU,Pancreatic NEN,Freeze Tissue,<1991,Female,10
+FORCE-NEN collections,UMCU,SI-NEN,Feces,2021-2025,Male,20
+FORCE-NEN collections,UMCU,SI-NEN,Feces,2021-2025,Female,5
+FORCE-NEN collections,UMCU,SI-NEN,Feces,2016-2020,Male,13
+FORCE-NEN collections,UMCU,SI-NEN,Feces,2016-2020,Female,5
+FORCE-NEN collections,UMCU,SI-NEN,Feces,2011-2015,Male,1
+FORCE-NEN collections,UMCU,SI-NEN,Feces,2011-2015,Female,14
+FORCE-NEN collections,UMCU,SI-NEN,Feces,2006-2010,Male,9
+FORCE-NEN collections,UMCU,SI-NEN,Feces,2006-2010,Female,3
+FORCE-NEN collections,UMCU,SI-NEN,Feces,2001-2005,Male,7
+FORCE-NEN collections,UMCU,SI-NEN,Feces,2001-2005,Female,11
+FORCE-NEN collections,UMCU,SI-NEN,Feces,1991-2000,Male,11
+FORCE-NEN collections,UMCU,SI-NEN,Feces,1991-2000,Female,18
+FORCE-NEN collections,UMCU,SI-NEN,Feces,<1991,Male,14
+FORCE-NEN collections,UMCU,SI-NEN,Feces,<1991,Female,0
+FORCE-NEN collections,UMCU,SI-NEN,Urine,2021-2025,Male,16
+FORCE-NEN collections,UMCU,SI-NEN,Urine,2021-2025,Female,13
+FORCE-NEN collections,UMCU,SI-NEN,Urine,2016-2020,Male,3
+FORCE-NEN collections,UMCU,SI-NEN,Urine,2016-2020,Female,13
+FORCE-NEN collections,UMCU,SI-NEN,Urine,2011-2015,Male,19
+FORCE-NEN collections,UMCU,SI-NEN,Urine,2011-2015,Female,0
+FORCE-NEN collections,UMCU,SI-NEN,Urine,2006-2010,Male,15
+FORCE-NEN collections,UMCU,SI-NEN,Urine,2006-2010,Female,16
+FORCE-NEN collections,UMCU,SI-NEN,Urine,2001-2005,Male,10
+FORCE-NEN collections,UMCU,SI-NEN,Urine,2001-2005,Female,9
+FORCE-NEN collections,UMCU,SI-NEN,Urine,1991-2000,Male,20
+FORCE-NEN collections,UMCU,SI-NEN,Urine,1991-2000,Female,13
+FORCE-NEN collections,UMCU,SI-NEN,Urine,<1991,Male,3
+FORCE-NEN collections,UMCU,SI-NEN,Urine,<1991,Female,19
+FORCE-NEN collections,UMCU,SI-NEN,Blood,2021-2025,Male,7
+FORCE-NEN collections,UMCU,SI-NEN,Blood,2021-2025,Female,0
+FORCE-NEN collections,UMCU,SI-NEN,Blood,2016-2020,Male,4
+FORCE-NEN collections,UMCU,SI-NEN,Blood,2016-2020,Female,12
+FORCE-NEN collections,UMCU,SI-NEN,Blood,2011-2015,Male,11
+FORCE-NEN collections,UMCU,SI-NEN,Blood,2011-2015,Female,4
+FORCE-NEN collections,UMCU,SI-NEN,Blood,2006-2010,Male,7
+FORCE-NEN collections,UMCU,SI-NEN,Blood,2006-2010,Female,19
+FORCE-NEN collections,UMCU,SI-NEN,Blood,2001-2005,Male,18
+FORCE-NEN collections,UMCU,SI-NEN,Blood,2001-2005,Female,12
+FORCE-NEN collections,UMCU,SI-NEN,Blood,1991-2000,Male,3
+FORCE-NEN collections,UMCU,SI-NEN,Blood,1991-2000,Female,3
+FORCE-NEN collections,UMCU,SI-NEN,Blood,<1991,Male,17
+FORCE-NEN collections,UMCU,SI-NEN,Blood,<1991,Female,8
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,2021-2025,Male,1
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,2021-2025,Female,19
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,2016-2020,Male,10
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,2016-2020,Female,15
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,2011-2015,Male,1
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,2011-2015,Female,5
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,2006-2010,Male,8
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,2006-2010,Female,16
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,2001-2005,Male,2
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,2001-2005,Female,13
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,1991-2000,Male,8
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,1991-2000,Female,4
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,<1991,Male,17
+FORCE-NEN collections,UMCU,SI-NEN,FFPE Tissue,<1991,Female,19
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,2021-2025,Male,8
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,2021-2025,Female,1
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,2016-2020,Male,6
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,2016-2020,Female,4
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,2011-2015,Male,14
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,2011-2015,Female,9
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,2006-2010,Male,6
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,2006-2010,Female,20
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,2001-2005,Male,18
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,2001-2005,Female,1
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,1991-2000,Male,6
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,1991-2000,Female,12
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,<1991,Male,4
+FORCE-NEN collections,UMCU,SI-NEN,Freeze Tissue,<1991,Female,6
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,2021-2025,Male,14
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,2021-2025,Female,6
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,2016-2020,Male,18
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,2016-2020,Female,2
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,2011-2015,Male,15
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,2011-2015,Female,11
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,2006-2010,Male,8
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,2006-2010,Female,5
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,2001-2005,Male,12
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,2001-2005,Female,11
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,1991-2000,Male,15
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,1991-2000,Female,11
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,<1991,Male,8
+FORCE-NEN collections,UMCU,Unknown Primary,Feces,<1991,Female,19
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,2021-2025,Male,6
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,2021-2025,Female,9
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,2016-2020,Male,4
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,2016-2020,Female,11
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,2011-2015,Male,11
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,2011-2015,Female,6
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,2006-2010,Male,3
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,2006-2010,Female,2
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,2001-2005,Male,0
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,2001-2005,Female,2
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,1991-2000,Male,0
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,1991-2000,Female,17
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,<1991,Male,20
+FORCE-NEN collections,UMCU,Unknown Primary,Urine,<1991,Female,9
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,2021-2025,Male,11
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,2021-2025,Female,13
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,2016-2020,Male,4
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,2016-2020,Female,19
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,2011-2015,Male,1
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,2011-2015,Female,17
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,2006-2010,Male,10
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,2006-2010,Female,16
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,2001-2005,Male,17
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,2001-2005,Female,18
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,1991-2000,Male,7
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,1991-2000,Female,0
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,<1991,Male,9
+FORCE-NEN collections,UMCU,Unknown Primary,Blood,<1991,Female,6
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,2021-2025,Male,0
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,2021-2025,Female,13
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,2016-2020,Male,8
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,2016-2020,Female,17
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,2011-2015,Male,11
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,2011-2015,Female,6
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,2006-2010,Male,15
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,2006-2010,Female,17
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,2001-2005,Male,13
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,2001-2005,Female,18
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,1991-2000,Male,16
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,1991-2000,Female,9
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,<1991,Male,15
+FORCE-NEN collections,UMCU,Unknown Primary,FFPE Tissue,<1991,Female,15
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,2021-2025,Male,2
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,2021-2025,Female,3
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,2016-2020,Male,9
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,2016-2020,Female,20
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,2011-2015,Male,14
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,2011-2015,Female,5
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,2006-2010,Male,12
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,2006-2010,Female,16
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,2001-2005,Male,19
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,2001-2005,Female,0
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,1991-2000,Male,6
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,1991-2000,Female,1
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,<1991,Male,6
+FORCE-NEN collections,UMCU,Unknown Primary,Freeze Tissue,<1991,Female,16
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,2021-2025,Male,12
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,2021-2025,Female,2
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,2016-2020,Male,9
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,2016-2020,Female,6
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,2011-2015,Male,14
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,2011-2015,Female,20
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,2006-2010,Male,6
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,2006-2010,Female,14
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,2001-2005,Male,18
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,2001-2005,Female,12
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,1991-2000,Male,15
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,1991-2000,Female,0
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,<1991,Male,5
+FORCE-NEN collections,AMC,Esophageal NEN,Feces,<1991,Female,9
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,2021-2025,Male,8
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,2021-2025,Female,1
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,2016-2020,Male,7
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,2016-2020,Female,0
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,2011-2015,Male,13
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,2011-2015,Female,13
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,2006-2010,Male,13
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,2006-2010,Female,13
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,2001-2005,Male,3
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,2001-2005,Female,14
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,1991-2000,Male,0
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,1991-2000,Female,20
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,<1991,Male,2
+FORCE-NEN collections,AMC,Esophageal NEN,Urine,<1991,Female,0
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,2021-2025,Male,16
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,2021-2025,Female,16
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,2016-2020,Male,5
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,2016-2020,Female,10
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,2011-2015,Male,1
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,2011-2015,Female,15
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,2006-2010,Male,9
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,2006-2010,Female,4
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,2001-2005,Male,0
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,2001-2005,Female,11
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,1991-2000,Male,3
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,1991-2000,Female,1
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,<1991,Male,1
+FORCE-NEN collections,AMC,Esophageal NEN,Blood,<1991,Female,13
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,2021-2025,Male,11
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,2021-2025,Female,18
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,2016-2020,Male,0
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,2016-2020,Female,20
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,2011-2015,Male,18
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,2011-2015,Female,14
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,2006-2010,Male,2
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,2006-2010,Female,16
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,2001-2005,Male,6
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,2001-2005,Female,0
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,1991-2000,Male,7
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,1991-2000,Female,11
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,<1991,Male,10
+FORCE-NEN collections,AMC,Esophageal NEN,FFPE Tissue,<1991,Female,4
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,2021-2025,Male,18
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,2021-2025,Female,2
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,2016-2020,Male,18
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,2016-2020,Female,9
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,2011-2015,Male,8
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,2011-2015,Female,3
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,2006-2010,Male,11
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,2006-2010,Female,17
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,2001-2005,Male,16
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,2001-2005,Female,5
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,1991-2000,Male,6
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,1991-2000,Female,6
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,<1991,Male,0
+FORCE-NEN collections,AMC,Esophageal NEN,Freeze Tissue,<1991,Female,17
+FORCE-NEN collections,AMC,Colon NEN,Feces,2021-2025,Male,8
+FORCE-NEN collections,AMC,Colon NEN,Feces,2021-2025,Female,12
+FORCE-NEN collections,AMC,Colon NEN,Feces,2016-2020,Male,11
+FORCE-NEN collections,AMC,Colon NEN,Feces,2016-2020,Female,7
+FORCE-NEN collections,AMC,Colon NEN,Feces,2011-2015,Male,9
+FORCE-NEN collections,AMC,Colon NEN,Feces,2011-2015,Female,16
+FORCE-NEN collections,AMC,Colon NEN,Feces,2006-2010,Male,5
+FORCE-NEN collections,AMC,Colon NEN,Feces,2006-2010,Female,12
+FORCE-NEN collections,AMC,Colon NEN,Feces,2001-2005,Male,20
+FORCE-NEN collections,AMC,Colon NEN,Feces,2001-2005,Female,16
+FORCE-NEN collections,AMC,Colon NEN,Feces,1991-2000,Male,8
+FORCE-NEN collections,AMC,Colon NEN,Feces,1991-2000,Female,17
+FORCE-NEN collections,AMC,Colon NEN,Feces,<1991,Male,8
+FORCE-NEN collections,AMC,Colon NEN,Feces,<1991,Female,18
+FORCE-NEN collections,AMC,Colon NEN,Urine,2021-2025,Male,11
+FORCE-NEN collections,AMC,Colon NEN,Urine,2021-2025,Female,11
+FORCE-NEN collections,AMC,Colon NEN,Urine,2016-2020,Male,15
+FORCE-NEN collections,AMC,Colon NEN,Urine,2016-2020,Female,5
+FORCE-NEN collections,AMC,Colon NEN,Urine,2011-2015,Male,18
+FORCE-NEN collections,AMC,Colon NEN,Urine,2011-2015,Female,14
+FORCE-NEN collections,AMC,Colon NEN,Urine,2006-2010,Male,10
+FORCE-NEN collections,AMC,Colon NEN,Urine,2006-2010,Female,17
+FORCE-NEN collections,AMC,Colon NEN,Urine,2001-2005,Male,4
+FORCE-NEN collections,AMC,Colon NEN,Urine,2001-2005,Female,12
+FORCE-NEN collections,AMC,Colon NEN,Urine,1991-2000,Male,11
+FORCE-NEN collections,AMC,Colon NEN,Urine,1991-2000,Female,0
+FORCE-NEN collections,AMC,Colon NEN,Urine,<1991,Male,2
+FORCE-NEN collections,AMC,Colon NEN,Urine,<1991,Female,2
+FORCE-NEN collections,AMC,Colon NEN,Blood,2021-2025,Male,11
+FORCE-NEN collections,AMC,Colon NEN,Blood,2021-2025,Female,7
+FORCE-NEN collections,AMC,Colon NEN,Blood,2016-2020,Male,10
+FORCE-NEN collections,AMC,Colon NEN,Blood,2016-2020,Female,9
+FORCE-NEN collections,AMC,Colon NEN,Blood,2011-2015,Male,9
+FORCE-NEN collections,AMC,Colon NEN,Blood,2011-2015,Female,20
+FORCE-NEN collections,AMC,Colon NEN,Blood,2006-2010,Male,6
+FORCE-NEN collections,AMC,Colon NEN,Blood,2006-2010,Female,19
+FORCE-NEN collections,AMC,Colon NEN,Blood,2001-2005,Male,7
+FORCE-NEN collections,AMC,Colon NEN,Blood,2001-2005,Female,4
+FORCE-NEN collections,AMC,Colon NEN,Blood,1991-2000,Male,18
+FORCE-NEN collections,AMC,Colon NEN,Blood,1991-2000,Female,11
+FORCE-NEN collections,AMC,Colon NEN,Blood,<1991,Male,6
+FORCE-NEN collections,AMC,Colon NEN,Blood,<1991,Female,9
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,2021-2025,Male,18
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,2021-2025,Female,16
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,2016-2020,Male,5
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,2016-2020,Female,0
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,2011-2015,Male,9
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,2011-2015,Female,19
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,2006-2010,Male,5
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,2006-2010,Female,1
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,2001-2005,Male,1
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,2001-2005,Female,4
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,1991-2000,Male,0
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,1991-2000,Female,3
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,<1991,Male,7
+FORCE-NEN collections,AMC,Colon NEN,FFPE Tissue,<1991,Female,18
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,2021-2025,Male,18
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,2021-2025,Female,4
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,2016-2020,Male,15
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,2016-2020,Female,0
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,2011-2015,Male,16
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,2011-2015,Female,2
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,2006-2010,Male,16
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,2006-2010,Female,15
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,2001-2005,Male,10
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,2001-2005,Female,5
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,1991-2000,Male,9
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,1991-2000,Female,19
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,<1991,Male,2
+FORCE-NEN collections,AMC,Colon NEN,Freeze Tissue,<1991,Female,12
+FORCE-NEN collections,AMC,Rectum NEN,Feces,2021-2025,Male,16
+FORCE-NEN collections,AMC,Rectum NEN,Feces,2021-2025,Female,6
+FORCE-NEN collections,AMC,Rectum NEN,Feces,2016-2020,Male,13
+FORCE-NEN collections,AMC,Rectum NEN,Feces,2016-2020,Female,13
+FORCE-NEN collections,AMC,Rectum NEN,Feces,2011-2015,Male,11
+FORCE-NEN collections,AMC,Rectum NEN,Feces,2011-2015,Female,1
+FORCE-NEN collections,AMC,Rectum NEN,Feces,2006-2010,Male,9
+FORCE-NEN collections,AMC,Rectum NEN,Feces,2006-2010,Female,17
+FORCE-NEN collections,AMC,Rectum NEN,Feces,2001-2005,Male,13
+FORCE-NEN collections,AMC,Rectum NEN,Feces,2001-2005,Female,13
+FORCE-NEN collections,AMC,Rectum NEN,Feces,1991-2000,Male,6
+FORCE-NEN collections,AMC,Rectum NEN,Feces,1991-2000,Female,9
+FORCE-NEN collections,AMC,Rectum NEN,Feces,<1991,Male,8
+FORCE-NEN collections,AMC,Rectum NEN,Feces,<1991,Female,0
+FORCE-NEN collections,AMC,Rectum NEN,Urine,2021-2025,Male,19
+FORCE-NEN collections,AMC,Rectum NEN,Urine,2021-2025,Female,17
+FORCE-NEN collections,AMC,Rectum NEN,Urine,2016-2020,Male,18
+FORCE-NEN collections,AMC,Rectum NEN,Urine,2016-2020,Female,6
+FORCE-NEN collections,AMC,Rectum NEN,Urine,2011-2015,Male,19
+FORCE-NEN collections,AMC,Rectum NEN,Urine,2011-2015,Female,10
+FORCE-NEN collections,AMC,Rectum NEN,Urine,2006-2010,Male,10
+FORCE-NEN collections,AMC,Rectum NEN,Urine,2006-2010,Female,20
+FORCE-NEN collections,AMC,Rectum NEN,Urine,2001-2005,Male,4
+FORCE-NEN collections,AMC,Rectum NEN,Urine,2001-2005,Female,10
+FORCE-NEN collections,AMC,Rectum NEN,Urine,1991-2000,Male,12
+FORCE-NEN collections,AMC,Rectum NEN,Urine,1991-2000,Female,10
+FORCE-NEN collections,AMC,Rectum NEN,Urine,<1991,Male,5
+FORCE-NEN collections,AMC,Rectum NEN,Urine,<1991,Female,12
+FORCE-NEN collections,AMC,Rectum NEN,Blood,2021-2025,Male,5
+FORCE-NEN collections,AMC,Rectum NEN,Blood,2021-2025,Female,16
+FORCE-NEN collections,AMC,Rectum NEN,Blood,2016-2020,Male,3
+FORCE-NEN collections,AMC,Rectum NEN,Blood,2016-2020,Female,13
+FORCE-NEN collections,AMC,Rectum NEN,Blood,2011-2015,Male,18
+FORCE-NEN collections,AMC,Rectum NEN,Blood,2011-2015,Female,18
+FORCE-NEN collections,AMC,Rectum NEN,Blood,2006-2010,Male,13
+FORCE-NEN collections,AMC,Rectum NEN,Blood,2006-2010,Female,11
+FORCE-NEN collections,AMC,Rectum NEN,Blood,2001-2005,Male,9
+FORCE-NEN collections,AMC,Rectum NEN,Blood,2001-2005,Female,16
+FORCE-NEN collections,AMC,Rectum NEN,Blood,1991-2000,Male,6
+FORCE-NEN collections,AMC,Rectum NEN,Blood,1991-2000,Female,20
+FORCE-NEN collections,AMC,Rectum NEN,Blood,<1991,Male,12
+FORCE-NEN collections,AMC,Rectum NEN,Blood,<1991,Female,0
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,2021-2025,Male,15
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,2021-2025,Female,11
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,2016-2020,Male,8
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,2016-2020,Female,20
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,2011-2015,Male,14
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,2011-2015,Female,5
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,2006-2010,Male,10
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,2006-2010,Female,10
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,2001-2005,Male,7
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,2001-2005,Female,12
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,1991-2000,Male,6
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,1991-2000,Female,13
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,<1991,Male,16
+FORCE-NEN collections,AMC,Rectum NEN,FFPE Tissue,<1991,Female,1
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,2021-2025,Male,12
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,2021-2025,Female,17
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,2016-2020,Male,5
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,2016-2020,Female,15
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,2011-2015,Male,7
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,2011-2015,Female,1
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,2006-2010,Male,20
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,2006-2010,Female,9
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,2001-2005,Male,10
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,2001-2005,Female,3
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,1991-2000,Male,6
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,1991-2000,Female,19
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,<1991,Male,1
+FORCE-NEN collections,AMC,Rectum NEN,Freeze Tissue,<1991,Female,12
+FORCE-NEN collections,AMC,Appendix NEN,Feces,2021-2025,Male,14
+FORCE-NEN collections,AMC,Appendix NEN,Feces,2021-2025,Female,17
+FORCE-NEN collections,AMC,Appendix NEN,Feces,2016-2020,Male,18
+FORCE-NEN collections,AMC,Appendix NEN,Feces,2016-2020,Female,11
+FORCE-NEN collections,AMC,Appendix NEN,Feces,2011-2015,Male,7
+FORCE-NEN collections,AMC,Appendix NEN,Feces,2011-2015,Female,19
+FORCE-NEN collections,AMC,Appendix NEN,Feces,2006-2010,Male,15
+FORCE-NEN collections,AMC,Appendix NEN,Feces,2006-2010,Female,16
+FORCE-NEN collections,AMC,Appendix NEN,Feces,2001-2005,Male,18
+FORCE-NEN collections,AMC,Appendix NEN,Feces,2001-2005,Female,17
+FORCE-NEN collections,AMC,Appendix NEN,Feces,1991-2000,Male,7
+FORCE-NEN collections,AMC,Appendix NEN,Feces,1991-2000,Female,8
+FORCE-NEN collections,AMC,Appendix NEN,Feces,<1991,Male,10
+FORCE-NEN collections,AMC,Appendix NEN,Feces,<1991,Female,5
+FORCE-NEN collections,AMC,Appendix NEN,Urine,2021-2025,Male,16
+FORCE-NEN collections,AMC,Appendix NEN,Urine,2021-2025,Female,3
+FORCE-NEN collections,AMC,Appendix NEN,Urine,2016-2020,Male,5
+FORCE-NEN collections,AMC,Appendix NEN,Urine,2016-2020,Female,2
+FORCE-NEN collections,AMC,Appendix NEN,Urine,2011-2015,Male,1
+FORCE-NEN collections,AMC,Appendix NEN,Urine,2011-2015,Female,14
+FORCE-NEN collections,AMC,Appendix NEN,Urine,2006-2010,Male,6
+FORCE-NEN collections,AMC,Appendix NEN,Urine,2006-2010,Female,17
+FORCE-NEN collections,AMC,Appendix NEN,Urine,2001-2005,Male,7
+FORCE-NEN collections,AMC,Appendix NEN,Urine,2001-2005,Female,10
+FORCE-NEN collections,AMC,Appendix NEN,Urine,1991-2000,Male,11
+FORCE-NEN collections,AMC,Appendix NEN,Urine,1991-2000,Female,4
+FORCE-NEN collections,AMC,Appendix NEN,Urine,<1991,Male,2
+FORCE-NEN collections,AMC,Appendix NEN,Urine,<1991,Female,7
+FORCE-NEN collections,AMC,Appendix NEN,Blood,2021-2025,Male,9
+FORCE-NEN collections,AMC,Appendix NEN,Blood,2021-2025,Female,14
+FORCE-NEN collections,AMC,Appendix NEN,Blood,2016-2020,Male,14
+FORCE-NEN collections,AMC,Appendix NEN,Blood,2016-2020,Female,7
+FORCE-NEN collections,AMC,Appendix NEN,Blood,2011-2015,Male,3
+FORCE-NEN collections,AMC,Appendix NEN,Blood,2011-2015,Female,10
+FORCE-NEN collections,AMC,Appendix NEN,Blood,2006-2010,Male,11
+FORCE-NEN collections,AMC,Appendix NEN,Blood,2006-2010,Female,10
+FORCE-NEN collections,AMC,Appendix NEN,Blood,2001-2005,Male,9
+FORCE-NEN collections,AMC,Appendix NEN,Blood,2001-2005,Female,0
+FORCE-NEN collections,AMC,Appendix NEN,Blood,1991-2000,Male,16
+FORCE-NEN collections,AMC,Appendix NEN,Blood,1991-2000,Female,2
+FORCE-NEN collections,AMC,Appendix NEN,Blood,<1991,Male,17
+FORCE-NEN collections,AMC,Appendix NEN,Blood,<1991,Female,11
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,2021-2025,Male,4
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,2021-2025,Female,10
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,2016-2020,Male,18
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,2016-2020,Female,8
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,2011-2015,Male,1
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,2011-2015,Female,10
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,2006-2010,Male,3
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,2006-2010,Female,20
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,2001-2005,Male,9
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,2001-2005,Female,18
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,1991-2000,Male,7
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,1991-2000,Female,1
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,<1991,Male,19
+FORCE-NEN collections,AMC,Appendix NEN,FFPE Tissue,<1991,Female,4
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,2021-2025,Male,8
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,2021-2025,Female,9
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,2016-2020,Male,15
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,2016-2020,Female,18
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,2011-2015,Male,4
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,2011-2015,Female,2
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,2006-2010,Male,5
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,2006-2010,Female,13
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,2001-2005,Male,1
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,2001-2005,Female,6
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,1991-2000,Male,6
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,1991-2000,Female,18
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,<1991,Male,18
+FORCE-NEN collections,AMC,Appendix NEN,Freeze Tissue,<1991,Female,11
+FORCE-NEN collections,AMC,Gastric NEN,Feces,2021-2025,Male,6
+FORCE-NEN collections,AMC,Gastric NEN,Feces,2021-2025,Female,9
+FORCE-NEN collections,AMC,Gastric NEN,Feces,2016-2020,Male,17
+FORCE-NEN collections,AMC,Gastric NEN,Feces,2016-2020,Female,11
+FORCE-NEN collections,AMC,Gastric NEN,Feces,2011-2015,Male,16
+FORCE-NEN collections,AMC,Gastric NEN,Feces,2011-2015,Female,19
+FORCE-NEN collections,AMC,Gastric NEN,Feces,2006-2010,Male,20
+FORCE-NEN collections,AMC,Gastric NEN,Feces,2006-2010,Female,20
+FORCE-NEN collections,AMC,Gastric NEN,Feces,2001-2005,Male,12
+FORCE-NEN collections,AMC,Gastric NEN,Feces,2001-2005,Female,4
+FORCE-NEN collections,AMC,Gastric NEN,Feces,1991-2000,Male,12
+FORCE-NEN collections,AMC,Gastric NEN,Feces,1991-2000,Female,1
+FORCE-NEN collections,AMC,Gastric NEN,Feces,<1991,Male,0
+FORCE-NEN collections,AMC,Gastric NEN,Feces,<1991,Female,0
+FORCE-NEN collections,AMC,Gastric NEN,Urine,2021-2025,Male,14
+FORCE-NEN collections,AMC,Gastric NEN,Urine,2021-2025,Female,5
+FORCE-NEN collections,AMC,Gastric NEN,Urine,2016-2020,Male,17
+FORCE-NEN collections,AMC,Gastric NEN,Urine,2016-2020,Female,5
+FORCE-NEN collections,AMC,Gastric NEN,Urine,2011-2015,Male,19
+FORCE-NEN collections,AMC,Gastric NEN,Urine,2011-2015,Female,9
+FORCE-NEN collections,AMC,Gastric NEN,Urine,2006-2010,Male,13
+FORCE-NEN collections,AMC,Gastric NEN,Urine,2006-2010,Female,20
+FORCE-NEN collections,AMC,Gastric NEN,Urine,2001-2005,Male,15
+FORCE-NEN collections,AMC,Gastric NEN,Urine,2001-2005,Female,14
+FORCE-NEN collections,AMC,Gastric NEN,Urine,1991-2000,Male,9
+FORCE-NEN collections,AMC,Gastric NEN,Urine,1991-2000,Female,1
+FORCE-NEN collections,AMC,Gastric NEN,Urine,<1991,Male,1
+FORCE-NEN collections,AMC,Gastric NEN,Urine,<1991,Female,13
+FORCE-NEN collections,AMC,Gastric NEN,Blood,2021-2025,Male,7
+FORCE-NEN collections,AMC,Gastric NEN,Blood,2021-2025,Female,7
+FORCE-NEN collections,AMC,Gastric NEN,Blood,2016-2020,Male,16
+FORCE-NEN collections,AMC,Gastric NEN,Blood,2016-2020,Female,18
+FORCE-NEN collections,AMC,Gastric NEN,Blood,2011-2015,Male,19
+FORCE-NEN collections,AMC,Gastric NEN,Blood,2011-2015,Female,9
+FORCE-NEN collections,AMC,Gastric NEN,Blood,2006-2010,Male,12
+FORCE-NEN collections,AMC,Gastric NEN,Blood,2006-2010,Female,12
+FORCE-NEN collections,AMC,Gastric NEN,Blood,2001-2005,Male,5
+FORCE-NEN collections,AMC,Gastric NEN,Blood,2001-2005,Female,5
+FORCE-NEN collections,AMC,Gastric NEN,Blood,1991-2000,Male,10
+FORCE-NEN collections,AMC,Gastric NEN,Blood,1991-2000,Female,5
+FORCE-NEN collections,AMC,Gastric NEN,Blood,<1991,Male,1
+FORCE-NEN collections,AMC,Gastric NEN,Blood,<1991,Female,20
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,2021-2025,Male,18
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,2021-2025,Female,12
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,2016-2020,Male,9
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,2016-2020,Female,14
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,2011-2015,Male,0
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,2011-2015,Female,3
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,2006-2010,Male,14
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,2006-2010,Female,9
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,2001-2005,Male,6
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,2001-2005,Female,9
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,1991-2000,Male,1
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,1991-2000,Female,15
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,<1991,Male,20
+FORCE-NEN collections,AMC,Gastric NEN,FFPE Tissue,<1991,Female,14
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,2021-2025,Male,6
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,2021-2025,Female,15
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,2016-2020,Male,18
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,2016-2020,Female,16
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,2011-2015,Male,11
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,2011-2015,Female,19
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,2006-2010,Male,15
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,2006-2010,Female,11
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,2001-2005,Male,8
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,2001-2005,Female,9
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,1991-2000,Male,11
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,1991-2000,Female,17
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,<1991,Male,2
+FORCE-NEN collections,AMC,Gastric NEN,Freeze Tissue,<1991,Female,11
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,2021-2025,Male,18
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,2021-2025,Female,19
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,2016-2020,Male,9
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,2016-2020,Female,11
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,2011-2015,Male,14
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,2011-2015,Female,5
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,2006-2010,Male,16
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,2006-2010,Female,9
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,2001-2005,Male,18
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,2001-2005,Female,5
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,1991-2000,Male,3
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,1991-2000,Female,11
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,<1991,Male,11
+FORCE-NEN collections,AMC,Pancreatic NEN,Feces,<1991,Female,11
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,2021-2025,Male,15
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,2021-2025,Female,12
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,2016-2020,Male,1
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,2016-2020,Female,12
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,2011-2015,Male,1
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,2011-2015,Female,4
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,2006-2010,Male,17
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,2006-2010,Female,8
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,2001-2005,Male,18
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,2001-2005,Female,12
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,1991-2000,Male,7
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,1991-2000,Female,5
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,<1991,Male,1
+FORCE-NEN collections,AMC,Pancreatic NEN,Urine,<1991,Female,13
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,2021-2025,Male,12
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,2021-2025,Female,1
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,2016-2020,Male,15
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,2016-2020,Female,14
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,2011-2015,Male,19
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,2011-2015,Female,18
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,2006-2010,Male,15
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,2006-2010,Female,3
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,2001-2005,Male,20
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,2001-2005,Female,6
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,1991-2000,Male,7
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,1991-2000,Female,18
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,<1991,Male,18
+FORCE-NEN collections,AMC,Pancreatic NEN,Blood,<1991,Female,7
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,2021-2025,Male,2
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,2021-2025,Female,6
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,2016-2020,Male,20
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,2016-2020,Female,3
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,2011-2015,Male,6
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,2011-2015,Female,0
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,2006-2010,Male,10
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,2006-2010,Female,19
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,2001-2005,Male,7
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,2001-2005,Female,3
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,1991-2000,Male,4
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,1991-2000,Female,1
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,<1991,Male,16
+FORCE-NEN collections,AMC,Pancreatic NEN,FFPE Tissue,<1991,Female,18
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,2021-2025,Male,15
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,2021-2025,Female,12
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,2016-2020,Male,12
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,2016-2020,Female,15
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,2011-2015,Male,3
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,2011-2015,Female,12
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,2006-2010,Male,10
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,2006-2010,Female,3
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,2001-2005,Male,3
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,2001-2005,Female,13
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,1991-2000,Male,0
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,1991-2000,Female,3
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,<1991,Male,10
+FORCE-NEN collections,AMC,Pancreatic NEN,Freeze Tissue,<1991,Female,16
+FORCE-NEN collections,AMC,SI-NEN,Feces,2021-2025,Male,4
+FORCE-NEN collections,AMC,SI-NEN,Feces,2021-2025,Female,8
+FORCE-NEN collections,AMC,SI-NEN,Feces,2016-2020,Male,7
+FORCE-NEN collections,AMC,SI-NEN,Feces,2016-2020,Female,8
+FORCE-NEN collections,AMC,SI-NEN,Feces,2011-2015,Male,16
+FORCE-NEN collections,AMC,SI-NEN,Feces,2011-2015,Female,10
+FORCE-NEN collections,AMC,SI-NEN,Feces,2006-2010,Male,0
+FORCE-NEN collections,AMC,SI-NEN,Feces,2006-2010,Female,18
+FORCE-NEN collections,AMC,SI-NEN,Feces,2001-2005,Male,10
+FORCE-NEN collections,AMC,SI-NEN,Feces,2001-2005,Female,19
+FORCE-NEN collections,AMC,SI-NEN,Feces,1991-2000,Male,8
+FORCE-NEN collections,AMC,SI-NEN,Feces,1991-2000,Female,4
+FORCE-NEN collections,AMC,SI-NEN,Feces,<1991,Male,7
+FORCE-NEN collections,AMC,SI-NEN,Feces,<1991,Female,13
+FORCE-NEN collections,AMC,SI-NEN,Urine,2021-2025,Male,7
+FORCE-NEN collections,AMC,SI-NEN,Urine,2021-2025,Female,7
+FORCE-NEN collections,AMC,SI-NEN,Urine,2016-2020,Male,2
+FORCE-NEN collections,AMC,SI-NEN,Urine,2016-2020,Female,19
+FORCE-NEN collections,AMC,SI-NEN,Urine,2011-2015,Male,5
+FORCE-NEN collections,AMC,SI-NEN,Urine,2011-2015,Female,10
+FORCE-NEN collections,AMC,SI-NEN,Urine,2006-2010,Male,1
+FORCE-NEN collections,AMC,SI-NEN,Urine,2006-2010,Female,0
+FORCE-NEN collections,AMC,SI-NEN,Urine,2001-2005,Male,7
+FORCE-NEN collections,AMC,SI-NEN,Urine,2001-2005,Female,12
+FORCE-NEN collections,AMC,SI-NEN,Urine,1991-2000,Male,5
+FORCE-NEN collections,AMC,SI-NEN,Urine,1991-2000,Female,19
+FORCE-NEN collections,AMC,SI-NEN,Urine,<1991,Male,15
+FORCE-NEN collections,AMC,SI-NEN,Urine,<1991,Female,5
+FORCE-NEN collections,AMC,SI-NEN,Blood,2021-2025,Male,10
+FORCE-NEN collections,AMC,SI-NEN,Blood,2021-2025,Female,18
+FORCE-NEN collections,AMC,SI-NEN,Blood,2016-2020,Male,19
+FORCE-NEN collections,AMC,SI-NEN,Blood,2016-2020,Female,3
+FORCE-NEN collections,AMC,SI-NEN,Blood,2011-2015,Male,4
+FORCE-NEN collections,AMC,SI-NEN,Blood,2011-2015,Female,1
+FORCE-NEN collections,AMC,SI-NEN,Blood,2006-2010,Male,10
+FORCE-NEN collections,AMC,SI-NEN,Blood,2006-2010,Female,12
+FORCE-NEN collections,AMC,SI-NEN,Blood,2001-2005,Male,10
+FORCE-NEN collections,AMC,SI-NEN,Blood,2001-2005,Female,8
+FORCE-NEN collections,AMC,SI-NEN,Blood,1991-2000,Male,8
+FORCE-NEN collections,AMC,SI-NEN,Blood,1991-2000,Female,8
+FORCE-NEN collections,AMC,SI-NEN,Blood,<1991,Male,18
+FORCE-NEN collections,AMC,SI-NEN,Blood,<1991,Female,18
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,2021-2025,Male,7
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,2021-2025,Female,17
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,2016-2020,Male,12
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,2016-2020,Female,9
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,2011-2015,Male,20
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,2011-2015,Female,9
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,2006-2010,Male,6
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,2006-2010,Female,15
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,2001-2005,Male,4
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,2001-2005,Female,19
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,1991-2000,Male,15
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,1991-2000,Female,16
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,<1991,Male,5
+FORCE-NEN collections,AMC,SI-NEN,FFPE Tissue,<1991,Female,1
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,2021-2025,Male,6
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,2021-2025,Female,0
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,2016-2020,Male,17
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,2016-2020,Female,18
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,2011-2015,Male,8
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,2011-2015,Female,2
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,2006-2010,Male,3
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,2006-2010,Female,11
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,2001-2005,Male,0
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,2001-2005,Female,14
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,1991-2000,Male,14
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,1991-2000,Female,8
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,<1991,Male,8
+FORCE-NEN collections,AMC,SI-NEN,Freeze Tissue,<1991,Female,4
+FORCE-NEN collections,AMC,Unknown Primary,Feces,2021-2025,Male,18
+FORCE-NEN collections,AMC,Unknown Primary,Feces,2021-2025,Female,11
+FORCE-NEN collections,AMC,Unknown Primary,Feces,2016-2020,Male,13
+FORCE-NEN collections,AMC,Unknown Primary,Feces,2016-2020,Female,6
+FORCE-NEN collections,AMC,Unknown Primary,Feces,2011-2015,Male,9
+FORCE-NEN collections,AMC,Unknown Primary,Feces,2011-2015,Female,19
+FORCE-NEN collections,AMC,Unknown Primary,Feces,2006-2010,Male,18
+FORCE-NEN collections,AMC,Unknown Primary,Feces,2006-2010,Female,9
+FORCE-NEN collections,AMC,Unknown Primary,Feces,2001-2005,Male,16
+FORCE-NEN collections,AMC,Unknown Primary,Feces,2001-2005,Female,7
+FORCE-NEN collections,AMC,Unknown Primary,Feces,1991-2000,Male,6
+FORCE-NEN collections,AMC,Unknown Primary,Feces,1991-2000,Female,0
+FORCE-NEN collections,AMC,Unknown Primary,Feces,<1991,Male,15
+FORCE-NEN collections,AMC,Unknown Primary,Feces,<1991,Female,2
+FORCE-NEN collections,AMC,Unknown Primary,Urine,2021-2025,Male,10
+FORCE-NEN collections,AMC,Unknown Primary,Urine,2021-2025,Female,5
+FORCE-NEN collections,AMC,Unknown Primary,Urine,2016-2020,Male,1
+FORCE-NEN collections,AMC,Unknown Primary,Urine,2016-2020,Female,6
+FORCE-NEN collections,AMC,Unknown Primary,Urine,2011-2015,Male,9
+FORCE-NEN collections,AMC,Unknown Primary,Urine,2011-2015,Female,20
+FORCE-NEN collections,AMC,Unknown Primary,Urine,2006-2010,Male,17
+FORCE-NEN collections,AMC,Unknown Primary,Urine,2006-2010,Female,10
+FORCE-NEN collections,AMC,Unknown Primary,Urine,2001-2005,Male,14
+FORCE-NEN collections,AMC,Unknown Primary,Urine,2001-2005,Female,16
+FORCE-NEN collections,AMC,Unknown Primary,Urine,1991-2000,Male,7
+FORCE-NEN collections,AMC,Unknown Primary,Urine,1991-2000,Female,14
+FORCE-NEN collections,AMC,Unknown Primary,Urine,<1991,Male,20
+FORCE-NEN collections,AMC,Unknown Primary,Urine,<1991,Female,6
+FORCE-NEN collections,AMC,Unknown Primary,Blood,2021-2025,Male,12
+FORCE-NEN collections,AMC,Unknown Primary,Blood,2021-2025,Female,4
+FORCE-NEN collections,AMC,Unknown Primary,Blood,2016-2020,Male,19
+FORCE-NEN collections,AMC,Unknown Primary,Blood,2016-2020,Female,14
+FORCE-NEN collections,AMC,Unknown Primary,Blood,2011-2015,Male,11
+FORCE-NEN collections,AMC,Unknown Primary,Blood,2011-2015,Female,19
+FORCE-NEN collections,AMC,Unknown Primary,Blood,2006-2010,Male,3
+FORCE-NEN collections,AMC,Unknown Primary,Blood,2006-2010,Female,4
+FORCE-NEN collections,AMC,Unknown Primary,Blood,2001-2005,Male,3
+FORCE-NEN collections,AMC,Unknown Primary,Blood,2001-2005,Female,9
+FORCE-NEN collections,AMC,Unknown Primary,Blood,1991-2000,Male,16
+FORCE-NEN collections,AMC,Unknown Primary,Blood,1991-2000,Female,14
+FORCE-NEN collections,AMC,Unknown Primary,Blood,<1991,Male,15
+FORCE-NEN collections,AMC,Unknown Primary,Blood,<1991,Female,14
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,2021-2025,Male,4
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,2021-2025,Female,17
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,2016-2020,Male,0
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,2016-2020,Female,18
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,2011-2015,Male,17
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,2011-2015,Female,17
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,2006-2010,Male,12
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,2006-2010,Female,19
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,2001-2005,Male,15
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,2001-2005,Female,4
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,1991-2000,Male,0
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,1991-2000,Female,7
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,<1991,Male,19
+FORCE-NEN collections,AMC,Unknown Primary,FFPE Tissue,<1991,Female,2
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,2021-2025,Male,14
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,2021-2025,Female,6
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,2016-2020,Male,16
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,2016-2020,Female,4
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,2011-2015,Male,18
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,2011-2015,Female,3
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,2006-2010,Male,1
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,2006-2010,Female,10
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,2001-2005,Male,12
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,2001-2005,Female,18
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,1991-2000,Male,17
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,1991-2000,Female,18
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,<1991,Male,18
+FORCE-NEN collections,AMC,Unknown Primary,Freeze Tissue,<1991,Female,7
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,2021-2025,Male,9
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,2021-2025,Female,15
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,2016-2020,Male,7
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,2016-2020,Female,3
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,2011-2015,Male,15
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,2011-2015,Female,17
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,2006-2010,Male,2
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,2006-2010,Female,8
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,2001-2005,Male,9
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,2001-2005,Female,20
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,1991-2000,Male,19
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,1991-2000,Female,0
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,<1991,Male,8
+FORCE-NEN collections,EMC,Esophageal NEN,Feces,<1991,Female,3
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,2021-2025,Male,7
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,2021-2025,Female,4
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,2016-2020,Male,8
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,2016-2020,Female,1
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,2011-2015,Male,8
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,2011-2015,Female,8
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,2006-2010,Male,1
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,2006-2010,Female,16
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,2001-2005,Male,12
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,2001-2005,Female,13
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,1991-2000,Male,4
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,1991-2000,Female,7
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,<1991,Male,17
+FORCE-NEN collections,EMC,Esophageal NEN,Urine,<1991,Female,14
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,2021-2025,Male,14
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,2021-2025,Female,8
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,2016-2020,Male,16
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,2016-2020,Female,4
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,2011-2015,Male,16
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,2011-2015,Female,0
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,2006-2010,Male,10
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,2006-2010,Female,4
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,2001-2005,Male,11
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,2001-2005,Female,0
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,1991-2000,Male,19
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,1991-2000,Female,13
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,<1991,Male,2
+FORCE-NEN collections,EMC,Esophageal NEN,Blood,<1991,Female,11
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,2021-2025,Male,7
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,2021-2025,Female,5
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,2016-2020,Male,15
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,2016-2020,Female,10
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,2011-2015,Male,17
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,2011-2015,Female,0
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,2006-2010,Male,17
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,2006-2010,Female,0
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,2001-2005,Male,10
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,2001-2005,Female,12
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,1991-2000,Male,2
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,1991-2000,Female,9
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,<1991,Male,8
+FORCE-NEN collections,EMC,Esophageal NEN,FFPE Tissue,<1991,Female,6
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,2021-2025,Male,17
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,2021-2025,Female,9
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,2016-2020,Male,15
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,2016-2020,Female,13
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,2011-2015,Male,15
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,2011-2015,Female,0
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,2006-2010,Male,14
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,2006-2010,Female,19
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,2001-2005,Male,15
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,2001-2005,Female,18
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,1991-2000,Male,17
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,1991-2000,Female,12
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,<1991,Male,8
+FORCE-NEN collections,EMC,Esophageal NEN,Freeze Tissue,<1991,Female,5
+FORCE-NEN collections,EMC,Colon NEN,Feces,2021-2025,Male,14
+FORCE-NEN collections,EMC,Colon NEN,Feces,2021-2025,Female,6
+FORCE-NEN collections,EMC,Colon NEN,Feces,2016-2020,Male,2
+FORCE-NEN collections,EMC,Colon NEN,Feces,2016-2020,Female,4
+FORCE-NEN collections,EMC,Colon NEN,Feces,2011-2015,Male,18
+FORCE-NEN collections,EMC,Colon NEN,Feces,2011-2015,Female,1
+FORCE-NEN collections,EMC,Colon NEN,Feces,2006-2010,Male,13
+FORCE-NEN collections,EMC,Colon NEN,Feces,2006-2010,Female,8
+FORCE-NEN collections,EMC,Colon NEN,Feces,2001-2005,Male,15
+FORCE-NEN collections,EMC,Colon NEN,Feces,2001-2005,Female,4
+FORCE-NEN collections,EMC,Colon NEN,Feces,1991-2000,Male,10
+FORCE-NEN collections,EMC,Colon NEN,Feces,1991-2000,Female,5
+FORCE-NEN collections,EMC,Colon NEN,Feces,<1991,Male,9
+FORCE-NEN collections,EMC,Colon NEN,Feces,<1991,Female,0
+FORCE-NEN collections,EMC,Colon NEN,Urine,2021-2025,Male,6
+FORCE-NEN collections,EMC,Colon NEN,Urine,2021-2025,Female,19
+FORCE-NEN collections,EMC,Colon NEN,Urine,2016-2020,Male,11
+FORCE-NEN collections,EMC,Colon NEN,Urine,2016-2020,Female,7
+FORCE-NEN collections,EMC,Colon NEN,Urine,2011-2015,Male,5
+FORCE-NEN collections,EMC,Colon NEN,Urine,2011-2015,Female,0
+FORCE-NEN collections,EMC,Colon NEN,Urine,2006-2010,Male,6
+FORCE-NEN collections,EMC,Colon NEN,Urine,2006-2010,Female,2
+FORCE-NEN collections,EMC,Colon NEN,Urine,2001-2005,Male,10
+FORCE-NEN collections,EMC,Colon NEN,Urine,2001-2005,Female,9
+FORCE-NEN collections,EMC,Colon NEN,Urine,1991-2000,Male,6
+FORCE-NEN collections,EMC,Colon NEN,Urine,1991-2000,Female,0
+FORCE-NEN collections,EMC,Colon NEN,Urine,<1991,Male,4
+FORCE-NEN collections,EMC,Colon NEN,Urine,<1991,Female,8
+FORCE-NEN collections,EMC,Colon NEN,Blood,2021-2025,Male,6
+FORCE-NEN collections,EMC,Colon NEN,Blood,2021-2025,Female,0
+FORCE-NEN collections,EMC,Colon NEN,Blood,2016-2020,Male,10
+FORCE-NEN collections,EMC,Colon NEN,Blood,2016-2020,Female,4
+FORCE-NEN collections,EMC,Colon NEN,Blood,2011-2015,Male,20
+FORCE-NEN collections,EMC,Colon NEN,Blood,2011-2015,Female,10
+FORCE-NEN collections,EMC,Colon NEN,Blood,2006-2010,Male,16
+FORCE-NEN collections,EMC,Colon NEN,Blood,2006-2010,Female,12
+FORCE-NEN collections,EMC,Colon NEN,Blood,2001-2005,Male,11
+FORCE-NEN collections,EMC,Colon NEN,Blood,2001-2005,Female,16
+FORCE-NEN collections,EMC,Colon NEN,Blood,1991-2000,Male,4
+FORCE-NEN collections,EMC,Colon NEN,Blood,1991-2000,Female,0
+FORCE-NEN collections,EMC,Colon NEN,Blood,<1991,Male,15
+FORCE-NEN collections,EMC,Colon NEN,Blood,<1991,Female,10
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,2021-2025,Male,12
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,2021-2025,Female,20
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,2016-2020,Male,16
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,2016-2020,Female,15
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,2011-2015,Male,15
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,2011-2015,Female,11
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,2006-2010,Male,1
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,2006-2010,Female,16
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,2001-2005,Male,3
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,2001-2005,Female,4
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,1991-2000,Male,0
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,1991-2000,Female,3
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,<1991,Male,15
+FORCE-NEN collections,EMC,Colon NEN,FFPE Tissue,<1991,Female,16
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,2021-2025,Male,5
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,2021-2025,Female,18
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,2016-2020,Male,6
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,2016-2020,Female,13
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,2011-2015,Male,13
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,2011-2015,Female,6
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,2006-2010,Male,4
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,2006-2010,Female,10
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,2001-2005,Male,6
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,2001-2005,Female,19
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,1991-2000,Male,19
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,1991-2000,Female,17
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,<1991,Male,2
+FORCE-NEN collections,EMC,Colon NEN,Freeze Tissue,<1991,Female,12
+FORCE-NEN collections,EMC,Rectum NEN,Feces,2021-2025,Male,19
+FORCE-NEN collections,EMC,Rectum NEN,Feces,2021-2025,Female,2
+FORCE-NEN collections,EMC,Rectum NEN,Feces,2016-2020,Male,14
+FORCE-NEN collections,EMC,Rectum NEN,Feces,2016-2020,Female,17
+FORCE-NEN collections,EMC,Rectum NEN,Feces,2011-2015,Male,10
+FORCE-NEN collections,EMC,Rectum NEN,Feces,2011-2015,Female,11
+FORCE-NEN collections,EMC,Rectum NEN,Feces,2006-2010,Male,6
+FORCE-NEN collections,EMC,Rectum NEN,Feces,2006-2010,Female,2
+FORCE-NEN collections,EMC,Rectum NEN,Feces,2001-2005,Male,12
+FORCE-NEN collections,EMC,Rectum NEN,Feces,2001-2005,Female,0
+FORCE-NEN collections,EMC,Rectum NEN,Feces,1991-2000,Male,19
+FORCE-NEN collections,EMC,Rectum NEN,Feces,1991-2000,Female,2
+FORCE-NEN collections,EMC,Rectum NEN,Feces,<1991,Male,15
+FORCE-NEN collections,EMC,Rectum NEN,Feces,<1991,Female,12
+FORCE-NEN collections,EMC,Rectum NEN,Urine,2021-2025,Male,7
+FORCE-NEN collections,EMC,Rectum NEN,Urine,2021-2025,Female,3
+FORCE-NEN collections,EMC,Rectum NEN,Urine,2016-2020,Male,6
+FORCE-NEN collections,EMC,Rectum NEN,Urine,2016-2020,Female,15
+FORCE-NEN collections,EMC,Rectum NEN,Urine,2011-2015,Male,17
+FORCE-NEN collections,EMC,Rectum NEN,Urine,2011-2015,Female,13
+FORCE-NEN collections,EMC,Rectum NEN,Urine,2006-2010,Male,13
+FORCE-NEN collections,EMC,Rectum NEN,Urine,2006-2010,Female,19
+FORCE-NEN collections,EMC,Rectum NEN,Urine,2001-2005,Male,8
+FORCE-NEN collections,EMC,Rectum NEN,Urine,2001-2005,Female,16
+FORCE-NEN collections,EMC,Rectum NEN,Urine,1991-2000,Male,2
+FORCE-NEN collections,EMC,Rectum NEN,Urine,1991-2000,Female,4
+FORCE-NEN collections,EMC,Rectum NEN,Urine,<1991,Male,17
+FORCE-NEN collections,EMC,Rectum NEN,Urine,<1991,Female,2
+FORCE-NEN collections,EMC,Rectum NEN,Blood,2021-2025,Male,12
+FORCE-NEN collections,EMC,Rectum NEN,Blood,2021-2025,Female,2
+FORCE-NEN collections,EMC,Rectum NEN,Blood,2016-2020,Male,0
+FORCE-NEN collections,EMC,Rectum NEN,Blood,2016-2020,Female,19
+FORCE-NEN collections,EMC,Rectum NEN,Blood,2011-2015,Male,10
+FORCE-NEN collections,EMC,Rectum NEN,Blood,2011-2015,Female,7
+FORCE-NEN collections,EMC,Rectum NEN,Blood,2006-2010,Male,9
+FORCE-NEN collections,EMC,Rectum NEN,Blood,2006-2010,Female,0
+FORCE-NEN collections,EMC,Rectum NEN,Blood,2001-2005,Male,17
+FORCE-NEN collections,EMC,Rectum NEN,Blood,2001-2005,Female,1
+FORCE-NEN collections,EMC,Rectum NEN,Blood,1991-2000,Male,1
+FORCE-NEN collections,EMC,Rectum NEN,Blood,1991-2000,Female,3
+FORCE-NEN collections,EMC,Rectum NEN,Blood,<1991,Male,13
+FORCE-NEN collections,EMC,Rectum NEN,Blood,<1991,Female,17
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,2021-2025,Male,20
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,2021-2025,Female,0
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,2016-2020,Male,7
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,2016-2020,Female,19
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,2011-2015,Male,19
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,2011-2015,Female,0
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,2006-2010,Male,1
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,2006-2010,Female,4
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,2001-2005,Male,13
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,2001-2005,Female,19
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,1991-2000,Male,13
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,1991-2000,Female,4
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,<1991,Male,10
+FORCE-NEN collections,EMC,Rectum NEN,FFPE Tissue,<1991,Female,2
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,2021-2025,Male,17
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,2021-2025,Female,13
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,2016-2020,Male,1
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,2016-2020,Female,11
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,2011-2015,Male,8
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,2011-2015,Female,14
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,2006-2010,Male,6
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,2006-2010,Female,15
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,2001-2005,Male,4
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,2001-2005,Female,13
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,1991-2000,Male,15
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,1991-2000,Female,0
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,<1991,Male,8
+FORCE-NEN collections,EMC,Rectum NEN,Freeze Tissue,<1991,Female,15
+FORCE-NEN collections,EMC,Appendix NEN,Feces,2021-2025,Male,6
+FORCE-NEN collections,EMC,Appendix NEN,Feces,2021-2025,Female,15
+FORCE-NEN collections,EMC,Appendix NEN,Feces,2016-2020,Male,4
+FORCE-NEN collections,EMC,Appendix NEN,Feces,2016-2020,Female,11
+FORCE-NEN collections,EMC,Appendix NEN,Feces,2011-2015,Male,6
+FORCE-NEN collections,EMC,Appendix NEN,Feces,2011-2015,Female,1
+FORCE-NEN collections,EMC,Appendix NEN,Feces,2006-2010,Male,8
+FORCE-NEN collections,EMC,Appendix NEN,Feces,2006-2010,Female,2
+FORCE-NEN collections,EMC,Appendix NEN,Feces,2001-2005,Male,5
+FORCE-NEN collections,EMC,Appendix NEN,Feces,2001-2005,Female,1
+FORCE-NEN collections,EMC,Appendix NEN,Feces,1991-2000,Male,19
+FORCE-NEN collections,EMC,Appendix NEN,Feces,1991-2000,Female,3
+FORCE-NEN collections,EMC,Appendix NEN,Feces,<1991,Male,20
+FORCE-NEN collections,EMC,Appendix NEN,Feces,<1991,Female,13
+FORCE-NEN collections,EMC,Appendix NEN,Urine,2021-2025,Male,18
+FORCE-NEN collections,EMC,Appendix NEN,Urine,2021-2025,Female,14
+FORCE-NEN collections,EMC,Appendix NEN,Urine,2016-2020,Male,9
+FORCE-NEN collections,EMC,Appendix NEN,Urine,2016-2020,Female,19
+FORCE-NEN collections,EMC,Appendix NEN,Urine,2011-2015,Male,13
+FORCE-NEN collections,EMC,Appendix NEN,Urine,2011-2015,Female,7
+FORCE-NEN collections,EMC,Appendix NEN,Urine,2006-2010,Male,6
+FORCE-NEN collections,EMC,Appendix NEN,Urine,2006-2010,Female,1
+FORCE-NEN collections,EMC,Appendix NEN,Urine,2001-2005,Male,8
+FORCE-NEN collections,EMC,Appendix NEN,Urine,2001-2005,Female,3
+FORCE-NEN collections,EMC,Appendix NEN,Urine,1991-2000,Male,10
+FORCE-NEN collections,EMC,Appendix NEN,Urine,1991-2000,Female,17
+FORCE-NEN collections,EMC,Appendix NEN,Urine,<1991,Male,7
+FORCE-NEN collections,EMC,Appendix NEN,Urine,<1991,Female,9
+FORCE-NEN collections,EMC,Appendix NEN,Blood,2021-2025,Male,5
+FORCE-NEN collections,EMC,Appendix NEN,Blood,2021-2025,Female,5
+FORCE-NEN collections,EMC,Appendix NEN,Blood,2016-2020,Male,10
+FORCE-NEN collections,EMC,Appendix NEN,Blood,2016-2020,Female,0
+FORCE-NEN collections,EMC,Appendix NEN,Blood,2011-2015,Male,14
+FORCE-NEN collections,EMC,Appendix NEN,Blood,2011-2015,Female,19
+FORCE-NEN collections,EMC,Appendix NEN,Blood,2006-2010,Male,15
+FORCE-NEN collections,EMC,Appendix NEN,Blood,2006-2010,Female,13
+FORCE-NEN collections,EMC,Appendix NEN,Blood,2001-2005,Male,18
+FORCE-NEN collections,EMC,Appendix NEN,Blood,2001-2005,Female,4
+FORCE-NEN collections,EMC,Appendix NEN,Blood,1991-2000,Male,5
+FORCE-NEN collections,EMC,Appendix NEN,Blood,1991-2000,Female,7
+FORCE-NEN collections,EMC,Appendix NEN,Blood,<1991,Male,10
+FORCE-NEN collections,EMC,Appendix NEN,Blood,<1991,Female,16
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,2021-2025,Male,9
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,2021-2025,Female,4
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,2016-2020,Male,9
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,2016-2020,Female,0
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,2011-2015,Male,1
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,2011-2015,Female,19
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,2006-2010,Male,3
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,2006-2010,Female,7
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,2001-2005,Male,5
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,2001-2005,Female,12
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,1991-2000,Male,9
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,1991-2000,Female,0
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,<1991,Male,12
+FORCE-NEN collections,EMC,Appendix NEN,FFPE Tissue,<1991,Female,20
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,2021-2025,Male,3
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,2021-2025,Female,11
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,2016-2020,Male,0
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,2016-2020,Female,2
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,2011-2015,Male,13
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,2011-2015,Female,19
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,2006-2010,Male,15
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,2006-2010,Female,11
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,2001-2005,Male,2
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,2001-2005,Female,14
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,1991-2000,Male,10
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,1991-2000,Female,20
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,<1991,Male,13
+FORCE-NEN collections,EMC,Appendix NEN,Freeze Tissue,<1991,Female,12
+FORCE-NEN collections,EMC,Gastric NEN,Feces,2021-2025,Male,20
+FORCE-NEN collections,EMC,Gastric NEN,Feces,2021-2025,Female,14
+FORCE-NEN collections,EMC,Gastric NEN,Feces,2016-2020,Male,20
+FORCE-NEN collections,EMC,Gastric NEN,Feces,2016-2020,Female,12
+FORCE-NEN collections,EMC,Gastric NEN,Feces,2011-2015,Male,17
+FORCE-NEN collections,EMC,Gastric NEN,Feces,2011-2015,Female,3
+FORCE-NEN collections,EMC,Gastric NEN,Feces,2006-2010,Male,4
+FORCE-NEN collections,EMC,Gastric NEN,Feces,2006-2010,Female,20
+FORCE-NEN collections,EMC,Gastric NEN,Feces,2001-2005,Male,7
+FORCE-NEN collections,EMC,Gastric NEN,Feces,2001-2005,Female,9
+FORCE-NEN collections,EMC,Gastric NEN,Feces,1991-2000,Male,7
+FORCE-NEN collections,EMC,Gastric NEN,Feces,1991-2000,Female,3
+FORCE-NEN collections,EMC,Gastric NEN,Feces,<1991,Male,0
+FORCE-NEN collections,EMC,Gastric NEN,Feces,<1991,Female,14
+FORCE-NEN collections,EMC,Gastric NEN,Urine,2021-2025,Male,2
+FORCE-NEN collections,EMC,Gastric NEN,Urine,2021-2025,Female,16
+FORCE-NEN collections,EMC,Gastric NEN,Urine,2016-2020,Male,8
+FORCE-NEN collections,EMC,Gastric NEN,Urine,2016-2020,Female,9
+FORCE-NEN collections,EMC,Gastric NEN,Urine,2011-2015,Male,11
+FORCE-NEN collections,EMC,Gastric NEN,Urine,2011-2015,Female,11
+FORCE-NEN collections,EMC,Gastric NEN,Urine,2006-2010,Male,12
+FORCE-NEN collections,EMC,Gastric NEN,Urine,2006-2010,Female,4
+FORCE-NEN collections,EMC,Gastric NEN,Urine,2001-2005,Male,9
+FORCE-NEN collections,EMC,Gastric NEN,Urine,2001-2005,Female,1
+FORCE-NEN collections,EMC,Gastric NEN,Urine,1991-2000,Male,1
+FORCE-NEN collections,EMC,Gastric NEN,Urine,1991-2000,Female,18
+FORCE-NEN collections,EMC,Gastric NEN,Urine,<1991,Male,11
+FORCE-NEN collections,EMC,Gastric NEN,Urine,<1991,Female,0
+FORCE-NEN collections,EMC,Gastric NEN,Blood,2021-2025,Male,17
+FORCE-NEN collections,EMC,Gastric NEN,Blood,2021-2025,Female,5
+FORCE-NEN collections,EMC,Gastric NEN,Blood,2016-2020,Male,5
+FORCE-NEN collections,EMC,Gastric NEN,Blood,2016-2020,Female,6
+FORCE-NEN collections,EMC,Gastric NEN,Blood,2011-2015,Male,20
+FORCE-NEN collections,EMC,Gastric NEN,Blood,2011-2015,Female,1
+FORCE-NEN collections,EMC,Gastric NEN,Blood,2006-2010,Male,10
+FORCE-NEN collections,EMC,Gastric NEN,Blood,2006-2010,Female,4
+FORCE-NEN collections,EMC,Gastric NEN,Blood,2001-2005,Male,3
+FORCE-NEN collections,EMC,Gastric NEN,Blood,2001-2005,Female,19
+FORCE-NEN collections,EMC,Gastric NEN,Blood,1991-2000,Male,3
+FORCE-NEN collections,EMC,Gastric NEN,Blood,1991-2000,Female,10
+FORCE-NEN collections,EMC,Gastric NEN,Blood,<1991,Male,4
+FORCE-NEN collections,EMC,Gastric NEN,Blood,<1991,Female,0
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,2021-2025,Male,9
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,2021-2025,Female,20
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,2016-2020,Male,6
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,2016-2020,Female,11
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,2011-2015,Male,6
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,2011-2015,Female,12
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,2006-2010,Male,0
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,2006-2010,Female,3
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,2001-2005,Male,19
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,2001-2005,Female,14
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,1991-2000,Male,9
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,1991-2000,Female,1
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,<1991,Male,13
+FORCE-NEN collections,EMC,Gastric NEN,FFPE Tissue,<1991,Female,11
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,2021-2025,Male,3
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,2021-2025,Female,11
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,2016-2020,Male,1
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,2016-2020,Female,3
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,2011-2015,Male,1
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,2011-2015,Female,13
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,2006-2010,Male,1
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,2006-2010,Female,7
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,2001-2005,Male,9
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,2001-2005,Female,1
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,1991-2000,Male,12
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,1991-2000,Female,2
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,<1991,Male,11
+FORCE-NEN collections,EMC,Gastric NEN,Freeze Tissue,<1991,Female,4
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,2021-2025,Male,16
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,2021-2025,Female,11
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,2016-2020,Male,12
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,2016-2020,Female,18
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,2011-2015,Male,18
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,2011-2015,Female,3
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,2006-2010,Male,3
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,2006-2010,Female,13
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,2001-2005,Male,20
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,2001-2005,Female,7
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,1991-2000,Male,8
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,1991-2000,Female,7
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,<1991,Male,7
+FORCE-NEN collections,EMC,Pancreatic NEN,Feces,<1991,Female,14
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,2021-2025,Male,5
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,2021-2025,Female,3
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,2016-2020,Male,1
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,2016-2020,Female,1
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,2011-2015,Male,18
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,2011-2015,Female,4
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,2006-2010,Male,14
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,2006-2010,Female,11
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,2001-2005,Male,2
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,2001-2005,Female,1
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,1991-2000,Male,12
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,1991-2000,Female,11
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,<1991,Male,3
+FORCE-NEN collections,EMC,Pancreatic NEN,Urine,<1991,Female,11
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,2021-2025,Male,1
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,2021-2025,Female,1
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,2016-2020,Male,13
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,2016-2020,Female,0
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,2011-2015,Male,6
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,2011-2015,Female,7
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,2006-2010,Male,0
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,2006-2010,Female,9
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,2001-2005,Male,14
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,2001-2005,Female,6
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,1991-2000,Male,16
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,1991-2000,Female,17
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,<1991,Male,1
+FORCE-NEN collections,EMC,Pancreatic NEN,Blood,<1991,Female,3
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,2021-2025,Male,9
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,2021-2025,Female,15
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,2016-2020,Male,11
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,2016-2020,Female,0
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,2011-2015,Male,19
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,2011-2015,Female,17
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,2006-2010,Male,7
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,2006-2010,Female,6
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,2001-2005,Male,12
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,2001-2005,Female,1
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,1991-2000,Male,3
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,1991-2000,Female,2
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,<1991,Male,7
+FORCE-NEN collections,EMC,Pancreatic NEN,FFPE Tissue,<1991,Female,13
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,2021-2025,Male,20
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,2021-2025,Female,1
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,2016-2020,Male,10
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,2016-2020,Female,3
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,2011-2015,Male,9
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,2011-2015,Female,10
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,2006-2010,Male,11
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,2006-2010,Female,6
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,2001-2005,Male,11
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,2001-2005,Female,16
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,1991-2000,Male,10
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,1991-2000,Female,9
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,<1991,Male,4
+FORCE-NEN collections,EMC,Pancreatic NEN,Freeze Tissue,<1991,Female,1
+FORCE-NEN collections,EMC,SI-NEN,Feces,2021-2025,Male,5
+FORCE-NEN collections,EMC,SI-NEN,Feces,2021-2025,Female,16
+FORCE-NEN collections,EMC,SI-NEN,Feces,2016-2020,Male,19
+FORCE-NEN collections,EMC,SI-NEN,Feces,2016-2020,Female,4
+FORCE-NEN collections,EMC,SI-NEN,Feces,2011-2015,Male,15
+FORCE-NEN collections,EMC,SI-NEN,Feces,2011-2015,Female,8
+FORCE-NEN collections,EMC,SI-NEN,Feces,2006-2010,Male,10
+FORCE-NEN collections,EMC,SI-NEN,Feces,2006-2010,Female,2
+FORCE-NEN collections,EMC,SI-NEN,Feces,2001-2005,Male,11
+FORCE-NEN collections,EMC,SI-NEN,Feces,2001-2005,Female,1
+FORCE-NEN collections,EMC,SI-NEN,Feces,1991-2000,Male,0
+FORCE-NEN collections,EMC,SI-NEN,Feces,1991-2000,Female,17
+FORCE-NEN collections,EMC,SI-NEN,Feces,<1991,Male,17
+FORCE-NEN collections,EMC,SI-NEN,Feces,<1991,Female,14
+FORCE-NEN collections,EMC,SI-NEN,Urine,2021-2025,Male,14
+FORCE-NEN collections,EMC,SI-NEN,Urine,2021-2025,Female,18
+FORCE-NEN collections,EMC,SI-NEN,Urine,2016-2020,Male,15
+FORCE-NEN collections,EMC,SI-NEN,Urine,2016-2020,Female,12
+FORCE-NEN collections,EMC,SI-NEN,Urine,2011-2015,Male,1
+FORCE-NEN collections,EMC,SI-NEN,Urine,2011-2015,Female,9
+FORCE-NEN collections,EMC,SI-NEN,Urine,2006-2010,Male,10
+FORCE-NEN collections,EMC,SI-NEN,Urine,2006-2010,Female,20
+FORCE-NEN collections,EMC,SI-NEN,Urine,2001-2005,Male,18
+FORCE-NEN collections,EMC,SI-NEN,Urine,2001-2005,Female,20
+FORCE-NEN collections,EMC,SI-NEN,Urine,1991-2000,Male,12
+FORCE-NEN collections,EMC,SI-NEN,Urine,1991-2000,Female,15
+FORCE-NEN collections,EMC,SI-NEN,Urine,<1991,Male,9
+FORCE-NEN collections,EMC,SI-NEN,Urine,<1991,Female,3
+FORCE-NEN collections,EMC,SI-NEN,Blood,2021-2025,Male,7
+FORCE-NEN collections,EMC,SI-NEN,Blood,2021-2025,Female,3
+FORCE-NEN collections,EMC,SI-NEN,Blood,2016-2020,Male,10
+FORCE-NEN collections,EMC,SI-NEN,Blood,2016-2020,Female,11
+FORCE-NEN collections,EMC,SI-NEN,Blood,2011-2015,Male,12
+FORCE-NEN collections,EMC,SI-NEN,Blood,2011-2015,Female,18
+FORCE-NEN collections,EMC,SI-NEN,Blood,2006-2010,Male,16
+FORCE-NEN collections,EMC,SI-NEN,Blood,2006-2010,Female,8
+FORCE-NEN collections,EMC,SI-NEN,Blood,2001-2005,Male,19
+FORCE-NEN collections,EMC,SI-NEN,Blood,2001-2005,Female,20
+FORCE-NEN collections,EMC,SI-NEN,Blood,1991-2000,Male,6
+FORCE-NEN collections,EMC,SI-NEN,Blood,1991-2000,Female,2
+FORCE-NEN collections,EMC,SI-NEN,Blood,<1991,Male,12
+FORCE-NEN collections,EMC,SI-NEN,Blood,<1991,Female,20
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,2021-2025,Male,11
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,2021-2025,Female,7
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,2016-2020,Male,13
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,2016-2020,Female,7
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,2011-2015,Male,18
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,2011-2015,Female,7
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,2006-2010,Male,3
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,2006-2010,Female,3
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,2001-2005,Male,8
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,2001-2005,Female,8
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,1991-2000,Male,11
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,1991-2000,Female,16
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,<1991,Male,16
+FORCE-NEN collections,EMC,SI-NEN,FFPE Tissue,<1991,Female,16
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,2021-2025,Male,3
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,2021-2025,Female,9
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,2016-2020,Male,5
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,2016-2020,Female,17
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,2011-2015,Male,0
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,2011-2015,Female,15
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,2006-2010,Male,19
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,2006-2010,Female,2
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,2001-2005,Male,0
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,2001-2005,Female,20
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,1991-2000,Male,3
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,1991-2000,Female,20
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,<1991,Male,10
+FORCE-NEN collections,EMC,SI-NEN,Freeze Tissue,<1991,Female,19
+FORCE-NEN collections,EMC,Unknown Primary,Feces,2021-2025,Male,1
+FORCE-NEN collections,EMC,Unknown Primary,Feces,2021-2025,Female,11
+FORCE-NEN collections,EMC,Unknown Primary,Feces,2016-2020,Male,4
+FORCE-NEN collections,EMC,Unknown Primary,Feces,2016-2020,Female,0
+FORCE-NEN collections,EMC,Unknown Primary,Feces,2011-2015,Male,2
+FORCE-NEN collections,EMC,Unknown Primary,Feces,2011-2015,Female,8
+FORCE-NEN collections,EMC,Unknown Primary,Feces,2006-2010,Male,11
+FORCE-NEN collections,EMC,Unknown Primary,Feces,2006-2010,Female,19
+FORCE-NEN collections,EMC,Unknown Primary,Feces,2001-2005,Male,9
+FORCE-NEN collections,EMC,Unknown Primary,Feces,2001-2005,Female,14
+FORCE-NEN collections,EMC,Unknown Primary,Feces,1991-2000,Male,4
+FORCE-NEN collections,EMC,Unknown Primary,Feces,1991-2000,Female,7
+FORCE-NEN collections,EMC,Unknown Primary,Feces,<1991,Male,3
+FORCE-NEN collections,EMC,Unknown Primary,Feces,<1991,Female,7
+FORCE-NEN collections,EMC,Unknown Primary,Urine,2021-2025,Male,5
+FORCE-NEN collections,EMC,Unknown Primary,Urine,2021-2025,Female,6
+FORCE-NEN collections,EMC,Unknown Primary,Urine,2016-2020,Male,12
+FORCE-NEN collections,EMC,Unknown Primary,Urine,2016-2020,Female,15
+FORCE-NEN collections,EMC,Unknown Primary,Urine,2011-2015,Male,1
+FORCE-NEN collections,EMC,Unknown Primary,Urine,2011-2015,Female,9
+FORCE-NEN collections,EMC,Unknown Primary,Urine,2006-2010,Male,16
+FORCE-NEN collections,EMC,Unknown Primary,Urine,2006-2010,Female,16
+FORCE-NEN collections,EMC,Unknown Primary,Urine,2001-2005,Male,3
+FORCE-NEN collections,EMC,Unknown Primary,Urine,2001-2005,Female,14
+FORCE-NEN collections,EMC,Unknown Primary,Urine,1991-2000,Male,20
+FORCE-NEN collections,EMC,Unknown Primary,Urine,1991-2000,Female,16
+FORCE-NEN collections,EMC,Unknown Primary,Urine,<1991,Male,5
+FORCE-NEN collections,EMC,Unknown Primary,Urine,<1991,Female,7
+FORCE-NEN collections,EMC,Unknown Primary,Blood,2021-2025,Male,2
+FORCE-NEN collections,EMC,Unknown Primary,Blood,2021-2025,Female,9
+FORCE-NEN collections,EMC,Unknown Primary,Blood,2016-2020,Male,10
+FORCE-NEN collections,EMC,Unknown Primary,Blood,2016-2020,Female,6
+FORCE-NEN collections,EMC,Unknown Primary,Blood,2011-2015,Male,0
+FORCE-NEN collections,EMC,Unknown Primary,Blood,2011-2015,Female,20
+FORCE-NEN collections,EMC,Unknown Primary,Blood,2006-2010,Male,3
+FORCE-NEN collections,EMC,Unknown Primary,Blood,2006-2010,Female,20
+FORCE-NEN collections,EMC,Unknown Primary,Blood,2001-2005,Male,3
+FORCE-NEN collections,EMC,Unknown Primary,Blood,2001-2005,Female,14
+FORCE-NEN collections,EMC,Unknown Primary,Blood,1991-2000,Male,19
+FORCE-NEN collections,EMC,Unknown Primary,Blood,1991-2000,Female,19
+FORCE-NEN collections,EMC,Unknown Primary,Blood,<1991,Male,18
+FORCE-NEN collections,EMC,Unknown Primary,Blood,<1991,Female,8
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,2021-2025,Male,11
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,2021-2025,Female,12
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,2016-2020,Male,5
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,2016-2020,Female,7
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,2011-2015,Male,7
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,2011-2015,Female,5
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,2006-2010,Male,16
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,2006-2010,Female,4
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,2001-2005,Male,9
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,2001-2005,Female,14
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,1991-2000,Male,14
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,1991-2000,Female,7
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,<1991,Male,13
+FORCE-NEN collections,EMC,Unknown Primary,FFPE Tissue,<1991,Female,7
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,2021-2025,Male,18
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,2021-2025,Female,15
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,2016-2020,Male,4
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,2016-2020,Female,4
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,2011-2015,Male,11
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,2011-2015,Female,2
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,2006-2010,Male,6
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,2006-2010,Female,2
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,2001-2005,Male,18
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,2001-2005,Female,20
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,1991-2000,Male,0
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,1991-2000,Female,9
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,<1991,Male,8
+FORCE-NEN collections,EMC,Unknown Primary,Freeze Tissue,<1991,Female,9

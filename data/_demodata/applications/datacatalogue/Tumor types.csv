@@ -1,0 +1,9 @@
+﻿order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,Appendix NEN,,,,,http://www.orpha.net/ORDO/Orphanet_100079,
+,Colon NEN,,,,,http://www.orpha.net/ORDO/Orphanet_100080,
+,Esophageal NEN,,,,,http://www.orpha.net/ORDO/Orphanet_506136,
+,Gastric NEN,,,,,http://www.orpha.net/ORDO/Orphanet_100075,
+,Pancreatic NEN,,,,,http://www.orpha.net/ORDO/Orphanet_506052,
+,Rectum NEN,,,,,http://www.orpha.net/ORDO/Orphanet_100081,
+,SI-NEN,,,,,"http://www.orpha.net/ORDO/Orphanet_100078,http://www.orpha.net/ORDO/Orphanet_100076,http://www.orpha.net/ORDO/Orphanet_100077",
+,Unknown Primary,,,,,,
