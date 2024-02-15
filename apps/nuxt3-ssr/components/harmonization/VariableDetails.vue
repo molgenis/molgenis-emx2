@@ -183,9 +183,9 @@ const variableList = props.variable.repeats
         >None</DefinitionListDefinition
       >
     </DefinitionList>
-    <CodeBlock v-if="syntaxList[repeatIndex]" class="mt-2">{{
+    <UICodeBlock v-if="syntaxList[repeatIndex]" class="mt-2">{{
       syntaxList[repeatIndex]
-    }}</CodeBlock>
+    }}</UICodeBlock>
 
     <hr v-if="variableList.length > 1" class="my-5" />
   </template>
