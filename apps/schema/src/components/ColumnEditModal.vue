@@ -136,7 +136,7 @@
                 />
               </div>
               <div class="col-4" v-if="isEditable(column)">
-                <InputString
+                <InputText
                   id="column_default"
                   v-model="column.defaultValue"
                   label="defaultValue"
