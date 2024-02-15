@@ -230,6 +230,23 @@ async function getAllData() {
     filters: queryFilters.value.filter,
   });
 
+  const ordering = [
+    "<1991",
+    "1991-2000",
+    "2001-2005",
+    "2006-2010",
+    "2011-2015",
+    "2016-2020",
+    "2021-2025",
+  ];
+
+  samplingPeriods.value = samplingPeriods.value.sort((current, next) => {
+    return (
+      ordering.indexOf(current.samplingPeriod) -
+      ordering.indexOf(next.samplingPeriod)
+    );
+  });
+
   sexCases.value = await getChartData({
     labels: "sex",
     values: "_sum",
