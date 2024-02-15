@@ -23,7 +23,7 @@ export const initialFilterFacets = [
     removeOptions: [],
     showMatchTypeSelector: false,
     negotiatorRequestString: "Countries:",
-    adaptive: true,
+    adaptive: false,
     sortColumn: "label",
     sortDirection: "asc",
     showFacet: true,
