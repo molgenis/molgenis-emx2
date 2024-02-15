@@ -100,7 +100,7 @@ export async function applyFiltersToQuery(
       }
       case "OntologyFilter": {
         const values = filterValue.map((fv) => fv.code);
-        baseQuery.where(filterDetail.applyToColumn).in(values);
+        baseQuery.filter(filterDetail.applyToColumn).in(values);
         break;
       }
     }
