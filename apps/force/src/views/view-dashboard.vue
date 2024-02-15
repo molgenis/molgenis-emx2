@@ -43,27 +43,13 @@
     <Dashboard v-if="!loading && !error">
       <DashboardRow :columns="3">
         <DashboardChart>
-          <ColumnChart
-            chartId="research-centers-sum"
-            title="Sum of cases by research center"
-            :chartData="researchCenters"
-            xvar="researchCenter"
-            yvar="sum"
-            xAxisLineBreaker=" "
-            :columnFill="palette[5]"
-            :columnHoverFill="palette[3]"
-            :columnPaddingOuter="0"
-            :chartHeight="350"
-            :chartMargins="{
-              top: 10,
-              right: 35,
-              bottom: 40,
-              left: 60,
-            }"
+          <DataTable
+            tableId="research-centers-sum"
+            caption="Sum of cases by research center"
+            :data="researchCenters"
+            :columnOrder="['researchCenter', 'sum']"
             :enableClicks="true"
-            @column-clicked="
-              (data) => onChartClick(JSON.parse(data), 'researchCenter')
-            "
+            @row-clicked="(data) => onChartClick(data, 'researchCenter')"
           />
         </DashboardChart>
         <DashboardChart>
@@ -82,14 +68,14 @@
             title="Sum of sample types"
             :chartData="sampleTypes"
             :chartColors="sampleTypeColors"
-            :chartHeight="225"
+            :chartHeight="200"
             :asDonutChart="true"
             :enableLegendHovering="true"
             :chartMargins="10"
             legendPosition="bottom"
             :valuesArePercents="false"
             :enableClicks="true"
-            @slice-clicked="(data) => onPieChartClick(data, 'sampleType')"
+            @slice-clicked="(data: Object) => onChartClick(data, 'sampleType', true)"
           />
         </DashboardChart>
       </DashboardRow>
@@ -100,7 +86,7 @@
             title="Sum of cases by sampling period"
             :chartData="samplingPeriods"
             xvar="samplingPeriod"
-            yvar="sum"
+            yvar="_sum"
             :columnFill="palette[5]"
             :columnHoverFill="palette[3]"
             :chartHeight="210"
@@ -126,7 +112,7 @@
             legendPosition="bottom"
             :valuesArePercents="false"
             :enableClicks="true"
-            @slice-clicked="(data) => onPieChartClick(data, 'sex')"
+            @slice-clicked="(data) => onChartClick(data, 'sex', true)"
           />
         </DashboardChart>
       </DashboardRow>
@@ -134,10 +120,8 @@
   </Page>
 </template>
 
-<script setup>
-import { GraphQLClient, gql } from "graphql-request";
-import { ref, onMounted } from "vue";
-
+<script setup lang="ts">
+import { ref, onMounted, computed } from "vue";
 import {
   Page,
   PageSection,
@@ -146,20 +130,16 @@ import {
   DashboardChart,
   DashboardRow,
   PageHeader,
-  BarChart,
   ColumnChart,
   DataTable,
   PieChart2,
 } from "molgenis-viz";
-
 import { MinusCircleIcon } from "@heroicons/vue/24/outline";
 import { schemePuBu as scheme } from "d3-scale-chromatic";
 import { createPalette } from "../utils/index";
-
-const client = new GraphQLClient("../api/graphql");
+import { getChartData, renameKey } from "../utils/index";
 
 const palette = ref(scheme[6]);
-
 let loading = ref(true);
 let error = ref(false);
 let researchCenters = ref([]);
@@ -167,7 +147,6 @@ let primaryTumors = ref([]);
 let sampleTypes = ref({});
 let samplingPeriods = ref([]);
 let sexCases = ref({});
-let sampleTypeColors = ref({});
 let selectedFilters = ref({
   researchCenter: [],
   primaryTumor: [],
@@ -178,9 +157,9 @@ let selectedFilters = ref({
 
 let queryFilters = ref({ filter: {} });
 
-function removeFilter(key, value) {
+function removeFilter(key: string, value: String) {
   selectedFilters.value[key] = selectedFilters.value[key].filter(
-    (q) => q !== value
+    (q: String) => q !== value
   );
   updateQueryFilters();
   getAllData();
@@ -205,7 +184,7 @@ function updateQueryFilters() {
           query["_or"] = [];
         }
 
-        subfilters.forEach((value) => {
+        subfilters.forEach((value: String) => {
           const newSubFilter = {};
           newSubFilter[key] = { name: { equals: value } };
           query["_or"].push(newSubFilter);
@@ -217,124 +196,59 @@ function updateQueryFilters() {
   queryFilters.value.filter = query;
 }
 
-async function getData(attribute) {
-  const query = gql` query ($filters: ClinicalDataFilter ) {
-    ClinicalData_groupBy ( filter: $filters ) {
-      ${attribute} {
-        name
-      }
-      _sum {
-        n
-      }
-    }
-  }`;
-  const variables = { filters: queryFilters.value.filter };
-  const response = await client.request(query, variables);
-  return response.ClinicalData_groupBy;
-}
+let sampleTypeColors = computed(() => {
+  return createPalette(Object.keys(sampleTypes.value), palette.value.slice(1));
+});
 
-function onChartClick(data, attribute) {
-  const value = data[attribute];
-  if (selectedFilters.value[attribute].indexOf(value) === -1) {
-    selectedFilters.value[attribute].push(value);
-    updateQueryFilters();
-    getAllData();
-  }
-}
+async function getAllData() {
+  researchCenters.value = await getChartData({
+    labels: "researchCenter",
+    values: "_sum",
+    filters: queryFilters.value.filter,
+  });
 
-function onPieChartClick(data, attribute) {
-  const value = Object.keys(data)[0];
-  if (selectedFilters.value[attribute].indexOf(value) === -1) {
-    selectedFilters.value[attribute].push(value);
-    updateQueryFilters();
-    getAllData();
-  }
-}
+  renameKey(researchCenters.value, "_sum", "sum");
 
-async function getResearchCenters() {
-  const data = await getData("researchCenter");
-  researchCenters.value = data
-    .map((row) => {
-      return {
-        researchCenter: row.researchCenter.name,
-        sum: row._sum.n,
-      };
-    })
-    .sort((current, next) => {
-      return current.sum > next.sum ? -1 : 1;
-    });
-}
+  primaryTumors.value = await getChartData({
+    labels: "primaryTumor",
+    values: "_sum",
+    filters: queryFilters.value.filter,
+  });
 
-async function getPrimaryTumors() {
-  const data = await getData("primaryTumor");
-  primaryTumors.value = data
-    .map((row) => {
-      return {
-        primaryTumor: row.primaryTumor.name,
-        sum: row._sum.n,
-      };
-    })
-    .sort((current, next) => {
-      return current.primaryTumor > next.primaryTumor ? 1 : -1;
-    });
-}
+  renameKey(primaryTumors.value, "_sum", "sum");
 
-async function getSampleType() {
-  const data = await getData("sampleType");
-  const total = data.reduce((sum, curr) => curr._sum.n + sum, 0);
-  const summarized = data
-    .map((row) => {
-      return {
-        sampleType: row.sampleType.name,
-        sum: row._sum.n,
-        percent: ((row._sum.n / total) * 100).toFixed(1),
-      };
-    })
-    .sort((current, next) => (current.sum > next.sum ? -1 : 1))
-    .reduce((acc, curr) => {
-      acc[curr.sampleType] = curr.sum;
-      return acc;
-    }, {});
+  sampleTypes.value = await getChartData({
+    labels: "sampleType",
+    values: "_sum",
+    filters: queryFilters.value.filter,
+    asPieChartData: true,
+  });
 
-  sampleTypes.value = summarized;
-  sampleTypeColors.value = createPalette(
-    Object.keys(summarized),
-    palette.value.slice(1)
-  );
-}
+  samplingPeriods.value = await getChartData({
+    labels: "samplingPeriod",
+    values: "_sum",
+    filters: queryFilters.value.filter,
+  });
 
-async function getSamplingPeriod() {
-  const data = await getData("samplingPeriod");
-  samplingPeriods.value = data.map((row) => {
-    return {
-      samplingPeriod: row.samplingPeriod.name,
-      sum: row._sum.n,
-    };
+  sexCases.value = await getChartData({
+    labels: "sex",
+    values: "_sum",
+    asPieChartData: true,
+    filters: queryFilters.value.filter,
   });
 }
 
-async function getSexSummary() {
-  const data = await getData("sex");
-  sexCases.value = data
-    .map((row) => {
-      return {
-        sex: row.sex.name,
-        sum: row._sum.n,
-      };
-    })
-    .sort((current, next) => (current.sum > next.sum ? -1 : 1))
-    .reduce((acc, curr) => {
-      acc[curr.sex] = curr.sum;
-      return acc;
-    }, {});
-}
-
-async function getAllData() {
-  await getResearchCenters();
-  await getPrimaryTumors();
-  await getSampleType();
-  await getSamplingPeriod();
-  await getSexSummary();
+function onChartClick(
+  data: Object | String,
+  attribute: string,
+  isPieChart: Boolean = false
+) {
+  const value = isPieChart ? Object.keys(data)[0] : data[attribute];
+  if (selectedFilters.value[attribute].indexOf(value) === -1) {
+    selectedFilters.value[attribute].push(value);
+    updateQueryFilters();
+    getAllData();
+  }
 }
 
 onMounted(() => {
