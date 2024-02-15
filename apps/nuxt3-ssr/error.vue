@@ -1,5 +1,4 @@
 <script setup>
-import BackgroundGradient from "./components/BackgroundGradient.vue";
 import { hash } from ".fingerprint.js";
 
 defineProps(["error"]);
@@ -32,7 +31,7 @@ useHead({
     <div
       class="absolute top-0 left-0 z-10 w-screen h-screen overflow-hidden opacity-background-gradient"
     >
-      <BackgroundGradient class="z-10" />
+      <UIBackgroundGradient class="z-10" />
     </div>
     <div class="z-30 relative">
       <main>

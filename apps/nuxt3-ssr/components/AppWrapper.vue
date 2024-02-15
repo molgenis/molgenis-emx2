@@ -5,7 +5,7 @@
     <div
       class="absolute top-0 left-0 z-10 w-screen h-screen overflow-hidden opacity-background-gradient"
     >
-      <BackgroundGradient />
+      <UIBackgroundGradient />
     </div>
     <div class="relative z-30">
       <slot name="header"></slot>
