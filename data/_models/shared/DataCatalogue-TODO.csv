@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Version,,,,,,,,,,,,3.11,"DataCatalogue,EMA,SharedStaging,CohortStaging"
+Version,,,,,,,,,,,,3.12,"DataCatalogue,EMA,SharedStaging,CohortStaging"
 Catalogues,,,,,,,,,,,,A collection of resources within a network or consortium or about a common topic,DataCatalogue
 Catalogues,,network,ref,1,TRUE,,Networks,,,,,Network or consortium that leads this catalogue,DataCatalogue
 Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,,Type of catalogue,DataCatalogue
@@ -455,3 +455,10 @@ DAPs,,is data access provider,ontology_array,,,CatalogueOntologies,DAP informati
 DAPs,,reason access other,text,,,,,,,,,"If reason access is 'other', reason for being able to access (an extract of) the data source",DataCatalogue
 DAPs,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",DataCatalogue
 DAPs,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",DataCatalogue
+Aggregates,,,,,,,,,,,,"Resource counts for e.g. samples, clinical data",DataCatalogue
+Aggregates,,resource,ref,1,TRUE,,Resources,,,,,Resource this sample or data count refers to,DataCatalogue
+Aggregates,,primary tumor,ref,1,TRUE,CatalogueOntologies,Tumor types,,,,,,DataCatalogue
+Aggregates,,sample type,ref,1,TRUE,CatalogueOntologies,Sample types,,,,,,DataCatalogue
+Aggregates,,sampling period,ref,1,TRUE,CatalogueOntologies,Sampling periods,,,,,,DataCatalogue
+Aggregates,,sex,ref,1,TRUE,CatalogueOntologies,Sex,,,,,,DataCatalogue
+Aggregates,,n,int,,TRUE,,,,,,,count,DataCatalogue
