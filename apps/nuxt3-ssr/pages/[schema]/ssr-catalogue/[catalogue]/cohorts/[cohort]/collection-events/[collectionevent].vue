@@ -12,9 +12,8 @@ const route = useRoute();
 const query = moduleToString(collectionEventGql);
 
 const { data, error } = await useFetch<any, IMgError>(
-  `/${route.params.schema}/catalogue/graphql`,
+  `/${route.params.schema}/graphql`,
   {
-    baseURL: config.public.apiBase,
     method: "POST",
     body: {
       query,
