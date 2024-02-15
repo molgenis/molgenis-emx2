@@ -36,13 +36,13 @@
     "shelljs": "^0.8.5",
     "svgo": "2.8.0",
     "tailwindcss": "3.4.1",
-    "vitest": "^0.34.0"
+    "vitest": "1.2.2"
   },
   "dependencies": {
-    "@vueuse/core": "10.5.0",
+    "@vueuse/core": "10.7.0",
     "floating-vue": "5.2.2",
     "meta-data-utils": "*",
-    "vite": "4.5.2",
-    "vue": "3.4.15"
+    "vite": "5.1.1",
+    "vue": "3.4.19"
   }
 }
