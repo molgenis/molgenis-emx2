@@ -132,7 +132,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       /** depending on whether filters have been selected display the correct count of biobanks */
       let foundBiobanks = biobankResult.Biobanks;
       if (filtersStore.hasActiveFilters) {
-        foundBiobanks = foundBiobanks.filter(biobank => biobank.collections);
+        foundBiobanks = foundBiobanks.filter((biobank) => biobank.collections);
       }
 
       biobankCards.value = filterWithdrawn(foundBiobanks);
