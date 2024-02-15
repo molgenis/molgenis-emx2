@@ -96,7 +96,7 @@ class Transform:
         """
         df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
         df_cohorts['design paper'] = df_cohorts['design paper'].apply(get_hyperlink)
-        if self.database_type == 'cohort':
+        if self.database_type in ['cohort', 'catalogue']:
             df_cohorts['publications'] = df_cohorts['publications'].apply(get_hyperlink)
         df_cohorts = float_to_int(df_cohorts)  # convert float back to integer
         df_cohorts.to_csv(self.path + 'Cohorts.csv', index=False)

@@ -1,4 +1,3 @@
-import setuptools.discovery
 from decouple import config
 from util.client import Session
 from update.update_3_11 import Transform
@@ -17,19 +16,23 @@ DATA_MODEL_VERSION = config('MG_DATA_MODEL_VERSION')
 SERVER_URL = config('MG_SERVER_URL')
 SERVER_USERNAME = config('MG_SERVER_USERNAME')
 SERVER_PASSWORD = config('MG_SERVER_PASSWORD')
+SERVER_TYPE = config('MG_SERVER_TYPE')
+
 CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 ONTOLOGIES_SCHEMA_NAME = config('MG_ONTOLOGIES_SCHEMA_NAME')
 SHARED_STAGING_NAME = config('MG_SHARED_STAGING_NAME')
 
 COHORTS = config('MG_COHORTS', cast=lambda v: [s.strip() for s in v.split(',')])
-DATA_SOURCES = config('MG_DATA_SOURCES', cast=lambda v: [s.strip() for s in v.split(',')])
-NETWORKS = config('MG_NETWORKS', cast=lambda v: [s.strip() for s in v.split(',')])
+if SERVER_TYPE == 'catalogue':
+    DATA_SOURCES = config('MG_DATA_SOURCES', cast=lambda v: [s.strip() for s in v.split(',')])
+    NETWORKS = config('MG_NETWORKS', cast=lambda v: [s.strip() for s in v.split(',')])
 
 print('-----  Config variables loaded ----')
 
 print('SERVER_URL: ' + SERVER_URL)
 print('SERVER_USERNAME: ' + SERVER_USERNAME)
 print('SERVER_PASSWORD: ******')
+print('SERVER_TYPE: ' + SERVER_TYPE)
 print('CATALOGUE_SCHEMA_NAME: ' + CATALOGUE_SCHEMA_NAME)
 print('ONTOLOGIES_SCHEMA_NAME: ' + ONTOLOGIES_SCHEMA_NAME)
 print('SHARED_STAGING_NAME: ' + SHARED_STAGING_NAME)
@@ -37,7 +40,6 @@ print('SHARED_STAGING_NAME: ' + SHARED_STAGING_NAME)
 print('-----   ----')
 
 print('Updating catalogue data model to version ' + DATA_MODEL_VERSION)
-
 
 # sign in to server
 print('Sign in to server: ' + SERVER_URL)
@@ -87,7 +89,10 @@ for cohort in COHORTS:
     # transform data from cohorts
     print('Transform data from ' + cohort)
     zip_handling = Zip(cohort)
-    update = Transform(cohort, 'cohort_UMCG')
+    if SERVER_TYPE == 'catalogue':
+        update = Transform(cohort, 'cohort')
+    elif SERVER_TYPE == 'UMCG_catalogue':
+        update = Transform(cohort, 'cohort_UMCG')
 
     zip_handling.remove_unzipped_data()
     zip_handling.unzip_data()
@@ -96,85 +101,88 @@ for cohort in COHORTS:
     update.update_data_model_file()
     zip_handling.zip_data()
     zip_handling.remove_unzipped_data()
+
     # delete and create new cohort schema
     schema_description = session.get_database_description(database_name=cohort)
     session.drop_database(database_name=cohort)
     session.create_database(database_name=cohort, database_description=schema_description)
 
 # --------------------------------------------------------------
+if SERVER_TYPE == 'catalogue':
+    # Data sources update
+    print('-----------------------')
+    print('Data source update to data model ' + DATA_MODEL_VERSION)
 
-# Data sources update
-print('-----------------------')
-print('Data source update to data model ' + DATA_MODEL_VERSION)
+    for data_source in DATA_SOURCES:
+        # sign in to server
+        print('Sign in to server: ' + SERVER_URL)
+        session = Session(
+            url=SERVER_URL,
+            email=SERVER_USERNAME,
+            password=SERVER_PASSWORD
+        )
+        # extract data
+        print('Extract data for ' + data_source + ': ' + data_source + '_data.zip')
+        session.download_zip(database_name=data_source)
 
-for data_source in DATA_SOURCES:
-    # sign in to server
-    print('Sign in to server: ' + SERVER_URL)
-    session = Session(
-        url=SERVER_URL,
-        email=SERVER_USERNAME,
-        password=SERVER_PASSWORD
-    )
-    # extract data
-    print('Extract data for ' + data_source + ': ' + data_source + '_data.zip')
-    session.download_zip(database_name=data_source)
+        # transform data from data sources
+        print('Transform data from ' + data_source)
+        zip_handling = Zip(data_source)
+        update = Transform(data_source, 'data_source')
 
-    # transform data from cohorts
-    print('Transform data from ' + data_source)
-    zip_handling = Zip(data_source)
-    update = Transform(data_source, 'data_source')
+        zip_handling.remove_unzipped_data()
+        zip_handling.unzip_data()
+        update.delete_data_model_file()
+        update.transform_data()
+        update.update_data_model_file()
+        zip_handling.zip_data()
+        zip_handling.remove_unzipped_data()
 
-    zip_handling.remove_unzipped_data()
-    zip_handling.unzip_data()
-    update.delete_data_model_file()
-    update.transform_data()
-    update.update_data_model_file()
-    zip_handling.zip_data()
-    zip_handling.remove_unzipped_data()
-    # delete and create new cohort schema
-    schema_description = session.get_database_description(database_name=data_source)
-    session.drop_database(database_name=data_source)
-    session.create_database(database_name=data_source, database_description=schema_description)
+        # delete and create new data source schema
+        schema_description = session.get_database_description(database_name=data_source)
+        session.drop_database(database_name=data_source)
+        session.create_database(database_name=data_source, database_description=schema_description)
 
-# Networks update
-print('-----------------------')
-print('Networks update to data model ' + DATA_MODEL_VERSION)
+    # Networks update
+    print('-----------------------')
+    print('Networks update to data model ' + DATA_MODEL_VERSION)
 
-for network in NETWORKS:
-    # sign in to server
-    print('Sign in to server: ' + SERVER_URL)
-    session = Session(
-        url=SERVER_URL,
-        email=SERVER_USERNAME,
-        password=SERVER_PASSWORD
-    )
-    # extract data
-    print('Extract data for ' + network + ': ' + network + '_data.zip')
-    session.download_zip(database_name=network)
+    for network in NETWORKS:
+        # sign in to server
+        print('Sign in to server: ' + SERVER_URL)
+        session = Session(
+            url=SERVER_URL,
+            email=SERVER_USERNAME,
+            password=SERVER_PASSWORD
+        )
+        # extract data
+        print('Extract data for ' + network + ': ' + network + '_data.zip')
+        session.download_zip(database_name=network)
 
-    # transform data from cohorts
-    print('Transform data from ' + network)
-    zip_handling = Zip(network)
-    update = Transform(network, 'network')
+        # transform data
+        print('Transform data from ' + network)
+        zip_handling = Zip(network)
+        update = Transform(network, 'network')
 
-    zip_handling.remove_unzipped_data()
-    zip_handling.unzip_data()
-    update.delete_data_model_file()
-    update.transform_data()
-    update.update_data_model_file()
-    zip_handling.zip_data()
-    zip_handling.remove_unzipped_data()
-    # delete and create new cohort schema
-    schema_description = session.get_database_description(database_name=network)
-    session.drop_database(database_name=network)
-    session.create_database(database_name=network, database_description=schema_description)
+        zip_handling.remove_unzipped_data()
+        zip_handling.unzip_data()
+        update.delete_data_model_file()
+        update.transform_data()
+        update.update_data_model_file()
+        zip_handling.zip_data()
+        zip_handling.remove_unzipped_data()
 
-# ---------------------------------------------------------------
+        # delete and create new schema
+        schema_description = session.get_database_description(database_name=network)
+        session.drop_database(database_name=network)
+        session.create_database(database_name=network, database_description=schema_description)
+
+    # ---------------------------------------------------------------
 
 # delete and create schemas
 print('------------------------')
 print('Updating catalogue schema')
-# delete and create new UMCG schema
+# delete and create new catalogue schema
 schema_description = session.get_database_description(database_name=CATALOGUE_SCHEMA_NAME)
 session.drop_database(database_name=CATALOGUE_SCHEMA_NAME)
 session.create_database(database_name=CATALOGUE_SCHEMA_NAME, database_description=schema_description)
@@ -205,34 +213,35 @@ for cohort in COHORTS:
     print('Upload transformed data for: ' + cohort)
     session.upload_zip(database_name=cohort, data_to_upload=cohort)
 
-# Data sources upload data
-print('-----------------------')
+if SERVER_TYPE == 'catalogue':
+    # Data sources upload data
+    print('-----------------------')
 
-print('Updating data for data sources')
+    print('Updating data for data sources')
 
-for data_source in DATA_SOURCES:
-    # sign in to server
-    print('Sign in to server: ' + SERVER_URL)
-    session = Session(
-        url=SERVER_URL,
-        email=SERVER_USERNAME,
-        password=SERVER_PASSWORD
-    )
-    print('Upload transformed data for: ' + data_source)
-    session.upload_zip(database_name=data_source, data_to_upload=data_source)
+    for data_source in DATA_SOURCES:
+        # sign in to server
+        print('Sign in to server: ' + SERVER_URL)
+        session = Session(
+            url=SERVER_URL,
+            email=SERVER_USERNAME,
+            password=SERVER_PASSWORD
+        )
+        print('Upload transformed data for: ' + data_source)
+        session.upload_zip(database_name=data_source, data_to_upload=data_source)
 
-# Networks upload data
-print('-----------------------')
+    # Networks upload data
+    print('-----------------------')
 
-print('Updating data for networks')
+    print('Updating data for networks')
 
-for network in NETWORKS:
-    # sign in to server
-    print('Sign in to server: ' + SERVER_URL)
-    session = Session(
-        url=SERVER_URL,
-        email=SERVER_USERNAME,
-        password=SERVER_PASSWORD
-    )
-    print('Upload transformed data for: ' + network)
-    session.upload_zip(database_name=network, data_to_upload=network)
+    for network in NETWORKS:
+        # sign in to server
+        print('Sign in to server: ' + SERVER_URL)
+        session = Session(
+            url=SERVER_URL,
+            email=SERVER_USERNAME,
+            password=SERVER_PASSWORD
+        )
+        print('Upload transformed data for: ' + network)
+        session.upload_zip(database_name=network, data_to_upload=network)
