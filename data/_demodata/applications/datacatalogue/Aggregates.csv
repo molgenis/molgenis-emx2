@@ -1,4 +1,4 @@
-resource,research center,tumor type,sample type,sampling period,sex,n
+resource,research center,primary tumor,sample type,sampling period,sex,n
 FORCE-NEN collections,AvL,Esophageal NEN,Feces,2021-2025,Male,12
 FORCE-NEN collections,AvL,Esophageal NEN,Feces,2021-2025,Female,18
 FORCE-NEN collections,AvL,Esophageal NEN,Feces,2016-2020,Male,10
