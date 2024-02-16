@@ -169,21 +169,6 @@ export default {
         schemaData
       )}<\/script>`;
     },
-  },
-  computed: {
-    uiText() {
-      return this.settingsStore.uiText;
-    },
-    biobankDataAvailable() {
-      return Object.keys(this.biobank).length;
-    },
-    collectionsData() {
-      return this.biobankDataAvailable &&
-        this.biobank.collections &&
-        this.biobank.collections.length
-        ? this.filterAndSortCollectionsData(this.biobank.collections)
-        : [];
-    },
     filterAndSortCollectionsData(collections: any) {
       return collections
         .filter(
@@ -206,6 +191,22 @@ export default {
             })
         );
     },
+  },
+  computed: {
+    uiText() {
+      return this.settingsStore.uiText;
+    },
+    biobankDataAvailable() {
+      return Object.keys(this.biobank).length;
+    },
+    collectionsData() {
+      return this.biobankDataAvailable &&
+        this.biobank.collections &&
+        this.biobank.collections.length
+        ? this.filterAndSortCollectionsData(this.biobank.collections)
+        : [];
+    },
+
     networks() {
       return this.biobankDataAvailable && this.biobank.network
         ? mapNetworkInfo(this.biobank)
