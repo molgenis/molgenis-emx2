@@ -1,6 +1,7 @@
 package org.molgenis.emx2.beaconv2.endpoints.individuals;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class IndividualsResultSets {
@@ -10,14 +11,14 @@ public class IndividualsResultSets {
   private String setType;
   private Boolean exists;
   private Integer resultsCount;
-  private IndividualsResultSetsItem[] results;
+  private ArrayNode results;
 
-  public IndividualsResultSets(String id, IndividualsResultSetsItem[] results) {
+  public IndividualsResultSets(String id, ArrayNode results) {
     this.id = id;
     this.type = "dataset";
     this.setType = "biosamples";
     this.exists = true;
-    this.resultsCount = results.length;
+    this.resultsCount = results.size();
     this.results = results;
   }
 
@@ -25,7 +26,7 @@ public class IndividualsResultSets {
     return resultsCount;
   }
 
-  public IndividualsResultSetsItem[] getResults() {
+  public ArrayNode getResults() {
     return results;
   }
 

@@ -1,0 +1,16 @@
+{
+    "id": .id,
+    "sex": {
+           "id": .sex.codesystem + ":" + .sex.code,
+           "label": .sex.name
+    },
+    "age": {
+           "ageGroup": {
+                 "id": .age_ageGroup.name,
+                 "label": .age_ageGroup.codesystem + ":" + .age_ageGroup.code
+           },
+           "age": .age_age_iso8601duration
+    },
+    "diseaseCausalGenes": .diseaseCausalGenes
+}
+

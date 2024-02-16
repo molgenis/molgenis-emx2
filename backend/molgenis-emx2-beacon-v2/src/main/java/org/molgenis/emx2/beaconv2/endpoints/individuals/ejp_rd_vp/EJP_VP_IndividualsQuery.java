@@ -6,6 +6,7 @@ import static org.molgenis.emx2.json.JsonUtil.getWriter;
 import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
 import static org.molgenis.emx2.rdf.RDFUtils.getURI;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.time.Period;
@@ -15,7 +16,6 @@ import java.util.List;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.ColumnPath;
 import org.molgenis.emx2.beaconv2.endpoints.QueryHelper;
-import org.molgenis.emx2.beaconv2.endpoints.individuals.Diseases;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSets;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSetsItem;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
@@ -178,17 +178,17 @@ public class EJP_VP_IndividualsQuery {
     List<IndividualsResultSets> filteredResultSetsList = new ArrayList<>();
     for (IndividualsResultSets resultSet : resultSetsList) {
       List<IndividualsResultSetsItem> filteredIndividuals = new ArrayList<>();
-      for (IndividualsResultSetsItem individual : resultSet.getResults()) {
-        String currentId = resultSet.getId() + "@" + individual.getId();
+      for (JsonNode individual : resultSet.getResults()) {
+        String currentId = resultSet.getId() + "@" + individual.get("id");
         if (!removeIndividualIDs.contains(currentId)) {
-          filteredIndividuals.add(individual);
+          filteredIndividuals.add(null);
         }
       }
       if (filteredIndividuals.size() > 0) {
         IndividualsResultSetsItem[] filteredIndividualsArr =
             filteredIndividuals.toArray(new IndividualsResultSetsItem[0]);
         IndividualsResultSets filteredResultSet =
-            new IndividualsResultSets(resultSet.getId(), filteredIndividualsArr);
+            new IndividualsResultSets(resultSet.getId(), null);
         filteredResultSetsList.add(filteredResultSet);
       }
     }
@@ -211,25 +211,25 @@ public class EJP_VP_IndividualsQuery {
     List<String> removeIndividualIDs = new ArrayList<>();
     for (Filter ageQuery : ageQueries) {
       for (IndividualsResultSets resultSet : resultSetsList) {
-        for (IndividualsResultSetsItem individual : resultSet.getResults()) {
+        for (JsonNode individual : resultSet.getResults()) {
           List<String> ageStr = new ArrayList<>();
           if (ageQuery.getIds()[0].endsWith(AGE_THIS_YEAR)) {
-            if (individual.getAge().getAge().getIso8601duration() != null) {
-              ageStr.add(individual.getAge().getAge().getIso8601duration());
+            if (individual.get("age") != null) {
+              ageStr.add(individual.get("age").toString());
             }
           } else if (ageQuery.getIds()[0].endsWith(AGE_OF_ONSET)) {
-            if (individual.getDiseases() != null) {
-              for (Diseases diseases : individual.getDiseases()) {
-                if (diseases.getAgeOfOnset().getAge().getIso8601duration() != null) {
-                  ageStr.add(diseases.getAgeOfOnset().getAge().getIso8601duration());
+            if (individual.get("disease") != null) {
+              for (JsonNode diseases : individual.get("disease")) {
+                if (diseases.get("ageOfOnset") != null) {
+                  ageStr.add(diseases.get("ageOfOnset").toString());
                 }
               }
             }
           } else if (ageQuery.getIds()[0].endsWith(AGE_AT_DIAG)) {
-            if (individual.getDiseases() != null) {
-              for (Diseases diseases : individual.getDiseases()) {
-                if (diseases.getAgeAtDiagnosis().getAge().getIso8601duration() != null) {
-                  ageStr.add(diseases.getAgeAtDiagnosis().getAge().getIso8601duration());
+            if (individual.get("disease") != null) {
+              for (JsonNode diseases : individual.get("disease")) {
+                if (diseases.get("ageAtDiagnosis") != null) {
+                  ageStr.add(diseases.get("ageAtDiagnosis").toString());
                 }
               }
             }
@@ -246,7 +246,7 @@ public class EJP_VP_IndividualsQuery {
             }
           }
           if (!ageQueryPositiveMatch) {
-            removeIndividualIDs.add(resultSet.getId() + "@" + individual.getId());
+            removeIndividualIDs.add(resultSet.getId() + "@" + individual.get("id"));
           }
         }
       }
