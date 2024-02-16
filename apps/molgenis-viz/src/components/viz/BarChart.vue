@@ -30,11 +30,12 @@
             :data-value="row[xvar]"
           >
             <rect
-              :data-value="`${row[yvar]}-${row[xvar]}`"
               class="bar"
+              :data-value-x="row[xvar]"
+              :data-value-y="row[yvar]"
               :y="yAxis(row[yvar])"
               :height="yAxis.bandwidth()"
-              :fill="barFill"
+              :fill="colorPalatte[row[yvar]]"
               @click="onClick(row)"
               @mouseover="(event) => onMouseOver(event)"
               @mouseleave="(event) => onMouseLeave(event)"
@@ -146,6 +147,15 @@ export default {
 
     // A label that describes the y-axis
     yAxisLabel: String,
+    
+    // If defined, y-axis labels will be split into multiple lines. Value must
+    // be a separator that indicates where the string should be split. Please
+    // be aware that you may need to adjust the chart margins and height
+    // depending on how many lines you wish to break.
+    yAxisLineBreaker: {
+      type: String,
+      default: null,
+    },
 
     // the dataset the plot
     chartData: {
@@ -189,6 +199,17 @@ export default {
       type: String,
       // `#163D89`
       default: "#163D89",
+    },
+    
+    // Define your own color palette that is passed down to each bar.
+    // You will need to create an object that maps each x-value to a
+    // specific color. The color supplied in `barHoverFill` will
+    // not be overwritten. Note: It is not recommended to use this option
+    // as it does not make sense to apply a color scheme to ungrouped data. However,
+    // this option allows you to apply a color to a category of significant interest.
+    // Please use this with the best intentions.
+    barColorPalette: {
+      type: Object,
     },
 
     // Adjust the amount of blank space inbetween bar between 0 and 1
@@ -305,16 +326,43 @@ export default {
     chartBars() {
       return this.chartArea.selectAll("rect.bar");
     },
+    colorPalatte() {
+      const domain = this.chartData.map((row) => row[this.yvar]);
+      const colorMappings = domain.map((value) => {
+        const color = this.barColorPalette
+          ? this.barColorPalette[value]
+          : this.barFill;
+        return [value, color];
+      });
+      const palatte = Object.fromEntries(colorMappings);
+      return palatte;
+    },
   },
   methods: {
     setChartDimensions() {
       const parent = this.$el.parentNode;
       this.chartWidth = parent.offsetWidth * 0.95;
     },
+    breakYAxisLines() {
+      const separator = this.xAxisLineBreaker;
+      this.svg.selectAll(".chart-axis-y .tick text").call((labels) => {
+        labels.each(function () {
+          var node = d3.select(this);
+          var stringArray = node.text().split(separator);
+          node.text("");
+          stringArray.forEach(function (str) {
+            node.append("tspan").attr("x", 0).attr("dy", "1em").text(str);
+          });
+        });
+      });
+    },
     renderAxes() {
       this.chartArea.select(".chart-axis-x").call(this.chartAxisX);
-
       this.chartArea.select(".chart-axis-y").call(this.chartAxisY);
+      
+      if (typeof this.yAxisLineBreaker !== "undefined") {
+        this.breakYAxisLines();
+      }
     },
     onClick(row) {
       if (this.enableClicks) {
