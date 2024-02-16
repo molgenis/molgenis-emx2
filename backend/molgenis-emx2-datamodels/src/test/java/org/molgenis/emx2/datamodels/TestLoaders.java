@@ -72,7 +72,7 @@ public class TestLoaders {
   public void test7DataCatalogueCohortStagingLoader() {
     Schema cohortStaging = database.createSchema(COHORT_STAGING);
     AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING.install(cohortStaging, true);
-    assertEquals(19, cohortStaging.getTableNames().size());
+    assertEquals(20, cohortStaging.getTableNames().size());
   }
 
   @Test
