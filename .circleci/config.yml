@@ -197,6 +197,37 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
+  e2e-preview:
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.41.2-jammy
+    steps:
+      - checkout
+      - run: npm i -D @playwright/test
+      - run: npx playwright install chrome
+      - run:
+          name: Wait for preview to be up, poll every 10 seconds
+          command: |
+            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/"
+            while true; 
+                do 
+                    STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
+                    echo ${STATUS}
+                    if [[ "$STATUS" == "200" ]]; then 
+                        echo "preview is up";
+                        break; 
+                    else 
+                        echo "preview is not ready yet, waiting 10 seconds...";
+                    fi; 
+                    sleep 10; 
+                done
+      - run:
+          command: | 
+            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            echo $E2E_BASE_URL
+            npx playwright test --config e2e e2e/tests
+      - store_test_results:
+         path: test-results
 
 workflows:
   version: 2
@@ -206,11 +237,17 @@ workflows:
         filters:
           branches:
             ignore: master
+    - e2e-preview:
+        requires:
+          - preview
+        filters:
+            branches:
+              ignore: master
     - test:
-        filters:
-          branches:
-            ignore: master
+       filters:
+         branches:
+           ignore: master
     - release:
-        filters:
-          branches:
-            only: master
+       filters:
+         branches:
+           only: master
