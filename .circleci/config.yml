@@ -227,7 +227,7 @@ jobs:
             echo $E2E_BASE_URL
             npx playwright test --config e2e e2e/tests
       - store_test_results:
-         path: e2e/test-results
+         path: /root/project/e2e
 
 workflows:
   version: 2
