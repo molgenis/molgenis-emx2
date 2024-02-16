@@ -22,3 +22,15 @@ logs
 .env
 .env.*
 !.env.example
+
+# EMX2 spesific
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+showCase
+gen-docs
+gen
+assets/**/*.css
+!assets/**/main.css

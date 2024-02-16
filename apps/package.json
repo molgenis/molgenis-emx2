@@ -12,6 +12,7 @@
     "pages",
     "graphql-playground",
     "nuxt3-ssr",
+    "nuxt-components",
     "molgenis-components",
     "molgenis-viz",
     "cranio-public",
