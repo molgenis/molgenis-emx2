@@ -147,7 +147,7 @@ export default {
 
     // A label that describes the y-axis
     yAxisLabel: String,
-    
+
     // If defined, y-axis labels will be split into multiple lines. Value must
     // be a separator that indicates where the string should be split. Please
     // be aware that you may need to adjust the chart margins and height
@@ -200,7 +200,7 @@ export default {
       // `#163D89`
       default: "#163D89",
     },
-    
+
     // Define your own color palette that is passed down to each bar.
     // You will need to create an object that maps each x-value to a
     // specific color. The color supplied in `barHoverFill` will
@@ -359,7 +359,7 @@ export default {
     renderAxes() {
       this.chartArea.select(".chart-axis-x").call(this.chartAxisX);
       this.chartArea.select(".chart-axis-y").call(this.chartAxisY);
-      
+
       if (typeof this.yAxisLineBreaker !== "undefined") {
         this.breakYAxisLines();
       }

@@ -56,7 +56,7 @@ import Dashboard from "../components/layouts/Dashboard.vue";
 import DashboardRow from "../components/layouts/DashboardRow.vue";
 import DashboardChart from "../components/layouts/DashboardChart.vue";
 import ColumnChart from "../components/viz/ColumnChart.vue";
-import BarChart from "../components/viz/BarChart.vue"
+import BarChart from "../components/viz/BarChart.vue";
 import DataTable from "../components/viz/DataTable.vue";
 import MessageBox from "../components/display/MessageBox.vue";
 
@@ -69,7 +69,7 @@ let organisationsInfo = ref<Array>([]);
 let queryFilters = ref<object>({ filter: {} });
 
 function onClick() {
-  console.log('clicked');
+  console.log("clicked");
 }
 
 async function getData() {
