@@ -12,7 +12,6 @@
     <form class="page-section filters-form">
       <fieldset class="page-section-content width-full filters-container">
         <legend>Selected Filters</legend>
-        {{ queryFilters.filter }}
         <div
           class="filter-buttons"
           v-if="Object.keys(queryFilters.filter).length"
@@ -40,7 +39,7 @@
         {{ error }}
       </MessageBox>
     </PageSection>
-    <Dashboard v-if="!loading && !error">
+    <Dashboard>
       <DashboardRow :columns="3">
         <DashboardChart>
           <DataTable
@@ -68,10 +67,11 @@
             title="Sum of sample types"
             :chartData="sampleTypes"
             :chartColors="sampleTypeColors"
-            :chartHeight="200"
+            :chartScale="1"
+            :chartHeight="225"
             :asDonutChart="true"
             :enableLegendHovering="true"
-            :chartMargins="10"
+            :chartMargins="25"
             legendPosition="bottom"
             :valuesArePercents="false"
             :enableClicks="true"
@@ -81,16 +81,21 @@
       </DashboardRow>
       <DashboardRow :columns="2">
         <DashboardChart>
+          <LoadingScreen v-if="loading" style="width:100%; height:100%;" />
           <ColumnChart
+            v-else
             chartId="sampling-period-sum"
             title="Sum of cases by sampling period"
             :chartData="samplingPeriods"
             xvar="samplingPeriod"
             yvar="_sum"
+            :yTickValues="samplingPeriodAxis.ticks"
+            :yMax="samplingPeriodAxis.ymax"
             :columnFill="palette[5]"
             :columnHoverFill="palette[3]"
             :chartHeight="210"
             :enableClicks="true"
+            :enableAnimation="true"
             @column-clicked="
               (data) => onChartClick(JSON.parse(data), 'samplingPeriod')
             "
@@ -130,23 +135,27 @@ import {
   DashboardChart,
   DashboardRow,
   PageHeader,
-  ColumnChart,
   DataTable,
   PieChart2,
+  ColumnChart,
+  LoadingScreen,
 } from "molgenis-viz";
 import { MinusCircleIcon } from "@heroicons/vue/24/outline";
 import { schemePuBu as scheme } from "d3-scale-chromatic";
-import { createPalette } from "../utils/index";
-import { getChartData, renameKey } from "../utils/index";
+import { getChartData, renameKey, createPalette, seqAlongBy, calculateIncrement } from "../utils/index";
 
 const palette = ref(scheme[6]);
 let loading = ref(true);
 let error = ref(false);
+
 let researchCenters = ref([]);
 let primaryTumors = ref([]);
 let sampleTypes = ref({});
 let samplingPeriods = ref([]);
+let samplingPeriodAxis = ref({ ticks: [], ymax: null });
 let sexCases = ref({});
+
+let queryFilters = ref({ filter: {} });
 let selectedFilters = ref({
   researchCenter: [],
   primaryTumor: [],
@@ -155,14 +164,12 @@ let selectedFilters = ref({
   sex: [],
 });
 
-let queryFilters = ref({ filter: {} });
-
 function removeFilter(key: string, value: String) {
   selectedFilters.value[key] = selectedFilters.value[key].filter(
     (q: String) => q !== value
   );
   updateQueryFilters();
-  getAllData();
+  renderCharts();
 }
 
 function updateQueryFilters() {
@@ -229,6 +236,12 @@ async function getAllData() {
     values: "_sum",
     filters: queryFilters.value.filter,
   });
+  
+  const maxValue = Math.max(...samplingPeriods.value.map(d => d._sum));
+  const step = calculateIncrement(maxValue);
+  const max = Math.ceil(maxValue / step) * step;
+  samplingPeriodAxis.value.ymax = max
+  samplingPeriodAxis.value.ticks = seqAlongBy(0, max, step)
 
   const ordering = [
     "<1991",
@@ -264,13 +277,19 @@ function onChartClick(
   if (selectedFilters.value[attribute].indexOf(value) === -1) {
     selectedFilters.value[attribute].push(value);
     updateQueryFilters();
-    getAllData();
+    renderCharts();
   }
 }
 
-onMounted(() => {
+function renderCharts () {
+  loading.value = true;
   getAllData()
     .then(() => (loading.value = false))
     .catch((err) => (error.value = err));
+  
+}
+
+onMounted(() => {
+  renderCharts();
 });
 </script>
