@@ -112,6 +112,7 @@ RWE resources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Lan
 RWE resources,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly","DataCatalogue,EMA"
 Cohorts,,collection events,refback,,,,Collection events,,resource,,,List of collection events defined for this resource,"DataCatalogue,CohortStaging"
 Databanks,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?",DataCatalogue
+Extended resources,,aggregates,refback,,,,Aggregates,,resource,,,Counts of e.g. samples defined for this resource,"DataCatalogue,CohortStaging"
 Databanks,,multiple entries,bool,,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?",DataCatalogue
 RWE resources,,linkage,heading,,,,,,,,,Data linkage,DataCatalogue
 Databanks,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?,DataCatalogue
@@ -455,11 +456,11 @@ DAPs,,is data access provider,ontology_array,,,CatalogueOntologies,DAP informati
 DAPs,,reason access other,text,,,,,,,,,"If reason access is 'other', reason for being able to access (an extract of) the data source",DataCatalogue
 DAPs,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",DataCatalogue
 DAPs,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",DataCatalogue
-Aggregates,,,,,,,,,,,,"Resource counts for e.g. samples, clinical data",DataCatalogue
-Aggregates,,resource,ref,1,TRUE,,Resources,,,,,Resource this sample or data count refers to,DataCatalogue
+Aggregates,,,,,,,,,,,,"Resource counts for e.g. samples, clinical data","DataCatalogue,CohortStaging"
+Aggregates,,resource,ref,1,TRUE,,Resources,,,,,Resource this sample or data count refers to,"DataCatalogue,CohortStaging"
 Aggregates,,research center,ref,1,TRUE,,Organisations,,,,,,DataCatalogue
-Aggregates,,primary tumor,ontology,1,TRUE,CatalogueOntologies,Tumor types,,,,,,DataCatalogue
-Aggregates,,sample type,ontology,1,TRUE,CatalogueOntologies,Sample types,,,,,,DataCatalogue
-Aggregates,,sampling period,ontology,1,TRUE,CatalogueOntologies,Sampling periods,,,,,,DataCatalogue
-Aggregates,,sex,ontology,1,TRUE,CatalogueOntologies,Sex,,,,,,DataCatalogue
-Aggregates,,n,int,,TRUE,,,,,,,count,DataCatalogue
+Aggregates,,primary tumor,ontology,1,TRUE,CatalogueOntologies,Tumor types,,,,,,"DataCatalogue,CohortStaging"
+Aggregates,,sample type,ontology,1,TRUE,CatalogueOntologies,Sample types,,,,,,"DataCatalogue,CohortStaging"
+Aggregates,,sampling period,ontology,1,TRUE,CatalogueOntologies,Sampling periods,,,,,,"DataCatalogue,CohortStaging"
+Aggregates,,sex,ontology,1,TRUE,CatalogueOntologies,Sex,,,,,,"DataCatalogue,CohortStaging"
+Aggregates,,n,int,,TRUE,,,,,,,count,"DataCatalogue,CohortStaging"
