@@ -1,6 +1,0 @@
-﻿order,name,label,parent,codesystem,code,ontologyTermURI,definition
-,Blood,,,,,http://id.nlm.nih.gov/mesh/D001769,
-,Feces,,,,,http://purl.obolibrary.org/obo/OBI_0002503,
-,FFPE Tissue,,,,,http://purl.obolibrary.org/obo/OBI_0000950,
-,Freeze Tissue,,,,,http://purl.obolibrary.org/obo/OBI_0000922,
-,Urine,,,,,http://purl.obolibrary.org/obo/OBI_0000651,
