@@ -242,7 +242,6 @@ export default {
     },
   },
   async mounted() {
-    this.showCollections = this.settingsStore.config.biobankCardShowCollections;
     await this.qualitiesStore.getQualityStandardInformation();
   },
 };
