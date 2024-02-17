@@ -61,6 +61,19 @@ public class TestInherits {
     // check that mg_tableclass column doesn't have a default (regression #2936)
     assertNull(employee.getMetadata().getColumn(MG_TABLECLASS).getDefaultValue());
 
+    // check that reference to parent class exists (regression #3144)
+    assertTrue(
+        ((SqlSchema) s)
+            .getJooq()
+            .meta()
+            .getSchemas("TestInherits")
+            .get(0)
+            .getTable("Employee")
+            .getReferences()
+            .get(0)
+            .toString()
+            .contains("references \"TestInherits\".\"Person\""));
+
     Table manager =
         s.create(
             table("Manager")
