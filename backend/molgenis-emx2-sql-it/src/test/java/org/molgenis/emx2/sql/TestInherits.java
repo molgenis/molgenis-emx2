@@ -217,6 +217,29 @@ public class TestInherits {
             .retrieveRows()
             .size());
 
+    // verify that you can't delete a parent row when having child rows that are refered to,
+    // regression #3144
+    try {
+      employee.delete(row("fullName", "Katrien Duck"));
+      // refered to by the manager
+      fail("should not be able to delete inherited rows when having reference");
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("Duplicate key"));
+      System.out.println("Errored correctly: " + e.getMessage());
+    }
+
+    // verify that you can't delete a parent row when having child rows that are refered to,
+    // also not via the 'root' table
+    // regression #3144
+    try {
+      person.delete(row("fullName", "Katrien Duck"));
+      // refered to by the manager
+      fail("should not be able to delete inherited rows when having reference");
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("Duplicate key"));
+      System.out.println("Errored correctly: " + e.getMessage());
+    }
+
     // delete
     ceoTable.delete(managerRow);
     assertEquals(2, personTable.retrieveRows().size());
