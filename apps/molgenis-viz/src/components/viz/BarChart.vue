@@ -344,7 +344,7 @@ export default {
       this.chartWidth = parent.offsetWidth * 0.95;
     },
     breakYAxisLines() {
-      const separator = this.xAxisLineBreaker;
+      const separator = this.yAxisLineBreaker;
       this.svg.selectAll(".chart-axis-y .tick text").call((labels) => {
         labels.each(function () {
           var node = d3.select(this);
