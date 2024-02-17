@@ -11,12 +11,13 @@
     </PageSection>
     <form class="page-section filters-form">
       <fieldset class="page-section-content width-full filters-container">
-        <legend>Selected Filters</legend>
+        <div class="filter-context"> 
+          <legend>Selected Filters:</legend>
+        </div>
         <div
           class="filter-buttons"
-          v-if="Object.keys(queryFilters.filter).length"
         >
-          <template v-for="key in Object.keys(selectedFilters)">
+          <template v-for="key in Object.keys(selectedFilters)" v-if="Object.keys(queryFilters.filter).length">
             <div class="filter-button" v-for="value in selectedFilters[key]">
               <p>{{ value }}</p>
               <button
@@ -29,8 +30,13 @@
             </div>
           </template>
         </div>
-        <div v-else>
-          <p>No filters applied.</p>
+        <div class="filter-action">
+          <button id="resetFilters" @click="resetFilters">
+            <span>Reset</span>
+          </button>
+          <button id="runQuery" @click="renderCharts">
+            <span>Update</span>
+          </button>
         </div>
       </fieldset>
     </form>
@@ -42,13 +48,31 @@
     <Dashboard>
       <DashboardRow :columns="3">
         <DashboardChart>
-          <DataTable
-            tableId="research-centers-sum"
-            caption="Sum of cases by research center"
-            :data="researchCenters"
-            :columnOrder="['researchCenter', 'sum']"
+          <LoadingScreen v-if="loading"/>
+          <BarChart
+            v-else
+            chartId="research-centers-sum"
+            title="Sum of cases by research center"
+            :chartData="researchCenters"
+            xvar="_sum"
+            yvar="researchCenter"
+            :xMax="researchCenterAxis.ymax"
+            :xTickValues="researchCenterAxis.ticks"
+            yAxisLineBreaker=" "
+            :chartHeight="360"
+            :barFill="palette[3]"
+            :barHoverFill="palette[5]"
+            :chartMargins="{
+              top: 10,
+              right: 40,
+              bottom: 30,
+              left: 100
+            }"
             :enableClicks="true"
-            @row-clicked="(data) => onChartClick(data, 'researchCenter')"
+            :enableAnimation="true"
+            @bar-clicked="
+              (data) => onChartClick(JSON.parse(data), 'researchCenter')
+            "
           />
         </DashboardChart>
         <DashboardChart>
@@ -68,11 +92,11 @@
             :chartData="sampleTypes"
             :chartColors="sampleTypeColors"
             :chartScale="1"
-            :chartHeight="225"
+            :chartHeight="300"
             :asDonutChart="true"
             :enableLegendHovering="true"
             :chartMargins="25"
-            legendPosition="bottom"
+            legendPosition="top"
             :valuesArePercents="false"
             :enableClicks="true"
             @slice-clicked="(data: Object) => onChartClick(data, 'sampleType', true)"
@@ -81,7 +105,7 @@
       </DashboardRow>
       <DashboardRow :columns="2">
         <DashboardChart>
-          <LoadingScreen v-if="loading" style="width:100%; height:100%;" />
+          <LoadingScreen v-if="loading"/>
           <ColumnChart
             v-else
             chartId="sampling-period-sum"
@@ -93,7 +117,13 @@
             :yMax="samplingPeriodAxis.ymax"
             :columnFill="palette[5]"
             :columnHoverFill="palette[3]"
-            :chartHeight="210"
+            :chartHeight="225"
+            :chartMargins="{
+              top: 15,
+              right: 10,
+              bottom: 30,
+              left: 60
+            }"
             :enableClicks="true"
             :enableAnimation="true"
             @column-clicked="
@@ -110,7 +140,8 @@
               Male: palette[2],
               Female: palette[5],
             }"
-            :chartHeight="125"
+            :chartScale="1"
+            :chartHeight="200"
             :asDonutChart="true"
             :enableLegendHovering="true"
             :chartMargins="0"
@@ -136,12 +167,13 @@ import {
   DashboardRow,
   PageHeader,
   DataTable,
+  BarChart,
   PieChart2,
   ColumnChart,
   LoadingScreen,
 } from "molgenis-viz";
 import { MinusCircleIcon } from "@heroicons/vue/24/outline";
-import { schemePuBu as scheme } from "d3-scale-chromatic";
+import { schemeGnBu as scheme } from "d3-scale-chromatic";
 import { getChartData, renameKey, createPalette, seqAlongBy, calculateIncrement } from "../utils/index";
 
 const palette = ref(scheme[6]);
@@ -149,6 +181,7 @@ let loading = ref(true);
 let error = ref(false);
 
 let researchCenters = ref([]);
+let researchCenterAxis = ref({ ticks: [], ymax: null });
 let primaryTumors = ref([]);
 let sampleTypes = ref({});
 let samplingPeriods = ref([]);
@@ -214,7 +247,13 @@ async function getAllData() {
     filters: queryFilters.value.filter,
   });
 
-  renameKey(researchCenters.value, "_sum", "sum");
+  researchCenters.value = researchCenters.value.sort((curr, next) => curr._sum - next._sum).reverse(); 
+  
+  const centerMax = Math.max(...researchCenters.value.map(d => d._sum));
+  const centerStep = calculateIncrement(centerMax);
+  researchCenterAxis.value.ymax = Math.ceil(centerMax / centerStep) * centerStep;
+  researchCenterAxis.value.ticks = seqAlongBy(0, researchCenterAxis.value.ymax, centerStep);
+  
 
   primaryTumors.value = await getChartData({
     labels: "primaryTumor",
@@ -268,6 +307,12 @@ async function getAllData() {
   });
 }
 
+function resetFilters () {
+  selectedFilters.value = {};
+  updateQueryFilters();
+  renderCharts();
+}
+
 function onChartClick(
   data: Object | String,
   attribute: string,
@@ -277,7 +322,7 @@ function onChartClick(
   if (selectedFilters.value[attribute].indexOf(value) === -1) {
     selectedFilters.value[attribute].push(value);
     updateQueryFilters();
-    renderCharts();
+    // renderCharts();
   }
 }
 
