@@ -35,7 +35,7 @@ sonarqube {
 }
 
 tasks.withType(Test) {
-    maxParallelForks = Math.max(2.0,Runtime.runtime.availableProcessors() / 4);
+    maxParallelForks = Runtime.runtime.availableProcessors() / 2;
 }
 
 repositories {
