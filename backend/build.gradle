@@ -90,22 +90,9 @@ subprojects {
         }
     }
 
-
-    if (project.name != "molgenis-emx2-sql") {
-        //so we always first init database
-        test.dependsOn(":backend:molgenis-emx2-sql:test")
-    } else {
-        // molgenis-emx2-nonparallel-tests should not run in parallel (and not depend on itself)
-        if(project.name != "molgenis-emx2-nonparallel-tests" && project.name != "molgenis-emx2-sql") {
-            test.mustRunAfter(":backend:molgenis-emx2-tests:test")
-        }
-        //don't cache database init
-        test.outputs.upToDateWhen { false }
-    }
-
     test {
         jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED")
-        useJUnitPlatform ()
+        useJUnitPlatform()
         failFast true
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"
@@ -118,7 +105,10 @@ subprojects {
             showStandardStreams = false
         }
     }
-    tasks.register('testFast', Test)  {
+
+    test.dependsOn ":backend:initDatabase"
+
+    tasks.register('testFast', Test) {
         jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
         useJUnitPlatform {
             excludeTags "slow"
@@ -135,7 +125,7 @@ subprojects {
             showStandardStreams = false
         }
     }
-    tasks.register('testWindows', Test)  {
+    tasks.register('testWindows', Test) {
         jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
         useJUnitPlatform {
             excludeTags "windowsFail"
@@ -152,6 +142,22 @@ subprojects {
             showStandardStreams = false
         }
     }
+}
+
+project(":backend:molgenis-emx2-nonparallel-tests").test.dependsOn subprojects.findAll { it != project(":backend:molgenis-emx2-nonparallel-tests") }.collect { ":backend:${it.name}:test" }
+
+
+/* task to init database */
+task initDatabase(type: JavaExec, dependsOn: ':backend:molgenis-emx2-sql:compileJava') {
+    main = 'org.molgenis.emx2.sql.InitDatabase'
+    classpath = project("molgenis-emx2-sql").sourceSets.main.runtimeClasspath
+    def outputFile = file("$buildDir/initDatabase.txt")
+    doLast {
+        //for caching purposes
+        outputFile.text = "This is the output of the runMainClass task."
+    }
+    outputs.file(outputFile)
+    outputs.upToDateWhen { outputFile.exists() }
 }
 
 /* generate java test coverage report*/
