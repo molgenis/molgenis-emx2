@@ -1,7 +1,6 @@
 package org.molgenis.emx2.rdf;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.eclipse.rdf4j.model.util.Values.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
@@ -50,12 +49,12 @@ public class RDFService {
   public static final String NAMESPACE_OWL = "http://www.w3.org/2002/07/owl#";
   public static final String NAMESPACE_SIO = "http://semanticscience.org/resource/";
   public static final String NAMESPACE_QB = "http://purl.org/linked-data/cube#";
+  public static final String NAMESPACE_SKOS = "http://www.w3.org/2004/02/skos/core#";
   public static final String NAMESPACE_DCTERMS = "http://purl.org/dc/terms/";
   public static final String NAMESPACE_DCAT = "http://www.w3.org/ns/dcat#";
   public static final String NAMESPACE_FOAF = "http://xmlns.com/foaf/0.1/";
   public static final String NAMESPACE_VCARD = "http://www.w3.org/2006/vcard/ns#";
   public static final String NAMESPACE_ORG = "http://www.w3.org/ns/org#";
-
   public static final IRI IRI_DATABASE_TABLE =
       Values.iri("http://semanticscience.org/resource/SIO_000754");
   public static final IRI IRI_DATASET_CLASS =
@@ -154,6 +153,7 @@ public class RDFService {
       builder.setNamespace("owl", NAMESPACE_OWL);
       builder.setNamespace("sio", NAMESPACE_SIO);
       builder.setNamespace("qb", NAMESPACE_QB);
+      builder.setNamespace("skos", NAMESPACE_SKOS);
       builder.setNamespace("dcterms", NAMESPACE_DCTERMS);
       builder.setNamespace("dcat", NAMESPACE_DCAT);
       builder.setNamespace("foaf", NAMESPACE_FOAF);
@@ -295,6 +295,8 @@ public class RDFService {
       }
     } else if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
       builder.add(subject, RDFS.ISDEFINEDBY, IRI_CONTROLLED_VOCABULARY);
+      builder.add(subject, RDFS.SUBCLASSOF, SKOS.CONCEPT_SCHEME);
+
     } else {
       builder.add(subject, RDFS.ISDEFINEDBY, IRI_OBSERVING);
     }
@@ -425,13 +427,16 @@ public class RDFService {
       if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
         builder.add(subject, RDF.TYPE, IRI_CODED_VALUE_DATATYPE);
         builder.add(subject, RDF.TYPE, OWL.CLASS);
+        builder.add(subject, RDF.TYPE, SKOS.CONCEPT);
         builder.add(subject, RDFS.SUBCLASSOF, tableIRI);
-
+        builder.add(subject, SKOS.IN_SCHEME, tableIRI);
         if (row.getString("name") != null) {
           builder.add(subject, RDFS.LABEL, Values.literal(row.getString("name")));
+          builder.add(subject, SKOS.PREF_LABEL, Values.literal(row.getString("name")));
         }
         if (row.getString("label") != null) {
           builder.add(subject, RDFS.LABEL, Values.literal(row.getString("label")));
+          builder.add(subject, SKOS.ALT_LABEL, Values.literal(row.getString("name")));
         }
         if (row.getString("code") != null) {
           builder.add(subject, SKOS.NOTATION, Values.literal(row.getString("code")));
@@ -441,7 +446,7 @@ public class RDFService {
               subject, IRI_CONTROLLED_VOCABULARY, Values.literal(row.getString("codesystem")));
         }
         if (row.getString("definition") != null) {
-          builder.add(subject, RDFS.ISDEFINEDBY, Values.literal(row.getString("definition")));
+          // builder.add(subject, SKOS.DEFINITION, Values.literal(row.getString("definition")));
         }
         if (row.getString(ONTOLOGY_TERM_URI) != null) {
           builder.add(subject, OWL.SAMEAS, Values.iri(row.getString(ONTOLOGY_TERM_URI)));
@@ -455,6 +460,11 @@ public class RDFService {
       } else {
         builder.add(subject, RDF.TYPE, tableIRI);
         builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
+        if (table.getMetadata().getSemantics() != null) {
+          for (String semantics : table.getMetadata().getSemantics()) {
+            builder.add(subject, RDF.TYPE, semantics);
+          }
+        }
         builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
         builder.add(subject, RDFS.LABEL, Values.literal(getLabelForRow(row, table.getMetadata())));
         // via rowId might be subclass
@@ -470,6 +480,15 @@ public class RDFService {
           }
           IRI columnIRI = getColumnIRI(column);
           for (final Value value : formatValue(row, column)) {
+            if (column.getSemantics() != null) {
+              for (String semantics : column.getSemantics()) {
+                builder.add(subject.stringValue(), semantics, value);
+                //                builder.add(
+                //                    // subject, Values.iri(semantics), value);
+                //                    subject, Values.iri(semantics.split(":")[0],
+                // semantics.split(":")[1]), value);
+              }
+            }
             builder.add(subject, columnIRI, value);
             if (column.getColumnType().equals(ColumnType.HYPERLINK)
                 || column.getColumnType().equals(ColumnType.HYPERLINK_ARRAY)) {

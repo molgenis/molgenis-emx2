@@ -1,25 +1,25 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Version,,,,,,,,,,,,3.12,"DataCatalogue,EMA,SharedStaging,CohortStaging"
-Catalogues,,,,,,,,,,,dcat:Catalog,A collection of resources within a network or consortium or about a common topic,DataCatalogue
+Catalogues,,,,,,,,,,,,A collection of resources within a network or consortium or about a common topic,DataCatalogue
 Catalogues,,network,ref,1,TRUE,,Networks,,,,dcat:catalog,Network or consortium that leads this catalogue,DataCatalogue
 Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,dcat:theme,Type of catalogue,DataCatalogue
 Catalogues,,publisher,ontology,,,CatalogueOntologies,CatalogueTypes,,,,dcat:publisher,Publisher todo should default to molgenis team,DataCatalogue
 Resources,,,,,,,,,,,dcat:Resource,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies","DataCatalogue,EMA,SharedStaging,CohortStaging"
-Organisations,Resources,,,,,,,,,,org:Organization,Research departments and research groups,"DataCatalogue,EMA,SharedStaging"
+Organisations,Resources,,,,,,,,,,"org:Organization,foaf:Agent",Research departments and research groups,"DataCatalogue,EMA,SharedStaging"
 Extended resources,Resources,,,,,,,,,,dcat:Resource,"Generic listing of all extended resources. Should not be used directly, instead use specific types such as Databanks and Cohorts","DataCatalogue,EMA,CohortStaging"
-Models,Extended resources,,,,,,,,,,dcat:Resource,Data models,"DataCatalogue,EMA"
+Models,Extended resources,,,,,,,,,,dcat:Dataset,Data models,"DataCatalogue,EMA"
 Data resources,Extended resources,,,,,,,,,,dcat:Dataset,Resources for data,"DataCatalogue,EMA,CohortStaging"
 Cohorts,Data resources,,,,,,,,,,dcat:Dataset,Group of individuals sharing a defining demographic characteristic,"DataCatalogue,CohortStaging"
 RWE resources,Data resources,,,,,,,,,,dcat:Dataset,Real world data collections,"DataCatalogue,EMA"
 Databanks,RWE resources,,,,,,,,,,dcat:Dataset,"Data collection from real world databases such as health records, registries",DataCatalogue
 Data sources,RWE resources,,,,,,,,,,dcat:Dataset,Collections of multiple data banks covering the same population,"DataCatalogue,EMA"
-Networks,Extended resources,,,,,,,,,,dcat:Resource,Collaborations of multiple institutions,"DataCatalogue,EMA"
-Studies,Extended resources,,,,,,,,,,dcat:Resource,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks","DataCatalogue,EMA"
+Networks,Extended resources,,,,,,,,,,dcat:Catalog,Collaborations of multiple institutions,"DataCatalogue,EMA"
+Studies,Extended resources,,,,,,,,,,dcat:Dataset,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks","DataCatalogue,EMA"
 Resources,,overview,heading,,,,,,,,,General information,"DataCatalogue,CohortStaging"
 Resources,,id,,1,TRUE,,,,,,dcterms:identifier,Internal identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging"
 Resources,,pid,,2,,,,,,,dcterms:identifier,Persistent identifier,"DataCatalogue,EMA,SharedStaging,CohortStaging"
 Resources,,acronym,,,,,,,,,dcterms:identifier,Acronym if applicable,"DataCatalogue,EMA,SharedStaging,CohortStaging"
-Resources,,name,text,3,TRUE,,,,,,dcterms:title,Name used in European projects,"DataCatalogue,EMA,SharedStaging,CohortStaging"
+Resources,,name,text,3,TRUE,,,,,,"dcterms:title,foaf:name",Name used in European projects,"DataCatalogue,EMA,SharedStaging,CohortStaging"
 Data resources,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language","DataCatalogue,CohortStaging"
 Organisations,,type,ontology_array,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?,"DataCatalogue,EMA,SharedStaging"
 Organisations,,type other,text,,,,,,,,,"If type is 'other', a description of type of organisation","DataCatalogue,SharedStaging"
@@ -283,11 +283,11 @@ Subcohorts,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,dcterms:
 Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,dcterms:Location,Geographical regions where data from this subcohort largely originate from,"DataCatalogue,CohortStaging"
 Subcohorts,,inclusion criteria,text,,,,,,,,,Inclusion criteria applied to this subcohort,"DataCatalogue,CohortStaging"
 Subcohorts,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort,"DataCatalogue,CohortStaging"
-Networks,,data sources,ref_array,,,,Data sources,,,,,,"DataCatalogue,EMA"
-Networks,,databanks,ref_array,,,,Databanks,,,,dcterms:hasPart,,DataCatalogue
-Networks,,cohorts,ref_array,,,,Cohorts,,,,dcterms:hasPart,,DataCatalogue
-Networks,,models,ref_array,,,,Models,,,,dcterms:hasPart,The common data model(s) used by this network,DataCatalogue
-Networks,,studies,refback,,,,Studies,,networks,,dcterms:hasPart,,"DataCatalogue,EMA"
+Networks,,data sources,ref_array,,,,Data sources,,,,dcterms:dataset,,"DataCatalogue,EMA"
+Networks,,databanks,ref_array,,,,Databanks,,,,dcterms:dataset,,DataCatalogue
+Networks,,cohorts,ref_array,,,,Cohorts,,,,dcterms:dataset,,DataCatalogue
+Networks,,models,ref_array,,,,Models,,,,dcterms:dataset,The common data model(s) used by this network,DataCatalogue
+Networks,,studies,refback,,,,Studies,,networks,,dcterms:dataset,,"DataCatalogue,EMA"
 Networks,,networks,ref_array,,,,Networks,,,,dcterms:hasPart,The consortia or networks that are involved in this network,DataCatalogue
 Studies,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements,"DataCatalogue,EMA"
 Studies,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only","DataCatalogue,EMA"
