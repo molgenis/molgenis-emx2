@@ -4,4 +4,6 @@ dependencies {
     testImplementation project(':backend:molgenis-emx2-datamodels')
     testImplementation project(':backend:molgenis-emx2-tasks')
     testImplementation project(':backend:molgenis-emx2-graphql')
+
+
 }

@@ -105,7 +105,6 @@ subprojects {
             showStandardStreams = false
         }
     }
-
     test.dependsOn ":backend:initDatabase"
 
     tasks.register('testFast', Test) {
@@ -144,13 +143,13 @@ subprojects {
     }
 }
 
+/* have the non-parallel test package run last*/
 project(":backend:molgenis-emx2-nonparallel-tests").test.dependsOn subprojects.findAll { it != project(":backend:molgenis-emx2-nonparallel-tests") }.collect { ":backend:${it.name}:test" }
-
 
 /* task to init database */
 task initDatabase(type: JavaExec, dependsOn: ':backend:molgenis-emx2-sql:compileJava') {
     main = 'org.molgenis.emx2.sql.InitDatabase'
-    classpath = project("molgenis-emx2-sql").sourceSets.main.runtimeClasspath
+    classpath = project("molgenis-emx2-sql").sourceSets.test.runtimeClasspath
     def outputFile = file("$buildDir/initDatabase.txt")
     doLast {
         //for caching purposes
