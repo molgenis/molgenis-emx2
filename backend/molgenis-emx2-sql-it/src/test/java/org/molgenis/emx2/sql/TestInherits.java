@@ -224,7 +224,7 @@ public class TestInherits {
       // refered to by the manager
       fail("should not be able to delete inherited rows when having reference");
     } catch (Exception e) {
-      assertTrue(e.getMessage().contains("Duplicate key"));
+      assertTrue(e.getMessage().contains("foreign key"));
       System.out.println("Errored correctly: " + e.getMessage());
     }
 
@@ -236,7 +236,7 @@ public class TestInherits {
       // refered to by the manager
       fail("should not be able to delete inherited rows when having reference");
     } catch (Exception e) {
-      assertTrue(e.getMessage().contains("Duplicate key"));
+      assertTrue(e.getMessage().contains("foreign key"));
       System.out.println("Errored correctly: " + e.getMessage());
     }
 
@@ -281,6 +281,23 @@ public class TestInherits {
       assertTrue(e.getMessage().contains("Duplicate key"));
       System.out.println("Errored correctly: " + e.getMessage());
     }
+
+    // try to rename pkey column, should also change the pkey columns of sublcasss
+    person
+        .getMetadata()
+        .alterColumn("fullName", person.getMetadata().getColumn("fullName").setName("displayName"));
+    assertEquals(
+        "displayName",
+        ((SqlSchema) s)
+            .getJooq()
+            .meta()
+            .getSchemas("TestInherits")
+            .get(0)
+            .getTable("Employee")
+            .getPrimaryKey()
+            .getFields()
+            .get(0)
+            .getName());
 
     // can also drop the table without errors when trigger is removed
     ceoTable.getMetadata().drop();

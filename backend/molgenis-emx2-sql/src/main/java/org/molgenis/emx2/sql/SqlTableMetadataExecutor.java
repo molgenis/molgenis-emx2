@@ -252,10 +252,17 @@ class SqlTableMetadataExecutor {
     //                  .map(field -> name(field.getName()).toString())
     //                  .collect(Collectors.joining(","))));
     //    } else {
-    jooq.alterTable(getJooqTable(table))
-        .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[keyFields.size()])))
-        .execute();
-    //    }
+    if (index == 1) {
+      jooq.alterTable(getJooqTable(table))
+          .add(
+              constraint(name(uniqueName))
+                  .primaryKey(keyFields.toArray(new Field[keyFields.size()])))
+          .execute();
+    } else {
+      jooq.alterTable(getJooqTable(table))
+          .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[keyFields.size()])))
+          .execute();
+    }
   }
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {

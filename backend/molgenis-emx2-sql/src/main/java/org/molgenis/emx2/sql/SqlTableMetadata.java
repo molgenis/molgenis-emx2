@@ -178,13 +178,6 @@ class SqlTableMetadata extends TableMetadata {
               + "' is part of inherited table "
               + getInheritName());
     }
-    if (oldColumn.isPrimaryKey()
-        && getColumn(MG_TABLECLASS) != null
-        && (!column.getName().equals(columnName) || !column.isPrimaryKey())) {
-      // if we want to allow renaming then we should also add operation to rename in subclasses
-      throw new MolgenisException(
-          "Cannot rename primary key columns, or remove the pkey, as that is used by sub/superclasses ");
-    }
     getDatabase()
         .tx(
             db ->
