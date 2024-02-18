@@ -151,7 +151,7 @@ class SqlTableMetadataExecutor {
     // create foreign key to parent
     jooq.alterTable(table.getJooqTable())
         .add(
-            constraint(table.getTableName() + "_extends_" + other.getTableName())
+            constraint("fkey_" + table.getTableName() + "_extends_" + other.getTableName())
                 .foreignKey(other.getPrimaryKeyFields())
                 .references(other.getJooqTable(), other.getPrimaryKeyFields())
                 .onUpdateCascade()
