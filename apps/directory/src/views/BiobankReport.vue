@@ -179,7 +179,7 @@ export default {
             this.biobank.withdrawn || !collection.withdrawn
         )
         .map((collection: Record<string, any>) =>
-          getCollectionDetails(collection)
+          getCollectionDetails(collection, this.biobank.withdrawn)
         )
         .sort(
           (
