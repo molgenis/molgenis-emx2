@@ -5,9 +5,10 @@ import { createHtmlPlugin } from "vite-plugin-html";
 import monacoEditorPlugin from "vite-plugin-monaco-editor";
 
 // eslint-disable-next-line no-undef
-const HOST = process.env.MOLGENIS_APPS_HOST || "http://localhost:8080";
+const HOST =
+  process.env.MOLGENIS_APPS_HOST || "https://bbmri-emx2-test.molgeniscloud.org";
 // eslint-disable-next-line no-undef
-const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "DirectoryTest";
+const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "Directory";
 
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
