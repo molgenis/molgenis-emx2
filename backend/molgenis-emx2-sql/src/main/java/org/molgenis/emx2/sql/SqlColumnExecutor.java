@@ -95,6 +95,7 @@ public class SqlColumnExecutor {
     // also apply to subclasses if pkey (using sql otherwise too expensive)
     if (newColumn.isPrimaryKey() && newColumn.getTable().getColumn(MG_TABLECLASS) != null) {
       TableMetadata rootTable = newColumn.getTable();
+      //retrieve using recursive common table expression (CTE): https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-RECURSIVE
       List<Record> tableList =
           jooq
               .fetch(
