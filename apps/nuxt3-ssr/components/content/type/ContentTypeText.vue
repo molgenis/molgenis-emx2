@@ -6,5 +6,5 @@ defineProps<{
 </script>
 
 <template>
-  <p>{{ field.value }}</p>
+  <ContentReadMore :text="field.value" :cutoff="500" />
 </template>

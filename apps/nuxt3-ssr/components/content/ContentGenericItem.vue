@@ -4,6 +4,7 @@ const String = resolveComponent("ContentTypeString");
 const Text = resolveComponent("ContentTypeText");
 const OntologyArray = resolveComponent("ContentTypeOntologyArray");
 const HyperLink = resolveComponent("ContentTypeHyperLink");
+const RefBack = resolveComponent("ContentTypeRefBack");
 
 const { field } = defineProps<{
   field: ISectionField;
@@ -19,6 +20,8 @@ const component = computed(() => {
       return OntologyArray;
     case "HYPERLINK":
       return HyperLink;
+    case "REFBACK":
+      return RefBack;
     default:
       return String;
   }
@@ -28,8 +31,9 @@ const component = computed(() => {
 <template>
   <div class="grid md:grid-cols-3 md:gap-2.5">
     <dt class="flex items-start font-bold text-body-base">
-      <div class="flex items-center gap-1">
-        {{ field.meta?.name }} {{ field.meta?.columnType }}
+      <div class="flex items-center gap-1 capitalize">
+        {{ field.meta?.label }}
+        {{ field.meta?.columnType }}
       </div>
     </dt>
 
