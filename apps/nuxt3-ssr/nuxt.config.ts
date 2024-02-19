@@ -4,6 +4,7 @@ import { defineNuxtConfig } from "nuxt/config";
 export default defineNuxtConfig({
   modules: ["@nuxt/image"],
   devtools: { enabled: true },
+  extends: ["../nuxt-components"],
   runtimeConfig: {
     public: {
       emx2Theme: "",

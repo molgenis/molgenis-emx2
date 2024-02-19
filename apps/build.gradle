@@ -43,7 +43,7 @@ task testJavaScript(type: YarnTask, dependsOn: checkFormat) {
 
 task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
     environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
-    args = ['run', 'nx', 'run-many', '--target=format:write,build,build-showcase', "--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}", '--verbose']
+    args = ['run', 'nx', 'run-many', '--target=format:write,build,build-showcase,build-storybook', "--parallel=${Math.ceil(Runtime.runtime.availableProcessors() / 2)}", '--verbose']
     doLast {
         file("${project.projectDir}").eachDir { dir ->
             if (dir.name == 'molgenis-components' || dir.name == 'molgenis-viz') {
@@ -51,7 +51,13 @@ task buildJavascript(type: YarnTask, dependsOn: testJavaScript) {
                     from dir.path + "/showCase"
                     into "${buildDir}/generated/main/resources/public_html/apps/" + dir.name
                 }
-            } else if (dir.name != ".gradle" && dir.name != 'build' && dir.name != 'node_modules') {
+            } else if (dir.name == 'nuxt-components') {
+                copy {
+                    from dir.path + "/storybook-static"
+                    into "${buildDir}/generated/main/resources/public_html/apps/" + dir.name
+                }
+            }
+            else if (dir.name != ".gradle" && dir.name != 'build' && dir.name != 'node_modules') {
                 println dir.path + "/dist"
                 copy {
                     from dir.name + "/dist"
