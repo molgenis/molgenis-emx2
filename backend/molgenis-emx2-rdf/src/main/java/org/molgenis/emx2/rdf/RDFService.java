@@ -55,6 +55,7 @@ public class RDFService {
   public static final String NAMESPACE_FOAF = "http://xmlns.com/foaf/0.1/";
   public static final String NAMESPACE_VCARD = "http://www.w3.org/2006/vcard/ns#";
   public static final String NAMESPACE_ORG = "http://www.w3.org/ns/org#";
+  public static final String NAMESPACE_FDP = "https://w3id.org/fdp/fdp-o#";
   public static final IRI IRI_DATABASE_TABLE =
       Values.iri("http://semanticscience.org/resource/SIO_000754");
   public static final IRI IRI_DATASET_CLASS =
@@ -159,6 +160,7 @@ public class RDFService {
       builder.setNamespace("foaf", NAMESPACE_FOAF);
       builder.setNamespace("vcard", NAMESPACE_VCARD);
       builder.setNamespace("org", NAMESPACE_ORG);
+      builder.setNamespace("fdp-o", NAMESPACE_ORG);
 
       // Define the schemas at the start of the document.
       for (final Schema schema : schemas) {
