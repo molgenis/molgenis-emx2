@@ -3,6 +3,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   components: [{ path: "./components", prefix: "UI" }],
   css: ['./assets/css/main.css'],
+  vite: {
+    base: "",
+  },
   postcss: {
     plugins: {
       tailwindcss: {},
