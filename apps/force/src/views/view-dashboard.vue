@@ -1,23 +1,15 @@
 <template>
   <Page>
-    <PageHeader title="FORCE Project" subtitle="Search and explore the data" />
-    <PageSection width="large">
-      <h2>Filters</h2>
-      <p>
-        All of charts are interactive and connected. By clicking any of the
-        elements, you can create a new filter, which will update all of the
-        charts. Click on a filter button below to remove it.
-      </p>
-    </PageSection>
     <form class="page-section filters-form">
       <fieldset class="page-section-content width-full filters-container">
-        <div class="filter-context"> 
+        <div class="filter-context">
           <legend>Selected Filters:</legend>
         </div>
-        <div
-          class="filter-buttons"
-        >
-          <template v-for="key in Object.keys(selectedFilters)" v-if="Object.keys(queryFilters.filter).length">
+        <div class="filter-buttons">
+          <template
+            v-for="key in Object.keys(selectedFilters)"
+            v-if="Object.keys(queryFilters.filter).length"
+          >
             <div class="filter-button" v-for="value in selectedFilters[key]">
               <p>{{ value }}</p>
               <button
@@ -32,10 +24,12 @@
         </div>
         <div class="filter-action">
           <button id="resetFilters" @click="resetFilters">
-            <span>Reset</span>
+            <span>Remove all</span>
+            <TrashIcon class="heroicons" />
           </button>
           <button id="runQuery" @click="renderCharts">
-            <span>Update</span>
+            <span>Update Charts</span>
+            <ArrowPathIcon class="heroicons" />
           </button>
         </div>
       </fieldset>
@@ -48,11 +42,11 @@
     <Dashboard>
       <DashboardRow :columns="3">
         <DashboardChart>
-          <LoadingScreen v-if="loading"/>
+          <LoadingScreen v-if="loading" />
           <BarChart
             v-else
             chartId="research-centers-sum"
-            title="Sum of cases by research center"
+            title="Total number of cases by research center"
             :chartData="researchCenters"
             xvar="_sum"
             yvar="researchCenter"
@@ -66,7 +60,7 @@
               top: 10,
               right: 40,
               bottom: 30,
-              left: 100
+              left: 100,
             }"
             :enableClicks="true"
             :enableAnimation="true"
@@ -78,7 +72,7 @@
         <DashboardChart>
           <DataTable
             tableId="primary-tumors-sum"
-            caption="Sum of primary tumors"
+            caption="Total number of primary tumors by type"
             :data="primaryTumors"
             :columnOrder="['primaryTumor', 'sum']"
             :enableRowClicks="true"
@@ -88,7 +82,7 @@
         <DashboardChart>
           <PieChart2
             chartId="sample-type-sum"
-            title="Sum of sample types"
+            title="Total number of samples by type"
             :chartData="sampleTypes"
             :chartColors="sampleTypeColors"
             :chartScale="1"
@@ -96,7 +90,7 @@
             :asDonutChart="true"
             :enableLegendHovering="true"
             :chartMargins="25"
-            legendPosition="top"
+            legendPosition="bottom"
             :valuesArePercents="false"
             :enableClicks="true"
             @slice-clicked="(data: Object) => onChartClick(data, 'sampleType', true)"
@@ -105,11 +99,11 @@
       </DashboardRow>
       <DashboardRow :columns="2">
         <DashboardChart>
-          <LoadingScreen v-if="loading"/>
+          <LoadingScreen v-if="loading" />
           <ColumnChart
             v-else
             chartId="sampling-period-sum"
-            title="Sum of cases by sampling period"
+            title="Total number of cases by sampling period"
             :chartData="samplingPeriods"
             xvar="samplingPeriod"
             yvar="_sum"
@@ -122,7 +116,7 @@
               top: 15,
               right: 10,
               bottom: 30,
-              left: 60
+              left: 60,
             }"
             :enableClicks="true"
             :enableAnimation="true"
@@ -134,10 +128,10 @@
         <DashboardChart>
           <PieChart2
             chartId="sex-sum"
-            title="Sum of sex"
+            title="Number of individuals by sex"
             :chartData="sexCases"
             :chartColors="{
-              Male: palette[2],
+              Male: palette[3],
               Female: palette[5],
             }"
             :chartScale="1"
@@ -145,7 +139,7 @@
             :asDonutChart="true"
             :enableLegendHovering="true"
             :chartMargins="0"
-            legendPosition="bottom"
+            legendPosition="top"
             :valuesArePercents="false"
             :enableClicks="true"
             @slice-clicked="(data) => onChartClick(data, 'sex', true)"
@@ -172,9 +166,19 @@ import {
   ColumnChart,
   LoadingScreen,
 } from "molgenis-viz";
-import { MinusCircleIcon } from "@heroicons/vue/24/outline";
+import {
+  MinusCircleIcon,
+  ArrowPathIcon,
+  TrashIcon,
+} from "@heroicons/vue/24/outline";
 import { schemeGnBu as scheme } from "d3-scale-chromatic";
-import { getChartData, renameKey, createPalette, seqAlongBy, calculateIncrement } from "../utils/index";
+import {
+  getChartData,
+  renameKey,
+  createPalette,
+  seqAlongBy,
+  calculateIncrement,
+} from "../utils/index";
 
 const palette = ref(scheme[6]);
 let loading = ref(true);
@@ -247,13 +251,19 @@ async function getAllData() {
     filters: queryFilters.value.filter,
   });
 
-  researchCenters.value = researchCenters.value.sort((curr, next) => curr._sum - next._sum).reverse(); 
-  
-  const centerMax = Math.max(...researchCenters.value.map(d => d._sum));
+  researchCenters.value = researchCenters.value
+    .sort((curr, next) => curr._sum - next._sum)
+    .reverse();
+
+  const centerMax = Math.max(...researchCenters.value.map((d) => d._sum));
   const centerStep = calculateIncrement(centerMax);
-  researchCenterAxis.value.ymax = Math.ceil(centerMax / centerStep) * centerStep;
-  researchCenterAxis.value.ticks = seqAlongBy(0, researchCenterAxis.value.ymax, centerStep);
-  
+  researchCenterAxis.value.ymax =
+    Math.ceil(centerMax / centerStep) * centerStep;
+  researchCenterAxis.value.ticks = seqAlongBy(
+    0,
+    researchCenterAxis.value.ymax,
+    centerStep
+  );
 
   primaryTumors.value = await getChartData({
     labels: "primaryTumor",
@@ -275,12 +285,12 @@ async function getAllData() {
     values: "_sum",
     filters: queryFilters.value.filter,
   });
-  
-  const maxValue = Math.max(...samplingPeriods.value.map(d => d._sum));
+
+  const maxValue = Math.max(...samplingPeriods.value.map((d) => d._sum));
   const step = calculateIncrement(maxValue);
   const max = Math.ceil(maxValue / step) * step;
-  samplingPeriodAxis.value.ymax = max
-  samplingPeriodAxis.value.ticks = seqAlongBy(0, max, step)
+  samplingPeriodAxis.value.ymax = max;
+  samplingPeriodAxis.value.ticks = seqAlongBy(0, max, step);
 
   const ordering = [
     "<1991",
@@ -307,8 +317,14 @@ async function getAllData() {
   });
 }
 
-function resetFilters () {
-  selectedFilters.value = {};
+function resetFilters() {
+  selectedFilters.value = {
+    researchCenter: [],
+    primaryTumor: [],
+    sampleType: [],
+    samplingPeriod: [],
+    sex: [],
+  };
   updateQueryFilters();
   renderCharts();
 }
@@ -322,19 +338,15 @@ function onChartClick(
   if (selectedFilters.value[attribute].indexOf(value) === -1) {
     selectedFilters.value[attribute].push(value);
     updateQueryFilters();
-    // renderCharts();
   }
 }
 
-function renderCharts () {
+function renderCharts() {
   loading.value = true;
   getAllData()
     .then(() => (loading.value = false))
     .catch((err) => (error.value = err));
-  
 }
 
-onMounted(() => {
-  renderCharts();
-});
+onMounted(() => renderCharts());
 </script>

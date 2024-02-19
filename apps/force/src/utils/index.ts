@@ -185,24 +185,24 @@ export async function getChartData({
  */
 export function calculateIncrement(number: Number) {
   if (number > 1000) {
-    return 1000
+    return 1000;
   }
   if (number > 500 && number <= 1000) {
     return 250;
   }
-  
+
   if (number > 100 && number <= 500) {
     return 100;
   }
-  
+
   if (number > 50 && number <= 100) {
     return 25;
   }
-  
+
   if (number > 10 && number <= 50) {
     return 10;
   }
-  
+
   return 2;
 }
 

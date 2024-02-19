@@ -5,32 +5,31 @@
 }
 
 .dashboard-container {
-  background-color: $gray-100; 
-  
+  background-color: $blue-050;
+
   $gap: 0.75em;
   .dashboard-content {
     gap: $gap;
     padding: 0;
   }
-  
+
   .dashboard-chart-layout {
     gap: $gap;
   }
-  
+
   .dashboard-box {
-    
     .loading-screen {
       width: 100%;
       height: 100%;
-      background-color: $blue-green-050; 
-      
+      background-color: $blue-green-050;
+
       .loading-screen-content {
         .loading-message {
           display: none;
         }
       }
     }
-    
+
     &.chart-overflow {
       padding-top: 0;
       overflow-y: auto;
@@ -103,6 +102,19 @@
         padding: 0.6em 0.4em;
       }
     }
+    &.table-row-highlighting {
+      tbody {
+        tr {
+          &:nth-child(2n) {
+            background-color: $blue-050;
+          }
+
+          &:hover {
+            background-color: hsl(172, 42%, 80%);
+          }
+        }
+      }
+    }
   }
 }
 
@@ -110,7 +122,7 @@
   position: sticky;
   top: 0px;
   padding: 0.5em 1em;
-  background-color: $gray-100;
+  background-color: $blue-050;
   z-index: 2;
 
   .filters-container {
@@ -119,29 +131,33 @@
     justify-content: flex-start;
     align-items: center;
     gap: 1em;
-    
+
     .filter-context {
       legend {
         margin: 0;
         font-size: 1.2rem;
       }
     }
-    
+
     button {
       border: none;
       background: none;
+      display: flex;
+      justify-items: center;
+      align-items: center;
+      gap: 0.25em;
 
       .heroicons {
-        $size: 14pt;
+        $size: 13pt;
         width: $size;
         height: $size;
         margin-top: -3px;
         path {
-          stroke: $blue-500;
+          stroke: currentColor;
         }
       }
     }
-    
+
     .filter-buttons {
       display: flex;
       justify-self: flex-start;
@@ -158,13 +174,19 @@
 
       .filter-button {
         display: flex;
-        justify-content: center;
+        justify-items: center;
         align-items: center;
         color: $blue-900;
-        background-color: $blue-100;
+        background-color: $blue-green-100;
         padding: 0.2em 1em;
         border-radius: 8px;
         font-size: 0.9rem;
+
+        .heroicons {
+          path {
+            stroke: $blue-900;
+          }
+        }
 
         p {
           margin: 0;
@@ -172,29 +194,30 @@
         }
       }
     }
-    
+
     .filter-action {
       display: flex;
       gap: 0.5em;
-      
+
       button {
         padding: 0.4em 0.6em;
         border-radius: 8px;
-        
-        &:hover, &:focus {
+        font-size: 1.1rem;
+
+        &:hover,
+        &:focus {
           filter: brightness(1.3);
         }
       }
     }
-    
+
     #resetFilters {
       background-color: $gray-000;
     }
-    
+
     #runQuery {
-      background-color: $molgenis-blue-800;
+      background-color: $blue-green-900;
       color: $gray-000;
     }
-    
   }
 }
