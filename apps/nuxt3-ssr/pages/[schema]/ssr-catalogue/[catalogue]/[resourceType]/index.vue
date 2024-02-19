@@ -105,7 +105,7 @@ const { data, error } = await useGqlFetch<any, IMgError>(query, {
 });
 
 if (error.value) {
-  throw new Error("Error on cohorts-page data fetch");
+  throw new Error("Error on resourceType card-data fetch");
 }
 
 function buildRecordId(record: any) {
