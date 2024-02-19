@@ -154,7 +154,6 @@ export default {
     // depending on how many lines you wish to break.
     yAxisLineBreaker: {
       type: String,
-      default: null,
     },
 
     // the dataset the plot
@@ -344,17 +343,30 @@ export default {
       this.chartWidth = parent.offsetWidth * 0.95;
     },
     breakYAxisLines() {
-      const separator = this.yAxisLineBreaker;
-      this.svg.selectAll(".chart-axis-y .tick text").call((labels) => {
-        labels.each(function () {
-          var node = d3.select(this);
-          var stringArray = node.text().split(separator);
-          node.text("");
-          stringArray.forEach(function (str) {
-            node.append("tspan").attr("x", 0).attr("dy", "1em").text(str);
-          });
+      const axisTicks = this.svg.selectAll(".chart-axis-y .tick text");
+      if (axisTicks._groups.length) {
+        axisTicks._groups[0].forEach((axisTick) => {
+          const tick = d3.select(axisTick);
+          const words = tick.text().split(this.yAxisLineBreaker);
+          if (words.length > 1) {
+            tick.text("");
+
+            const lineHeight = 1.25;
+            const dy = parseFloat(tick.attr("dy"));
+
+            words.forEach((word, index) => {
+              tick
+                .append("tspan")
+                .style("text-anchor", "end")
+                .attr("x", 0)
+                .attr("y", -this.chartMargins.top)
+                .attr("dx", "-1em")
+                .attr("dy", `${index * lineHeight + dy}em`)
+                .text(word);
+            });
+          }
         });
-      });
+      }
     },
     renderAxes() {
       this.chartArea.select(".chart-axis-x").call(this.chartAxisX);

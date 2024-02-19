@@ -5,7 +5,7 @@
       :verticalPadding="2"
       v-if="!loading && error"
     >
-      <MessageBox>
+      <MessageBox type="error">
         <p>{{ error }}</p>
       </MessageBox>
     </PageSection>
@@ -33,7 +33,8 @@
             :chartData="organisationsByType"
             xvar="count"
             yvar="type"
-            :chartMargins="{ left: 60, top: 10, right: 40, bottom: 60 }"
+            y-axis-line-breaker=" "
+            :chartMargins="{ left: 120, top: 10, right: 40, bottom: 60 }"
             :barPaddingInner="0.25"
             :barPaddingOuter="0.25"
             :enable-clicks="false"
@@ -91,7 +92,7 @@ async function getData() {
     .rollups(
       organisations.value,
       (row) => row.length,
-      (row) => row.organisationType
+      (row) => row.organisationType + " Organisations"
     )
     .map((group) => new Object({ type: group[0], count: group[1] }))
     .sort((a, b) => (a.type < b.type ? -1 : 1));
