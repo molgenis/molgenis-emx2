@@ -241,7 +241,6 @@ export function getCollectionDetails(collection, isBiobankWithdrawn) {
     settingsStore.config.collectionColumns
   );
 
-  console.log(isBiobankWithdrawn, " ", collection);
   if (collection.sub_collections?.length) {
     const filteredSubCollections = isBiobankWithdrawn
       ? collection.sub_collections
