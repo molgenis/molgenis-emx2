@@ -30,7 +30,6 @@ public class QueryIndividuals {
    */
   public static List<IndividualsResultSets> queryIndividuals(
       List<Table> tables, String... filters) {
-    List<IndividualsResultSets> resultSetsList = new ArrayList<>();
 
     StringBuffer concatFilters = new StringBuffer();
     for (String filter : filters) {
@@ -97,6 +96,7 @@ public class QueryIndividuals {
     ObjectMapper mapper = new ObjectMapper();
     Expression jslt = Parser.compileResource("individuals.jslt");
 
+    List<IndividualsResultSets> resultSetsList = new ArrayList<>();
     for (Table table : tables) {
       GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
       ExecutionResult executionResult = grapql.execute(graphqlQuery);
