@@ -20,14 +20,19 @@ def main():
 
     # Load the login details into the environment
     load_dotenv()
-    username = os.environ.get('MG_USERNAME')
-    password = os.environ.get('MG_PASSWORD')
+    # username = os.environ.get('MG_USERNAME')
+    # password = os.environ.get('MG_PASSWORD')
+    token = os.environ.get('MG_TOKEN')
 
-    with StagingMigrator(url='https://emx2.dev.molgenis.org',
-                         staging_area='TestCohort', catalogue='catalogue') as migrator:
-        migrator.signin(username, password)
-        print(migrator.status)
-        migrator.migrate()
+    # with StagingMigrator(url='https://emx2.dev.molgenis.org',
+    #                      staging_area='TestCohort', catalogue='catalogue') as migrator:
+    #     migrator.signin(username, password)
+    #     print(migrator.status)
+    #     migrator.migrate()
+    migrator = StagingMigrator(url='https://ype.molgeniscloud.org', token=token,
+                               staging_area='ABCD', catalogue='catalogue demo')
+    print(migrator.status)
+    migrator.migrate()
 
 
 if __name__ == '__main__':
