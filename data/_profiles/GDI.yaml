@@ -1,0 +1,16 @@
+---
+name: PortalGDI
+description: The FAIR Genomes semantic metadata schema to power reuse of NGS data in research and healthcare.
+
+profileTags:  DCAT,
+              DCAT files add-on,
+              FAIR Genomes,
+              FAIR Genomes metabolomics add-on,
+              Beacon v2,
+              Beacon v2 EMX2 add-on,
+              Beacon v2 Vivify add-on
+
+demoData: _demodata/gdi
+
+# special options
+setViewPermission: anonymous

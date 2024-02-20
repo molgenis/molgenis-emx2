@@ -1,0 +1,3 @@
+key,value
+menu,[{"label":"Home","href":"./gportal","key":"rvhjnx","submenu":[],"role":"Viewer"},{"label":"Tables","href":"tables","role":"Viewer","key":"c8c4mu","submenu":[]},{"label":"Schema","href":"schema","role":"Manager","key":"3n4w4v","submenu":[]},{"label":"Up/Download","href":"updownload","role":"Editor","key":"fsl5lk","submenu":[]},{"label":"Graphql","href":"graphql-playground","role":"Viewer","key":"08ubgq","submenu":[]},{"label":"Settings","href":"settings","role":"Manager","key":"7vtvjq","submenu":[]},{"label":"Help","href":"docs","role":"Viewer","key":"pz7zf8","submenu":[]}]
+REMS_URL,http://localhost:3000
