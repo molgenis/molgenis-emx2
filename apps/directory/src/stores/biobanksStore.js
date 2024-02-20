@@ -52,19 +52,11 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     const collections = biobankCards.value
       .filter((bc) => bc.collections)
       .flatMap((biobank) => biobank.collections);
-    if (!collections.length) return 0;
-    return collections
-      .filter((c) => c.sub_collections)
-      .flatMap((collection) =>
-        collection.sub_collections.filter(
-          (subcollection) => !subcollection.withdrawn
-        )
-      )
-      .filter((subcollection) => {
-        return collections.find((collection) => {
-          return collection.id === subcollection.id;
-        });
-      }).length;
+    const subcollectionCount = collections
+      .flatMap((collection) => collection.sub_collections || [])
+      .filter((subcollection) => !subcollection.withdrawn).length;
+
+    return subcollectionCount;
   });
 
   const biobankCardsCollectionCount = computed(() => {
