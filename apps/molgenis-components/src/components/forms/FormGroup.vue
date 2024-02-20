@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import { isRequired } from "./formUtils/formUtils";
+
 export default {
   name: "FormGroup",
   props: {
@@ -45,9 +47,7 @@ export default {
     },
   },
   methods: {
-    isRequired(required) {
-      return required === "true" || required === "TRUE" || required === true;
-    },
+    isRequired,
     hasDescription(description) {
       return (
         description !== null && description !== undefined && description.length

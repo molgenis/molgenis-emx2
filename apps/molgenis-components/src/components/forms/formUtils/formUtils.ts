@@ -86,13 +86,14 @@ export function isMissingValue(value: any): boolean {
   return value === undefined || value === null || value === "";
 }
 
-export function isRequired(value: any): boolean {
-  return (
-    value.required === "true" ||
-    value.required === true ||
-    value.required === "TRUE" ||
-    value.required === "True"
-  );
+export function isRequired(value: string | boolean): boolean {
+  if (typeof value === "string") {
+    if (value.toLowerCase() === "true") return true;
+    if (value.toLowerCase() === "false") return false;
+  } else {
+    return value;
+  }
+  return false;
 }
 
 function isInValidNumericValue(columnType: string, value: number) {
