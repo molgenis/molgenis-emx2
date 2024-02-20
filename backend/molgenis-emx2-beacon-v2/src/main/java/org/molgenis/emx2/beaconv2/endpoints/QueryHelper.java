@@ -6,10 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.jooq.tools.StringUtils;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Query;
-import org.molgenis.emx2.SelectColumn;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
 // todo: do we still need this if we use retrieveRows?
@@ -24,7 +21,7 @@ public class QueryHelper {
    * @param table
    * @throws Exception
    */
-  public static Query selectColumns(Table table) {
+  public static Query selectColumns(Table table, String... filters) {
     Query query = table.query();
     for (Column column : table.getMetadata().getColumns()) {
       if (column.isOntology() || column.isReference()) {
@@ -47,6 +44,10 @@ public class QueryHelper {
         query.select(s(column.getName()));
       }
     }
+    if (filters != null && filters.length != 0 && filters[0] != null) {
+      query.search(filters);
+    }
+
     return query;
   }
 

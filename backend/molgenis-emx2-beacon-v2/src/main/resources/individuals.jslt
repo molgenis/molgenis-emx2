@@ -11,6 +11,16 @@
            },
            "age": .age_age_iso8601duration
     },
-    "diseaseCausalGenes": .diseaseCausalGenes
+    "diseaseCausalGenes":
+            [for (.diseaseCausalGenes)
+                 {
+                     "id": .codesystem + ":" + .code,
+                     "label": .name
+                 }
+            ],
+    "ethnicity": {
+                 "id": .ethnicity.codesystem + ":" + .code,
+                 "label": .ethnicity.name
+    }
 }
 

@@ -20,8 +20,7 @@ public class IndividualsResponse {
   @JsonIgnore private String idForQuery;
 
   public IndividualsResponse(Request request, List<Table> tables) throws Exception {
-    idForQuery = request.queryParams("id");
-    String idFilter = (idForQuery != null ? "{id: {equals:\"" + idForQuery + "\"}}" : "");
+    String idFilter = request.queryParams("id");
     List<IndividualsResultSets> resultSetsList = queryIndividuals(tables, idFilter);
     this.resultSets = resultSetsList.toArray(new IndividualsResultSets[resultSetsList.size()]);
   }
