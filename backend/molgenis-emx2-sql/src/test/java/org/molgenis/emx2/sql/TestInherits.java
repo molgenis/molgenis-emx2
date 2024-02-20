@@ -61,6 +61,19 @@ public class TestInherits {
     // check that mg_tableclass column doesn't have a default (regression #2936)
     assertNull(employee.getMetadata().getColumn(MG_TABLECLASS).getDefaultValue());
 
+    // check that reference to parent class exists (regression #3144)
+    assertTrue(
+        ((SqlSchema) s)
+            .getJooq()
+            .meta()
+            .getSchemas("TestInherits")
+            .get(0)
+            .getTable("Employee")
+            .getReferences()
+            .get(0)
+            .toString()
+            .contains("references \"TestInherits\".\"Person\""));
+
     Table manager =
         s.create(
             table("Manager")
@@ -204,6 +217,29 @@ public class TestInherits {
             .retrieveRows()
             .size());
 
+    // verify that you can't delete a parent row when having child rows that are refered to,
+    // regression #3144
+    try {
+      employee.delete(row("fullName", "Katrien Duck"));
+      // refered to by the manager
+      fail("should not be able to delete inherited rows when having reference");
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("foreign key"));
+      System.out.println("Errored correctly: " + e.getMessage());
+    }
+
+    // verify that you can't delete a parent row when having child rows that are refered to,
+    // also not via the 'root' table
+    // regression #3144
+    try {
+      person.delete(row("fullName", "Katrien Duck"));
+      // refered to by the manager
+      fail("should not be able to delete inherited rows when having reference");
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("foreign key"));
+      System.out.println("Errored correctly: " + e.getMessage());
+    }
+
     // delete
     ceoTable.delete(managerRow);
     assertEquals(2, personTable.retrieveRows().size());
@@ -245,6 +281,23 @@ public class TestInherits {
       assertTrue(e.getMessage().contains("Duplicate key"));
       System.out.println("Errored correctly: " + e.getMessage());
     }
+
+    // try to rename pkey column, should also change the pkey columns of sublcasss
+    person
+        .getMetadata()
+        .alterColumn("fullName", person.getMetadata().getColumn("fullName").setName("displayName"));
+    assertEquals(
+        "displayName",
+        ((SqlSchema) s)
+            .getJooq()
+            .meta()
+            .getSchemas("TestInherits")
+            .get(0)
+            .getTable("Employee")
+            .getPrimaryKey()
+            .getFields()
+            .get(0)
+            .getName());
 
     // can also drop the table without errors when trigger is removed
     ceoTable.getMetadata().drop();
