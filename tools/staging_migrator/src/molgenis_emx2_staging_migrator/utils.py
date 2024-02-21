@@ -5,15 +5,16 @@ import logging
 from io import BytesIO
 
 import pandas as pd
+import requests
 
-from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import IncorrectSchemaError
+from molgenis_emx2_pyclient.exceptions import NoSuchTableException
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.graphql_queries import Queries
 
 log = logging.getLogger(__name__)
 
 
-def get_cohort_ids(server_url, session, staging_area) -> list | None:
-    """Fetches the id associated with the staging area's cohort."""
+def get_table_pkey_values(server_url: str, session: requests.Session, staging_area: str, table_name: str) -> list | None:
+    """Fetches the primary key values associated with the staging area's table."""
 
     # Query server for cohort id
     query = Queries.Cohorts
@@ -23,22 +24,22 @@ def get_cohort_ids(server_url, session, staging_area) -> list | None:
     response_data = response.json().get('data')
     if response_data is None:
         # Raise new error
-        raise IncorrectSchemaError(f"Table 'Cohorts' not found on schema '{staging_area}'.")
+        raise NoSuchTableException(f"Table '{table_name}' not found on schema '{staging_area}'.")
 
     # Return only if there is exactly one id/cohort in the Cohorts table
-    if "Cohorts" in response_data.keys():
-        if len(response_data['Cohorts']) < 1:
+    if table_name in response_data.keys():
+        if len(response_data[table_name]) < 1:
             log.warning(
-                f'Expected a cohort in staging area "{staging_area}"'
-                f' but found {len(response_data["Cohorts"])}')
+                f"Expected a value in table '{table_name}' in staging area '{staging_area}'"
+                f" but found {len(response_data[table_name])}")
             return None
     else:
         log.warning(
-            f'Expected a single cohort in staging area "{staging_area}"'
-            f' but found none.')
+            f"Expected a single value in table '{table_name}' in staging area '{staging_area}'"
+            f" but found none.")
         return None
 
-    return [cohort['id'] for cohort in response_data['Cohorts']]
+    return [cohort['id'] for cohort in response_data[table_name]]
 
 
 def prepare_pkey(schema: dict, table_name: str, col_id: str | list = None) -> str | list | dict | None:

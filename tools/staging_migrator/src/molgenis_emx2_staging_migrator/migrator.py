@@ -11,7 +11,7 @@ from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException
 
 from molgenis_emx2_pyclient import Client
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator.constants import BASE_DIR
-from tools.staging_migrator.src.molgenis_emx2_staging_migrator.utils import get_cohort_ids, \
+from tools.staging_migrator.src.molgenis_emx2_staging_migrator.utils import get_table_pkey_values, \
     find_cohort_references, construct_delete_query, construct_delete_variables, has_statement_of_consent, \
     process_statement, prepare_pkey
 
@@ -111,7 +111,7 @@ class StagingMigrator(Client):
         # Gather the tables to delete from the target catalogue
         tables_to_delete = find_cohort_references(self._get_schema_metadata(self.catalogue))
 
-        cohort_ids = get_cohort_ids(self.url, self.session, self.staging_area)
+        cohort_ids = get_table_pkey_values(self.url, self.session, self.staging_area, self.table)
         for table_name, ref_col in tables_to_delete.items():
             # Iterate over the tables that reference the core table of the staging area
             # Check if any row matches this core table
