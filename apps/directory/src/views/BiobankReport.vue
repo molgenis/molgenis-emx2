@@ -169,7 +169,7 @@ export default {
         schemaData
       )}<\/script>`;
     },
-    filterAndSortCollectionsData(collections: any) {
+    filterAndSortCollectionsData(collections: Record<string, any>[]) {
       return collections
         .filter(
           (collection: Record<string, any>) => !collection.parent_collection
