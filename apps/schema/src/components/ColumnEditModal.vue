@@ -48,7 +48,6 @@
                   v-model="column.columnType"
                   :options="columnTypes"
                   label="columnType"
-                  @update:modelValue="handleColumnTypeChanged"
                 />
               </div>
               <div
@@ -113,15 +112,15 @@
                 />
               </div>
             </div>
-            <div class="row" v-if="isEditable(column)">
-              <div class="col-4">
+            <div class="row">
+              <div class="col-4" v-if="isEditable(column)">
                 <InputRadio
                   id="column_required_radio"
                   label="required"
                   :options="[true, false, 'condition']"
                   v-model="requiredSelect"
                   description="Will give error unless field is filled in. Is not checked if not visible"
-                  @update:modelValue="handleRequiredSelectChanged"
+                  @update:modelValue="setRequired"
                 />
                 <InputString
                   id="column_required"
@@ -129,15 +128,15 @@
                   v-if="requiredSelect === 'condition'"
                 />
               </div>
-              <div class="col-4">
+              <div class="col-4" v-if="isEditable(column)">
                 <InputBoolean
                   id="column_readonly"
                   v-model="column.readonly"
                   label="isReadonly"
                 />
               </div>
-              <div class="col-4">
-                <InputString
+              <div class="col-4" v-if="isEditable(column)">
+                <InputText
                   id="column_default"
                   v-model="column.defaultValue"
                   label="defaultValue"
@@ -145,7 +144,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-4">
+              <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
                 <InputSelect
                   id="column_key"
                   v-model="column.key"
@@ -182,17 +181,16 @@
                   description="When set only show when javascript expression is !null or !false. Example: other > 5"
                 />
               </div>
-              <div class="col-4" v-if="!requiredSelect">
+              <div class="col-4">
                 <InputText
                   id="column_computed"
                   v-model="column.computed"
                   label="computed"
                   :description="
-                    column.columnType === AUTO_ID
+                    column.columnType == AUTO_ID
                       ? 'Use pattern like \'pre${mg_autoid}post\' to customize prefix/postfix of your auto id'
                       : 'When set only the input will be readonly and value computed using this formula'
                   "
-                  @update:modelValue="handleComputedChanged()"
                 />
               </div>
             </div>
@@ -286,7 +284,7 @@ import {
   RowEdit,
   Spinner,
   deepClone,
-  getRowErrors, // @ts-ignore
+  getRowErrors, //@ts-ignore
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import { addTableIdsLabelsDescription } from "../utils";
@@ -383,7 +381,7 @@ export default {
       //replace column with current changes
       const index = table.columns.findIndex(
         (c: Record<string, any>) =>
-          c.name == this.column?.name || c.name == this.column?.oldName
+          c.name == this.column.name || c.name == this.column.oldName
       );
       // or if new, we add it
       if (index === -1) {
@@ -482,7 +480,9 @@ export default {
       this.reset();
       this.modalVisible = false;
     },
-
+    setRequired() {
+      this.column.required = this.requiredSelect;
+    },
     refLinkCandidates() {
       return this.table.columns
         .filter(
@@ -506,16 +506,16 @@ export default {
         ?.filter((c: Record<string, any>) => c.refTableName === toTable)
         .map((c: Record<string, any>) => c.name);
     },
-    async loadRefSchema(): Promise<any> {
+    async loadRefSchema() {
       this.error = undefined;
       this.loading = true;
       if (this.column.refSchemaName) {
         //todo, don't use client here because we need 'names' not 'ids'
         this.client = Client.newClient(this.column.refSchemaName);
         const schema = await this.client
-          ?.fetchSchemaMetaData()
-          .catch((error: any) => {
-            this.error = error;
+          .fetchSchemaMetaData()
+          .catch((e: any) => {
+            this.error = e;
           });
         this.refSchema = schema;
       } else {
@@ -524,14 +524,16 @@ export default {
       this.loading = false;
     },
     setupRequiredSelect() {
-      if (this.column.required === "true") {
+      if (this.column.required === "true" || this.column.required === true) {
         this.requiredSelect = true;
-      } else if (this.column.required === "false") {
+      } else if (
+        this.column.required === "false" ||
+        this.column.required === false ||
+        this.column.required === undefined
+      ) {
         this.requiredSelect = false;
-      } else if (this.column.required) {
-        this.requiredSelect = "condition";
       } else {
-        this.requiredSelect = false;
+        this.requiredSelect = "condition";
       }
     },
     reset() {
@@ -539,46 +541,24 @@ export default {
       if (this.modelValue) {
         this.column = deepClone(this.modelValue);
       } else {
-        this.column = {
-          table: this.tableName,
-          columnType: "STRING",
-        };
+        this.column = { table: this.tableName, columnType: "STRING" };
       }
       //if reference to external schema
-      if (this.column.refSchema !== undefined) {
+      if (this.column.refSchema != undefined) {
         this.loadRefSchema();
       }
       this.setupRequiredSelect();
       this.modalVisible = false;
     },
     isEditable(column: Record<string, any>) {
-      return !column.computed && column.columnType !== AUTO_ID;
+      return (
+        column.columnType !== "CONSTANT" &&
+        !column.computed &&
+        column.columnType !== AUTO_ID
+      );
     },
     checkForErrors() {
       this.rowErrors = getRowErrors(this.table, this.previewData);
-    },
-    handleComputedChanged() {
-      if (this.column.computed) {
-        this.requiredSelect = false;
-        delete this.column.required;
-        delete this.column.validation;
-        delete this.column.defaultValue;
-      }
-    },
-    handleRequiredSelectChanged() {
-      this.column.required = this.requiredSelect;
-      if (this.requiredSelect) {
-        delete this.column.computed;
-      }
-    },
-    handleColumnTypeChanged(newType: string) {
-      if (newType === AUTO_ID) {
-        this.requiredSelect = false;
-        delete this.column.required;
-        delete this.column.visible;
-        delete this.column.validation;
-        delete this.column.defaultValue;
-      }
     },
   },
   created() {

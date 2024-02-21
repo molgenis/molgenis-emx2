@@ -40,7 +40,7 @@ function getColumnError(
     return undefined;
   }
   if (column.required) {
-    if (column.required === "true") {
+    if (isRequired(column.required)) {
       if (missesValue || isInvalidNumber) {
         return column.label + " is required";
       }
@@ -84,6 +84,16 @@ export function isMissingValue(value: any): boolean {
     return value.some((element) => isMissingValue(element));
   }
   return value === undefined || value === null || value === "";
+}
+
+export function isRequired(value: string | boolean): boolean {
+  if (typeof value === "string") {
+    if (value.toLowerCase() === "true") return true;
+    if (value.toLowerCase() === "false") return false;
+  } else {
+    return value;
+  }
+  return false;
 }
 
 function isInValidNumericValue(columnType: string, value: number) {
@@ -144,16 +154,36 @@ export function executeExpression(
     }
   });
 
+  // A simple client for scripts to use to request data.
+  // Note: don't overuse this, the API call is blocking.
+  let simplePostClient = function (
+    query: string,
+    variables: object,
+    schemaId?: string
+  ) {
+    let xmlHttp = new XMLHttpRequest();
+    xmlHttp.open(
+      "POST",
+      schemaId ? "/" + schemaId + "/graphql" : "graphql",
+      false
+    );
+    xmlHttp.send(
+      `{"query":"${query}", "variables":${JSON.stringify(variables)}}`
+    );
+    return JSON.parse(xmlHttp.responseText).data;
+  };
+
   // FIXME: according to the new Function definition the input here is incorrectly typed
   // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function
   // FIXME: use es2021 instead of es2020 as you need it for replaceAll
   const func = new Function(
+    "simplePostClient",
     //@ts-ignore
     Object.keys(copy),
     //@ts-ignore
-    `return eval('${expression.replaceAll("'", '"')}');`
+    "return eval(`" + expression.replaceAll("`", "\\`") + "`)"
   );
-  return func(...Object.values(copy));
+  return func(simplePostClient, ...Object.values(copy));
 }
 
 function isRefLinkWithoutOverlap(column: IColumn, values: Record<string, any>) {

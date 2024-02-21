@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Constants.MG_DRAFT;
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -399,5 +400,19 @@ public class Row {
   public Row setDraft(boolean isDraft) {
     this.values.put(MG_DRAFT, isDraft);
     return this;
+  }
+
+  public String getSchemaName() {
+    if (getString(MG_TABLECLASS) != null) {
+      return getString(MG_TABLECLASS).split("\\.")[0];
+    }
+    return null;
+  }
+
+  public String getTableName() {
+    if (getString(MG_TABLECLASS) != null) {
+      return getString(MG_TABLECLASS).split("\\.")[1];
+    }
+    return null;
   }
 }

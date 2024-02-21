@@ -2,14 +2,16 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2023-11-28
+# MODIFIED: 2024-01-19
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
 # COMMENTS: Designed to interact with the schema "pet store".
-#           Create a file called '.env' that specify the username and password:
-#           MG_USERNAME = blabla
-#           MG_PASSWORD = blabla123
+#           Create a file called '.env' that states the molgenis token, to get
+#           this token login into the server (UI) as admin. Next, click on
+#           'Hi admin' and under Manage token give the new token a name and
+#           create. Copy this token into .env as described below.
+#           MG_TOKEN = ....
 # ///////////////////////////////////////////////////////////////////////////////
 import asyncio
 import logging
@@ -20,7 +22,7 @@ from dotenv import load_dotenv
 
 from tools.pyclient.src.molgenis_emx2_pyclient import Client
 from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import (NoSuchSchemaException, NoSuchTableException,
-                                                                  GraphQLException)
+                                                                  GraphQLException, PermissionDeniedException)
 
 
 async def main():
@@ -31,13 +33,9 @@ async def main():
 
     # Load the login details into the environment
     load_dotenv()
-    username = os.environ.get('MG_USERNAME')
-    password = os.environ.get('MG_PASSWORD')
-
+    token = os.environ.get('MG_TOKEN')
     # Connect to the server and sign in
-    async with Client('https://emx2.dev.molgenis.org/') as client:
-        client.signin(username, password)
-
+    async with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Check sign in status
         print(client.status)
 
@@ -62,9 +60,7 @@ async def main():
         client.export(schema='catalogue-demo', table='Cohorts', fmt='csv')
 
     # Connect to server with a default schema specified
-    with Client('https://emx2.dev.molgenis.org/', schema='pet store') as client:
-        client.signin(username, password)
-
+    with Client('https://emx2.dev.molgenis.org/', schema='pet store', token=token) as client:
         client.export(fmt='csv')
         client.export(table='Pet', fmt='csv')
         client.export(table='Pet', fmt='xlsx')
@@ -100,67 +96,72 @@ async def main():
         }]
 
         # Import new data
-        client.save_schema(name='pet store', table='Tag', data=new_tags)
-        client.save_schema(name='pet store', table='Pet', data=new_pets)
+        try:
+            client.save_schema(name='pet store', table='Tag', data=new_tags)
+            client.save_schema(name='pet store', table='Pet', data=new_pets)
 
-        # Retrieve records
-        tags_data = client.get(schema='pet store', table='Tag', as_df=True)
-        print(tags_data)
-        pets_data = client.get(schema='pet store', table='Pet', as_df=True)
-        print(pets_data)
+            # Retrieve records
+            tags_data = client.get(schema='pet store', table='Tag', as_df=True)
+            print(tags_data)
+            pets_data = client.get(schema='pet store', table='Pet', as_df=True)
+            print(pets_data)
 
-        # Drop records
-        tags_to_remove = [{'name': row['name']} for row in new_tags if row['name'] == 'canis']
-        client.delete_records(schema='pet store', table='Pet', data=new_pets)
-        client.delete_records(schema='pet store', table='Tag', data=tags_to_remove)
+            # Drop records
+            tags_to_remove = [{'name': row['name']} for row in new_tags if row['name'] == 'canis']
+            client.delete_records(schema='pet store', table='Pet', data=new_pets)
+            client.delete_records(schema='pet store', table='Tag', data=tags_to_remove)
+        except PermissionDeniedException:
+            print(f"Permission denied for importing or deleting data. "
+                  f"Ensure correct authorization.")
 
         # ///////////////////////////////////////
 
         # ~ 1b ~
         # Check import via the `file` parameter
+        try:
+            # Save datasets
+            pd.DataFrame(new_tags).to_csv('demodata/Tag.csv', index=False)
+            pd.DataFrame(new_pets).to_csv('demodata/Pet.csv', index=False)
 
-        # Save datasets
-        pd.DataFrame(new_tags).to_csv('demodata/Tag.csv', index=False)
-        pd.DataFrame(new_pets).to_csv('demodata/Pet.csv', index=False)
+            # Import files
+            client.save_schema(name='pet store', table='Tag', file='demodata/Tag.csv')
+            client.save_schema(name='pet store', table='Pet', file='demodata/Pet.csv')
 
-        # Import files
-        client.save_schema(name='pet store', table='Tag', file='demodata/Tag.csv')
-        client.save_schema(name='pet store', table='Pet', file='demodata/Pet.csv')
-
-        client.delete_records(schema='pet store', table='Pet', file='demodata/Pet.csv')
-        client.delete_records(schema='pet store', table='Tag', file='demodata/Tag.csv')
+            client.delete_records(schema='pet store', table='Pet', file='demodata/Pet.csv')
+            client.delete_records(schema='pet store', table='Tag', file='demodata/Tag.csv')
+        except PermissionDeniedException:
+            print(f"Permission denied for importing or deleting data. "
+                  f"Ensure correct authorization.")
 
     # Connect to server and create, update, and drop schemas
-    with Client('https://emx2.dev.molgenis.org/') as client:
-        client.signin(username, password)
-        
+    with Client('https://emx2.dev.molgenis.org/', token=token) as client:
         # Create a schema
         try:
             client.create_schema(name='myNewSchema')
             print(client.schema_names)
-        except GraphQLException as e:
+        except (GraphQLException, PermissionDeniedException) as e:
             print(e)
-            
+
         # Update the description
         try:
             client.update_schema(name='myNewSchema', description='I forgot the description')
             print(client.schema_names)
             print(client.schemas)
-        except GraphQLException as e:
+        except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
-        
+
         # Recreate the schema: delete and create
         try:
             client.recreate_schema(name='myNewSchema')
             print(client.schema_names)
-        except GraphQLException as e:
+        except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
-        
+
         # Delete the schema
         try:
             client.delete_schema(name='myNewSchema')
             print(client.schema_names)
-        except GraphQLException as e:
+        except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
 
