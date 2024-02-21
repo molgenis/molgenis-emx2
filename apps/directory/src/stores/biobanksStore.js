@@ -65,7 +65,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       .flatMap((biobank) =>
         biobank.collections.filter((collection) => !collection.withdrawn)
       ).length;
-    return totalCount - biobankCardsSubcollectionCount.value;
+    return totalCount;
   });
 
   function getFacetColumnDetails() {
