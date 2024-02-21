@@ -85,7 +85,6 @@ export default {
   },
   methods: {
     loadSettings() {
-      console.log(this.session);
       this.additionalCss = this.session?.settings?.additionalCss;
       if (this.session?.settings?.cssURL) {
         this.logoURL = this.session.settings.logoURL;

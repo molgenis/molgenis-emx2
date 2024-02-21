@@ -143,7 +143,6 @@ export default defineComponent({
             : setting.value;
         this.session.settings[setting.key] = value;
       });
-      console.log("this.session.settings", this.session.settings);
     },
     async reload() {
       this.loading = true;
