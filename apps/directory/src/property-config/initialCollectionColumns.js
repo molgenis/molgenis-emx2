@@ -112,6 +112,8 @@ const initialCollectionColumns = [
       "sub_collections.materials.label",
       "sub_collections.data_categories.label",
       "sub_collections.withdrawn",
+      "collaboration_commercial",
+      "collaboration_non_for_profit",
     ],
   },
 ];

@@ -110,7 +110,6 @@ nav.navbar a.nav-link:hover,
 nav.navbar button.btn:hover {
   color: #ec6707 !important;
 }
-
 nav.navbar button.btn.btn-outline-light:not(.border-0) {
   border-color: #495057 !important;
 }
@@ -118,5 +117,12 @@ nav.navbar button.btn.btn-outline-light:not(.border-0):hover {
   border-color: #ec6707 !important;
   background-color: #ec6707 !important;
   color: #dbedff !important;
+}
+
+.filterbar .dropdown-button {
+  color: #08205c !important;
+}
+.filterbar .dropdown-button:hover {
+  color: white !important;
 }
 </style>
