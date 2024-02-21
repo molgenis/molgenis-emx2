@@ -15,6 +15,7 @@
       />
       {{ primaryColor }}
       <InputString
+        class="mt-3"
         id="theme-url-input"
         label="Set logo url"
         v-model="logoURL"
@@ -27,7 +28,12 @@
 
       <ButtonAction @click="saveSettings">Save theme</ButtonAction>
       <br /><br />
-      <a :href="this.session.settings.cssURL">view theme css</a>
+      <a
+        v-if="this.session.settings.cssURL"
+        :href="this.session.settings.cssURL"
+      >
+        view theme css
+      </a>
     </div>
   </div>
 </template>
